@@ -32,11 +32,11 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltInitialize(){
   //
   if( m_assoTool.retrieve().isFailure()) {
 
-    msg() << MSG::FATAL<< "Failed to retrieve tool " << m_assoTool << endreq;
+    msg() << MSG::FATAL<< "Failed to retrieve tool " << m_assoTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } 
   else{
-    msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endmsg;
   }
 
   // Get output print level
@@ -44,7 +44,7 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltInitialize(){
   m_outputlevel = msg().level()-MSG::DEBUG;
   
   if(m_outputlevel<=0) {
-    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endreq;
+    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endmsg;
   }
   return HLT::OK;
 }
@@ -72,22 +72,22 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltExecute(const HLT::Trigg
     const TrackCollection* tracks        ;
 
     if ( HLT::OK != getFeature(outputTE,tracks,(*col)) ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
       return HLT::NAV_ERROR;
     }
 
     if(!tracks){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input "<< (*col) << " track collection was not attached. Trying another collection." << endreq;
+	msg() << MSG::DEBUG << " Input "<< (*col) << " track collection was not attached. Trying another collection." << endmsg;
       //return HLT::OK;
       continue;
     } 
     else {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input "<< (*col) << " track collection has size " << tracks->size() << endreq;
+	msg() << MSG::DEBUG << " Input "<< (*col) << " track collection has size " << tracks->size() << endmsg;
       if ( tracks->size() == 0 ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input "<< (*col) << " track collection has 0 size. Trying another collection." << endreq;
+	  msg() << MSG::DEBUG << " Input "<< (*col) << " track collection has 0 size. Trying another collection." << endmsg;
 	//return HLT::OK;
 	continue;
       }
@@ -107,7 +107,7 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltExecute(const HLT::Trigg
 // Print common event information
 //
 if(m_outputlevel<=0) {
-  m_nprint=1; msg()<<MSG::DEBUG<<(*this)<<endreq;
+  m_nprint=1; msg()<<MSG::DEBUG<<(*this)<<endmsg;
  }
 
 return HLT::OK;
@@ -147,7 +147,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::InDetTrigTrackPRD_Association::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
