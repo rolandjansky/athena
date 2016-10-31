@@ -991,7 +991,8 @@ bool MdtDigitizationTool::createDigits(){
     
     const TimedHitPtr<MDTSimHit>& phit = *(it->simhit);
     const MDTSimHit& hit(*phit);
-    
+
+
     // check if the hits lies within the TDC time window
     // subtrack the minimum Tof (= globalPosition().mag()/c) from the tof of the hit 
     double relativeTime = driftTime - minimumTof(idDigit);
@@ -1036,14 +1037,17 @@ bool MdtDigitizationTool::createDigits(){
 
       //double orig_localZPos =localZPos;      
       if (m_patchToSaveTruthTime) {
-          // use the fractional digits of localZPos to store global Time
+	// 
+	double globalHitTime(hitTime(phit));    
+	//OLD: double sdo_time = hit.globalTime();
+	// use the fractional digits of localZPos to store global Time
           localZPos = round(localZPos);
           
-          if (fabs(hit.globalTime())<500.0){
+          if (fabs(globalHitTime)<500.0){
               if (localZPos>0){
-                  localZPos += (double)(hit.globalTime()+500.0)*0.001;
+                  localZPos += (double)(globalHitTime+500.0)*0.001;
               } else {
-                  localZPos -= (double)(hit.globalTime()+500.0)*0.001;
+                  localZPos -= (double)(globalHitTime+500.0)*0.001;
               }
           }
       }
