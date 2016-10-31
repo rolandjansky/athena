@@ -51,22 +51,13 @@ TrigConf::HLTJobOptionsSvc::readEnv()
 StatusCode
 TrigConf::HLTJobOptionsSvc::sysInitialize() {
 
-   // problem is that AthService::sysInitialize forbids the setting of the outputLevel in ::initialize
-   // (which is problematic for modifying the HLTJobOptionsSvc)
-   StatusCode sc = base_class::sysInitialize(); 
+   //We specifically do not call the base class sysInitialize here (ATR-15094)
+   //StatusCode sc = base_class::sysInitialize(); 
+   
+   ATH_CHECK(initialize()); 
+   ATH_CHECK(setMyProperties(name(), this));
 
-   if(sc.isSuccess())
-   {
-      // set the message level from the DB
-      vector<const Property*>* ownProperties;
-      m_catalogue.optionsOf( name(), ownProperties);
-      for(const Property * p : *ownProperties) {
-         if(p->name() != "OutputLevel") continue;
-         this->setProperty( "OutputLevel", *p );
-         break;
-      }
-   }
-   return sc;
+   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------------
