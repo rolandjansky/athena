@@ -177,7 +177,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
     return outwork;
   }
 
-  // ________________________ Redirect logs ________________________
+  // ________________________ Redirect logs and add timestamps to them ________________________
   if(redirectLog(counter_rundir.string()))
     return outwork;
 

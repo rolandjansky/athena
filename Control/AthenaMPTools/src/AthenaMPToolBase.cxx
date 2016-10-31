@@ -9,6 +9,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -283,7 +284,7 @@ int AthenaMPToolBase::mapAsyncFlag(Func_Flag flag, pid_t pid)
   return 0;
 }
 
-int AthenaMPToolBase::redirectLog(const std::string& rundir)
+int AthenaMPToolBase::redirectLog(const std::string& rundir, bool addTimeStamp)
 {
   // Redirect both stdout and stderr to the same file AthenaMP.log
   int dup2result1(0), dup2result2(0);
@@ -303,6 +304,44 @@ int AthenaMPToolBase::redirectLog(const std::string& rundir)
   if(dup2result2==-1) {
     ATH_MSG_ERROR("Unable to redirect standard error. " << strerror(errno));
     return -1;
+  }
+
+  if(addTimeStamp) {
+    IMessageSvc* messageSvc(0);
+    StatusCode sc = serviceLocator()->service("MessageSvc",messageSvc);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR( "Error retrieving IMessageSvc" );
+      return -1;
+    }
+    
+    IProperty* propertyServer = dynamic_cast<IProperty*>(messageSvc);
+    if(propertyServer==0) {
+      ATH_MSG_ERROR("Unable to cast message svc to IProperty");
+      return -1;
+    }
+       
+    std::string propertyName("Format");
+    std::string oldFormat("");
+    StringProperty formatProp(propertyName,oldFormat);
+    sc = propertyServer->getProperty(&formatProp);
+    if(sc.isFailure()) {
+      ATH_MSG_WARNING("Message Service does not have Format property");
+    }
+    else {
+      oldFormat = formatProp.value();
+      if(oldFormat.find("%t")==std::string::npos) {
+        // Add time stamps
+	std::string newFormat("%t " + oldFormat);
+	StringProperty newFormatProp(propertyName,newFormat);
+	if(propertyServer->setProperty(newFormatProp).isFailure()) {
+	  ATH_MSG_ERROR("Unable to set new Format property on the Message Service");
+	  return -1;
+	}
+      }
+      else {
+        ATH_MSG_DEBUG("MsgSvc format already contains timestamps. Nothing to be done");
+      }
+    }
   }
 
   return 0;

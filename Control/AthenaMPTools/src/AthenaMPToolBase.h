@@ -64,7 +64,7 @@ class AthenaMPToolBase : public AthAlgTool
   };
 
   int mapAsyncFlag(Func_Flag flag, pid_t pid=0);
-  int redirectLog(const std::string& rundir);
+  int redirectLog(const std::string& rundir, bool addTimeStamp = true);
   int updateIoReg(const std::string& rundir);
   int reopenFds();
   int handleSavedPfc(const boost::filesystem::path& dest_path);

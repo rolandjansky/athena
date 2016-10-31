@@ -7,7 +7,6 @@
 #include "AthenaInterprocess/ProcessGroup.h"
 
 #include "AthenaKernel/IEventSeek.h"
-#include "AthenaKernel/IEventShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
@@ -29,27 +28,27 @@
 
 #include "yampl/SocketFactory.h"
 
-struct ShareEventHeader {
-  long evtSeqNumber;
-  long fileSeqNumber;
-  std::size_t evtSize;
-  std::size_t evtOffset;
-  unsigned int evtCoreStatusFlag;
-  uint32_t evtTerm1;
-  uint32_t evtTerm2;
-};
-
+#include <ctime>
+void getLocalTime(char * buffer)
+{
+  std::time_t rawtime;
+  std::tm* timeinfo;
+  
+  std::time(&rawtime);
+  timeinfo = std::localtime(&rawtime);
+  
+  std::strftime(buffer,80,"%Y-%m-%d %H:%M:%S",timeinfo);
+}
 
 EvtRangeProcessor::EvtRangeProcessor(const std::string& type
-			       , const std::string& name
-			       , const IInterface* parent)
+				     , const std::string& name
+				     , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_isPileup(false)
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
-  , m_evtShare(0)
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
   , m_sharedRankQueue(0)
@@ -57,7 +56,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_socketFactory(0)
   , m_socket2Scatterer(0)
   , m_debug(false)
-  , m_useTokenExtractor(false)
 {
   declareInterface<IAthenaMPTool>(this);
 
@@ -66,7 +64,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   declareProperty("Channel2Scatterer", m_channel2Scatterer);
   declareProperty("Channel2EvtSel", m_channel2EvtSel);
   declareProperty("Debug", m_debug);
-  declareProperty("UseTokenExtractor",m_useTokenExtractor);
 
   m_subprocDirPrefix = "worker_";
 }
@@ -90,19 +87,10 @@ StatusCode EvtRangeProcessor::initialize()
   if(!sc.isSuccess())
     return sc;
 
-  if(m_useTokenExtractor) {
-    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-    if(sc.isFailure() || m_evtShare==0) {
-      ATH_MSG_ERROR("Error retrieving IEventShare");
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
-    if(sc.isFailure() || m_evtSeek==0) {
-      ATH_MSG_ERROR("Error retrieving IEventSeek");
-      return StatusCode::FAILURE;
-    }
+  sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
+  if(sc.isFailure() || m_evtSeek==0) {
+    ATH_MSG_ERROR("Error retrieving IEventSeek");
+    return StatusCode::FAILURE;
   }
   
   sc = m_chronoStatSvc.retrieve();
@@ -161,9 +149,7 @@ StatusCode EvtRangeProcessor::exec()
 {
   ATH_MSG_DEBUG("In exec " << getpid());
 
-  if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
-    return StatusCode::FAILURE;
-  ATH_MSG_INFO("Workers started processing events");
+  // Do nothing here. The exec will be mapped on workers one at a time ...
 
   return StatusCode::SUCCESS;
 }
@@ -186,6 +172,25 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
       return sc;
     }
 
+    if(m_execSet.empty() && m_finQueue.empty()) {
+      // This can happen if
+      // 1. The processes are crashing at bootstrap
+      // 2. The last process crashed after finalization
+      // In both cases we should stop the whole thing
+      return StatusCode::FAILURE;
+    }
+    
+    if(m_execSet.find(pid)==m_execSet.end()
+       && pid!=m_finQueue.front()) {
+      // The process is neither in exec nor in fin. This can happen if
+      // 1. The process dies after finalize
+      // In this case we don't attempt to start new process, but we keep the whole thing alive
+      return StatusCode::SUCCESS;
+      // We can also end up here if a process dies at initialize (restarting process for example) but there are others currently at work
+      // This scenario is currently not handled! It is assumed that the restarted processes don't die at initialization
+      // To Do: find a way of handling this!
+    }
+
     // Send the pid to Range Scatterer
     if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
       ATH_MSG_ERROR("Failed to send the failed PID to Token Scatterer");
@@ -194,18 +199,32 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 
     // If the process failed at finalization, then remove pid from the finQueue
     if(pid==m_finQueue.front()) {
-      ATH_MSG_DEBUG("Removing failed PID=" << pid << " from the finalization queue");
-      m_finQueue.pop();
+      ATH_MSG_INFO("Removing failed PID=" << pid << " from the finalization queue");
+      m_finQueue.pop_front();
+
+      // Schedule finalization of the next process in the queue (if not empty)
+      if(m_finQueue.size()) {
+        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
+	   || m_processGroup->map_async(0,0,m_finQueue.front())) {
+	  ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
+	  return sc;
+	}
+	else  {
+	  ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
+	}
+      }
+    }
+    else {
+      // Try to start a new process
+      if(startProcess().isSuccess()) {
+        ATH_MSG_INFO("Successfully started new process");
+	pid=0;
+      }
+      else {
+        ATH_MSG_WARNING("Failed to start new process");
+      }
     }
 
-    // Try to start a new process
-    if(startProcess().isSuccess()) {
-      ATH_MSG_INFO("Successfully started new process");
-      pid=0;
-    }
-    else
-      ATH_MSG_WARNING("Failed to start new process");
-    
     if(m_processGroup->getChildren().size()) {
       ATH_MSG_INFO("The process group continues with " << m_processGroup->getChildren().size() << " processes");
       return StatusCode::SUCCESS;
@@ -216,8 +235,8 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
     // Pull one result and decode it if necessary
     presult = m_processGroup->pullOneResult();
     int res(0);
-    if(presult && (unsigned)(presult->output.size)>sizeof(int))
-      res = decodeProcessResult(presult,true);
+    if(presult && (unsigned)(presult->output.size)>=sizeof(int))
+      res = decodeProcessResult(presult);
     if(presult) free(presult->output.data);
     delete presult;
     if(res) return StatusCode::FAILURE;
@@ -293,7 +312,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
     return outwork;
   }
 
-  // ________________________ Redirect logs ________________________
+  // ________________________ Redirect logs and add timestamps to them________________________
   if(!m_debug) {
     if(redirectLog(worker_rundir.string()))
       return outwork;
@@ -325,17 +344,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
 
   
-  if(m_useTokenExtractor) {
-    // ________________________ Make Shared RAW Reader Client ________________________
-    if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-      ATH_MSG_ERROR("Failed to make the event selector a share client");
-      return outwork;
-    }
-    else {
-      ATH_MSG_DEBUG("Successfully made the event selector a share client");
-    }
-  }
-
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
     ATH_MSG_ERROR("Failed to reinitialize I/O");
@@ -394,7 +402,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   int nEventsProcessed(0);
 
   bool all_ok(true);
-  long eventNumber(0);
   std::queue<std::string> queueTokens;
 
   // Get the yampl connection channels
@@ -403,12 +410,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   ATH_MSG_INFO("Created CLIENT socket to the Scatterer: " << m_channel2Scatterer.value());
   std::ostringstream pidstr;
   pidstr << getpid();
-  yampl::ISocket* socket2EvtSel(0); 
-  if(m_useTokenExtractor) {
-    std::string socket2EvtSelName = m_channel2EvtSel.value() + std::string("_") + pidstr.str();
-    socket2EvtSel = m_socketFactory->createClientSocket(yampl::Channel(socket2EvtSelName,yampl::LOCAL_PIPE),yampl::COPY_DATA);
-    ATH_MSG_INFO("Created CLIENT socket to the Tool: " << socket2EvtSelName);
-  }
 
   // Get the IncidentSvc
   IIncidentSvc* p_incidentSvc(0);
@@ -422,7 +423,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   void* message2scatterer = malloc(ping.size());
   memcpy(message2scatterer,ping.data(),ping.size());
   m_socket2Scatterer->send(message2scatterer,ping.size());
-  ATH_MSG_INFO("Sent a welcome message to the Scatterer");
+  ATH_MSG_INFO("Sent a welcome message to the Scatterer:" << ping);
 
   while(all_ok) {
     // Get the response - list of tokens - from the scatterer. 
@@ -461,50 +462,65 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
       if(!m_outputFileReport.empty()) {
 	message2scatterer = malloc(m_outputFileReport.size());
 	memcpy(message2scatterer,m_outputFileReport.data(),m_outputFileReport.size());
+	ATH_MSG_INFO("Reporting the output file: " << m_outputFileReport);
 	m_socket2Scatterer->send(message2scatterer,m_outputFileReport.size());
+	ATH_MSG_INFO("Report sent");
 	m_outputFileReport.clear();
       }
     }
 
-    // Pass the tokens over to the Event Selector one at a time
-    while(!queueTokens.empty()) {
-      std::string strToken = queueTokens.front();
+    // Here we need to support two formats of the responseStr
+    // Format 1. RangeID,startEvent,endEvent
+    // Format 2. RangeID,fileName,startEvent,endEvent
+    //
+    // The difference between these two is that for Format 2 we first 
+    // need to update InputCollections property on the Event Selector 
+    // and only after that proceed with seeking
+    //
+    // The seeking part is identical for Format 1 and 2
+
+    // Determine the format
+    bool format2(false);
+    std::string filename("");
+    if(queueTokens.front().find("PFN:")==0) {
+      // We have Format 2
+      format2 = true;
+      // Get the file name
+      filename = queueTokens.front().substr(4);
       queueTokens.pop();
-
-      if(m_useTokenExtractor) {
-	ATH_MSG_INFO("Processing the Token : " << strToken);
-
-	std::size_t num = strToken.size();
-
-	ShareEventHeader evtH;
-	evtH.evtSeqNumber = eventNumber++;
-	evtH.fileSeqNumber = 0;
-	evtH.evtSize = num;
-	evtH.evtOffset = 0;
-	evtH.evtCoreStatusFlag = 0; // ???
-	evtH.evtTerm1 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 1);
-	evtH.evtTerm2 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 2);
-	
-	int messageSize = num+sizeof(evtH);
-	void* message = malloc(messageSize);
-	memcpy(message,(void*)&evtH,sizeof(evtH));
-	memcpy((char*)message+sizeof(evtH),strToken.data(),num);
-	
-	socket2EvtSel->send(message,num+sizeof(evtH));
-	ATH_MSG_INFO("Message sent to the event selector");
+      // Update InputCollections property of the Event Selector
+      if(setNewInputFile(filename).isFailure()) {
+	all_ok=false;
+	break;
       }
-      else {
-	ATH_MSG_INFO("Seeking to event number " << strToken);
-	int evtNumber = std::atoi(strToken.c_str());
-	if(m_evtSeek->seek(evtNumber-1).isFailure()) {
-	  ATH_MSG_ERROR("Unable to seek to " << evtNumber);
-	  all_ok=false;
-	  break;
-	}
-	ATH_MSG_INFO("Seek successfull");
+    }
+      
+    // Get the number of events to process
+    int startEvent = std::atoi(queueTokens.front().c_str());
+    queueTokens.pop();
+    int endEvent = std::atoi(queueTokens.front().c_str());
+    queueTokens.pop();
+    if(format2) {
+      endEvent = endEvent-startEvent+1;
+      startEvent = 1;
+      ATH_MSG_INFO("Range fields. File Name: " << filename
+		   << ", First Event:" << startEvent
+		   << ", Last Event:" << endEvent);
+    }
+    else {
+      ATH_MSG_INFO("Range fields. "
+		   << "First Event:" << startEvent
+		   << ", Last Event:" << endEvent);
+    }
+      
+    // Process the events
+    for(int i(startEvent-1); i<endEvent; ++i) {
+      if(m_evtSeek->seek(i).isFailure()) {
+	ATH_MSG_ERROR("Unable to seek to " << i);
+	all_ok=false;
+	break;
       }
-
-      // Process the event
+      ATH_MSG_INFO("Seek to " << i << " succeeded");
       m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
       StatusCode sc = m_evtProcessor->nextEvent(nEvt++);
       if(sc.isFailure()){
@@ -516,16 +532,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 	nEventsProcessed++;
       }
       m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
-
-      if(m_useTokenExtractor) {
-	// Get the response posted by the event selector
-	char *pong(0); // can be something else
-	socket2EvtSel->recv(pong);
-	ATH_MSG_INFO("Event selector response received from the channel");
-      }
-
       if(!all_ok) break;
-    } // Loop over tokens in the event range
+    }
 
     std::string strOutpFile;
     if(all_ok) {
@@ -565,7 +573,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     message2scatterer = malloc(ping.size());
     memcpy(message2scatterer,ping.data(),ping.size());
     m_socket2Scatterer->send(message2scatterer,ping.size());
-    ATH_MSG_DEBUG("Sent a message to the scatterer: " << ping);
+    ATH_MSG_INFO("Sent a message to the scatterer: " << ping);
   } // Main "event loop"
 
   if(all_ok) {
@@ -591,8 +599,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
   // ...
-
-  delete socket2EvtSel;
 
   return outwork;
 }
@@ -623,6 +629,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   if(!outputFileReport.empty()) {
     void* message2scatterer = malloc(outputFileReport.size());
     memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
+    char buffer [80];
+    getLocalTime(buffer);
+    std::cout << buffer << " Reporting the output file: " << outputFileReport << std::endl;
     socket2Scatterer->send(message2scatterer,outputFileReport.size());
   }
 
@@ -646,49 +655,63 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   return outwork;
 }
 
-int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult, bool doFinalize)
+int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult)
 {
   if(!presult) return 0;
   const AthenaInterprocess::ScheduledWork& output = presult->output;
-  ATH_MSG_DEBUG("Decoding the output of PID=" << presult->pid << " with the size=" << output.size);
-  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) return 0;
+  pid_t childPid = presult->pid;
+  ATH_MSG_DEBUG("Decoding the output of PID=" << childPid << " with the size=" << output.size);
+  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) {
+    // We are dealing with the bootstrap function. TODO: implement error handling here!!
+    if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC,childPid)) {
+      ATH_MSG_ERROR("Problem scheduling execution on PID=" << childPid);
+      return 1;
+    }
+    m_execSet.insert(childPid);
+  }
   
   AthenaMPToolBase::Func_Flag func;
   memcpy(&func,(char*)output.data+sizeof(int),sizeof(func));
 
   if(func==AthenaMPToolBase::FUNC_EXEC) {
+    // Remove pid from the exec container
+    auto it = m_execSet.find(childPid);
+    if(it==m_execSet.end()) {
+      ATH_MSG_ERROR("Unxpected error: Execution of " << childPid << " finished, but PID not found in the stored PID container");
+      return 1;
+    }
+    m_execSet.erase(it);
+
     // Store the number of processed events
     int nevt(0);
     memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
-    m_nProcessedEvents[presult->pid]=nevt;
-    ATH_MSG_DEBUG("PID=" << presult->pid << " processed " << nevt << " events");
+    m_nProcessedEvents[childPid]=nevt;
+    ATH_MSG_INFO("PID=" << childPid << " processed " << nevt << " events");
 
-    if(doFinalize) {
-      // Add PID to the finalization queue
-      m_finQueue.push(presult->pid);
-      ATH_MSG_DEBUG("Added PID=" << presult->pid << " to the finalization queue");
-
-      // If this is the only element in the queue then start its finalization
-      // Otherwise it has to wait its turn until all previous processes have been finalized
-      if(m_finQueue.size()==1) {
-        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,presult->pid)
-           || m_processGroup->map_async(0,0,presult->pid)) {
-          ATH_MSG_ERROR("Problem scheduling finalization on PID=" << presult->pid);
-          return 1;
-        }
-        else {
-          ATH_MSG_DEBUG("Scheduled finalization of PID=" << presult->pid);
-        }
+    // Add PID to the finalization queue
+    m_finQueue.push_back(childPid);
+    ATH_MSG_DEBUG("Added PID=" << childPid << " to the finalization queue");
+    
+    // If this is the only element in the queue then start its finalization
+    // Otherwise it has to wait its turn until all previous processes have been finalized
+    if(m_finQueue.size()==1) {
+      if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,childPid)
+	 || m_processGroup->map_async(0,0,childPid)) {
+	ATH_MSG_ERROR("Problem scheduling finalization on PID=" << childPid);
+	return 1;
+      }
+      else {
+	ATH_MSG_INFO("Scheduled finalization of PID=" << childPid);
       }
     }
   }
-  else if(doFinalize && func==AthenaMPToolBase::FUNC_FIN) {
-    ATH_MSG_DEBUG("Finished finalization of PID=" << presult->pid);
+  else if(func==AthenaMPToolBase::FUNC_FIN) {
+    ATH_MSG_INFO("Finished finalization of PID=" << childPid);
     pid_t pid = m_finQueue.front();
-    if(pid==presult->pid) {
+    if(pid==childPid) {
       // pid received as expected. Remove it from the queue
-      m_finQueue.pop();
-      ATH_MSG_DEBUG("PID=" << presult->pid << " removed from the queue");
+      m_finQueue.pop_front();
+      ATH_MSG_INFO("PID=" << childPid << " removed from the queue");
       // Schedule finalization of the next processe in the queue
       if(m_finQueue.size()) {
         if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
@@ -697,13 +720,13 @@ int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResu
           return 1;
         }
         else  {
-          ATH_MSG_DEBUG("Scheduled finalization of PID=" << m_finQueue.front());
+          ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
         }
       }
     }
     else {
       // Error: unexpected pid received from presult
-      ATH_MSG_ERROR("Finalized PID=" << presult->pid << " while PID=" << pid << " was expected");
+      ATH_MSG_ERROR("Finalized PID=" << childPid << " while PID=" << pid << " was expected");
       return 1;
     }
   }
@@ -716,21 +739,39 @@ StatusCode EvtRangeProcessor::startProcess()
 
   // Create a rank for the new process
   if(!m_sharedRankQueue->send_basic<int>(m_nprocs-1)) {
-    ATH_MSG_WARNING("Unable to send int to the ranks queue!");
+    ATH_MSG_ERROR("Unable to send int to the ranks queue!");
     return StatusCode::FAILURE;
   }
   
   pid_t pid = m_processGroup->launchProcess();
   if(pid==0) {
-    ATH_MSG_WARNING("Unable to start new process");
+    ATH_MSG_ERROR("Unable to start new process");
     return StatusCode::FAILURE;
   }
   
-  if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP,pid)
-     || mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC,pid)) {
-    ATH_MSG_WARNING("Unable to map work on the new process");
+  if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP,pid)) {
+    ATH_MSG_ERROR("Unable to bootstrap new process");
     return StatusCode::FAILURE;
   }
 
  return StatusCode::SUCCESS;
+}
+
+StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)
+{
+  // Get Property Server
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return StatusCode::FAILURE;
+  }
+  
+  std::string propertyName("InputCollections");
+  std::vector<std::string> vect{newFile,};
+  StringArrayProperty newInputFileList(propertyName, vect);
+  if(propertyServer->setProperty(newInputFileList).isFailure()) {
+     ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the Event Selector");
+     return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }
