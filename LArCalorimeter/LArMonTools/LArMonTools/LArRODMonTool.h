@@ -273,7 +273,8 @@ private:
   int m_history_size;
   int m_history_granularity;
   int m_hsize;
-  bool *m_hdone;
+  //bool *m_hdone;
+  std::vector<bool> m_hdone;
 
   bool m_skipKnownProblematicChannels;
   bool m_skipNullPed;

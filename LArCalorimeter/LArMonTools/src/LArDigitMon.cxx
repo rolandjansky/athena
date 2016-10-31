@@ -126,15 +126,15 @@ LArDigitMon::~LArDigitMon()
 StatusCode 
 LArDigitMon::finalize()
 {
-  msg(MSG::INFO)<<"Finalize LArDigitMon" << endreq;
-  DeleteHist(BarrelA);
-  DeleteHist(BarrelC);
-  DeleteHist(EmecA);
-  DeleteHist(EmecC);
-  DeleteHist(HecA);
-  DeleteHist(HecC);
-  DeleteHist(FcalA);
-  DeleteHist(FcalC);
+  msg(MSG::INFO)<<"Finalize LArDigitMon" << endmsg;
+  DeleteHist(m_BarrelA);
+  DeleteHist(m_BarrelC);
+  DeleteHist(m_EmecA);
+  DeleteHist(m_EmecC);
+  DeleteHist(m_HecA);
+  DeleteHist(m_HecC);
+  DeleteHist(m_FcalA);
+  DeleteHist(m_FcalC);
   
   return StatusCode::SUCCESS;
  
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  msg(MSG::INFO)<<"Initialize LArDigitMon" << endreq;
+  msg(MSG::INFO)<<"Initialize LArDigitMon" << endmsg;
   
   StatusCode sc;
   
@@ -156,7 +156,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endreq;
+    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
     return StatusCode::FAILURE;
     
   }
@@ -169,7 +169,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endreq;
+    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endmsg;
     return StatusCode::FAILURE;
     
   }
@@ -178,7 +178,7 @@ LArDigitMon::initialize()
   /** Get LAr Calbling Service*/
   sc=m_LArCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -186,7 +186,7 @@ LArDigitMon::initialize()
   if (m_ignoreKnownBadChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endreq;
+      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -194,7 +194,7 @@ LArDigitMon::initialize()
   /** Retrieve pedestals container*/
   sc =  detStore()->regHandle(m_larPedestal,m_larPedestalKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "could not register handle for pedestal " << endreq;
+    msg(MSG::ERROR) << "could not register handle for pedestal " << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -221,32 +221,32 @@ LArDigitMon::bookHistograms()
     MonGroup GroupBarrelExpert( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
     MonGroup GroupBarrelExpertEff( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED ,"","weightedEff");
     
-    LArDigitMon::BookPartitions(BarrelA,"BarrelA",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
-    LArDigitMon::BookPartitions(BarrelC,"BarrelC",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
+    LArDigitMon::BookPartitions(m_BarrelA,"BarrelA",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
+    LArDigitMon::BookPartitions(m_BarrelC,"BarrelC",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
     
     /**Book Histogram of EMEC*/
     MonGroup GroupEMECShift( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
     MonGroup GroupEMECExpert( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
     MonGroup GroupEMECExpertEff( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(EmecA,"EmecA",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
-    LArDigitMon::BookPartitions(EmecC,"EmecC",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
+    LArDigitMon::BookPartitions(m_EmecA,"EmecA",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
+    LArDigitMon::BookPartitions(m_EmecC,"EmecC",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
     
     /**Book Histogram of HEC*/
     MonGroup GroupHECShift( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
     MonGroup GroupHECExpert( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
     MonGroup GroupHECExpertEff( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(HecA,"HecA",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
-    LArDigitMon::BookPartitions(HecC,"HecC",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
+    LArDigitMon::BookPartitions(m_HecA,"HecA",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
+    LArDigitMon::BookPartitions(m_HecC,"HecC",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
     
     /**Book Histogram of FCAL.*/
     MonGroup GroupFCALShift( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
     MonGroup GroupFCALExpert( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
     MonGroup GroupFCALExpertEff( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(FcalA,"FcalA",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
-    LArDigitMon::BookPartitions(FcalC,"FcalC",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
+    LArDigitMon::BookPartitions(m_FcalA,"FcalA",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
+    LArDigitMon::BookPartitions(m_FcalC,"FcalC",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
     
     
     /**Book summary histo*/
@@ -299,7 +299,7 @@ LArDigitMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endreq;
+    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
     return StatusCode::SUCCESS;
   }
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
@@ -313,7 +313,7 @@ LArDigitMon::fillHistograms()
   //  unsigned long run=0;
   const xAOD::EventInfo* thisEvent;
   if (evtStore()->retrieve(thisEvent).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -330,7 +330,7 @@ LArDigitMon::fillHistograms()
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endreq;
+		      << m_LArDigitContainerKey << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -426,14 +426,14 @@ LArDigitMon::fillHistograms()
     
     /** Now set histos titles, in order that it contains the range*/
     LArDigitMon::HistTitleSum(m_summary);    
-    LArDigitMon::OutHistTitle(BarrelA);
-    LArDigitMon::OutHistTitle(BarrelC); 
-    LArDigitMon::OutHistTitle(EmecA);
-    LArDigitMon::OutHistTitle(EmecC);
-    LArDigitMon::OutHistTitle(HecA);
-    LArDigitMon::OutHistTitle(HecC);    
-    LArDigitMon::OutHistTitle(FcalA);
-    LArDigitMon::OutHistTitle(FcalC);
+    LArDigitMon::OutHistTitle(m_BarrelA);
+    LArDigitMon::OutHistTitle(m_BarrelC); 
+    LArDigitMon::OutHistTitle(m_EmecA);
+    LArDigitMon::OutHistTitle(m_EmecC);
+    LArDigitMon::OutHistTitle(m_HecA);
+    LArDigitMon::OutHistTitle(m_HecC);    
+    LArDigitMon::OutHistTitle(m_FcalA);
+    LArDigitMon::OutHistTitle(m_FcalC);
   }//Range and sample max are known now....
   
   
@@ -512,14 +512,14 @@ LArDigitMon::fillHistograms()
   }/** End of loop on LArDigit*/
   
   // Loop on all partition histograms to renormalise by the number of channels
-  ScalePartition(BarrelA);
-  ScalePartition(BarrelC);
-  ScalePartition(EmecA);
-  ScalePartition(EmecC);
-  ScalePartition(HecA);
-  ScalePartition(HecC);
-  ScalePartition(FcalA);
-  ScalePartition(FcalC);
+  ScalePartition(m_BarrelA);
+  ScalePartition(m_BarrelC);
+  ScalePartition(m_EmecA);
+  ScalePartition(m_EmecC);
+  ScalePartition(m_HecA);
+  ScalePartition(m_HecC);
+  ScalePartition(m_FcalA);
+  ScalePartition(m_FcalC);
   
   return StatusCode::SUCCESS;
 }
@@ -529,26 +529,26 @@ StatusCode LArDigitMon::procHistograms()
 {
   /** Don't do anything*/
   
-  if(endOfRun || endOfEventsBlock)
+  if(endOfRunFlag() || endOfEventsBlockFlag() )
   {
-    FillSumary(BarrelA);
-    FillSumary(BarrelC);
-    FillSumary(EmecA);
-    FillSumary(EmecC);
-    FillSumary(HecA);
-    FillSumary(HecC);
-    FillSumary(FcalA);
-    FillSumary(FcalC);
+    FillSumary(m_BarrelA);
+    FillSumary(m_BarrelC);
+    FillSumary(m_EmecA);
+    FillSumary(m_EmecC);
+    FillSumary(m_HecA);
+    FillSumary(m_HecC);
+    FillSumary(m_FcalA);
+    FillSumary(m_FcalC);
     /** Properly Delete the LW hists*/
-    if(endOfRun){
-      EndOfRun(BarrelA);
-      EndOfRun(BarrelC);
-      EndOfRun(EmecA);
-      EndOfRun(EmecC);
-      EndOfRun(HecA);
-      EndOfRun(HecC);
-      EndOfRun(FcalA);
-      EndOfRun(FcalC);
+    if(endOfRunFlag()){
+      EndOfRun(m_BarrelA);
+      EndOfRun(m_BarrelC);
+      EndOfRun(m_EmecA);
+      EndOfRun(m_EmecC);
+      EndOfRun(m_HecA);
+      EndOfRun(m_HecC);
+      EndOfRun(m_FcalA);
+      EndOfRun(m_FcalC);
     }
     
     return StatusCode::SUCCESS;
@@ -822,29 +822,29 @@ LArDigitMon::partition& LArDigitMon::WhatPartition(HWIdentifier id)
   /** return EM Barrel*/
   if (m_LArOnlineIDHelper->isEmBarrelOnline(id)) 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return BarrelC;
-    else return BarrelA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_BarrelC;
+    else return m_BarrelA;
   }
   
   /** return EM Endcap*/
   else if (m_LArOnlineIDHelper-> isEMECchannel(id))
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return EmecC;
-    else return EmecA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_EmecC;
+    else return m_EmecA;
   }
   
   /** return HEC*/
   else if (m_LArOnlineIDHelper->isHECchannel(id)) 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return HecC;
-    else return HecA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_HecC;
+    else return m_HecA;
   }
   
   /**  return FCAL*/
   else 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return FcalC;
-    else return FcalA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_FcalC;
+    else return m_FcalA;
   }
   
 }

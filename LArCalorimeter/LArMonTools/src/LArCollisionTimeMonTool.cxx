@@ -49,7 +49,7 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
     m_timeCut(5.0),
     m_minCells(2),
     m_eWeighted(true),
-    newrun(true),
+    m_newrun(true),
     //m_bunchGroupTool("BunchGroupTool"),
     m_bunchGroupTool("BunchCrossingTool"),
     m_bcid_init(false)
@@ -66,19 +66,23 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   
   m_eventsCounter = 0;  
   
-  m_LArCollTime_h			= NULL; 
-  m_LArCollTime_lb_h			= NULL;
-  m_LArCollTime_lb_timeCut_h		= NULL;
-  m_LArCollTime_lb_singlebeam_timeCut_h = NULL;
-  m_LArCollTime_vs_LB_h			= NULL; 
-  m_LArCollTime_vs_BCID_h		= NULL;
-  m_LArCollAvgTime_h			= NULL; 
-  m_LArCollAvgTime_vs_LB_h		= NULL; 
+  m_LArCollTime_h			= nullptr; 
+  m_LArCollTime_lb_h			= nullptr;
+  m_LArCollTime_lb_timeCut_h		= nullptr;
+  m_LArCollTime_lb_singlebeam_timeCut_h = nullptr;
+  m_LArCollTime_vs_LB_h			= nullptr; 
+  m_LArCollTime_vs_BCID_h		= nullptr;
+  m_LArCollAvgTime_h			= nullptr; 
+  m_LArCollAvgTime_vs_LB_h		= nullptr; 
+  m_LArCollAvgTime_vs_BCID_h            = nullptr;
+
+  m_nhist=1;
 }
 
 /*---------------------------------------------------------*/
 LArCollisionTimeMonTool::~LArCollisionTimeMonTool()
 {
+  cleanup();
 }
 
 /*---------------------------------------------------------*/
@@ -87,7 +91,7 @@ LArCollisionTimeMonTool::initialize() {
 
   ManagedMonitorToolBase::initialize().ignore();
   CHECK(m_bunchGroupTool.retrieve());
-  msg(MSG::DEBUG) << "Successful Initialize LArCollisionTimeMonTool " << endreq;
+  msg(MSG::DEBUG) << "Successful Initialize LArCollisionTimeMonTool " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -95,6 +99,8 @@ LArCollisionTimeMonTool::initialize() {
 StatusCode 
 LArCollisionTimeMonTool::bookHistograms() {
   
+  cleanup(); //to be sure...
+
   if(m_IsOnline)  m_nhist=2; else m_nhist=1;
   // So far 2 histos, all bcid and inside the train
   m_LArCollTime_h=new TH1F_LW*[m_nhist];
@@ -115,7 +121,7 @@ LArCollisionTimeMonTool::bookHistograms() {
   MonGroup generalGroupShift( this, "/LAr/"+m_histPath+"/", run, ATTRIB_MANAGED);
   MonGroup generalGroupLB( this, "/LAr/"+m_histPath+"/", run, ATTRIB_X_VS_LB, "", "merge");
   //if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
-    newrun=true;
+    m_newrun=true;
     //
     // Create top folder for histos
     //
@@ -214,7 +220,7 @@ LArCollisionTimeMonTool::bookHistograms() {
 StatusCode 
 LArCollisionTimeMonTool::fillHistograms()
 {
-  msg(MSG::DEBUG) << "in fillHists()" << endreq;
+  msg(MSG::DEBUG) << "in fillHists()" << endmsg;
   
   // Increment event counter
   m_eventsCounter++;
@@ -225,7 +231,7 @@ LArCollisionTimeMonTool::fillHistograms()
   unsigned lumi_block        = 0;
   //double event_time_minutes = -1;
   if (evtStore()->retrieve( event_info ).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -236,8 +242,8 @@ LArCollisionTimeMonTool::fillHistograms()
   lumi_block = event_info->lumiBlock();
     
   if(m_bunchGroupTool->bcType(bunch_crossing_id) == Trig::IBunchCrossingTool::Empty) {
-     //msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty, not filling CollTime" <<endreq;
-     msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" <<endreq;
+     //msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty, not filling CollTime" <<endmsg;
+     msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" <<endmsg;
      return StatusCode::SUCCESS; // not filling anything in empty bunches
   }
 
@@ -247,10 +253,10 @@ LArCollisionTimeMonTool::fillHistograms()
   const LArCollisionTime * larTime;
   if(evtStore()->retrieve(larTime,m_key).isFailure())
   {
-    msg(MSG::WARNING) << "Unable to retrieve LArCollisionTime event store" << endreq;
+    msg(MSG::WARNING) << "Unable to retrieve LArCollisionTime event store" << endmsg;
     return StatusCode::SUCCESS; // Check if failure shd be returned. VB
   } else {
-    msg(MSG::DEBUG) << "LArCollisionTime successfully retrieved from event store" << endreq;
+    msg(MSG::DEBUG) << "LArCollisionTime successfully retrieved from event store" << endmsg;
   }
 
   if (larTime and !(event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3))) {// Do not fill histo if noise burst suspected
@@ -270,7 +276,7 @@ LArCollisionTimeMonTool::fillHistograms()
       if ( fabs(m_ECTimeDiff) < 10 ) m_LArCollTime_lb_timeCut_h[0]->Fill(lumi_block);
       if ( fabs(m_ECTimeDiff) > 20 && fabs(m_ECTimeDiff) < 30 ) m_LArCollTime_lb_singlebeam_timeCut_h[0]->Fill(lumi_block);
       if(m_IsOnline && bcid_distance > m_distance) { // fill histos inside the train
-        msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" distance from Front: "<<bcid_distance<<"Filling in train..."<<endreq;    
+        msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" distance from Front: "<<bcid_distance<<"Filling in train..."<<endmsg;    
         m_LArCollTime_h[1]->Fill(m_ECTimeDiff,weight);
         m_LArCollTime_lb_h[1]->Fill(m_ECTimeDiff,weight);
         m_LArCollTime_vs_LB_h[1]->Fill(lumi_block, m_ECTimeDiff,weight);
@@ -291,11 +297,36 @@ LArCollisionTimeMonTool::fillHistograms()
 StatusCode LArCollisionTimeMonTool::procHistograms()
 {
   
-  if(endOfLumiBlock ){
+  if(endOfLumiBlockFlag() ){
     // For online monitoring, reset the histogram after Lumi block finishes
     for(unsigned i=0; i<m_nhist; ++i) m_LArCollTime_lb_h[i]->Reset();
   }
   
-  msg(MSG::DEBUG) << "End of procHistograms " << endreq;
+  msg(MSG::DEBUG) << "End of procHistograms " << endmsg;
   return StatusCode::SUCCESS;
 }
+
+
+void LArCollisionTimeMonTool::cleanup() {
+  //Delete the array of pointers to histograms
+  //The histograms themselves should be owned by THistSvc at this point
+  delete[] m_LArCollTime_h; 
+  m_LArCollTime_h=nullptr;
+  delete[] m_LArCollTime_lb_h;			    
+  m_LArCollTime_lb_h=nullptr;
+  delete[] m_LArCollTime_lb_timeCut_h;		    
+  m_LArCollTime_lb_timeCut_h=nullptr;
+  delete[] m_LArCollTime_lb_singlebeam_timeCut_h;  
+  m_LArCollTime_lb_singlebeam_timeCut_h=nullptr;
+  delete[] m_LArCollTime_vs_LB_h;
+  m_LArCollTime_vs_LB_h=nullptr;
+  delete[] m_LArCollTime_vs_BCID_h;
+  m_LArCollTime_vs_BCID_h=nullptr;
+  delete[] m_LArCollAvgTime_h; 	
+  m_LArCollAvgTime_h=nullptr;
+  delete[] m_LArCollAvgTime_vs_LB_h; 		    
+  m_LArCollAvgTime_vs_LB_h=nullptr;
+  delete[] m_LArCollAvgTime_vs_BCID_h;             
+  m_LArCollAvgTime_vs_BCID_h=nullptr;
+}
+

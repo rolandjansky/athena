@@ -103,7 +103,7 @@ class LArCoverage: public ManagedMonitorToolBase
   void SetBadChannelZaxisLabels(TH2I_LW* h);
 
   // To keep track of known disabled FEBs
-  void FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescrMgr);
+  void FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr);
 
   // To fix empty bins in histos with variable bin size
   void FixEmptyBins();
