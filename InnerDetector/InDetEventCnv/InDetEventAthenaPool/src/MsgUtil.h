@@ -33,8 +33,8 @@ namespace IDEvtAthPool {
 #undef MSG_VERBOSE
 #endif
 #define MSG_DEBUG(log, x) \
-     do { if (log.level()<=MSG::DEBUG) { log << MSG::DEBUG << x << endreq; } } while (0)
+     do { if (log.level()<=MSG::DEBUG) { log << MSG::DEBUG << x << endmsg; } } while (0)
 #define MSG_VERBOSE(log, x) \
-     do { if (log.level()<=MSG::VERBOSE) { log << MSG::VERBOSE << x << endreq; } } while (0)
+     do { if (log.level()<=MSG::VERBOSE) { log << MSG::VERBOSE << x << endmsg; } } while (0)
 
 #endif

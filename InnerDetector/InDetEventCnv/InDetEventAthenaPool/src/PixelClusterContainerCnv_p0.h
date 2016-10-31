@@ -31,7 +31,7 @@ class PixelClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::PixelCl
    throw std::runtime_error("Writing Pixel PRDs in the old format is not supported");
   }
 
-  virtual InDet::PixelClusterContainer* createTransient(const PixelClusterContainer_p0* /*persObj*/, MsgStream& /*log*/)
+  virtual InDet::PixelClusterContainer* createTransient(const PixelClusterContainer_p0* /*persObj*/, MsgStream& /*log*/) override
   { std::abort(); }
   InDet::PixelClusterContainer* createTransient(PixelClusterContainer_p0* persObj, MsgStream& log);
 

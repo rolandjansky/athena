@@ -31,7 +31,7 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
    ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-   log << MSG::INFO << "PixelClusterContainerCnv::initialize()" << endreq;
+   log << MSG::INFO << "PixelClusterContainerCnv::initialize()" << endmsg;
 
    StoreGateSvc *detStore = nullptr;
    CHECK( svcLocator->service("DetectorStore", detStore) );
@@ -68,7 +68,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(Pixel
       if (sc.isSuccess()){
 	 MSG_VERBOSE(log,"PixelClusterContainer successfully added to Container !");
       } else {
-         log << MSG::ERROR << "Failed to add PixelClusterContainer to container" << endreq;
+         log << MSG::ERROR << "Failed to add PixelClusterContainer to container" << endmsg;
          return 0;
       }
    }

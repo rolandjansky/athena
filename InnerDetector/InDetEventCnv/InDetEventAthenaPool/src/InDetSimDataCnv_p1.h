@@ -14,10 +14,10 @@ Author: Davide Costanzo
 #include "InDetEventAthenaPool/InDetSimData_p1.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
 
 class MsgStream;
 class IProxyDict;
-
 
 class InDetSimDataCnv_p1  : public T_AthenaPoolTPCnvBase<InDetSimData, InDetSimData_p1>
 {
@@ -30,6 +30,7 @@ public:
 
 private:
   IProxyDict* m_sg;
+  HepMcParticleLinkCnv_p1 HepMcPLCnv;
 };
 
 

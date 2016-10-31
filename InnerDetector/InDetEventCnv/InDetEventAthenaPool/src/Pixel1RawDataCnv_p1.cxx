@@ -21,7 +21,7 @@ Pixel1RawDataCnv_p1::persToTrans(const InDetRawData_p1* persObj, Pixel1RawData* 
 
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p1 " << endmsg;
         }
     }
 

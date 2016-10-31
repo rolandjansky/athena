@@ -31,7 +31,7 @@ class SCT_ClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::SCT_Clus
    throw std::runtime_error("Writing SCT PRDs in the old format is not supported");
   }
 
-  virtual InDet::SCT_ClusterContainer* createTransient(const SCT_ClusterContainer_p0* /*persObj*/, MsgStream& /*log*/)
+  virtual InDet::SCT_ClusterContainer* createTransient(const SCT_ClusterContainer_p0* /*persObj*/, MsgStream& /*log*/) override
   { std::abort(); }
   InDet::SCT_ClusterContainer* createTransient(SCT_ClusterContainer_p0* persObj, MsgStream& log);
 

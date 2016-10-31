@@ -33,5 +33,5 @@ SCT3_RawDataCnv_p1::persToTrans(const SCT3_RawData_p1* persObj, SCT3_RawData* tr
 void
 SCT3_RawDataCnv_p1::transToPers(const SCT3_RawData*, SCT3_RawData_p1*, MsgStream &log) 
 {
-   log << MSG::ERROR << "SCT3_RawDataCnv_p1::transToPers is deprecated. " << endreq;
+   log << MSG::ERROR << "SCT3_RawDataCnv_p1::transToPers is deprecated. " << endmsg;
 }

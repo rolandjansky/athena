@@ -8,8 +8,7 @@
 // Persistent class and converter header file
 #include "InDetEventAthenaPool/InDetSimData_p1.h"
 #include "InDetSimDataCnv_p1.h"
-#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 
 typedef std::vector<InDetSimData::Deposit>::const_iterator depositIterator;
 
@@ -23,7 +22,6 @@ void
 InDetSimDataCnv_p1::persToTrans(const InDetSimData_p1* persObj, InDetSimData* transObj, MsgStream &log)
 {
    MSG_VERBOSE(log,"InDetSimDataCnv_p1::persToTrans called ");
-   HepMcParticleLinkCnv_p1 HepMcPLCnv;
    HepMcParticleLink mcLink (m_sg);
    std::vector<InDetSimData::Deposit> deposits;
    deposits.reserve( persObj->m_enDeposits.size() );
@@ -40,7 +38,6 @@ void
 InDetSimDataCnv_p1::transToPers(const InDetSimData* transObj, InDetSimData_p1* persObj, MsgStream &log) 
 {
    MSG_VERBOSE(log,"InDetSimDataCnv_p1::transToPers called ");
-   HepMcParticleLinkCnv_p1 HepMcPLCnv;
 
    persObj->m_word = transObj->word();
    const std::vector<InDetSimData::Deposit> &dep(transObj->getdeposits());
@@ -53,7 +50,7 @@ InDetSimDataCnv_p1::transToPers(const InDetSimData* transObj, InDetSimData_p1* p
    }
 }
 
-void InDetSimDataCnv_p1::setCurrentStore (IProxyDictWithPool* store)
+void InDetSimDataCnv_p1::setCurrentStore (IProxyDict* store)
 {
   m_sg = store;
 }

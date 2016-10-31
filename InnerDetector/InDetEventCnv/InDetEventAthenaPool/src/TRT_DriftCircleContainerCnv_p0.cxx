@@ -28,7 +28,7 @@ StatusCode TRT_DriftCircleContainerCnv_p0::initialize(MsgStream &log ) {
 
    ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-   log << MSG::INFO << "TRT_DriftCircleContainerCnv::initialize()" << endreq;
+   log << MSG::INFO << "TRT_DriftCircleContainerCnv::initialize()" << endmsg;
 
    StoreGateSvc *detStore = nullptr;
    CHECK( svcLocator->service("DetectorStore", detStore) );
@@ -64,7 +64,7 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p0::createTransient
       if (sc.isSuccess()){
 	 MSG_VERBOSE(log,"TRT_DriftCircleContainer successfully added to Container !");
       } else {
-         log << MSG::ERROR << "Failed to add TRT_DriftCircleContainer to container" << endreq;
+         log << MSG::ERROR << "Failed to add TRT_DriftCircleContainer to container" << endmsg;
          return 0;
       }
    }

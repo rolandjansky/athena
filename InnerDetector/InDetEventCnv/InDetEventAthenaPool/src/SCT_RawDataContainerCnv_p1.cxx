@@ -106,7 +106,7 @@ void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* per
     // check for the type of the contained objects:
     // 
     if(persCont->m_rawdata.size() !=0 && persCont->m_sct3data.size() != 0) 
-      log << MSG::FATAL << "The collection has mixed SCT1 and SCT3 elements, this is not allowed " << endreq;
+      log << MSG::FATAL << "The collection has mixed SCT1 and SCT3 elements, this is not allowed " << endmsg;
     if(persCont->m_rawdata.size() != 0 ) m_type = 1;
     if(persCont->m_sct3data.size() != 0 ) m_type = 3;
 
