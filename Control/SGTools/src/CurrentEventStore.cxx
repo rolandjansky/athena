@@ -17,7 +17,16 @@
 namespace SG {
 
 
-IProxyDict* CurrentEventStore::m_curStore = nullptr;
+thread_local IProxyDict* CurrentEventStore::m_curStore = nullptr;
+
+
+/**
+ * @brief Fetch the current store (out-of-line version).
+ */
+IProxyDict* CurrentEventStore::storeOol()
+{
+  return m_curStore;
+}
 
 
 /**

@@ -37,7 +37,7 @@ public:
 SG::DataProxy* make_proxy (CLID clid, const std::string& name)
 {
   SG::TransientAddress* tad = new SG::TransientAddress (clid, name);
-  return new SG::DataProxy (tad, (IConversionSvc*)0);
+  return new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
 }
 
 

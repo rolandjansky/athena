@@ -20,7 +20,15 @@ namespace SG {
 inline
 IProxyDict* CurrentEventStore::store()
 {
+  // Accessing a thread-local here is in some cases triggering
+  // an internal error in cling (as of root 6.06.06).
+  // Have cling call an out-of-line function for thread-local access
+  // rather than inlining it.
+#ifdef __CLING__
+  return storeOol();
+#else
   return m_curStore;
+#endif
 }
 
 

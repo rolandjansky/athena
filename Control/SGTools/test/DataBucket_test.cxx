@@ -202,6 +202,7 @@ void test2()
   assert (SG::Storable_cast<X3>(xbucket, false, &trt, false) == 0);
 
   SG::DataBucket<X1>* xb = dynamic_cast<SG::DataBucket<X1>*> (xbucket);
+  if (!xb) std::abort();
   assert (xb->cast (ClassID_traits<X3>::ID(), &trt) == x3);
   assert (xb->cast (typeid(X3), &trt) == x3);
 
@@ -227,6 +228,8 @@ void test3()
 
   DataBucketBase* bb1 = dynamic_cast<DataBucketBase*> (b1);
   DataBucketBase* bb2 = dynamic_cast<DataBucketBase*> (b2);
+  if (!bb1) std::abort();
+  if (!bb2) std::abort();
 
   bb1->lock();
   assert (!xlock->m_locked);

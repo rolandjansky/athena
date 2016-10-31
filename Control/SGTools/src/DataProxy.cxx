@@ -11,7 +11,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/IConverter.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -25,6 +25,49 @@
 using SG::DataProxy;
 using SG::TransientAddress;
 using std::find;
+
+
+namespace SG {
+  typedef IProxyDict** getDataSourcePointerFunc_t (const std::string&);
+  extern getDataSourcePointerFunc_t* getDataSourcePointerFunc;
+
+  class DataProxyHolder
+  {
+  public:
+    static void resetCachedSource();
+  };
+}
+
+namespace {
+
+class PushStore
+{
+public:
+  PushStore (IProxyDict* store)
+  {
+    static std::string storeName = "StoreGateSvc";
+    m_storePtr = (*SG::getDataSourcePointerFunc) (storeName);
+    m_store = *m_storePtr;
+    if (store && store != m_store) {
+      *m_storePtr = store;
+      SG::DataProxyHolder::resetCachedSource();
+    }
+  }
+
+  ~PushStore()
+  {
+    if (*m_storePtr != m_store) {
+      *m_storePtr  = m_store;
+      SG::DataProxyHolder::resetCachedSource();
+    }
+  }
+
+private:
+  IProxyDict** m_storePtr;
+  IProxyDict* m_store;
+};
+
+}
 
 
 namespace {
@@ -61,7 +104,7 @@ DataProxy::DataProxy():
 // DataProxy constructor with Transient Address
 // (typically called from Proxy Provider)
 DataProxy::DataProxy(TransientAddress* tAddr, 
-		     IConversionSvc* svc,
+		     IConverter* svc,
 		     bool constFlag, bool resetOnly):
   m_tAddress(tAddr),
   m_refCount(0),
@@ -268,7 +311,7 @@ std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
   if (0 == m_dataLoader) {
     //MsgStream gLog(m_ims, "DataProxy");
     //gLog << MSG::WARNING
-    //	  << "accessData:  IConversionSvc ptr not set" <<endmsg;
+    //	  << "accessData:  IConverter ptr not set" <<endmsg;
     if (errNo) *errNo=NOCNVSVC;
     return nullptr;
   }

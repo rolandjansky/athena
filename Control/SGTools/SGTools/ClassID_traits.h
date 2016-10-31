@@ -14,9 +14,6 @@
 #include <string>
 #include <typeinfo>
 
-#include <boost/config.hpp>
-#include <boost/type_traits/object_traits.hpp>
-#include <boost/concept_check.hpp>
 #include <boost/static_assert.hpp>
 
 #include "GaudiKernel/ClassID.h"
@@ -26,11 +23,11 @@
 #include "SGTools/CLIDRegistry.h"
 #include "SGTools/ClassName.h"
 
-#include "AthenaKernel/tools/type_tools.h"
 #include "AthenaKernel/tools/AthenaPackageInfo.h"
 #ifndef BOOST_HAS_STATIC_ASSERT
 # include "CxxUtils/unused.h"
 #endif
+#include <type_traits>
 
 
 
@@ -55,12 +52,12 @@ template <>       struct ERROR_you_should_use_the_CLASS_DEF_macro_to_define_CLID
 template <typename T>
 struct ClassID_traits {
   //default only works for DataObjects
-  typedef boost::is_base_and_derived<DataObject, T> isDObj_t; 
+  typedef std::is_base_of<DataObject, T> isDObj_t; 
   ///flags whether T inherits from DataObject
-  BOOST_STATIC_CONSTANT(bool, s_isDataObject = isDObj_t::value); 
+  static const bool s_isDataObject = isDObj_t::value;
 
   //default traits for class ID assignment
-  typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;
+  typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag;
 
   ///the CLID of T
   static const CLID& ID() { 
@@ -87,12 +84,13 @@ struct ClassID_traits {
     return Athena::PackageInfo("Package-00-00-00");
   }
 
-  typedef type_tools::false_tag has_version_tag;
-  BOOST_STATIC_CONSTANT(int, s_version = 0);
+  typedef std::false_type has_version_tag;
+  typedef std::false_type has_classID_tag;
+  static const int s_version = 0;
 
   // Is this is true, these types will automatically be made
   // const when added to StoreGate.
-  BOOST_STATIC_CONSTANT(bool, s_isConst = false);
+  static const bool s_isConst = false;
 };
 
 #undef MY_STATIC_ASSERT

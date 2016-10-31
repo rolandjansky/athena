@@ -15,7 +15,6 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/IProxyRegistry.h"
-#include "CxxUtils/unordered_map.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/StatusCode.h"
 #include <boost/array.hpp>
@@ -27,6 +26,7 @@
 #include <string>
 #include <typeinfo> /*typeid*/
 #include <utility>  /*std::pair*/
+#include <unordered_map>
 
 
 class ISvcLocator;
@@ -162,7 +162,7 @@ namespace SG {
     StoreMap m_storeMap;
 
     /// Map of hashed sgkey -> DataProxy.
-    typedef SG::unordered_map<sgkey_t, DataProxy*> KeyMap_t;
+    typedef std::unordered_map<sgkey_t, DataProxy*> KeyMap_t;
     KeyMap_t m_keyMap;
 
     StoreID::type m_storeID;
