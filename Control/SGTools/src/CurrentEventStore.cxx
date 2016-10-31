@@ -21,6 +21,15 @@ thread_local IProxyDict* CurrentEventStore::m_curStore = nullptr;
 
 
 /**
+ * @brief Fetch the current store (out-of-line version).
+ */
+IProxyDict* CurrentEventStore::storeOol()
+{
+  return m_curStore;
+}
+
+
+/**
  * @brief Set the current store.
  * Returns the previous store.
  */

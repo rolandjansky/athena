@@ -7,10 +7,10 @@
 #ifndef SGTOOLS_T2PMAP_H
 #define SGTOOLS_T2PMAP_H
 
-#include "CxxUtils/unordered_map.h"
 #include "SGTools/ptrhash.h"
 #include <utility>
 #include <vector>
+#include <unordered_map>
 #include "AthenaKernel/IPageAccessControlSvc.h"
 
 namespace SG { 
@@ -21,7 +21,7 @@ class T2pMap {
 
  public:
   
-  typedef SG::unordered_map<const void*, DataProxy*, ptrhash> t2p;
+  typedef std::unordered_map<const void*, DataProxy*, ptrhash> t2p;
 
   // constructor
   T2pMap(IPageAccessControlSvc* pac=0) : m_pac(pac) { };

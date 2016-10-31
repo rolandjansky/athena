@@ -3,7 +3,6 @@
 */
 
 #include "SGTools/CLIDRegistry.h"
-#include "CxxUtils/make_unique.h"
 #include <unordered_map>
 #include <memory>
 /* #include <algorithm> */
@@ -83,9 +82,9 @@ std::unique_ptr<ti_clid_map_t> ti_clid_map;
 void CLIDRegistry::addCLIDMapping (unsigned long clid, const std::type_info& ti)
 {
   if (!clid_ti_map)
-    clid_ti_map = CxxUtils::make_unique<clid_ti_map_t>();
+    clid_ti_map = std::make_unique<clid_ti_map_t>();
   if (!ti_clid_map)
-    ti_clid_map = CxxUtils::make_unique<ti_clid_map_t>();
+    ti_clid_map = std::make_unique<ti_clid_map_t>();
 
   (*clid_ti_map)[clid] = &ti;
   (*ti_clid_map)[&ti] = clid;

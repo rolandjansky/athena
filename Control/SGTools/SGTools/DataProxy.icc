@@ -55,7 +55,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
                 gLog << MSG::WARNING 
                      << "Request for a non-const object via copying conversion; "
                      << "requested CLID = " << dataID 
-                     << ", proxy primary ID is " << proxy->clID() << endreq   ;
+                     << ", proxy primary ID is " << proxy->clID() << endmsg   ;
 #endif
               }
             else {
@@ -69,7 +69,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
           gLog << MSG::WARNING 
                << "Request for an invalid object; requested CLID = " 
                << dataID 
-               << ", proxy primary ID is " << proxy->clID() << endreq   ;
+               << ", proxy primary ID is " << proxy->clID() << endmsg   ;
 #endif
         } //try symlink
       } //result 0
@@ -78,7 +78,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
       MsgStream gLog(Athena::getMessageSvc(), "SG::DataProxy_cast");
       gLog << MSG::WARNING 
            << "this proxy " << MSG::hex << proxy
-           << MSG::dec << " has a NULL data object ptr" << endreq;
+           << MSG::dec << " has a NULL data object ptr" << endmsg;
 #endif
     }
   } else {//	invalid proxy
@@ -88,7 +88,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
     gLog << MSG::WARNING 
          << "this proxy " << MSG::hex << proxy
          << MSG::dec << " [" << proxy->clID() << "/" << proxy->name()
-         << "] is in an invalid state" << endreq;
+         << "] is in an invalid state" << endmsg;
 #endif
 #endif
   }

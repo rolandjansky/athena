@@ -13,7 +13,6 @@
 
 #include "SGTools/StringPool.h"
 #include "SGTools/crc64.h"
-#include "CxxUtils/make_unique.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -159,7 +158,7 @@ void StringPoolImpl::dump() const
  * @brief Constructor.
  */
 StringPool::StringPool()
-  : m_impl (CxxUtils::make_unique<StringPoolImpl>())
+  : m_impl (std::make_unique<StringPoolImpl>())
 {
 }
 
@@ -169,7 +168,7 @@ StringPool::StringPool()
  * @brief other Object from which to copy.
  */
 StringPool::StringPool (const StringPool& other)
-  : m_impl (CxxUtils::make_unique<StringPoolImpl> (*other.m_impl))
+  : m_impl (std::make_unique<StringPoolImpl> (*other.m_impl))
 {
 }
 
@@ -181,7 +180,7 @@ StringPool::StringPool (const StringPool& other)
 StringPool::StringPool (StringPool&& other)
   : m_impl (std::move (other.m_impl))
 {
-  other.m_impl = CxxUtils::make_unique<StringPoolImpl>();
+  other.m_impl = std::make_unique<StringPoolImpl>();
 }
 
 

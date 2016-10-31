@@ -42,6 +42,10 @@ public:
   static IProxyDict* store();
 
 
+  /// Fetch the current store (out-of-line version).
+  static IProxyDict* storeOol();
+
+
   /// Set the current store.
   /// Returns the previous store.
   static IProxyDict* setStore (IProxyDict* store);

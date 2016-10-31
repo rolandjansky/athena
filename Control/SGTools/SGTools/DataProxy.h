@@ -23,7 +23,7 @@
 
 // forward declarations:
 class DataObject;
-class IConversionSvc;
+class IConverter;
 class IResetable;
 class IProxyDict;
 
@@ -53,7 +53,7 @@ namespace SG {
 
     ///build from TransientAddress
     DataProxy(TransientAddress* tAddr, 
-              IConversionSvc* pDataLoader,
+              IConverter* pDataLoader,
               bool constFlag=false, bool resetOnly=true);
 
     ///build from DataObject
@@ -200,7 +200,7 @@ namespace SG {
     /// of the current event store.  (See IResetable.h.)
     void resetBoundHandles (bool hard);
 
-    IConversionSvc* loader() const { return m_dataLoader; }
+    IConverter* loader() const { return m_dataLoader; }
 
   private:
     DataProxy(const DataProxy&);
@@ -211,7 +211,7 @@ namespace SG {
     unsigned long m_refCount;
 
     DataObject* m_dObject;
-    IConversionSvc* m_dataLoader;
+    IConverter* m_dataLoader;
 
     /// Is the proxy currently const?
     bool m_const;
