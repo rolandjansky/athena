@@ -164,6 +164,9 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
 
   m_last_lb = -1;
   m_curr_lb = -1;
+
+  m_calo_description_mgr=nullptr;
+  m_hsize=0;
 }
 
 /*---------------------------------------------------------*/
@@ -287,7 +290,7 @@ LArRODMonTool::initialize() {
    return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Resetting history size: "<<m_hsize);
-  m_hdone=new bool[m_hsize];
+  m_hdone.assign(m_hsize,false);
   return StatusCode::SUCCESS;
 }
 

@@ -74,6 +74,9 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   m_LArCollTime_vs_BCID_h		= nullptr;
   m_LArCollAvgTime_h			= nullptr; 
   m_LArCollAvgTime_vs_LB_h		= nullptr; 
+  m_LArCollAvgTime_vs_BCID_h            = nullptr;
+
+  m_nhist=1;
 }
 
 /*---------------------------------------------------------*/
