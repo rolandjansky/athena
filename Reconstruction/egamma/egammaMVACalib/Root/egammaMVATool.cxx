@@ -451,21 +451,17 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
       m_pt2conv = getPtAtFirstMeasurement( tp1 );
     }
 
-  if(tp0){
+  if (tp0) {
     uint8_t hits;
-    tp0->summaryValue(hits,xAOD::numberOfPixelHits);
-    m_convtrk1nPixHits = hits;
-    tp0->summaryValue(hits,xAOD::numberOfSCTHits);
-    m_convtrk1nSCTHits = hits;
+    if (tp0->summaryValue(hits,xAOD::numberOfPixelHits)) { m_convtrk1nPixHits = hits; }
+    if (tp0->summaryValue(hits,xAOD::numberOfSCTHits)) { m_convtrk1nSCTHits = hits; }
   }
   else { m_convtrk1nPixHits = m_convtrk1nSCTHits = 0; }
 
   if(tp1){
     uint8_t hits;
-    tp1->summaryValue(hits,xAOD::numberOfPixelHits);
-    m_convtrk2nPixHits = hits;
-    tp1->summaryValue(hits,xAOD::numberOfSCTHits);
-    m_convtrk2nSCTHits = hits;
+    if (tp1->summaryValue(hits,xAOD::numberOfPixelHits)) { m_convtrk2nPixHits = hits; }
+    if (tp1->summaryValue(hits,xAOD::numberOfSCTHits)) { m_convtrk2nSCTHits = hits; }
   }
   else { m_convtrk2nPixHits = m_convtrk2nSCTHits = 0; }
 

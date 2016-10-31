@@ -359,34 +359,50 @@ namespace egammaMVATreeHelpers
     inline float ph_zconv() const { return m_vertex ? m_vertex->position().z() : 0.; }
     inline int ph_convtrk1nPixHits() const {
       if (!m_tp0) { return 0; }
-      uint8_t hits;
-      m_tp0->summaryValue(hits, xAOD::numberOfPixelHits);
-      return hits;
+      uint8_t hits = 0;
+      if (m_tp0->summaryValue(hits, xAOD::numberOfPixelHits)) { return hits; }
+      else {
+        static asg::AsgMessaging static_msg("ConversionHelper");
+        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfPixelHits";
+        return 0;
+      }
     }
     inline int ph_convtrk2nPixHits() const {
       if (!m_tp1) return 0;
       uint8_t hits;
-      m_tp1->summaryValue(hits, xAOD::numberOfPixelHits);
-      return hits;
+      if (m_tp1->summaryValue(hits, xAOD::numberOfPixelHits)) { return hits; }
+      else {
+        static asg::AsgMessaging static_msg("ConversionHelper");
+        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfPixelHits";
+        return 0;
+      }
     }
     inline int ph_convtrk1nSCTHits() const {
       if (!m_tp0) { return 0; }
       uint8_t hits;
-      m_tp0->summaryValue(hits, xAOD::numberOfSCTHits);
-      return hits;
+      if (m_tp0->summaryValue(hits, xAOD::numberOfSCTHits)) { return hits; }
+      else {
+        static asg::AsgMessaging static_msg("ConversionHelper");
+        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfSCTHits";
+        return 0;
+      }
     }
     inline int ph_convtrk2nSCTHits() const {
       if (!m_tp1) { return 0; }
       uint8_t hits;
-      m_tp1->summaryValue(hits, xAOD::numberOfSCTHits);
-      return hits;
+      if (m_tp1->summaryValue(hits, xAOD::numberOfSCTHits)) { return hits; }
+      else {
+        static asg::AsgMessaging static_msg("ConversionHelper");
+        static_msg.msg(MSG::WARNING) << "cannot read xAOD::numberOfSCTHits";
+        return 0;
+      }
     }
     inline float ph_pt1conv() const { return m_pt1conv; }
     inline float ph_pt2conv() const { return m_pt2conv; }
-    inline float ph_ptconv() const { 
+    inline float ph_ptconv() const {
       // TODO: evaluate if move to this new definition, by now keep the previous one
       // to be consistent with the training
-      // return m_vertex ? xAOD::EgammaHelpers::momentumAtVertex(*m_vertex).perp() : 0.; 
+      // return m_vertex ? xAOD::EgammaHelpers::momentumAtVertex(*m_vertex).perp() : 0.;
       TLorentzVector sum;
       if (m_tp0) sum += m_tp0->p4();
       if (m_tp1) sum += m_tp1->p4();
