@@ -40,6 +40,6 @@ atlas_add_component( TrigAnalysisTest
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py python/PassedTriggerFilter.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/*.xml share/*py Testing/*.conf bin/RttScriptRunner_TrigAnalysisTest.py bin/CheckLog_TrigAnalysisTest.py bin/LogTail_TrigAnalysisTest.py bin/TruncateLog_TrigAnalysisTest.py python/ValgrindAnalysisScript_TrigAnalysisTest.py python/ValGrindPostScript_TrigAnalysisTest.py bin/checkFileTrigSize_RTT.py )
+atlas_install_runtime( test/*.xml share/*py Testing/*.conf bin/RttScriptRunner_TrigAnalysisTest.py bin/CheckLog_TrigAnalysisTest.py bin/LogTail_TrigAnalysisTest.py bin/TruncateLog_TrigAnalysisTest.py python/ValgrindAnalysisScript_TrigAnalysisTest.py python/ValGrindPostScript_TrigAnalysisTest.py bin/checkFileTrigSize_RTT.py bin/CheckForHLTChainAllZero_TrigAnalysisTest.py bin/CheckForHLTTEAllZero_TrigAnalysisTest.py bin/CheckForL1AllZero_TrigAnalysisTest.py bin/CheckForExpertMonHistZero_TrigAnalysisTest.py )
 atlas_install_scripts( Testing/*.sh bin/*.py )
 

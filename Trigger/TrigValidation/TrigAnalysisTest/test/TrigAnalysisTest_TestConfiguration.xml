@@ -880,6 +880,38 @@
                     </arg>
                     <noalarm />
                 </test>
+		<test position="6">
+		    <modulename>CheckForL1AllZero_TrigAnalysisTest</modulename>
+		    <testname>CheckForL1AllZero_TrigAnalysisTest</testname>
+		    <arg>
+		        <argname>command</argname>
+			<argvalue>if [[ `sed -e 's/.*\s\(.*\)/\1/' -ne '/^[^0$]/p' L1AV.txt  | wc -l` == 0 ]]; then echo "L1 counts   ERROR  : all entries are ZERO, please consult L1AV.txt" ; fi </argvalue>
+		    </arg>
+		</test>
+		<test position="7">
+		    <modulename>CheckForHLTChainAllZero_TrigAnalysisTest</modulename>
+		    <testname>CheckForHLTChainAllZero_TrigAnalysisTest</testname>
+		    <arg>
+		        <argname>command</argname>
+			<argvalue>if [[ `sed -e 's/.*\s\(.*\)/\1/' -ne '/^[^0$]/p' HLTChain.txt  | wc -l` == 0 ]]; then echo "HLT chain counts   ERROR  : all entries are ZERO, please consult HLTChain.txt" ; fi </argvalue>
+		    </arg>
+		</test>
+		<test position="8">
+		    <modulename>CheckForHLTTEAllZero_TrigAnalysisTest</modulename>
+		    <testname>CheckForHLTTEAllZero_TrigAnalysisTest</testname>
+		    <arg>
+		        <argname>command</argname>
+			<argvalue>if [[ `sed -e 's/.*\s\(.*\)/\1/' -ne '/^[^0$]/p' HLTTE.txt  | wc -l` == 0 ]]; then echo "HLT TE counts   ERROR  : all entries are ZERO, please consult HLTTE.txt" ; fi </argvalue>
+		    </arg>
+		</test>
+		<test position="9">
+		    <modulename>CheckForExpertMonHistZero_TrigAnalysisTest</modulename>
+		    <testname>CheckForExpertMonHistZero_TrigAnalysisTest</testname>
+		    <arg>
+		        <argname>command</argname>
+			<argvalue>monHistoChecker.py --path / | awk '{ if ($2==0){print "expert-monitoring.root check   ERROR  : monHistoChecker.py: integral of "$1" equals zero"} }' </argvalue>
+		    </arg>
+		</test>
                 
                 <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
