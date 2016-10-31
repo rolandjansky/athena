@@ -70,27 +70,27 @@ InDet::TRT_TrigSeededTrackFinder::TRT_TrigSeededTrackFinder (const std::string& 
 
 HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
 
-  msg() << MSG::INFO << "Initializing TRT_TrigSeededTrackFinder" << endreq;
+  msg() << MSG::INFO << "Initializing TRT_TrigSeededTrackFinder" << endmsg;
 
    //Get the TRT seeded track maker tool
   //
   if(m_trackmaker.retrieve().isFailure()) {
-    msg() << MSG::FATAL << "Could not get " << m_trackmaker << endreq; 
+    msg() << MSG::FATAL << "Could not get " << m_trackmaker << endmsg; 
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
   else{
-    msg() << MSG::INFO << "Got track maker tool " << m_trackmaker << endreq;
+    msg() << MSG::INFO << "Got track maker tool " << m_trackmaker << endmsg;
   }
 
   //Get the refitting tool
   //
   if(m_doRefit){
     if(m_fitterTool.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Could not get " << m_fitterTool << endreq; 
+      msg() << MSG::FATAL << "Could not get " << m_fitterTool << endmsg; 
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Got refitting tool " << m_fitterTool << endreq;
+      msg() << MSG::INFO << "Got refitting tool " << m_fitterTool << endmsg;
     }
   }
   
@@ -98,11 +98,11 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
   //
   if(m_doExtension){
     if( m_trtExtension.retrieve().isFailure()) {
-      msg() << MSG::FATAL<< "Could not get " << m_trtExtension << endreq; 
+      msg() << MSG::FATAL<< "Could not get " << m_trtExtension << endmsg; 
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else {
-      msg() << MSG::INFO << "Retrieved tool " << m_trtExtension << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_trtExtension << endmsg;
     }
   }
   
@@ -111,13 +111,13 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
     if ( m_regionSelector.retrieve().isFailure() ) {
       msg() << MSG::FATAL
 	    << "Unable to retrieve RegionSelector tool "
-	    << m_regionSelector.type() << endreq;
+	    << m_regionSelector.type() << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
   }
   else{
     msg() << MSG::INFO
-	  << "RegionSelector not initialized due to FullScan mode. " << endreq;
+	  << "RegionSelector not initialized due to FullScan mode. " << endmsg;
   }
   
   // Initialize timers:
@@ -126,7 +126,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
   // Get output print level
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg() << MSG::DEBUG << (*this) << endreq;
+    m_nprint=0; msg() << MSG::DEBUG << (*this) << endmsg;
   }
 
   //Global counters. See the include file for definitions
@@ -147,32 +147,32 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 
   ///Retrieve segments from HLT navigation
   if ( HLT::OK != getFeature(outputTE, m_Segments) ) {
-    msg() << MSG::ERROR << " Input TRT segments collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input TRT segments collection could not be found " << endmsg;
 
     return HLT::NAV_ERROR;
   }
 
   if(m_Segments->size()==0){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input TRT segments collection has 0 size. Algorithm not executed!" << endreq;
+      msg() << MSG::DEBUG << " Input TRT segments collection has 0 size. Algorithm not executed!" << endmsg;
     
     return HLT::OK; 
   }
 
   m_nTrtSeg = int(m_Segments->size());
-  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "REGTEST: TRT track container size " << m_nTrtSeg << endreq;
+  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "REGTEST: TRT track container size " << m_nTrtSeg << endmsg;
 
   // Get RoiDescriptor
   const TrigRoiDescriptor* roi;
   if(!m_doFullScan){ //roi descriptor not needed for FullScan
     if ( ( HLT::OK != getFeature(outputTE, roi) ) || !roi ) {
-      msg() << MSG::WARNING << "Can't get RoI" << endreq;
+      msg() << MSG::WARNING << "Can't get RoI" << endmsg;
       return HLT::NAV_ERROR;
     }
     
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
-      msg() << MSG::DEBUG << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth <<endreq;
+      msg() << MSG::DEBUG << "REGTEST:" << *roi << endmsg;
+      msg() << MSG::DEBUG << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth <<endmsg;
     }
     m_RoIEta = roi->eta();
     m_RoIPhi = roi->phi();
@@ -192,14 +192,14 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 				    listOfSCTIds );
     
     m_nDetElSCT = listOfSCTIds.size();
-    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of SCT detector elements:" << m_nDetElSCT << endreq;
+    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of SCT detector elements:" << m_nDetElSCT << endmsg;
  
     // pixels hash id's:
     m_regionSelector->DetHashIDList( PIXEL,
 				     *roi, 
 				     listOfPixIds);
     m_nDetElPixel = listOfPixIds.size();
-    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of Pixel detector elements:" << m_nDetElPixel << endreq;
+    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of Pixel detector elements:" << m_nDetElPixel << endmsg;
     
     if(doTiming()) m_timerRegSel->stop();
   }
@@ -212,7 +212,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
     m_trackmaker->newEvent(); // FullScan mode
   }
 
-  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endreq;
+  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endmsg;
   
   Trk::SegmentCollection::const_iterator iseg = m_Segments->begin();
   Trk::SegmentCollection::const_iterator isegEnd = m_Segments->end();
@@ -224,23 +224,23 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
     ///Get the track segment
     const Trk::TrackSegment *trackTRT = dynamic_cast<const Trk::TrackSegment*>(*iseg);
     if(!trackTRT){
-      msg() << MSG::ERROR << "No pointer to segment !" << endreq;
+      msg() << MSG::ERROR << "No pointer to segment !" << endmsg;
       continue;
     }
     else{
     
       ///Get the number of the TRT track segment ROTs
-      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endreq;
+      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endmsg;
       if(trackTRT->numberOfMeasurementBases()>9){  //Ask for at least 10 TRT hits in order to process
         m_nTrtSegGood++;
         std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*trackTRT); //Get the possible Si extensions
       
 	if(trackSi.size()==0){
-	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "No Si track candidates associated to the TRT track " << endreq;
+	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "No Si track candidates associated to the TRT track " << endmsg;
           if(m_saveTRT && trackTRT->numberOfMeasurementBases()>15){	
 	    ///Transform the original TRT segment into a track	
 	    Trk::Track* trtSeg = 0;trtSeg = segToTrack(*trackTRT);	
-	    if(!trtSeg){ if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endreq;continue;}
+	    if(!trtSeg){ if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endmsg;continue;}
 	    m_nBckTrk++; m_nBckTrkTrt++;
 	    outTracks->push_back(trtSeg);
 	  }    
@@ -248,7 +248,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	}
 	else{
 	  ///Add the track to the list of tracks in the event
-	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Found " << (trackSi.size()) << " Si tracks associated to the TRT track " << endreq;
+	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Found " << (trackSi.size()) << " Si tracks associated to the TRT track " << endmsg;
 
 	  ///Merge the resolved Si extensions with the original TRT track segment
 	  std::list<Trk::Track*>::const_iterator itt    = trackSi.begin();
@@ -278,17 +278,17 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	    if(int(temptsos->size())<4 || !m_doExtension) globalTrackNew = mergeSegments(**itt,*trackTRT);
 
 	    if(!globalTrackNew){
-	      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to merge TRT+Si track segment!Return the original TRT segment only" << endreq;
+	      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to merge TRT+Si track segment!Return the original TRT segment only" << endmsg;
 	      
 	      if(m_saveTRT && trackTRT->numberOfMeasurementBases()>15){
 	  	Trk::Track* trtSeg = 0;trtSeg = segToTrack(*trackTRT);
-		if(!trtSeg){ if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to make a track out of the  TRT segment!" << endreq;continue;}
+		if(!trtSeg){ if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to make a track out of the  TRT segment!" << endmsg;continue;}
 		m_nBckTrk++; m_nBckTrkTrt++;
 		outTracks->push_back(trtSeg);
 	      }
 	    }
 	    else {
-	      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Save merged TRT+Si track segment!" << endreq;
+	      if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Save merged TRT+Si track segment!" << endmsg;
 	      m_nBckTrk++; m_nBckTrkSi++;
 	      outTracks->push_back(globalTrackNew);
 	    }
@@ -296,7 +296,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	}
       }
       else{
-	if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Found segment with few TRT ROTs " << (*trackTRT) << endreq;
+	if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Found segment with few TRT ROTs " << (*trackTRT) << endmsg;
       }
     }
   }
@@ -306,24 +306,24 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
   m_nTrtSegTotal += m_nTrtSeg; m_nTrtSegGoodTotal += m_nTrtSegGood; 
   m_nBckTrkTotal += m_nBckTrk; m_nBckTrkSiTotal += m_nBckTrkSi; m_nBckTrkTrtTotal += m_nBckTrkTrt; 
 
-  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endreq;
+  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endmsg;
 
   //  Attach resolved tracks to the trigger element.
   if ( HLT::OK !=  attachFeature(outputTE, outTracks, "TRTSeededTracks") ) {
-    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
 
     delete outTracks;
     return HLT::NAV_ERROR;
   }
 
   if(outputLevel <= MSG::DEBUG){
-    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-    msg() << MSG::DEBUG << "REGTEST: Container size :" << outTracks->size() << endreq;
+    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Container size :" << outTracks->size() << endmsg;
   }    
 
   //Print common event information
   if(m_outputlevel<=0){
-    m_nprint=1; msg() << MSG::DEBUG << (*this) << endreq;
+    m_nprint=1; msg() << MSG::DEBUG << (*this) << endmsg;
   }
 
   return HLT::OK;
@@ -334,7 +334,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 ///////////////////////////////////////////////////////////////////
 HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltFinalize() {
 
-  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endreq;
+  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endmsg;
 
   return HLT::OK;
 }
@@ -345,7 +345,8 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltFinalize() {
 MsgStream&  InDet::TRT_TrigSeededTrackFinder::dump( MsgStream& out ) const {
 
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -451,7 +452,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::mergeSegments(const Trk::Track& tT
     //test if it is a pseudo measurement
     if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) ) {
       if (siHits<4) {
-	if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Too few Si hits.Will keep pseudomeasurement..." << endreq;
+	if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Too few Si hits.Will keep pseudomeasurement..." << endmsg;
 	//Get the track segment information and build the initial track parameters
 	const AmgVector(5)& p = tS.localParameters();
 	AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(tS.localCovariance());
@@ -464,7 +465,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::mergeSegments(const Trk::Track& tT
 											  p[Trk::theta],
 											  p[Trk::qOverP],cov);
 	if(!segPar){
-	  if(outputLevel <= MSG::DEBUG) msg() << MSG::WARNING << "Could not get TRT Segment Parameters for pseudomeasurement TSOS.Dropping pseudomeasurement..." << endreq;
+	  if(outputLevel <= MSG::DEBUG) msg() << MSG::WARNING << "Could not get TRT Segment Parameters for pseudomeasurement TSOS.Dropping pseudomeasurement..." << endmsg;
 	  continue;
 	}
 	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern; 
@@ -493,7 +494,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::mergeSegments(const Trk::Track& tT
   if(m_doRefit){ 
     Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
     delete newTrack;
-    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT+Si track segment failed!" << endreq;return 0;}
+    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT+Si track segment failed!" << endmsg;return 0;}
     
     //Protect for tracks that have no really defined locz and theta parameters
     const Trk::Perigee* perTrack = fitTrack->perigeeParameters();
@@ -514,7 +515,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::segToTrack(const Trk::TrackSegment
 
   int outputLevel = msgLvl();
   
-  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Transforming the TRT segment into a track..." << endreq;
+  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Transforming the TRT segment into a track..." << endmsg;
   
   DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
   
@@ -530,10 +531,10 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::segToTrack(const Trk::TrackSegment
 										    p[Trk::theta],
 										    p[Trk::qOverP],cov);
   if(segPar){
-    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Initial TRT Segment Parameters for refitting " << (*segPar) << endreq;
+    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;
   }
   else{
-    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Could not get initial TRT segment parameters! " << endreq;
+    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Could not get initial TRT segment parameters! " << endmsg;
     return 0;
   }
 
@@ -559,7 +560,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::segToTrack(const Trk::TrackSegment
   if(m_doRefit){
     Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
     delete newTrack; // cleanup
-    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT track segment failed!" << endreq;return 0;}
+    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT track segment failed!" << endmsg;return 0;}
     
     //Protect for tracks that have no really defined locz and theta parameters
     const Trk::Perigee* perTrack = fitTrack->perigeeParameters();
@@ -613,7 +614,7 @@ Trk::Track* InDet::TRT_TrigSeededTrackFinder::mergeExtension(const Trk::Track& t
   if(m_doRefit){ 
     Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
     delete newTrack;
-    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT+Si track segment failed!" << endreq;return 0;}
+    if(!fitTrack){if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Refit of TRT+Si track segment failed!" << endmsg;return 0;}
     
     //Protect for tracks that have no really defined locz and theta parameters
     const Trk::Perigee* perTrack = fitTrack->perigeeParameters();
