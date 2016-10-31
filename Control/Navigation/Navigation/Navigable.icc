@@ -216,7 +216,7 @@ Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
 					   ptrObjectContainer,
 					   external_index_type&
 					   refIndex,
-                                           IProxyDictWithPool* sg,
+                                           IProxyDict* sg,
 					   const RPAR&
 					   refParameter,
                                            size_t sizeHint)

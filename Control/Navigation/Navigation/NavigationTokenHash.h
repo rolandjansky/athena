@@ -18,7 +18,7 @@
 #define NAVIGATION_NAVIGATIONTOKENHASH_H
 
 
-#include "CxxUtils/hashtable.h"
+#include <functional>
 
 
 /**
@@ -40,7 +40,7 @@
 inline
 std::size_t navigationHash (const void* p)
 {
-  return SG::hash<const void*>() (p);
+  return std::hash<const void*>() (p);
 }
 
 

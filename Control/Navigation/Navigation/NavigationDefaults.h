@@ -179,7 +179,7 @@ namespace NavigationDefaults
       // insertion of ElementLink by object index
       static void insert(type& cont, const CONT* aChildContainer,
 			 external_index_type& anIndex,
-                         IProxyDictWithPool* sg,
+                         IProxyDict* sg,
 			 const RPAR& aPar=RPAR(),
                          size_t sizeHint = 0) 
       {

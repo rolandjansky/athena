@@ -30,6 +30,7 @@ struct Payload
   : public NavigableTerminalNode
 {
   Payload (int the_x) : x (the_x) {}
+  Payload& operator= (const Payload&) = default;
   int x;
 };
 
