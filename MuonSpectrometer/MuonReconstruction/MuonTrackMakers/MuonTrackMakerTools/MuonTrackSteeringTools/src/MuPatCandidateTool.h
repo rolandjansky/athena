@@ -180,7 +180,7 @@ namespace Muon {
     ToolHandle<Muon::IMuonSegmentInfoExtender>        m_segmentExtender;    //<! tool to extend the segment information
     ServiceHandle< IIncidentSvc >                     m_incidentSvc;
 
-    const MdtIdHelper* m_mdtIdHelper;
+    //const MdtIdHelper* m_mdtIdHelper;
 
     bool m_createCompetingROTsPhi;
     bool m_createCompetingROTsEta;
