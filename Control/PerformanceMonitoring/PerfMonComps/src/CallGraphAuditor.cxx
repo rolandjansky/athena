@@ -48,7 +48,7 @@ CallGraphAuditor::CallGraphAuditor( const std::string& name,
 ///////////////
 CallGraphAuditor::~CallGraphAuditor()
 { 
-  //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -68,7 +68,7 @@ CallGraphAuditor::initialize()
     MsgStream msg( msgSvc(), name() );
     msg << MSG::ERROR
 	<< "Could not retrieve [" << m_callGraphSvc.typeAndName() << "] !!"
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
   }
 

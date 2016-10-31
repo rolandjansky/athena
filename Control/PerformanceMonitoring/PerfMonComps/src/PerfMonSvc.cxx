@@ -801,9 +801,9 @@ void PerfMonSvc::handle( const Incident& inc )
   if ( msgLvl(MSG::VERBOSE) ) {
     msg(MSG::VERBOSE)
       << "Entering handle(): "
-      << endreq
-      << "  Incidence type: " << inc.type()   << endreq
-      << "            from: " << inc.source() << endreq;
+      << endmsg
+      << "  Incidence type: " << inc.type()   << endmsg
+      << "            from: " << inc.source() << endmsg;
   }
 
   if ( inc.type() == IncidentType::SvcPostFinalize ) {
@@ -960,7 +960,7 @@ void PerfMonSvc::declareInfo( const std::string& name,
       << "owner = [" << owner << "] )\n"
       << "Not implemented !"
       << std::endl;
-  msg(MSG::ERROR) << err.str() << endreq;
+  msg(MSG::ERROR) << err.str() << endmsg;
   throw std::runtime_error( err.str() );
 }
 
@@ -980,7 +980,7 @@ void PerfMonSvc::declareInfo( const std::string& name,
       << "owner = [" << owner << "] )\n"
       << "Not implemented !"
       << std::endl;
-  msg(MSG::ERROR) << err.str() << endreq;
+  msg(MSG::ERROR) << err.str() << endmsg;
   throw std::runtime_error( err.str() );
 }
 
@@ -998,7 +998,7 @@ PerfMonSvc::declareInfo(const std::string& name,
       << "owner = [" << owner << "] )\n"
       << "Not implemented !"
       << std::endl;
-  msg(MSG::ERROR) << err.str() << endreq;
+  msg(MSG::ERROR) << err.str() << endmsg;
   throw std::runtime_error( err.str() );
 }
 
@@ -1010,14 +1010,14 @@ void PerfMonSvc::undeclareInfo( const std::string& name,
     msg(MSG::WARNING)
       << "Requested to undeclare info from un-registered owner ["
       << owner << "] !"
-      << endreq;
+      << endmsg;
     throw std::bad_cast();
   }
 
   msg(MSG::WARNING)
     << "Could not find nor erase MonInfo of name [" << name << "] "
     << "registered with owner [" << owner << " (" << owner->name() << ")] !"
-    << endreq;
+    << endmsg;
   return;
 }
 
@@ -1028,14 +1028,14 @@ void PerfMonSvc::undeclareAll( const IInterface* iowner )
     msg(MSG::WARNING)
       << "Requested to undeclare info from un-registered owner ["
       << owner << "] !"
-      << endreq;
+      << endmsg;
     throw std::bad_cast();
   }
 
   msg(MSG::WARNING)
     << "Could not undeclare all infos "
     << "registered with owner [" << owner << " (" << owner->name() << ")] !"
-    << endreq;
+    << endmsg;
 }
 
  std::set<std::string>* PerfMonSvc::getInfos( const IInterface* /*owner*/ )

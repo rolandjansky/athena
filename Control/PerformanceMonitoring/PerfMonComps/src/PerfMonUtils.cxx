@@ -33,14 +33,14 @@ makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
              MsgStream& msg )
 {
   if ( 0 == audSvc ) {
-    msg << MSG::ERROR << "Null pointer to IAuditorSvc !!" << endreq;
+    msg << MSG::ERROR << "Null pointer to IAuditorSvc !!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( 0 != audSvc->getAuditor( audName ) ) {
     msg << MSG::VERBOSE << "AuditorSvc already knows about ["
 	<< audName << "]... good."
-	<< endreq;
+	<< endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -48,7 +48,7 @@ makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
   SmartIF<IProperty> audSvcProp(audSvc);
   if ( 0 == audSvcProp ) {
     msg << MSG::ERROR
-	<< "Could not dyn-cast IAuditorSvc to an IProperty !!" << endreq;
+	<< "Could not dyn-cast IAuditorSvc to an IProperty !!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -62,9 +62,9 @@ makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
     msg << MSG::ERROR
 	<< "Could not add [" << audName << "] to the list of auditors of"
 	<< " [AuditorSvc] !!"
-	<< endreq
+	<< endmsg
 	<< audSvcProp->getProperty(propName)
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -74,7 +74,7 @@ makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
     msg << MSG::ERROR
         << "Failed to make AuditorSvc instantiating [" 
         << audName << "] !!"
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   }
   //  aud->release();
