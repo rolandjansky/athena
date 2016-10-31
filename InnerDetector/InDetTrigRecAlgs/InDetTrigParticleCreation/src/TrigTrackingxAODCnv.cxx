@@ -112,7 +112,7 @@ namespace InDet
   //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackingxAODCnv::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endmsg;
     m_mon_counter = 1;
 
     return HLT::OK;
@@ -124,32 +124,32 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigTrackingxAODCnv::hltInitialize() {
 
-    msg() << MSG::DEBUG << name() << " initialize() " << PACKAGE_VERSION << endreq;
+    msg() << MSG::DEBUG << name() << " initialize() " << PACKAGE_VERSION << endmsg;
 
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     
     if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
     if ( m_particleCreatorTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endmsg;
     }
 
     if ( m_residualCalc.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_residualCalc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_residualCalc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endmsg;
     }
 
 
@@ -197,7 +197,7 @@ namespace InDet
     HLT::ErrorCode statCode(HLT::OK);
 
     if (statCode!=HLT::OK){
-      msg() << MSG::ERROR << "ErrorCode check to avoid unchecked SC" << endreq;
+      msg() << MSG::ERROR << "ErrorCode check to avoid unchecked SC" << endmsg;
     }
 
     //+++ DQM (SA): monitoring
@@ -214,7 +214,7 @@ namespace InDet
 
     m_tracks = 0;
     if ( HLT::OK != getFeature(outputTE, m_tracks) ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
       runAlg = false;
       statCode = HLT::NAV_ERROR;
     }
@@ -270,7 +270,7 @@ namespace InDet
     	      << "  d0:  " << tp->d0()
     	      << "  z0:  " << tp->z0()
     	      << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
-    	      << endreq;
+    	      << endmsg;
 
         }
       }
@@ -280,7 +280,7 @@ namespace InDet
     ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
     
     if ( HLT::OK !=  attachFeature(outputTE, tpCont, name()) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
       return HLT::NAV_ERROR;
     }
     else {
@@ -309,7 +309,7 @@ namespace InDet
 
   HLT::ErrorCode TrigTrackingxAODCnv::hltFinalize() {
 
-    msg() << MSG::DEBUG << "finalize() success" << endreq;
+    msg() << MSG::DEBUG << "finalize() success" << endmsg;
     return HLT::OK;
   }
 
@@ -318,7 +318,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackingxAODCnv::hltEndRun() {
 
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endreq;
+    msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endmsg;
 
     return HLT::OK;
   }
@@ -401,7 +401,7 @@ namespace InDet
 	 it!=trackStates->end();
 	 it++) {
       if (!(*it)) {
-	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
 	continue;
       }
       
@@ -419,7 +419,7 @@ namespace InDet
 	*/
 
 	if(  (*it)->trackParameters() !=0 &&
-	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
+           /*&((*it)->trackParameters()->associatedSurface()) !=0 &&  */
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	  {  
@@ -444,7 +444,7 @@ namespace InDet
 			  m_dqm_ibl_res_y.push_back(pull->residual()[Trk::locY]);
 			  delete pull;
 			} else {
-			  msg(MSG::WARNING) << "Could not calculate the pulls" << endreq;
+			  msg(MSG::WARNING) << "Could not calculate the pulls" << endmsg;
 			  m_dqm_ibl_res_x.push_back(-1.);   //out of range of the profile
 			  m_dqm_ibl_res_y.push_back(-1.);
 			}
