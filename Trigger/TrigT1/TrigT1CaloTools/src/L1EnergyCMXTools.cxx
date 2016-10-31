@@ -239,7 +239,7 @@ void L1EnergyCMXTools::formCMXEtSumsCrate(
 {
     float etaTruncXE, etaTruncTE;
     findRestrictedEta(etaTruncXE, etaTruncTE);
-    ATH_MSG_INFO("NEW Restricted eta ranges etaTruncXE=" << etaTruncXE << " etaTruncTE=" << etaTruncTE);
+    ATH_MSG_INFO("Restricted eta ranges etaTruncXE=" << etaTruncXE << " etaTruncTE=" << etaTruncTE);
     // Convert to internal containers
     int peak = 0;
     MultiSliceModuleEnergy modulesVec;
@@ -478,7 +478,7 @@ void L1EnergyCMXTools::etSumsToSystemEnergy(
                                                  eyErr.get(DataError::Overflow),
                                                  source == xAOD::CMXEtSums::TOTAL_RESTRICTED,
                                                  m_configSvc);
-            bool srestricted = (systemEnergy->roiWord0() >> 26) & 1;
+            // bool srestricted = (systemEnergy->roiWord0() >> 26) & 1;
             systemVec.push_back(systemEnergy);
         }
     }
