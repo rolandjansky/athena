@@ -48,7 +48,7 @@ StatusCode TauTrackClassifier::initialize()
 {
   ATH_MSG_DEBUG("intialize classifiers");
 
-  #ifdef XAOD_ANALYSIS
+  #ifdef ROOTCORE
   for (auto cClassifierName : m_vClassifierNames){
     tauRecTools::TrackMVABDT* mva_tool = dynamic_cast<tauRecTools::TrackMVABDT*> (asg::ToolStore::get(cClassifierName));
     ToolHandle< tauRecTools::TrackMVABDT > handle(mva_tool);    
@@ -85,7 +85,7 @@ StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
     for (auto cClassifier : m_vClassifier)
       ATH_CHECK(cClassifier->classifyTrack(*xTrack, xTau));
   }
-  std::vector< ElementLink< xAOD::TauTrackContainer > > &tauTrackLinks(xTau.tauTrackLinksNonConst());
+  std::vector< ElementLink< xAOD::TauTrackContainer > > &tauTrackLinks(xTau.allTauTrackLinksNonConst());
   std::sort(tauTrackLinks.begin(), tauTrackLinks.end(), sortTracks);
   float charge=0.0;
   for( const xAOD::TauTrack* trk : xTau.tracks(xAOD::TauJetParameters::classifiedCharged) ){
@@ -206,7 +206,7 @@ StatusCode TrackMVABDT::initialize()
 //______________________________________________________________________________
 StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
 {
-  setVars(xTrack, xTau);
+  ATH_CHECK( setVars(xTrack, xTau) );
 
   //why?
   if (xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag)==false)
@@ -296,21 +296,21 @@ StatusCode TrackMVABDT::parseVariableContent()
 }
 
 //______________________________________________________________________________
-void TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
+StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
 {
   const xAOD::TrackParticle* xTrackParticle = xTrack.track();
-  uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits);
-  uint8_t iTracksNPixelHits = 0; xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits);
-  uint8_t iTracksNPixelSharedHits = 0; xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits);
-  uint8_t iTracksNPixelDeadSensors = 0; xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
-  uint8_t iTracksNSCTHits = 0; xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits);
-  uint8_t iTracksNSCTSharedHits = 0; xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits);
-  uint8_t iTracksNSCTDeadSensors = 0; xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
-  uint8_t iTracksNTRTHighThresholdHits = 0; xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits);
-  uint8_t iTracksNTRTHits = 0; xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits);
-  uint8_t iNumberOfContribPixelLayers = 0; xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers);
-  uint8_t iNumberOfPixelHoles = 0; xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles);
-  uint8_t iNumberOfSCTHoles = 0; xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles);
+  uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits), StatusCode::FAILURE );
+  uint8_t iTracksNPixelHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits), StatusCode::FAILURE );
+  uint8_t iTracksNPixelSharedHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits), StatusCode::FAILURE );
+  uint8_t iTracksNPixelDeadSensors = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors), StatusCode::FAILURE );
+  uint8_t iTracksNSCTHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits), StatusCode::FAILURE );
+  uint8_t iTracksNSCTSharedHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits), StatusCode::FAILURE );
+  uint8_t iTracksNSCTDeadSensors = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors), StatusCode::FAILURE );
+  uint8_t iTracksNTRTHighThresholdHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits), StatusCode::FAILURE );
+  uint8_t iTracksNTRTHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits), StatusCode::FAILURE );
+  uint8_t iNumberOfContribPixelLayers = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers), StatusCode::FAILURE );
+  uint8_t iNumberOfPixelHoles = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles), StatusCode::FAILURE );
+  uint8_t iNumberOfSCTHoles = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles), StatusCode::FAILURE );
 	
   float fTracksNumberOfInnermostPixelLayerHits = (float)iTracksNumberOfInnermostPixelLayerHits;
   float fTracksNPixelHits = (float)iTracksNPixelHits;
@@ -325,7 +325,7 @@ void TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau
   float fTracksNPixHits = fTracksNPixelHits + fTracksNPixelDeadSensors;
   float fTracksNSiHits = fTracksNPixelHits + fTracksNPixelDeadSensors + fTracksNSCTHits + fTracksNSCTDeadSensors;
 
-  float fTracksEProbabilityHT; xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT);
+  float fTracksEProbabilityHT; TRT_CHECK_BOOL( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT), StatusCode::FAILURE );
 
   float fNumberOfContribPixelLayers = float(iNumberOfContribPixelLayers);
   float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
@@ -391,6 +391,8 @@ void TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau
   setVar("TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfPixelHoles+fNumberOfSCTHoles;
   setVar("TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfSCTHoles;
   setVar("TauTracksAux.pt") = xTrackParticle->pt();
+
+  return StatusCode::SUCCESS;
   
   // for (auto eEntry : m_mAvailableVars)
   //   std::cout << eEntry.first<<": "<<eEntry.second<<"\n";

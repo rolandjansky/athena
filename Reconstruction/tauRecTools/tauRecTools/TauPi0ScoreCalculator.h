@@ -24,7 +24,7 @@
 class TauPi0ScoreCalculator : public TauRecToolBase {
 public:
     TauPi0ScoreCalculator(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase);
+    ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0ScoreCalculator();
 
     virtual StatusCode initialize();

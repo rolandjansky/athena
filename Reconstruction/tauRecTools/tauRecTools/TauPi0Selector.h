@@ -19,7 +19,7 @@
 class TauPi0Selector : public TauRecToolBase {
 public:
     TauPi0Selector(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase);
+    ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0Selector();
     virtual StatusCode initialize();
     virtual StatusCode finalize();

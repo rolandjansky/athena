@@ -91,9 +91,11 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   // Retrieve input variables
   
   // Retrieve event info
-  mu = xTau.auxdata<double>("mu");
-  nVtx = xTau.auxdata<int>("nVtx");
-  
+  static SG::AuxElement::ConstAccessor<double> acc_mu("mu");
+  static SG::AuxElement::ConstAccessor<int> acc_nVtx("nVtx");
+  mu = acc_mu(xTau);
+  nVtx = acc_nVtx(xTau);
+
   // Retrieve seed jet info
   xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, center_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, first_eng_dens);
