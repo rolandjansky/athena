@@ -54,14 +54,14 @@ namespace InDet {
   private:
 
     /** @brief Get primary vertex. */
-    HLT::ErrorCode getEFPrmVtxForFit(xAOD::Vertex*& bestFitPriVertex,
+    HLT::ErrorCode getEFPrmVtxForFit(xAOD::Vertex const*& bestFitPriVertex,
 				     HLT::TriggerElement* outputTE,
 				     unsigned int& numPrimaryVertices,
 				     float& xPrmVtx,float& yPrmVtx,float& zPrmVtx); 
     
     
     /** @brief Get primary vertex for beamspot. */
-    HLT::ErrorCode getPrmVtxForFit(xAOD::Vertex*& vertex,
+    HLT::ErrorCode getPrmVtxForFit(xAOD::Vertex const*& vertex,
 				   HLT::TriggerElement* outputTE,
 				   unsigned int& numPrimaryVertices,
 				   float& xPrmVtx,float& yPrmVtx,float& zPrmVtx, int& status); 
@@ -112,7 +112,7 @@ namespace InDet {
     const Trk::VxSecVertexInfo* m_secVertexInfo;
     Trk::VxSecVertexInfoContainer* m_secVertexInfoContainer;
     //VxContainer* m_secondaryVxContainer;
-    xAOD::VertexContainer* m_secondaryVxContainer;
+    //xAOD::VertexContainer* m_secondaryVxContainer;
 
     /** @brief Sort vertices true/false switch.
      * Default is true. Set in InDetTrigVxSecondary_LoadTools.py

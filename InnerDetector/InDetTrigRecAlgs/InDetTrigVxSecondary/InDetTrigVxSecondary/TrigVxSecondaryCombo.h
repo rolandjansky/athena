@@ -64,7 +64,7 @@ namespace InDet {
 
     /** @brief Get primary vertex. */
     //HLT::ErrorCode getEFPrmVtxForFit(Trk::RecVertex*& bestFitPriVertex,
-    HLT::ErrorCode getEFPrmVtxForFit(xAOD::Vertex*& bestFitPriVertex,
+    HLT::ErrorCode getEFPrmVtxForFit(xAOD::Vertex const *& bestFitPriVertex,
 				     const HLT::TriggerElement* outputTE,
 				     unsigned int& numPrimaryVertices,
 				     float& xPrmVtx,float& yPrmVtx,float& zPrmVtx); 
@@ -72,7 +72,7 @@ namespace InDet {
     
     /** @brief Get primary vertex for beamspot. */
     //HLT::ErrorCode getPrmVtxForFit(Trk::RecVertex*& vertex,
-    HLT::ErrorCode getPrmVtxForFit(xAOD::Vertex*& vertex,
+    HLT::ErrorCode getPrmVtxForFit(xAOD::Vertex const*& vertex,
 				   //const HLT::TriggerElement* outputTE,
 				   const xAOD::VertexContainer* prmVtxColl,
 				   unsigned int& numPrimaryVertices,
@@ -123,7 +123,7 @@ namespace InDet {
      */ 
     const Trk::VxSecVertexInfo* m_secVertexInfo;
     Trk::VxSecVertexInfoContainer* m_secVertexInfoContainer;
-    VxContainer* m_secondaryVxContainer;
+    //VxContainer* m_secondaryVxContainer;
 
     /** @brief Sort vertices true/false switch.
      * Default is true. Set in InDetTrigVxSecondaryCombo_LoadTools.py
@@ -134,9 +134,9 @@ namespace InDet {
      * Offline tools set in InDetTrigVxSecondaryCombo_LoadTools.py
      */
     ToolHandleArray<InDet::ISecVertexInJetFinder> m_secVertexFinderToolsHandleArray;
-
-    unsigned int m_nVxCandidates;
-    unsigned int m_nVxContainers;
+    
+    //unsigned int m_nVxCandidates;
+    //unsigned int m_nVxContainers;
     unsigned int m_nVxSecVertexInfo;
     unsigned int m_nVxSecVertexInfoContainers;
 
