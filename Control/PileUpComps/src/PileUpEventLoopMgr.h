@@ -23,10 +23,8 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#ifndef _CPP_STRING
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include <string>
-#endif
 
 // Forward declarations
 class IBeamIntensity;
@@ -41,6 +39,7 @@ class IIncidentSvc;
 class ITimeKeeper;
 class PileUpMergeSvc;
 class StoreGateSvc;
+class EventContext;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
@@ -81,6 +80,9 @@ public:
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 
 private:
+  /// Reference to the Algorithm Execution State Svc
+  SmartIF<IAlgExecStateSvc>  m_aess;
+
   /// setup input and overlay selectors and iters
   StatusCode setupStreams();
 
@@ -171,6 +173,8 @@ private:
   int m_ncurevt;
   bool m_skipExecAlgs;
   bool m_loadProxies;
+
+  EventContext* m_eventContext;
 
   /// property: flag to control extra checks for embedding jobs.
   BooleanProperty m_isEmbedding;

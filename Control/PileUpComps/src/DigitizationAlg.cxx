@@ -8,47 +8,42 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-DigitizationAlg::DigitizationAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_puTools()
+DigitizationAlg::DigitizationAlg(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_puTools(/*this*/) // TODO make the PileUpTools private
 {
   declareProperty("PileUpTools", m_puTools, "IPileUpTools to be run for each event");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode DigitizationAlg::initialize(){
+StatusCode DigitizationAlg::initialize()
+{
   ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
-  StatusCode sc(StatusCode::FAILURE);
   //locate the PileupTools and initialize them
-  if (!(sc=m_puTools.retrieve()).isSuccess()) {
-    ATH_MSG_ERROR ("Could not retrieve PileUpTools");
-  }
-  return sc;
+  ATH_CHECK(m_puTools.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode DigitizationAlg::execute() {
-
+StatusCode DigitizationAlg::execute()
+{
   ATH_MSG_DEBUG ("in execute()");
-
-  ToolHandleArray<IPileUpTool>::iterator iPUT(m_puTools.begin());
-  ToolHandleArray<IPileUpTool>::iterator ePUT(m_puTools.end());
-
-  StatusCode sc(StatusCode::SUCCESS);
-  while (sc.isSuccess() && (iPUT != ePUT)) {
-    IPileUpTool& put(**iPUT);
-    ATH_MSG_VERBOSE( "Running IPileUpTool " << put.name() );
-    put.resetFilter(); // Reset the filter first
-    sc=put.processAllSubEvents();
-    ++iPUT;
-    if (!put.filterPassed()){
-      ATH_MSG_VERBOSE( "Filter " << put.name() << " failed - will stop the event" );
-      this->setFilterPassed(false);
-      break;
+  for(auto& puToolHandle : m_puTools)
+    {
+      // Reset the filter first
+      puToolHandle->resetFilter();
+      ATH_CHECK(puToolHandle->processAllSubEvents());
+      // Check if the event was filtered out by the current PileUpTool.
+      if (!puToolHandle->filterPassed())
+        {
+          ATH_MSG_VERBOSE( "Filter " << puToolHandle->name() << " failed - will stop the event" );
+          this->setFilterPassed(false);
+          break;
+        }
     }
-  }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
