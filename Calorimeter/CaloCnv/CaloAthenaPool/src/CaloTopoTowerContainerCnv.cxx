@@ -40,7 +40,7 @@ CaloTopoTowerContainerCnv::~CaloTopoTowerContainerCnv()
 
 //     // Get the messaging service, print where you are
 //     MsgStream log(msgSvc(), "CaloTopoTowerContainerCnv");
-//     log << MSG::INFO << "initialize()" << endreq;
+//     log << MSG::INFO << "initialize()" << endmsg;
 
 //     return StatusCode::SUCCESS;
 // }
@@ -48,24 +48,24 @@ CaloTopoTowerContainerCnv::~CaloTopoTowerContainerCnv()
 
 //StatusCode CaloTopoTowerContainerCnv::PoolToDataObject(DataObject*& pObj,const std::string &token)
 CaloTopoTowerContainer* CaloTopoTowerContainerCnv::createTransient() {
-    MsgStream log(messageService(), "CaloTopoTowerContainerCnv::createTransient" );
+    MsgStream log(msgSvc(), "CaloTopoTowerContainerCnv::createTransient" );
     CaloTopoTowerContainer* Cont = 0;
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Starting CaloTopoTowerContainerCnv::PoolToDataObject" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Starting CaloTopoTowerContainerCnv::PoolToDataObject" << endmsg;
     if (compareClassGuid(p0_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p0 of CaloTopoTowerContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      Cont=poolReadObject<CaloTopoTowerContainer>();
     }
     else if(compareClassGuid(p1_guid)) {
       if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p1 of CaloTopoTowerContainer. GUID=" 
-	  << m_classID.toString() << endreq;
+	  << m_classID.toString() << endmsg;
       CaloTopoTowerContainerPERS* pers=poolReadObject<CaloTopoTowerContainer_p1>();
       Cont=new CaloTopoTowerContainer();
       m_converter.persToTrans(pers,Cont,log);
       delete pers;
     }
     if (!Cont) {
-      log << MSG::FATAL << "Unable to get object from pool" << endreq;
+      log << MSG::FATAL << "Unable to get object from pool" << endmsg;
       return Cont;
     }
     
@@ -75,23 +75,23 @@ CaloTopoTowerContainer* CaloTopoTowerContainerCnv::createTransient() {
 
     m_TopoTowerBldr= getTool("CaloTopoTowerBuilderTool","TopoTowerTwrBldr");
     if(!m_TopoTowerBldr){
-      log<<MSG::ERROR<< " Failed to create CaloTopoTowerContainer " <<endreq;
+      log<<MSG::ERROR<< " Failed to create CaloTopoTowerContainer " <<endmsg;
       return 0;
     }
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "creating CaloTopoTowerContainerCnv::PoolToDataObject" << endreq; 
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "creating CaloTopoTowerContainerCnv::PoolToDataObject" << endmsg; 
     StatusCode scfcal = m_TopoTowerBldr->execute(Cont);
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" TopoTowers rebuild m_TopoTowerBldr->execute(Cont); Successful "<<endreq; 
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" TopoTowers rebuild m_TopoTowerBldr->execute(Cont); Successful "<<endmsg; 
     if (scfcal.isFailure()) {
-      log<<MSG::ERROR<<" TopoTowers rebuild failed "<<endreq; 
+      log<<MSG::ERROR<<" TopoTowers rebuild failed "<<endmsg; 
     }
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" TopoTowers rebuild worked "<<endreq;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" TopoTowers rebuild worked "<<endmsg;
 
     return Cont; 
 }
 
 CaloTopoTowerContainerPERS* CaloTopoTowerContainerCnv::createPersistent(CaloTopoTowerContainer* trans) {
-    MsgStream log(messageService(), "CaloTopoTowerContainerCnv::createPersistent");
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloTopoTowerContainer_p1" << endreq;
+    MsgStream log(msgSvc(), "CaloTopoTowerContainerCnv::createPersistent");
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloTopoTowerContainer_p1" << endmsg;
     CaloTopoTowerContainerPERS* pers=new CaloTopoTowerContainerPERS();
     m_converter.transToPers(trans,pers,log); 
     return pers;
@@ -109,7 +109,7 @@ const std::string& type, const std::string& nm)
     {
       log << MSG::ERROR
           << "Tool Service not found"
-          << endreq;
+          << endmsg;
       return 0 ; 
     }
 
@@ -126,7 +126,7 @@ const std::string& type, const std::string& nm)
               << "Cannot find tool named <"
               << type << "/" << nm 
               << ">"
-              << endreq;
+              << endmsg;
           return 0; 
     }
   return   dynamic_cast<CaloTopoTowerBuilderToolBase*>(algToolPtr);

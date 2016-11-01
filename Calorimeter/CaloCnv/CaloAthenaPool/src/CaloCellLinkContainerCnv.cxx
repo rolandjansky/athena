@@ -17,8 +17,8 @@ CaloCellLinkContainerCnv::CaloCellLinkContainerCnv(ISvcLocator* svcLoc) :
 
 
 CaloCellLinkContainerPERS* CaloCellLinkContainerCnv::createPersistent(CaloCellLinkContainer* trans) {
-    MsgStream log(messageService(), "CaloCellLinkContainerCnv");
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloCellLinkContainer_p1" << endreq;
+    MsgStream log(msgSvc(), "CaloCellLinkContainerCnv");
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloCellLinkContainer_p1" << endmsg;
     CaloCellLinkContainerPERS* pers=new CaloCellLinkContainerPERS();
     m_converter_p2.transToPers(trans,pers,log); 
     return pers;
@@ -27,15 +27,15 @@ CaloCellLinkContainerPERS* CaloCellLinkContainerCnv::createPersistent(CaloCellLi
 
 
 CaloCellLinkContainer* CaloCellLinkContainerCnv::createTransient() {
-   MsgStream log(messageService(), "CaloCellLinkContainerCnv" );
+   MsgStream log(msgSvc(), "CaloCellLinkContainerCnv" );
    if (compareClassGuid(m_p0_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p0 of CaloCellLinkContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      return poolReadObject<CaloCellLinkContainer>();
    }
    else if (compareClassGuid(m_p1_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloCellLinkContainer_p1. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloCellLinkContainer_p1* pers=poolReadObject<CaloCellLinkContainer_p1>();
      CaloCellLinkContainer* trans=new CaloCellLinkContainer();
      m_converter_p1.persToTrans(pers,trans,log);
@@ -44,7 +44,7 @@ CaloCellLinkContainer* CaloCellLinkContainerCnv::createTransient() {
    }
    else if (compareClassGuid(m_p2_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloCellLinkContainer_p2. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloCellLinkContainer_p2* pers=poolReadObject<CaloCellLinkContainer_p2>();
      CaloCellLinkContainer* trans=new CaloCellLinkContainer();
      m_converter_p2.persToTrans(pers,trans,log);
@@ -53,7 +53,7 @@ CaloCellLinkContainer* CaloCellLinkContainerCnv::createTransient() {
    }
 
    log << MSG::ERROR << "Unsupported persistent version of CaloCellLinkContainer. GUID=" 
-       << m_classID.toString() << endreq;
+       << m_classID.toString() << endmsg;
    throw std::runtime_error("Unsupported persistent version of Data Collection");
    return 0;
 }

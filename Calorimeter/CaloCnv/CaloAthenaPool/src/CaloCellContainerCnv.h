@@ -37,9 +37,6 @@ public:
   virtual CaloCellContainerPERS* createPersistent(CaloCellContainer*);
 
 private:
-   /// Save LArDDMgr for initializing CaloCells
-   const CaloDetDescrManager* m_detMgr;
-   ICaloCompactCellTool* m_compactCellTool;
    CaloCellContainerCnv_p1 m_converter1;
    pool::Guid   m_p1_guid;
    

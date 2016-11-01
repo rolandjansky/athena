@@ -17,8 +17,8 @@ CaloShowerContainerCnv::CaloShowerContainerCnv(ISvcLocator* svcLoc) :
 
 
 CaloShowerContainerPERS* CaloShowerContainerCnv::createPersistent(CaloShowerContainer* trans) {
-    MsgStream log(messageService(), "CaloShowerContainerCnv");
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloShowerContainer_p2" << endreq;
+    MsgStream log(msgSvc(), "CaloShowerContainerCnv");
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloShowerContainer_p2" << endmsg;
     CaloShowerContainerPERS* pers=new CaloShowerContainerPERS();
     m_converter2.transToPers(trans,pers,log); 
     return pers;
@@ -27,15 +27,15 @@ CaloShowerContainerPERS* CaloShowerContainerCnv::createPersistent(CaloShowerCont
 
 
 CaloShowerContainer* CaloShowerContainerCnv::createTransient() {
-   MsgStream log(messageService(), "CaloShowerContainerCnv" );
+   MsgStream log(msgSvc(), "CaloShowerContainerCnv" );
    if (compareClassGuid(m_p0_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p0 of CaloShowerContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      return poolReadObject<CaloShowerContainer>();
    }
    else if (compareClassGuid(m_p1_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading CaloShowerContainer_p1. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloShowerContainer_p1* pers=poolReadObject<CaloShowerContainer_p1>();
      CaloShowerContainer* trans=new CaloShowerContainer();
      m_converter1.persToTrans(pers,trans,log);
@@ -44,7 +44,7 @@ CaloShowerContainer* CaloShowerContainerCnv::createTransient() {
    }
    else if (compareClassGuid(m_p2_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading CaloShowerContainer_p2. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloShowerContainer_p2* pers=poolReadObject<CaloShowerContainer_p2>();
      CaloShowerContainer* trans=new CaloShowerContainer();
      m_converter2.persToTrans(pers,trans,log);
@@ -53,7 +53,7 @@ CaloShowerContainer* CaloShowerContainerCnv::createTransient() {
    }
 
    log << MSG::ERROR << "Unsupported persistent version of CaloShowerContainer. GUID="
-       << m_classID.toString() << endreq;
+       << m_classID.toString() << endmsg;
    throw std::runtime_error("Unsupported persistent version of Data Collection");
    return 0;
 }
