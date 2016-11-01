@@ -13,11 +13,10 @@
 
 // STL includes
 #include <iosfwd>
+#include <unordered_map>
 
-// DataModel includes
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/unordered_map.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 
 // CLIDSvc includes (for persistency)
 #include "CLIDSvc/CLASS_DEF.h"
@@ -57,7 +56,7 @@ class TruthParticleContainer : public DataVector<TruthParticle>
  public:
 
   /// barcode to TruthParticle dictionary
-  typedef SG::unordered_map<long,const TruthParticle*> Map_t;
+  typedef std::unordered_map<long,const TruthParticle*> Map_t;
   /// 
   typedef TruthParticle::evtIndex_t          evtIndex_t;
 
@@ -158,7 +157,7 @@ class TruthParticleContainer : public DataVector<TruthParticle>
    */
   void setGenEvent( const McEventCollection* mcColl, 
 		    const std::size_t genEventIdx,
-                    IProxyDictWithPool* sg = nullptr); 
+                    IProxyDict* sg = nullptr); 
 
   /** Setup the persistent pointer toward the @c TruthEtIsolations
    */
@@ -168,7 +167,7 @@ class TruthParticleContainer : public DataVector<TruthParticle>
    */
   void setEtIsolations( const TruthEtIsolationsContainer* etIsolations,
 			const std::size_t etIsolationsIdx,
-                        IProxyDictWithPool* sg = nullptr);
+                        IProxyDict* sg = nullptr);
 
   /** Setup the dictionary of barcodes-to-TruthParticle
    */
@@ -274,7 +273,7 @@ TruthParticleContainer::setGenEvent( const ElementLink<McEventCollection>& genEv
 inline void
 TruthParticleContainer::setGenEvent( const McEventCollection* mcColl,
 				     const std::size_t genEvtIdx,
-                                     IProxyDictWithPool* sg /*= nullptr*/)
+                                     IProxyDict* sg /*= nullptr*/)
 {
   if ( 0 != mcColl && mcColl->size() > genEvtIdx ) {
     m_genEvent.toIndexedElement( *mcColl, genEvtIdx, sg );
@@ -290,7 +289,7 @@ TruthParticleContainer::setEtIsolations( const ElementLink<TruthEtIsolationsCont
 inline void
 TruthParticleContainer::setEtIsolations( const TruthEtIsolationsContainer* etIsolations,
 					 const std::size_t etIsolationsIdx,
-                                         IProxyDictWithPool* sg /*= nullptr*/)
+                                         IProxyDict* sg /*= nullptr*/)
 {
   if ( 0 != etIsolations && etIsolations->size() > etIsolationsIdx ) {
     m_etIsolations.toIndexedElement( *etIsolations, etIsolationsIdx, sg );

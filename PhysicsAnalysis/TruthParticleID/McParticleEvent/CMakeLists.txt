@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 730358 2016-03-16 12:18:50Z krasznaa $
+# $Id: CMakeLists.txt 781479 2016-10-31 21:07:42Z ssnyder $
 ################################################################################
 # Package: McParticleEvent
 ################################################################################
@@ -10,7 +10,8 @@ atlas_subdir( McParticleEvent )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/CLIDSvc
-   Control/DataModel
+   Control/AthContainers
+   Control/AthLinks
    Control/Navigation
    Event/EventKernel
    Event/NavFourMom
@@ -32,7 +33,7 @@ atlas_add_library( McParticleEvent
    PUBLIC_HEADERS McParticleEvent
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} DataModel Navigation
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks Navigation
    EventKernel NavFourMom GeneratorObjects ParticleEvent VxVertex
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} )
 

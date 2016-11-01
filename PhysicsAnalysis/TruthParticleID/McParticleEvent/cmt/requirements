@@ -8,7 +8,8 @@ use AtlasBoost          AtlasBoost-*       External
 use AtlasCLHEP          AtlasCLHEP-*       External
 
 use CLIDSvc             CLIDSvc-*          Control
-use DataModel           DataModel-*        Control
+use AthContainers       AthContainers-*    Control
+use AthLinks            AthLinks-*         Control
 use Navigation          Navigation-*       Control
 
 use EventKernel         EventKernel-*      Event
