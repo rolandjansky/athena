@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
-#include <iostream>
+#include <ostream>
 
 
 #include "TrigNavStructure/Types.h"

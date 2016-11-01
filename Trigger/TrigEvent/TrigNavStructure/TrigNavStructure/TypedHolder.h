@@ -7,10 +7,8 @@
 #ifndef TRIGNAVSTRUCTURE_TYPEDHOLDER_H
 #define TRIGNAVSTRUCTURE_TYPEDHOLDER_H
 
-#include <memory>
-#include <stdexcept>
+//#include <stdexcept>
 #include <type_traits>
-#include <boost/type_traits/is_same.hpp> 
 
 #include "TrigNavStructure/TypelessHolder.h"
 #include "TrigNavStructure/TriggerElement.h"
@@ -68,7 +66,7 @@ namespace HLT{
     /**
      * @brief shorthand for enable_if with returning StatusCode base on comparison with CONTAINER type
      **/
-    template<typename T,bool value> using StatusCode_if = typename std::enable_if<boost::is_same<T,CONTAINER>::value == value,StatusCode>::type;
+    template<typename T,bool value> using StatusCode_if = typename std::enable_if<std::is_same<T,CONTAINER>::value == value,StatusCode>::type;
 
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
@@ -100,7 +98,7 @@ namespace HLT{
     /**
      * @brief key used to access EventStore
      **/
-    std::string key(){return m_key;}
+    std::string key() const {return m_key;}
 
     /**
      * @brief method creates a new VIEW container containing pointers to the elements pointed to by the ObjectIndex.
