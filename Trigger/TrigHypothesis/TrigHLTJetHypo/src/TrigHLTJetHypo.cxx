@@ -63,6 +63,7 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
   declareProperty("eta_mins",   m_etaMins);
   declareProperty("eta_maxs",   m_etaMaxs);
+  declareProperty("asymmetricEtas",   m_asymmetricEtas);
 
   //TLA style jet indices
   declareProperty("ystar_mins", m_ystarMins);

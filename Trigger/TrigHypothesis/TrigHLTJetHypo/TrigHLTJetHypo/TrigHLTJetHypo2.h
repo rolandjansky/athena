@@ -82,6 +82,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   std::vector<double> m_EtThresholds;
   std::vector<double> m_etaMins;
   std::vector<double> m_etaMaxs;
+  std::vector<int> m_asymmetricEtas;
 
   // vector of indices find ofssets into the jet vector,
   // and other Condition variables used for TLA style hypos.

@@ -23,7 +23,7 @@ class IndexedJetsGrouper: public IJetGrouper{
   /* Select jets ordered all jets in descnding Et at goven index positions.*/
 public:
   IndexedJetsGrouper(const std::vector<unsigned int>& indices);
-  ~IndexedJetsGrouper(){}
+  virtual ~IndexedJetsGrouper(){}
   HypoJetGroupVector group(HypoJetIter&, HypoJetIter&) const override;
   std::string getName() const override;
   std::string toString() const override;

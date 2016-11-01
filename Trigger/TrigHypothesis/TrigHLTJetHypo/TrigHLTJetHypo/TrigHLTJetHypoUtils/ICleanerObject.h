@@ -23,6 +23,7 @@
 
 class ICleanerObject{
  public:
+  virtual ~ICleanerObject(){}
   virtual pairHypoJetIter operator()(const pairHypoJetIter&) const = 0;
   virtual std::string toString() const noexcept = 0;
   virtual std::string getName() const noexcept= 0;

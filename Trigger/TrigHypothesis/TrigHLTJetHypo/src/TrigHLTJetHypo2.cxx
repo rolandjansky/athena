@@ -90,6 +90,7 @@ TrigHLTJetHypo2::TrigHLTJetHypo2(const std::string& name,
   declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
   declareProperty("eta_mins",   m_etaMins);
   declareProperty("eta_maxs",   m_etaMaxs);
+  declareProperty("asymmetricEtas",   m_asymmetricEtas);
 
   //TLA style jet indices
   declareProperty("ystar_mins", m_ystarMins);
@@ -209,7 +210,8 @@ HLT::ErrorCode TrigHLTJetHypo2::hltInitialize()
 
 
   // print out the TrigHLTJetHypoHelper configuration
-  ATH_MSG_INFO("TrigHLTJetHypo2 : TrigHLTJetHypoHelper ");
+  ATH_MSG_INFO("TrigHLTJetHypo2 : TrigHLTJetHypoHelper for chain " 
+               << m_chainName);
   std::string line = helper.toString();
   std::vector<std::string> lines = lineSplitter(line, '\n');
 
@@ -476,14 +478,17 @@ bool TrigHLTJetHypo2::checkStrategy(HypoStrategy s){
 
 bool TrigHLTJetHypo2::checkEtaEtStrategy(){
   if (m_EtThresholds.size() != m_etaMins.size() or
-      m_EtThresholds.size() != m_etaMaxs.size()){
+      m_EtThresholds.size() != m_etaMaxs.size() or
+      m_asymmetricEtas.size() != m_etaMaxs.size()){
       
     ATH_MSG_ERROR(name()
                   << ": mismatch between number of thresholds "
-                  << "and eta min, max boundaries: "
+                  << "and eta min, max boundaries or asymmetric eta flags: "
                   << m_EtThresholds.size() << " "
                   << m_etaMins.size() << " "
-                  << m_etaMaxs.size());
+                  << m_etaMaxs.size() << " "
+                  << m_asymmetricEtas.size() << " "
+                  );
     
     return false;
   }
@@ -620,7 +625,8 @@ bool TrigHLTJetHypo2::setConditions(HypoStrategy s){
 bool TrigHLTJetHypo2::setEtaEtConditions(){
   m_conditions = conditionsFactoryEtaEt(m_etaMins,
                                         m_etaMaxs,
-                                        m_EtThresholds);
+                                        m_EtThresholds,
+                                        m_asymmetricEtas);
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
 }

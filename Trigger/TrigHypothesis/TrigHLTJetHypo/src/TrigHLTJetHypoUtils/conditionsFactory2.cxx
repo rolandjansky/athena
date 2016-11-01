@@ -14,6 +14,7 @@
 
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtAsymmetricCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDEtaMassCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
@@ -21,16 +22,21 @@
 
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
                                   const std::vector<double>& etaMaxs,
-                                  const std::vector<double>& thresholds){
+                                  const std::vector<double>& thresholds,
+                                  const std::vector<int>& asymmetricEtas){
 
   Conditions conditions;
   for (std::size_t i = 0; i != thresholds.size(); ++i){
     
-    std::shared_ptr<ICondition> pCondition(new EtaEtCondition(etaMins[i],
-                                                              etaMaxs[i], 
-                                                              thresholds[i]));
-    
-    conditions.push_back(ConditionBridge(pCondition));
+    std::shared_ptr<ICondition> pCondition(nullptr);
+
+    if (asymmetricEtas[i] != 0){
+      pCondition.reset(new EtaEtAsymmetricCondition(etaMins[i], etaMaxs[i], thresholds[i]));
+    } else {
+      pCondition.reset(new EtaEtCondition(etaMins[i], etaMaxs[i], thresholds[i]));
+    }
+
+    conditions.push_back(ConditionBridge(pCondition));      
   }
   return conditions;
 }
