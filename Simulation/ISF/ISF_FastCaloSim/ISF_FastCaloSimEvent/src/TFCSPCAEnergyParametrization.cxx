@@ -348,5 +348,5 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-//ClassImp(TFCSPCAEnergyParametrization)
+ClassImp(TFCSPCAEnergyParametrization)
 

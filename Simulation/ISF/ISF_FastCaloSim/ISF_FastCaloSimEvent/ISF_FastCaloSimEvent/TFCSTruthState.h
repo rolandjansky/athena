@@ -23,11 +23,11 @@ class TFCSTruthState:public TLorentzVector {
     int m_pdgid;
     TLorentzVector m_vertex;
 
-  //ClassDef(TFCSTruthState,1)  //TFCSTruthState
+  ClassDef(TFCSTruthState,1)  //TFCSTruthState
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSTruthState;
+#pragma link C++ class TFCSTruthState+;
 #endif
 
 #endif

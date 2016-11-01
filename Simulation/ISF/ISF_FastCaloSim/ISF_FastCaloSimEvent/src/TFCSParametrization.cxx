@@ -63,5 +63,5 @@ void TFCSParametrization::set_eta_max(double max)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-//ClassImp(TFCSParametrization)
+ClassImp(TFCSParametrization)
 

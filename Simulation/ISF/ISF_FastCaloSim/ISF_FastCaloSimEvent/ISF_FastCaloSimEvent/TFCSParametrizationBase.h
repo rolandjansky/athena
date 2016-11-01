@@ -39,11 +39,11 @@ public:
 private:
   static std::set< int > m_no_pdgid;
 
-  //ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
+  ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSParametrizationBase;
+#pragma link C++ class TFCSParametrizationBase+;
 #endif
 
 #endif

@@ -17,8 +17,9 @@ class TFCS1DFunction:public TObject
     TFCS1DFunction();
     TFCS1DFunction(TH1* hist);
     
-    virtual void Initialize(TH1* hist);
-    int testHisto(TH1* hist, std::string, float&, float&, std::string, int, std::string);
+    void Initialize(TH1* hist);
+    //int testHisto(TH1* hist, std::string, float&, float&, std::string, int, std::string);
+    int testHisto(TH1* hist, std::string, float&, float&, std::string, int, int, int, double, int);
     
     virtual double rnd_to_fct(double rnd);
     
@@ -31,12 +32,11 @@ class TFCS1DFunction:public TObject
 
   private:
  
- //ClassDef(TFCS1DFunction,1)  //TFCS1DFunction
+ ClassDef(TFCS1DFunction,1)  //TFCS1DFunction
 };
 
-
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCS1DFunction;
+#pragma link C++ class TFCS1DFunction+;
 #endif
 
 #endif

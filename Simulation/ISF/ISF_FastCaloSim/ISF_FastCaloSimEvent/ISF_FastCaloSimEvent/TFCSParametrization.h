@@ -39,11 +39,11 @@ private:
   double m_Ekin_nominal,m_Ekin_min,m_Ekin_max;
   double m_eta_nominal,m_eta_min,m_eta_max;
 
-  //ClassDef(TFCSParametrization,1)  //TFCSParametrization
+  ClassDef(TFCSParametrization,1)  //TFCSParametrization
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSParametrization;
+#pragma link C++ class TFCSParametrization+;
 #endif
 
 #endif

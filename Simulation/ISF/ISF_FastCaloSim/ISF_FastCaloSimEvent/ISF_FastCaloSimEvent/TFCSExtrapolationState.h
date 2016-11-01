@@ -55,11 +55,11 @@ class TFCSExtrapolationState:public TObject {
     double m_IDCaloBoundary_r;
     double m_IDCaloBoundary_z;
 
-  //ClassDef(TFCSExtrapolationState,1)  //TFCSExtrapolationState
+  ClassDef(TFCSExtrapolationState,1)  //TFCSExtrapolationState
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSExtrapolationState;
+#pragma link C++ class TFCSExtrapolationState+;
 #endif
 
 #endif

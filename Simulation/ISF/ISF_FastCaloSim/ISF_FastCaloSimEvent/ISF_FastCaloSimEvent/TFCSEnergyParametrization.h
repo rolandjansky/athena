@@ -19,11 +19,11 @@ public:
   
 private:
 
-  //ClassDef(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
+  ClassDef(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSEnergyParametrization;
+#pragma link C++ class TFCSEnergyParametrization+;
 #endif
 
 #endif

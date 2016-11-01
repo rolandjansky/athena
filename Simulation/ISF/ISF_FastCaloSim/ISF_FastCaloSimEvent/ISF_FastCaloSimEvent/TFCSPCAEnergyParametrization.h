@@ -44,12 +44,12 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TFCS1DFunction*> m_cumulative;
   std::vector<TH1D*> h_cumulative;
   
-  //ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
+  ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
  
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSPCAEnergyParametrization;
+#pragma link C++ class TFCSPCAEnergyParametrization+;
 #endif
 
 #endif

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 769423 2016-08-23 09:45:44Z krasznaa $
+# $Id: CMakeLists.txt 781526 2016-11-01 06:57:09Z vpascuzz $
 ################################################################################
 # Package: ISF_FastCaloSimEvent
 ################################################################################
@@ -25,7 +25,7 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
-   ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h )
+  ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h ISF_FastCaloSimEvent/TFCS1DFunction.h ISF_FastCaloSimEvent/TFCSEnergyParametrization.h ISF_FastCaloSimEvent/TFCSExtrapolationState.h ISF_FastCaloSimEvent/TFCSParametrization.h ISF_FastCaloSimEvent/TFCSParametrizationBase.h ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h ISF_FastCaloSimEvent/TFCSSimulationState.h ISF_FastCaloSimEvent/TFCSTruthState.h )
 
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx

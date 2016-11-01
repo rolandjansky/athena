@@ -13,7 +13,7 @@ use CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
 library ISF_FastCaloSimEventLib *.cxx
 #apply_pattern installed_library
 apply_pattern named_installed_library library=ISF_FastCaloSimEventLib
-apply_pattern have_root_headers root_headers="IntArray.h" headers_lib="ISF_FastCaloSimEventLib"
+apply_pattern have_root_headers root_headers="IntArray.h TFCS1DFunction.h TFCSEnergyParametrization.h TFCSExtrapolationState.h TFCSParametrization.h TFCSParametrizationBase.h TFCSPCAEnergyParametrization.h TFCSSimulationState.h TFCSTruthState.h" headers_lib="ISF_FastCaloSimEventLib"
 
 #for dictionaries
 private

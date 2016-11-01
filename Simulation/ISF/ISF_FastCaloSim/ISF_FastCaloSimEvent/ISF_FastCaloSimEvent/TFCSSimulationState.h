@@ -33,11 +33,11 @@ class TFCSSimulationState:public TObject
     double m_Etot;
     double m_E[CaloCell_ID_FCS::MaxSample];
 
-  //ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
+  ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSSimulationState;
+#pragma link C++ class TFCSSimulationState+;
 #endif
 
 #endif
