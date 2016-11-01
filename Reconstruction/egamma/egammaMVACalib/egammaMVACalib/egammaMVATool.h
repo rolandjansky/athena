@@ -54,45 +54,15 @@ public:
 
 private:
   std::set<std::string> guess_variables(const std::string& filename);
-  bool getClusterVariables(const xAOD::CaloCluster*);
-  bool getConversionVariables(const xAOD::Vertex*);
-
-  //@brief Return the Pt at the first measurement point or at the perigee if not available
-  float getPtAtFirstMeasurement(const xAOD::TrackParticle*) const;
-
-private:
 
   std::unique_ptr<egammaMVACalib> m_mvaElectron; /// MVA tool for electron
   std::unique_ptr<egammaMVACalib> m_mvaPhoton; /// MVA tool for photon
   std::unique_ptr<egammaMVATreeElectron> m_MVATreeElectron;  //!
   std::unique_ptr<egammaMVATreePhoton> m_MVATreePhoton;    //!
 
-  // here will go variables and stuff
   std::string m_folder; /// string with folder for weight files
 
-  bool m_new_version;
   bool m_use_layer_corrected;
-
-  ////////////////////////////////////////////////////////////
-  // fields for internal tree
-  double m_rawcl_Es0;
-  double m_rawcl_Es1;
-  double m_rawcl_Es2;
-  double m_rawcl_Es3;
-  double m_cl_eta;
-  double m_cl_E;
-  double m_ptconv;
-  double m_pt1conv;
-  double m_pt2conv;
-  double m_cl_etaCalo;
-  double m_cl_phiCalo;
-  int m_convtrk1nPixHits;
-  int m_convtrk1nSCTHits;
-  int m_convtrk2nPixHits;
-  int m_convtrk2nSCTHits;
-  double m_Rconv;
-
-  ////////////////////////////////////////////////////////////
 
 };
 

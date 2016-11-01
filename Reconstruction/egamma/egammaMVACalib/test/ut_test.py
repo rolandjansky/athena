@@ -376,6 +376,7 @@ class TestEgammaMVATrigger(unittest.TestCase):
             trigger_energy = xAOD_tool.getEnergy(ph.caloCluster(), "Photon")
             self.assertGreater(trigger_energy, 0., msg="energy is negative item=%d, eta=%f, e=%f" % (i, ph.eta(), ph.e()))
 
+
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     unittest.main()
