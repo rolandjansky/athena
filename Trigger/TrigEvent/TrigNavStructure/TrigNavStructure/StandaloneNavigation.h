@@ -7,10 +7,8 @@
 #ifndef TRIGNAVSTRUCTUE_STANDALONENAVIGATION_H
 #define TRIGNAVSTRUCTUE_STANDALONENAVIGATION_H
 
-#include <memory>
 #include "TrigNavStructure/TrigNavStructure.h"
-
-class ITrigHolderFactory;
+#include <vector>
 
 namespace HLT{
   class StandaloneNavigation : public HLT::TrigNavStructure {
@@ -39,9 +37,6 @@ namespace HLT{
     virtual bool serialize( std::vector<uint32_t>& output ) const;
     virtual bool deserialize( const std::vector<uint32_t>& input );
 
-
-  private:
-    ITrigHolderFactory* m_holderfactory;
   };
 }//end of HLT namespace
 #endif

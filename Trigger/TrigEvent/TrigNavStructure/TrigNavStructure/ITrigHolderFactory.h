@@ -8,6 +8,7 @@
 #define TRIGNAVSTRUCTURE_IHOLDERFACTORY
 
 #include "TrigNavStructure/Types.h"
+#include <vector>
 
 namespace HLT {
   class BaseHolder;
