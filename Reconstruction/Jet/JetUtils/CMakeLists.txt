@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 781548 2016-11-01 09:48:16Z elmsheus $
 ################################################################################
 # Package: JetUtils
 ################################################################################
@@ -6,35 +7,55 @@
 atlas_subdir( JetUtils )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasTest/TestTools
-                          Calorimeter/CaloEvent
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Calorimeter/CaloGeoHelpers
-                          Control/AthLinks
-                          Control/SGTools
-                          Event/xAOD/xAODPFlow
-                          TileCalorimeter/TileEvent )
+if( XAOD_STANDALONE )
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Event/xAOD/xAODCaloEvent
+      Event/xAOD/xAODJet
+      Event/xAOD/xAODTracking
+      PRIVATE
+      Calorimeter/CaloGeoHelpers
+      Event/xAOD/xAODPFlow
+      Control/AthLinks )
+else()
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Calorimeter/CaloEvent
+      Event/xAOD/xAODCaloEvent
+      Event/xAOD/xAODJet
+      Event/xAOD/xAODTracking
+      PRIVATE
+      Calorimeter/CaloGeoHelpers
+      Control/AthLinks
+      Control/SGTools
+      Event/xAOD/xAODPFlow
+      TileCalorimeter/TileEvent )
+endif()
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread GenVector )
+find_package( ROOT COMPONENTS Core Tree RIO )
 
 # Component(s) in the package:
-atlas_add_library( JetUtils
-                   src/*.cxx
-                   Root/*.cxx
-                   PUBLIC_HEADERS JetUtils
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CaloEvent xAODCaloEvent xAODJet xAODTracking
-                   PRIVATE_LINK_LIBRARIES CaloGeoHelpers AthLinks SGTools xAODPFlow TileEvent )
+if( XAOD_STANDALONE )
+   atlas_add_library( JetUtils
+      JetUtils/*.h JetUtils/*.icc Root/*.cxx
+      PUBLIC_HEADERS JetUtils
+      LINK_LIBRARIES xAODCaloEvent xAODJet xAODTracking
+      PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODPFlow )
+else()
+   atlas_add_library( JetUtils
+      JetUtils/*.h JetUtils/*.icc Root/*.cxx src/*.cxx
+      PUBLIC_HEADERS JetUtils
+      LINK_LIBRARIES CaloEvent xAODCaloEvent xAODJet xAODTracking
+      PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODPFlow TileEvent )
+endif()
 
-atlas_add_test( JetUtils_CaloQual_test
-                SOURCES
-                test/JetUtils_CaloQual_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CaloEvent xAODCaloEvent xAODJet xAODTracking CaloGeoHelpers AthLinks SGTools xAODPFlow TileEvent JetUtils
-                EXTRA_PATTERNS "no dictionary for class" )
+# Test(s) in the package:
+if( NOT XAOD_STANDALONE )
+   atlas_add_test( JetUtils_CaloQual_test
+      SOURCES test/JetUtils_CaloQual_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent JetUtils AthLinks SGTools
+      EXTRA_PATTERNS "no dictionary for class" )
+endif()
 
