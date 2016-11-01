@@ -12,6 +12,7 @@
 
 // STL include(s):
 #include <vector>
+#include <unordered_map>
 
 // includes for trigger matching framework
 #include "TrigObjectMatching/ObjectMatching.h"
@@ -21,8 +22,6 @@
 
 // includes for navigation access
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
-
-#include "CxxUtils/unordered_map.h"
 
 namespace Trig {
    class FeatureContainer;
@@ -405,7 +404,7 @@ protected:
 
 private:
    // Map from chain names to indices.
-   typedef SG::unordered_map<std::string, size_t> chainIndexMap_t ;
+   typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
    chainIndexMap_t m_chainIndexMap;
 
    // function for printing warnings - note that this depends on whether
@@ -587,7 +586,7 @@ private:
    // Feature labels
    std::string     m_featureLabel;
 
-   typedef SG::unordered_map<const std::type_info*, int> typeMap_t;
+   typedef std::unordered_map<const std::type_info*, int> typeMap_t;
    typeMap_t m_typeMap;
 
    typedef std::vector<TrigFeatureCacheBase*> cacheVec_t;
@@ -595,7 +594,7 @@ private:
    // Current cache vector.
    cacheVec_t* m_caches;
 
-   typedef SG::unordered_map<std::string, cacheVec_t> cacheMap_t;
+   typedef std::unordered_map<std::string, cacheVec_t> cacheMap_t;
    cacheMap_t m_cacheMap;
 
    const Trig::FeatureContainer&
