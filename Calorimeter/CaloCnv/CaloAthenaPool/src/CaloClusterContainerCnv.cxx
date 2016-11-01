@@ -24,8 +24,8 @@ CaloClusterContainerCnv::CaloClusterContainerCnv(ISvcLocator* svcLoc) :
 
 
 CaloClusterContainerPERS* CaloClusterContainerCnv::createPersistent(CaloClusterContainer* trans) {
-    MsgStream log(messageService(), "CaloClusterContainerCnv");
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloClusterContainer_p7" << endreq;
+    MsgStream log(msgSvc(), "CaloClusterContainerCnv");
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloClusterContainer_p7" << endmsg;
     CaloClusterContainerPERS* pers=new CaloClusterContainerPERS();
     m_converter_p7.transToPers(trans,pers,log); 
     return pers;
@@ -34,26 +34,26 @@ CaloClusterContainerPERS* CaloClusterContainerCnv::createPersistent(CaloClusterC
 
 
 CaloClusterContainer* CaloClusterContainerCnv::createTransient() {
-   MsgStream log(messageService(), "CaloClusterContainerCnv" );
+   MsgStream log(msgSvc(), "CaloClusterContainerCnv" );
    // Search for persistent version to convert - last version first
    CaloClusterContainer* trans = 0;
    if (compareClassGuid(m_p7_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
-     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p7. GUID=" << m_classID.toString() << endreq; 
+     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p7. GUID=" << m_classID.toString() << endmsg; 
      CaloClusterContainer_p7* pers=poolReadObject<CaloClusterContainer_p7>();
      m_converter_p7.persToTrans(pers,trans,log);
      delete pers;
    }
    else if (compareClassGuid(m_p6_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
-     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p6. GUID=" << m_classID.toString() << endreq; 
+     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p6. GUID=" << m_classID.toString() << endmsg; 
      CaloClusterContainer_p6* pers=poolReadObject<CaloClusterContainer_p6>();
      m_converter_p6.persToTrans(pers,trans,log);
      delete pers;
    }
    else if (compareClassGuid(m_p5_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
-     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p5. GUID=" << m_classID.toString() << endreq;
+     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p5. GUID=" << m_classID.toString() << endmsg;
      CaloClusterContainer_p5* pers=poolReadObject<CaloClusterContainer_p5>();
      m_converter_p5.persToTrans(pers,trans,log);
      delete pers;
@@ -61,7 +61,7 @@ CaloClusterContainer* CaloClusterContainerCnv::createTransient() {
    else if (compareClassGuid(m_p4_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p4. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloClusterContainer_p4* pers=poolReadObject<CaloClusterContainer_p4>();
      m_converter_p4.persToTrans(pers,trans,log);
      delete pers;
@@ -69,7 +69,7 @@ CaloClusterContainer* CaloClusterContainerCnv::createTransient() {
    else if (compareClassGuid(m_p3_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p3. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloClusterContainer_p3* pers=poolReadObject<CaloClusterContainer_p3>();
      m_converter_p3.persToTrans(pers,trans,log);
      delete pers;
@@ -77,7 +77,7 @@ CaloClusterContainer* CaloClusterContainerCnv::createTransient() {
    else if (compareClassGuid(m_p2_guid)) {
      trans=new CaloClusterContainer(SG::VIEW_ELEMENTS);
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p2. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloClusterContainer_p2* pers=poolReadObject<CaloClusterContainer_p2>();
      m_converter_p2.persToTrans(pers,trans,log);
      delete pers;
@@ -85,19 +85,19 @@ CaloClusterContainer* CaloClusterContainerCnv::createTransient() {
    else if (compareClassGuid(m_p1_guid)) {
      trans=new CaloClusterContainer();
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read CaloClusterContainer_p1. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      CaloClusterContainer_p1* pers=poolReadObject<CaloClusterContainer_p1>();
      m_converter_p1.persToTrans(pers,trans,log);
      delete pers;
    }
    else if (compareClassGuid(m_p0_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p0 of CaloClusterContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      trans =  poolReadObject<CaloClusterContainer>();
    }
    else {
      log << MSG::ERROR << "Unsupported persistent version of CaloClusterContainer GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      throw std::runtime_error("Unsupported persistent version of CaloClusterContainer");
    }
    //CaloClusterSignalState::setCollectionDefaultState(trans,P4SignalState::CALIBRATED);
