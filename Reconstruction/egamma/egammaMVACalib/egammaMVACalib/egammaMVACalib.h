@@ -396,7 +396,7 @@ class egammaMVACalib : public asg::AsgMessaging
     int getNreaders() const { return (m_useNewBDTs ? m_BDTs.size() : m_readers.size()); }
 
     /** Create an internal TTree when InitTree(0) is called **/
-    TTree* createInternalTree(egammaType, TTree *tree);
+    TTree* createInternalTree(TTree *tree);
 
     //////////////////////////////////////////////////////////////
 
@@ -455,38 +455,6 @@ class egammaMVACalib : public asg::AsgMessaging
 
     // Formula to get cluster energy (std calibration)
     TTreeFormula* m_clusterFormula;
-
-    // fields for internal tree
-    float m_ph_rawcl_Es0;
-    float m_ph_rawcl_Es1;
-    float m_ph_rawcl_Es2;
-    float m_ph_rawcl_Es3;
-    float m_ph_cl_eta;
-    float m_ph_cl_E;
-    float m_ph_ptconv;
-    float m_ph_pt1conv;
-    float m_ph_pt2conv;
-    float m_ph_cl_etaCalo;
-    float m_ph_cl_phiCalo;
-    int m_ph_convtrk1nPixHits;
-    int m_ph_convtrk1nSCTHits;
-    int m_ph_convtrk2nPixHits;
-    int m_ph_convtrk2nSCTHits;
-    float m_ph_rawcl_calibHitsShowerDepth;
-    float m_ph_Rconv;
-
-    float m_el_rawcl_Es0;
-    float m_el_rawcl_Es1;
-    float m_el_rawcl_Es2;
-    float m_el_rawcl_Es3;
-    float m_el_cl_E_TileGap3;
-    float m_el_cl_eta;
-    float m_el_cl_E;
-    float m_el_cl_etaCalo;
-    float m_el_cl_phiCalo;
-    float m_el_cl_phi;
-    float m_el_rawcl_calibHitsShowerDepth;
-
 
   public:
     static std::vector<double> get_radius(double eta);
