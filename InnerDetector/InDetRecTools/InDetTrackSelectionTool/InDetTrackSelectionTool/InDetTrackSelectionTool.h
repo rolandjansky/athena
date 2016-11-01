@@ -17,6 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkValInterfaces/ITrackCutSvc.h"
 #endif
 
 #include <map>
@@ -184,7 +185,8 @@ namespace InDet {
     Bool_t m_initTrkTools = false; //!< Whether to initialize the Trk::Track tools
     Bool_t m_trackSumToolAvailable = false; //!< Whether the summary tool is available    
     ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
-    ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
+    ToolHandle<Trk::IExtrapolator>     m_extrapolator; //!< Extrapolator tool
+    ServiceHandle<Trk::ITrackCutSvc>   m_trackCutSvc;  //!< Track cut service
 
 #endif // XAOD_ANALYSIS
 
