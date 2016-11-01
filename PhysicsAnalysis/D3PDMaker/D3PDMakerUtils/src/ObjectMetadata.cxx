@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.cxx 638777 2015-01-12 04:48:15Z ssnyder $
+// $Id: ObjectMetadata.cxx 781603 2016-11-01 15:48:18Z ssnyder $
 
 // Boost include(s):
 #include <boost/tokenizer.hpp>
@@ -63,7 +63,7 @@ namespace D3PD {
    // Initialize the static variable(s):
    int ObjectMetadata::m_objectCounter = 0;
 
-   SG::unordered_map<std::string, size_t> ObjectMetadata::m_namecount;
+   std::unordered_map<std::string, size_t> ObjectMetadata::m_namecount;
 
    ObjectMetadata::ObjectMetadata()
       : m_variables(), m_name( "" ), m_prefix( "" ),

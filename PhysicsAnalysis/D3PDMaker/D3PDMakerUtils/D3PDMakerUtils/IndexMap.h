@@ -25,11 +25,11 @@
 
 
 #include "D3PDMakerUtils/TypeConverter.h"
-#include "CxxUtils/unordered_map.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 
 namespace D3PD {
@@ -196,7 +196,7 @@ private:
   std::vector<ICollectionGetterTool*> m_targets;
 
   /// The pointer -> (index,target) map.
-  typedef SG::unordered_multimap<const void*, std::pair<int, int> > map_t;
+  typedef std::unordered_multimap<const void*, std::pair<int, int> > map_t;
   map_t m_map;
 
   /// Flag if the map is valid.

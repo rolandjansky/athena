@@ -9,7 +9,6 @@ atlas_subdir( D3PDMakerUtils )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/DataModel
                           Control/SGTools
                           Control/StoreGate
@@ -28,6 +27,6 @@ atlas_add_library( D3PDMakerUtils
                    PUBLIC_HEADERS D3PDMakerUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel SGTools GaudiKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools GaudiKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
