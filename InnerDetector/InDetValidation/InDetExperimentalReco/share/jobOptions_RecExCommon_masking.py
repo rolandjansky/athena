@@ -34,6 +34,11 @@ athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/p
 # taus 10-500 GeV
 #athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.1"]
 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion = 'ATLAS-R1-2012-01-00-00'
+import AtlasGeoModel.SetGeometryVersion
+
+
 import MagFieldServices.SetupField
 
 # --- number of events to process
@@ -206,3 +211,6 @@ ServiceMgr.SpecialPixelMapSvc.LayersToMask = [0]
 ServiceMgr.InDetSCT_ModuleVetoSvc.MaskLayers = True
 ServiceMgr.InDetSCT_ModuleVetoSvc.MaskSide = -1
 ServiceMgr.InDetSCT_ModuleVetoSvc.DisksToMask = [-9]
+
+import AtlasGeoModel.GeoModelInit
+svcMgr.GeoModelSvc.IgnoreTagDifference = True
