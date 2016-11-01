@@ -719,8 +719,9 @@ namespace VKalVrtAthena {
     vertex->auxdata<char>( "truth_vtx_pattern" ) = truth_vtx_pattern;
     
     
-    if(  noTruthVertex != truth_vtx_pattern ) {
-      
+    ElementLink<xAOD::TruthVertexContainer> vtx_link;
+    if( noTruthVertex != truth_vtx_pattern ) {
+        
       // Retrieve the truth vertex container for element link
       ATH_MSG_VERBOSE( "categorizeVertexTruthTopology(): Retrieve the truth vertex container for element link" );
       const xAOD::TruthVertexContainer* truthVertexContainer (  nullptr );
@@ -730,15 +731,15 @@ namespace VKalVrtAthena {
       ATH_MSG_VERBOSE( "categorizeVertexTruthTopology(): create the element link" );
       const auto *theVertex = get<0>( tmp_tuple );
       if(  theVertex ) {
-	ElementLink<xAOD::TruthVertexContainer> vtx_link(  *truthVertexContainer, theVertex->index() );
-      
-	// Add the truth vertex element link to the reco vertex
-	ATH_MSG_VERBOSE( "categorizeVertexTruthTopology(): Add the truth vertex element link to the reco vertex" );
-	vertex->auxdata<ElementLink<xAOD::TruthVertexContainer> >( "truth_vtx_link" ) = vtx_link;
+          // Add the truth vertex element link to the reco vertex
+          vtx_link.toIndexedElement(*truthVertexContainer,theVertex->index());
+          ATH_MSG_VERBOSE( "categorizeVertexTruthTopology(): Add the truth vertex element link to the reco vertex" );
       }
-      
-    }
-        
+    } 
+    // [JDC] a ElementLink decorator should be filled every event
+    // although using a null link
+    vertex->auxdata<ElementLink<xAOD::TruthVertexContainer> >( "truth_vtx_link" ) = vtx_link;
+            
     return StatusCode::SUCCESS;
   }
   

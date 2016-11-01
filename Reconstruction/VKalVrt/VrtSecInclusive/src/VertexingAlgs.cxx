@@ -712,11 +712,13 @@ namespace VKalVrtAthena {
       // Registering the vertex type: SV
       vertex->setVertexType( xAOD::VxType::SecVtx );
 
-
       // Registering the vertex chi2 and Ndof
       int ndof = 2*WrkVrt.SelTrk.size()-3;
       vertex->setFitQuality( WrkVrt.Chi2, ndof );
 
+      // Registering the vertex covariance matrix
+      std::vector<float> fCov(WrkVrt.vertexCov.cbegin(), WrkVrt.vertexCov.cend());
+      vertex->setCovariance(fCov);
 
       // Registering the vertex momentum and charge
       vertex->auxdata<float>("vtx_px")		= WrkVrt.vertexMom.Px();

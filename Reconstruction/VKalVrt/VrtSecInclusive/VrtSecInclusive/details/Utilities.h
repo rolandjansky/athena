@@ -16,8 +16,6 @@ namespace VKalVrtAthena {
     //
     // get intersection point of track with various surfaces
     //
-    MsgStream mlog( messageService(), name() );
-    
     
     //--------------------
     // main loop
