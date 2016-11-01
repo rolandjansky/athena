@@ -4,18 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.h 475045 2011-12-26 18:49:56Z ssnyder $
+// $Id: ObjectMetadata.h 781603 2016-11-01 15:48:18Z ssnyder $
 #ifndef D3PDMAKERUTILS_OBJECTMETADATA_H
 #define D3PDMAKERUTILS_OBJECTMETADATA_H
 
 // STL include(s):
 #include <string>
 #include <set>
+#include <unordered_map>
 
 // D3PD include(s):
 #include "D3PDMakerInterfaces/IAddVariable.h"
-
-#include "CxxUtils/unordered_map.h"
 
 namespace D3PD {
 
@@ -30,8 +29,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 475045 $
-    * $Date: 2011-12-26 19:49:56 +0100 (Mon, 26 Dec 2011) $
+    * $Revision: 781603 $
+    * $Date: 2016-11-01 16:48:18 +0100 (Tue, 01 Nov 2016) $
     */
    class ObjectMetadata : public IAddVariable {
 
@@ -128,8 +127,8 @@ namespace D3PD {
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
        *
-       * $Revision: 475045 $
-       * $Date: 2011-12-26 19:49:56 +0100 (Mon, 26 Dec 2011) $
+       * $Revision: 781603 $
+       * $Date: 2016-11-01 16:48:18 +0100 (Tue, 01 Nov 2016) $
        */
       class Variable {
       public:
@@ -180,7 +179,7 @@ namespace D3PD {
       static int m_objectCounter; ///< Variable used to give names to unnamed D3PDObject-s
       /// Count of the number of times a given name was used, 
       /// in order to assign them a unique suffix.
-      static SG::unordered_map<std::string, size_t> m_namecount;
+      static std::unordered_map<std::string, size_t> m_namecount;
 
    private:
      /**

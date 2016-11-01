@@ -330,7 +330,7 @@ public:
   using Base::next;
   virtual const Ulast* next (const Tlast* dum) = 0;
 
-  virtual StatusCode doResetUntyped (const void* p)
+  virtual StatusCode doResetUntyped (const void* p) override
   {
     if (this->m_which == n)
       return this->reset (*reinterpret_cast<const Tlast*> (p));
