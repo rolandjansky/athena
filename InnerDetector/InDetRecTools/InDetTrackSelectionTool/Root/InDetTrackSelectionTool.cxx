@@ -38,6 +38,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 #ifndef XAOD_ANALYSIS
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
   , m_extrapolator("Trk::Extrapolator/Extrapolator", this)
+  , m_trackCutSvc("InDet::InDetTrackCutSvc/InDetTrackCutSvc", name)
 #endif // XAOD_ANALYSIS
 {
 
@@ -196,6 +197,9 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     }
   }
 
+    ATH_CHECK(m_trackCutSvc.retrieve());
+    ATH_MSG_INFO("Retrieved Svc " << m_trackCutSvc);
+
 #ifndef XAOD_ANALYSIS
   if (m_initTrkTools) {
     m_trackSumToolAvailable = false;
@@ -206,6 +210,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     }
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
+       
   }
 #endif // XAOD_ANALYSIS
 
@@ -217,11 +222,15 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 
   // create the cuts and initialize them (which will create the necessary accessors).
   // tell the user which cuts are recognized.
+  
+  auto trackCuts = m_trackCutSvc->trackCuts();
+
   if (m_minPt > 0.) {
     ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
     m_trackCuts["Pt"].push_back(make_unique<MinCut<double, &xAOD::TrackParticle::pt> >(this, m_minPt, "pt"));
   }
   if (maxDoubleIsSet(m_maxAbsEta)) {
+    m_maxAbsEta = trackCuts.maxEta;
     ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );
     m_trackCuts["Eta"].push_back(make_unique< MaxAbsCut<double, &xAOD::TrackParticle::eta> >(this, m_maxAbsEta, "eta"));
   }
@@ -230,14 +239,17 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["P"].push_back(make_unique< MaxAbsCut<float, &xAOD::TrackParticle::qOverP> >(this, 1./m_minP, "qOverP"));
   }
   if (maxDoubleIsSet(m_maxD0)) {
+    m_maxD0 = trackCuts.maxD0;
     ATH_MSG_INFO( "  Maximum d0: " << m_maxD0 << " mm" );
     m_trackCuts["D0"].push_back(make_unique<D0Cut>(this, m_maxD0));
   }
   if (maxDoubleIsSet(m_maxZ0)) {
+    m_maxZ0 = trackCuts.maxZ0;
     ATH_MSG_INFO( "  Maximum z0: " << m_maxZ0 << " mm");
     m_trackCuts["Z0"].push_back(make_unique<Z0Cut>(this, m_maxZ0));
   }
   if (maxDoubleIsSet(m_maxZ0SinTheta)) {
+    //m_maxZ0SinTheta = trackCuts.maxZ0sinTheta;
     ATH_MSG_INFO( "  Maximum z0*sin(theta): " << m_maxZ0SinTheta << " mm" );
     m_trackCuts["Z0SinTheta"].push_back(make_unique<Z0SinThetaCut>(this, m_maxZ0SinTheta));
   }
@@ -324,12 +336,14 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 	std::vector<xAOD::SummaryType>({xAOD::numberOfInnermostPixelLayerSharedHits}) ));
   }
   if (m_minNPixelHits > 0) {
+    m_minNPixelHits = trackCuts.minPixelHits;
     ATH_MSG_INFO( "  Minimum pixel hits: " << m_minNPixelHits );
     m_trackCuts["PixelHits"].push_back
       (make_unique<MinSummaryValueCut>
        (this, m_minNPixelHits, std::vector<xAOD::SummaryType>({xAOD::numberOfPixelHits, xAOD::numberOfPixelDeadSensors}) ));
   }
   if (m_minNPixelHitsPhysical > 0) {
+    m_minNPixelHitsPhysical = trackCuts.minPixelHits;
     ATH_MSG_INFO( "  Minimum physical pixel hits (i.e. dead sensors do not count): "
   		  << m_minNPixelHitsPhysical );
     auto minPixelPhysHits = make_unique<MinSummaryValueCut> (this, m_minNPixelHitsPhysical );
@@ -349,12 +363,14 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["PixelHits"].push_back(std::move(maxPixSharedHits));
   }
   if (m_minNSctHits > 0) {
+    m_minNSctHits = trackCuts.minSCTHits;
     ATH_MSG_INFO( "  Minimum SCT hits: " << m_minNSctHits );
     m_trackCuts["SctHits"].push_back
       (make_unique<MinSummaryValueCut>
        (this, m_minNSctHits, std::vector<xAOD::SummaryType>({xAOD::numberOfSCTHits, xAOD::numberOfSCTDeadSensors}) ));
   }
   if (m_minNSctHitsPhysical > 0) {
+    m_minNSctHitsPhysical = trackCuts.minSCTHits;
     ATH_MSG_INFO( "  Minimum physical SCT hits (i.e. dead sensors do not count): "
   		  << m_minNSctHitsPhysical );
     auto minSctPhysHits = make_unique<MinSummaryValueCut> (this, m_minNSctHitsPhysical );
@@ -380,6 +396,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["SctHits"].push_back(std::move(maxSctDoubleHoles));
   }
   if (m_minNSiHits > 0) {
+    m_minNSiHits = trackCuts.minSiHits;
     ATH_MSG_INFO( "  Minimum silicon (pixel + SCT) hits: " << m_minNSiHits );
     auto minSiHits = make_unique<MinSummaryValueCut>(this, m_minNSiHits);
     minSiHits->addSummaryType( xAOD::numberOfPixelHits );
@@ -389,6 +406,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["SiHits"].push_back(std::move(minSiHits));
   }
   if (m_minNSiHitsPhysical > 0) {
+    m_minNSiHitsPhysical = trackCuts.minSiHits;
     ATH_MSG_INFO( "  Minimum physical silicon hits (i.e. dead sensors do not count): "
 		  << m_minNSiHitsPhysical );
     auto minSiHitsPhys = make_unique<MinSummaryValueCut>(this, m_minNSiHitsPhysical);
@@ -643,6 +661,56 @@ StatusCode InDet::InDetTrackSelectionTool::finalize()
     ATH_MSG_INFO( "No tracks processed in selection tool." );
     return StatusCode::SUCCESS;
   }
+/*    ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
+    ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );
+    ATH_MSG_INFO( "  Minimum P: " << m_minP << " MeV" );
+    ATH_MSG_INFO( "  Maximum d0: " << m_maxD0 << " mm" );
+    ATH_MSG_INFO( "  Maximum z0: " << m_maxZ0 << " mm");
+    ATH_MSG_INFO( "  Maximum z0*sin(theta): " << m_maxZ0SinTheta << " mm" );
+    ATH_MSG_INFO( "  Maximum uncertainty on d0: " << m_maxSigmaD0 << " mm" );
+    ATH_MSG_INFO( "  Maximum uncertainty on z0: " << m_maxSigmaZ0 << " mm" );
+    ATH_MSG_INFO( "  Maximum uncertainty on z0*sin(theta): "
+		  << m_maxSigmaZ0SinTheta << " mm" );
+    ATH_MSG_INFO( "  Maximum significance on d0: " << m_maxD0overSigmaD0 );
+    ATH_MSG_INFO( "  Maximum significance on z0: " << m_maxZ0overSigmaZ0 );
+    ATH_MSG_INFO( "  Maximum significance on z0*sin(theta): "
+		  << m_maxZ0SinThetaoverSigmaZ0SinTheta );
+    ATH_MSG_INFO( "  Minimum hits from innermost pixel layer: " << m_minNInnermostLayerHits );
+    ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
+    ATH_MSG_INFO( "  Minimum hits from next to innermost pixel layer: " << m_minNNextToInnermostLayerHits );
+    ATH_MSG_INFO( "    (Track will pass if no hit is expected.)" );
+    ATH_MSG_INFO( "  Minimum hits from both innermost pixel layers: " << m_minNBothInnermostLayersHits );
+    ATH_MSG_INFO( "    (If a layer has no hits but one is not expected, the" );
+    ATH_MSG_INFO( "     number of hits in that layer will be taken to be 1.)" );
+      ATH_MSG_WARNING( "A value of minNBothInnermostLayersHits above 2 does not make sense." );
+      ATH_MSG_WARNING( "  Use 1 for \"or\" or 2 for \"and\"." );
+    ATH_MSG_INFO( "  An innermost layer hit is required if expected, otherwise" );
+    ATH_MSG_INFO( "    a next-to-innermost layer hit is required if it is expected." );
+    ATH_MSG_INFO( "  Maximum shared hits in innermost pixel layer: " << m_maxNInnermostLayerSharedHits );
+    ATH_MSG_INFO( "  Minimum pixel hits: " << m_minNPixelHits );
+    ATH_MSG_INFO( "  Minimum physical pixel hits (i.e. dead sensors do not count): "
+  		  << m_minNPixelHitsPhysical );
+    ATH_MSG_INFO( "  Maximum pixel holes: " << m_maxNPixelHoles );
+    ATH_MSG_INFO( "  Maximum pixel shared hits: " << m_maxNPixelSharedHits );
+    ATH_MSG_INFO( "  Minimum SCT hits: " << m_minNSctHits );
+    ATH_MSG_INFO( "  Minimum physical SCT hits (i.e. dead sensors do not count): "
+  		  << m_minNSctHitsPhysical );
+    ATH_MSG_INFO( "  Maximum SCT holes: " << m_maxNSctHoles );
+    ATH_MSG_INFO( "  Maximum SCT shared hits: " << m_maxNSctSharedHits );
+    ATH_MSG_INFO( "  Maximum SCT double holes: " << m_maxNSctDoubleHoles );
+    ATH_MSG_INFO( "  Minimum silicon (pixel + SCT) hits: " << m_minNSiHits );
+    ATH_MSG_INFO( "  Minimum physical silicon hits (i.e. dead sensors do not count): "
+		  << m_minNSiHitsPhysical );
+    ATH_MSG_INFO( "  Maximum silicon holes: " << m_maxNSiHoles );
+    ATH_MSG_INFO( "  Maximum silicon shared hits: " << m_maxNSiSharedHits );
+    ATH_MSG_INFO( "  No more than one shared module:" );
+    ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
+    ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
+    ATH_MSG_INFO( "  Minimum silicon hits if the track has shared hits: "
+		  << m_minNSiHitsIfSiSharedHits );
+    ATH_MSG_INFO( "  Require " << m_minNSiHitsAboveEtaCutoff
+		  << " silicon hits above eta = " << m_minEtaForStrictNSiHitsCut ); */
+
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
   for (const auto& cutFamily : m_trackCuts) {

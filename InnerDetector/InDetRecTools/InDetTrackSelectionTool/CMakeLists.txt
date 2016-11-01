@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkValidation/TrkValInterfaces
                           PRIVATE
                           Control/AthenaBaseComps )
 

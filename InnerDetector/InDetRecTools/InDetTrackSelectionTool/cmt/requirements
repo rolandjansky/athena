@@ -22,6 +22,7 @@ use xAODTracking           xAODTracking-*           Event/xAOD
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkExtrapolation/TrkExInterfaces"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkTools/TrkToolInterfaces"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkParameters"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkValidation/TrkValInterfaces"
 #use_ifndef pplist="XAOD_ANALYSIS" pkg="MagneticField/MagFieldInterfaces"
 
 
