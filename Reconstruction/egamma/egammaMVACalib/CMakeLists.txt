@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 776723 2016-10-05 17:01:35Z krasznaa $
 ################################################################################
 # Package: egammaMVACalib
 ################################################################################
@@ -5,41 +6,70 @@
 # Declare the package name:
 atlas_subdir( egammaMVACalib )
 
+# Extra dependencies for Athena capable builds:
+set( extra_dep )
+if( XAOD_STANDALONE )
+   set( extra_dep Control/xAODRootAccess
+      Event/xAOD/xAODEventInfo
+      Event/xAOD/xAODCore )
+else()
+   set( extra_dep GaudiKernel )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          PRIVATE
-			  Reconstruction/MVAUtils
-                          Reconstruction/egamma/egammaRecEvent
-                          Control/CxxUtils
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODEgamma
+   Event/xAOD/xAODTracking
+   PRIVATE
+   Reconstruction/MVAUtils
+   Control/CxxUtils
+   Tools/PathResolver
+   ${extra_dep} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Tree TreePlayer TMVA XMLIO Core MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Tree TreePlayer TMVA XMLIO Core MathCore Hist
+   RIO )
 
 # Component(s) in the package:
 atlas_add_library( egammaMVACalibLib
-                   Root/*.cxx
-                   PUBLIC_HEADERS egammaMVACalib
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma xAODTracking GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} egammaRecEvent CxxUtils PathResolver MVAUtils )
+   egammaMVACalib/*.h Root/*.cxx
+   PUBLIC_HEADERS egammaMVACalib
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
+   xAODTracking
+   PRIVATE_LINK_LIBRARIES CxxUtils PathResolver MVAUtils )
 
-atlas_add_component( egammaMVACalib
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking egammaRecEvent GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( egammaMVACalib
+      src/components/*.cxx
+      LINK_LIBRARIES GaudiKernel egammaMVACalibLib )
+endif()
 
 atlas_add_dictionary( egammaMVACalibDict
-                      egammaMVACalib/egammaMVACalibDict.h
-                      egammaMVACalib/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking egammaRecEvent GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
+   egammaMVACalib/egammaMVACalibDict.h
+   egammaMVACalib/selection.xml
+   LINK_LIBRARIES egammaMVACalibLib )
+
+atlas_add_executable( egammaMVACalib_mem_test_initialize
+   util/mem_test_initialize.cxx
+   LINK_LIBRARIES egammaMVACalibLib )
+
+if( XAOD_STANDALONE )
+   atlas_add_executable( testClusterMVACalib
+      util/testClusterMVACalib.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo xAODEgamma xAODCaloEvent
+      xAODCore AsgTools egammaMVACalibLib )
+endif()
+
+# Test(s) in the package:
+atlas_add_test( mem_test SCRIPT test/mem_test.py )
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_test SCRIPT test/ut_test.py )
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-

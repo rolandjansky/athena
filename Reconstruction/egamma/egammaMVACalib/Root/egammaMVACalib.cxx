@@ -80,39 +80,10 @@ egammaMVACalib::egammaMVACalib(int particle,
     m_particleType(0), m_eta(0), m_energy(0), m_initialEnergy(0),
     m_hPoly(0),
     m_tree(0), m_input_tree(0),
-    m_useInternalTree(true),
     m_mvaOutput(0),
     m_dummyFloat(0),
     m_shiftType(NOSHIFT),
-    m_clusterFormula(0),
-    m_ph_rawcl_Es0(0),
-    m_ph_rawcl_Es1(0),
-    m_ph_rawcl_Es2(0),
-    m_ph_rawcl_Es3(0),
-    m_ph_cl_eta(0),
-    m_ph_cl_E(0),
-    m_ph_ptconv(0),
-    m_ph_pt1conv(0),
-    m_ph_pt2conv(0),
-    m_ph_cl_etaCalo(0),
-    m_ph_cl_phiCalo(0),
-    m_ph_convtrk1nPixHits(0),
-    m_ph_convtrk1nSCTHits(0),
-    m_ph_convtrk2nPixHits(0),
-    m_ph_convtrk2nSCTHits(0),
-    m_ph_rawcl_calibHitsShowerDepth(0),
-    m_ph_Rconv(0),
-    m_el_rawcl_Es0(0),
-    m_el_rawcl_Es1(0),
-    m_el_rawcl_Es2(0),
-    m_el_rawcl_Es3(0),
-    m_el_cl_E_TileGap3(0),
-    m_el_cl_eta(0),
-    m_el_cl_E(0),
-    m_el_cl_etaCalo(0),
-    m_el_cl_phiCalo(0),
-    m_el_cl_phi(0),
-    m_el_rawcl_calibHitsShowerDepth(0)
+    m_clusterFormula(0)
 {
     ATH_MSG_DEBUG("creating egammaMVACalib in debug mode with options:"
           << "\n  particle     : " << particle
@@ -765,51 +736,17 @@ int egammaMVACalib::getBin() const
 }
 
 
-TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
+TTree* egammaMVACalib::createInternalTree(TTree *tree)
 {
   ATH_MSG_DEBUG("Creating internal tree");
+  if (!tree) { ATH_MSG_FATAL("tree is null"); }
   TTree* new_tree = new TTree();
   new_tree->SetDirectory(0);
   new_tree->SetCacheSize(0);
 
   new_tree->Branch(fMethodName.Data(), &m_mvaOutput, Form("%s/F", fMethodName.Data()));
-  if (tree) {
-    m_useInternalTree = false;
-    checkShowerDepth(tree);
-  }
-  else if (egamma_type == egPHOTON) {
-    new_tree->Branch("ph_rawcl_Es0", &m_ph_rawcl_Es0);
-    new_tree->Branch("ph_rawcl_Es1", &m_ph_rawcl_Es1);
-    new_tree->Branch("ph_rawcl_Es2", &m_ph_rawcl_Es2);
-    new_tree->Branch("ph_rawcl_Es3", &m_ph_rawcl_Es3);
-    new_tree->Branch("ph_cl_eta", &m_ph_cl_eta);
-    new_tree->Branch("ph_cl_E", &m_ph_cl_E);
-    new_tree->Branch("ph_ptconv", &m_ph_ptconv);
-    new_tree->Branch("ph_pt1conv", &m_ph_pt1conv);
-    new_tree->Branch("ph_pt2conv", &m_ph_pt2conv);
-    new_tree->Branch("ph_cl_etaCalo", &m_ph_cl_etaCalo);
-    new_tree->Branch("ph_cl_phiCalo", &m_ph_cl_phiCalo);
-    new_tree->Branch("ph_convtrk1nPixHits", &m_ph_convtrk1nPixHits);
-    new_tree->Branch("ph_convtrk1nSCTHits", &m_ph_convtrk1nSCTHits);
-    new_tree->Branch("ph_convtrk2nPixHits", &m_ph_convtrk2nPixHits);
-    new_tree->Branch("ph_convtrk2nSCTHits", &m_ph_convtrk2nSCTHits);
-    new_tree->Branch("ph_rawcl_calibHitsShowerDepth", &m_ph_rawcl_calibHitsShowerDepth);
-    new_tree->Branch("ph_Rconv", &m_ph_Rconv);
-  }
-  else if (egamma_type == egELECTRON) {
-    new_tree->Branch("el_rawcl_Es0", &m_el_rawcl_Es0);
-    new_tree->Branch("el_rawcl_Es1", &m_el_rawcl_Es1);
-    new_tree->Branch("el_rawcl_Es2", &m_el_rawcl_Es2);
-    new_tree->Branch("el_rawcl_Es3", &m_el_rawcl_Es3);
-    new_tree->Branch("el_cl_E_TileGap3", &m_el_cl_E_TileGap3);
-    new_tree->Branch("el_cl_eta", &m_el_cl_eta);
-    new_tree->Branch("el_cl_E", &m_el_cl_E);
-    new_tree->Branch("el_cl_etaCalo", &m_el_cl_etaCalo);
-    new_tree->Branch("el_cl_phiCalo", &m_el_cl_phiCalo);
-    new_tree->Branch("el_cl_phi", &m_el_cl_phi);
-    new_tree->Branch("el_rawcl_calibHitsShowerDepth", &m_el_rawcl_calibHitsShowerDepth);
-  }
-  else assert(false);
+  checkShowerDepth(tree);
+
   return new_tree;
 }
 
@@ -817,7 +754,7 @@ TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
 void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 {
   ATH_MSG_DEBUG("InitTree");
-  if (!m_tree) m_tree = createInternalTree(m_egammaType, tree);
+  if (!m_tree) m_tree = createInternalTree(tree);
   if (tree)
   {
     if (m_input_tree == tree) return;
@@ -1058,80 +995,6 @@ float egammaMVACalib::getMVAOutput(int index /* = 0 */)
     return 0;
   return reader->EvaluateRegression(fMethodName.Data())[0];
 }
-
-float egammaMVACalib::getMVAEnergyPhoton(float ph_rawcl_Es0,
-                                         float ph_rawcl_Es1,
-                                         float ph_rawcl_Es2,
-                                         float ph_rawcl_Es3,
-                                         float ph_cl_eta,
-                                         float ph_cl_E,
-                                         float ph_cl_etaCalo,
-                                         float ph_cl_phiCalo,
-                                         float ph_ptconv,
-                                         float ph_pt1conv,
-                                         float ph_pt2conv,
-                                         int ph_convtrk1nPixHits,
-                                         int ph_convtrk1nSCTHits,
-                                         int ph_convtrk2nPixHits,
-                                         int ph_convtrk2nSCTHits,
-                                         float ph_Rconv)
-{
-  m_ph_rawcl_Es0 = ph_rawcl_Es0;
-  m_ph_rawcl_Es1 = ph_rawcl_Es1;
-  m_ph_rawcl_Es2 = ph_rawcl_Es2;
-  m_ph_rawcl_Es3 = ph_rawcl_Es3;
-  m_ph_cl_etaCalo = ph_cl_etaCalo;
-  m_ph_cl_phiCalo = ph_cl_phiCalo;
-  m_ph_cl_eta = ph_cl_eta;
-  m_ph_cl_E = ph_cl_E;
-  m_ph_ptconv = ph_ptconv;
-  m_ph_pt1conv = ph_pt1conv;
-  m_ph_pt2conv = ph_pt2conv;
-  m_ph_convtrk1nPixHits = ph_convtrk1nPixHits;
-  m_ph_convtrk1nSCTHits = ph_convtrk1nSCTHits;
-  m_ph_convtrk2nPixHits = ph_convtrk2nPixHits;
-  m_ph_convtrk2nSCTHits = ph_convtrk2nSCTHits;
-  m_ph_rawcl_calibHitsShowerDepth = get_shower_depth(
-    ph_cl_eta,
-    ph_rawcl_Es0,
-    ph_rawcl_Es1,
-    ph_rawcl_Es2,
-    ph_rawcl_Es3);
-  m_ph_Rconv = ph_Rconv;
-  return getMVAEnergy();
-}
-
-
-float egammaMVACalib::getMVAEnergyElectron(float el_rawcl_Es0,
-                                           float el_rawcl_Es1,
-                                           float el_rawcl_Es2,
-                                           float el_rawcl_Es3,
-                                           float el_cl_eta,
-                                           float el_cl_E,
-                                           float el_cl_etaCalo,
-                                           float el_cl_phiCalo)
-{
-  m_el_rawcl_Es0 = el_rawcl_Es0;
-  m_el_rawcl_Es1 = el_rawcl_Es1;
-  m_el_rawcl_Es2 = el_rawcl_Es2;
-  m_el_rawcl_Es3 = el_rawcl_Es3;
-  m_el_cl_eta = el_cl_eta;
-  m_el_cl_E = el_cl_E;
-  m_el_cl_etaCalo = el_cl_etaCalo;
-  m_el_cl_phiCalo = el_cl_phiCalo;
-  m_el_rawcl_calibHitsShowerDepth = get_shower_depth(
-    el_cl_eta,
-    el_rawcl_Es0,
-    el_rawcl_Es1,
-    el_rawcl_Es2,
-    el_rawcl_Es3);
-  ATH_MSG_DEBUG("computing getMVAEnergy electron with Es0|Es1|Es2|Es2|cl_eta|cl_E|cl_etaCalo|cl_phiCalo|showerdepth = " <<
-		m_el_rawcl_Es0 << "|" << m_el_rawcl_Es1 << "|" << m_el_rawcl_Es2 << "|" << m_el_rawcl_Es3 << "|" <<
-		m_el_cl_eta << "|" << m_el_cl_E << "|" << m_el_cl_etaCalo << "|" << m_el_cl_phiCalo << "|" <<
-		m_el_rawcl_calibHitsShowerDepth);
-  return getMVAEnergy();
-}
-
 
 
 float egammaMVACalib::getMVAEnergy(int index /* = 0 */,

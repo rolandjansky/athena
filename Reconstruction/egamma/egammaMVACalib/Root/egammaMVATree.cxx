@@ -52,8 +52,6 @@ void egammaMVATreeEgamma::init_variables(const std::set<std::string>& variables)
     {m_prefix + "_cl_E_TileGap3", [](const xAOD::CaloCluster& cl) { return cl.eSample(CaloSampling::TileGap3); }}
   };
 
-  std::map<std::string, std::function<float(const xAOD::Egamma&)>> map_float_particle;
-
   if (m_use_layer_corrected) {
     map_float_CaloCluster[m_prefix + "_rawcl_Es0"] = compute_correctedcl_Es0;
     map_float_CaloCluster[m_prefix + "_rawcl_Es1"] = compute_correctedcl_Es1;
@@ -71,6 +69,52 @@ void egammaMVATreeEgamma::init_variables(const std::set<std::string>& variables)
     // static cast here is needed to resolve overload (std::function is not able to)
     map_float_CaloCluster[m_prefix + "_rawcl_calibHitsShowerDepth"] = static_cast<float(*)(const xAOD::CaloCluster&)>(compute_rawcl_calibHitsShowerDepth);
   }
+
+  std::map<std::string, std::function<float(const xAOD::Egamma&)>> map_float_particle {
+    { m_prefix + "_e011", SG::AuxElement::Accessor<float>("e011") },
+	  { m_prefix + "_e033", SG::AuxElement::Accessor<float>("e033") },
+    { m_prefix + "_e132", SG::AuxElement::Accessor<float>("e132") },
+    { m_prefix + "_e1152", SG::AuxElement::Accessor<float>("e1152") },
+    { m_prefix + "_ethad1", SG::AuxElement::Accessor<float>("ethad1") },
+    { m_prefix + "_ethad", SG::AuxElement::Accessor<float>("ethad") },
+    { m_prefix + "_f1", SG::AuxElement::Accessor<float>("f1") },
+    { m_prefix + "_f3", SG::AuxElement::Accessor<float>("f3") },
+    { m_prefix + "_f1core", SG::AuxElement::Accessor<float>("f1core") },
+    { m_prefix + "_f3core", SG::AuxElement::Accessor<float>("f3core") },
+    { m_prefix + "_e233", SG::AuxElement::Accessor<float>("e233") },
+    { m_prefix + "_e235", SG::AuxElement::Accessor<float>("e235") },
+    { m_prefix + "_e255", SG::AuxElement::Accessor<float>("e255") },
+    { m_prefix + "_e237", SG::AuxElement::Accessor<float>("e237") },
+    { m_prefix + "_e277", SG::AuxElement::Accessor<float>("e277") },
+    { m_prefix + "_e333", SG::AuxElement::Accessor<float>("e333") },
+    { m_prefix + "_e335", SG::AuxElement::Accessor<float>("e335") },
+    { m_prefix + "_e337", SG::AuxElement::Accessor<float>("e337") },
+    { m_prefix + "_e377", SG::AuxElement::Accessor<float>("e377") },
+    { m_prefix + "_weta1", SG::AuxElement::Accessor<float>("weta1") },
+    { m_prefix + "_weta2", SG::AuxElement::Accessor<float>("weta2") },
+    { m_prefix + "_e2ts1", SG::AuxElement::Accessor<float>("e2ts1") },
+    { m_prefix + "_e2tsts1", SG::AuxElement::Accessor<float>("e2tsts1") },
+    { m_prefix + "_fracs1", SG::AuxElement::Accessor<float>("fracs1") },
+    { m_prefix + "_widths1", SG::AuxElement::Accessor<float>("widths1") },
+    { m_prefix + "_widths2", SG::AuxElement::Accessor<float>("widths2") },
+    { m_prefix + "_poscs1", SG::AuxElement::Accessor<float>("poscs1") },
+    { m_prefix + "_poscs2", SG::AuxElement::Accessor<float>("poscs2") },
+    { m_prefix + "_asy1", SG::AuxElement::Accessor<float>("asy1") },
+    { m_prefix + "_pos", SG::AuxElement::Accessor<float>("pos") },
+    { m_prefix + "_pos7", SG::AuxElement::Accessor<float>("pos7") },
+    { m_prefix + "_barys1", SG::AuxElement::Accessor<float>("barys1") },
+    { m_prefix + "_wtots1", SG::AuxElement::Accessor<float>("wtots1") },
+    { m_prefix + "_emins1", SG::AuxElement::Accessor<float>("emins1") },
+    { m_prefix + "_emaxs1", SG::AuxElement::Accessor<float>("emaxs1") },
+    { m_prefix + "_r33over37allcalo", SG::AuxElement::Accessor<float>("r33over37allcalo") },
+    { m_prefix + "_ecore", SG::AuxElement::Accessor<float>("ecore") },
+    { m_prefix + "_Reta", SG::AuxElement::Accessor<float>("Reta") },
+    { m_prefix + "_Rphi", SG::AuxElement::Accessor<float>("Rphi") },
+    { m_prefix + "_Eratio", SG::AuxElement::Accessor<float>("Eratio") },
+    { m_prefix + "_Rhad", SG::AuxElement::Accessor<float>("Rhad") },
+    { m_prefix + "_Rhad1", SG::AuxElement::Accessor<float>("Rhad1") },
+    { m_prefix + "_DeltaE", SG::AuxElement::Accessor<float>("DeltaE") },
+  };
 
   create_structure<float>(variables, map_float_CaloCluster, m_functions_float_from_calo_cluster);
   create_structure<float>(variables, map_float_particle, m_functions_float_from_particle);
