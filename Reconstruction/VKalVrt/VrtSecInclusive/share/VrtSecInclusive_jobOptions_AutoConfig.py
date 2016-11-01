@@ -9,7 +9,10 @@ from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 
 #jp.AthenaCommonFlags.FilesInput = ['/usatlas/u/vj/vj_bnl_local/datafile/mc10_7TeV.105001.pythia_minbias.recon.AOD.e574_s932_s946_r1649_tid191045_00/AOD.191045._001937.pool.root.1']
 
-jp.AthenaCommonFlags.FilesInput = [ '/afs/cern.ch/atlas/maxidisk/d49/AOD.191045._001937.pool.root.1']
+#jp.AthenaCommonFlags.FilesInput = [ '/afs/cern.ch/atlas/maxidisk/d49/AOD.191045._001937.pool.root.1']
+jp.AthenaCommonFlags.FilesInput = [
+'/afs/cern.ch/work/v/vkost/vkdata/valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6024_tid04652558_00/AOD.04652558._000029.pool.root.1',
+]
 ################################################################
 # more single input files to test on
 #
@@ -90,9 +93,7 @@ if 'IS_SIMULATION' in inputFileSummary['evt_type']:
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
 	                                      Extrapolator        = ToolSvc.AtlasExtrapolator,
-	                                      IterationNumber     = 30,
-	                                      MagFieldSvc         = ToolSvc.AtlasMagneticFieldTool,
-	                                      AtlasMagFieldSvc    = 'dummy'
+	                                      IterationNumber     = 30
 					     )
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO
@@ -111,12 +112,12 @@ ServiceMgr.EventSelector.InputCollections = jp.AthenaCommonFlags.FilesInput()
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output = ["AANT DATAFILE='vert.root' OPT='RECREATE'"]
-from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
-topSequence += AANTupleStream()
-topSequence.AANTupleStream.ExtraRefNames = [ "StreamESD","Stream1" ]
-topSequence.AANTupleStream.OutputName = 'vert.root'
-topSequence.AANTupleStream.WriteInputDataHeader = True
-topSequence.AANTupleStream.OutputLevel = INFO
+#from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+#topSequence += AANTupleStream()
+#topSequence.AANTupleStream.ExtraRefNames = [ "StreamESD","Stream1" ]
+#topSequence.AANTupleStream.OutputName = 'vert.root'
+#topSequence.AANTupleStream.WriteInputDataHeader = True
+#topSequence.AANTupleStream.OutputLevel = INFO
 
 # Number of Events to process
 theApp.EvtMax = -1
@@ -127,8 +128,8 @@ ServiceMgr.MessageSvc.defaultLimit = 9999999 # all messages
 
 ## uncomment following lines to dump truth info
 
-from TruthExamples.TruthExamplesConf import DumpMC
+#from TruthExamples.TruthExamplesConf import DumpMC
 #topSequence += DumpMC()
 # fix this by hand for running on AOD or ESD
 #DumpMC.McEventKey = "GEN_AOD"
-DumpMC.McEventKey = "TruthEvent"
+#DumpMC.McEventKey = "TruthEvent"
