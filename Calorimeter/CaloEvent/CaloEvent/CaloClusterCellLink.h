@@ -23,6 +23,7 @@
 
 class CaloClusterCellLink {
   friend class CaloClusterCellLinksUpdater;
+  friend class CaloClusterCellLinkContainerCnv_p1;
 
  public:
   typedef double weight_t;
