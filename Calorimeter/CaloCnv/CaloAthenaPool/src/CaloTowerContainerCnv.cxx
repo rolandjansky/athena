@@ -42,7 +42,7 @@ CaloTowerContainerCnv::~CaloTowerContainerCnv()
 
 //     // Get the messaging service, print where you are
 //     MsgStream log(msgSvc(), "CaloTowerContainerCnv");
-//     log << MSG::INFO << "initialize()" << endreq;
+//     log << MSG::INFO << "initialize()" << endmsg;
 
 //     return StatusCode::SUCCESS;
 // }
@@ -50,24 +50,24 @@ CaloTowerContainerCnv::~CaloTowerContainerCnv()
 
 //StatusCode CaloTowerContainerCnv::PoolToDataObject(DataObject*& pObj,const std::string &token)
 CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
-    MsgStream log(messageService(), "CaloTowerContainerCnv::createTransient" );
+    MsgStream log(msgSvc(), "CaloTowerContainerCnv::createTransient" );
     CaloTowerContainer* Cont = 0;
 
     if (compareClassGuid(p0_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p0 of CaloTowerContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      Cont=poolReadObject<CaloTowerContainer>();
     }
     else if(compareClassGuid(p1_guid)) {
       if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read version p1 of CaloTowerContainer. GUID=" 
-	  << m_classID.toString() << endreq;
+	  << m_classID.toString() << endmsg;
       CaloTowerContainerPERS* pers=poolReadObject<CaloTowerContainer_p1>();
       Cont=new CaloTowerContainer();
       m_converter.persToTrans(pers,Cont);
       delete pers;
     }
     if (!Cont) {
-      log << MSG::FATAL << "Unable to get object from pool" << endreq;
+      log << MSG::FATAL << "Unable to get object from pool" << endmsg;
       return Cont;
     }
     
@@ -79,7 +79,7 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
     std::vector<CaloCell_ID::SUBCALO> v; 
 
     if(Cont->getCalos(v)==0){
- 	log<<MSG::WARNING<< " No SUBCALO in CaloTowerContainer"<<endreq;
+ 	log<<MSG::WARNING<< " No SUBCALO in CaloTowerContainer"<<endmsg;
         return Cont;
     }
 
@@ -103,14 +103,14 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	    m_fcalTowerBldr= getTool("LArFCalTowerBuilderTool",
 		"LArTowerFCal");
 	    if(!m_fcalTowerBldr){
-	     log<<MSG::ERROR<< " Failed to create LArFCalTowerBuilder " <<endreq;
+	     log<<MSG::ERROR<< " Failed to create LArFCalTowerBuilder " <<endmsg;
              return 0;
 	    }
 	  }
-         if (log.level() <= MSG::DEBUG)  log<<MSG::DEBUG<<" Towers rebuild for FCAL "<<endreq; 
+         if (log.level() <= MSG::DEBUG)  log<<MSG::DEBUG<<" Towers rebuild for FCAL "<<endmsg; 
 	  StatusCode scfcal = m_fcalTowerBldr->execute(Cont); 
 	  if (scfcal.isFailure()) {
-	    log<<MSG::ERROR<<" Towers rebuild for FCAL failed "<<endreq; 
+	    log<<MSG::ERROR<<" Towers rebuild for FCAL failed "<<endmsg; 
 	  }
 	} 
 
@@ -119,14 +119,14 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	    m_tileTowerBldr= getTool("TileTowerBuilderTool",
 		"TileTower");
 	    if(!m_tileTowerBldr){
-	     log<<MSG::ERROR<< " Failed to create TileTowerBuilder " <<endreq;
+	     log<<MSG::ERROR<< " Failed to create TileTowerBuilder " <<endmsg;
              return 0;
 	    }
 	  }
-          if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for Tile "<<endreq; 
+          if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for Tile "<<endmsg; 
 	  StatusCode sctile=m_tileTowerBldr->execute(Cont); 
 	  if (sctile.isFailure()) {
-	    log<<MSG::ERROR<<" Towers rebuild for Tile failed "<<endreq; 
+	    log<<MSG::ERROR<<" Towers rebuild for Tile failed "<<endmsg; 
 	  }
 	} 
 
@@ -138,15 +138,15 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 		"LArTowerEMHEC");
 	    m_emHecTowerBldr=dynamic_cast<CaloTowerBuilderTool*>(bldr); 
 	    if(!m_emHecTowerBldr){
-	     log<<MSG::ERROR<< " Failed to create LArTowerBuilder for EM&HEC" <<endreq;
+	     log<<MSG::ERROR<< " Failed to create LArTowerBuilder for EM&HEC" <<endmsg;
              return 0;
 	    }
 	  }
-          if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for EM and/or HEC "<<endreq; 
+          if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for EM and/or HEC "<<endmsg; 
 	  m_emHecTowerBldr->setCalos(EmHec); 
 	  StatusCode scemHec=m_emHecTowerBldr->execute(Cont); 
 	  if (scemHec.isFailure()) {
-	    log<<MSG::ERROR<<" Towers rebuild for EM and/or HEC failed "<<endreq; 
+	    log<<MSG::ERROR<<" Towers rebuild for EM and/or HEC failed "<<endmsg; 
 	  }
 
     }
@@ -155,8 +155,8 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 }
 
 CaloTowerContainerPERS* CaloTowerContainerCnv::createPersistent(CaloTowerContainer* trans) {
-    MsgStream log(messageService(), "CaloTowerContainerCnv::createPersistent");
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloTowerContainer_p1" << endreq;
+    MsgStream log(msgSvc(), "CaloTowerContainerCnv::createPersistent");
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloTowerContainer_p1" << endmsg;
     CaloTowerContainerPERS* pers=new CaloTowerContainerPERS();
     m_converter.transToPers(trans,pers); 
     return pers;
@@ -174,7 +174,7 @@ const std::string& type, const std::string& nm)
     {
       log << MSG::ERROR
           << "Tool Service not found"
-          << endreq;
+          << endmsg;
       return 0 ; 
     }
 
@@ -191,7 +191,7 @@ const std::string& type, const std::string& nm)
               << "Cannot find tool named <"
               << type << "/" << nm 
               << ">"
-              << endreq;
+              << endmsg;
           return 0; 
     }
   return   dynamic_cast<CaloTowerBuilderToolBase*>(algToolPtr);
