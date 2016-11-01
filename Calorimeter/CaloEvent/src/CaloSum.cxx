@@ -242,14 +242,14 @@ bool CaloSum::add(const CaloCell* theCell,
 		   theSummedVariables);
 }
 
-// regions defined by eta ranges (explicite indices)
+// regions defined by eta ranges (explicit indices)
 bool CaloSum::add(const CaloSampling::CaloSample& theSampling,
 		  double theEta, 
 		  double theBinnedVariable,
 		  double theSummedVariable)
 {
   std::vector<double> theSums; theSums.push_back(theSummedVariable);
-  return this->add(theSampling,theEta,theBinnedVariable,theSummedVariable);
+  return this->add(theSampling,theEta,theBinnedVariable,theSums);
 }
 
 bool CaloSum::add(const CaloSampling::CaloSample& theSampling,
