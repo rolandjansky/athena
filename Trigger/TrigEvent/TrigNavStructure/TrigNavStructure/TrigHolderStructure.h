@@ -6,7 +6,6 @@
 
 #ifndef TRIGNAVSTRUCTURE_TRIGHOLDERSTRUCTURE
 #define TRIGNAVSTRUCTURE_TRIGHOLDERSTRUCTURE
-#include <memory>
 #include <map>
 #include <string>
 

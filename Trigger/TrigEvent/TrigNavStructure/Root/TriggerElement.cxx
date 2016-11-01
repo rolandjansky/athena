@@ -2,11 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include <iostream>
+#include <iostream>
 #include <stdexcept>
 #include <iterator>
 #include <functional>
-#include <sstream>
 #include <boost/lexical_cast.hpp>
 #include "TrigNavStructure/Types.h"
 #include "TrigNavStructure/TriggerElement.h"
