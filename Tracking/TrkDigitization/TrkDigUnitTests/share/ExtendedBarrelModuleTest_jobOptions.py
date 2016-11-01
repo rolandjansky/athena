@@ -38,26 +38,28 @@ DigitizationModuleTest.OutputLevel            = VERBOSE
 # Stepper Tool
 DigitizationModuleTest.DigitizationStepper    = PlanarModuleStepper
 # Display test 
-DigitizationModuleTest.BinsX                  = 328
-DigitizationModuleTest.BinsY                  = 144
+DigitizationModuleTest.BinsX                  = 400
+DigitizationModuleTest.BinsY                  = 800
 DigitizationModuleTest.PitchX                 = 0.05
-#DigitizationModuleTest.PitchXmax              = 10.
-DigitizationModuleTest.PitchY                 = 0.4
-DigitizationModuleTest.ModuleHalfThickness    = 0.125
+DigitizationModuleTest.PitchY                 = 0.05
+DigitizationModuleTest.ModuleHalfThickness    = 0.05
 DigitizationModuleTest.ModuleReadoutDirection = -1
 DigitizationModuleTest.LorentzAngle           = 0. #-0.35
+DigitizationModuleTest.LorentzAngle           = 0. #-0.35
+DigitizationModuleTest.PathCutOff             = 0.005
+DigitizationModuleTest.ModuleUncertaintyR     = 0.001
 #DigitizationModuleTest.TestTrapezoidal        = True
 # the run parameters
 DigitizationModuleTest.IncidentMode           = 1
-DigitizationModuleTest.MaxClusterSizeY        = 7  
 DigitizationModuleTest.MaxClusterSizeX        = 4
+DigitizationModuleTest.MaxClusterSizeY        = 7  
 DigitizationModuleTest.IncidnetMinPhi         = 0.
 DigitizationModuleTest.IncidnetMaxPhi         = 0.
-DigitizationModuleTest.IncidnetMinEta         = 3.
+DigitizationModuleTest.IncidnetMinEta         = 0.
 DigitizationModuleTest.IncidnetMaxEta         = 4.
 
 # number of tests                             
-DigitizationModuleTest.NumberOfTestsPerEvent  = 100
+DigitizationModuleTest.NumberOfTestsPerEvent  = 1000
 
 job += DigitizationModuleTest   # 1 alg, named "DigitizationModuleTest"
 

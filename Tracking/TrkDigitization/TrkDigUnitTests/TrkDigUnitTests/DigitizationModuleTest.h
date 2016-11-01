@@ -68,6 +68,7 @@ namespace Trk {
        int                                                  m_smearing;
        double                                               m_smearingSigma;
        double                                               m_pathCutOff;
+       double                                               m_moduleUncertaintyR;
        
        ToolHandle<IModuleStepper>                           m_digitizationStepper;
        DigitizationModule*                                  m_digitizationModule;
@@ -80,6 +81,9 @@ namespace Trk {
        std::string                                          m_treeName;
        std::string                                          m_treeFolder;
        std::string                                          m_treeDescription;
+       
+       float                                                m_startEta;
+       float                                                m_startPhi;
        
        float                                                m_startPositionX;
        float                                                m_startPositionY;
@@ -99,11 +103,16 @@ namespace Trk {
        float                                                m_nominalPathLength;
        float                                                m_accumulatedPathLength;
 
+       int                                                  m_droppedPixels;
+
        float                                                m_clusterRecoX;
        float                                                m_clusterRecoY;
        
        float                                                m_clusterRecoDigitalX;
        float                                                m_clusterRecoDigitalY;
+       
+       float                                                m_clusterRecoEndPointX;
+       float                                                m_clusterRecoEndPointY;
        
        int                                                  m_clusterRecoIdsX;
        int                                                  m_clusterRecoIdsY;
@@ -122,9 +131,29 @@ namespace Trk {
        std::vector< float >*                                m_stepEndPositionY;
        std::vector< float >*                                m_stepEndPositionZ;
        
+       // stability parameters
+       float                                                m_clusterActualX;
+       float                                                m_clusterActualY;
+       
+       
        // run parameters
+       int                                                  m_incidentMode;
+       
+       // (0)
+       // stepping in x/y range
        double                                               m_incidentDeltaBinsRangeX;
        double                                               m_incidentDeltaBinsRangeY;
+       
+       // (1)
+       // intersect in eta range
+       double                                               m_incidentMinPhi;
+       double                                               m_incidentMaxPhi;
+       double                                               m_incidentMinEta;
+       double                                               m_incidentMaxEta;
+       
+       
+       
+       
        
    };
 }
