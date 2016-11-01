@@ -1,7 +1,8 @@
-# $Id: CMakeLists.txt 741504 2016-04-20 07:44:31Z krasznaa $
+# $Id: CMakeLists.txt 781619 2016-11-01 16:24:31Z jchapman $
 #
 # Package building CLHEP as part of the offline build procedure.
 #
+
 
 # The name of the package:
 atlas_subdir( AtlasCLHEP )
@@ -11,9 +12,14 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
-# The source to build:
-set( _source
-   http://proj-clhep.web.cern.ch/proj-clhep/DISTRIBUTION/tarFiles/clhep-2.2.0.4.tgz )
+# Git repository for CLHEP:
+set( _repository https://gitlab.cern.ch/atlas-sw-git/CLHEP.git )
+# Git tag to build:
+set( _tag "CLHEP_2_2_0_4_atl01")
+
+## The source to build:
+#set( _source
+#     http://atlas-pmb.web.cern.ch/atlas-pmb/slc6/clhep-2.2.0.4.tgz  )
 
 # Extra options for the configuration:
 set( _extraOptions )
@@ -22,7 +28,7 @@ if( "${CMAKE_CXX_STANDARD}" GREATER 11 OR
    list( APPEND _extraOptions -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
       -DCLHEP_BUILD_CXXSTD=ON )
 endif()
-  
+
 if( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
    list( APPEND _extraOptions -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} )
 endif()
@@ -35,7 +41,8 @@ atlas_cpu_cores( nCPUs )
 ExternalProject_Add( CLHEP
    PREFIX ${CMAKE_BINARY_DIR}
    INSTALL_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
-   URL ${_source}
+   GIT_REPOSITORY ${_repository}
+   GIT_TAG ${_tag}
    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory
    <SOURCE_DIR>/CLHEP/ <SOURCE_DIR>
    COMMAND ${CMAKE_COMMAND} -E remove_directory <SOURCE_DIR>/CLHEP
