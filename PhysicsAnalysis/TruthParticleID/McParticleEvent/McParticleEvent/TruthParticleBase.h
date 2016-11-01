@@ -24,7 +24,7 @@
 
 // Navigation includes
 #include "Navigation/AthenaBarCodeImpl.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "VxVertex/VxContainer.h"
 
 // Forward declaration
