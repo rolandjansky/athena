@@ -7,7 +7,6 @@ private
 use GaudiInterface             GaudiInterface-*        External
 use AtlasBoost                 AtlasBoost-*            External
 use AtlasROOT                  AtlasROOT-*             External
-use CxxUtils                   CxxUtils-*              Control
 use RootUtils                  RootUtils-*             Control
 use AthenaKernel               AthenaKernel-*          Control
 use AthContainers              AthContainers-*         Control

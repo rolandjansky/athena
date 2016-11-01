@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CollectionGetterRegistryTool.h 618070 2014-09-22 19:05:34Z ssnyder $
+// $Id: CollectionGetterRegistryTool.h 781599 2016-11-01 15:42:00Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/CollectionGetterRegistryTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,9 +19,9 @@
 
 #include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CxxUtils/unordered_map.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include <unordered_map>
 
 
 class IJobOptionsSvc;
@@ -92,7 +92,7 @@ private:
   ServiceHandle<IToolSvc> m_toolsvc;
 
   /// Map from getter labels to instances.
-  typedef SG::unordered_map<std::string, D3PD::ICollectionGetterTool*> map_t;
+  typedef std::unordered_map<std::string, D3PD::ICollectionGetterTool*> map_t;
   map_t m_collection_map;
 };
 
