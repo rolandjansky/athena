@@ -641,8 +641,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG :: DEBUG << "jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() << endreq;
 	
-	std::string tauKey = "";
-	hltStatus=recordAndAttachFeature(outputTE, theJetCollection,tauKey,"TrigTauJet");
+	hltStatus=attachFeature(outputTE, theJetCollection, "TrigTauJet");
 	
 	if (hltStatus!=HLT::OK ) {
 	  msg() << MSG::ERROR << "Unable to record JetCollection  in TDS" << endreq;
@@ -650,7 +649,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  return hltStatus;
 	}
 	else {
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << tauKey << "_" << "TrigTauJet" << endreq;
+	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" << endreq;
 	}
 
 
@@ -956,16 +955,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	// all done, register the tau Container in TDS.
 	//-------------------------------------------------------------------------
 
-	tauKey = "";
-	hltStatus=recordAndAttachFeature(outputTE, pContainer,tauKey,m_outputName);
-	hltStatus=recordAndAttachFeature(outputTE, pTrackContainer,tauKey,m_outputName+"Tracks");
+	hltStatus=attachFeature(outputTE, pContainer, m_outputName);
+	hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");
 	if (hltStatus!=HLT::OK )  {
 		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endreq;
 		m_calo_errors.push_back(NoHLTtauAttach);
 		return hltStatus;
 	}
 	else {
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" <<tauKey << "_" << "TrigTauRecMerged" << endreq;
+		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" << endreq;
 	}
 
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endreq;
