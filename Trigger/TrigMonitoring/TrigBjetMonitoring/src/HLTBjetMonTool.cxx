@@ -133,23 +133,39 @@ StatusCode HLTBjetMonTool::init() {
   for (int i =0; i<size_TriggerChainBjet; i++){
     chainName = m_TriggerChainBjet.at(i);
     ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+    // Investigate by the 1st character which folder should be assigned                                                                                                                  
+    if (chainName.substr(0,1) == "E") {
+      m_TriggerChainBjet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainBjet.at(i);
+      m_Chain2Dir[chainName] = "Expert";
+    } else if (chainName.substr(0,1) == "S") {
+      m_TriggerChainBjet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainBjet.at(i);
+      m_Chain2Dir[chainName] = "Shifter";
+    } else {
+      ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+      return StatusCode::FAILURE;
+    } // else                                                                                                                                                                            
+    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
   }
   for (int i =0; i<size_TriggerChainMujet; i++){
     chainName = m_TriggerChainMujet.at(i);
-    ATH_MSG_DEBUG("         Chain number: " << i << " MuJet Chain Name: " << chainName );
+    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+    // Investigate by the 1st character which folder should be assigned
+    if (chainName.substr(0,1) == "E") {
+      m_TriggerChainMujet.at(i) = chainName.substr (2); 
+      chainName = m_TriggerChainMujet.at(i);
+      m_Chain2Dir[chainName] = "Expert";
+    } else if (chainName.substr(0,1) == "S") {
+      m_TriggerChainMujet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainMujet.at(i);
+      m_Chain2Dir[chainName] = "Shifter";
+    } else {
+      ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+      return StatusCode::FAILURE;
+    } // else
+    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
   }
-
-  // Set manually which triggers should be in which folder
-
-  m_Chain2Dir["HLT_j35_boffperf_split"] = "Expert";
-  m_Chain2Dir["HLT_j55_boffperf"] = "Expert";
-  m_Chain2Dir["HLT_j55_boffperf_split"] = "Shifter";
-  m_Chain2Dir["HLT_j320_boffperf"] = "Expert";
-  m_Chain2Dir["HLT_j320_boffperf_split"] = "Shifter";
-  m_Chain2Dir["HLT_j225_gsc360_boffperf_split"] = "Shifter";
-  m_Chain2Dir["HLT_mu4_j55_bperf_split_dr05_dz02"] = "Shifter";
-  m_Chain2Dir["HLT_mu4_j55_bperf_split_dr05_dz02_L1BTAG-MU4J15"] = "Expert";
-  m_Chain2Dir["HLT_mu6_j110_bperf_split_dr05_dz02"] = "Expert";
 
   // Check if folder assignment is made for all chains - if not stop the program
   // Regroup chain names with identical histograms
@@ -160,8 +176,6 @@ StatusCode HLTBjetMonTool::init() {
     it++;
   }
   std::map<std::string,std::string>::iterator p;
-  //  for (int i =0; i<size_TriggerChainBjet; i++){
-  //    chainName = m_TriggerChainBjet.at(i);
   for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16 
     p = m_Chain2Dir.find(chainName);
     if ( p != m_Chain2Dir.end() ) {
@@ -184,8 +198,6 @@ StatusCode HLTBjetMonTool::init() {
       if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
     }
   } //i Bjet
-  //  for (int i =0; i<size_TriggerChainMujet; i++){
-  //    chainName = m_TriggerChainMujet.at(i);
   for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
     p = m_Chain2Dir.find(chainName);
     if ( p != m_Chain2Dir.end() ) {
@@ -305,7 +317,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -350,7 +362,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -376,7 +388,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	// Muons
 	addHistogram(new TH1F(("nMuon_"+m_Shifter_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));
@@ -419,7 +431,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -462,7 +474,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -489,7 +501,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 250.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	// Muons
 	addHistogram(new TH1F(("nMuon_"+m_Expert_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));
@@ -609,8 +621,6 @@ StatusCode HLTBjetMonTool::book(){
 
     //  unsigned int ichain = 0;
     // Loop on trigger items
-    //    for (unsigned int ichain = 0; ichain < FiredChainNames.size(); ichain++) {
-    //      std::string trigItem = FiredChainNames.at(ichain);
     for (const auto & trigItem:FiredChainNames){        // Shaun Roe 21/9/16
       // Set directory name (Expert or Shifter)
       std::map<std::string,std::string>::iterator p;
