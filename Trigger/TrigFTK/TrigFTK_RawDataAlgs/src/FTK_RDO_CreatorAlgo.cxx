@@ -81,19 +81,19 @@ FTK_RDO_CreatorAlgo::~FTK_RDO_CreatorAlgo()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::initialize(){
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTK_RDO_CreatorAlgo::initialize()" << endreq;
+  log << MSG::INFO << "FTK_RDO_CreatorAlgo::initialize()" << endmsg;
 
   log << MSG::VERBOSE << "mergedTrackPaths: "<<m_ftktrack_paths_merged<<
-    "Paths of the merged tracks: "<< endreq;
-  log << MSG::VERBOSE << "mergeTrackBName: "<<m_mergedtracks_bname<<" - Branch name for the merged tracks"<< endreq;
+    "Paths of the merged tracks: "<< endmsg;
+  log << MSG::VERBOSE << "mergeTrackBName: "<<m_mergedtracks_bname<<" - Branch name for the merged tracks"<< endmsg;
 
   log << MSG::INFO << "Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
-      << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY << endreq;
+      << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY << endmsg;
 
 
   StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
   if (scSG.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
+    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endmsg;
     return scSG;
   }
 
@@ -108,17 +108,17 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
   // prepare the input from the FTK tracks, merged in an external simulation
   m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
   // add the file to the chain
-  log << MSG::INFO << "Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" << endreq;
+  log << MSG::INFO << "Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" << endmsg;
   vector<string>::const_iterator imtp = m_ftktrack_paths_merged.begin();
   for (;imtp!=m_ftktrack_paths_merged.end();++imtp) {
     Int_t addres = m_mergedtracks_chain->Add((*imtp).c_str());
-    log << MSG::DEBUG << "Added: " << *imtp << '[' << addres << ']' <<endreq;
+    log << MSG::DEBUG << "Added: " << *imtp << '[' << addres << ']' <<endmsg;
   }
   m_mergedtracks_stream = new FTKTrackStream();
   TBranch *mergedtracks_branch;
   Int_t res = m_mergedtracks_chain->SetBranchAddress(m_mergedtracks_bname.c_str(),&m_mergedtracks_stream,&mergedtracks_branch);
   if (res<0) {
-    log << MSG::FATAL << "Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" << endreq;
+    log << MSG::FATAL << "Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -146,24 +146,24 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
         prevEventNumber = eventNumber;
       }
       else {
-        log << MSG::FATAL << "A duplicated event was found before the end of file, the error cannot be recoverd" << endreq;
+        log << MSG::FATAL << "A duplicated event was found before the end of file, the error cannot be recoverd" << endmsg;
         return StatusCode::FAILURE;
       }
     }
     else if (eventNumber==prevEventNumber) {
-      log << MSG::WARNING << "Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" << endreq;
+      log << MSG::WARNING << "Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" << endmsg;
       hasRepeatedEvents = true;
     }
     else {
       // Duplicate events are a condition error at the moment, this
       // can be fixed using a runNumber and eventNumber paier as key
-      log << MSG::FATAL << "Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" << endreq;
+      log << MSG::FATAL << "Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" << endmsg;
       return StatusCode::FAILURE;
     }
 
   }
 
-  log << MSG::DEBUG << "Tracks from " << m_trackVectorMap.size() << " events loaded"<<endreq;
+  log << MSG::DEBUG << "Tracks from " << m_trackVectorMap.size() << " events loaded"<<endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -171,11 +171,11 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::execute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() start" << endreq;
+  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() start" << endmsg;
   // Get information on the events
   const EventInfo* eventInfo(0);
   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve event info" << endreq;
+    log << MSG::ERROR << "Could not retrieve event info" << endmsg;
     return StatusCode::FAILURE;
   }
   const EventID* eventID( eventInfo->event_ID() );
@@ -184,24 +184,24 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
   log << MSG::DEBUG
     << "entered execution for run " << eventID->run_number()
     << "   event " << eventNumber
-    << endreq;
+    << endmsg;
 
   // Extract the vector of tracks found by the FTK for the current event
   std::map<int, Long64_t >::iterator mapIt = m_trackVectorMap.find(eventNumber);
   if(mapIt == m_trackVectorMap.end()) {
-    log << MSG::ERROR << "No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files"<<endreq;
+    log << MSG::ERROR << "No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files"<<endmsg;
     return StatusCode::FAILURE;
   }
 
   //Have Tracks
   const Long64_t &FTKEntry = (*mapIt).second;
   if (m_mergedtracks_chain->GetEntry(FTKEntry)==-1) {
-    log << MSG::ERROR << "Error reading the FTK entry: " << FTKEntry <<endreq;
+    log << MSG::ERROR << "Error reading the FTK entry: " << FTKEntry <<endmsg;
     return StatusCode::FAILURE;
   }
 
   int ntracks_merged = m_mergedtracks_stream->getNTracks();
-  log << MSG::DEBUG << "Number of FTK tracks to merge in SG: " << ntracks_merged << endreq;
+  log << MSG::DEBUG << "Number of FTK tracks to merge in SG: " << ntracks_merged << endmsg;
 
 
 
@@ -209,10 +209,10 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
 
   StatusCode scJ = m_StoreGate->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
   if (scJ.isFailure()) {
-    log << MSG::FATAL << "Failure registering FTK_RawTrackContainer" << endreq;
+    log << MSG::FATAL << "Failure registering FTK_RawTrackContainer" << endmsg;
     return StatusCode::FAILURE;
   } else{
-    log << MSG::DEBUG << "Setting FTK_RawTrackContainer registered" << endreq;
+    log << MSG::DEBUG << "Setting FTK_RawTrackContainer registered" << endmsg;
   }
 
   //
@@ -233,7 +233,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
   // prepare to move to the next event
   m_mergedtracks_iev += 1;
 
-  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() end" << endreq;
+  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() end" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -241,7 +241,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
+  log << MSG::INFO << "finalize()" << endmsg;
 
   //
   //  Clean up output and input merged files
@@ -276,10 +276,10 @@ StatusCode FTK_RDO_CreatorAlgo::finalize() {
 
 
   // cleanup the map containing the list of FTK tracks found in each event
-  log << MSG::DEBUG << "Clear Track map" << endreq;
+  log << MSG::DEBUG << "Clear Track map" << endmsg;
   m_trackVectorMap.clear();
 
-  log << MSG::DEBUG << "end Finalize() " << endreq;
+  log << MSG::DEBUG << "end Finalize() " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -332,7 +332,7 @@ FTK_RawTrack* FTK_RDO_CreatorAlgo::SimToRaw(const FTKTrack &track)
 	valid = false;
       }
       ATH_MSG_VERBOSE( " Creating Pixel cluster for layer " << iPlane);
-      Identifier wafer_id = m_pixelId->wafer_id(hitHashId);
+      //Identifier wafer_id = m_pixelId->wafer_id(hitHashId);
 
       float phi_index= hit.getHwCoord(0);
       float eta_index = hit.getHwCoord(1);

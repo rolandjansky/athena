@@ -39,6 +39,7 @@ use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDet
 use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
 #use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
 use xAODTracking                xAODTracking-*            Event/xAOD
+use xAODTruth                xAODTruth-*            Event/xAOD
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
