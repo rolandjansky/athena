@@ -15,6 +15,8 @@ class VxContainer;
 #include "xAODTracking/VertexFwd.h"
 //#include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "TrkTrack/TrackCollection.h"
 //#include "xAODTracking/TrackParticleContainerFwd.h"
 //namespace Trk {
 ////  class Track;
@@ -29,7 +31,8 @@ class IFTK_VertexFinderTool : virtual public IAlgTool {
   {  return IID_IFTK_VertexFinderTool; }  	
 
  // virtual VxContainer* findVertex(const FTK_RawTrackContainer* trks) = 0;
-  virtual xAOD::VertexContainer* findVertex(const FTK_RawTrackContainer* trks) = 0;
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const FTK_RawTrackContainer* trks) = 0;
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trks) = 0;
  private:
 };
 

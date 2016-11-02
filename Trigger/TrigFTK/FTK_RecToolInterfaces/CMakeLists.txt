@@ -5,6 +5,7 @@
 # Declare the package name:
 atlas_subdir( FTK_RecToolInterfaces )
 
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
