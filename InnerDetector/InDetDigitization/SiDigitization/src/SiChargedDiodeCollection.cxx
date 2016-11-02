@@ -71,7 +71,7 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
     SiReadoutCellId roCell=design().readoutIdOfCell(diode);
     if (!roCell.isValid()) { // I don't think this can occur at this stage but cant hurt.
       MsgStream log(Athena::getMessageSvc(),"SiChargedDiodeCollection");
-      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endreq;
+      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
     }
     // create a new charged diode
     SiChargedDiode chargedDiode(m_allocator, diode,roCell);
@@ -106,7 +106,7 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
     SiReadoutCellId roCell=design().readoutIdOfCell(diode);
     if (!roCell.isValid()) {  // I don't think this can occur at this stage but cant hurt.
       MsgStream log(Athena::getMessageSvc(),"SiChargedDiodeCollection");
-      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endreq;
+      log << MSG::FATAL << "Could not create SiReadoutCellId object !"<< endmsg;
     }
     // create a new charged diode
     SiChargedDiode chargedDiode(m_allocator, diode,roCell);

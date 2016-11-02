@@ -138,7 +138,7 @@ inline void SiHelper::SetBunch(SiChargedDiode& chDiode, int bunch) {
   // Code the bunch number in the 8 bits set corresponding to xx in xx00 
   //
   if (bunch > 0xff) {
-    silog() << MSG::ERROR << "Bunch Number not allowed" << endreq;
+    silog() << MSG::ERROR << "Bunch Number not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ( (bunch&0xff) <<8 )  ;
 }
@@ -148,7 +148,7 @@ inline void SiHelper::SetStripNum(SiChargedDiode& chDiode, int nstrip) {
   // Code the number of strips in the 12 bits set corresponding to xxx in 0xxx0000 
   //
   if (nstrip > 0xfff) {
-    silog() << MSG::ERROR << "Number of strips not allowed" << endreq;
+    silog() << MSG::ERROR << "Number of strips not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ((nstrip&0xfff) << 16 ) ;
 }
@@ -158,7 +158,7 @@ inline void SiHelper::SetTimeBin(SiChargedDiode& chDiode, int time) {
   // Code the SCT Timebin number in the 3 bits set corresponding to x in x0000000
   //
   if (time > 0xf) {
-    silog() << MSG::ERROR << "TimeBin not allowed" << endreq;
+    silog() << MSG::ERROR << "TimeBin not allowed" << endmsg;
   }
   chDiode.m_word = chDiode.m_word | ( (time&0xf) <<28 )  ;
 }

@@ -8,8 +8,7 @@ author Davide Costanzo <DCostanzo@lbl.gov>
 
 use AtlasPolicy       AtlasPolicy-*
 use AthenaKernel      AthenaKernel-*          Control
-use CxxUtils          CxxUtils-*              Control
-use DataModel         DataModel-*             Control
+use AthAllocators     AthAllocators-*         Control
 use GaudiInterface    GaudiInterface-*        External
 
 use InDetSimEvent        InDetSimEvent-*        InnerDetector
