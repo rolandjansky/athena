@@ -27,6 +27,7 @@
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 
 class SiHelper; // used to set the flag word
+//class SiChargedDiode;
 
 class SiChargedDiode {
 
@@ -39,7 +40,7 @@ public:
 
   // Constructor with parameters:
     SiChargedDiode(const SiTotalCharge::alloc_t& alloc,
-                   const InDetDD::SiCellId & diode, const InDetDD::SiReadoutCellId & roCell,  int flagword=0);
+                   const InDetDD::SiCellId & diode, const InDetDD::SiReadoutCellId & roCell,  int flagword=0, SiChargedDiode* nextInCluster=NULL);
 
   ///////////////////////////////////////////////////////////////////
   // Const methods:
@@ -60,6 +61,9 @@ public:
   
   // flag, disconnected etc.
   int flag() const;
+  
+  //neighbouring strip for navigation 
+  SiChargedDiode * nextInCluster() const;
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
@@ -68,6 +72,8 @@ public:
   void add(const SiCharge &charge);
   // add a total charge
   void add(const SiTotalCharge &totcharge);
+  //add a neighbouring strip for navigation 
+  void setNextInCluster(SiChargedDiode* nextInCluster);
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
@@ -85,6 +91,7 @@ private:
   SiTotalCharge m_totalCharge; // total charge and its composition
   InDetDD::SiReadoutCellId m_readoutCell; //Readout cell associated to this diode
   int m_word;   // a flag for noise etc etc as in InDetSimData
+  SiChargedDiode * m_nextInCluster; //the next strip to navigate to - allows traversing clusters since the SiChargedDiodeCollection is not guaranteed to be contiguous
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -113,6 +120,11 @@ inline double SiChargedDiode::charge() const
   return m_totalCharge.charge();
 }
 
+inline SiChargedDiode * SiChargedDiode::nextInCluster() const
+{
+  return m_nextInCluster;
+}
+
 inline void SiChargedDiode::add(const SiCharge &charge)
 {
   m_totalCharge.add(charge);
@@ -123,7 +135,10 @@ inline void SiChargedDiode::add(const SiTotalCharge &totcharge)
   m_totalCharge.add(totcharge);
 }
 
-
+inline void SiChargedDiode::setNextInCluster(SiChargedDiode* nextInCluster)
+{
+   m_nextInCluster = nextInCluster;
+}
 ///////////////////////////////////////////////////////////////////
 // Input/Output stream functions:
 ///////////////////////////////////////////////////////////////////
