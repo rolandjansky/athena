@@ -10,7 +10,7 @@
 """
 
 __author__ = "KG Tan"
-__version__= "$Revision: 742502 $"
+__version__= "$Revision: 779694 $"
 __doc__    = "ISF_NativeFastCaloSimJobProperties"
 
 __all__    = [ "ISF_NativeFastCaloSimJobProperties" ]

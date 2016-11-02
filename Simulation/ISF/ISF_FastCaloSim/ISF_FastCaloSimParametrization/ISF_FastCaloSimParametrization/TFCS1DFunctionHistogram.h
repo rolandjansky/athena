@@ -5,24 +5,37 @@
 #ifndef TFCS1DFunctionHistogram_h
 #define TFCS1DFunctionHistogram_h
 
-#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
+#include "TH1.h"
+#include <vector>
 
-class TFCS1DFunctionHistogram:public TFCS1DFunction {
+class TFCS1DFunctionHistogram:public TFCS1DFunction
+{
+	
   public:
     TFCS1DFunctionHistogram();
-    TFCS1DFunctionHistogram(TH1* hist);
+    TFCS1DFunctionHistogram(TH1* hist, int,double);
     
-    virtual void Initialize(TH1* hist);
-    
+    void Initialize(TH1* hist, int,double);
     virtual double rnd_to_fct(double rnd);
+    
+    TH1* vector_to_histo();
+    void smart_rebin_loop(TH1* hist, int,double);
+    TH1D* smart_rebin(TH1D* , double );
+    double* histo_to_array(TH1*);
+    double sample_from_histo(TH1* hist, double);
+    double sample_from_histovalues(double);
+	  double InverseCumulant(double y);
+	  double get_inverse(double rnd);
+	  double linear(double x1,double x2,double y1,double y2,double x);
+	  
   private:
 
+    vector<float> m_HistoBorders;
+    vector<float> m_HistoContents;
+    
   ClassDef(TFCS1DFunctionHistogram,1)  //TFCS1DFunctionHistogram
-};
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCS1DFunction;
-#pragma link C++ class TFCS1DFunctionHistogram;
-#endif
+};
 
 #endif

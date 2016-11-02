@@ -312,7 +312,7 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
      if( *itr == m_MC_SIM_PARAM ) run_update = true;
      msg() << *itr;
   }
-  msg() << endreq;
+  msg() << endmsg;
   // If that's not the key that we received after all, let's just return
   // silently...
   if( ! run_update ) return StatusCode::SUCCESS;
@@ -1166,7 +1166,7 @@ void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk
  std::vector< std::vector<double> > phi_safe(3);
  std::vector< std::vector<double> > r_safe(3);
  std::vector< std::vector<double> > z_safe(3);
- for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
+ for(int subpos=CaloSubPos::SUBPOS_MID;subpos<=CaloSubPos::SUBPOS_EXT;++subpos) {
    eta_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
   	phi_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
   	r_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
@@ -1179,7 +1179,7 @@ void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk
    // now try to extrpolate to all calo layers, that contain energy
    ATH_MSG_DEBUG("Calo position for particle id "<<m_pdgid<<", trutheta= " << m_ptruth_eta <<", truthphi= "<<m_ptruth_phi<<", truthp="<<m_ptruth_p<<", truthpt="<<m_ptruth_pt);
    for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-     for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
+     for(int subpos=CaloSubPos::SUBPOS_MID;subpos<=CaloSubPos::SUBPOS_EXT;++subpos) {
        m_letaCalo[sample][subpos]=-12345;
        m_lphiCalo[sample][subpos]=-12345;
        m_lrCalo[sample][subpos]=-12345;
@@ -1200,15 +1200,15 @@ void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk
     }
  } //inside calo
  
- m_TTC_back_eta->push_back(eta_safe[SUBPOS_EXT]);
- m_TTC_back_phi->push_back(phi_safe[SUBPOS_EXT]);
- m_TTC_back_r->push_back(r_safe[SUBPOS_EXT]);
- m_TTC_back_z->push_back(z_safe[SUBPOS_EXT]);
+ m_TTC_back_eta->push_back(eta_safe[CaloSubPos::SUBPOS_EXT]);
+ m_TTC_back_phi->push_back(phi_safe[CaloSubPos::SUBPOS_EXT]);
+ m_TTC_back_r->push_back(r_safe[CaloSubPos::SUBPOS_EXT]);
+ m_TTC_back_z->push_back(z_safe[CaloSubPos::SUBPOS_EXT]);
  
- m_TTC_entrance_eta->push_back(eta_safe[SUBPOS_ENT]);
- m_TTC_entrance_phi->push_back(phi_safe[SUBPOS_ENT]);
- m_TTC_entrance_r->push_back(r_safe[SUBPOS_ENT]);
- m_TTC_entrance_z->push_back(z_safe[SUBPOS_ENT]);
+ m_TTC_entrance_eta->push_back(eta_safe[CaloSubPos::SUBPOS_ENT]);
+ m_TTC_entrance_phi->push_back(phi_safe[CaloSubPos::SUBPOS_ENT]);
+ m_TTC_entrance_r->push_back(r_safe[CaloSubPos::SUBPOS_ENT]);
+ m_TTC_entrance_z->push_back(z_safe[CaloSubPos::SUBPOS_ENT]);
 
  ATH_MSG_DEBUG("End extrapolate()");
 }
@@ -1419,7 +1419,7 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int 
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<sample<<" subpos="<<subpos;
     if(m_layerCaloOK[sample][subpos]) msg()<<" (good)";
      else msg()<<" (bad)";
-    msg()<<" eta=" << m_letaCalo[sample][subpos] << "   phi=" << m_lphiCalo[sample][subpos] <<" m_dCalo="<<m_dCalo[sample][subpos]<<" dist(hit)="<<hitdist<< endreq;
+    msg()<<" eta=" << m_letaCalo[sample][subpos] << "   phi=" << m_lphiCalo[sample][subpos] <<" m_dCalo="<<m_dCalo[sample][subpos]<<" dist(hit)="<<hitdist<< endmsg;
   } 
  
   return m_layerCaloOK[sample][subpos];
@@ -1655,7 +1655,7 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, Calo
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<(int)sample;
     if(m_layerCaloOK[sample]) msg()<<" (good)";
      else msg()<<" (bad)";
-    msg()<<" eta=" << m_letaCalo[sample] << "   phi=" << m_lphiCalo[sample] <<" m_dCalo="<<m_dCalo[sample]<<" dist(hit)="<<hitdist<< endreq;
+    msg()<<" eta=" << m_letaCalo[sample] << "   phi=" << m_lphiCalo[sample] <<" m_dCalo="<<m_dCalo[sample]<<" dist(hit)="<<hitdist<< endmsg;
   } 
  
   return m_layerCaloOK[sample];
@@ -1701,13 +1701,13 @@ bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
         else                    m_d_calo_surf= fabs(m_d_calo_surf/tanh(etaCalo));
         msg(MSG::DEBUG)<<" d="<<m_d_calo_surf;
         if(distsamp<0) {
-          msg(MSG::DEBUG)<<endreq;
+          msg(MSG::DEBUG)<<endmsg;
           break;
         }  
       }
-      msg(MSG::DEBUG)<<endreq;
+      msg(MSG::DEBUG)<<endmsg;
     } else {
-      msg(MSG::DEBUG)<<": eta > 900, not using this"<<endreq;
+      msg(MSG::DEBUG)<<": eta > 900, not using this"<<endmsg;
     }
   }
 

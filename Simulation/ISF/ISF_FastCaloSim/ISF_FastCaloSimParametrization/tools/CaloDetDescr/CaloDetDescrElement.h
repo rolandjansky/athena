@@ -11,7 +11,28 @@ class CaloDetDescrElement
 {
  friend class CaloGeometry;
  public:
-  CaloDetDescrElement() {};
+  CaloDetDescrElement() {
+    m_identify = 0;
+    m_calosample = 0;
+    m_eta = 0;
+    m_phi = 0;
+    m_deta = 0;
+    m_dphi = 0;
+    m_r = 0;
+    m_eta_raw = 0;
+    m_phi_raw = 0;
+    m_r_raw = 0;
+    m_dr = 0;
+    m_x = 0;
+    m_y = 0;
+    m_z = 0;
+    m_x_raw = 0;
+    m_y_raw = 0;
+    m_z_raw = 0;
+    m_dx = 0;
+    m_dy = 0;
+    m_dz = 0;
+  };
 
   /** @brief virtual destructor
    */
@@ -79,7 +100,8 @@ class CaloDetDescrElement
 
   Int_t getSampling() const ;
 
- protected:  
+ //ACH protected:  
+ //
   Long64_t m_identify;
   
   Int_t m_calosample;
