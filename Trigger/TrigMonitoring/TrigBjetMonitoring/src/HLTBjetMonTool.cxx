@@ -317,7 +317,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -362,7 +362,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -388,7 +388,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Shifter_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	// Muons
 	addHistogram(new TH1F(("nMuon_"+m_Shifter_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));
@@ -431,7 +431,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -474,7 +474,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	//   B-jets 
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
@@ -501,7 +501,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	//   Jets
 	addHistogram(new TH1F(("nJet_"+m_Expert_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
-	addHistogram(new TH1F(("jetPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 500.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
 	// Muons
 	addHistogram(new TH1F(("nMuon_"+m_Expert_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));

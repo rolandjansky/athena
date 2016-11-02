@@ -27,10 +27,9 @@ monitoring_bjet_cosmic = ["S_HLT_j0_perf_bperf_L1RD0_EMPTY", "S_HLT_j0_perf_bper
 
 # triggers for HI runs    -  used for q314 test
 
-monitoring_bjet_hi    = ["E_HLT_j35_boffperf_split", "E_HLT_j55_boffperf", "S_HLT_j55_boffperf_split", "S_HLT_j60_boffperf_split", "S_HLT_j100_boffperf_split",
-                         "E_HLT_j320_boffperf", "S_HLT_j320_boffperf_split", "S_HLT_j225_gsc360_boffperf_split"]
+monitoring_bjet_hi    = ["E_HLT_j40_boffperf_split", "S_HLT_j60_boffperf_split", "S_HLT_j100_boffperf_split"]
 
-monitoring_mujet_hi    = ["S_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S_HLT_mu6_j30_ion_dr05"]
+monitoring_mujet_hi    = ["E_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S_HLT_mu6_j30_ion_dr05"]
 
 # Triggers for MC  -  used for q221 test
 
