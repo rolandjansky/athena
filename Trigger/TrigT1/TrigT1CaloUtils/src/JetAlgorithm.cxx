@@ -262,47 +262,47 @@ void LVL1::JetAlgorithm::passesTrigger() {
 // Public accessor methods follow
 
 /** Returns RoI Core ET */
-int LVL1::JetAlgorithm::Core() {
+int LVL1::JetAlgorithm::Core() const {
   return m_ET4x4;
 }
 
 /** Returns 4x4 TT cluster ET */
-int LVL1::JetAlgorithm::ET4x4() {
+int LVL1::JetAlgorithm::ET4x4() const {
   return ( (m_ET4x4 < m_sat) ? m_ET4x4 : m_sat );
 }
 
 /** Returns 6x6 TT cluster ET */
-int LVL1::JetAlgorithm::ET6x6() {
+int LVL1::JetAlgorithm::ET6x6() const {
   return ( (m_ET6x6 < m_sat) ? m_ET6x6 : m_sat );
 }
 
 /** Returns 8x8 TT cluster ET */
-int LVL1::JetAlgorithm::ET8x8() {
+int LVL1::JetAlgorithm::ET8x8() const {
   return ( (m_ET8x8 < m_sat) ? m_ET8x8 : m_sat );
 }
 
 /** Does this window pass the local ET maximum condition */
-bool LVL1::JetAlgorithm::isEtMax() {
+bool LVL1::JetAlgorithm::isEtMax() const {
   return m_EtMax;
 }
 
 /** Returns eta coordinate of RoI */
-double LVL1::JetAlgorithm::eta() {
+double LVL1::JetAlgorithm::eta() const {
   return m_eta;
 }
 
 /** Returns phi coordinate of RoI, using standard ATLAS convention */
-double LVL1::JetAlgorithm::phi() {
+double LVL1::JetAlgorithm::phi() const {
   return ( (m_phi <= M_PI) ? m_phi : m_phi - 2.*M_PI);
 }
 
 /** Returns hitword for this window */
-unsigned int LVL1::JetAlgorithm::Hits() {
+unsigned int LVL1::JetAlgorithm::Hits() const {
   return m_Hits;
 }
 
 /** Returns RoI word for this window */
-unsigned int LVL1::JetAlgorithm::RoIWord() {
+unsigned int LVL1::JetAlgorithm::RoIWord() const {
   unsigned int roiWord = (TrigT1CaloDefs::jetRoIType<<30) +  (TrigT1CaloDefs::jetRoI<<29);
   
   CoordToHardware convertor;
@@ -317,7 +317,7 @@ unsigned int LVL1::JetAlgorithm::RoIWord() {
 
 /** Returns a JetROI object summarising the results for this location */
 
-JetROI* LVL1::JetAlgorithm::produceExternal(){ 
+JetROI* LVL1::JetAlgorithm::produceExternal() const { 
   
   JetROI* temp=new JetROI(phi(), eta(), Core(), RoIWord(),
                           ET4x4(), ET6x6(), ET8x8(), 0);
@@ -327,7 +327,7 @@ JetROI* LVL1::JetAlgorithm::produceExternal(){
 }
 
 /** returns true if this jet is a forward jet - i.e. has passed fwd jet thresholds */
-bool LVL1::JetAlgorithm::isForwardJet() {
+bool LVL1::JetAlgorithm::isForwardJet() const {
   return ( (m_Hits & 0xf00) > 0 );
 }
 

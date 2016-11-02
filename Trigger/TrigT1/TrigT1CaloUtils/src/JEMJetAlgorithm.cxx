@@ -39,8 +39,8 @@ LVL1::JEMJetAlgorithm::JEMJetAlgorithm( double eta, double phi, const std::map<i
   m_ET8x8(0),
   m_ETLarge(0),
   m_ETSmall(0),
-  m_EtMax(false),
-  m_debug(false)
+  m_EtMax(false)
+  //m_debug(false)
 {
   /** This could potentially be called with the coordinate being the centre <br>
       of an RoI _or_ the centre of a JetElement. We want to ensure that we  <br>

@@ -36,7 +36,6 @@ This belongs to the TrigT1Calo  simulation.
 namespace LVL1 {
 
 
-using namespace std;
 /**returns the trigger hardware components associated with a given Coordinate
   *@author E.Moyse
 	\todo this should probably be a static class.
@@ -119,7 +118,7 @@ private: //attribs
 	/** contains the maximum permissable eta for CP system. Expected to be 2.5 */
 	double m_cpEtaMax;
   /** width of JEMs*/
-  double m_jemEtaWidth ;
+  //double m_jemEtaWidth ;
 	/** contains RoI local coordinate mapping (phi,eta)*/
 	unsigned int m_roiLocalMap[2][4];
   /** returned value in the case of an invalid Coordinate error */

@@ -46,7 +46,7 @@ The ModuleEnergy:<br>
 class ModuleEnergy {
 public: 
   
-  ModuleEnergy(const std::map<int, xAOD::JetElement *>* JEContainer,  unsigned int crate, unsigned int module,
+  ModuleEnergy(const xAOD::JetElementMap_t* JEContainer,  unsigned int crate, unsigned int module,
                int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks = 0, int slice = -1);
 
   ModuleEnergy(unsigned int crate, unsigned int module, unsigned int et,
@@ -55,15 +55,15 @@ public:
   ~ModuleEnergy();
   
   /** which module is this? */
-  unsigned int crate();
-  unsigned int module();
+  unsigned int crate() const;
+  unsigned int module() const;
   /** return the scalar & vector sums of all JE ETs (i.e sums the energies of up to 32 contained JEs) */
   /** module sums are unsigned. As a convenience, add methods to return signs for this module */
-  unsigned int et();
-  unsigned int ex();
-  unsigned int ey();
-  int signX();
-  int signY();
+  unsigned int et() const;
+  unsigned int ex() const;
+  unsigned int ey() const;
+  int signX() const;
+  int signY() const;
   
 private: //atribs
   int m_jetElementThresholdEtSum;

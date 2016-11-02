@@ -81,7 +81,7 @@ private: //atribs
   int m_ETSmall;  
   bool m_EtMax;
 
-  bool m_debug;
+  //bool m_debug;
 
   /** Algorithm parameters */
   static const int m_satLarge;
