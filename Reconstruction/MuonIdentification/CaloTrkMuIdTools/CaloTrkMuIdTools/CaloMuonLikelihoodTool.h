@@ -9,7 +9,6 @@
 #include "ICaloTrkMuIdTools/ITrackEnergyInCaloTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -46,13 +45,12 @@ private:
   const TH1F*       m_TH1F_bkg[9][11];
   std::string       m_TH1F_key[9][11];
   int               m_numKeys[9];
-  mutable int       cnt_warn;
+  mutable int       m_cnt_warn;
 
   std::vector<std::string>  m_fileNames;
   std::string               m_caloClusterContainerName;
 
   ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
-  ServiceHandle<ITHistSvc>            m_histSvc;
 };
 
 #endif

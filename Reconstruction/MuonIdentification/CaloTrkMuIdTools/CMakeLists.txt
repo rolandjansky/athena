@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloIdentifier
@@ -44,5 +45,5 @@ atlas_add_component( CaloTrkMuIdTools
 # Install files from the package:
 atlas_install_headers( CaloTrkMuIdTools )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/CaloMuonLikelihood.PDF.A0.root share/CaloMuonLikelihood.PDF.A1.root share/CaloMuonLikelihood.PDF.A2.root share/CaloMuonLikelihood.PDF.B0.root share/CaloMuonLikelihood.PDF.B1.root share/CaloMuonLikelihood.PDF.B2.root share/CaloMuonLikelihood.PDF.C0.root share/CaloMuonLikelihood.PDF.C1.root share/CaloMuonLikelihood.PDF.C2.root )
+atlas_install_runtime( share/CaloMuonLikelihood.PDF.A0.root share/CaloMuonLikelihood.PDF.A1.root share/CaloMuonLikelihood.PDF.A2.root share/CaloMuonLikelihood.PDF.B0.root share/CaloMuonLikelihood.PDF.B1.root share/CaloMuonLikelihood.PDF.B2.root share/CaloMuonLikelihood.PDF.C0.root share/CaloMuonLikelihood.PDF.C1.root share/CaloMuonLikelihood.PDF.C2.root share/CaloTag.CutConfig.root )
 

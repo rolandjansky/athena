@@ -271,10 +271,14 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
 
     const Trk::CaloExtension& caloExtension = association->caloExtension();
 
+#if 0
+    // This test can never be true for standard-compliant code
+    // and is elided by compilers.
     if(!(&caloExtension)) {
       ATH_MSG_WARNING( " No caloExtension found ");
       return result;
     }
+#endif
 
     if(!caloExtension.caloEntryLayerIntersection()) {
       ATH_MSG_WARNING( " No caloEntryLayerIntersection found ");
@@ -871,8 +875,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
       ATH_MSG_INFO("Sample: " << sample << "\tEnergyDeposit: " << energyDeposit << "\tEnergyLoss: " << energyLoss);
 
     if (m_doHist) {
-      hParELossEta->Fill(energyLoss, itP->eta() ); 
-      hParELossSample->Fill(energyLoss, sample ); 
+      m_hParELossEta->Fill(energyLoss, itP->eta() ); 
+      m_hParELossSample->Fill(energyLoss, sample ); 
     }
 
     itP++;
@@ -1048,8 +1052,8 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters
     double deltaR_solLast   = fabs( parAtSolenoid->position().perp() - par->position().perp() );
     double deltaEta_solLast = fabs( parAtSolenoid->position().eta() - par->position().eta() );
     if (m_doHist) {
-      hDeltaEtaLastPar->Fill(deltaEta_solLast);
-      hDeltaRadiusLastPar->Fill(deltaR_solLast);
+      m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
+      m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
     }
   
     const Amg::Vector3D positionAtSolenoid = parAtSolenoid->position();
@@ -1306,44 +1310,44 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
   ATH_MSG_DEBUG("Booking the ROOT Histos");
   StatusCode sc;
 
-  hDepositLayer12     = new TH1F("hDepositLayer12", "hDepositLayer12", 40, 0, 4000);
-  hDepositLayer13     = new TH1F("hDepositLayer13", "hDepositLayer13", 40, 0, 4000);
-  hDepositLayer14     = new TH1F("hDepositLayer14", "hDepositLayer14", 40, 0, 4000);
-  hParELossEta        = new TH2F("hParELossEta", "Parametrized eLoss vs eta", 40, 0, 4000, 30, -3, 3);
-  hParELossSample     = new TH2F("hParELossSample", "Parametrized eLoss vs sample", 40, 0, 4000, 21, 0, 21);
-  hDeltaEtaLastPar    = new TH1F("hDeltaEtaLastPar", "hDeltaEtaLastPar", 50, -2, 2);
-  hDeltaRadiusLastPar = new TH1F("hDeltaRadiusLastPar", "hDeltaRadiusLastPar", 50, 0, 5000);
-  hDepositsInCore     = new TH1F("hDepositsInCore", "hDepositsInCore", 50, 0, 5000);
-  hDepositsInCone     = new TH1F("hDepositsInCone", "hDepositsInCone", 50, 0, 5000);
-  hDistDepositsTile   = new TH2F("hDistDepositsTile", "hDistDepositsTile", 30, 0.0, 0.3, 30, 0, 4000);
-  hDistDepositsHEC    = new TH2F("hDistDepositsHEC", "hDistDepositsHEC", 30, 0.0, 0.3, 30, 0, 4000);  
+  m_hDepositLayer12     = new TH1F("hDepositLayer12", "hDepositLayer12", 40, 0, 4000);
+  m_hDepositLayer13     = new TH1F("hDepositLayer13", "hDepositLayer13", 40, 0, 4000);
+  m_hDepositLayer14     = new TH1F("hDepositLayer14", "hDepositLayer14", 40, 0, 4000);
+  m_hParELossEta        = new TH2F("hParELossEta", "Parametrized eLoss vs eta", 40, 0, 4000, 30, -3, 3);
+  m_hParELossSample     = new TH2F("hParELossSample", "Parametrized eLoss vs sample", 40, 0, 4000, 21, 0, 21);
+  m_hDeltaEtaLastPar    = new TH1F("hDeltaEtaLastPar", "hDeltaEtaLastPar", 50, -2, 2);
+  m_hDeltaRadiusLastPar = new TH1F("hDeltaRadiusLastPar", "hDeltaRadiusLastPar", 50, 0, 5000);
+  m_hDepositsInCore     = new TH1F("hDepositsInCore", "hDepositsInCore", 50, 0, 5000);
+  m_hDepositsInCone     = new TH1F("hDepositsInCone", "hDepositsInCone", 50, 0, 5000);
+  m_hDistDepositsTile   = new TH2F("hDistDepositsTile", "hDistDepositsTile", 30, 0.0, 0.3, 30, 0, 4000);
+  m_hDistDepositsHEC    = new TH2F("hDistDepositsHEC", "hDistDepositsHEC", 30, 0.0, 0.3, 30, 0, 4000);  
   
-  hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
   
   if (m_histSvc) {
-    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", hDepositLayer12);
-    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer13", hDepositLayer13);
-    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer14", hDepositLayer14);
-    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossSample", hParELossSample);
-    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossEta", hParELossEta);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDeltaEtaLastPar", hDeltaEtaLastPar);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDeltaRadiusLastPar", hDeltaRadiusLastPar);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCore", hDepositsInCore);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCone", hDepositsInCone);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsTile", hDistDepositsTile);
-    sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsHEC", hDistDepositsHEC);
+    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
+    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13);
+    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14);
+    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample);
+    sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile);
+    sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC);
     
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdPhi", hEMB1vsdPhi);
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdPhi", hEMB2vsdPhi);
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdPhi", hEMB3vsdPhi);    
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdEta", hEMB1vsdEta);
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdEta", hEMB2vsdEta);
-    sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdEta", hEMB3vsdEta);    
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi);
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi);
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi);    
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta);
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta);
+    sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta);    
   }
   else {
     return StatusCode::FAILURE;

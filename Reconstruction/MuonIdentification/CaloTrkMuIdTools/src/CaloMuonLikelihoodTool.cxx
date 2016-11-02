@@ -5,7 +5,6 @@
 #include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -13,6 +12,7 @@
 #include "GaudiKernel/Algorithm.h"
 #include "PathResolver/PathResolver.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "AthenaKernel/Units.h"
 
 ///////////for re_obtain//
 //#include "GaudiKernel/ITHistSvc.h" 
@@ -27,28 +27,30 @@
 #include <map>
 
 
+namespace Units = Athena::Units;
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool constructor
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_trkEnergyInCalo("TrackEnergyInCaloTool"),
-  m_histSvc("THistSvc/THistSvc", name)//,
+  m_trkEnergyInCalo("TrackEnergyInCaloTool")//,
   // m_clusCont(0)
 {
   declareInterface<ICaloMuonLikelihoodTool>(this);  
 
   m_fileNames.clear();
   
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A2/");  
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B2/");  
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C2/");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A2.root");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B2.root");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C2.root");  
   
   declareProperty("RootFileNames", m_fileNames);
   declareProperty("TrackEnergyInCaloTool",m_trkEnergyInCalo);
@@ -78,10 +80,6 @@ StatusCode CaloMuonLikelihoodTool::initialize() {
     return StatusCode::FAILURE;
   }
   
-  if (m_histSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve THistSvc.");
-  }
-  
   if (retrieveHistograms().isFailure()) { 
     ATH_MSG_FATAL("Could not open PDF root fles");
     return StatusCode::FAILURE;
@@ -95,7 +93,7 @@ StatusCode sc;
    ITHistSvc *tHistSvc;
    sc =  service("THistSvc", tHistSvc);
    if ( sc.isFailure() ) {
-     report << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
+     report << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endmsg;
      return sc;
      }
 
@@ -215,29 +213,35 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
       m_TH1F_sig[iFile][iHist] = 0;
       m_TH1F_bkg[iFile][iHist] = 0;
     }
-    
-    TList histList;
-    if ( m_histSvc->getTHists(fileName, histList).isFailure() ) {
-      ATH_MSG_FATAL("Could not retrieve histograms for " << fileName);
+
+    // --- Retrieving root files and list of keys ---
+    std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");
+    TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");	
+    if (!rootFile) {
+      ATH_MSG_FATAL("Could not retrieve root file: " << fileName);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG(histList.GetSize() << "histograms found in " << fileName);
-    if ( histList.GetSize()>22 ) {
+    TList* listOfKeys = rootFile->GetListOfKeys();
+    if (!listOfKeys) {
+      ATH_MSG_FATAL("Could not retrieve key list: " << fileName);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(listOfKeys->GetSize() << "histogram keys found in " << fileName);
+    if (listOfKeys->GetSize() > 22) {
       ATH_MSG_FATAL("This exceeds the maximum allowed number of histograms");
       return StatusCode::FAILURE;
     }
-    
+
     int numKeysSignal = 0;
     int numKeysBkg    = 0;
     // --- Retrieving individual histograms ---
-    for ( int iHist = 0; iHist < histList.GetSize(); iHist++ ) {
-      TH1F* hist = 0;
-      hist = dynamic_cast<TH1F*>(histList.At(iHist));
+    for ( int iHist = 0; iHist < listOfKeys->GetSize(); iHist++ ) {
+      const std::string histName = listOfKeys->At(iHist)->GetName();
+      TH1F* hist = (TH1F*)(rootFile->Get(histName.c_str()));
       bool isSignal = false;
       if ( !hist ) {
-        ATH_MSG_ERROR("dynamic_cast<TH1F*> failed for TObject: " << histList.At(iHist));
+        ATH_MSG_ERROR("cannot retrieve hist " << histName);
       }
-      const std::string histName = hist->GetName();
       size_t endOfKey = histName.find("_signal", 0);
       if ( endOfKey!=std::string::npos ) {
         isSignal = true;
@@ -273,7 +277,7 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
     
   }
   
-  cnt_warn = 0;
+  m_cnt_warn = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -460,14 +464,14 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
                       << "\n      ehec3: " << s[20]
                       << "\n     efcal0: " << s[21]
                       << "\n     efcal1: " << s[22]
-                      << "\n     efcal2: " << s[23] << endreq;
+                      << "\n     efcal2: " << s[23] << endmsg;
   }
 
-  // CLHEP::MeV to CLHEP::GeV
-  for(int i=0;i<24;++i) s[i] /= CLHEP::GeV;
-  etot_em /= CLHEP::GeV;
-  etot_hd /= CLHEP::GeV;
-  etot /= CLHEP::GeV;
+  // CLHEP::MeV to Units::GeV
+  for(int i=0;i<24;++i) s[i] /= Units::GeV;
+  etot_em /= Units::GeV;
+  etot_hd /= Units::GeV;
+  etot /= Units::GeV;
 
   double tmp_mx(-999), tmp_mxH(-999), tmp_mxE(-999);
   for (int i=0; i<24; ++i) {
@@ -495,7 +499,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
 
   // p_trk in MeV
   if (p_trk)
-    EoverEtrk = etot/(p_trk/CLHEP::GeV);
+    EoverEtrk = etot/(p_trk/Units::GeV);
 
   if(etot_em>0) {
     eemb3_wrtGroup = s[3]/etot_em;
@@ -537,7 +541,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
 
 
   if(fabs(eta_trk)<1.4) { 
-      if(p_trk/CLHEP::GeV<11.) {
+      if(p_trk/Units::GeV<11.) {
       m_h_EoverEtrk_11B->Fill(EoverEtrk, 1.);
       m_h_eemb1_wrtTotal_11B->Fill(eemb1_wrtTotal, 1.);
       m_h_eemb2_wrtTotal_11B->Fill(eemb2_wrtTotal, 1.);
@@ -549,52 +553,52 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
       m_h_mxEM_11B->Fill(mxEM, 1.);
       m_h_mxFr_11B->Fill(mxFr, 1.);
       m_h_mxHad_11B->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11B ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_11B ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_11B ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_11B ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_11B ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_11B ="<< eta_trk  << endmsg;
       }
-      else if(p_trk/CLHEP::GeV<51.) {
+      else if(p_trk/Units::GeV<51.) {
       m_h_EoverEtrk_51B->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51B ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_51B ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_51B ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_51B ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_51B ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_51B ="<< eta_trk  << endmsg;
       }
       else {
       m_h_EoverEtrk_101B->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101B ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_101B ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_101B ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_101B ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_101B ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_101B ="<< eta_trk  << endmsg;
       }
   }
 
   else if(fabs(eta_trk)>=1.4&&fabs(eta_trk)<=1.6) {
-      if(p_trk/CLHEP::GeV<11.){
+      if(p_trk/Units::GeV<11.){
       m_h_EoverEtrk_11C->Fill(EoverEtrk, 1.);
       m_h_eeme1_wrtTotal_11C->Fill(eeme1_wrtTotal, 1.);
       m_h_eeme2_wrtTotal_11C->Fill(eeme2_wrtTotal, 1.);
       m_h_emFr_11C->Fill(emFr, 1.);
       m_h_mxEM_11C->Fill(mxEM, 1.);
       m_h_mxHad_11C->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11C ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_11C ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_11C ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_11C ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_11C ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_11C ="<< eta_trk  << endmsg;
       }
-      else if(p_trk/CLHEP::GeV<51.){
+      else if(p_trk/Units::GeV<51.){
       m_h_EoverEtrk_51C->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51C ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_51C ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_51C ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_51C ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_51C ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_51C ="<< eta_trk  << endmsg;
       }
       else {
       m_h_EoverEtrk_101C->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101C ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_101C ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_101C ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_101C ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_101C ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_101C ="<< eta_trk  << endmsg;
       }
   }
 
   else if(fabs(eta_trk)>1.6&&fabs(eta_trk)<2.5) {
-      if(p_trk/CLHEP::GeV<11.){
+      if(p_trk/Units::GeV<11.){
       m_h_EoverEtrk_11E->Fill(EoverEtrk, 1.);
       m_h_eeme1_wrtGroup_11E->Fill(eeme1_wrtGroup, 1.);
       m_h_eeme2_wrtTotal_11E->Fill(eeme2_wrtTotal, 1.);
@@ -604,15 +608,15 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
       m_h_mxEM_11E->Fill(mxEM, 1.);
       m_h_mxFr_11E->Fill(mxFr, 1.);
       m_h_mxHad_11E->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_11E ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_11E ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_11E ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_11E ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_11E ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_11E ="<< eta_trk  << endmsg;
       }
-      else if(p_trk/CLHEP::GeV<51.){
+      else if(p_trk/Units::GeV<51.){
       m_h_EoverEtrk_51E->Fill(EoverEtrk, 1.);
-      report << MSG::DEBUG << "EoverEtrk_51E ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_51E ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_51E ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_51E ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_51E ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_51E ="<< eta_trk  << endmsg;
       }
       else {
       m_h_EoverEtrk_101E->Fill(EoverEtrk, 1.);
@@ -624,9 +628,9 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
       m_h_mxEM_101E->Fill(mxEM, 1.);
       m_h_mxFr_101E->Fill(mxFr, 1.);
       m_h_mxHad_101E->Fill(mxHad, 1.);
-      report << MSG::DEBUG << "EoverEtrk_101E ="<< EoverEtrk  << endreq;
-      report << MSG::DEBUG << "p_trk/GeV_101E ="<< p_trk/CLHEP::GeV  << endreq;
-      report << MSG::DEBUG << "eta_trk_101E ="<< eta_trk  << endreq;
+      report << MSG::DEBUG << "EoverEtrk_101E ="<< EoverEtrk  << endmsg;
+      report << MSG::DEBUG << "p_trk/GeV_101E ="<< p_trk/Units::GeV  << endmsg;
+      report << MSG::DEBUG << "eta_trk_101E ="<< eta_trk  << endmsg;
       }
   }
 ///////////////////filling end////////nesli end/////////////////
@@ -638,18 +642,18 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
 
   int iFile = -1;
   if(fabs(eta_trk)<1.4) {
-    if(p_trk/CLHEP::GeV<11.) iFile = 0;
-    else if(p_trk/CLHEP::GeV<51.) iFile = 1;
+    if(p_trk/Units::GeV<11.) iFile = 0;
+    else if(p_trk/Units::GeV<51.) iFile = 1;
     else iFile = 2;
   }
   else if(fabs(eta_trk)>=1.4&&fabs(eta_trk)<=1.6) {
-    if(p_trk/CLHEP::GeV<11.) iFile = 3;
-    else if(p_trk/CLHEP::GeV<51.) iFile = 4;
+    if(p_trk/Units::GeV<11.) iFile = 3;
+    else if(p_trk/Units::GeV<51.) iFile = 4;
     else iFile = 5;
   }
   else if(fabs(eta_trk)>1.6&&fabs(eta_trk)<2.5) {
-    if(p_trk/CLHEP::GeV<11.) iFile = 6;
-    else if(p_trk/CLHEP::GeV<51.) iFile = 7;
+    if(p_trk/Units::GeV<11.) iFile = 6;
+    else if(p_trk/Units::GeV<51.) iFile = 7;
     else iFile = 8;
   }
 
@@ -683,7 +687,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
           if(SbinContent)
             ProbS *= SbinContent; 
           //else
-          //  report << MSG::DEBUG << "  BinContent in m_TH1F_sig is 0 and will not be used! "<<ProbS<<endreq; 
+          //  report << MSG::DEBUG << "  BinContent in m_TH1F_sig is 0 and will not be used! "<<ProbS<<endmsg; 
           /// nesli /// modified 11.03.08////////
           else {
             ProbS *= 0.0000001;	    
@@ -709,7 +713,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
           if(BbinContent)
             ProbB *= BbinContent;
             //else
-            //  report << MSG::VERBOSE << "  BinContent in m_TH1F_bkg is 0 and will not be used! "<<ProbS<<endreq; 
+            //  report << MSG::VERBOSE << "  BinContent in m_TH1F_bkg is 0 and will not be used! "<<ProbS<<endmsg; 
             /// nesli///modified 07.03.08//////
           else {
             ProbB *= 0.0000001;
@@ -723,9 +727,9 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
         ATH_MSG_DEBUG("      Temp ProbB: " << ProbB);
       } 
       else {
-        if(cnt_warn<10) {
+        if(m_cnt_warn<10) {
           ATH_MSG_WARNING("Histogram variable <" << m_TH1F_key[iFile][i] << "> in file <" << m_fileNames[iFile] << "> is not found in the calculated variable list");
-          cnt_warn++;
+          m_cnt_warn++;
         }
       }
     }
