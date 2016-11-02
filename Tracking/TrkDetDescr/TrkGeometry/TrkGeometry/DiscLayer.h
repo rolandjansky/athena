@@ -91,7 +91,7 @@ namespace Trk {
         DiscLayer& operator=(const DiscLayer&);
               
         /**Destructor*/
-        virtual ~DiscLayer(){}  
+        virtual ~DiscLayer();
                 
         /** Transforms the layer into a Surface representation for extrapolation */
         const DiscSurface& surfaceRepresentation() const override;
