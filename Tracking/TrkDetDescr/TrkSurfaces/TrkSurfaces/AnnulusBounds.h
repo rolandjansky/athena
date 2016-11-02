@@ -12,8 +12,10 @@
 
 
 #include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkEventPrimitives/ParamDefs.h"
-#include <math.h>
+//#include "TrkEventPrimitives/ParamDefs.h"
+//#include <math.h>
+#include <iosfwd> //ostream fwd declaration
+#include <vector>
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -46,9 +48,9 @@ namespace Trk {
       enum BoundValues {
           bv_minR = 0,   
           bv_maxR = 1,
-	  bv_R    = 2,
+	        bv_R    = 2,
           bv_phi  = 3,
-	  bv_phiS = 4,
+	        bv_phiS = 4,
           bv_length   = 5
       };
       
@@ -61,7 +63,7 @@ namespace Trk {
      
       
       /**Copy constructor*/
-      AnnulusBounds(const AnnulusBounds& annbo);
+      AnnulusBounds(const AnnulusBounds& annbo) = default;
       
       /**Destructor*/
       virtual ~AnnulusBounds();
@@ -73,7 +75,7 @@ namespace Trk {
       virtual BoundsType type() const override { return SurfaceBounds::Annulus; }
       
       /**Assignment operator*/
-      AnnulusBounds& operator=(const AnnulusBounds& sbo); 
+      AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
       
       /**Equality operator*/
       bool operator==(const SurfaceBounds& annbo) const override;
