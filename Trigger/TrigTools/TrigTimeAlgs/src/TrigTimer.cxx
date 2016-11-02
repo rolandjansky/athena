@@ -5,32 +5,32 @@
 */
 
 // $Id: TrigTimer.cxx,v 1.12 2009-03-12 07:46:45 tbold Exp $
-// $Name: not supported by cvs2svn $
 #include <sys/time.h>
 #include "TrigTimeAlgs/TrigTimer.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #define SecsInDay 86400
 
 using namespace std;
 
 TrigTimer::TrigTimer (const std::string name, bool active)
-    : m_name (name),
-      m_active(active),
-      m_elapsed(0.0),
-      m_lastElapsed(0.0),
-      m_mean(0.0),
-      m_ms(0.0),
-      m_numberOfMeasurements(0),
-      m_started(false),
-      m_paused(false),
-      m_propVal(0),
-      m_meanVal(0),
-      m_meanTimePerObject(0.0),
-      m_NmeanTimePerObject(0) {
-    m_startTime.tv_sec = 0;
-    m_startTime.tv_usec = 0;
-    m_stopTime.tv_sec = 0;
-    m_stopTime.tv_usec = 0;
+  : m_name (name),
+    m_active(active),
+    m_elapsed(0.0),
+    m_lastElapsed(0.0),
+    m_mean(0.0),
+    m_ms(0.0),
+    m_numberOfMeasurements(0),
+    m_started(false),
+    m_paused(false),
+    m_propVal(0),
+    m_meanVal(0),
+    m_meanTimePerObject(0.0),
+    m_NmeanTimePerObject(0) {
+  m_startTime.tv_sec = 0;
+  m_startTime.tv_usec = 0;
+  m_stopTime.tv_sec = 0;
+  m_stopTime.tv_usec = 0;
 }
 
 TrigTimer::~TrigTimer() {}
@@ -60,56 +60,48 @@ TrigTimer& TrigTimer::operator=(const TrigTimer& x) {
 }
     
 void TrigTimer::start( void ) {
-    if ( !m_active )
+  if ( !m_active )
 	return;
-    m_started = true;
-    m_paused = false;
-    m_elapsed = 0.0;
-    m_propVal = 0;
-    // if already started, the start time will be over-written
-    gettimeofday(&m_startTime, 0);
+  m_started = true;
+  m_paused = false;
+  m_elapsed = 0.0;
+  m_propVal = 0;
+  // if already started, the start time will be over-written
+  gettimeofday(&m_startTime, 0);
 }
     
 void TrigTimer::stop ( void ) {
-    if ( !m_active )
-	return;
-    if (!m_started) 
-	return;
-    gettimeofday(&m_stopTime, 0);
-    m_started = false;
+  if ( !m_active || !m_started) return;
 
-    if (!m_paused) {
-	float mtime;
-	int secs, usecs;
-	
-	if (m_stopTime.tv_sec >= m_startTime.tv_sec) {
-	    secs = m_stopTime.tv_sec - m_startTime.tv_sec;
-	} else { // we have turned into a pumpkin 
-	    secs = m_stopTime.tv_sec - m_startTime.tv_sec + SecsInDay;
+  gettimeofday(&m_stopTime, 0);
+  m_started = false;
+
+  if (!m_paused) {
+	int secs = m_stopTime.tv_sec - m_startTime.tv_sec;
+	int usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
+
+	if (ATH_UNLIKELY(secs<0)) { // we have turned into a pumpkin 
+      secs = m_stopTime.tv_sec - m_startTime.tv_sec + SecsInDay;
 	}
-	usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
-	mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
+	float mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
 	
 	// elapsed time
 	m_elapsed += mtime;
 	m_lastElapsed = mtime;
-    }
+  }
 
-    // statistics - mean, rms
-    const double denom = static_cast <double> (++m_numberOfMeasurements);
-    const double inv_denom = 1. / denom;
-    double d = m_elapsed - m_mean;
-    m_mean += d * inv_denom;
-    double dd = m_elapsed*m_elapsed - m_ms;
-    m_ms += dd * inv_denom;
+  // statistics - mean, rms
+  const double inv_denom = 1. / static_cast<double>(++m_numberOfMeasurements);
+  m_mean += (m_elapsed - m_mean) * inv_denom;
+  m_ms += (m_elapsed*m_elapsed - m_ms) * inv_denom;
 
-    // mean property 
-    m_meanVal += static_cast <double> (m_propVal - m_meanVal) * inv_denom;
-    if (m_propVal !=0) {
-	double timePerObject = m_elapsed/static_cast <double>(m_propVal);
-	m_meanTimePerObject += static_cast <double> (timePerObject - m_meanTimePerObject) / 
-	    static_cast<double> (++m_NmeanTimePerObject);
-    }
+  // mean property 
+  m_meanVal += static_cast<double>(m_propVal - m_meanVal) * inv_denom;
+  if (m_propVal !=0) {
+	double timePerObject = m_elapsed/static_cast<double>(m_propVal);
+	m_meanTimePerObject += static_cast<double>(timePerObject - m_meanTimePerObject) / 
+      static_cast<double>(++m_NmeanTimePerObject);
+  }
 }
 
 bool TrigTimer::running()  const {
@@ -125,57 +117,50 @@ bool  TrigTimer::wasRun() const {
 }
     
 void TrigTimer::pause ( void ) {
-    if ( !m_active )
+  if ( !m_active )
 	return;
 
-    // only pause if started
-    // a pause while paused is ignored 
-    if (m_paused || !m_started) return;
-    m_paused = true;
-    gettimeofday(&m_stopTime, 0);
-    //      cout << " Timer " << m_name << " Paused at " << tv.tv_sec << " s " << 
-    //	tv.tv_usec << " us" << endl;
+  // only pause if started, a pause while paused is ignored 
+  if (m_paused || !m_started) return;
+  m_paused = true;
+  gettimeofday(&m_stopTime, 0);
 
-    float mtime;
-    int secs, usecs;
+  int secs = m_stopTime.tv_sec - m_startTime.tv_sec;
+  int usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
       
-    if (m_stopTime.tv_sec >= m_startTime.tv_sec) {
-	secs = m_stopTime.tv_sec - m_startTime.tv_sec;
-    } else { // we have turned into a pumpkin 
+  if (ATH_UNLIKELY(secs<0)) { // we have turned into a pumpkin 
 	secs = m_stopTime.tv_sec - m_startTime.tv_sec + SecsInDay;
-    }
-    usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
-    mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
+  }
 
-    m_elapsed += mtime; // time so far
-    m_lastElapsed = mtime;
+  float mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
+
+  m_elapsed += mtime; // time so far
+  m_lastElapsed = mtime;
 }
 
 void TrigTimer::resume( void ) {
-    if ( !m_active )
+  if ( !m_active )
 	return;
-    if (!m_started) { 
+  if (!m_started) { 
 	start(); // resume acts as start if not started
-    } else if (m_paused) {
+  } else if (m_paused) {
 	m_paused = false;
 	gettimeofday(&m_startTime, 0);
-	//	cout << " Timer " << m_name << " Resumed at " << tv.tv_sec << " s " << 
-	//	tv.tv_usec << " us" << endl;
-    }
+  }
 }
 
 void TrigTimer::reset () { 
-    if ( !m_active )
+  if ( !m_active )
 	return;
-    m_started = false;
-    m_paused = false;
-    m_elapsed = 0.0; 
-    m_lastElapsed = 0.0;
-    m_propVal = 0;
-    m_startTime.tv_sec = 0;
-    m_startTime.tv_usec = 0;
-    m_stopTime.tv_sec = 0;
-    m_stopTime.tv_usec = 0;
+  m_started = false;
+  m_paused = false;
+  m_elapsed = 0.0; 
+  m_lastElapsed = 0.0;
+  m_propVal = 0;
+  m_startTime.tv_sec = 0;
+  m_startTime.tv_usec = 0;
+  m_stopTime.tv_sec = 0;
+  m_stopTime.tv_usec = 0;
 }
 
 
@@ -189,9 +174,6 @@ ScopeTimer::ScopeTimer(TrigTimer* t )
 ScopeTimer::~ScopeTimer() {
   if ( m_timer ) m_timer->stop();
 }
-
-
-
 
 
 ScopeResumePauseTimer::ScopeResumePauseTimer(TrigTimer* t, bool isLastMeasurement )

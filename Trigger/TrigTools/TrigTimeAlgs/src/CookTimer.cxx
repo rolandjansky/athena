@@ -80,7 +80,7 @@ IncidentTimer::IncidentTimer(unsigned int milliseconds,
 {
   if ( m_incSvc.retrieve().isFailure() ) {
     MsgStream log(Athena::getMessageSvc(), "IncidentTimer");
-    log << MSG::FATAL << "Could not retrieve IncidentSvc" << endreq;
+    log << MSG::FATAL << "Could not retrieve IncidentSvc" << endmsg;
   }    
 }
 

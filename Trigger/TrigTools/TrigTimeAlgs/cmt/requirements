@@ -1,6 +1,4 @@
 package TrigTimeAlgs
-author John Baines <j.baines@rl.ac.uk>
-manager John Baines <j.baines@rl.ac.uk>, Tomasz.Bold@cern.ch
 
 use 	AtlasPolicy         	AtlasPolicy-*
 use     AtlasROOT               AtlasROOT-*             External
@@ -15,6 +13,7 @@ apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="jobOfragment_TrigTimerSvc.py"
 
 private
+use 	CxxUtils          	CxxUtils-*      		Control
 
 macro_append libraryshr_linkopts "" \
    Linux                  " -Wl,-lrt "

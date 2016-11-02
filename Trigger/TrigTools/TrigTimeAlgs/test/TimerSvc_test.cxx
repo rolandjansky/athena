@@ -26,7 +26,7 @@ int main() {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
     cerr << "ERROR This test can not be run, can not get ServiceLocator" << endl;
-    return 0;
+    return -1;
   }
   assert(pSvcLoc);
   
@@ -54,9 +54,18 @@ int main() {
     return -1;
   }
 
+  // performance test
+  int N = 1e6;
+  timerB->start();
+  for (int n=0; n<N; ++n) {
+    timerA->start();
+    timerA->stop();
+  }
+  timerB->stop();
+
   pTimerSvc->print();
   
-
   cerr << "SUCCESS test passed OK" << endl;
+  cout << timerB->elapsed()/N*1000 <<  " ms per 1000 stop/start calls" << endl;
   return 0;
 }
