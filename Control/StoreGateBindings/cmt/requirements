@@ -17,7 +17,6 @@ use GaudiInterface 	GaudiInterface-* 	External
 use AtlasPython		AtlasPython-*		External 
 use AtlasROOT	 	AtlasROOT-*		External
 use AtlasReflex  	AtlasReflex-*  		External
-use CxxUtils            CxxUtils-*              Control
 use AthenaKernel	AthenaKernel-*		Control
 use SGTools             SGTools-*               Control
 use StoreGate	 	StoreGate-*		Control 

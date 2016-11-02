@@ -4,6 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "StoreGateBindings/StoreGatePyExt.h"
+
 #include "Python.h"
 
 #include "StoreGateBindingsDict.h"
@@ -14,7 +16,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 
 // SGTools includes
-#include "CxxUtils/unordered_map.h" // move to STL once available
 #include "SGTools/DataBucketBase.h"
 #include "SGTools/BaseInfo.h"
 #include "SGTools/ClassID_traits.h"
@@ -52,12 +53,19 @@ PyObject*
 AthenaInternal::retrieveObjectFromStore( PyObject* self, 
                                          PyObject* tp, PyObject* pykey )
 {
+  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  return retrieveObjectFromStore(store,tp,pykey);
+}
+
+PyObject* 
+AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store, 
+                                         PyObject* tp, PyObject* pykey )
+{
   void* res = 0;
   PyObject* objProxy = NULL;
 
   static SG::PyProxyMgr& s_mgr = SG::PyProxyMgr::instance();
 
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
 
   // unlikely to happen, but checking is cheap
   if ( ! store ) {
@@ -305,9 +313,17 @@ PyObject*
 AthenaInternal::py_sg_contains (PyObject* self,
                                 PyObject* tp, PyObject* pykey)
 {
+  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  return py_sg_contains(store,tp,pykey);
+}
+
+PyObject* 
+AthenaInternal::py_sg_contains (StoreGateSvc* store,
+                                PyObject* tp, PyObject* pykey)
+{
   static SG::PyProxyMgr& s_mgr = SG::PyProxyMgr::instance();
 
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  
 
   // unlikely to happen, but checking is cheap
   if ( ! store ) {
@@ -373,13 +389,22 @@ AthenaInternal::py_sg_contains (PyObject* self,
   return o;
 }
 
+
 PyObject* 
 AthenaInternal::py_sg_getitem (PyObject* self,
                                PyObject* pykey)
 {
+  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  return py_sg_getitem(store,pykey);
+}
+
+PyObject* 
+AthenaInternal::py_sg_getitem (StoreGateSvc* store,
+                               PyObject* pykey)
+{
   static SG::PyProxyMgr& s_mgr = SG::PyProxyMgr::instance();
 
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  
 
   // unlikely to happen, but checking is cheap
   if ( ! store ) {
@@ -403,7 +428,7 @@ AthenaInternal::py_sg_getitem (PyObject* self,
     return 0;
   }
   
-  return AthenaInternal::retrieveObjectFromStore (self, 
+  return AthenaInternal::retrieveObjectFromStore (store, 
                                                   s_mgr.pytp(clid), 
                                                   pykey);
 }
@@ -422,9 +447,21 @@ AthenaInternal::recordObjectToStore( PyObject* self,
                                      bool resetOnly /*= true*/,
                                      bool noHist /*= false*/)
 {
+  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  return recordObjectToStore(store,obj,pykey,allowMods,resetOnly,noHist);
+}
+
+PyObject* 
+AthenaInternal::recordObjectToStore( StoreGateSvc* store,
+                                     PyObject* obj,
+                                     PyObject* pykey,
+                                     bool allowMods /*= true*/,
+                                     bool resetOnly /*= true*/,
+                                     bool noHist /*= false*/)
+{
   static SG::PyProxyMgr& s_mgr = SG::PyProxyMgr::instance();
 
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  
 
   // unlikely to happen, but checking is cheap
   if ( ! store ) {
