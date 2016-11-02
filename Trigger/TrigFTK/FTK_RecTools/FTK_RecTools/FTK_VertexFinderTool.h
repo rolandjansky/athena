@@ -40,6 +40,7 @@
 #include "xAODTracking/VertexFwd.h"
 //#include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexAuxContainer.h"
 //#include "xAODTracking/TrackParticleContainerFwd.h"
 //#include "Tracking/TrkVertexFitter/TrkVxEdmCnv/TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 class VxContainer;
@@ -100,8 +101,8 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
   //
 //   VxContainer* findVertex(const FTK_RawTrackContainer* trks);
 //   VxContainer* findVertex(const TrackCollection* trks);
-   xAOD::VertexContainer* findVertex(const FTK_RawTrackContainer* trks);
-   xAOD::VertexContainer* findVertex(const TrackCollection* trks);
+ 	 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const FTK_RawTrackContainer* trks);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trks);
  private:
 
     bool m_barrelOnly;
@@ -114,7 +115,7 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
   //
   //  Helper functions with the uncerianties
   //
-  xAOD::VertexContainer* findVertex(vector<MyTrack> trks);
+	std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(vector<MyTrack> trks);
   double ctheta2eta(double cot);
   vector<MyTrack> getTracks(const FTK_RawTrackContainer* trks);
   vector<MyTrack> getTracks(const TrackCollection* trks);

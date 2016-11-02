@@ -24,6 +24,7 @@ use xAODTracking               xAODTracking-*             Event/xAOD
 use TrkVxEdmCnv                TrkVxEdmCnv-*              Tracking/TrkVertexFitter
 
 private
+use TrkParameters    TrkParameters-*   Tracking/TrkEvent
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
