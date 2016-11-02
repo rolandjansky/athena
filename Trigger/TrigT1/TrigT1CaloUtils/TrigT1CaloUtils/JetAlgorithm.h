@@ -56,18 +56,18 @@ public:
   ~JetAlgorithm();
   
   /** Accessors */
-  double eta();
-  double phi();
-  int Core();
-  int ET4x4();
-  int ET6x6();
-  int ET8x8();
-  bool isEtMax();
-  unsigned int Hits();
-  unsigned int RoIWord();
+  double eta() const;
+  double phi() const;
+  int Core() const;
+  int ET4x4() const;
+  int ET6x6() const;
+  int ET8x8() const;
+  bool isEtMax() const;
+  unsigned int Hits() const;
+  unsigned int RoIWord() const;
   
   /** Put a new EmTauROI object (corresponding to this window) on the heap, and return a pointer to it*/
-  JetROI* produceExternal();
+  JetROI* produceExternal() const;
   
 private: //atribs
   double m_refEta;
@@ -93,7 +93,7 @@ private:  // methods
   void testEtMax(const std::vector<int>& cores);
   void passesTrigger();
   void getThresholds(TrigConf::TriggerThreshold* thresh, int& size, int& value);
-  bool isForwardJet();
+  bool isForwardJet() const;
 
 };
 

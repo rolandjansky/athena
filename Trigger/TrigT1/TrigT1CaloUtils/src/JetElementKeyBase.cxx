@@ -190,7 +190,7 @@ Coordinate  JetElementKeyBase::leftEta(const double phi, const double eta){
   unsigned int reg=region(temp_eta);
   // suppress leftEta in -ve region 5
   unsigned int maxRegion=5+((temp_eta>0.0)? 0:-1);
-  if ( (reg==0) ){
+  if ( reg==0 ){
     temp_eta-=m_regionWidth[0];
   }else{
     if ((reg==TrigT1CaloDefs::RegionError)||(reg>maxRegion)) {
@@ -233,7 +233,7 @@ Coordinate JetElementKeyBase::rightEta(const double phi,const double eta){
   unsigned int reg=region(temp_eta);
   // supress rightEta in +ve region 5
   unsigned int maxRegion=5+((temp_eta>0.0)? -1:0);
-  if ( (reg==0) ){
+  if ( reg==0 ){
     temp_eta+=m_regionWidth[0];
   }else{
     if ((reg==TrigT1CaloDefs::RegionError)||(reg>maxRegion)) {
@@ -263,7 +263,7 @@ Coordinate JetElementKeyBase::upPhi(const double phi, const double eta){
   Coordinate centre=getCentre(phi,eta);
   double temp_phi=centre.phi();
   unsigned int reg=region(centre.eta());
-  if ((reg==TrigT1CaloDefs::RegionError)) {
+  if (reg==TrigT1CaloDefs::RegionError) {
 //    std::cout << "Out of bounds error in JetElementKeyBase::upPhi"<<std::endl;
     temp_phi=0.0;
   }else{
@@ -290,7 +290,7 @@ Coordinate JetElementKeyBase::downPhi(const double phi, const double eta){
   Coordinate centre=getCentre(phi,eta);
   double temp_phi=centre.phi();
   unsigned int reg=region(centre.eta());
-  if ((reg==TrigT1CaloDefs::RegionError)) {
+  if (reg==TrigT1CaloDefs::RegionError) {
 //    std::cout << "Out of bounds error in JetElementKeyBase::downPhi"<<std::endl;
     temp_phi=0.0;
   }else{
@@ -361,7 +361,7 @@ Coordinate JetElementKeyBase::lowerRight(const Coordinate coord){
 double JetElementKeyBase::dPhi(const double /*phi*/, const double eta) const {
 	unsigned int reg=region(eta);
 
-	if ((reg==TrigT1CaloDefs::RegionError)) return 0.0;
+	if (reg==TrigT1CaloDefs::RegionError) return 0.0;
 	return m_regionHeight[reg];
 }
 
@@ -378,7 +378,7 @@ double JetElementKeyBase::dPhi(const Coordinate& coord) const{
 /**return width of JE at (phi,eta)*/
 double JetElementKeyBase::dEta(const double /*phi*/, const double eta) const{
   unsigned int reg=region(eta);
-  if ((reg==TrigT1CaloDefs::RegionError)) return 0.0;
+  if (reg==TrigT1CaloDefs::RegionError) return 0.0;
 
   return m_regionWidth[reg];
 }

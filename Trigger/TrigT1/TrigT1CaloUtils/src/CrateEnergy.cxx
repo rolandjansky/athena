@@ -236,57 +236,57 @@ CrateEnergy::~CrateEnergy(){
 }
 
 /** return crate number */
-unsigned int CrateEnergy::crate(){
+unsigned int CrateEnergy::crate() const {
   return m_crate;
 }
 
 /** return crate Et */
-int CrateEnergy::et() {
+int CrateEnergy::et() const {
   return m_crateEt;
 }
 
 /** return crate Ex */
-int CrateEnergy::ex() {
+int CrateEnergy::ex() const {
   return m_crateEx;
 }
 
 /** return crate Ey */
-int CrateEnergy::ey() {
+int CrateEnergy::ey() const {
   return m_crateEy;
 }
 
 /** return Et overflow bit */
-unsigned int CrateEnergy::etOverflow() {
+unsigned int CrateEnergy::etOverflow() const {
   return m_overflowT;
 }
 
 /** return Ex overflow bit */
-unsigned int CrateEnergy::exOverflow() {
+unsigned int CrateEnergy::exOverflow() const {
   return m_overflowX;
 }
 
 /** return Ey overflow bit */
-unsigned int CrateEnergy::eyOverflow() {
+unsigned int CrateEnergy::eyOverflow() const {
   return m_overflowY;
 }
 
 /** Full or Restricted eta range */
-bool CrateEnergy::restricted() {
+bool CrateEnergy::restricted() const {
   return m_restricted;
 }
 
 /** return crate Ex in 15-bit twos-complement format (hardware format) */
-unsigned int CrateEnergy::exTC() {
+unsigned int CrateEnergy::exTC() const {
   return encodeTC(m_crateEx);
 }
 
 /** return crate Ey in 15-bit twos-complement format (hardware format) */
-unsigned int CrateEnergy::eyTC() {
+unsigned int CrateEnergy::eyTC() const {
   return encodeTC(m_crateEy);
 }
 
 /** encode int as 15-bit twos-complement format (hardware Ex/Ey format) */
-unsigned int CrateEnergy::encodeTC(int input) {
+unsigned int CrateEnergy::encodeTC(int input) const {
   unsigned int value;
 
   if (input > 0) {
@@ -301,13 +301,13 @@ unsigned int CrateEnergy::encodeTC(int input) {
 }
 
 /** decode 15-bit twos-complement format (hardware Ex/Ey format) as int */
-int CrateEnergy::decodeTC(unsigned int input) {
+int CrateEnergy::decodeTC(unsigned int input) const {
 
   int mask = (1<<m_sumBitsTC) - 1;
   int value = input&mask;
 
   if ((value >> (m_sumBitsTC - 1))) {
-    value += (-1) << m_sumBitsTC;
+    value += (~0U) << m_sumBitsTC;
   }
 
   return value;

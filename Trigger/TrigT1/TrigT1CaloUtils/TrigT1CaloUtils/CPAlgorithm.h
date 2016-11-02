@@ -51,25 +51,25 @@ The CPAlgorithm:<br>
 class CPAlgorithm {
 public: 
   
-  CPAlgorithm( double eta, double phi, const std::map<int, CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
 
   ~CPAlgorithm();
   
   /** Accessors */
-  double eta();
-  double phi();
-  int Core();
-  int EMClus();
-  int TauClus();
-  int EMIsol();
-  int HadIsol();
-  int HadVeto();
-  bool isEtMax();
-  unsigned int Hits();
-  unsigned int RoIWord();
+  double eta() const;
+  double phi() const;
+  int Core() const;
+  int EMClus() const;
+  int TauClus() const;
+  int EMIsol() const;
+  int HadIsol() const;
+  int HadVeto() const;
+  bool isEtMax() const;
+  unsigned int Hits() const;
+  unsigned int RoIWord() const;
   
   /** Put a new EmTauROI object (corresponding to this window) on the heap, and return a pointer to it*/
-  EmTauROI* produceExternal();
+  EmTauROI* produceExternal() const;
   
 private: //atribs
   double m_refEta;
@@ -88,7 +88,7 @@ private: //atribs
   bool m_EtMax;
   unsigned int m_Hits;
 
-  bool m_debug;
+  //bool m_debug;
 
   /** Algorithm parameters */
   static const int m_maxClus;

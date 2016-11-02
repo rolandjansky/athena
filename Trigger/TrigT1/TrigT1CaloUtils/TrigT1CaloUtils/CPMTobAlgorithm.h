@@ -51,7 +51,7 @@ The CPMTobAlgorithm:<br>
 class CPMTobAlgorithm {
 public: 
   
-  CPMTobAlgorithm(double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPMTobAlgorithm(double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
 
   ~CPMTobAlgorithm();
   
@@ -108,7 +108,7 @@ private: //atribs
   bool m_EMThresh;
   bool m_TauThresh;
 
-  bool m_debug;
+  //bool m_debug;
 
   /** Algorithm parameters */
   static const unsigned int m_maxClus;

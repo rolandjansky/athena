@@ -43,20 +43,20 @@ public:
   ~CrateEnergy();
 
 public:
-  unsigned int crate();
+  unsigned int crate() const;
   /** return et, ex, ey sums */
-  int et();
-  int ex();
-  int ey();
+  int et() const;
+  int ex() const;
+  int ey() const;
   /** 15 bit twos-complement format */
-  unsigned int exTC();
-  unsigned int eyTC();
+  unsigned int exTC() const;
+  unsigned int eyTC() const;
   /** Overflow bits */
-  unsigned int exOverflow();
-  unsigned int eyOverflow();
-  unsigned int etOverflow();
+  unsigned int exOverflow() const;
+  unsigned int eyOverflow() const;
+  unsigned int etOverflow() const;
   /** Full or restricted eta range? */
-  bool restricted();
+  bool restricted() const;
 private:
   unsigned int m_crate;
   unsigned int m_crateEt;
@@ -72,8 +72,8 @@ private:
   static const unsigned int m_jemEtSaturation=4032;
 
 private:
-  unsigned int encodeTC(int input);
-  int decodeTC(unsigned int input);
+  unsigned int encodeTC(int input) const;
+  int decodeTC(unsigned int input) const;
 
 };
 

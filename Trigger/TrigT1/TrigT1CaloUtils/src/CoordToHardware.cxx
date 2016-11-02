@@ -25,7 +25,7 @@
 
 LVL1::CoordToHardware::CoordToHardware():
 	m_cpmEtaWidth(0.4), m_cpmEtaMax(2.8),
-	m_cpFPGAPhiWidth(M_PI/16.0), m_cpEtaMax(2.5), m_jemEtaWidth(0.8),m_debug(false)
+	m_cpFPGAPhiWidth(M_PI/16.0), m_cpEtaMax(2.5), m_debug(false)
 {
 	fillRoILocalMap();
 }

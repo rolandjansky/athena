@@ -51,7 +51,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
-LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer,
+LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer,
                                 ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice ):
   m_configSvc(config),
   m_Core(0),
@@ -65,8 +65,8 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<i
   m_HadIsol(0),
   m_EtMax(false),
   m_EMThresh(false),
-  m_TauThresh(false),
-  m_debug(false)
+  m_TauThresh(false)
+  //m_debug(false)
 {
   /** RoI coordinates are centre of window, while key classes are designed
       for TT coordinates - differ by 0.5* TT_size. Using wrong coordinate
@@ -110,7 +110,7 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<i
     for (int phiOffset = -1; phiOffset <= 2; phiOffset++) {
       double tempPhi = m_refPhi + phiOffset*M_PI/32;
       int key = get.ttKey(tempPhi, tempEta);
-      std::map<int, xAOD::CPMTower*>::const_iterator tt = ttContainer->find(key);
+      xAOD::CPMTowerMap_t::const_iterator tt = ttContainer->find(key);
       if (tt != ttContainer->end() && fabs(tempEta) < m_maxEta) {
         // Get the TT ET values once here, rather than repeat function calls
         int emTT = 0;
