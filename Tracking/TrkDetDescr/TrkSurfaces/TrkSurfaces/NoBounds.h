@@ -96,7 +96,7 @@ namespace Trk {
    
   inline MsgStream& NoBounds::dump(MsgStream& sl) const
   {
-       sl << "Trk::NoBounds ... boundless surface" << endreq;
+       sl << "Trk::NoBounds ... boundless surface" << endmsg;
        return sl;
   }
    

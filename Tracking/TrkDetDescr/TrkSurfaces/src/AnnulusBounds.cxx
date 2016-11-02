@@ -11,23 +11,28 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
-#include <iostream>
+#include <ostream>
 #include <iomanip>
-#include <math.h>
+#include <cmath> //sin, cos etc
+#include <algorithm> //std::max_element
 
+namespace {
+  constexpr double twoPi=2.0*M_PI;
+}
 
 // Class checking the interface of an ellipse with a circle
 	class EllipseCollisionTest {
 	private:
-	  int maxIterations;
+	  int m_maxIterations;
 	  bool iterate(double x, double y, double c0x, double c0y, double c2x, double c2y, double rr) const {
-	    std::vector<double> innerPolygonCoef(maxIterations+1);
-	    std::vector<double> outerPolygonCoef(maxIterations+1);
+	    std::vector<double> innerPolygonCoef(m_maxIterations+1);
+	    std::vector<double> outerPolygonCoef(m_maxIterations+1);
 
 	    
-		for (int t = 1; t <= maxIterations; t++) {
+		for (int t = 1; t <= m_maxIterations; t++) {
 		  int numNodes = 4 << t;
-		  innerPolygonCoef[t] = 0.5/cos(4*acos(0.0)/numNodes);
+		  //innerPolygonCoef[t] = 0.5/std::cos(4*std::acos(0.0)/numNodes);
+		  innerPolygonCoef[t] = 0.5/std::cos(twoPi/numNodes);
 		  double c1x = (c0x + c2x)*innerPolygonCoef[t];
 		  double c1y = (c0y + c2y)*innerPolygonCoef[t];
 		  double tx = x - c1x; // t indicates a translated coordinate
@@ -47,7 +52,7 @@
 			  (ty*t0x - tx*t0y <= 0 || rr*(t0x*t0x + t0y*t0y) >= (ty*t0x - tx*t0y)*(ty*t0x - tx*t0y))) {	
 			return true;	// collision with t1---t0
 		  }
-		  outerPolygonCoef[t] = 0.5/(cos(2*acos(0.0)/numNodes)*cos(2*acos(0.0)/numNodes));
+		  outerPolygonCoef[t] = 0.5/(std::cos(M_PI/numNodes)*std::cos(M_PI/numNodes));
 		  double c3x = (c0x + c1x)*outerPolygonCoef[t];
 		  double c3y = (c0y + c1y)*outerPolygonCoef[t];
 		  if ((c3x-x)*(c3x-x) + (c3y-y)*(c3y-y) < rr) {	
@@ -66,7 +71,7 @@
 		  double t3y = c3y - c1y;
 		  if (ty*t3x - tx*t3y <= 0 || rr*(t3x*t3x + t3y*t3y) > (ty*t3x - tx*t3y)*(ty*t3x - tx*t3y)) {
 			if (tx*t3x + ty*t3y > 0) {
-			  if (abs(tx*t3x + ty*t3y) <= t3x*t3x + t3y*t3y || (x-c3x)*(c0x-c3x) + (y-c3y)*(c0y-c3y) >= 0) {
+			  if (std::abs(tx*t3x + ty*t3y) <= t3x*t3x + t3y*t3y || (x-c3x)*(c0x-c3x) + (y-c3y)*(c0y-c3y) >= 0) {
 				c2x = c1x;
 				c2y = c1y;
 				continue;	// circle center is inside t0---t1---t3
@@ -84,8 +89,8 @@
 	public:
 	  // test for collision between an ellipse of horizontal radius w and vertical radius h at (x0, y0) and a circle of radius r at (x1, y1)
 	  bool collide(double x0, double y0, double w, double h, double x1, double y1, double r) const {
-		double x = fabs(x1 - x0);
-		double y = fabs(y1 - y0);
+		double x = std::fabs(x1 - x0);
+		double y = std::fabs(y1 - y0);
 		
 //		return iterate(x, y, w, 0, 0, h, r*r);
 
@@ -103,13 +108,13 @@
 		else {
 		  double R=-r;
 		  double localCos = x/R;
-	          double deltaR = sqrt( h*h+(w*w-h*h)*localCos*localCos );
-                  if (deltaR<R-sqrt(x*x+y*y)) return false;
+	    double deltaR = std::sqrt( h*h+(w*w-h*h)*localCos*localCos );
+      if (deltaR<R-std::sqrt(x*x+y*y)) return false;
 		  else return true;  
 		}  
 	  }
 	  EllipseCollisionTest(int maxIterations) {
-		this->maxIterations = maxIterations;
+		this->m_maxIterations = maxIterations;
 	  }
 	};
 
@@ -119,33 +124,32 @@
 // default constructor
 Trk::AnnulusBounds::AnnulusBounds() :
 //    Trk::SurfaceBounds()
-    m_boundValues(AnnulusBounds::bv_length, 0.)
-//    m_forceCovEllipse(false) 
-{
-//    declareProperty("ForceCovEllipse",   m_forceCovEllipse);
+    m_boundValues(AnnulusBounds::bv_length, 0.),
+    m_maxYout{}, m_minYout{}, m_maxXout{}, m_minXout{},
+    m_maxYin{}, m_minYin{}, m_maxXin{}, m_minXin{},
+    m_k_L{}, m_k_R{},
+    m_d_L{}, m_d_R{},
+    m_solution_L_min{}, m_solution_L_max{},
+    m_solution_R_min{}, m_solution_R_max{} {
+//    nop
 }
 
 // constructor from arguments I
 Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi, double phiS) :
     m_boundValues(AnnulusBounds::bv_length, 0.)
-
 {
- 
-    m_boundValues[AnnulusBounds::bv_minR] = fabs(minR);
-    m_boundValues[AnnulusBounds::bv_maxR] = fabs(maxR);
-    m_boundValues[AnnulusBounds::bv_R] = fabs(R);
-    m_boundValues[AnnulusBounds::bv_phi]  = fabs(phi);
-    m_boundValues[AnnulusBounds::bv_phiS]  = fabs(phiS);
+    m_boundValues[AnnulusBounds::bv_minR] = std::fabs(minR);
+    m_boundValues[AnnulusBounds::bv_maxR] = std::fabs(maxR);
+    m_boundValues[AnnulusBounds::bv_R] = std::fabs(R);
+    m_boundValues[AnnulusBounds::bv_phi]  = std::fabs(phi);
+    m_boundValues[AnnulusBounds::bv_phiS]  = std::fabs(phiS);
     if (m_boundValues[AnnulusBounds::bv_minR] > m_boundValues[AnnulusBounds::bv_maxR]) swap(m_boundValues[AnnulusBounds::bv_minR], m_boundValues[AnnulusBounds::bv_maxR]);
 
+    m_k_L = std::tan( (M_PI+phi)/2. + phiS);
+    m_k_R = std::tan( (M_PI-phi)/2. + phiS);
     
-
-
-    m_k_L = tan( (M_PI+phi)/2. + phiS);
-    m_k_R = tan( (M_PI-phi)/2. + phiS);
-    
-    m_d_L = R*sin(phiS)*tan( (M_PI-phi)/2 - phiS) + R*(1.-cos(phiS));	
-    m_d_R = R*sin(phiS)*tan( (M_PI+phi)/2 - phiS) + R*(1.-cos(phiS));
+    m_d_L = R*std::sin(phiS)*std::tan( (M_PI-phi)/2. - phiS) + R*(1.-std::cos(phiS));	
+    m_d_R = R*std::sin(phiS)*std::tan( (M_PI+phi)/2. - phiS) + R*(1.-std::cos(phiS));
     
     
 
@@ -181,27 +185,9 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
 
 }
 
-
-
-// copy constructor
-Trk::AnnulusBounds::AnnulusBounds(const AnnulusBounds& annbo) :
-    Trk::SurfaceBounds(),
-    m_boundValues(annbo.m_boundValues)
-{}
-
-
 // destructor
 Trk::AnnulusBounds::~AnnulusBounds()
 {}
-
-Trk::AnnulusBounds& Trk::AnnulusBounds::operator=(const AnnulusBounds& annbo)
-{
-    if (this!=&annbo){
-        m_boundValues = annbo.m_boundValues;
-
-    }
-    return *this;
-}
 
 bool Trk::AnnulusBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {
@@ -234,10 +220,10 @@ bool Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, double tol1, double 
 
 	
 	double localR2 = localX*localX + localY*localY;
-	double localR  = sqrt(localR2);
+	double localR  = std::sqrt(localR2);
 	double localCos = localX/localR;
 	double localSin = localY/localR;
-	double deltaR = sqrt( tol2*tol2*localSin*localSin+tol1*tol1*localCos*localCos );
+	double deltaR = std::sqrt( tol2*tol2*localSin*localSin+tol1*tol1*localCos*localCos );
 
 
 	
@@ -276,8 +262,8 @@ bool Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, double tol1, double 
 	
 	
 	// ellipse is always at (0,0), surface is moved to ellipse position and then rotated
-	double w = bchk.nSigmas*sqrt( lCovarianceCar(0,0));
-        double h = bchk.nSigmas*sqrt( lCovarianceCar(1,1));
+	double w = bchk.nSigmas*std::sqrt( lCovarianceCar(0,0));
+        double h = bchk.nSigmas*std::sqrt( lCovarianceCar(1,1));
 	
 	// a fast FALSE
 	double maxTol = std::max(w,h);
@@ -480,8 +466,8 @@ std::vector<double> Trk::AnnulusBounds::circleLineIntersection(double R, double 
    if (delta < 0) 
      return solution;
    else {
-     x1 = (-2.*k*d - sqrt(delta))/(2.*(1+k*k)); 
-     x2 = (-2.*k*d + sqrt(delta))/(2.*(1+k*k)); 
+     x1 = (-2.*k*d - std::sqrt(delta))/(2.*(1+k*k)); 
+     x2 = (-2.*k*d + std::sqrt(delta))/(2.*(1+k*k)); 
      y1 = k*x1 + d;
      y2 = k*x2 + d;
    }  
@@ -529,7 +515,7 @@ double Trk::AnnulusBounds::distanceToLine(const Amg::Vector2D& locpo,
 	        P3y = P1y + u * B;
 
             }
-            return sqrt( (X-P3x)*(X-P3x) + (Y-P3y)*(Y-P3y) );
+            return std::sqrt( (X-P3x)*(X-P3x) + (Y-P3y)*(Y-P3y) );
   
 }  
 			    
@@ -549,7 +535,7 @@ double Trk::AnnulusBounds::distanceToArc(const Amg::Vector2D& locpo,
 	    
 	    
 	    if (tanlocPhi > tanPhi_L && tanlocPhi < tanPhi_R) 
-	      return fabs(sqrt(X*X+Y*Y) - R);
+	      return std::fabs(std::sqrt(X*X+Y*Y) - R);
 	    else 
 	      return 9999999999.;
 	    
@@ -588,8 +574,8 @@ bool Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo, double
 	m = (y2-y1)/(x2-x1);
 	c = y1 - m*x1;
 	
-	if (h == 0)   return ( fabs(c) < k ); 
-	if (k == 0)   return ( fabs(c/m) < h );
+	if (h == 0)   return ( std::fabs(c) < k ); 
+	if (k == 0)   return ( std::fabs(c/m) < h );
 	
 	r = m*m*h*h + k*k;
 	s = 2*m*c*h*h;
@@ -604,7 +590,7 @@ bool Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo, double
 	// vertical line case
 	//
      
-        d = fabs(x1) - h;
+        d = std::fabs(x1) - h;
 		
     }
 	

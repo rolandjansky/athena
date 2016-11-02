@@ -12,8 +12,8 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
-#include <iostream>
-#include <iomanip>
+//#include <iostream>
+//#include <iomanip>
 #include <assert.h>
 
 
@@ -170,8 +170,9 @@ bool Trk::ConeSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vec
     double r = loc3Dframe.z()*bounds().tanAlpha();
     locpos = Amg::Vector2D(r*atan2(loc3Dframe.y(), loc3Dframe.x()), loc3Dframe.z());
     // now decide on the quility of the transformation
-    double inttol = r*0.0001;
-    inttol = (inttol<0.01) ? 0.01 : 0.01; // ?
+    //double inttol = r*0.0001;
+    //inttol = (inttol<0.01) ? 0.01 : 0.01; // ?
+    double inttol = 0.01;
     return ( ( (loc3Dframe.perp() - r) > inttol ) ? false : true );
 }
 
