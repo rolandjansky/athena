@@ -12,11 +12,11 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
+                          Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
 			  Tracking/TrkAlignment/TrkAlgebraUtils
                           PRIVATE
-                          Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkMeasurementBase

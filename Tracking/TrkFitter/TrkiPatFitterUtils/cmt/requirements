@@ -10,7 +10,6 @@ private
 use AtlasCLHEP		       AtlasCLHEP-*                  External
 use TrkExInterfaces	       TrkExInterfaces-*	     Tracking/TrkExtrapolation
 use TrkExUtils		       TrkExUtils-*		     Tracking/TrkExtrapolation
-use TrkGeometry		       TrkGeometry-*		     Tracking/TrkDetDescr
 use TrkMaterialOnTrack	       TrkMaterialOnTrack-*	     Tracking/TrkEvent
 use TrkMeasurementBase	       TrkMeasurementBase-*	     Tracking/TrkEvent
 use TrkSurfaces		       TrkSurfaces-*		     Tracking/TrkDetDescr
@@ -21,6 +20,7 @@ use AthenaBaseComps	       AthenaBaseComps-*	     Control
 use AtlasPolicy		       AtlasPolicy-*
 use DataModel		       DataModel-*		     Control
 use EventPrimitives	       EventPrimitives-*	     Event
+use TrkGeometry		       TrkGeometry-*		     Tracking/TrkDetDescr
 use GaudiInterface	       GaudiInterface-*		     External
 use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
 use TrkAlgebraUtils	       TrkAlgebraUtils-*	     Tracking/TrkAlignment
