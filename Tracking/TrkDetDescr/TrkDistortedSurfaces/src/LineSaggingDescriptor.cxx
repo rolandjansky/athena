@@ -9,6 +9,8 @@
 // Trk
 #include "TrkDistortedSurfaces/LineSaggingDescriptor.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include <iomanip>
+#include <ostream>
 
 // static gravity direction
 Amg::Vector3D Trk::LineSaggingDescriptor::s_gravityDirection = -1 * Amg::Vector3D::UnitY();
