@@ -34,12 +34,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/Identifier.h"
 #include "CaloConditions/Array.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
-
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 #include <string>
 #include <vector>
@@ -55,8 +56,6 @@ class CaloTriggerTowerService;
 // class L1CaloTTIdTools;
 class CaloIdManager;
 class L1CaloCondSvc;
-
-
 
 
 /**
@@ -103,7 +102,8 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 		ToolHandle<ILArBadChanTool> m_badChannelTool;
 		ToolHandle<LArCablingService> m_cablingService;
 
-		std::string m_TTLocation;
+                //std::string m_TTLocation;
+                SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TTLocation;
 		std::vector<double> m_triggerNoiseCut;
 		bool m_useL1CaloDB;
 

@@ -23,13 +23,12 @@ LArCellRescaler::~LArCellRescaler() {}
 
 
 StatusCode LArCellRescaler::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " initialization " << endreq;
+  ATH_MSG_INFO( " initialization "  );
 
   // sc=m_detStore->regHandle(m_factors,m_key);
 //   if (sc.isFailure()) {
 //     log << MSG::ERROR << "Cound not register DataHandle<CaloRec::CaloCellFactor> with key "
-// 	<< m_key << endreq;
+// 	<< m_key << endmsg;
 //     return sc;
 //   }
 
@@ -43,18 +42,17 @@ StatusCode LArCellRescaler::initialize() {
 
 
 StatusCode LArCellRescaler::checkConstants(IOVSVC_CALLBACK_ARGS) {
-  MsgStream log(msgSvc(), name());
   const CaloCell_ID* cellID;
   ATH_CHECK( detStore()->retrieve(cellID) );
   IdentifierHash emMin, emMax;
   cellID->calo_cell_hash_range(CaloCell_ID::LAREM,emMin,emMax);
   if (m_factors->size() != emMax) {
-    log << MSG::ERROR << "CaloCellFactor object with key " << m_key 
-	<< " has wrong size " << m_factors->size() 
-	<< " HashMax is " <<  emMax << endreq;
+    ATH_MSG_ERROR( "CaloCellFactor object with key " << m_key 
+                   << " has wrong size " << m_factors->size() 
+                   << " HashMax is " <<  emMax  );
     return StatusCode::FAILURE;
   }
-  log << MSG::DEBUG << "CaloCellFactor object with key " << m_key << " has proper size." << endreq;
+  ATH_MSG_DEBUG( "CaloCellFactor object with key " << m_key << " has proper size."  );
   return StatusCode::SUCCESS;
 }
 

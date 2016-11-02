@@ -22,7 +22,6 @@ PURPOSE:  non linearity if only linear calibration fit is used
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "CaloEvent/CaloCell.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 // Units
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -86,21 +85,8 @@ LArNonLinearity::LArNonLinearity(const std::string& type, const std::string& nam
 
 StatusCode LArNonLinearity::initialize()
 {
-   MsgStream log(msgSvc(), name());
-
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -112,45 +98,22 @@ StatusCode LArNonLinearity::initialize()
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &LArNonLinearity::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &LArNonLinearity::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 LArNonLinearity::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-   MsgStream log(msgSvc(), name());
+  ATH_MSG_INFO( name()  );
+  ATH_MSG_INFO( " Initialize LArNonLinearity "  );
 
-   log<<MSG::INFO<< name() << endreq;
-   log<<MSG::INFO<< " Initialize LArNonLinearity " << endreq;
-
-  StoreGateSvc* detStore;
-  StatusCode sc = service ( "DetectorStore" , detStore ) ;
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR
-           << "Unable to access pointer to DetectorStore"
-           << endreq; 
-    return StatusCode::FAILURE;
-  }
-
-   // pointer to DD manager and helpers:
+  // pointer to DD manager and helpers:
   const DataHandle<CaloIdManager> caloIdMgr;
-  sc = detStore->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-           << "Unable to retrieve CaloIdManager from DetectoreStore"
-           << endreq; 
-    return StatusCode::FAILURE;
-  }   
+  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
 
   m_emID = caloIdMgr->getEM_ID();
   m_hecID = caloIdMgr->getHEC_ID();
@@ -168,8 +131,6 @@ LArNonLinearity::~LArNonLinearity()
 
 void LArNonLinearity::MakeCorrection(CaloCell* theCell)
 {
-  MsgStream log(msgSvc(), name());
-
   float eta = theCell->eta();
   Identifier id =  theCell->ID();
  
@@ -191,10 +152,11 @@ void LArNonLinearity::MakeCorrection(CaloCell* theCell)
       else {ielec=1;}
       int index =ielec + 2*(sampling-1);   // from 0 to 5 (see above)
 
-      if (energy>2.*GeV) log << MSG::DEBUG  << " energy " << energy
+      if (energy>2.*GeV)
+        ATH_MSG_DEBUG( " energy " << energy
                        << " sampling " << sampling
                        << " eta " << eta
-                       << " index " << index << endreq;
+                       << " index " << index  );
 
 // check E less than E maximum validity
  
@@ -222,10 +184,10 @@ void LArNonLinearity::MakeCorrection(CaloCell* theCell)
 
         if (energy>2.*GeV)
         {
-        log << MSG::DEBUG  << " pol coeff " << m_p0[index][irange] << " "
-            << m_p1[index][irange] << " " << m_p2[index][irange] << " "
-            << m_p3[index][irange] << endreq;
-        log << MSG::DEBUG << "energy,index,corr = " << energy << " " << index << " " << corr << endreq;
+          ATH_MSG_DEBUG( " pol coeff " << m_p0[index][irange] << " "
+                         << m_p1[index][irange] << " " << m_p2[index][irange] << " "
+                         << m_p3[index][irange]  );
+          ATH_MSG_DEBUG( "energy,index,corr = " << energy << " " << index << " " << corr  );
         }
       
       }

@@ -6,7 +6,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
 #include "xAODEventInfo/EventInfo.h"
 
 using xAOD::EventInfo;
@@ -31,16 +30,11 @@ LArTimeVetoAlg:: LArTimeVetoAlg(const std::string& name, ISvcLocator* pSvcLocato
 //__________________________________________________________________________
 StatusCode LArTimeVetoAlg::initialize() 
   {
-    msg(MSG::INFO)  <<"LArTimeVetoAlg initialize()" << endreq;
+    ATH_MSG_INFO("LArTimeVetoAlg initialize()"  );
     m_nevt=0;
     m_nevtMasked=0;
 
-    StatusCode sc = detStore()->regHandle(m_dd_atrList,m_folderName);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << " cannot register handle to attribute list " << m_folderName << endreq;
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK( detStore()->regHandle(m_dd_atrList,m_folderName) );
     return StatusCode::SUCCESS; 
 
   }
@@ -48,8 +42,8 @@ StatusCode LArTimeVetoAlg::initialize()
 //__________________________________________________________________________
 StatusCode LArTimeVetoAlg::finalize()
   {
-    msg(MSG::DEBUG) << "LArTimeVetoAlg finalize()" << endreq;
-    msg(MSG::INFO) << " Number of events processed " << m_nevt << "   Number of events in LAr bad time interval " << m_nevtMasked << endreq;
+    ATH_MSG_DEBUG( "LArTimeVetoAlg finalize()"  );
+    ATH_MSG_INFO( " Number of events processed " << m_nevt << "   Number of events in LAr bad time interval " << m_nevtMasked  );
     return StatusCode::SUCCESS; 
   }
   
@@ -70,29 +64,25 @@ StatusCode LArTimeVetoAlg::execute()
 
     // retrieve EventInfo
     const EventInfo* eventInfo_c=0;
-    StatusCode sc = evtStore()->retrieve(eventInfo_c);
-    if (sc.isFailure()) {
-      msg(MSG::WARNING) << " cannot retrieve EventInfo, will not set LAr bit information " << endreq;
-      return StatusCode::SUCCESS;
-    }
+    ATH_CHECK( evtStore()->retrieve(eventInfo_c) );
     EventInfo* eventInfo=0;
     if (eventInfo_c) {
      eventInfo = const_cast<EventInfo*>(eventInfo_c);
     }
     if (eventInfo) {
       if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Error)) {
-	msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
+	ATH_MSG_WARNING( " cannot set error state for LAr "  );
       }
       if (vetoWord & 0xFFFF) {
 	ATH_MSG_DEBUG("Event flagged as Noise Burst!");
 	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) {
-	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
+	  ATH_MSG_WARNING( " cannot set flag bit for LAr "  );
 	} 
 	
         if (vetoWord & 0x10000) {
            ATH_MSG_DEBUG("Event flagged as Mini-Noise Burst!");
            if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT)) {
-              msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
+             ATH_MSG_WARNING( " cannot set flag bit for LAr "  );
            } 
         }
              
@@ -101,7 +91,7 @@ StatusCode LArTimeVetoAlg::execute()
 	for (int i=0;i<8;i++) {
 	  if (vetoWord & (1<<i)) {
 	    if (!eventInfo->setEventFlagBit(EventInfo::LAr,20+i)) {
-	      msg(MSG::WARNING) << " cannot set flag bit for LAr documenting noise burst location " << endreq;
+	      ATH_MSG_WARNING( " cannot set flag bit for LAr documenting noise burst location "  );
 	    }
 	  }
 	}
@@ -109,7 +99,7 @@ StatusCode LArTimeVetoAlg::execute()
       if (vetoWord & 0xFFF80000) {
 	ATH_MSG_DEBUG("Event flagged as DataCorruption!");
 	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) {
-	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
+	  ATH_MSG_WARNING( " cannot set flag bit for LAr "  );
 	} 
       }//end if one of the second 16 bits set
     }  //if eventInfo

@@ -33,15 +33,11 @@
 
 #include "LArCellRec/LArCellDeadOTXCorr.h" //Needs to be changed to correct package
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-
+#include "StoreGate/ReadHandle.h"
 
 #include "Identifier/IdentifierHash.h"
 
@@ -197,6 +193,8 @@ StatusCode LArCellDeadOTXCorr::initialize()
 	const IGeoModelSvc *geoModel=0;
 	ATH_CHECK( service("GeoModelSvc", geoModel) );
 
+	ATH_CHECK(m_TTLocation.initialize());
+
 	if(m_useL1CaloDB)
 	{
                 ATH_MSG_INFO ("L1Calo database will be used to get the pedestal values.");
@@ -254,9 +252,9 @@ StatusCode LArCellDeadOTXCorr::geoInit(IOVSVC_CALLBACK_ARGS)
           IAlgTool *algtool;
 
           sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-          mLog<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
+          ATH_MSG_DEBUG("L1CaloTTIdTools retrieved" );
           if (sc!=StatusCode::SUCCESS) {
-          mLog << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
+          ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !"  );
           // m_bTTMapInitialized = false;
           }
           m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
@@ -282,8 +280,13 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 	//Retrieve Trigger Towers from SG
 	//const TriggerTowerCollection* storedTTs = 0; 
-	const xAOD::TriggerTowerContainer* storedTTs = 0; 
-	ATH_CHECK( evtStore()->retrieve(storedTTs, m_TTLocation) );
+	//const xAOD::TriggerTowerContainer* storedTTs = 0;
+	SG::ReadHandle<xAOD::TriggerTowerContainer> storedTTs(m_TTLocation);
+	if(!storedTTs.isValid()) { 
+	  ATH_MSG_ERROR("Could not read container " << m_TTLocation.key());
+	  return StatusCode::FAILURE;      
+	}  
+
 
 	bool getDBPedestal = m_useL1CaloDB;
 	L1CaloPprLutContainer* l1CaloPprLutContainer = 0;

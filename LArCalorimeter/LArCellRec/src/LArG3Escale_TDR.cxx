@@ -24,16 +24,8 @@ Updated: Jan. 7, 2001    (SR)
 #include "LArCellRec/LArG3Escale_TDR.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-
-
 #include "CaloEvent/CaloCell.h"
-#include "GaudiKernel/MsgStream.h"
-
-//#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
-//#else
-//#include <iostream.h>
-//#endif
 #include <math.h>
 
 
@@ -66,11 +58,9 @@ LArG3Escale_TDR::LArG3Escale_TDR(const std::string& type,
 
 StatusCode LArG3Escale_TDR::initialize()
 {
-   MsgStream log(msgSvc(), name());
-
-   log<<MSG::INFO<< name() << endreq;
-   log<<MSG::INFO<< " Properties: OverallScale= "<<m_OverallScale
-	<< " FromHit ="<<m_FromHit<<endreq;
+  ATH_MSG_INFO( name()  );
+  ATH_MSG_INFO( " Properties: OverallScale= "<<m_OverallScale
+                << " FromHit ="<<m_FromHit );
 
    const CaloIdManager* mgr = (CaloDetDescrManager::instance())->getCalo_Mgr();
    m_emID = mgr->getEM_ID();

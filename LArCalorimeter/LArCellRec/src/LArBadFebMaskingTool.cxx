@@ -114,6 +114,9 @@ StatusCode LArBadFebMaskingTool::initialize()
     return sc;
   }
 
+  // initialize read handle key
+  ATH_CHECK(m_larFebErrorSummaryKey.initialize());
+
   // dummy parameters for the callback:
   int dummyInt=0;
   std::list<std::string> dummyList;
@@ -172,9 +175,10 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
 
   ATH_MSG_DEBUG (" in  LArBadFebMaskingTool::process ");
-  const LArFebErrorSummary* larFebErrorSummary;
-  StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
-  if (sc.isFailure()) {
+  //const LArFebErrorSummary* larFebErrorSummary;
+  //StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
+  SG::ReadHandle<LArFebErrorSummary>larFebErrorSummary(m_larFebErrorSummaryKey);
+  if (!larFebErrorSummary.isValid()) {
     ATH_MSG_WARNING (" cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process ");
     return StatusCode::SUCCESS;
   }
@@ -186,7 +190,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
   // retrieve EventInfo
   const EventInfo* eventInfo_c=0;
-  sc = evtStore()->retrieve(eventInfo_c);
+  StatusCode sc = evtStore()->retrieve(eventInfo_c);
   if (sc.isFailure()) {
     ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set LAr bit information ");
   }
