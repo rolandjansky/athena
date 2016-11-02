@@ -51,39 +51,4 @@ class EnergyLossRecorder final: public UserActionBase {
   unsigned int                             m_entries;
 };
 
-
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "AthenaBaseComps/AthMessaging.h"
-namespace G4UA{
-  
-  class EnergyLossRecorder:
-  public AthMessaging, public IBeginRunAction,  public IEndRunAction,  public IBeginEventAction,  public IEndEventAction,  public ISteppingAction
-  {
-    
-  public:
-    
-    struct Config
-    {
-      Trk::IPositionMomentumWriter *pmWriter=nullptr;
-    };
-    
-    EnergyLossRecorder(const Config& config);
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
-  private:
-    Config m_config;
-    unsigned int                             m_entries;
-  }; // class EnergyLossRecorder
-  
-  
-} // namespace G4UA 
-
-
 #endif

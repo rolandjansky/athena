@@ -8,7 +8,6 @@
 
 // StoreGate
 #include "TrkG4UserActions/GeantFollowerHelper.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // CLHEP
@@ -16,10 +15,10 @@
 #include "CLHEP/Geometry/Transform3D.h"
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
+//other
 
 // constructor
 Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::string& n, const IInterface* p) :
@@ -27,12 +26,14 @@ Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::s
   m_extrapolator(""),
   m_extrapolateDirectly(true),
   m_extrapolateIncrementally(true),
-  m_parameterCache(0),
+  m_parameterCache(nullptr),
   m_tX0Cache(0.),
   m_validationTreeName("G4Follower_"+n),
   m_validationTreeDescription("Output of the G4Follower_"),
   m_validationTreeFolder("/val/G4Follower_"+n),
-  m_validationTree(0)
+  m_validationTree(nullptr),
+  m_t_x{}, m_t_y{}, m_t_z{}, m_t_theta{},m_t_eta{},m_t_phi{}, m_t_p{}, m_t_charge{}, m_t_pdg{},
+  m_g4_steps{}
 {
    declareInterface<IGeantFollowerHelper>(this);
    // properties
@@ -144,9 +145,11 @@ void Trk::GeantFollowerHelper::beginEvent() const
 
 void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const
 {
-  // construct the initial parameters
-  Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
-  Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
+    
+    // construct the intial parameters
+    Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
+    Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
+        
     if (!m_g4_steps){
         ATH_MSG_INFO("Initial step ... preparing event cache.");
         m_t_x        = pos.x();        
@@ -181,7 +184,7 @@ void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos, const G4T
     // destination surface
     const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
     // extrapolate to the destination surface
-    const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ?
+    const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ? 
         m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false) :
         m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false);
     // fill the geant information and the trk information

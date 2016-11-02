@@ -107,99 +107,12 @@ void EnergyLossRecorder::Step(const G4Step* aStep)
 
 StatusCode EnergyLossRecorder::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  if ( IUserAction::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = dynamic_cast<IUserAction*>(this);
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available : try out a base class
-  return UserActionBase::queryInterface(riid, ppvInterface);
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }
-
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-namespace G4UA
-{
-
-
-  EnergyLossRecorder::EnergyLossRecorder(const Config& config)
-    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"EnergyLossRecorder")
-    , m_config(config)
-    , m_entries(0)
-  {
-
-  }
-
-  void EnergyLossRecorder::beginOfRun(const G4Run*)
-  {
-    return;
-  }
-
-  void EnergyLossRecorder::endOfRun(const G4Run*)
-  {
-    return;
-  }
-
-  void EnergyLossRecorder::beginOfEvent(const G4Event*)
-  {
-    return;
-  }
-
-  void EnergyLossRecorder::endOfEvent(const G4Event*)
-  {
-    if (m_config.pmWriter)
-      {
-        m_config.pmWriter->finalizeTrack();
-      }
-    m_entries = 0;
-    return;
-  }
-
-  void EnergyLossRecorder::processStep(const G4Step* aStep)
-  {
-    // kill secondary particles
-    if (aStep->GetTrack()->GetParentID())
-      {
-        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        return;
-      }
-    if(!m_config.pmWriter) return;
-    // we require a minimum amount of material for recording the step
-
-    // the material information
-    G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
-    // G4LogicalVolume
-    G4LogicalVolume *lv= touchHist ? touchHist->GetVolume()->GetLogicalVolume() : 0;
-    G4Material *mat    = lv ? lv->GetMaterial() : 0;
-
-    // log the information // cut off air
-    if (mat && mat->GetRadlen() < 200000.)
-      {
-        // keep primary particles - calculate the kinematics for them
-        G4ThreeVector pos   = aStep->GetPreStepPoint()->GetPosition();
-        double px = aStep->GetPreStepPoint()->GetMomentum().x();
-        double py = aStep->GetPreStepPoint()->GetMomentum().y();
-        double pz = aStep->GetPreStepPoint()->GetMomentum().z();
-        Amg::Vector3D position(pos.x(),pos.y(),pos.z());
-        Amg::Vector3D momentum(px ,py, pz);
-
-
-        // record the starting parameters at the first step
-        if (m_entries==0)
-          {
-            // increase the counter
-            ++m_entries;
-            double  m   = aStep->GetTrack()->GetDynamicParticle()->GetMass();
-            int pdgCode = aStep->GetTrack()->GetDynamicParticle()->GetPDGcode();
-            m_config.pmWriter->initializeTrack(position,momentum,m,pdgCode);
-          }
-        else
-          {
-            m_config.pmWriter->recordTrackState(position,momentum);
-          }
-      }
-  }
-} // namespace G4UA

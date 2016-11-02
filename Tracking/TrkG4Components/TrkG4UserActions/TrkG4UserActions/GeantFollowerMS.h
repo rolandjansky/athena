@@ -55,42 +55,4 @@ private:
 
 };
 
-
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "AthenaBaseComps/AthMessaging.h"
-namespace G4UA{
-
-
-  class GeantFollowerMS:
-  public AthMessaging, public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction
-  {
-    
-  public:
-    
-    struct Config
-    {
-      ToolHandle<Trk::IGeantFollowerMSHelper>  helper=ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
-      ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc=ServiceHandle<Trk::ITrackingGeometrySvc>("AtlasTrackingGeometrySvc","GeantFollowerMS");
-    };
-    
-    GeantFollowerMS(const Config& config);
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
-  private:
-    Config m_config;
-    std::string                                  m_name;
-    /** tracking geometry */
-    mutable const Trk::TrackingGeometry*         m_trackingGeometry;
-    mutable const Trk::IGeantFollowerMSHelper*   m_helperPointer;
-
-  }; // class GeantFollowerMS
-  
-  
-} // namespace G4UA 
-
 #endif

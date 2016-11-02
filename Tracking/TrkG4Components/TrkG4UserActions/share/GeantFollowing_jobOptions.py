@@ -2,20 +2,16 @@
 #
 #
 #		This job option runs the G4 simulation
-#		of the ATLAS detector and the GeantFollower in ID (and MS)
+#		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
+__version__="$Revision: 467755 $"
 #==============================================================
 
 
 #--- Algorithm sequence ---------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
-
-#topSeq.ContinueEventloopOnFPE = True
-from RecExConfig.RecFlags import rec as rec
-rec.doFloatingPointException.set_Value_and_Lock(True)
-rec.doNameAuditor = True
 
 #--- Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL) ----
 #from AthenaCommon.AppMgr import ServiceMgr
@@ -26,22 +22,15 @@ ServiceMgr.MessageSvc.defaultLimit = 20000
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-# Code crashes on NystromRK4 stepper NOW take default
-#from G4AtlasApps import AtlasG4Eng
-#AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('NystromRK4')
-
+from G4AtlasApps import AtlasG4Eng
+AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('NystromRK4')
 
 #--- Include JobSpecs.py --------------------------------------
 #include ('JobSpecs.py')
 
 ### pass arguments with athena -c "..." ...jobOptions.py:
 if 'myMomentum' not in dir() :
-    myMomentum = 25000
-#    myMomentum = 50000
-#    myMomentum = 100000
-#    myMomentum = 500000
-#    myMomentum = 10000
-#    myMomentum = 5000
+    myMomentum = 5000
 
 if 'myRandomOffset' not in dir() :
     myRandomOffset = 0
@@ -53,45 +42,23 @@ if 'myRandomSeed2' not in dir() :
     myRandomSeed2 = 820189
 
 if 'myMaxEvent' not in dir() :
-    myMaxEvent = 500
-    myMaxEvent = 5000
-#    myMaxEvent = 1000
-    myMaxEvent = 100
+    myMaxEvent = 25
 
 if 'myPt' not in dir() :
-    myPt = 'p'  # values are 'p' or 'pt'
+    myPt = 'pt'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-# release 20
-    myGeo = 'ATLAS-R2-2015-03-01-00'
-#   this is release 19 like
-#    myGeo = 'ATLAS-GEO-20-00-01'
-#   this is release 17 from Jochen
-#    myGeo = 'ATLAS-GEO-18-01-03'
-#    myGeo = 'ATLAS-GEO-18-01-00'
-#    myGEO = 'ATLAS-R1-2012-02-01-00'
+    myGeo = 'ATLAS-GEO-18-01-00'
+
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
-
 # the global flags
-
-# select latest Muon lay out on top of GEO-20
-from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00"
-#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.06.04"
-
-
-from IOVDbSvc.CondDB import conddb
-
 if myGeo.split('-')[1] == 'GEO' :
     if myGeo.split('-')[2] > 16 :
         globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-05-02'
-        globalflags.ConditionsTag = 'OFLCOND-MC12-SDR-06'
-#        conddb.setGlobalTag("OFLCOND-MC12-SDR-06")
     else :
         globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-04-15'
     print globalflags.ConditionsTag
@@ -99,7 +66,7 @@ elif myGeo.split('-')[1] == 'IBL' :
     globalflags.ConditionsTag = 'OFLCOND-SDR-BS14T-IBL-03'
 else :
     globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-05-02'
-#    globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
+
 print globalflags.ConditionsTag
 
 #from AthenaCommon import AthenaCommonFlags
@@ -110,7 +77,7 @@ print globalflags.ConditionsTag
 #from IOVDbSvc.CondDB import conddb
 #conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09')
 
-
+#DetFlags.simulate.Truth_setOn()   ### deprecated!
 DetFlags.Truth_setOn()
 
 # specify your "/tmp/<username>/" directory here (output files may be large!)
@@ -119,9 +86,8 @@ outPath = ""  #"/tmp/wlukas/"
 #--- AthenaCommon flags ---------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
-###athenaCommonFlags.PoolHitsOutput = outPath + 'Hits.pool.root'
-athenaCommonFlags.PoolHitsOutput.set_Off()
-athenaCommonFlags.EvtMax =  myMaxEvent
+athenaCommonFlags.PoolHitsOutput = outPath + 'Hits.pool.root'
+athenaCommonFlags.EvtMax = myMaxEvent
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import SimFlags
@@ -129,126 +95,102 @@ SimFlags.load_atlas_flags() # Going to use an ATLAS layout
 SimFlags.SimLayout = myGeo
 SimFlags.EventFilter.set_Off()
 
-include("GeneratorUtils/StdEvgenSetup.py")
+myMinEta =  0.0
+myMaxEta =  0.0
 
-myMinEta =  0.2
-#myMinEta =  0.0
-myMaxEta =  1.0
+myPDG    = 998  # 999 = Geantinos, 13 = Muons, 0 diferently charged geantino
 
-#myMinEta =  0.8
-#myMaxEta =  1.8
-
-#myMinEta =  1.8
-myMaxEta =  2.8
-
-#myMinEta =  0.2
-#myMaxEta =  2.8
-
-
-#myMinEta =  2.0
-#myMaxEta =  2.8
-#myMinEta =  0.8
-#myMaxEta =  2.0
-#myMinEta =  0.2
-#myMaxEta =  0.8
-
-myPDG = 13  # 998 = Charged Geantino 999 = neutral Geantino, 13 = Muon
-
-myPDG = 998
-
-#from AthenaCommon.CfgGetter import getAlgorithm
-#topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
-# sept 2014 run ParticleGun
-import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
-#pg.sampler.pid = PG.CyclicSeqSampler([-13,13])
-pg.sampler.pid = myPDG
-pg.sampler.mom = PG.EEtaMPhiSampler(energy=myMomentum, eta=[myMinEta,myMaxEta])
-#pg.sampler.mom = PG.PtEtaMPhiSampler(pt=myMomentum, eta=[myMinEta,myMaxEta])
-topSeq += pg
+## Run ParticleGenerator
+import AthenaCommon.AtlasUnixGeneratorJob
+spgorders = [ 'pdgcode:' + ' constant ' + str(myPDG),
+              'vertX:'   + ' constant 0.0',
+              'vertY:'   + ' constant 0.0',
+              'vertZ:'   + ' constant 0.0',
+              't:'       + ' constant 0.0',
+              'eta:'     + ' flat ' + str(myMinEta) + ' ' + str(myMaxEta),
+              'phi:'     + ' flat  0 6.2831853',
+              myPt + ':' + ' constant ' + str(myMomentum) ]
+from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
+topSeq += ParticleGenerator()
+topSeq.ParticleGenerator.orders = sorted(spgorders)
 
 SimFlags.RandomSeedOffset = myRandomOffset
 
 ### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/SimFlags.py for details)
-SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+# SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
-from RngComps.RngCompsConf import AtRndmGenSvc
-myAtRndmGenSvc = AtRndmGenSvc()
-myAtRndmGenSvc.Seeds = ["SINGLE "+str(myRandomSeed1)+" "+str(myRandomSeed2) ]
-#myAtRndmGenSvc.OutputLevel          = VERBOSE
-myAtRndmGenSvc.EventReseeding   = False
-ServiceMgr += myAtRndmGenSvc
+### alternative for earlier rel17/rel16
+from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+ServiceMgr += AtRanluxGenSvc()
+ServiceMgr.AtRanluxGenSvc.Seeds = [ "SINGLE " + str(myRandomSeed1) + ' ' + str(myRandomSeed2) ]
+### alternative to previous line
+#ServiceMgr.AtRanluxGenSvc.Seeds = [ "SINGLE OFFSET " + str(myRandomOffset) + ' ' + str(myRandomSeed1) + ' ' + str(myRandomSeed2) ]
+
+### alternative for old rel16 versions and before (?)
+#SeedString = "SINGLE " + str(myRandomSeed1) + ' ' + str(myRandomSeed2)
+#SimFlags.Seeds.set_Value(SeedString)
+
+#AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('AtlasRK4')
 
 # suppress the enormous amount of MC output
-# from TruthExamples.TruthExamplesConf import PrintMC
-# PrintMC.VerboseOutput = False
+from TruthExamples.TruthExamplesConf import DumpMC
+DumpMC.VerboseOutput = False
 
 # ToolSvc setup
 from AthenaCommon.AppMgr import ToolSvc
 
-# Tracking Geometry
-# from AthenaCommon.CfgGetter import getService
-# getService("AtlasTrackingGeometrySvc")
-
-from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
-#ToolSvc.AtlasGeometryBuilder.OutputLevel = VERBOSE
-#ToolSvc.CaloTrackingGeometryBuilder.OutputLevel = DEBUG
-#ToolSvc.MuonTrackingGeometryBuilder.OutputLevel = DEBUG
-#ToolSvc.InDetTrackingGeometryBuilder.OutputLevel = DEBUG
-
-#ServiceMgr.AtlasTrackingGeometrySvc.OutputLevel = VERBOSE
-
-#DetFlags.simulate.Truth_setOn()   ### deprecated!
-
+# Estrapolator setup
+include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
 
 #--------------------------------------------------------------
 # Assign the TrackingGeometry to the Algorithm
 #--------------------------------------------------------------
 
 # the layer material inspector
-from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__LayerMaterialInspector
+from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialInspector
 LayerMaterialInspector = Trk__LayerMaterialInspector(name= 'LayerMaterialInspector')
 LayerMaterialInspector.OutputLevel = INFO
+from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += LayerMaterialInspector
 
-
-
 # the tracking volume displayer
-from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__TrackingVolumeDisplayer
+from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeDisplayer
 TrackingVolumeDisplayer = Trk__TrackingVolumeDisplayer(name= 'TrackingVolumeDisplayer')
 TrackingVolumeDisplayer.TrackingVolumeOutputFile = 'TrackingVolumes-'+TrkDetFlags.MaterialMagicTag()+'.C'
 TrackingVolumeDisplayer.LayerOutputFile          = 'Layers-'+TrkDetFlags.MaterialMagicTag()+'.C'
 TrackingVolumeDisplayer.SurfaceOutputFile        = 'Surfaces-'+TrkDetFlags.MaterialMagicTag()+'.C'
 ToolSvc += TrackingVolumeDisplayer
 
+# set up the Geometry Builder test
+from TrkDetDescrAlgs.TrkDetDescrAlgsConf import Trk__GeometryBuilderTest
+GeometryBuilderTest = Trk__GeometryBuilderTest(name ='GeometryBuilderTest')
+GeometryBuilderTest.TrackingGeometrySvc     = AtlasTrackingGeometrySvc
+GeometryBuilderTest.DisplayTrackingVolumes  = False
+GeometryBuilderTest.RecordLayerMaterial     = False
+GeometryBuilderTest.LayerMaterialInspector  = LayerMaterialInspector
+GeometryBuilderTest.TrackingVolumeDisplayer = TrackingVolumeDisplayer
+GeometryBuilderTest.WriteNtuple             = False
+GeometryBuilderTest.OutputLevel             = INFO
+topSeq += GeometryBuilderTest
 
 # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
 
-TestEnergyLossUpdator  = []
-from TrkExTools.TrkExToolsConf import Trk__EnergyLossUpdator
-AtlasEnergyLossUpdator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator")
-ToolSvc  += AtlasEnergyLossUpdator
-ToolSvc.AtlasEnergyLossUpdator.DetailedEloss = True
-TestEnergyLossUpdator  += [AtlasEnergyLossUpdator]
-
-
-TestPropagators  = []
+TestPorpagators  = []
 
 from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+#from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as Propagator
 TestPropagator = Propagator(name = 'TestPropagator')
 ToolSvc += TestPropagator
 
-TestPropagators += [ TestPropagator ]
+TestPorpagators += [ TestPropagator ]
 
 from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP_Propagator
 TestSTEP_Propagator = STEP_Propagator(name = 'TestSTEP_Propagator')
 ToolSvc += TestSTEP_Propagator
-TestSTEP_Propagator.DetailedEloss = True
 
-TestPropagators += [TestSTEP_Propagator]
+TestPorpagators += [TestSTEP_Propagator]
 
 # UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
 
@@ -256,26 +198,24 @@ TestUpdators    = []
 
 from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
 TestMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'TestMaterialEffectsUpdator')
+TestMaterialEffectsUpdator.EnergyLoss           = False
+TestMaterialEffectsUpdator.MultipleScattering   = False
 ToolSvc += TestMaterialEffectsUpdator
-if myPDG == 998 :
- TestMaterialEffectsUpdator.EnergyLoss           = False
- TestMaterialEffectsUpdator.MultipleScattering   = False
 
 TestUpdators    += [ TestMaterialEffectsUpdator ]
 
 TestMaterialEffectsUpdatorLandau = MaterialEffectsUpdator(name = 'TestMaterialEffectsUpdatorLandau')
 TestMaterialEffectsUpdatorLandau.LandauMode           = True
+TestMaterialEffectsUpdatorLandau.EnergyLoss           = False
+TestMaterialEffectsUpdatorLandau.MultipleScattering   = False
 ToolSvc += TestMaterialEffectsUpdatorLandau
-if myPDG == 998 :
- TestMaterialEffectsUpdatorLandau.EnergyLoss           = False
- TestMaterialEffectsUpdatorLandau.MultipleScattering   = False
 
-##TestUpdators    += [ TestMaterialEffectsUpdatorLandau ]
+TestUpdators    += [ TestMaterialEffectsUpdatorLandau ]
 
 # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 TestNavigator = Trk__Navigator(name = 'TestNavigator')
-TestNavigator.TrackingGeometrySvc = "Trk::TrackingGeometrySvc/AtlasTrackingGeometrySvc"
+TestNavigator.TrackingGeometrySvc = AtlasTrackingGeometrySvc
 ToolSvc += TestNavigator
 
 # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
@@ -290,52 +230,31 @@ TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
 
 # default for Calo is (Rk,MatLandau)
 TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
+TestSubUpdators    += [ TestMaterialEffectsUpdatorLandau.name() ]
 
 # default for MS is (STEP,Mat)
 TestSubPropagators += [ TestSTEP_Propagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestSTEP_Propagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestPropagator.name() ]
 TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
 # ----------------------------------------------------------------------------------------------------------
 
 # call the base class constructor
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-TestExtrapolator = Trk__Extrapolator('TestExtrapolator',\
+TestExtrapolator = Trk__Extrapolator('TextExtrapolator',\
                            Navigator = TestNavigator,\
                            MaterialEffectsUpdators = TestUpdators,\
-                           Propagators = TestPropagators,\
-                           EnergyLossUpdators = TestEnergyLossUpdator,\
-                           STEP_Propagator = TestSTEP_Propagator.name(),\
+                           Propagators = TestPorpagators,\
                            SubPropagators = TestSubPropagators,\
-                           SubMEUpdators = TestSubUpdators)
+                           SubMEUpdators = TestSubUpdators,\
+                           DoCaloDynamic = False)
 ToolSvc += TestExtrapolator
-
-from TrkG4UserActions.TrkG4UserActionsConf import Trk__GeantFollowerHelper
-GeantFollowerHelper = Trk__GeantFollowerHelper(name="GeantFollowerHelper")
-GeantFollowerHelper.Extrapolator             = TestExtrapolator
-GeantFollowerHelper.ExtrapolateDirectly      = True
-GeantFollowerHelper.ExtrapolateIncrementally = True
-GeantFollowerHelper.OutputLevel = VERBOSE
-ToolSvc += GeantFollowerHelper
-
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun'])
 
 ############### The output collection #######################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-## --- check dictionary
+# --- check dictionary
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
-## --- commit interval (test)
-#ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
+# --- commit interval (test)
+ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 from AthenaCommon.AppMgr import ServiceMgr
@@ -346,25 +265,13 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='GeantFollowing.root' TYPE='ROOT' 
 
 ##############################################################
 
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-#ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("GeantFollower")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("GeantFollower")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("GeantFollower")]
 
-ToolSvc.MuonTrackingGeometryBuilder.BlendInertMaterial = False
-TestSTEP_Propagator.Straggling = False
-
-#TestExtrapolator.OutputLevel = VERBOSE
-
-if myPDG == 998 :
-  TestSTEP_Propagator.MultipleScattering = False
-  TestSTEP_Propagator.EnergyLoss = False
-
-from AthenaCommon.ConfigurationShelve import saveToAscii
-saveToAscii("config.txt")
-#--- End jobOptions GeantFollowing_jobOptions.py file  ------------------------------
+#--- End jobOptions.GeantinoMapping.py file  ------------------------------

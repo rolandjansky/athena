@@ -1,10 +1,11 @@
-#=============================================================
+#==============================================================
 #
 #
 #		This job option runs the G4 simulation
-#		of the ATLAS detector and the GeantFollower in the Muon Spectrometer 
+#		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
+__version__="$Revision: 729147 $"
 #==============================================================
 
 
@@ -29,7 +30,6 @@ from AthenaCommon.GlobalFlags import globalflags
 # Code crashes on NystromRK4 stepper NOW take default
 #from G4AtlasApps import AtlasG4Eng
 #AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('NystromRK4')
-
 
 #--- Include JobSpecs.py --------------------------------------
 #include ('JobSpecs.py')
@@ -62,11 +62,8 @@ if 'myPt' not in dir() :
     myPt = 'p'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-# release 20
-    myGeo = 'ATLAS-R2-2015-03-01-00'
 #   this is release 19 like
-#     myGeo = 'ATLAS-R1-2012-02-00-00'
-#    myGeo = 'ATLAS-GEO-20-00-01'
+    myGeo = 'ATLAS-GEO-20-00-01'
 #   this is release 17 from Jochen
 #    myGeo = 'ATLAS-GEO-18-01-03'
 #    myGeo = 'ATLAS-GEO-18-01-00'
@@ -124,33 +121,38 @@ athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 athenaCommonFlags.PoolHitsOutput.set_Off()
 athenaCommonFlags.EvtMax =  myMaxEvent
 
-
-#from AthenaCommon.AppMgr import AppMgr
-#AppMgr.EvtMax =  myMaxEvent
-
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import SimFlags
 SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout.set_On()
 SimFlags.SimLayout = myGeo
 SimFlags.EventFilter.set_Off()
-SimFlags.RunNumber = 222510
 
 include("GeneratorUtils/StdEvgenSetup.py")
 
-myMinEta =  0.
+myMinEta =  0.2
+#myMinEta =  0.0
 myMaxEta =  1.0
-myMinEta =  1.0
-myMaxEta =  1.8
-myMinEta =  1.8
+
+#myMinEta =  0.8
+#myMaxEta =  1.8
+
+#myMinEta =  1.8
 myMaxEta =  2.8
+
+#myMinEta =  0.2
+#myMaxEta =  2.8
+
+
+#myMinEta =  2.0
+#myMaxEta =  2.8
+#myMinEta =  0.8
+#myMaxEta =  2.0
+#myMinEta =  0.2
+#myMaxEta =  0.8
 
 myPDG = 13  # 998 = Charged Geantino 999 = neutral Geantino, 13 = Muon
 
 #myPDG = 998
-
-#from AthenaCommon.CfgGetter import getAlgorithm
-#topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 # sept 2014 run ParticleGun
 import ParticleGun as PG
@@ -186,7 +188,6 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
 #ToolSvc.AtlasGeometryBuilder.OutputLevel = VERBOSE
 #ToolSvc.CaloTrackingGeometryBuilder.OutputLevel = DEBUG
 #ToolSvc.MuonTrackingGeometryBuilder.OutputLevel = DEBUG
@@ -196,7 +197,6 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #DetFlags.simulate.Truth_setOn()   ### deprecated!
 
- 
 
 #--------------------------------------------------------------
 # Assign the TrackingGeometry to the Algorithm
@@ -312,26 +312,6 @@ TestExtrapolator = Trk__Extrapolator('TestExtrapolator',\
                            SubMEUpdators = TestSubUpdators)
 ToolSvc += TestExtrapolator
 
-
-# Helper setup
-# for geantinos ExtrapolateDirectly = True no Eloss is calculated
-# SpeedUp False takes more CPU because it will stop at each G4 Step in the Muon Spectrometer
-
-from TrkG4UserActions.TrkG4UserActionsConf import Trk__GeantFollowerMSHelper
-GeantFollowerMSHelper = Trk__GeantFollowerMSHelper(name="GeantFollowerMSHelper")
-GeantFollowerMSHelper.Extrapolator             = TestExtrapolator
-GeantFollowerMSHelper.ExtrapolateDirectly      = False
-GeantFollowerMSHelper.ExtrapolateIncrementally = False
-GeantFollowerMSHelper.SpeedUp      = True
-GeantFollowerMSHelper.OutputLevel = INFO   
-ToolSvc += GeantFollowerMSHelper
-
-# higher precision for stepping
-SimFlags.TightMuonStepping=True
-
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerMSTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun'])
-
 ############### The output collection #######################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -349,22 +329,14 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='GeantFollowing.root' TYPE='ROOT' 
 
 ##############################################################
 
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
 #ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
 
-from AthenaCommon.AppMgr import AppMgr
-AppMgr.EvtMax =  myMaxEvent
-
 ToolSvc.MuonTrackingGeometryBuilder.BlendInertMaterial = False
 TestSTEP_Propagator.Straggling = False
-#ToolSvc.CaloTrackingGeometryBuilder.OutputLevel = VERBOSE
 
 #TestExtrapolator.OutputLevel = VERBOSE
 
@@ -372,7 +344,11 @@ if myPDG == 998 :
   TestSTEP_Propagator.MultipleScattering = False
   TestSTEP_Propagator.EnergyLoss = False
 
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("GeantFollowerMS")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("GeantFollowerMS")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("GeantFollowerMS")]
 
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.txt")
-#--- End jobOptions GeantFollowingMS_jobOptions.py file  ------------------------------
+#--- End jobOptions.GeantinoMapping.py file  ------------------------------

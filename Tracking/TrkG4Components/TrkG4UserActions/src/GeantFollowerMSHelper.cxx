@@ -11,6 +11,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
+// CLHEP
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Geometry/Transform3D.h"
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
@@ -148,11 +151,6 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
        return StatusCode::FAILURE;
    }
     
-   if(m_speedup) {
-      ATH_MSG_INFO(" SpeedUp GeantFollowerMS ");
-   } else {
-      ATH_MSG_INFO(" NO SpeedUp GeantFollowerMS ");
-   }
    ATH_MSG_INFO("initialize()");
    
    // create the new Tree
@@ -368,7 +366,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         m_g4_steps   = 0;
         m_tX0Cache   = 0.;
         // construct the intial parameters
-        
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
         AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
         covMatrix->setZero();
@@ -437,7 +434,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //      if(fabs(npos.z())>zMuonEntry||npos.perp()>4255) crossedExitLayer = true;
       if(fabs(npos.z())>21800||npos.perp()>12500) crossedExitLayer = true;
       if(m_crossedMuonEntry&&m_g4_steps>=2&&!crossedExitLayer) return;
-      if(m_g4_steps>2) return;
       if(m_g4_steps>4) return;
     }
 
@@ -495,9 +491,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         m_extrapolator->extrapolate(*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon);
 // Backwards from Exit to ME 
       if(trkParameters_FW) {
-       ATH_MSG_DEBUG (" forward extrapolation succeeded ");
-       bool doBackWard = false;
-       if(doBackWard) { 
         const Trk::TrackParameters* trkParameters_BACK = m_extrapolateDirectly ?
           m_extrapolator->extrapolateDirectly(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon) :
           m_extrapolator->extrapolate(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon);
@@ -582,7 +575,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
           m_b_X0         =  x0;
           m_b_Eloss      =  Eloss;
           delete matvec_BACK;
-         }
         }
         delete trkParameters_FW;
       }
