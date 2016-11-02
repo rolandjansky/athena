@@ -112,6 +112,8 @@ public:
 
   virtual void twoDimToThreeDim(Trk::LocalParameters& lpar, Amg::MatrixX& cov, const InDet::PixelCluster& pix) const;
 
+  virtual const InDet::PixelClusterOnTrack* correctUnchanged(const Trk::PrepRawData& rio,
+							     const Trk::TrackParameters& trackPar) const;
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -190,8 +192,10 @@ public:
   bool                      m_useCentroidPosition;
   bool                      m_correctLorentzShift;
   bool                      m_enableTheta;
- 
+  // leave the pixel cluster unchanged when you create the pixelclusterontrack
+  bool                      m_returnUnchanged;
   bool                      m_correctDigitalCentroid;
+  int                       m_minClusterSize;
 };
 
 } // end of namespace InDet

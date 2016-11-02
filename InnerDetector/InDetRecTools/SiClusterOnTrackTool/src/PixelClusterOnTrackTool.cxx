@@ -84,8 +84,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_useCentroidPosition(false),
   m_correctLorentzShift(true),
   m_enableTheta(false),
-  m_correctDigitalCentroid(false)
-
+  m_returnUnchanged(false),
+  m_correctDigitalCentroid(false),
+  m_minClusterSize(0)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
   
@@ -108,7 +109,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("UseCentroidPosition",      m_useCentroidPosition);
   declareProperty("CorrectLorentzShift",      m_correctLorentzShift);
   declareProperty("EnableTheta",              m_enableTheta);
+  declareProperty("ReturnUnchanged",          m_returnUnchanged);
   declareProperty("CorrectDigitalCentroid",   m_correctDigitalCentroid); 
+  declareProperty("MinClusterSize",           m_minClusterSize);
 
 }
 
@@ -234,6 +237,9 @@ StatusCode InDet::PixelClusterOnTrackTool::finalize(){
 const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData& rio,const Trk::TrackParameters& trackPar) const
 {
+  if (m_returnUnchanged)
+    return correctUnchanged(rio, trackPar);
+
   // check if cluster splitting actually could be done you could : switching off will only happen once
   bool clusterMapExists = m_applyNNcorrection ? m_storeGate->contains<InDet::PixelGangedClusterAmbiguities>(m_splitClusterMapName) : false;
   if (!clusterMapExists && m_applyNNcorrection){
@@ -379,7 +385,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     }
     meanpos = m_useCentroidPosition ? meanpos/totalChargeNorm : meanpos/rdos.size();
 
-    if(element->isBarrel() && m_correctDigitalCentroid ){
+    if(element->isBarrel() && m_correctDigitalCentroid && pix->width().colRow()[1]>m_minClusterSize) {
       int colWidth = colmax-colmin+1;
       int rowWidth = rowmax-rowmin+1;
       const int numberOfRows = design->rows();
@@ -1439,4 +1445,28 @@ void InDet::PixelClusterOnTrackTool::twoDimToThreeDim(Trk::LocalParameters& lpar
   
   // memory cleanup
   cov = newcov;
+}
+
+
+const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctUnchanged
+(const Trk::PrepRawData& rio,const Trk::TrackParameters& ) const {
+
+  const InDet::PixelCluster* pix = 0;
+  if(!(pix = dynamic_cast<const InDet::PixelCluster*>(&rio))) return 0;
+
+  const InDetDD::SiDetectorElement* el = pix->detectorElement(); 
+  if(!el) return 0;
+  
+  IdentifierHash       iH   = el->identifyHash();
+  Amg::Vector3D        glob  (pix->globalPosition());
+  Trk::LocalParameters locpar(pix->localPosition());
+  Amg::MatrixX         cov   (pix->localCovariance());
+  bool                 isbroad = false;
+  
+  ATH_MSG_DEBUG("correctUnchanged returns : ");
+  ATH_MSG_DEBUG("LocalParameters = " << locpar[Trk::locX] << " - " << locpar[Trk::locY]);
+  ATH_MSG_DEBUG("Covariance      = " << cov);
+  ATH_MSG_DEBUG("GlobalPosition  = " << glob.x() << " - " << glob.y() << " - " << glob.z());
+  
+ return new InDet::PixelClusterOnTrack(pix,locpar,cov,iH,glob,pix->gangedPixel(),isbroad);
 }
