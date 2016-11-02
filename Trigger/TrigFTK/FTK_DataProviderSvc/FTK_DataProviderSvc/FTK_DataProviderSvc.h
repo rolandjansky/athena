@@ -88,9 +88,20 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual TrackCollection* getTracks(const bool withRefit);
  virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit);
  virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit);
+
+ virtual  xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack);
  
  virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
- StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
+ 
+ virtual StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
+
+ virtual std::string getTrackParticleCacheName(const bool withRefit);
+
+ virtual std::string getTrackCacheName(const bool withRefit);
+ 
+ virtual std::string getVertexCacheName(const bool withRefit);
+
+ virtual std::string getFastVertexCacheName(const bool withRefit);
 
  virtual void handle( const Incident &incident );
 
@@ -101,7 +112,12 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  StatusCode initTrackParticleCache(bool do_refit);
  StatusCode fillTrackCache(bool do_refit);
  StatusCode fillTrackParticleCache(const bool withRefit);
+
+
+
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
+
+
  protected:
 
  InDet::PixelCluster* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster, float eta);
@@ -163,9 +179,21 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   xAOD::VertexAuxContainer* m_conv_vertexAux;
   xAOD::VertexContainer* m_refit_vertex;
   xAOD::VertexAuxContainer* m_refit_vertexAux;
+
+  // for fast vertexing algorithm
+  xAOD::VertexContainer* m_fast_vertex_raw;
+  xAOD::VertexAuxContainer* m_fast_vertex_rawAux;
+  xAOD::VertexContainer* m_fast_vertex_conv;
+  xAOD::VertexAuxContainer* m_fast_vertex_convAux;
+  xAOD::VertexContainer* m_fast_vertex_refit;
+  xAOD::VertexAuxContainer* m_fast_vertex_refitAux;
+
   bool m_got_raw_vertex;
   bool m_got_conv_vertex;
   bool m_got_refit_vertex;
+  bool m_got_fast_vertex_refit;
+  bool m_got_fast_vertex_conv;
+  bool m_got_fast_vertex_raw;
 
   
 
@@ -179,7 +207,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_gotRawTracks;
   std::string m_trackCacheName;
   std::string m_trackParticleCacheName;
-  std::string  m_VertexContainerCacheName;
+  std::string  m_vertexCacheName;
   bool m_doTruth;
   std::string m_ftkPixelTruthName;
   std::string m_ftkSctTruthName;
@@ -202,9 +230,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_rejectBadTracks;
   float m_dPhiCut;
   float m_dEtaCut;
-  bool m_useViewContainers;
-  bool m_barrelOnly;
-  float m_barrelMaxCotTheta;
   std::vector<float> m_pixelBarrelPhiOffsets;
   std::vector<float>  m_pixelBarrelEtaOffsets;
   std::vector<float>  m_pixelEndCapPhiOffsets;
