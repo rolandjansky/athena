@@ -42,6 +42,7 @@
 #include "TLorentzVector.h"
 
 #include <vector>
+#include <map>
 /* Shaun Roe says it is alread included elsewhere so no need to be here
 #include <iostream>
 #include <fstream>
@@ -82,6 +83,9 @@ namespace Analysis { class MuonContainer; }
 HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & name, const IInterface* parent) :
   IHLTMonTool(type, name, parent),
   m_trackJetFinderTool("TrigTrackJetFinderTool"),
+  m_TriggerChainBjet{}, m_TriggerChainMujet{},
+  m_Chain2Dir{},
+  m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
@@ -111,16 +115,7 @@ float HLTBjetMonTool::phiCorr(float phi) {
 
 StatusCode HLTBjetMonTool::init() {
 
-  /*
-  StatusCode sc = m_trackJetFinderTool.retrieve();
-  if(sc.isFailure()) {
-    *m_log << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endreq;
-    return StatusCode::FAILURE;
-  } else
-  */
   ATH_CHECK(m_trackJetFinderTool.retrieve());
-  //    *m_log << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endreq;
-  //  ATH_MSG_INFO("Retrieved tool " << m_trackJetFinderTool);
 
   ATH_MSG_INFO("in HLTBjetMonTool::init - retrieved tool: " << m_trackJetFinderTool);
 
@@ -130,6 +125,114 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
+  int size_TriggerChainBjet = m_TriggerChainBjet.size();
+  int size_TriggerChainMujet = m_TriggerChainMujet.size();
+  std::string chainName, folderName;
+
+  ATH_MSG_DEBUG("         Chain sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
+  for (int i =0; i<size_TriggerChainBjet; i++){
+    chainName = m_TriggerChainBjet.at(i);
+    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+    // Investigate by the 1st character which folder should be assigned                                                                                                                  
+    if (chainName.substr(0,1) == "E") {
+      m_TriggerChainBjet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainBjet.at(i);
+      m_Chain2Dir[chainName] = "Expert";
+    } else if (chainName.substr(0,1) == "S") {
+      m_TriggerChainBjet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainBjet.at(i);
+      m_Chain2Dir[chainName] = "Shifter";
+    } else {
+      ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+      return StatusCode::FAILURE;
+    } // else                                                                                                                                                                            
+    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+  }
+  for (int i =0; i<size_TriggerChainMujet; i++){
+    chainName = m_TriggerChainMujet.at(i);
+    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+    // Investigate by the 1st character which folder should be assigned
+    if (chainName.substr(0,1) == "E") {
+      m_TriggerChainMujet.at(i) = chainName.substr (2); 
+      chainName = m_TriggerChainMujet.at(i);
+      m_Chain2Dir[chainName] = "Expert";
+    } else if (chainName.substr(0,1) == "S") {
+      m_TriggerChainMujet.at(i) = chainName.substr (2);
+      chainName = m_TriggerChainMujet.at(i);
+      m_Chain2Dir[chainName] = "Shifter";
+    } else {
+      ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+      return StatusCode::FAILURE;
+    } // else
+    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+  }
+
+  // Check if folder assignment is made for all chains - if not stop the program
+  // Regroup chain names with identical histograms
+
+  std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
+  while (it != m_Chain2Dir.end()) {
+    ATH_MSG_DEBUG(it->first << " :: " << it->second );
+    it++;
+  }
+  std::map<std::string,std::string>::iterator p;
+  for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16 
+    p = m_Chain2Dir.find(chainName);
+    if ( p != m_Chain2Dir.end() ) {
+      folderName = p->second;
+    } else {
+      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+    if ( (folderName != "Expert") && (folderName != "Shifter") ){
+	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
+	return StatusCode::FAILURE;
+      } //if
+    std::size_t found = chainName.find("split");
+    if (found!=std::string::npos) {
+      if (folderName == "Shifter") m_Shifter_jSplit.push_back(chainName);
+      if (folderName == "Expert") m_Expert_jSplit.push_back(chainName);
+    } else {
+      if (folderName == "Shifter") m_Shifter_jUnSplit.push_back(chainName);
+      if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
+    }
+  } //i Bjet
+  for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
+    p = m_Chain2Dir.find(chainName);
+    if ( p != m_Chain2Dir.end() ) {
+      folderName = p->second;
+    } else {
+      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+    if (folderName == "Shifter") m_Shifter_mujet.push_back(chainName); 
+    else if (folderName == "Expert") m_Expert_mujet.push_back(chainName); 
+    else {
+	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
+	return StatusCode::FAILURE;
+      } //if        
+  } //i Mujet
+
+  for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
+    ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
+  }
+  for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
+    ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
+  }
+  for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
+    ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
+  }
+  for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
+    ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
+  }
+  for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
+    ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
+  }
+  for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
+    ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -170,6 +273,8 @@ StatusCode HLTBjetMonTool::book(){
   
 
     if(newRunFlag()){
+
+      // Shifter Folders
       
       addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
       ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
@@ -184,104 +289,227 @@ StatusCode HLTBjetMonTool::book(){
       addHistogram(new TH1F("PVz","offline zPV", 200, -200., 200.));
 
       //    On-line SplitChains
-      addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/Online_SplitChains", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
-      ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/Online_SplitChains, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
-
-
-      // PV
-      addHistogram(new TH1F("nPV_tr_Split","Number of online PV per event for xPrimVtx", 101, -1., 100.));
-      addHistogram(new TH1F("PVx_tr_Split","online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVy_tr_Split","online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVz_tr_Split","online (1st) zPV for xPrimVtx", 200, -200., 200.));
-      addHistogram(new TH1F("nPV_tr_Split_Hist","Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
-      addHistogram(new TH1F("PVx_tr_Split_Hist","online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVy_tr_Split_Hist","online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVz_tr_Split_Hist","online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
-      addHistogram(new TH1F("diffzPV0offPVon_Split","z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-      // Tracks    
-      addHistogram(new TH1F("nTrack_Split","Number of tracks", 40, 0., 40.));
-      addHistogram(new TH1F("d0_Split","d0 of tracks", 200, -2., 2.));
-      addHistogram(new TH1F("z0_Split","z0 of tracks", 200, -200., 200.));
-      addHistogram(new TH1F("ed0_Split","err_d0 of tracks", 200, 0., 1.));
-      addHistogram(new TH1F("ez0_Split","err_z0 of tracks", 200, 0., 5.));
-      addHistogram(new TH1F("diffz0PV0_Split","z0 of tracks wrt 1st offline PV", 200, -10., 10.));
-      addHistogram(new TH1F("sigz0PV_Split","z0-PV/errz0", 200, -20., 20.));
-      addHistogram(new TH1F("trkPt_Split","Pt of tracks", 100, 0., 50.));
-      addHistogram(new TH2F("trkEtaPhi_Split","Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
-      //   Jets
-      addHistogram(new TH1F("nJet_Split","Number of jets", 40, 0., 40.));
-      addHistogram(new TH1F("jetPt_Split","Pt of jets", 100, 0., 250.));
-      addHistogram(new TH2F("jetEtaPhi_Split","Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-      //   B-jets 
-      addHistogram(new TH1F("IP3D_pu_tr_Split","IP3D_pu probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("IP3D_pb_tr_Split","IP3D_pb probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("IP3D_pc_tr_Split","IP3D_pc probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("wIP3D_Rbu_tr_Split","LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wSV1_Rbu_tr_Split","LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wCOMB_Rbu_tr_Split","LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wMV2c00_tr_Split","MV2c00 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("wMV2c10_tr_Split","MV2c10 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("wMV2c20_tr_Split","MV2c20 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("xMVtx_tr_Split","SV1 mass - all SV1", 50, 0., 10.));
-      addHistogram(new TH1F("xEVtx_tr_Split","SV1 E-fraction - all SV1", 50, 0., 1.));
-      addHistogram(new TH1F("xNVtx_tr_Split","Number of 2-track SV1 - all SV1", 40, 0., 40.));
-      addHistogram(new TH1F("xMVtx_trv_Split","SV1 mass - valid SV1", 50, 0., 10.));
-      addHistogram(new TH1F("xEVtx_trv_Split","SV1 E-fraction - valid SV1", 50, 0., 1.));
-      addHistogram(new TH1F("xNVtx_trv_Split","Number of 2-track SV1 - valid SV1", 40, 0., 40.));
-      //  Mu-Jets
-      addHistogram(new TH1F("nMuon_Split","Number of muons", 20, 0., 20.));
-      addHistogram(new TH1F("muonPt_Split","Pt of muons", 100, 0., 250.));
-      addHistogram(new TH2F("muonEtaPhi_Split","Phi vs Eta of muons", 20, -5., 5., 20, -3.1416, 3.1416));
-      addHistogram(new TH1F("DeltaRAll_Split","DeltaR between muon and any jet", 100, 0., 6.));
-      addHistogram(new TH1F("DeltaZAll_Split","DeltaZ between muon and any jet", 100, 0., 10.));
+      //      addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/Online_SplitChains", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+      //      ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/Online_SplitChains, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+      for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/"+m_Shifter_jSplit.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_jSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	// PV
+	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
+	// Tracks    
+	addHistogram(new TH1F(("nTrack_"+m_Shifter_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
+	addHistogram(new TH1F(("d0_"+m_Shifter_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
+	addHistogram(new TH1F(("z0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("ed0_"+m_Shifter_jSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
+	addHistogram(new TH1F(("ez0_"+m_Shifter_jSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
+	addHistogram(new TH1F(("diffz0PV0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
+	addHistogram(new TH1F(("sigz0PV_"+m_Shifter_jSplit.at(i)).c_str(),"z0-PV/errz0", 200, -20., 20.));
+	addHistogram(new TH1F(("trkPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of tracks", 100, 0., 50.));
+	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Shifter_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   B-jets 
+	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
+	addHistogram(new TH1F(("xMVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
+      }
 
       //    On-line UnSplitChains
-      addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/Online_UnSplitChains", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
-      ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/Online_UnSplitChains, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
-      // PV
-      addHistogram(new TH1F("nPV_tr","Number of online PV per event", 101, -1., 100.));
-      addHistogram(new TH1F("PVx_tr","online (1st) xPV", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVy_tr","online (1st) yPV", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVz_tr","online (1st) zPV", 200, -200., 200.));
-      addHistogram(new TH1F("diffzPV0offPVon","z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-      // Tracks    
-      addHistogram(new TH1F("nTrack","Number of tracks", 40, 0., 40.));
-      addHistogram(new TH1F("d0","d0 of tracks", 200, -2., 2.));
-      addHistogram(new TH1F("z0","z0 of tracks", 200, -200., 200.));
-      addHistogram(new TH1F("ed0","err_d0 of tracks", 200, 0., 1.));
-      addHistogram(new TH1F("ez0","err_z0 of tracks", 200, 0., 5.));
-      addHistogram(new TH1F("diffz0PV0","z0 of tracks wrt 1st offline PV", 200, -10., 10.));
-      addHistogram(new TH1F("sigz0PV","z0-PV/errz0", 200, -20., 20.));
-      addHistogram(new TH1F("trkPt","Pt of tracks", 100, 0., 50.));
-      addHistogram(new TH2F("trkEtaPhi","Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
-      //   Jets
-      addHistogram(new TH1F("nJet","Number of jets", 40, 0., 40.));
-      addHistogram(new TH1F("jetPt","Pt of jets", 100, 0., 250.));
-      addHistogram(new TH2F("jetEtaPhi","Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-      //   B-jets 
-      addHistogram(new TH1F("IP3D_pu_tr","IP3D_pu probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("IP3D_pb_tr","IP3D_pb probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("IP3D_pc_tr","IP3D_pc probability distribution", 200, 0., 1.));
-      addHistogram(new TH1F("wIP3D_Rbu_tr","LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wSV1_Rbu_tr","LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wCOMB_Rbu_tr","LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-      addHistogram(new TH1F("wMV2c00_tr","MV2c00 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("wMV2c10_tr","MV2c10 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("wMV2c20_tr","MV2c20 discriminant", 200, -1., 1.));
-      addHistogram(new TH1F("xMVtx_tr","SV1 mass - all SV1", 50, 0., 10.));
-      addHistogram(new TH1F("xEVtx_tr","SV1 E-fraction - all SV1", 50, 0., 1.));
-      addHistogram(new TH1F("xNVtx_tr","Number of 2-track SV1 - all SV1", 40, 0., 40.));
-      addHistogram(new TH1F("xMVtx_trv","SV1 mass - valid SV1", 50, 0., 10.));
-      addHistogram(new TH1F("xEVtx_trv","SV1 E-fraction - valid SV1", 50, 0., 1.));
-      addHistogram(new TH1F("xNVtx_trv","Number of 2-track SV1 - valid SV1", 40, 0., 40.));
-      //  Mu-Jets
-      addHistogram(new TH1F("nMuon","Number of muons", 20, 0., 20.));
-      addHistogram(new TH1F("muonPt","Pt of muons", 100, 0., 250.));
-      addHistogram(new TH2F("muonEtaPhi","Phi vs Eta of muons", 20, -5., 5., 20, -3.1416, 3.1416));
-      addHistogram(new TH1F("DeltaRAll","DeltaR between muon and any jet", 100, 0., 6.));
-      addHistogram(new TH1F("DeltaZAll","DeltaZ between muon and any jet", 100, 0., 10.));
+      //      addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/Online_UnSplitChains", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+      //      ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/Online_UnSplitChains, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+      for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/"+m_Shifter_jUnSplit.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_jUnSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	// PV
+	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
+	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
+	// Tracks    
+	addHistogram(new TH1F(("nTrack_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
+	addHistogram(new TH1F(("d0_"+m_Shifter_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
+	addHistogram(new TH1F(("z0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("ed0_"+m_Shifter_jUnSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
+	addHistogram(new TH1F(("ez0_"+m_Shifter_jUnSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
+	addHistogram(new TH1F(("diffz0PV0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
+	addHistogram(new TH1F(("sigz0PV_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0-PV/errz0", 200, -20., 20.));
+	addHistogram(new TH1F(("trkPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of tracks", 100, 0., 50.));
+	addHistogram(new TH2F(("trkEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   B-jets 
+	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
+	addHistogram(new TH1F(("xMVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
+      }  
+      //    On-line MuChains
+      for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/"+m_Shifter_mujet.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Shifter_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	// Muons
+	addHistogram(new TH1F(("nMuon_"+m_Shifter_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));
+	addHistogram(new TH1F(("muonPt_"+m_Shifter_mujet.at(i)).c_str(),"Pt of muons", 100, 0., 250.));
+	addHistogram(new TH2F(("muonEtaPhi_"+m_Shifter_mujet.at(i)).c_str(),"Phi vs Eta of muons", 20, -5., 5., 20, -3.1416, 3.1416));
+	addHistogram(new TH1F(("DeltaRAll_"+m_Shifter_mujet.at(i)).c_str(),"DeltaR between muon and any jet", 100, 0., 6.));
+	addHistogram(new TH1F(("DeltaZAll_"+m_Shifter_mujet.at(i)).c_str(),"DeltaZ between muon and any jet", 100, 0., 10.));
+      }
+      
+      // Expert Folders
+
+      addMonGroup(new MonGroup(this,"HLT/BjetMon/Expert", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+      ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 
 
+      //    On-line SplitChains
+      for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Expert/"+m_Expert_jSplit.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_jSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	// PV
+	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
+	// Tracks    
+	addHistogram(new TH1F(("nTrack_"+m_Expert_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
+	addHistogram(new TH1F(("d0_"+m_Expert_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
+	addHistogram(new TH1F(("z0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("ed0_"+m_Expert_jSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
+	addHistogram(new TH1F(("ez0_"+m_Expert_jSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
+	addHistogram(new TH1F(("diffz0PV0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
+	addHistogram(new TH1F(("sigz0PV_"+m_Expert_jSplit.at(i)).c_str(),"z0-PV/errz0", 200, -20., 20.));
+	addHistogram(new TH1F(("trkPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of tracks", 100, 0., 50.));
+	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Expert_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   B-jets 
+	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
+	addHistogram(new TH1F(("xMVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
+      }
+
+      //    On-line UnSplitChains
+      for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Expert/"+m_Expert_jUnSplit.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_jUnSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	// PV
+	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
+	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
+	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
+	// Tracks    
+	addHistogram(new TH1F(("nTrack_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
+	addHistogram(new TH1F(("d0_"+m_Expert_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
+	addHistogram(new TH1F(("z0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("ed0_"+m_Expert_jUnSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
+	addHistogram(new TH1F(("ez0_"+m_Expert_jUnSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
+	addHistogram(new TH1F(("diffz0PV0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
+	addHistogram(new TH1F(("sigz0PV_"+m_Expert_jUnSplit.at(i)).c_str(),"z0-PV/errz0", 200, -20., 20.));
+	addHistogram(new TH1F(("trkPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of tracks", 100, 0., 50.));
+	addHistogram(new TH2F(("trkEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	//   B-jets 
+	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
+	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
+	addHistogram(new TH1F(("xMVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
+	addHistogram(new TH1F(("xEVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
+	addHistogram(new TH1F(("xNVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
+      }
+
+      //    On-line MuChains
+      for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
+	addMonGroup(new MonGroup(this,"HLT/BjetMon/Expert/"+m_Expert_mujet.at(i), run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
+	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_mujet.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
+	//   Jets
+	addHistogram(new TH1F(("nJet_"+m_Expert_mujet.at(i)).c_str(),"Number of jets", 40, 0., 40.));
+	addHistogram(new TH1F(("jetPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
+	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_mujet.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
+	// Muons
+	addHistogram(new TH1F(("nMuon_"+m_Expert_mujet.at(i)).c_str(),"Number of muons", 20, 0., 20.));
+	addHistogram(new TH1F(("muonPt_"+m_Expert_mujet.at(i)).c_str(),"Pt of muons", 100, 0., 250.));
+	addHistogram(new TH2F(("muonEtaPhi_"+m_Expert_mujet.at(i)).c_str(),"Phi vs Eta of muons", 20, -5., 5., 20, -3.1416, 3.1416));
+	addHistogram(new TH1F(("DeltaRAll_"+m_Expert_mujet.at(i)).c_str(),"DeltaR between muon and any jet", 100, 0., 6.));
+	addHistogram(new TH1F(("DeltaZAll_"+m_Expert_mujet.at(i)).c_str(),"DeltaZ between muon and any jet", 100, 0., 10.));
+      }
 
     } // if newRunFlag
 
@@ -325,7 +553,7 @@ StatusCode HLTBjetMonTool::book(){
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
       if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR
     } // else
-  } //i
+  } //i Bjet
 
   for (int i =0; i<size_TriggerChainMujet; i++){
     if (!getTDT()->isPassed(m_TriggerChainMujet.at(i))){
@@ -336,7 +564,7 @@ StatusCode HLTBjetMonTool::book(){
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
       if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR 
     } // else
-  } // i
+  } // i Mujet
 
   if ( not  FiredChainNames.empty() ) ATH_MSG_DEBUG( " " << FiredChainNames.size() << " trigger chains fired: " );
   for (unsigned int i = 0; i< FiredChainNames.size(); i++) {
@@ -350,6 +578,7 @@ StatusCode HLTBjetMonTool::book(){
     return StatusCode::SUCCESS;
   } else {
 
+    //    return StatusCode::SUCCESS;
 
     const xAOD::EventInfo* eventInfo = 0;
     CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );
@@ -386,30 +615,49 @@ StatusCode HLTBjetMonTool::book(){
       } // if size
     } // evtStore
 
+    ATH_MSG_DEBUG(" Offline histograms are stored successfully !");
+
     // Get online combinations
 
+    //  unsigned int ichain = 0;
     // Loop on trigger items
-    for (unsigned int ichain = 0; ichain < FiredChainNames.size(); ichain++) {
-      //  unsigned int ichain = 0;
-      std::string trigItem = FiredChainNames.at(ichain);
-      // Set container names (2016/03/03) see TrigBtegEmulation.cxx
+    for (const auto & trigItem:FiredChainNames){        // Shaun Roe 21/9/16
+      // Set directory name (Expert or Shifter)
+      std::map<std::string,std::string>::iterator p;
+      p = m_Chain2Dir.find(trigItem);
+      if ( p != m_Chain2Dir.end() ) {
+	HistDir = p->second+"/"+trigItem;
+      } else {
+	ATH_MSG_INFO(" Fired Trigger " << trigItem << " has no folder name - verify HLTBjetMonTool::init() !!!" );
+	continue;	  
+      }
+      ATH_MSG_DEBUG(" Fired Trigger " << trigItem << " will be placed in folder " << p->second );
+      HistExt = "_"+trigItem;
+      ATH_MSG_DEBUG(" HistDir " << HistDir << " HistExt " << HistExt );
+      // Set container names (2016/03/03) see TrigBtagEmulation.cxx
       // Non split input chaines
       std::string m_jetKey = "";
       std::string m_priVtxKey = "EFHistoPrmVtx";
       std::string m_trackKey  = "";
-      HistDir = "/Online_UnSplitChains";
-      HistExt = "";
       // Split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
 	m_jetKey = "SplitJet";
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
-	HistDir = "/Online_SplitChains";
-	HistExt = "_Split";
       }
       ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey ); 
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
+      // Set flag MuJet
+      bool MuJet = false;
+      found = trigItem.find("HLT_mu");
+      if (found!=std::string::npos) MuJet = true;
+      // Set flags for histograms
+      bool HistPV = !MuJet;
+      bool HistJet = true;
+      bool HistMuJet = MuJet;
+      bool HistTrack = !MuJet;
+      bool HistBjet = !MuJet;
 
       Trig::FeatureContainer fc = m_trigDec->features(trigItem);
       const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
@@ -431,11 +679,11 @@ StatusCode HLTBjetMonTool::book(){
 	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
 	  if( not onlinepv->empty()) {  
             if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                                
-	      hist("PVx_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->x());
-	      hist("PVy_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->y());
-	      hist("PVz_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->z());
+	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+	      if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+	      if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
 	      m_zPrmVtx = (*(onlinepv))[0]->z();
-	      if (Eofflinepv) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);  
+	      if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);  
 	      ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
 	    } // if PV not dummy  
 	    else {
@@ -444,10 +692,10 @@ StatusCode HLTBjetMonTool::book(){
 	      ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x() 
 			   << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
 	      int dummyflag = -1;
-	      hist("nPV_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(dummyflag);
+	      if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
 	      //	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
 	    } // else
-	    if (!DummyVtx) hist("nPV_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(onlinepv->size());
+	    if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
 	  }  // if onlinepv not empty
 	} // if onlinepvs not empty
 	if ( (m_jetKey == "SplitJet") && DummyVtx ) {
@@ -459,10 +707,10 @@ StatusCode HLTBjetMonTool::book(){
 	    ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
 	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                            
-		hist("PVx_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->x());
-		hist("PVy_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->y());
-		hist("PVz_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->z());
-		hist("nPV_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill(onlinepv->size());
+		if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+		if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+		if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
+		if(HistPV) hist("nPV_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
 		ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
 			     << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
 	      } // if VertexType
@@ -471,6 +719,8 @@ StatusCode HLTBjetMonTool::book(){
 	  continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
 	} // if DummyVtx
 
+	ATH_MSG_DEBUG(" PV histograms are stored successfully !");
+
 	// Get online jet
 	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(m_jetKey);
 	ATH_MSG_DEBUG("RETRIEVED JETS   -   size: " << onlinejets.size());
@@ -478,13 +728,15 @@ StatusCode HLTBjetMonTool::book(){
 	  const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nJet: " << onlinejet->size());
 	  int nJet = onlinejet->size();
-	  hist("nJet"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(nJet);
+	  if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nJet);
 	  for(const auto* jet : *onlinejet) {
 	    ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
-	    hist("jetPt"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((jet->pt())*1.e-3);
-	    hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(jet->eta(),jet->phi());
+	    if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
+	    if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
 	  } // for online jet
 	}//onlinejets.size
+
+	ATH_MSG_DEBUG(" Jets histograms are stored successfully !");
 
 	// Get online muon                                                                                                                                                     
 	const std::vector< Trig::Feature<xAOD::MuonContainer> > onlinemuons = comb.get<xAOD::MuonContainer>();
@@ -493,11 +745,11 @@ StatusCode HLTBjetMonTool::book(){
 	  const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nMuon: " << onlinemuon->size());
 	  int nMuon = onlinemuon->size();
-	  hist("nMuon"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(nMuon);
+	  if(HistMuJet) hist("nMuon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nMuon);
 	  for(const auto* muon : *onlinemuon) {
 	    ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (muon->pt())*1.e-3 << " / " << muon->eta() << " / " << muon->phi());
-	    hist("muonPt"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((muon->pt())*1.e-3);
-	    hist2("muonEtaPhi"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(muon->eta(),muon->phi());
+	    if(HistMuJet) hist("muonPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((muon->pt())*1.e-3);
+	    if(HistMuJet) hist2("muonEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(muon->eta(),muon->phi());
 	  } // for online muon                                                                                                                                                                    
 	}//onlinemuons.size                                                                                                                                                                   
 	
@@ -529,12 +781,14 @@ StatusCode HLTBjetMonTool::book(){
 		m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
 		m_deltaZ   = fabs(muonZ-jetZ);
 		m_dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
-		hist("DeltaZAll"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(m_deltaZ);
-		hist("DeltaRAll"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(m_dR);
+		if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_deltaZ);
+		if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_dR);
 	      } // for online jet                                                                                                                                                     
 	    }//onlinejets.size                                                                                                                                                                   
 	  } // for online muon                                                                                                                                                                    
-	}//onlinemuons.size                                                                                                                                                                   
+	}//onlinemuons.size                                                                                                                                                             
+
+	ATH_MSG_DEBUG(" Muon histograms are stored successfully !");      
       
 	// Get online track particles
 	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(m_trackKey);
@@ -543,21 +797,23 @@ StatusCode HLTBjetMonTool::book(){
 	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nTrack: " << onlinetrack->size());
 	  int nTrack = onlinetrack->size();
-	  hist("nTrack"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(nTrack);
+	  if (HistTrack) hist("nTrack"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nTrack);
 	  for(const auto* trk : *onlinetrack) {
 	    ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() );
 	    if (Eofflinepv) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
-	    hist("d0"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(trk->d0());
-	    hist("z0"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(trk->z0());
-	    hist("ed0"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
-	    hist("ez0"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
-	    if (Eofflinepv) hist("diffz0PV0"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
+	    if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->d0());
+	    if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0());
+	    if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
+	    if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
+	    if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
 	    float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
-	    if ( errz0 >0. && Eofflinepv ) hist("sigz0PV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
-	    hist("trkPt"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( (trk->pt())*1.e-3 );
-	    hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(trk->eta(),trk->phi());
+	    if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
+	    if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->pt())*1.e-3 );
+	    if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->eta(),trk->phi());
 	  } // for online track particles
 	} // onlinetracks.size
+
+	ATH_MSG_DEBUG(" Track histograms are stored successfully !");
 
 	// Get online bjet from xAOD BTaggingContainer
 	const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
@@ -582,25 +838,25 @@ StatusCode HLTBjetMonTool::book(){
 	    bjet->variable<float>("SV1", "efracsvx", svp_efrc);
 	    bjet->variable<int>("SV1", "N2Tpair", svp_n2t);
 	    ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ; 
-	    hist("xNVtx_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(svp_n2t);
+	    if (HistBjet) hist("xNVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	    if ( svp_n2t > 0 ) {
-	      hist("xMVtx_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( svp_mass * 1.e-3 ); 
-	      hist("xEVtx_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( svp_efrc );
+	      if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 ); 
+	      if (HistBjet) hist("xEVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
 	    } // if svp_n2t
 	    // end of suggestion of LZ 
 	    ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc() );
-	    hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(bjet->IP3D_pu());
-	    hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(bjet->IP3D_pb());
-	    hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(bjet->IP3D_pc());
+	    if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pu());
+	    if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pb());
+	    if (HistBjet) hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pc());
 	    ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB );
 	    ATH_MSG_DEBUG("                 -   SV1 LZ: " << SV1_loglikelihoodratioLZ );
 	    ATH_MSG_DEBUG("                 -   MV2c00 / MV2c10 / MV2c20: " << wMV2c00 << " / " << wMV2c10 << " / " << wMV2c20);
-	    hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wIP3D);
-	    hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wSV1);
-	    hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wCOMB);
-	    hist("wMV2c00_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wMV2c00);
-	    hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wMV2c10);
-	    hist("wMV2c20_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(wMV2c20);
+	    if (HistBjet) hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wIP3D);
+	    if (HistBjet) hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wSV1);
+	    if (HistBjet) hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wCOMB);
+	    if (HistBjet) hist("wMV2c00_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c00);
+	    if (HistBjet) hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c10);
+	    if (HistBjet) hist("wMV2c20_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c20);
 
 	    // Get SV1 secondary vtx information, see:
 	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and 
@@ -615,10 +871,10 @@ StatusCode HLTBjetMonTool::book(){
 	      bjet->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
 	      bjet->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
 	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ; 	    
-	      hist("xNVtx_trv"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(svp_n2t);
+	      if (HistBjet) hist("xNVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	      if ( svp_n2t > 0 ) {
-		hist("xMVtx_trv"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( svp_mass ); 
-		hist("xEVtx_trv"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill( svp_efrc );
+		if (HistBjet) hist("xMVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass ); 
+		if (HistBjet) hist("xEVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
 	      } // if svp_n2t 
 	    } else {
 	      ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );
@@ -626,6 +882,9 @@ StatusCode HLTBjetMonTool::book(){
 	    } // if vertex valid
 	  } // for online bjet
 	} // onlinebjets.size
+
+	ATH_MSG_DEBUG(" Bjet histograms are stored successfully !");
+
       } // for bjetComb
     } // ichain
 
