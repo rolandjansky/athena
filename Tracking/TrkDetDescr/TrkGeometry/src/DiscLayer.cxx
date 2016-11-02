@@ -97,6 +97,10 @@ Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& tr
     if (m_surfaceArray) buildApproachDescriptor();    
 }
 
+Trk::DiscLayer::~DiscLayer() {
+  delete m_approachDescriptor;
+}
+
 Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
 {
   if (this!=&dlay){
@@ -236,8 +240,9 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
     // create the surface container   
     Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
     // get the center
-    const Amg::Vector3D aspPosition(center()+0.5*thickness()*normal());
-    const Amg::Vector3D asnPosition(center()-0.5*thickness()*normal());
+    const auto halfThickness=0.5*thickness()*normal();
+    const Amg::Vector3D aspPosition(center()+halfThickness);
+    const Amg::Vector3D asnPosition(center()-halfThickness);
     // create the new surfaces
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.getPtr());
     if (db){ 

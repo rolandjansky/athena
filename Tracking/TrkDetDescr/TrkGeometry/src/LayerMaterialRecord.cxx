@@ -36,7 +36,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord()
   m_rho(0.),
   m_assoc(Trk::EffectiveNumAtoms)
 {
-    m_pos = Amg::Vector3D(0.,0.,0.);
+    //m_pos = Amg::Vector3D(0.,0.,0.);
 }
 
 Trk::LayerMaterialRecord::LayerMaterialRecord(double thickness,
@@ -50,6 +50,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(double thickness,
   m_minFraction(minfraction),  
   m_steps(0),
   m_pos(Amg::Vector3D(0.,0.,0.)),
+  m_emptyHitCase(false),
   m_s(0.),
   m_s_in_x0(0.),
   m_s_in_l0(0.),
@@ -60,17 +61,22 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(double thickness,
 {
     
     // initialize for the run
+    const auto zeroedVectorDbl=std::vector<double>(m_bins0, 0.);
+    const auto zeroedVectorUInt=std::vector<unsigned int>(m_bins0, 0);
+    const auto zeroedVectorVector3D=std::vector<Amg::Vector3D>(m_bins0, m_pos);
+    typedef std::map<unsigned int, double> Element_t;
+    const auto zeroedVectorElements=std::vector< Element_t >(m_bins0, Element_t());
     for (int ibin=0; ibin<m_bins1; ++ibin) {
         // run-related parameters
-        m_run_pos.push_back(std::vector<Amg::Vector3D>(m_bins0, m_pos));
-        m_run_events.push_back(std::vector<unsigned int>(m_bins0, 0));
-        m_run_s.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_s_in_x0.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_s_in_l0.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_a.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_z.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_rho.push_back(std::vector<double>(m_bins0, 0.));
-        m_run_elements.push_back(std::vector< std::map<unsigned int, double> >(m_bins0, std::map<unsigned int, double>()) );
+        m_run_pos.push_back(zeroedVectorVector3D);
+        m_run_events.push_back(zeroedVectorUInt);
+        m_run_s.push_back(zeroedVectorDbl);
+        m_run_s_in_x0.push_back(zeroedVectorDbl);
+        m_run_s_in_l0.push_back(zeroedVectorDbl);
+        m_run_a.push_back(zeroedVectorDbl);
+        m_run_z.push_back(zeroedVectorDbl);
+        m_run_rho.push_back(zeroedVectorDbl);
+        m_run_elements.push_back(zeroedVectorElements);
     }
 
 }
@@ -84,6 +90,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(const Trk::LayerMaterialRecord& lm
   m_minFraction(lmr.m_minFraction),
   m_steps(lmr.m_steps),
   m_pos(Amg::Vector3D(0.,0.,0.)),
+  m_emptyHitCase(lmr.m_emptyHitCase),
   m_s(lmr.m_s),
   m_s_in_x0(lmr.m_s_in_x0),
   m_s_in_l0(lmr.m_s_in_l0),
@@ -118,6 +125,7 @@ Trk::LayerMaterialRecord& Trk::LayerMaterialRecord::operator=(const Trk::LayerMa
         m_assoc               = lmr.m_assoc;
         m_steps               = lmr.m_steps;
         m_pos                 = lmr.m_pos;
+        m_emptyHitCase        = lmr.m_emptyHitCase;
         m_s                   = lmr.m_s;
         m_s_in_x0             = lmr.m_s_in_x0;
         m_s_in_l0             = lmr.m_s_in_l0;

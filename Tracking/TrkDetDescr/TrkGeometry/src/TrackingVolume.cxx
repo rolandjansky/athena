@@ -1217,11 +1217,11 @@ void  Trk::TrackingVolume::moveTV(Amg::Transform3D& transform) const {
 void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
-  msgstream << MSG::VERBOSE << "  -> synchronizing Layer dimensions of TrackingVolume '" << volumeName() << "'." << endreq;     
+  msgstream << MSG::VERBOSE << "  -> synchronizing Layer dimensions of TrackingVolume '" << volumeName() << "'." << endmsg;     
     
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
-    msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endreq;
+    msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endmsg;
     for (auto& clayIter : confLayers->arrayObjects())
         if (clayIter){
             if (clayIter->surfaceRepresentation().type() == Trk::Surface::Cylinder && !(center().isApprox(clayIter->surfaceRepresentation().center())) )
@@ -1229,12 +1229,12 @@ void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelop
             else 
                 clayIter->resizeLayer(volumeBounds(),envelope);
         }  else
-            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endreq;
+            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endmsg;
   }
   // case b : container volume -> step down
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes){
-    msgstream << MSG::VERBOSE << "  ---> no confined layers, working on " << confVolumes->arrayObjects().size() << " confined volumes." << endreq;
+    msgstream << MSG::VERBOSE << "  ---> no confined layers, working on " << confVolumes->arrayObjects().size() << " confined volumes." << endmsg;
     for (auto& cVolumesIter : confVolumes->arrayObjects())
         cVolumesIter->synchronizeLayers(msgstream, envelope);
   } 
@@ -1271,7 +1271,7 @@ void  Trk::TrackingVolume::screenDump(MsgStream& msg) const
 {
   msg << "[[ Trk::TrackingVolume ]] called: " << volumeName() << std::endl;
   msg << '\t' << '\t' << "# position (x,y,z) : " << center().x() << ", " << center().y() << ", " << center().z() << std::endl;
-  msg << '\t' << '\t' << "# bounds           : " << volumeBounds()     << endreq;
+  msg << '\t' << '\t' << "# bounds           : " << volumeBounds()     << endmsg;
 
 }
 

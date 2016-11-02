@@ -39,7 +39,7 @@ Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(const Trk:
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator<<( MsgStream& sl, const Trk::MagneticFieldProperties& mprop)
 {
-   sl << "Trk::MagneticFieldProperties, configuration: " << mprop.magneticFieldMode() << endreq; 
+   sl << "Trk::MagneticFieldProperties, configuration: " << mprop.magneticFieldMode() << endmsg; 
    return sl;
 }
 

@@ -26,7 +26,7 @@ MsgStream& Trk::operator<< ( MsgStream& sl, const Trk::ElementTable& etab)
     for (unsigned int iel = 0; iel < static_cast<unsigned int>(UCHAR_MAX); ++iel) 
         sl << " - Id : " << std::setw(3) << iel << " - Properties: " 
             <<  ( etab.element(iel) ? etab.element(iel)->toString() : none ) << " - Name : " << etab.elementName(iel) << std::endl;
-    sl << " ---------------------------------------------------------------------- " << endreq; 
+    sl << " ---------------------------------------------------------------------- " << endmsg; 
     return sl;
 }
 
