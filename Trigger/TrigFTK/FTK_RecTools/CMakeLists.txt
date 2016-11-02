@@ -16,7 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigFTK/FTK_RecToolInterfaces
                           Trigger/TrigFTK/TrigFTK_RawData
                           Event/xAOD/xAODTracking
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+                          Tracking/TrkVertexFitter/TrkVxEdmCnv 
+			  PRIVATE 
+			  Tracking/TrkEvent/TrkParameters)
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -26,10 +28,10 @@ atlas_add_library( FTK_RecToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS FTK_RecTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData xAODTracking TrkVxEdmCnvLib)
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkTrack TrkParameters VxVertex FTK_DataProviderInterfaces TrigFTK_RawData xAODTracking TrkVxEdmCnvLib)
 
 atlas_add_component( FTK_RecTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData xAODTracking TrkVxEdmCnvLib FTK_RecToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkTrack TrkParameters VxVertex FTK_DataProviderInterfaces TrigFTK_RawData xAODTracking TrkVxEdmCnvLib FTK_RecToolsLib )
 
