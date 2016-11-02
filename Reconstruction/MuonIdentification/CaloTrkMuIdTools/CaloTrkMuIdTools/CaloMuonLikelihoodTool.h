@@ -9,7 +9,6 @@
 #include "ICaloTrkMuIdTools/ITrackEnergyInCaloTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -52,7 +51,6 @@ private:
   std::string               m_caloClusterContainerName;
 
   ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
-  ServiceHandle<ITHistSvc>            m_histSvc;
 };
 
 #endif
