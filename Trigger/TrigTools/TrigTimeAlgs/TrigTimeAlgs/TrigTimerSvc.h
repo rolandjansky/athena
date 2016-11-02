@@ -9,13 +9,14 @@
 #ifndef TrigTIMERSVC_H_
 #define TrigTIMERSVC_H_
 #include <vector>
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/HistoProperty.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "boost/regex.hpp"
+
+class TH1F;
 
 /**
  * @brief This is class implementing interface defined by ITrigTimerSvc
@@ -25,7 +26,8 @@
  * given with addTimer are in dummy state. This properties are plain regular expressions.
  */
 
-class TrigTimerSvc : public AthService, virtual public ITrigTimerSvc {
+class TrigTimerSvc : public extends2<AthService, ITrigTimerSvc, IIncidentListener>
+{
 public:
 
   TrigTimerSvc( const std::string& name, ISvcLocator* svcloc );
@@ -34,6 +36,8 @@ public:
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvUnknown);
   virtual StatusCode initialize ( );
   virtual StatusCode finalize ( );
+  virtual StatusCode start ( );
+  virtual void handle(const Incident&);
 
   /**
    * \brief adds new timer of name given as arg
@@ -58,8 +62,6 @@ public:
    */
   virtual void print( );
 
-  //  inline TrigTimer* TrigTimerSvc::findItem(const std::string& name);
-  
 private:
   std::vector< TrigTimer* > m_itemList;   //!< list of active timers
   std::vector< TrigTimer* > m_allTimers;  //!< this list contains ptrs to all timers including inactive
@@ -68,9 +70,12 @@ private:
   std::string m_excludeName;     //!< selection of disallowed timers (just to ease usage)
   boost::regex m_includeRegex;   //!< compiled BOOST regex structures for those accepted
   boost::regex m_excludeRegex;   //!< and those rejected
-  
-  bool m_dumpFinalStatistics;
+  long long m_timerCalls{0};     //!< number of timer calls
 
+  bool m_dumpFinalStatistics;
+  Histo1DProperty m_histProp_timerCalls;
+
+  TH1F* m_hist_timerCalls{0};
 };
 
 

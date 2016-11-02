@@ -5,7 +5,6 @@
 */
 
 // $Id: TrigTimer.h,v 1.16 2008-12-08 13:12:58 tbold Exp $
-// $Name: not supported by cvs2svn $
 #ifndef TrigTIMER_H_
 #define TrigTIMER_H_
 #include <sys/time.h>
