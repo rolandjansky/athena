@@ -136,6 +136,14 @@ if InDetFlags.loadRotCreator():
                                                                         PositionStrategy = 0
                                                                         )
             ToolSvc += PixelClusterOnTrackToolDBM
+        
+        minCluster = 0
+        from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+        if ("BrlIncl4.0_ref" == GeometryFlags.GeoType() or "IBrlExt4.0ref" == GeometryFlags.GeoType()):
+            minCluster = 4
+        elif ("BrlExt4.0_ref" == GeometryFlags.GeoType() or "BrlExt3.2_ref" == GeometryFlags.GeoType()):
+            minCluster = 2        
+
         PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                  applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -143,8 +151,11 @@ if InDetFlags.loadRotCreator():
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                                                                 MinClusterSize = minCluster
                                                                  )
+
+        
 
         if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
             PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
@@ -166,7 +177,8 @@ if InDetFlags.loadRotCreator():
                                                                  SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                                  RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                  ErrorStrategy = 2,
-                                                                 PositionStrategy = 1 
+                                                                 PositionStrategy = 1 ,
+                                                                 MinClusterSize = minCluster
                                                                  )
 
         ToolSvc += PixelClusterOnTrackToolDigital
@@ -1851,3 +1863,18 @@ if InDetFlags.useInDetDynamicCuts() and InDetNewTrackingCuts.mode() == "SLHC":
   
   if InDetFlags.doPrintConfigurables():
     print InDetDynamicCutsTool
+
+########## Temporary !!!! ############
+if InDetNewTrackingCuts.mode() == "SLHC":
+  from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+  from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackCutSvc
+  InDetTrackCutSvc = InDet__InDetTrackCutSvc("InDetTrackCutSvc")
+  InDetTrackCutSvc.MaxD0 = 2.
+  InDetTrackCutSvc.MaxZ0 = 250.
+  InDetTrackCutSvc.MaxEta = 4.
+  InDetTrackCutSvc.MinSiHits = 6
+  InDetTrackCutSvc.MinPixelHits = 0
+  InDetTrackCutSvc.MinSCTHits = 0
+  
+  svcMgr += InDetTrackCutSvc
+  print "Added ITk Track Selection Cut Definitions"
