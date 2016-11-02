@@ -10,14 +10,8 @@ PACKAGE:  offline/Calorimeter/CaloRec
 ********************************************************************/
 
 #include "LArCellRec/LArCellMaskingTool.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
-
 #include "CaloEvent/CaloCellContainer.h"
-
 #include "LArCabling/LArCablingService.h"
 
 
@@ -64,7 +58,7 @@ StatusCode LArCellMaskingTool::initialize()
   ATH_MSG_DEBUG ("CaloCell Hash Max: " << m_offlinehashMax);
   
 //   m_onlinehashMax=m_onlineID->hash_max();
-//   (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endreq;
+//   (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endmsg;
   
   //Fill the bit map
   m_includedCellsMap.set(); // By default include all cells
@@ -120,7 +114,7 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
     if (haveFT) msg() << " FT=" << FT;
     if (haveSlot) msg() << " slot=" << slot; 
     if (haveChannel) msg() << " channel=" << channel;
-    msg() << endreq;
+    msg() << endmsg;
 
     unsigned nOnlExceptions=0;
     unsigned nOfflExceptions=0;

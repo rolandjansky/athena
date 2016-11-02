@@ -15,13 +15,6 @@ PURPOSE:  applies miscalibration in EM calorimeter
 
 ********************************************************************/
 #include "LArCellRec/LArCellEmMiscalib.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -69,12 +62,7 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 StatusCode LArCellEmMiscalib::initialize()
 {
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -86,41 +74,23 @@ StatusCode LArCellEmMiscalib::initialize()
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &LArCellEmMiscalib::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &LArCellEmMiscalib::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 LArCellEmMiscalib::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  msg(MSG::INFO) << " in LArCellEmMiscalib::geoInit()" << endreq;
+  ATH_MSG_INFO( " in LArCellEmMiscalib::geoInit()"  );
 
-  StatusCode sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
-    return sc;
-  }
-
-  sc = detStore()->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve CaloDetDescrMgr " << endreq;
-   return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
   static const bool CREATEIFNOTTHERE(true);
-  sc = service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE);
-  if (!sc.isSuccess() || 0 == m_AtRndmGenSvc) {
-    msg(MSG::ERROR) << "Unable to initialize AtRndmGenSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE) );
   m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(m_seed,this->name());
 
 
@@ -160,7 +130,7 @@ LArCellEmMiscalib::geoInit(IOVSVC_CALLBACK_ARGS)
          ATH_MSG_VERBOSE("  m_calib " << m_calib[idHash]);
     } 
     else {
-      msg(MSG::WARNING) << " Cannot find region for cell " << eta << " " << phi << endreq;
+      ATH_MSG_WARNING( " Cannot find region for cell " << eta << " " << phi  );
       m_calib[idHash]=1.;
     }
   }
@@ -208,8 +178,8 @@ void LArCellEmMiscalib::smearingPerRegion()
       }
       iphi=ii%16;
       ieta=ii/16;
-      msg(MSG::DEBUG) << "iregion,barrelec,ieta,iphi,spread " << iregion << " " 
-		      << barrelec << " " << ieta << " " << iphi << " " << m_spread1[i] << endreq;
+      ATH_MSG_DEBUG( "iregion,barrelec,ieta,iphi,spread " << iregion << " " 
+                     << barrelec << " " << ieta << " " << iphi << " " << m_spread1[i]  );
     }
   }//end if msg_lvl(DEBUG)
 
@@ -281,8 +251,8 @@ void  LArCellEmMiscalib::MakeCorrection(CaloCell * theCell )
       } 
     else
       {
-	msg(MSG::WARNING) << "Inconsistent hash value found " << idHash 
-			  << " >= " << m_ncellem << endreq ;
+	ATH_MSG_WARNING( "Inconsistent hash value found " << idHash 
+                         << " >= " << m_ncellem  );
       }
 //    if (m_larem_id->phi(id)==0)
 //      std::cout << "Barrel_ec,sampl.region,eta,wt " << m_larem_id->barrel_ec(id) <<

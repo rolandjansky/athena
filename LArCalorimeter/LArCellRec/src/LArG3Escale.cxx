@@ -32,13 +32,7 @@ Updated : Jul 2003 (DR)
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "GaudiKernel/MsgStream.h"
-
-//#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
-//#else
-//#include <iostream.h>
-//#endif
 #include <math.h>
 
 
@@ -196,12 +190,10 @@ LArG3Escale::LArG3Escale(const std::string& type, const std::string& name,
 
 StatusCode LArG3Escale::initialize()
 {
-   MsgStream log(msgSvc(), name());
-
-   log<<MSG::INFO<< name() << endreq;
-   if(m_Weights) log<<MSG::INFO<< " Properties: Weights= true"<<endreq;
-   else          log<<MSG::INFO<< " Properties: Weights= false"<<endreq;
-   log<<MSG::INFO<< " Properties: OverallScale= "<<m_OverallScale<<endreq;
+  ATH_MSG_INFO( name()  );
+  if(m_Weights) ATH_MSG_INFO( " Properties: Weights= true" );
+  else          ATH_MSG_INFO( " Properties: Weights= false" );
+  ATH_MSG_INFO( " Properties: OverallScale= "<<m_OverallScale );
 
    // pointer to DD manager and helpers:
    const CaloIdManager* mgr = (CaloDetDescrManager::instance())->getCalo_Mgr();
