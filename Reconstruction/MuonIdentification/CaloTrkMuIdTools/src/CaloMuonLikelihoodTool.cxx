@@ -35,23 +35,22 @@ namespace Units = Athena::Units;
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_trkEnergyInCalo("TrackEnergyInCaloTool"),
-  m_histSvc("THistSvc/THistSvc", name)//,
+  m_trkEnergyInCalo("TrackEnergyInCaloTool")//,
   // m_clusCont(0)
 {
   declareInterface<ICaloMuonLikelihoodTool>(this);  
 
   m_fileNames.clear();
   
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_A2/");  
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_B2/");  
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C0/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C1/");
-  m_fileNames.push_back("/CaloMuonLikelihood_PDF_C2/");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.A2.root");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.B2.root");  
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C0.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C1.root");
+  m_fileNames.push_back("CaloMuonLikelihood.PDF.C2.root");  
   
   declareProperty("RootFileNames", m_fileNames);
   declareProperty("TrackEnergyInCaloTool",m_trkEnergyInCalo);
@@ -79,10 +78,6 @@ StatusCode CaloMuonLikelihoodTool::initialize() {
   if (m_fileNames.size()!=9) {
     ATH_MSG_FATAL("Number of input ROOT files should be 9!");
     return StatusCode::FAILURE;
-  }
-  
-  if (m_histSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve THistSvc.");
   }
   
   if (retrieveHistograms().isFailure()) { 
@@ -218,29 +213,35 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
       m_TH1F_sig[iFile][iHist] = 0;
       m_TH1F_bkg[iFile][iHist] = 0;
     }
-    
-    TList histList;
-    if ( m_histSvc->getTHists(fileName, histList).isFailure() ) {
-      ATH_MSG_FATAL("Could not retrieve histograms for " << fileName);
+
+    // --- Retrieving root files and list of keys ---
+    std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");
+    TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");	
+    if (!rootFile) {
+      ATH_MSG_FATAL("Could not retrieve root file: " << fileName);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG(histList.GetSize() << "histograms found in " << fileName);
-    if ( histList.GetSize()>22 ) {
+    TList* listOfKeys = rootFile->GetListOfKeys();
+    if (!listOfKeys) {
+      ATH_MSG_FATAL("Could not retrieve key list: " << fileName);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(listOfKeys->GetSize() << "histogram keys found in " << fileName);
+    if (listOfKeys->GetSize() > 22) {
       ATH_MSG_FATAL("This exceeds the maximum allowed number of histograms");
       return StatusCode::FAILURE;
     }
-    
+
     int numKeysSignal = 0;
     int numKeysBkg    = 0;
     // --- Retrieving individual histograms ---
-    for ( int iHist = 0; iHist < histList.GetSize(); iHist++ ) {
-      TH1F* hist = 0;
-      hist = dynamic_cast<TH1F*>(histList.At(iHist));
+    for ( int iHist = 0; iHist < listOfKeys->GetSize(); iHist++ ) {
+      const std::string histName = listOfKeys->At(iHist)->GetName();
+      TH1F* hist = (TH1F*)(rootFile->Get(histName.c_str()));
       bool isSignal = false;
       if ( !hist ) {
-        ATH_MSG_ERROR("dynamic_cast<TH1F*> failed for TObject: " << histList.At(iHist));
+        ATH_MSG_ERROR("cannot retrieve hist " << histName);
       }
-      const std::string histName = hist->GetName();
       size_t endOfKey = histName.find("_signal", 0);
       if ( endOfKey!=std::string::npos ) {
         isSignal = true;
