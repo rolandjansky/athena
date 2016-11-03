@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
                           Control/StoreGate
+ 			  Control/CxxUtils	  
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetSimData )
@@ -21,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData )
+                     LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests CxxUtils GeneratorObjects InDetIdentifier InDetSimData )
 
 # Install files from the package:
 atlas_install_headers( InDetOverlay )
