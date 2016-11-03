@@ -923,6 +923,7 @@ sub run_test($){
     }
     while (<LOG>){
 	if (/CRITICAL stopped by user interrupt/ or
+        /ERROR Keyboard interruption caught/ or
 	    /^Signal handler: Killing [0-9]+ with 15/){
 	    $timeout = TRUE;
 	    last;
