@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 
+#include <sstream>
 #include <iostream>
 #include <stdexcept>
 
@@ -35,11 +36,11 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 {
   m_verbose = (log->level()<=MSG::VERBOSE);
  
-  (*log) << MSG::INFO << "TileDddbManager: m_tag = " << m_tag << endreq;
+  (*log) << MSG::INFO << "TileDddbManager: m_tag = " << m_tag << endmsg;
 
   m_tiglob = access->getRecordsetPtr("TileGlobals",m_tag,m_node);
   m_n_tiglob = m_tiglob->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tiglob = " << m_n_tiglob << endreq;
+  (*log) << MSG::INFO << "TileDddbManager: n_tiglob = " << m_n_tiglob << endmsg;
  
   if(access->getChildTag("TileModule",m_tag,m_node)!="") {
    m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
@@ -47,13 +48,13 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    m_timod = access->getRecordsetPtr("TileModules",m_tag,m_node);
   }
   m_n_timod = m_timod->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_timod = " << m_n_timod << endreq;
+  (*log) << MSG::INFO << "TileDddbManager: n_timod = " << m_n_timod << endmsg;
   
   if (access->getChildTag("TileCuts",m_tag,m_node)!="") 
    { m_buildCuts = true;
      m_cuts = access->getRecordsetPtr("TileCuts",m_tag,m_node);
      m_n_cuts = m_cuts->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_cuts = " << m_n_cuts << endreq;
+     (*log) << MSG::INFO << "TileDddbManager: n_cuts = " << m_n_cuts << endmsg;
 
    } else {
      m_buildCuts = false;
@@ -63,7 +64,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    { m_buildSaddle = true;
      m_saddle = access->getRecordsetPtr("TileSaddleSup",m_tag,m_node);
      m_n_saddle = m_saddle->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_saddle = " << m_n_saddle << endreq;
+     (*log) << MSG::INFO << "TileDddbManager: n_saddle = " << m_n_saddle << endmsg;
 
    } else {
      m_buildSaddle = false;
@@ -73,7 +74,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tilb = access->getRecordsetPtr("TILB",m_tag,m_node);
   m_n_tilb = m_tilb->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tilb = " << m_n_tilb << endreq;
+  (*log) << MSG::INFO << "TileDddbManager: n_tilb = " << m_n_tilb << endmsg;
 
   m_tigr = access->getRecordsetPtr("TIGR",m_tag,m_node);
   m_n_tigr = m_tigr->size();
@@ -92,7 +93,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
   m_n_tileSwitches = m_tileSwitches->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endreq;
+  (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endmsg;
 
 
   m_EnvNum = 0;
@@ -1713,8 +1714,14 @@ double TileDddbManager::TICLlastrow() const
 
 double TileDddbManager::TICLntilesrow(unsigned int ind) const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("NTILESROW",ind);
+  if(m_currentTicl) {
+    std::ostringstream strInd;
+    strInd << "NTILESROW_" << ind;
+    if (m_currentTicl->isFieldNull(strInd.str()))
+      return 0;
+    else
+      return m_currentTicl->getInt("NTILESROW",ind);
+  }
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning 9999\n";
@@ -1789,5 +1796,20 @@ int TileDddbManager::Ushape() const
       std::cerr << "\nTileDddbManager  ERROR! TileSwitches is not set, returning Ushape= 0\n\n";
       return 0;
     }
+}
+
+
+// check if all A-cells have granularity 0.025
+// in this case number of different cells is at least 139 instead of 64
+bool TileDddbManager::smallA() const
+{
+  return (m_n_ticl > 100);
+}
+
+// check if B and C cells in barrel are separate
+// in this case number of different cells is 80 or 155 instead of 64
+bool TileDddbManager::separateBC() const
+{
+  return ((m_n_ticl>65 && m_n_ticl<85) || m_n_ticl>150);
 }
 

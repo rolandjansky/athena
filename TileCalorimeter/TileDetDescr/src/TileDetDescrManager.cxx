@@ -134,7 +134,7 @@ void TileDetDescrManager::print() const
 
 void TileDetDescrManager::create_elements(MsgStream *log)
 {
-  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endreq;
+  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endmsg;
 
   // resize vectors :
   m_tile_module_vec.resize( (int) m_tile_id->module_hash_max(),0);
@@ -152,6 +152,9 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 
 // For each descriptor :
 
+  bool BCseparate = m_dbManager->separateBC();
+  int granularity = m_dbManager->smallA() ? 4 : 1;
+  
   for (; first != last; ++first) {
     
     TileDetDescriptor* descr = *first;
@@ -166,7 +169,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     int etasign = descr->sign_eta();
     if (side != etasign) {
       (*log) << MSG::ERROR  << "side and eta sign in TileDetDescriptor[" << n_regions 
-             << "] do not match" << endreq;
+             << "] do not match" << endmsg;
     }
     ++n_regions;
     
@@ -192,9 +195,18 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     std::vector<double> depth_in(1);
     std::vector<double> depth_out(1);
 
-    bool gap = (nsamp > (int)TileID::SAMP_E);  
-    for (int isamp=0; isamp<(int)TileID::SAMP_E; ++isamp) {
+    int max_sample = (int)TileID::SAMP_E;
+    bool gap = (nsamp > max_sample);  
+    if (gap && nsamp<16) {
+        BCseparate = true;
+        gap = false;
+        max_sample += 1;
+    }
+    for (int isamp=0; isamp<max_sample; ++isamp) {
 
+      // jump to C-sample in barrel with separate BC
+      if (BCseparate && isamp==(int)TileID::SAMP_E) isamp = max_sample;
+        
       int neta = descr->n_eta(isamp);
       
       if (neta>0) {
@@ -216,6 +228,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         }
       
         CaloCell_ID::CaloSample sample = (CaloCell_ID::CaloSample)(calo_sample0 + isamp);
+        if (isamp>=max_sample) sample = (CaloCell_ID::CaloSample)(calo_sample0 + (int)TileID::SAMP_B); // temporary fix for separate BC
 
         caloDescr = new CaloDetDescriptor(reg_id,(AtlasDetectorID *)m_tile_id,m_cell_id,sample,isamp);
 	//        caloDescr->set_cylindric(emin,emax,phi_min,phi_max,rmin,rmax,zmin,zmax,gap);
@@ -267,8 +280,9 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         zmin = -ztmp;
       }
 
-      double deta    = 0.1;
+      double deta    = 0.1 / granularity;
       int    neta    = (int)((emax-emin)*(1./deta)+0.001);
+
       depth_in[0] = zmin;
       depth_out[0] = zmax;
       CaloCell_ID::CaloSample sample = CaloCell_ID::TileGap3;
@@ -302,10 +316,12 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     
     for (int isamp=0; isamp<nsamp; ++isamp) {
       delr.push_back(descr->dr(isamp));
-      emin = std::min(emin,(double)descr->eta_min(isamp));
-      emax = std::max(emax,(double)descr->eta_max(isamp));
-      rmin = std::min(rmin,(double)(descr->rcenter(isamp)-descr->dr(isamp)/2));
-      rmax = std::max(rmax,(double)(descr->rcenter(isamp)+descr->dr(isamp)/2)); 
+      if (descr->rcenter(isamp) > 0.0 ) {
+        emin = std::min(emin,(double)descr->eta_min(isamp));
+        emax = std::max(emax,(double)descr->eta_max(isamp));
+        rmin = std::min(rmin,(double)(descr->rcenter(isamp)-descr->dr(isamp)/2));
+        rmax = std::max(rmax,(double)(descr->rcenter(isamp)+descr->dr(isamp)/2)); 
+      }
     }
     if (emin < 0.0 ) emin = 0.0; // avoid emin = -0.1 because of D0 in barrel
     if (etasign < 0) {
@@ -320,9 +336,15 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     boost::io::ios_base_all_saver coutsave (std::cout);
     for (int iphi=0; iphi<nphi; ++iphi) {
       
-      if ( m_verbose && ( 0 == iphi ) )
-        std::cout << std::setiosflags(std::ios::fixed)
-                  << std::setw(9) << std::setprecision(2);
+      if ( m_verbose && ( 0 == iphi ) ) {
+        if (granularity>1) {
+          std::cout << std::setiosflags(std::ios::fixed)
+                    << std::setw(10) << std::setprecision(3);
+        } else {
+          std::cout << std::setiosflags(std::ios::fixed)
+                    << std::setw(9) << std::setprecision(2);
+        }
+      }
 
       int module = iphi; // we count modules from 0 to N always
 
@@ -358,7 +380,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         (*log) << MSG::ERROR  << "can't build module ID from ("
                << section << ","
                << side << ","
-               << module << ")" << endreq;
+               << module << ")" << endmsg;
         continue;
       }
       
@@ -368,7 +390,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 
         if (neta>0) {
 
-          int sample = std::min(isamp,(int)TileID::SAMP_E); // all gap scin are in sampling 3
+          int sample = (nsamp<16) ? isamp : std::min(isamp,(int)TileID::SAMP_E); // all gap scin are in sampling 3
           double rcenter = descr->rcenter(isamp);
           double dr      = descr->dr(isamp);
 
@@ -377,7 +399,8 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 
           for (int ieta=0; ieta<neta; ++ieta) {
 
-            int tower = (int)((eta + 0.01) * 10); // tower number in 0.1 granularity
+            int tower = (int)((eta + 0.01/granularity) * 10*granularity); // tower number in 0.1 or 0.025 granularity
+            if (sample==(int)TileID::SAMP_D && section==(int)TileID::GAPDET && granularity > 1) tower=int(tower/granularity)*granularity;
 
             try {
               Identifier id = m_tile_id->cell_id(section,side,module,tower,sample);
@@ -389,7 +412,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 //                     << section << "," << side << "," << module << ","
 //                     << tower << "," << sample << ") ("
 //                     << eta*etasign << "," << phi  << "," << rcenter << ") ("
-//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endreq;
+//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endmsg;
 
               TileDetectorElement* elt = new TileDetectorElement(
                 idhash, TileHWID::NOT_VALID_HASH, TileHWID::NOT_VALID_HASH, modDescr);
@@ -447,16 +470,23 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 		elt->set_dr(dr);
               }
               
-	      // Temporary solution for cell volumes
-	      if(section == TileID::BARREL && side == -1 && ieta == 0 && sample == 2)
-                ++volumeIndex; // skip D0 in negagive side
-	      if(section == TileID::BARREL)
-		elt->set_volume(vBarrelCells[volumeIndex++]);
-	      else if(section == TileID::EXTBAR)
-		elt->set_volume(vExtendedCells[volumeIndex++]);
-	      else if(section == TileID::GAPDET)
-		elt->set_volume(vItcGapCells[volumeIndex++]);
-
+              if (granularity > 1 || BCseparate) {
+                if(section == TileID::GAPDET && volumeIndex<6)
+                  elt->set_volume(vItcGapCells[volumeIndex++]);
+                else 
+                  elt->set_volume(1.); // don't use any hardcoded values, volume will be calculated later
+              } else {
+                // Temporary solution for cell volumes - works only for default geometry
+                if(section == TileID::BARREL && side == -1 && ieta == 0 && sample == 2)
+                  ++volumeIndex; // skip D0 in negagive side
+                if(section == TileID::BARREL)
+                  elt->set_volume(vBarrelCells[volumeIndex++]);
+                else if(section == TileID::EXTBAR)
+                  elt->set_volume(vExtendedCells[volumeIndex++]);
+                else if(section == TileID::GAPDET)
+                  elt->set_volume(vItcGapCells[volumeIndex++]);
+              }
+              
 	      // ----------------- Final solution for cell volumes
               if (cell_dim) {
 
@@ -492,7 +522,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
                                        +cell_dim->getZMax(ic)   // to get BC cells 
                                        -cell_dim->getZMin(ic)); // size and position right
 
-                if(section == TileID::BARREL && sample==1 && tower < 8) {
+                if(section == TileID::BARREL && sample==1 && tower < 8*granularity && !BCseparate) {
                   if ( m_verbose && (0 == iphi) )
                     std::cout<<"old z/dz: " << oldz << " " << olddz << std::endl
                              <<"new z/dz: " << z << " " << dz << " "
@@ -506,7 +536,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
                     std::cout<<"old z/dz: " << oldz << " " << olddz << std::endl
                              <<"new z/dz: " << elt->z() << " " << elt->dz() << " "
                              << elt->z()/oldz*100-100 << " % diff "
-                             <<"do not change z/dz for BC cells in barrel"<<std::endl;
+                             <<"use z/dz from sample descriptor for E cells in ext.barrel"<<std::endl;
 		  
 		} else {
 		  //                  elt->set_z_pos_and_size(z,dz);
@@ -538,10 +568,34 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 		//
 		//    ps cutout region in ext. barrel
 		//
+                bool A13=false, A16=false, A16prev=false, cuttedTower = false;
+                bool defaultGeometry = (granularity == 1);
+                if (defaultGeometry) {
+                  A13 = (tower==12);
+                  A16 = (tower==15);
+                  cuttedTower = (tower == 11) || A13 || A16;
+                } else {
+                  A13 = (tower==51);     // actually cell A52 (last sub-cell in A13)
+                  A16 = (tower==63);     // actually cell A64 (last cell)
+                  A16prev = (tower==62); // actually cell A63
+                  int cutTowers[]={44,45,46,47, 48,49,50,51, 62,63}; // A12 or A13 or last two sub-cells in A16
+                  for(auto i : cutTowers)
+                  {
+                    if(i==tower) 
+                    {
+                      cuttedTower = true;
+                      break; 
+                    }
+                  }
+                }
+                bool A16all = (A16 || A16prev);
+                bool A16plate = (A16 && m_dbManager->addPlatesToCell());
+
 		int ModuleNcp = module + 1;
 
-		if ( ( section == TileID::EXTBAR ) && ( TileID::SAMP_A == sample ) && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)) && ( (tower == 11) || (tower == 12) || (tower == 15) ) )
-		  {
+		if ( ( section == TileID::EXTBAR ) && ( TileID::SAMP_A == sample ) &&
+                     ( (ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62) ) && cuttedTower )
+		{
 		    double oldv=elt->volume();
 
 		    if ( m_verbose ) {
@@ -564,100 +618,121 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 		    double  Radius2HL = tan ( M_PI / 64. );
 		    
 		    m_dbManager->SetCurrentSection(TileID::EXTBAR);
-		    double epThickness = 0.0; // only used for tower == 15
-		    double epVolume    = 0.0; // only used for tower == 15
-		    if ( tower == 15 ) epThickness = m_dbManager->TILBdzend2() * CLHEP::cm;
-		    
+                    double epThickness = ( A16plate ) ? m_dbManager->TILBdzend2() * CLHEP::cm : 0.0;
+		    double epVolume    = 0.0; // only used for A16 with end-plate
+
 		    double volumeInRow[5];  // book large array
 		    for (int iRow = 0; iRow < 5; iRow++) volumeInRow[iRow] = 0.;
 		    
-
 		    for (unsigned int iRow = 0; iRow < cell_dim->getNRows(); iRow++)
 		      {
 			double rowVolume = cell_dim->computeRowVolume(iRow);
 			double oldrv = rowVolume;
-			
-			if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << std::endl; 
-			
+						
 			double radMax =  cell_dim->getRMax(iRow), radMin = cell_dim->getRMin(iRow);
 			double deltaZ =  cell_dim->getZMax(iRow) - cell_dim->getZMin(iRow);
+                        double nPeriods = int(deltaZ/(9.*CLHEP::mm))/2.;
 			
 			if (m_verbose) 
-			  std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" rowVolume = "<<rowVolume<<" oldrv = "<<oldrv<<" irow = "<<iRow<<" tower = "<<tower<< std::endl;
+			  std::cout<<"module = "<<module<<" tower = "<<tower<<" irow = "<<iRow
+                                   <<" :\n *** deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin
+                                   << " nPeriods " << nPeriods <<" Row volume = "<<oldrv<<std::endl;
 
-			if ( 15 == tower ) 
-			  {
-			    if ( m_dbManager->addPlatesToCell() )
-			      {
-				epVolume   = ( rowVolume/deltaZ ) * epThickness;
-				rowVolume -= epVolume;
-				deltaZ -= epThickness;
+			if ( A16all ) // (A16) or (A63,A64)
+			{
+                          if ( A16plate )
+		          {
+                            epVolume   = ( rowVolume/deltaZ ) * epThickness;
+                            rowVolume -= epVolume;
+                            deltaZ -= epThickness;
 
-				if (m_verbose) std::cout <<" \t\t epV = "<<epVolume<<" epT = "<<epThickness << " diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<<std::endl;
-			      }
-			    
-			    volumeInRow[iRow] += (rowVolume * (32./48) );  // the remaining 32 periods which are not cutted out
-			    deltaZ    *= 16./48.;                        // dz of the cutted part
-			    rowVolume *= 16./48.;                        // volume of the cutted part of the cell, but before cut
-			    if (m_verbose) std::cout <<" *** 15 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] <<"diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  }
-			else if ( 12 == tower ) 
-			  {
-			    volumeInRow[iRow] += (rowVolume * (2./25) );   // the remaining 2 periods which are not cutted out
-			    deltaZ    *= 23./25.;                        // dz of the cutted part
-			    rowVolume *= 23./25.;                        // volume of the cutted part of the cell, but before cut
-			    if (m_verbose) std::cout <<" *** 12 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  }
-			
-			if (m_verbose) std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" changed dz ?"<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
-			
+                            if (m_verbose) std::cout <<" *** addPlatesToCell() is true; epV = "<<epVolume<<" epT = "<<epThickness <<std::endl;
+                          }
+
+                          if ( defaultGeometry )
+                          {
+			    volumeInRow[iRow] += rowVolume * 32./48.;   // the remaining 32 periods which are not cutted out
+			    deltaZ    *= 16./48.;                       // dz of the cutted part
+			    rowVolume *= 16./48.;                       // volume of the cutted part of the cell, but before cut
+                          }
+                          else if ( A16prev ) // A63 only; A64 is completely cut out
+                          {
+                            volumeInRow[iRow] += rowVolume * 8./12.;    // the remaining 8 periods which are not cutted out
+                            deltaZ    *= 4./12.;                        // dz of the cutted part
+                            rowVolume *= 4./12.;                        // volume of the cutted part of the cell, but before cut
+                          }
+                        }
+                        else if ( A13 ) // A13 or A52 only; A12 and A49,A50,A51 are completely cut out 
+                        {
+                          if ( defaultGeometry )
+                          {
+                            volumeInRow[iRow] += rowVolume * 2./25.;    // the remaining 2 periods which are not cutted out
+                            deltaZ    *= 23./25.;                       // dz of the cutted part
+                            rowVolume *= 23./25.;                       // volume of the cutted part of the cell, but before cut
+                          }
+                          else
+                          {
+                            volumeInRow[iRow] += rowVolume * 2./6.5;    // the remaining 2 periods which are not cutted out
+                            deltaZ    *= 4.5/6.5;                       // dz of the cut part
+                            rowVolume *= 4.5/6.5;                       // volume of the cutted part of the cell, but before cut
+                          }
+                        }
+						
 			if ( (ModuleNcp == 61) || (ModuleNcp == 36) )
-			  {
-			    if ( iRow == 0 ) 
+			{
+			    if ( iRow == 0 )
+                            {
 			      rowVolume = 0.; 
+                            }
 			    else if ( iRow == 1 ) 
-			      {
-				if (15 != tower) 
-				  {
-				    rowVolume = 2.*radMax + radMin;
-				    rowVolume *= 0.5*(radMax - radMin);
-				    rowVolume *= Radius2HL * deltaZ;
-				  }
-				else
-				  {
-				    rowVolume += epVolume;
-				  }
-			      }
-			    else if (15 == tower) rowVolume += epVolume;
+                            {
+                              if ( A16all )
+                              {
+                                rowVolume += epVolume; // adding volume of cutted endplate; actually, epVolume>0 for A16plate only
+                                if (m_verbose && epVolume!=0.0) std::cout<<" *** endplate volume added; epV = "<<epVolume<<" epT = "<<epThickness<<std::endl;
+                              }
+                              else
+                              {
+                                rowVolume = 2.*radMax + radMin;
+                                rowVolume *= 0.5*(radMax - radMin);
+                                rowVolume *= Radius2HL * deltaZ;
+                              }
+                            }
+			    else if ( A16plate )
+                            {
+                              rowVolume += epVolume;
+                              if (m_verbose) std::cout<<" *** endplate volume added; epV = "<<epVolume<<" epT = "<<epThickness<<std::endl;
+                            }
 
 			    volumeInRow[iRow] += rowVolume;
-			    
-			    if (m_verbose)
-			      std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  } // Module 61  36
+                        } // Module 61  36
 			
 			if ( (ModuleNcp == 62) || (ModuleNcp == 35) )
 			  {
 			    if ( iRow == 0 ) 
-			      {
-				if (15 == tower) 
-				  {
-				    rowVolume = radMax + radMin;
-				    rowVolume *= (radMax - radMin);
-				    rowVolume -= 0.5*radMin*(27*CLHEP::mm);
-				    rowVolume *= Radius2HL *  ( deltaZ + epThickness ); // adding volume of cutted endplate
-				  }
-				else
-				  {
-				    rowVolume = radMax - radMin - 35*CLHEP::mm;
-				    rowVolume *= (radMax + radMin);
-				    rowVolume *= Radius2HL * deltaZ;
-				  }
-			      }
-			    else if (15 == tower) rowVolume += epVolume;
+                            {
+                              if ( A16all ) 
+                              {
+                                rowVolume = radMax + radMin;
+                                rowVolume *= (radMax - radMin);
+                                rowVolume -= 0.5*radMin*(27*CLHEP::mm);
+                                rowVolume *= Radius2HL *  ( deltaZ + epThickness ); // adding volume of cutted endplate; actually, epThickness>0 for A15plate only
+                                if (m_verbose && epThickness!=0.0) std::cout<<" *** endplate volume added; epV = "<<epVolume<<" epT = "<<epThickness<<std::endl;
+                              }
+                              else 
+                              {
+                                rowVolume = radMax - radMin - 35*CLHEP::mm;
+                                rowVolume *= (radMax + radMin);
+                                rowVolume *= Radius2HL * deltaZ;
+                              }
+                            }
+			    else if ( A16plate )
+                            {
+                              rowVolume += epVolume;
+                              if (m_verbose) std::cout<<" *** endplate volume added; epV = "<<epVolume<<" epT = "<<epThickness<<std::endl;
+                            }
 			    
 			    volumeInRow[iRow] += rowVolume;
-			    if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
 			  } // Module 62  35
 			
 			if ( (ModuleNcp == 60) || (ModuleNcp == 37) )
@@ -665,40 +740,44 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 			    double deltax = 38.7*std::cos(25.3125*CLHEP::deg); 
 			    double pstan  = std::tan(25.3125*CLHEP::deg);
                             double inv_pstan = 1. / pstan;
-			    if ( ( 15 == tower ) )
-			      {
-				if ( iRow < 2 ) 
-				  rowVolume = 0;
-				else
-				  rowVolume += epVolume;
-			      }
-			    else if ( iRow == 0 ) 
-			      {
-				rowVolume  = (radMax  + radMin) * Radius2HL ;
-				
-				rowVolume +=  2.*deltax + (radMax - radMin)* pstan ;
-				
-				//	std::cout <<"\t\t\t test = "<<( 2.*deltax + (radMax - radMin)* pstan)/(radMax  + radMin)* Radius2HL<<" dx = "<<deltax<<" rmin = "<<radMin<<" rmax = "<<radMax<<" pstan = "<<pstan<<std::endl; 
 
-				rowVolume *= 0.5 * (radMax - radMin) * deltaZ;
+			    if ( A16all )
+			    {
+                              if( iRow < 2 )
+                              {
+                                rowVolume = 0;
+                              }
+                              else if ( A16plate )
+                              {
+                               	rowVolume += epVolume;
+                                if (m_verbose) std::cout<<" *** endplate volume added; epV = "<<epVolume<<" epT = "<<epThickness<<std::endl;
+                              }
+                            }
+                            else if ( iRow == 0 ) 
+                            {
+                              rowVolume  = (radMax  + radMin) * Radius2HL ;
+                              rowVolume +=  2.*deltax + (radMax - radMin)* pstan ;
+	
+                              //std::cout <<"\t\t\t test = "<<( 2.*deltax + (radMax - radMin)* pstan)/(radMax  + radMin)* Radius2HL<<" dx = "<<deltax<<" rmin = "<<radMin<<" rmax = "<<radMax<<" pstan = "<<pstan<<std::endl; 
 
+                              rowVolume *= 0.5 * (radMax - radMin) * deltaZ;
 				//rowVolume *=  (radMax - radMin) * Radius2HL * deltaZ;
-			      }
-			    else if ( iRow == 1 )
-			      {
-				double radMin0 = cell_dim->getRMin(0);
-				rowVolume  = (radMax  + radMin) * Radius2HL;
-				rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
-				rowVolume *= 0.5 * (radMax - radMin) ;
-				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
-				rowVolume *= deltaZ;
-			      }
-
+                            }
+                            else if ( iRow == 1 )
+                            {
+                              double radMin0 = cell_dim->getRMin(0);
+                              rowVolume  = (radMax  + radMin) * Radius2HL;
+                              rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
+                              rowVolume *= 0.5 * (radMax - radMin) ;
+                              rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
+                              rowVolume *= deltaZ;
+                            }
 			    volumeInRow[iRow] += rowVolume;
-			    if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
 			  } // Module 60  37
-			
-			if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
+
+                          if (m_verbose)
+                            std::cout <<" *** New row volume = "<< volumeInRow[iRow] << " Old row volume = " << oldrv 
+                                      <<" diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<<" %"<< std::endl;			
 		      } // for iRow
 
 		    
@@ -713,10 +792,9 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 				<< elt->volume()/oldv*100-100 << " % diff" 
 				<<std::endl;
 		    
-		    
 		    if ( m_verbose ) std::cout <<"-----------------------------------------------"<< std::endl;
 		  }
-		//
+                //
 		//    ps special D4  
 		//
  		if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_D) )
@@ -795,7 +873,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 		//
 		// ps special D5+D4
 		//
-		if ( (section == TileID::EXTBAR) && (sample == TileID::SAMP_D) && (tower == 10) )
+		if ( (section == TileID::EXTBAR) && (sample == TileID::SAMP_D) && (tower == 10*granularity) )
 		  {
 		    //this is needed to read special D4 type and its size
 		    if (side == -1) m_dbManager->SetCurrentEnvByType(4);
@@ -842,7 +920,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
             } catch ( TileID_Exception ) {
               (*log) << MSG::ERROR << "can't build cell ID from ("
                      << section << "," << side << "," << module << ","
-                     << tower << "," << sample << ")" << endreq;
+                     << tower << "," << sample << ")" << endmsg;
             }
             eta += deta;
           }
@@ -856,7 +934,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
          << n_cells << " cells and " 
          << n_modules << " half-modules were created for " 
          << n_regions << " Tile Regions" 
-         << endreq;
+         << endmsg;
 }
 
 

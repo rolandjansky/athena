@@ -254,9 +254,16 @@ class TileDddbManager
   double TICLnpmt() const;
   double TICLholes(unsigned int ind) const;
 
+  // check if all A-cells have granularity 0.025
+  bool smallA() const;
+    
+  // check if B and C cells in barrel are separate
+  bool separateBC() const;
+
   // fields of tile switches
   bool addPlatesToCell() const;
   int  Ushape()  const;
+
  private:
 
   IRDBRecordset_ptr m_tiglob;
