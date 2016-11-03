@@ -197,7 +197,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
   if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
 
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
     return;
   }
  
@@ -218,7 +218,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
     if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
 
     if (!element2) {
-      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
+      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
       break;
     } 
 
@@ -284,7 +284,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
    
   if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
     return;
   } 
   for (; clusters1Next!=clusters1Finish; ++clusters1Next){
@@ -301,7 +301,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
     const InDetDD::SiDetectorElement *element2 =0;
     if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
     if (!element2) {
-      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
+      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
       break;
     } 
     if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
@@ -345,7 +345,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   const InDetDD::SiDetectorElement *element1 =0;
   if ( (*clusters1Next) && (clusters1Next!=clusters1Finish)) element1= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
     return;
   } 
   
@@ -362,7 +362,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
       const InDetDD::SiDetectorElement *element2 =0;
       if (*clusters2Next&&(clusters2Next != clusters2Finish)) element2 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
       if (!element2) {
-	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
+	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
 	break;
       }
  
