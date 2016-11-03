@@ -14,8 +14,9 @@
 #ifndef  ROIUTIL_H
 #define  ROIUTIL_H
 
-#include "IRegionSelector/IRoiDescriptor.h"
+// #include "IRegionSelector/IRoiDescriptor.h"
 
+class IRoiDescriptor;
 
 namespace RoiUtil { 
 
@@ -39,6 +40,10 @@ double etacheck(double eta);
 double zedcheck(double zed);
 
 }
+
+bool operator==( const IRoiDescriptor& roi0, const IRoiDescriptor& roi1 );
+bool operator!=( const IRoiDescriptor& roi0, const IRoiDescriptor& roi1 );
+
 
 
 
