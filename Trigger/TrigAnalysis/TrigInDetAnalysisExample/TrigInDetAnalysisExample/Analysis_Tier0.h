@@ -73,7 +73,6 @@ class Analysis_Tier0 : public TrackAnalysis {
 
   TProfile* h_vtxlbeff;
 
-
   TProfile* h_pTres;
   TProfile* h_ipTres;
   TProfile* h_etares;
@@ -97,6 +96,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_ntrtvseta;
   TProfile* h_ntrtvsphi;
 
+  TProfile* h_nsihits_lb;
+
   TProfile* h_npixvseta_rec;
   TProfile* h_npixvsphi_rec;
   TProfile* h_npixvsd0_rec;
@@ -108,6 +109,7 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_ntrtvseta_rec;
   TProfile* h_ntrtvsphi_rec;
 
+  TProfile* h_nsihits_lb_rec;
 
   TProfile* h_d0vsphi;
   TH2F*     h2d_d0vsphi;

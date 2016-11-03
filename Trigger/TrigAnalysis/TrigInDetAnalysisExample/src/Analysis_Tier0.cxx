@@ -160,6 +160,12 @@ void Analysis_Tier0::initialise() {
 
 
 
+  h_nsihits_lb     = new TProfile( "nsihits_lb",     "offline n sihits vs lumiblock", 301, -0.5, 3009.5 );
+  h_nsihits_lb_rec = new TProfile( "nsihits_lb_rec", "trigger n sihits vs lumiblock", 301, -0.5, 3009.5 );
+
+  addHistogram( h_nsihits_lb );
+  addHistogram( h_nsihits_lb_rec );
+
 
 
 
@@ -376,6 +382,8 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_nsihits->Fill(  (*reference)->siHits() ); 
     h_ntrt->Fill(  (*reference)->strawHits() ); 
    
+
+    h_nsihits_lb->Fill( event()->lumi_block(), (*reference)->siHits() ); 
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
     //   h2d_d0vsphi->Fill(referencePhi, referenceD0 );
@@ -405,7 +413,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkvtx_x_lb->Fill( event()->lumi_block(), beamTestx() );
       h_trkvtx_y_lb->Fill( event()->lumi_block(), beamTesty() );
       h_trkvtx_z_lb->Fill( event()->lumi_block(), beamTestz() );
- 
+
       //      std::cout << "SUTT beam x " << beamTestx() << " " << "\tx " << beamTesty() << " " <<  "\ty " << beamTestz() << std::endl;
 
 #if 0
@@ -417,7 +425,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkz0_rec->Fill( referenceZ0 );
      
 #endif
- 
+
       /// test track distributions for test tracks with a reference track match 
       h_trkpT_rec->Fill( std::fabs(test->pT())*0.001 );
       h_trketa_rec->Fill( test->eta() );
@@ -457,7 +465,10 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_npix_rec->Fill(  int((test->pixelHits()+0.5)*0.5) ); 
       h_nsct_rec->Fill(  test->sctHits() ); 
       h_nsihits_rec->Fill(  test->siHits() ); 
+
+      h_nsihits_lb_rec->Fill( event()->lumi_block(), test->siHits() ); 
     
+ 
       h_ntrt_rec->Fill(  test->strawHits() ); 
 
       h_ntrtvseta_rec->Fill( referenceEta, test->strawHits() ); 
