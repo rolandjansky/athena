@@ -70,9 +70,9 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
 {
   if ( 0 == in || 0 == out ) {
     msg(MSG::ERROR)
-      << "Invalid pointer to McEventCollection !" << endreq
-      << "  in: " << in << endreq
-      << " out: " << out << endreq;
+      << "Invalid pointer to McEventCollection !" << endmsg
+      << "  in: " << in << endmsg
+      << " out: " << out << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -83,8 +83,8 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
         << "Could not launch filtering procedure for GenEvent number ["
         << iEvt << "] from McEventCollection ["
         << m_mcEventsName << " !!"
-        << endreq
-        << "  inEvt: " << inEvt << endreq;
+        << endmsg
+        << "  inEvt: " << inEvt << endmsg;
       continue;
     }
     HepMC::GenEvent* outEvt = new HepMC::GenEvent( inEvt->signal_process_id(), 
@@ -105,7 +105,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
       msg(MSG::ERROR)
 	<< "Could filter GenEvent number [" << iEvt 
 	<< "] from McEventCollection ["     << m_mcEventsName 
-	<< "] !!" << endreq;
+	<< "] !!" << endmsg;
       delete outEvt;
       outEvt = 0;
       continue;
@@ -130,9 +130,9 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 {
   if ( 0 == in || 0 == out ) {
     msg(MSG::ERROR)
-      << "Invalid pointer to GenEvent !!" << endreq
-      << "  in: " << in << endreq
-      << " out: " << out << endreq;
+      << "Invalid pointer to GenEvent !!" << endmsg
+      << "  in: " << in << endmsg
+      << " out: " << out << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -149,7 +149,7 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
     
     if ( addVertex( *vtx, out ).isFailure() ) {
       msg(MSG::WARNING)
-	<< "Could not add vertex [" << (*vtx)->barcode() << "]" << endreq;
+	<< "Could not add vertex [" << (*vtx)->barcode() << "]" << endmsg;
     }
   } //> end loop over vertices
   
@@ -181,9 +181,9 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 {
   if ( 0 == srcVtx || 0 == evt ) {
     msg(MSG::ERROR)
-      << "In addVertex(vtx,evt) : INVALID pointer given !!" << endreq
-      << " vtx: " << srcVtx << endreq
-      << " evt: " << evt << endreq;
+      << "In addVertex(vtx,evt) : INVALID pointer given !!" << endmsg
+      << " vtx: " << srcVtx << endmsg
+      << " evt: " << evt << endmsg;
     return StatusCode::FAILURE;
   }
 

@@ -107,8 +107,8 @@ StatusCode OldSpclMcFilterTool::buildMcAod( const McEventCollection* in,
 					    McEventCollection* out )
 {
   if ( 0 == in || 0 == out ) {
-    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endreq
-		  << "  in: " << in << endreq
+    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endmsg
+		  << "  in: " << in << endmsg
 		  << " out: " << out);
     return StatusCode::FAILURE;
   }
@@ -352,7 +352,7 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	    << p->barcode() << "]" 
 	    << "\tprod/endVtx: " << pvtx 
 	    << "/"  << evtx 
-	    << endreq;
+	    << endmsg;
 	  std::list<int>::const_iterator pNext = itrBc;
 	  ++pNext;
 	  if ( pNext != evtBarcodes.end() ) {
@@ -364,7 +364,7 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	if (evtx) { // if it has end vertex, may need to move the out partilces
 	  if(pvtx){ // move the partilces back
 	    if ( msgLvl(MSG::DEBUG) ) {
-	      msg(MSG::DEBUG) << "\tin endVtx   "<< endreq;
+	      msg(MSG::DEBUG) << "\tin endVtx   "<< endmsg;
 	    }
 	    while ( evtx->particles_out_const_begin() !=  evtx->particles_out_const_end()) {
 	      HepMC::GenVertex::particles_out_const_iterator np = evtx->particles_out_const_begin();
@@ -382,11 +382,11 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	  }
 
 	  if ( bcNext.first != bcNext.second ) {
-	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endreq
+	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endmsg
 			    << "\tbcNext: " << bcNext.first
 			    << " --> " << bcNext.second);
 	  } else {
-	    ATH_MSG_DEBUG("\tIterator OK:" << endreq
+	    ATH_MSG_DEBUG("\tIterator OK:" << endmsg
 			  << "\tbcNext: " << bcNext.first
 			  << " --> " << bcNext.second);
 	  }
@@ -451,8 +451,8 @@ StatusCode OldSpclMcFilterTool::reconnectParticles( const McEventCollection* in,
 						    McEventCollection* out )
 {
   if ( 0 == in || 0 == out ) {
-    ATH_MSG_ERROR("Invalid pointer to McEventCollection !!" << endreq
-		  << "  in: " << in << endreq
+    ATH_MSG_ERROR("Invalid pointer to McEventCollection !!" << endmsg
+		  << "  in: " << in << endmsg
 		  << " out: " << out);
     return StatusCode::FAILURE;
   }
@@ -476,7 +476,7 @@ StatusCode OldSpclMcFilterTool::reconnectParticles( const McEventCollection* in,
       } else if ( msgLvl(MSG::VERBOSE) ) {
 	msg(MSG::VERBOSE)
 	  << "==========================================================="
-	  << endreq
+	  << endmsg
 	  << "Production vertex for particle " 
 	  << (*itrPart)->barcode() << " : ";
 	if ( (*itrPart)->production_vertex() ) {
@@ -484,9 +484,9 @@ StatusCode OldSpclMcFilterTool::reconnectParticles( const McEventCollection* in,
 	  (*itrPart)->production_vertex()->print(prodVtx);
 	  msg(MSG::VERBOSE) << std::endl
 			    << prodVtx.str()
-			    << endreq;
+			    << endmsg;
 	} else {
-	  msg(MSG::VERBOSE) << "[No production vertex]" << endreq;
+	  msg(MSG::VERBOSE) << "[No production vertex]" << endmsg;
 	}
 	
 	msg(MSG::VERBOSE) << "Decay vertex for particle " 
@@ -496,10 +496,10 @@ StatusCode OldSpclMcFilterTool::reconnectParticles( const McEventCollection* in,
 	  (*itrPart)->end_vertex()->print(dcyVtx);
 	  msg(MSG::VERBOSE) << std::endl
 			    << dcyVtx.str()
-			    << endreq;
+			    << endmsg;
 	} else {
-	  msg(MSG::VERBOSE) << endreq
-			    << "[No decay vertex]" << endreq;
+	  msg(MSG::VERBOSE) << endmsg
+			    << "[No decay vertex]" << endmsg;
 	}
       }//> end VERBOSE messages
       
@@ -606,7 +606,7 @@ StatusCode OldSpclMcFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 		    << "found a particle [bc,pdgId]= "
 		    << (*itrPart)->barcode() << ", "
 		    << "but its production vertex has incoming particles !"
-		    << endreq;
+		    << endmsg;
 		  continue;
 		}
 		// create a GenVertex which will be the decay vertex of our
@@ -619,16 +619,16 @@ StatusCode OldSpclMcFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 		
 		msg(MSG::ERROR)
 		  << "====================================================="
-		  << endreq
+		  << endmsg
 		  << "Created a GenVertex - link !"
 		  << std::endl;
 		std::stringstream vtxLink("");
 		linkVtx->print(vtxLink);
 		msg(MSG::ERROR)
 		  << vtxLink.str()
-		  << endreq
+		  << endmsg
 		  << "====================================================="
-		  << endreq;
+		  << endmsg;
 	      }
 	    }
 	  }
@@ -640,7 +640,7 @@ StatusCode OldSpclMcFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 	msg(MSG::WARNING) << "Odd situation:" << std::endl;
 	std::stringstream vtxDump( "" );
 	childVtx->print(vtxDump);
-	msg(MSG::WARNING) << vtxDump.str() << endreq;
+	msg(MSG::WARNING) << vtxDump.str() << endmsg;
 	return StatusCode::SUCCESS;
       }//> end if incoming particles
     }//> found a child-vertex

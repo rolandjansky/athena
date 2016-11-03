@@ -155,8 +155,8 @@ SpclMcValidationTool::executeTool( const McEventCollection* mcEvents,
 
   if ( static_cast<int>( mcParts->size() ) != genEvt->particles_size() ) {
     ATH_MSG_ERROR("TruthParticleContainer and McEventCollection don't have "\
-		  "the same number of particles !!" << endreq
-		  << "\tTruthParticleContainer: " << mcParts->size() << endreq
+		  "the same number of particles !!" << endmsg
+		  << "\tTruthParticleContainer: " << mcParts->size() << endmsg
 		  << "\tHepMC::GenEvent:        " << genEvt->particles_size());
     return StatusCode::FAILURE;
   }

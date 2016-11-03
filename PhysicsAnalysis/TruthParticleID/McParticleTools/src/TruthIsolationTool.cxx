@@ -130,7 +130,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
   const McEventCollection* mcEvts = 0;
   if ( !evtStore()->retrieve( mcEvts, mcEvtName ).isSuccess() ) {
     ATH_MSG_WARNING("Could not retrieve a McEventCollection at ["
-		    << mcEvtName << "] !!" << endreq
+		    << mcEvtName << "] !!" << endmsg
 		    << "No Et-isolations will be computed !");
     return StatusCode::RECOVERABLE;
   }
@@ -173,7 +173,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
       msg(MSG::WARNING)
 	<< "Problem encountered while computing Et-isolations for idx=["
 	<< iMc << "] of McEventCollection [" << mcEvtName << "] !!"
-	<< endreq;
+	<< endmsg;
       allGood = false;
     }
   }
@@ -191,7 +191,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
     msg(MSG::WARNING)
       << "Null pointer to GenEvent (idx = [" << genIdx << "] from "
       << "McEventCollection [" << mcEvtName << "]) !!"
-      << endreq;
+      << endmsg;
     return StatusCode::RECOVERABLE;
   }
 

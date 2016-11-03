@@ -186,7 +186,7 @@ void HepMcWriterTool::setupBackend( Property& /*prop*/ )
                                           std::ios::out | std::ios::trunc );
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endreq
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
 		    << "Will use [ascii] instead...");
     protocol = "ascii";
     m_ioBackend = new HepMC::IO_GenEvent( fileName.c_str(),
