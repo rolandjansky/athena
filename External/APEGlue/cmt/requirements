@@ -26,3 +26,4 @@ path_remove PATH "/APE/"
 path_append PATH "${APE_bin}"
 
 macro APEGlue_export_paths "${APE_home}"
+
