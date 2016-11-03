@@ -19,6 +19,17 @@ def _extract(eta_range):
     return (match.group('eta_min'), match.group('eta_max'))
 
 
+def signflip(a, b):
+    ta = min(-a, -b)
+    tb = max(-a, -b)
+    return ta, tb
+
+def signflipstr(a, b):
+    fa = '-'+ b
+    fb = '-'+ a
+    
+    return fa, fb
+
 def eta_string_to_floats(eta_range):
 
     eta_min, eta_max = _extract(eta_range)
@@ -33,14 +44,26 @@ def eta_string_to_floats(eta_range):
         )
         raise RuntimeError(msg)
 
+    if eta_range.startswith('n'):
+        eta_min, eta_max = signflip(eta_min, eta_max)
+
     return eta_min, eta_max
 
 def eta_string_to_ints(eta_range):
 
     eta_min, eta_max = _extract(eta_range)
-    return int(eta_min), eta_max
+    eta_min = int(eta_min)
+    eta_max = int(eta_max)
+
+    if eta_range.startswith('n'):
+        eta_min, eta_max = signflip(eta_min, eta_max)
+
+    return eta_min, eta_max
 
 def eta_string_to_strings(eta_range):
 
-    return _extract(eta_range)
-
+    eta_min, eta_max = _extract(eta_range)
+    if eta_range.startswith('n'):
+        eta_min, eta_max =  signflipstr(eta_min, eta_max)
+        
+    return eta_min, eta_max

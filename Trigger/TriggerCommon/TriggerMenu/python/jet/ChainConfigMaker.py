@@ -22,6 +22,9 @@ class JetAttributes(object):
         # eta_min, eta_max are floats
         self.eta_min, self.eta_max = eta_string_to_floats(eta_range)
 
+        self.asymmetricEta = 1 if (eta_range.startswith('n') or
+                                   eta_range.startswith('p')) else 0
+                                      
     def __str__(self):
         return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
                                                        str(self.eta_min),
@@ -317,7 +320,7 @@ class ChainConfigMaker(object):
         # 16/04/10 switch to using TrigHLTJetHypo2 for non-test4 chains
         # and TrigHLTJetHypo for test4 chains (reverses previous order)
         hypo_type = {('j', '', False, False): 'HLThypo2_etaet',
-                     ('j', 'test1', False, False): 'run1hypo',
+                     ('j', 'test1', False, False): 'HLThypo2_etaet',
                      ('j', 'test2', False, False): 'HLTSRhypo',
                      ('j', 'test4', False, False): 'HLThypo',
                      # set up jets normally, dijet hypo appended:

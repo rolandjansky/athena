@@ -379,6 +379,7 @@ class AlgFactory(object):
         eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
         eta_maxs = [ja.eta_max for ja in hypo.jet_attributes]
         EtThresholds = [ja.threshold * GeV for ja in hypo.jet_attributes]
+        asymmetrics = [ja.asymmetricEta for ja in hypo.jet_attributes]
         
         kargs = {
             'name': name,
@@ -386,6 +387,7 @@ class AlgFactory(object):
             'eta_mins': eta_mins,
             'eta_maxs': eta_maxs,
             'EtThresholds': EtThresholds,
+            'asymmetricEtas': asymmetrics, 
             'cleaningAlg': '"%s"' % cleaningAlg, 
         }
 

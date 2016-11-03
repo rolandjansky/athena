@@ -133,6 +133,17 @@ def getL1TauSeed(l1items):
     tau_seeds    = ",".join([ x for x in l1items if "TAU" in x and "-" not in x and  "EMPTY" not in x  and "ISO" not in x])
     return tau_seeds
 
+##############################
+def getL1BSSeed(menul1items):
+    l1_seeds = 'L1_J15,L1_3J15,L1_3J10,L1_4J10'
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1items = l1_seeds.split(',')
+    for item in l1items:
+        if item not in menul1items:
+            log.error('L1 item %s from beamspot seeds is not in current L1 menu' % item)
+            
+    return l1_seeds
+
 
 ##############################
 def getL1MinBiasSeed(l1seed, l1object):
@@ -142,6 +153,8 @@ def getL1MinBiasSeed(l1seed, l1object):
         l1minbias_seeds = ','.join([ x for x in Lvl1ItemByTriggerType(l1object, mb_type, mb_type)])
     return l1minbias_seeds
 
+def getL1JetBS():
+    return 'L1_J15,L1_3J15,L1_3J10,L1_4J10'
 
 ##############################
 def getL1MuonSeed(l1seed, l1object):
@@ -293,6 +306,8 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     l1items = [i.name for i in l1itemobject]
     l1ctpid = [i.ctpid for i in l1itemobject]
     L1Seed = ''
+    if l1seedname == 'L1_J':
+        L1Seed = getL1JetBS()
     if (l1seedname == 'L1_Bkg'):
         L1Seed = getL1BackgroundSeed(l1items)
 #    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
@@ -319,6 +334,9 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 
     elif (l1seedname == 'L1_TAU'):
         L1Seed = getL1TauSeed(l1items)
+
+    elif (l1seedname == 'L1_BS'):
+        L1Seed = getL1BSSeed(l1items)
         
     elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
         L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)

@@ -1246,7 +1246,7 @@ class TopoAlgoDef:
                 
         # LATE MUON
         for x in [     
-            {"otype" : "LATEMU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
+            {"otype" : "LATE-MU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
             ]:
 
             for k in x:

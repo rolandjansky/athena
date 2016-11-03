@@ -325,8 +325,8 @@ def generateHLTChainDef(caller_data):
     #    return
         
     chain_config = None
-    if 'test1' in caller_data['chainName']:
-        msg = 'Chain name error: test1 chains not currently supported'
+    if 'test2' in caller_data['chainName']:
+        msg = 'Chain name error: test2 chains not currently supported'
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary

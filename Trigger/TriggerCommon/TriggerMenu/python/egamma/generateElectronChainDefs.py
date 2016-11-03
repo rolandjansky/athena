@@ -71,21 +71,21 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     if "Jpsiee" in chainDict["topo"]:
         topo2StartFrom = None
         if topoStartFrom:
-            L2ChainName = L2ChainName+'_tsf'
-            topo2StartFrom = L2ChainName
+            #L2ChainName = L2ChainName+'_tsf'
+            #topo2StartFrom = L2ChainName
             EFChainName = EFChainName+'_tsf'
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
 
-        L2Fex = TrigL2DielectronMassFex_Jpsiee()
-        L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
+        #L2Fex = TrigL2DielectronMassFex_Jpsiee()
+        #L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
 
         EFFex = TrigEFDielectronMassFex_Jpsi()
         EFHypo = TrigEFDielectronMassHypo_Jpsi()
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
+        #theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])

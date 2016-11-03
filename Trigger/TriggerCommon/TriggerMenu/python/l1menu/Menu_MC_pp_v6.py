@@ -333,7 +333,7 @@ def defineMenu():
         'KF-XE65-AJall',
         'KF-XE75-AJall',
 
-        'LATEMU10s1',
+        'LATE-MU10s1',
         'SC111-CJ15ab.ETA26',
         'SC85-CJ15ab.ETA26',
         
@@ -788,7 +788,7 @@ def defineMenu():
         ### ATR-15062
         'L1_EM18VH_MJJ-300',
 
-        'L1_LATEMU10_XE50', 'L1_LATEMU10_J50',
+        'L1_LATE-MU10_XE50', 'L1_LATE-MU10_J50',
 
         'L1_SC111',
         'L1_SC85',
@@ -1312,8 +1312,8 @@ def defineMenu():
         'L1_LAR-EM' : 351,
         'L1_LAR-J' : 352,
         'L1_DR-EM15TAU12I' : 353,        
-        'L1_LATEMU10_XE50': 354,
-        'L1_LATEMU10_J50' : 355,
+        'L1_LATE-MU10_XE50': 354,
+        'L1_LATE-MU10_J50' : 355,
         'L1_SC111' : 356,
         'L1_SC85' : 357,
 #SX

@@ -105,7 +105,8 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
+    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490',
+                      '280eta320', '320eta490', 'n320eta490', 'p320eta490'],
     'gscThreshold' : ['gsc400','gsc380','gsc360','gsc110'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3', 'test4',
@@ -297,7 +298,7 @@ METChainParts = {
     'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : [],
+    'addInfo'      : ['FStracks'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -683,7 +684,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun',''],
+    'extra'          : ['rerun','bs',''],
     }
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----

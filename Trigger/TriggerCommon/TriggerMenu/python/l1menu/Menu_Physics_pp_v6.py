@@ -28,7 +28,7 @@ def defineMenu():
 #        '15MINDPHI-EM15s6-XE0':'',
 #        '35MT-EM12s6-XE0':'',
 #        'DISAMB-0DR28-EM15his2-TAU12abi':'',
-#        'LATEMU10s1':'',        
+#        'LATE-MU10s1':'',        
 #        'SC111-CJ15ab.ETA26':'',
 #        'SC85-CJ15ab.ETA26':'',
 #        '10MINDPHI-AJ20s2-XE50': '',
@@ -127,8 +127,8 @@ def defineMenu():
 #        "L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE":'',
 
 #        'L1_DR-EM15TAU12I':'', 
-#        'L1_LATEMU10_XE50':'', 
-#        'L1_LATEMU10_J50':'', 
+#        'L1_LATE-MU10_XE50':'', 
+#        'L1_LATE-MU10_J50':'', 
 #        'L1_SC111':'', 
 #        'L1_SC85':'',
 

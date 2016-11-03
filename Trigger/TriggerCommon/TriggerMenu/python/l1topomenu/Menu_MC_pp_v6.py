@@ -24,7 +24,7 @@ def defineMenu():
 #          TopoOutput( algoname='15MINDPHI-EM15s6-XE0',                        module=0, fpga=0, clock=1, firstbit=15 ),#v6n
 #          TopoOutput( algoname='35MT-EM12s6-XE0',                             module=0, fpga=0, clock=1, firstbit=13 ),#v6n
 #          TopoOutput( algoname='DISAMB-0DR28-EM15his2-TAU12abi',              module=0, fpga=1, clock=0, firstbit=15 ),#v6n
-#          TopoOutput( algoname='LATEMU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
+#          TopoOutput( algoname='LATE-MU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
 #          TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=1, clock=0, firstbit=11 ),#v6n
 #          TopoOutput( algoname='SC85-CJ15ab.ETA26',                           module=1, fpga=1, clock=0, firstbit=12 ),#v6n
 #          TopoOutput( algoname='10MINDPHI-AJ20s2-XE50',                       module=1, fpga=0, clock=1, firstbit=9 ),#v6n
@@ -147,7 +147,7 @@ def defineMenu():
 
         TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=1, fpga=0, clock=1, firstbit=8 ), #v6 new
         TopoOutput( algoname='10MINDPHI-AJ20s2-XE50',                       module=1, fpga=0, clock=1, firstbit=9 ),#v6n
-        TopoOutput( algoname='LATEMU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
+        TopoOutput( algoname='LATE-MU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
         TopoOutput( algoname='1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=13 ), #v6 new 
 #          TopoOutput( algoname='0DR15-2MU6ab',                                module=1, fpga=0, clock=1, firstbit=11 ), #v6 new
         TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=1, fpga=0, clock=1, firstbit=14 ),  #v6 new

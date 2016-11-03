@@ -322,7 +322,7 @@ class L2EFChain_HI(L2EFChainDef):
         theL1BSFex = TrigL1FCALTTSumFex('TrigL1FCALTTSumFex')
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
-        from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC
+        from TrigHIHypo.GapHypos import ttFgapA, ttFgapC, cellFgapA, cellFgapC,  cellFgapAPerf, cellFgapCPerf
         
         # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
         gap  = self.chainPart['gap']
@@ -367,21 +367,38 @@ class L2EFChain_HI(L2EFChainDef):
                                  'EF_upc_step2']] 
         #self.EFsignatureList += [ [['EF_upc_step2']] ]
 
-        self.EFsequenceList += [["EF_upc_step2",
-                                 [cellFgapC ],
-                                 'EF_upc_step3_C']] 
-
-        self.EFsequenceList += [["EF_upc_step2",
-                                 [cellFgapA ],
-                                 'EF_upc_step3_A']] 
+        if 'EF' in gap: # this are perfromance triggers
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapCPerf ],
+                                     'EF_upc_step3_CPerf']] 
+            
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapAPerf ],
+                                     'EF_upc_step3_APerf']] 
+        else:
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapC ],
+                                     'EF_upc_step3_C']] 
+            
+            self.EFsequenceList += [["EF_upc_step2",
+                                     [cellFgapA ],
+                                     'EF_upc_step3_A']] 
         
-        if gap in [ 'FgapA', 'EFFgapA']:
+        if gap == 'FgapA':
             self.EFsignatureList += [ [['EF_upc_step3_A']] ]
-        if  gap in [ 'FgapC', 'EFFgapC']:
+        if gap == 'EFFgapA':
+            self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
+
+        if  gap == 'FgapC':
             self.EFsignatureList += [ [['EF_upc_step3_C']] ]
-        if  gap in [ 'FgapAC', 'EFFgapAC']:
+        if gap =='EFFgapC':
+            self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
+        if  gap ==  'FgapAC':
             self.EFsignatureList += [ [['EF_upc_step3_A']] ]
             self.EFsignatureList += [ [['EF_upc_step3_C']] ]
+        if  gap ==  'EFFgapAC':
+            self.EFsignatureList += [ [['EF_upc_step3_APerf']] ]
+            self.EFsignatureList += [ [['EF_upc_step3_CPerf']] ]
 
         self.TErenamingDict = {
             'L2_upc_step1': 'L2_TTSummation',
@@ -392,6 +409,9 @@ class L2EFChain_HI(L2EFChainDef):
             'EF_upc_step2': 'EF_UE',
             'EF_upc_step3_A': 'EF_CellGapA',
             'EF_upc_step3_C': 'EF_CellGapC',
+            'EF_upc_step3_APerf': 'EF_CellGapAPerf',
+            'EF_upc_step3_CPerf': 'EF_CellGapCPerf',
+
             'EF_upc_step4': 'EF_twoTracks',
             }
         

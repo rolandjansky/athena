@@ -11,8 +11,12 @@ def to_dict(o):
     for k, v in o.__dict__.items():
         if hasattr(v, '__dict__'):
             d[k] = to_dict(v)
+        elif isinstance(v, tuple):
+            d[k] = tuple([to_dict(e) for e in v])
+        elif isinstance(v, list):
+            d[k] = [to_dict(e) for e in v]
         else:
-            d[k] = v
+            d[k] = str(v)
 
     return d
 

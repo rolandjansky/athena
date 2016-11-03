@@ -135,8 +135,8 @@ def setupMenu():
 
 
 
-        ['mu10_mgonly_L1LATEMU10_J50',          'L1_LATEMU10_J50',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu10_mgonly_L1LATEMU10_XE50',         'L1_LATEMU10_XE50',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu10_mgonly_L1LATE-MU10_J50',          'L1_LATE-MU10_J50',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu10_mgonly_L1LATE-MU10_XE50',         'L1_LATE-MU10_XE50',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
 
         ['mu24_iloose_L1MU15',     'L1_MU15',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -248,17 +248,17 @@ def setupMenu():
         # test chains
 
         # ['j85_test1',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_test2',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_test2',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j85_test4',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         # ['j85_jes_test1',                         'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_jes_test2',                         'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_jes_test2',                         'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         # ['4j45_test1',                            'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['4j45_test2',                            'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #['4j45_test2',                            'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
         ['j85_2j45',                              'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         # ['j85_test1_2j45_test1',                  'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j85_test2_2j45_test2',                  'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #['j85_test2_2j45_test2',                  'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 
         ## multijets
@@ -833,6 +833,9 @@ def setupMenu():
  	['xe110_pueta_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe110_pufit_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe110_mht_L1XE60',                  'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+ 	['xe50_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+ 	['xe110_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe50_tc_lcw',                            'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe50_tc_em',                             'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -3208,6 +3211,7 @@ ps_perform_list = [
     'tau125_r1medium1',
     'tau125_r1perf',
     'tau160_idperf_track',
+    'tau160_perf_track',
     'tau20_r1_idperf',
     'tau20_r1medium1',
     'tau20_r1perf',

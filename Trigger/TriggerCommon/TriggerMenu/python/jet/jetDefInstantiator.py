@@ -93,7 +93,7 @@ class Instantiator(object):
             try:
                 alg = a.alg
             except:
-                m += '\nAttempt to retreve pre instanatiated Algorithm failes'
+                m += '\nAttempt to retrieve pre-instantiated Algorithm failed'
 
                 raise RuntimeError(m)
 
