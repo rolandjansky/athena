@@ -59,7 +59,7 @@
     <Output algname="2INVM8-CMU4ab-MU4ab" triggerline="2INVM8-CMU4ab-MU4ab" algoId="48" module="1" fpga="0" firstbit="7" clock="1"/>
     <Output algname="0DR25-TAU20abi-TAU12abi" triggerline="0DR25-TAU20abi-TAU12abi" algoId="24" module="1" fpga="0" firstbit="8" clock="1"/>
     <Output algname="10MINDPHI-AJ20s2-XE50" triggerline="10MINDPHI-AJ20s2-XE50" algoId="77" module="1" fpga="0" firstbit="9" clock="1"/>
-    <Output algname="LATEMU10s1" triggerline="LATEMU10s1" algoId="78" module="1" fpga="0" firstbit="10" clock="1"/>
+    <Output algname="LATE-MU10s1" triggerline="LATE-MU10s1" algoId="78" module="1" fpga="0" firstbit="10" clock="1"/>
     <Output algname="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" triggerline="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" algoId="69" module="1" fpga="0" firstbit="13" clock="1"/>
     <Output algname="10MINDPHI-J20s2-XE30" triggerline="10MINDPHI-J20s2-XE30" algoId="42" module="1" fpga="0" firstbit="14" clock="1"/>
     <Output algname="KF-XE-AJall" triggerline="KF-XE40-AJall,KF-XE50-AJall,KF-XE55-AJall,KF-XE60-AJall,KF-XE65-AJall,KF-XE75-AJall" algoId="72" module="1" fpga="1" firstbit="0" clock="0"/>
@@ -1548,11 +1548,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="EtCut" name="LATEMU10s1" algoId="78">
+  <DecisionAlgo type="EtCut" name="LATE-MU10s1" algoId="78">
     <Fixed>
       <Input name="Tob" value="LMUs" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="LATEMU10s1"/>
+        <Bit selection="0" name="LATE-MU10s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortMU:"/>
       <Generic name="MaxTob" value="1"/>
