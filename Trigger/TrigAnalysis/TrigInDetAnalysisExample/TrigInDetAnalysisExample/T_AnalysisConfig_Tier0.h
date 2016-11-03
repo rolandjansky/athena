@@ -1303,8 +1303,8 @@ protected:
       
       std::string folder_name = "";
       
-      if ( name()!="" )  folder_name = name() + "/";
-      else               folder_name = "HLT/TRIDT/IDMon/";
+      if ( name()!="" )  folder_name = name(); 
+      else               folder_name = "HLT/TRIDT/IDMon";  
       
       // unsigned decisiontype;
       // if ( m_chainNames.at(0).passed() ) decisiontype = TrigDefs::Physics;
@@ -1326,11 +1326,18 @@ protected:
 	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
 	else                                                                                  mongroup = folder_name + "/Unknown";
+
+	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
+
+	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
+
      }
       else { 
 	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
-	mongroup = folder_name += m_chainNames[ic].head();
+	//	std::cout << "\tSUTT folder name " << folder_name << "\thead " << m_chainNames[ic].head() << "\tmongroup " << mongroup << std::endl;
+
+	mongroup = folder_name + "/" + m_chainNames[ic].head();
 
 	std::string track_collection = ""; 
 
@@ -1341,7 +1348,7 @@ protected:
 
 	if ( m_chainNames.at(ic).roi()!="" ) { 
 	  if ( track_collection!="" ) track_collection += "_" + m_chainNames[ic].roi();
-	  else                        track_collection  = "/" + m_chainNames[ic].roi();
+	  else                        track_collection = "/" + m_chainNames[ic].roi();
 	}
 
 	if ( m_chainNames.at(ic).vtx()!="" ) { 
@@ -1355,16 +1362,17 @@ protected:
 	  else                        track_collection  = "/" + m_chainNames[ic].element();
 	}
 	
-	if ( track_collection!="" )  mongroup += "/" + track_collection;
+	if ( track_collection!="" )  mongroup += track_collection;
 
 	if ( !m_chainNames.at(ic).passed() )      mongroup += "/DTE";
-	
+
+	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
 	
       }
 
+      //      std::cout << "SUTT chain " << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
       
-      
-      m_provider->msg(MSG::VERBOSE) << " booking mongroup " << mongroup << endreq;
+      m_provider->msg(MSG::INFO) << " book mongroup " << mongroup << endreq;
       
 #     ifdef ManagedMonitorToolBase_Uses_API_201401
       m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );
