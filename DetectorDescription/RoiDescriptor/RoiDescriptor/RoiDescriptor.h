@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "IRegionSelector/IRoiDescriptor.h"
+#include "IRegionSelector/RoiUtil.h"
 
 
 /**

@@ -11,6 +11,7 @@
 //   $Id: RoiUtil.cxx, v0.0   Sat 31 Oct 2015 09:54:33 CET sutt $
 
 
+#include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
 
 #include <cmath>
@@ -143,3 +144,47 @@ double RoiUtil::zedcheck(double zed ) {
   } 
   return zed;
 }
+
+
+bool operator==( const IRoiDescriptor& roi0,  const IRoiDescriptor& roi1 ) { 
+  
+  /// trivial self comparison
+  if ( &roi0 == &roi1 ) return true;
+
+  /// same compositness ?
+  if ( roi0.composite() != roi1.composite() ) return false;
+
+  if ( !roi0.composite() ) { 
+    /// not composite
+
+    /// check full scan - all non-composite full scan rois are equivalent
+    if ( roi0.isFullscan() != roi1.isFullscan() ) return false;
+    if ( roi0.isFullscan() ) return true;
+
+    /// check geometry 
+    if ( std::fabs(roi0.zed()     -roi1.zed()     )>1e-7 ) return false;
+    if ( std::fabs(roi0.zedPlus() -roi1.zedPlus() )>1e-7 ) return false;
+    if ( std::fabs(roi0.zedMinus()-roi1.zedMinus())<1e-7 ) return false;
+   
+    if ( std::fabs(roi0.eta()     -roi1.eta()     )>1e-7 ) return false;
+    if ( std::fabs(roi0.etaPlus() -roi1.etaPlus() )>1e-7 ) return false;
+    if ( std::fabs(roi0.etaMinus()-roi1.etaMinus())>1e-7 ) return false;
+
+    /// Fixme: naive phi differwnce - should test for the phi=pi boundary 
+    ///        for the case of very close angles but wrapped differently
+    if ( std::fabs(roi0.phi()     -roi1.phi()    ) >1e-7 ) return false;
+    if ( std::fabs(roi0.phiPlus() -roi1.phiPlus()) >1e-7 ) return false;
+    if ( std::fabs(roi0.phiMinus()-roi1.phiMinus())>1e-7 ) return false;
+  } 
+  else { 
+    /// check constituents
+    if ( roi0.size() != roi1.size() ) return false;
+    for ( unsigned i=roi0.size() ; i-- ; ) if ( !( *roi0.at(i) == *roi1.at(i) ) ) return false;  
+  }
+  
+  return true;
+}
+
+
+
+bool operator!=( const IRoiDescriptor& roi0,  const IRoiDescriptor& roi1 ) { return !(roi0==roi1); } 
