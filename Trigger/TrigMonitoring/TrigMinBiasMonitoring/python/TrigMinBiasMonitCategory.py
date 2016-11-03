@@ -31,6 +31,10 @@ triggers_pPb = ["mb_sptrk",
                "noalg_mb_L1ZDC_A",
                "noalg_mb_L1ZDC_C",
                "mb_sp1800_hmtperf_L1TE5",
+               "noalg_mb_L1TE5",
+               "hi_upc_FgapAC_mb_sptrk_L1MBTS_2",
+               "hi_upc_FgapAC_mb_sptrk_exclusiveloose",
+               "mb_sptrk_exclusiveloose_L1ZDC",
                ]
 
 #!----NORMAL USER ACCESS-------
