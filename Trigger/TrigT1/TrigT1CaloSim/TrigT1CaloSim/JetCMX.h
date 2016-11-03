@@ -27,7 +27,7 @@
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
- #include "DataModel/DataVector.h"
+ #include "AthContainers/DataVector.h"
  #include "GaudiKernel/DataSvc.h"
  #include "StoreGate/StoreGateSvc.h"
 
@@ -39,7 +39,7 @@
 
  namespace LVL1 {
 
- using namespace TrigConf;
+   //using namespace TrigConf;
 
  class JetCMXData;
  class JetCTP;

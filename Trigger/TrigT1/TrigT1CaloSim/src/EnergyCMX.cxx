@@ -33,6 +33,8 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
+using namespace TrigConf;
+
 namespace LVL1 {
 
 
@@ -295,10 +297,10 @@ void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
     /// Debug printout of menu
     if ( (*it)->type() == m_def.xeType() || (*it)->type() == m_def.teType() || (*it)->type() == m_def.xsType() ) {
      TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0); // ET trigger thresholds can only have one global value
-     ATH_MSG_DEBUG("TriggerThreshold " << (*it)->name() << " has:" << endreq
-         << "--------------------------" << endreq
-         << " Number   = " << (*it)->thresholdNumber() << endreq
-         << " Type     = " << (*it)->type() << endreq
+     ATH_MSG_DEBUG("TriggerThreshold " << (*it)->name() << " has:" << endmsg
+         << "--------------------------" << endmsg
+         << " Number   = " << (*it)->thresholdNumber() << endmsg
+         << " Type     = " << (*it)->type() << endmsg
          << " Value    = " << (*tv).thresholdValueCount() );
 	         
     } //  is type == energySum trigger

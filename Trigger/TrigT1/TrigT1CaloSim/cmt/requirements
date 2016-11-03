@@ -4,7 +4,7 @@ author Alan Watson <Alan.Watson@cern.ch>
 use     AtlasPolicy     AtlasPolicy-*
 use     AtlasCLHEP      AtlasCLHEP-*     External
 use     AthenaBaseComps AthenaBaseComps-* Control
-use     DataModel       DataModel-*      Control
+use     AthContainers   AthContainers-*      Control
 use     CaloEvent       CaloEvent-*      Calorimeter
 use     CaloDetDescr    CaloDetDescr-*   Calorimeter
 use     CaloIdentifier  CaloIdentifier-* Calorimeter

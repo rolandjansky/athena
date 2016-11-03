@@ -354,10 +354,10 @@ StatusCode LVL1::Run2TriggerTowerMaker::getCaloTowers()
   if(m_requireAllCalos && ((sc1==StatusCode::FAILURE) ||
                            (sc2==StatusCode::FAILURE) ||
                            (sc3==StatusCode::FAILURE))) {
-    ATH_MSG_ERROR("Can't find calo towers - stopping processing" << endreq
-                  << "Found Em  LArTTL1 : "<<sc1 << endreq
-                  << "Found Had LArTTL1 : "<<sc2 << endreq
-                  << "Found TileTTL1    : "<<sc3<< endreq
+    ATH_MSG_ERROR("Can't find calo towers - stopping processing" << endmsg
+                  << "Found Em  LArTTL1 : "<<sc1 << endmsg
+                  << "Found Had LArTTL1 : "<<sc2 << endmsg
+                  << "Found TileTTL1    : "<<sc3<< endmsg
                   );
     return StatusCode::FAILURE;
   }
@@ -550,7 +550,7 @@ void printVec(MSG& msg, const std::array<T, N>& v) {
 
 } // namespace
 
-StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int m_eventBCID)
+StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int eventBCID)
 {
   // get database information
   auto* chanCalib = m_chanCalibContainer->pprChanCalib(tower->coolId());
@@ -587,7 +587,7 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
                                  firPed,
                                  etaToElement(tower->eta(), tower->layer()),
                                  tower->layer(),
-                                 m_eventBCID,
+                                 eventBCID,
                                  m_lumiBlockMuTool->actualInteractionsPerCrossing(),
                                  correction);
   } else if(chanCalib->pedFirSum() && m_isDataReprocessing) {
@@ -748,11 +748,11 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcess()
   // Pedestal Correction: Get the BCID number
   const xAOD::EventInfo* evt = nullptr;
   CHECK(evtStore()->retrieve(evt));
-  auto m_eventBCID = evt->bcid();
+  auto eventBCID = evt->bcid();
 
   // Loop over all existing towers and simulate preprocessor functions
   for(auto tower : *m_xaodTowers) {
-    CHECK(preProcessTower(tower, m_eventBCID));
+    CHECK(preProcessTower(tower, eventBCID));
   }
   return StatusCode::SUCCESS;
 }

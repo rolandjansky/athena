@@ -82,7 +82,7 @@ if _doPC and _bunchSpacing not in (25,50):
     log.warning('Only 25ns intra train bunch spacing currently supported. Dynamic pedestal correction is disabled!')
     _doPC = False
 
-ToolSvc.L1TriggerTowerTool.BaselineCorrection = True
+ToolSvc.L1TriggerTowerTool.BaselineCorrection = _doPC
 
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 bct = BunchCrossingTool()
@@ -91,7 +91,7 @@ if not hasattr(ToolSvc, bct.getName()):
 else:
     bct = getattr(ToolSvc, bct.getName())
     
-if not hasattr(ToolSvc, 'L1DynamicPedestalProviderTxt'):
+if _doPC and not hasattr(ToolSvc, 'L1DynamicPedestalProviderTxt'):
     ToolSvc += CfgMgr.LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
                                                          BunchCrossingTool = bct,
                                                          InputFileEM_ShortGap='DynamicPedestalCorrection_SG_EM_%dns.txt' % _bunchSpacing,

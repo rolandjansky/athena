@@ -137,6 +137,8 @@ StatusCode JetCMX::execute( )
   /** Create and initialise arrays for storing hit results */
   std::vector< std::vector<int> > crateHits;
   std::vector<int> Hits;
+
+  bool jetOverflow = false;
   
   Hits.resize(25);
   
@@ -179,55 +181,58 @@ StatusCode JetCMX::execute( )
     
         // Store data for L1Topo
         bool overflow = (*it)->overflow();
-        if (overflow) (*topoData)[crate]->setOverflow(true);
+        if (overflow) {
+          (*topoData)[crate]->setOverflow(true);
+          jetOverflow = true;
+        }
 	
         for (std::vector<unsigned int>::const_iterator word = tobWords.begin();
-	     word != tobWords.end(); ++word) {
+	           word != tobWords.end(); ++word) {
 	    
-	   // Push back to Topo link
-	   (*topoData)[crate]->addTOB( (*word) );
+	  // Push back to Topo link
+	  (*topoData)[crate]->addTOB( (*word) );
 	   
-	   // Decode TOB word 
-	   JetTopoTOB tob( crate, (*word) );
-	   int etaindex = tob.etaIndex();	   
-	   int ieta = 2*(etaindex-15) + (etaindex > 15 ? 0 : -1);
-	   if (etaindex < 2 || etaindex > 28) {
-	     if (etaindex == 0)       ieta = -40;
-	     else if (etaindex == 1)  ieta = -30;
-	     else if (etaindex == 29) ieta =  29;
-	     else if (etaindex >= 30) ieta =  39;
-	   }
-	   int iphi = tob.iphi();
-           if (iphi < 0) iphi += 64;
-	   int etLarge = tob.etLarge();
-	   int etSmall = tob.etSmall();
+	  // Decode TOB word 
+	  JetTopoTOB tob( crate, (*word) );
+          int etaindex = tob.etaIndex();	   
+	  int ieta = 2*(etaindex-15) + (etaindex > 15 ? 0 : -1);
+	  if (etaindex < 2 || etaindex > 28) {
+            if (etaindex == 0)       ieta = -40;
+	    else if (etaindex == 1)  ieta = -30;
+	    else if (etaindex == 29) ieta =  29;
+	    else if (etaindex >= 30) ieta =  39;
+	  }
+	  int iphi = tob.iphi();
+          if (iphi < 0) iphi += 64;
+	  int etLarge = tob.etLarge();
+	  int etSmall = tob.etSmall();
 	   
-	   // Now check against trigger thresholds
-	   for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
-             itTh != thresholds.end(); ++itTh ) {
-	     // Right type?
-	     if ( (*itTh)->type() != L1DataDef::jetType() ) continue;
-             // Does TOB satisfy this threshold?
-             TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
-             JetThresholdValue* jtv = dynamic_cast< JetThresholdValue* >( ttv );
-	     if (jtv) {
-                int etCut              = jtv->ptcut()*jepScale;
-                std::string windowSize = jtv->windowSizeAsString();
+	  // Now check against trigger thresholds
+	  for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
+                itTh != thresholds.end(); ++itTh ) {
+	    // Right type?
+	    if ( (*itTh)->type() != L1DataDef::jetType() ) continue;
+            // Does TOB satisfy this threshold?
+            TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
+            JetThresholdValue* jtv = dynamic_cast< JetThresholdValue* >( ttv );
+	    if (jtv) {
+              int etCut              = jtv->ptcut()*jepScale;
+              std::string windowSize = jtv->windowSizeAsString();
                               
-		if ( (windowSize == "LARGE" && etLarge > etCut) ||
-		     (windowSize == "SMALL" && etSmall > etCut) ) {
-                    int num = ( *itTh )->thresholdNumber();
-		    if (num < 25) {
-		        if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
-			else if ( num >= 10 && crateHits[crate][num] < 3 ) crateHits[crate][num]++;
-		        if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
-		        else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
-		    }
-		    else ATH_MSG_WARNING("Invalid threshold number " << num );
-                } // passes cuts
+              if ( (windowSize == "LARGE" && etLarge > etCut) ||
+		   (windowSize == "SMALL" && etSmall > etCut) ) {
+                int num = ( *itTh )->thresholdNumber();
+		if (num < 25) {
+		  if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
+	          else if ( num >= 10 && crateHits[crate][num] < 3 ) crateHits[crate][num]++;
+		  if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
+		  else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
+		}
+		else ATH_MSG_WARNING("Invalid threshold number " << num );
+              } // passes cuts
 		    
-             } // JetThresholdValue pointer valid
-           } // Loop over thresholds
+            } // JetThresholdValue pointer valid
+          } // Loop over thresholds
 		 
 	} // Loop over TOBs
 	    
@@ -235,10 +240,16 @@ StatusCode JetCMX::execute( )
       
       // Form CTP data objects
       unsigned int cableWord0 = 0;
-      for (int i = 0; i < 10; ++i) cableWord0 |= ( Hits[i]<<(3*i) );
-
       unsigned int cableWord1 = 0;
-      for (int i = 10; i < 25; ++i) cableWord1 |= ( Hits[i]<<(2*(i-10)) );
+
+      if (!jetOverflow) {
+        for (int i = 0; i < 10; ++i) cableWord0 |= ( Hits[i]<<(3*i) );
+        for (int i = 10; i < 25; ++i) cableWord1 |= ( Hits[i]<<(2*(i-10)) );
+      }
+      else {
+        cableWord0 = 0x3fffffff;
+        cableWord1 = 0x3fffffff;
+      }
 
       m_jetCTP = new JetCTP( cableWord0, cableWord1 );
       
@@ -255,33 +266,33 @@ StatusCode JetCMX::execute( )
       // Crate sums (local and remote)  
       for (int crate = 0; crate < 2; ++crate) {
 	
-	  cratehits0.assign(1,0);
-	  cratehits1.assign(1,0);
-	  for (int i = 0; i < 5; ++i) {
-	    cratehits0[0] |= ( crateHits[crate][i]<<(3*i) );
-	    cratehits1[0] |= ( crateHits[crate][i+5]<<(3*i) );
-	  }
-	  CMXJetHits* crateCMXHits0 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_MAIN,
-					            cratehits0, cratehits1, error0, error1, peak);
-	  CMXHits->push_back(crateCMXHits0);
-	  if (crate != system_crate) {
-	    CMXJetHits* remoteCMXHits0 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_MAIN,
-					                cratehits0, cratehits1, error0, error1, peak);
-	    CMXHits->push_back(remoteCMXHits0);
-	  }
+	cratehits0.assign(1,0);
+	cratehits1.assign(1,0);
+	for (int i = 0; i < 5; ++i) {
+	  cratehits0[0] |= ( crateHits[crate][i]<<(3*i) );
+	  cratehits1[0] |= ( crateHits[crate][i+5]<<(3*i) );
+	}
+	CMXJetHits* crateCMXHits0 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_MAIN,
+					           cratehits0, cratehits1, error0, error1, peak);
+	CMXHits->push_back(crateCMXHits0);
+	if (crate != system_crate) {
+	  CMXJetHits* remoteCMXHits0 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_MAIN,
+					              cratehits0, cratehits1, error0, error1, peak);
+	  CMXHits->push_back(remoteCMXHits0);
+	}
 	  
-	  cratehits0.assign(1,0);
-	  cratehits1.assign(1,0);
-	  for (int i = 0; i < 8; ++i) cratehits0[0] |= ( crateHits[crate][i+10]<<(2*i) );
-	  for (int i = 0; i < 7; ++i) cratehits1[0] |= ( crateHits[crate][i+18]<<(2*i) );
-	  CMXJetHits* crateCMXHits1 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_FORWARD,
-					             cratehits0, cratehits1, error0, error1, peak);
-	  CMXHits->push_back(crateCMXHits1);
-	  if (crate != system_crate) {
-	    CMXJetHits* remoteCMXHits1 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_FORWARD,
-					                cratehits0, cratehits1, error0, error1, peak);
-	    CMXHits->push_back(remoteCMXHits1);
-	  }
+	cratehits0.assign(1,0);
+	cratehits1.assign(1,0);
+	for (int i = 0; i < 8; ++i) cratehits0[0] |= ( crateHits[crate][i+10]<<(2*i) );
+	for (int i = 0; i < 7; ++i) cratehits1[0] |= ( crateHits[crate][i+18]<<(2*i) );
+	CMXJetHits* crateCMXHits1 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_FORWARD,
+	             			           cratehits0, cratehits1, error0, error1, peak);
+	CMXHits->push_back(crateCMXHits1);
+        if (crate != system_crate) {
+	  CMXJetHits* remoteCMXHits1 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_FORWARD,
+				                      cratehits0, cratehits1, error0, error1, peak);
+	  CMXHits->push_back(remoteCMXHits1);
+	}
       } // loop over crates
       
       // global sums
@@ -343,8 +354,8 @@ void LVL1::JetCMX::printTriggerMenu(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
-          << "  threshold number " << (*it)->thresholdNumber() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
+          << "  threshold number " << (*it)->thresholdNumber() << endmsg
           << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
@@ -354,11 +365,11 @@ void LVL1::JetCMX::printTriggerMenu(){
           ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endreq
-            << "  Threshold value = " << ctv->thresholdValueCount() << endreq
-            << "  EM isolation = " << ctv->emIsolationCount() << endreq
-            << "  Had isolation = " << ctv->hadIsolationCount() << endreq
-            << "  Had veto = " << ctv->hadVetoCount() << endreq
+        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
+            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
+            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
+            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
+            << "  Had veto = " << ctv->hadVetoCount() << endmsg
             << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values

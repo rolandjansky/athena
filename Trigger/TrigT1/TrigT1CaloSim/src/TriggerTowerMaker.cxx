@@ -27,6 +27,7 @@
 //#include "TrigT1CaloByteStream/IL1CaloMappingTool.h"
 #include "TrigT1CaloUtils/InternalTriggerTower_ClassDEF.h"
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
@@ -36,6 +37,8 @@
 
 // Pedestal Correction
 #include "GaudiKernel/ITHistSvc.h"
+
+#include <numeric>
 
 namespace LVL1 {
 
@@ -2236,11 +2239,9 @@ StatusCode LVL1::TriggerTowerMaker::store()
 
   if (m_timeslicesLUT) {
     if (m_sliceLUT == 0) {
-      t_TTCollection* VectorOfFullADCs = new t_TTCollection;
-      std::map<unsigned int, TriggerTower*>::iterator pos  =
-                                                    m_ADCContainer->begin();
-      std::map<unsigned int, TriggerTower*>::iterator pose =
-                                                    m_ADCContainer->end();
+      ConstDataVector<t_TTCollection>* VectorOfFullADCs = new ConstDataVector<t_TTCollection>;
+      TriggerTowerMap_t::iterator pos  = m_ADCContainer->begin();
+      TriggerTowerMap_t::iterator pose = m_ADCContainer->end();
       for (; pos != pose; ++pos) VectorOfFullADCs->push_back(pos->second);
 
       ATH_CHECK( evtStore()->overwrite(VectorOfFullADCs, m_fullADCLocation, true) );
@@ -2525,10 +2526,10 @@ StatusCode LVL1::TriggerTowerMaker::getCaloTowers()
   if ( m_requireAllCalos && ( (sc1==StatusCode::FAILURE) || 
                               (sc2==StatusCode::FAILURE) || 
                               (sc3==StatusCode::FAILURE) ) ){
-    ATH_MSG_WARNING( "Can't find calo towers - stopping processing"<< endreq
-        << "Found Em  LArTTL1 : "<<sc1<< endreq
-        << "Found Had LArTTL1 : "<<sc2<< endreq
-        << "Found TileTTL1    : "<<sc3<< endreq);
+    ATH_MSG_WARNING( "Can't find calo towers - stopping processing"<< endmsg
+        << "Found Em  LArTTL1 : "<<sc1<< endmsg
+        << "Found Had LArTTL1 : "<<sc2<< endmsg
+        << "Found TileTTL1    : "<<sc3<< endmsg);
     return StatusCode::FAILURE;
     
   } else {
@@ -3426,8 +3427,7 @@ LVL1::TriggerTowerMaker::towerType LVL1::TriggerTowerMaker::TTL1type(const Ident
 std::vector<int> LVL1::TriggerTowerMaker::multiSliceDigits(
                           const InternalTriggerTower* itt, int type)
 {
-  std::map<unsigned int, TriggerTower*>::const_iterator pos =
-                                            m_ADCContainer->find(itt->key());
+  TriggerTowerMap_t::const_iterator pos = m_ADCContainer->find(itt->key());
 
   // Create full set of digits for all slices
   if (m_sliceLUT == 0 && pos == m_ADCContainer->end()) {
@@ -3498,7 +3498,7 @@ void LVL1::TriggerTowerMaker::setupADCMap()
   ATH_MSG_DEBUG ( "Processing LUT slice " << m_sliceLUT
         << " of 0-" << m_timeslicesLUT-1 << " slices" );
 
-  m_ADCContainer = new std::map<unsigned int, TriggerTower*>;
+  m_ADCContainer = new TriggerTowerMap_t;
 
   if (m_sliceLUT) {
     const t_TTCollection* fullTTCol = 0;
@@ -3512,7 +3512,7 @@ void LVL1::TriggerTowerMaker::setupADCMap()
       t_TTCollection::const_iterator pos  = fullTTCol->begin();
       t_TTCollection::const_iterator pose = fullTTCol->end();
       for (; pos != pose; ++pos) {
-        m_ADCContainer->insert(std::map<unsigned int, TriggerTower*>
+        m_ADCContainer->insert(TriggerTowerMap_t
                                   ::value_type((*pos)->key(), *pos));
       }
     }

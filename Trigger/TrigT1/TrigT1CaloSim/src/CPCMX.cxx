@@ -172,7 +172,9 @@ StatusCode CPCMX::execute( )
        topoData->push_back(link);
     }
   }
-  
+
+  // Overflow flags for EM and TAU RoIs (i.e. the 2 CMXes)
+  bool cpmOverflow[2] = {false, false};
 
   /** Get EM and Tau Trigger Thresholds */
   std::vector< TrigConf::TriggerThreshold* > thresholds;
@@ -202,53 +204,63 @@ StatusCode CPCMX::execute( )
         // Store data for L1Topo
         int index = 2*crate + cmx;	
         bool overflow = (*it)->overflow();
-        if (overflow) (*topoData)[index]->setOverflow(true);
+        if (overflow) {
+          (*topoData)[index]->setOverflow(true);
+          cpmOverflow[cmx] = true;
+        }
 	
         for (std::vector<unsigned int>::const_iterator word = tobWords.begin();
-	     word != tobWords.end(); ++word) {
+             word != tobWords.end(); ++word) {
 	    
-	   // Push back to Topo link
-	   (*topoData)[index]->addTOB( (*word) );
+          // Push back to Topo link
+          (*topoData)[index]->addTOB( (*word) );
 	   
-	   // Decode TOB word 
-	   CPTopoTOB tob( crate, cmx, (*word) );
-	   int ieta = tob.ieta() - 1;
-	   int iphi = tob.iphi();
-           if (iphi < 0) iphi += 64;
-	   int et = tob.et();
-	   unsigned int isol = tob.isolation();
+          // Decode TOB word 
+          CPTopoTOB tob( crate, cmx, (*word) );
+          int ieta = tob.ieta() - 1;
+          int iphi = tob.iphi();
+          if (iphi < 0) iphi += 64;
+          int et = tob.et();
+          unsigned int isol = tob.isolation();
 	   
-	   // Now check against trigger thresholds
-	   for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
-             itTh != thresholds.end(); ++itTh ) {
-	     // Right type?
-	     if ( (*itTh)->type() != triggerTypes[cmx] ) continue;
-             // Does TOB satisfy this threshold?
-             TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
-             ClusterThresholdValue* ctv = dynamic_cast< ClusterThresholdValue* >( ttv );
-	     if (ctv) {
-                int etCut             = ctv->ptcut()*cpScale;
-                unsigned int isolMask = ctv->isolationMask();
+          // Now check against trigger thresholds
+          for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
+                itTh != thresholds.end(); ++itTh ) {
+            // Right type?
+            if ( (*itTh)->type() != triggerTypes[cmx] ) continue;
+            // Does TOB satisfy this threshold?
+            TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
+            ClusterThresholdValue* ctv = dynamic_cast< ClusterThresholdValue* >( ttv );
+            if (ctv) {
+              int etCut             = ctv->ptcut()*cpScale;
+              unsigned int isolMask = ctv->isolationMask();
                
-                bool isolationPassed = true;
-                for (unsigned int bit = 0; bit < TrigT1CaloDefs::numOfIsolationBits; ++bit) 
-                    if ( (isolMask & (1<<bit)) && !(isol & (1<<bit)) ) isolationPassed = false;
+              bool isolationPassed = true;
+              for (unsigned int bit = 0; bit < TrigT1CaloDefs::numOfIsolationBits; ++bit) 
+                if ( (isolMask & (1<<bit)) && !(isol & (1<<bit)) ) isolationPassed = false;
                
-                    if ( et > etCut && isolationPassed ) {		
-                        int num = ( *itTh )->thresholdNumber();
-		        if (num < 16) {
-		           if (crateHits[crate][cmx][num] < 7) crateHits[crate][cmx][num]++;
-		           if (Hits[cmx][num] < 7)             Hits[cmx][num]++;
-			}
-		        else ATH_MSG_WARNING("Invalid threshold number " << num );
-                    } // passes cuts
+              if ( et > etCut && isolationPassed ) {		
+                int num = ( *itTh )->thresholdNumber();
+                if (num < 16) {
+                  if (crateHits[crate][cmx][num] < 7) crateHits[crate][cmx][num]++;
+                  if (Hits[cmx][num] < 7)             Hits[cmx][num]++;
+                }
+                else ATH_MSG_WARNING("Invalid threshold number " << num );
+              } // passes cuts
 		    
-                } // ClusterThresholdValue pointer valid
-           } // Loop over thresholds
+            } // ClusterThresholdValue pointer valid
+          } // Loop over thresholds
 		 
-	} // Loop over TOBs
+        } // Loop over TOBs
 	    
       } // Loop over module results
+
+      // Overflow sets all trigger bits
+      for (int cmx = 0; cmx < 2; ++cmx) {
+        if (cpmOverflow[cmx]) {
+          for (int i = 0; i < 16; ++i) Hits[cmx][i] = 7;
+        }
+      }
       
       // Form CTP data objects
       unsigned int cableWord0 = 0;
@@ -256,10 +268,10 @@ StatusCode CPCMX::execute( )
       unsigned int cableWord2 = 0;
       unsigned int cableWord3 = 0;
       for (int i = 0; i < 8; ++i) {
-	cableWord0 |= ( Hits[0][i]<<(3*i) );
-	cableWord1 |= ( Hits[0][i+8]<<(3*i) );
-	cableWord2 |= ( Hits[1][i]<<(3*i) );
-	cableWord3 |= ( Hits[1][i+8]<<(3*i) );
+        cableWord0 |= ( Hits[0][i]<<(3*i) );
+        cableWord1 |= ( Hits[0][i+8]<<(3*i) );
+        cableWord2 |= ( Hits[1][i]<<(3*i) );
+        cableWord3 |= ( Hits[1][i+8]<<(3*i) );
       }
 
       m_emTauCTP = new EmTauCTP( cableWord0, cableWord1, cableWord2, cableWord3 );
@@ -276,22 +288,22 @@ StatusCode CPCMX::execute( )
 
       // Crate sums (local and remote)  
       for (int crate = 0; crate < 4; ++crate) {
-	for (int cmx = 0; cmx < 2; ++cmx) {
-	  cratehits0.assign(1,0);
-	  cratehits1.assign(1,0);
-	  for (int i = 0; i < 8; ++i) {
-	    cratehits0[0] |= ( crateHits[crate][cmx][i]<<(3*i) );
-	    cratehits1[0] |= ( crateHits[crate][cmx][i+8]<<(3*i) );
-	  }
-	  CMXCPHits* crateCMXHits = new CMXCPHits(crate, cmx, LVL1::CMXCPHits::LOCAL,
-					       cratehits0, cratehits1, error0, error1, peak);
-	  CMXHits->push_back(crateCMXHits);
-	  if (crate != system_crate) {
-	    CMXCPHits* remoteCMXHits = new CMXCPHits(system_crate, cmx, crate,
-					       cratehits0, cratehits1, error0, error1, peak);
-	    CMXHits->push_back(remoteCMXHits);
-	  }
-	} // loop over CMXes
+        for (int cmx = 0; cmx < 2; ++cmx) {
+          cratehits0.assign(1,0);
+          cratehits1.assign(1,0);
+          for (int i = 0; i < 8; ++i) {
+            cratehits0[0] |= ( crateHits[crate][cmx][i]<<(3*i) );
+            cratehits1[0] |= ( crateHits[crate][cmx][i+8]<<(3*i) );
+          }
+          CMXCPHits* crateCMXHits = new CMXCPHits(crate, cmx, LVL1::CMXCPHits::LOCAL,
+      		                                  cratehits0, cratehits1, error0, error1, peak);
+          CMXHits->push_back(crateCMXHits);
+          if (crate != system_crate) {
+            CMXCPHits* remoteCMXHits = new CMXCPHits(system_crate, cmx, crate,
+	  	                                     cratehits0, cratehits1, error0, error1, peak);
+            CMXHits->push_back(remoteCMXHits);
+          }
+        } // loop over CMXes
       } // loop over crates
       
       // global sums
@@ -346,8 +358,8 @@ void LVL1::CPCMX::printTriggerMenu(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
-          << "  threshold number " << (*it)->thresholdNumber() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
+          << "  threshold number " << (*it)->thresholdNumber() << endmsg
           << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
@@ -357,11 +369,11 @@ void LVL1::CPCMX::printTriggerMenu(){
           ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endreq
-            << "  Threshold value = " << ctv->thresholdValueCount() << endreq
-            << "  EM isolation = " << ctv->emIsolationCount() << endreq
-            << "  Had isolation = " << ctv->hadIsolationCount() << endreq
-            << "  Had veto = " << ctv->hadVetoCount() << endreq
+        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
+            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
+            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
+            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
+            << "  Had veto = " << ctv->hadVetoCount() << endmsg
             << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values

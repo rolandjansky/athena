@@ -154,7 +154,7 @@ StatusCode CPMSim::execute( )
          ATH_MSG_WARNING("Empty CPMTowerContainer - looks like a problem" );
 	
       // Map the CPMTs
-      std::map<int, xAOD::CPMTower*>* towerMap = new std::map<int, xAOD::CPMTower*>;
+      xAOD::CPMTowerMap_t* towerMap = new xAOD::CPMTowerMap_t;
       m_CPMTool->mapTowers(storedCPMTs, towerMap);
 	 
       // Loop over crates and modules
@@ -342,8 +342,8 @@ void LVL1::CPMSim::printTriggerMenu(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
-          << "  threshold number " << (*it)->thresholdNumber() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
+          << "  threshold number " << (*it)->thresholdNumber() << endmsg
           << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
@@ -353,11 +353,11 @@ void LVL1::CPMSim::printTriggerMenu(){
           ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endreq
-            << "  Threshold value = " << ctv->thresholdValueCount() << endreq
-            << "  EM isolation = " << ctv->emIsolationCount() << endreq
-            << "  Had isolation = " << ctv->hadIsolationCount() << endreq
-            << "  Had veto = " << ctv->hadVetoCount() << endreq
+        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
+            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
+            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
+            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
+            << "  Had veto = " << ctv->hadVetoCount() << endmsg
             << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values

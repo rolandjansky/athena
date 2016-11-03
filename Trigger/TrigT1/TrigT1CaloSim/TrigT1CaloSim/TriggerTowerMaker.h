@@ -32,7 +32,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/DataObject.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -285,7 +285,7 @@ class TriggerTowerMaker : public AthAlgorithm,
     std::map<int, InternalTriggerTower*> * m_IntTTContainer;
     std::map<int, TriggerTower*> * m_TTContainer;
     /** Multi-slice mode stuff */
-    std::map<unsigned int, TriggerTower*> * m_ADCContainer;
+    TriggerTowerMap_t* m_ADCContainer;
     int m_timeslicesLUT;
     int m_sliceLUT;
     std::string m_fullADCLocation;

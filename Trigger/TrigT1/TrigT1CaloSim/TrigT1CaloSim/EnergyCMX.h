@@ -20,7 +20,7 @@
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  
- #include "DataModel/DataVector.h"
+ #include "AthContainers/DataVector.h"
 
  // Athena/Gaudi includes
  #include "GaudiKernel/DataSvc.h"
@@ -41,7 +41,7 @@
 
 
  namespace LVL1 {
- using namespace TrigConf;
+   //using namespace TrigConf;
 
    //Doxygen class description below:
    /**
@@ -91,7 +91,7 @@ private: // Private attributes
   SystemEnergy* m_resultsFull;
   SystemEnergy* m_resultsTrunc;
 
-  L1DataDef m_def;
+  TrigConf::L1DataDef m_def;
       
 private: // Private methods
   

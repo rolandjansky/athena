@@ -20,7 +20,7 @@
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  
- #include "DataModel/DataVector.h"
+ #include "AthContainers/DataVector.h"
 
  // Athena/Gaudi includes
  #include "GaudiKernel/DataSvc.h"

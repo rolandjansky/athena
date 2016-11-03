@@ -244,8 +244,8 @@ void LVL1::JEMJetSim::printTriggerMenu(){
          (*it)->type() == def.fjetType()  ||
          (*it)->type() == def.jfType()  ||
          (*it)->type() == def.jbType()) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
-          << "  threshold number " << (*it)->thresholdNumber() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
+          << "  threshold number " << (*it)->thresholdNumber() << endmsg
           << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TrigConf::TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
@@ -255,10 +255,10 @@ void LVL1::JEMJetSim::printTriggerMenu(){
           ATH_MSG_ERROR("Threshold type name is Jet, but is not a JetThreshold object!" );
           continue;
         }
-        ATH_MSG_DEBUG("JetThresholdValue: " << endreq
-            << "  Type = " << (*it)->type() << endreq
-            << "  Threshold value = " << jtv->thresholdValueCount() << endreq
-            << "  Cluster size = " << jtv->window() << endreq
+        ATH_MSG_DEBUG("JetThresholdValue: " << endmsg
+            << "  Type = " << (*it)->type() << endmsg
+            << "  Threshold value = " << jtv->thresholdValueCount() << endmsg
+            << "  Cluster size = " << jtv->window() << endmsg
             << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() );
         
       } // end of loop over threshold values
