@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkValInterfaces/ITrackCutSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexFwd.h"
@@ -156,6 +157,8 @@ namespace InDet
       ToolHandle<ITrtDriftCircleCutTool> m_trtDCTool; //!< Tool to get eta dependent cut on number of TRT hits
 
       ToolHandle< InDet::IInDetTestBLayerTool > m_inDetTestBLayerTool; //Tool to test if the track crosses a dead module on the b-layer
+
+      ServiceHandle< Trk::ITrackCutSvc> m_trackCutSvc;
 
       bool m_trackSumToolAvailable;
             

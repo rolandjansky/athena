@@ -28,6 +28,7 @@ use GaudiInterface         GaudiInterface-*         External
 use AthenaBaseComps        AthenaBaseComps-*        Control
 use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
 use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools
+use TrkValInterfaces       TrkValInterfaces-*       Tracking/TrkValidation
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use TrkParameters          TrkParameters-*          Tracking/TrkEvent
 use xAODTracking           xAODTracking-*           Event/xAOD

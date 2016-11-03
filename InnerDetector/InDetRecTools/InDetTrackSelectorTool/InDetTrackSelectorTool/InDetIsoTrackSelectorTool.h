@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IIsoTrackSelectorTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkValInterfaces/ITrackCutSvc.h"
 
 /**
  * @file InDetIsoTrackSelectorTool.h
@@ -65,6 +66,7 @@ namespace InDet
       /** Extra checks on hits & holes */
       ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;     //!< track selector tool
       
+      ServiceHandle< Trk::ITrackCutSvc> m_trackCutSvc;
 
   }; //end of class definitions
 } //end of namespace definitions

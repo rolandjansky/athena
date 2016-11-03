@@ -8,8 +8,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkValInterfaces/ITrackCutSvc.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkValInterfaces/ITrackCutSvc.h"
 
 /**
  * @file InDetTrackSelectorTool.h
@@ -73,11 +75,13 @@ namespace InDet
       int  m_numberOfPixelHits; //!< Check for silicon hits ?
       int  m_numberOfBLayerHits;
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //<! Track summary tool
-      bool m_trackSumToolAvailable;
+      bool 				 m_trackSumToolAvailable;
 
-      ToolHandle<Trk::IExtrapolator> m_extrapolator; //<! Extrapolator tool
-
+      ToolHandle<Trk::IExtrapolator>     m_extrapolator; //<! Extrapolator tool
+      ServiceHandle< Trk::ITrackCutSvc>  m_trackCutSvc;
+      
   }; //end of class definitions
+  
 } //end of namespace definitions
 
 #endif //TrkMultipleVertexSeedFinders_PVFindingTrackSelectoTool_H
