@@ -52,24 +52,32 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   }
 
   const double minstat = dqm_algorithms::tools::GetFirstFromMap( "MinStat", config.getParameters(), -1);
-  // const bool publish = (bool) dqm_algorithms::tools::GetFirstFromMap( "PublishBins", config.getParameters(), 0); 
-  // const int maxpublish = (int) dqm_algorithms::tools::GetFirstFromMap( "MaxPublish", config.getParameters(), 20); 
+  const bool publish = (bool) dqm_algorithms::tools::GetFirstFromMap( "PublishBins", config.getParameters(), 0); 
+  const int maxpublish = (int) dqm_algorithms::tools::GetFirstFromMap( "MaxPublish", config.getParameters(), 20); 
   
   if (histogram->GetEntries() < minstat ) {
     dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Undefined);
     result->tags_["InsufficientEntries"] = histogram->GetEntries();
     return result;
   }
-
-  double t0_warning;
-  double t0_error;
-  double tmax_warning;
-  double tmax_error;
+ 
+  double t0_low_warning;
+  double t0_low_error;
+  double t0_high_warning;
+  double t0_high_error;
+  double tmax_low_warning;
+  double tmax_low_error;
+  double tmax_high_warning;
+  double tmax_high_error;
   try {
-    t0_warning = dqm_algorithms::tools::GetFirstFromMap( "t0Warning", config.getParameters() );
-    t0_error = dqm_algorithms::tools::GetFirstFromMap( "t0Error", config.getParameters() );
-    tmax_warning = dqm_algorithms::tools::GetFirstFromMap( "tMaxWarning", config.getParameters() );
-    tmax_error = dqm_algorithms::tools::GetFirstFromMap( "tMaxError", config.getParameters() );
+    t0_low_warning = dqm_algorithms::tools::GetFirstFromMap( "t0_low_Warning", config.getParameters() );
+    t0_low_error = dqm_algorithms::tools::GetFirstFromMap( "t0_low_Error", config.getParameters() );
+    t0_high_warning = dqm_algorithms::tools::GetFirstFromMap( "t0_high_Warning", config.getParameters() );
+    t0_high_error = dqm_algorithms::tools::GetFirstFromMap( "t0_high_Error", config.getParameters() );
+    tmax_low_warning = dqm_algorithms::tools::GetFirstFromMap( "tMax_low_Warning", config.getParameters() );
+    tmax_low_error = dqm_algorithms::tools::GetFirstFromMap( "tMax_low_Error", config.getParameters() );
+    tmax_high_warning = dqm_algorithms::tools::GetFirstFromMap( "tMax_high_Warning", config.getParameters() );
+    tmax_high_error = dqm_algorithms::tools::GetFirstFromMap( "tMax_high_Error", config.getParameters() );
   }
   catch ( dqm_core::Exception & ex ) {
     throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex );
@@ -88,17 +96,24 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   double tmaxErr = tmaxFit->GetParameter(2);
   
   ERS_DEBUG(1, name_ << " TDrift " << " is " << tdrift );
-  ERS_DEBUG(1,"Green threshold: t0 > "<< t0_warning << " tmax < " << tmax_warning << " ; Red threshold : t0 < " << t0_error << " tmax > " << tmax_error  );    
+  ERS_DEBUG(1,"Green threshold: "<< t0_low_warning << " < t0 < "<< t0_high_warning << " &&  " << tmax_low_warning <<" < tmax < " << tmax_high_warning <<   
+           " ;  Red threshold : t0 < " << t0_low_error      << "\n" << 
+                               "t0 > " << t0_high_error     << "\n" << 
+                               "tmax > " << tmax_high_error << "\n" <<
+                               "tmax < " << tmax_low_error
+            );    
   
   std::map<std::string,double> tags;
 
-  if (t0 > t0_warning && tmax < tmax_warning && std::abs(tdrift) < 1000) {
+  if (t0 > t0_low_warning && t0 < t0_high_warning && tmax < tmax_high_warning && tmax > tmax_low_warning && std::abs(tdrift) < 1000) {
     result->status_ = dqm_core::Result::Green;
   }
-  else if (t0 > t0_error && tmax < tmax_error && std::abs(tdrift) < 1200) {
-    if(t0 < t0_warning) tags["t0_Warning"] = t0;
+  else if (t0 > t0_low_error && t0 < t0_high_error && tmax < tmax_high_error && tmax > tmax_low_error && std::abs(tdrift) < 1200) {
+    if(t0 < t0_low_warning) tags["t0_low_Warning"] = t0;
+    else if(t0 > t0_high_warning) tags["t0_high_Warning"] = t0;
     else tags["t0"] = t0;
-    if(tmax > tmax_warning) tags["tMax_Warning"] = tmax;
+    if(tmax > tmax_high_warning) tags["tMax_high_Warning"] = tmax;
+    else if(tmax < tmax_low_warning) tags["tMax_low_Warning"] = tmax;
     else tags["tMax"] = tmax;
     if( std::abs(tdrift) > 1200 ) tags["tDrift_Warning"] = tdrift;
     else tags["tdrift"] = tdrift;
@@ -106,9 +121,11 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   }
   else {
     result->status_ = dqm_core::Result::Red;
-    if(t0 < t0_error) tags["t0_Error"] = t0;
+    if(t0 < t0_low_error) tags["t0_low_Error"] = t0;
+    else if(t0 > t0_high_error) tags["t0_high_Error"] = t0;
     else tags["t0"] = t0;
-    if(tmax > tmax_error) tags["tMax_Error"] = tmax;
+    if(tmax > tmax_high_error) tags["tMax_high_Error"] = tmax;
+    else if(tmax < tmax_low_error) tags["tMax_low_Error"] = tmax;
     else tags["tMax"] = tmax;
     if( std::abs(tdrift) > 1400 ) tags["tDrift_Error"] = tdrift;
     else tags["tdrift"] = tdrift;
