@@ -30,6 +30,10 @@
   private:
     int m_nTracks;
     int m_nVertices;
+    std::vector<int> m_VertexType;
+    std::vector<int> m_nTracksPriVtx;
+    std::vector<int> m_nTracksPileUp;
+
     std::vector<float>   m_zOfPriVtx;
     std::vector<float>   m_zOfPileUp;
     std::vector<float>   m_zOfNoVtx;
@@ -41,7 +45,7 @@
     ftk::FTK_TrackType m_trackType;
     std::string m_vertexContainerName;
     std::string m_vxContainerName;
-
+    bool m_useFastVertexTool;
   };
 
 #endif

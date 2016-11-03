@@ -38,10 +38,10 @@ TrigFTK_VxPrimary::TrigFTK_VxPrimary(const std::string &n, ISvcLocator *pSvcLoc)
     m_useRawTracks(false),
     m_useRefittedTracks(false),
     m_getVertexContainer(true),
-    m_trackType(ftk::ConvertedTrackType),
+    m_trackType(ftk::ConvertedTrack),
     m_vertexContainerName("HLT_PrimVertexFTK"),
-    m_vxContainerName("HLT_PrimVxFTK")
-  
+    m_vxContainerName("HLT_PrimVxFTK"),
+    m_useFastVertexTool(false)
 {
   declareProperty("useRawTracks", m_useRawTracks);
   declareProperty("useRefittedTracks", m_useRefittedTracks);
@@ -49,6 +49,7 @@ TrigFTK_VxPrimary::TrigFTK_VxPrimary(const std::string &n, ISvcLocator *pSvcLoc)
   declareProperty("FTK_DataProvider", m_DataProviderSvc);
   declareProperty("vertexContainerName", m_vertexContainerName);
   declareProperty("vxContainerName", m_vxContainerName);
+  declareProperty("useFastVertexTool", m_useFastVertexTool);
   
   declareMonitoredVariable("numVertices", m_nVertices    );
   declareMonitoredStdContainer("VertexType", m_VertexType   );
@@ -65,7 +66,7 @@ TrigFTK_VxPrimary::~TrigFTK_VxPrimary()
 //-------------------------------------------------------------------------
 HLT::ErrorCode TrigFTK_VxPrimary::hltInitialize() {
     
-  msg() << MSG::INFO << "TrigFTK_VxPrimary::initialize(). "<< endreq;
+  msg() << MSG::INFO << "TrigFTK_VxPrimary::initialize(). "<< endmsg;
   
   //Set up the FTK Data Provider SVC //
   StatusCode sc= m_DataProviderSvc.retrieve();
@@ -77,24 +78,27 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltInitialize() {
   }
 
   
-  if (!m_getVertexContainer && m_useRawTracks) {
-    ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using RAW FTK tracks");
-    m_trackType = ftk::RawTrackType;
+  if (m_useFastVertexTool) {
+    if (m_useRawTracks) {
+      ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using fast FTK_VertexTool with RAW FTK tracks");
+      m_trackType = ftk::RawTrack;
+    }  else if (m_useRefittedTracks) {
+      ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using fast FTK_VertexTool with refitted FTK tracks");
+      m_trackType = ftk::RefittedTrack;
+    } else {
+      ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using fast FTK_VertexTool with converted FTK tracks");
+      m_trackType = ftk::ConvertedTrack;
+    }
   } else {
     if (m_useRefittedTracks) {
       ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using refitted FTK tracks");
-      m_trackType = ftk::RefittedTrackType;
+      m_trackType = ftk::RefittedTrack;
     } else {
       ATH_MSG_INFO("Getting Primary vertices from FTK_DataProviderSvc using converted FTK tracks");
-      m_trackType = ftk::ConvertedTrackType;
+      m_trackType = ftk::ConvertedTrack;
     }
   }
-  
-  if (m_getVertexContainer) {
-    ATH_MSG_INFO("Attaching primary vertices to TE in xAOD::VertexContainer " << m_vertexContainerName);
-  } else {
-    ATH_MSG_INFO("Attaching primary vertices to TE in VxContainer" << m_vxContainerName);
-  }
+  ATH_MSG_INFO("Attaching primary vertices to TE in xAOD::VertexContainer " << m_vertexContainerName);
   
   return HLT::OK;
 }
@@ -116,142 +120,73 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
   int outputLevel = msgLvl();
   
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+    msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
   
-  if (m_getVertexContainer) {
-
-    
-    xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer	theVertexAux;
-    theVertexContainer->setStore(&theVertexAux);
-
-    StatusCode sc = m_DataProviderSvc->getVertexContainer( theVertexContainer, m_useRefittedTracks);
-
-    if (sc != StatusCode::SUCCESS) {
-      msg() << MSG::DEBUG << " Error getting VertexContainer StatusCode is " << sc << endreq;
-    }
-
-    if ( HLT::OK !=  attachFeature(outputTE, theVertexContainer, m_vertexContainerName) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-      
-      return HLT::NAV_ERROR;
-    }
-    
-    m_nVertices = theVertexContainer->size();
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
-    }    
-    
-    size_t privtxcount(0), pileupvtxcount(0);
-    unsigned int iv = 0;
-    for (auto pv =  theVertexContainer->begin(); pv !=  theVertexContainer->end(); pv++, iv++) {
-      Vector3D vtx;
-      vtx = (*pv)->position();
-      const Amg::MatrixX& verr = (*pv)->covariancePosition();
-
-      m_VertexType.push_back(int ((*pv)->vertexType()));
-
-      if ((*pv)->vertexType()==xAOD::VxType::PriVtx){
-	++privtxcount;
-	if(outputLevel <= MSG::DEBUG){
-	  msg() << MSG::DEBUG << "REGTEST " << privtxcount
-		<< std::setw(10)
-		<< " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
-		<< " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
-		<< " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
-		<< endreq; 
-	}
-	m_zOfPriVtx.push_back(vtx.z());
- 	m_nTracksPriVtx.push_back(int ((*pv)->vxTrackAtVertex().size()));
-      } else if ((*pv)->vertexType() == xAOD::VxType::PileUp){
-	++pileupvtxcount;
-	if(outputLevel <= MSG::DEBUG){
-	  msg() << MSG::DEBUG << "REGTEST " << pileupvtxcount
-		<< std::setw(10)
-		<< " x=" << vtx.x()
-		<< " y=" << vtx.y()
-		<< " z=" << vtx.z()
-		<< endreq; 
-	}
-	m_zOfPileUp.push_back(vtx.z());
- 	m_nTracksPileUp.push_back(int ((*pv)->vxTrackAtVertex().size()));
-      } else if ((*pv)->vertexType()==xAOD::VxType::NoVtx){
-	m_zOfNoVtx.push_back(vtx.z());
-      } else {
-	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endreq;
-      }
-    }
-    
+  xAOD::VertexContainer* theVertexContainer = nullptr;
+  if (m_useFastVertexTool) {
+    theVertexContainer = m_DataProviderSvc->getFastVertices(m_trackType);
   } else {
+    theVertexContainer = m_DataProviderSvc->getVertexContainer(m_useRefittedTracks);
+  }
+  if ( HLT::OK !=  attachFeature(outputTE, theVertexContainer, m_vertexContainerName) ) {
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     
-    VxContainer* theVxContainer = m_DataProviderSvc->getVxContainer(m_trackType);
-    //
-    //  Attach resolved tracks to the trigger element.
+    return HLT::NAV_ERROR;
+  }
+  
+  m_nVertices = theVertexContainer->size();
+  if(outputLevel <= MSG::DEBUG){
+    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endmsg;
+  }    
+  
+  size_t privtxcount(0), pileupvtxcount(0);
+  unsigned int iv = 0;
+  for (auto pv =  theVertexContainer->begin(); pv !=  theVertexContainer->end(); pv++, iv++) {
+    Vector3D vtx;
+    vtx = (*pv)->position();
+    const Amg::MatrixX& verr = (*pv)->covariancePosition();
     
-    if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, m_vxContainerName) ) {
-	msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-	
-	return HLT::NAV_ERROR;
-    }
+    m_VertexType.push_back(int ((*pv)->vertexType()));
     
-    m_nVertices = theVxContainer->size();
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
-    }    
-    
-    size_t privtxcount(0), pileupvtxcount(0);
-    for (int iv=0; iv<m_nVertices; iv++){
-      Trk::VxCandidate *mvtx = theVxContainer->at(iv);
-      if ( mvtx ){
-	Vector3D vtx;
-	vtx = mvtx->recVertex().position();
-	const Amg::MatrixX& verr = mvtx->recVertex().covariancePosition();
-
-	m_VertexType.push_back(int (mvtx->vertexType()));
-
-	if (mvtx->vertexType()==Trk::PriVtx){
-	  ++privtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << privtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
-		  << " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
-		  << " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
-		  << endreq; 
-	  }
-	  m_zOfPriVtx.push_back(vtx.z());
-	  m_nTracksPriVtx.push_back(int (mvtx->vxTrackAtVertex()->size()));
-	}
-	else if (mvtx->vertexType()==Trk::PileUp){
-	  ++pileupvtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << pileupvtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x()
-		  << " y=" << vtx.y()
-		  << " z=" << vtx.z()
-		  << endreq; 
-	  }
-	  m_zOfPileUp.push_back(vtx.z());
-	  m_nTracksPileUp.push_back(int (mvtx->vxTrackAtVertex()->size()));
-
-	}
-	else if (mvtx->vertexType()==Trk::NoVtx){
-	  m_zOfNoVtx.push_back(vtx.z());
-	}
-      } else {
-	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endreq;
+    if ((*pv)->vertexType()==xAOD::VxType::PriVtx){
+      ++privtxcount;
+      if(outputLevel <= MSG::DEBUG){
+	msg() << MSG::DEBUG << "REGTEST "<< iv <<" Primary Vertex #" << privtxcount
+	      << std::setw(10)
+	      << " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
+	      << " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
+	      << " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
+	      << endmsg; 
       }
+      m_zOfPriVtx.push_back(vtx.z());
+      m_nTracksPriVtx.push_back(int ((*pv)->vxTrackAtVertex().size()));
+    } else if ((*pv)->vertexType() == xAOD::VxType::PileUp){
+      ++pileupvtxcount;
+      if(outputLevel <= MSG::DEBUG){
+	msg() << MSG::DEBUG << "REGTEST "<<iv << " Pileup vertex #"<<pileupvtxcount
+	      << std::setw(10)
+	      << " x=" << vtx.x()
+	      << " y=" << vtx.y()
+	      << " z=" << vtx.z()
+	      << endmsg; 
+      }
+      m_zOfPileUp.push_back(vtx.z());
+      m_nTracksPileUp.push_back(int ((*pv)->vxTrackAtVertex().size()));
+    } else if ((*pv)->vertexType()==xAOD::VxType::NoVtx){
+      msg() << MSG::DEBUG << iv << " No Vertex" << endmsg;
+      m_zOfNoVtx.push_back(vtx.z());
+    } else {
+      msg() << MSG::DEBUG << iv << "Bad VxCandidate" << endmsg;
     }
-  } 
+  }
+  
   return HLT::OK;
 }
 //---------------------------------------------------------------------------
 HLT::ErrorCode TrigFTK_VxPrimary::hltFinalize() {
   
-  msg() << MSG::INFO << "TrigFTK_VxPrimary::finalize()" << endreq;
+  msg() << MSG::INFO << "TrigFTK_VxPrimary::finalize()" << endmsg;
   
   return HLT::OK;
 }
