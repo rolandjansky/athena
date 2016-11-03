@@ -11,6 +11,7 @@ use InDetRawData        InDetRawData-*          InnerDetector/InDetRawEvent
 
 
 private
+use CxxUtils            CxxUtils-*              Control
 use GeneratorObjects    GeneratorObjects-*      Generators
 use InDetIdentifier     InDetIdentifier-*       InnerDetector/InDetDetDescr
 use InDetSimData        InDetSimData-*          InnerDetector/InDetRawEvent
