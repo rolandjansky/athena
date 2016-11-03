@@ -206,8 +206,8 @@ GenAodValidationTool::executeTool( const McEventCollection* refMcEvents,
 
   if ( refMcEvents->size() != checkMcEvents->size() ) {
     ATH_MSG_ERROR("McEventCollections to be compared don't have the same size !"
-		  << endreq
-		  << "Ref:     " << refMcEvents->size() << endreq
+		  << endmsg
+		  << "Ref:     " << refMcEvents->size() << endmsg
 		  << "Current: " << checkMcEvents->size());
   }
 
@@ -301,7 +301,7 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
 			<< std::endl
 			<< "######### Check vertex:" << std::endl
 			<< checkVtxStr.str()
-			<< endreq;
+			<< endmsg;
     }
   }  
 
@@ -313,8 +313,8 @@ bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
 {
   if ( 0 == vtx1 ||
        0 == vtx2 ) {
-    ATH_MSG_ERROR("One of vertices is a NULL pointer !!" << endreq
-		  << " vtx1: " << vtx1 << endreq
+    ATH_MSG_ERROR("One of vertices is a NULL pointer !!" << endmsg
+		  << " vtx1: " << vtx1 << endmsg
 		  << " vtx2: " << vtx2);
     return false;
   }
@@ -327,8 +327,8 @@ bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
   
   if (  inVtx1 !=  inVtx2 ||
        outVtx1 != outVtx2 ) {
-    ATH_MSG_ERROR("Not the same number of branches !!" << endreq
-		  << " in:  " << inVtx1  << "\t" << inVtx2  << endreq
+    ATH_MSG_ERROR("Not the same number of branches !!" << endmsg
+		  << " in:  " << inVtx1  << "\t" << inVtx2  << endmsg
 		  << " out: " << outVtx1 << "\t" << outVtx2);
     return false;
   }
@@ -383,8 +383,8 @@ GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
 {
   if ( 0 == p1 ||
        0 == p2 ) {
-    ATH_MSG_ERROR("One of particlees is a NULL pointer !!" << endreq
-		  << " p1: " << p1 << endreq
+    ATH_MSG_ERROR("One of particlees is a NULL pointer !!" << endmsg
+		  << " p1: " << p1 << endmsg
 		  << " p2: " << p2);
     return false;
   }
@@ -414,12 +414,12 @@ GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
 
   if ( !isOK ) {
     ATH_MSG_WARNING 
-      ("=============================" << endreq
-       << "\thlv:    " << std::boolalpha << (hlv1    == hlv2   ) << endreq
-       << "\tid:     " << std::boolalpha << (id1     == id2    ) << endreq
-       << "\tstatus: " << std::boolalpha << (status1 == status2) << endreq
-       << "\tflow:   " << std::boolalpha << (flow1   == flow2  ) << endreq
-       << "\tpolar:  " << std::boolalpha << (pol1    == pol2   ) << endreq
+      ("=============================" << endmsg
+       << "\thlv:    " << std::boolalpha << (hlv1    == hlv2   ) << endmsg
+       << "\tid:     " << std::boolalpha << (id1     == id2    ) << endmsg
+       << "\tstatus: " << std::boolalpha << (status1 == status2) << endmsg
+       << "\tflow:   " << std::boolalpha << (flow1   == flow2  ) << endmsg
+       << "\tpolar:  " << std::boolalpha << (pol1    == pol2   ) << endmsg
        << "=============================");
   }
 

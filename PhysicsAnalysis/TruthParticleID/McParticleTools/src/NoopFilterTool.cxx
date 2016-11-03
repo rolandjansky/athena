@@ -61,8 +61,8 @@ StatusCode NoopFilterTool::buildMcAod( const McEventCollection* in,
 				       McEventCollection* out )
 {
   if ( 0 == in || 0 == out ) {
-    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endreq
-		  << "  in: " << in << endreq
+    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endmsg
+		  << "  in: " << in << endmsg
 		  << " out: " << out);
     return StatusCode::FAILURE;
   }
@@ -78,7 +78,7 @@ StatusCode NoopFilterTool::buildMcAod( const McEventCollection* in,
 	("Could not launch filtering procedure for GenEvent number ["
 	 << iEvt << "] from McEventCollection ["
 	 << m_mcEventsName.value() << "] !!"
-	 << endreq
+	 << endmsg
 	 << "  outEvt: " << outEvt);
       continue;
     }

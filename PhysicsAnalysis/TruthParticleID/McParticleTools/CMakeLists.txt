@@ -8,8 +8,8 @@ atlas_subdir( McParticleTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Control/DataModel
+                          Control/SGTools
+                          Control/AthContainers
                           Control/StoreGate
                           Event/EventKernel
                           GaudiKernel
@@ -31,7 +31,7 @@ atlas_add_component( McParticleTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps CxxUtils DataModel StoreGateLib SGtests EventKernel GaudiKernel TruthHelper GeneratorObjects McParticleEvent McParticleKernel McParticleUtils )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests EventKernel GaudiKernel TruthHelper GeneratorObjects McParticleEvent McParticleKernel McParticleUtils SGTools )
 
 # Install files from the package:
 atlas_install_headers( McParticleTools )

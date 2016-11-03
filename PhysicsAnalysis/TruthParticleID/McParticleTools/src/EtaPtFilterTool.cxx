@@ -123,8 +123,8 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
 					McEventCollection* out )
 {
   if ( 0 == in || 0 == out ) {
-    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endreq
-		  << "  in: " << in << endreq
+    ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endmsg
+		  << "  in: " << in << endmsg
 		  << " out: " << out);
     return StatusCode::FAILURE;
   }
@@ -136,7 +136,7 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
         ("Could not launch filtering procedure for GenEvent number ["
          << iEvt << "] from McEventCollection ["
          << m_mcEventsName << " !!"
-         << endreq
+         << endmsg
          << "  inEvt: " << inEvt);
       continue;
     }
@@ -181,8 +181,8 @@ StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 					   HepMC::GenEvent* out )
 {
   if ( 0 == in || 0 == out ) {
-    ATH_MSG_ERROR("Invalid pointer to GenEvent !!" << endreq
-		  << "  in: " << in << endreq
+    ATH_MSG_ERROR("Invalid pointer to GenEvent !!" << endmsg
+		  << "  in: " << in << endmsg
 		  << " out: " << out);
     return StatusCode::FAILURE;
   }
@@ -318,8 +318,8 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::Ge
 				       bool isSignalVertex) const
 {
   if ( 0 == srcVtx || 0 == evt ) {
-    ATH_MSG_ERROR("In addVertex(vtx,evt) : INVALID pointer given !!" << endreq
-		  << " vtx: " << srcVtx << endreq
+    ATH_MSG_ERROR("In addVertex(vtx,evt) : INVALID pointer given !!" << endmsg
+		  << " vtx: " << srcVtx << endmsg
 		  << " evt: " << evt);
     return StatusCode::FAILURE;
   }
@@ -415,12 +415,12 @@ StatusCode EtaPtFilterTool::initializeTool()
   if ( m_innerEtaRegionCuts.value().size() != 3 ||
        m_outerEtaRegionCuts.value().size() != 3 ) {
     ATH_MSG_ERROR
-      ("Wrong size for eta regions cut :" << endreq
+      ("Wrong size for eta regions cut :" << endmsg
        << "\tinner region: " << m_innerEtaRegionCuts.value().size()
-       << endreq
+       << endmsg
        << "\touter region: " << m_outerEtaRegionCuts.value().size()
-       << endreq
-       << "You have to provide a list of cuts of the form : " << endreq
+       << endmsg
+       << "You have to provide a list of cuts of the form : " << endmsg
        << " |etaMin| |etaMax| ptMin");
     return StatusCode::FAILURE;
   }
@@ -435,15 +435,15 @@ StatusCode EtaPtFilterTool::initializeTool()
   ATH_MSG_INFO
     ("Inner Eta region cuts : nCuts = " 
      << m_innerEtaRegionCuts.value().size()
-     << endreq
-     << "\tetaMin = " << m_innerEtaRegionCuts.value()[0] << endreq
-     << "\tetaMax = " << m_innerEtaRegionCuts.value()[1] << endreq
-     << "\tPtMin  = " << m_innerEtaRegionCuts.value()[2] << endreq
+     << endmsg
+     << "\tetaMin = " << m_innerEtaRegionCuts.value()[0] << endmsg
+     << "\tetaMax = " << m_innerEtaRegionCuts.value()[1] << endmsg
+     << "\tPtMin  = " << m_innerEtaRegionCuts.value()[2] << endmsg
      << "Outer Eta region cuts : nCuts = " 
      << m_outerEtaRegionCuts.value().size()
-     << endreq
-     << "\tetaMin = " << m_outerEtaRegionCuts.value()[0] << endreq
-     << "\tetaMax = " << m_outerEtaRegionCuts.value()[1] << endreq
+     << endmsg
+     << "\tetaMin = " << m_outerEtaRegionCuts.value()[0] << endmsg
+     << "\tetaMax = " << m_outerEtaRegionCuts.value()[1] << endmsg
      << "\tPtMin  = " << m_outerEtaRegionCuts.value()[2]);
 
   return StatusCode::SUCCESS;

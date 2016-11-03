@@ -207,7 +207,7 @@ void McAodWriterTool::setupBackend( Property& /*prop*/ )
 				     std::ios::out | std::ios::trunc );
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endreq
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
 		    << "Will use [ascii] instead...");
     protocol = "ascii";
     m_ioBackend = new std::ofstream( fileName.c_str(),

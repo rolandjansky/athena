@@ -10,8 +10,7 @@
 // STL includes
 #include <string>
 #include <list>
-
-#include "CxxUtils/unordered_map.h"
+#include <unordered_map>
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -134,7 +133,7 @@ class TruthIsolationTool : virtual public ITruthIsolationTool,
    */
   DoubleProperty m_ptGamMin;
 
-  typedef SG::unordered_map<std::string, std::string> EtIsolMap_t;
+  typedef std::unordered_map<std::string, std::string> EtIsolMap_t;
   /// A map of @c McEventCollection @c StoreGate locations to the according
   /// @c StoreGate location of @c TruthEtIsolations
   EtIsolMap_t m_etIsolMap;
