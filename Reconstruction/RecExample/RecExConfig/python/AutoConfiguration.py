@@ -42,7 +42,7 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
 
 KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi"])
 
-KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip"])
+KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip","data16_hip","data16_hip5TeV","data16_hip8TeV"])
 
 KnownTestProjects=frozenset(["data_test"])
 
