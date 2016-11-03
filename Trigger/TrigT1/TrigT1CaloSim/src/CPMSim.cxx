@@ -154,7 +154,7 @@ StatusCode CPMSim::execute( )
          ATH_MSG_WARNING("Empty CPMTowerContainer - looks like a problem" );
 	
       // Map the CPMTs
-      std::map<int, xAOD::CPMTower*>* towerMap = new std::map<int, xAOD::CPMTower*>;
+      xAOD::CPMTowerMap_t* towerMap = new xAOD::CPMTowerMap_t;
       m_CPMTool->mapTowers(storedCPMTs, towerMap);
 	 
       // Loop over crates and modules

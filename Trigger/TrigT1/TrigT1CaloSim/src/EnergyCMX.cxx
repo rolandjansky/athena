@@ -33,6 +33,8 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
+using namespace TrigConf;
+
 namespace LVL1 {
 
 

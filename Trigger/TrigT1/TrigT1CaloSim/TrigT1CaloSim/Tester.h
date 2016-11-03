@@ -24,7 +24,7 @@
 // Athena/Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/DataObject.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 //#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/SmartDataPtr.h"

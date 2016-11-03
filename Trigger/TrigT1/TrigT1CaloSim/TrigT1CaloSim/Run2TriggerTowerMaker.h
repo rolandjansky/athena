@@ -38,7 +38,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"

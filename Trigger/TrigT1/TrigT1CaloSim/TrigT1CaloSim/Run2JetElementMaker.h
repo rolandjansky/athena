@@ -18,7 +18,7 @@
 // Athena/Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/JetElementContainer.h"

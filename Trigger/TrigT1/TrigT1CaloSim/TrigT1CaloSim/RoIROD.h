@@ -25,7 +25,7 @@
 //Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Specifics
