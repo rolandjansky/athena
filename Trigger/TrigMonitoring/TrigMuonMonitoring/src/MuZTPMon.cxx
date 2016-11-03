@@ -181,9 +181,15 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       level.push_back("EFL2");
       if(isefisochain) level.push_back("EFIso");
       for(unsigned int j=0;j<level.size();j++){
+      	if(!m_HI_pp_mode){
+	addHistogram( new TH1F(("muZTP_Pt_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
+	addHistogram( new TH1F(("muZTP_Pt_EC_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} EC (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
+	addHistogram( new TH1F(("muZTP_Pt_B_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} B (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
+	}else{
 	addHistogram( new TH1F(("muZTP_Pt_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Pt_EC_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} EC (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Pt_B_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} B (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
+	}
 	addHistogram( new TH1F(("muZTP_Pt_4bins_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 4, ptbins ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Pt_B_4bins_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 4, ptbins ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Eta_"+level[j]+"fired_" + itmap->second).c_str(), ("#eta (fired "+level[j]+")").c_str(), 20, -2.7, 2.7 ), histdirmuztp );
