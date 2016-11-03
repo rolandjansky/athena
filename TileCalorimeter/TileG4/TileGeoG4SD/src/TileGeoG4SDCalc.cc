@@ -383,7 +383,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
     if (m_options.verboseLevel > 10 && m_nrOfPMT != 2) {
       G4cout << "Changing number of PMTs in special C10 to " << m_nrOfPMT << G4endl;
     }
-  } else if (sect == 6 && cell->tower > 16) {
+  } else if (sect == 6 && cell->tower > 1000) {
     // Check number of PMTs in Special E4' Cells (side C, modules 32,33)
     m_nrOfPMT = lookup->TileGeoG4npmtE5(std::max(0, nSide), nModule - 1);
     if (m_nrOfPMT != cell->nrOfPMT) {
@@ -408,7 +408,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
   if (m_nrOfPMT == 0)
     return false;
 
-  bool isE5 = (nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
+  bool isE5 = (nTower > 1000);  //special E5(E4') cells in EBC (should be in negative side only)
 
   // Take into account Birk's saturation law in organic scintillators.
   G4double edep;
@@ -733,7 +733,7 @@ G4bool TileGeoG4SDCalc::ManageScintHit() {
   bool newTileHitUp = true, newTileHitDown = true;
 
   // Debugging of special E5(E4') cells
-  //if (nTower>16) G4cout <<" Cells E5: nModule="<<nModule
+  //if (nTower>1000) G4cout <<" Cells E5: nModule="<<nModule
   //                       <<"  edep_up="<<edep_up<<"  edep_down="<<edep_down
   //                       <<"  pmtID_up="<<pmtID_up<<"  pmtID_down="<<pmtID_down<<G4endl;
 
