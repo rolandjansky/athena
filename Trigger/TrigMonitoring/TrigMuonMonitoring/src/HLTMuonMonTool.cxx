@@ -748,7 +748,7 @@ StatusCode HLTMuonMonTool::fill()
     ATH_MSG_VERBOSE("fillCommon failed");
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
-  if(m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(1);
+  if(!m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(0);
 
   /*
   auto chainGroup = getTDT()->getChainGroup("HLT_mu.*");
