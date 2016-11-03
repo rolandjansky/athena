@@ -10,6 +10,10 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
+ 
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -25,6 +29,8 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 
+//#include "InDetReadoutGeometry/SiDetectorElement.h"
+//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
@@ -43,7 +49,7 @@ namespace Overlay {
       parent->msg(MSG::INFO)<<"Overlay::mergeChannelData(): "
                             <<"TRT specific code is called for "
                             <<typeid(TRT_RDORawData).name()
-                            <<endreq;
+                            <<endmsg;
     }
 
     // ----------------------------------------------------------------
@@ -64,12 +70,55 @@ namespace Overlay {
                               <<"TRT specific code for "
                               <<typeid(TRT_RDORawData).name()
                               <<" is not implemented"
-                              <<endreq;
+                              <<endmsg;
       }
     } // else - dyncasts
   } // mergeChannelData()
 
-
+  //================================================================
+  template<> void copyCollection(const InDetRawDataCollection<TRT_RDORawData> *input_coll, InDetRawDataCollection<TRT_RDORawData>*copy_coll){
+    
+    copy_coll->setIdentifier(input_coll->identify());
+    InDetRawDataCollection<TRT_RDORawData>::const_iterator firstData = input_coll->begin();
+    InDetRawDataCollection<TRT_RDORawData>::const_iterator lastData = input_coll->end();	
+    for ( ; firstData != lastData; ++firstData)
+      {	
+	const Identifier ident = (*firstData)->identify();
+	const unsigned int word = (*firstData)->getWord();
+	TRT_LoLumRawData * newData=new TRT_LoLumRawData(ident,word);
+	copy_coll->push_back (newData );
+      }
+  }
+  
+  template<> void copyCollection(const InDetRawDataCollection<SCT_RDORawData> *input_coll, InDetRawDataCollection<SCT_RDORawData>*copy_coll){
+    
+    copy_coll->setIdentifier(input_coll->identify());
+    InDetRawDataCollection<SCT_RDORawData>::const_iterator firstData = input_coll->begin();
+    InDetRawDataCollection<SCT_RDORawData>::const_iterator lastData = input_coll->end();	
+    for ( ; firstData != lastData; ++firstData)
+      {	
+	const Identifier ident = (*firstData)->identify();
+	const unsigned int word = (*firstData)->getWord();
+	SCT3_RawData* oldData = dynamic_cast<SCT3_RawData*>(*firstData);	
+	std::vector<int> errorHit=oldData->getErrorCondensedHit();
+	SCT3_RawData * newData=new SCT3_RawData(ident,word, &errorHit);
+	copy_coll->push_back (newData );
+      }
+  }
+  
+  template<> void copyCollection(const InDetRawDataCollection<PixelRDORawData> *input_coll, InDetRawDataCollection<PixelRDORawData>*copy_coll){
+   
+    copy_coll->setIdentifier(input_coll->identify());
+    InDetRawDataCollection<PixelRDORawData>::const_iterator firstData = input_coll->begin();
+    InDetRawDataCollection<PixelRDORawData>::const_iterator lastData = input_coll->end();	
+    for ( ; firstData != lastData; ++firstData)
+      {	
+	const Identifier ident = (*firstData)->identify();
+	const unsigned int word = (*firstData)->getWord();
+	Pixel1RawData * newData=new Pixel1RawData(ident,word);
+	copy_coll->push_back (newData );
+      }
+  }
   //================================================================
   namespace {   // helper functions for SCT merging
     typedef SCT3_RawData  SCT_RDO_TYPE;
@@ -97,8 +146,9 @@ namespace Overlay {
 
   //================
 
-  template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *data_coll,
-                                      InDetRawDataCollection<SCT_RDORawData> *mc_coll,
+  template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
+                                      InDetRawDataCollection<SCT_RDORawData> *data_coll,
+				      InDetRawDataCollection<SCT_RDORawData> *out_coll,
                                       IDC_OverlayBase *tmp)
   {
     // We want to use the SCT_ID helper provided by InDetOverlay, thus the constraint
@@ -116,8 +166,8 @@ namespace Overlay {
       first_time = false;
       parent->msg(MSG::INFO)<<"InDetOverlay::mergeCollectionsNew(): "
                             <<" SCT specific code is called for "
-                            <<typeid(*data_coll).name()
-                            <<endreq;
+                            <<typeid(*mc_coll).name()
+                            <<endmsg;
     }
 
     // ----------------------------------------------------------------
@@ -140,32 +190,29 @@ namespace Overlay {
 
 
     // ----------------------------------------------------------------
-    if(data_coll->identify() != mc_coll->identify()) {
+    if(mc_coll->identify() != data_coll->identify()) {
       std::ostringstream os;
       os<<"mergeCollectionsNew<SCT_RDORawData>(): collection Id mismatch";
-      parent->msg(MSG::FATAL)<<os.str()<<endreq;
+      parent->msg(MSG::FATAL)<<os.str()<<endmsg;
       throw std::runtime_error(os.str());
     }
 
-    const Identifier idColl = parent->get_sct_id()->wafer_id(data_coll->identifyHash());
+    const Identifier idColl = parent->get_sct_id()->wafer_id(mc_coll->identifyHash());
 
     // Empty the input collections and move RDOs to local vectors.
-    InDetRawDataCollection<SCT_RDORawData> data(data_coll->identifyHash());
-    data.setIdentifier(idColl);
-    data_coll->swap(data);
-
     InDetRawDataCollection<SCT_RDORawData> mc(mc_coll->identifyHash());
     mc.setIdentifier(idColl);
     mc_coll->swap(mc);
 
-    // Just an alias for the currently empty collection
-    InDetRawDataCollection<SCT_RDORawData> *output = data_coll;
+    InDetRawDataCollection<SCT_RDORawData> data(data_coll->identifyHash());
+    data.setIdentifier(idColl);
+    data_coll->swap(data);
 
     // Expand encoded RDOs into individual hit strips.
     // Each strip number is linked to the original RDO.
     StripMap sm;
-    fillStripMap(&sm, data, "data", parent);
     fillStripMap(&sm, mc, "MC", parent);
+    fillStripMap(&sm, data, "data", parent);
 
     // collect all the hits
     StripMap::const_iterator p=sm.begin();
@@ -223,7 +270,7 @@ namespace Overlay {
       Identifier rdoId = parent->get_sct_id()->strip_id(idColl, firstStrip) ;
       SCT3_RawData *mergedRDO = new SCT3_RawData(rdoId, SCT_Word, &errvec);
 
-      output->push_back(mergedRDO);
+      out_coll->push_back(mergedRDO);
 
     } // "collect all strips" loop over sm
 
@@ -238,17 +285,23 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   m_sct_id(0)
 {
 
+  //change via postExec indetovl.do_XXX=True
+
   declareProperty("do_TRT", m_do_TRT=true);
+  declareProperty("do_TRT_background", m_do_TRT_background=true);
   declareProperty("mainInputTRT_Name", m_mainInputTRT_Name="TRT_RDOs");
   declareProperty("overlayInputTRT_Name", m_overlayInputTRT_Name="TRT_RDOs");
 
   declareProperty("do_SCT", m_do_SCT=true);
+  declareProperty("do_SCT_background", m_do_SCT_background=true);
   declareProperty("mainInputSCT_Name", m_mainInputSCT_Name="SCT_RDOs");
   declareProperty("overlayInputSCT_Name", m_overlayInputSCT_Name="SCT_RDOs");
 
   declareProperty("do_Pixel", m_do_Pixel=true);
+  declareProperty("do_Pixel_background", m_do_Pixel_background=true);
   declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
   declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
+  //  declareProperty("OutputPixelName", m_OutputPixel_Name="PixelRDOs");
 }
 
 //================================================================
@@ -257,7 +310,7 @@ StatusCode InDetOverlay::overlayInitialize()
   ATH_MSG_INFO("InDetOverlay initialize()");
 
   if(!m_detStore->retrieve(m_sct_id,"SCT_ID").isSuccess() || !m_sct_id ) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endreq;
+    msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -277,101 +330,123 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_TRT) {
     ATH_MSG_VERBOSE("Retrieving data input TRT container");
-    std::auto_ptr<TRT_RDO_Container> cdata(m_storeGateData->retrieve<TRT_RDO_Container>(m_mainInputTRT_Name));
-    if(!cdata.get()) {
+    SG::ReadHandle<TRT_RDO_Container> dataContainer(m_mainInputTRT_Name, m_storeGateData->name());
+    if(!dataContainer.isValid()) {   
       ATH_MSG_WARNING("Could not get data TRT container \""<<m_mainInputTRT_Name<<"\"");
     }
 
-    ATH_MSG_DEBUG("TRT Data   = "<<shortPrint(cdata));
+    ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer.cptr()));
 
     ATH_MSG_VERBOSE("Retrieving MC  input TRT container");
-    std::auto_ptr<TRT_RDO_Container> cmc(m_storeGateMC->retrievePrivateCopy<TRT_RDO_Container>(m_overlayInputTRT_Name));
-    if(!cmc.get()) {
+    SG::ReadHandle<TRT_RDO_Container> mcContainer(m_overlayInputTRT_Name, m_storeGateMC->name());
+    if(!mcContainer.isValid()) {
       ATH_MSG_WARNING("Could not get MC TRT container \""<<m_overlayInputTRT_Name<<"\"");
     }
-    ATH_MSG_DEBUG("TRT MC     = "<<shortPrint(cmc));
+    ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
+   
+   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainInputTRT_Name, m_storeGateOutput->name());
+   outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
 
-    if(cdata.get() && cmc.get()) {
-      overlayContainerNew(cdata, cmc);
-      ATH_MSG_DEBUG("TRT Result = "<<shortPrint(cdata));
-
-      if( !m_storeGateOutput->record(cdata, m_mainInputTRT_Name).isSuccess() ) {
-        ATH_MSG_WARNING("Failed to record TRT overlay container to output store ");
-      }
-    }
-
-    //----------------
-    // This kludge is a work around for problems created by another kludge:
-    // Digitization algs keep a pointer to their output Identifiable Container and reuse
-    // the same object over and other again.   So unlike any "normal" per-event object
-    // this IDC is not a disposable one, and we should not delete it.
-    //cmc.release();
+   if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+     if (m_do_TRT_background ) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+     else if(!m_do_TRT_background){
+       TRT_RDO_Container nobkg;
+       overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+     }
+     ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
+   }
   }
-
+  
   //----------------------------------------------------------------
   if(m_do_SCT) {
     ATH_MSG_VERBOSE("Retrieving data input SCT container");
-    std::auto_ptr<SCT_RDO_Container> cdata(m_storeGateData->retrieve<SCT_RDO_Container>(m_mainInputSCT_Name));
-    if(!cdata.get()) {
+    SG::ReadHandle<SCT_RDO_Container> dataContainer(m_mainInputSCT_Name, m_storeGateData->name());
+    if(!dataContainer.isValid()) {
       ATH_MSG_WARNING("Could not get data SCT container \""<<m_mainInputSCT_Name<<"\"");
     }
-    ATH_MSG_DEBUG("SCT Data   = "<<shortPrint(cdata.get(), 50));
+    ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer.cptr(), 50));
 
     ATH_MSG_VERBOSE("Retrieving MC  input SCT container");
-    std::auto_ptr<SCT_RDO_Container> cmc(m_storeGateMC->retrievePrivateCopy<SCT_RDO_Container>(m_overlayInputSCT_Name));
-    if(!cmc.get()) {
+    SG::ReadHandle<SCT_RDO_Container> mcContainer(m_overlayInputSCT_Name, m_storeGateMC->name());
+    if(!mcContainer.isValid()) {
       ATH_MSG_WARNING("Could not get MC SCT container \""<<m_overlayInputSCT_Name<<"\"");
     }
-    ATH_MSG_DEBUG("SCT MC     = "<<shortPrint(cmc, 50));
-
-    if(cdata.get() && cmc.get()) {
-      overlayContainerNew(cdata, cmc);
-      ATH_MSG_DEBUG("SCT Result = "<<shortPrint(cdata, 50));
-
-      if( !m_storeGateOutput->record(cdata, m_mainInputSCT_Name).isSuccess() ) {
-        ATH_MSG_WARNING("Failed to record SCT overlay container to output store ");
-      }
+    ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer.cptr(), 50));
+   
+    SG::WriteHandle<SCT_RDO_Container> outputContainer(m_mainInputSCT_Name, m_storeGateOutput->name());
+    outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(dataContainer->size());
+    
+    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+      if(m_do_SCT_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+      else if(!m_do_SCT_background){
+	SCT_RDO_Container nobkg;
+	overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+       }
+      ATH_MSG_INFO("SCT Result = "<<shortPrint(outputContainer.ptr(), 50));   
     }
-
-    //----------------
-    // This kludge is a work around for problems created by another kludge:
-    // Digitization algs keep a pointer to their output Identifiable Container and reuse
-    // the same object over and other again.   So unlike any "normal" per-event object
-    // this IDC is not a disposable one, and we should not delete it.
-    //cmc.release();
   }
 
   //----------------------------------------------------------------
   if(m_do_Pixel) {
     ATH_MSG_VERBOSE("Retrieving data input Pixel container");
-    std::auto_ptr<PixelRDO_Container> cdata(m_storeGateData->retrieve<PixelRDO_Container>(m_mainInputPixel_Name));
-    if(!cdata.get()) {
+    SG::ReadHandle<PixelRDO_Container> dataContainer(m_mainInputPixel_Name, m_storeGateData->name());
+    if(!dataContainer.isValid()) {
       ATH_MSG_WARNING("Could not get data Pixel container \""<<m_mainInputPixel_Name<<"\"");
     }
-    ATH_MSG_DEBUG("Pixel Data   = "<<shortPrint(cdata));
+    ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer.cptr()));
 
     ATH_MSG_VERBOSE("Retrieving MC  input Pixel container");
-    std::auto_ptr<PixelRDO_Container> cmc(m_storeGateMC->retrievePrivateCopy<PixelRDO_Container>(m_overlayInputPixel_Name));
-    if(!cmc.get()) {
+    SG::ReadHandle<PixelRDO_Container> mcContainer(m_overlayInputPixel_Name, m_storeGateMC->name());
+    if(!mcContainer.isValid()) {
       ATH_MSG_WARNING("Could not get MC Pixel container \""<<m_overlayInputPixel_Name<<"\"");
     }
-    ATH_MSG_DEBUG("Pixel MC     = "<<shortPrint(cmc));
+    ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer.cptr()));
 
-    if(cdata.get() && cmc.get()) {
-      overlayContainerNew(cdata, cmc);
-      ATH_MSG_DEBUG("Pixel Result = "<<shortPrint(cdata));
-
-      if( !m_storeGateOutput->record(cdata, m_mainInputPixel_Name).isSuccess() ) {
-        ATH_MSG_WARNING("Failed to record Pixel overlay container to output store ");
-      }
+/*
+// Get geo model manager
+const InDetDD::PixelDetectorManager* geo;
+if ( detStore()->retrieve(geo, "Pixel").isFailure()) {
+   ATH_MSG_ERROR("Could not get Pixel GeoModel Manager!");
+   return StatusCode::RECOVERABLE;
+}
+//Loop over pixel RDO container
+PixelRDO_Container::const_iterator containerItr;
+for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++containerItr) {
+  const DataVector<PixelRDORawData>* rdoCollection = *containerItr;
+  DataVector<PixelRDORawData>::const_iterator collectionItr;
+  double avgx=0; int nx=0;
+  for (collectionItr=rdoCollection->begin(); collectionItr!=rdoCollection->end(); ++collectionItr) {
+    PixelRDORawData *rdoData = *collectionItr;
+    const Identifier id = rdoData->identify();
+    const InDetDD::SiDetectorElement *element = geo->getDetectorElement(id);
+    if (!element->isInnermostPixelLayer()) {//only keep IBL
+      //rdoCollection->remove(collectionItr);
+      continue;
     }
-
-    //----------------
-    // This kludge is a work around for problems created by another kludge:
-    // Digitization algs keep a pointer to their output Identifiable Container and reuse
-    // the same object over and other again.   So unlike any "normal" per-event object
-    // this IDC is not a disposable one, and we should not delete it.
-    //cmc.release();
+    Amg::Vector2D localPos = element->localPositionOfCell(id);
+    Amg::Vector2D rawlocalPos = element->rawLocalPositionOfCell(id);
+    Amg::Vector3D globalPos = element->globalPosition(localPos);
+    Amg::Vector3D rawglobalPos = element->globalPosition(rawlocalPos);
+    //ATH_MSG_INFO("localPos: "<<localPos.x()<<" "<<localPos.y());
+    //ATH_MSG_INFO("rawlocalPos: "<<rawlocalPos.x()<<" "<<rawlocalPos.y());
+    //ATH_MSG_INFO("globalPos: "<<globalPos.x()<<" "<<globalPos.y()<<" "<<globalPos.z());
+    //ATH_MSG_INFO("rawglobalPos: "<<rawglobalPos.x()<<" "<<rawglobalPos.y()<<" "<<rawglobalPos.z());
+    avgx+=globalPos.x(); nx++;
+  }
+  if (nx>0){ATH_MSG_INFO("avgx ="<<avgx/(double)nx);}
+}
+*/
+    SG::WriteHandle<PixelRDO_Container> outputContainer(m_mainInputPixel_Name, m_storeGateOutput->name());
+    outputContainer = CxxUtils::make_unique<PixelRDO_Container>(dataContainer->size());
+    
+    if(dataContainer.isValid() && mcContainer.isValid()&&outputContainer.isValid()) {  
+      if(m_do_Pixel_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+      else if(!m_do_Pixel_background){
+	PixelRDO_Container nobkg;
+	overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+       }
+      ATH_MSG_INFO("Pixel Result = "<<shortPrint(outputContainer.ptr()));
+    }
   }
 
   //----------------------------------------------------------------
