@@ -22,7 +22,8 @@ InDet::InDetIsoTrackSelectorTool::InDetIsoTrackSelectorTool(const std::string & 
     m_d0Significance(3),
     m_z0Significance(3),
     m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-    m_trackSelector("")
+    m_trackSelector(""),
+    m_trackCutSvc("InDet::InDetTrackCutSvc/InDetTrackCutSvc", n)
 {
   declareInterface<Trk::IIsoTrackSelectorTool>(this);
   // properties via python binding
@@ -56,6 +57,13 @@ StatusCode InDet::InDetIsoTrackSelectorTool::initialize()
   if ( !m_trackSelector.empty() && m_trackSelector.retrieve().isFailure() ){
       ATH_MSG_ERROR("Could not retrieve TrackSelector '" << m_trackSelector <<"' although configured. Abort.");
       return StatusCode::FAILURE;
+  }
+  if (m_trackCutSvc.retrieve().isFailure()){
+    ATH_MSG_WARNING("Could not retrieve ITk 1.6 TrackCut service!");
+  } else {
+    auto trackCuts =  m_trackCutSvc->trackCuts();
+    m_d0max = trackCuts.maxD0;
+    //m_z0stMax = trackCuts.maxZ0sinTheta;
   }
   // done
   return StatusCode::SUCCESS;

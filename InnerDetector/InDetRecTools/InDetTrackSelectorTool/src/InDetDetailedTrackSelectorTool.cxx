@@ -44,6 +44,7 @@ namespace InDet
     , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool")
       // , m_inDetTestBLayerTool("InDet::InDetTestBLayerTool")
     , m_inDetTestBLayerTool("")
+    , m_trackCutSvc("InDet::InDetTrackCutSvc/InDetTrackCutSvc", n)
     , m_trackSumToolAvailable(true)
     , m_usePtDependentCuts(false)
       // , m_ptBenchmarks(1, 0) // create with dummy length 1 filled with 0
@@ -167,6 +168,21 @@ namespace InDet
 	return StatusCode::FAILURE;
       }
     ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
+
+
+    if (m_trackCutSvc.retrieve().isFailure()){
+       ATH_MSG_WARNING("Could not retrieve ITk 1.6 TrackCut service!");
+    } else {
+    // fill in   
+      auto trackCuts =  m_trackCutSvc->trackCuts();
+      if(m_IPd0Max != 2.) m_IPd0Max = trackCuts.maxD0;
+      //if(m_IPz0Max != 1.5) m_IPz0Max = trackCuts.maxZ0sinTheta;
+      if(m_z0Max != 9999.) m_z0Max = trackCuts.maxZ0; 
+      if(m_etaMax != 9999.) m_etaMax = trackCuts.maxEta;
+      m_nHitSi = trackCuts.minSiHits; //Always change hits to 9?
+      m_nHitPix = trackCuts.minPixelHits;
+      m_nHitSct = trackCuts.minSCTHits;
+    }
 
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure())

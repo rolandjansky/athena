@@ -29,6 +29,7 @@ InDetTrackSelectorTool::InDetTrackSelectorTool(const std::string & t, const std:
   , m_numberOfPixelHits(2)
   , m_numberOfBLayerHits(1)
   , m_extrapolator("Trk::Extrapolator")
+  , m_trackCutSvc("InDet::InDetTrackCutSvc/InDetTrackCutSvc", n)
 {
   declareInterface<ITrackSelectorTool>(this);
   declareProperty("minPt",                    m_minPt);
@@ -73,6 +74,16 @@ StatusCode InDetTrackSelectorTool::initialize()
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
+
+  if (m_trackCutSvc.retrieve().isFailure()){
+    ATH_MSG_WARNING("Could not retrieve ITk 1.6 TrackCut service!");
+  } else {
+    auto trackCuts =  m_trackCutSvc->trackCuts();
+    //if(m_IPz0Max != 10.) m_IPz0Max = trackCuts.maxZ0sinTheta;
+    m_maxD0 = trackCuts.maxD0;
+    if(m_maxZ0 != 99999.) m_maxZ0 = trackCuts.maxZ0;
+    m_numberOfPixelHits = trackCuts.minPixelHits;
+  }
 
   return StatusCode::SUCCESS;
 }

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkValidation/TrkValInterfaces
                           PRIVATE
                           Control/DataModel
                           DetectorDescription/GeoPrimitives
