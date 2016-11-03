@@ -7,7 +7,7 @@ atlas_subdir( TrigT1CaloToolInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Event/xAOD/xAODTrigL1Calo
                           GaudiKernel
@@ -18,5 +18,5 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( TrigT1CaloToolInterfaces
                    PUBLIC_HEADERS TrigT1CaloToolInterfaces
-                   LINK_LIBRARIES DataModel Identifier xAODTrigL1Calo GaudiKernel AnalysisTriggerEvent TrigT1CaloCalibConditions TrigT1CaloEventLib )
+                   LINK_LIBRARIES AthContainers Identifier xAODTrigL1Calo GaudiKernel AnalysisTriggerEvent TrigT1CaloCalibConditions TrigT1CaloEventLib )
 

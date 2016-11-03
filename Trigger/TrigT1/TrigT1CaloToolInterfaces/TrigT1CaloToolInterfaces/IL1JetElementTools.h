@@ -9,7 +9,7 @@
 #define ILVL1L1JETELEMENTTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 // ============================================================================
 // xAOD
 // ============================================================================
@@ -40,7 +40,7 @@ Interface definition for L1JetTools
 
     // enter declaration of your interface-defining member functions here
     virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements) = 0;
-    virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, std::map<int, xAOD::JetElement*>* map) = 0;
+    virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map) = 0;
 
     // depricated methods
     virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements) = 0;

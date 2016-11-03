@@ -9,7 +9,7 @@
 #define ILVL1L1JEMJETTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "xAODTrigL1Calo/JetElementContainer.h"
 #include "xAODTrigL1Calo/JEMTobRoIContainer.h"
 
