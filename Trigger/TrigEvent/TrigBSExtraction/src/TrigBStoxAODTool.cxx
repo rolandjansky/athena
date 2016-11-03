@@ -685,9 +685,9 @@ StatusCode TrigBStoxAODTool::initialize(){
     ATH_MSG_DEBUG(m_clid_labels[i].first << " " << m_clid_newLabels[i].first << ", "
 		  << m_clid_labels[i].second << ", " << m_clid_newLabels[i].second );
     if(m_clid_labels[i].second != m_clid_newLabels[i].second) {
-      ATH_MSG_INFO("Run-1 " << m_clid_labels[i].first << " label " <<
-		   m_clid_labels[i].second << " differs from the equivalent Run-2 label: "
-		   << m_clid_newLabels[i].second);
+      ATH_MSG_VERBOSE("Run-1 " << m_clid_labels[i].first << " label " <<
+		      m_clid_labels[i].second << " differs from the equivalent Run-2 label: "
+		      << m_clid_newLabels[i].second);
     }
   }
 
