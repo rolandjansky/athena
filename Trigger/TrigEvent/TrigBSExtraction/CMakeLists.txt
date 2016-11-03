@@ -14,11 +14,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrackingCnv
                           Event/xAOD/xAODTrigBphysCnv
                           Event/xAOD/xAODTrigCaloCnv
+			  Event/xAOD/xAODBTaggingCnv
                           Event/xAOD/xAODTrigMinBiasCnv
                           Event/xAOD/xAODTrigMissingETCnv
                           Event/xAOD/xAODTrigMuonCnv
 			  Event/xAOD/xAODTauCnv
 			  Event/xAOD/xAODEgammaCnv
+			  Event/xAOD/xAODTriggerCnv
 			  Event/xAOD/xAODCaloEventCnv
                           GaudiKernel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
@@ -36,6 +38,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODTau
 			  Event/xAOD/xAODEgamma
 			  Event/xAOD/xAODCaloEvent
+			  Event/xAOD/xAODTrigger
+			  Event/xAOD/xAODBTagging
                           Reconstruction/Jet/JetEvent
                           Reconstruction/Particle
 			  Reconstruction/tauEvent
@@ -52,7 +56,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigBSExtraction
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma JetEvent Particle tauEvent egammaEvent CaloEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma xAODCaloEvent xAODTrigger xAODBTagging JetEvent Particle tauEvent egammaEvent CaloEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
 
 # Install files from the package:
 atlas_install_headers( TrigBSExtraction )

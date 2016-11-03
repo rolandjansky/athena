@@ -36,7 +36,7 @@ StatusCode TrigHLTtoxAODConversion::execute() {
 
 
     
-  ATH_MSG_INFO(evtStore()->dump());
+  ATH_MSG_VERBOSE(evtStore()->dump());
   //we need to const cast b/c we want to change it later
   const HLT::HLTResult* cresult(0);
   CHECK(evtStore()->retrieve(cresult,m_ResultKey));
@@ -52,11 +52,16 @@ StatusCode TrigHLTtoxAODConversion::execute() {
   m_navigation->prepare();
   CHECK(m_xAODTool->convert(&*m_navigation));
 
+  //after AOD TrigPasBitsCollection was converted to xAOD::TrigPassBitsContainer,
+  //let's fill new xAOD::TrigPassBits objects with the proper pointers to
+  //converted xAOD containers
+  CHECK(m_xAODTool->setTrigPassBits(&*m_navigation));
+
   //this will redirect all Features to the xAOD converters
   //Note: &* is not a no-op in the following. m_navigation is toolhandle
   //the deref operator * gives back the object held by the tool, i.e. Navigation
   //and ref operator & gives pointer to it.
-  CHECK(m_xAODTool->rewireNavigation(&*m_navigation)); 
+  CHECK(m_xAODTool->rewireNavigation(&*m_navigation));
 
   //once we have rewired the result we put it back into the HLTResult
   //so it is available downstream

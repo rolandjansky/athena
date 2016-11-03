@@ -28,8 +28,7 @@
 #include "xAODTrigCaloCnv/ITrigCaloClusterCnvTool.h"
 #include "xAODTrigCaloCnv/ITrigEMClusterCnvTool.h"
 
-//not in devval yet
-//#include "xAODBTaggingCnv/ITrigBjetCnvTool.h"
+#include "xAODBTaggingCnv/ITrigBjetCnvTool.h"
 
 #include "xAODTrigBphysCnv/ITrigEFBphysContainerCnvTool.h"
 #include "xAODTrigBphysCnv/ITrigL2BphysContainerCnvTool.h"
@@ -56,6 +55,11 @@
 //CaloCluster
 #include "xAODCaloEventCnv/ICaloClusterCnvTool.h"
 
+//TrigPassBits
+#include "xAODTriggerCnv/ITrigPassBitsCnvTool.h"
+
+
+
 /**
  * @brief Tool used by TrigBSExtraction to convert to xAOD
  */
@@ -71,19 +75,27 @@ public:
   virtual StatusCode initialize();
   StatusCode convert(HLT::Navigation* nav); 
   StatusCode rewireNavigation(HLT::Navigation* nav);
+  StatusCode setTrigPassBits(HLT::Navigation* nav);
 
  private:  
   
   StatusCode classLabel2CLIDLabel(const std::vector<std::string>& property,
-			      std::vector<std::pair<CLID,
-			      std::string> >& decoded );
-  
+				  const std::vector<std::string>& newProperty,
+				  std::vector<std::pair<CLID,std::string> >& decoded,
+				  std::vector<std::pair<CLID,std::string> >& decodedNewNames);
+
+  typedef std::multimap<CLID,BStoXAODHelper::IHelper*> MM_CLID_IHELPER;
+
+  StatusCode findHelper( MM_CLID_IHELPER& helpers, CLID clid, std::string& label, MM_CLID_IHELPER::const_iterator& it );
+
   std::string m_l2ResultKey;  //!< key of HLTResult for L2
   std::string m_efResultKey;  //!< key of HLTResult for EF
   std::string m_hltResultKey;  //!< key of HLTResult for HLT
   std::vector<std::string> m_containersToConvert;
+  std::vector<std::string> m_newContainers;
 
   std::vector<std::pair<CLID,std::string> > m_clid_labels;
+  std::vector<std::pair<CLID,std::string> > m_clid_newLabels; //Run-2 labels are not always the same as in Run 1
 
   ToolHandle<xAODMaker::ITauJetCnvTool> m_tauJetTool;
 
@@ -103,8 +115,8 @@ public:
   ToolHandle<xAODMaker::ITrigCaloClusterCnvTool> m_trigCaloClusterTool;
   ToolHandle<xAODMaker::ITrigEMClusterCnvTool> m_emClusterTool;
 
-  // xAODBTaggingCnv (not in devval yet)
-  // ToolHandle<xAODMaker::ITrigBjetCnvTool> m_bjetTool;
+  // xAODBTaggingCnv
+  ToolHandle<xAODMaker::ITrigBjetCnvTool> m_bjetTool;
 
   // xAODTrigBphysCnv
   ToolHandle<xAODMaker::ITrigEFBphysContainerCnvTool> m_efBphysTool;
@@ -134,7 +146,15 @@ public:
   // xAODCaloEventCnv
   ToolHandle<xAODMaker::ICaloClusterCnvTool> m_caloClusterTool;
 
-  std::map<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper
+  // xAODTriggerCnv
+  ToolHandle<xAODMaker::ITrigPassBitsCnvTool> m_trigPassBitsTool;
+
+  std::multimap<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper
+
+  // to disentangle AOD egamma electrons/photons to different xAOD types
+  CLID m_CLID_xAODPhotonContainer;
+  CLID m_CLID_xAODElectronContainer;
+
 };
 
 #endif // TRIGBSEXTRACTION_TRIGBSTOXAODTOOL_H
