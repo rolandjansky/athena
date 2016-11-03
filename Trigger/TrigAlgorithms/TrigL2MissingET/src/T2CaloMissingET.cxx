@@ -78,6 +78,9 @@ T2CaloMissingET::T2CaloMissingET(const std::string& name, ISvcLocator* pSvcLocat
   declareMonitoredStdContainer("Tile_nEBC", m_tile_nebc ); 
   m_vec_robs.reserve(1000);
 
+  m_timer[0] = 0;
+  m_timer[1] = 0;
+
 }
 
 HLT::ErrorCode T2CaloMissingET::hltInitialize(){

@@ -20,6 +20,7 @@ class L2MissingET_Fex ( PESA__T2MissingET ) :
         time.TimerHistLimits = [0, 50]
         self.METLabel = "T2MissingET"
         self.AthenaMonTools = [ time, validation, online, cosmic ]
+        self.DecodeDetMask=True
 
 class L2CaloMissingET_Fex ( T2CaloMissingET ) :
     __slots__ = []
