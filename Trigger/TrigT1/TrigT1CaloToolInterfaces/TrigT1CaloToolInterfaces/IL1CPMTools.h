@@ -15,7 +15,7 @@
 #define ILVL1L1CPMTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "xAODTrigL1Calo/CPMTower.h"
 #include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 
@@ -37,25 +37,25 @@ class CPMTobRoI;
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int, xAOD::CPMTower*>* towers) = 0;
+      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers) = 0;
       
-      virtual void findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) = 0;
+      virtual void findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) = 0;
       
       virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) = 0;
      
-      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) = 0;
+      virtual void findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) = 0;
      
       virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1) = 0;
       
-      virtual void findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, int crate, int module,
+      virtual void findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                   std::vector<unsigned int>& tauCMXData, int slice = -1) = 0;
       
-      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1)  = 0;
+      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  = 0;
       
-      virtual void formSums(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1)  = 0;
+      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  = 0;
       
-      virtual void formSums(uint32_t roiWord, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1)  = 0;
+      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1)  = 0;
       
       virtual int Core() const = 0;
       

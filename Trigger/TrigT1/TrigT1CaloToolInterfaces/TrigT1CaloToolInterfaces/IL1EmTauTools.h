@@ -9,7 +9,9 @@
 #define ILVL1L1EMTAUTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
+#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloEvent/TriggerTower.h"
 //#include "TrigT1CaloUtils/CPAlgorithm.h"
 
 
@@ -29,16 +31,16 @@ Interface definition for L1EmTauTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void findRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
-    virtual void findRoIs(const std::map<int, TriggerTower*>* tts, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
+    virtual void findRoIs(const CPMTowerMap_t* towers, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
+    virtual void findRoIs(const TriggerTowerMap_t* tts, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
     virtual void findRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
     virtual void findRoIs(const DataVector<TriggerTower>* tts, DataVector<CPAlgorithm>* rois, int slice = -1) = 0;
-    virtual void mapTowers(const DataVector<TriggerTower>* tts, std::map<int, CPMTower*>* towers) = 0;
-    virtual void mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CPMTower*>* towers) = 0;
-    virtual void mapTowers(const std::map<int, TriggerTower*>* tts, std::map<int, CPMTower*>* towers) = 0;
-    virtual CPAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) = 0;
-    virtual void formSums(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) = 0;
-    virtual void formSums(uint32_t roiWord, const std::map<int, CPMTower*>* towers, int slice = -1) = 0;
+    virtual void mapTowers(const DataVector<TriggerTower>* tts, CPMTowerMap_t* towers) = 0;
+    virtual void mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* towers) = 0;
+    virtual void mapTowers(const TriggerTowerMap_t* tts, CPMTowerMap_t* towers) = 0;
+    virtual CPAlgorithm findRoI(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice = -1) = 0;
+    virtual void formSums(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice = -1) = 0;
+    virtual void formSums(uint32_t roiWord, const CPMTowerMap_t* towers, int slice = -1) = 0;
     virtual int Core() const = 0;
     virtual int EMClus() const = 0;
     virtual int TauClus() const = 0;
