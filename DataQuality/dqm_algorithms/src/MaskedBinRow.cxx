@@ -59,6 +59,7 @@ dqm_algorithms::MaskedBinRow::execute(	const std::string & name,
   int dorate = dqm_algorithms::tools::GetFirstFromMap( "DoRate", config.getParameters(), 0);
   int checkstrip = dqm_algorithms::tools::GetFirstFromMap( "CheckStrip", config.getParameters(), 0);
   int useReference = dqm_algorithms::tools::GetFirstFromMap( "UseReference", config.getParameters(), 0);
+  int useTotalEntries = dqm_algorithms::tools::GetFirstFromMap( "UseTotalEntries", config.getParameters(), 0);
 
   TH2* refhist=0;
   if (useReference) {
@@ -103,26 +104,38 @@ dqm_algorithms::MaskedBinRow::execute(	const std::string & name,
   int yellowcount = 0; 
   int redrows= 0; 
   int yellowrows = 0; 
+  int totalEntries = 0;
+
+  if (useTotalEntries) {
+    totalEntries = histogram->GetEntries();
+    if (totalEntries == 0) {
+      useTotalEntries = 0;
+      dorate = 0;
+    }
+  }
 
   dqm_core::Result* result = new dqm_core::Result();
   int max = 1;
   if(testrows){ max += histogram->GetNbinsY(); } else {  max += histogram->GetNbinsX(); }
   std::vector<float> rowtotal;
   rowtotal.clear();
-  for(int i =0; i<max; ++i){ rowtotal.push_back(0.0); }
-  
 
-  for(int i =1; i< histogram->GetNbinsX()+1; ++i){
-    for(int j =1; j< histogram->GetNbinsY()+1; ++j){
-      if(testrows==0 && j == maskedbin ) continue;
-      if(testrows==1 && i == maskedbin ) continue;
-      if( testrows ) { 
-	rowtotal[j-1] += histogram->GetBinContent(i,j);
-      } else {
-	rowtotal[i-1] += histogram->GetBinContent(i,j);
+  if (dorate && !useTotalEntries) {
+    for(int i =0; i<max; ++i){ rowtotal.push_back(0.0); }
+    
+    for(int i =1; i< histogram->GetNbinsX()+1; ++i){
+      for(int j =1; j< histogram->GetNbinsY()+1; ++j){
+        if(testrows==0 && j == maskedbin ) continue;
+        if(testrows==1 && i == maskedbin ) continue;
+        if( testrows ) { 
+          rowtotal[j-1] += histogram->GetBinContent(i,j);
+        } else {
+          rowtotal[i-1] += histogram->GetBinContent(i,j);
+        }
       }
     }
   }
+
   //    for(int i =0; i< rowtotal.size();++i){ out << rowtotal[i] << " " ; }    std::cout<<std::endl;
 
   //  ERS_DEBUG(1,"rowtotal =" << rowtotal) ;
@@ -130,14 +143,14 @@ dqm_algorithms::MaskedBinRow::execute(	const std::string & name,
   for(int i =1; i< histogram->GetNbinsX()+1; ++i){
     for(int j =1; j< histogram->GetNbinsY()+1; ++j){
       float bincontent= histogram->GetBinContent(i,j);
-      //float total =0; // currently unused
-      if (dorate && testrows) {
-        bincontent /= rowtotal[j - 1];
-        //total = rowtotal[j - 1];
-      }
-      if (dorate && !testrows) {
-        bincontent /= rowtotal[i - 1];
-        //total = rowtotal[i - 1];
+      if (dorate) {
+        if (useTotalEntries) {
+          bincontent /= totalEntries;
+        } else if (testrows) {
+          bincontent /= rowtotal[j - 1];
+        } else {
+          bincontent /= rowtotal[i - 1];
+        }
       }
 
       if(bincontent>gthreshold){
@@ -145,7 +158,6 @@ dqm_algorithms::MaskedBinRow::execute(	const std::string & name,
 	if( testrows==0 && histogram->GetBinContent(i,maskedbin)  != 0) continue;
 	if(refhist != 0){
 	  if( refhist->GetBinContent(i,j)  != 0){
-	    //         out<< histogram->GetName() <<" ("<< i <<"," <<j << ") Bincontent =" <<bincontent  << " total=" << total << " real bin content="<< histogram->GetBinContent(i,j)<<std::endl;
 	    if(bincontent < 1.0-gthreshold && bincontent > 1.0-rthreshold  ) yellowrows++;   
 	    if(bincontent < 1.0-rthreshold ) redrows++;   
 	    continue; 
@@ -174,31 +186,32 @@ dqm_algorithms::MaskedBinRow::execute(	const std::string & name,
   }
 
 
-
+  if (checkstrip) {
+    if (dorate) {
+      if(redrows > 0 ){
+        result->tags_["RedRows"] = redrows;
+        result->status_ = dqm_core::Result::Red;
+        return result;
+      } else if (yellowrows > 0 ){
+        result->tags_["YellowRows"] = yellowrows;
+        result->status_ = dqm_core::Result::Yellow;
+        return result;
+      } 
+    }
+    
+  } else {
+    if( redcount > 0 ) {
+      result->tags_["RedBins"] = redcount;
+      result->status_ = dqm_core::Result::Red;
+      return result;
+    } else if(yellowcount > 0 ) {
+      result->tags_["YellowBins"] = yellowcount;
+      result->status_ = dqm_core::Result::Yellow;
+      return result;
+    } 
+  }
   
-  if(checkstrip==0 &&  redcount >= yellowcount && redcount !=0 ){
-    result->tags_["RedBins"] = redcount;
-    result->status_ = dqm_core::Result::Red;
-    return result;
-  }
-  if(checkstrip==0 &&  yellowcount !=0 ){
-    result->tags_["YellowBins"] = yellowcount;
-    result->status_ = dqm_core::Result::Yellow;
-    return result;
-  } 
-
-  if(checkstrip && dorate &&  redrows >= yellowrows && redrows !=0 ){
-    result->tags_["RedRows"] = redrows;
-    result->status_ = dqm_core::Result::Red;
-    return result;
-  }
-  if(checkstrip && dorate &&  yellowrows !=0 ){
-    result->tags_["YellowRows"] = yellowrows;
-    result->status_ = dqm_core::Result::Yellow;
-    return result;
-  } 
-
-
+  
   result->status_ = dqm_core::Result::Green;
   return result;
 
@@ -217,5 +230,6 @@ dqm_algorithms::MaskedBinRow::printDescription(std::ostream& out)
   out<<"Optional Parameter: DoRate : This tells the algorithm to check the rate of digital errors rather than an absolute number"<<std::endl;
   out<<"Optional Parameter: CheckStrip : To be used with DoRate.  Rather than check individual bins, it checks that the fraction of events outside the ok bin is below the threshold."<<std::endl;
   out<<"Optional Parameter: UseReference : Reference histogram with entries in the 'ok' bins will be used to indicate that these bins should be ignored  when parameter is set to 1.    default = 0 "<<std::endl;
+  out<<"Optional Parameter: UseTotalEntries : The rate of digital errors will be checked against total number of entries in histogram  : default = 0 "<<std::endl;
 }
 
