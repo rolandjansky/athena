@@ -21,4 +21,3 @@ apply_pattern cmake_add_command command=metalibrary
 # use PathResolver PathResolver-00-*  Tools
 
 # apply_pattern declare_non_standard_include name=doc
-
