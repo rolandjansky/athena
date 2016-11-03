@@ -36,7 +36,7 @@ StatusCode TrigHLTtoxAODConversion::execute() {
 
 
     
-  ATH_MSG_INFO(evtStore()->dump());
+  ATH_MSG_VERBOSE(evtStore()->dump());
   //we need to const cast b/c we want to change it later
   const HLT::HLTResult* cresult(0);
   CHECK(evtStore()->retrieve(cresult,m_ResultKey));
