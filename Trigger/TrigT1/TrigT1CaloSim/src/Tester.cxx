@@ -253,14 +253,14 @@ void LVL1::Tester::loadEmTauROIs(){
     for( it  = ROIs->begin(); it < ROIs->end(); ++it){
        int tempROIword=(*it)->roiWord();
        ATH_MSG_DEBUG("ROI has ROIword : " << std::hex
-           <<  tempROIword << std::dec << endreq
-           << "eta         : " << (*it)->eta() << endreq
-           << "phi         : " << (*it)->phi() << endreq
-           << "Core ET     : " << (*it)->energy() << endreq
-           << "EM cluster  : " << (*it)->clusterEnergy() << endreq
-           << "Tau cluster : " << (*it)->tauClusterEnergy() << endreq
-           << "EM isol     : " << (*it)->emRingIsolationEnergy() << endreq
-           << "Had isol    : " << (*it)->hadRingIsolationEnergy() << endreq
+           <<  tempROIword << std::dec << endmsg
+           << "eta         : " << (*it)->eta() << endmsg
+           << "phi         : " << (*it)->phi() << endmsg
+           << "Core ET     : " << (*it)->energy() << endmsg
+           << "EM cluster  : " << (*it)->clusterEnergy() << endmsg
+           << "Tau cluster : " << (*it)->tauClusterEnergy() << endmsg
+           << "EM isol     : " << (*it)->emRingIsolationEnergy() << endmsg
+           << "Had isol    : " << (*it)->hadRingIsolationEnergy() << endmsg
            << "Had veto    : " << (*it)->hadCoreEnergy() );
        //m_generatedROIWords.push_back(tempROIword);
     }
@@ -280,14 +280,14 @@ void LVL1::Tester::loadEmTauROIs(){
       DataVector<CPAlgorithm>::iterator cpw = rois->begin();
       for ( ; cpw != rois->end(); cpw++) {
         ATH_MSG_DEBUG("CPAlgorithm has properties : " << std::hex
-           << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endreq
-           << "eta         : " << (*cpw)->eta() << endreq
-           << "phi         : " << (*cpw)->phi() << endreq
-           << "Core ET     : " << (*cpw)->Core() << endreq
-           << "EM cluster  : " << (*cpw)->EMClus() << endreq
-           << "Tau cluster : " << (*cpw)->TauClus() << endreq
-           << "EM isol     : " << (*cpw)->EMIsol() << endreq
-           << "Had isol    : " << (*cpw)->HadIsol() << endreq
+           << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endmsg
+           << "eta         : " << (*cpw)->eta() << endmsg
+           << "phi         : " << (*cpw)->phi() << endmsg
+           << "Core ET     : " << (*cpw)->Core() << endmsg
+           << "EM cluster  : " << (*cpw)->EMClus() << endmsg
+           << "Tau cluster : " << (*cpw)->TauClus() << endmsg
+           << "EM isol     : " << (*cpw)->EMIsol() << endmsg
+           << "Had isol    : " << (*cpw)->HadIsol() << endmsg
            << "Had veto    : " << (*cpw)->HadVeto() );
       }
       delete rois;
@@ -728,7 +728,7 @@ void LVL1::Tester::dumpEDM(){
 	if (tobs.size() == data.size()) {
 	   for (unsigned int i = 0; i < data.size(); ++i) {
               ATH_MSG_INFO( " TOB word " << std::hex << data[i] << std::dec << 
-	                          " ET " << tobs[i].et() << ", isolation = 0x" << std::hex << tobs[i].isolation() << std::dec << endreq <<
+	                          " ET " << tobs[i].et() << ", isolation = 0x" << std::hex << tobs[i].isolation() << std::dec << endmsg <<
 				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
 				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" );
 	   }
@@ -761,7 +761,7 @@ void LVL1::Tester::dumpEDM(){
 	if (tobs.size() == data.size()) {
 	   for (unsigned int i = 0; i < data.size(); ++i) {
               ATH_MSG_INFO( " TOB word " << std::hex << data[i] << std::dec << 
-	                          " ETLarge " << tobs[i].etLarge() << ", ETSmall " << tobs[i].etSmall() << endreq <<
+	                          " ETLarge " << tobs[i].etLarge() << ", ETSmall " << tobs[i].etSmall() << endmsg <<
 				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
 				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" );
 	   }
@@ -819,7 +819,7 @@ void LVL1::Tester::dumpEDM(){
   }
   else {
     // print values...
-    ATH_MSG_INFO( " JetCTP:" << MSG::hex << endreq
+    ATH_MSG_INFO( " JetCTP:" << MSG::hex << endmsg
                      << "Word 0: " << jetctp->cableWord0() << ", Word 1:  " << jetctp->cableWord1() << MSG::dec );   
   }
  
@@ -830,7 +830,7 @@ void LVL1::Tester::dumpEDM(){
   }
   else {
     // print values...
-    ATH_MSG_INFO( " EnergyCTP:" << MSG::hex << endreq
+    ATH_MSG_INFO( " EnergyCTP:" << MSG::hex << endmsg
                      << "Word 0: " << energyctp->cableWord0() << ", Word 1:  " << energyctp->cableWord1() << MSG::dec );   
   }
 
