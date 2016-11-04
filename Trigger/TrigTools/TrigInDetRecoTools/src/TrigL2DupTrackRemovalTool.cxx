@@ -62,7 +62,7 @@ StatusCode TrigL2DupTrackRemovalTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool initialized "<< endmsg;
   return sc;
 }
 
@@ -71,7 +71,7 @@ StatusCode TrigL2DupTrackRemovalTool::finalize() {
 
   StatusCode sc = AthAlgTool::finalize(); 
 
-  //athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool finalized "<< endreq;
+  //athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool finalized "<< endmsg;
   return sc;
 }
 

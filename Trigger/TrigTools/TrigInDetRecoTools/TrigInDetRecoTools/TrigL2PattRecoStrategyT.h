@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_L2_PATT_RECO_STRATEGY_T_H__
-#define __TRIG_L2_PATT_RECO_STRATEGY_T_H__
+#ifndef TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGYT_H
+#define TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGYT_H
 
 #include<vector>
 
@@ -78,11 +78,11 @@ class TrigL2PattRecoStrategyT: public AthAlgTool, virtual public ITrigL2SeededPa
   void createTriggerTrack(const Trk::Track&,const Trk::TrackSegment&, TrigInDetTrackCollection*);
   StatusCode getIDCs();
 
-  TrigTimer* m_totalTimer;
+  //TrigTimer* m_totalTimer;
   double m_pattRecoTiming;
 
-  int                     m_nseeds;       //!< Number seeds 
-  int                     m_ntracks;      //!< Number found tracks 
+  //int                     m_nseeds;       //!< Number seeds 
+  //int                     m_ntracks;      //!< Number found tracks 
   int                     m_nfreeCut;     // Min number free clusters 
 
   int m_minTrtHits;
@@ -117,7 +117,7 @@ class TrigL2PattRecoStrategyT: public AthAlgTool, virtual public ITrigL2SeededPa
 
 
 
-#endif
+#endif // not TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGYT_H
 
 
  

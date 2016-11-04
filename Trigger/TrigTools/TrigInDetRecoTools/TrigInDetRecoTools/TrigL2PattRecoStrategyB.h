@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_L2_PATT_RECO_STRATEGY_B_H__
-#define __TRIG_L2_PATT_RECO_STRATEGY_B_H__
+#ifndef TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGY_B_H
+#define TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGY_B_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigSteeringEvent/Enums.h"
@@ -95,8 +95,8 @@ class TrigL2PattRecoStrategyB: public AthAlgTool, virtual public ITrigL2PattReco
   float m_roiEta;
   float m_roiPhi;
 
-  float roiPhiMin, roiPhiMax, m_phiHalfWidth;
-  float roiEtaMin, roiEtaMax, m_etaHalfWidth;
+  float m_roiPhiMin, m_roiPhiMax, m_phiHalfWidth;
+  float m_roiEtaMin, m_roiEtaMax, m_etaHalfWidth;
 
   /************************************/
   /** LAYERS **************************/

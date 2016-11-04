@@ -155,7 +155,7 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
 
   sc = m_numberingTool.retrieve();
   if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "Tool " << m_numberingTool << " not found " << endreq;
+    athenaLog << MSG::FATAL << "Tool " << m_numberingTool << " not found " << endmsg;
     return sc;
   }
   m_laySctB  = m_numberingTool->offsetBarrelSCT();
@@ -164,12 +164,12 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
   m_layMax   = m_numberingTool->maxSiliconLayerNum();
   StrBTrack::setMaxLay(m_layMax);
 
-  athenaLog << MSG::INFO << "set m_layMax to " << m_layMax << endreq;
-  athenaLog << MSG::INFO << "set m_laySctB to " << m_laySctB << endreq;
+  athenaLog << MSG::INFO << "set m_layMax to " << m_layMax << endmsg;
+  athenaLog << MSG::INFO << "set m_laySctB to " << m_laySctB << endmsg;
 
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endreq;
+    athenaLog << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endmsg;
     return sc;
   }
 
@@ -368,7 +368,7 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
     m_vtxMaxBin = (int)ceil(2*m_vertexingCutRZ/(m_vertexingWindowSize/m_vertexingWindowSegments));
     m_vtxHisto = new int[m_vtxMaxBin];
     if(!m_vtxHisto) {
-      athenaLog << MSG::FATAL << "could not create Z vertexing histogram" << endreq;
+      athenaLog << MSG::FATAL << "could not create Z vertexing histogram" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -396,7 +396,7 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO << "Unable to locate Service TrigTimerSvc" << endreq;
+    athenaLog << MSG::INFO << "Unable to locate Service TrigTimerSvc" << endmsg;
     m_timers = false;
   } 
   else{
@@ -412,90 +412,90 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
   /************************************/
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "declareProperty review:" << endreq;
+    athenaLog << MSG::DEBUG << "declareProperty review:" << endmsg;
     
     /** Layer properties. */
-    athenaLog << MSG::DEBUG << "Map_LayerOneMultiplicity = "        << m_mapLayerOneMultiplicity        << endreq;
-    athenaLog << MSG::DEBUG << "Map_LayerTwoMultiplicity = "        << m_mapLayerTwoMultiplicity        << endreq;
-    athenaLog << MSG::DEBUG << "Map_ForcedInefficientLayers = "     << m_mapForcedInefficientLayers     << endreq;
-    athenaLog << MSG::DEBUG << "Map_ForcedTurnedOffLayers = "       << m_mapForcedTurnedOffLayers       << endreq;
-    athenaLog << MSG::DEBUG << "Map_MaxLayerFailureFraction = "     << m_mapMaxLayerFailureFraction     << endreq;
-    athenaLog << MSG::DEBUG << "Map_MaxTotalFailureFraction = "     << m_mapMaxTotalFailureFraction     << endreq;
+    athenaLog << MSG::DEBUG << "Map_LayerOneMultiplicity = "        << m_mapLayerOneMultiplicity        << endmsg;
+    athenaLog << MSG::DEBUG << "Map_LayerTwoMultiplicity = "        << m_mapLayerTwoMultiplicity        << endmsg;
+    athenaLog << MSG::DEBUG << "Map_ForcedInefficientLayers = "     << m_mapForcedInefficientLayers     << endmsg;
+    athenaLog << MSG::DEBUG << "Map_ForcedTurnedOffLayers = "       << m_mapForcedTurnedOffLayers       << endmsg;
+    athenaLog << MSG::DEBUG << "Map_MaxLayerFailureFraction = "     << m_mapMaxLayerFailureFraction     << endmsg;
+    athenaLog << MSG::DEBUG << "Map_MaxTotalFailureFraction = "     << m_mapMaxTotalFailureFraction     << endmsg;
     
     /** New cut properties*/
-    athenaLog << MSG::DEBUG << "Reco_NewCuts = "                    << m_newCuts                        << endreq;
-    athenaLog << MSG::DEBUG << "Reco_NewCutsRZ = "                  << m_newCutsRZ                      << endreq;
-    athenaLog << MSG::DEBUG << "Reco_PtMinSeedDiff = "              << m_recoPtMinSeedDiff              << endreq;
-    athenaLog << MSG::DEBUG << "Reco_D0MaxSeedDiff = "              << m_recoD0MaxSeedDiff              << endreq;
-    athenaLog << MSG::DEBUG << "Reco_PtMinTripletDiff = "           << m_recoPtMinTripletDiff           << endreq;
-    athenaLog << MSG::DEBUG << "Reco_D0MaxTripletDiff = "           << m_recoD0MaxTripletDiff           << endreq;
-    athenaLog << MSG::DEBUG << "Reco_PtMin = "                      << m_recoPtMin                      << endreq;
-    athenaLog << MSG::DEBUG << "Reco_D0Max = "                      << m_recoD0Max                      << endreq;
-    athenaLog << MSG::DEBUG << "Reco_TimingFactor = "               << m_recoTimingFactor               << endreq;
-    athenaLog << MSG::DEBUG << "Reco_AlignmentScaling = "           << m_recoAlignmentScaling           << endreq;
-    athenaLog << MSG::DEBUG << "Reco_OutlierRemoval = "             << m_recoOutlierRemoval             << endreq;
-    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalCut = "          << m_recoOutlierRemovalCut          << endreq;
-    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalLayers = "       << m_recoOutlierRemovalLayers       << endreq;
-    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalD0 = "           << m_recoOutlierRemovalD0           << endreq;
-    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalPt = "           << m_recoOutlierRemovalPt           << endreq;
-    athenaLog << MSG::DEBUG << "Reco_MaxSeeds = "                   << m_recoMaxSeeds                   << endreq;
-    athenaLog << MSG::DEBUG << "Reco_MaxTracks = "                  << m_recoMaxTracks                  << endreq;
-    athenaLog << MSG::DEBUG << "Reco_Z0Bin = "                      << m_recoZ0Bin                      << endreq;
-    athenaLog << MSG::DEBUG << "Reco_EtaBin = "                     << m_recoEtaBin                     << endreq;
+    athenaLog << MSG::DEBUG << "Reco_NewCuts = "                    << m_newCuts                        << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_NewCutsRZ = "                  << m_newCutsRZ                      << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_PtMinSeedDiff = "              << m_recoPtMinSeedDiff              << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_D0MaxSeedDiff = "              << m_recoD0MaxSeedDiff              << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_PtMinTripletDiff = "           << m_recoPtMinTripletDiff           << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_D0MaxTripletDiff = "           << m_recoD0MaxTripletDiff           << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_PtMin = "                      << m_recoPtMin                      << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_D0Max = "                      << m_recoD0Max                      << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_TimingFactor = "               << m_recoTimingFactor               << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_AlignmentScaling = "           << m_recoAlignmentScaling           << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_OutlierRemoval = "             << m_recoOutlierRemoval             << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalCut = "          << m_recoOutlierRemovalCut          << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalLayers = "       << m_recoOutlierRemovalLayers       << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalD0 = "           << m_recoOutlierRemovalD0           << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_OutlierRemovalPt = "           << m_recoOutlierRemovalPt           << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_MaxSeeds = "                   << m_recoMaxSeeds                   << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_MaxTracks = "                  << m_recoMaxTracks                  << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_Z0Bin = "                      << m_recoZ0Bin                      << endmsg;
+    athenaLog << MSG::DEBUG << "Reco_EtaBin = "                     << m_recoEtaBin                     << endmsg;
     
     /** Preliminary vertexing properties. */				   
-    athenaLog << MSG::DEBUG << "PreVertexing_Enable = "             << m_preVertexingEnable             << endreq;
-    athenaLog << MSG::DEBUG << "PreVertexing_VtxName = "            << m_preVertexingVtxName            << endreq;
-    athenaLog << MSG::DEBUG << "PreVertexing_ZCut = "               << m_preVertexingZCut               << endreq;
+    athenaLog << MSG::DEBUG << "PreVertexing_Enable = "             << m_preVertexingEnable             << endmsg;
+    athenaLog << MSG::DEBUG << "PreVertexing_VtxName = "            << m_preVertexingVtxName            << endmsg;
+    athenaLog << MSG::DEBUG << "PreVertexing_ZCut = "               << m_preVertexingZCut               << endmsg;
     
     /** Seeding properties. */
-    athenaLog << MSG::DEBUG << "Seeding_PreCutRZ = "                << m_seedingPreCutRZ                << endreq;
-    athenaLog << MSG::DEBUG << "Seeding_PreCutPhi = "               << m_seedingPreCutPhi               << endreq;
-    athenaLog << MSG::DEBUG << "Seeding_PreCutRPhi = "              << m_seedingPreCutRPhi              << endreq;
-    athenaLog << MSG::DEBUG << "Seeding_CutRZ = "                   << m_seedingCutRZ                   << endreq;
+    athenaLog << MSG::DEBUG << "Seeding_PreCutRZ = "                << m_seedingPreCutRZ                << endmsg;
+    athenaLog << MSG::DEBUG << "Seeding_PreCutPhi = "               << m_seedingPreCutPhi               << endmsg;
+    athenaLog << MSG::DEBUG << "Seeding_PreCutRPhi = "              << m_seedingPreCutRPhi              << endmsg;
+    athenaLog << MSG::DEBUG << "Seeding_CutRZ = "                   << m_seedingCutRZ                   << endmsg;
     
     /** Vertexing properties. */
-    athenaLog << MSG::DEBUG << "Vertexing_Enable = "                << m_vertexingEnable                << endreq;
-    athenaLog << MSG::DEBUG << "Vertexing_CutRZ = "                 << m_vertexingCutRZ                 << endreq;
-    athenaLog << MSG::DEBUG << "Vertexing_CutRPhi = "               << m_vertexingCutRPhi               << endreq;
-    athenaLog << MSG::DEBUG << "Vertexing_MaxVertices = "           << m_vertexingMaxVertices           << endreq;
-    athenaLog << MSG::DEBUG << "Vertexing_WindowSize = "            << m_vertexingWindowSize            << endreq;
-    athenaLog << MSG::DEBUG << "Vertexing_WindowSegments = "        << m_vertexingWindowSegments        << endreq;
+    athenaLog << MSG::DEBUG << "Vertexing_Enable = "                << m_vertexingEnable                << endmsg;
+    athenaLog << MSG::DEBUG << "Vertexing_CutRZ = "                 << m_vertexingCutRZ                 << endmsg;
+    athenaLog << MSG::DEBUG << "Vertexing_CutRPhi = "               << m_vertexingCutRPhi               << endmsg;
+    athenaLog << MSG::DEBUG << "Vertexing_MaxVertices = "           << m_vertexingMaxVertices           << endmsg;
+    athenaLog << MSG::DEBUG << "Vertexing_WindowSize = "            << m_vertexingWindowSize            << endmsg;
+    athenaLog << MSG::DEBUG << "Vertexing_WindowSegments = "        << m_vertexingWindowSegments        << endmsg;
     
     /** Extension properties. */
-    athenaLog << MSG::DEBUG << "Extension_PreCutRZ = "              << m_extensionPreCutRZ              << endreq;
-    athenaLog << MSG::DEBUG << "Extension_PreCutPhi = "             << m_extensionPreCutPhi             << endreq;
-    athenaLog << MSG::DEBUG << "Extension_PreCutRPhi = "            << m_extensionPreCutRPhi            << endreq;
-    athenaLog << MSG::DEBUG << "Extension_PreCutRPhiDiff = "        << m_extensionPreCutRPhiDiff        << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutRZPixel = "            << m_extensionCutRZPixel            << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutRZ = "                 << m_extensionCutRZ                 << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutRPhi = "               << m_extensionCutRPhi               << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutSpacePoints = "        << m_extensionCutSpacePoints        << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutSpacePointsMiss1 = "   << m_extensionCutSpacePointsMiss1   << endreq;
-    athenaLog << MSG::DEBUG << "Extension_CutSpacePointsMiss2 = "   << m_extensionCutSpacePointsMiss2   << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTriplets = "         << m_extensionSolveTriplets         << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTripletsDRCut = "    << m_extensionSolveTripletsDRCut    << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTripletsPhiScale = " << m_extensionSolveTripletsPhiScale << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTripletsEtaScale = " << m_extensionSolveTripletsEtaScale << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTracks = "           << m_extensionSolveTracks           << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveV0Tracks = "         << m_extensionSolveV0Tracks         << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTracksDRCut = "      << m_extensionSolveTracksDRCut      << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTracksPhiScale = "   << m_extensionSolveTracksPhiScale   << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveTracksEtaScale = "   << m_extensionSolveTracksEtaScale   << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SolveShared = "           << m_extensionSolveShared           << endreq;
-    athenaLog << MSG::DEBUG << "Extension_MaxMissingLayers = "      << m_extensionMaxMissingLayers      << endreq;
-    athenaLog << MSG::DEBUG << "Extension_Refit = "                 << m_extensionRefit                 << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SpacePoints = "           << m_extensionSpacePoints           << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SpacePointsMiss1 = "      << m_extensionSpacePointsMiss1      << endreq;
-    athenaLog << MSG::DEBUG << "Extension_SpacePointsMiss2 = "      << m_extensionSpacePointsMiss2      << endreq;
-    athenaLog << MSG::DEBUG << "Extension_TRTExtension = "          << m_extensionTRTExtension          << endreq;
+    athenaLog << MSG::DEBUG << "Extension_PreCutRZ = "              << m_extensionPreCutRZ              << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_PreCutPhi = "             << m_extensionPreCutPhi             << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_PreCutRPhi = "            << m_extensionPreCutRPhi            << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_PreCutRPhiDiff = "        << m_extensionPreCutRPhiDiff        << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutRZPixel = "            << m_extensionCutRZPixel            << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutRZ = "                 << m_extensionCutRZ                 << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutRPhi = "               << m_extensionCutRPhi               << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutSpacePoints = "        << m_extensionCutSpacePoints        << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutSpacePointsMiss1 = "   << m_extensionCutSpacePointsMiss1   << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_CutSpacePointsMiss2 = "   << m_extensionCutSpacePointsMiss2   << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTriplets = "         << m_extensionSolveTriplets         << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTripletsDRCut = "    << m_extensionSolveTripletsDRCut    << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTripletsPhiScale = " << m_extensionSolveTripletsPhiScale << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTripletsEtaScale = " << m_extensionSolveTripletsEtaScale << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTracks = "           << m_extensionSolveTracks           << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveV0Tracks = "         << m_extensionSolveV0Tracks         << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTracksDRCut = "      << m_extensionSolveTracksDRCut      << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTracksPhiScale = "   << m_extensionSolveTracksPhiScale   << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveTracksEtaScale = "   << m_extensionSolveTracksEtaScale   << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SolveShared = "           << m_extensionSolveShared           << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_MaxMissingLayers = "      << m_extensionMaxMissingLayers      << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_Refit = "                 << m_extensionRefit                 << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SpacePoints = "           << m_extensionSpacePoints           << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SpacePointsMiss1 = "      << m_extensionSpacePointsMiss1      << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_SpacePointsMiss2 = "      << m_extensionSpacePointsMiss2      << endmsg;
+    athenaLog << MSG::DEBUG << "Extension_TRTExtension = "          << m_extensionTRTExtension          << endmsg;
     
     /** Debug properties. */
-    athenaLog << MSG::DEBUG << "Debug_Tuning = "                    << m_debugTuning                    << endreq;
-    athenaLog << MSG::DEBUG << "Debug_TuningGoodSeeds = "           << m_debugTuningGoodSeeds           << endreq;
-    athenaLog << MSG::DEBUG << "Debug_TuningBadSeeds = "            << m_debugTuningBadSeeds            << endreq;
-    athenaLog << MSG::DEBUG << "Debug_TuningGoodTriplets = "        << m_debugTuningGoodTriplets        << endreq;
-    athenaLog << MSG::DEBUG << "Debug_TuningBadTriplets = "         << m_debugTuningBadTriplets         << endreq;
+    athenaLog << MSG::DEBUG << "Debug_Tuning = "                    << m_debugTuning                    << endmsg;
+    athenaLog << MSG::DEBUG << "Debug_TuningGoodSeeds = "           << m_debugTuningGoodSeeds           << endmsg;
+    athenaLog << MSG::DEBUG << "Debug_TuningBadSeeds = "            << m_debugTuningBadSeeds            << endmsg;
+    athenaLog << MSG::DEBUG << "Debug_TuningGoodTriplets = "        << m_debugTuningGoodTriplets        << endmsg;
+    athenaLog << MSG::DEBUG << "Debug_TuningBadTriplets = "         << m_debugTuningBadTriplets         << endmsg;
   }
 
 
@@ -504,7 +504,7 @@ StatusCode TrigL2PattRecoStrategyB::initialize() {
   /************************************/
 
   /** Initialization report message. */
-  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyB initialized" << endreq;
+  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyB initialized" << endmsg;
 
   return sc;
 }
@@ -557,7 +557,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "TrigL2PattRecoStrategyB called in RoI-based mode" << endreq;
+    athenaLog << MSG::DEBUG << "TrigL2PattRecoStrategyB called in RoI-based mode" << endmsg;
 
   m_roiEta = roi.eta(); 
   m_roiPhi = roi.phi(); 
@@ -565,10 +565,10 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   m_etaHalfWidth = 0.5*fabs(roi.etaPlus()-roi.etaMinus());
   m_phiHalfWidth = 0.5*fabs(roi.phiPlus()-roi.phiMinus());
 
-  roiPhiMin = roi.phiMinus();  
-  roiPhiMax = roi.phiPlus();
-  roiEtaMin = roi.etaMinus();
-  roiEtaMax = roi.etaPlus();
+  m_roiPhiMin = roi.phiMinus();  
+  m_roiPhiMax = roi.phiPlus();
+  m_roiEtaMin = roi.etaMinus();
+  m_roiEtaMax = roi.etaPlus();
 
   executeSetup();
 
@@ -587,11 +587,11 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /************************************/
 
   /** Perform seed road making. */
-  executeSeedRoads(roiEtaMin, roiEtaMax, roiPhiMin, roiPhiMax);
+  executeSeedRoads(m_roiEtaMin, m_roiEtaMax, m_roiPhiMin, m_roiPhiMax);
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "SEED ROAD MAKING: found " << m_roads.size() << " roads" << endreq;
+    athenaLog << MSG::DEBUG << "SEED ROAD MAKING: found " << m_roads.size() << " roads" << endmsg;
     StrBRoadIterator road, roadEnd=m_roads.end();
     for(road=m_roads.begin(); road!=roadEnd; road++) {
       athenaLog << MSG::DEBUG << "SEED ROAD MAKING: road " << (*road)->lay1 << " --> " << (*road)->lay2 << " --> ";
@@ -599,7 +599,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
       for(it=(*road)->lay3.begin(); it!=itEnd; it++) {
 	athenaLog << MSG::DEBUG << (*it) << " ";
       }
-      athenaLog << MSG::DEBUG << endreq;
+      athenaLog << MSG::DEBUG << endmsg;
     }
   }
 
@@ -614,7 +614,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
     for(int i=0; i<m_layMax; i++){
-      athenaLog << MSG::DEBUG << "SEED DATA SORTING: found " << m_spSeed[i].size() << " space points on layer " << i << endreq;
+      athenaLog << MSG::DEBUG << "SEED DATA SORTING: found " << m_spSeed[i].size() << " space points on layer " << i << endmsg;
     }
   }
 
@@ -627,7 +627,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
    /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "SEED MAKING: found " << m_trks_num_active << " seeds" << endreq;
+    athenaLog << MSG::DEBUG << "SEED MAKING: found " << m_trks_num_active << " seeds" << endmsg;
   }
   
   
@@ -643,7 +643,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
     if(m_vertexingEnable) {
-      athenaLog << MSG::DEBUG << "SEED FILTER VERTEX: found " << m_recZv.size() << " vertices" << endreq;
+      athenaLog << MSG::DEBUG << "SEED FILTER VERTEX: found " << m_recZv.size() << " vertices" << endmsg;
     }
   }
 
@@ -669,9 +669,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
       for(unsigned int loopz0=0; loopz0<m_spTripletZ0Steps; loopz0++) {
         for(unsigned int loopeta=0; loopeta<m_spTripletEtaSteps; loopeta++)
           athenaLog << MSG::DEBUG << m_spTriplet[i*m_spTripletZ0Steps*m_spTripletEtaSteps+loopz0*m_spTripletEtaSteps+loopeta].size() << " ";
-        athenaLog << MSG::DEBUG << endreq << "                            ";
+        athenaLog << MSG::DEBUG << endmsg << "                            ";
       }
-      athenaLog << " space points on layer " << i << endreq;
+      athenaLog << " space points on layer " << i << endmsg;
     }
   }
 
@@ -685,7 +685,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRIPLET MAKING: found " << m_trks_num_active << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRIPLET MAKING: found " << m_trks_num_active << " patterns" << endmsg;
   }
 
 
@@ -698,7 +698,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRIPLET AMBIGUITY: retained " << m_full_trks_num << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRIPLET AMBIGUITY: retained " << m_full_trks_num << " patterns" << endmsg;
   }
   
 
@@ -718,7 +718,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRACK AMBIGUITY: retained " << m_full_trks_num_active << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRACK AMBIGUITY: retained " << m_full_trks_num_active << " patterns" << endmsg;
   }
 
 
@@ -731,7 +731,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRACK MAKING: created " << trackColl->size() << " tracks" << endreq;
+    athenaLog << MSG::DEBUG << "TRACK MAKING: created " << trackColl->size() << " tracks" << endmsg;
   }
 
   /** Perform cleanup. */
@@ -762,7 +762,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "TrigL2PattRecoStrategyB called in RoI-based mode" << endreq;
+    athenaLog << MSG::DEBUG << "TrigL2PattRecoStrategyB called in RoI-based mode" << endmsg;
 
   m_roiEta = roi.eta(); 
   m_roiPhi = roi.phi(); 
@@ -770,10 +770,10 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   m_etaHalfWidth = 0.5*fabs(roi.etaPlus()-roi.etaMinus());
   m_phiHalfWidth = 0.5*fabs(roi.phiPlus()-roi.phiMinus());
 
-  roiPhiMin = roi.phiMinus();  
-  roiPhiMax = roi.phiPlus();
-  roiEtaMin = roi.etaMinus();
-  roiEtaMax = roi.etaPlus();
+  m_roiPhiMin = roi.phiMinus();  
+  m_roiPhiMax = roi.phiPlus();
+  m_roiEtaMin = roi.etaMinus();
+  m_roiEtaMax = roi.etaPlus();
 
   executeSetup();
 
@@ -792,11 +792,11 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /************************************/
 
   /** Perform seed road making. */
-  executeSeedRoads(roiEtaMin, roiEtaMax, roiPhiMin, roiPhiMax);
+  executeSeedRoads(m_roiEtaMin, m_roiEtaMax, m_roiPhiMin, m_roiPhiMax);
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "SEED ROAD MAKING: found " << m_roads.size() << " roads" << endreq;
+    athenaLog << MSG::DEBUG << "SEED ROAD MAKING: found " << m_roads.size() << " roads" << endmsg;
     StrBRoadIterator road, roadEnd=m_roads.end();
     for(road=m_roads.begin(); road!=roadEnd; road++) {
       athenaLog << MSG::DEBUG << "SEED ROAD MAKING: road " << (*road)->lay1 << " --> " << (*road)->lay2 << " --> ";
@@ -804,7 +804,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
       for(it=(*road)->lay3.begin(); it!=itEnd; it++) {
 	athenaLog << MSG::DEBUG << (*it) << " ";
       }
-      athenaLog << MSG::DEBUG << endreq;
+      athenaLog << MSG::DEBUG << endmsg;
     }
   }
 
@@ -819,7 +819,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
     for(int i=0; i<m_layMax; i++){
-      athenaLog << MSG::DEBUG << "SEED DATA SORTING: found " << m_spSeed[i].size() << " space points on layer " << i << endreq;
+      athenaLog << MSG::DEBUG << "SEED DATA SORTING: found " << m_spSeed[i].size() << " space points on layer " << i << endmsg;
     }
   }
 
@@ -839,7 +839,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
    /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "SEED MAKING: found " << m_trks_num_active << " seeds" << endreq;
+    athenaLog << MSG::DEBUG << "SEED MAKING: found " << m_trks_num_active << " seeds" << endmsg;
   }
   
   
@@ -855,7 +855,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
     if(m_vertexingEnable) {
-      athenaLog << MSG::DEBUG << "SEED FILTER VERTEX: found " << m_recZv.size() << " vertices" << endreq;
+      athenaLog << MSG::DEBUG << "SEED FILTER VERTEX: found " << m_recZv.size() << " vertices" << endmsg;
     }
   }
 
@@ -881,9 +881,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
       for(unsigned int loopz0=0; loopz0<m_spTripletZ0Steps; loopz0++) {
         for(unsigned int loopeta=0; loopeta<m_spTripletEtaSteps; loopeta++)
           athenaLog << MSG::DEBUG << m_spTriplet[i*m_spTripletZ0Steps*m_spTripletEtaSteps+loopz0*m_spTripletEtaSteps+loopeta].size() << " ";
-        athenaLog << MSG::DEBUG << endreq << "                            ";
+        athenaLog << MSG::DEBUG << endmsg << "                            ";
       }
-      athenaLog << " space points on layer " << i << endreq;
+      athenaLog << " space points on layer " << i << endmsg;
     }
   }
 
@@ -897,7 +897,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRIPLET MAKING: found " << m_trks_num_active << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRIPLET MAKING: found " << m_trks_num_active << " patterns" << endmsg;
   }
 
 
@@ -910,7 +910,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRIPLET AMBIGUITY: retained " << m_full_trks_num << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRIPLET AMBIGUITY: retained " << m_full_trks_num << " patterns" << endmsg;
   }
   
 
@@ -930,7 +930,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRACK AMBIGUITY: retained " << m_full_trks_num_active << " patterns" << endreq;
+    athenaLog << MSG::DEBUG << "TRACK AMBIGUITY: retained " << m_full_trks_num_active << " patterns" << endmsg;
   }
 
 
@@ -943,7 +943,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::findTracks(const std::vector<const TrigS
 
   /** Debug info. */
   if(outputLevel<=MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "TRACK MAKING: created " << trackColl->size() << " tracks" << endreq;
+    athenaLog << MSG::DEBUG << "TRACK MAKING: created " << trackColl->size() << " tracks" << endmsg;
   }
 
   /** Perform cleanup. */
@@ -1192,7 +1192,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeSeedMaking() {
 	// Check if event timeout was reached
 	if (Athena::Timeout::instance().reached()) {
 	  if(outputLevel<=MSG::DEBUG)
-	    athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endreq;
+	    athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endmsg;
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
@@ -1320,7 +1320,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeSeedMakingVertex(std::vector<floa
 	// Check if event timeout was reached
 	if (Athena::Timeout::instance().reached()) {
 	  if(outputLevel<=MSG::DEBUG)
-	    athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endreq;
+	    athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endmsg;
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
@@ -1593,7 +1593,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeTripletMaking() {
     // Check if event timeout was reached
     if (Athena::Timeout::instance().reached()) {
       if(outputLevel<=MSG::DEBUG)
-    	athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endreq;
+    	athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
     }
       
@@ -1878,7 +1878,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeTripletMaking() {
 	phi12 = atan2(s2->y()-s1->y(), s2->x()-s1->x());
 	if(phi12>M_PI) phi12=phi12-2*M_PI; else if(phi12<-M_PI) phi12=phi12+2*M_PI;
 	theta12 = atan2(s2->r()-s1->r(), s2->z()-s1->z());
-	if(theta12<-M_PI) theta12+=2*M_PI; if(theta12>M_PI) theta12-=2*M_PI; if(theta12<0) theta12=M_PI+theta12;
+	if(theta12<-M_PI) theta12+=2*M_PI;
+        if(theta12>M_PI) theta12-=2*M_PI;
+        if(theta12<0) theta12=M_PI+theta12;
 	tanHalfTheta=tan(0.5*theta12);
 	if(tanHalfTheta!=0)
 	  eta12 = -log(tanHalfTheta);
@@ -2692,7 +2694,9 @@ void TrigL2PattRecoStrategyB::fitRZ(TrigInDetTrack* t, float &xc, float &yc, flo
     z0=z1-((z2-z1)/(r2-r1))*r1;
     par->z0(z0);
     float theta = atan2(r2-r1, z2-z1);
-    if(theta<-M_PI) theta+=2*M_PI; if(theta>M_PI) theta-=2*M_PI; if(theta<0) theta=M_PI+theta;
+    if(theta<-M_PI) theta+=2*M_PI;
+    if(theta>M_PI) theta-=2*M_PI;
+    if(theta<0) theta=M_PI+theta;
     float tanHalfTheta=tan(0.5*theta);
     float eta=0;   
     if(tanHalfTheta!=0)
@@ -2726,7 +2730,9 @@ void TrigL2PattRecoStrategyB::fitRZ(TrigInDetTrack* t, float &xc, float &yc, flo
    
     /** Evaluate track parameters. */
     float theta = atan2(-q*rc, ang);
-    if(theta<-M_PI) theta+=2*M_PI; if(theta>M_PI) theta-=2*M_PI; if(theta<0) theta=M_PI+theta;
+    if(theta<-M_PI) theta+=2*M_PI;
+    if(theta>M_PI) theta-=2*M_PI;
+    if(theta<0) theta=M_PI+theta;
     float tanHalfTheta=tan(0.5*theta);
     float eta=0;   
     if(tanHalfTheta!=0)

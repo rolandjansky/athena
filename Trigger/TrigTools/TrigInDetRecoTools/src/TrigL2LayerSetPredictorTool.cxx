@@ -38,45 +38,45 @@ StatusCode TrigL2LayerSetPredictorTool::initialize() {
   sc=m_numberingTool.retrieve(); 
 
   if(sc.isFailure()) {
-    athenaLog << MSG::FATAL << "Could not retrieve "<<m_numberingTool<<endreq;
+    athenaLog << MSG::FATAL << "Could not retrieve "<<m_numberingTool<<endmsg;
     return StatusCode::FAILURE;
    } 
   /*
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Could not retrieve "<<m_regionSelector.type()<<endreq;
+    athenaLog << MSG::FATAL << "Could not retrieve "<<m_regionSelector.type()<<endmsg;
     return StatusCode::FAILURE;
   }
   */
   //Get ID helpers
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get AtlasDetectorID helper AtlasID"<<endreq;
+    athenaLog << MSG::FATAL << "Could not get AtlasDetectorID helper AtlasID"<<endmsg;
     return StatusCode::FAILURE;
   }
   
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endreq;
+    athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endmsg;
     return StatusCode::FAILURE;
   }
   
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
-    athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endreq;
+    athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Could not retrieve Pixel DetectorManager from detStore."<<endreq; 
+    athenaLog << MSG::FATAL << "Could not retrieve Pixel DetectorManager from detStore."<<endmsg; 
     return sc;
   }
 
   sc = detStore()->retrieve(m_SCT_Manager);
   if( sc.isFailure() ) {
-    athenaLog << MSG::ERROR << "Could not retrieve SCT DetectorManager from detStore." << endreq;
+    athenaLog << MSG::ERROR << "Could not retrieve SCT DetectorManager from detStore." << endmsg;
     return sc;
   }
 
-  athenaLog << MSG::INFO << "TrigL2LayerSetPredictorTool initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigL2LayerSetPredictorTool initialized "<< endmsg;
   return sc;
 }
 
@@ -93,7 +93,7 @@ StatusCode TrigL2LayerSetPredictorTool::createLUT() {
   StatusCode sc(StatusCode::SUCCESS);
   MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::INFO <<"creating LUT for layer set prediction"<<endreq;
+  athenaLog << MSG::INFO <<"creating LUT for layer set prediction"<<endmsg;
 
   int maxLayer = m_numberingTool->maxSiliconLayerNum();
 
@@ -125,8 +125,8 @@ StatusCode TrigL2LayerSetPredictorTool::createLUT() {
 	      const InDetDD::SiDetectorElement* element = (SubDetId==0) ? m_pixelManager->getDetectorElement(id) : m_SCT_Manager->getDetectorElement(id);
 
 	      if(element==0) {
-		athenaLog << MSG::INFO<<"Barrel element not found: DetId="<<SubDetId<<" iB="<<iBarrel<<" iL="<<iLayer<<" iPhi="<<iPhi<<" iEta="<<iEta<<endreq;
-		if (SubDetId==0) athenaLog << MSG::INFO<<"element id="<<id<<" : "<<m_pixelId->print_to_string(id)<<endreq;
+		athenaLog << MSG::INFO<<"Barrel element not found: DetId="<<SubDetId<<" iB="<<iBarrel<<" iL="<<iLayer<<" iPhi="<<iPhi<<" iEta="<<iEta<<endmsg;
+		if (SubDetId==0) athenaLog << MSG::INFO<<"element id="<<id<<" : "<<m_pixelId->print_to_string(id)<<endmsg;
 		continue;
 	      }
 	      int layerId = (SubDetId==0) ? iLayer : iLayer+m_numberingTool->offsetBarrelSCT();

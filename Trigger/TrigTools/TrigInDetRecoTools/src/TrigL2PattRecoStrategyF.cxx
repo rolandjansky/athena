@@ -69,26 +69,26 @@ StatusCode TrigL2PattRecoStrategyF::initialize()
 
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endreq;
+    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endmsg;
     return sc;
   }
 
   // Get SCT & pixel Identifier helpers
 
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
      return StatusCode::FAILURE;
   }  
 
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;  
   }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -99,7 +99,7 @@ StatusCode TrigL2PattRecoStrategyF::initialize()
 
   }
 
-  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyF initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyF initialized "<< endmsg;
   return sc;
 }
 
@@ -126,7 +126,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyF called in RoI-based mode "<<endreq;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyF called in RoI-based mode "<<endmsg;
 
   std::vector<IdentifierHash>  listOfFTKIds;
 
@@ -144,7 +144,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
   
   if(sc.isFailure()) {
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog<< MSG::DEBUG<<"Failed to retrieve FTK Tracks "<<endreq;
+      athenaLog<< MSG::DEBUG<<"Failed to retrieve FTK Tracks "<<endmsg;
     return rc;// job can continue but the trackColl will be empty
   }
 
@@ -156,7 +156,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
     if(pColl==NULL) continue;
 
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog<< MSG::DEBUG<<"FTK collection size="<<pColl->size()<<endreq;
+      athenaLog<< MSG::DEBUG<<"FTK collection size="<<pColl->size()<<endmsg;
 
     for(TrigInDetTrackCollection::const_iterator trIt = pColl->begin(); trIt!=pColl->end();++trIt) {
       const TrigInDetTrack* pTrack = (*trIt);
@@ -218,13 +218,13 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
 
   HLT::ErrorCode rc=HLT::OK;
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyF called in full-scan mode "<<endreq;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyF called in full-scan mode "<<endmsg;
 
   StatusCode sc=getFTK_Tracks();
 
   if(sc.isFailure()) {
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog<< MSG::DEBUG<<"Failed to retrieve FTK Tracks "<<endreq;
+      athenaLog<< MSG::DEBUG<<"Failed to retrieve FTK Tracks "<<endmsg;
     return rc;// job can continue but the trackColl will be empty
   }
 
@@ -236,7 +236,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
     if(pColl==NULL) continue;
 
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog<< MSG::DEBUG<<"FTK collection size="<<pColl->size()<<endreq;
+      athenaLog<< MSG::DEBUG<<"FTK collection size="<<pColl->size()<<endmsg;
 
     for(TrigInDetTrackCollection::const_iterator trIt = pColl->begin(); trIt!=pColl->end();++trIt) {
       const TrigInDetTrack* pTrack = (*trIt);
@@ -305,13 +305,13 @@ StatusCode TrigL2PattRecoStrategyF::retrieveIDC() {
 
   if( !evtStore()->transientContains<TrigInDetTrackCollection>(m_ftkTracksName)){  
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog<< MSG::DEBUG<< " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endreq;
+      athenaLog<< MSG::DEBUG<< " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endmsg;
     return sc;
   }  
   else { 
     sc = evtStore()->retrieve(m_ftkTracksContainer, m_ftkTracksName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endreq; 
+      athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endmsg; 
       return sc; 
     }
   } 
