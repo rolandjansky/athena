@@ -28,7 +28,7 @@ bool testbit (unsigned int x, unsigned int i)
 
 void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7* pers, 
 					     CaloClusterContainer* trans, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p7" << endreq;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p7" << endmsg;
 
   static CaloPhiRange range;
 					     
@@ -98,7 +98,7 @@ void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7* pers
   if (tmp_badChannelEta.size() != pers->m_badClusIndexList.size() ||
       tmp_badChannelPhi.size() != pers->m_badClusIndexList.size() ||
       pers->m_badLayerStatusList.size() != pers->m_badClusIndexList.size()) {
-    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endreq;
+    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endmsg;
     fillBad=false;
   }
   
@@ -345,7 +345,7 @@ void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7* pers
 
 void CaloClusterContainerCnv_p7::transToPers(const CaloClusterContainer* /*trans*/, 
 					     CaloClusterContainer_p7* /*pers*/, MsgStream &log) {
-  log << MSG::ERROR << "Writing of  CaloClusterContainerCnv_p7 not implemented any more" << endreq;
+  log << MSG::ERROR << "Writing of  CaloClusterContainerCnv_p7 not implemented any more" << endmsg;
 } 
 
 

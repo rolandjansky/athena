@@ -11,7 +11,7 @@
 #include "GaudiKernel/Bootstrap.h"
 
 CaloCellContainerCnv_p1::CaloCellContainerCnv_p1 () {
-  m_compactCellTool = 0;
+  m_compactCellTool = nullptr;
   init();
 }
 
@@ -29,7 +29,7 @@ void CaloCellContainerCnv_p1::init(){
 		sc = toolSvc->retrieveTool("CaloCompactCellTool", m_compactCellTool);
 		if (sc.isFailure()) {
 			std::cout << "CaloCellContainerCnv_p1: Could not get CaloCompactCellTool." << std::endl;
-			m_compactCellTool = 0;
+			m_compactCellTool = nullptr;
 			return;
 		}
 	}

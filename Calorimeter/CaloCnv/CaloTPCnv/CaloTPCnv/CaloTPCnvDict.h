@@ -15,6 +15,8 @@
 #include "CaloTPCnv/CaloTowerContainer_p1.h"
 #include "CaloTPCnv/CaloTopoTowerContainer_p1.h"
 
+#include "CaloTPCnv/CaloClusterCellLinkContainer_p1.h"
+
 //Version 2
 #include "CaloTPCnv/CaloClusterContainer_p2.h"
 #include "CaloTPCnv/CaloShowerContainer_p2.h"
