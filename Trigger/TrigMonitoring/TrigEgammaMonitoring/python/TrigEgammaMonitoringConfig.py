@@ -16,9 +16,9 @@
 
 # Provide function that is called by HLTMonitoring
 # Returns the name of tool in ToolSvc
-def TrigEgammaMonitoringTool():
+def TrigEgammaMonitoringTool(**kwargs):
     from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolBuilder
-    builder = TrigEgammaMonToolBuilder()
+    builder = TrigEgammaMonToolBuilder(**kwargs)
     return builder.monTool
 
 """
@@ -43,6 +43,7 @@ if not 'DQMonFlags' in dir():
 class TrigEgammaMonToolBuilder:
     _configured = False
     _get_monitoring_mode_success = False
+    
     pp_mode = False
     pPb_mode = False
     HI_mode = False
@@ -55,7 +56,9 @@ class TrigEgammaMonToolBuilder:
     detailLevel = False
     
     # Add a flag to enable emulation
+    __acceptable_keys_list=['derivation','emulation']
     emulation = False
+    derivation = False
 
     tagItems = []
     JpsitagItems = []
@@ -68,8 +71,14 @@ class TrigEgammaMonToolBuilder:
     
     monTool=[]
 
-    def __init__(self):
+    def __init__(self,**kwargs):
         if not self._configured:
+            for key,value in kwargs.items():
+                print key,value
+                if key in self.__acceptable_keys_list:
+                    setattr(self,key,value)
+            #print self.derivation,self.emulation
+
             self.config()
         
     def config(self):
@@ -116,7 +125,7 @@ class TrigEgammaMonToolBuilder:
         elif self.HI_mode == True or self.pPb_mode == True:
             self.electronList = monitoring_electron_hi
             self.photonList = monitoring_photon_hi
-            self.tpList=monitoring_electron_hi
+            self.tpList=monitoringTP_electron_hi
             self.mam=monitoring_mam_hi
         elif self.mc_mode == True:
             self.electronList = validation_electron
@@ -198,7 +207,7 @@ class TrigEgammaMonToolBuilder:
         self.configureJpsiMonTool(plotTool,toolList)
     
     def configureTools(self):
-        HLTEgammaPlotTool = TrigEgammaPlotTool.copy(name="HLTEgammaPlotTool",
+        HLTEgammaPlotTool = TrigEgammaPlotTool.copy(name="TrigEgammaPlotTool",
                 DirectoryPath=self.basePath,
                 MaM=self.mam,
                 Efficiency=plots_efficiency,
@@ -218,8 +227,15 @@ class TrigEgammaMonToolBuilder:
         # Need to ensure the correct tools are configured 
         # for each monitoring mode
         if self.mc_mode == True or self.pp_mode == True:
-            self.configureAllMonTools(HLTEgammaPlotTool,toolList)
-        elif self.HI_mode == True or self.pPb_mode == True or self.cosmic_mode == True:
+            if(self.derivation == True):
+                self.configureTPMonTool(HLTEgammaPlotTool,toolList)
+            else:
+                self.configureAllMonTools(HLTEgammaPlotTool,toolList)
+        elif self.HI_mode == True or self.pPb_mode == True: 
+            self.configureTPMonTool(HLTEgammaPlotTool,toolList)
+            self.configureElectronMonTool(HLTEgammaPlotTool,toolList)
+            self.configurePhotonMonTool(HLTEgammaPlotTool,toolList)
+        elif self.cosmic_mode == True:
             self.configureElectronMonTool(HLTEgammaPlotTool,toolList)
             self.configurePhotonMonTool(HLTEgammaPlotTool,toolList)
         else:
@@ -239,16 +255,22 @@ class TrigEgammaMonToolBuilder:
     def configureMonTool(self):
         from AthenaCommon.AppMgr import ToolSvc
         toolList=['TrigEgammaMonTool/HLTEgammaMon'];
-        if self.mc_mode == True:
-            ToolSvc += self.configureDefaultMonTool()
-        elif self.pp_mode == True:
-            ToolSvc += self.configureDefaultMonTool()
+        if self.mc_mode == True or self.pp_mode == True:
+            if(self.derivation == True):
+                tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
+                        histoPathBase=self.basePath,
+                        IgnoreTruncationCheck=True,
+                        Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
+                ToolSvc += tool        
+            else:
+                ToolSvc += self.configureDefaultMonTool()
         elif self.HI_mode == True or self.pPb_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
-                            "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
+                            "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
+                            "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
             ToolSvc += tool        
         elif self.cosmic_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 

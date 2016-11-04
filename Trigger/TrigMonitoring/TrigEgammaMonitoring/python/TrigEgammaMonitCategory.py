@@ -2,16 +2,16 @@
 
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
-primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0','HLT_e120_lhloose_nod0','HLT_e140_lhloose_nod0']
+primary_single_ele = ['HLT_e22_lhloose_nod0','HLT_e7_etcut','HLT_e15_etcut','HLT_e15_lhloose_nod0','HLT_e15_loose','HLT_e17_lhloose_nod0','HLT_e17_loose']
 primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
 monitoring_Zee = ['HLT_e26_lhtight_nod0_e15_etcut_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
-primary_single_pho = ['HLT_g120_loose','g140_loose']
+primary_single_pho = ['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose','HLT_g35_loose','HLT_g60_loose']
 
 #Other categories
-primary_double_ele = ['HLT_2e17_lhvloose_nod0']
-monitoring_ele_idperf = ['HLT_e26_lhtight_idperf']
-primary_double_pho = ['HLT_g35_loose_g25_loose','HLT_g35_medium_g25_medium','HLT_2g20_tight','HLT_2g22_tight']
+primary_double_ele = ['HLT_2e7_etcut','HLT_2e10_etcut','HLT_e7_lhloose_nod0','HLT_2e7_loose']
+monitoring_ele_idperf = ['HLT_e15_lhloose_idperf']
+primary_double_pho = ['HLT_2g10_loose']
 
 #Old categories
 primary_single_ele_cutbased = []
@@ -36,7 +36,7 @@ plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2"
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
 # Define triggers for tagging 
-monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+monitoring_tags = ['HLT_e22_lhloose_nod0','HLT_e22_lhloose']
 
 monitoring_jpsitags = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e9_lhtight_nod0_e4_etcut',
     'HLT_e14_lhtight_nod0_e4_etcut',
@@ -76,9 +76,10 @@ validation_photon.extend(monitoring_photon)
 validation_mam=monitoring_mam
 
 # Heavy Ion items
-monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose']
-monitoring_photon_hi=['HLT_g15_loose','HLT_g15_medium']
+monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_lhloose','HLT_e17_lhloose']
+monitoringTP_electron_hi=['HLT_e15_lhloose_idperf','HLT_e15_loose','HLT_e15_lhloose_nod0','HLT_e17_lhloose_nod0','HLT_e22_lhloose_nod0']
+monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose','HLT_g35_loose','HLT_g60_loose']
 monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose',
-        'primary_single_ele':'HLT_e15_lhloose',
-        'primary_single_pho':'HLT_g15_medium'}
+        'primary_single_ele':'HLT_e15_lhloose_nod0',
+        'primary_single_pho':'HLT_g15_loose'}
 
