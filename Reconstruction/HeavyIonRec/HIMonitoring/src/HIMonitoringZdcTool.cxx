@@ -233,7 +233,7 @@ void HIMonitoringZdcTool::book_hist()
 
 	nameSideAC.str("");
 	nameSideAC<<"hSideA_sideC";
-	hSideAC = TH2D_LW::create(nameSideAC.str().c_str(), nameSideAC.str().c_str(),10241,-0.5,10240.5,10241,-0.5,10240.5);
+	hSideAC = TH2D_LW::create(nameSideAC.str().c_str(), nameSideAC.str().c_str(),4097, -5, 40965, 4097, -5, 40965);
 	regHist(hSideAC, path, run).ignore();
 /*	
 	nameSideAC.str("");
@@ -245,7 +245,7 @@ void HIMonitoringZdcTool::book_hist()
 		
 		nameEM_HAD1.str("");
 		nameEM_HAD1<<"hEM_HAD1_side"<<k;
-		hEM_HAD1[k] = TH2D_LW::create(nameEM_HAD1.str().c_str(),nameEM_HAD1.str().c_str(),10241,-0.5,10240.5,10241,-0.5,10240.5);
+		hEM_HAD1[k] = TH2D_LW::create(nameEM_HAD1.str().c_str(),nameEM_HAD1.str().c_str(), 1025, -5, 10245, 1025, -5, 10245);
 		regHist(hEM_HAD1[k], path, run).ignore();
 /*
 		nameEM_HAD1.str("");
@@ -255,7 +255,7 @@ void HIMonitoringZdcTool::book_hist()
 */
 		nameHAD1_HAD2.str("");
 		nameHAD1_HAD2<<"hHAD1_HAD2_side"<<k;
-		hHAD1_HAD2[k] = TH2D_LW::create(nameHAD1_HAD2.str().c_str(),nameHAD1_HAD2.str().c_str(),10241,-0.5,10240.5,10241,-0.5,10240.5);
+		hHAD1_HAD2[k] = TH2D_LW::create(nameHAD1_HAD2.str().c_str(),nameHAD1_HAD2.str().c_str(), 1025, -5, 10245, 1025, -5, 10245);
 		regHist(hHAD1_HAD2[k], path, run).ignore();
 /*
 		nameHAD1_HAD2.str("");
@@ -265,7 +265,7 @@ void HIMonitoringZdcTool::book_hist()
 	*/		
 		nameHAD2_HAD3.str("");
 		nameHAD2_HAD3<<"hHAD2_HAD3_side"<<k;
-		hHAD2_HAD3[k] = TH2D_LW::create(nameHAD2_HAD3.str().c_str(),nameHAD2_HAD3.str().c_str(),10241,-0.5,10240.5,10241,-0.5,10240.5);
+		hHAD2_HAD3[k] = TH2D_LW::create(nameHAD2_HAD3.str().c_str(),nameHAD2_HAD3.str().c_str(), 1025, -5, 10245, 1025, -5, 10245);
 		regHist(hHAD2_HAD3[k], path, run).ignore();
 /*
 		nameHAD2_HAD3.str("");
@@ -275,7 +275,7 @@ void HIMonitoringZdcTool::book_hist()
 	*/		
 		nameSumSideAmp.str("");
 		nameSumSideAmp<<"hSumSideAmp_side"<<k;
-		hSumSideAmp[k] = new TH1D(nameSumSideAmp.str().c_str(), nameSumSideAmp.str().c_str(),40961,-0.5,40960.5);
+		hSumSideAmp[k] = new TH1D(nameSumSideAmp.str().c_str(), nameSumSideAmp.str().c_str(), 4097,-5,40965);
 		regHist(hSumSideAmp[k], path, run).ignore();
 /*
 		nameSumSideAmp.str("");
@@ -285,18 +285,18 @@ void HIMonitoringZdcTool::book_hist()
 	*/	
 		nameSumSideAmpG0.str("");
 		nameSumSideAmpG0<<"hSumSideAmpG0_side"<<k;
-		hSumSideAmpG0[k] = new TH1D(nameSumSideAmpG0.str().c_str(), nameSumSideAmpG0.str().c_str(),40961,-0.5,40960.5);
+		hSumSideAmpG0[k] = new TH1D(nameSumSideAmpG0.str().c_str(), nameSumSideAmpG0.str().c_str(),4097,-0.5,4096.5);
 		regHist(hSumSideAmpG0[k], path, run).ignore();
 		
 		nameSumSideAmpG1.str("");
 		nameSumSideAmpG1<<"hSumSideAmpG1_side"<<k;
-		hSumSideAmpG1[k] = new TH1D(nameSumSideAmpG1.str().c_str(), nameSumSideAmpG1.str().c_str(),40961,-0.5,40960.5);
+		hSumSideAmpG1[k] = new TH1D(nameSumSideAmpG1.str().c_str(), nameSumSideAmpG1.str().c_str(),4097,-0.5,4096.5);
 		regHist(hSumSideAmpG1[k], path, run).ignore();
 		
 		for(int i = 0; i<Nmod; i++){
 			histnameamp.str("");
 			histnameamp<<"h_amplitude_mod"<<i<<"_side"<<k;
-			hamp[i][k] = new TH1D(histnameamp.str().c_str(), histnameamp.str().c_str(), 10241,-0.5,10240.5);
+			hamp[i][k] = new TH1D(histnameamp.str().c_str(), histnameamp.str().c_str(), 1025, -5, 10245);
 			regHist(hamp[i][k], path, run).ignore();
 	/*		
 			histnameamp.str("");
@@ -306,12 +306,12 @@ void HIMonitoringZdcTool::book_hist()
 		*/	
 			histnameampG0.str("");
 			histnameampG0<<"h_amplitudeG0_mod"<<i<<"_side"<<k;
-			hampG0[i][k] = new TH1D(histnameampG0.str().c_str(), histnameampG0.str().c_str(), 10241,-0.5,10240.5);
+			hampG0[i][k] = new TH1D(histnameampG0.str().c_str(), histnameampG0.str().c_str(), 1025, -0.5, 1024.5);
 			regHist(hampG0[i][k], path, run).ignore();
 			
 			histnameampG1.str("");
 			histnameampG1<<"h_amplitudeG1_mod"<<i<<"_side"<<k;
-			hampG1[i][k] = new TH1D(histnameampG1.str().c_str(), histnameampG1.str().c_str(), 10241,-0.5,10240.5);
+			hampG1[i][k] = new TH1D(histnameampG1.str().c_str(), histnameampG1.str().c_str(), 1025, -0.5, 1024.5);
 			regHist(hampG1[i][k], path, run).ignore();
 		}
 	}
