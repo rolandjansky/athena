@@ -184,6 +184,10 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
   }
 
   bool setcontainer = setDataObject(dobj);
+  if (DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (dobj)) {
+    dbb->relinquish();
+    delete dbb;
+  }
   if(!setcontainer) return false;
 
   DataObject* dobjaux(0);
@@ -198,6 +202,10 @@ bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dat
       return false;
     }
     bool setaux = setAuxDataObject(dobjaux);
+    if (DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (dobjaux)) {
+      dbb->relinquish();
+      delete dbb;
+    }
     if(!setaux) return false;
   }
   return true;  
