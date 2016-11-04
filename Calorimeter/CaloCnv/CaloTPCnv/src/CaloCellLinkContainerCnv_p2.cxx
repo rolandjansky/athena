@@ -12,13 +12,14 @@
 
 #include "DataModel/ElementLink.h"
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
-#include "SGTools/IStringPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "AthenaKernel/IThinningSvc.h"
+#include "CxxUtils/fpcompare.h"
 
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -203,7 +204,7 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
   pers->m_linkW.reserve (5*nclus);
 
   pers->m_contName.clear();
-  IStringPool::sgkey_t first_key = 0;
+  SG::sgkey_t first_key = 0;
 
 
   IThinningSvc * thinningSvc = IThinningSvc::instance();
@@ -228,7 +229,7 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 
       // Put stuff into array for later sorting.
       float weight = citer->second;
-      // Trying to store weights > NWIEGHT_SCALE will lead to corrupted data.
+      // Trying to store weights > NWEIGHT_SCALE will lead to corrupted data.
       if (fabs (weight) > NWEIGHT_SCALE) {
         REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING,
                                      "CaloCellLinkContainerCnv_p2")
@@ -258,12 +259,12 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 	  {
 	    //REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG, 
             //                         "CaloCellLinkContainerCnv_p2")
-	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endreq ;
+	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endmsg ;
             index = persIdx;
 	  }
       }
 
-      IStringPool::sgkey_t key = citer->first.key();
+      SG::sgkey_t key = citer->first.key();
       citer->first.source()->tryELRemap (key, index, key, index);
 
       if (pers->m_contName.empty()) {
@@ -328,8 +329,20 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
       // Don't let the weight sequence length get too large,
       // or we'll lose precision on the weight.  A limit of 255
       // allows the weight to be represented within ~0.02.
-      if (last_weight == cell.weight && nw_in_seq < 255)
+      //
+      // We also need to be careful comparing weights.
+      // Because we lose precision due to adding the sequence length,
+      // it's possible to have a case where last_weight != cell.weight,
+      // but they're equal after packing.  That means that if we
+      // then copy the data, the persistent data won't be exactly
+      // the same.  Try to take this into account in the comparison.
+      float w1 = (nw_in_seq+1)*NWEIGHT_SCALE + last_weight;
+      float w2 = (nw_in_seq+1)*NWEIGHT_SCALE + cell.weight;
+      using CxxUtils::fpcompare::equal;
+      if (equal (nextafterf (w1, w2), w2) && nw_in_seq < 255)
+      {
         ++nw_in_seq;
+      }
       else {
         if (nw_in_seq) {
           pers->m_linkW.push_back (nw_in_seq*NWEIGHT_SCALE + last_weight);

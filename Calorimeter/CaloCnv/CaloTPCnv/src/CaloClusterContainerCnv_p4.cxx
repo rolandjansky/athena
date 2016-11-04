@@ -27,7 +27,7 @@ bool testbit (unsigned int x, unsigned int i)
 
 void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers, 
 					     CaloClusterContainer* trans, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p4" << endreq;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p4" << endmsg;
 
   static CaloPhiRange range;
 					     
@@ -81,7 +81,7 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
   if (tmp_badChannelEta.size() != pers->m_badClusIndexList.size() ||
       tmp_badChannelPhi.size() != pers->m_badClusIndexList.size() ||
       pers->m_badLayerStatusList.size() != pers->m_badClusIndexList.size()) {
-    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endreq;
+    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endmsg;
     fillBad=false;
   }
   
@@ -273,7 +273,7 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
 
 void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans, 
 					     CaloClusterContainer_p4* pers, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p4" << endreq;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p4" << endmsg;
 
 
   static CaloPhiRange range;
@@ -388,7 +388,7 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
                      <<trDS->retrieveData(static_cast<vartype>(i),
                                           static_cast<samptype>(j))
                      <<"\t var: "<<i
-                     <<"\t sampling: "<<j<<endreq;
+                     <<"\t sampling: "<<j<<endmsg;
           }
         }
 			
@@ -424,12 +424,12 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
 // bad channel info
        const CaloCluster::badChannelList* badlist = cl.getBadChannel();
        // std::cout << " transtopers: bad channel size " << badlist->size() << std::endl;
-       for (unsigned int i=0;i<badlist->size();i++) {
+       for (const CaloClusterBadChannelData& bad : *badlist) {
           pers->m_badClusIndexList.push_back(index);
-          float etac = (*badlist)[i].getEta()-(cl.eta());
-          float phic = range.diff((*badlist)[i].getPhi(),cl.phi());
-          CaloSampling::CaloSample sampl = (*badlist)[i].getLayer();
-          CaloBadChannel flag = (*badlist)[i].getFlag();
+          float etac = bad.getEta()-(cl.eta());
+          float phic = range.diff(bad.getPhi(),cl.phi());
+          CaloSampling::CaloSample sampl = bad.getLayer();
+          CaloBadChannel flag = bad.getFlag();
           short status =  ((sampl & 0xff) | ((flag.packedData() & 0xff) << 8));
           tmp_badChannelEta.push_back(etac);
           tmp_badChannelPhi.push_back(phic);

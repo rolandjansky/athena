@@ -23,6 +23,7 @@
 #include "EventKernel/SignalStateHelper.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/make_unique.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <cassert>
@@ -160,14 +161,14 @@ CaloCluster* make_cluster()
 }
 
 
-const CaloClusterContainer* make_clusters()
+std::unique_ptr<const CaloClusterContainer> make_clusters()
 {
-  CaloClusterContainer* ccc = new CaloClusterContainer;
+  auto ccc = CxxUtils::make_unique<CaloClusterContainer>();
   ccc->setROIAuthor ("theauthor");
   ccc->setTowerSeg (CaloTowerSeg (20, 10, -4, 4, -3, 3));
   for (int i=0; i < 5; i++)
     ccc->push_back (make_cluster());
-  return ccc;
+  return std::unique_ptr<const CaloClusterContainer>(ccc.release());
 }
 
 
@@ -381,7 +382,7 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   SGTest::initTestStore();
-  const CaloClusterContainer* clust = make_clusters();
+  std::unique_ptr<const CaloClusterContainer> clust = make_clusters();
   testit<CaloClusterContainer_p7, CaloClusterContainerCnvTest_p7> (*clust, 7);
   testit<CaloClusterContainer_p6, CaloClusterContainerCnvTest_p6> (*clust, 6);
   testit<CaloClusterContainer_p5, CaloClusterContainerCnv_p5> (*clust, 5);

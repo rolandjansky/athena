@@ -11,7 +11,7 @@
 
 void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers, 
 					     CaloClusterContainer* trans, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCNV_p3" << endreq;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCNV_p3" << endmsg;
 					     
   // reset element link converters, and provide container name lookup table
   m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
@@ -72,7 +72,7 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers
 
 void CaloClusterContainerCnv_p3::transToPers(const CaloClusterContainer* trans, 
 					     CaloClusterContainer_p3* pers, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCNV_p3" << endreq;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCNV_p3" << endmsg;
 
   // reset element link converters, and provide container name lookup table
   m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);

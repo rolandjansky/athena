@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloInterface
                           Calorimeter/CaloUtils
+                          Control/CxxUtils
                           Control/SGTools
                           Event/EventKernel )
 
