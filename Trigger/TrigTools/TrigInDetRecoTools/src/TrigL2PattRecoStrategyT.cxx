@@ -100,46 +100,46 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
   // Get track-finding tool
   sc = m_trackmaker.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endreq;
+    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endmsg;
     return sc;
   } 
   else {
-    athenaLog << MSG::INFO << "Retrieved tool " << m_trackmaker << endreq;
+    athenaLog << MSG::INFO << "Retrieved tool " << m_trackmaker << endmsg;
   }
 
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endreq;
+    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endmsg;
     return sc;
   }
 
    sc = m_robDataProvider.retrieve();
   if(sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endreq;
+    athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = m_trtDataProvider.retrieve();
   if(sc.isFailure()) {
-    athenaLog << MSG::FATAL << "Unable to locate TRT data provider tool " <<m_trtDataProvider<< endreq;
+    athenaLog << MSG::FATAL << "Unable to locate TRT data provider tool " <<m_trtDataProvider<< endmsg;
     return sc;
   } 
 
   sc = m_segmentsmaker.retrieve();
   if( sc.isFailure() ) {
-    athenaLog <<"Could not get TRT_TrackSegmentsMaker tool "<<m_segmentsmaker<<endreq;
+    athenaLog <<"Could not get TRT_TrackSegmentsMaker tool "<<m_segmentsmaker<<endmsg;
     return sc;
   }
 
   // Get SCT & pixel Identifier helpers
 
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
      return StatusCode::FAILURE;
   }  
 
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;  
   }
 
@@ -150,7 +150,7 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -174,7 +174,7 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
 
   }
 
-  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyT initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyT initialized "<< endmsg;
   return sc;
 }
 
@@ -207,12 +207,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyT called in RoI-based mode "<<endreq;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyT called in RoI-based mode "<<endmsg;
 
 
   StatusCode sc = getIDCs();
   if(sc.isFailure()) {
-    athenaLog<<MSG::WARNING<<"Cannot retrieve SCT and Pixel SP IDCs "<<endreq;
+    athenaLog<<MSG::WARNING<<"Cannot retrieve SCT and Pixel SP IDCs "<<endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -221,7 +221,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   sc = getFilteredTRT_Hits(inputTrackColl,roi,listOfFilteredTrtIds);
 
   if(sc.isFailure()) {
-    athenaLog<<MSG::WARNING<<"Failure in TRT hit filtering "<<endreq;
+    athenaLog<<MSG::WARNING<<"Failure in TRT hit filtering "<<endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -229,22 +229,22 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   m_segmentsmaker->find(); 
 
   Trk::Segment* segment = 0;
-  int m_nsegments = 0;
+  int nsegments = 0;
   
   // Loop through all segments and reconsrtucted segments collection preparation
   
   Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
   
   while((segment = m_segmentsmaker->next())) {
-    ++m_nsegments; foundSegments->push_back(segment);
+    ++nsegments; foundSegments->push_back(segment);
   }
   
   m_segmentsmaker->endEvent();
 
   if (outputLevel <= MSG::INFO) 
-    athenaLog << MSG::INFO << "REGTEST: Found " << m_nsegments << " TRT segments" << endreq;
+    athenaLog << MSG::INFO << "REGTEST: Found " << nsegments << " TRT segments" << endmsg;
 
-  if(m_nsegments==0) 
+  if(nsegments==0) 
     return rc;  
 
   std::vector<IdentifierHash>  listOfSCTIds; 
@@ -257,7 +257,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
 
   TrackCollection* tempTracks = new TrackCollection;           //Temporary track collection per event
   
-  int m_nTrtSegGood=0;
+  int nTrtSegGood=0;
   
   for(Trk::SegmentCollection::iterator segIt=foundSegments->begin();segIt!=foundSegments->end();++segIt) {
 
@@ -268,25 +268,25 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     int nTrtHits = (*segIt)->numberOfMeasurementBases();
 
     if(outputLevel <= MSG::INFO) 
-      athenaLog << MSG::INFO << "Number Of Trt hits " << nTrtHits << endreq;
+      athenaLog << MSG::INFO << "Number Of Trt hits " << nTrtHits << endmsg;
     if(nTrtHits<m_minTrtHits) {
       if (outputLevel <= MSG::INFO) 
-	athenaLog << MSG::INFO << "Found segment with too few TRT hits =  " << nTrtHits << endreq;
+	athenaLog << MSG::INFO << "Found segment with too few TRT hits =  " << nTrtHits << endmsg;
       continue;
     }
 
-    m_nTrtSegGood++;
+    nTrtSegGood++;
     std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*trtTrack); //Get the possible Si extensions
       
     if(trackSi.size()==0){
       if (outputLevel <= MSG::INFO) 
-	athenaLog << MSG::INFO << "No Si track candidates associated to the TRT track " << endreq;
+	athenaLog << MSG::INFO << "No Si track candidates associated to the TRT track " << endmsg;
       continue;
     }
 
     if (outputLevel <= MSG::INFO) 
       athenaLog << MSG::INFO << "REGTEST: Found " << (trackSi.size()) << " Si tracks associated to the TRT track " 
-		<< endreq;
+		<< endmsg;
 	
     for (std::list<Trk::Track*>::const_iterator itt = trackSi.begin(); itt != trackSi.end(); ++itt){
 
@@ -323,13 +323,13 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
 
   HLT::ErrorCode rc=HLT::OK;
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyT called in full-scan mode "<<endreq;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyT called in full-scan mode "<<endmsg;
 
   /*
   StatusCode sc=convertInputData();
 
   if(sc.isFailure()) {
-    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endreq;
+    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -353,7 +353,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();   
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endreq;
+      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endmsg;
   }
   else{
     if(m_timers) m_timer[1]->start();
@@ -444,12 +444,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   }
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endreq;
+    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endmsg;
     athenaLog << MSG::DEBUG << "REGTEST: Investigated "
 	      << std::setw(7) <<  m_nseeds 
 	      << " seeds and found "
 	      << std::setw(5) << foundTracks->size() <<" tracks"
-	      << endreq;
+	      << endmsg;
   }
 
   for (size_t i=0; i<foundTracks->size() ; i++){
@@ -611,7 +611,7 @@ void TrigL2PattRecoStrategyT::createTriggerTrack(const Trk::Track& siTrack
     }
   }
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG <<nClust<<" SCT clusters left unassigned "<<endreq;
+    athenaLog << MSG::DEBUG <<nClust<<" SCT clusters left unassigned "<<endmsg;
   }
 
   if(pvsp->empty()) {
@@ -620,7 +620,7 @@ void TrigL2PattRecoStrategyT::createTriggerTrack(const Trk::Track& siTrack
   }
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG <<"created vector with "<<pvsp->size()<<" spacepoints"<<endreq;
+    athenaLog << MSG::DEBUG <<"created vector with "<<pvsp->size()<<" spacepoints"<<endmsg;
   }
 
   // converting the TRT part
@@ -695,25 +695,25 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       if(sc.isFailure())
 	{
 	  athenaLog << MSG::WARNING << "TRT DriftCircleContainer " << m_trtFilteredContName <<
-	    " cannot be recorded into StoreGate! "<<endreq;
+	    " cannot be recorded into StoreGate! "<<endmsg;
 	  return sc;
 	} 
       else 
 	{ 
 	  if (outputLevel <= MSG::INFO) 
 	    athenaLog << MSG::INFO<<"TRT DriftCircleContainer " << m_trtFilteredContName <<
-	      "  recorded into StoreGate! "<<endreq;
+	      "  recorded into StoreGate! "<<endmsg;
 	}
     } 
 
-  std::set<Identifier> m_usedHits;
-  m_usedHits.clear();
+  std::set<Identifier> usedHits;
+  usedHits.clear();
   if(!inputTrackColl.empty()) {
 
     //1a. loop over input tracks, build a set of used TRT hits
 
     if (outputLevel <= MSG::INFO) 
-      athenaLog << MSG::INFO << "Total " << inputTrackColl.size()<<" input tracks..."<< endreq;
+      athenaLog << MSG::INFO << "Total " << inputTrackColl.size()<<" input tracks..."<< endmsg;
 
     TrigInDetTrackCollection::const_iterator trIt,lastIt;
 
@@ -723,7 +723,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       std::vector<const InDet::TRT_DriftCircle*>::iterator hitIt=(*trIt)->trtDriftCircles()->begin(),
 	hitItEnd=(*trIt)->trtDriftCircles()->end();
       for(;hitIt!=hitItEnd;++hitIt)
-	m_usedHits.insert((*hitIt)->identify());
+	usedHits.insert((*hitIt)->identify());
     }
   }
 
@@ -732,7 +732,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   m_regionSelector->DetHashIDList(TRT, roi, listOfTrtIds);
   
   if (outputLevel <= MSG::INFO) 
-    athenaLog << MSG::INFO<< listOfTrtIds.size() << " REGTEST: TRT Dets in region" << endreq;
+    athenaLog << MSG::INFO<< listOfTrtIds.size() << " REGTEST: TRT Dets in region" << endmsg;
   
   std::vector<unsigned int> uIntListOfTRTRobs;
 
@@ -748,7 +748,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   if(sc.isRecoverable())
     {
       if(outputLevel <= MSG::INFO)
-	athenaLog<<MSG::INFO<<"Recoverable errors during TRT BS conversion  "<<endreq;
+	athenaLog<<MSG::INFO<<"Recoverable errors during TRT BS conversion  "<<endmsg;
       /*
       const std::vector<int>* errVect = m_trtDataProvider->fillTRT_DataErrors();
       std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
@@ -756,7 +756,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
     }
   else if(sc.isFailure())
     {
-      athenaLog << MSG::WARNING << " TRT Data provider failed" << endreq;
+      athenaLog << MSG::WARNING << " TRT Data provider failed" << endmsg;
       return sc;
     }
 
@@ -768,11 +768,11 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
 	       <<m_trtDataProvider->trtContainerName()<<
-	" pointer="<<trtContainer<< endreq;
+	" pointer="<<trtContainer<< endmsg;
       return sc;
     }
   if(outputLevel <= MSG::INFO)
-    athenaLog<<MSG::INFO<<"TRT DriftCircle container retrieved"<<endreq;
+    athenaLog<<MSG::INFO<<"TRT DriftCircle container retrieved"<<endmsg;
 
   int nTotalHits=0;
   int nFilteredHits=0;
@@ -797,7 +797,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       for(InDet::TRT_DriftCircleCollection::const_iterator dcIt=coll->begin();dcIt!=coll->end();++dcIt) {
 	Identifier dcId = (*dcIt)->identify();
 	nTotalHits++;
-	if(m_usedHits.find(dcId)!=m_usedHits.end()) continue;
+	if(usedHits.find(dcId)!=usedHits.end()) continue;
 
 	InDet::TRT_DriftCircle* pRIO = new InDet::TRT_DriftCircle(**dcIt);
 		
@@ -814,12 +814,12 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       StatusCode scColl = m_filteredDriftCircleContainer->addCollection(pNewColl,pNewColl->identifyHash());
       listOfFilteredTrtIds.push_back(pNewColl->identifyHash());
       if(scColl.isFailure()) {
-	athenaLog<<MSG::WARNING<<"Cannot store collection in IDC "<< endreq;
+	athenaLog<<MSG::WARNING<<"Cannot store collection in IDC "<< endmsg;
       }
   }
 
   if (outputLevel <= MSG::INFO) 
-    athenaLog << MSG::INFO << "Total " << nTotalHits <<" TRT hits in RoI, "<<nFilteredHits<<" left after filtering"<< endreq;
+    athenaLog << MSG::INFO << "Total " << nTotalHits <<" TRT hits in RoI, "<<nFilteredHits<<" left after filtering"<< endmsg;
 
   return sc;
 }
@@ -844,25 +844,25 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       if(sc.isFailure())
 	{
 	  athenaLog << MSG::WARNING << "TRT DriftCircleContainer " << m_trtFilteredContName <<
-	    " cannot be recorded into StoreGate! "<<endreq;
+	    " cannot be recorded into StoreGate! "<<endmsg;
 	  return sc;
 	} 
       else 
 	{ 
 	  if (outputLevel <= MSG::INFO) 
 	    athenaLog << MSG::INFO<<"TRT DriftCircleContainer " << m_trtFilteredContName <<
-	      "  recorded into StoreGate! "<<endreq;
+	      "  recorded into StoreGate! "<<endmsg;
 	}
     } 
 
-  std::set<Identifier> m_usedHits;
-  m_usedHits.clear();
+  std::set<Identifier> usedHits;
+  usedHits.clear();
   if(!inputTrackColl.empty()) {
 
     //1a. loop over input tracks, build a set of used TRT hits
 
     if (outputLevel <= MSG::INFO) 
-      athenaLog << MSG::INFO << "Total " << inputTrackColl.size()<<" input tracks..."<< endreq;
+      athenaLog << MSG::INFO << "Total " << inputTrackColl.size()<<" input tracks..."<< endmsg;
 
     TrigInDetTrackCollection::const_iterator trIt,lastIt;
 
@@ -872,7 +872,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       std::vector<const InDet::TRT_DriftCircle*>::iterator hitIt=(*trIt)->trtDriftCircles()->begin(),
 	hitItEnd=(*trIt)->trtDriftCircles()->end();
       for(;hitIt!=hitItEnd;++hitIt)
-	m_usedHits.insert((*hitIt)->identify());
+	usedHits.insert((*hitIt)->identify());
     }
   }
 
@@ -881,7 +881,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   m_regionSelector->DetHashIDList(TRT, listOfTrtIds);
   
   if (outputLevel <= MSG::INFO) 
-    athenaLog << MSG::INFO<< listOfTrtIds.size() << " REGTEST: TRT Dets in region" << endreq;
+    athenaLog << MSG::INFO<< listOfTrtIds.size() << " REGTEST: TRT Dets in region" << endmsg;
   
   std::vector<unsigned int> uIntListOfTRTRobs;
 
@@ -896,7 +896,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   if(sc.isRecoverable())
     {
       if(outputLevel <= MSG::INFO)
-	athenaLog<<MSG::INFO<<"Recoverable errors during TRT BS conversion  "<<endreq;
+	athenaLog<<MSG::INFO<<"Recoverable errors during TRT BS conversion  "<<endmsg;
       /*
       const std::vector<int>* errVect = m_trtDataProvider->fillTRT_DataErrors();
       std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
@@ -904,7 +904,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
     }
   else if(sc.isFailure())
     {
-      athenaLog << MSG::WARNING << " TRT Data provider failed" << endreq;
+      athenaLog << MSG::WARNING << " TRT Data provider failed" << endmsg;
       return sc;
     }
 
@@ -916,11 +916,11 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
 	       <<m_trtDataProvider->trtContainerName()<<
-	" pointer="<<trtContainer<< endreq;
+	" pointer="<<trtContainer<< endmsg;
       return sc;
     }
   if(outputLevel <= MSG::INFO)
-    athenaLog<<MSG::INFO<<"TRT DriftCircle container retrieved"<<endreq;
+    athenaLog<<MSG::INFO<<"TRT DriftCircle container retrieved"<<endmsg;
 
   int nTotalHits=0;
   int nFilteredHits=0;
@@ -944,7 +944,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       for(InDet::TRT_DriftCircleCollection::const_iterator dcIt=coll->begin();dcIt!=coll->end();++dcIt) {
 	Identifier dcId = (*dcIt)->identify();
 	nTotalHits++;
-	if(m_usedHits.find(dcId)!=m_usedHits.end()) continue;
+	if(usedHits.find(dcId)!=usedHits.end()) continue;
 
 	InDet::TRT_DriftCircle* pRIO = new InDet::TRT_DriftCircle(**dcIt);
 		
@@ -961,12 +961,12 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
       StatusCode scColl = m_filteredDriftCircleContainer->addCollection(pNewColl,pNewColl->identifyHash());
       listOfFilteredTrtIds.push_back(pNewColl->identifyHash());
       if(scColl.isFailure()) {
-	athenaLog<<MSG::WARNING<<"Cannot store collection in IDC "<< endreq;
+	athenaLog<<MSG::WARNING<<"Cannot store collection in IDC "<< endmsg;
       }
   }
 
   if (outputLevel <= MSG::INFO) 
-    athenaLog << MSG::INFO << "Total " << nTotalHits <<" TRT hits in RoI, "<<nFilteredHits<<" left after filtering"<< endreq;
+    athenaLog << MSG::INFO << "Total " << nTotalHits <<" TRT hits in RoI, "<<nFilteredHits<<" left after filtering"<< endmsg;
 
    return sc;
  }
@@ -981,25 +981,25 @@ StatusCode TrigL2PattRecoStrategyT::getIDCs() {
 
   sc = evtStore()->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
   if (sc.isFailure()) { 
-    athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endreq; 
+    athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endmsg; 
     return sc; 
   } 
   else {
     /*  
     athenaLog << MSG::DEBUG << "Got Pixel SpacePoints Container from TDS: " 
-	      << m_pixelOnlineClustersName << endreq; 
+	      << m_pixelOnlineClustersName << endmsg; 
     */
   } 
 
   sc = evtStore()->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
   if (sc.isFailure()) { 
-    athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endreq; 
+    athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endmsg; 
     return sc; 
   } 
   else {
     /*  
     athenaLog << MSG::DEBUG << "Got SCT SpacePoints Container from TDS: " 
-	      << m_pixelOnlineClustersName << endreq; 
+	      << m_pixelOnlineClustersName << endmsg; 
     */
   }
   return sc;

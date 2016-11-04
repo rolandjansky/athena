@@ -75,10 +75,10 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
   MsgStream athenaLog(msgSvc(), name());
 
   if ( m_adjustLayerThreshold ) { 
-    athenaLog << MSG::INFO << "will adjust layer threshold depending on disabled modules" << endreq;
+    athenaLog << MSG::INFO << "will adjust layer threshold depending on disabled modules" << endmsg;
     sc = m_regionSelector.retrieve();
     if ( sc.isFailure() ) {
-      athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endreq;
+      athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endmsg;
       return sc;
     }
   }
@@ -94,54 +94,54 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
   if(m_detector_mask_not_checked) {
     const EventInfo* pEventInfo(0);
     if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
-      athenaLog << MSG::FATAL << "Failed to get EventInfo for detector mask info in BeginRun()" << endreq;
+      athenaLog << MSG::FATAL << "Failed to get EventInfo for detector mask info in BeginRun()" << endmsg;
       return StatusCode::FAILURE;
     }
     setup_detector_mask(pEventInfo->event_ID());
   }
   */
   if( m_zFinderMode ==1 ){
-    athenaLog << MSG::WARNING << " You have chosen to use the MC z0 position!" << endreq;
+    athenaLog << MSG::WARNING << " You have chosen to use the MC z0 position!" << endmsg;
   }
   else {
     sc = m_zFinder.retrieve();
     if ( sc.isFailure() ) {
-      athenaLog << MSG::FATAL << "Unable to retrieve ZFinder " << m_zFinder  << endreq;
+      athenaLog << MSG::FATAL << "Unable to retrieve ZFinder " << m_zFinder  << endmsg;
       return StatusCode::FAILURE;
     }
   }
 
   if(m_doZF_Only) {
-    athenaLog << MSG::INFO << "ZFinder-only mode, HitFilter will not be run !"<< endreq;
+    athenaLog << MSG::INFO << "ZFinder-only mode, HitFilter will not be run !"<< endmsg;
   }
   else {
-    athenaLog << MSG::INFO << "Normal mode, HitFilter will be run"<< endreq;
+    athenaLog << MSG::INFO << "Normal mode, HitFilter will be run"<< endmsg;
   }
 
   if (m_useBeamSpot) {
     sc = service("BeamCondSvc", m_iBeamCondSvc);
     if (sc.isFailure() || m_iBeamCondSvc == 0) {
       m_iBeamCondSvc = 0;
-      athenaLog << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
+      athenaLog << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
     }
   }
 
   sc = m_hitFilter.retrieve();
   if ( sc.isFailure() ){
-    athenaLog << MSG::FATAL << "Unable to retrieve HitFilter " << m_hitFilter <<endreq;
+    athenaLog << MSG::FATAL << "Unable to retrieve HitFilter " << m_hitFilter <<endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = m_dupTrkRemoval.retrieve();
   if ( sc.isFailure() ){
-    athenaLog << MSG::FATAL << "Unable to retrieve DuplicateTrackRemovalTool " << m_dupTrkRemoval <<endreq;
+    athenaLog << MSG::FATAL << "Unable to retrieve DuplicateTrackRemovalTool " << m_dupTrkRemoval <<endmsg;
     return StatusCode::FAILURE;
   }
 
   ITrigTimerSvc* timerSvc;
   sc = service( "TrigTimerSvc", timerSvc);
   if( sc.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -155,7 +155,7 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
     m_HitFilterTimer->propName("nTracks");
   }
 
-  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyA initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyA initialized "<< endmsg;
   return sc;
 }
 
@@ -187,9 +187,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   int outputLevel = msgSvc()->outputLevel( name() );
   if (outputLevel <= MSG::DEBUG) {
     if ( roi.isFullscan() ) // || roi==nullptr)
-      athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyA called in FullScan mode "<<endreq;
+      athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyA called in FullScan mode "<<endmsg;
     else
-      athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyA called in RoI-based mode "<<endreq;
+      athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyA called in RoI-based mode "<<endmsg;
   }
 
   // 1. z-finder
@@ -197,10 +197,10 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   double zfPhiWidth = m_zFinder->RoI_PhiWidth();
   if(fabs(zfPhiWidth - 2.0*(roi.phiHalfWidth()))>0.0001)
     {
-      athenaLog << MSG::WARNING << "ZFinder ROIPhiWidth does not match input RoI phiHalfWidth"<<endreq;
-      athenaLog << MSG::WARNING << "ZFinder ROIPhiWidth = "<<zfPhiWidth<<endreq;
-      athenaLog << MSG::WARNING << "Input RoI phiHalfWidth x 2 = "<<2.0*(roi.phiHalfWidth())<<endreq;
-      athenaLog << MSG::WARNING << "Wrong instance configuration - quitting"<<endreq;
+      athenaLog << MSG::WARNING << "ZFinder ROIPhiWidth does not match input RoI phiHalfWidth"<<endmsg;
+      athenaLog << MSG::WARNING << "ZFinder ROIPhiWidth = "<<zfPhiWidth<<endmsg;
+      athenaLog << MSG::WARNING << "Input RoI phiHalfWidth x 2 = "<<2.0*(roi.phiHalfWidth())<<endmsg;
+      athenaLog << MSG::WARNING << "Wrong instance configuration - quitting"<<endmsg;
       return HLT::BAD_JOB_SETUP;
       }*/
   //unsigned int zVertexFailOrSucceed=0;
@@ -209,12 +209,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   if ( m_timers ) m_ZFinderTimer->start();
   if ( m_zFinderMode == 1 ){ // true Z
     if ( evtStore()->retrieve(zTrueVertexColl, m_TrueVertexLocation).isFailure() ) {
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Failed to get trueZvCollection" << endreq; 
+      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Failed to get trueZvCollection" << endmsg; 
       m_nZvertices = 0;
     } 
     else {
       TrigVertex* trueVertex = zTrueVertexColl->front();
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << " True z position " << (trueVertex->position()).z() << endreq;
+      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << " True z position " << (trueVertex->position()).z() << endmsg;
       m_nZvertices = 1;
       m_zVertices.push_back((trueVertex->position()).z());
     }
@@ -264,16 +264,16 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   unsigned int IdEvent=0;
   if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
     if(m_detector_mask_not_checked && m_detector_mask_on_event) {
-      athenaLog << MSG::ERROR << "Could not find EventInfo object for detector mask info" << endreq;
+      athenaLog << MSG::ERROR << "Could not find EventInfo object for detector mask info" << endmsg;
       return HLT::SG_ERROR;
     }
     // if we are not interested in the detector mask, this is a minor problem.
-    if (outputLevel <= MSG::DEBUG) athenaLog  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
+    if (outputLevel <= MSG::DEBUG) athenaLog  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
   } 
   else {
     IdRun   = pEventInfo->event_ID()->run_number();
     IdEvent = pEventInfo->event_ID()->event_number();
-    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;    
+    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endmsg;    
     if(m_detector_mask_not_checked && m_detector_mask_on_event)
       setup_detector_mask(pEventInfo->event_ID());
   }
@@ -283,7 +283,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   //if (!m_doShift && m_useBeamSpot && m_iBeamCondSvc) {
   if (m_useBeamSpot && m_iBeamCondSvc) {
     Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
-    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Beam spot position " << vertex << endreq;
+    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Beam spot position " << vertex << endmsg;
     double xVTX = vertex.x();
     double yVTX = vertex.y();
     double zVTX = vertex.z();
@@ -291,7 +291,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
     double tiltYZ = m_iBeamCondSvc->beamTilt(1);
     shiftx = xVTX - tiltXZ*zVTX;//correction for tilt
     shifty = yVTX - tiltYZ*zVTX;//correction for tilt
-    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Center position:  " << shiftx <<"  "<< shifty << endreq;
+    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Center position:  " << shiftx <<"  "<< shifty << endmsg;
   }
 
   // 4. HitFilter
@@ -299,7 +299,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   std::vector<unsigned int> placeHolder;
   for ( int iz=0; iz<m_nZvertices; ++iz )  {
     double zPosition = m_zVertices[iz];
-    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / z found = " << zPosition << endreq;
+    if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / z found = " << zPosition << endmsg;
     /*if(m_doShift) {
     //m_hitFilter->findTracks( spacePoints->spVec(), *m_recoTracks, roi, zPosition, spacePoints->get_xshift());
     m_hitFilter->findTracks( m_shifterTool->spVec(), *m_recoTracks, roi, zPosition, 
@@ -319,20 +319,20 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   // protection against timeouts
   if (Athena::Timeout::instance().reached()) {
     if(outputLevel<=MSG::DEBUG)
-      athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endreq;
+      athenaLog << MSG::DEBUG << "Timeout reached. Aborting sequence." << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);	        
   }
   
   if ( trackColl->empty() ) 
     {
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / No groups found - No tracks reconstructed" << endreq;
+      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / No groups found - No tracks reconstructed" << endmsg;
     }
   else
     { 
       //m_currentStage = 5;       
       //monitor number of tracks
       //m_ntracks=m_recoTracks->size();
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Made " << trackColl->size() << " IdScanGroups" << endreq;
+      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Made " << trackColl->size() << " IdScanGroups" << endmsg;
       //m_countRoIwithGroups[zVertexFailOrSucceed]++;
       
       //Deleting duplicate tracks from multiple z vertices 
@@ -371,12 +371,12 @@ void TrigL2PattRecoStrategyA::setup_detector_mask(const EventID* eventId) {
 
   if(outputLevel <= MSG::DEBUG) {
     athenaLog << MSG::DEBUG << "Retrieved the detector mask = 0x"
-	  << MSG::hex << dmask << MSG::dec << endreq;
+	  << MSG::hex << dmask << MSG::dec << endmsg;
   }
 
   if( dmask==0 ) {
     if(outputLevel <= MSG::DEBUG) {
-      athenaLog << MSG::DEBUG << "detector mask == 0: do nothing!" << endreq;
+      athenaLog << MSG::DEBUG << "detector mask == 0: do nothing!" << endmsg;
     }
     return;
   }
@@ -391,14 +391,14 @@ void TrigL2PattRecoStrategyA::setup_detector_mask(const EventID* eventId) {
   m_hasSCTEndcapC   = dm.is_set(eformat::SCT_ENDCAP_C_SIDE);
 
   if(outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << " ==== Detector Mask settings ==== " << endreq;           
-    athenaLog << MSG::DEBUG << " ---> Pixel B-Layer: " << ((m_hasPixelBLayer)? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> Pixel Barrel: "  << ((m_hasPixelBarrel)? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> Pixel Disk: "    << ((m_hasPixelDisk)  ? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> SCT Barrel side A: " << ((m_hasSCTBarrelA)? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> SCT Barrel side C: " << ((m_hasSCTBarrelC)? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> SCT Endcap side A: " << ((m_hasSCTEndcapA)? "ON" : "OFF") << endreq;
-    athenaLog << MSG::DEBUG << " ---> SCT Endcap side C: " << ((m_hasSCTEndcapC)? "ON" : "OFF") << endreq;
+    athenaLog << MSG::DEBUG << " ==== Detector Mask settings ==== " << endmsg;           
+    athenaLog << MSG::DEBUG << " ---> Pixel B-Layer: " << ((m_hasPixelBLayer)? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> Pixel Barrel: "  << ((m_hasPixelBarrel)? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> Pixel Disk: "    << ((m_hasPixelDisk)  ? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> SCT Barrel side A: " << ((m_hasSCTBarrelA)? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> SCT Barrel side C: " << ((m_hasSCTBarrelC)? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> SCT Endcap side A: " << ((m_hasSCTEndcapA)? "ON" : "OFF") << endmsg;
+    athenaLog << MSG::DEBUG << " ---> SCT Endcap side C: " << ((m_hasSCTEndcapC)? "ON" : "OFF") << endmsg;
   }
 
   if (!m_detector_mask_on_event) m_detector_mask_not_checked = false;

@@ -60,11 +60,11 @@ StatusCode TrigInDetRoadMakerTool::initialize() {
 
   sc = m_regionSelector.retrieve();
   if(sc.isFailure()) {
-    athenaLog << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endreq;
+    athenaLog << MSG::FATAL << "Unable to retrieve RegionSelector tool " << m_regionSelector.type() << endmsg;
     return sc;
   }
 
-  athenaLog << MSG::INFO << "TrigInDetRoadMakerTool initialized" << endreq;
+  athenaLog << MSG::INFO << "TrigInDetRoadMakerTool initialized" << endmsg;
 
   return sc;
 
@@ -87,7 +87,7 @@ StatusCode TrigInDetRoadMakerTool::makeRoads(std::vector<TrigInDetRoad>& roads, 
   // Get log service
   MsgStream athenaLog(msgSvc(), name());
   if (!roads.empty()) {
-    athenaLog << MSG::DEBUG << "TrigInDetRoadMakerTool: roads not empty, roads.size() " << roads.size() << endreq;
+    athenaLog << MSG::DEBUG << "TrigInDetRoadMakerTool: roads not empty, roads.size() " << roads.size() << endmsg;
     roads.clear();
   }
 
@@ -179,7 +179,7 @@ StatusCode TrigInDetRoadMakerTool::makeRoads(std::vector<TrigInDetRoad>& roads, 
       for(lay=l.begin(); lay!=layEnd; lay++) {
 	athenaLog << MSG::DEBUG << (*lay) << " ";
       }
-      athenaLog << MSG::DEBUG << endreq;
+      athenaLog << MSG::DEBUG << endmsg;
       
       // Loop on first layer
       unsigned int roadSubId=0;
@@ -225,7 +225,7 @@ StatusCode TrigInDetRoadMakerTool::makeRoads(std::vector<TrigInDetRoad>& roads, 
 	    for(it=road.m_thirdLayer.begin(); it!=itEnd; it++) {
 	      athenaLog << MSG::DEBUG << (*it) << " ";
 	    }
-	    athenaLog << MSG::DEBUG << endreq;
+	    athenaLog << MSG::DEBUG << endmsg;
 	  }
 
 	}
@@ -248,33 +248,33 @@ StatusCode TrigInDetRoadMakerTool::getRoadLayersRS( const IRoiDescriptor& roi, s
   // Get log service
   MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::DEBUG << "Created RoI with eta/min/max " << roi << endreq;
+  athenaLog << MSG::DEBUG << "Created RoI with eta/min/max " << roi << endmsg;
 
   for(long i=0; i<m_numberingTool->offsetBarrelSCT(); i++) {
     std::vector<IdentifierHash> idList;
     m_regionSelector->DetHashIDList(PIXEL, 1000+i, roi, idList);
-    //athenaLog << MSG::DEBUG << "Size for layer " << i << " is " << idList.size() << endreq;
+    //athenaLog << MSG::DEBUG << "Size for layer " << i << " is " << idList.size() << endmsg;
     if(idList.size()) l.insert(i);
   }
   
   for(long i=0; i<m_numberingTool->offsetEndcapSCT()-m_numberingTool->offsetEndcapPixels(); i++) {
     std::vector<IdentifierHash> idList;
     m_regionSelector->DetHashIDList(PIXEL, 1200+i, roi, idList);
-    //athenaLog << MSG::DEBUG << "Size for layer " << i+7 << " is " << idList.size() << endreq;
+    //athenaLog << MSG::DEBUG << "Size for layer " << i+7 << " is " << idList.size() << endmsg;
     if(idList.size()) l.insert(i+m_numberingTool->offsetEndcapPixels());
   }
 
   for(long i=0; i<m_numberingTool->offsetEndcapPixels()-m_numberingTool->offsetBarrelSCT(); i++) {
     std::vector<IdentifierHash> idList;
     m_regionSelector->DetHashIDList(SCT, 1000+i, roi, idList);
-    //athenaLog << MSG::DEBUG << "Size for layer " << i+3 << " is " << idList.size() << endreq;
+    //athenaLog << MSG::DEBUG << "Size for layer " << i+3 << " is " << idList.size() << endmsg;
     if(idList.size()) l.insert(i+m_numberingTool->offsetBarrelSCT());
   }
   
   for(long i=0; i<m_numberingTool->maxSiliconLayerNum()-m_numberingTool->offsetEndcapSCT(); i++) {
     std::vector<IdentifierHash> idList;
     m_regionSelector->DetHashIDList(SCT, 1200+i, roi, idList);
-    //athenaLog << MSG::DEBUG << "Size for layer " << i+10 << " is " << idList.size() << endreq;
+    //athenaLog << MSG::DEBUG << "Size for layer " << i+10 << " is " << idList.size() << endmsg;
     if(idList.size()) l.insert(i+m_numberingTool->offsetEndcapSCT());
   }
 
