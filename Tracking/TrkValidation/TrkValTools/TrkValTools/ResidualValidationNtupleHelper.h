@@ -85,7 +85,7 @@ private:
     //! The residual and pull calculator tool
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
 
-    bool mjo_ignoreMissTrkCov;
+    bool m_ignoreMissTrkCov;
 
     mutable int* m_isUnbiased;
 
@@ -118,8 +118,8 @@ private:
  inline void Trk::ResidualValidationNtupleHelper::givePullWarning() const {
     if(!m_pullWarning) {
         m_pullWarning = true;
-        msg(MSG::WARNING) << "no covariance of the track parameters given, can not calc pull!" << endreq;
-        msg(MSG::WARNING) << "you may want to use the jobOption 'IgnoreMissingTrackCovariance' to calculate it anyhow." << endreq;
+        msg(MSG::WARNING) << "no covariance of the track parameters given, can not calc pull!" << endmsg;
+        msg(MSG::WARNING) << "you may want to use the jobOption 'IgnoreMissingTrackCovariance' to calculate it anyhow." << endmsg;
     }
  }
  inline void Trk::ResidualValidationNtupleHelper::fillValues(const int& detectorType, double res1, double pull1, double res2, double pull2) const {

@@ -31,8 +31,8 @@ namespace Trk {
       ~PositionMomentumWriter(){}
       
       /** standard Athena methods */
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
       
       /** Initialize State */
       virtual void initializeTrack(const Amg::Vector3D& pos,
@@ -44,7 +44,7 @@ namespace Trk {
       virtual void recordTrackState(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const override;
       
       /** Finalization State */
-      virtual void finalizeTrack() const;
+      virtual void finalizeTrack() const override;
     
   private: 
          

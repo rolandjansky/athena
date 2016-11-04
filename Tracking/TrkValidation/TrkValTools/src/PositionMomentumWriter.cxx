@@ -15,10 +15,31 @@
 
 // constructor
 Trk::PositionMomentumWriter::PositionMomentumWriter(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_treeName("PositionMomentumWriter"),
-  m_treeFolder("/val/"),
-  m_treeDescription("Position Momentum Writer")    
+   AthAlgTool(t,n,p),
+   m_treeName("PositionMomentumWriter"),
+   m_treeFolder("/val/"),
+   m_treeDescription("Position Momentum Writer"),
+   m_tree{},
+   m_pM{},
+   m_pEta{},
+   m_pPhi{},
+   m_pE{},
+   m_eEta{},
+   m_ePhi{},
+   m_eE{},
+   m_pPdg{},
+   m_pPositionX{},
+   m_pPositionY{},      
+   m_pPositionZ{},
+   m_pPositionR{},
+   m_pMomentumX{},
+   m_pMomentumY{},      
+   m_pMomentumZ{},
+   m_pMomentumMag{},
+   m_pMomentumEta{},
+   m_pMomentumPhi{}
+
+
 {
    declareInterface<Trk::IPositionMomentumWriter>(this);
    // from outside

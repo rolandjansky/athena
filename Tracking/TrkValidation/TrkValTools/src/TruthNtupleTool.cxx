@@ -42,10 +42,27 @@ Trk::TruthNtupleTool::TruthNtupleTool(
         :
         AthAlgTool(t,n,p),
         m_fillJets(false),
+        m_nt(nullptr),
         m_numberOfTreeEntries(0),
-        m_TrackLinkIndex(0),
-        m_mc_prob(0)
+        m_runNumber{},
+        m_eventNumber{},        
+        m_TrackLinkIndex{},
+        m_mc_prob{},
+        m_classifications{},
+         m_mc_d0{},           
+         m_mc_z0{},           
+         m_mc_phi0{},         
+         m_mc_theta{},        
+         m_mc_qOverP{},       
+         m_mc_qOverPt{},      
+         m_mc_eta{},          
 
+         m_mc_particleID{},   
+         m_mc_barcode{},      
+         m_mc_energy{},       
+         m_mc_jetLinkIndex{}, 
+         m_mc_prodR{}, 
+         m_mc_prodz{}
 {
     declareInterface<ITruthNtupleTool>(this);
 
@@ -224,7 +241,7 @@ StatusCode Trk::TruthNtupleTool::finalize() {
             m_truthTrackCounts[classifierIndex][clIndex] = 0;
         }
     }
-    msg() << endreq;
+    msg() << endmsg;
 
     // delete track links and probs
     for (unsigned int trackColIndex = 0; trackColIndex < m_TrackLinkIndex.size(); ++trackColIndex ) {
@@ -250,7 +267,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
     if (sc.isFailure()) {
       ATH_MSG_WARNING ("Could not retrieve event info");
     }
-    EventID* myEventID=eventInfo->event_ID();
+    const EventID* myEventID=eventInfo->event_ID();
 
     m_runNumber=myEventID->run_number();
     m_eventNumber=myEventID->event_number();

@@ -87,7 +87,7 @@ StatusCode Trk::EventPropertyNtupleTool::addNtupleItems( TTree* tree, const std:
 StatusCode Trk::EventPropertyNtupleTool::fillEventData( ) const {
   const EventInfo* eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve event info" << endreq;
+    msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
     m_runNumber   = -999;
     m_eventNumber = -999;
     m_timeStamp   = -999;
@@ -95,7 +95,7 @@ StatusCode Trk::EventPropertyNtupleTool::fillEventData( ) const {
     m_bCID        = -999;
     return StatusCode::SUCCESS;
   } else {
-    EventID* myEventID=eventInfo->event_ID();
+    const EventID* myEventID=eventInfo->event_ID();
     m_runNumber   = myEventID->run_number();
     m_eventNumber = myEventID->event_number();
     m_timeStamp   = myEventID->time_stamp() ; 

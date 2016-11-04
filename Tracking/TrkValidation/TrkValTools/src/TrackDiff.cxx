@@ -43,7 +43,51 @@ Trk::TrackDiff::TrackDiff(
     const IInterface*  p )
         :
         AthAlgTool(t,n,p),
-        m_driftCircleSignFlipsSum(0),
+        m_nt(nullptr),
+        m_idHelper(nullptr),
+        //strings initialised in job options
+        m_compareOutliers(true),
+        m_compareAll(false),
+        m_writeNtuple(true),
+        m_writeCompetingROT(false),
+        m_eventNumber{},
+        m_nRefStates{},
+        m_nCompStates{},
+        m_fakes{},
+
+        m_missed{},
+        m_wrongType{},
+        m_missingType{},
+        m_fakeType{},
+        m_refType{},
+        m_compareType{},
+        m_PRD_Mismatches{},
+        m_driftCircleSignFlips{},
+        m_noDriftTime{},
+        m_nDiffs{},
+         m_detectorType{},
+         m_isFake{},   
+         m_isMissing{},
+         m_isPRD_Mismatch{},
+         m_isFlippedSign{},
+         m_isNoDriftTime{},
+         m_refIsMeasurement{},
+         m_refIsOutlier{},
+         m_compIsMeasurement{},
+         m_compIsOutlier{},
+         m_maxAssignProb{},
+         m_sumAssignProb{},
+         m_surfX{},
+         m_surfY{},
+         m_surfZ{},
+        m_trackEta{},
+        m_trackPhi{},
+        m_nRefStatesSum{},
+        m_nCompStatesSum{},
+        m_fakesSum{},
+        m_missedSum{},
+        m_wrongTypeSum{},
+        m_PRD_MismatchesSum{},
         m_trackSum(0) {
     declareInterface<ITrackDiff>(this);
     // Declare the properties
@@ -204,7 +248,7 @@ StatusCode Trk::TrackDiff::diff (
     if (sc.isFailure()) {
       ATH_MSG_ERROR ("Could not retrieve event info");
     }
-    EventID* myEventID=eventInfo->event_ID();
+    const EventID* myEventID=eventInfo->event_ID();
 
 
     m_eventNumber = myEventID->event_number();
@@ -604,7 +648,7 @@ bool Trk::TrackDiff::diffStateInfo(const Trk::TrackStateData* refTrackState,
                         << (isFlippedSign   ? " Flipped Sign   " : "")
                         << (isNoDriftTime   ? " NoDriftTime    " : "")
                         << " in " << detTypeName
-                        << " detector at surface with center " << endreq; //<< surfaceCenter
+                        << " detector at surface with center " << endmsg; //<< surfaceCenter
         if (refTrackState) {
             surfX = refTrackState->surface()->center().x();
             surfY = refTrackState->surface()->center().y();

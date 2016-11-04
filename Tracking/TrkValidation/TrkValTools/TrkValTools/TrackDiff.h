@@ -92,14 +92,13 @@ public:
 
 private:
 
-    static const int maxHits  = 300;   // maximal number of hits per track
+    static const int s_maxHits  = 300;   // maximal number of hits per track
 
     TTree* m_nt; //!< Pointer to the NTuple tree
 
     AtlasDetectorID* m_idHelper;        //!< Used to find out the sub-det from PRD->identify().
 
     // jobOptions
-//    bool m_bookNewNtuple;               //!< jobOption: book new ntuple?
     std::string m_ntupleFileName;       //!< jobOption: Ntuple file name
     std::string m_ntupleDirName;        //!< jobOption: Ntuple directory name
     std::string m_ntupleTreeName;       //!< jobOption: Ntuple tree name
@@ -109,18 +108,12 @@ private:
     bool m_writeNtuple;                 //!< jobOption: write data to ntuple?
     bool m_writeCompetingROT;           //!< jobOption: write data about TrkCompetingRIOsOnTrack?
 
-    //mutable int m_runNumber;
     mutable int m_eventNumber;
-    //mutable int m_TrackID;
-    //mutable int m_iterIndex;
-    //mutable int m_nHits;
+   
     mutable int m_nRefStates[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_nCompStates[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_fakes[Trk::TrackState::NumberOfMeasurementTypes];
-//    mutable std::vector<int>* m_missed;
-//    mutable std::vector<int>* m_missingType;
-//    mutable std::vector<int>* m_fakeType;
-//    mutable std::vector<int>* m_PRD_Mismatches;
+
     mutable int m_missed[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_wrongType[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_missingType[Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes];
@@ -133,15 +126,6 @@ private:
 
     mutable int m_nDiffs;
     std::vector<int>*   m_detectorType;
-//     std::vector<bool>*  m_isFake;
-//     std::vector<bool>*  m_isMissing;
-//     std::vector<bool>*  m_isPRD_Mismatch;
-//     std::vector<bool>*  m_isFlippedSign;
-//     std::vector<bool>*  m_isNoDriftTime;
-//     std::vector<bool>*  m_refIsMeasurement;
-//     std::vector<bool>*  m_refIsOutlier;
-//     std::vector<bool>*  m_compIsMeasurement;
-//     std::vector<bool>*  m_compIsOutlier;
     std::vector<int>*   m_isFake;   //!< vector<bool> would be more efficient, but vector<bool> is not a normal vector<> and seems to make trouble
     std::vector<int>*   m_isMissing;
     std::vector<int>*   m_isPRD_Mismatch;
@@ -156,17 +140,10 @@ private:
     std::vector<float>* m_surfX;
     std::vector<float>* m_surfY;
     std::vector<float>* m_surfZ;
-//     std::vector<float>* m_refTrackX;
-//     std::vector<float>* m_refTrackY;
-//     std::vector<float>* m_refTrackZ;
-//     std::vector<float>* m_compTrackX;
-//     std::vector<float>* m_compTrackY;
-//     std::vector<float>* m_compTrackZ;
+
     mutable float m_trackEta;
     mutable float m_trackPhi;
 
-    mutable int m_refIndex;
-    mutable int m_compIndex;
 
     mutable int m_nRefStatesSum[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_nCompStatesSum[Trk::TrackState::NumberOfMeasurementTypes];
@@ -174,16 +151,10 @@ private:
     mutable int m_missedSum[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_wrongTypeSum[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_PRD_MismatchesSum[Trk::TrackState::NumberOfMeasurementTypes];
-    mutable int m_driftCircleSignFlipsSum;
     mutable int m_trackSum;
 
     /** extract data from a Trk::Track into a list of Trk::TrackStateData */
     DataList< const Trk::TrackStateData >* extractDataFromTrack( const Trk::Track& ) const;
-
-//     bool diffTrackStates(const Trk::TrackStateOnSurface* refTrackState,
-//                          const Trk::TrackStateOnSurface* compareTrackState) const;
-//     bool diffMeasurements(const Trk::RIO_OnTrack* refROT,
-//                           const Trk::RIO_OnTrack* compareROT) const;
 
     /** reset the ntuple variables */
     void resetVariables() const;

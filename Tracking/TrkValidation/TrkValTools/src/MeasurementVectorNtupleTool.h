@@ -70,7 +70,7 @@ public:
     virtual StatusCode fillTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
 
     /** fill ntuple data of a given TrackParticle without writing the record.
         - if this method is called twice without writing the ntuple inbetween the first data will be lost! */
@@ -86,7 +86,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee*,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
 
     /** reset the variables after writing the record to disk ntuple */
     virtual void resetVariables( ) const;
@@ -128,7 +128,7 @@ private:
     ToolHandleArray<IValidationNtupleHelperTool> m_GeneralNtupleHelperToolHandles;  //!< jobOption: List of Ntuple validation helper tools for data independent from detector technology
 
     bool m_useROTwithMaxAssgnProb;      //!< jobOption: use ROT with max. assignment probabilty in the case of Trk::CompetingRIOsOnTrack or use competingROT itself?
-    bool mjo_ignoreMissTrkCov;          //!< jobOption: ignore missing covariance of track parameters for pull calculation?
+    bool m_ignoreMissTrkCov;          //!< jobOption: ignore missing covariance of track parameters for pull calculation?
     std::vector<const IValidationNtupleHelperTool*> m_PixelHelperTools;     //!< the helper tools for Pixel data
     std::vector<const IValidationNtupleHelperTool*> m_SCTHelperTools;       //!< the helper tools for SCT data
     std::vector<const IValidationNtupleHelperTool*> m_TRTHelperTools;       //!< the helper tools for TRT data

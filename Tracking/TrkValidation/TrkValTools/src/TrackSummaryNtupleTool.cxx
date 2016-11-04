@@ -30,7 +30,25 @@ Trk::TrackSummaryNtupleTool::TrackSummaryNtupleTool(
     const IInterface*  p )
         :
         AthAlgTool(t,n,p),
-        m_addParticleID(true)
+         m_addParticleID(true),
+         m_numberOfPixelHits{},            
+         m_numberOfContribPixelLayers{},   
+         m_numberOfPixelHoles{},           
+         m_numberOfPixelDeadSensors{},     
+         m_numberOfSCTHits{},              
+         m_numberOfSCTHoles{},             
+         m_numberOfSCTDeadSensors{},       
+         m_numberOfTRTHits{},              
+         m_numberOfTRTHoles{},             
+         m_numberOfTRTDeadStraws{},        
+         m_numberOfTRTHighThresholdHits{}, 
+
+         m_dedx{},                         
+         m_ngoodhitsdedx{},                
+         m_massdedx{},                     
+         m_likelihoodsdedx{},
+         m_idHitPattern{}          
+
 {
   declareInterface<ITrackValidationNtupleTool>(this);
   declareProperty("AddParticleID", m_addParticleID,      "Toggle if to also Write electron ID and dEdx data");
@@ -99,7 +117,8 @@ StatusCode Trk::TrackSummaryNtupleTool::addNtupleItems( TTree* tree ) const {
 StatusCode Trk::TrackSummaryNtupleTool::fillTrackData (
     const Trk::Track& track,
     const int  /*iterationIndex*/,
-    const Trk::FitterStatusCode /*fitStatCode*/ ) const {
+    const unsigned int /*fitStatCode*/ ) const {
+//    const Trk::FitterStatusCode /*fitStatCode*/ ) const {
 
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
    
@@ -132,7 +151,8 @@ StatusCode Trk::TrackSummaryNtupleTool::fillProtoTrajectoryData
 (  const Trk::ProtoTrajectory&,
    const int,
    const Trk::Perigee*,
-   const Trk::FitterStatusCode) const
+   const unsigned int ) const
+   //const Trk::FitterStatusCode) const
 {
   ATH_MSG_WARNING ("this method has no function");
   return StatusCode::SUCCESS;

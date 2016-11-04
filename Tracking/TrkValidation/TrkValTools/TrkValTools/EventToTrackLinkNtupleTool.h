@@ -84,32 +84,32 @@ namespace Trk {
     mutable int               m_genParticleIndexBegin; //!< index-based link from event tree to truth tree entry.
     mutable int               m_nGenParticlesPerEvent; //!< # of true tracks per event, to form truth loop.
     
-    static const std::string trackTypeName;            //!< denotes instance which deals with Trk::Track
-    static const std::string trkParticleTypeName;      //!< denotes instance which deals with Rec::TrackParticle
-    static const std::string trkParticleTrigTypeName;  //!< denotes instance which deals with Rec::TrackParticle obtained as feature using TriDecTool
-    static const std::string inDetTrackTrigTypeName;   //!< denotes instance which deals with InDetTrack obtained as feature using TriDecTool
+    static const std::string s_trackTypeName;            //!< denotes instance which deals with Trk::Track
+    static const std::string s_trkParticleTypeName;      //!< denotes instance which deals with Rec::TrackParticle
+    static const std::string s_trkParticleTrigTypeName;  //!< denotes instance which deals with Rec::TrackParticle obtained as feature using TriDecTool
+    static const std::string s_inDetTrackTrigTypeName;   //!< denotes instance which deals with InDetTrack obtained as feature using TriDecTool
   };
 
 }
 
  
 inline bool Trk::EventToTrackLinkNtupleTool::isTrackLinkTool( ) const {
-                                                                     if( m_collectionType == trackTypeName) return true;
+                                                                     if( m_collectionType == s_trackTypeName) return true;
 	                					     return false;
                                                                             }
    
 inline bool Trk::EventToTrackLinkNtupleTool::isTrkParticleLinkTool( ) const {
-                                                                       if( m_collectionType == trkParticleTypeName) return true;
+                                                                       if( m_collectionType == s_trkParticleTypeName) return true;
 								       return false;
                                                                             }
     
 inline bool Trk::EventToTrackLinkNtupleTool::isTrkParticleTrigLinkTool( ) const{
-                                                                         if( m_collectionType == trkParticleTrigTypeName) return true;
+                                                                         if( m_collectionType == s_trkParticleTrigTypeName) return true;
 									 return false;
                                                                                }
 
 inline bool Trk::EventToTrackLinkNtupleTool::isInDetTrackTrigLinkTool( ) const{
-                                                                         if( m_collectionType == inDetTrackTrigTypeName) return true;
+                                                                         if( m_collectionType == s_inDetTrackTrigTypeName) return true;
 									 return false;
                                                                                }
 

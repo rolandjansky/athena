@@ -17,6 +17,7 @@
 // constructor
 Trk::EnergyLossMonitor::EnergyLossMonitor(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
+  m_ntupleSvc{},
   m_outputNtuplePath("/NTUPLES/FILE1/EnergyLossMonitor/SingleTrackEnergyLoss"),
   m_outputNtupleDescription("Output of the Trk::EnergyLossMonitor AlgTool"),
   m_currentStep(0)

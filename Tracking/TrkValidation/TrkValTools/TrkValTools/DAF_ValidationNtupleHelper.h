@@ -68,9 +68,9 @@ public:
 
 private:
     
-    static const unsigned int maxContainedROTs  = 8;   // maximal number of contained ROTs per CompetingRIOsOnTrack
-    bool mjo_ignoreMissTrkCov;
-    bool mjo_writeHitPositions; //!< jobOption: shall the positions of the contained ROTs be written?
+    static const unsigned int s_maxContainedROTs  = 8;   // maximal number of contained ROTs per CompetingRIOsOnTrack
+    bool m_ignoreMissTrkCov;
+    bool m_writeHitPositions; //!< jobOption: shall the positions of the contained ROTs be written?
     ToolHandle<Trk::IResidualPullCalculator>    m_residualPullCalculator;   //!< The residual and pull calculator tool
     
 
@@ -79,20 +79,6 @@ private:
     mutable std::vector<int>*   m_nContainedROTs;
     mutable std::vector<int>*   m_indexOfMaxAssgnProb;
     mutable std::vector<float>* m_maxAssgnProb;
-/*    mutable std::vector< <std::vector<float> >* m_AssgnProbs;
-    mutable std::vector< <std::vector<float> >* m_compROTResLocX;
-    mutable std::vector< <std::vector<float> >* m_compROTResLocY;
-    mutable std::vector< <std::vector<float> >* m_compROTPullLocX;
-    mutable std::vector< <std::vector<float> >* m_compROTPullLocY;
-
-    mutable std::vector< <std::vector<float> >*               m_hitX;
-    mutable std::vector< <std::vector<float> >*               m_hitY;
-    mutable std::vector< <std::vector<float> >*               m_hitZ;
-    mutable std::vector< <std::vector<float> >*            m_hitLoc1;
-    mutable std::vector< <std::vector<float> >*            m_hitLoc2;
-    mutable std::vector< <std::vector<float> >*        m_hitSurfaceX;
-    mutable std::vector< <std::vector<float> >*        m_hitSurfaceY;
-    mutable std::vector< <std::vector<float> >*        m_hitSurfaceZ;*/
     
 };
 
