@@ -37,7 +37,7 @@ Trk::BremPositionNtupleHelper::BremPositionNtupleHelper(
     const IInterface*  p )
         :
   AthAlgTool(t,n,p),
-  m_trkParametersWarning(false),
+  //m_trkParametersWarning(false),
   m_bremX(0),
   m_bremY(0),
   m_bremZ(0),

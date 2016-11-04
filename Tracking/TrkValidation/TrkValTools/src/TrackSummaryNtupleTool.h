@@ -51,7 +51,7 @@ public:
     virtual StatusCode fillTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
 
     /** fill ntuple data of a given TrackParticle without writing the record.
         - if this method is called twice without writing the ntuple inbetween the first data will be lost! */
@@ -67,7 +67,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee*,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
 
     /** reset the variables after writing the record to disk ntuple */
     virtual void resetVariables( ) const;

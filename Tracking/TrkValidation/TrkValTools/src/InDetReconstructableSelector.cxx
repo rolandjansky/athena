@@ -21,6 +21,7 @@
 Trk::InDetReconstructableSelector::InDetReconstructableSelector(const std::string& type, const std::string& name,
                                               const IInterface* parent)
   : AthAlgTool (type,name,parent),
+    m_particleDataTable{},
     m_minPt             (1000.),
     m_maxEta            (   3.0),
     m_selectPrimariesOnly(false),
@@ -73,7 +74,7 @@ Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* Sim
     new std::vector<const HepMC::GenParticle *>;
 
   // pile-up: vector of MCEC has more than one entry
-  std::vector<HepMC::GenEvent *>::const_iterator itCollision = SimTracks->begin();
+  DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
   
   for( ; itCollision != SimTracks->end(); ++itCollision ) {
     const HepMC::GenEvent*    genEvent = *itCollision;

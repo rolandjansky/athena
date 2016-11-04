@@ -32,7 +32,48 @@ Trk::PerigeeParametersNtupleTool::PerigeeParametersNtupleTool(
         :
         AthAlgTool(t,n,p),
         m_extrapolator(""), // ("Trk::Extrapolator/AtlasExtrapolator"),
-        m_doTruth(true)
+        m_doTruth(true),     
+         m_Rec_d0{},      
+         m_Rec_z0{},      
+         m_Rec_phi0{},    
+         m_Rec_theta{},   
+         m_Rec_eta{},     
+         m_Rec_qOverP{},  
+
+         m_errord0{},     
+         m_errorz0{},     
+         m_errorphi0{},   
+         m_errortheta0{}, 
+         m_errorqoverp{}, 
+
+
+         m_mc_d0{},      
+         m_mc_z0{},      
+         m_mc_phi0{},    
+         m_mc_theta{},   
+         m_mc_qOverP{},  
+         m_mc_qOverPt{}, 
+         m_mc_eta{},     
+
+         m_mc_diff_d0{}, 
+         m_mc_diff_z0{}, 
+         m_mc_diff_phi0{},
+         m_mc_diff_theta{},
+         m_mc_diff_qOverP{},
+
+         m_mc_pull_d0{},  
+         m_mc_pull_z0{},  
+         m_mc_pull_phi0{},
+         m_mc_pull_theta{},
+         m_mc_pull_qOverP{},
+
+         m_mc_particleID{},
+         m_mc_barcode{},  
+         m_mc_truthTreeIndex{},
+         m_mc_energy{},   
+
+         m_mc_prob{}    
+
 {
   declareInterface<ITrackValidationNtupleTool>(this);
   declareProperty("ExtrapolatorTool", m_extrapolator, "Extrapolator, eg for tracks without Perigee");
@@ -124,7 +165,8 @@ StatusCode Trk::PerigeeParametersNtupleTool::addNtupleItems( TTree* tree ) const
 StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
     const Trk::Track& track,
     const int  /*iterationIndex*/,
-    const Trk::FitterStatusCode /*fitStatCode*/ ) const {
+    const unsigned int /*fitStatCode*/ ) const {
+    //const Trk::FitterStatusCode /*fitStatCode*/ ) const {
 
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
 
@@ -132,7 +174,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
   // fill track parameters in ntuple
   const Trk::Perigee* perpars = track.perigeeParameters();
   if (perpars != NULL && fillTrackPerigee(perpars).isFailure()) {
-    msg(MSG::WARNING) << "Perigee parameters could not be written to ntuple" << endreq;
+    msg(MSG::WARNING) << "Perigee parameters could not be written to ntuple" << endmsg;
   }
   if (perpars == NULL) {
     if ( // track.info().author() == Trk::Track::SiSPSeededTrackFinder && 
@@ -143,12 +185,12 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackData (
         (m_extrapolator->extrapolate(track, perSurf, Trk::anyDirection, false, Trk::nonInteracting));
       if (perpars != NULL && fillTrackPerigee(perpars).isFailure()) {
         msg(MSG::WARNING) << "Newly made perigee parameters could not be "
-                          << "written to ntuple" << endreq;
+                          << "written to ntuple" << endmsg;
       }
       if (perpars != NULL) delete perpars;
     } else 
       msg(MSG::WARNING) << "No perigee parameters, but they are the main validation object!"
-                        << endreq;
+                        << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -175,7 +217,8 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData
 (  const Trk::ProtoTrajectory& trajectory,
    const int,
    const Trk::Perigee* myPerigee,
-   const Trk::FitterStatusCode) const
+   const unsigned int ) const 
+  // const Trk::FitterStatusCode) const
 {
   ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
   
@@ -274,7 +317,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackPerigee(const Trk::Perigee
   //    // get track parameters
   //    const Trk::Perigee *perigee = track->perigeeParameters();
   if (!perigee) {
-    msg(MSG::WARNING) << "Something is wrong - track has no perigee at all!" << endreq;
+    msg(MSG::WARNING) << "Something is wrong - track has no perigee at all!" << endmsg;
     m_Rec_d0    = 0;
     m_Rec_z0    = 0;
     m_Rec_phi0  = 0;

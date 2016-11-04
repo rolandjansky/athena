@@ -39,11 +39,16 @@ Trk::DAF_ValidationNtupleHelper::DAF_ValidationNtupleHelper(
         :
 AthAlgTool(t,n,p),
         m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-        m_isUnbiased(0)
+        m_isUnbiased(nullptr),
+        m_nContainedROTs(nullptr),
+        m_indexOfMaxAssgnProb(nullptr),
+        m_maxAssgnProb(nullptr)
+
+
  {
     declareInterface<IValidationNtupleHelperTool>(this);
-    declareProperty("IgnoreMissingTrackCovarianceForPulls", mjo_ignoreMissTrkCov = false,   "Do not warn, if track states do not have covariance matries when calculating pulls");
-    declareProperty("WriteMeasurementPositionOfROTs",       mjo_writeHitPositions = true,   "Write measurement positions?");
+    declareProperty("IgnoreMissingTrackCovarianceForPulls", m_ignoreMissTrkCov = false,   "Do not warn, if track states do not have covariance matries when calculating pulls");
+    declareProperty("WriteMeasurementPositionOfROTs",       m_writeHitPositions = true,   "Write measurement positions?");
     declareProperty("ResidualPullCalculatorTool",           m_residualPullCalculator,       "Tool to calculate residuals and pulls");
 }
 

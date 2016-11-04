@@ -61,7 +61,7 @@ public:
     virtual StatusCode writeTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
 
     /** fill AND write ntuple data of a given track particle */
     virtual StatusCode writeTrackParticleData ( const Trk::TrackParticleBase& ) const;
@@ -71,7 +71,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee*,
-        const Trk::FitterStatusCode fitStatCode ) const;
+        const unsigned int fitStatCode ) const;
     
 private:
     /** write the filled data into the ntuple */
@@ -82,7 +82,6 @@ private:
     std::string m_ntupleFileName;       //!< jobOption: Ntuple file name
     std::string m_ntupleDirName;        //!< jobOption: Ntuple directory name
     std::string m_ntupleTreeName;       //!< jobOption: Ntuple tree name
-    //NTuple::Tuple* p_ntuple;            //!< Pointer to the ntuple
     TTree* m_nt; //!< Pointer to the NTuple tree
     bool              m_doTruth;        //!< switch to turn truth on/off
 };

@@ -54,7 +54,7 @@ Trk::ResidualValidationNtupleHelper::ResidualValidationNtupleHelper(
 {
     declareInterface<IValidationNtupleHelperTool>(this);
     // Declare the properties
-    declareProperty("IgnoreMissingTrackCovariance", mjo_ignoreMissTrkCov = false);
+    declareProperty("IgnoreMissingTrackCovariance", m_ignoreMissTrkCov = false);
     declareProperty("ResidualPullCalculatorTool",   m_residualPullCalculator,               "Tool to calculate residuals and pulls");
     //    declareProperty("NtupleDirectoryName", m_ntupleDirName = "FitterValidation");
     //    declareProperty("NtupleTreeName", m_ntupleTreeName = "Validation");
@@ -230,7 +230,7 @@ StatusCode Trk::ResidualValidationNtupleHelper::fillMeasurementData (
     /* open up to more measurement flavours
     const Trk::RIO_OnTrack *ROT = dynamic_cast<const Trk::RIO_OnTrack*>(measurement);
     if (!ROT) {
-        msg(MSG::WARNING) << "No RIO_OnTrack: Residuals cannot be calculated (filling dummy values)." << endreq;
+        msg(MSG::WARNING) << "No RIO_OnTrack: Residuals cannot be calculated (filling dummy values)." << endmsg;
         fillValues(detectorType);
         return StatusCode::SUCCESS;
     } */
@@ -250,7 +250,7 @@ StatusCode Trk::ResidualValidationNtupleHelper::fillMeasurementData (
     }
 
     if (detectorType==TrackState::Pixel) {
-        if ((residualPull->isPullValid()) || mjo_ignoreMissTrkCov ) {
+        if ((residualPull->isPullValid()) || m_ignoreMissTrkCov ) {
             fillValues( detectorType,
                         residualPull->residual()[Trk::distPhi],
                         residualPull->pull()[Trk::distPhi],
@@ -265,7 +265,7 @@ StatusCode Trk::ResidualValidationNtupleHelper::fillMeasurementData (
                         -1000. );
         }
     } else {
-        if ((residualPull->isPullValid()) || mjo_ignoreMissTrkCov ) {
+        if ((residualPull->isPullValid()) || m_ignoreMissTrkCov ) {
             fillValues( detectorType,
                         residualPull->residual()[Trk::loc1],
                         residualPull->pull()[Trk::loc1] );
