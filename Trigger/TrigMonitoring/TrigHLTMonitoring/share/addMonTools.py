@@ -176,7 +176,7 @@ if HLTMonFlags.doMaM:
     from TrigHLTMonitoring.MenuAwareMonitoring import MenuAwareMonitoring
     if trigger_reco_tf_job:
         print "Will attempt to doMaM with TRIGGERDBREPR"
-        mam = MenuAwareMonitoring("TRIGGERDBREPR")
+        mam = MenuAwareMonitoring("TRIGGERDBREPR_R")
     else:
         print "Will attempt to doMaM with TRIGGERDB"
         mam = MenuAwareMonitoring()

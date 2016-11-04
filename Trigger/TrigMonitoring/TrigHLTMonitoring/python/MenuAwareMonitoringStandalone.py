@@ -28,7 +28,7 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.0'
+        self.version = '1.4.1'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -96,13 +96,16 @@ class MenuAwareMonitoringStandalone:
                 self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
                 self.connected_to_oracle = True
 
-            elif alias in ("TRIGGERDB","TRIGGERDBREPR","TRIGGERDBR2MAM"):
+            elif alias in ("TRIGGERDB","TRIGGERDBREPR","TRIGGERDBREPR_R","TRIGGERDBR2MAM"):
                 # try catch
                 try:
 
                     # get the connection from authentication.xml
                     connectionSvc = self._getConnectionServicesForAlias(alias)[0]
                     print "Connection Service %s" % connectionSvc
+                    #if alias is "TRIGGERDBREPR_R":
+                        # _R means we access the regular auth files instead of the ones with read/write access, need to change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
+                        #alias = "TRIGGERDBREPR"
                     user,pw = self._readAuthentication(alias)[connectionSvc]
                     server = connectionSvc.split('/')[2]
                     if alias is "TRIGGERDBREPR":
@@ -147,7 +150,11 @@ class MenuAwareMonitoringStandalone:
         elif alias is "TRIGGERDBREPR":
             DBLOOKUP_PATH = '/afs/cern.ch/user/a/attrgcnf/.dbauth/menuexperts'
         else:
+            # TRIGGERDBREPR_R uses this path
             DBLOOKUP_PATH = 'CORAL_DBLOOKUP_PATH'
+        if alias is "TRIGGERDBREPR_R":
+            # _R means we access the regular auth files instead of the ones with read/write access, need to change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
+            alias = "TRIGGERDBREPR"
         dblookupfilename = self._getFileLocalOrPath('dblookup.xml',DBLOOKUP_PATH)
         if dblookupfilename == None: return None
 
