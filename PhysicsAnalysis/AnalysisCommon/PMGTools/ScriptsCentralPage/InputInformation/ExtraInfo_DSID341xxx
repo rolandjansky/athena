@@ -1,0 +1,272 @@
+341003,,,,,,Higgs_BSM_Other,,aMcAtNlo+Pythia8 High mass (400 GeV) Hplus 4FS taunu A14NNPDF23LO with EvtGen
+341524,,,,,,Higgs_BSM_Other,,
+341525,,,,,,Higgs_BSM_Other,,
+341528,,,,,,Higgs_BSM_Other,,
+341529,,,,,,Higgs_BSM_Other,,
+341532,,,,,,Higgs_BSM_Other,,
+341533,,,,,,Higgs_BSM_Other,,
+341535,,,,,,Higgs_BSM_Other,,
+341536,,,,,,Higgs_BSM_Other,,
+341537,,,,,,Higgs_BSM_Other,,
+341538,,,,,,Higgs_BSM_Other,,
+341540,,,,,,Higgs_BSM_Other,,
+341000,30.182,1.4551719568,1.0,0.00228,XsecHggF,Higgs_ggH,HGam POWHEG+PYTHIA8+EVTGEN ggH H->gamgam,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam
+341001,3.8272,0.979306020067,1.0,0.00228,XsecHVBF,Higgs_VBF,HGam POWHEG+PYTHIA8+EVTGEN VBF H->gamgam,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam
+341067,0.0025297,1.24378384789,1.0,1.0,0.0031464,Higgs_VH,HGam PYTHIA8+EVTGEN WH W->any H->gamgam,Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam
+341068,0.0013788,1.43798085292,1.0,1.0,0.001982688,Higgs_VH,HGam PYTHIA8+EVTGEN ZH Z->any H->gamgam,Pythia8EvtGen_A14NNPDF23LO_ZH125_gamgam
+341069,0.00091822,1.26263858335,1.0,1.0,0.00115938,Higgs_ttH,HGam PYTHIA8+EVTGEN ttH top->any H->gamgam,Pythia8EvtGen_A14NNPDF23LO_ttH125_gamgam
+341079,30.183,1.45512374515,0.4915,0.0226535094,XsecHggF,Higgs_ggH,HWW POWHEG+PYTHIA8+EVTGEN ggH H->WW->lvlv,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_WWlvlv_EF_15_5
+341080,3.827,0.97935719885,0.51025,0.0226535094,XsecHVBF,Higgs_VBF,HWW POWHEG+PYTHIA8+EVTGEN VBF H->WW->lvlv,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_WWlvlv_EF_15_5
+341081,0.5085,1.0,0.00228,1.0,0.5085,Higgs_ttH,HGam MG5_aMC@NLO_Herwigpp_ttH No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_gamgam
+341100,0.20533,1.25878340233,1.0,1.0,0.258465996,Higgs_VH,Hbb PYTHIA8+EVTGEN WH W->lv H->bb,Pythia8EvtGen_A14NNPDF23LO_WlvH125_bb
+341101,0.069326,1.4475354124,1.0,1.0,0.10035184,Higgs_VH,Hbb PYTHIA8+EVTGEN ZH Z->vv H->bb,Pythia8EvtGen_A14NNPDF23LO_ZvvH125_bb
+341102,0.034769,1.45726492036,1.0,1.0,0.050667644016,Higgs_VH,Hbb PYTHIA8+EVTGEN ZH Z->ll H->bb,Pythia8EvtGen_A14NNPDF23LO_ZllH125_bb
+341122,30.192,1.4546899841,0.12277,0.0632,XsecHggF,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_tautaull
+341123,30.193,1.45464180439,0.4548,0.0632,XsecHggF,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_tautaulh
+341124,30.193,1.45464180439,0.42194,0.0632,XsecHggF,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_tautauhh
+341155,3.8293,0.978768965607,0.12271,0.0632,XsecHVBF,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_tautaull
+341156,3.8293,0.978768965607,0.45539,0.0632,XsecHVBF,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_tautaulh
+341157,3.8293,0.978768965607,0.42191,0.0632,XsecHVBF,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_tautauhh
+341177,0.0536,1.0,1.0,1.0,XsecTTH,Higgs_ttH,HTop MG5_aMC@NLO_Herwigpp_ttH No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_dil
+341178,0.05752,1.01191363357,1.0,0.577,0.0582052722027,Higgs_VH,Hbb POWHEG+MiNLO+Pythia8 H+W+jet->e-vebbar production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_evebb
+341179,0.060788,0.957512538704,1.0,0.577,0.0582052722027,Higgs_VH,Hbb POWHEG+MiNLO+Pythia8 H+W+jet->mu-vmubbar production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_muvmubb
+341181,0.093346,0.976053904798,1.0,0.577,0.0911107277973,Higgs_VH,Hbb POWHEG+MiNLO+Pythia8 H+W+jet->e+vebbar production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_evebb
+341182,0.094196,0.967246250343,1.0,0.577,0.0911107277973,Higgs_VH,Hbb POWHEG+MiNLO+Pythia8 H+W+jet->mu+vmubbar production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_muvmubb
+341195,30.193,1.45464180439,1.0,0.000219,XsecHggF,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H->mumu,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_mumu
+341206,3.8927,0.962827857271,1.0,0.000219,XsecHVBF,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H->mumu,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_mumu
+341225,30.193,1.45464180439,0.39394,0.0632,XsecHggF,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H(125)->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_tautauIncl
+341254,3.8283,0.979024632343,0.41699,0.0632,XsecHVBF,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H(125)->tautau,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_tautauIncl
+341270,0.5085,1.0,0.43929,1.0,0.5085,Higgs_ttH,HTop MG5_aMC@NLO_Herwigpp_ttH No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_semilep
+341271,0.5085,1.0,0.45517,1.0,0.5085,Higgs_ttH,HTop MG5_aMC@NLO_Herwigpp_ttH No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_allhad
+341421,0.058939,0.987551064706,1.0,0.0226535094,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->e-veWW->e-velvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_eveWWlvlv
+341422,0.058636,0.992654209065,0.43721,0.215,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->e-veWW->e-velvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_eveWWlvqq
+341423,0.058921,0.987852755431,1.0,0.0226535094,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->mu-vmuWW->mu-vmulvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_muvmuWWlvlv
+341424,0.058902,0.98817140679,0.43691,0.215,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->mu-vmuWW->mu-vmulvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_muvmuWWlvqq
+341425,0.3608,1.00700027987,1.0,0.0226535094,0.363325700977,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->qqWW->qqlvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_qqWWlvlv
+341426,0.36004,1.00912593317,0.43638,0.215,0.363325700977,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->qqWW->qqlvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_qqWWlvqq
+341427,0.052645,1.1056182392,1.0,0.0226535094,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->tau-vtauWW->tau-vtaulvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_tauvtauWWlvlv
+341428,0.052682,1.10484173347,0.43882,0.215,0.0582052722027,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->tau-vtauWW->tau-vtaulvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WmH125J_MINLO_tauvtauWWlvqq
+341429,0.085043,1.07134893874,1.0,0.0226535094,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->e+veWW->e+velvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_eveWWlvlv
+341430,0.085095,1.07069425697,0.43565,0.215,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->e+veWW->e+velvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_eveWWlvqq
+341431,0.085043,1.07134893874,1.0,0.0226535094,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->mu+vmuWW->mu+vmulvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_muvmuWWlvlv
+341432,0.085041,1.0713741348,0.43778,0.215,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->mu+vmuWW->mu+vmulvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_muvmuWWlvqq
+341433,0.53066,1.07173387672,1.0,0.0226535094,0.568726299023,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->qqWW->qqlvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_qqWWlvlv
+341434,0.53042,1.0722188059,0.43909,0.215,0.568726299023,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->qqWW->qqlvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_qqWWlvqq
+341435,0.085049,1.07127335768,1.0,0.0226535094,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->tau+vtauWW->tau+vtaulvlv production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_tauvtauWWlvlv
+341436,0.085105,1.07056844836,0.43823,0.215,0.0911107277973,Higgs_VH,HWW POWHEG+MiNLO+Pythia8 H+W+jet->tau+vtauWW->tau+vtaulvqq production,PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_tauvtauWWlvqq
+341445,30.187,1.45493093053,0.0001555092,1.0,XsecHggF,Higgs_ggH,HGam POWHEG+PYTHIA8+EVTGEN ggH H->Zllgam,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_Zllgam
+341446,3.8306,0.978436798413,0.0001555092,1.0,XsecHVBF,Higgs_VBF,HGam POWHEG+PYTHIA8+EVTGEN VBF H->Zllgam,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_Zllgam
+341447,0.00017831,1.20353707588,1.0,0.000214602696,1.0,Higgs_VH,HGam PYTHIA8+EVTGEN WH W->any H->Zllgam,Pythia8EvtGen_A14NNPDF23LO_WH125_Zllgam
+341448,4.6193e-05,1.7118703743,1.0,7.90764282e-05,1.0,Higgs_ttH,HGam PYTHIA8+EVTGEN ttH top->any H->Zllgam,Pythia8EvtGen_A14NNPDF23LO_ttH125_Zllgam
+341463,0.00097071,1.37959225721,0.10046,1.0,0.001339184,Higgs_VH,HGam PYTHIA8+EVTGEN ZH Z->any H->Zgam Z->ll,Pythia8EvtGen_A14NNPDF23LO_ZH125_Zllgam
+341471,30.188,1.45488273486,0.00026919975456,1.0,XsecHggF,Higgs_ggH,HZZ POWHEG+PYTHIA8+EVTGEN ggH H->ZZ->llll mh=125 GeV CPS,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ZZ4lep
+341488,3.8299,0.978615629651,0.00026919975456,1.0,XsecHVBF,Higgs_VBF,HZZ POWHEG+PYTHIA8+EVTGEN VBF H->ZZ->llll mh=125 GeV CPS,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_ZZ4lep
+341505,30.19,1.4547863531,0.00011964433536,1.0,XsecHggF,Higgs_ggH,HZZ POWHEG+PYTHIA8+EVTGEN ggH H->ZZ->llll noTau mh=125 GeV CPS,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ZZ4lep_noTau
+341518,3.8312,0.978283566507,0.00011964433536,1.0,XsecHVBF,Higgs_VBF,HZZ POWHEG+PYTHIA8+EVTGEN VBF H->ZZ->llll noTau mh=125 GeV CPS,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_ZZ4lep_noTau
+341564,30.198,1.45440095371,0.577,1.0,XsecHggF,Higgs_ggH,Hbb POWHEG+PYTHIA8+EVTGEN ggH H->bb,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_bb
+341565,30.191,1.454738167,0.19987,0.577,XsecHggF,Higgs_ggH,Hbb POWHEG+PYTHIA8+EVTGEN ggH H->bb,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_bb_EF4jets
+341566,3.8298,0.978641182307,0.577,1.0,XsecHVBF,Higgs_VBF,Hbb POWHEG+PYTHIA8+EVTGEN VBF H->bb,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_bb
+341567,,,,,,Higgs_BSM_Other,,
+341568,,,,,,Higgs_BSM_Other,,
+341569,,,,,,Higgs_BSM_Other,,
+341570,,,,,,Higgs_BSM_Other,,
+341571,,,,,,Higgs_BSM_Other,,
+341572,,,,,,Higgs_BSM_Other,,
+341573,,,,,,Higgs_BSM_Other,,
+341574,,,,,,Higgs_BSM_Other,,
+341575,,,,,,Higgs_BSM_Other,,
+341576,,,,,,Higgs_BSM_Other,,
+341577,,,,,,Higgs_BSM_Other,,
+341578,,,,,,Higgs_BSM_Other,,
+341579,,,,,,Higgs_BSM_Other,,
+341580,,,,,,Higgs_BSM_Other,,
+341581,,,,,,Higgs_BSM_Other,,
+341582,,,,,,Higgs_BSM_Other,,
+341583,,,,,,Higgs_BSM_Other,,
+341584,,,,,,Higgs_BSM_Other,,
+341585,,,,,,Higgs_BSM_Other,,
+341586,,,,,,Higgs_BSM_Other,,
+341587,,,,,,Higgs_BSM_Other,,
+341588,,,,,,Higgs_BSM_Other,,
+341589,,,,,,Higgs_BSM_Other,,
+341590,,,,,,Higgs_BSM_Other,,
+341591,,,,,,Higgs_BSM_Other,,
+341592,,,,,,Higgs_BSM_Other,,
+341593,,,,,,Higgs_BSM_Other,,
+341594,,,,,,Higgs_BSM_Other,,
+341595,,,,,,Higgs_BSM_Other,,
+341596,,,,,,Higgs_BSM_Other,,
+341597,,,,,,Higgs_BSM_Other,,
+341598,,,,,,Higgs_BSM_Other,,
+341598,,,,,,Higgs_BSM_Other,,
+341599,,,,,,Higgs_BSM_Other,,
+341600,,,,,,Higgs_BSM_Other,,
+341600,,,,,,Higgs_BSM_Other,,
+341601,,,,,,Higgs_BSM_Other,,
+341602,,,,,,Higgs_BSM_Other,,
+341603,,,,,,Higgs_BSM_Other,,
+341604,,,,,,Higgs_BSM_Other,,
+341604,,,,,,Higgs_BSM_Other,,
+341605,,,,,,Higgs_BSM_Other,,
+341606,,,,,,Higgs_BSM_Other,,
+341607,,,,,,Higgs_BSM_Other,,
+341608,,,,,,Higgs_BSM_Other,,
+341609,,,,,,Higgs_BSM_Other,,
+341610,,,,,,Higgs_BSM_Other,,
+341611,,,,,,Higgs_BSM_Other,,
+341612,,,,,,Higgs_BSM_Other,,
+341613,,,,,,Higgs_BSM_Other,,
+341614,,,,,,Higgs_BSM_Other,,
+341615,,,,,,Higgs_BSM_Other,,
+341616,,,,,,Higgs_BSM_Other,,
+341617,,,,,,Higgs_BSM_Other,,
+341618,,,,,,Higgs_BSM_Other,,
+341619,,,,,,Higgs_BSM_Other,,
+341620,,,,,,Higgs_BSM_Other,,
+341621,,,,,,Higgs_BSM_Other,,
+341622,,,,,,Higgs_BSM_Other,,
+341623,,,,,,Higgs_BSM_Other,,
+341624,,,,,,Higgs_BSM_Other,,
+341625,,,,,,Higgs_BSM_Other,,
+341626,,,,,,Higgs_BSM_Other,,
+341627,,,,,,Higgs_BSM_Other,,
+341628,,,,,,Higgs_BSM_Other,,
+341629,,,,,,Higgs_BSM_Other,,
+341630,,,,,,Higgs_BSM_Other,,
+341631,,,,,,Higgs_BSM_Other,,
+341632,,,,,,Higgs_BSM_Other,,
+341632,,,,,,Higgs_BSM_Other,,
+341633,,,,,,Higgs_BSM_Other,,
+341633,,,,,,Higgs_BSM_Other,,
+341634,,,,,,Higgs_BSM_Other,,
+341634,,,,,,Higgs_BSM_Other,,
+341635,,,,,,Higgs_BSM_Other,,
+341635,,,,,,Higgs_BSM_Other,,
+341636,,,,,,Higgs_BSM_Other,,
+341636,,,,,,Higgs_BSM_Other,,
+341637,,,,,,Higgs_BSM_Other,,
+341637,,,,,,Higgs_BSM_Other,,
+341638,,,,,,Higgs_BSM_Other,,
+341638,,,,,,Higgs_BSM_Other,,
+341639,,,,,,Higgs_BSM_Other,,
+341640,,,,,,Higgs_BSM_Other,,
+341640,,,,,,Higgs_BSM_Other,,
+341641,,,,,,Higgs_BSM_Other,,
+341642,,,,,,Higgs_BSM_Other,,
+341642,,,,,,Higgs_BSM_Other,,
+341643,,,,,,Higgs_BSM_Other,,
+341643,,,,,,Higgs_BSM_Other,,
+341644,,,,,,Higgs_BSM_Other,,
+341645,,,,,,Higgs_BSM_Other,,
+341645,,,,,,Higgs_BSM_Other,,
+341646,,,,,,Higgs_BSM_Other,,
+341647,,,,,,Higgs_BSM_Other,,
+341647,,,,,,Higgs_BSM_Other,,
+341648,,,,,,Higgs_BSM_Other,,
+341649,,,,,,Higgs_BSM_Other,,
+341650,,,,,,Higgs_BSM_Other,,
+341651,,,,,,Higgs_BSM_Other,,
+341651,,,,,,Higgs_BSM_Other,,
+341652,,,,,,Higgs_BSM_Other,,
+341652,,,,,,Higgs_BSM_Other,,
+341653,,,,,,Higgs_BSM_Other,,
+341653,,,,,,Higgs_BSM_Other,,
+341654,,,,,,Higgs_BSM_Other,,
+341655,,,,,,Higgs_BSM_Other,,
+341656,,,,,,Higgs_BSM_Other,,
+341656,,,,,,Higgs_BSM_Other,,
+341657,,,,,,Higgs_BSM_Other,,
+341658,,,,,,Higgs_BSM_Other,,
+341658,,,,,,Higgs_BSM_Other,,
+341659,,,,,,Higgs_BSM_Other,,
+341660,,,,,,Higgs_BSM_Other,,
+341661,,,,,,Higgs_BSM_Other,,
+341662,,,,,,Higgs_BSM_Other,,
+341662,,,,,,Higgs_BSM_Other,,
+341663,,,,,,Higgs_BSM_Other,,
+341663,,,,,,Higgs_BSM_Other,,
+341664,,,,,,Higgs_BSM_Other,,
+341664,,,,,,Higgs_BSM_Other,,
+341665,,,,,,Higgs_BSM_Other,,
+341665,,,,,,Higgs_BSM_Other,,
+341666,,,,,,Higgs_BSM_Other,,
+341666,,,,,,Higgs_BSM_Other,,
+341667,,,,,,Higgs_BSM_Other,,
+341667,,,,,,Higgs_BSM_Other,,
+341668,,,,,,Higgs_BSM_Other,,
+341668,,,,,,Higgs_BSM_Other,,
+341669,,,,,,Higgs_BSM_Other,,
+341670,,,,,,Higgs_BSM_Other,,
+341670,,,,,,Higgs_BSM_Other,,
+341671,,,,,,Higgs_BSM_Other,,
+341671,,,,,,Higgs_BSM_Other,,
+341672,,,,,,Higgs_BSM_Other,,
+341672,,,,,,Higgs_BSM_Other,,
+341673,,,,,,Higgs_BSM_Other,,
+341673,,,,,,Higgs_BSM_Other,,
+341674,,,,,,Higgs_BSM_Other,,
+341675,,,,,,Higgs_BSM_Other,,
+341675,,,,,,Higgs_BSM_Other,,
+341676,,,,,,Higgs_BSM_Other,,
+341676,,,,,,Higgs_BSM_Other,,
+341677,,,,,,Higgs_BSM_Other,,
+341678,,,,,,Higgs_BSM_Other,,
+341679,,,,,,Higgs_BSM_Other,,
+341680,,,,,,Higgs_BSM_Other,,
+341681,,,,,,Higgs_BSM_Other,,
+341682,,,,,,Higgs_BSM_Other,,
+341683,,,,,,Higgs_BSM_Other,,
+341684,,,,,,Higgs_BSM_Other,,
+341685,,,,,,Higgs_BSM_Other,,
+341686,,,,,,Higgs_BSM_Other,,
+341687,,,,,,Higgs_BSM_Other,,
+341688,,,,,,Higgs_BSM_Other,,
+341689,,,,,,Higgs_BSM_Other,,
+341690,,,,,,Higgs_BSM_Other,,
+341691,,,,,,Higgs_BSM_Other,,
+341692,,,,,,Higgs_BSM_Other,,
+341693,,,,,,Higgs_BSM_Other,,
+341694,,,,,,Higgs_BSM_Other,,
+341695,,,,,,Higgs_BSM_Other,,
+341696,,,,,,Higgs_BSM_Other,,
+341696,,,,,,Higgs_BSM_Other,,
+341697,,,,,,Higgs_BSM_Other,,
+341698,,,,,,Higgs_BSM_Other,,
+341699,,,,,,Higgs_BSM_Other,,
+341700,,,,,,Higgs_BSM_Other,,
+341701,,,,,,Higgs_BSM_Other,,
+341702,,,,,,Higgs_BSM_Other,,
+341703,,,,,,Higgs_BSM_Other,,
+341704,,,,,,Higgs_BSM_Other,,
+341705,,,,,,Higgs_BSM_Other,,
+341706,,,,,,Higgs_BSM_Other,,
+341707,,,,,,Higgs_BSM_Other,,
+341708,,,,,,Higgs_BSM_Other,,
+341709,,,,,,Higgs_BSM_Other,,
+341710,,,,,,Higgs_BSM_Other,,
+341710,,,,,,Higgs_BSM_Other,,
+341711,,,,,,Higgs_BSM_Other,,
+341712,,,,,,Higgs_BSM_Other,,
+341713,,,,,,Higgs_BSM_Other,,
+341714,,,,,,Higgs_BSM_Other,,
+341715,,,,,,Higgs_BSM_Other,,
+341716,,,,,,Higgs_BSM_Other,,
+341717,,,,,,Higgs_BSM_Other,,
+341718,,,,,,Higgs_BSM_Other,,
+341719,,,,,,Higgs_BSM_Other,,
+341720,,,,,,Higgs_BSM_Other,,
+341721,,,,,,Higgs_BSM_Other,,
+341722,,,,,,Higgs_BSM_Other,,
+341723,,,,,,Higgs_BSM_Other,,
+341724,,,,,,Higgs_BSM_Other,,
+341725,,,,,,Higgs_BSM_Other,,
+341726,,,,,,Higgs_BSM_Other,,
+341727,,,,,,Higgs_BSM_Other,,
+341728,,,,,,Higgs_BSM_Other,,
+341729,,,,,,Higgs_BSM_Other,,
+341730,,,,,,Higgs_BSM_Other,,
+341731,,,,,,Higgs_BSM_Other,,
+341947,0.015767,1.45604363544,0.010256,0.02295744,1.0,Higgs_VH,HZZ PYTHIA8+EVTGEN ZH Z->any H->ZZ->4l mh=125 GeV,Pythia8EvtGen_A14NNPDF23LO_ZH125_ZZ4l
+341964,0.00029076,1.27767114215,1.0,0.000371495661293,1.0,Higgs_VH,HZZ PYTHIA8+EVTGEN WH W->any H->ZZ->4l mh=125 GeV,Pythia8EvtGen_A14NNPDF23LO_WH125_ZZ4l
+341974,0.015771,1.45567433898,0.041082,0.02295744,1.0,Higgs_VH,HZZ PYTHIA8+EVTGEN ZH Z->any H->ZZ->llvv mh=125 GeV,Pythia8EvtGen_A14NNPDF23LO_ZH125_ZZllvv
+341975,1.5961e-05,1.48104910977,1.0,2.3639024841e-05,1.0,Higgs_VH,HZZ PYTHIA8+EVTGEN ZH Z->ll H->4l mh=125 GeV,Pythia8EvtGen_A14NNPDF23LO_ZllH125_ZZ4l

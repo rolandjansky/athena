@@ -1,0 +1,14 @@
+This is the main afs area for central page 
+
+chronjob runs every X hours 
+
+1) to run the whole page you need to uncomment LINE / LINE (is this possible? how do you switch from fast mode to complete mode) 
+
+2) if you change one of the info in the ExtraFile  you need to 
+   - delete the file XXX
+   - delete the file YYY 
+   
+3) if you want to reclassify the categories, you need to modify 
+   NewScripts/DefineTags.py
+
+4) .... 

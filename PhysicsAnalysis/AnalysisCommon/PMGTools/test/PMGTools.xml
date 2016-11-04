@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<atn>
+  <TEST name="PMGTools_makeCheck" type="makecheck">
+    <package>PhysicsAnalysis/AnalysisCommon/PMGTools</package>
+    <timelimit>5</timelimit>
+    <author> Paul Thompson </author>
+    <mailto> Paul.Thompson@cern.ch </mailto>
+    <expectations>
+      <errorMessage> Athena exited abnormally </errorMessage>
+      <errorMessage>differ</errorMessage>
+      <returnValue>0</returnValue>
+      </expectations>
+  </TEST>
+</atn>

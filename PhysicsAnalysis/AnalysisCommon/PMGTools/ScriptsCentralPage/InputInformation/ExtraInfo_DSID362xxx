@@ -1,0 +1,576 @@
+362000,11966.0,0.9140005304,0.776316003959,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto ckkw15	
+362001,11771.0,0.9262004039,0.778082483749,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto ckkw30	
+362002,11418.0,0.954727467,0.77802253277,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto fac025	
+362003,12254.0,0.9041762400,0.7790434393,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto fac4	        
+362004,12147.0,0.89624574455,0.779439192492,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto renorm025	
+362005,11668.0,0.9393428812,0.778617239864,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto renorm4	
+362006,12162.0,0.8942514094,0.78031990647,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto qsf025	
+362007,11802.0,0.9290755808,0.777836843281,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CVetoBVeto qsf4	        
+362008,11966.0,0.9140005304,0.14167378997,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto ckkw15	
+362009,11771.0,0.9262004039,0.140581269169,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto ckkw30	
+362010,11418.0,0.954727467,0.141954028,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto fac025	
+362011,12254.0,0.9041762400,0.140040650593,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto fac4	
+362012,12147.0,0.89624574455,0.140776476673,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto renorm025	
+362013,11668.0,0.9393428812,0.139548007077,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto renorm4	
+362014,12162.0,0.8942514094,0.139589207444,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto qsf025	
+362015,11802.0,0.9290755808,0.140689827588,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 CFilterBVeto qsf4	
+362016,11966.0,0.9140005304,0.0819079604995,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter ckkw15	        
+362017,11771.0,0.9262004039,0.0804960541262,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter ckkw30	        
+362018,11418.0,0.954727467,0.0798206442732,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter fac025	        
+362019,12254.0,0.9041762400,0.0807488908403,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter fac4	        
+362020,12147.0,0.89624574455,0.0790517809595,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter renorm025	
+362021,11668.0,0.9393428812,0.0807379662027,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter renorm4	        
+362022,12162.0,0.8942514094,0.0788230575067,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter qsf025	        
+362023,11802.0,0.9290755808,0.0810568912825,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt0 70 BFilter qsf4	        
+362024,410.56,0.9140005304,0.64826603156,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto ckkw15	
+362025,418.04,0.9262004039,0.659219883754,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto ckkw30	
+362026,411.26,0.954727467,0.654288106881,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto fac025	
+362027,423.02,0.9041762400,0.65174472308,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto fac4	
+362028,458.33,0.89624574455,0.653046958948,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto renorm025	
+362029,378.99,0.9393428812,0.655892477868,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto renorm4	
+362030,484.35,0.8942514094,0.663291675821,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto qsf025	
+362031,371.85,0.9290755808,0.648432728212,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CVetoBVeto qsf4	
+362032,410.56,0.9140005304,0.219443248097,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto ckkw15	
+362033,418.04,0.9262004039,0.216756486695,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto ckkw30	
+362034,411.26,0.954727467,0.218390751174,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto fac025	
+362035,423.02,0.9041762400,0.216921747394,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto fac4	
+362036,458.33,0.89624574455,0.21927178455,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto renorm025
+362037,378.99,0.9393428812,0.216591555836,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto renorm4	
+362038,484.35,0.8942514094,0.211544045399,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto qsf025	
+362039,371.85,0.9290755808,0.219241076168,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 CFilterBVeto qsf4	
+362040,410.56,0.9140005304,0.133852046339,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter ckkw15	
+362041,418.04,0.9262004039,0.125874387745,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter ckkw30	
+362042,411.26,0.954727467,0.128546963223,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter fac025	
+362043,423.02,0.9041762400,0.130998845358,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter fac4	        
+362044,458.33,0.89624574455,0.129885601488,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter renorm025	
+362045,378.99,0.9393428812,0.130184515323,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter renorm4	
+362046,484.35,0.8942514094,0.125054632303,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter qsf025	
+362047,371.85,0.9290755808,0.131091771965,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt70 140 BFilter qsf4	        
+362048,59.867,0.9140005304,0.617500253306,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto ckkw15	
+362049,64.285,0.9262004039,0.621153795824,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto ckkw30	
+362050,62.093,0.954727467,0.619301691602,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto fac025	
+362051,62.281,0.9041762400,0.6166208593,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto fac4	
+362052,69.806,0.89624574455,0.609964825452,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto renorm025	
+362053,55.081,0.9393428812,0.624424716914,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto renorm4	
+362054,71.192,0.8942514094,0.6263920607,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto qsf025	
+362055,55.762,0.9290755808,0.61751166057,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CVetoBVeto qsf4	
+362056,59.867,0.9140005304,0.244643364222,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto ckkw15	
+362057,64.285,0.9262004039,0.242388252158,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto ckkw30	
+362058,62.093,0.954727467,0.239730683412,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto fac025	
+362059,62.281,0.9041762400,0.237705915384,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto fac4	
+362060,69.806,0.89624574455,0.244274069568,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto renorm025
+362061,55.081,0.9393428812,0.2371668626,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto renorm4	
+362062,71.192,0.8942514094,0.233133006204,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto qsf025	
+362063,55.762,0.9290755808,0.240079205845,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 CFilterBVeto qsf4	
+362064,59.867,0.9140005304,0.149380655048,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter ckkw15	
+362065,64.285,0.9262004039,0.143316507373,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter ckkw30	
+362066,62.093,0.954727467,0.145876175649,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter fac025	
+362067,62.281,0.9041762400,0.145673225279,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter fac4	        
+362068,69.806,0.89624574455,0.156034015425,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter renorm025	
+362069,55.081,0.9393428812,0.142540684626,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter renorm4	
+362070,71.192,0.8942514094,0.1404749331,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter qsf025	
+362071,55.762,0.9290755808,0.147658164484,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter qsf4	        
+362072,4.0858,1.00540058346,0.587491787963,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto ckkw15	
+362073,4.5538,1.01882044433,0.592543568865,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto ckkw30	
+362074,4.2209,1.01882044433,0.592536524617,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto fac025	
+362075,4.3314,0.994593864036,0.592064000029,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto fac4	
+362076,4.9611,0.985870319001,0.577459922442,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto renorm025	
+362077,3.7251,1.03327716933,0.600966946445,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto renorm4	
+362078,4.7211,0.983676550374,0.59385494245,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto qsf025	
+362079,3.9494,1.02198313891,0.593295358833,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto qsf4	
+362080,4.0858,1.00540058346,0.254297414609,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto ckkw15	
+362081,4.5538,1.01882044433,0.255710492515,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto ckkw30	
+362082,4.2209,1.01882044433,0.254695532029,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto fac025	
+362083,4.3314,0.994593864036,0.25633657288,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto fac4	
+362084,4.9611,0.985870319001,0.263411672357,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto renorm025
+362085,3.7251,1.03327716933,0.250161120148,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto renorm4	
+362086,4.7211,0.983676550374,0.253854396447,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto qsf025	
+362087,3.9494,1.02198313891,0.256854977896,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto qsf4	
+362088,4.0858,1.00540058346,0.15996479835,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter ckkw15	
+362089,4.5538,1.01882044433,0.153922233338,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter ckkw30	
+362090,4.2209,1.01882044433,0.154176399783,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter fac025	
+362091,4.3314,0.994593864036,0.154736363249,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter fac4	        
+362092,4.9611,0.985870319001,0.162051184157,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter renorm025	
+362093,3.7251,1.03327716933,0.150057688999,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter renorm4	
+362094,4.7211,0.983676550374,0.152768973961,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter qsf025	
+362095,3.9494,1.02198313891,0.154541842117,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter qsf4	        
+362096,0.2406,1.00540058346,0.570787983713,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto ckkw15	
+362097,0.27605,1.01882044433,0.5647048299,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto ckkw30	
+362098,0.24999,1.01882044433,0.575062192381,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto fac025	
+362099,0.26229,0.994593864036,0.573597134784,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto fac4	
+362100,0.30541,0.985870319001,0.561190231605,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto renorm025	
+362101,0.21846,1.03327716933,0.584427212438,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto renorm4	
+362102,0.27398,0.983676550374,0.579072567968,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto qsf025	
+362103,0.244756,1.02198313891,0.57211714949,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto qsf4	
+362104,0.2406,1.00540058346,0.271911602052,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto ckkw15	
+362105,0.27605,1.01882044433,0.274285026002,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto ckkw30	
+362106,0.24999,1.01882044433,0.266841289273,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto fac025	
+362107,0.26229,0.994593864036,0.267347528848,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto fac4	
+362108,0.30541,0.985870319001,0.278944342941,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto renorm025
+362109,0.21846,1.03327716933,0.262360373162,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto renorm4	
+362110,0.27398,0.983676550374,0.269136141708,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto qsf025	
+362111,0.24475,1.02198313891,0.269136141708,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto qsf4	
+362112,0.2406,1.00540058346,0.165059465048,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter ckkw15	
+362113,0.27605,1.01882044433,0.161010440654,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter ckkw30	
+362114,0.24999,1.01882044433,0.163825025992,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter fac025	
+362115,0.26229,0.994593864036,0.159719731161,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter fac4	        
+362116,0.30541,0.985870319001,0.17084247703,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter renorm025	
+362117,0.21846,1.03327716933,0.156288935475,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter renorm4	
+362118,0.27398,0.983676550374,0.163099895246,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter qsf025	
+362119,0.24475,1.02198313891,0.163020466847,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter qsf4	        
+362120,0.04239,1.00540058346,0.5579299003,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto ckkw15	
+362121,0.048281,1.01882044433,0.566702316276,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto ckkw30	
+362122,0.043051,1.01882044433,0.561984037575,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto fac025	
+362123,0.045436,0.994593864036,0.564276042466,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto fac4	
+362124,0.054108,0.985870319001,0.549524462912,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto renorm025
+362125,0.037861,1.03327716933,0.569202280004,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto renorm4	
+362126,0.046898,0.983676550374,0.601972666982,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto qsf025	
+362127,0.042971,1.02198313891,0.57250240854,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto qsf4	
+362128,0.04239,1.00540058346,0.274170870872,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto ckkw15	
+362129,0.048281,1.01882044433,0.281985108775,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto ckkw30	
+362130,0.043051,1.01882044433,0.283978715812,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto fac025	
+362131,0.045436,0.994593864036,0.272576817976,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto fac4	
+362132,0.054108,0.985870319001,0.289093394579,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto renorm025
+362133,0.037861,1.03327716933,0.272019020139,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto renorm4
+362134,0.046898,0.983676550374,0.280181321487,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto qsf025	
+362135,0.042971,1.02198313891,0.278700773259,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto qsf4	
+362136,0.04239,1.00540058346,0.16789912883,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter ckkw15	
+362137,0.048281,1.01882044433,0.163905263851,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter ckkw30	
+362138,0.043051,1.01882044433,0.168358723453,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter fac025	
+362139,0.045436,0.994593864036,0.16182048573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter fac4	
+362140,0.054108,0.985870319001,0.175383226512,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter renorm025	
+362141,0.037861,1.03327716933,0.160130444076,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter renorm4	
+362142,0.046898,0.983676550374,0.164294187671,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter qsf025	
+362143,0.042971,1.02198313891,0.1487968182,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter qsf4	
+362144,0.0055365,1.00540058346,0.567730846499,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto ckkw15	
+362145,0.006498,1.01882044433,0.5331860718,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto ckkw30	
+362146,0.0055228,1.01882044433,0.560245671319,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto fac025	
+362147,0.0057948,0.994593864036,0.554757766218,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto fac4	
+362148,0.0079666,0.985870319001,0.546057088844,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto renorm025
+362149,0.0047702,1.03327716933,0.563621148156,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto renorm4	
+362150,0.0058482,0.983676550374,0.557651789554,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto qsf025	
+362151,0.0056805,1.02198313891,0.562349414867,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto qsf4	
+362152,0.0055365,1.00540058346,0.286149330107,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto ckkw15
+362153,0.006498,1.01882044433,0.284678680228,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto ckkw30
+362154,0.0055228,1.01882044433,0.290795153797,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto fac025
+362155,0.0057948,0.994593864036,0.288045886249,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto fac4	
+362156,0.0079666,0.985870319001,0.303383129822,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto renorm025
+362157,0.0047702,1.03327716933,0.279505366243,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto renorm4
+362158,0.0058482,0.983676550374,0.287670231699,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto qsf025
+362159,0.0056805,1.02198313891,0.286103030225,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto qsf4	
+362160,0.0055365,1.00540058346,0.188112386588,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter ckkw15	
+362161,0.006498,1.01882044433,0.182135247986,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter ckkw30	
+362162,0.0055228,1.01882044433,0.176658372573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter fac025	
+362163,0.0057948,0.994593864036,0.166768551671,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter fac4	
+362164,0.0079666,0.985870319001,0.1505597299,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter renorm025	
+362165,0.0047702,1.03327716933,0.164662317462,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter renorm4	
+362166,0.0058482,0.983676550374,0.173593913482,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter qsf025	
+362167,0.0056805,1.02198313891,0.174198487034,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter qsf4	
+362168,2.3732e-05,1.00540058346,0.59533280364,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto ckkw15	
+362169,2.9202e-05,1.01882044433,0.61727183394,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto ckkw30	
+362170,2.3913e-05,1.01882044433,0.605546297095,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto fac025	
+362171,2.45e-05,0.994593864036,0.558684028092,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto fac4	
+362172,3.075e-05,0.985870319001,0.605515446282,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto renorm025
+362173,1.9847e-05,1.03327716933,0.575228546666,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto renorm4
+362174,2.3961e-05,0.983676550374,0.560013587095,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto qsf025	
+362175,2.6213e-05,1.02198313891,0.574770713437,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto qsf4	
+362176,2.3732e-05,1.00540058346,0.349681181291,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto ckkw15
+362177,2.9202e-05,1.01882044433,0.3361276411,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto ckkw30
+362178,2.3913e-05,1.01882044433,0.335660853573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto fac025
+362179,2.45e-05,0.994593864036,0.288612388042,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto fac4	
+362180,3.075e-05,0.985870319001,0.3480191997,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto renorm025
+362181,1.9847e-05,1.03327716933,0.309290609325,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto renorm4
+362182,2.3961e-05,0.983676550374,0.336639454258,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto qsf025
+362183,2.6213e-05,1.02198313891,0.32266660355,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto qsf4	
+362184,2.3732e-05,1.00540058346,0.211726111126,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter ckkw15	
+362185,2.9202e-05,1.01882044433,0.21466434553,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter ckkw30	
+362186,2.3913e-05,1.01882044433,0.23566734739,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter fac025	
+362187,2.45e-05,0.994593864036,0.185984186573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter fac4	
+362188,3.075e-05,0.985870319001,0.220474953877,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter renorm025	
+362189,1.9847e-05,1.03327716933,0.190020404334,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter renorm4	
+362190,2.3961e-05,0.983676550374,0.193093017058,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter qsf025	
+362191,2.6213e-05,1.02198313891,0.215330840201,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter qsf4	
+362192,2212.0,0.899801,0.7759,,XsecZleptlept40Sherpa22,,,
+362193,2175.0,0.91362,0.7793,,XsecZleptlept40Sherpa22,,,
+362194,2107.0,0.942924,0.7784,,XsecZleptlept40Sherpa22,,,
+362195,2258.0,0.881338,0.7801,,XsecZleptlept40Sherpa22,,,
+362196,2236.0,0.886455,0.7802,,XsecZleptlept40Sherpa22,,,
+362197,2153.0,0.926406,0.7782,,XsecZleptlept40Sherpa22,,,
+362198,2240.0,0.883504,0.7811,,XsecZleptlept40Sherpa22,,,
+362199,2178.0,0.916515,0.7777,,XsecZleptlept40Sherpa22,,,
+362200,2212.0,0.899801,0.1436,,XsecZleptlept40Sherpa22,,,
+362201,2175.0,0.91362,0.142,,XsecZleptlept40Sherpa22,,,
+362202,2107.0,0.942924,0.1428,,XsecZleptlept40Sherpa22,,,
+362203,2258.0,0.881338,0.1416,,XsecZleptlept40Sherpa22,,,
+362204,2236.0,0.886455,0.1424,,XsecZleptlept40Sherpa22,,,
+362205,2153.0,0.926406,0.1414,,XsecZleptlept40Sherpa22,,,
+362206,2240.0,0.883504,0.1413,,XsecZleptlept40Sherpa22,,,
+362207,2178.0,0.916515,0.1424,,XsecZleptlept40Sherpa22,,,
+362208,2212.0,0.899801,0.08067,,XsecZleptlept40Sherpa22,,,
+362209,2175.0,0.91362,0.07919,,XsecZleptlept40Sherpa22,,,
+362210,2107.0,0.942924,0.07893,,XsecZleptlept40Sherpa22,,,
+362211,2258.0,0.881338,0.07897,,XsecZleptlept40Sherpa22,,,
+362212,2236.0,0.886455,0.07817,,XsecZleptlept40Sherpa22,,,
+362213,2153.0,0.926406,0.08001,,XsecZleptlept40Sherpa22,,,
+362214,2240.0,0.883504,0.07823,,XsecZleptlept40Sherpa22,,,
+362215,2178.0,0.916515,0.07987,,XsecZleptlept40Sherpa22,,,
+362216,73.22,0.899801,0.6463,,XsecZleptlept40Sherpa22,,,
+362217,74.47,0.91362,0.6582,,XsecZleptlept40Sherpa22,,,
+362218,73.03,0.942924,0.6544,,XsecZleptlept40Sherpa22,,,
+362219,75.11,0.881338,0.6518,,XsecZleptlept40Sherpa22,,,
+362220,81.97,0.886455,0.6512,,XsecZleptlept40Sherpa22,,,
+362221,67.32,0.926406,0.6522,,XsecZleptlept40Sherpa22,,,
+362222,86.04,0.883504,0.6626,,XsecZleptlept40Sherpa22,,,
+362223,65.93,0.916515,0.6491,,XsecZleptlept40Sherpa22,,,
+362224,73.22,0.899801,0.2224,,XsecZleptlept40Sherpa22,,,
+362225,74.47,0.91362,0.2176,,XsecZleptlept40Sherpa22,,,
+362226,73.03,0.942924,0.2201,,XsecZleptlept40Sherpa22,,,
+362227,75.11,0.881338,0.2194,,XsecZleptlept40Sherpa22,,,
+362228,81.97,0.886455,0.2223,,XsecZleptlept40Sherpa22,,,
+362229,67.32,0.926406,0.2186,,XsecZleptlept40Sherpa22,,,
+362230,86.04,0.883504,0.2145,,XsecZleptlept40Sherpa22,,,
+362231,65.93,0.916515,0.2196,,XsecZleptlept40Sherpa22,,,
+362232,73.22,0.899801,0.1376,,XsecZleptlept40Sherpa22,,,
+362233,74.47,0.91362,0.129,,XsecZleptlept40Sherpa22,,,
+362234,73.03,0.942924,0.1273,,XsecZleptlept40Sherpa22,,,
+362235,75.11,0.881338,0.1299,,XsecZleptlept40Sherpa22,,,
+362236,81.97,0.886455,0.1299,,XsecZleptlept40Sherpa22,,,
+362237,67.32,0.926406,0.1293,,XsecZleptlept40Sherpa22,,,
+362238,86.04,0.883504,0.1248,,XsecZleptlept40Sherpa22,,,
+362239,65.93,0.916515,0.1301,,XsecZleptlept40Sherpa22,,,
+362240,10.65,0.899801,0.6154,,XsecZleptlept40Sherpa22,,,
+362241,11.47,0.91362,0.6283,,XsecZleptlept40Sherpa22,,,
+362242,10.99,0.942924,0.6184,,XsecZleptlept40Sherpa22,,,
+362243,11.04,0.881338,0.6175,,XsecZleptlept40Sherpa22,,,
+362244,12.47,0.886455,0.609,,XsecZleptlept40Sherpa22,,,
+362245,9.766,0.926406,0.6233,,XsecZleptlept40Sherpa22,,,
+362246,12.63,0.883504,0.6263,,XsecZleptlept40Sherpa22,,,
+362247,9.832,0.916515,0.618,,XsecZleptlept40Sherpa22,,,
+362248,10.65,0.899801,0.2443,,XsecZleptlept40Sherpa22,,,
+362249,11.47,0.91362,0.2428,,XsecZleptlept40Sherpa22,,,
+362250,10.99,0.942924,0.2387,,XsecZleptlept40Sherpa22,,,
+362251,11.04,0.881338,0.2386,,XsecZleptlept40Sherpa22,,,
+362252,12.47,0.886455,0.2443,,XsecZleptlept40Sherpa22,,,
+362253,9.766,0.926406,0.235,,XsecZleptlept40Sherpa22,Zjets_Sherpa22_Cfilter,,
+362254,12.63,0.883504,0.2357,,XsecZleptlept40Sherpa22,,,
+362255,9.832,0.916515,0.2429,,XsecZleptlept40Sherpa22,,,
+362256,10.65,0.899801,0.1491,,XsecZleptlept40Sherpa22,,,
+362257,11.47,0.91362,0.143,,XsecZleptlept40Sherpa22,,,
+362258,10.99,0.942924,0.1449,,XsecZleptlept40Sherpa22,,,
+362259,11.04,0.881338,0.1444,,XsecZleptlept40Sherpa22,,,
+362260,12.47,0.886455,0.1529,,XsecZleptlept40Sherpa22,,,
+362261,9.766,0.926406,0.1418,,XsecZleptlept40Sherpa22,,,
+362262,12.63,0.883504,0.1389,,XsecZleptlept40Sherpa22,,,
+362263,9.832,0.916515,0.1456,,XsecZleptlept40Sherpa22,,,
+362264,0.7298,0.899801,0.592,,XsecZleptlept40Sherpa22,,,
+362265,0.8163,0.91362,0.5939,,XsecZleptlept40Sherpa22,,,
+362266,0.758,0.942924,0.5918,,XsecZleptlept40Sherpa22,,,
+362267,0.7763,0.881338,0.5923,,XsecZleptlept40Sherpa22,,,
+362268,0.8965,0.886455,0.5795,,XsecZleptlept40Sherpa22,,,
+362269,0.6654,0.926406,0.5997,,XsecZleptlept40Sherpa22,,,
+362270,0.8469,0.883504,0.5982,,XsecZleptlept40Sherpa22,,,
+362271,0.7134,0.916515,0.5923,,XsecZleptlept40Sherpa22,,,
+362272,0.7298,0.899801,0.2641,,XsecZleptlept40Sherpa22,,,
+362273,0.8163,0.91362,0.2631,,XsecZleptlept40Sherpa22,,,
+362274,0.758,0.942924,0.2583,,XsecZleptlept40Sherpa22,,,
+362275,0.7763,0.881338,0.2583,,XsecZleptlept40Sherpa22,,,
+362276,0.8965,0.886455,0.2638,,XsecZleptlept40Sherpa22,,,
+362277,0.6654,0.926406,0.2533,,XsecZleptlept40Sherpa22,,,
+362278,0.8469,0.883504,0.2527,,XsecZleptlept40Sherpa22,,,
+362279,0.7134,0.916515,0.2603,,XsecZleptlept40Sherpa22,,,
+362280,0.7298,0.899801,0.1593,,XsecZleptlept40Sherpa22,,,
+362281,0.8163,0.91362,0.1541,,XsecZleptlept40Sherpa22,,,
+362282,0.758,0.942924,0.1533,,XsecZleptlept40Sherpa22,,,
+362283,0.7763,0.881338,0.1494,,XsecZleptlept40Sherpa22,,,
+362284,0.8965,0.886455,0.1585,,XsecZleptlept40Sherpa22,,,
+362285,0.6654,0.926406,0.1499,,XsecZleptlept40Sherpa22,,,
+362286,0.8469,0.883504,0.1514,,XsecZleptlept40Sherpa22,,,
+362287,0.7134,0.916515,0.1521,,XsecZleptlept40Sherpa22,,,
+362288,0.04417,0.899801,0.5749,,XsecZleptlept40Sherpa22,,,
+362289,0.05076,0.91362,0.574,,XsecZleptlept40Sherpa22,,,
+362290,0.04565,0.942924,0.5662,,XsecZleptlept40Sherpa22,,,
+362291,0.04712,0.881338,0.5728,,XsecZleptlept40Sherpa22,,,
+362292,0.05551,0.886455,0.5585,,XsecZleptlept40Sherpa22,,,
+362293,0.03961,0.926406,0.5832,,XsecZleptlept40Sherpa22,,,
+362294,0.04956,0.883504,0.5742,,XsecZleptlept40Sherpa22,,,
+362295,0.04461,0.916515,0.5743,,XsecZleptlept40Sherpa22,,,
+362296,0.04417,0.899801,0.274,,XsecZleptlept40Sherpa22,,,
+362297,0.05076,0.91362,0.2749,,XsecZleptlept40Sherpa22,,,
+362298,0.04565,0.942924,0.2746,,XsecZleptlept40Sherpa22,,,
+362299,0.04712,0.881338,0.2688,,XsecZleptlept40Sherpa22,,,
+362300,0.05551,0.886455,0.2846,,XsecZleptlept40Sherpa22,,,
+362301,0.03961,0.926406,0.2648,,XsecZleptlept40Sherpa22,,,
+362302,0.04956,0.883504,0.2666,,XsecZleptlept40Sherpa22,,,
+362303,0.04461,0.916515,0.2729,,XsecZleptlept40Sherpa22,,,
+362304,0.04417,0.899801,0.1819,,XsecZleptlept40Sherpa22,,,
+362305,0.05076,0.91362,0.1788,,XsecZleptlept40Sherpa22,,,
+362306,0.04565,0.942924,0.169,,XsecZleptlept40Sherpa22,,,
+362307,0.04712,0.881338,0.1621,,XsecZleptlept40Sherpa22,,,
+362308,0.05551,0.886455,0.1796,,XsecZleptlept40Sherpa22,,,
+362309,0.03961,0.926406,0.1575,,XsecZleptlept40Sherpa22,,,
+362310,0.04956,0.883504,0.161,,XsecZleptlept40Sherpa22,,,
+362311,0.04461,0.916515,0.1671,,XsecZleptlept40Sherpa22,,,
+362312,0.007646,0.899801,0.627,,XsecZleptlept40Sherpa22,,,
+362313,0.009003,0.91362,0.6041,,XsecZleptlept40Sherpa22,,,
+362314,0.008012,0.942924,0.6164,,XsecZleptlept40Sherpa22,,,
+362315,0.008384,0.881338,0.612,,XsecZleptlept40Sherpa22,,,
+362316,0.009983,0.886455,0.6164,,XsecZleptlept40Sherpa22,,,
+362317,0.006911,0.926406,0.6191,,XsecZleptlept40Sherpa22,,,
+362318,0.008744,0.883504,0.618,,XsecZleptlept40Sherpa22,,,
+362319,0.007928,0.916515,0.609,,XsecZleptlept40Sherpa22,,,
+362320,0.007646,0.899801,0.2815,,XsecZleptlept40Sherpa22,,,
+362321,0.009003,0.91362,0.2868,,XsecZleptlept40Sherpa22,,,
+362322,0.008012,0.942924,0.2839,,XsecZleptlept40Sherpa22,,,
+362323,0.008384,0.881338,0.2846,,XsecZleptlept40Sherpa22,,,
+362324,0.009983,0.886455,0.2839,,XsecZleptlept40Sherpa22,,,
+362325,0.006911,0.926406,0.2661,,XsecZleptlept40Sherpa22,,,
+362326,0.008744,0.883504,0.2623,,XsecZleptlept40Sherpa22,,,
+362327,0.007928,0.916515,0.2813,,XsecZleptlept40Sherpa22,,,
+362328,0.007646,0.899801,0.1845,,XsecZleptlept40Sherpa22,,,
+362329,0.009003,0.91362,0.1811,,XsecZleptlept40Sherpa22,,,
+362330,0.008012,0.942924,0.1732,,XsecZleptlept40Sherpa22,,,
+362331,0.008384,0.881338,0.1606,,XsecZleptlept40Sherpa22,,,
+362332,0.009983,0.886455,0.1732,,XsecZleptlept40Sherpa22,,,
+362333,0.006911,0.926406,0.1594,,XsecZleptlept40Sherpa22,,,
+362334,0.008744,0.883504,0.1664,,XsecZleptlept40Sherpa22,,,
+362335,0.007928,0.916515,0.1731,,XsecZleptlept40Sherpa22,,,
+362336,0.0009891,0.899801,0.5491,,XsecZleptlept40Sherpa22,,,
+362337,0.00116,0.91362,0.5653,,XsecZleptlept40Sherpa22,,,
+362338,0.001016,0.942924,0.5653,,XsecZleptlept40Sherpa22,,,
+362339,0.001076,0.881338,0.5509,,XsecZleptlept40Sherpa22,,,
+362340,0.001301,0.886455,0.5446,,XsecZleptlept40Sherpa22,,,
+362341,0.0008852,0.926406,0.5676,,XsecZleptlept40Sherpa22,,,
+362342,0.001076,0.883504,0.5676,,XsecZleptlept40Sherpa22,,,
+362343,0.001031,0.916515,0.549,,XsecZleptlept40Sherpa22,,,
+362344,0.0009891,0.899801,0.2968,,XsecZleptlept40Sherpa22,,,
+362345,0.00116,0.91362,0.2838,,XsecZleptlept40Sherpa22,,,
+362346,0.001016,0.942924,0.2838,,XsecZleptlept40Sherpa22,,,
+362347,0.001076,0.881338,0.2872,,XsecZleptlept40Sherpa22,,,
+362348,0.001301,0.886455,0.3035,,XsecZleptlept40Sherpa22,,,
+362349,0.0008852,0.926406,0.2876,,XsecZleptlept40Sherpa22,,,
+362350,0.001076,0.883504,0.2876,,XsecZleptlept40Sherpa22,,,
+362351,0.001031,0.916515,0.2936,,XsecZleptlept40Sherpa22,,,
+362352,0.0009891,0.899801,0.1856,,XsecZleptlept40Sherpa22,,,
+362353,0.00116,0.91362,0.1509,,XsecZleptlept40Sherpa22,,,
+362354,0.001016,0.942924,0.1509,,XsecZleptlept40Sherpa22,,,
+362355,0.001076,0.881338,0.166,,XsecZleptlept40Sherpa22,,,
+362356,0.001301,0.886455,0.1817,,XsecZleptlept40Sherpa22,,,
+362357,0.0008852,0.926406,0.165,,XsecZleptlept40Sherpa22,,,
+362358,0.001076,0.883504,0.165,,XsecZleptlept40Sherpa22,,,
+362359,0.001031,0.916515,0.1786,,XsecZleptlept40Sherpa22,,,
+362360,4.419e-06,0.899801,0.5437,,XsecZleptlept40Sherpa22,,,
+362361,5.609e-06,0.91362,0.5437,,XsecZleptlept40Sherpa22,,,
+362362,4.1e-06,0.942924,0.5053,,XsecZleptlept40Sherpa22,,,
+362363,4.481e-06,0.881338,0.5234,,XsecZleptlept40Sherpa22,,,
+362364,5.373e-06,0.886455,0.5456,,XsecZleptlept40Sherpa22,,,
+362365,3.662e-06,0.926406,0.5652,,XsecZleptlept40Sherpa22,,,
+362366,4.302e-06,0.883504,0.5651,,XsecZleptlept40Sherpa22,,,
+362367,4.384e-06,0.916515,0.5657,,XsecZleptlept40Sherpa22,,,
+362368,4.419e-06,0.899801,0.3212,,XsecZleptlept40Sherpa22,,,
+362369,5.609e-06,0.91362,0.2412,,XsecZleptlept40Sherpa22,,,
+362370,4.1e-06,0.942924,0.3064,,XsecZleptlept40Sherpa22,,,
+362371,4.481e-06,0.881338,0.2945,,XsecZleptlept40Sherpa22,,,
+362372,5.373e-06,0.886455,0.3178,,XsecZleptlept40Sherpa22,,,
+362373,3.662e-06,0.926406,0.2865,,XsecZleptlept40Sherpa22,,,
+362374,4.302e-06,0.883504,0.2942,,XsecZleptlept40Sherpa22,,,
+362375,4.384e-06,0.916515,0.3305,,XsecZleptlept40Sherpa22,,,
+362376,4.419e-06,0.899801,0.2074,,XsecZleptlept40Sherpa22,,,
+362377,5.609e-06,0.91362,0.2151,,XsecZleptlept40Sherpa22,,,
+362378,4.1e-06,0.942924,0.1883,,XsecZleptlept40Sherpa22,,,
+362379,4.481e-06,0.881338,0.1753,,XsecZleptlept40Sherpa22,,,
+362380,5.373e-06,0.886455,0.2001,,XsecZleptlept40Sherpa22,,,
+362381,3.662e-06,0.926406,0.1692,,XsecZleptlept40Sherpa22,,,
+362382,4.302e-06,0.883504,0.1779,,XsecZleptlept40Sherpa22,,,
+362383,4.384e-06,0.916515,0.1863,,XsecZleptlept40Sherpa22,,,
+362384,21390.0,0.908364,0.888,,XsecWlnuSherpa22,,,
+362385,21100.0,0.920532,0.8929,,XsecWlnuSherpa22,,,
+362386,20390.0,0.951626,0.8898,,XsecWlnuSherpa22,,,
+362387,21940.0,0.886543,0.8913,,XsecWlnuSherpa22,,,
+362388,21720.0,0.891898,0.8894,,XsecWlnuSherpa22,,,
+362389,20910.0,0.931808,0.8925,,XsecWlnuSherpa22,,,
+362390,21750.0,0.889321,0.8918,,XsecWlnuSherpa22,,,
+362391,21090.0,0.924845,0.8909,,XsecWlnuSherpa22,,,
+362392,21390,0.908364,0.05075,,,,,
+362393,21100,0.920532,0.04673,,,,,
+362394,20390,0.951626,0.04964,,,,,
+362395,21940,0.886543,0.049,,,,,
+362396,21720,0.891898,0.04969,,,,,
+362397,20910,0.931808,0.04819,,,,,
+362398,21750,0.889321,0.04859,,,,,
+362399,21090,0.924845,0.04883,,,,,
+362400,21390,0.908364,0.06123,,,,,
+362401,21100,0.920532,0.0603,,,,,
+362402,20390,0.951626,0.0605,,,,,
+362403,21940,0.886543,0.0596,,,,,
+362404,21720,0.891898,0.06089,,,,,
+362405,20910,0.931808,0.05919,,,,,
+362406,21750,0.889321,0.05946,,,,,
+362407,21090,0.924845,0.06031,,,,,
+362408,616.2,0.908364,0.7222,,XsecWlnuSherpa22,,,
+362409,614.9,0.920532,0.7369,,XsecWlnuSherpa22,,,
+362410,615.5,0.951626,0.7289,,XsecWlnuSherpa22,,,
+362411,623.2,0.886543,0.7275,,XsecWlnuSherpa22,,,
+362412,684.7,0.891898,0.7257,,XsecWlnuSherpa22,,,
+362413,560.8,0.931808,0.732,,XsecWlnuSherpa22,,,
+362414,727.7,0.889321,0.7238,,XsecWlnuSherpa22,,,
+362415,541.8,0.924845,0.7228,,XsecWlnuSherpa22,,,
+362416,616.2,0.908364,0.1768,,XsecWlnuSherpa22,,,
+362417,614.9,0.920532,0.1768,,XsecWlnuSherpa22,,,
+362418,615.5,0.951626,0.1756,,XsecWlnuSherpa22,,,
+362419,623.2,0.886543,0.1764,,XsecWlnuSherpa22,,,
+362420,684.7,0.891898,0.177,,XsecWlnuSherpa22,,,
+362421,560.8,0.931808,0.1753,,XsecWlnuSherpa22,,,
+362422,727.7,0.889321,0.1668,,XsecWlnuSherpa22,,,
+362423,541.8,0.924845,0.1794,,XsecWlnuSherpa22,,,
+362424,616.2,0.908364,0.101,,XsecWlnuSherpa22,,,
+362425,614.9,0.920532,0.0863,,XsecWlnuSherpa22,,,
+362426,615.5,0.951626,0.09635,,XsecWlnuSherpa22,,,
+362427,623.2,0.886543,0.09571,,XsecWlnuSherpa22,,,
+362428,684.7,0.891898,0.09948,,XsecWlnuSherpa22,,,
+362429,560.8,0.931808,0.09369,,XsecWlnuSherpa22,,,
+362430,727.7,0.889321,0.09085,,XsecWlnuSherpa22,,,
+362431,541.8,0.924845,0.09782,,XsecWlnuSherpa22,,,
+362432,82.76,0.908364,0.684,,XsecWlnuSherpa22,,,
+362433,87.32,0.920532,0.6934,,XsecWlnuSherpa22,,,
+362434,85.29,0.951626,0.6883,,XsecWlnuSherpa22,,,
+362435,85.22,0.886543,0.6879,,XsecWlnuSherpa22,,,
+362436,97.18,0.891898,0.6883,,XsecWlnuSherpa22,,,
+362437,75.27,0.931808,0.6944,,XsecWlnuSherpa22,,,
+362438,97.61,0.889321,0.6971,,XsecWlnuSherpa22,,,
+362439,76.54,0.924845,0.6843,,XsecWlnuSherpa22,,,
+362440,82.76,0.908364,0.2059,,XsecWlnuSherpa22,,,
+362441,87.32,0.920532,0.2059,,XsecWlnuSherpa22,,,
+362442,85.29,0.951626,0.2011,,XsecWlnuSherpa22,,,
+362443,85.22,0.886543,0.2029,,XsecWlnuSherpa22,,,
+362444,97.18,0.891898,0.2107,,XsecWlnuSherpa22,,,
+362445,75.27,0.931808,0.1975,,XsecWlnuSherpa22,,,
+362446,97.61,0.889321,0.1942,,XsecWlnuSherpa22,,,
+362447,76.54,0.924845,0.2045,,XsecWlnuSherpa22,,,
+362448,82.76,0.908364,0.1101,,XsecWlnuSherpa22,,,
+362449,87.32,0.920532,0.1007,,XsecWlnuSherpa22,,,
+362450,85.29,0.951626,0.1106,,XsecWlnuSherpa22,,,
+362451,85.22,0.886543,0.1115,,XsecWlnuSherpa22,,,
+362452,97.18,0.891898,0.101,,XsecWlnuSherpa22,,,
+362453,75.27,0.931808,0.1081,,XsecWlnuSherpa22,,,
+362454,97.61,0.889321,0.108,,XsecWlnuSherpa22,,,
+362455,76.54,0.924845,0.1112,,XsecWlnuSherpa22,,,
+362456,5.581,0.908364,0.6483,,XsecWlnuSherpa22,,,
+362457,6.043,0.920532,0.6585,,XsecWlnuSherpa22,,,
+362458,5.715,0.951626,0.6575,,XsecWlnuSherpa22,,,
+362459,5.811,0.886543,0.6591,,XsecWlnuSherpa22,,,
+362460,6.762,0.891898,0.6427,,XsecWlnuSherpa22,,,
+362461,4.999,0.931808,0.6685,,XsecWlnuSherpa22,,,
+362462,6.336,0.889321,0.66,,XsecWlnuSherpa22,,,
+362463,5.383,0.924845,0.6576,,XsecWlnuSherpa22,,,
+362464,5.581,0.908364,0.2203,,XsecWlnuSherpa22,,,
+362465,6.043,0.920532,0.214,,XsecWlnuSherpa22,,,
+362466,5.715,0.951626,0.2142,,XsecWlnuSherpa22,,,
+362467,5.811,0.886543,0.2147,,XsecWlnuSherpa22,,,
+362468,6.762,0.891898,0.221,,XsecWlnuSherpa22,,,
+362469,4.999,0.931808,0.2089,,XsecWlnuSherpa22,,,
+362470,6.336,0.889321,0.2104,,XsecWlnuSherpa22,,,
+362471,5.383,0.924845,0.2168,,XsecWlnuSherpa22,,,
+362472,5.581,0.908364,0.1314,,XsecWlnuSherpa22,,,
+362473,6.043,0.920532,0.1297,,XsecWlnuSherpa22,,,
+362474,5.715,0.951626,0.1284,,XsecWlnuSherpa22,,,
+362475,5.811,0.886543,0.1278,,XsecWlnuSherpa22,,,
+362476,6.762,0.891898,0.1363,,XsecWlnuSherpa22,,,
+362477,4.999,0.931808,0.1226,,XsecWlnuSherpa22,,,
+362478,6.336,0.889321,0.1257,,XsecWlnuSherpa22,,,
+362479,5.383,0.924845,0.1289,,XsecWlnuSherpa22,,,
+362480,0.3322,0.908364,0.6391,,XsecWlnuSherpa22,,,
+362481,0.3691,0.920532,0.6457,,XsecWlnuSherpa22,,,
+362482,0.3408,0.951626,0.6398,,XsecWlnuSherpa22,,,
+362483,0.3522,0.886543,0.6392,,XsecWlnuSherpa22,,,
+362484,0.4172,0.891898,0.6232,,XsecWlnuSherpa22,,,
+362485,0.2952,0.931808,0.6498,,XsecWlnuSherpa22,,,
+362486,0.3691,0.889321,0.6435,,XsecWlnuSherpa22,,,
+362487,0.3339,0.924845,0.6377,,XsecWlnuSherpa22,,,
+362488,0.3322,0.908364,0.2246,,XsecWlnuSherpa22,,,
+362489,0.3691,0.920532,0.2195,,XsecWlnuSherpa22,,,
+362490,0.3408,0.951626,0.2253,,XsecWlnuSherpa22,,,
+362491,0.3522,0.886543,0.2196,,XsecWlnuSherpa22,,,
+362492,0.4172,0.891898,0.234,,XsecWlnuSherpa22,,,
+362493,0.2952,0.931808,0.2128,,XsecWlnuSherpa22,,,
+362494,0.3691,0.889321,0.2206,,XsecWlnuSherpa22,,,
+362495,0.3339,0.924845,0.2266,,XsecWlnuSherpa22,,,
+362496,0.3322,0.908364,0.1436,,XsecWlnuSherpa22,,,
+362497,0.3691,0.920532,0.1425,,XsecWlnuSherpa22,,,
+362498,0.3408,0.951626,0.144,,XsecWlnuSherpa22,,,
+362499,0.3522,0.886543,0.1412,,XsecWlnuSherpa22,,,
+362500,0.4172,0.891898,0.1519,,XsecWlnuSherpa22,,,
+362501,0.2952,0.931808,0.1368,,XsecWlnuSherpa22,,,
+362502,0.3691,0.889321,0.1417,,XsecWlnuSherpa22,,,
+362503,0.3339,0.924845,0.1466,,XsecWlnuSherpa22,,,
+362504,0.06057,0.908364,0.6254,,XsecWlnuSherpa22,,,
+362505,0.066,0.920532,0.6343,,XsecWlnuSherpa22,,,
+362506,0.05952,0.951626,0.6263,,XsecWlnuSherpa22,,,
+362507,0.06225,0.886543,0.629,,XsecWlnuSherpa22,,,
+362508,0.06966,0.891898,0.6149,,XsecWlnuSherpa22,,,
+362509,0.05206,0.931808,0.6149,,XsecWlnuSherpa22,,,
+362510,0.0638,0.889321,0.6352,,XsecWlnuSherpa22,,,
+362511,0.06012,0.924845,0.632,,XsecWlnuSherpa22,,,
+362512,0.06057,0.908364,0.2391,,XsecWlnuSherpa22,,,
+362513,0.066,0.920532,0.2225,,XsecWlnuSherpa22,,,
+362514,0.05952,0.951626,0.2273,,XsecWlnuSherpa22,,,
+362515,0.06225,0.886543,0.2243,,XsecWlnuSherpa22,,,
+362516,0.06966,0.891898,0.2384,,XsecWlnuSherpa22,,,
+362517,0.05206,0.931808,0.2408,,XsecWlnuSherpa22,,,
+362518,0.0638,0.889321,0.2268,,XsecWlnuSherpa22,,,
+362519,0.06012,0.924845,0.2251,,XsecWlnuSherpa22,,,
+362520,0.06057,0.908364,0.1484,,XsecWlnuSherpa22,,,
+362521,0.066,0.920532,0.15,,XsecWlnuSherpa22,,,
+362522,0.05952,0.951626,0.1581,,XsecWlnuSherpa22,,,
+362523,0.06225,0.886543,0.1496,,XsecWlnuSherpa22,,,
+362524,0.06966,0.891898,0.1609,,XsecWlnuSherpa22,,,
+362525,0.05206,0.931808,0.1443,,XsecWlnuSherpa22,,,
+362526,0.0638,0.889321,0.1473,,XsecWlnuSherpa22,,,
+362527,0.06012,0.924845,0.1521,,XsecWlnuSherpa22,,,
+362528,0.007622,0.908364,0.6121,,XsecWlnuSherpa22,,,
+362529,0.008705,0.920532,0.6048,,XsecWlnuSherpa22,,,
+362530,0.007706,0.951626,0.6239,,XsecWlnuSherpa22,,,
+362531,0.008251,0.886543,0.6064,,XsecWlnuSherpa22,,,
+362532,0.009761,0.891898,0.6047,,XsecWlnuSherpa22,,,
+362533,0.00676,0.931808,0.6319,,XsecWlnuSherpa22,,,
+362534,0.008212,0.889321,0.6149,,XsecWlnuSherpa22,,,
+362535,0.007963,0.924845,0.6103,,XsecWlnuSherpa22,,,
+362536,0.007622,0.908364,0.2369,,XsecWlnuSherpa22,,,
+362537,0.008705,0.920532,0.2155,,XsecWlnuSherpa22,,,
+362538,0.007706,0.951626,0.232,,XsecWlnuSherpa22,,,
+362539,0.008251,0.886543,0.2294,,XsecWlnuSherpa22,,,
+362540,0.009761,0.891898,0.245,,XsecWlnuSherpa22,,,
+362541,0.00676,0.931808,0.2253,,XsecWlnuSherpa22,,,
+362542,0.008212,0.889321,0.2265,,XsecWlnuSherpa22,,,
+362543,0.007963,0.924845,0.2241,,XsecWlnuSherpa22,,,
+362544,0.007622,0.908364,0.1774,,XsecWlnuSherpa22,,,
+362545,0.008705,0.920532,0.1797,,XsecWlnuSherpa22,,,
+362546,0.007706,0.951626,0.1772,,XsecWlnuSherpa22,,,
+362547,0.008251,0.886543,0.157,,XsecWlnuSherpa22,,,
+362548,0.009761,0.891898,0.1769,,XsecWlnuSherpa22,,,
+362549,0.00676,0.931808,0.1507,,XsecWlnuSherpa22,,,
+362550,0.008212,0.889321,0.1753,,XsecWlnuSherpa22,,,
+362551,0.007963,0.924845,0.1655,,XsecWlnuSherpa22,,,
+362552,3.197e-05,0.908364,0.6131,,XsecWlnuSherpa22,,,
+362553,3.559e-05,0.920532,0.6131,,XsecWlnuSherpa22,,,
+362554,2.948e-05,0.951626,0.6111,,XsecWlnuSherpa22,,,
+362555,3.316e-05,0.886543,0.6255,,XsecWlnuSherpa22,,,
+362556,3.898e-05,0.891898,0.6035,,XsecWlnuSherpa22,,,
+362557,2.683e-05,0.931808,0.6348,,XsecWlnuSherpa22,,,
+362558,3.163e-05,0.889321,0.6073,,XsecWlnuSherpa22,,,
+362559,3.31e-05,0.924845,0.6016,,XsecWlnuSherpa22,,,
+362560,3.197e-05,0.908364,0.2389,,XsecWlnuSherpa22,,,
+362561,3.559e-05,0.920532,0.2013,,XsecWlnuSherpa22,,,
+362562,2.948e-05,0.951626,0.2473,,XsecWlnuSherpa22,,,
+362563,3.316e-05,0.886543,0.2362,,XsecWlnuSherpa22,,,
+362564,3.898e-05,0.891898,0.2473,,XsecWlnuSherpa22,,,
+362565,2.683e-05,0.931808,0.1873,,XsecWlnuSherpa22,,,
+362566,3.163e-05,0.889321,0.2413,,XsecWlnuSherpa22,,,
+362567,3.31e-05,0.924845,0.2233,,XsecWlnuSherpa22,,,
+362568,3.197e-05,0.908364,0.1843,,XsecWlnuSherpa22,,,
+362569,3.559e-05,0.920532,0.1856,,XsecWlnuSherpa22,,,
+362570,2.948e-05,0.951626,0.1801,,XsecWlnuSherpa22,,,
+362571,3.316e-05,0.886543,0.1615,,XsecWlnuSherpa22,,,
+362572,3.898e-05,0.891898,0.1778,,XsecWlnuSherpa22,,,
+362573,2.683e-05,0.931808,0.1778,,XsecWlnuSherpa22,,,
+362574,3.163e-05,0.889321,0.1514,,XsecWlnuSherpa22,,,
+362575,3.31e-05,0.924845,0.1738,,XsecWlnuSherpa22,,,

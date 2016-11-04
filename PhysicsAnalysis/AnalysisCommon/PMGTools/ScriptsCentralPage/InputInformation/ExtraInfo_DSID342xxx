@@ -1,0 +1,18 @@
+342092,,,,,,Higgs_BSM_Other,,Madgraph Intermediate mass charged Higgs - taunu m(H) 160 GeV  
+342093,,,,,,Higgs_BSM_Other,,Madgraph Intermediate mass charged Higgs - taunu m(H) 165 GeV  
+342094,,,,,,Higgs_BSM_Other,,Madgraph Intermediate mass charged Higgs - taunu m(H) 170 GeV  
+342095,,,,,,Higgs_BSM_Other,,Madgraph Intermediate mass charged Higgs - taunu m(H) 175 GeV  
+342096,,,,,,Higgs_BSM_Other,,Madgraph Intermediate mass charged Higgs - taunu m(H) 180 GeV
+342097,0.41324,1.34726443186,1.0,0.00228,0.556743553823,Higgs_BSM_Other,HGam MadGraph5_aMC@NLO+Herwig++ bbH production,aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_yb2_gamgam
+342098,-0.033518,1.34684509289,1.0,0.00228,-0.0451435538235,Higgs_BSM_Other,HGam MadGraph5_aMC@NLO+Herwig++ bbH production,aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_ybyt_gamgam
+342178,30.198,1.45440095371,1.0,5.12249028916e-09,43.92,Higgs_ggH,HLep POWHEG+PYTHIA8+EVTGEN ggH H->ee,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ee
+342189,3.8318,0.978130382588,1.0,5.12249028916e-09,3.748,Higgs_VBF,HLep POWHEG+PYTHIA8+EVTGEN VBF H->ee,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_ee
+342282,30.198,1.45440095371,1.0,1.0,43.92,Higgs_ggH,General POWHEG+PYTHIA8+EVTGEN ggH H->inclusive,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_inc
+342283,3.8318,0.978130382588,1.0,1.0,3.748,Higgs_VBF,General POWHEG+PYTHIA8+EVTGEN VBF H->inclusive,PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_inc
+342284,1.1021,1.25215497686,1.0,1.0,1.38,Higgs_VH,General PYTHIA8+EVTGEN WH W->any H->inclusive,Pythia8EvtGen_A14NNPDF23LO_WH125_inc
+342285,0.60072,1.44759621787,1.0,1.0,0.8696,Higgs_VH,General PYTHIA8+EVTGEN ZH Z->any H->inclusive,Pythia8EvtGen_A14NNPDF23LO_ZH125_inc
+342286,0.41327,1.34716663156,1.0,1.0,0.556743553823,Higgs_ttH,General MadGraph5_aMC@NLO+PYTHIA8+EVTGEN bbH yb2 H->inclusive,aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_yb2_inc
+342287,-0.03351,1.34716663156,1.0,1.0,-0.0451435538235,Higgs_ttH,General MadGraph5_aMC@NLO+PYTHIA8+EVTGEN bbH ybyt H->inclusive,aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_ybyt_inc
+342288,0.5085,1.0,1.0,0.00228,0.5085,Higgs_ttH,HGam aMC@NLO showered with Herwig++ ttH(125) H->Zgam No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_Zgam
+342299,0.5085,1.0,1.0,1.0,0.5085,Higgs_ttH,General MadGraph5_aMC@NLO+Herwigpp+EVTGEN ttH H->inclusive No xsec info from aMCatNLO,aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_inc
+342901,,,,,,Higgs_BSM_VH,,Powheg+Pythia8 ZH145 MINLO 4 muons 

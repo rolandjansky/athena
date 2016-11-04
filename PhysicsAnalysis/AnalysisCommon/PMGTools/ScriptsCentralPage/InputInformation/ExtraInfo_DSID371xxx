@@ -1,0 +1,635 @@
+371000,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1850 GeV m_N1 = 350 GeV
+371001,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1850 GeV m_N1 = 550 GeV
+371002,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1850 GeV m_N1 = 750 GeV
+371003,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1900 GeV m_N1 = 100 GeV
+371004,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1900 GeV m_N1 = 300 GeV
+371005,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1900 GeV m_N1 = 500 GeV
+371006,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1900 GeV m_N1 = 700 GeV
+371007,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1900 GeV m_N1 = 900 GeV
+371008,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1950 GeV m_N1 = 50 GeV
+371009,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1950 GeV m_N1 = 250 GeV
+371010,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1950 GeV m_N1 = 450 GeV
+371011,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1950 GeV m_N1 = 650 GeV
+371012,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1950 GeV m_N1 = 850 GeV
+371013,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 0 GeV
+371014,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 200 GeV
+371015,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 400 GeV
+371016,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 600 GeV
+371017,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 800 GeV
+371018,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 112 GeV m_N1 = 87 GeV
+371019,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 125 GeV m_N1 = 75 GeV
+371020,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 150 GeV m_N1 = 50 GeV
+371021,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 212 GeV m_N1 = 187 GeV
+371022,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 225 GeV m_N1 = 175 GeV
+371023,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 250 GeV m_N1 = 150 GeV
+371024,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 300 GeV m_N1 = 100 GeV
+371025,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 312 GeV m_N1 = 287 GeV
+371026,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 325 GeV m_N1 = 275 GeV
+371027,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 350 GeV m_N1 = 50 GeV
+371028,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 350 GeV m_N1 = 250 GeV
+371029,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 400 GeV m_N1 = 200 GeV
+371030,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 412 GeV m_N1 = 387 GeV
+371031,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 425 GeV m_N1 = 375 GeV
+371032,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 450 GeV m_N1 = 150 GeV
+371033,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 450 GeV m_N1 = 350 GeV
+371034,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 500 GeV m_N1 = 100 GeV
+371035,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 500 GeV m_N1 = 300 GeV
+371036,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 512 GeV m_N1 = 487 GeV
+371037,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 525 GeV m_N1 = 475 GeV
+371038,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 550 GeV m_N1 = 50 GeV
+371039,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 550 GeV m_N1 = 250 GeV
+371040,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 550 GeV m_N1 = 450 GeV
+371041,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 600 GeV m_N1 = 200 GeV
+371042,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 600 GeV m_N1 = 400 GeV
+371043,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 650 GeV m_N1 = 150 GeV
+371044,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 650 GeV m_N1 = 350 GeV
+371045,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 662 GeV m_N1 = 637 GeV
+371046,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 675 GeV m_N1 = 625 GeV
+371047,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 700 GeV m_N1 = 100 GeV
+371048,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 700 GeV m_N1 = 300 GeV
+371049,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 700 GeV m_N1 = 600 GeV
+371050,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 750 GeV m_N1 = 50 GeV
+371051,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 750 GeV m_N1 = 250 GeV
+371052,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 750 GeV m_N1 = 450 GeV
+371053,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 750 GeV m_N1 = 550 GeV
+371054,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 762 GeV m_N1 = 737 GeV
+371055,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 775 GeV m_N1 = 725 GeV
+371056,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 200 GeV
+371057,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 400 GeV
+371058,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 500 GeV
+371059,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 700 GeV
+371060,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 150 GeV
+371061,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 350 GeV
+371062,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 450 GeV
+371063,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 650 GeV
+371064,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 862 GeV m_N1 = 837 GeV
+371065,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 875 GeV m_N1 = 825 GeV
+371066,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 100 GeV
+371067,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 300 GeV
+371068,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 400 GeV
+371069,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 600 GeV
+371070,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 800 GeV
+371071,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 50 GeV
+371072,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 250 GeV
+371073,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 350 GeV
+371074,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 450 GeV
+371075,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 550 GeV
+371076,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 750 GeV
+371077,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 200 GeV
+371078,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 300 GeV
+371079,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 400 GeV
+371080,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 500 GeV
+371081,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 700 GeV
+371082,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1012 GeV m_N1 = 987 GeV
+371083,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1025 GeV m_N1 = 975 GeV
+371084,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 150 GeV
+371085,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 250 GeV
+371086,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 350 GeV
+371087,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 450 GeV
+371088,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 650 GeV
+371089,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 950 GeV
+371090,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 200 GeV
+371091,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 400 GeV
+371092,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 600 GeV
+371093,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 150 GeV
+371094,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 350 GeV
+371095,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 550 GeV
+371096,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 100 GeV
+371097,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 300 GeV
+371098,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 500 GeV
+371099,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 1000 GeV
+371100,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 50 GeV
+371101,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 250 GeV
+371102,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 450 GeV
+371103,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 950 GeV
+371104,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 0 GeV
+371105,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 200 GeV
+371106,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 400 GeV
+371107,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 150 GeV
+371108,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 350 GeV
+371109,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 100 GeV
+371110,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 300 GeV
+371111,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 1000 GeV
+371112,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 50 GeV
+371113,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 250 GeV
+371114,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 950 GeV
+371115,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 0 GeV
+371116,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 200 GeV
+371117,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 150 GeV
+371118,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 100 GeV
+371119,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 1000 GeV
+371120,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 50 GeV
+371121,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 950 GeV
+371122,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 0 GeV
+371123,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 1000 GeV
+371124,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1850 GeV m_N1 = 950 GeV
+371125,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 2000 GeV m_N1 = 1000 GeV
+371200,,,,,,,,gluino production in two step decay simplified model m_glu = 600 GeV m_C1 = 350 GeV m_N2 = 225 GeV m_N1 = 100 GeV
+371201,,,,,,,,gluino production in two step decay simplified model m_glu = 600 GeV m_C1 = 450 GeV m_N2 = 375 GeV m_N1 = 300 GeV
+371202,,,,,,,,gluino production in two step decay simplified model m_glu = 600 GeV m_C1 = 500 GeV m_N2 = 450 GeV m_N1 = 400 GeV
+371203,,,,,,,,gluino production in two step decay simplified model m_glu = 600 GeV m_C1 = 550 GeV m_N2 = 525 GeV m_N1 = 500 GeV
+371204,,,,,,,,gluino production in two step decay simplified model m_glu = 600 GeV m_C1 = 576 GeV m_N2 = 564 GeV m_N1 = 552 GeV
+371205,,,,,,,,gluino production in two step decay simplified model m_glu = 700 GeV m_C1 = 650 GeV m_N2 = 625 GeV m_N1 = 600 GeV
+371206,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 450 GeV m_N2 = 275 GeV m_N1 = 100 GeV
+371207,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 550 GeV m_N2 = 425 GeV m_N1 = 300 GeV
+371208,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 600 GeV m_N2 = 500 GeV m_N1 = 400 GeV
+371209,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 650 GeV m_N2 = 575 GeV m_N1 = 500 GeV
+371210,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 700 GeV m_N2 = 650 GeV m_N1 = 600 GeV
+371211,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 750 GeV m_N2 = 725 GeV m_N1 = 700 GeV
+371212,,,,,,,,gluino production in two step decay simplified model m_glu = 800 GeV m_C1 = 776 GeV m_N2 = 764 GeV m_N1 = 752 GeV
+371213,,,,,,,,gluino production in two step decay simplified model m_glu = 900 GeV m_C1 = 750 GeV m_N2 = 675 GeV m_N1 = 600 GeV
+371214,,,,,,,,gluino production in two step decay simplified model m_glu = 900 GeV m_C1 = 800 GeV m_N2 = 750 GeV m_N1 = 700 GeV
+371215,,,,,,,,gluino production in two step decay simplified model m_glu = 900 GeV m_C1 = 850 GeV m_N2 = 825 GeV m_N1 = 800 GeV
+371216,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 550 GeV m_N2 = 325 GeV m_N1 = 100 GeV
+371217,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 650 GeV m_N2 = 475 GeV m_N1 = 300 GeV
+371218,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 750 GeV m_N2 = 625 GeV m_N1 = 500 GeV
+371219,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 800 GeV m_N2 = 700 GeV m_N1 = 600 GeV
+371220,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 850 GeV m_N2 = 775 GeV m_N1 = 700 GeV
+371221,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 900 GeV m_N2 = 850 GeV m_N1 = 800 GeV
+371222,,,,,,,,gluino production in two step decay simplified model m_glu = 1000 GeV m_C1 = 950 GeV m_N2 = 925 GeV m_N1 = 900 GeV
+371223,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 750 GeV m_N2 = 575 GeV m_N1 = 400 GeV
+371224,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 800 GeV m_N2 = 650 GeV m_N1 = 500 GeV
+371225,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 850 GeV m_N2 = 725 GeV m_N1 = 600 GeV
+371226,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 900 GeV m_N2 = 800 GeV m_N1 = 700 GeV
+371227,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 950 GeV m_N2 = 875 GeV m_N1 = 800 GeV
+371228,,,,,,,,gluino production in two step decay simplified model m_glu = 1100 GeV m_C1 = 1000 GeV m_N2 = 950 GeV m_N1 = 900 GeV
+371229,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 650 GeV m_N2 = 375 GeV m_N1 = 100 GeV
+371230,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 750 GeV m_N2 = 525 GeV m_N1 = 300 GeV
+371231,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 800 GeV m_N2 = 600 GeV m_N1 = 400 GeV
+371232,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 850 GeV m_N2 = 675 GeV m_N1 = 500 GeV
+371233,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 900 GeV m_N2 = 750 GeV m_N1 = 600 GeV
+371234,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 950 GeV m_N2 = 825 GeV m_N1 = 700 GeV
+371235,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 1000 GeV m_N2 = 900 GeV m_N1 = 800 GeV
+371236,,,,,,,,gluino production in two step decay simplified model m_glu = 1200 GeV m_C1 = 1050 GeV m_N2 = 975 GeV m_N1 = 900 GeV
+371237,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 700 GeV m_N2 = 400 GeV m_N1 = 100 GeV
+371238,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 750 GeV m_N2 = 475 GeV m_N1 = 200 GeV
+371239,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 800 GeV m_N2 = 550 GeV m_N1 = 300 GeV
+371240,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 850 GeV m_N2 = 625 GeV m_N1 = 400 GeV
+371241,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 900 GeV m_N2 = 700 GeV m_N1 = 500 GeV
+371242,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 950 GeV m_N2 = 775 GeV m_N1 = 600 GeV
+371243,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 1000 GeV m_N2 = 850 GeV m_N1 = 700 GeV
+371244,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 1050 GeV m_N2 = 925 GeV m_N1 = 800 GeV
+371245,,,,,,,,gluino production in two step decay simplified model m_glu = 1300 GeV m_C1 = 1100 GeV m_N2 = 1000 GeV m_N1 = 900 GeV
+371246,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 750 GeV m_N2 = 425 GeV m_N1 = 100 GeV
+371247,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 800 GeV m_N2 = 500 GeV m_N1 = 200 GeV
+371248,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 850 GeV m_N2 = 575 GeV m_N1 = 300 GeV
+371249,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 900 GeV m_N2 = 650 GeV m_N1 = 400 GeV
+371250,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 950 GeV m_N2 = 725 GeV m_N1 = 500 GeV
+371251,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 1000 GeV m_N2 = 800 GeV m_N1 = 600 GeV
+371252,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 1050 GeV m_N2 = 875 GeV m_N1 = 700 GeV
+371253,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 1100 GeV m_N2 = 950 GeV m_N1 = 800 GeV
+371254,,,,,,,,gluino production in two step decay simplified model m_glu = 1400 GeV m_C1 = 1150 GeV m_N2 = 1025 GeV m_N1 = 900 GeV
+371255,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 800 GeV m_N2 = 450 GeV m_N1 = 100 GeV
+371256,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 850 GeV m_N2 = 525 GeV m_N1 = 200 GeV
+371257,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 900 GeV m_N2 = 600 GeV m_N1 = 300 GeV
+371258,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 950 GeV m_N2 = 675 GeV m_N1 = 400 GeV
+371259,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 1000 GeV m_N2 = 750 GeV m_N1 = 500 GeV
+371260,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 1050 GeV m_N2 = 825 GeV m_N1 = 600 GeV
+371261,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 1100 GeV m_N2 = 900 GeV m_N1 = 700 GeV
+371262,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 1150 GeV m_N2 = 975 GeV m_N1 = 800 GeV
+371263,,,,,,,,gluino production in two step decay simplified model m_glu = 1500 GeV m_C1 = 1200 GeV m_N2 = 1050 GeV m_N1 = 900 GeV
+371264,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 850 GeV m_N2 = 475 GeV m_N1 = 100 GeV
+371265,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 900 GeV m_N2 = 550 GeV m_N1 = 200 GeV
+371266,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 950 GeV m_N2 = 625 GeV m_N1 = 300 GeV
+371267,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1000 GeV m_N2 = 700 GeV m_N1 = 400 GeV
+371268,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1050 GeV m_N2 = 775 GeV m_N1 = 500 GeV
+371269,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1100 GeV m_N2 = 850 GeV m_N1 = 600 GeV
+371270,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1150 GeV m_N2 = 925 GeV m_N1 = 700 GeV
+371271,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1200 GeV m_N2 = 1000 GeV m_N1 = 800 GeV
+371272,,,,,,,,gluino production in two step decay simplified model m_glu = 1600 GeV m_C1 = 1250 GeV m_N2 = 1075 GeV m_N1 = 900 GeV
+371273,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 900 GeV m_N2 = 500 GeV m_N1 = 100 GeV
+371274,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 950 GeV m_N2 = 575 GeV m_N1 = 200 GeV
+371275,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1000 GeV m_N2 = 650 GeV m_N1 = 300 GeV
+371276,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1050 GeV m_N2 = 725 GeV m_N1 = 400 GeV
+371277,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1100 GeV m_N2 = 800 GeV m_N1 = 500 GeV
+371278,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1150 GeV m_N2 = 875 GeV m_N1 = 600 GeV
+371279,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1200 GeV m_N2 = 950 GeV m_N1 = 700 GeV
+371280,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1250 GeV m_N2 = 1025 GeV m_N1 = 800 GeV
+371281,,,,,,,,gluino production in two step decay simplified model m_glu = 1700 GeV m_C1 = 1300 GeV m_N2 = 1100 GeV m_N1 = 900 GeV
+371282,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 950 GeV m_N2 = 525 GeV m_N1 = 100 GeV
+371283,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1000 GeV m_N2 = 600 GeV m_N1 = 200 GeV
+371284,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1050 GeV m_N2 = 675 GeV m_N1 = 300 GeV
+371285,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1100 GeV m_N2 = 750 GeV m_N1 = 400 GeV
+371286,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1150 GeV m_N2 = 825 GeV m_N1 = 500 GeV
+371287,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1200 GeV m_N2 = 900 GeV m_N1 = 600 GeV
+371288,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1250 GeV m_N2 = 975 GeV m_N1 = 700 GeV
+371289,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1300 GeV m_N2 = 1050 GeV m_N1 = 800 GeV
+371290,,,,,,,,gluino production in two step decay simplified model m_glu = 1800 GeV m_C1 = 1350 GeV m_N2 = 1125 GeV m_N1 = 900 GeV
+371291,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1000 GeV m_N2 = 550 GeV m_N1 = 100 GeV
+371292,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1050 GeV m_N2 = 625 GeV m_N1 = 200 GeV
+371293,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1100 GeV m_N2 = 700 GeV m_N1 = 300 GeV
+371294,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1150 GeV m_N2 = 775 GeV m_N1 = 400 GeV
+371295,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1200 GeV m_N2 = 850 GeV m_N1 = 500 GeV
+371296,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1250 GeV m_N2 = 925 GeV m_N1 = 600 GeV
+371297,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1300 GeV m_N2 = 1000 GeV m_N1 = 700 GeV
+371298,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1350 GeV m_N2 = 1075 GeV m_N1 = 800 GeV
+371299,,,,,,,,gluino production in two step decay simplified model m_glu = 1900 GeV m_C1 = 1400 GeV m_N2 = 1150 GeV m_N1 = 900 GeV
+371300,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1050 GeV m_N2 = 575 GeV m_N1 = 100 GeV
+371301,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1100 GeV m_N2 = 650 GeV m_N1 = 200 GeV
+371302,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1150 GeV m_N2 = 725 GeV m_N1 = 300 GeV
+371303,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1200 GeV m_N2 = 800 GeV m_N1 = 400 GeV
+371304,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1250 GeV m_N2 = 875 GeV m_N1 = 500 GeV
+371305,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1300 GeV m_N2 = 950 GeV m_N1 = 600 GeV
+371306,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1350 GeV m_N2 = 1025 GeV m_N1 = 700 GeV
+371307,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1400 GeV m_N2 = 1100 GeV m_N1 = 800 GeV
+371308,,,,,,,,gluino production in two step decay simplified model m_glu = 2000 GeV m_C1 = 1450 GeV m_N2 = 1175 GeV m_N1 = 900 GeV
+371350,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 170 GeV
+371351,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 170 GeV
+371352,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 170 GeV
+371353,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 170 GeV
+371354,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 170 GeV
+371355,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 170 GeV
+371356,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 170 GeV
+371357,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 170 GeV
+371358,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 170 GeV
+371359,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 170 GeV
+371360,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 170 GeV
+371361,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 170 GeV
+371362,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 170 GeV
+371363,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 170 GeV
+371364,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 170 GeV
+371365,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 170 GeV
+371366,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 170 GeV
+371367,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 200 GeV
+371368,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 200 GeV
+371369,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 200 GeV
+371370,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 200 GeV
+371371,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 200 GeV
+371372,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 200 GeV
+371373,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 200 GeV
+371374,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 200 GeV
+371375,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 200 GeV
+371376,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 200 GeV
+371377,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 200 GeV
+371378,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 200 GeV
+371379,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 200 GeV
+371380,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 200 GeV
+371381,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 200 GeV
+371382,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 200 GeV
+371383,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 200 GeV
+371384,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 300 GeV
+371385,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 300 GeV
+371386,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 300 GeV
+371387,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 300 GeV
+371388,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 300 GeV
+371389,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 300 GeV
+371390,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 300 GeV
+371391,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 300 GeV
+371392,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 300 GeV
+371393,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 300 GeV
+371394,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 300 GeV
+371395,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 300 GeV
+371396,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 300 GeV
+371397,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 300 GeV
+371398,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 300 GeV
+371399,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 300 GeV
+371400,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 300 GeV
+371401,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 400 GeV
+371402,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 400 GeV
+371403,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 400 GeV
+371404,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 400 GeV
+371405,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 400 GeV
+371406,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 400 GeV
+371407,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 400 GeV
+371408,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 400 GeV
+371409,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 400 GeV
+371410,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 400 GeV
+371411,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 400 GeV
+371412,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 400 GeV
+371413,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 400 GeV
+371414,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 400 GeV
+371415,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 400 GeV
+371416,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 400 GeV
+371417,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 400 GeV
+371418,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 500 GeV
+371419,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 500 GeV
+371420,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 500 GeV
+371421,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 500 GeV
+371422,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 500 GeV
+371423,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 500 GeV
+371424,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 500 GeV
+371425,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 500 GeV
+371426,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 500 GeV
+371427,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 500 GeV
+371428,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 500 GeV
+371429,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 500 GeV
+371430,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 500 GeV
+371431,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 500 GeV
+371432,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 500 GeV
+371433,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 500 GeV
+371434,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 500 GeV
+371435,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 600 GeV
+371436,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 600 GeV
+371437,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 600 GeV
+371438,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 600 GeV
+371439,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 600 GeV
+371440,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 600 GeV
+371441,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 600 GeV
+371442,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 600 GeV
+371443,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 600 GeV
+371444,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 600 GeV
+371445,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 600 GeV
+371446,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 600 GeV
+371447,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 600 GeV
+371448,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 600 GeV
+371449,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 600 GeV
+371450,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 600 GeV
+371451,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 600 GeV
+371452,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 700 GeV
+371453,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 700 GeV
+371454,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 700 GeV
+371455,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 700 GeV
+371456,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 700 GeV
+371457,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 700 GeV
+371458,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 700 GeV
+371459,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 700 GeV
+371460,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 700 GeV
+371461,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 700 GeV
+371462,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 700 GeV
+371463,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 700 GeV
+371464,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 700 GeV
+371465,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 700 GeV
+371466,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 700 GeV
+371467,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 700 GeV
+371468,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 700 GeV
+371469,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 900 GeV mu = 800 GeV
+371470,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1000 GeV mu = 800 GeV
+371471,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1100 GeV mu = 800 GeV
+371472,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1200 GeV mu = 800 GeV
+371473,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1300 GeV mu = 800 GeV
+371474,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1400 GeV mu = 800 GeV
+371475,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1500 GeV mu = 800 GeV
+371476,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1600 GeV mu = 800 GeV
+371477,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1700 GeV mu = 800 GeV
+371478,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1800 GeV mu = 800 GeV
+371479,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 1900 GeV mu = 800 GeV
+371480,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2000 GeV mu = 800 GeV
+371481,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2100 GeV mu = 800 GeV
+371482,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2200 GeV mu = 800 GeV
+371483,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2300 GeV mu = 800 GeV
+371484,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2400 GeV mu = 800 GeV
+371485,,,,,,,,pMSSM scan of M3 and mu with M1 lsp of 60 GeV M3 = 2500 GeV mu = 800 GeV
+371500,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 237 GeV m_C1 = 226 GeV m_N1 = 215 GeV
+371501,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 265 GeV m_C1 = 225 GeV m_N1 = 185 GeV
+371502,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 317 GeV m_C1 = 306 GeV m_N1 = 295 GeV
+371503,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 345 GeV m_C1 = 305 GeV m_N1 = 265 GeV
+371504,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 397 GeV m_C1 = 386 GeV m_N1 = 375 GeV
+371505,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 425 GeV m_C1 = 385 GeV m_N1 = 345 GeV
+371506,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 477 GeV m_C1 = 466 GeV m_N1 = 455 GeV
+371507,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 505 GeV m_C1 = 465 GeV m_N1 = 425 GeV
+371508,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 557 GeV m_C1 = 546 GeV m_N1 = 535 GeV
+371509,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 585 GeV m_C1 = 545 GeV m_N1 = 505 GeV
+371510,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 637 GeV m_C1 = 626 GeV m_N1 = 615 GeV
+371511,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 665 GeV m_C1 = 625 GeV m_N1 = 585 GeV
+371512,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 717 GeV m_C1 = 706 GeV m_N1 = 695 GeV
+371513,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 745 GeV m_C1 = 625 GeV m_N1 = 505 GeV
+371514,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 745 GeV m_C1 = 705 GeV m_N1 = 665 GeV
+371515,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 785 GeV m_C1 = 705 GeV m_N1 = 625 GeV
+371516,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 797 GeV m_C1 = 786 GeV m_N1 = 775 GeV
+371517,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 825 GeV m_C1 = 785 GeV m_N1 = 745 GeV
+371518,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 877 GeV m_C1 = 866 GeV m_N1 = 855 GeV
+371519,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 905 GeV m_C1 = 705 GeV m_N1 = 505 GeV
+371520,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 905 GeV m_C1 = 865 GeV m_N1 = 825 GeV
+371521,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 945 GeV m_C1 = 785 GeV m_N1 = 625 GeV
+371522,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 957 GeV m_C1 = 946 GeV m_N1 = 935 GeV
+371523,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 985 GeV m_C1 = 865 GeV m_N1 = 745 GeV
+371524,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 985 GeV m_C1 = 945 GeV m_N1 = 905 GeV
+371525,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1025 GeV m_C1 = 945 GeV m_N1 = 865 GeV
+371526,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1037 GeV m_C1 = 1026 GeV m_N1 = 1015 GeV
+371527,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1065 GeV m_C1 = 1025 GeV m_N1 = 985 GeV
+371528,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1065 GeV m_C1 = 545 GeV m_N1 = 25 GeV
+371529,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1065 GeV m_C1 = 785 GeV m_N1 = 505 GeV
+371530,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1105 GeV m_C1 = 625 GeV m_N1 = 145 GeV
+371531,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1105 GeV m_C1 = 865 GeV m_N1 = 625 GeV
+371532,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1145 GeV m_C1 = 705 GeV m_N1 = 265 GeV
+371533,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1145 GeV m_C1 = 945 GeV m_N1 = 745 GeV
+371534,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1185 GeV m_C1 = 1025 GeV m_N1 = 865 GeV
+371535,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1185 GeV m_C1 = 785 GeV m_N1 = 385 GeV
+371536,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1225 GeV m_C1 = 1105 GeV m_N1 = 985 GeV
+371537,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1225 GeV m_C1 = 625 GeV m_N1 = 25 GeV
+371538,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1225 GeV m_C1 = 865 GeV m_N1 = 505 GeV
+371539,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1265 GeV m_C1 = 705 GeV m_N1 = 145 GeV
+371540,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1265 GeV m_C1 = 945 GeV m_N1 = 625 GeV
+371541,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1305 GeV m_C1 = 1025 GeV m_N1 = 745 GeV
+371542,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1305 GeV m_C1 = 785 GeV m_N1 = 265 GeV
+371543,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1345 GeV m_C1 = 1105 GeV m_N1 = 865 GeV
+371544,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1345 GeV m_C1 = 865 GeV m_N1 = 385 GeV
+371545,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1385 GeV m_C1 = 1185 GeV m_N1 = 985 GeV
+371546,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1385 GeV m_C1 = 705 GeV m_N1 = 25 GeV
+371547,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1385 GeV m_C1 = 945 GeV m_N1 = 505 GeV
+371548,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1425 GeV m_C1 = 1025 GeV m_N1 = 625 GeV
+371549,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1425 GeV m_C1 = 785 GeV m_N1 = 145 GeV
+371550,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1465 GeV m_C1 = 1105 GeV m_N1 = 745 GeV
+371551,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1465 GeV m_C1 = 865 GeV m_N1 = 265 GeV
+371552,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1505 GeV m_C1 = 1185 GeV m_N1 = 865 GeV
+371553,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1505 GeV m_C1 = 945 GeV m_N1 = 385 GeV
+371554,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1545 GeV m_C1 = 1025 GeV m_N1 = 505 GeV
+371555,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1545 GeV m_C1 = 1265 GeV m_N1 = 985 GeV
+371556,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1545 GeV m_C1 = 785 GeV m_N1 = 25 GeV
+371557,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1585 GeV m_C1 = 1105 GeV m_N1 = 625 GeV
+371558,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1585 GeV m_C1 = 865 GeV m_N1 = 145 GeV
+371559,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1625 GeV m_C1 = 1185 GeV m_N1 = 745 GeV
+371560,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1625 GeV m_C1 = 945 GeV m_N1 = 265 GeV
+371561,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1665 GeV m_C1 = 1025 GeV m_N1 = 385 GeV
+371562,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1665 GeV m_C1 = 1265 GeV m_N1 = 865 GeV
+371563,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 265 GeV m_C1 = 145 GeV m_N1 = 25 GeV
+371564,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 305 GeV m_C1 = 225 GeV m_N1 = 145 GeV
+371565,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 425 GeV m_C1 = 225 GeV m_N1 = 25 GeV
+371566,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 465 GeV m_C1 = 305 GeV m_N1 = 145 GeV
+371567,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 505 GeV m_C1 = 385 GeV m_N1 = 265 GeV
+371568,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 545 GeV m_C1 = 465 GeV m_N1 = 385 GeV
+371569,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 585 GeV m_C1 = 305 GeV m_N1 = 25 GeV
+371570,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 625 GeV m_C1 = 385 GeV m_N1 = 145 GeV
+371571,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 665 GeV m_C1 = 465 GeV m_N1 = 265 GeV
+371572,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 705 GeV m_C1 = 545 GeV m_N1 = 385 GeV
+371573,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 745 GeV m_C1 = 385 GeV m_N1 = 25 GeV
+371574,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 785 GeV m_C1 = 465 GeV m_N1 = 145 GeV
+371575,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 825 GeV m_C1 = 545 GeV m_N1 = 265 GeV
+371576,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 865 GeV m_C1 = 625 GeV m_N1 = 385 GeV
+371577,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 905 GeV m_C1 = 465 GeV m_N1 = 25 GeV
+371578,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 945 GeV m_C1 = 545 GeV m_N1 = 145 GeV
+371579,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 985 GeV m_C1 = 625 GeV m_N1 = 265 GeV
+371580,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1025 GeV m_C1 = 705 GeV m_N1 = 385 GeV
+371581,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1705 GeV m_C1 = 1105 GeV m_N1 = 505 GeV
+371582,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1705 GeV m_C1 = 1345 GeV m_N1 = 985 GeV
+371583,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1705 GeV m_C1 = 865 GeV m_N1 = 25 GeV
+371584,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1745 GeV m_C1 = 1185 GeV m_N1 = 625 GeV
+371585,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1745 GeV m_C1 = 945 GeV m_N1 = 145 GeV
+371586,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1785 GeV m_C1 = 1025 GeV m_N1 = 265 GeV
+371587,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1785 GeV m_C1 = 1265 GeV m_N1 = 745 GeV
+371588,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1825 GeV m_C1 = 1105 GeV m_N1 = 385 GeV
+371589,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1825 GeV m_C1 = 1345 GeV m_N1 = 865 GeV
+371590,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1865 GeV m_C1 = 1185 GeV m_N1 = 505 GeV
+371591,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1865 GeV m_C1 = 945 GeV m_N1 = 25 GeV
+371592,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1905 GeV m_C1 = 1025 GeV m_N1 = 145 GeV
+371593,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1905 GeV m_C1 = 1265 GeV m_N1 = 625 GeV
+371594,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1945 GeV m_C1 = 1105 GeV m_N1 = 265 GeV
+371595,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1945 GeV m_C1 = 1345 GeV m_N1 = 745 GeV
+371596,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1985 GeV m_C1 = 1185 GeV m_N1 = 385 GeV
+371597,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2025 GeV m_C1 = 1025 GeV m_N1 = 25 GeV
+371598,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2025 GeV m_C1 = 1265 GeV m_N1 = 505 GeV
+371650,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371651,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371652,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371653,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371654,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371655,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371656,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 800 GeV m_N1 = 60 GeV
+371657,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371658,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 900 GeV m_N1 = 60 GeV
+371659,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 950 GeV m_N1 = 60 GeV
+371660,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1000 GeV m_C1 = 990 GeV m_N1 = 60 GeV
+371661,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371662,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371663,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371664,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371665,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371666,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371667,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371668,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 1000 GeV m_N1 = 60 GeV
+371669,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371670,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 1100 GeV m_N1 = 60 GeV
+371671,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 1150 GeV m_N1 = 60 GeV
+371672,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1200 GeV m_C1 = 1190 GeV m_N1 = 60 GeV
+371673,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371674,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371675,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371676,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371677,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371678,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371679,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371680,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371681,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1200 GeV m_N1 = 60 GeV
+371682,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371683,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1300 GeV m_N1 = 60 GeV
+371684,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1350 GeV m_N1 = 60 GeV
+371685,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1400 GeV m_C1 = 1390 GeV m_N1 = 60 GeV
+371686,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371687,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371688,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371689,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371690,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371691,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371692,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371693,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371694,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371695,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1400 GeV m_N1 = 60 GeV
+371696,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1460 GeV m_N1 = 60 GeV
+371697,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1500 GeV m_N1 = 60 GeV
+371698,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1550 GeV m_N1 = 60 GeV
+371699,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1600 GeV m_C1 = 1590 GeV m_N1 = 60 GeV
+371700,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371701,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 100 GeV m_N1 = 60 GeV
+371702,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371703,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 150 GeV m_N1 = 60 GeV
+371704,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371705,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 200 GeV m_C1 = 190 GeV m_N1 = 60 GeV
+371706,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371707,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371708,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371709,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 200 GeV m_N1 = 60 GeV
+371710,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371711,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 300 GeV m_N1 = 60 GeV
+371712,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 350 GeV m_N1 = 60 GeV
+371713,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 400 GeV m_C1 = 390 GeV m_N1 = 60 GeV
+371714,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371715,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371716,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371717,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371718,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 400 GeV m_N1 = 60 GeV
+371719,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371720,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 500 GeV m_N1 = 60 GeV
+371721,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 550 GeV m_N1 = 60 GeV
+371722,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 600 GeV m_C1 = 590 GeV m_N1 = 60 GeV
+371723,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371724,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371725,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371726,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371727,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371728,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 600 GeV m_N1 = 60 GeV
+371729,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371730,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 700 GeV m_N1 = 60 GeV
+371731,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 750 GeV m_N1 = 60 GeV
+371732,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 800 GeV m_C1 = 790 GeV m_N1 = 60 GeV
+371733,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371734,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371735,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371736,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371737,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371738,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371739,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371740,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371741,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1100 GeV m_N1 = 60 GeV
+371742,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1200 GeV m_N1 = 60 GeV
+371743,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1250 GeV m_N1 = 60 GeV
+371744,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371745,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1300 GeV m_C1 = 1290 GeV m_N1 = 60 GeV
+371746,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371747,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371748,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371749,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371750,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371751,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371752,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371753,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371754,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371755,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1300 GeV m_N1 = 60 GeV
+371756,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1400 GeV m_N1 = 60 GeV
+371757,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1450 GeV m_N1 = 60 GeV
+371758,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1460 GeV m_N1 = 60 GeV
+371759,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1500 GeV m_C1 = 1490 GeV m_N1 = 60 GeV
+371760,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371761,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371762,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371763,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371764,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371765,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371766,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371767,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371768,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371769,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1460 GeV m_N1 = 60 GeV
+371770,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1600 GeV m_N1 = 60 GeV
+371771,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1660 GeV m_N1 = 60 GeV
+371772,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1700 GeV m_N1 = 60 GeV
+371773,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1750 GeV m_N1 = 60 GeV
+371774,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 1800 GeV m_C1 = 1790 GeV m_N1 = 60 GeV
+371775,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 70 GeV m_N1 = 60 GeV
+371776,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 110 GeV m_N1 = 60 GeV
+371777,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 160 GeV m_N1 = 60 GeV
+371778,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 260 GeV m_N1 = 60 GeV
+371779,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 460 GeV m_N1 = 60 GeV
+371780,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 660 GeV m_N1 = 60 GeV
+371781,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 860 GeV m_N1 = 60 GeV
+371782,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1060 GeV m_N1 = 60 GeV
+371783,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1260 GeV m_N1 = 60 GeV
+371784,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1460 GeV m_N1 = 60 GeV
+371785,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1660 GeV m_N1 = 60 GeV
+371786,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1800 GeV m_N1 = 60 GeV
+371787,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1860 GeV m_N1 = 60 GeV
+371788,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1900 GeV m_N1 = 60 GeV
+371789,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1950 GeV m_N1 = 60 GeV
+371790,,,,,,,,Gluino production in simplified model with one-step decays m_glu = 2000 GeV m_C1 = 1990 GeV m_N1 = 60 GeV
+371850,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 395 GeV
+371851,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 450 GeV m_N1 = 445 GeV
+371852,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 495 GeV
+371853,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 550 GeV m_N1 = 545 GeV
+371854,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 595 GeV
+371855,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 650 GeV m_N1 = 645 GeV
+371856,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 695 GeV
+371857,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 385 GeV
+371858,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 450 GeV m_N1 = 435 GeV
+371859,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 485 GeV
+371860,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 550 GeV m_N1 = 535 GeV
+371861,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 585 GeV
+371862,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 650 GeV m_N1 = 635 GeV
+371863,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 685 GeV
+371864,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 375 GeV
+371865,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 450 GeV m_N1 = 425 GeV
+371866,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 475 GeV
+371867,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 550 GeV m_N1 = 525 GeV
+371868,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 575 GeV
+371869,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 650 GeV m_N1 = 625 GeV
+371870,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 675 GeV
+371872,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 795 GeV
+371874,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 895 GeV
+371876,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 995 GeV
