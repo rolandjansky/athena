@@ -439,9 +439,14 @@ def ConfigureBeamEnergy():
                 if 'GeV' in projectName:
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('GeV','',1))/2 * 1000.
                 elif 'TeV' in projectName:
-                    beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
-                    if '5TeV' in projectName:
-                        beamEnergy=2510000.
+                    if 'hip5TeV' in projectName:
+                        beamEnergy = 1577000.
+                    elif 'hip8TeV' in projectName:
+                        beamEnergy = 2510000.
+                    else:
+                        beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
+                        if '5TeV' in projectName:
+                            beamEnergy=2510000.
                 elif projectName.endswith("_hi") or projectName.endswith("_hip"):
                     #beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
