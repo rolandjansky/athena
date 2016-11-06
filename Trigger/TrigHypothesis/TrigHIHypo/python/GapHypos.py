@@ -30,4 +30,10 @@ cellFgapC = UltraCentralHypo("CellsFgapC", EtaMin=-5, EtaMax=-3.2,  FcalEtUpperB
 cellFgapC.AthenaMonTools += [ GapHypoMonitoring(name="GapHypoMonitoring")]
 
 
+cellFgapAPerf = UltraCentralHypo("CellsFgapAPerf", EtaMin=3.2, EtaMax=5., FcalEtUpperBound=3*GeV)
+cellFgapAPerf.AthenaMonTools += [ GapHypoMonitoring(name="GapHypoMonitoring")]
+cellFgapCPerf = UltraCentralHypo("CellsFgapCperf", EtaMin=-5, EtaMax=-3.2,  FcalEtUpperBound=3*GeV)
+cellFgapCPerf.AthenaMonTools += [ GapHypoMonitoring(name="GapHypoMonitoring")]
+
+
 

@@ -11,11 +11,11 @@ class VnMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TotalEt',
                                              type='TH1F',
                                              title="Total ET; ET [MeV]",
-                                             xbins = 100, xmin=0.0, xmax=2.5*TeV)]
+                                             xbins = 100, xmin=0.0, xmax=0.5*TeV)]
         self.Histograms += [ defineHistogram('TotalEtPassing',
                                              type='TH1F',
                                              title="Total ET for passing events; ET [MeV]",
-                                             xbins = 100, xmin=0.0, xmax=2.5*TeV)]
+                                             xbins = 100, xmin=0.0, xmax=0.5*TeV)]
 
 
         self.Histograms += [ defineHistogram('q',
@@ -32,7 +32,7 @@ class VnMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TotalEt, decision',
                                              type='TH2F',
                                              title="(all row 0) (passing row 1); FCal Et",
-                                             xbins = 100, xmin=0.0, xmax=6.5*TeV,
+                                             xbins = 100, xmin=0.0, xmax=0.5*TeV,
                                              ybins=2, ymin=-0.5, ymax=1.5) ]
 
 class VnBootstrap(TrigGenericMonitoringToolConfig):
@@ -43,8 +43,8 @@ class VnBootstrap(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TotalEt, q',
                                              type='TH2F',
                                              title="q%d vs Fcal of all events" % harmonic,
-                                             xbins=100, xmin=200*GeV, xmax=2.5*TeV,
-                                             ybins=100, ymin=0, ymax=0.2) ]            
+                                             xbins=100, xmin=0*GeV, xmax=0.5*TeV,
+                                             ybins=100, ymin=0, ymax=0.3) ]            
 
 class QZeroMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="QZeroMonitoring", harmonic=1, qmax=0.3):
@@ -53,14 +53,14 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 
 #        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TH2F", title="TotalEt[TeV];q_{%d x 0};q_{x0}" % harmonic, xbins=100, xmin=0, xmax=4.5*TeV, ybins=30, ymin=-qmax, ymax=qmax) ]
 #        self.Histograms += [ defineHistogram('TotalEt, qny', type="TH2F", title="TotalEt[TeV];q_{%d y 0};q_{y0}" % harmonic, xbins=100, xmin=0, xmax=4.5*TeV, ybins=30, ymin=-qmax, ymax=qmax) ]
-        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TProfile", title="FCal Event q0x;TotalEt[TeV];q_{%d x 0}" % harmonic, xbins=100, xmin=0, xmax=2.5*TeV) ]
-        self.Histograms += [ defineHistogram('TotalEt, qny', type="TProfile", title="FCal Event q0y;TotalEt[TeV];q_{%d y 0}" % harmonic, xbins=100, xmin=0, xmax=2.5*TeV) ]
+        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TProfile", title="FCal Event q0x;TotalEt[TeV];q_{%d x 0}" % harmonic, xbins=100, xmin=0, xmax=0.5*TeV) ]
+        self.Histograms += [ defineHistogram('TotalEt, qny', type="TProfile", title="FCal Event q0y;TotalEt[TeV];q_{%d y 0}" % harmonic, xbins=100, xmin=0, xmax=0.5*TeV) ]
 
 
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 300, 50))]
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(0, 500, 50))]
 
 ########################################################################################
 # V2
@@ -90,7 +90,7 @@ def generateVnThresholds(a,b,c, etbins):
     return [ a - b*et +c*pow(et, 2)  for et in etbins]
     
 def generateAssymVnThresholds(a,b,c,d, etbins):
-    return [ a + b*et +c*pow(et, 2) +d for et in etbins]
+    return [ a + b*et +c*pow(et, 3) +d for et in etbins]
 # thresholds mappint
 #      %v2     %v3
 #15    2.5     2.5
@@ -136,13 +136,13 @@ class V2HypoAssym(VnHypo):
         self.CentralityBins = _EtCuts_v2_assym 
         if side == "A":
             self.MinEta=3.2 
-            self.QxShifts = [0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.0008]*len(_EtCuts_v2_assym)
+            self.QyShifts = [-0.004]*len(_EtCuts_v2_assym)
 
         elif side == "C":
             self.MaxEta=-3.2
-            self.QxShifts = [0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [-0.0015]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0.0039]*len(_EtCuts_v2_assym)
         else:
             raise 'The V2 hypothesis algorithm is insufficiently configured, no FCal side specified '
 
@@ -163,6 +163,7 @@ V2A_thresholds = {1: V2A_th1, 2: V2A_th2, 3: V2A_th3}
 
 V2A_th0p = V2HypoAssym("V2A_th0p", "A")
 V2A_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
+V2A_th0p.AthenaMonTools += [ VnBootstrap(name="VnBootstrap", harmonic=2), QZeroMonitoring(name="QZeroMonitoring", harmonic=2, qmax=2) ]
 
 V2A_th005p = V2HypoAssym("V2A_th005p", "A")
 V2A_th005p.QThresholds = generateAssymVnThresholds( 0.671805, -0.00848271, 5.1144e-05, -1.03468e-07, _EtCuts_v2_assym)
@@ -207,7 +208,7 @@ V2C_th3.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
         
 V2C_th0p = V2HypoAssym("V2C_th0p", "C")
 V2C_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
-
+V2C_th0p.AthenaMonTools += [ VnBootstrap(name="VnBootstrap", harmonic=2), QZeroMonitoring(name="QZeroMonitoring", harmonic=2, qmax=2) ]
 
 V2C_th005p = V2HypoAssym("V2C_th005p", "C")
 V2C_th005p.QThresholds = generateAssymVnThresholds( 0.628789, -0.00758789, 4.56162e-05, -9.31571e-08, _EtCuts_v2_assym)
