@@ -44,7 +44,7 @@ class VnBootstrap(TrigGenericMonitoringToolConfig):
                                              type='TH2F',
                                              title="q%d vs Fcal of all events" % harmonic,
                                              xbins=100, xmin=0*GeV, xmax=0.5*TeV,
-                                             ybins=100, ymin=0, ymax=0.2) ]            
+                                             ybins=100, ymin=0, ymax=0.3) ]            
 
 class QZeroMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="QZeroMonitoring", harmonic=1, qmax=0.3):
