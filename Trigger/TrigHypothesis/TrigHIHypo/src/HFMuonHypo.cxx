@@ -14,6 +14,7 @@
 
 HFMuonHypo::HFMuonHypo(const std::string& name, ISvcLocator* pSvcLocator) 
   : HLT::HypoAlgo(name, pSvcLocator){
+  ATH_MSG_INFO("IN HFMuonHypo Constructor");
 
   declareMonitoredVariable("eloss_all"       , m_eloss_all        , -1.);
   declareMonitoredVariable("eloss_passing"   , m_eloss_passing    , -1.);
@@ -22,6 +23,7 @@ HFMuonHypo::HFMuonHypo(const std::string& name, ISvcLocator* pSvcLocator)
 }
 
 HLT::ErrorCode HFMuonHypo::hltInitialize() {
+  ATH_MSG_INFO("IN HFMuonHypo hltInitialize()");
   return HLT::OK; 
 }
 
@@ -34,6 +36,9 @@ HLT::ErrorCode HFMuonHypo::hltFinalize( ) { return HLT::OK; }
 
 HLT::ErrorCode HFMuonHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   pass = false;
+
+  //static int event=0;
+  //std::cout<<"TEST "<<event++<<std::endl;
 
   //Get Muon Container
   const xAOD::MuonContainer* m_muons=nullptr;
@@ -86,14 +91,33 @@ HLT::ErrorCode HFMuonHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
     if(!(Muon->quality()==xAOD::Muon::Medium || Muon->quality()==xAOD::Muon::Tight)) continue; 
 
     //Determine Eloss, now cutting on it as well
+/*
     const xAOD::TrackParticle*msTrk= Muon->trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle);//MS Only Track
     const xAOD::TrackParticle*idTrk= Muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle);//ID Track
+    if(!msTrk || !idTrk){
+      if(!msTrk) ATH_MSG_WARNING("msTrk Not Found for muon, will abort chain");
+      if(!idTrk) ATH_MSG_WARNING("idTrk Not Found for muon, will abort chain");
+      //return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+    }
+    ATH_MSG_INFO("Found both track segements");
     float eloss_parameterized;//paramaterized eloss
     if(!(Muon->parameter(eloss_parameterized,xAOD::Muon::ParamEnergyLoss))){
       ATH_MSG_DEBUG("The parameter xAOD::Muon::ParamEnergyLoss is inaccessible");
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
     }
     double eloss=(idTrk->p4().P() - msTrk->p4().P() - eloss_parameterized)/idTrk->p4().P();
+// */
+
+    const xAOD::TrackParticle*idTrk= Muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle);//ID Track
+    const xAOD::TrackParticle*meTrk= Muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);//ME Track
+    if(!meTrk || !idTrk){
+      if(!meTrk) ATH_MSG_WARNING("meTrk Not Found for muon, will abort chain");
+      if(!idTrk) ATH_MSG_WARNING("idTrk Not Found for muon, will abort chain");
+      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+    }
+    ATH_MSG_INFO("Found both muon track segements");
+    double eloss=(idTrk->p4().P() - meTrk->p4().P())/idTrk->p4().P();
+
     if(eloss>m_eloss_cut) continue; 
 
 
