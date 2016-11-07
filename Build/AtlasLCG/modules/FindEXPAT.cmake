@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindEXPAT.cmake 719980 2016-01-27 08:38:07Z krasznaa $
+# $Id: FindEXPAT.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # File intercepting find_package(EXPAT) calls, and making the created
 # paths relocatable.
@@ -15,8 +15,10 @@ set( _modulePathBackup ${CMAKE_MODULE_PATH} )
 set( CMAKE_MODULE_PATH )
 
 # Make the code ignore the system path(s):
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+if( EXPAT_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Call CMake's own FindEXPAT.cmake. Note that the arguments created
 # for this script by CMake pass through to the official script. So we don't

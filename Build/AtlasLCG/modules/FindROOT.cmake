@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindROOT.cmake 744728 2016-05-04 07:37:43Z krasznaa $
+# $Id: FindROOT.cmake 775392 2016-09-27 14:46:32Z krasznaa $
 #
 # Find the ROOT libraries, headers and tools.
 # Sets:
@@ -62,8 +62,11 @@ find_path( ROOT_PYTHON_PATH ROOT.py
 
 # Handle the standard find_package arguments:
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( ROOT DEFAULT_MSG ROOT_INCLUDE_DIR
-   ROOT_VERSION_STRING ROOT_LIBRARIES ROOT_BINARY_PATH ROOT_PYTHON_PATH )
+find_package_handle_standard_args( ROOT
+   FOUND_VAR ROOT_FOUND
+   REQUIRED_VARS ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_BINARY_PATH
+   ROOT_PYTHON_PATH
+   VERSION_VAR ROOT_VERSION_STRING )
 mark_as_advanced( ROOT_FOUND ROOT_INCLUDE_DIR ROOT_INCLUDE_DIRS
    ROOT_LIBRARIES ROOT_LIBRARY_DIRS ROOT_BINARY_PATH ROOT_PYTHON_PATH )
 

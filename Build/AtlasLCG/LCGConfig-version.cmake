@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig-version.cmake 752088 2016-06-03 11:34:42Z krasznaa $
+# $Id: LCGConfig-version.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # This file is used to figure out whether the LCG version that the user
 # requested can be delivered or not.
@@ -35,6 +35,13 @@ if( PACKAGE_FIND_VERSION EQUAL 0 )
    set( PACKAGE_VERSION_NUMBER 0 )
    set( PACKAGE_VERSION_COMPATIBLE TRUE )
    set( PACKAGE_VERSION_EXACT FALSE )
+elseif( NOT PACKAGE_FIND_VERSION )
+   # If no version was requested:
+   message( STATUS "No LCG version requested. Not setting up release." )
+   set( PACKAGE_VERSION 0 )
+   set( PACKAGE_VERSION_NUMBER 0 )
+   set( PACKAGE_VERSION_COMPATIBLE TRUE )
+   set( PACKAGE_VERSION_EXACT FALSE )
 # If a directory with the requested version string exists, then we're
 # done already.
 elseif( EXISTS
@@ -43,13 +50,6 @@ elseif( EXISTS
    set( PACKAGE_VERSION_NUMBER ${PACKAGE_FIND_VERSION} )
    set( PACKAGE_VERSION_COMPATIBLE TRUE )
    set( PACKAGE_VERSION_EXACT TRUE )
-elseif( NOT PACKAGE_FIND_VERSION )
-   # If no version was requested:
-   message( STATUS "No LCG version requested. Not setting up release." )
-   set( PACKAGE_VERSION 0 )
-   set( PACKAGE_VERSION_NUMBER 0 )
-   set( PACKAGE_VERSION_COMPATIBLE TRUE )
-   set( PACKAGE_VERSION_EXACT FALSE )
 else()
    # If it doesn't exist, then pick up the latest release, and check if it's
    # newer than the one requested.

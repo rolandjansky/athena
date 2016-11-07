@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindPythonInterp.cmake 752031 2016-06-03 09:12:47Z krasznaa $
+# $Id: FindPythonInterp.cmake 782719 2016-11-07 12:30:42Z limosani $
 #
 # This file is here to intercept find_package(PythonInterp) calls, and extend
 # the environment setup file of the project with the correct Python paths.
@@ -34,7 +34,14 @@ set( CMAKE_SYSTEM_IGNORE_PATH )
 # Set some extra variable(s), to make the environment configuration easier:
 if( PYTHON_EXECUTABLE )
    get_filename_component( PythonInterp_BINARY_PATH ${PYTHON_EXECUTABLE} PATH )
+   get_filename_component( PYTHONHOME ${PythonInterp_BINARY_PATH} PATH )
+   set ( PythonInterp_ENVIRONMENT
+       SET PYTHONHOME ${PYTHONHOME} )
 endif()
+
 
 # Set up the RPM dependency:
 lcg_need_rpm( Python FOUND_NAME PYTHONINTERP VERSION_NAME PYTHON )
+
+
+

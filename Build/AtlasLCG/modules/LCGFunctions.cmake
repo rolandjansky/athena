@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGFunctions.cmake 734807 2016-04-08 10:32:33Z krasznaa $
+# $Id: LCGFunctions.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # Some helper functions, used by the Find<Bla>.cmake modules of the package.
 #
@@ -180,6 +180,12 @@ function( lcg_need_rpm name )
 
    # Add the optional argument(s):
    cmake_parse_arguments( ARG "" "FOUND_NAME;VERSION_NAME" "" ${ARGN} )
+
+   # In case no actual LCG release is set up, don't set up any LCG RPM
+   # dependencies either:
+   if( LCG_VERSION EQUAL 0 )
+      return()
+   endif()
 
    # Create the "found name" of the package:
    if( ARG_FOUND_NAME )

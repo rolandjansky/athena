@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindQt4.cmake 728694 2016-03-09 15:42:56Z krasznaa $
+# $Id: FindQt4.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # This file is here to intercept find_package(Qt4) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -15,8 +15,10 @@ set( _modulePathBackup ${CMAKE_MODULE_PATH} )
 set( CMAKE_MODULE_PATH )
 
 # Make the code ignore the system path(s):
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+if( QT4_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Call CMake's own FindQt4.cmake. Note that the arguments created
 # for this script by CMake pass through to the official script. So we don't
