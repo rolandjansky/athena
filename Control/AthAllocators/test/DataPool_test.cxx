@@ -31,6 +31,7 @@ class Fluff
 			m_float = f.m_float;
 			m_string = f.m_string;
 		}
+                Fluff& operator= (const Fluff&) = default;
 
 		void setPar(int j) { m_int = j; }
 		int value() const { return m_int; }
@@ -84,7 +85,7 @@ int main ()
 	DataPool<Fluff>::const_iterator iend2 = df->end();
 	for (; iter2 != iend2; iter2++)
 	{
-		assert(0 != (*iter2));
+		assert(nullptr != (*iter2));
                 // Note: we iterate backwards...
 		assert(24-k == (*iter2)->value());
 		k++;

@@ -39,7 +39,7 @@ ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::pointer base,
     if (block)
       return block->index (block->size()-1, block->eltSize());
     else
-      return 0;
+      return nullptr;
   }
 }
 
@@ -73,8 +73,8 @@ void ArenaPoolAllocator::const_iterator::increment()
  */
 ArenaPoolAllocator::ArenaPoolAllocator (const Params& params)
   : ArenaBlockAllocatorBase (params),
-    m_ptr (0),
-    m_end (0)
+    m_ptr (nullptr),
+    m_end (nullptr)
 {
 }
 
@@ -85,6 +85,51 @@ ArenaPoolAllocator::ArenaPoolAllocator (const Params& params)
 ArenaPoolAllocator::~ArenaPoolAllocator()
 {
   erase();
+}
+
+
+/**
+ * @brief Move constructor.
+ */
+ArenaPoolAllocator::ArenaPoolAllocator
+  (ArenaPoolAllocator&& other)
+    : ArenaBlockAllocatorBase (std::move (other)),
+      m_ptr (other.m_ptr),
+      m_end (other.m_end)
+{
+  other.m_ptr = nullptr;
+  other.m_end = nullptr;
+}
+
+
+/**
+ * @brief Move assignment.
+ */
+ArenaPoolAllocator&
+ArenaPoolAllocator::operator=
+  (ArenaPoolAllocator&& other)
+{
+  if (this != &other) {
+    ArenaBlockAllocatorBase::operator= (std::move (other));
+    m_ptr = other.m_ptr;
+    m_end = other.m_end;
+    other.m_ptr = nullptr;
+    other.m_end = nullptr;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Swap.
+ */
+void ArenaPoolAllocator::swap (ArenaPoolAllocator& other)
+{
+  if (this != &other) {
+    ArenaBlockAllocatorBase::swap (other);
+    std::swap (m_ptr, other.m_ptr);
+    std::swap (m_end, other.m_end);
+  }
 }
 
 
@@ -104,8 +149,8 @@ void ArenaPoolAllocator::reset()
 
   // Check that things are consistent.
   assert (m_stats.elts.inuse == 0);
-  assert (m_ptr == 0);
-  assert (m_end == 0);
+  assert (m_ptr == nullptr);
+  assert (m_end == nullptr);
 }
 
 
@@ -123,7 +168,7 @@ void ArenaPoolAllocator::erase()
   ArenaBlockAllocatorBase::erase();
 
   // Reset pointers.
-  m_ptr = m_end = 0;
+  m_ptr = m_end = nullptr;
 }
 
 
@@ -139,7 +184,7 @@ void ArenaPoolAllocator::resetTo (pointer blk)
   // Clear the topmost block, as long as it doesn't contain the sought-after
   // pointer.
   ArenaBlock* p = m_blocks;
-  assert (p != 0);
+  assert (p != nullptr);
   size_t elt_size = p->eltSize();
   while (p && !(blk >= p->index(0, elt_size) &&
                 blk < p->index(p->size(), elt_size)))
@@ -149,7 +194,7 @@ void ArenaPoolAllocator::resetTo (pointer blk)
   }
 
   // We'll trip this if the supplied pointer wasn't in any block.
-  assert (p != 0);
+  assert (p != nullptr);
 
   // If the element is at the beginning of this block, just clear the whole
   // thing.
@@ -189,7 +234,7 @@ void ArenaPoolAllocator::resetTo (pointer blk)
 ArenaPoolAllocator::iterator ArenaPoolAllocator::begin()
 {
   // If @c m_ptr is one set, it is one more than the last allocated element.
-  return iterator (m_ptr ? m_ptr - m_params.eltSize : 0, m_blocks);
+  return iterator (m_ptr ? m_ptr - m_params.eltSize : nullptr, m_blocks);
 }
 
 
@@ -202,7 +247,7 @@ ArenaPoolAllocator::iterator ArenaPoolAllocator::begin()
 ArenaPoolAllocator::const_iterator ArenaPoolAllocator::begin() const
 {
   // If @c m_ptr is one set, it is one more than the last allocated element.
-  return const_iterator (m_ptr ? m_ptr - m_params.eltSize : 0, m_blocks);
+  return const_iterator (m_ptr ? m_ptr - m_params.eltSize : nullptr, m_blocks);
 }
 
 
@@ -284,7 +329,7 @@ void ArenaPoolAllocator::clearBlock()
     m_ptr = m_end = p->index(p->size());
   }
   else {
-    m_ptr = m_end = 0;
+    m_ptr = m_end = nullptr;
   }
 }
 

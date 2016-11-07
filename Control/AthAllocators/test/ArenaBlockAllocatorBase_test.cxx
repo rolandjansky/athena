@@ -20,6 +20,7 @@ struct Payload
 {
   Payload();
   ~Payload();
+  Payload& operator= (const Payload&) = default;
   void clear();
 
   int x;
@@ -54,7 +55,10 @@ class TestAlloc
 {
 public:
   TestAlloc (const Params& params) : SG::ArenaBlockAllocatorBase (params){}
-  virtual void reset() {}
+  virtual void reset() override {}
+
+  using SG::ArenaBlockAllocatorBase::m_blocks;
+  using SG::ArenaBlockAllocatorBase::m_freeblocks;
 };
 
 
@@ -102,6 +106,46 @@ void test1()
   test_stats (bab, 1, 500);
   bab.erase();
   test_stats (bab, 0, 0);
+
+  bab.reserve (500);
+  test_stats (bab, 1, 500);
+  SG::ArenaBlock* blocks = bab.m_blocks;
+  SG::ArenaBlock* freeblocks = bab.m_freeblocks;
+  TestAlloc bab2 (std::move (bab));
+  assert (bab.name() == "foo");
+  assert (bab.params().name == "foo");
+  assert (bab2.name() == "foo");
+  assert (bab2.params().name == "foo");
+  test_stats (bab, 0, 0);
+  test_stats (bab2, 1, 500);
+  assert (bab.m_blocks == nullptr);
+  assert (bab.m_freeblocks == nullptr);
+  assert (bab2.m_blocks == blocks);
+  assert (bab2.m_freeblocks == freeblocks);
+
+  bab = std::move(bab2);
+  assert (bab.name() == "foo");
+  assert (bab.params().name == "foo");
+  assert (bab2.name() == "foo");
+  assert (bab2.params().name == "foo");
+  test_stats (bab2, 0, 0);
+  test_stats (bab, 1, 500);
+  assert (bab2.m_blocks == nullptr);
+  assert (bab2.m_freeblocks == nullptr);
+  assert (bab.m_blocks == blocks);
+  assert (bab.m_freeblocks == freeblocks);
+
+  bab.swap (bab2);
+  assert (bab.name() == "foo");
+  assert (bab.params().name == "foo");
+  assert (bab2.name() == "foo");
+  assert (bab2.params().name == "foo");
+  test_stats (bab, 0, 0);
+  test_stats (bab2, 1, 500);
+  assert (bab.m_blocks == nullptr);
+  assert (bab.m_freeblocks == nullptr);
+  assert (bab2.m_blocks == blocks);
+  assert (bab2.m_freeblocks == freeblocks);
 }
 
 int main()

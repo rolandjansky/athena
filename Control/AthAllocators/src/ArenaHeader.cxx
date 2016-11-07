@@ -34,7 +34,7 @@ ArenaHeader::ArenaHeader()
     // m_allocvec doesn't own the vectors to which it points.
     // Need to pass in a dummy deleter to prevent them from being deleted.
   : m_allocvec (null_allocvec_deleter),
-    m_ownedAllocvec (0)
+    m_ownedAllocvec (nullptr)
 {
 }
 
@@ -47,8 +47,8 @@ ArenaHeader::ArenaHeader()
 ArenaHeader::~ArenaHeader()
 {
   if (m_ownedAllocvec) {
-    for (size_t i = 0 ; i < m_ownedAllocvec->size(); i++)
-      delete (*m_ownedAllocvec)[i];
+    for (ArenaAllocatorBase* alloc : *m_ownedAllocvec)
+      delete alloc;
     delete m_ownedAllocvec;
   }
 
@@ -109,9 +109,9 @@ void ArenaHeader::report (std::ostream& os) const
 {
   std::lock_guard<std::mutex> lock (m_mutex);
   // All Allocators in the group.
-  for (size_t i = 0; i < m_arenas.size(); i++) {
-    os << "=== " << m_arenas[i]->name() << " ===" << std::endl;
-    m_arenas[i]->report (os);
+  for (ArenaBase* arena : m_arenas) {
+    os << "=== " << arena->name() << " ===" << std::endl;
+    arena->report (os);
   }
 
   // The default Arena.
@@ -119,9 +119,9 @@ void ArenaHeader::report (std::ostream& os) const
     os << "=== default ===" << std::endl;
     ArenaAllocatorBase::Stats::header (os);
     os << std::endl;
-    for (size_t i = 0; i < m_ownedAllocvec->size(); i++) {
-      if ((*m_ownedAllocvec)[i])
-        (*m_ownedAllocvec)[i]->report (os);
+    for (ArenaAllocatorBase* alloc : *m_ownedAllocvec) {
+      if (alloc)
+        alloc->report (os);
     }
   }
 }

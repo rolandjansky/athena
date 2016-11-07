@@ -21,11 +21,11 @@ class Alloc
 {
 public:
   Alloc(int x) { m_stats.elts.total = x; }
-  virtual void reset() {}
-  virtual void erase() {}
-  virtual void reserve (size_t /*size*/) {}
-  virtual const std::string& name() const { return m_name; }
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const
+  virtual void reset() override {}
+  virtual void erase() override {}
+  virtual void reserve (size_t /*size*/) override {}
+  virtual const std::string& name() const override { return m_name; }
+  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
   { return m_stats; }
 private:
   SG::ArenaAllocatorBase::Stats m_stats;
@@ -37,7 +37,7 @@ class Creator
 {
 public:
   Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create() { return new Alloc (m_x); }
+  virtual SG::ArenaAllocatorBase* create() override { return new Alloc (m_x); }
 private:
   int m_x;
 };

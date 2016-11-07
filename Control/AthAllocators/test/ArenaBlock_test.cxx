@@ -21,6 +21,7 @@ struct Payload
 {
   Payload();
   ~Payload();
+  Payload& operator= (const Payload&) = default;
   static void constructor (char*);
   static void destructor (char*);
   static void scan (char*);
@@ -76,7 +77,7 @@ Payload& payload (SG::ArenaBlock* bl, size_t i=0)
 void test1()
 {
   assert (SG::ArenaBlock::nactive() == 0);
-  SG::ArenaBlock* bl = SG::ArenaBlock::newBlock (20, elt_size, 0);
+  SG::ArenaBlock* bl = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
   assert (SG::ArenaBlock::nactive() == 1);
   assert (bl->overhead() > 0 && bl->overhead() < 100);
   assert (bl->size() == 20);
@@ -85,10 +86,10 @@ void test1()
   word(bl, 1) = 0;
   assert ((char*)bl->index(1) -
           (char*)bl->index(0) == (int)elt_size);
-  assert (bl->link() == 0);
+  assert (bl->link() == nullptr);
   bl->link() = bl;
   assert (bl->link() == bl);
-  SG::ArenaBlock::destroy (bl, 0);
+  SG::ArenaBlock::destroy (bl, nullptr);
   assert (SG::ArenaBlock::nactive() == 0);
 }
 
@@ -112,8 +113,8 @@ void test2()
   assert (payload(b1).x == 0);
   assert (payload(b1->link()).x == 20);
   assert (payload(b1->link()->link()).x == 40);
-  assert(b1->link()->link()->link() == 0);
-  SG::ArenaBlock* bb = 0;
+  assert(b1->link()->link()->link() == nullptr);
+  SG::ArenaBlock* bb = nullptr;
   SG::ArenaBlock::appendList (&bb, b1);
   assert (bb == b1);
 

@@ -28,6 +28,7 @@ struct Payload
   int y;
   Payload() { x = ++count;  y = 0; ++nctor; }
   ~Payload() { ++ndtor; }
+  Payload& operator= (const Payload&) = default;
   void clear() { y = 0; ++nclear; }
 };
 

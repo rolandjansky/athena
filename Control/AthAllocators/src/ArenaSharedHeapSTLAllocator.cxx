@@ -63,4 +63,16 @@ ArenaAllocatorBase::Stats ArenaSharedHeapSTLHeader::totstats() const
 }
       
 
+/**
+ * @brief Generate printable report for all contained allocators.
+ * @param os Stream to which to write the report.
+ */
+void ArenaSharedHeapSTLHeader::report (std::ostream& os) const
+{
+  for (size_t i = 0; i < m_allocators.size(); i++)
+    if (m_allocators[i])
+      m_allocators[i]->report (os);
+}
+
+
 } // namespace SG

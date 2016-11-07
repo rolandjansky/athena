@@ -24,14 +24,14 @@ class TestAlloc
   : public SG::ArenaAllocatorBase
 {
 public:
-  TestAlloc (int x, const std::string& name)
-    : m_name (name) { m_stats.bytes.total = x; }
-  virtual void reset() { ::reset = m_name; }
-  virtual void erase() {}
-  virtual void reserve (size_t /*size*/) {}
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const
+  TestAlloc (int x, std::string  name)
+    : m_name (std::move(name)) { m_stats.bytes.total = x; }
+  virtual void reset() override { ::reset = m_name; }
+  virtual void erase() override {}
+  virtual void reserve (size_t /*size*/) override {}
+  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
   { return m_stats; }
-  virtual const std::string& name() const { return m_name; }
+  virtual const std::string& name() const override { return m_name; }
 private:
   SG::ArenaAllocatorBase::Stats m_stats;
   std::string m_name;
@@ -42,7 +42,7 @@ class Creator
 {
 public:
   Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create()
+  virtual SG::ArenaAllocatorBase* create() override
   { return new TestAlloc (m_x, "creat"); }
 private:
   int m_x;
@@ -53,10 +53,10 @@ class TestArena
   : public SG::ArenaBase
 {
 public:
-  TestArena (const std::string& name, int x) : m_name (name), m_x (x) {}
-  virtual void report (std::ostream& os) const
+  TestArena (std::string  name, int x) : m_name (std::move(name)), m_x (x) {}
+  virtual void report (std::ostream& os) const override
   { os << "foo " << m_x << "\n"; }
-  virtual const std::string& name() const { return m_name; }
+  virtual const std::string& name() const override { return m_name; }
 private:
   std::string m_name;
   int m_x;
@@ -73,7 +73,7 @@ void test1()
   vec2[5] = new TestAlloc (1, "b");
 
   SG::ArenaHeader* head = SG::ArenaHeader::defaultHeader();
-  assert (head->setAllocVec(&vec1) == 0);
+  assert (head->setAllocVec(&vec1) == nullptr);
   assert (head->allocator(2) == vec1[2]);
   assert (head->setAllocVec(&vec2) == &vec1);
   assert (head->allocator(5) == vec2[5]);
@@ -81,7 +81,7 @@ void test1()
   assert (reset == "b");
 
   SG::ArenaHeader::ArenaAllocVec_t vec3;
-  assert (head->setAllocVec(0) == &vec2);
+  assert (head->setAllocVec(nullptr) == &vec2);
   SG::ArenaAllocatorRegistry* reg =
     SG::ArenaAllocatorRegistry::instance();
   size_t i = reg->registerCreator ("foo", new Creator (1));

@@ -16,6 +16,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 //==========================================================================
 
@@ -23,6 +24,7 @@ struct Payload
 {
   Payload();
   ~Payload();
+  Payload& operator= (const Payload&) = default;
   void clear();
 
   int x;
@@ -55,6 +57,7 @@ std::vector<int> Payload::v;
 
 void test1()
 {
+  std::cout << "test1\n";
   SG::ArenaPoolAllocator apa
     (SG::ArenaPoolAllocator::initParams<Payload, true>(100, "foo"));
   assert (apa.name() == "foo");
@@ -70,6 +73,7 @@ void test1()
   std::vector<Payload*> ptrs;
   for (int i=0; i < nptr; i++) {
     Payload* p = reinterpret_cast<Payload*> (apa.allocate());
+    if (!p) std::abort();
     ptrs.push_back (p);
     p->y = 2*p->x;
   }
@@ -216,6 +220,7 @@ void test1()
 
 void test2()
 {
+  std::cout << "test2\n";
   Payload::v.clear();
   SG::ArenaPoolAllocator apa
     (SG::ArenaPoolAllocator::initParams<Payload, true>(100));
@@ -254,9 +259,86 @@ void test2()
 }
 
 
+void test3()
+{
+  std::cout << "test3\n";
+
+  Payload::v.clear();
+  SG::ArenaPoolAllocator apa
+    (SG::ArenaPoolAllocator::initParams<Payload, true>(100, "bar"));
+  for (int i=0; i < 150; i++) {
+    apa.allocate();
+  }
+
+  assert (apa.name() == "bar");
+  assert (apa.params().name == "bar");
+  assert (apa.stats().elts.inuse == 150);
+  assert (apa.stats().elts.free == 50);
+  assert (apa.stats().elts.total == 200);
+  assert (apa.stats().blocks.inuse == 2);
+  assert (apa.stats().blocks.free  == 0);
+  assert (apa.stats().blocks.total == 2);
+
+  SG::ArenaPoolAllocator apa2 (std::move (apa));
+  assert (apa.name() == "bar");
+  assert (apa.params().name == "bar");
+  assert (apa2.name() == "bar");
+  assert (apa2.params().name == "bar");
+  assert (apa2.stats().elts.inuse == 150);
+  assert (apa2.stats().elts.free == 50);
+  assert (apa2.stats().elts.total == 200);
+  assert (apa2.stats().blocks.inuse == 2);
+  assert (apa2.stats().blocks.free  == 0);
+  assert (apa2.stats().blocks.total == 2);
+  assert (apa.stats().elts.inuse == 0);
+  assert (apa.stats().elts.free == 0);
+  assert (apa.stats().elts.total == 0);
+  assert (apa.stats().blocks.inuse == 0);
+  assert (apa.stats().blocks.free  == 0);
+  assert (apa.stats().blocks.total == 0);
+
+  apa = std::move (apa2);
+  assert (apa.name() == "bar");
+  assert (apa.params().name == "bar");
+  assert (apa2.name() == "bar");
+  assert (apa2.params().name == "bar");
+  assert (apa.stats().elts.inuse == 150);
+  assert (apa.stats().elts.free == 50);
+  assert (apa.stats().elts.total == 200);
+  assert (apa.stats().blocks.inuse == 2);
+  assert (apa.stats().blocks.free  == 0);
+  assert (apa.stats().blocks.total == 2);
+  assert (apa2.stats().elts.inuse == 0);
+  assert (apa2.stats().elts.free == 0);
+  assert (apa2.stats().elts.total == 0);
+  assert (apa2.stats().blocks.inuse == 0);
+  assert (apa2.stats().blocks.free  == 0);
+  assert (apa2.stats().blocks.total == 0);
+
+  apa.swap (apa2);
+  assert (apa.name() == "bar");
+  assert (apa.params().name == "bar");
+  assert (apa2.name() == "bar");
+  assert (apa2.params().name == "bar");
+  assert (apa2.stats().elts.inuse == 150);
+  assert (apa2.stats().elts.free == 50);
+  assert (apa2.stats().elts.total == 200);
+  assert (apa2.stats().blocks.inuse == 2);
+  assert (apa2.stats().blocks.free  == 0);
+  assert (apa2.stats().blocks.total == 2);
+  assert (apa.stats().elts.inuse == 0);
+  assert (apa.stats().elts.free == 0);
+  assert (apa.stats().elts.total == 0);
+  assert (apa.stats().blocks.inuse == 0);
+  assert (apa.stats().blocks.free  == 0);
+  assert (apa.stats().blocks.total == 0);
+}
+
+
 int main()
 {
   test1();
   test2();
+  test3();
   return 0;
 }

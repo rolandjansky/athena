@@ -16,6 +16,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 //==========================================================================
 
@@ -24,6 +25,7 @@ struct Payload
 {
   Payload();
   ~Payload();
+  Payload& operator= (const Payload&) = default;
   void clear();
 
   int x;
@@ -57,6 +59,7 @@ std::vector<int> Payload::v;
 
 void test1()
 {
+  std::cout << "test1\n";
   SG::ArenaHeapAllocator aha
     (SG::ArenaHeapAllocator::initParams<Payload, true>(100, "foo"));
   assert (aha.name() == "foo");
@@ -168,6 +171,7 @@ void test1()
 
 void test2()
 {
+  std::cout << "test2\n";
   SG::ArenaHeapAllocator::Params params = 
     SG::ArenaHeapAllocator::initParams<Payload, true>(100);
   params.mustClear = true;
@@ -210,9 +214,86 @@ void test2()
 }
 
 
+void test3()
+{
+  std::cout << "test3\n";
+
+  Payload::v.clear();
+  SG::ArenaHeapAllocator aha
+    (SG::ArenaHeapAllocator::initParams<Payload, true>(100, "bar"));
+  for (int i=0; i < 150; i++) {
+    aha.allocate();
+  }
+
+  assert (aha.name() == "bar");
+  assert (aha.params().name == "bar");
+  assert (aha.stats().elts.inuse == 150);
+  assert (aha.stats().elts.free == 50);
+  assert (aha.stats().elts.total == 200);
+  assert (aha.stats().blocks.inuse == 2);
+  assert (aha.stats().blocks.free  == 0);
+  assert (aha.stats().blocks.total == 2);
+
+  SG::ArenaHeapAllocator aha2 (std::move (aha));
+  assert (aha.name() == "bar");
+  assert (aha.params().name == "bar");
+  assert (aha2.name() == "bar");
+  assert (aha2.params().name == "bar");
+  assert (aha2.stats().elts.inuse == 150);
+  assert (aha2.stats().elts.free == 50);
+  assert (aha2.stats().elts.total == 200);
+  assert (aha2.stats().blocks.inuse == 2);
+  assert (aha2.stats().blocks.free  == 0);
+  assert (aha2.stats().blocks.total == 2);
+  assert (aha.stats().elts.inuse == 0);
+  assert (aha.stats().elts.free == 0);
+  assert (aha.stats().elts.total == 0);
+  assert (aha.stats().blocks.inuse == 0);
+  assert (aha.stats().blocks.free  == 0);
+  assert (aha.stats().blocks.total == 0);
+
+  aha = std::move (aha2);
+  assert (aha.name() == "bar");
+  assert (aha.params().name == "bar");
+  assert (aha2.name() == "bar");
+  assert (aha2.params().name == "bar");
+  assert (aha.stats().elts.inuse == 150);
+  assert (aha.stats().elts.free == 50);
+  assert (aha.stats().elts.total == 200);
+  assert (aha.stats().blocks.inuse == 2);
+  assert (aha.stats().blocks.free  == 0);
+  assert (aha.stats().blocks.total == 2);
+  assert (aha2.stats().elts.inuse == 0);
+  assert (aha2.stats().elts.free == 0);
+  assert (aha2.stats().elts.total == 0);
+  assert (aha2.stats().blocks.inuse == 0);
+  assert (aha2.stats().blocks.free  == 0);
+  assert (aha2.stats().blocks.total == 0);
+
+  aha.swap (aha2);
+  assert (aha.name() == "bar");
+  assert (aha.params().name == "bar");
+  assert (aha2.name() == "bar");
+  assert (aha2.params().name == "bar");
+  assert (aha2.stats().elts.inuse == 150);
+  assert (aha2.stats().elts.free == 50);
+  assert (aha2.stats().elts.total == 200);
+  assert (aha2.stats().blocks.inuse == 2);
+  assert (aha2.stats().blocks.free  == 0);
+  assert (aha2.stats().blocks.total == 2);
+  assert (aha.stats().elts.inuse == 0);
+  assert (aha.stats().elts.free == 0);
+  assert (aha.stats().elts.total == 0);
+  assert (aha.stats().blocks.inuse == 0);
+  assert (aha.stats().blocks.free  == 0);
+  assert (aha.stats().blocks.total == 0);
+}
+
+
 int main()
 {
   test1();
   test2();
+  test3();
   return 0;
 }
