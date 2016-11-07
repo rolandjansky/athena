@@ -62,7 +62,7 @@ namespace LVL1 {
 	      << ", etaMin: " << m_etamin << ", etaMax: " << m_etamax
 	      << ", phiMin: " << m_phimin << ", phiMax: " << m_phimax
 	      << ", RoIWord: " << std::setw( 8 ) << std::setfill('0') << std::hex << m_roiWord << std::dec
-	      << ", ieta: " << m_ieta << ", iphi: " << m_iphi << std::endl;
+	      << ", ieta: " << m_ieta << ", iphi: " << m_iphi << std::endl << std::setfill(' ') << std::setw(0);
 
   }
 

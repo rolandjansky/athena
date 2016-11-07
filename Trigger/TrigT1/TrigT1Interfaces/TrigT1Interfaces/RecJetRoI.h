@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecJetRoI.h 731387 2016-03-21 14:33:03Z fwinkl $
+// $Id: RecJetRoI.h 782811 2016-11-07 17:20:40Z smh $
 /***************************************************************************
                          RecJetRoI.h  -  description
                             -------------------
@@ -24,7 +24,7 @@
 #include <map>
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/CoordinateRange.h"
@@ -53,6 +53,13 @@ namespace LVL1 {
       // constructor
       RecJetRoI( unsigned int RoIWord,
                  const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+
+      //copy constructor
+      RecJetRoI( const RecJetRoI &obj );
+
+      //assignment operator
+      RecJetRoI& operator=(RecJetRoI const &obj);
+
       // destructor
       ~RecJetRoI();
 

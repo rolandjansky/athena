@@ -75,15 +75,12 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
 
     decodeWord( roiWord );
     unsigned int temp = m_jem % 8;
-    if ( temp == 0 ) return leftEndJEMCoordinate();
-    if ( temp == 7 ) return rightEndJEMCoordinate();
-    if ( ( temp > 0 ) && ( temp < 7 ) ) return midJEMCoordinate();
+    if ( temp == 0 ){
+        return leftEndJEMCoordinate();
+    } else if( temp == 7 ){
+        return rightEndJEMCoordinate();
+    } else return midJEMCoordinate();
 
-    // something unexpected has happened. Return a crazy coordinate, to signal this.
-    CoordinateRange coord( 0.0, 1.0 ,
-                           TrigT1CaloDefs::RegionERROREtaCentre - 0.1, TrigT1CaloDefs::RegionERROREtaCentre + 0.1 );
-
-    return coord;
   }
 
   /** Extract crate number from Jet RoI word */

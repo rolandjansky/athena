@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecJetEtRoI.h 187728 2009-05-27 16:18:06Z krasznaa $
+// $Id: RecJetEtRoI.h 782811 2016-11-07 17:20:40Z smh $
 /***************************************************************************
                          RecJetEtRoI.h  -  description
                             -------------------
@@ -21,7 +21,7 @@
 #define TRIGT1INTERFACES_RECJETETROI_H
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace LVL1 {
 
@@ -49,9 +49,9 @@ namespace LVL1 {
    private:
       /**roiWord - defined as
          0010 | 24*0 | 4b Jet ET*/
-      unsigned int m_roiWord;
+      unsigned int m_roiWord { 0 };
       /** 4b word that contains JetET energy (in GeV)*/
-      unsigned int m_energy;
+      unsigned int m_energy { 0 };
 
    }; // class RecJetEtRoI
 

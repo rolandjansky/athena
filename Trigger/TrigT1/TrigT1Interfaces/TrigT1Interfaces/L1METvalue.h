@@ -18,8 +18,6 @@
 #ifndef L1METvalue_H
 #define L1METvalue_H
 
-#include <stdlib.h> 
-                                                                                
 namespace LVL1 {
 
 /**

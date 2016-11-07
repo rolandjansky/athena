@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecMuonRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
+// $Id: RecMuonRoI.h 782811 2016-11-07 17:20:40Z smh $
 /***************************************************************************
                           RecMuonRoI.h  -  description
                              -------------------
@@ -25,7 +25,7 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/iRecCoordRoI.h"
