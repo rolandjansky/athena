@@ -1,4 +1,4 @@
-// $Id: RecJetRoI.cxx 707072 2015-11-11 08:58:57Z sasham $
+// $Id: RecJetRoI.cxx 756925 2016-06-22 13:31:16Z ddimond $
 /***************************************************************************
                          RecJetRoI.cxx  -  description
                             -------------------
@@ -49,6 +49,16 @@ RecJetRoI::RecJetRoI(unsigned int RoIWord,
     this->constructRun2(caloThresholds);
   else
     this->constructRun1(caloThresholds);
+}
+
+// written default copy constructor
+RecJetRoI::RecJetRoI( const RecJetRoI &obj ) {
+   m_roiWord = obj.m_roiWord;
+}
+
+// written assignment operator
+RecJetRoI& RecJetRoI::operator=( const RecJetRoI &obj ) { 
+   return *this;
 }
 
 RecJetRoI::~RecJetRoI() { delete m_decoder; }

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEmTauRoI.h 731387 2016-03-21 14:33:03Z fwinkl $
+// $Id: RecEmTauRoI.h 782811 2016-11-07 17:20:40Z smh $
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------
@@ -25,7 +25,7 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/CoordinateRange.h"
@@ -53,6 +53,12 @@ namespace LVL1 {
       RecEmTauRoI() {}
       RecEmTauRoI( unsigned int RoIWord,
                    const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+
+      // copy constructor
+      RecEmTauRoI(const RecEmTauRoI &obj);
+
+      // assignment operator
+      RecEmTauRoI& operator=(RecEmTauRoI const &obj);
 
       // destructor
       ~RecEmTauRoI();

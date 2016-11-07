@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEnergyRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
+// $Id: RecEnergyRoI.h 782811 2016-11-07 17:20:40Z smh $
 /***************************************************************************
                          RecEnergyRoI.h  -  description
                             -------------------
@@ -24,7 +24,7 @@
 #include <map>
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"

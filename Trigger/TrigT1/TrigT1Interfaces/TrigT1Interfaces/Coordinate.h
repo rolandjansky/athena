@@ -20,7 +20,7 @@
 #define TRIGT1INTERFACES_COORDINATE_H
 
 // STL include(s):
-#include <iostream>
+#include <iosfwd>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
@@ -31,8 +31,8 @@
  * Most of the LVL1 interface classes are put into this namespace, showing that
  * they're general LVL1 classes.
  *
- * $Revision: 707787 $
- * $Date: 2015-11-13 16:09:29 +0100 (Fri, 13 Nov 2015) $
+ * $Revision: 782811 $
+ * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
  */
 namespace LVL1 {
 
@@ -45,8 +45,8 @@ namespace LVL1 {
     *
     * Simple class defining an eta--phi coordinate in the detector.
     *
-    * $Revision: 707787 $
-    * $Date: 2015-11-13 16:09:29 +0100 (Fri, 13 Nov 2015) $
+    * $Revision: 782811 $
+    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
     */
    class Coordinate {
 

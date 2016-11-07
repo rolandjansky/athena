@@ -4,7 +4,6 @@
 
 // System include(s):
 #include <iosfwd>
-#include <fstream>
 #include <vector>
 #include <utility>
 #include <memory>
@@ -28,8 +27,8 @@ namespace LVL1MUONIF {
     *    @see LVL1MUONIF::Lvl1MuEndcapSectorLogicData
     *    @see LVL1MUONIF::Lvl1MuForwardSectorLogicData
     *
-    * $Revision: 705543 $
-    * $Date: 2015-11-03 16:52:44 +0100 (Tue, 03 Nov 2015) $
+    * $Revision: 782811 $
+    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
     */
    class Lvl1MuCTPIInput {
 
