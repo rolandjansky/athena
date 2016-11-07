@@ -9,4 +9,6 @@
   <class name="CaloClusterMomentContainer_p2"/>
   <class name="CaloTowerSeg_p1" />
 
+  <class name="CaloClusterCellLinkContainer_p1" id="C70A8262-05DB-48FC-8E4A-73793B4E58B9" />
+
 </lcgdict>

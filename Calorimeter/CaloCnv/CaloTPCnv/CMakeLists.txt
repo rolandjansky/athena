@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloInterface
                           Calorimeter/CaloUtils
+                          Control/CxxUtils
                           Control/SGTools
                           Event/EventKernel )
 
@@ -58,6 +59,13 @@ atlas_add_test( CaloCellLinkContainerCnv_p2_test
 atlas_add_test( CaloClusterContainerCnv_test
                 SOURCES
                 test/CaloClusterContainerCnv_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel DataModel DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv )
+
+
+atlas_add_test( CaloClusterCellLinkContainerCnv_p1_test
+                SOURCES
+                CaloClusterCellLinkContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel DataModel DataModelAthenaPoolLib Navigation AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel TestTools CaloConditions CaloGeoHelpers CaloUtilsLib SGTools EventKernel CaloTPCnv )
 

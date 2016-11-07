@@ -88,3 +88,10 @@ DECLARE_TPCNV_FACTORY(CaloCellContainerCnv_p1,
                       CaloCellContainer,
                       CaloCompactCellContainer,
                       Athena::TPCnvVers::Current)
+
+#include "CaloTPCnv/CaloClusterCellLinkContainerCnv_p1.h"
+
+DECLARE_TPCNV_FACTORY(CaloClusterCellLinkContainerCnv_p1,
+                      CaloClusterCellLinkContainer,
+                      CaloClusterCellLinkContainer_p1,
+                      Athena::TPCnvVers::Current)

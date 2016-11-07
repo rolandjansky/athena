@@ -21,7 +21,7 @@ void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* 
   for (size_t i = 0; i > pers->m_caloRegions.size(); i++)
     trans->setCalo (static_cast<CaloCell_ID::SUBCALO> (pers->m_caloRegions[i]));
 
-  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Creating transistent state of Containers..." << endreq;
+  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Creating transistent state of Containers..." << endmsg;
   m_cells.persToTrans(&pers->cells,&trans->m_cells,msg);
   m_clusters.persToTrans(&pers->clusters,&trans->m_clusters,msg);
   m_towers.persToTrans(&pers->towers,&trans->m_towers,msg);
@@ -40,12 +40,12 @@ void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* 
 void CaloTopoTowerContainerCnv_p1::transToPers(const CaloTopoTowerContainer* trans, CaloTopoTowerContainer_p1* pers,MsgStream& msg)  {
   m_caloTowerSegCnv.transToPers(&(trans->towerseg()),&(pers->m_towerSeg));
   std::vector<CaloCell_ID::SUBCALO> reg;
-  trans->getCalos (reg);
+  (void)trans->getCalos (reg);
   pers->m_caloRegions.resize (reg.size());
   for (size_t i = 0; i < reg.size(); i++)
     pers->m_caloRegions[i] = reg[i];
 
-  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Creating persistent state of Containers..." << endreq;
+  if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "Creating persistent state of Containers..." << endmsg;
   m_cells.transToPers(&(trans->m_cells),&(pers->cells),msg);
   m_clusters.transToPers(&(trans->m_clusters),&(pers->clusters),msg);
   m_towers.transToPers(&(trans->m_towers),&(pers->towers),msg);
