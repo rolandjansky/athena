@@ -136,7 +136,7 @@ CaloEnergyCluster::addUniqueCellNoKine(const CaloCellContainer* theContainer,
 void
 CaloEnergyCluster::addUniqueCellNoKine(const CaloCellContainer* theContainer,
                                        index_type theIndex,
-                                       IProxyDictWithPool* sg,
+                                       IProxyDict* sg,
                                        double weight,
                                        size_t size_hint)
 {
