@@ -46,12 +46,28 @@ StatusCode AthAnalysisAlgorithm::sysInitialize() {
       // Set up the right callbacks: //but ensure we don't double-register if sysInitialize called twice (appears to be the case)
       incSvc->removeListener( this, IncidentType::BeginInputFile );
       incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+      incSvc->removeListener( this, IncidentType::EndInputFile );
+      incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
+      incSvc->removeListener( this, "MetaDataStop" );
+      incSvc->addListener( this, "MetaDataStop", 0, true );
+
 
       // Let the base class do its thing:
       ATH_CHECK( AthHistogramAlgorithm::sysInitialize() );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
+}
+
+StatusCode AthAnalysisAlgorithm::sysExecute() {
+  if(!m_doneFirstEvent) {
+    m_doneFirstEvent=true;
+    if( firstExecute().isFailure() ) {
+      ATH_MSG_FATAL("Failure in firstEvent method");
+      return StatusCode::FAILURE;
+    }
+  }
+  return AthHistogramAlgorithm::sysExecute();
 }
 
 void AthAnalysisAlgorithm::handle( const Incident& inc ) {
@@ -65,6 +81,16 @@ void AthAnalysisAlgorithm::handle( const Incident& inc ) {
       if( beginInputFile().isFailure() ) {
          ATH_MSG_FATAL( "Failed to call beginInputFile()" );
          throw std::runtime_error( "Couldn't call beginInputFile()" );
+      }
+   } else if(inc.type() == IncidentType::EndInputFile ) {
+     if( endInputFile().isFailure() ) {
+         ATH_MSG_FATAL( "Failed to call endInputFile()" );
+         throw std::runtime_error( "Couldn't call endInputFile()" );
+      }
+   } else if(inc.type() == "MetaDataStop" ) {
+     if( metaDataStop().isFailure() ) {
+         ATH_MSG_FATAL( "Failed to call metaDataStop()" );
+         throw std::runtime_error( "Couldn't call metaDataStop()" );
       }
    } else {
       ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
@@ -80,6 +106,32 @@ StatusCode AthAnalysisAlgorithm::beginInputFile() {
    // Return gracefully:
    return StatusCode::SUCCESS;
 }
+
+/// Dummy implementation that can be overridden by the derived tool.
+///
+StatusCode AthAnalysisAlgorithm::endInputFile() {
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
+}
+
+/// Dummy implementation that can be overridden by the derived tool.
+///
+StatusCode AthAnalysisAlgorithm::metaDataStop() {
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
+}
+
+
+/// Dummy implementation that can be overridden by the derived tool.
+///
+StatusCode AthAnalysisAlgorithm::firstExecute() {
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
+}
+
 
 
 TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {

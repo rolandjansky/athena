@@ -41,7 +41,7 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
                const std::string& version=PACKAGE_VERSION);
 
 
-      virtual ~AthAnalysisAlgorithm();
+      virtual ~AthAnalysisAlgorithm() override;
 
       /// @name Functions providing access to the input/output metadata
       /// @{
@@ -54,7 +54,9 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// @}
 
       /// Function initialising the tool in the correct way in Athena
-      virtual StatusCode sysInitialize();
+      virtual StatusCode sysInitialize() override;
+      /// override to do firstEvent method
+      virtual StatusCode sysExecute() override;
 
       /// Helper function to access IOVMetaDataContainer information helped in the MetaDataStore
       template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { 
@@ -82,10 +84,25 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// @{
 
       /// Function receiving incidents from IncidentSvc/TEvent
-      virtual void handle( const Incident& inc );
+      /// Experts can override but they should ensure they add
+      ///   AthAnalysisAlgorithm::handle();
+      /// to the end of their own implementation
+      virtual void handle( const Incident& inc ) override;
 
       /// Function called when a new input file is opened
+      /// user can read input metadata from inputMetaStore()
       virtual StatusCode beginInputFile();
+      
+      /// Function called as an input file is being closed
+      virtual StatusCode endInputFile();
+      
+      /// Function called before finalize
+      /// user can read output metadata from outputMetaStore()
+      virtual StatusCode metaDataStop();
+      
+      /// Function called when first execute is encountered
+      /// user can read event information with evtStore()
+      virtual StatusCode firstExecute();
 
       virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
  
@@ -96,7 +113,11 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       mutable ServiceHandle< StoreGateSvc > m_outputMetaStore;
 
       TFile* m_currentFile = 0; //used to cache the current file
-  
+
+
+      
+      bool m_doneFirstEvent=false;
+
 }; 
 
 

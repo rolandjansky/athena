@@ -26,12 +26,20 @@
 
 #include "AthContainers/AuxElement.h"
 
+#include "GaudiKernel/IAppMgrUI.h"
+
+
+#include "GaudiKernel/ToolHandle.h"
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
     AthAnalysisHelper(); //need a constructor to link the dictionary library with the implementation library
 
+   ///initGaudi method starts the gaudi ApplicationMgr ready for working with all the components
+   static IAppMgrUI* initGaudi(const char* options = "");
+
+   
    ///helper method for adding a property to the JobOptionsSvc
    ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
    template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value) {
@@ -119,10 +127,15 @@ public:
       return theAlg->setProperty(property, value);
    }
 
+  template<typename T> static std::string toString(const T& value) { return Gaudi::Utils::toString( value ); }
+  static std::string toString(const std::string& value) { return value; } //gaudi's toString puts extra quote marks around things like "['b']" .. should probably stop that..
+  static std::string toString(const char* value) { return value; } //gaudi's toString puts extra quote marks around things like "['b']" .. should probably stop that..
+
+
    ///setProperty for services ... will allow setProperty on already-existing services
    template<typename T, typename W> static StatusCode setProperty(const ServiceHandle<T>& serviceHandle, const std::string& property, const W& value) {
       if(serviceHandle.isSet()) {
-         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,toString ( value ));
       }
       std::string fullName = serviceHandle.name();
       std::string thePropertyName(property);
@@ -136,7 +149,7 @@ public:
       //check if the service already exists
       if(Gaudi::svcLocator()->existsService(serviceHandle.name())) {
          //set property on the service directly
-         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,toString ( value ));
       } 
 
       //service not existing, ok so add property to catalogue
@@ -168,6 +181,7 @@ public:
 	parent = Gaudi::svcLocator()->service( "ToolSvc" );
       }
       IAlgTool* algtool = AlgTool::Factory::create(type,type,name,parent);
+      algtool->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       W* out = dynamic_cast<W*>(algtool);
       if(!out && algtool) {
          std::cout << "ERROR: Tool of type " << type << " does not implement the interface " << System::typeinfoName(typeid(W)) << std::endl;
@@ -185,8 +199,23 @@ public:
    static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
       std::string type = typeAndName; std::string name = typeAndName;
       if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
-      return Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
+      return out;
    }
+
+  
+  ///method that always returns as a string
+  ///you can use from, e.g, pyROOT with
+  ///evt = ROOT.POOL.TEvent()
+  ///...
+  ///ROOT.AAH.retrieveMetadata("/Folder","key",evt.inputMetaStore())
+  static std::string retrieveMetadata(const std::string& folder, const std::string& key, ServiceHandle<StoreGateSvc>& inputMetaStore) throw(std::exception) {
+    std::string out("");
+    StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore);
+    if(result.isFailure()) { std::cout << "ERROR: Could not retrieve IOVMetadata with folder " << folder << " and key " << key << std::endl; }
+    return out;
+  }
 
 
    ///retrieve metadata from the input metadata storegate. Use checkMetaSG.py to see the 'folder' and 'key' values available
@@ -276,12 +305,37 @@ public:
 
 
    ///Print the aux variables of an xAOD object (aux element)
+   ///An alternative to this method is the 'xAOD::dump' method
    static void printAuxElement(const SG::AuxElement& ae);
+
+
+   ///Dump the properties of an IProperty
+   //these aren't necessarily the same as what is in the JobOptionsSvc
+  static void dumpProperties(const IProperty& component);
+    
+  template<typename T> static void dumpProperties(const ServiceHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
+  }
+   template<typename T> static void dumpProperties(const ToolHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
+  }
+
+
+
+
+   ///we keep a static handle to the joboptionsvc, since it's very useful
+   ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
+   static ServiceHandle<IJobOptionsSvc> joSvc; 
 
 
 }; //AthAnalysisHelper class
 
 
+class AAH : public AthAnalysisHelper {
+  
+};
 
 
 
