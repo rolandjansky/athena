@@ -4,7 +4,6 @@
 
 // System include(s):
 #include <stdint.h>
-#include <iostream>
 
 namespace LVL1 {
 
@@ -17,8 +16,8 @@ namespace LVL1 {
     *
     * @author Alan Watson <Alan.Watson@cern.ch> 17-5-06
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 782811 $
+    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
     */
    class RoIFormatUpdater {
 

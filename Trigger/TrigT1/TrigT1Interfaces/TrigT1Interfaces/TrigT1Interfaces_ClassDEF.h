@@ -13,7 +13,7 @@
 #ifndef CLIDSVC_CLASSDEF_H
 #include "CLIDSvc/CLASS_DEF.h"
 #endif
-#include "DataModel/DataVector.h"                  
+#include "AthContainers/DataVector.h"                  
 
 CLASS_DEF(DataVector<LVL1CTP::SlinkWord>,   6250, 1)
 CLASS_DEF(LVL1CTP::SlinkWord,   6251, 1)

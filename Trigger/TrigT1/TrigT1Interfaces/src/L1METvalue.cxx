@@ -34,8 +34,8 @@ namespace LVL1 {
 void LVL1::L1METvalue::calcL1METQ(int Ex, int Ey, int& METQ, bool& Overflow) {
 
   /** Greater of 2 values determines range of bits used */
-  unsigned int absEx = abs(Ex);
-  unsigned int absEy = abs(Ey);
+  unsigned int absEx = std::abs(Ex);
+  unsigned int absEy = std::abs(Ey);
   int max = (absEx > absEy ? absEx : absEy);
 
   /** If Ex/Ey overflows the LUT input range, trigger fires all thresholds.
@@ -69,8 +69,8 @@ void LVL1::L1METvalue::calcL1MET(int Ex, int Ey, float& MET, bool& Overflow) {
 void LVL1::L1METvalue::calcL1MET(int Ex, int Ey, int& MET, unsigned int& Range, bool& Overflow) {
   
   /** Greater of 2 values determines range of bits used */
-  unsigned int absEx = abs(Ex);
-  unsigned int absEy = abs(Ey);
+  unsigned int absEx = std::abs(Ex);
+  unsigned int absEy = std::abs(Ey);
   int max = (absEx > absEy ? absEx : absEy);
 
   /** If Ex/Ey overflows the LUT input range, trigger fires all thresholds.

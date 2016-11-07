@@ -1,4 +1,4 @@
-// $Id: RecEmTauRoI.cxx 707072 2015-11-11 08:58:57Z sasham $
+// $Id: RecEmTauRoI.cxx 756925 2016-06-22 13:31:16Z ddimond $
 /***************************************************************************
                         RecEmTauRoI.cxx  -  description
                            -------------------
@@ -61,6 +61,16 @@ RecEmTauRoI::RecEmTauRoI(
     m_hadCoreIsolation.clear();
     m_thresholdType.clear();
   }
+}
+
+// written copy constructor
+RecEmTauRoI::RecEmTauRoI( const RecEmTauRoI &obj ) { 
+   m_roiWord = obj.m_roiWord;
+}
+
+// written assignment operator
+RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &obj ) { 
+   return *this;
 }
 
 RecEmTauRoI::~RecEmTauRoI() { delete m_decoder; }
