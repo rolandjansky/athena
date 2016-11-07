@@ -1,0 +1,33 @@
+The tool can be installed using athena (cmt config; gmake) or for standalone
+purposes (gmake -f Makefile.Standalone). The former case needs to be fully 
+tested. The latter saves the necessary libraries in the StandAlone directory. 
+
+The tool is initialized as:
+semilCorr* mytool = new semilCorr("inputfilename");
+
+The input ROOT file with the necessary histograms is provided in the inputs 
+directory of the package. Other arguments in the semilCorr are for debugging
+purposes, and not for the average user. 
+
+The usage of the tool is as follows:
+
+1) get the correction from the tool (getSemilCorrToIncl), feeding it the jet (corrected for mip, jeteloss=jet-eloss) and muon vectors. The eloss 
+parameterization is obtained from the AOD or D3PD and follows the direction
+of the muon (and has 0 mass)
+2) correct the pT of the jet for the muon (adding the full muon vector) (so jetmu=jeteloss+mu)
+3) multiply that result by the correction of the tool (jetcorr=c*jetmu)
+
+So jetcorr = getSemilCorrToIncl(jet-eloss,mu)*(jet-eloss+mu)
+
+Systematics can be obtained with getSemilCorrToIncl. If one systematic is 
+given, just that term is returned. if semilCorr::ALL is specified as
+an argument, the combined systematic is returned. 
+
+The systematic components available are:
+semilCorr::TAGGINGWEIGHT
+semilCorr::FRAGMENTATION
+semilCorr::IDRESO
+semilCorr::MSRESO
+semilCorr::DECAY
+semilCorr::DECAYREW
+semilCorr::MUONSPECTRUM

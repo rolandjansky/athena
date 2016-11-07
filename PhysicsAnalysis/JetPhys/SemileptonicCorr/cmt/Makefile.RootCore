@@ -1,0 +1,7 @@
+PACKAGE          = SemileptonicCorr
+PACKAGE_CXXFLAGS =
+PACKAGE_LDFLAGS  =
+PACKAGE_DEP      =
+PACKAGE_PEDANTIC = 1
+	
+include $(ROOTCOREDIR)/Makefile-common

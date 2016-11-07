@@ -1,0 +1,24 @@
+OBJ=../Root/semilCorr.o
+
+CXX=g++
+
+CXXFLAGS=-g -Wall
+
+INCLUDEFLAGS=-I../
+
+ROOTCFLAGS = $(shell root-config --cflags)
+
+.SUFFIXES:      .cxx .h
+
+libMuonIsolationCorrection.a: $(OBJ)
+        ar -rs libMuonIsolationCorrection.a ./*o
+
+.cxx.o:
+        $(CXX) $(CXXFLAGS) $(ROOTCFLAGS) $(INCLUDEFLAGS) -c $<
+
+clean:
+        rm ./*.o; rm *.a
+
+# DO NOT DELETE
+
+semilCorr.o: ../SemileptonicCorr/semilCorr.h
