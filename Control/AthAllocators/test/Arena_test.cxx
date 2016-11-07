@@ -26,12 +26,12 @@ class Alloc
 {
 public:
   Alloc(int x);
-  virtual void reset() { xxx += m_x; }
-  virtual void erase() { xxx += 2*m_x; }
-  virtual void reserve (size_t /*size*/) {}
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const
+  virtual void reset() override { xxx += m_x; }
+  virtual void erase() override { xxx += 2*m_x; }
+  virtual void reserve (size_t /*size*/) override {}
+  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
   { return m_stats; }
-  virtual const std::string& name() const { return m_name; }
+  virtual const std::string& name() const override { return m_name; }
 private:
   std::string m_name;
   int m_x;
@@ -55,7 +55,7 @@ class Creator
 {
 public:
   Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create() { return new Alloc (m_x); }
+  virtual SG::ArenaAllocatorBase* create() override { return new Alloc (m_x); }
 private:
   int m_x;
 };

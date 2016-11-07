@@ -37,7 +37,7 @@ ArenaBlock::newBlock (size_t n, size_t elt_size, func_t* ctor)
   size_t tot_size = n*elt_size + ArenaBlockBodyOffset;
   ArenaBlock* p = reinterpret_cast<ArenaBlock*> (std::malloc (tot_size));
   ++s_nactive;
-  p->m_link = 0;
+  p->m_link = nullptr;
   p->m_elt_size = elt_size;
   p->m_size = n;
   if (ctor) {

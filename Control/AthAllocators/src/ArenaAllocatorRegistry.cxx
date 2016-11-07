@@ -76,8 +76,8 @@ private:
 ArenaAllocatorRegistryImpl::~ArenaAllocatorRegistryImpl()
 {
   // Free the saved factory instances.
-  for (size_t i = 0; i < m_creators.size(); i++)
-    delete m_creators[i];
+  for (ArenaAllocatorCreator* creator : m_creators)
+    delete creator;
 }
 
 

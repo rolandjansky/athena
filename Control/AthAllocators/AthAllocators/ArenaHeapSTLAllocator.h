@@ -104,6 +104,13 @@ public:
   typedef size_t    size_type;
   typedef ptrdiff_t difference_type;
 
+  /// When we assign to a container, the target should retain its allocator.
+  typedef std::false_type propagate_on_container_copy_assignment;
+
+  /// Move allocators on move/swap.
+  typedef std::true_type propagate_on_container_move_assignment;
+  typedef std::true_type propagate_on_container_swap;
+
 
   /// Standard STL allocator rebinder.
   template <class U> struct rebind {
@@ -122,12 +129,72 @@ public:
 
 
   /**
+   * @brief Copy constructor.
+   *
+   * The @c name and @c nblock parameters are copied, but the data are not.
+   */
+  ArenaHeapSTLAllocator (const ArenaHeapSTLAllocator& a);
+
+
+  /**
    * @brief Constructor from another @c ArenaHeapSTLAllocator.
    *
    * The @c name and @c nblock parameters are copied, but the data are not.
    */
   template <class U, class V>
   ArenaHeapSTLAllocator (const ArenaHeapSTLAllocator<U, V>& a);
+
+
+  /**
+   * @brief Move constructor.
+   *
+   * Move the data.
+   */
+  ArenaHeapSTLAllocator (ArenaHeapSTLAllocator&& a);
+
+
+  /**
+   * @brief Move assignment.
+   *
+   * Move the data.
+   */
+  ArenaHeapSTLAllocator& operator= (ArenaHeapSTLAllocator&& a);
+
+
+  /**
+   * @brief Swap.
+   */
+  void swap (ArenaHeapSTLAllocator& a);
+
+
+  /**
+   * @brief Return allocator to use for a copy-constructed container.
+   *
+   * When we copy-construct a container, we want the new allocator
+   * to copy parameters from the old one, but not the data.
+   */
+  ArenaHeapSTLAllocator select_on_container_copy_construction() const;
+
+
+  /**
+   * @brief Equality test.
+   *
+   * Two allocators should compare equal if objects allocated by one
+   * can be deallocated by the other.  We should just check if they
+   * are the same object.
+   */
+  bool operator== (const ArenaHeapSTLAllocator& other) const;
+
+
+  /**
+   * @brief Inquality test.
+   *
+   * Two allocators should compare equal if objects allocated by one
+   * can be deallocated by the other.  We should just check if they
+   * are the same object.
+   */
+  bool operator!= (const ArenaHeapSTLAllocator& other) const;
+
 
   // We don't bother to supply a more general constructor --- shouldn't
   // be needed.

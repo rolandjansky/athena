@@ -20,12 +20,12 @@ class TestAlloc
   : public SG::ArenaAllocatorBase
 {
 public:
-  TestAlloc (const Params& params) : m_params (params) {}
-  virtual void reset() {}
-  virtual void erase() {}
-  virtual void reserve(size_t) {}
-  virtual const std::string& name() const { return m_params.name; }
-  virtual const Stats& stats() const { return m_stats; }
+  TestAlloc (Params  params) : m_params (std::move(params)) {}
+  virtual void reset() override {}
+  virtual void erase() override {}
+  virtual void reserve(size_t) override {}
+  virtual const std::string& name() const override { return m_params.name; }
+  virtual const Stats& stats() const override { return m_stats; }
   const Params& params() const { return m_params; }
   int foo() { return 42; }
 
@@ -54,7 +54,7 @@ void test1()
   SG::ArenaHeader head;
   TestAlloc::Params params;
   params.name = "foo";
-  TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(0),
+  TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(nullptr),
                                                params));
   assert (hand.params().name == "foo");
 

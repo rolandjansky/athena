@@ -14,14 +14,12 @@
 #undef NDEBUG
 #include "AthAllocators/ArenaSharedHeapSTLAllocator.h"
 #include "AthAllocators/ArenaBlock.h"
-#include "boost/assign/list_of.hpp"
+#include "AthAllocators/exceptions.h"
+#include "TestTools/expect_exception.h"
 #include <list>
 #include <vector>
 #include <cassert>
 #include <iostream>
-
-using boost::assign::list_of;
-
 
 
 //==========================================================================
@@ -30,6 +28,7 @@ struct Payload
 {
   Payload(int = 0);
   Payload(const Payload& p);
+  Payload& operator= (const Payload&) = default;
   ~Payload();
   void clear();
 
@@ -116,7 +115,7 @@ void test1()
   a2.destroy (pv[0]);
 
   assert (Payload::n == 2);
-  std::vector<int> exp1 = list_of(1)(1)(-1)(-1);
+  std::vector<int> exp1 {1, 1, -1, -1};
   assert (Payload::v == exp1);
   Payload::v.clear();
 
@@ -193,13 +192,108 @@ void test2()
 }
 
 
-// In-situ test.
+// Copy/assign/move.
 void test3()
+{
+  std::cout << "test3\n";
+  Payload::v.clear();
+  Payload::n = 0;
+
+  SG::ArenaSharedHeapSTLAllocator<Payload> b1 (100, "b1");
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+
+  Payload* pp[10];
+  pp[0] = b1.allocate(1);
+  assert (b1.stats().elts.inuse == 1);
+  assert (b1.stats().elts.total == 100);
+
+  SG::ArenaSharedHeapSTLAllocator<Payload> b2 (b1);
+  assert (b2.nblock() == 100);
+  assert (b2.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  pp[1] = b2.allocate(1);
+  assert (b1.stats().elts.inuse == 2);
+  assert (b1.stats().elts.total == 100);
+  assert (b2.stats().elts.inuse == 2);
+  assert (b2.stats().elts.total == 100);
+
+  b1 = b2;
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.stats().elts.inuse == 2);
+  assert (b1.stats().elts.total == 100);
+  assert (b2.stats().elts.inuse == 2);
+  assert (b2.stats().elts.total == 100);
+
+  SG::ArenaSharedHeapSTLAllocator<Payload> b3 (100, "b3");
+  EXPECT_EXCEPTION (SG::ExcDifferentArenas, b3 = b2);
+
+  SG::ArenaSharedHeapSTLAllocator<Payload> b4 (std::move (b1));
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.nblock() == 100);
+  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.stats().elts.inuse == 2);
+  assert (b1.stats().elts.total == 100);
+  assert (b4.stats().elts.inuse == 2);
+  assert (b4.stats().elts.total == 100);
+  b4.deallocate (pp[0], 1);
+  pp[1] = b4.allocate(1);
+  pp[2] = b4.allocate(1);
+  assert (b4.stats().elts.inuse == 3);
+  assert (b4.stats().elts.total == 100);
+  assert (b1.stats().elts.inuse == 3);
+  assert (b1.stats().elts.total == 100);
+
+  b1 = std::move(b4);
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.nblock() == 100);
+  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.stats().elts.inuse == 3);
+  assert (b4.stats().elts.total == 100);
+  assert (b1.stats().elts.inuse == 3);
+  assert (b1.stats().elts.total == 100);
+  b1.deallocate (pp[0], 1);
+  pp[3] = b1.allocate(1);
+  pp[0] = b1.allocate(1);
+  assert (b4.stats().elts.inuse == 4);
+  assert (b4.stats().elts.total == 100);
+  assert (b1.stats().elts.inuse == 4);
+  assert (b1.stats().elts.total == 100);
+
+  b1.swap(b4);
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.nblock() == 100);
+  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.stats().elts.inuse == 4);
+  assert (b1.stats().elts.total == 100);
+  assert (b4.stats().elts.inuse == 4);
+  assert (b4.stats().elts.total == 100);
+
+  b4.swap (b3);
+  assert (b4.nblock() == 100);
+  assert (b4.name() == "b3::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b3.nblock() == 100);
+  assert (b3.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b3.stats().elts.inuse == 4);
+  assert (b3.stats().elts.total == 100);
+
+  assert (b1 == b1);
+  assert (b1 == b2);
+  assert (b1 == b3);
+  assert (b1 != b4);
+}
+
+
+// In-situ test.
+void test4()
 {
   Payload::v.clear();
   Payload::n = 0;
 
-  std::cout << "test3\n";
+  std::cout << "test4\n";
 
   typedef std::list<int, SG::ArenaSharedHeapSTLAllocator<int> > list_t;
 
@@ -273,11 +367,85 @@ void test3()
 }
 
 
+// Copy/move container.
+void test5()
+{
+  std::cout << "test5\n";
+  Payload::v.clear();
+  Payload::n = 0;
+
+  typedef std::list<int, SG::ArenaSharedHeapSTLAllocator<int> > list_t;
+
+  list_t::allocator_type allo (500, "allo");
+  list_t list (allo);
+
+  for (int i = 0; i < 10; i++)
+    list.push_back (i);
+
+  assert (list.size() == 10);
+  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.inuse == 10);
+
+  list_t list2 = list;
+  assert (list.size() == 10);
+  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.inuse == 20);
+
+  assert (list2.size() == 10);
+  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.inuse == 20);
+
+  list_t list3;
+  list3 = list;
+  assert (list.size() == 10);
+  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.inuse == 20);
+
+  assert (list3.size() == 10);
+  assert (list3.get_allocator().totstats().elts.total == 1000);
+  assert (list3.get_allocator().totstats().elts.inuse == 10);
+
+  list_t list4 (std::move (list2));
+  assert (list4.size() == 10);
+  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.inuse == 20);
+  assert (list2.size() == 0);
+  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.inuse == 20);
+
+  list2 = std::move(list4);
+  assert (list2.size() == 10);
+  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.inuse == 20);
+  assert (list4.size() == 0);
+  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.inuse == 20);
+
+  list2.swap (list4);
+  assert (list4.size() == 10);
+  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.inuse == 20);
+  assert (list2.size() == 0);
+  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.inuse == 20);
+
+  list3.swap (list4);
+  assert (list3.size() == 10);
+  assert (list3.get_allocator().totstats().elts.total == 500);
+  assert (list3.get_allocator().totstats().elts.inuse == 20);
+  assert (list4.size() == 10);
+  assert (list4.get_allocator().totstats().elts.total == 1000);
+  assert (list4.get_allocator().totstats().elts.inuse == 10);
+}
+
+
 int main()
 {
   test1();
   test2();
   test3();
+  test4();
+  test5();
   assert (SG::ArenaBlock::nactive() == 0);
   return 0;
 }

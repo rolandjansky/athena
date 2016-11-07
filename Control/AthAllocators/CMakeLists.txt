@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 729177 2016-03-11 14:32:18Z krasznaa $
+# $Id: CMakeLists.txt 782850 2016-11-07 21:11:58Z ssnyder $
 ################################################################################
 # Package: AthAllocators
 ################################################################################
@@ -11,8 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    GaudiKernel
    PRIVATE
-   AtlasTest/TestTools
-   Control/CxxUtils )
+   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS thread )
@@ -35,6 +34,7 @@ macro( _simple_test name )
       LINK_LIBRARIES CxxUtils AthAllocators )
 endmacro( _simple_test )
 
+_simple_test( exceptions_test )
 _simple_test( ArenaAllocatorBase_test )
 _simple_test( ArenaBlockAllocatorBase_test )
 _simple_test( ArenaBlock_test )

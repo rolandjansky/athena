@@ -14,8 +14,8 @@
  */
 
 
-#ifndef ATLALLOCATORS_ARENABLOCKALLOCATORBASE_H
-#define ATLALLOCATORS_ARENABLOCKALLOCATORBASE_H
+#ifndef ATHALLOCATORS_ARENABLOCKALLOCATORBASE_H
+#define ATHALLOCATORS_ARENABLOCKALLOCATORBASE_H
 
 
 #include "AthAllocators/ArenaAllocatorBase.h"
@@ -44,6 +44,36 @@ public:
    *               See @c  ArenaAllocatorBase.h for the contents.
    */
   ArenaBlockAllocatorBase (const Params& params);
+
+
+  /**
+   * @brief Destructor.
+   */
+  ~ArenaBlockAllocatorBase();
+
+
+  /// Don't allow copy construction or assignment.
+  ArenaBlockAllocatorBase (const ArenaBlockAllocatorBase&) = delete;
+  ArenaBlockAllocatorBase& operator= (const ArenaBlockAllocatorBase&) = delete;
+
+
+  /**
+   * @brief Move constructor.
+   */
+  ArenaBlockAllocatorBase (ArenaBlockAllocatorBase&& other);
+
+
+  /**
+   * @brief Move assignment.
+   */
+  ArenaBlockAllocatorBase& operator= (ArenaBlockAllocatorBase&& other);
+
+
+  /**
+   * @brief Swap.
+   */
+  void swap (ArenaBlockAllocatorBase& other);
+
 
 
   /**
@@ -118,4 +148,5 @@ protected:
 
 } // namespace SG
 
-#endif // not ATLALLOCATORS_ARENABLOCKALLOCATORBASE_H
+
+#endif // not ATHALLOCATORS_ARENABLOCKALLOCATORBASE_H

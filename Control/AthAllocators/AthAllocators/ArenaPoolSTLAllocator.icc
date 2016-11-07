@@ -72,6 +72,19 @@ ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
 
 
 /**
+ * @brief Copy constructor.
+ *
+ * The @c name and @c nblock parameters are copied, but the data are not.
+ */
+template <class T, class VETO>
+ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
+  (const ArenaPoolSTLAllocator& a)
+    : m_pool (ArenaPoolSTLAllocator_initParams<T> (a.nblock(), a.name()))
+{
+}
+
+
+/**
  * @brief Constructor from another @c ArenaPoolSTLAllocator.
  *
  * The @c name and @c nblock parameters are copied, but the data are not.
@@ -82,6 +95,92 @@ ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
   (const ArenaPoolSTLAllocator<U, V>& a)
     : m_pool (ArenaPoolSTLAllocator_initParams<T> (a.nblock(), a.name()))
 {
+}
+
+
+/**
+ * @brief Move constructor.
+ *
+ * Move the data.
+ */
+template <class T, class VETO>
+ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
+  (ArenaPoolSTLAllocator&& a)
+    : m_pool (std::move (a.m_pool))
+{
+}
+
+
+/**
+ * @brief Move constructor.
+ *
+ * Move the data.
+ */
+template <class T, class VETO>
+ArenaPoolSTLAllocator<T, VETO>&
+ArenaPoolSTLAllocator<T, VETO>::operator= (ArenaPoolSTLAllocator&& a)
+{
+  if (this != &a) {
+    m_pool = std::move (a.m_pool);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Swap.
+ */
+template <class T, class VETO>
+void ArenaPoolSTLAllocator<T, VETO>::swap (ArenaPoolSTLAllocator& a)
+{
+  m_pool.swap (a.m_pool);
+}
+
+
+/**
+ * @brief Equality test.
+ *
+ * Two allocators should compare equal if objects allocated by one
+ * can be deallocated by the other.  We should just check if they
+ * are the same object.
+ */
+template <class T, class VETO>
+inline
+bool ArenaPoolSTLAllocator<T, VETO>::operator==
+  (const ArenaPoolSTLAllocator& other) const
+{
+  return this == &other;
+}
+
+
+/**
+ * @brief Inequality test.
+ *
+ * Two allocators should compare equal if objects allocated by one
+ * can be deallocated by the other.  We should just check if they
+ * are the same object.
+ */
+template <class T, class VETO>
+inline
+bool ArenaPoolSTLAllocator<T, VETO>::operator!=
+  (const ArenaPoolSTLAllocator& other) const
+{
+  return this != &other;
+}
+
+
+/**
+ * @brief Return allocator to use for a copy-constructed container.
+ *
+ * When we copy-construct a container, we want the new allocator
+ * to copy parameters from the old one, but not the data.
+ */
+template <class T, class VETO>
+inline
+ArenaPoolSTLAllocator<T, VETO>
+ArenaPoolSTLAllocator<T, VETO>::select_on_container_copy_construction() const
+{
+  return ArenaPoolSTLAllocator (nblock(), name());
 }
 
 

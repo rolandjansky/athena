@@ -39,12 +39,12 @@ class ArenaTestAllocator
   : public SG::ArenaAllocatorBase
 {
 public:
-  virtual void reset() {}
-  virtual void erase() {}
-  virtual void reserve (size_t /*size*/) { }
-  virtual const ArenaAllocatorBase::Stats& stats() const
+  virtual void reset() override {}
+  virtual void erase() override {}
+  virtual void reserve (size_t /*size*/) override { }
+  virtual const ArenaAllocatorBase::Stats& stats() const override
   { return m_stats; }
-  virtual const std::string& name() const { return m_name; }
+  virtual const std::string& name() const override { return m_name; }
   ArenaAllocatorBase::Stats m_stats;
   std::string m_name;
 };
@@ -118,15 +118,15 @@ int main()
   assert (testcount == 0);
 
   params = SG::ArenaAllocatorBase::initParams<Test2>(500);
-  assert (params.clear == 0);
+  assert (params.clear == nullptr);
   params = SG::ArenaAllocatorBase::initParams<Test2, true>(500);
-  assert (params.clear != 0);
+  assert (params.clear != nullptr);
   params.clear (p);
   assert (testcount == 10);
 
   params = SG::ArenaAllocatorBase::initParams<int>(500);
-  assert (params.constructor == 0);
-  assert (params.destructor == 0);
+  assert (params.constructor == nullptr);
+  assert (params.destructor == nullptr);
 
   SG::ArenaAllocatorBase::Stats stats1;
   SG::ArenaAllocatorBase::Stats stats2;

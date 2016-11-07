@@ -23,8 +23,8 @@ class TestArena
   : public SG::ArenaBase
 {
 public:
-  virtual void report (std::ostream& os) const { os << "foo"; }
-  virtual const std::string& name() const { return xname; }
+  virtual void report (std::ostream& os) const override { os << "foo"; }
+  virtual const std::string& name() const override { return xname; }
 };
 
 

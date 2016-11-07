@@ -122,6 +122,29 @@ public:
   ~ArenaHeapAllocator();
 
 
+  /// Don't allow copy construction or assignment.
+  ArenaHeapAllocator (const ArenaHeapAllocator&) = delete;
+  ArenaHeapAllocator& operator= (const ArenaHeapAllocator&) = delete;
+
+
+  /**
+   * @brief Move constructor.
+   */
+  ArenaHeapAllocator (ArenaHeapAllocator&& other);
+
+
+  /**
+   * @brief Move assignment.
+   */
+  ArenaHeapAllocator& operator= (ArenaHeapAllocator&& other);
+
+
+  /**
+   * @brief Swap.
+   */
+  void swap (ArenaHeapAllocator& other);
+
+
   /**
    * @brief Allocate a new element.
    *

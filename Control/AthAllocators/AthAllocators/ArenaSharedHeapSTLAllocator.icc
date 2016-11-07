@@ -13,6 +13,7 @@
 
 
 #include "GaudiKernel/System.h"
+#include "AthAllocators/exceptions.h"
 #include <cassert>
 #include <stdexcept>
 
@@ -93,6 +94,22 @@ ArenaHeapAllocator* ArenaSharedHeapSTLHeader::get_pool (size_t& index)
 }
 
 
+/**
+ * @brief Update the owner of this object.
+ * @param old_owner Object giving up ownership.
+ * @param new_owner Object acquiring ownership.
+ *
+ * If the current owner is @c old_owner then change the owner to @c new_owner.
+ */
+inline
+void ArenaSharedHeapSTLHeader::update_owner (const void* old_owner,
+                                             const void* new_owner)
+{
+  if (m_owner == old_owner)
+    m_owner = new_owner;
+}
+
+
 
 //===========================================================================
 
@@ -101,6 +118,12 @@ template <class T>
 size_t ArenaSharedHeapSTLAllocator<T>::s_index = -1;
 
 
+/**
+ * @brief Default constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to use as the base for the allocator names.
+ */
 template <class T>
 ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
   (size_t nblock /*= 1000*/,
@@ -111,6 +134,12 @@ ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
 }
 
 
+/**
+ * @brief Copy constructor.
+ *
+ * The new STL allocator will reference the same set of underlying
+ * Arena allocators as the old one.
+ */
 template <class T>
 inline
 ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
@@ -121,6 +150,12 @@ ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
 }
 
 
+/**
+ * @brief Constructor from another @c ArenaSharedHeapSTLAllocator.
+ *
+ * The new STL allocator will reference the same set of underlying
+ * Arena allocators as the old one.
+ */
 template <class T>
 template <class U>
 inline
@@ -132,6 +167,9 @@ ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
 }
 
 
+/**
+ * @brief Destructor.
+ */
 template <class T>
 inline
 ArenaSharedHeapSTLAllocator<T>::~ArenaSharedHeapSTLAllocator()
@@ -154,12 +192,74 @@ ArenaSharedHeapSTLAllocator<T>::operator=
 {
   if (&a != this) {
     if (m_header != a.m_header)
-      throw std::runtime_error
-        ("Attempt to assign between ArenaSharedHeapSTLAllocators "
-         "for different arenas");
+      throw SG::ExcDifferentArenas();
     assert (m_pool == a.m_pool);
   }
   return *this;
+}
+
+
+/**
+ * @brief Move assignment.
+ *
+ * This allows assignment between different arenas.
+ */
+template <class T>
+ArenaSharedHeapSTLAllocator<T>&
+ArenaSharedHeapSTLAllocator<T>::operator= (ArenaSharedHeapSTLAllocator&& a)
+{
+  if (this != &a && m_header != a.m_header) {
+    m_header = a.m_header;
+    m_pool = a.m_pool;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Swap.
+ */
+template <class T>
+void ArenaSharedHeapSTLAllocator<T>::swap (ArenaSharedHeapSTLAllocator& a)
+{
+  if (m_header != a.m_header) {
+    std::swap (m_header, a.m_header);
+    m_header->update_owner (&a, this);
+    a.m_header->update_owner (this, &a);
+    std::swap (m_pool, a.m_pool);
+  }
+}
+
+
+/**
+ * @brief Equality test.
+ *
+ * Two allocators should compare equal if objects allocated by one
+ * can be deallocated by the other.  We check if they are referencing
+ * the same Header.
+ */
+template <class T>
+inline
+bool ArenaSharedHeapSTLAllocator<T>::operator==
+  (const ArenaSharedHeapSTLAllocator& other) const
+{
+  return m_header == other.m_header;
+}
+
+
+/**
+ * @brief Inequality test.
+ *
+ * Two allocators should compare equal if objects allocated by one
+ * can be deallocated by the other.  We check if they are referencing
+ * the same Header.
+ */
+template <class T>
+inline
+bool ArenaSharedHeapSTLAllocator<T>::operator!=
+  (const ArenaSharedHeapSTLAllocator& other) const
+{
+  return m_header != other.m_header;
 }
 
 
@@ -378,17 +478,13 @@ ArenaHeapAllocator* ArenaSharedHeapSTLAllocator<T>::poolptr() const
 
 
 /**
- * @brief Compare two allocators.  Needed by some @c swap implementations.
- *
- *        We consider two allocators to be the same if they're
- *        referencing the same Header.
+ * @brief Generate printable report for all contained allocators.
+ * @param os Stream to which to write the report.
  */
 template <class T>
-inline
-bool ArenaSharedHeapSTLAllocator<T>::operator!=
-  (const ArenaSharedHeapSTLAllocator& other) const
+void ArenaSharedHeapSTLAllocator<T>::report (std::ostream& os) const
 {
-  return m_header != other.m_header;
+  m_header->report(os);
 }
 
 

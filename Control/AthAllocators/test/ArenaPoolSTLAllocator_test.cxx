@@ -13,11 +13,11 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-#include "CxxUtils/unordered_map.h"
 #include "boost/assign/list_of.hpp"
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <unordered_map>
 
 using boost::assign::list_of;
 
@@ -29,6 +29,7 @@ struct Payload
 {
   Payload(int = 0);
   Payload(const Payload& p);
+  Payload& operator= (const Payload&) = default;
   ~Payload();
   void clear();
 
@@ -91,7 +92,7 @@ void test1()
   SG::ArenaPoolSTLAllocator<Payload, int> a4 (a3);
   assert (a4.nblock() == 100);
   assert (a4.name() == "a3");
-  assert (a4.poolptr() != 0);
+  assert (a4.poolptr() != nullptr);
 
   {
     Payload p;
@@ -158,12 +159,12 @@ void test2()
   SG::ArenaPoolSTLAllocator<Payload*, int> a1;
   assert (a1.nblock() == 1000);
   assert (a1.name() == "");
-  assert (a1.poolptr() == 0);
+  assert (a1.poolptr() == nullptr);
 
   SG::ArenaPoolSTLAllocator<Payload*, int> a2 (100, "a2");
   assert (a2.nblock() == 100);
   assert (a2.name() == "a2");
-  assert (a2.poolptr() == 0);
+  assert (a2.poolptr() == nullptr);
 
   a2.reset();
   a2.erase();
@@ -197,7 +198,7 @@ void test2()
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  Payload** p = a4.allocate (2, 0);
+  Payload** p = a4.allocate (2, nullptr);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
@@ -221,12 +222,12 @@ void test3()
   SG::ArenaPoolSTLAllocator<int, int> a1;
   assert (a1.nblock() == 1000);
   assert (a1.name() == "");
-  assert (a1.poolptr() == 0);
+  assert (a1.poolptr() == nullptr);
 
   SG::ArenaPoolSTLAllocator<int, int> a2 (100, "a2");
   assert (a2.nblock() == 100);
   assert (a2.name() == "a2");
-  assert (a2.poolptr() == 0);
+  assert (a2.poolptr() == nullptr);
 
   a2.reset();
   a2.erase();
@@ -260,7 +261,7 @@ void test3()
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  int* p = a4.allocate (2, 0);
+  int* p = a4.allocate (2, nullptr);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
@@ -273,15 +274,73 @@ void test3()
 }
 
 
-// In-situ test.
+// Copy/assign/move.
 void test4()
 {
   Payload::v.clear();
   Payload::n = 0;
 
   std::cout << "test4\n";
+  SG::ArenaPoolSTLAllocator<Payload, int> b1 (100, "b1");
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1");
 
-  typedef SG::unordered_map<int, int, SG::hash<int>, std::equal_to<int>,
+  (void)b1.allocate(1);
+  assert (b1.stats().elts.inuse == 1);
+  assert (b1.stats().elts.total == 100);
+
+  SG::ArenaPoolSTLAllocator<Payload, int> b2 (std::move (b1));
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1");
+  assert (b2.nblock() == 100);
+  assert (b2.name() == "b1");
+  assert (b1.stats().elts.inuse == 0);
+  assert (b1.stats().elts.total == 0);
+  assert (b2.stats().elts.inuse == 1);
+  assert (b2.stats().elts.total == 100);
+  (void)b2.allocate(1);
+  assert (b2.stats().elts.inuse == 2);
+  assert (b2.stats().elts.total == 100);
+
+  b1 = std::move(b2);
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1");
+  assert (b2.nblock() == 100);
+  assert (b2.name() == "b1");
+  assert (b2.stats().elts.inuse == 0);
+  assert (b2.stats().elts.total == 0);
+  assert (b1.stats().elts.inuse == 2);
+  assert (b1.stats().elts.total == 100);
+  (void)b1.allocate(1);
+  assert (b1.stats().elts.inuse == 3);
+  assert (b1.stats().elts.total == 100);
+
+  b1.swap(b2);
+  assert (b1.nblock() == 100);
+  assert (b1.name() == "b1");
+  assert (b2.nblock() == 100);
+  assert (b2.name() == "b1");
+  assert (b1.stats().elts.inuse == 0);
+  assert (b1.stats().elts.total == 0);
+  assert (b2.stats().elts.inuse == 3);
+  assert (b2.stats().elts.total == 100);
+
+  assert (b1 == b1);
+  assert (!(b1 != b1));
+  assert (!(b1 == b2));
+  assert (b1 != b2);
+}
+
+
+// In-situ test.
+void test5()
+{
+  Payload::v.clear();
+  Payload::n = 0;
+
+  std::cout << "test5\n";
+
+  typedef std::unordered_map<int, int, std::hash<int>, std::equal_to<int>,
     SG::ArenaPoolSTLAllocator<std::pair<const int, int> > > map_t;
 
   map_t::allocator_type allo (500, "allo");
@@ -308,11 +367,78 @@ void test4()
 }
 
 
+// Copy/move container.
+void test6()
+{
+  std::cout << "test6\n";
+
+  Payload::v.clear();
+  Payload::n = 0;
+
+  typedef std::unordered_map<int, int, std::hash<int>, std::equal_to<int>,
+    SG::ArenaPoolSTLAllocator<std::pair<const int, int> > > map_t;
+
+  map_t::allocator_type allo (500, "allo");
+  map_t map (10, map_t::hasher(), map_t::key_equal(), allo);
+
+  for (int i = 0; i < 10; i++)
+    map[i] = i;
+
+  assert (map.size() == 10);
+  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.inuse == 10);
+
+  map_t map2 = map;
+  assert (map.size() == 10);
+  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.inuse == 10);
+
+  assert (map2.size() == 10);
+  assert (map2.get_allocator().stats().elts.total == 500);
+  assert (map2.get_allocator().stats().elts.inuse == 10);
+
+  map_t map3;
+  map3 = map;
+  assert (map.size() == 10);
+  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.inuse == 10);
+
+  assert (map3.size() == 10);
+  assert (map3.get_allocator().stats().elts.total == 1000);
+  assert (map3.get_allocator().stats().elts.inuse == 10);
+
+  map_t map4 (std::move (map2));
+  assert (map4.size() == 10);
+  assert (map4.get_allocator().stats().elts.total == 500);
+  assert (map4.get_allocator().stats().elts.inuse == 10);
+  assert (map2.size() == 0);
+  assert (map2.get_allocator().stats().elts.total == 0);
+  assert (map2.get_allocator().stats().elts.inuse == 0);
+
+  map2 = std::move(map4);
+  assert (map2.size() == 10);
+  assert (map2.get_allocator().stats().elts.total == 500);
+  assert (map2.get_allocator().stats().elts.inuse == 10);
+  assert (map4.size() == 0);
+  assert (map4.get_allocator().stats().elts.total == 0);
+  assert (map4.get_allocator().stats().elts.inuse == 0);
+
+  map2.swap (map4);
+  assert (map4.size() == 10);
+  assert (map4.get_allocator().stats().elts.total == 500);
+  assert (map4.get_allocator().stats().elts.inuse == 10);
+  assert (map2.size() == 0);
+  assert (map2.get_allocator().stats().elts.total == 0);
+  assert (map2.get_allocator().stats().elts.inuse == 0);
+}
+
+
 int main()
 {
   test1();
   test2();
   test3();
   test4();
+  test6();
   return 0;
 }
