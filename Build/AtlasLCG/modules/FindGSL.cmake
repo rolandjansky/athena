@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindGSL.cmake 724137 2016-02-16 09:01:57Z krasznaa $
+# $Id: FindGSL.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # This file is here to intercept find_package(GSL) calls, and massage
 # the paths produced by the system module, to make them relocatable.
@@ -10,8 +10,10 @@
 include( LCGFunctions )
 
 # Ignore the system paths:
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+if( GSL_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Temporarily clean out CMAKE_MODULE_PATH, so that we could pick up
 # FindGSL.cmake from CMake:

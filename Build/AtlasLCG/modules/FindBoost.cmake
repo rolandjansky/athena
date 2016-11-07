@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindBoost.cmake 763307 2016-07-20 16:15:56Z alibrari $
+# $Id: FindBoost.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # This file is here to intercept find_package(Boost) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -17,10 +17,12 @@ endif()
 # Make sure that Boost is not searched for using CMAKE_PREFIX_PATH, looking
 # for BoostConfig.cmake. As that would take precedence over the setting made
 # using BOOST_ROOT.
-set( Boost_NO_BOOST_CMAKE TRUE )
-set( Boost_NO_SYSTEM_PATHS TRUE )
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 /lib /lib32 /lib64 )
+if( BOOST_ROOT )
+   set( Boost_NO_BOOST_CMAKE TRUE )
+   set( Boost_NO_SYSTEM_PATHS TRUE )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 /lib /lib32 /lib64 )
+endif()
 
 # Temporarily clean out CMAKE_MODULE_PATH, so that we could pick up
 # FindBoost.cmake from CMake:

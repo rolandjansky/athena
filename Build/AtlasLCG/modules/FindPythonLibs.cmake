@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindPythonLibs.cmake 752031 2016-06-03 09:12:47Z krasznaa $
+# $Id: FindPythonLibs.cmake 782719 2016-11-07 12:30:42Z limosani $
 #
 # This file is here to intercept find_package(PythonLibs) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -70,7 +70,11 @@ if( PYTHONLIBS_FOUND AND NOT GAUDI_ATLAS )
    # lcg_generate_env function later on:
    set( PYTHONLIBS_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} )
 
+   get_filename_component( PYTHONHOME ${PYTHONLIBS_LIBRARY_DIRS} PATH )
+   set( PythonLibs_ENVIRONMENT
+   	  SET PYTHONHOME ${PYTHONHOME} )
 endif()
+
 
 # Set up the RPM dependency:
 lcg_need_rpm( Python FOUND_NAME PYTHONLIBS VERSION_NAME PYTHON )

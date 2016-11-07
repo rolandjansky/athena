@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindDoxygen.cmake 751138 2016-05-31 13:50:48Z krasznaa $
+# $Id: FindDoxygen.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # This file is here to intercept find_package(Doxygen) calls, and extend the
 # environment setup file of the project with the correct Doxygen paths.
@@ -15,8 +15,10 @@ set( _modulePathBackup ${CMAKE_MODULE_PATH} )
 set( CMAKE_MODULE_PATH )
 
 # Make the code ignore the system path(s):
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+if( DOXYGEN_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Call CMake's own FindDoxygen.cmake. Note that the arguments created for this
 # script by CMake pass through to the official script. So we don't need to

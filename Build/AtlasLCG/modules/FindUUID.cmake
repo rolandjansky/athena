@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindUUID.cmake 718732 2016-01-20 12:30:12Z krasznaa $
+# $Id: FindUUID.cmake 772148 2016-09-07 15:04:09Z krasznaa $
 #
 # - Locate UUID library
 # Defines:
@@ -25,12 +25,23 @@ lcg_external_module( NAME UUID
   LIBRARY_SUFFIXES lib
   COMPULSORY_COMPONENTS uuid )
 
+# On MacOS X the uuid functions are in libSystem.dylib. So no extra library
+# needs to be linked against.
+if( APPLE )
+   set( uuid_extra_dep )
+else()
+   set( uuid_extra_dep UUID_LIBRARIES )
+endif()
+
 # Handle the standard find_package arguments:
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( UUID DEFAULT_MSG UUID_INCLUDE_DIR
-  UUID_LIBRARIES )
+   ${uuid_extra_dep} )
 mark_as_advanced( UUID_FOUND UUID_INCLUDE_DIR UUID_INCLUDE_DIRS
-  UUID_LIBRARIES UUID_LIBRARY_DIRS )
+   UUID_LIBRARIES UUID_LIBRARY_DIRS )
 
 # For SLC6 this is picked up from the system. But for CC7, it will come from
 # LCG. So eventually an RPM dependency will have to be added in a smart way...
+
+# Clean up:
+unset( uuid_extra_dep )
