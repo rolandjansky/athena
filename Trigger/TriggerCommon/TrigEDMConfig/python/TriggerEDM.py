@@ -51,10 +51,11 @@ identifier = ".-"
 # ID Variables to be slimmed away
 UnusedIDVariables = ["trackParameterCovarianceMatrices", "parameterX", "parameterY", "parameterZ", "parameterPX",
                      "parameterPY", "parameterPZ", "parameterPosition", "caloExtension"]
+UnusedVtxVariables = ["vxTrackAtVertex"]
 
 # Combine them into a string
 RemoveIDVariables = ".-"+identifier.join(UnusedIDVariables)
-
+RemoveVtxVariables = ".-"+identifier.join(UnusedVtxVariables)
 # Tau Triggers
 # Tau Trigger Variables to be slimmed away
 PanTauVars = [ "pantau_CellBasedInput_isPanTauCandidate", "pantau_CellBasedInput_DecayModeProto", "pantau_CellBasedInput_DecayMode",
@@ -556,9 +557,9 @@ TriggerHLTList = [
     ('xAOD::VertexContainer#HLT_PrimVertexFTKRaw',                         'BS ESD AODFULL AODSLIM', 'Bjet'),
 
     # FTK vertexAux
-    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKAux.',                                'BS ESD AODFULL AODSLIM', 'Bjet'),
-    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKRefitAux.',                        'BS ESD AODFULL AODSLIM', 'Bjet'),
-    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKRawAux.',                         'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKAux'+RemoveVtxVariables,                                'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKRefitAux'+RemoveVtxVariables,                        'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::VertexAuxContainer#HLT_PrimVertexFTKRawAux'+RemoveVtxVariables,                         'BS ESD AODFULL AODSLIM', 'Bjet'),
 
     # b-jets  
     ('xAOD::JetContainer#HLT_FarawayJet',                                'BS ESD AODFULL AODSLIM', 'Bjet'),
