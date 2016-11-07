@@ -84,12 +84,24 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// @{
 
       /// Function receiving incidents from IncidentSvc/TEvent
+      /// Experts can override but they should ensure they add
+      ///   AthAnalysisAlgorithm::handle();
+      /// to the end of their own implementation
       virtual void handle( const Incident& inc ) override;
 
       /// Function called when a new input file is opened
+      /// user can read input metadata from inputMetaStore()
       virtual StatusCode beginInputFile();
       
+      /// Function called as an input file is being closed
+      virtual StatusCode endInputFile();
+      
+      /// Function called before finalize
+      /// user can read output metadata from outputMetaStore()
+      virtual StatusCode metaDataStop();
+      
       /// Function called when first execute is encountered
+      /// user can read event information with evtStore()
       virtual StatusCode firstExecute();
 
       virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
