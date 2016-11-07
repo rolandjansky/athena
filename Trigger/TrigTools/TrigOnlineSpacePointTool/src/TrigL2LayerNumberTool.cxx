@@ -14,11 +14,12 @@
 TrigL2LayerNumberTool::TrigL2LayerNumberTool(const std::string& t, 
 					     const std::string& n,
 					     const IInterface*  p ): AthAlgTool(t,n,p),
+								     m_useNewScheme(false),
 								     m_MaxSiliconLayerNum(-1),
 								     m_OffsetEndcapPixels(-1),
 								     m_OffsetBarrelSCT(-1),
-								     m_OffsetEndcapSCT(-1),
-								     m_useNewScheme(false) {
+								     m_OffsetEndcapSCT(-1)
+{
   declareInterface< ITrigL2LayerNumberTool >( this );
   declareProperty( "UseNewLayerScheme",      m_useNewScheme = false );
 }

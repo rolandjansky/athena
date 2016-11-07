@@ -28,6 +28,7 @@ using eformat::helper::SourceIdentifier;
 
 #define MAXNUM_PIX_BS_ERRORS 8
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
@@ -153,8 +154,8 @@ StatusCode PixelClusterCacheTool::finalize()
   return sc;
 }
 
-StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>& robFrags,
-                                                  const std::vector<IdentifierHash> listOfPixIds,
+StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& robFrags,
+                                                      const std::vector<IdentifierHash>& listOfPixIds,
 							std::vector<int>& errorVect, bool isFullScan)
 {
   if(!evtStore()->contains<InDet::PixelClusterContainer>(m_containerName))
