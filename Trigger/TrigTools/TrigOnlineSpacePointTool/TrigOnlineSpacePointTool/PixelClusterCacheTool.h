@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __PIXEL_CLUSTER_CACHE_TOOL_H__
-#define __PIXEL_CLUSTER_CACHE_TOOL_H__
+#ifndef TRIGONLINESPACEPOINTTOOL_PIXELCLUSTERCACHETOOL_H
+#define TRIGONLINESPACEPOINTTOOL_PIXELCLUSTERCACHETOOL_H
 
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -38,8 +38,8 @@ public:
   virtual StatusCode finalize();
 
   // Convert clusters to space points
-  virtual StatusCode m_convertBStoClusters(std::vector<const ROBF*>& robFragments,
-					   const std::vector<IdentifierHash> listOfPixIds, std::vector<int>&, bool);
+  virtual StatusCode convertBStoClusters(std::vector<const ROBF*>& robFragments,
+                                         const std::vector<IdentifierHash>& listOfPixIds, std::vector<int>&, bool);
 
 private:
 

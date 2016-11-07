@@ -166,9 +166,9 @@ namespace FTF {//FastTrackFinder
       std::for_each(coll->begin(),coll->end(),m_filter);
     }
 
-    int select(const SpacePointContainer* p, const std::vector<IdentifierHash>& idVec, const std::vector<short>* h2l = nullptr) {
+    int select(const SpacePointContainer& p, const std::vector<IdentifierHash>& idVec, const std::vector<short>* h2l = nullptr) {
       m_hash2layer = h2l;
-      m_pIDC=p;
+      m_pIDC=&p;
       int ret = m_filter.vectorSize();
       std::for_each(idVec.begin(),idVec.end(),*this);
       return m_filter.vectorSize()-ret;

@@ -38,6 +38,7 @@ apply_pattern declare_python_modules files="*.py"
 #apply_pattern declare_non_standard_include name=doc
 
 private
+use StoreGate		    StoreGate-*               Control
 use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription
 use TrkSpacePoint               TrkSpacePoint-*                 Tracking/TrkEvent
 use ByteStreamCnvSvcBase        ByteStreamCnvSvcBase-*          Event

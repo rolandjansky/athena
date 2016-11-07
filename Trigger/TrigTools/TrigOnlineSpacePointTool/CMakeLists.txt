@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
                           Event/ByteStreamData
-                          GaudiKernel
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -27,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigSiSpacePointTool
                           PRIVATE
+                          Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Event/ByteStreamCnvSvcBase
                           InnerDetector/InDetConditions/InDetBeamSpotService

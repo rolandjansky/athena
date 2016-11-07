@@ -8,6 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <string>
 #include <vector>
 
@@ -47,13 +48,12 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   IBeamCondSvc*  m_beamCondSvc; 
 
   std::string m_pixelSpContName,m_sctSpContName;// offline/EF containers
-  const SpacePointContainer* m_sctSpacePointsContainer;
-  const SpacePointContainer* m_pixelSpacePointsContainer; 
+  SG::ReadHandleKey<SpacePointContainer> m_sctSpacePointsContainerKey;
+  SG::ReadHandleKey<SpacePointContainer> m_pixelSpacePointsContainerKey;
   bool m_filter_phi;
   bool m_useBeamTilt;
   bool m_useNewScheme;
 
-  StatusCode retrieveSpacePointsContainers();
   void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&);
   void transformSpacePoints(std::vector<TrigSiSpacePointBase>&);
 

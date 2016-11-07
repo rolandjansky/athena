@@ -77,8 +77,8 @@ OnlineSpacePointProviderTool::OnlineSpacePointProviderTool(const std::string& t,
 
 StatusCode OnlineSpacePointProviderTool::finalize()
 {
-  ATH_MSG_INFO("Total " <<nColl[0]<<" PIX collections, "<<nColl[1]<<" are filled");
-  ATH_MSG_INFO("Total " <<nColl[2]<<" SCT collections, "<<nColl[3]<<" are filled");
+  ATH_MSG_INFO("Total " <<m_nColl[0]<<" PIX collections, "<<m_nColl[1]<<" are filled");
+  ATH_MSG_INFO("Total " <<m_nColl[2]<<" SCT collections, "<<m_nColl[3]<<" are filled");
   StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
@@ -204,7 +204,7 @@ StatusCode OnlineSpacePointProviderTool::initialize()
     m_timer[7]->propName("L2SCTClu.nSctCol");
     m_timer[8] = timerSvc->addItem("L2Data");
   }
-  for(int i=0;i<4;i++) nColl[i]=0;
+  for(int i=0;i<4;i++) m_nColl[i]=0;
 
   m_fsPixelDataReady=false;
   m_fsSCT_DataReady=false;
@@ -291,7 +291,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	      m_timer[1]->pause();
 	      m_timer[6]->start();
 	    }
-	  StatusCode scPixClu=m_pixelCacheTool->m_convertBStoClusters(v,listOfPixIds,m_pixelDataErrors, m_isFullScan);
+	  StatusCode scPixClu=m_pixelCacheTool->convertBStoClusters(v,listOfPixIds,m_pixelDataErrors, m_isFullScan);
 
 	  if(scPixClu.isRecoverable()) pix_bs_errors++;
 	  else 
@@ -338,7 +338,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
      for(unsigned int iPix=0; iPix<listOfPixIds.size(); iPix++) 
        {
 	 if(m_timers) m_timer[6]->resume();
-	 nColl[0]++;
+	 m_nColl[0]++;
 	 InDet::PixelClusterContainer::const_iterator 
 	   clusterCollection = pixClusterContainer->indexFind(listOfPixIds[iPix]); 	  
 	 if(m_timers) m_timer[6]->pause();
@@ -346,7 +346,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	 if (clusterCollection==pixClusterContainer->end()) continue;
 	 if ((*clusterCollection)->size() == 0) continue;
 
-	 nColl[1]++;
+	 m_nColl[1]++;
 
 	 if ((m_usePixelClustThreshold  && (*clusterCollection)->size()>m_pixClustThreshold ) ) 
 	    { 
@@ -452,7 +452,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	      m_timer[1]->stop();
 	      m_timer[7]->start();
 	    }
-	  StatusCode scSctClu=m_sctCacheTool->m_convertBStoClusters(v,listOfSctIds,m_sctDataErrors, m_isFullScan);
+	  StatusCode scSctClu=m_sctCacheTool->convertBStoClusters(v,listOfSctIds,m_sctDataErrors, m_isFullScan);
 	  if(scSctClu.isRecoverable()) sct_bs_errors++;
 	  else 
 	    if(scSctClu.isFailure()) bs_failure_sct=true;
@@ -497,14 +497,14 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
       for(unsigned int iSct=0; iSct<listOfSctIds.size(); iSct++) 
 	{
 	  //      if(m_timers) m_timer[7]->resume();
-	  nColl[2]++;
+	  m_nColl[2]++;
 	  InDet::SCT_ClusterContainer::const_iterator clusterCollection = sctClusterContainer->indexFind(listOfSctIds[iSct]); 
 	  // if(m_timers) m_timer[7]->pause();
       
 	  if (clusterCollection==sctClusterContainer->end()) continue;
 	  
 	  if ((*clusterCollection)->size() == 0) continue;
-	  nColl[3]++;
+	  m_nColl[3]++;
 	  if ((m_useSctClustThreshold  && (*clusterCollection)->size()>m_sctClustThreshold ) ) 
 	    { 
 	      ATH_MSG_DEBUG("number of SCT clusters, " << (*clusterCollection)->size() 
@@ -639,7 +639,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	      m_timer[1]->pause();
 	      m_timer[6]->start();
 	    }
-	  StatusCode scPixClu=m_pixelCacheTool->m_convertBStoClusters(v,listOfPixIds,m_pixelDataErrors, m_isFullScan);
+	  StatusCode scPixClu=m_pixelCacheTool->convertBStoClusters(v,listOfPixIds,m_pixelDataErrors, m_isFullScan);
 
 	  if(scPixClu.isRecoverable()) pix_bs_errors++;
 	  else 
@@ -686,7 +686,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
      for(unsigned int iPix=0; iPix<listOfPixIds.size(); iPix++) 
        {
 	 if(m_timers) m_timer[6]->resume();
-	 nColl[0]++;
+	 m_nColl[0]++;
 	 InDet::PixelClusterContainer::const_iterator 
 	   clusterCollection = pixClusterContainer->indexFind(listOfPixIds[iPix]); 	  
 	 if(m_timers) m_timer[6]->pause();
@@ -694,7 +694,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	 if (clusterCollection==pixClusterContainer->end()) continue;
 	 if ((*clusterCollection)->size() == 0) continue;
 
-	 nColl[1]++;
+	 m_nColl[1]++;
 
 	 if ((m_usePixelClustThreshold  && (*clusterCollection)->size()>m_pixClustThreshold ) ) 
 	    { 
@@ -800,7 +800,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	      m_timer[1]->stop();
 	      m_timer[7]->start();
 	    }
-	  StatusCode scSctClu=m_sctCacheTool->m_convertBStoClusters(v,listOfSctIds,m_sctDataErrors, m_isFullScan);
+	  StatusCode scSctClu=m_sctCacheTool->convertBStoClusters(v,listOfSctIds,m_sctDataErrors, m_isFullScan);
 	  if(scSctClu.isRecoverable()) sct_bs_errors++;
 	  else 
 	    if(scSctClu.isFailure()) bs_failure_sct=true;
@@ -845,14 +845,14 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
       for(unsigned int iSct=0; iSct<listOfSctIds.size(); iSct++) 
 	{
 	  //      if(m_timers) m_timer[7]->resume();
-	  nColl[2]++;
+	  m_nColl[2]++;
 	  InDet::SCT_ClusterContainer::const_iterator clusterCollection = sctClusterContainer->indexFind(listOfSctIds[iSct]); 
 	  // if(m_timers) m_timer[7]->pause();
       
 	  if (clusterCollection==sctClusterContainer->end()) continue;
 	  
 	  if ((*clusterCollection)->size() == 0) continue;
-	  nColl[3]++;
+	  m_nColl[3]++;
 	  if ((m_useSctClustThreshold  && (*clusterCollection)->size()>m_sctClustThreshold ) ) 
 	    { 
 	      ATH_MSG_DEBUG("number of SCT clusters, " << (*clusterCollection)->size() 
