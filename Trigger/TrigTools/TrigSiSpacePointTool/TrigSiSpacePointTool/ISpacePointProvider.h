@@ -11,7 +11,7 @@
 class TrigSiSpacePoint;
 class IRoiDescriptor;
 
-typedef std::vector< TrigSiSpacePoint* >   spacePointVec;
+typedef std::vector< const TrigSiSpacePoint* >   spacePointVec;
 
 static const InterfaceID IID_ISpacePointProvider("ISpacePointProvider", 1 , 0); 
 
