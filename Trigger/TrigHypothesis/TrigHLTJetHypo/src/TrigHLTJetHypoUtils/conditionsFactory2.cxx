@@ -87,17 +87,11 @@ Conditions conditionsFactoryTLA(const std::vector<double>& etaMins,
 
 
 
-Conditions conditionsFactoryHT(double etaMin,
-                               double etaMax,
-                               double etMin,
-                               double htMin){
+Conditions conditionsFactoryHT(double htMin){
   
   Conditions conditions;
   
-  std::shared_ptr<ICondition> pCondition(new HTCondition(etaMin,
-                                                         etaMax,
-                                                         etMin,
-                                                         htMin));
+  std::shared_ptr<ICondition> pCondition(new HTCondition(htMin));
   
   conditions.push_back(ConditionBridge(pCondition));
   return conditions;

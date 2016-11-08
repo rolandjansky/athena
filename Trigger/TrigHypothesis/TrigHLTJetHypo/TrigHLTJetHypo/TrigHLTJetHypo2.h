@@ -65,8 +65,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   void monitorLeadingJet(const xAOD::Jet* jet);
   void writeDebug(bool,
                   const HypoJetVector&,
-                  const HypoJetVector&,
-		  const TrigHLTJetHypoHelper&) const;
+                  const HypoJetVector&) const;
 
   HLT::ErrorCode 
     markAndStorePassingJets(const TrigHLTJetHypoHelper&,
@@ -174,7 +173,9 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
  // local code fragment timing
 
   double m_chainTimeAv{0.}; //std::chrono
-  double m_chainTimeSquareAv{0.}; //std::chrono
+  // double m_chainTimeSquareAv{0.}; //std::chrono
   unsigned int m_nCalls{0};
+
+  bool m_dumpJets{false};
 };
 #endif

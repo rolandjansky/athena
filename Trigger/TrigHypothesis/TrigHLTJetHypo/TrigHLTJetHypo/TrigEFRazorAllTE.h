@@ -4,7 +4,7 @@
 
 /********************************************************************
  *
- * NAME:     TrigEFHLTRazorAllTE.h
+ * NAME:     TrigEFRazorAllTE.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigJetHypo
  *
  * AUTHOR:   Lawrence Lee, based on DPhiMetJet hypo from others
@@ -12,8 +12,8 @@
  *
  *                     
  *********************************************************************/
-#ifndef TRIGEFHLTRAZORALLTE_H
-#define TRIGEFHLTRAZORALLTE_H
+#ifndef TRIGHLTJETHYPO_TRIGEFRAZORALLTE_H
+#define TRIGHLTJETHYPO_TRIGEFRAZORALLTE_H
 
 #include <string>
 #include <vector>
@@ -24,12 +24,12 @@
 class StoreGateSvc;
 class TriggerElement;
 
-class TrigEFHLTRazorAllTE : public HLT::AllTEAlgo {
+class TrigEFRazorAllTE : public HLT::AllTEAlgo {
 
  public:
 
-  TrigEFHLTRazorAllTE(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigEFHLTRazorAllTE();
+  TrigEFRazorAllTE(const std::string& name, ISvcLocator* pSvcLocator);
+  ~TrigEFRazorAllTE();
 
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();

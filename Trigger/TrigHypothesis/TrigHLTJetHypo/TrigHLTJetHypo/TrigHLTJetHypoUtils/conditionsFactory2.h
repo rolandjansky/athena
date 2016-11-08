@@ -48,10 +48,8 @@ Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,
                                 const std::vector<double>& massesMin,
                                 const std::vector<double>& massesMax);
 
-Conditions conditionsFactoryHT(double etaMin,
-                               double etaMax,
-                               double etMin,
-                               double htMin);
+Conditions conditionsFactoryHT(double htMin);
+
 
 
 #endif

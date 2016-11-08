@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     TrigEFHLTRazorAllTE.cxx
+// NAME:     TrigEFRazorAllTE.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigJetHypo
 //
 // AUTHOR: Lawrence Lee, based on The DPhiMetJet hypo by others
@@ -22,7 +22,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "TrigHLTJetHypo/TrigEFHLTRazorAllTE.h"
+#include "TrigHLTJetHypo/TrigEFRazorAllTE.h"
 
 //PS #include "JetEvent/JetCollection.h"
 //PS #include "JetEvent/Jet.h"
@@ -43,7 +43,7 @@ class ISvcLocator;
 // CONSTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 //
-TrigEFHLTRazorAllTE::TrigEFHLTRazorAllTE(const std::string& name, ISvcLocator* pSvcLocator):
+TrigEFRazorAllTE::TrigEFRazorAllTE(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator) {
 
   declareProperty("Razorcut",     m_RazorCut        = 300 );   // Default: 300 GeV
@@ -77,7 +77,7 @@ TrigEFHLTRazorAllTE::TrigEFHLTRazorAllTE(const std::string& name, ISvcLocator* p
 // DESTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 //
-TrigEFHLTRazorAllTE::~TrigEFHLTRazorAllTE()
+TrigEFRazorAllTE::~TrigEFRazorAllTE()
 {  }
 
 /////////////////////////////////////////////////////////////////////
@@ -89,10 +89,10 @@ TrigEFHLTRazorAllTE::~TrigEFHLTRazorAllTE()
 //
 
 // ----------------------------------------------------------------------
-HLT::ErrorCode TrigEFHLTRazorAllTE::hltInitialize()
+HLT::ErrorCode TrigEFRazorAllTE::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  ATH_MSG_VERBOSE("in initialize()");
+  ATH_MSG_INFO("in initialize()");
 
   // Initialize timing service
   //------------------------------
@@ -100,13 +100,12 @@ HLT::ErrorCode TrigEFHLTRazorAllTE::hltInitialize()
     ATH_MSG_WARNING(name() << ": Unable to locate TrigTimer Service");
   }
   if (m_timersvc) {
-    TrigTimer* tmp = m_timersvc->addItem("TrigEFHLTRazorAllTE.TrigEFHLTRazorAllTETot");
+    TrigTimer* tmp = m_timersvc->addItem("TrigEFRazorAllTE.TrigEFRazorAllTETot");
     m_timers.push_back(tmp);
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Initialization:");
-    ATH_MSG_DEBUG("RazorCut: " << m_RazorCut);
+    ATH_MSG_INFO("Initialization: RazorCut: " << m_RazorCut);
   }  
 
   m_accepted=0;
@@ -117,22 +116,22 @@ HLT::ErrorCode TrigEFHLTRazorAllTE::hltInitialize()
 }
 
 // ----------------------------------------------------------------------
-HLT::ErrorCode TrigEFHLTRazorAllTE::hltFinalize(){
+HLT::ErrorCode TrigEFRazorAllTE::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  ATH_MSG_VERBOSE("in finalize()");
-  ATH_MSG_VERBOSE("Events accepted/rejected/errors:  "
+  ATH_MSG_INFO("in finalize()");
+  ATH_MSG_INFO("Events accepted/rejected/errors:  "
                << m_accepted <<" / "<<m_rejected<< " / "<< m_errors);
   return HLT::OK;
 }
 
 // ----------------------------------------------------------------------
-HLT::ErrorCode TrigEFHLTRazorAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
+HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
              unsigned int output){
   // ----------------------------------------------------------------------
 
 
-  // Time total TrigEFHLTRazorAllTE execution time.
+  // Time total TrigEFRazorAllTE execution time.
   // -------------------------------------
   if (m_timersvc) m_timers[0]->start();
 
@@ -415,7 +414,7 @@ HLT::ErrorCode TrigEFHLTRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trig
 
   
 
-  // Time total TrigEFHLTRazorAllTE execution time.
+  // Time total TrigEFRazorAllTE execution time.
   // -------------------------------------
 
   if (m_timersvc) m_timers[0]->stop();

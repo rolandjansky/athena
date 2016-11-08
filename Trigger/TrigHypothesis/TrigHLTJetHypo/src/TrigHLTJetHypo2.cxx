@@ -18,20 +18,13 @@
 #include <memory>
 #include <limits>
 //
-#include "GaudiKernel/MsgStream.h"
+// #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-// #include "GaudiKernel/ListItem.h"
-
-// #include "TrigSteeringEvent/Enums.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypo2.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
 
-// #include "JetUtils/JetCaloQualityUtils.h"
-// #include "CLHEP/Units/SystemOfUnits.h"
-
-//#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
@@ -51,11 +44,8 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 
-// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/make_unique.h"
-
-// #include <memory>
-
 #include <map>
+#include <fstream> // debugging
 
 enum class HypoStrategy{EtaEt, HT, TLA, DijetMassDEta};
 
@@ -185,7 +175,7 @@ HLT::ErrorCode TrigHLTJetHypo2::hltInitialize()
   }
 
 
-  // mawk and store the jet cleaner
+  // make and store the jet cleaner
   setCleaner();
 
   if (!checkStrategy(strategy)){
@@ -232,17 +222,17 @@ HLT::ErrorCode TrigHLTJetHypo2::hltFinalize(){
                << m_accepted  << " / " << m_rejected << " / "<< m_errors);
 
 
+  /*
   double sd = 0;
   if (m_nCalls > 0 ){
     sd = std::sqrt( (m_chainTimeSquareAv - m_chainTimeAv)/m_chainTimeAv);
   }
-   
+  */
+
   ATH_MSG_INFO("Chain "
                << m_chainName
                <<" TrigHLTHelper duration (us) "
                << m_chainTimeAv
-               <<" +- "
-               << sd
                << " "
                << m_nCalls);
   
@@ -363,7 +353,10 @@ HLT::ErrorCode TrigHLTJetHypo2::checkJets(const xAOD::JetContainer* outJets){
      monitorLeadingJet(*leading_jet);
    }
 
-   writeDebug(pass, helper.passedJets(), helper.failedJets(), helper);
+   if(m_dumpJets){
+     writeDebug(pass, helper.passedJets(), helper.failedJets());
+   }
+
    bumpCounters(pass, helper.passedJets().size());
  }
 
@@ -388,46 +381,52 @@ void TrigHLTJetHypo2::monitorLeadingJet(const xAOD::Jet* jet){
 
 void 
  TrigHLTJetHypo2::writeDebug(bool pass,
-                            const HypoJetVector& passedJets,
-                            const HypoJetVector& failedJets,
-                             const TrigHLTJetHypoHelper& helper
+                             const HypoJetVector& passedJets,
+                             const HypoJetVector& failedJets
                              ) const{
-    ATH_MSG_VERBOSE("Writing debug start" << name() << "...");
-
-    if(pass){ATH_MSG_VERBOSE("Event accepted");}
-    else { ATH_MSG_VERBOSE("Event rejected");}
-
-    ATH_MSG_VERBOSE("passing jets: ");
-    for (auto j :  passedJets) {
-      auto p4 = j->p4();
-      ATH_MSG_VERBOSE("Et: " 
-                   << p4.Et() 
-                   << " eta " 
-                   << j->eta() 
-                   << " px "
-                   << p4.Px()
-                   << " py "
-                   << p4.Py()
-                   << " pz "
-                   << p4.Pz()
-                   << " E "
-                   << p4.E());
-    }
-
-   ATH_MSG_DEBUG("failed or unused jets: ");
-   for (auto j : failedJets)
-     {
-       ATH_MSG_DEBUG(j->p4().Et() << " " << j -> eta());
-     }
-   
-   ATH_MSG_DEBUG("conditions: ");
-   for (auto c : helper.getConditions()) {
-     ATH_MSG_DEBUG(c.toString());
-   }
-   ATH_MSG_DEBUG("Writing debug end" << name() << "...");
-
+  ATH_MSG_INFO("Writing debug start" << name() << "...");
+  
+  if(pass){
+    std::cout<<name()<< " event passed \n";
+  } else {
+    std::cout<<name()<< " event failed \n";
   }
 
+  for (auto j :  passedJets) {
+    auto p4 = j->p4();
+    std::cout<<"\nHYPODUMP passed TrigHLTJetHypo2 Et: " 
+             << p4.Et() 
+             << " eta " 
+             << j->eta() 
+             << " px "
+             << p4.Px()
+             << " py "
+             << p4.Py()
+             << " pz "
+             << p4.Pz()
+             << " E "
+             << p4.E()
+             << '\n';
+  }
+  
+  for (auto j :  failedJets) {
+    auto p4 = j->p4();
+    std::cout<<"\nHYPODUMP failed TrigHLTJetHypo2 Et: " 
+             << p4.Et() 
+             << " eta " 
+             << j->eta() 
+             << " px "
+             << p4.Px()
+             << " py "
+             << p4.Py()
+             << " pz "
+             << p4.Pz()
+             << " E "
+             << p4.E()
+               << '\n';
+  }
+  
+}
 
 HLT::ErrorCode
 TrigHLTJetHypo2::markAndStorePassingJets(const TrigHLTJetHypoHelper& helper,
@@ -644,6 +643,7 @@ bool TrigHLTJetHypo2::setTLAConditions(){
 
 std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
                                     const std::vector<double>& etThresholds){
+  // Emulate the python code setup by TM
   for (auto dEta : dEtas){
     if (dEta > 0.) {
       auto etThreshold = 
@@ -651,28 +651,36 @@ std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
                  *std::min_element(etThresholds.cbegin(), 
                                    etThresholds.cend()));
 
+      // The TM python code chooses the Alg class corresponding
+      // to the etThreshold. This class sets the threshold.
+      // It is not clear what happened if the class did not exist - 
+      // probably a crash. Here we let any threshold be  used (ie
+      // no crash on an unknown threshold)
       return std::vector<double> {etThreshold, etThreshold};
     }
   }
 
+  // For invariant mass hypos without dEta cuts
   return std::vector<double> {0., 0.};
 }
 
 bool TrigHLTJetHypo2::setDijetMassDEtaConditions(){
   // emulate old behaviour of TriggerMenu to set the min Et for the jets.
-
+  // These limits are being set in the C++ code to discourage
+  // firther changes. A new hypo strategy is under development to replce this
+  // one.
   auto dmax = std::numeric_limits<double>::max();
 
   std::vector<double> etaMins {0., 0.};  // default from the run 1 hypo
-  std::vector<double> etaMaxs {dmax, dmax};
+  std::vector<double> etaMaxs {dmax, dmax}; // C++ default from Run 1
   std::vector<double> etThresholds = getEtThresholds(m_dEtaMins, 
                                                      m_EtThresholds);
-  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions dEtamins:");
-  for(auto em : m_dEtaMins){ATH_MSG_VERBOSE(em);}
-  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions m_EtThresholds:");
-  for(auto et : m_EtThresholds){ATH_MSG_VERBOSE(et);}
-  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions etThresholds:");
-  for(auto et : etThresholds){ATH_MSG_VERBOSE(et);}
+  ATH_MSG_DEBUG("in setDijetMassDEtaConditions dEtamins:");
+  for(auto em : m_dEtaMins){ATH_MSG_DEBUG(em);}
+  ATH_MSG_DEBUG("in setDijetMassDEtaConditions m_EtThresholds:");
+  for(auto et : m_EtThresholds){ATH_MSG_DEBUG(et);}
+  ATH_MSG_DEBUG("in setDijetMassDEtaConditions etThresholds:");
+  for(auto et : etThresholds){ATH_MSG_DEBUG(et);}
 
 
   m_conditions = conditionsFactoryDijetEtaMass(etaMins, etaMaxs,
@@ -686,10 +694,15 @@ bool TrigHLTJetHypo2::setDijetMassDEtaConditions(){
 
 
 bool TrigHLTJetHypo2::setHTConditions(){
-  m_conditions = conditionsFactoryHT(m_etaMins[0], 
-                                     m_etaMaxs[0], 
-                                     m_EtThresholds[0], 
-                                     m_htMin);
+  // treat the kinematic cut applied to each jet as a cleaner.
+  // Wether these arre handled as a cleaner, or in the condition is
+  // aribtrary, but handling them with a cleaner makes debugging easier.
+  m_cleaners.push_back(makeEtaEtCleaner(m_etaMins[0], 
+                                        m_etaMaxs[0], 
+                                        m_EtThresholds[0],
+                                        std::numeric_limits<double>::max()));
+
+  m_conditions = conditionsFactoryHT(m_htMin);
 
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
@@ -730,19 +743,19 @@ void  TrigHLTJetHypo2::accumulateTime(nanoseconds duration) noexcept{
 
   auto dtime = duration_cast<microseconds>(duration);
   auto counts = dtime.count();
-  auto countssq = counts*counts;
+  //  countssq = counts*counts;
 
   if (m_nCalls == 0){
     m_nCalls = 1;
     m_chainTimeAv = counts;
-    m_chainTimeSquareAv = countssq;
+    // m_chainTimeSquareAv = countssq;
     return;
   }
   
   m_nCalls += 1;
   m_chainTimeAv = (m_chainTimeAv * (m_nCalls - 1) +  counts)/m_nCalls;
-  m_chainTimeSquareAv += 
-    (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
+  //m_chainTimeSquareAv += 
+  //  (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
 }
 
   
