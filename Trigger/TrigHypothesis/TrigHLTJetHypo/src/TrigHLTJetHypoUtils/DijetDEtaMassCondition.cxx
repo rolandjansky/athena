@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <TLorentzVector.h>
 #include <limits>
-#include <iostream>
+// #include <iostream>
 DijetDEtaMassCondition::DijetDEtaMassCondition(const std::vector<double>& etaMins,
                                                const std::vector<double>& etaMaxs,
                                                const std::vector<double>& etThresholds,
@@ -78,11 +78,12 @@ bool DijetDEtaMassCondition::passCuts(pHypoJet j0, pHypoJet j1) const {
   auto mass = (p4_0 + p4_1).M();
   auto dEta = std::abs(eta0 -eta1);
 
-  eta0 = std::abs(eta0);
-  eta1 = std::abs(eta1);
+  auto absEta0 = std::abs(eta0);
+  auto absEta1 = std::abs(eta1);
  
-  /*   
-  auto result =  test(et0, et1, eta0, eta1, dEta, mass);
+
+  /*
+  auto result =  test(et0, et1, absEta0, absEta1, dEta, mass);
   std::cout << "DijetDEtaMassCondition : " << std::boolalpha << result << '\n'
             << std::setprecision(3) << std::scientific 
             << "jet 0 et " << m_etMin0 << " " << et0 << '\n'
@@ -94,21 +95,22 @@ bool DijetDEtaMassCondition::passCuts(pHypoJet j0, pHypoJet j1) const {
 
   return result;
   */
-  return test(et0, et1, eta0, eta1, dEta, mass);
+  return test(et0, et1, absEta0, absEta1, dEta, mass);
+
 }
  
  bool DijetDEtaMassCondition::test(double et0, double et1, 
-                                   double eta0, double eta1, 
+                                   double abseta0, double abseta1, 
                                    double dEta, 
                                    double mass) const noexcept {
    return m_etMin0 <= et0 and
      m_etMin1 <= et1 and
      
-     m_etaMin0 <= eta0 and
-     m_etaMin1 <= eta1 and
+     m_etaMin0 <= abseta0 and
+     m_etaMin1 <= abseta1 and
      
-     m_etaMax0 > eta0 and
-     m_etaMax1 > eta1 and
+     m_etaMax0 > abseta0 and
+     m_etaMax1 > abseta1 and
      
      m_dEtaMin <= dEta and
      m_dEtaMax > dEta and

@@ -26,7 +26,7 @@ namespace HypoJet{
 
 class HTCondition: public ICondition{
  public:
-  HTCondition(double etaMin, double etaMax, double etMni, double htMin);
+  HTCondition(double htMin);
   ~HTCondition() override {}
 
   bool isSatisfied(const HypoJetVector&) const override;
@@ -39,9 +39,6 @@ class HTCondition: public ICondition{
 
   bool isSatisfied(const pHypoJet&) const;
 
-  double m_etaMin;
-  double m_etaMax;
-  double m_etMin;
   double m_htMin;
 };
 

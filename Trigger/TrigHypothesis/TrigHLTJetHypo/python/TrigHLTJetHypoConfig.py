@@ -9,31 +9,12 @@ from JetCleanMonitoring import JetChainsToKeepMonitoring
 from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
 # from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
 
-from TrigHLTJetHypo.TrigHLTJetHypoMonitoring import (
-    TrigHLTJetHypoValidationMonitoring,
-    TrigHLTJetHypoOnlineMonitoring,
-    TrigHLTJetHypoCosmicMonitoring)
-
 from TrigHLTJetHypo.TrigHLTJetHypo2Monitoring import (
     TrigHLTJetHypo2ValidationMonitoring,
     TrigHLTJetHypo2OnlineMonitoring,
     TrigHLTJetHypo2CosmicMonitoring)
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-
-class TrigHLTJetHypo (TrigHLTJetHypoConf.TrigHLTJetHypo):
-    __slots__ = []
-    def __init__(self, name, **kwargs):
-        super( TrigHLTJetHypo, self ).__init__( name, **kwargs )
-        
-        validation = TrigHLTJetHypoValidationMonitoring()
-        online = TrigHLTJetHypoOnlineMonitoring()
-        cosmic = TrigHLTJetHypoCosmicMonitoring()
-        
-        time = TrigTimeHistToolConfig("HLTJetHypo_Time")
-        
-        self.AthenaMonTools = [ time, validation, online, cosmic ]
-
 
 
 class TrigHLTJetHypo2 (TrigHLTJetHypoConf.TrigHLTJetHypo2):

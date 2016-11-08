@@ -10,6 +10,7 @@
 
 class IJetGrouper{
   public:
+  virtual ~IJetGrouper(){}
   virtual HypoJetGroupVector group(HypoJetIter&,
                                    HypoJetIter&) const = 0;
   virtual std::string toString() const = 0; 

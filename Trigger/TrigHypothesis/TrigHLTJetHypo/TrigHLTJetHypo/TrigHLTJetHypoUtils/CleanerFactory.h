@@ -19,8 +19,18 @@
 #include <memory>
 #include <string>
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
+
+// Jet selector rather than traditional cleaner. Uses the Cleaner interface
+std::shared_ptr<ICleaner> makeEtaEtCleaner(double etaMin,
+                                           double etaMax,
+                                           double etMin,
+                                           double etMax);
+
 class CleanerFactory{
  public:
+  // This strange constructor allows the Algorithm, which 
+  // itself is initialezed with all possible cleaning variables
+  // to push the creation of any standard Cleaner into this Factory class.
   CleanerFactory (double, 
 		  double, 
 		  double,

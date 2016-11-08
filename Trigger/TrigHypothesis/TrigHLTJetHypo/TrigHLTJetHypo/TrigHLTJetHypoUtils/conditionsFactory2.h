@@ -20,7 +20,8 @@
 
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etasMin,
                                   const std::vector<double>& etasMax,
-                                  const std::vector<double>& thresholds);
+                                  const std::vector<double>& thresholds,
+                                  const std::vector<int>& asymmetricEtas);
 
 // for conditionsFactory2
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etasMin,
@@ -47,10 +48,8 @@ Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,
                                 const std::vector<double>& massesMin,
                                 const std::vector<double>& massesMax);
 
-Conditions conditionsFactoryHT(double etaMin,
-                               double etaMax,
-                               double etMin,
-                               double htMin);
+Conditions conditionsFactoryHT(double htMin);
+
 
 
 #endif

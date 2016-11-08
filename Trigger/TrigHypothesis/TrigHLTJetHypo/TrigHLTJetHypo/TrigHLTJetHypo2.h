@@ -21,10 +21,13 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include <memory>
+#include <chrono>
 
 class TriggerElement;
 class TrigHLTJetHypoHelper;
 enum class HypoStrategy;
+
+using namespace std::chrono;
 
 class TrigHLTJetHypo2 : public HLT::HypoAlgo {
 
@@ -62,8 +65,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   void monitorLeadingJet(const xAOD::Jet* jet);
   void writeDebug(bool,
                   const HypoJetVector&,
-                  const HypoJetVector&,
-		  const TrigHLTJetHypoHelper&) const;
+                  const HypoJetVector&) const;
 
   HLT::ErrorCode 
     markAndStorePassingJets(const TrigHLTJetHypoHelper&,
@@ -71,6 +73,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
                             const HLT::TriggerElement*);
   void resetCounters();
 
+  void accumulateTime(nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
   // vectors with Et thresholds, eta nins and eta maxs
@@ -78,6 +81,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   std::vector<double> m_EtThresholds;
   std::vector<double> m_etaMins;
   std::vector<double> m_etaMaxs;
+  std::vector<int> m_asymmetricEtas;
 
   // vector of indices find ofssets into the jet vector,
   // and other Condition variables used for TLA style hypos.
@@ -166,5 +170,12 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   ITrigTimerSvc*            m_timersvc;
   std::vector<TrigTimer*>   m_timers;
 
+ // local code fragment timing
+
+  double m_chainTimeAv{0.}; //std::chrono
+  // double m_chainTimeSquareAv{0.}; //std::chrono
+  unsigned int m_nCalls{0};
+
+  bool m_dumpJets{false};
 };
 #endif

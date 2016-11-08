@@ -21,8 +21,8 @@
 
 class IMatcherFactory{
  public:
+  virtual ~IMatcherFactory(){}
   virtual  std::shared_ptr<IMatcher> make() const =0;
-  virtual  ~IMatcherFactory(){};
 };
 
 #endif
