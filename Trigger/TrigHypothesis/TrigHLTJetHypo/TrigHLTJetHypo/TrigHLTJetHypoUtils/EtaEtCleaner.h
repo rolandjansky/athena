@@ -22,21 +22,22 @@
 class EtaEtCleaner: public ICleaner{
   /* select jets that fail the run 1 cleaning cuts */
 public:
-  EtaEtCleaner(float etaMin,
-               float etaMax,
-               float etMin,
-               float etMax);
+  EtaEtCleaner(double etaMin,
+               double etaMax,
+               double etMin,
+               double etMax);
 
   ~EtaEtCleaner(){}
   
   bool operator()(const pHypoJet&) const override;
+  std::string toString() const noexcept override;
   std::string getName() const noexcept override;
 
  private:
-  float m_etaMin;
-  float m_etaMax;
-  float m_etMin;
-  float m_etMax;
+  double m_etaMin;
+  double m_etaMax;
+  double m_etMin;
+  double m_etMax;
 };
 
 #endif

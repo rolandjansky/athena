@@ -25,6 +25,7 @@
 class IGroupsMatcher{
  public:
 // Abstract interface used by a factory function
+  virtual ~IGroupsMatcher(){}
   virtual void match(const HypoJetGroupCIter&, const HypoJetGroupCIter&) = 0;
   virtual bool pass() const = 0;
   virtual HypoJetVector passedJets() const noexcept = 0;
