@@ -40,12 +40,6 @@ AthenaPoolTestMapData::AthenaPoolTestMapData (const std::vector<Deposit>& deposi
     m_deposits = deposits;
 }
 
-AthenaPoolTestMapData::AthenaPoolTestMapData (const AthenaPoolTestMapData& other)
-    :m_word(other.m_word),
-     m_deposits(other.m_deposits)
-{}
-
-
 AthenaPoolTestMapData::~AthenaPoolTestMapData()
 {
     //    delete[] m_p_deposits;

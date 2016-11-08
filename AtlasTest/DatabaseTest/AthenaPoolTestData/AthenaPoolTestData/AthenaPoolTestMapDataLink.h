@@ -41,7 +41,6 @@ public:
     AthenaPoolTestMapDataLink();
     AthenaPoolTestMapDataLink(index_type barCode, index_type eventIndex = 0);
     AthenaPoolTestMapDataLink(const MyDummyClass* p, index_type eventIndex = 0);
-    AthenaPoolTestMapDataLink(const AthenaPoolTestMapDataLink& rhs);
     //@}
   
     /// \name indexing accessors (e.g. for writing)
@@ -56,7 +55,6 @@ public:
     public:
 	ExtendedBarCode();
 	ExtendedBarCode(index_type barcode, index_type eventIndex);
-	ExtendedBarCode(const ExtendedBarCode& rhs);
 
 	unsigned long  barcode() const;
 	unsigned short eventIndex() const;
@@ -78,9 +76,6 @@ inline AthenaPoolTestMapDataLink::ExtendedBarCode::ExtendedBarCode(index_type ba
 {
     assert(eventIndex < std::numeric_limits<unsigned short>::max()); 
 }
-
-inline AthenaPoolTestMapDataLink::ExtendedBarCode::ExtendedBarCode(const ExtendedBarCode& rhs) :
-    m_BC(rhs.m_BC), m_evtIndex(rhs.m_evtIndex) {}
 
 inline unsigned long \
 AthenaPoolTestMapDataLink::ExtendedBarCode::barcode() const
@@ -104,11 +99,6 @@ AthenaPoolTestMapDataLink::AthenaPoolTestMapDataLink(index_type barCode, index_t
 inline
 AthenaPoolTestMapDataLink::AthenaPoolTestMapDataLink(const MyDummyClass* /*p*/, index_type eventIndex) :
     m_particle(0), m_extBarcode(0, eventIndex) {}
-
-inline
-AthenaPoolTestMapDataLink::AthenaPoolTestMapDataLink(const AthenaPoolTestMapDataLink& rhs) : 
-    m_particle(rhs.m_particle),
-    m_extBarcode(rhs.m_extBarcode) {}
 
 inline int 
 AthenaPoolTestMapDataLink::barcode() const 

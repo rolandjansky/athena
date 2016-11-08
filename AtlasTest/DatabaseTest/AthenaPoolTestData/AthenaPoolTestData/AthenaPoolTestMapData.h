@@ -39,7 +39,6 @@ public:
 
     AthenaPoolTestMapData();
     AthenaPoolTestMapData (const std::vector< Deposit >& deposits, int simDataWord = 0);
-    AthenaPoolTestMapData (const AthenaPoolTestMapData& other);
     virtual ~AthenaPoolTestMapData();
 
     int word() const;                           // Get the packed simdata word
