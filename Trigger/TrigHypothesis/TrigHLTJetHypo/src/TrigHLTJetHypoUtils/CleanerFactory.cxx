@@ -25,8 +25,21 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/LlpCleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AntiLlpCleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/NullCleaner.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCleaner.h"
 
 using pIC = std::shared_ptr<ICleaner>;
+
+std::shared_ptr<ICleaner> makeEtaEtCleaner(double etaMin,
+                                           double etaMax,
+                                           double etMin,
+                                           double etMax){
+
+   return std::shared_ptr<ICleaner> (new EtaEtCleaner(etaMin,
+                                                      etaMax,
+                                                      etMin,
+                                                      etMax));
+}
+
 
 CleanerFactory::CleanerFactory(//basic cleaning
 			       double n90Threshold,

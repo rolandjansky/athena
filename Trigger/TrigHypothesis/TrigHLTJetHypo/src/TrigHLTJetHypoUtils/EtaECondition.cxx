@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaECondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 
 #include <sstream>
@@ -10,34 +10,34 @@
 #include <TLorentzVector.h>
 
 
-EtaEtCondition::EtaEtCondition(double etaMin, double etaMax, double threshold): 
+EtaECondition::EtaECondition(double etaMin, double etaMax, double threshold): 
   m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){}
 
 
-bool EtaEtCondition::isSatisfied(const pHypoJet& ip) const {
+bool EtaECondition::isSatisfied(const pHypoJet& ip) const {
   auto abseta = std::abs(ip->eta());
-  auto et = ip->et();
+  auto e = ip->e();
   return 
     m_etaMin <= abseta and
     m_etaMax > abseta and
-    m_threshold <= et;
+    m_threshold <= e;
 }
 
 
 bool 
-EtaEtCondition::isSatisfied(const HypoJetVector& ips) 
+EtaECondition::isSatisfied(const HypoJetVector& ips) 
   const {
   return isSatisfied(ips[0]);
 }
 
 
-std::string EtaEtCondition::toString() const noexcept {
+std::string EtaECondition::toString() const noexcept {
   std::stringstream ss;
-  ss << "Eta Et Condition: etaMin "
+  ss << "Eta E Condition: etaMin "
      <<  m_etaMin 
      << " etaMax " 
      << m_etaMax 
-     << " Et threshold: " 
+     << " E threshold: " 
      << m_threshold
      <<'\n';
 
@@ -45,4 +45,4 @@ std::string EtaEtCondition::toString() const noexcept {
 }
 
 
-double EtaEtCondition::orderingParameter() const noexcept {return m_threshold;}
+double EtaECondition::orderingParameter() const noexcept {return m_threshold;}

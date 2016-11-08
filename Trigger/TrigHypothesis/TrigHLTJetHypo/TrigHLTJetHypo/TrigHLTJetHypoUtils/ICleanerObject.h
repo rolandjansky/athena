@@ -2,28 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_ICLEANER_H
-#define TRIGHLTJETHYPO_ICLEANER_H
+#ifndef TRIGHLTJETHYPO_ICLEANEROBJECT_H
+#define TRIGHLTJETHYPO_ICLEANEROBJECT_H
+
 /********************************************************************
  *
- * NAME:     ICleaner.h
+ * NAME:     ICleanerObject.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
- * CREATED:  March 21, 2015
+ * CREATED:  October 13, 2016
  *           
  *
- *  Headers file for visible classes used by TrigHLTJEtHypo
  *********************************************************************/
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <string>
 
-class ICleaner{
+// returns a pair of constant iters into a jet collection given a pair of constant iters
+
+class ICleanerObject{
  public:
-  // Abstract interface used by a factory function
-  virtual ~ICleaner(){}
-  virtual bool operator()(const pHypoJet&) const = 0;
+  virtual ~ICleanerObject(){}
+  virtual pairHypoJetIter operator()(const pairHypoJetIter&) const = 0;
   virtual std::string toString() const noexcept = 0;
   virtual std::string getName() const noexcept= 0;
 };
