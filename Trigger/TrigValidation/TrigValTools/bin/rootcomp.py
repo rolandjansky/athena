@@ -23,9 +23,7 @@ __doc__     = "Script to compare the histograms in two root files"
 
 import sys
 import os
-
-
-
+import os.path
 
 def lsroot(dir):
    """Return list of all keys in 'dir' (recursively)"""
@@ -177,7 +175,6 @@ def main():
    
    if opts.atnMode and len(args)==1:
       from TrigValTools.Utils import getPreviousNightlyPath
-      import os.path
       for i in range(1,7):
          refFile = getPreviousNightlyPath(i) + "/" + args[0]
          if os.path.isfile(refFile): break
@@ -315,7 +312,6 @@ def main():
       result  = 255
 
    if opts.html:
-      import os
       os.system("root2html.py *.root")
    
 
