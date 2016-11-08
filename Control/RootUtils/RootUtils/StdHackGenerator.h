@@ -108,7 +108,7 @@ public:
    * @param typeinfo The @c type_info of the class to find.
    * @param load If true, enable autoloading.
    */
-  virtual TClass *GetClass(const type_info& typeinfo, Bool_t load);
+  virtual TClass *GetClass(const std::type_info& typeinfo, Bool_t load);
 
 
   /**
@@ -128,7 +128,7 @@ public:
    * @param load If true, enable autoloading.
    * @param silent If true, suppress messages.
    */
-  virtual TClass *GetClass(const type_info& typeinfo,
+  virtual TClass *GetClass(const std::type_info& typeinfo,
                            Bool_t load,
                            Bool_t silent);
 
