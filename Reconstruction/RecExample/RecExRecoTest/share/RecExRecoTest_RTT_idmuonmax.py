@@ -16,10 +16,23 @@ rec.doInDet=True
 rec.doMuon=True
 rec.doCalo=False
 
+# If Calo is off, this needs to be off too.
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+muonCombinedRecFlags.doCaloTrkMuId = False
+
+from IsolationAlgs.IsoGetter import isoGetter
+isoGetter (disable=True)
+
+from RecExConfig.RecAlgsFlags import recAlgs
+recAlgs.doTrackParticleCellAssociation = False
 
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+from TrkMaterialProvider import TrkMaterialProviderConf
+trkMaterialProviderTool=TrkMaterialProviderConf.Trk__TrkMaterialProviderTool('TrkMaterialProviderTool', UseCaloEnergyMeasurement=False)
+ToolSvc += trkMaterialProviderTool
 
 
 include ("RecExRecoTest/RecExRecoTest_RTT_common_postOptions.py")

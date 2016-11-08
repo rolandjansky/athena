@@ -17,6 +17,8 @@ rec.doInDet=False
 rec.doMuon=False
 rec.doCalo=True
 
+# If tracking is off, this also needs to be off.
+rec.doEgamma = False
 
 
 # main jobOption
