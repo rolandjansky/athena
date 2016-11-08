@@ -70,6 +70,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     efidclasses = [ "PixelClustering","SCTClustering", "TRTDriftCircleMaker",
                     "InDetTrigPRD_MultiTruthMaker", 
                     "SiTrigSpacePointFinder", "SiTrigTrackFinder", "TrigAmbiguitySolver",
+                    "SiTrigSimpleTrackFinder",
                     "TRTTrackExtAlg", "TrigExtProcessor",
                     "InDetTrigTrackSlimmer",  "InDetTrigTrackingxAODCnv",
                     "InDetTrigDetailedTrackTruthMaker",
@@ -218,6 +219,12 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       algos += [("TrigFastTrackFinder",ftfname),
                 ("InDetTrigTrackingxAODCnv",cnvname),
                 ]
+
+      if self.__signature__=="fullScan":
+        algos += [("TrigVxPrimary","")]
+        if vertexXAODCnvNeeded(): 
+          algos += [("InDetTrigVertexxAODCnv","")]
+
       if sequenceFlavour=="2step" and self.__signature__=="bjet":
         algos += [("TrigVxPrimary","")]
         if vertexXAODCnvNeeded(): 
@@ -270,6 +277,14 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     elif sequenceType=="TRTdata":
       algos = [("IDTrigRoiUpdater", "IDTrigRoiUpdater_HIP"),
                ("TRTDriftCircleMaker",""),]
+      fullseq.append(algos)
+
+    elif sequenceType=="FastEFID":
+      algos = [("IDTrigRoiUpdater", roiupdater)]
+      algos += dataprep
+      algos += [("SiTrigSimpleTrackFinder",""),
+                ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_EFID"),
+                ]
       fullseq.append(algos)
 
     else:
