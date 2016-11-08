@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileMerger.h 784654 2016-11-16 17:17:32Z krasznaa $
+// $Id: TFileMerger.h 676314 2015-06-18 12:07:05Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TFILEMERGER_H
 #define XAODROOTACCESS_TOOLS_TFILEMERGER_H
 
@@ -13,7 +13,6 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <memory>
 
 // ROOT include(s):
 #include <TObject.h>
@@ -41,8 +40,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 784654 $
-   /// $Date: 2016-11-16 18:17:32 +0100 (Wed, 16 Nov 2016) $
+   /// $Revision: 676314 $
+   /// $Date: 2015-06-18 14:07:05 +0200 (Thu, 18 Jun 2015) $
    ///
    class TFileMerger : public ::TObject {
 
@@ -124,7 +123,7 @@ namespace xAOD {
       std::set< std::string > m_treesToSkip;
 
       /// Helper objects for merging the xAOD Tree(s) from the input file(s)
-      std::map< std::string, std::unique_ptr< TEvent > > m_events;
+      std::map< std::string, TEvent > m_events;
       /// Helper in-memory files used during fast merging
       std::vector< ::TFile* > m_helperFiles;
 

@@ -4,13 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVector.h 793778 2017-01-25 04:06:29Z ssnyder $
+// $Id: TAuxVector.h 611582 2014-08-13 12:37:37Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 
 // EDM include(s):
 #include "AthContainersInterfaces/IAuxTypeVector.h"
-#include "AthContainersInterfaces/IAuxTypeVectorFactory.h"
 
 // Forward declaration(s):
 class TClass;
@@ -32,8 +31,8 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793778 $
-   /// $Date: 2017-01-25 05:06:29 +0100 (Wed, 25 Jan 2017) $
+   /// $Revision: 611582 $
+   /// $Date: 2014-08-13 14:37:37 +0200 (Wed, 13 Aug 2014) $
    ///
    class TAuxVector : public SG::IAuxTypeVector {
 
@@ -64,13 +63,11 @@ namespace xAOD {
       virtual size_t size() const;
 
       /// Change the size of the vector
-      virtual bool resize( size_t sz );
+      virtual void resize( size_t sz );
       /// Change the capacity of the vector
       virtual void reserve( size_t sz );
       /// Shift the elements of the vector
       virtual void shift( size_t pos, ptrdiff_t offs );
-      /// Insert a range of elements via move.
-      virtual bool insertMove (size_t pos, void* beg, void* end) override;
 
       /// @}
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVectorFactory.h 793319 2017-01-21 16:21:46Z ssnyder $
+// $Id: TAuxVectorFactory.h 597965 2014-05-20 13:47:33Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793319 $
-   /// $Date: 2017-01-21 17:21:46 +0100 (Sat, 21 Jan 2017) $
+   /// $Revision: 597965 $
+   /// $Date: 2014-05-20 15:47:33 +0200 (Tue, 20 May 2014) $
    ///
    class TAuxVectorFactory : public SG::IAuxTypeVectorFactory {
 
@@ -47,9 +47,6 @@ namespace xAOD {
 
       /// Create a new vector in memory with the requested size and capacity
       virtual SG::IAuxTypeVector* create( size_t size, size_t capacity ) const;
-
-      SG::IAuxTypeVector*
-      createFromData( void* /*data*/, bool /*isPacked*/, bool ) const;
 
       /// Copy one element from one location to another
       virtual void copy( void* dst,        size_t dst_index,

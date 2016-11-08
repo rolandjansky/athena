@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.cxx 784654 2016-11-16 17:17:32Z krasznaa $
+// $Id: TEvent.cxx 778334 2016-10-13 17:31:15Z krasznaa $
 
 // System include(s):
 #include <cassert>
@@ -29,9 +29,6 @@
 #undef private
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#ifndef XAOD_STANDALONE
-#   include "SGTools/CurrentEventStore.h"
-#endif // not XAOD_STANDALONE
 
 // Interface include(s):
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
@@ -253,11 +250,6 @@ namespace xAOD {
       if( TActiveEvent::s_event == this ) {
          TActiveEvent::s_event = 0;
       }
-#ifndef XAOD_STANDALONE
-      if( SG::CurrentEventStore::store() == this ) {
-         SG::CurrentEventStore::setStore( nullptr );
-      }
-#endif // not XAOD_STANDALONE
    }
 
    /// @returns The auxiliary data access mode currently in use
@@ -361,7 +353,6 @@ namespace xAOD {
          delete itr->second;
       }
       m_inputObjects.clear();
-      m_branches.clear();
 
       // Clear the cached input meta-objects:
       itr = m_inputMetaObjects.begin();
@@ -754,10 +745,6 @@ namespace xAOD {
       // the same time, let's just do the "brutal" cast instead of writing
       // way too much for the same thing...
       TActiveEvent::s_event = ( TVirtualEvent* ) this;
-
-#ifndef XAOD_STANDALONE
-      SG::CurrentEventStore::setStore( const_cast< TEvent* >( this ) );
-#endif // not XAOD_STANDALONE
 
       // Return gracefully:
       return;
@@ -1845,8 +1832,7 @@ namespace xAOD {
                return 0;
             }
             // Let's return the object from the TStore:
-            void* result = store->getObject( key, ti );
-            return result;
+            return store->getObject( key, ti );
          } else {
             // For metadata we don't use external resources.
             return 0;
@@ -1913,8 +1899,7 @@ namespace xAOD {
       TStore* store = TActiveStore::store();
       if( store && store->contains( keyToUse, ti ) &&
           store->isConst( keyToUse, ti ) ) {
-         const void* result = store->getConstObject( keyToUse, ti );
-         return result;
+         return store->getConstObject( keyToUse, ti );
       }
 
       // A sanity check before checking for an object from the input file:
@@ -2349,7 +2334,7 @@ namespace xAOD {
       }
 
       // Make sure that the current object is the "active event":
-      setActive();
+      TActiveEvent::s_event = this;
 
       // The data type is always "other" for us:
       static const ::EDataType dataType = kOther_t;

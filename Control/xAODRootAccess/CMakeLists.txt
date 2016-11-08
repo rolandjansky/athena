@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 793778 2017-01-25 04:06:29Z ssnyder $
+# $Id: CMakeLists.txt 778972 2016-10-18 11:29:43Z krasznaa $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -6,18 +6,9 @@
 # The name of the package:
 atlas_subdir( xAODRootAccess )
 
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-set( extra_libs )
-if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/SGTools )
-   set( extra_libs SGTools )
-endif()
-
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/CxxUtils
    Control/AthContainersInterfaces
    Control/AthContainers
    Event/xAOD/xAODCore
@@ -46,7 +37,7 @@ atlas_add_library( xAODRootAccess
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
-   xAODRootAccessInterfaces ${extra_libs} )
+   xAODRootAccessInterfaces )
 
 # Build a (Reflex) dictionary library:
 atlas_add_dictionary( xAODRootAccessDict
@@ -69,8 +60,7 @@ macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
-      PROPERTIES TIMEOUT 600 )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODRootAccess )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
@@ -78,9 +68,7 @@ _add_test( ut_xaodrootaccess_metadata_test )
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )
-_add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
-_add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
 _add_test( ut_xaodrootaccess_tevent_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
@@ -90,8 +78,8 @@ _add_test( ut_xaodrootaccess_tstore_test )
 
 # Run the scripted tests for the package:
 atlas_add_test( ut_xaodrootaccess_tpyevent_test
-   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
+   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py )
 atlas_add_test( ut_xaodrootaccess_tpystore_test
-   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
+   SCRIPT test/ut_xaodrootaccess_tpystore_test.py )
 atlas_add_test( ut_xaodrootaccess_transtree2_test
-   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )
+   SCRIPT test/ut_xaodrootaccess_transtree2_test.py )
