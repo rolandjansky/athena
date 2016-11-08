@@ -207,6 +207,8 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       'HLT_j55_bperf_split:key=TrigFastTrackFinder_Jet:roi=forID',
       #
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi',
+      'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx',
+      'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoVtx',
       #
       'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
       'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',

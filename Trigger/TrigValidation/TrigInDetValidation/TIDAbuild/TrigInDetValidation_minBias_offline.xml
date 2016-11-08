@@ -31,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-minBias.root data-minBias.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -46,7 +46,7 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias-reference.root</auxFilePattern>
+	    <auxFilePattern>data-minBias_offline-reference.root</auxFilePattern>
 
             <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"

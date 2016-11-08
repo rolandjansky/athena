@@ -1,3 +1,4 @@
+
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu40'>
            <doc>ttbar, pu40, run2 chains</doc>
            <displayName>ttbar pu40, run2 chains</displayName>
@@ -92,7 +93,7 @@
 	   
 
            <auxFilePattern>data-el_ttbar_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu40-ref.root</auxFilePattern>
+           <auxFilePattern>expert-monitoring-el_ttbar_pu40-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
