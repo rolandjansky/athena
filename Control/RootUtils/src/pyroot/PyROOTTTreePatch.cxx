@@ -370,7 +370,7 @@ void checkEnable (TBranch* branch)
     }
 
     Long64_t local_entry = tree->LoadTree (entry);
-    branch->GetEntry (local_entry);
+    (void)branch->GetEntry (local_entry);
   }
 }
 

@@ -281,7 +281,7 @@ TClass* StdHackGenerator::GetClass (const char* classname,
  * @param load If true, enable autoloading.
  * @param silent If true, suppress messages.
  */
-TClass* StdHackGenerator::GetClass (const type_info& typeinfo,
+TClass* StdHackGenerator::GetClass (const std::type_info& typeinfo,
                                     Bool_t load,
                                     Bool_t silent)
 {
@@ -306,7 +306,7 @@ TClass* StdHackGenerator::GetClass (const char* classname, Bool_t load)
  * @param typeinfo The @c type_info of the class to find.
  * @param load If true, enable autoloading.
  */
-TClass* StdHackGenerator::GetClass(const type_info& typeinfo, Bool_t load)
+TClass* StdHackGenerator::GetClass(const std::type_info& typeinfo, Bool_t load)
 {
   return GetClass (typeinfo, load, kFALSE);
 }
