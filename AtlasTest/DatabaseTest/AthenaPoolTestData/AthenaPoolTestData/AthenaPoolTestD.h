@@ -24,20 +24,11 @@
 #ifndef ATHENAPOOLTESTDATA_ATHENAPOOLTESTD_H
 # define ATHENAPOOLTESTDATA_ATHENAPOOLTESTD_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaPoolTestData/AthenaPoolTestC.h"
 //#include "CLHEP/Geometry/Point3D.h"
-//#include <string>
+#include <string>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class string;
 
 class AthenaPoolTestD : public AthenaPoolTestC 
 {
