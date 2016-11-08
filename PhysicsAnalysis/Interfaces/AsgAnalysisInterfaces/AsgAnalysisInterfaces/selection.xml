@@ -1,0 +1,6 @@
+<lcgdict>
+  <namespace name="CP"/>
+  <class name="CP::IPileupReweightingTool" />
+  <class name="IGoodRunsListSelectionTool" />
+  <class name="IObservableTool" />
+</lcgdict>
