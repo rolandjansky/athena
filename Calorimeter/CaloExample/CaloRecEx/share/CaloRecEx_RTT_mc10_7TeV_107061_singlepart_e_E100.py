@@ -37,9 +37,9 @@ rec.doAOD=False
 #obsolete doAODLVL1=False
 #doTruth=False
 
-rec.CBNTAthenaAware=True 
+#rec.CBNTAthenaAware=True 
 
-doTopoClusterCBNT=True
+#doTopoClusterCBNT=True
 
 # number of event to process
 jp.AthenaCommonFlags.EvtMax=-1
@@ -52,9 +52,10 @@ include ("RecExCond/RecExCommon_flags.py")
 # switch off ID and muons
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
+DetFlags.LVL1_setOff()
 
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-16-00-00'
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion='ATLAS-R1-2010-02-00-00'
 
 # include my own algorithm(s)
 # include my own algorithm
@@ -62,6 +63,8 @@ jobproperties.Global.DetDescrVersion='ATLAS-GEO-16-00-00'
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
 #print memory usage for all events (in case of memory leak crash)
 #CBNT_Audit.nEventPrintMem=999999
