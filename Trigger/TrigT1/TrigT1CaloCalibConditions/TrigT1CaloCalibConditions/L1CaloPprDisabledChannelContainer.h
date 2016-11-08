@@ -14,6 +14,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 
 #include <map>
+#include <string>
 
 /**
 *  Container of L1CaloPprDisabledChannel objects, inherit
@@ -22,8 +23,6 @@
 *
 *  @author Damien Prieur <damien.prieur@cern.ch>
 */
-
-class string;
 
 typedef std::map<unsigned int, L1CaloPprDisabledChannel> L1CaloPprDisabledChannelMap;
 
