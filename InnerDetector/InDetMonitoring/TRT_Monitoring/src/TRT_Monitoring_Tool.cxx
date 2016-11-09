@@ -506,7 +506,7 @@ StatusCode TRT_Monitoring_Tool::initialize()
       return StatusCode::FAILURE;
 
     } else {
-      msg(MSG::INFO) << "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder << endreq;
+      ATH_MSG_INFO( "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder );
     }
     /**
        if (m_condSvc_DAQ.name().empty()) {
@@ -706,12 +706,12 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 {
   ATH_MSG_VERBOSE("Booking TRT histograms");
 
-  if (newLumiBlock) ATH_MSG_VERBOSE("newLumiBlock");
-  if (newRun) ATH_MSG_VERBOSE("newRun");
+  if (newLumiBlockFlag()) ATH_MSG_VERBOSE("newLumiBlock");
+  if (newRunFlag()) ATH_MSG_VERBOSE("newRun");
 
   StatusCode sc;
   //If it is a new run check rdo and track containers.
-  if (newRun) {
+  if (newRunFlag()) {
     if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
       ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in StoreGate. Skipping TRT RDO Monitoring.");
       m_doRDOsMon = false;
@@ -731,7 +731,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 
   //Book_TRT_RDOs registers all raw data histograms
   if (m_doRDOsMon) {
-    sc = Book_TRT_RDOs(newLumiBlock, newRun);
+    sc = Book_TRT_RDOs(newLumiBlockFlag(), newRunFlag());
     if (sc == StatusCode::FAILURE) {
       ATH_MSG_ERROR("Unable to register RDO histograms");
       return sc;
@@ -740,9 +740,9 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 
   //Book_TRT_Tracks registers all tracking histograms
   if (m_doTracksMon) {
-    sc = Book_TRT_Tracks(newLumiBlock, newRun);
+    sc = Book_TRT_Tracks(newLumiBlockFlag(), newRunFlag());
     if (DoShift) {
-      sc = Book_TRT_Shift_Tracks(newLumiBlock, newRun);
+      sc = Book_TRT_Shift_Tracks(newLumiBlockFlag(), newRunFlag());
       if (sc == StatusCode::FAILURE) {
         ATH_MSG_ERROR("Unable to book trt shift tracks histograms");
       }//if sc== failure
@@ -750,12 +750,12 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
   }//if do tracks mon
 
   if (DoEfficiency) {
-    sc = Book_TRT_Efficiency (newLumiBlock, newRun);
+    sc = Book_TRT_Efficiency (newLumiBlockFlag(), newRunFlag());
     if (sc == StatusCode::FAILURE) {
       ATH_MSG_ERROR("Unable to book trt efficiency");
     }//if sc== failure
   }
-  if (newRun) {
+  if (newRunFlag()) {
     ATH_MSG_DEBUG("Begin of run");
   }
 
@@ -1199,9 +1199,9 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
         } //for (int iside=0; iside<2; iside++)
       } //else if (ibe==1)
-      m_hHitsOnTrack_Scatter[ibe]      = bookTH2F_LW(trackShift, "m_hHitsOnTrack_Scatter", "Hits per Track in Time Window in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 80, 0, 80, "Luminosity Block (mod 720)", "Number of Hits per Track in Stacks", scode);
-      m_hLLOcc_Scatter[ibe]            = bookTH2F_LW(trackShift, "m_hLLOcc_Scatter", "LL Occupancy in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 400, 0.0, 1.0, "Luminosity Block (mod 720)", "LL Occupancy in Stacks", scode);
-      m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 720)", "HL/LL Ratio in Stacks", scode);
+      m_hHitsOnTrack_Scatter[ibe]      = bookTH2F_LW(trackShift, "m_hHitsOnTrack_Scatter", "Hits per Track in Time Window in Stacks" + regionTag, 1440, -0.5, 1440 - 0.5, 80, 0, 80, "Luminosity Block (mod 1440)", "Number of Hits per Track in Stacks", scode);
+      m_hLLOcc_Scatter[ibe]            = bookTH2F_LW(trackShift, "m_hLLOcc_Scatter", "LL Occupancy in Stacks" + regionTag, 1440, -0.5, 1440 - 0.5, 400, 0.0, 1.0, "Luminosity Block (mod 1440)", "LL Occupancy in Stacks", scode);
+      m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 1440, -0.5, 1440 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 1440)", "HL/LL Ratio in Stacks", scode);
     }//if (newRun && DoShift)
 
       //ToDo: Fix this
@@ -1334,7 +1334,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 
     for (int ibe=0; ibe<2; ibe++) { //ibe=0(barrel), ibe=1(endcap)
       //Loop over stack histograms and normalize to number of events processed.
-      if (DoChips && DoExpert && endOfRun) {
+      if (DoChips && DoExpert && endOfRunFlag()) {
         for (int i=0; i<64; i++) {
           if (m_doTracksMon && DoExpert) {
             divide_LWHist(m_hHitOnTrackVsAllC[ibe][i], m_hHitAonTMapC[ibe][i], m_hHitAMapC[ibe][i]);
@@ -1382,7 +1382,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert && endOfRun
       
-      if (DoStraws && endOfRun) {
+      if (DoStraws && endOfRunFlag()) {
         if (m_doRDOsMon && m_nEvents > 0) {
           if (ibe==0) {
 	    //fix for leading edge in time window probability vs straw number(Barrel) histograms
@@ -1474,7 +1474,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoStraws && endOfRun
 
-      if (DoShift && endOfRun) {
+      if (DoShift && endOfRunFlag()) {
         if (m_doTracksMon) {
           if (ibe==0) { //barrel
             EventPhaseScale = m_hEvtPhase->GetEntries()*3.125;
@@ -1630,7 +1630,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//doTracksMon
       }//if DoShift  && isendofrun
 
-      if (DoEfficiency && endOfRun) {
+      if (DoEfficiency && endOfRunFlag()) {
         for (int iside=0; iside<2; iside++) {
           for (int i = 0; i < 32; i++) {
             for (int ibin = 0; ibin <= s_Straw_max[ibe]; ibin++) {
@@ -1656,9 +1656,9 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
     } // for (int ibe=0; ibe<2; ibe++)
   }//if the environment is not online
 
-  if (endOfLumiBlock || endOfRun) {
+  if (endOfLumiBlockFlag() || endOfRunFlag()) {
     if (DoShift) {
-      Int_t lumiblock720 = lastLumiBlock % 720;
+      Int_t lumiblock1440 = lastLumiBlock % 1440;
 
       if (m_doTracksMon) {
 
@@ -1688,16 +1688,16 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
             if (ibe==0) { // barrel
               if (evtLumiBlock > 0) {
                 float occ = (m_LLOcc[ibe][i]/evtLumiBlock)/nfill[ibe];
-                m_hLLOcc_Scatter[ibe]->Fill(lumiblock720,occ);
+                m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
                 occ = (m_LLOcc[ibe][i+32]/evtLumiBlock)/nfill[ibe];
-                m_hLLOcc_Scatter[ibe]->Fill(lumiblock720,occ);
+                m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
               }
               m_LLOcc[ibe][i]=0; m_LLOcc[ibe][i+32]=0;
 
               if (m_nTrack_B[i]) {
                 float ratio=m_HTfraconTrack_B[i]/m_nTrack_B[i];
-                m_hHightoLowRatioOnTrack_Scatter[ibe]->Fill(lumiblock720,ratio);
-                m_hHitsOnTrack_Scatter[ibe]->Fill(lumiblock720,m_LonTrack_B[i]/m_nTrack_B[i]);
+                m_hHightoLowRatioOnTrack_Scatter[ibe]->Fill(lumiblock1440,ratio);
+                m_hHitsOnTrack_Scatter[ibe]->Fill(lumiblock1440,m_LonTrack_B[i]/m_nTrack_B[i]);
               }
               m_LonTrack_B[i] = 0;
               m_HTfraconTrack_B[i] = 0;
@@ -1706,13 +1706,13 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
             } else if (ibe==1) { // endcap
               if (evtLumiBlock > 0) {
                 float occ = (m_LLOcc[ibe][i]/evtLumiBlock)/nfill[ibe];
-                m_hLLOcc_Scatter[ibe]->Fill(lumiblock720,occ);
+                m_hLLOcc_Scatter[ibe]->Fill(lumiblock1440,occ);
               }
               m_LLOcc[ibe][i]=0;
               if (m_nTrack_E[i]) {
                 float ratio=m_HTfraconTrack_E[i]/m_nTrack_E[i];
-                m_hHightoLowRatioOnTrack_Scatter[ibe]->Fill(lumiblock720,ratio);
-                m_hHitsOnTrack_Scatter[ibe]->Fill(lumiblock720,m_LonTrack_E[i]/m_nTrack_E[i]);
+                m_hHightoLowRatioOnTrack_Scatter[ibe]->Fill(lumiblock1440,ratio);
+                m_hHitsOnTrack_Scatter[ibe]->Fill(lumiblock1440,m_LonTrack_E[i]/m_nTrack_E[i]);
               }
               m_LonTrack_E[i] = 0;
               m_HTfraconTrack_E[i] = 0;
@@ -1738,7 +1738,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
     evtLumiBlock = 0;//number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
   } //if (endOfLumiBlock || endOfRun)
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_DEBUG("end of run");
   }
 
@@ -3687,6 +3687,9 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
   timestamp = thisEventsInfo->event_ID()->time_stamp();
    if(timestamp>maxtimestamp)maxtimestamp = timestamp;
 
+  int run_num; 
+  run_num = thisEventsInfo->event_ID()->run_number(); 
+  
   // get Online Luminosity 
   //double lbDur = m_lumiTool->lbDuration();      
   //double AveLum = m_lumiTool->lbAverageLuminosity();
@@ -3807,6 +3810,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 
       if(fabs(track_eta)<2. && Ba_Ec==0.){
         if((layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) InputBar = 1;//C1=true;
+        else if((run_num >= 296939) && (layer_or_wheel==0) && (phi_module>27)) InputBar = 1;
         else if(layer_or_wheel==0 /*&&C1==false*/)
           InputBar = 0;//A1= true;
         else if((layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30)))
