@@ -34,7 +34,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF    -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -47,7 +47,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
