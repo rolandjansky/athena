@@ -105,6 +105,7 @@
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.dat</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.html</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.php</keepFilePattern>

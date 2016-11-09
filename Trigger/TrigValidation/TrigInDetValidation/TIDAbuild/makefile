@@ -71,8 +71,10 @@ all: $(XMLFILE)
 
 $(FILES) : $(JOBS)
 
+#	cpp -traditional-cpp $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
+
 $(XMLFILE) : clean $(FILES) $(JOBS) $(AUXFILES)
-	cpp -traditional-cpp $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
+	cpp -traditional-cpp $(FILES) | sed 's|STAR|\*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
 	cat /tmp/_$@ | grep -v \# > $@
 	python /afs/cern.ch/user/r/rtt/public/validateXML.py $@
 
