@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStore_traits.h 644841 2015-02-06 16:30:19Z ssnyder $
+// $Id: AuxStore_traits.h 644840 2015-02-06 16:30:07Z ssnyder $
 /**
  * @file AthContainersInterfaces/AuxStore_traits.h
  * @author scott snyder <snyder@bnl.gov>, Paolo Calafiura

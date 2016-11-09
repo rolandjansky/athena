@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxTypes.h 583546 2014-02-16 01:26:00Z ssnyder $
+// $Id: AuxTypes.h 781615 2016-11-01 16:20:50Z ssnyder $
 /**
  * @file AthContainersInterfaces/AuxTypes.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,20 +20,7 @@
 
 
 #include <cstddef>
-
-// Can't do this until dictionaries are built with c++11.
-// Can't use the boost version either; genreflex mishandles it.
-#if 0
-#if __cplusplus < 201100
-# include "CxxUtils/unordered_set.h"
-namespace SG_STD_OR_SG = SG;
-#else
-# include <unordered_set>
-namespace SG_STD_OR_SG = std;
-#endif
-#endif
-
-#include "CxxUtils/unordered_set.h"
+#include <unordered_set>
 
 
 namespace SG {
@@ -42,7 +29,7 @@ namespace SG {
 typedef size_t auxid_t;
 
 /// A set of aux data identifiers.
-typedef SG::unordered_set<size_t> auxid_set_t;
+typedef std::unordered_set<size_t> auxid_set_t;
 
 /// To signal no aux data item.
 static const auxid_t null_auxid = static_cast<auxid_t> (-1);

@@ -8,7 +8,6 @@ use AtlasPolicy    AtlasPolicy-*
 use SGTools        SGTools-*        Control
 
 # Only with c++03.
-use CxxUtils       CxxUtils-*       Control
 use AtlasBoost     AtlasBoost-*     External
 
 
@@ -17,4 +16,3 @@ use TestTools      TestTools-*         AtlasTest
 
 apply_pattern UnitTest_run unit_test=AuxStore_traits
 apply_pattern UnitTest_run unit_test=AuxDataOption
-  
