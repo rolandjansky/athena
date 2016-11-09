@@ -163,6 +163,8 @@
       <Parameter pos="0" name="IsoMask" value="0"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
+      <Parameter pos="3" name="DoIsoCut" value="1"/>
+      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -178,6 +180,8 @@
       <Parameter pos="0" name="IsoMask" value="3"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
+      <Parameter pos="3" name="DoIsoCut" value="1"/>
+      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -193,6 +197,8 @@
       <Parameter pos="0" name="IsoMask" value="2"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
+      <Parameter pos="3" name="DoIsoCut" value="1"/>
+      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -368,7 +374,6 @@
       <Input name="LateMuonTobArray" value="LateMuonTobArray"/>
       <Output name="TobArrayOut" value="LMUs"/>
       <Generic name="InputWidth" value=":InputWidthMU:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortMU:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortMU:"/>
       <Generic name="nDelayedMuons" value="1"/>
     </Fixed>
@@ -958,7 +963,7 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DisambiguationInvariantMass2" name="DISAMB-30INVM-EM20his2-TAU12ab" algoId="81">
+  <DecisionAlgo type="DisambiguationInvmIncl2" name="DISAMB-30INVM-EM20his2-TAU12ab" algoId="81">
     <Fixed>
       <Input name="Tob1" value="EMshi" position="0"/>
       <Input name="Tob2" value="TAUab" position="1"/>
@@ -1167,9 +1172,9 @@
         <Bit selection="2" name="1INVM5-EM12s1-EMs6"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
-      <Generic name="InputWidth2" value=":InputWidthEM:"/>
+      <Generic name="InputWidth2" value=":OutputWidthSortEM:"/>
       <Generic name="MaxTob1" value="1"/>
-      <Generic name="MaxTob2" value=":InputWidthEM:"/>
+      <Generic name="MaxTob2" value=":OutputWidthSortEM:"/>
       <Generic name="NumResultBits" value="3"/>
     </Fixed>
     <Variable>
@@ -1554,7 +1559,7 @@
       <Output name="Results" bits="1">
         <Bit selection="0" name="LATE-MU10s1"/>
       </Output>
-      <Generic name="InputWidth" value=":OutputWidthSortMU:"/>
+      <Generic name="InputWidth" value=":NumberOfDelayedMuons:"/>
       <Generic name="MaxTob" value="1"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>

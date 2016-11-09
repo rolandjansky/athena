@@ -1708,7 +1708,7 @@
         <InternalTrigger name="BGRP9"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="247" partition="1" name="L1_LHCF" complex_deadtime="0" definition="(NIMLHCF[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="247" partition="1" name="L1_LHCF" complex_deadtime="0" definition="(NIMLHCF[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="NIMLHCF_x1" triggerthreshold="NIMLHCF"/>
         <InternalTrigger name="BGRP0"/>
@@ -6952,10 +6952,10 @@
       <Parametrization isobit="4" offset="40" slope="0" mincut="0" upperlimit="124" etamin="-49" etamax="49" priority="0"/>
       <Parametrization isobit="5" offset="30" slope="100" mincut="0" upperlimit="60" etamin="-49" etamax="49" priority="0"/>
     </Isolation>
-    <MinimumTOBPt thrtype="EM" ptmin="7" etamin="-49" etamax="49" priority="0"/>
-    <MinimumTOBPt thrtype="TAU" ptmin="12" etamin="-49" etamax="49" priority="0"/>
-    <MinimumTOBPt thrtype="JETS" window="4" ptmin="10" etamin="-49" etamax="49" priority="0"/>
-    <MinimumTOBPt thrtype="JETL" window="8" ptmin="10" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="EM" ptmin="3" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="TAU" ptmin="8" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="JETS" window="4" ptmin="5" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="JETL" window="8" ptmin="5" etamin="-49" etamax="49" priority="0"/>
   </CaloInfo>
   <MuctpiInfo name="muctpi" low_pt="1" high_pt="1" max_cand="13"/>
 </LVL1Config>
