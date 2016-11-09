@@ -230,7 +230,7 @@ namespace Trk
                                       << " pt " << param->momentum().perp();
           const Trk::MaterialEffectsBase* mat = m->materialEffectsOnTrack();
           if( mat ) msg(MSG::DEBUG) << " mat: " <<  mat->thicknessInX0();
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }
         delete m;
       }
