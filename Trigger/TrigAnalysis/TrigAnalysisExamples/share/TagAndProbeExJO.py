@@ -12,9 +12,7 @@ from glob import glob
 
 if not "InputFiles" in dir():
     #InputFiles = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/attila.AOD.pool.root" ]
-    ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/user/r/rwhite/workspace/public/tutorial/data16_13TeV.00307195.physics_Main.merge.DAOD_EGZ.f731_m1616_f731_m1662._0001.1"]
-if not "OutputFile" in dir():
-    OutputFile = "TDTExample.root"
+    ServiceMgr.EventSelector.InputCollections = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/21.0.X/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root"]
 if not "AthenaCommon.AppMgr.EvtMax" in dir():
     theApp.EvtMax=100
 
@@ -44,7 +42,7 @@ tp_electron=TagAndProbeExAlg( "TagAndProbeExAlg", Flavor="Electron",
 
 # Histogram routing
 ServiceMgr += CfgMgr.THistSvc()
-ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TriggerAnalysisTutorial.root' TYP='ROOT' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TagAndProbe.root' TYP='ROOT' OPT='RECREATE'"]
 ServiceMgr.THistSvc.OutputLevel = ERROR
 
 # Add the examples to the top algorithm sequence

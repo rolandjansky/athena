@@ -47,6 +47,8 @@ use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
 use TriggerMatchingTool          TriggerMatchingTool-*    Trigger/TrigAnalysis
 use TrigConfHLTData             TrigConfHLTData-*       Trigger/TrigConfiguration
 # for TrigMatchExamples
+# for application
+use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
 
 public
 
@@ -63,3 +65,6 @@ apply_pattern declare_joboptions files="*.py"
 private
 use AtlasROOT			        AtlasROOT-*                  External
 use TrigSteeringEvent           TrigSteeringEvent-*          Trigger/TrigEvent
+end_private
+
+application TrigAnalysisExApp TrigAnalysisExApp.cxx

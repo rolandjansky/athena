@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.h 778540 2016-10-14 15:39:47Z ssnyder $
+// $Id: TriggerAnalysisTutorial.h 780366 2016-10-25 19:13:58Z rwhite $
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 #define TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 
@@ -63,6 +63,8 @@ private:
    std::vector< std::string > m_chain_names;
    std::vector< std::string > m_cfg_chains;
    
+   // histograms
+   TH1 *h_triggerAccepts;
    // TrigDecisionTool
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 

@@ -1,50 +1,51 @@
-#DetDescrVersion="ATLAS-GEO-02-01-00" # Set your geometry here
-#ConditionsTag="COMCOND-REPC-003-00" # Set the conditions tag here; not needed for AOD 
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import ToolSvc
+## get a handle on the ServiceManager
+from AthenaCommon.AppMgr import ServiceMgr
 
-jetanalysis = True
-zeeanalysis = False
-PoolAODInput = []
+#--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+import AthenaPoolCnvSvc.ReadAthenaPool
+ 
+from glob import glob
 
-# for the jet analysis
-if jetanalysis:
-    DetDescrVersion="ATLAS-GEO-02-01-00"
-    datapath = '/afs/cern.ch/atlas/maxidisk/d36/topmix/user.RichardHawkings.0108175.topmix_Muon.AOD.v5'  # local
-    nFiles = 1 # max 15
-    for i in xrange(1,nFiles+1):
-        PoolAODInput += ['%s/user.RichardHawkings.0108175.topmix_Muon.AOD.v4._000%02i.pool.root' % (datapath, i) ]
+if not "InputFiles" in dir():
+    #InputFiles = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/attila.AOD.pool.root" ]
+    ServiceMgr.EventSelector.InputCollections = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/21.0.X/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root"]
+if not "OutputFile" in dir():
+    OutputFile = "TDTExample.root"
+if not "AthenaCommon.AppMgr.EvtMax" in dir():
+    theApp.EvtMax=100
 
-# for the zee analysis
-if zeeanalysis:
-    DetDescrVersion="ATLAS-GEO-08-00-01"
-    #datapath = 'valid1.105144.PythiaZee.recon.AOD.e380_s593_r824_tid094947'  # local
-    datapath = '/afs/cern.ch/atlas/maxidisk/d36/valid1.105144.PythiaZee.recon.AOD.e380_s593_r824_tid094947'
-    nFiles = 10 # max 10
-    for i in xrange(1,nFiles+1):
-        PoolAODInput += ['%s/AOD.094947._0000%02i.pool.root.1' % (datapath, i)]
+# Set some output limits
+ServiceMgr.MessageSvc.infoLimit = 100000
+ServiceMgr.MessageSvc.errorLimit = 10
 
+# TrigDecisionTool configuration
+from TrigAnalysisExamples import TDTAthAnalysisConfig
+#########################################################################
+#                                                                       #
+#                      Now set up the example job                       #
+#                                                                       #
+#########################################################################
+# Define sets of triggers to use
 
+HLTList=["HLT_e26_lhtight_nod0_ivarloose","HLT_e26_lhtight_nod0_iloose","HLT_e17_lhloose_nod0"] 
 
-doTrigger = False # Need to check
-EvtMax=-1 # number of event to process
+# Trigger Analysis Examples
+#
+from TrigAnalysisExamples.TrigAnalysisExamplesConf import TriggerAnalysisTutorial
 
-# include your algorithm job options here
-UserAlgs = [ "TrigAnalysisExamples/TATAlg.py" ]
+tutorial=TriggerAnalysisTutorial( "TriggerAnalysisTutorial", TriggerList=HLTList)
 
-# Output log setting; this is for the framework in general
-# You may over-ride this in your job options for your algorithm
-OutputLevel = INFO
+# Histogram routing
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TriggerAnalysisTutorial.root' TYP='ROOT' OPT='RECREATE'"]
+ServiceMgr.THistSvc.OutputLevel = ERROR
 
-# Read settings; for performance DPD set ESD to true
-readRDO = False
-readESD = False
-readAOD = True
+# Add the examples to the top algorithm sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
-# Write settings; keep all of these to false.
-# Control the writing of your own n-tuple in the alg's job options
-doCBNT = False
-doWriteESD = False
-doWriteAOD = False
-doWriteTAG = False
-
-# main jobOption - must always be included
-include ("RecExCommon/RecExCommon_topOptions.py")
+topSequence += tutorial
