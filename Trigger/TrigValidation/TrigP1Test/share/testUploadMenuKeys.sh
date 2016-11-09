@@ -88,14 +88,17 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60  >& uploadSMK1"
+cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
-echo $cmd
+echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
 
 if [ ! -f MenusKeys.txt ]
 then
     echo 'ERROR Upload of SMKey failed'
+    echo 'In ./uploadSMK.log:'
+    grep "Can't obtain write lock" uploadSMK.log
+    grep "SEVERE" uploadSMK.log
     exit 1
 fi
 smk=`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'`
@@ -133,6 +136,9 @@ java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xm
 hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ]; then
     echo "ERROR Upload of prescale key failed"
+    echo 'In ./uploadSMK.log:'
+    grep "Can't obtain write lock" uploadPSK.log
+    grep "SEVERE" uploadPSK.log
     exit 1
 fi
 
