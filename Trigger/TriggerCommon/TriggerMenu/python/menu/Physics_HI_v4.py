@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 #------------------------------------------------------------------------#
 #------------------------------------------------------------------------#
 def setupMenu():
@@ -107,7 +108,7 @@ def setupMenu():
 	#performance
 	['j0_perf_L1ZDC_A_C',     'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j0_perf_L1RD0_FILLED',     'L1_RD0_FILLED',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
+	['j0_L1J12_EMPTY',         'L1_J12_EMPTY', [], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 	['j10_0eta490_L1RD0_FILLED',     'L1_RD0_FILLED',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j10_0eta490_L1RD0_FILLED_VZDC_A',            'L1_RD0_FILLED_VZDC_A',[], [UPCStream], ['RATE:SingleJet', 'BW:UPC'], -1],
@@ -253,6 +254,128 @@ def setupMenu():
 	['j200',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j250',         'L1_J50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
+	#semi-forward jets ATR-12623
+	['j10_200eta320_ion_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_200eta320_ion_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_200eta320_ion_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_ion_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_ion_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_ion_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_ion_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_ion_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_ion_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_ion',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_200eta320_ion',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_200eta320_ion',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_200eta320_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_200eta320_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	
+	['j10_200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	
+	#semi-forward jets in negative direction 
+	['j10_ion_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_ion_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_ion_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_n200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_ion_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_ion_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_ion_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	
+	['j10_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_n200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	
+	#semi-forward jets in positive direction 
+	['j10_ion_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_ion_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_ion_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_ion_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_ion_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_p200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_ion_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_ion_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_ion_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	
+	['j10_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j10_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j15_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_p200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	#forward jets ATR-12623
 	['j10_320eta490_ion_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -293,7 +416,7 @@ def setupMenu():
 	['j45_320eta490',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j55_320eta490',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j65_320eta490',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_320eta490',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_320eta490',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],	
 	
 	#forward jets in negative direction 
 	['j10_ion_n320eta490_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -617,7 +740,7 @@ def setupMenu():
 	['2e10_lhloose',                'L1_2EM7',  [], [HardProbesStream], ['RATE:DiElectron', 'BW:Egamma'], -1],
 	['2e10_lhloose_nod0',                'L1_2EM7',  [], [HardProbesStream], ['RATE:DiElectron', 'BW:Egamma'], -1],
 
-	['e12_etcut',                  'L1_EM8',  [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e12_etcut',                  'L1_EM8',  [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e12_loose',                  'L1_EM8',  [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e12_lhloose',                'L1_EM8',  [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e12_lhloose_nod0',                'L1_EM8',  [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -837,8 +960,6 @@ def setupMenu():
 
         # inclusive UPC with tracking
         ['hi_upc_FgapA_mb_sptrk_L1RD0_FILLED',    'L1_RD0_FILLED',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapA', 'mb_sptrk'],False]],
-        
-
         ['hi_upc_FgapC_mb_sptrk_L1RD0_FILLED',    'L1_RD0_FILLED',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapC', 'mb_sptrk'],False]],
         ['hi_upc_FgapAC_mb_sptrk_L1RD0_FILLED',    'L1_RD0_FILLED',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk'],False]],
 
@@ -854,6 +975,8 @@ def setupMenu():
         ['hi_upc_FgapAC_mb_sptrk_exclusiveloose',              'L1_RD0_FILLED', ['', ''], [UPCStream, 'express'],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk_exclusiveloose'],False]],
         ['hi_upc_FgapAC_mb_sptrk_exclusiveloose_L1VTE10_VZDC_A',     'L1_VTE10_VZDC_A',     ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk_exclusiveloose'],False]],
         ['hi_upc_FgapAC_mb_sptrk_exclusiveloose_L1VTE10_VZDC_C',     'L1_VTE10_VZDC_C',     ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk_exclusiveloose'],False]],
+
+
 
         ['hi_upc_FgapAC_mb_sptrk_exclusivetight_L1ZDC',        'L1_ZDC',        ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk_exclusivetight_L1ZDC'],False]],
         ['hi_upc_FgapAC_mb_sptrk_exclusivetight',              'L1_RD0_FILLED', ['', ''], [UPCStream],["BW:UPC", "RATE:UPCInclusive"], 1, ['serial', -1, ['hi_upc_FgapAC', 'mb_sptrk_exclusivetight'],False]],
@@ -1327,13 +1450,32 @@ def setupMenu():
         ['mb_sptrk_L1MBTS_1_1',  'L1_MBTS_1_1', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_L1ZDC_A',  'L1_ZDC_A', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_L1ZDC_C',  'L1_ZDC_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_L1MBTS_2_C_VZDC_A',  'L1_MBTS_2_C_VZDC_A', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_L1MBTS_2_A_VZDC_C',  'L1_MBTS_2_A_VZDC_C', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_L1RD0_FILLED_VZDC_A',  'L1_RD0_FILLED_VZDC_A', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_L1RD0_FILLED_VZDC_C',  'L1_RD0_FILLED_VZDC_C', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+
+
 
         # UPC. Loose requires 2 <= N <= 4 tracks, tight requires 2 <= N <= 5 tracks
         ['mb_sptrk_exclusiveloose_L1VTE10_VZDC_A',      'L1_VTE10_VZDC_A',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
         ['mb_sptrk_exclusiveloose_L1VTE10_VZDC_C',      'L1_VTE10_VZDC_C',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose1_L1VTE10_VZDC_A',      'L1_VTE10_VZDC_A',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose1_L1VTE10_VZDC_C',      'L1_VTE10_VZDC_C',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose2_L1VTE10_VZDC_A',      'L1_VTE10_VZDC_A',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose2_L1VTE10_VZDC_C',      'L1_VTE10_VZDC_C',     [], [UPCStream],["BW:UPC", "RATE:MinBias"], 1],
+
         ['mb_sptrk_exclusiveloose_L1RD0_FILLED',  'L1_RD0_FILLED', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_exclusiveloose_L1ZDC',         'L1_ZDC',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_exclusiveloose_L1MU4_VTE10',         'L1_MU4_VTE10',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose1_L1RD0_FILLED',  'L1_RD0_FILLED', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose1_L1ZDC',         'L1_ZDC',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose1_L1MU4_VTE10',         'L1_MU4_VTE10',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose2_L1RD0_FILLED',  'L1_RD0_FILLED', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose2_L1ZDC',         'L1_ZDC',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_exclusiveloose2_L1MU4_VTE10',         'L1_MU4_VTE10',        [], [UPCStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+
         ['mb_sptrk_exclusivetight_L1VTE10_VZDC_A',      'L1_VTE10_VZDC_A',     [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_exclusivetight_L1VTE10_VZDC_C',      'L1_VTE10_VZDC_C',     [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_exclusivetight_L1RD0_FILLED',  'L1_RD0_FILLED', [], [UPCStream],["BW:MinBias", "RATE:MinBias"], 1],
@@ -1504,7 +1646,7 @@ def setupMenu():
         ['mb_sp100_trk100_hmt_L1MBTS_1_1', 'L1_MBTS_1_1', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sp100_trk110_hmt_L1MBTS_1_1', 'L1_MBTS_1_1', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         
-        ['mb_sp1800_hmtperf_L1TE5', 'L1_TE5', [], ['MinBias', 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp1800_hmtperf_L1TE5', 'L1_TE5', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
         ]
 
     TriggerFlags.CalibSlice.signatures   = [
@@ -1560,7 +1702,7 @@ def setupMenu():
         ['l1calocalib',             'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1],
         
         
-        ['larcalib_L1EM3_EMPTY',    'L1_EM7_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larcalib_L1EM3_EMPTY',    'L1_EM3_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1EM7_EMPTY',    'L1_EM7_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1TAU8_EMPTY',   'L1_TAU8_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1J12_EMPTY',    'L1_J12_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
@@ -1803,21 +1945,21 @@ def setupMenu():
         ['noalg_L1TE5_VZDC_C',    'L1_TE5_VZDC_C',  [], [UPCStream], ["BW:UPC", "RATE:Jets"], 1],
         
         # empty
-        ['mb_mbts_L1MBTS_1_EMPTY',       'L1_MBTS_1_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
-        ['mb_mbts_L1MBTS_2_EMPTY',       'L1_MBTS_2_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
-        ['mb_mbts_L1MBTS_1_1_EMPTY',     'L1_MBTS_1_1_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_1_EMPTY',       'L1_MBTS_1_EMPTY', [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_2_EMPTY',       'L1_MBTS_2_EMPTY', [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_1_1_EMPTY',     'L1_MBTS_1_1_EMPTY', [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
 
-        ['mb_mbts_L1MBTS_1_UNPAIRED_ISO',             'L1_MBTS_1_UNPAIRED_ISO', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_mbts_L1MBTS_2_UNPAIRED_ISO',             'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['mb_mbts_L1MBTS_1_1_UNPAIRED_ISO',           'L1_MBTS_1_1_UNPAIRED_ISO', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_1_UNPAIRED_ISO',             'L1_MBTS_1_UNPAIRED_ISO', [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_2_UNPAIRED_ISO',             'L1_MBTS_2_UNPAIRED_ISO', [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['mb_mbts_L1MBTS_1_1_UNPAIRED_ISO',           'L1_MBTS_1_1_UNPAIRED_ISO', [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
 
-        ['noalg_mb_L1MBTS_1_EMPTY',       'L1_MBTS_1_EMPTY',        [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
-        ['noalg_mb_L1MBTS_2_EMPTY',       'L1_MBTS_2_EMPTY',        [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
-        ['noalg_mb_L1MBTS_1_1_EMPTY',       'L1_MBTS_1_1_EMPTY',        [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_1_EMPTY',       'L1_MBTS_1_EMPTY',        [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_2_EMPTY',       'L1_MBTS_2_EMPTY',        [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_1_1_EMPTY',       'L1_MBTS_1_1_EMPTY',        [], [MinBiasStream], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
 
-        ['noalg_mb_L1MBTS_1_UNPAIRED_ISO','L1_MBTS_1_UNPAIRED_ISO',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['noalg_mb_L1MBTS_2_UNPAIRED_ISO',  'L1_MBTS_2_UNPAIRED_ISO',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['noalg_mb_L1MBTS_1_1_UNPAIRED_ISO','L1_MBTS_1_1_UNPAIRED_ISO',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_1_UNPAIRED_ISO','L1_MBTS_1_UNPAIRED_ISO',        [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_2_UNPAIRED_ISO',  'L1_MBTS_2_UNPAIRED_ISO',        [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['noalg_mb_L1MBTS_1_1_UNPAIRED_ISO','L1_MBTS_1_1_UNPAIRED_ISO',        [], [MinBiasStream], ["RATE:MinBias", "BW:MinBias"], -1],
 
         #['noalg_L1',    'L1_',  [], [UPCStream], ["BW:UPC", "RATE:Jets"], 1],
 
@@ -1869,8 +2011,8 @@ def setupMenu():
 
 
  #       ['noalg_L1Topo',                           'L1_Topo',             [], ['L1Calo'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
-        #['noalg_larcells_L1LAR-EM',                'L1_LAR-EM',           [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
-        #['noalg_larcells_L1LAR-J',                 'L1_LAR-J',            [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_larcells_L1LAR-EM',                'L1_LAR-EM',           [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
+        ['noalg_larcells_L1LAR-J',                 'L1_LAR-J',            [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
 
         # HI EB PbPb
         ##['noalg_eb_L1ZDC_A_C_VTE50', 'L1_ZDC_A_C_VTE50', [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],

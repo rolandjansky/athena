@@ -196,20 +196,20 @@ class L2EFChain_tau(L2EFChainDef):
         theTrigFTK_VxPrimary_EF.useRefittedTracks = False
 
         # to allow compatibility between release 20.11 and 21
-        from TrigInDetConf.TrigInDetSequence import vertexXAODCnvNeeded 
-        if vertexXAODCnvNeeded():
-           theTrigFTK_VxPrimary_EF.vxContainerName = 'PrimVxFTK'
-           theTrigFTK_VxPrimary_EF.getVertexContainer = False
-           theInDet__TrigVertexxAODCnv = InDet__TrigVertexxAODCnv(name="FTKTauVtxConversion")
-           theInDet__TrigVertexxAODCnv.InputVxContainerKey = 'PrimVxFTK'
-           theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVertexFTK'
-           vertexAlgorithms = [theTrigFTK_VxPrimary_EF, theInDet__TrigVertexxAODCnv]
-           self.EFsequenceList += [[[ self.currentItem ],vertexAlgorithms,self.continueChain('L2', 'vertex')]]          
-        else:
-           theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-           theTrigFTK_VxPrimary_EF.getVertexContainer = True
-           vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
-           self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
+#        from TrigInDetConf.TrigInDetSequence import vertexXAODCnvNeeded 
+#        if vertexXAODCnvNeeded():
+#           theTrigFTK_VxPrimary_EF.vxContainerName = 'PrimVxFTK'
+#           theTrigFTK_VxPrimary_EF.getVertexContainer = False
+#           theInDet__TrigVertexxAODCnv = InDet__TrigVertexxAODCnv(name="FTKTauVtxConversion")
+#           theInDet__TrigVertexxAODCnv.InputVxContainerKey = 'PrimVxFTK'
+#           theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVertexFTK'
+#           vertexAlgorithms = [theTrigFTK_VxPrimary_EF, theInDet__TrigVertexxAODCnv]
+#           self.EFsequenceList += [[[ self.currentItem ],vertexAlgorithms,self.continueChain('L2', 'vertex')]]          
+#        else:
+        theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
+        theTrigFTK_VxPrimary_EF.getVertexContainer = True
+        vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
+        self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
         
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              

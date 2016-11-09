@@ -246,6 +246,17 @@ class L2EFChain_MB(L2EFChainDef):
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveLoose
                 chainSuffix = chainSuffix+"_exclusiveloose"
+                if 'exclusiveloose1' in self.chainPart['extra']:
+                    theEFHypo2 = MbTrkHypo('EFMbTrkHypo_pt%d_1trk' % 1) 
+                    theEFHypo2.Min_pt = 1.0
+                    theEFHypo2.Max_z0 = 401.
+                if 'exclusiveloose2' in self.chainPart['extra']:
+                    theEFHypo2 = MbTrkHypo('EFMbTrkHypo_pt%d_2trk' % 1) 
+                    theEFHypo2.Min_pt = 1.0
+                    theEFHypo2.Required_ntrks=2
+                    theEFHypo2.Max_z0 = 401.
+
+                    
             elif 'exclusivetight' in self.chainPart['extra']:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveTight
@@ -291,7 +302,15 @@ class L2EFChain_MB(L2EFChainDef):
                 self.EFsequenceList += [[['EF_mb_step1'],
                                          [ ALFASubDetListWriter ],
                                          'EF_mb_step2']]
-
+            elif 'exclusiveloose1' in self.chainPart['extra']:
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [ theEFHypo2 ],
+                                         'EF_mb_step2']]
+            elif 'exclusiveloose2' in self.chainPart['extra']:
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [ theEFHypo2 ],
+                                         'EF_mb_step2']]
+                
         ########### Signatures ###########
         
         self.L2signatureList += [ [['L2_mb_dummy']] ]
@@ -302,6 +321,10 @@ class L2EFChain_MB(L2EFChainDef):
         if doSptrk:
             self.EFsignatureList += [ [['EF_mb_step1']] ]
             if 'peb' in self.chainPart['addInfo']:
+                self.EFsignatureList += [ [['EF_mb_step2']] ]
+            if 'exclusiveloose1' in self.chainPart['extra']:
+                self.EFsignatureList += [ [['EF_mb_step2']] ]
+            if 'exclusiveloose2' in self.chainPart['extra']:
                 self.EFsignatureList += [ [['EF_mb_step2']] ]
 
         self.TErenamingDict = {
@@ -314,6 +337,10 @@ class L2EFChain_MB(L2EFChainDef):
 
         if 'peb' in self.chainPart['addInfo']:
             self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_peb')
+        if 'exclusiveloose1' in self.chainPart['extra']:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_1highPt')
+        if 'exclusiveloose2' in self.chainPart['extra']:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_2highPt')
 
 ###########################
     def setup_mb_idperf(self):

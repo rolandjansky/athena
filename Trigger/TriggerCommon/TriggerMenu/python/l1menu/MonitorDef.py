@@ -162,6 +162,7 @@ class MonitorDef:
             "L1_MJJ-900",
             "L1_J40_DPHI-J20s2XE50",
             "L1_KF-XE55",
+            "L1_LHCF",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [
