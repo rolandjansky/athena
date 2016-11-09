@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 778537 2016-10-14 15:34:31Z ssnyder $
+// $Id: TagAndProbeExAlg.cxx 780366 2016-10-25 19:13:58Z rwhite $
 // Updated to xAOD for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -73,20 +73,20 @@ StatusCode TagAndProbeExAlg::initialize() {
        }
    }
    m_h_zMass = new TH1F( "ZMass", "m(Z)", 30, 70, 110 );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAccepts", m_h_triggerAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonEmulationAccepts", m_h_emulationAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerPrescaled", m_h_triggerPrescaled ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/TriggerAccepts", m_h_triggerAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/EmulationAccepts", m_h_emulationAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/TriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/TriggerPrescaled", m_h_triggerPrescaled ) );
    CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/ZMass", m_h_zMass ) );
    for(const std::string chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
        m_numHLTPassedEvents[chain]=0;
        std::string histName="Eff_et_"+chain;
        m_h_eff_et[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, 0., 100. );
-       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, m_h_eff_et[chain] ) );
+       CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/"+histName, m_h_eff_et[chain] ) );
        histName="Eff_eta_"+chain;
        m_h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
-       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, m_h_eff_eta[chain] ) );
+       CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/"+histName, m_h_eff_eta[chain] ) );
    }
    for(const std::string chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
@@ -353,7 +353,7 @@ bool TagAndProbeExAlg::passL1( const xAOD::IParticle &recoObj, const std::string
     // Due to less granularity of L1 eta, phi need to enlarge the dR conesize
     
     auto fc = (m_trigDec->features(chain,TrigDefs::alsoDeactivateTEs));
-    auto initRois = fc.get<TrigRoiDescriptor>("initialRoI");
+    auto initRois = fc.get<TrigRoiDescriptor>();
     if ( initRois.size() < 1 ) {
         ATH_MSG_WARNING("L1Matching: No Rois!");
         return false;

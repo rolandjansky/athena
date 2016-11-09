@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 778540 2016-10-14 15:39:47Z ssnyder $
+// $Id: TriggerAnalysisTutorial.cxx 780366 2016-10-25 19:13:58Z rwhite $
 
 // System include(s):
 #include <iomanip>
@@ -58,6 +58,16 @@ StatusCode TriggerAnalysisTutorial::initialize() {
    CHECK( m_histSvc.retrieve() );
    m_trigDec->ExperimentalAndExpertMethods()->enable();
    // done
+   //
+   const int nTrigger = (int) m_chain_names.size();
+   h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
+   if ( ! m_chain_names.empty() ){
+       for ( int i = 0; i < std::min( (int)m_chain_names.size(), (int)h_triggerAccepts->GetNbinsX() ); ++i ) {
+           int bin = i+1;
+           h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_chain_names[i].c_str());
+       }
+   }
+   CHECK( m_histSvc->regHist( "/Trigger/TriggerAccepts", h_triggerAccepts ) );
    ATH_MSG_INFO( "Initialization successful" );
 
    return StatusCode::SUCCESS;
@@ -87,6 +97,10 @@ StatusCode TriggerAnalysisTutorial::execute() {
                m_cfg_chains.push_back(chain);
            }
        }
+   }
+   for(const auto chain : m_cfg_chains){
+       if( m_trigDec->isPassed( chain ) )
+           h_triggerAccepts->Fill( chain.c_str(), 1 );
    }
 
    return StatusCode::SUCCESS;
