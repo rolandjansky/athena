@@ -506,7 +506,7 @@ StatusCode TRT_Monitoring_Tool::initialize()
       return StatusCode::FAILURE;
 
     } else {
-      msg(MSG::INFO) << "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder << endreq;
+      ATH_MSG_INFO( "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder );
     }
     /**
        if (m_condSvc_DAQ.name().empty()) {
@@ -706,12 +706,12 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 {
   ATH_MSG_VERBOSE("Booking TRT histograms");
 
-  if (newLumiBlock) ATH_MSG_VERBOSE("newLumiBlock");
-  if (newRun) ATH_MSG_VERBOSE("newRun");
+  if (newLumiBlockFlag()) ATH_MSG_VERBOSE("newLumiBlock");
+  if (newRunFlag()) ATH_MSG_VERBOSE("newRun");
 
   StatusCode sc;
   //If it is a new run check rdo and track containers.
-  if (newRun) {
+  if (newRunFlag()) {
     if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
       ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in StoreGate. Skipping TRT RDO Monitoring.");
       m_doRDOsMon = false;
@@ -731,7 +731,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 
   //Book_TRT_RDOs registers all raw data histograms
   if (m_doRDOsMon) {
-    sc = Book_TRT_RDOs(newLumiBlock, newRun);
+    sc = Book_TRT_RDOs(newLumiBlockFlag(), newRunFlag());
     if (sc == StatusCode::FAILURE) {
       ATH_MSG_ERROR("Unable to register RDO histograms");
       return sc;
@@ -740,9 +740,9 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 
   //Book_TRT_Tracks registers all tracking histograms
   if (m_doTracksMon) {
-    sc = Book_TRT_Tracks(newLumiBlock, newRun);
+    sc = Book_TRT_Tracks(newLumiBlockFlag(), newRunFlag());
     if (DoShift) {
-      sc = Book_TRT_Shift_Tracks(newLumiBlock, newRun);
+      sc = Book_TRT_Shift_Tracks(newLumiBlockFlag(), newRunFlag());
       if (sc == StatusCode::FAILURE) {
         ATH_MSG_ERROR("Unable to book trt shift tracks histograms");
       }//if sc== failure
@@ -750,12 +750,12 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
   }//if do tracks mon
 
   if (DoEfficiency) {
-    sc = Book_TRT_Efficiency (newLumiBlock, newRun);
+    sc = Book_TRT_Efficiency (newLumiBlockFlag(), newRunFlag());
     if (sc == StatusCode::FAILURE) {
       ATH_MSG_ERROR("Unable to book trt efficiency");
     }//if sc== failure
   }
-  if (newRun) {
+  if (newRunFlag()) {
     ATH_MSG_DEBUG("Begin of run");
   }
 
@@ -1334,7 +1334,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
 
     for (int ibe=0; ibe<2; ibe++) { //ibe=0(barrel), ibe=1(endcap)
       //Loop over stack histograms and normalize to number of events processed.
-      if (DoChips && DoExpert && endOfRun) {
+      if (DoChips && DoExpert && endOfRunFlag()) {
         for (int i=0; i<64; i++) {
           if (m_doTracksMon && DoExpert) {
             divide_LWHist(m_hHitOnTrackVsAllC[ibe][i], m_hHitAonTMapC[ibe][i], m_hHitAMapC[ibe][i]);
@@ -1382,7 +1382,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert && endOfRun
       
-      if (DoStraws && endOfRun) {
+      if (DoStraws && endOfRunFlag()) {
         if (m_doRDOsMon && m_nEvents > 0) {
           if (ibe==0) {
 	    //fix for leading edge in time window probability vs straw number(Barrel) histograms
@@ -1474,7 +1474,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoStraws && endOfRun
 
-      if (DoShift && endOfRun) {
+      if (DoShift && endOfRunFlag()) {
         if (m_doTracksMon) {
           if (ibe==0) { //barrel
             EventPhaseScale = m_hEvtPhase->GetEntries()*3.125;
@@ -1630,7 +1630,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//doTracksMon
       }//if DoShift  && isendofrun
 
-      if (DoEfficiency && endOfRun) {
+      if (DoEfficiency && endOfRunFlag()) {
         for (int iside=0; iside<2; iside++) {
           for (int i = 0; i < 32; i++) {
             for (int ibin = 0; ibin <= s_Straw_max[ibe]; ibin++) {
@@ -1656,7 +1656,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
     } // for (int ibe=0; ibe<2; ibe++)
   }//if the environment is not online
 
-  if (endOfLumiBlock || endOfRun) {
+  if (endOfLumiBlockFlag() || endOfRunFlag()) {
     if (DoShift) {
       Int_t lumiblock1440 = lastLumiBlock % 1440;
 
@@ -1738,7 +1738,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
     evtLumiBlock = 0;//number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
   } //if (endOfLumiBlock || endOfRun)
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_DEBUG("end of run");
   }
 
