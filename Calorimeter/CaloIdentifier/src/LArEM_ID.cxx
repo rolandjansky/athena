@@ -30,15 +30,15 @@ int  LArEM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 {
   MsgStream log(m_msgSvc, "LArEM_ID" );
 
-  log << MSG::DEBUG << "initialize_from_dictionary" << endreq;
+  log << MSG::DEBUG << "initialize_from_dictionary" << endmsg;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
   // init base object

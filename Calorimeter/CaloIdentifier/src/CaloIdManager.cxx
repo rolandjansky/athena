@@ -99,12 +99,12 @@ CaloIdManager::instance                (void)
 		    }
 		    else
 		      {
-			log << MSG::ERROR << " Failed to retrieve CaloIdManager " << endreq;
+			log << MSG::ERROR << " Failed to retrieve CaloIdManager " << endmsg;
 		      }
 		}
 
 	    } else {
-		log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+		log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
 	    }
 
 	} else {
