@@ -169,7 +169,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   MsgStream log(m_msgSvc, "CaloDM_ID" );
   std::string strg = "initialize_from_dictionary";
   if(m_msgSvc) {
-    log << MSG::INFO << strg << endreq;
+    log << MSG::INFO << strg << endmsg;
   }
   else {
     std::cout << strg << std::endl;
@@ -178,11 +178,11 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    if(m_msgSvc)log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    if(m_msgSvc)log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
    // init base object
@@ -195,7 +195,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if(!m_dict) {
     if(m_msgSvc)
       {
-	log << MSG::ERROR << " initialize_from_dict - cannot access Calorimeter dictionary " << endreq;
+	log << MSG::ERROR << " initialize_from_dict - cannot access Calorimeter dictionary " << endmsg;
       }
     else
       {
@@ -216,7 +216,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR << "Could not get value for label 'Calorimeter' of field 'subdet' in dictionary " 
-	      << m_dict->m_name << endreq;
+	      << m_dict->m_name << endmsg;
 	}
       else
 	{
@@ -234,7 +234,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR << "Could not get value for label 'negative_DMLar_side' of field 'DetZside' in dictionary " 
-	      << m_dict->m_name << endreq;
+	      << m_dict->m_name << endmsg;
 	}
       else
 	{
@@ -253,7 +253,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	{
 	  log << MSG::ERROR << "Could not get value for label 'negative_DMTile_side' of field 'DetZside' in dictionary " 
 	      << m_dict->m_name
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -289,11 +289,11 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   if(m_msgSvc)
     {
-      log << MSG::DEBUG << " initialize_from_dict : " << endreq;
-      log << MSG::DEBUG << " LAr zone range -> "  << (std::string)m_full_lar_zone_range << endreq;
-      log << MSG::DEBUG << " LAr region range -> "  << (std::string)m_full_lar_region_range << endreq;
-      log << MSG::DEBUG << " Tile zone range -> "  << (std::string)m_full_tile_zone_range << endreq;
-      log << MSG::DEBUG << " Tile region range -> "  << (std::string)m_full_tile_region_range << endreq;
+      log << MSG::DEBUG << " initialize_from_dict : " << endmsg;
+      log << MSG::DEBUG << " LAr zone range -> "  << (std::string)m_full_lar_zone_range << endmsg;
+      log << MSG::DEBUG << " LAr region range -> "  << (std::string)m_full_lar_region_range << endmsg;
+      log << MSG::DEBUG << " Tile zone range -> "  << (std::string)m_full_tile_zone_range << endmsg;
+      log << MSG::DEBUG << " Tile region range -> "  << (std::string)m_full_tile_region_range << endmsg;
     }
   else
     {
@@ -365,7 +365,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	etamin = 0;
 	if(m_msgSvc)
 	  {
-	    log << MSG::WARNING << " seting etamin to 0 because actual value not found for regId " << show_to_string(regId) << endreq;
+	    log << MSG::WARNING << " seting etamin to 0 because actual value not found for regId " << show_to_string(regId) << endmsg;
 	  }
 	else
 	  {
@@ -387,7 +387,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 		<< i << " "
 		<< show_to_string(min) << " " 
 		<< m_pnz_reg_impl.unpack(min) << " " 
-		<< endreq;
+		<< endmsg;
 	  }
 	else
 	  {
@@ -411,7 +411,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 		<< show_to_string(id) << ", " 
 		<< lar_zone_hash(id) << ", " 
 		<< i
-		<< endreq;
+		<< endmsg;
 	  }
 	else
 	  {
@@ -437,7 +437,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	etamin = 0;
 	if( m_msgSvc)
 	  {
-	    log << MSG::WARNING << "seting etamin to 0 because actual value not found for regId " << show_to_string(regId) << endreq;
+	    log << MSG::WARNING << "seting etamin to 0 because actual value not found for regId " << show_to_string(regId) << endmsg;
 	  }
 	else
 	  {
@@ -459,7 +459,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 		<< i << " "
 		<< show_to_string(min) << " " 
 		<< m_pnz_reg_impl.unpack(min) << " " 
-		<< endreq;
+		<< endmsg;
 	  }
 	else
 	  {
@@ -483,7 +483,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 		<< show_to_string(id) << ", " 
 		<< tile_zone_hash(id) << ", " 
 		<< i
-		<< endreq;
+		<< endmsg;
 	  }
 	else
 	  {
@@ -672,7 +672,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
     if( m_msgSvc) 
       {
 	log << MSG::ERROR << "initLevelsFromDict - dictionary NOT initialized " 
-	    << endreq;
+	    << endmsg;
       }
     else
       {
@@ -702,7 +702,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
     {
       if(m_msgSvc)
 	{
-	  log << MSG::ERROR << "initLevelsFromDict - unable to find lardm region " << endreq;
+	  log << MSG::ERROR << "initLevelsFromDict - unable to find lardm region " << endmsg;
 	}
       else
 	{
@@ -723,7 +723,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'subdet' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -743,7 +743,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'DetZside' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -763,7 +763,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'DMvalue' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -784,7 +784,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'samplingvalue' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -803,7 +803,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
     {
       if(m_msgSvc)
 	{
-	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'DMregion' field " << endreq;
+	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'DMregion' field " << endmsg;
 	}
       else
 	{
@@ -824,7 +824,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'DMEta' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -844,7 +844,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       if(m_msgSvc)
 	{
 	  log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'phivalue' field " 
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -869,22 +869,22 @@ int   CaloDM_ID::initLevelsFromDict(void)
 
   if(m_msgSvc)
     {
-      //      log << MSG::DEBUG << "CaloDM_ID::initLevelsFromDict - found levels " << endreq ;
-      //      log << MSG::DEBUG << "subdet         " << m_CALO_INDEX     << endreq ;
-      //      log << MSG::DEBUG << "detzside       " << m_DETZSIDE_INDEX   << endreq ;
-      //      log << MSG::DEBUG << "Dmat           " << m_DMAT_INDEX << endreq ;
-      //      log << MSG::DEBUG << "sampling       " << m_SAMPLING_INDEX << endreq ;
-      //      log << MSG::DEBUG << "region         " << m_REGION_INDEX   << endreq ;
-      //      log << MSG::DEBUG << "eta            " << m_ETA_INDEX      << endreq ;
-      //      log << MSG::DEBUG << "phi            " << m_PHI_INDEX      << endreq ; 
-      log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
-      log << MSG::DEBUG << "calo      "  << m_calo_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "detzside  "  << m_calodm_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "dmat      "  << m_dmat_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "samp      "  << m_sampling_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "reg       "  << m_region_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "eta       "  << m_eta_impl.show_to_string() << endreq;
-      log << MSG::DEBUG << "phi       "  << m_phi_impl.show_to_string() << endreq;
+      //      log << MSG::DEBUG << "CaloDM_ID::initLevelsFromDict - found levels " << endmsg ;
+      //      log << MSG::DEBUG << "subdet         " << m_CALO_INDEX     << endmsg ;
+      //      log << MSG::DEBUG << "detzside       " << m_DETZSIDE_INDEX   << endmsg ;
+      //      log << MSG::DEBUG << "Dmat           " << m_DMAT_INDEX << endmsg ;
+      //      log << MSG::DEBUG << "sampling       " << m_SAMPLING_INDEX << endmsg ;
+      //      log << MSG::DEBUG << "region         " << m_REGION_INDEX   << endmsg ;
+      //      log << MSG::DEBUG << "eta            " << m_ETA_INDEX      << endmsg ;
+      //      log << MSG::DEBUG << "phi            " << m_PHI_INDEX      << endmsg ; 
+      log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+      log << MSG::DEBUG << "calo      "  << m_calo_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "detzside  "  << m_calodm_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "dmat      "  << m_dmat_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "samp      "  << m_sampling_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "reg       "  << m_region_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "eta       "  << m_eta_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "phi       "  << m_phi_impl.show_to_string() << endmsg;
     }
   else
     { 
@@ -941,7 +941,7 @@ int   CaloDM_ID::init_lar_hashes(void)
 	      log << MSG::ERROR << " init_lar_hashes "
 		  << " duplicated id for lardm id. nids= " << nids
 		  << " compact Id  " << show_to_string(zon_id)
-		  << endreq; 
+		  << endmsg; 
 	    }
 	  else
 	    {
@@ -961,7 +961,7 @@ int   CaloDM_ID::init_lar_hashes(void)
 	{
 	  log << MSG::ERROR << " init_lar_hashes "
 	      << " set size NOT EQUAL to hash max. size " << ids.size()
-	      << " hash max " << m_lar_zone_hash_max << endreq;
+	      << " hash max " << m_lar_zone_hash_max << endmsg;
 	}
       else
 	{
@@ -1004,7 +1004,7 @@ int   CaloDM_ID::init_lar_hashes(void)
 	      log << MSG::ERROR << " init_lar_hashes (regions) "
 		  << " duplicated id for region id. nids= " << nids
 		  << " compact Id  " << show_to_string(reg_id) 
-		  << endreq;
+		  << endmsg;
 	    }
 	  else
 	    {
@@ -1025,7 +1025,7 @@ int   CaloDM_ID::init_lar_hashes(void)
 	{
 	  log << MSG::ERROR << " init_lar_hashes "
 	      << " set size NOT EQUAL to region hash max. size " << ids.size()
-	      << " region hash max " << m_lar_region_hash_max << endreq;
+	      << " region hash max " << m_lar_region_hash_max << endmsg;
 	}
       else
 	{
@@ -1093,7 +1093,7 @@ int   CaloDM_ID::init_tile_hashes(void)
 	      log << MSG::ERROR << " init_tile_hashes "
 		  << " duplicated id for tiledm id. nids= " << nids
 		  << " compact Id  " << show_to_string(zon_id)
-		  << endreq;
+		  << endmsg;
 	    }
 	  else
 	    {
@@ -1113,7 +1113,7 @@ int   CaloDM_ID::init_tile_hashes(void)
 	{
 	  log << MSG::ERROR << " init_tile_hashes "
 	      << " set size NOT EQUAL to hash max. size " << ids.size()
-	      << " hash max " << m_tile_zone_hash_max << endreq;
+	      << " hash max " << m_tile_zone_hash_max << endmsg;
 	}
       else
 	{
@@ -1156,7 +1156,7 @@ int   CaloDM_ID::init_tile_hashes(void)
 	      log << MSG::ERROR << " init_tile_hashes (regions) "
 		  << " duplicated id for region id. nids= " << nids
 		  << " compact Id  " << show_to_string(reg_id) 
-		  << endreq;
+		  << endmsg;
 	    }
 	  else
 	    {
@@ -1177,7 +1177,7 @@ int   CaloDM_ID::init_tile_hashes(void)
 	{
 	  log << MSG::ERROR << " init_tile_hashes "
 	      << " set size NOT EQUAL to region hash max. size " << ids.size()
-	      << " region hash max " << m_tile_region_hash_max << endreq;
+	      << " region hash max " << m_tile_region_hash_max << endmsg;
 	}
       else
 	{

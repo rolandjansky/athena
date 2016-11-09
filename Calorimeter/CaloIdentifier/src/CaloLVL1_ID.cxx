@@ -90,7 +90,7 @@ int  CaloLVL1_ID::get_id  (const IdentifierHash& hash_id, Identifier& id, const 
 	  strg = " hash_id out of range "+strm.str();
 	  if(m_msgSvc)
 	    {
-	      log << MSG::ERROR << strg << endreq;
+	      log << MSG::ERROR << strg << endmsg;
 	    }
 	  else
 	    {
@@ -109,7 +109,7 @@ int  CaloLVL1_ID::get_id  (const IdentifierHash& hash_id, Identifier& id, const 
 	  strg = " hash_id out of range "+strm.str();
 	  if(m_msgSvc)
 	    {
-	      log << MSG::ERROR << strg << endreq;
+	      log << MSG::ERROR << strg << endmsg;
 	    }
 	  else
 	    {
@@ -128,7 +128,7 @@ int  CaloLVL1_ID::get_id  (const IdentifierHash& hash_id, Identifier& id, const 
 	  strg = " hash_id out of range "+strm.str();
 	  if(m_msgSvc)
 	    {
-	      log << MSG::ERROR << strg << endreq;
+	      log << MSG::ERROR << strg << endmsg;
 	    }
 	  else
 	    {
@@ -194,7 +194,7 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   MsgStream log(m_msgSvc, "CaloLVL1_ID" );
   std::string strg = "initialize_from_dictionary";
   if(m_msgSvc) {
-    log << MSG::INFO << strg << endreq;
+    log << MSG::INFO << strg << endmsg;
   }
   else {
     std::cout << strg << std::endl;
@@ -202,11 +202,11 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
   std::stringstream strm;
@@ -226,7 +226,7 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     {
       strg= " initialize_from_dict - cannot access LVL1Calorimeter dictionary ";
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
+	log << MSG::ERROR << strg << endmsg;
       }
       else 
 	{
@@ -247,7 +247,7 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	strg= "Could not get value for label 'Calorimeter' of field 'subdet' in dictionary "+strm.str(); 
 	if(m_msgSvc)
 	  {
-	    log << MSG::ERROR << strg << endreq;
+	    log << MSG::ERROR << strg << endmsg;
 	  }
 	else
 	  {
@@ -267,7 +267,7 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	strg = " Could not get value for label 'positive_lvl1_side' of field 'DetZside in dictionary"+strm.str();
 	if(m_msgSvc)
 	  {
-	    log << MSG::ERROR << strg << endreq;
+	    log << MSG::ERROR << strg << endmsg;
 	  }
 	else
 	  {
@@ -302,9 +302,9 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strg2 = " layer range -> "+strm2.str();
     if(m_msgSvc)
       {
-	log << MSG::DEBUG << strg << endreq;
-	log << MSG::DEBUG << strg1 << endreq;
-	log << MSG::DEBUG << strg2 << endreq;
+	log << MSG::DEBUG << strg << endmsg;
+	log << MSG::DEBUG << strg1 << endmsg;
+	log << MSG::DEBUG << strg2 << endmsg;
       }
     else
       {
@@ -387,9 +387,9 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	  strg2= " "+strm2.str();
 	  if(m_msgSvc)
 	    {
-	      log << MSG::DEBUG << strg << endreq;
-	      log << MSG::DEBUG << strg1 << endreq;
-	      log << MSG::DEBUG << strg2 << endreq;
+	      log << MSG::DEBUG << strg << endmsg;
+	      log << MSG::DEBUG << strg1 << endmsg;
+	      log << MSG::DEBUG << strg2 << endmsg;
 	    }
 	  else
 	    {
@@ -418,9 +418,9 @@ int  CaloLVL1_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 	    strg2= " , "+strm2.str();
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << strg << endreq;
-		log << MSG::ERROR << strg1 << endreq;
-		log << MSG::ERROR << strg2 << endreq;
+		log << MSG::ERROR << strg << endmsg;
+		log << MSG::ERROR << strg1 << endmsg;
+		log << MSG::ERROR << strg2 << endmsg;
 	      }
 	    else
 	      {
@@ -754,7 +754,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
     {
       strg= "initLevelsFromDict - dictionary NOT initialized ";
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
+	log << MSG::ERROR << strg << endmsg;
       }
       else 
 	{
@@ -783,7 +783,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
     {
       strg = "initLevelsFromDict - unable to find lvl1 region ";
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
+	log << MSG::ERROR << strg << endmsg;
       }
       else 
 	{
@@ -802,7 +802,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       strg=  "initLevelsFromDict - unable to find 'subdet' field ";
       if(m_msgSvc) 
 	{
-	  log << MSG::ERROR << strg << endreq;
+	  log << MSG::ERROR << strg << endmsg;
 	}
       else 
 	{
@@ -820,7 +820,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       strg= "initLevelsFromDict - unable to find 'DetZside' field ";
       if(m_msgSvc) 
 	{
-	  log << MSG::ERROR << strg << endreq;
+	  log << MSG::ERROR << strg << endmsg;
 	}
       else 
 	{
@@ -837,7 +837,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
     {
       strg=  "initLevelsFromDict - unable to find 'LVL1sampling' field ";
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
+	log << MSG::ERROR << strg << endmsg;
       }
       else 
 	{
@@ -856,7 +856,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       strg="initLevelsFromDict - unable to find 'region' field ";
       if(m_msgSvc) 
 	{
-	  log << MSG::ERROR << strg << endreq;
+	  log << MSG::ERROR << strg << endmsg;
 	}
       else 
 	{
@@ -876,7 +876,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       strg= "initLevelsFromDict - unable to find 'eta' field ";
       if(m_msgSvc) 
 	{
-	  log << MSG::ERROR << strg << endreq;
+	  log << MSG::ERROR << strg << endmsg;
 	}
       else 
 	{
@@ -895,7 +895,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       strg= "initLevelsFromDict - unable to find 'phi' field ";
       if(m_msgSvc) 
 	{
-	  log << MSG::ERROR << strg << endreq;
+	  log << MSG::ERROR << strg << endmsg;
 	}
       else 
 	{
@@ -912,7 +912,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
     {
       strg= "initLevelsFromDict - unable to find 'layer' field ";
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endreq;
+	log << MSG::ERROR << strg << endmsg;
       }
       else 
 	{
@@ -950,14 +950,14 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
   strg7= "layer  "+strm7.str();
   if(m_msgSvc) 
     {
-      log << MSG::DEBUG << strg << endreq;
-      log << MSG::DEBUG << strg1 << endreq;
-      log << MSG::DEBUG << strg2 << endreq;
-      log << MSG::DEBUG << strg3 << endreq;
-      log << MSG::DEBUG << strg4 << endreq;
-      log << MSG::DEBUG << strg5 << endreq;
-      log << MSG::DEBUG << strg6 << endreq;
-      log << MSG::DEBUG << strg7 << endreq;
+      log << MSG::DEBUG << strg << endmsg;
+      log << MSG::DEBUG << strg1 << endmsg;
+      log << MSG::DEBUG << strg2 << endmsg;
+      log << MSG::DEBUG << strg3 << endmsg;
+      log << MSG::DEBUG << strg4 << endmsg;
+      log << MSG::DEBUG << strg5 << endmsg;
+      log << MSG::DEBUG << strg6 << endmsg;
+      log << MSG::DEBUG << strg7 << endmsg;
     }
   else 
     {
@@ -1006,7 +1006,7 @@ int   CaloLVL1_ID::init_hashes(void)
 	    {
 	      log << MSG::ERROR << " init_hashes "
 		  << " duplicated id for TT id. nids= " << nids
-		  << " compact Id  " << endreq; 
+		  << " compact Id  " << endmsg; 
 	    }
 	  else
 	    {
@@ -1027,7 +1027,7 @@ int   CaloLVL1_ID::init_hashes(void)
 	  log << MSG::ERROR << " init_hashes "
 	      << " set size NOT EQUAL to hash max. size " << ids.size()
 	      << " hash max " << m_tower_hash_max
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -1072,7 +1072,7 @@ int   CaloLVL1_ID::init_hashes(void)
 		{
 		  log << MSG::ERROR << " init_hashes "
 		      << " duplicated id for extended TT id. nids= " << nids
-		      << " compact Id  " << show_to_string(lay_id) << endreq; 
+		      << " compact Id  " << show_to_string(lay_id) << endmsg; 
 		}
 	      else
 		{
@@ -1093,7 +1093,7 @@ int   CaloLVL1_ID::init_hashes(void)
 	  log << MSG::ERROR << " init_hashes "
 	      << "  set size NOT EQUAL to hash max. size " << ids.size()
 	      << " hash max " << m_layer_hash_max
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -1134,7 +1134,7 @@ int   CaloLVL1_ID::init_hashes(void)
 	    {
 	      log << MSG::ERROR << " LArEM_ID::init_hashes "
 		  << "  duplicated id for region id. nids= " << nids
-		  << " compact Id  " << endreq;
+		  << " compact Id  " << endmsg;
 	    }
 	  else
 	    {
@@ -1156,7 +1156,7 @@ int   CaloLVL1_ID::init_hashes(void)
 	  log << MSG::ERROR << " LArEM_ID::init_hashes "
 	      << "  set size NOT EQUAL to region hash max. size " << ids.size()
 	      << " region hash max " << m_region_hash_max
-	      << endreq;
+	      << endmsg;
 	}
       else
 	{
@@ -1223,7 +1223,7 @@ int   CaloLVL1_ID::init_neighbors(void)
 	{
 	  if( m_msgSvc )
 	    {
-	      log << MSG::ERROR << " init_neighbors - unable to get hash, compact = " << endreq;
+	      log << MSG::ERROR << " init_neighbors - unable to get hash, compact = " << endmsg;
 	    }
 	  else
 	    {
@@ -1251,7 +1251,7 @@ int   CaloLVL1_ID::init_neighbors(void)
 	  {
 	  if( m_msgSvc )
 	    {
-	      log << MSG::ERROR << " init_neighbors - unable to get previous phi hash, exp/compact " << endreq;
+	      log << MSG::ERROR << " init_neighbors - unable to get previous phi hash, exp/compact " << endmsg;
 	    }
 	  else
 	    {
@@ -1275,7 +1275,7 @@ int   CaloLVL1_ID::init_neighbors(void)
 	  {
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << " init_neighbors - unable to get next phi hash, exp/compact "<<endreq;
+		log << MSG::ERROR << " init_neighbors - unable to get next phi hash, exp/compact "<<endmsg;
 	      }
 	    else
 	      {
@@ -1298,7 +1298,7 @@ int   CaloLVL1_ID::init_neighbors(void)
 	  {
 	    if( m_msgSvc )
 	      {
-		log << MSG::ERROR << " init_neighbors - unable to get previous eta hash, exp/compact "<< endreq;
+		log << MSG::ERROR << " init_neighbors - unable to get previous eta hash, exp/compact "<< endmsg;
 	      }
 	    else
 	      {

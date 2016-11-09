@@ -76,17 +76,17 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
   // Find the full path to filename:
   std::string file = PathResolver::find_file (filename, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  log << MSG::INFO << "Reading file  " << file << endmsg;
   std::ifstream fin;
   if (file != "") {
     fin.open(file.c_str());
   }
   else {
-    log << MSG::ERROR << "Could not find input file " << filename <<  endreq;
+    log << MSG::ERROR << "Could not find input file " << filename <<  endmsg;
     return 1;
   }
   if (fin.bad()) {
-    log << MSG::ERROR << "Could not open file " << file << endreq;
+    log << MSG::ERROR << "Could not open file " << file << endmsg;
     return 1;
   }
 
@@ -96,7 +96,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
   unsigned int line=0, record=0;              // file line number, record number
   char token[MAX_TOKEN_SIZE];                 // input token
 
-  log << MSG::VERBOSE << "Parsing input file:" << endreq;
+  log << MSG::VERBOSE << "Parsing input file:" << endmsg;
     
   std::vector<Cell> allCells;
 
@@ -131,7 +131,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
     fin.ignore(MAX_TOKEN_SIZE, '\n'); // skip to eol
 
-    log << endreq;
+    log << endmsg;
     allCells.push_back(newCell);
     record++;				     // count input records
     
@@ -139,7 +139,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
  
   fin.close();
 
-  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endreq;
+  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endmsg;
 
   unsigned int curSize = allCells.size();
   for (unsigned int i=0; i<curSize; ++i) {
@@ -196,7 +196,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
         log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for cell id. nids= " << nids
             << " compact Id  " << tileID->show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -238,7 +238,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
                   << nb_name[j] << k << " "
                   << allCells[i].neighbours[j][k] << " "
                   << allCells[i].neighbours_ind[j][k] << " "
-                  << endreq;
+                  << endmsg;
             }
             break;
           }
@@ -384,7 +384,7 @@ int TileNeighbour::fill_phi_vec  (std::set<std::pair<IdentifierHash,int> > & ids
     log << MSG::ERROR << "fill_phi_vec "
         << " Error: set size NOT EQUAL to hash max. size " << ids.size()
         << " hash max " << hash_max
-        << endreq;
+        << endmsg;
     return (1);
   }
 
@@ -697,11 +697,11 @@ void TileNeighbour::print_list(std::vector<IdentifierHash> & nb_list,
 //  memset(space,32,size);
 //  space[size]=0;
   for (unsigned int j=0; j<size; ++j) {
-    log << MSG::VERBOSE << endreq;
+    log << MSG::VERBOSE << endmsg;
     log << MSG::VERBOSE << "\t";
     tileID->get_id (nb_list[j], id, context);
     get_name(id,strSection,module,strCell,tileID,log,suff);
   }
-  log << endreq;
+  log << endmsg;
 //  delete [] space;
 }
