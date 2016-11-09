@@ -34,10 +34,14 @@
 // constructor
 Trk::KalmanOutlierLogic::KalmanOutlierLogic(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
-  m_extrapolator(0),
-  m_updator(0),
-  m_recalibrator(0),
-  m_utility(0)
+  m_Trajectory_Chi2PerNdfCut(17.0),
+  m_State_Chi2PerNdfCut(12.5),
+  m_surfaceProximityCut(3.0),
+  m_Trajectory_Chi2ProbCut{},
+  m_extrapolator(nullptr),
+  m_updator(nullptr),
+  m_recalibrator(nullptr),
+  m_utility(nullptr)
 
 {
   // AlgTool stuff
@@ -167,8 +171,8 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         ATH_MSG_VERBOSE ("-O- state #" << it->positionOnTrajectory() << " at r=" <<
                          it->smoothedTrackParameters()->position().perp() << " z=" <<
                          it->smoothedTrackParameters()->position().z()<< " fails boundary check");
-          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().bounds() << endreq;
-          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().center() << endreq;
+          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().bounds() << endmsg;
+          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().center() << endmsg;
         it->isOutlier(Trk::TrackState::SensorOutlier, fitIteration);
         numberOfRejections++; numberOfSensorOutliers++;
         chi2GainFromSensorOutliers += it->fitQuality()->chiSquared();
@@ -219,21 +223,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
           }
           if (nLastCandidates >= 4) break;
         }
-        /* FIXME
-        if ( numberOfRejections>0 && 10000.*ffProb < m_Trajectory_Chi2ProbCut) {
-          Trk::Trajectory::reverse_iterator killRestOfMeasts
-            = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(T)));
-          m_log << MSG::DEBUG << "very bad probability, removing all outliers at end."<<endreq;
-        for( ; killRestOfMeasts!=T.rend(); ++killRestOfMeasts) {
-          ++ nLastCandidates;
-          if (!killRestOfMeasts->isOutlier) {
-            killRestOfMeasts->isOutlier(Trk::TrackState::StateOutlier, fitIteration);
-            numberOfRejections++;
-          }
-          if ( nLastCandidates >= 4 ||
-               (outlierCandidate->forwardStateChiSquared() > 0.5 * ffFQ.chiSquared()) ) break;
-        }
-        */
+        
       } else {
         ATH_MSG_VERBOSE ("-O- No outlier found yet, but detected problematic forward fit "<<
                          "with AFB "<<chi2_AFB<< " trying if this comes from beginning of fit");
@@ -378,7 +368,7 @@ bool Trk::KalmanOutlierLogic::reject(const Trk::FitQuality& fitQuality) const
   //  if ( fitQuality.chiSquared() > m_Trajectory_Chi2PerNdfCut * fabs(fitQuality.numberDoF()) ) {
   //  if (m_outputlevel <= 0) m_log << MSG::DEBUG << "-O- trajectory with total chi2/ndf="
   //				  << fitQuality.chiSquared()/fabs(fitQuality.numberDoF())
-  //				  << " fails quality cut" << endreq;
+  //				  << " fails quality cut" << endmsg;
 
   // use probablity
   if (fitQuality.numberDoF() > 0 && fitQuality.chiSquared() > 0) {

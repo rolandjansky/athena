@@ -48,13 +48,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 Trk::ForwardRefTrackKalmanFitter::ForwardRefTrackKalmanFitter(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
-  m_extrapolator(0),
-  m_updator(0),
-  m_ROTcreator(0),
-  m_dynamicNoiseAdjustor(0),
-  m_recalibrator(0),
-  m_idEnclosingVolume(0),
-  m_msCompleteVolume(0)
+  m_extrapolator(nullptr),
+  m_updator(nullptr),
+  m_ROTcreator(nullptr),
+  m_dynamicNoiseAdjustor(nullptr),
+  m_recalibrator(nullptr),
+  m_idEnclosingVolume(nullptr),
+  m_msCompleteVolume(nullptr),
+  m_idHelper(nullptr),
+  m_utility(nullptr),
+  m_StateChiSquaredPerNumberDoFPreCut{},
+  m_particleMasses{}
 {
   // AlgTool stuff
   declareInterface<IForwardKalmanFitter>( this );
@@ -123,13 +127,13 @@ StatusCode Trk::ForwardRefTrackKalmanFitter::configureWithTools(const Trk::IExtr
     ATH_MSG_ERROR ("Extrapolator missing, need to configure with it !");
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "Configuring " << name() << " with tools from KalmanFitter:" << endreq;
-  msg(MSG::INFO) << "Updator and Extrapolator    - present" << endreq;
+  msg(MSG::INFO) << "Configuring " << name() << " with tools from KalmanFitter:" << endmsg;
+  msg(MSG::INFO) << "Updator and Extrapolator    - present" << endmsg;
   msg(MSG::INFO) << "Dyn.NoiseAdjustment Pix/SCT - " 
-        << (m_dynamicNoiseAdjustor? "present" : "none") << endreq;
+        << (m_dynamicNoiseAdjustor? "present" : "none") << endmsg;
   msg(MSG::INFO) << "General RIO_OnTrackCreator  - " 
-        << (m_ROTcreator? "present" : "none") << endreq;
-  msg(MSG::INFO) << "RIO_OnTrack Recalibrator    - " << (m_recalibrator?"present":"none")<<endreq;
+        << (m_ROTcreator? "present" : "none") << endmsg;
+  msg(MSG::INFO) << "RIO_OnTrack Recalibrator    - " << (m_recalibrator?"present":"none")<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -374,100 +378,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
   return FitterStatusCode::Success;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// OUT-OF-DATE: DNA, CHECK HOW TO MAKE THIS PART OF REFKF                     //
-/*
-Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::buildAndAnalyseTrajectory
-(Trk::Trajectory&                T,
- Trajectory::iterator&           predictedState,
- const Trk::TrackParameters*&    updatedPar,
- const Trk::TrackParameters*&    predPar,
- const Trk::KalmanMatEffectsController&  controlledMatEffects,
- const int&                      filterCounter,
- Trk::ProtoTrackStateOnSurface*& bremEffectsState,
- const bool                      allowRecalibrate) const
-{
-  bremEffectsState = 0; // means no brem
-  const MeasurementBase* fittableMeasurement = predictedState->measurement();
 
-  ////////////////////////////////////////////////////////////////////
-  // search for brem and adjust the error according to target measurement (brem fit)
-  if (filterCounter>2) {
-    const Trk::DNA_MaterialEffects* updMomNoise = 
-      !controlledMatEffects.doDNA() ? 0 :
-      m_dynamicNoiseAdjustor->DNA_Adjust(predPar, // change according to where meas is
-                                         updatedPar, // re-start from old pars
-                                         fittableMeasurement, // the meas't
-                                         controlledMatEffects,
-                                         Trk::alongMomentum);
-    if (updMomNoise) {
-      Trk::Trajectory::iterator b = m_utility->previousFittableState(T, predictedState);
-      if (b!=T.end()) {
-        b->checkinDNA_MaterialEffects(updMomNoise);
-        bremEffectsState = &(*b);
-        ATH_MSG_VERBOSE ("-F- DNA kicked in at t/X0 of " << updMomNoise->thicknessInX0() <<
-                         " with noise " << updMomNoise->addSigmaQoverP());
-      }
-      else delete updMomNoise;
-    }
-  }
-  return Trk::FitterStatusCode::Success;
-}*/
-
-
-/*
-Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::updateOrSkipWithReference
-( const Trajectory::iterator&     predictedState,
-  const Trk::TrackParameters*&    updatedPar,
-  const Trk::TrackParameters*&    predPar,
-  const int&                      filterCounter,
-  const Trk::RunOutlierRemoval&   runOutlier,
-  Trk::ProtoTrackStateOnSurface*  bremEffectsState  ) const
-{
-  ////////////////////////////////////////////////////////////////////
-  // special fits with PseudoMeasurement (eg TRT only): PM replaces initial cov.
-  // FIXME needs further study if pseudomeasurements in TRT are actually OK
-  if ( filterCounter == 1 &&
-       // don't check on MeasuredPredPar NULL, else fails on iteration
-       // dynamic_cast<const Trk::MeasuredTrackParameters*>(predPar) == NULL &&
-       dynamic_cast<const Trk::PseudoMeasurementOnTrack*> ( fittableMeasurement ) !=0 &&
-       predPar != 0 )     // FIXME needs check that surfaces are identical? aka:
-    // (fittableMeasurement->associatedSurface()==predPar->associatedSurface()) ?
-    {
-
-      ATH_MSG_DEBUG ( "Detected external stabilisation from PseudoMeast at start" );
-      AmgVector(5) par; par.setZero();
-      std::vector<double> cov0(5);
-      cov0.at(0) = 250.;
-      cov0.at(1) = 250.;
-      cov0.at(2) = 0.25;
-      cov0.at(3) = 0.25;
-      cov0.at(4) = 0.000001;
-      AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-      cov->setZero();
-      for ( int i=0, j=0; i<5; ++i ) {
-	if ( fittableMeasurement->localParameters().contains ( ( ( Trk::ParamDefs ) i ) ) ) {
-	  par[ ( ( Trk::ParamDefs ) i )] = ( fittableMeasurement->localParameters() [ ( ( Trk::ParamDefs ) i )]   - expansionTimesPRef [ ( ( Trk::ParamDefs ) i )] );
-	  (*cov)(i,i) = fittableMeasurement->localCovariance()(j,j);
-	  ++j;
-
-	} else {
-          std::cout<<"Fall back to predPar"<<std::endl;
-	  par[ ( ( Trk::ParamDefs ) i )] = predPar->parameters() [ ( ( Trk::ParamDefs ) i )] - ( predictedState )->referenceParameters()->parameters() [ ( ( Trk::ParamDefs ) i )] ;
-	  (*cov)(i,i) = cov0[i];
- 	}
-      }
-      updatedPar = CREATE_PARAMETERS ((*predPar),par, cov);
-      std::cout << "updated "<<*updatedPar << "predPar"<<*predPar<<std::endl;
-      fitQuality = new Trk::FitQuality ( 0.0, fittableMeasurement->localParameters().dimension() );
-
-    } else {
-
-    CREATE_PARAMETERS((*predPar), parameterDifference, new AmgSymMatrix(5)(*predPar->covariance()));
-
-    if ( msgLvl ( MSG::DEBUG ) ) printGlobalParams ( predictedState->positionOnTrajectory(),
-						       " updat", updatedPar );
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -491,7 +402,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
   }
   if (!createReferenceTrajectory && !ffs->jacobian() && !ffs->referenceParameters()) {
     ATH_MSG_WARNING ("internal mistake: re-making of reference parameters OFF but "<<
-                     "trajectory is EMPTY."<<endreq<<"This can not work!");
+                     "trajectory is EMPTY.\n This can not work!");
     return FitterStatusCode::BadInput;
   }
   if (ffs->measurement() == NULL) {
@@ -635,7 +546,7 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, std::string
 {
   const AmgVector(5) x = ref.parameters()+diff;
   const Trk::TrackParameters* param = CREATE_PARAMETERS(ref,x,0);
-  char tt[80]; sprintf(tt,"T%.2u",istate);
+  char tt[80]; snprintf(tt,79,"T%.2d",istate);
   msg(MSG::VERBOSE) << tt << ptype << " GP:" 
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
         << std::setw(9) << std::setprecision(2) << param->position()[0]
@@ -645,6 +556,6 @@ void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, std::string
         << std::setw(8) << std::setprecision(0) << param->momentum()[0]
         << std::setw(8) << std::setprecision(0) << param->momentum()[1]
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
-        << std::setprecision(6) << endreq;
+        << std::setprecision(6) << endmsg;
   delete param;
 }

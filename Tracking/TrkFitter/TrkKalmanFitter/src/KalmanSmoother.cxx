@@ -38,14 +38,20 @@
 // constructor
 Trk::KalmanSmoother::KalmanSmoother(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
-  m_extrapolator(0),
+  m_extrapolator(nullptr),
   m_extrapolationEngine(""),
   m_useExEngine(false),
-  m_updator(0),
-  m_dynamicNoiseAdjustor(0),
-  m_alignableSurfaceProvider(0),
+  m_updator(nullptr),
+  m_dynamicNoiseAdjustor(nullptr),
+  m_alignableSurfaceProvider(nullptr),
+  m_utility(nullptr),
   m_doSmoothing(true),
-  m_fitStatistics(0)
+  m_calculateFitQuality{},
+  m_initialErrors{},
+  m_initialCovSeedFactor{},
+  m_option_relErrorLimit{},
+  m_fitStatistics{},
+  m_particleMasses{}
 {
   declareProperty("InitialCovarianceSeedFactor",m_initialCovSeedFactor=1000.,
                   "factor by which to initialise backward filter");
@@ -65,7 +71,7 @@ Trk::KalmanSmoother::~KalmanSmoother()
 // initialize
 StatusCode Trk::KalmanSmoother::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
+  delete m_utility;
   m_utility = new ProtoTrajectoryUtility();
   ATH_MSG_INFO ("initial covariance inflated by factor     "<< m_initialCovSeedFactor);
   ATH_MSG_INFO ("forward-TP is weakly constraint if err is "<< m_option_relErrorLimit <<
@@ -73,17 +79,12 @@ StatusCode Trk::KalmanSmoother::initialize()
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   if (m_useExEngine) {
-    if (m_extrapolationEngine.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not retrieve ExtrapolationEngine.");
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_INFO("Successfully retrieved ExtrapolationEngine.");
+    ATH_CHECK(m_extrapolationEngine.retrieve());
   }
-  
   std::vector<int> statVec(nStatIndex, 0);
   m_fitStatistics.resize(nFitStatusCodes, statVec);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // finalize
@@ -281,10 +282,10 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       
       if (msgLvl(MSG::DEBUG)) {
         printGlobalParams(previousStatePosOnTraj, " start", updatedPar.get() );
-        // ATH_MSG_VERBOSE << "    Now trying to hit surface " << fittableMeasurement->associatedSurface() << endreq;
+        // ATH_MSG_VERBOSE << "    Now trying to hit surface " << fittableMeasurement->associatedSurface() << endmsg;
         BoundaryCheck trackWithinSurface = true;
         //        if ( ! testSf.isOnSurface( updatedPar->position(), trackWithinSurface) ) 
-        //  ATH_MSG_VERBOSE << "    previous updated parameters are outside surface bounds!" << endreq;
+        //  ATH_MSG_VERBOSE << "    previous updated parameters are outside surface bounds!" << endmsg;
         if ( ! fittableMeasurement->associatedSurface().isOnSurface( rit->forwardTrackParameters()->position(),
                                                                      trackWithinSurface) ) {
           ATH_MSG_VERBOSE ("    for information: forward-filtered pars are outside surface bounds!");
@@ -702,7 +703,7 @@ AmgSymMatrix(5)* Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& 
         if (msgLvl(MSG::INFO)) monitorTrackFits( WeaklyConstraintForwardPar, 1000. );
       }
     }
-    if (weakParIsDetected) msg(MSG::VERBOSE) << endreq;
+    if (weakParIsDetected) msg(MSG::VERBOSE) << endmsg;
   }
   return cov;
 }
@@ -751,6 +752,7 @@ void Trk::KalmanSmoother::printGlobalParams(int istate, std::string ptype,
                                             const Trk::DNA_MaterialEffects* mefot) const
 {
   char tt[80]; sprintf(tt,"T%.2u",istate);
+  if (not (msgLvl(MSG::VERBOSE))) return;
   msg(MSG::VERBOSE) << tt << ptype << " GP:" 
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
         << std::setw(9) << std::setprecision(2) << param->position()[0]
@@ -760,11 +762,11 @@ void Trk::KalmanSmoother::printGlobalParams(int istate, std::string ptype,
         << std::setw(8) << std::setprecision(0) << param->momentum()[0]
         << std::setw(8) << std::setprecision(0) << param->momentum()[1]
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
-        << std::setprecision(6) << endreq;
+        << std::setprecision(6) << endmsg;
   if (mefot)
-    //    ATH_MSG_VERBOSE << "Mefot found with " << *mefot << endreq;
+    //    ATH_MSG_VERBOSE << "Mefot found with " << *mefot << endmsg;
     msg(MSG::VERBOSE) << "-S- DNA kicked in at t/X0 of " <<mefot->thicknessInX0()
-          << " with noise "  << mefot->addSigmaQoverP() << endreq;
+          << " with noise "  << mefot->addSigmaQoverP() << endmsg;
 }
 
 void Trk::KalmanSmoother::monitorTrackFits(FitStatusCodes code, const double& eta) const {
