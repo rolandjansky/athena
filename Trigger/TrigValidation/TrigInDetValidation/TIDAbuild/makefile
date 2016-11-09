@@ -23,9 +23,9 @@ JOBS =  \
         TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
         TrigInDetValidation_el_single_e_5.xml                           \
         TrigInDetValidation_el_Zee_pu46_run1.xml                        \
-        TrigInDetValidation_el_ttbar_pu46.xml                           \
-        TrigInDetValidation_el_ttbar_pu69.xml                           \
-        TrigInDetValidation_el_ttbar_pu138.xml                          \
+        TrigInDetValidation_el_ttbar_pu40.xml                           \
+        TrigInDetValidation_el_ttbar_pu80.xml                           \
+        TrigInDetValidation_el_ttbar_pu100.xml                          \
                                                                         \
         TrigInDetValidation_cosmic.xml                                  \
                                                                         \
@@ -71,8 +71,10 @@ all: $(XMLFILE)
 
 $(FILES) : $(JOBS)
 
+#	cpp -traditional-cpp $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
+
 $(XMLFILE) : clean $(FILES) $(JOBS) $(AUXFILES)
-	cpp -traditional-cpp $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
+	cpp -traditional-cpp $(FILES) | sed 's|STAR|\*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
 	cat /tmp/_$@ | grep -v \# > $@
 	python /afs/cern.ch/user/r/rtt/public/validateXML.py $@
 

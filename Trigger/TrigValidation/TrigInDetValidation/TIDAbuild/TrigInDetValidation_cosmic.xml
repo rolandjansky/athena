@@ -2,7 +2,7 @@
             <doc> Cosmic slice test</doc>
             <displayName>CosmicSlice</displayName>
 	    <commandLineFlags>EventMax=5000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>

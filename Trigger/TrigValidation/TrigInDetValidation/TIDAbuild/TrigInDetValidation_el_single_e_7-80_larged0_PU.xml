@@ -2,7 +2,7 @@
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
 	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -33,7 +33,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -46,7 +46,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -60,7 +60,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -73,7 +73,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -90,7 +90,7 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
+	    <auxFilePattern>data-el_single_e_7-80_larged0_PU-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	

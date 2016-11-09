@@ -9,7 +9,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 

@@ -2,12 +2,12 @@
             <doc>Muon slice FTK ttbar sample</doc>
             <displayName>MuonSlice FTK ttbar sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_FTK_sample1.xml"
+#          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
 
 
             <action position="01">

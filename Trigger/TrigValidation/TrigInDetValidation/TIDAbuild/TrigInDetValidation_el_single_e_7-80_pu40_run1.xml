@@ -2,7 +2,7 @@
             <doc>Single part electron test 7-80 GeV pileup 40</doc>
             <displayName>ElectronSlice single partile e 7-80 GeV pu40</displayName>
 	    <commandLineFlags>EventMax=6000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>

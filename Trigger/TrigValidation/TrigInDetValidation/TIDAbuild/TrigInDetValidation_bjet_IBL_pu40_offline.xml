@@ -2,7 +2,7 @@
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
 	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -31,7 +31,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -45,9 +45,23 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
+
+            <action position="04">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi_xPrimVx/xPrimVx HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi_EFHistoVtx/EFHistoVtx -c TIDAvertex.dat -d HLTL2-vtx </argvalue>
+                </arg>
+            </action>
+
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
@@ -63,8 +77,8 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
+            <auxFilePattern>data-bjet_IBL_pu40_offline-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-bjet_IBL_pu40_offline-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    

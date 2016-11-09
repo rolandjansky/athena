@@ -47,7 +47,13 @@ rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = beamspotChains(rMC,rID)
+rFTK=False
+if 'doFTK' in dir() and doFTK==True:
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  TriggerFlags.doFTK=True
+  rFTK=True
+
+(idtrigChainlist, tidaAnalysischains) = beamspotChains(rMC,rID,rFTK)
 
 def resetSigs():
   TriggerFlags.doHypo=False
@@ -56,3 +62,4 @@ def resetSigs():
   TriggerFlags.BeamspotSlice.signatures = idtrigChainlist
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
+topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.

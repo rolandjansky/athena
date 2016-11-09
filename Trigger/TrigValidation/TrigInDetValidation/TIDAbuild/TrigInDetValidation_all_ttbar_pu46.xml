@@ -2,7 +2,7 @@
             <doc>All slices, ttbar events, pu46, run2 chains</doc>
             <displayName>All slices, ttbar, pu46, run2 chains</displayName>
 	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_AllSlices</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -31,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -45,7 +45,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -59,7 +59,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -72,7 +72,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -85,7 +85,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots-muon </argvalue>
               </arg>
             </action>
 
@@ -98,7 +98,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root  HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  -d HLTL2-plots-muon </argvalue>
               </arg>
             </action>
 	   
@@ -139,7 +139,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots-bjet </argvalue>
+                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig   -d HLTEF-plots-bjet </argvalue>
                 </arg>
             </action>
 

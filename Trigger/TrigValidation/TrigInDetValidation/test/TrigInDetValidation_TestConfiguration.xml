@@ -33,7 +33,7 @@
             <doc>All slices, ttbar events, pu46, run2 chains</doc>
             <displayName>All slices, ttbar, pu46, run2 chains</displayName>
 	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_AllSlices</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -73,7 +73,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -87,7 +87,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -101,7 +101,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -114,7 +114,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -127,7 +127,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots-muon </argvalue>
               </arg>
             </action>
 
@@ -140,7 +140,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all_ttbar_pu46-reference.root  HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  -d HLTL2-plots-muon </argvalue>
               </arg>
             </action>
 	   
@@ -181,7 +181,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots-bjet </argvalue>
+                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig   -d HLTEF-plots-bjet </argvalue>
                 </arg>
             </action>
 
@@ -212,7 +212,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -311,11 +311,188 @@
 
 
 
+         <athena trendId='all_pu46' userJobId='TrigInDetValidation_beamspot_ttbar_pu46'>
+            <doc>BeamSpot slice, ttbar events, pu46, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, pu46, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
+	   
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-all.root -b Test_bin.dat  </argvalue>
+                </arg>
+            </action>
+
+           <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-beamspot_ttbar_pu46-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-plots  </argvalue>
+              </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+            <auxFilePattern>data-beamspot_ttbar_pu46-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-beamspot_ttbar_pu46-ref.root</auxFilePattern>
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test_bin.dat</auxFilePattern>
+ 
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
 	 <athena trendId='electron_merging_lowpt' userJobId='TrigInDetValidation_el_Jpsiee_pu40'>
            <doc>Jpsie3e3, pu0, run2 chains</doc>
            <displayName>ElectronSlice-Jpsie3e3, pu40, run2 chains</displayName>
            <commandLineFlags>EventMax=10000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -356,7 +533,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots </argvalue>
              </arg>
            </action>
 
@@ -370,7 +547,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2   -d HLTL2-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots </argvalue>
              </arg>
            </action>
 
@@ -401,7 +578,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -503,7 +680,7 @@
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
 	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -554,7 +731,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -567,7 +744,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -581,7 +758,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -594,7 +771,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -625,7 +802,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -727,7 +904,7 @@
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
 	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -773,7 +950,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -786,7 +963,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -800,7 +977,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -813,7 +990,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_larged0_PU-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -844,7 +1021,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -920,7 +1097,7 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
+	    <auxFilePattern>data-el_single_e_7-80_larged0_PU-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0-ref.root</auxFilePattern>
 
 
@@ -949,7 +1126,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -992,7 +1169,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1006,7 +1183,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1020,7 +1197,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1033,7 +1210,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1064,7 +1241,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1166,7 +1343,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1208,7 +1385,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1222,7 +1399,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1236,7 +1413,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF   HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF   HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1249,7 +1426,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF   -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1280,7 +1457,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1382,7 +1559,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1424,7 +1601,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1438,7 +1615,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1452,7 +1629,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1465,7 +1642,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_offline_rzMatcher-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1496,7 +1673,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1598,7 +1775,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=5000;runMergedChain=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1640,7 +1817,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1654,7 +1831,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1668,7 +1845,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1681,7 +1858,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1712,7 +1889,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1810,36 +1987,20 @@
 
 
 
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu46'>
+
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu40'>
            <doc>ttbar, pu40, run2 chains</doc>
            <displayName>ttbar pu40, run2 chains</displayName>
            <commandLineFlags>EventMax=8000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
 
-          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000005.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000143.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000174.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000176.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000269.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000291.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000332.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000340.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000375.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000476.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000604.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000647.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000664.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000671.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000678.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000697.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000711.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000714.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000718.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000754.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000002.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000003.pool.root.1</dataset>
 
 
 	   
@@ -1866,7 +2027,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1880,7 +2041,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1894,7 +2055,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1907,7 +2068,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF   -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1938,7 +2099,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2014,8 +2175,8 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu46-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_ttbar_pu40-reference.root</auxFilePattern>
+           <auxFilePattern>expert-monitoring-el_ttbar_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2036,50 +2197,20 @@
 
 
 
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu69'>
-           <doc>ttbar, pu69, run2 chains</doc>
-           <displayName>ttbar pu69, run2 chains</displayName>
-           <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu80'>
+           <doc>ttbar, pu80, run2 chains</doc>
+           <displayName>ttbar pu80, run2 chains</displayName>
+           <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
 
-          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000009.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000036.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000037.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000089.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000095.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000138.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000162.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000180.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000182.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000185.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000186.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000201.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000212.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000247.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000278.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000283.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000335.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000386.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000400.pool.root.2</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000435.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000446.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000457.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000470.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000474.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000475.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000478.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000502.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000510.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000535.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000550.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000551.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000552.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000562.pool.root.1</dataset>
-	  
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000001.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000002.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195/RDO.06752780._000003.pool.root.1</dataset>
+
 
 	   
            <action position="01">
@@ -2095,7 +2226,6 @@
              </arg>
            </action>
 	   
-	   
 
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
@@ -2106,7 +2236,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -2120,7 +2250,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -2134,7 +2264,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2147,7 +2277,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF   -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2178,7 +2308,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2254,236 +2384,8 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu69-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu69-ref.root</auxFilePattern>
-
-
-            <auxFilePattern>TIDA*.dat</auxFilePattern>
-            <auxFilePattern>Test_bin.dat</auxFilePattern>
- 
-            <auxFilePattern>TIDAWeb/*</auxFilePattern>
-            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
-            <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
-            <auxFilePattern>TIDAindex*.php</auxFilePattern>
-            <auxFilePattern>TIDAstyle.css</auxFilePattern>
-           <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
-
-	   
-           <athenaCommonFlags /> 
-         </athena>
-
-
-
-
-
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu138'>
-           <doc>ttbar, pu138, run2 chains</doc>
-           <displayName>ttbar pu138, run2 chains</displayName>
-           <commandLineFlags>EventMax=400;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
-           <package>Trigger/TrigValidation/TrigInDetValidation</package>
-           <group>TrigInDetValidation</group>
-           <queue>long</queue>
-
-
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000011.pool.root.2</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000080.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000088.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000273.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000302.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000335.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000521.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000566.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000617.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000638.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000694.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000732.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000733.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000784.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000824.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000848.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000866.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000909.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000980.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000993.pool.root.1</dataset>
-	    
-
-	   
-           <action position="01">
-             <modulename>RttLibraryTools</modulename> 
-             <testname>ExeRunner</testname> 
-             <arg> 
-               <argname>exeName</argname>
-               <argvalue>TIDArdict.exe</argvalue> 
-             </arg>
-             <arg> 
-               <argname>exeParamString</argname>
-               <argvalue>TIDAdata11-rtt.dat -f data-electron-merge.root -p 11 -b Test_bin.dat </argvalue>
-             </arg>
-           </action>
-	   
-	
-     <action position="02">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
-              </arg>
-            </action>
-
-
-     <action position="03">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
-              </arg>
-            </action>
-
-
-     <action position="04">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
-              </arg>
-            </action>
-
-     <action position="05">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
-              </arg>
-            </action>
-
-
-
-
-            <action position="20">
-              <modulename>RttLibraryTools</modulename>
-              <testname>ExeRunner</testname>
-              <arg>
-                <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
-              </arg>
-              <arg>
-                <argname>exeParamString</argname>
-                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
-              </arg>
-            </action>
-
-
-
-            <action position="30">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>RunTrigCostD3PD.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
-              </arg> 
-            </action>
-
-            <action position="31">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
-              </arg> 
-            </action>
-
-            <action position="32">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
-              </arg> 
-            </action>
-
-
-
-
-            <action position="33">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
-              </arg> 
-            </action>
-
-            <action position="34">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
-              </arg> 
-            </action>
-
-        <action position="40">
-             <modulename>CheckLog_TriggerTest</modulename>
-             <testname>CheckLog_TriggerTest</testname>
-             <arg>
-                <argname>command</argname>
-                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
-             </arg>
-        </action>
-
-
-	   
-           <testToRemove>
-             <jobGroupName>RTT:Top</jobGroupName>
-             <testidentifier>CheckFileRunner0</testidentifier>
-           </testToRemove>
-	   
-
-           <auxFilePattern>data-el_ttbar_pu138-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu138-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_ttbar_pu80-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_ttbar_pu80-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2509,7 +2411,7 @@
             <doc> Cosmic slice test</doc>
             <displayName>CosmicSlice</displayName>
 	    <commandLineFlags>EventMax=5000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2582,7 +2484,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2683,7 +2585,7 @@
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=900;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2743,6 +2645,8 @@
 
 
 
+
+
             <action position="20">
               <modulename>RttLibraryTools</modulename>
               <testname>ExeRunner</testname>
@@ -2767,7 +2671,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2837,8 +2741,6 @@
 
 
 
-        
-
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
@@ -2871,7 +2773,7 @@
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
 	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2911,7 +2813,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -2925,9 +2827,23 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup.root data-bjet-pileup.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
+
+            <action position="04">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup.root data-bjet_IBL_pu40_offline-reference.root  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi_xPrimVx/xPrimVx HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi_EFHistoVtx/EFHistoVtx -c TIDAvertex.dat -d HLTL2-vtx </argvalue>
+                </arg>
+            </action>
+
 
 
 
@@ -2955,7 +2871,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3033,8 +2949,8 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-bjet_IBL_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-bjet_IBL_pu40-ref.root</auxFilePattern>
+            <auxFilePattern>data-bjet_IBL_pu40_offline-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-bjet_IBL_pu40_offline-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -3060,7 +2976,7 @@
            <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
            <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -3157,7 +3073,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3257,7 +3173,7 @@
            <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
            <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=15</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -3354,7 +3270,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3455,7 +3371,7 @@
             <doc>Single muon 100 GeV, run2 chains </doc>
             <displayName>MuonSlice-single muon larged0, pu0, run2 chains</displayName>
             <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3503,7 +3419,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots </argvalue>
+                <argvalue>data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -3516,7 +3432,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -3547,7 +3463,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3649,7 +3565,7 @@
             <doc>Single muon 100 GeV, run2 chains </doc>
             <displayName>MuonSlice-single muon larged0, pu, run2 chains</displayName>
             <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3698,7 +3614,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots </argvalue>
+                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -3711,7 +3627,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon.root data-mu_single_mu_larged0_PU-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -3742,7 +3658,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3845,7 +3761,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2500;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3889,7 +3805,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -3902,7 +3818,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -3933,7 +3849,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4034,7 +3950,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4077,7 +3993,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -4090,7 +4006,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -4121,7 +4037,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4222,7 +4138,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4266,7 +4182,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF    -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -4279,7 +4195,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -4310,7 +4226,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4411,7 +4327,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2500;runMergedChain=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4455,7 +4371,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF    -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -4468,7 +4384,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -4499,7 +4415,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4601,7 +4517,7 @@
             <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
             <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4636,7 +4552,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-bphys-merge.root data-mu_bphys_IBL-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2   -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-bphys-merge.root data-mu_bphys_IBL-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF     -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -4649,7 +4565,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-bphys-merge.root data-mu_bphys_IBL-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-bphys-merge.root data-mu_bphys_IBL-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig   -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -4680,7 +4596,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4783,7 +4699,7 @@
             <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample</doc>
             <displayName>FullScan on di-jet events</displayName>
 	    <commandLineFlags>EventMax=1000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4873,7 +4789,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4974,7 +4890,7 @@
             <doc>Tests ID full scan tracking in the di-jet sample vs offline</doc>
             <displayName>FullScan on di-jet event vs offlines</displayName>
 	    <commandLineFlags>EventMax=1000;doIDNewTracking=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -5034,7 +4950,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-minBias.root data-minBias.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -5064,7 +4980,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5139,7 +5055,7 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias-reference.root</auxFilePattern>
+	    <auxFilePattern>data-minBias_offline-reference.root</auxFilePattern>
 
             <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 
@@ -5167,22 +5083,22 @@
             <doc>Muon slice FTK ttbar sample</doc>
             <displayName>MuonSlice FTK ttbar sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000001.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000002.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000003.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000004.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000005.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000006.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000007.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000008.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000009.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000010.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
 
 
 
@@ -5281,7 +5197,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5382,23 +5298,17 @@
             <doc>Tau slice FTK tautau sample</doc>
             <displayName>TauSlice FTK tautau sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000001.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000002.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000003.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000004.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000005.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000006.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000007.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000008.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000009.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000010.RDO_FTK.pool.root</dataset>
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000002.RDO_FTK_ttbar.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000006.RDO_FTK_ttbar.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000043.RDO_FTK_ttbar.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000044.RDO_FTK_ttbar.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2/user.jahreda.8926715.EXT2._000053.RDO_FTK_ttbar.root</dataset>
 
 
 
@@ -5470,7 +5380,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5571,22 +5481,22 @@
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FYK chains</displayName>
 	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 	   
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000001.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000002.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000003.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000004.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000005.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000006.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000007.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000008.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000009.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000010.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
 
 
 
@@ -5657,7 +5567,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5757,6 +5667,183 @@
 
 
 
+         <athena trendId='all_pu46' userJobId='TrigInDetValidation_FTK_beamspot_ttbar'>
+            <doc>BeamSpot slice, ttbar events, FTK, pu46, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, FTK, pu46, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
+
+
+
+	   
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-beamspot-FTK.root -b Test_bin.dat  </argvalue>
+                </arg>
+            </action>
+
+           <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_allTE_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTK -d HLTL2-plots-beamspot  </argvalue>
+              </arg>
+            </action>
+
+
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+            <auxFilePattern>data-FTK_beamspot_ttbar-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_beamspot_ttbar-ref.root</auxFilePattern>
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test_bin.dat</auxFilePattern>
+ 
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
       </jobList>
 
       <jobGroups>
@@ -5776,6 +5863,7 @@
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.dat</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.html</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.php</keepFilePattern>
@@ -5800,6 +5888,7 @@
             <keepFilePattern>L2-plots-lowpt/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-lowpt/*.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-vtx/*.p*</keepFilePattern>
 
             <keepFilePattern>HLTEF-plots-electron/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-electron-lowpt/*.p*</keepFilePattern>
@@ -5827,6 +5916,8 @@
 
             <keepFilePattern>HLT-plots-PrmVtx/*.p*</keepFilePattern>
           
+            <keepFilePattern>HLTL2-plots-beamspot/*.p*</keepFilePattern>
+
             <keepFilePattern>costMonitoring*/*</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/*</keepFilePattern>
 

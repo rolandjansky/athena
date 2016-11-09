@@ -29,6 +29,9 @@
 
 
 #     include   "TrigInDetValidation_all_ttbar_pu46.xml"
+
+#     include   "TrigInDetValidation_beamspot_ttbar_pu46.xml"
+
 #     include   "TrigInDetValidation_el_Jpsiee_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0_PU.xml"
@@ -43,9 +46,12 @@
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_offline.xml"
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_offline_rzMatcher.xml"
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_rzMatcher.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu46.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu69.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu138.xml"
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu46.xml" -->
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu69.xml" -->
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu138.xml" -->
+#     include   "TrigInDetValidation_el_ttbar_pu40.xml"
+#     include   "TrigInDetValidation_el_ttbar_pu80.xml"
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu100.xml" -->
 
 #     include   "TrigInDetValidation_cosmic.xml"
 
@@ -78,6 +84,7 @@
 #     include   "TrigInDetValidation_FTK_mu_ttbar.xml"
 #     include   "TrigInDetValidation_FTK_tau_tautau.xml"
 #     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
+#     include   "TrigInDetValidation_FTK_beamspot_ttbar.xml"
 
       </jobList>
 
@@ -98,6 +105,7 @@
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>
+            <keepFilePattern displayColor="red">TIDA*.dat</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.html</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.php</keepFilePattern>
@@ -122,6 +130,7 @@
             <keepFilePattern>L2-plots-lowpt/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-lowpt/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-vtx/STAR.p*</keepFilePattern>
 
             <keepFilePattern>HLTEF-plots-electron/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-electron-lowpt/STAR.p*</keepFilePattern>
@@ -149,6 +158,8 @@
 
             <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
           
+            <keepFilePattern>HLTL2-plots-beamspot/STAR.p*</keepFilePattern>
+
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>
 

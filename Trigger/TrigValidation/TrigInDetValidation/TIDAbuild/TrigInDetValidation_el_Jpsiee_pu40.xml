@@ -3,7 +3,7 @@
            <doc>Jpsie3e3, pu0, run2 chains</doc>
            <displayName>ElectronSlice-Jpsie3e3, pu40, run2 chains</displayName>
            <commandLineFlags>EventMax=10000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -34,7 +34,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots </argvalue>
              </arg>
            </action>
 
@@ -48,7 +48,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2   -d HLTL2-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots </argvalue>
              </arg>
            </action>
 

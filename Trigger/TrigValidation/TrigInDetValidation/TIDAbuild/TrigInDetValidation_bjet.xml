@@ -2,7 +2,7 @@
             <doc>Bjetslice, ttbar, run2 chains</doc>
             <displayName>BjetSlice, ttbar, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>

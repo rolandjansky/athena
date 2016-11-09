@@ -1,14 +1,14 @@
-         <athena userJobId='TrigInDetValidation_minBias_offline'>
-            <doc>Tests ID full scan tracking in the di-jet sample vs offline</doc>
-            <displayName>FullScan on di-jet event vs offlines</displayName>
-	    <commandLineFlags>EventMax=1000;doIDNewTracking=True</commandLineFlags>
-            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+         <athena trendId='all_pu46' userJobId='TrigInDetValidation_beamspot_ttbar_pu46'>
+            <doc>BeamSpot slice, ttbar events, pu46, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, pu46, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
- 
-#          include "samples/TrigInDetValidation_minBias_sample0.xml"
-	    
+
+#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+	   
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -18,11 +18,11 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt-offline.dat -f data-minBias.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-all.root -b Test_bin.dat  </argvalue>
                 </arg>
             </action>
 
-            <action position="02">
+           <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -31,13 +31,19 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-all.root data-beamspot_ttbar_pu46-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-plots  </argvalue>
               </arg>
             </action>
+
+
+
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
 #         include "TrigInDetValidation_extra.xml"
+
+
+
 
 
             <testToRemove>
@@ -46,13 +52,11 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_offline-reference.root</auxFilePattern>
-
-            <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
+            <auxFilePattern>data-beamspot_ttbar_pu46-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-beamspot_ttbar_pu46-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
-
-          <athenaCommonFlags /> 
-	  <alwaysRunPostProc />
-	  </athena>
+   
+         <athenaCommonFlags /> 
+         </athena>
 
