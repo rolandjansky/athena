@@ -95,7 +95,7 @@ GXFMaterialEffects::GXFMaterialEffects(GXFMaterialEffects& rhs) {
   m_owneloss=rhs.m_owneloss;
   m_measscatphi=rhs.m_measscatphi;
   m_sintheta=rhs.m_sintheta;
-  //m_pjac=rhs.m_pjac;
+  m_owneloss=rhs.m_owneloss;
 }
 
 GXFMaterialEffects& GXFMaterialEffects::operator=(GXFMaterialEffects& rhs) {
@@ -118,7 +118,7 @@ GXFMaterialEffects& GXFMaterialEffects::operator=(GXFMaterialEffects& rhs) {
     m_matprop=rhs.m_matprop;
     m_measscatphi=rhs.m_measscatphi;
     m_sintheta=rhs.m_sintheta;
-    //m_pjac=rhs.m_pjac;
+    m_owneloss=rhs.m_owneloss;
   }
   return *this;
 }
