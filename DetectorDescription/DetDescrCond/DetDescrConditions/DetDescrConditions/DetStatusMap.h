@@ -85,11 +85,11 @@ inline void DetStatusMap::add(const std::string& name, const DetStatus& status)
 }
 
 inline MsgStream& DetStatusMap::toOutputStream(MsgStream& os) const {
-  os << "DetStatusMap of size: " << m_statmap.size() << endreq;
+  os << "DetStatusMap of size: " << m_statmap.size() << endmsg;
   for (StatusMap::const_iterator itr=m_statmap.begin();itr!=m_statmap.end();
        ++itr) os << itr->first << " : " << itr->second.colour() << " (" <<
 		itr->second.deadFrac() << "," << itr->second.deadThrust() <<
-		")" << endreq;
+		")" << endmsg;
   return os;
 }
 
