@@ -109,13 +109,43 @@ GlobalChi2Fitter::GlobalChi2Fitter(const std::string& t,const std::string& n,
     m_fieldService("AtlasFieldSvc",n),
     m_trackingGeometrySvc("",n), 
     //m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",n),
-    m_trackingGeometry(0), 
-    m_caloEntrance(0),   
-    //m_caloEntrance2(0),   
-    m_msEntrance(0),   
-    m_derivmat(0),
-    m_fullcovmat(0),
-    m_DetID(0),
+    m_trackingGeometry(nullptr), 
+    m_caloEntrance(nullptr),    
+    m_msEntrance(nullptr), 
+    m_option_allowEmptyROT{},
+    m_signedradius{},
+    m_calomat{}, m_extmat{}, m_idmat{},  
+    m_derivmat(nullptr),
+    m_fullcovmat(nullptr),
+    m_DetID(nullptr),
+    m_decomposesegments{},
+    m_getmaterialfromtrack{},
+    m_domeastrackpar{},
+    m_storemat{},
+    m_chi2cut{},
+    m_scalefactor{},
+    m_redoderivs{},
+    m_reintoutl{},
+    m_matfilled{},
+    m_inputPreparator{},
+    m_maxit{},
+    m_nfits{},m_nsuccessfits{},m_matrixinvfailed{},m_notenoughmeas{},m_propfailed{},m_invalidangles{},m_notconverge{},m_highchi2{},m_lowmomentum{},
+    m_kinkallowed{},
+    m_acceleration{},
+    m_numderiv{},
+    m_lastiter{},
+    m_miniter{},
+    m_fiteloss{},
+    m_asymeloss{},
+    m_fieldpropnofield(nullptr),
+    m_fieldpropfullfield(nullptr),
+    m_fieldprop(nullptr),
+    m_prefit{},
+    //m_derivpool{}, static member
+    m_a{},m_ainv{},
+    m_particleMasses{},
+    m_residuals{},
+    m_updatescat{},
     m_useCaloTG(false),
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool")
   {
@@ -204,68 +234,68 @@ StatusCode GlobalChi2Fitter::initialize()
 
   if (m_ROTcreator.name()!=""){
     if (m_ROTcreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_ROTcreator.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_ROTcreator.type() << endmsg;
       return StatusCode::FAILURE; 
     }
   }
 
   if (m_broadROTcreator.name()!=""){
     if (m_broadROTcreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_broadROTcreator.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_broadROTcreator.type() << endmsg;
       return StatusCode::FAILURE; 
     }
   }  
 
   
   if (m_updator.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_updator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_updator.type() << endmsg;
     return StatusCode::FAILURE; 
   }
   
   if (m_extrapolator.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_extrapolator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_extrapolator.type() << endmsg;
     return StatusCode::FAILURE; 
   }
   
   if (m_navigator.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_navigator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_navigator.type() << endmsg;
     return StatusCode::FAILURE; 
   }
   
   if(m_residualPullCalculator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator <<" (to calculate residuals and pulls) "<< endreq;
+    msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator <<" (to calculate residuals and pulls) "<< endmsg;
     return StatusCode::FAILURE;;
   }
 
   if (m_propagator.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_propagator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_propagator.type() << endmsg;
     return StatusCode::FAILURE; 
   }
   
   if (m_calomat){
     if (m_calotool.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_calotool.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_calotool.type() << endmsg;
       return StatusCode::FAILURE; 
     }
     if (!m_calotoolparam.empty() && m_calotoolparam.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_calotoolparam.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_calotoolparam.type() << endmsg;
       return StatusCode::FAILURE; 
     }
   } 
   
  
   if (m_scattool.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_scattool.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_scattool.type() << endmsg;
     return StatusCode::FAILURE; 
   }
 
   if (m_elosstool.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_elosstool.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_elosstool.type() << endmsg;
     return StatusCode::FAILURE; 
   }
 
   if (m_matupdator.name()!="" && m_matupdator.retrieve().isFailure()) { 
-    msg(MSG::FATAL) << "Could not get " << m_matupdator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_matupdator.type() << endmsg;
     return StatusCode::FAILURE; 
   }
 
@@ -283,29 +313,29 @@ StatusCode GlobalChi2Fitter::initialize()
   }
   
   if (m_fillderivmatrix && m_acceleration){ 
-     msg(MSG::WARNING) << "FillDerivativeMatrix option selected, switching off acceleration!" << endreq; 
+     msg(MSG::WARNING) << "FillDerivativeMatrix option selected, switching off acceleration!" << endmsg; 
      m_acceleration=false; 
   } 
 
   if(!m_trackingGeometrySvc.empty()){
     StatusCode sc = m_trackingGeometrySvc.retrieve(); 
     if( sc.isFailure() ){ 
-      msg(MSG::ERROR) << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endreq; 
+      msg(MSG::ERROR) << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endmsg; 
       return StatusCode::FAILURE;
     }  
-    msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endreq; 
+    msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg; 
   }
 
   if(m_useCaloTG) {
     StatusCode sc = m_caloMaterialProvider.retrieve(); 
     if( sc.isFailure() ){ 
-      msg(MSG::ERROR) << " failed to retrieve " << m_caloMaterialProvider << endreq; 
+      msg(MSG::ERROR) << " failed to retrieve " << m_caloMaterialProvider << endmsg; 
       return StatusCode::FAILURE;
     }  
-    msg(MSG::INFO)  << m_caloMaterialProvider << " retrieved " << endreq; 
+    msg(MSG::INFO)  << m_caloMaterialProvider << " retrieved " << endmsg; 
   }
   
-  msg(MSG::INFO) << "fixed momentum: " << m_p << endreq;
+  msg(MSG::INFO) << "fixed momentum: " << m_p << endmsg;
   m_inputPreparator = new TrackFitInputPreparator;
   
   m_nfits=0;
@@ -329,17 +359,17 @@ StatusCode GlobalChi2Fitter::finalize()
 {
   delete m_inputPreparator;
   
-  msg(MSG::INFO) << "finalize()" << endreq;	
-  msg(MSG::INFO) << m_nfits << " attempted track fits" << endreq;
-  msg(MSG::INFO) << m_nsuccessfits << " successful track fits" << endreq;
-  msg(MSG::INFO) << m_matrixinvfailed << " track fits failed because of a matrix inversion failure" << endreq;
-  msg(MSG::INFO) << m_notenoughmeas << " tracks were rejected by the outlier logic" << endreq;
-  msg(MSG::INFO) << m_propfailed << " track fits failed because of a propagation failure" << endreq;
-  msg(MSG::INFO) << m_invalidangles << " track fits failed because of an invalid angle (theta/phi)" << endreq;
-  msg(MSG::INFO) << m_notconverge << " track fits failed because the fit did not converge" << endreq;
-  msg(MSG::INFO) << m_highchi2 << " tracks did not pass the chi^2 cut" << endreq;
-  msg(MSG::INFO) << m_lowmomentum << " tracks were killed by the energy loss update" << endreq;
-  msg(MSG::INFO) << m_energybalance << " tracks failed the energy balance cut" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;	
+  msg(MSG::INFO) << m_nfits << " attempted track fits" << endmsg;
+  msg(MSG::INFO) << m_nsuccessfits << " successful track fits" << endmsg;
+  msg(MSG::INFO) << m_matrixinvfailed << " track fits failed because of a matrix inversion failure" << endmsg;
+  msg(MSG::INFO) << m_notenoughmeas << " tracks were rejected by the outlier logic" << endmsg;
+  msg(MSG::INFO) << m_propfailed << " track fits failed because of a propagation failure" << endmsg;
+  msg(MSG::INFO) << m_invalidangles << " track fits failed because of an invalid angle (theta/phi)" << endmsg;
+  msg(MSG::INFO) << m_notconverge << " track fits failed because the fit did not converge" << endmsg;
+  msg(MSG::INFO) << m_highchi2 << " tracks did not pass the chi^2 cut" << endmsg;
+  msg(MSG::INFO) << m_lowmomentum << " tracks were killed by the energy loss update" << endmsg;
+  msg(MSG::INFO) << m_energybalance << " tracks failed the energy balance cut" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -352,7 +382,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
                              const Track&             intrk2, 
                              const RunOutlierRemoval  , 
                              const ParticleHypothesis ) const { 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,Track,)" << endreq;			     
+  ATH_MSG_DEBUG ("--> entering GlobalChi2Fitter::fit(Track,Track,)" );			     
   
   if (!m_straightlineprop) m_straightline= (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
   m_fieldprop = m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
@@ -431,7 +461,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     if(!m_calotool.empty())
       calomeots=m_calotool->extrapolationSurfacesAndEffects(*m_navigator->highestVolume(),*prop, *parforcalo,parforcalo->associatedSurface(),Trk::anyDirection,Trk::muon);
   }else{
-    msg(MSG::VERBOSE) << "Updating Calorimeter TSOS in Muon Combined Fit ..." << endreq;
+    msg(MSG::VERBOSE) << "Updating Calorimeter TSOS in Muon Combined Fit ..." << endmsg;
     m_caloMaterialProvider->getCaloMEOT(*indettrack, *muontrack, calomeots);
   }
 
@@ -439,7 +469,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
   //std::cout << "eloss: " << calomeots[1].energyLoss()->deltaE() << std::endl;  
   if (firstismuon) std::reverse(calomeots.begin(),calomeots.end());
   if (calomeots.empty()){
-    msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endreq;
+    msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endmsg;
     return 0;
   }
   
@@ -463,11 +493,11 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     double energyerror=sqrt(calomeots[1].energyLoss()->sigmaDeltaE()*calomeots[1].energyLoss()->sigmaDeltaE()+piderror*piderror+pmuonerror*pmuonerror);
     //std::cout << "energyerror: " << energyerror << " p id: " << 1/qoverpid << " p muon: " << 1/qoverpmuon << " eloss: " << std::abs(calomeots[1].energyLoss()->deltaE()) << std::endl;
     if ((std::abs(calomeots[1].energyLoss()->deltaE())-std::abs(1/qoverpid)+std::abs(1/qoverpmuon))/energyerror>5){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endmsg;
       calomeots=m_calotoolparam->extrapolationSurfacesAndEffects(*m_navigator->highestVolume(),*prop, *parforcalo,parforcalo->associatedSurface(),Trk::anyDirection,Trk::muon);
       //isparametrized=true;
       if (calomeots.empty()){
-        msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endreq;
+        msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endmsg;
         if (!m_fieldService->solenoidOn()) delete parforcalo; 
         return 0;
       }
@@ -483,7 +513,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
     if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");  
     if (!m_caloEntrance) {
-      msg(MSG::ERROR) << "calo entrance not available" << endreq;
+      msg(MSG::ERROR) << "calo entrance not available" << endmsg;
       return 0;
     }
   }
@@ -504,7 +534,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     trajectory=trajectory2;
     track=backupCombinationStrategy(intrk1,intrk2,trajectory,calomeots);
     /* if (!track && !isparametrized && m_fittercode!=FitterStatusCode::Success) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endmsg;
       calomeots=m_calotoolparam->extrapolationSurfacesAndEffects(*m_navigator->highestVolume(),*prop, *parforcalo,*parforcalo->associatedSurface(),Trk::anyDirection,Trk::muon);
       isparametrized=true;
       if (calomeots.size()==3){
@@ -524,7 +554,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     delete track;
     track=0;
     m_energybalance++;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track failed energy balance cut" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track failed energy balance cut" << endmsg;
   }  */
   bool pseudoupdated=false;
   if (track) {
@@ -578,7 +608,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
                                                  GXFTrajectory&           trajectory, 
                                                  std::vector<MaterialEffectsOnTrack> &calomeots) const {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::mainCombinationStrategy" << endreq;			     
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::mainCombinationStrategy" << endmsg;			     
 
   bool firstismuon=false;
   double mass = m_particleMasses.mass[muon];
@@ -645,7 +675,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
   if (!m_msEntrance) {
     m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
     if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");  
-    if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endreq;
+    if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
   }
   if (tp_closestmuon && m_msEntrance) tmppar=m_extrapolator->extrapolateToVolume(*tp_closestmuon,*m_msEntrance,propdir,nonInteracting);
   const std::vector<const TrackStateOnSurface*> *matvec=0;
@@ -1001,7 +1031,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pull1: " << pull1 << " pull2: " << pull2 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pull1: " << pull1 << " pull2: " << pull2 << endmsg;
   if (!startPar) return 0;
   if ((pull1>5 || pull2>5)  && (pull1>25 || pull2>25 || dynamic_cast<const StraightLineSurface *>(&closestmuonmeas->associatedSurface()))  ) {
     if (startPar!=lastidpar && startPar!=indettrack->perigeeParameters()) delete startPar;
@@ -1047,7 +1077,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
       pseudostate->setMeasurementErrors(errors);
       trajectory.addMeasurementState(pseudostate);
       ispseudo=true;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding pseudomeasurement" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding pseudomeasurement" << endmsg;
     }
     if (std::abs(trajectory.trackStates().back()->position().z())>20000 && std::abs(previousz)<12000) largegap=true;
     if (trajectory.trackStates().back()->trackStateType()==TrackState::Fittable) previousz=trajectory.trackStates().back()->position().z();
@@ -1067,7 +1097,7 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
                                                    GXFTrajectory&           trajectory, 
                                                    std::vector<MaterialEffectsOnTrack> &calomeots) const {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::backupCombinationStrategy" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::backupCombinationStrategy" << endmsg;
   //std::cout << "intrk1: " << intrk1 << " intrk2: " << intrk2 << std::endl;
   bool firstismuon=false;
   const Track *indettrack=&intrk1;
@@ -1298,7 +1328,7 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
       errors[1]=10;
       firstpseudostate->setMeasurementErrors(errors);
       trajectory.addMeasurementState(firstpseudostate);
-      msg(MSG::DEBUG) << "Adding PseudoMeasurement" << endreq;
+      msg(MSG::DEBUG) << "Adding PseudoMeasurement" << endmsg;
       continue;
     }
     if (pseudo && !firstismuon) continue;
@@ -1406,16 +1436,16 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
 Track* GlobalChi2Fitter::fit (const Track&             inputTrack,
                               const RunOutlierRemoval  runOutlier,
                               const ParticleHypothesis matEffects) const {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,,)" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,,)" << endmsg;
 #ifdef GXFDEBUGCODE
   if (m_truth) retrieveTruth();	
 #endif
   if (inputTrack.trackStateOnSurfaces()->empty()) {
-    msg(MSG::WARNING) << "Track with zero track states, cannot perform fit" << endreq;
+    msg(MSG::WARNING) << "Track with zero track states, cannot perform fit" << endmsg;
     return 0;
   }
   if (inputTrack.trackParameters()->empty()) {
-    msg(MSG::WARNING) << "Track without track parameters, cannot perform fit" << endreq;
+    msg(MSG::WARNING) << "Track without track parameters, cannot perform fit" << endmsg;
     return 0;
   }
   const TrackParameters *minpar=inputTrack.perigeeParameters(),*firstidpar=0,*lastidpar=0;
@@ -1525,7 +1555,7 @@ Track* GlobalChi2Fitter::fit (const Track&             inputTrack,
         if (layerNormal) { 
           costracksurf=fabs(layerNormal->dot(layerpars->momentum().unit())); 
         } 
-        else msg(MSG::WARNING) << "No normal on surface found!" << endreq; 
+        else msg(MSG::WARNING) << "No normal on surface found!" << endmsg; 
         delete layerNormal; 
         delete locpos; 
         double oldde=meff->deltaE();
@@ -1648,7 +1678,7 @@ Track* GlobalChi2Fitter::fit(const PrepRawDataSet&    prds,
     const Surface &prdsurf=(**it).detectorElement()->surface((**it).identify());
     /* const TrackParameters *hitparam=m_extrapolator->extrapolateDirectly(*prevparam,prdsurf,Trk::anyDirection,false,Trk::nonInteracting);
     if (!hitparam){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fit prds: propagation failed, check seed parameters, param: " << param << " surface: " << (**it).detectorElement()->surface((**it).identify()) << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fit prds: propagation failed, check seed parameters, param: " << param << " surface: " << (**it).detectorElement()->surface((**it).identify()) << endmsg;
        while (!rots.empty()){
          delete *(rots.end()-1);
 	 rots.pop_back();
@@ -1698,7 +1728,7 @@ Track* GlobalChi2Fitter::fit(const Track&             inputTrack,
                              const RunOutlierRemoval  runOutlier,
                              const ParticleHypothesis matEffects) const {
  
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,Meas'BaseSet,,)" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Track,Meas'BaseSet,,)" << endmsg;
 #ifdef GXFDEBUGCODE
   if (m_truth) retrieveTruth();	
 #endif
@@ -1737,7 +1767,7 @@ trajectory.trackStates().back()->materialEffects()->sigmaDeltaE()>50.001) trajec
   
   for ( ; itSet!=itSetEnd; ++itSet) {
     if (!(*itSet)) {
-      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endreq;
+      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
     } 
     else {
       makeProtoStateFromMeasurement( trajectory, *itSet );
@@ -1780,7 +1810,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk,
     const Surface &prdsurf=(**it).detectorElement()->surface((**it).identify());
     /* const TrackParameters *hitparam=m_extrapolator->extrapolateDirectly(*prevparam,prdsurf,Trk::anyDirection,false,Trk::nonInteracting);
     if (!hitparam){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fit track+prds: propagation failed, check seed parameters, param: " << *intrk.trackParameters()->back() << " surface: " << (**it).detectorElement()->surface((**it).identify()) << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fit track+prds: propagation failed, check seed parameters, param: " << *intrk.trackParameters()->back() << " surface: " << (**it).detectorElement()->surface((**it).identify()) << endmsg;
        while (!rots.empty()){
          delete *(rots.end()-1);
 	 rots.pop_back();
@@ -1812,7 +1842,7 @@ Track* GlobalChi2Fitter::fit(const MeasurementSet&    rots,
                              const RunOutlierRemoval  runOutlier,
                              const ParticleHypothesis matEffects) const {
 			    
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Meas'BaseSet,,)" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "--> entering GlobalChi2Fitter::fit(Meas'BaseSet,,)" << endmsg;
 
 #ifdef GXFDEBUGCODE
   if (m_truth) retrieveTruth();	
@@ -1823,7 +1853,7 @@ Track* GlobalChi2Fitter::fit(const MeasurementSet&    rots,
   GXFTrajectory trajectory;
   for ( ; itSet!=itSetEnd; ++itSet) {
     if (!(*itSet)) {
-      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endreq;
+      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
     } 
     else {
       makeProtoStateFromMeasurement( trajectory, *itSet );
@@ -2016,7 +2046,7 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
 	  if (msgLvl(MSG::DEBUG)) string2="RPC hit";
 	  hittype=TrackState::RPC;
           if (measbase->localParameters().parameterKey()!=1) {
-            msg(MSG::WARNING) << "Corrupt RPC hit, skipping it" << endreq;
+            msg(MSG::WARNING) << "Corrupt RPC hit, skipping it" << endmsg;
             delete ptsos;
             continue;
           }
@@ -2073,7 +2103,7 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
         //if (!rot) std::cout << "measbase: " << *measbase2 << std::endl;
 	if (m_truth && rot) printTruth(rot->identify());
 #endif
-	msg(MSG::DEBUG) << endreq;
+	msg(MSG::DEBUG) << endmsg;
       
       }
     }
@@ -2105,15 +2135,15 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
       }
       if (dynamic_cast<const PseudoMeasurementOnTrack*>(measbase2)) {
         hittype=TrackState::Pseudo;
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PseudoMeasurement, pos=" << measbase2->globalPosition() << endreq; // print out the hit type     
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PseudoMeasurement, pos=" << measbase2->globalPosition() << endmsg; // print out the hit type     
       }
       else if (dynamic_cast<const VertexOnTrack*>(measbase2)) {
         hittype=TrackState::Vertex;
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "VertexOnTrack, pos=" << measbase2->globalPosition() << endreq; // print out the hit type     
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "VertexOnTrack, pos=" << measbase2->globalPosition() << endmsg; // print out the hit type     
       }
       else if (dynamic_cast<const Segment*>(measbase2)) {
         hittype=TrackState::Segment;
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Segment, pos=" << measbase2->globalPosition() << endreq; // print out the hit type     
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Segment, pos=" << measbase2->globalPosition() << endmsg; // print out the hit type     
       }
     }
     if (errors[0]>0 || errors[1]>0 || errors[2]>0 || errors[3]>0 || errors[4]>0){
@@ -2124,11 +2154,11 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
       if (isoutlier && !m_reintoutl) ptsos->setTrackStateType(TrackState::GeneralOutlier);
       //@TODO here index really is supposed to refer to the method argument index ? 
       bool ok=trajectory.addMeasurementState(ptsos,index);
-      if (!ok) msg(MSG::WARNING) << "Duplicate hit on track" << endreq;
+      if (!ok) msg(MSG::WARNING) << "Duplicate hit on track" << endmsg;
     }
     else {
       delete ptsos;
-      msg(MSG::WARNING) << "Measurement error is zero or negative, drop hit" << endreq;
+      msg(MSG::WARNING) << "Measurement error is zero or negative, drop hit" << endmsg;
     }
     m_hitcount++;
   }
@@ -2281,7 +2311,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
     //if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::EntryVolume");
     if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
     if (!m_caloEntrance) {
-      msg(MSG::ERROR) << "calo entrance not available" << endreq;
+      msg(MSG::ERROR) << "calo entrance not available" << endmsg;
       return;
     }
     bool ok=processTrkVolume(m_caloEntrance);
@@ -2577,7 +2607,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
           msg(MSG::DEBUG) << " qoverp: " << currentqoverp;
           msg(MSG::DEBUG) << " sigmascat " << meff->sigmaDeltaTheta();
           msg(MSG::DEBUG) << " eloss: " << meff->deltaE() << " sigma eloss: " << meff->sigmaDeltaE();
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }  
       layerindex++;
     }
@@ -2712,14 +2742,14 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
     }
 
     if (distance<0 && distsol.numberOfSolutions()>0 && !m_acceleration){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Obtaining upstream layers from Extrapolator" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Obtaining upstream layers from Extrapolator" << endmsg;
       const Surface *destsurf=&firstidhit->associatedSurface();
       const TrackParameters *tmppar=0;
       if (firstmuonhit){
         if (!m_caloEntrance){
           m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
           if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");  
-          if (!m_caloEntrance) msg(MSG::ERROR) << "calo entrance not available" << endreq;
+          if (!m_caloEntrance) msg(MSG::ERROR) << "calo entrance not available" << endmsg;
         }
         if (m_caloEntrance){
           tmppar=m_extrapolator->extrapolateToVolume(*startmatpar1,*m_caloEntrance,oppositeMomentum,Trk::nonInteracting);
@@ -2757,7 +2787,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
 
     if (distance>0 && distsol.numberOfSolutions()>0){
 	
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Obtaining downstream ID layers from Extrapolator" << endreq;
+      ATH_MSG_DEBUG( "Obtaining downstream ID layers from Extrapolator" );
       const Surface *destsurf=&lastidhit->associatedSurface();
       const TrackParameters *tmppar=0;
       Surface *calosurf=0;
@@ -2765,11 +2795,11 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
         if (!m_caloEntrance){
           m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
           if (m_trackingGeometry) m_caloEntrance = m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");  
-          if (!m_caloEntrance) msg(MSG::ERROR) << "calo entrance not available" << endreq;
+          if (!m_caloEntrance) msg(MSG::ERROR) << "calo entrance not available" << endmsg;
         }
         /* if (!m_caloEntrance2){
           m_caloEntrance2=new Trk::Volume(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-          if (!m_caloEntrance2) msg(MSG::ERROR) << "calo entrance not available" << endreq;
+          if (!m_caloEntrance2) msg(MSG::ERROR) << "calo entrance not available" << endmsg;
         } */
         if (m_caloEntrance){
           tmppar=m_extrapolator->extrapolateToVolume(*startmatpar2,*m_caloEntrance,Trk::alongMomentum,Trk::nonInteracting);
@@ -2823,7 +2853,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
         }
 	  
       }
-      else msg(MSG::WARNING) << "No material layers collected from Extrapolator" << endreq;
+      else msg(MSG::WARNING) << "No material layers collected from Extrapolator" << endmsg;
     }
   }
   if (dodelete){
@@ -2910,7 +2940,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       }
     }
     else {
-      msg(MSG::WARNING) << "No material layers collected in calorimeter" << endreq; 
+      msg(MSG::WARNING) << "No material layers collected in calorimeter" << endmsg; 
       for (int i=0;i<(int)matstates.size();i++){
         delete matstates[i];
       }
@@ -2925,12 +2955,12 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       if (!m_msEntrance){
         m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
         if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");  
-        if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endreq;
+        if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
       }
       if (m_msEntrance && m_msEntrance->inside(lastcalopar->position())) {
         muonpar1=m_extrapolator->extrapolateToVolume(*lastcalopar,*m_msEntrance,Trk::alongMomentum,Trk::nonInteracting);
         if (muonpar1){
-	  Amg::Vector3D trackdir=muonpar1->momentum().unit();
+	        Amg::Vector3D trackdir=muonpar1->momentum().unit();
           Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0,0,1)));
           Amg::Vector3D curvU = curvZcrossT.unit();
           Amg::Vector3D curvV = trackdir.cross(curvU);
@@ -2962,7 +2992,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       distance= (std::abs(distsol.first())<std::abs(distsol.second())) ? distsol.first() : distsol.second();
     }
 
-    if (distance>0 && distsol.numberOfSolutions()>0){
+    if ((distance>0) and (distsol.numberOfSolutions()>0) and firstmuonhit){
       distsol=firstmuonhit->associatedSurface().straightLineDistanceEstimate(muonpar1->position(),muonpar1->momentum().unit()); 
       distance=0;
       if (distsol.numberOfSolutions()==1) distance=distsol.first();
@@ -2971,7 +3001,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       }
       if (distance<0 && distsol.numberOfSolutions()>0 && !firstidhit){
         if (firstmuonpar) { 
-	  AmgVector(5) newpars=firstmuonpar->parameters(); 
+	        AmgVector(5) newpars=firstmuonpar->parameters(); 
           if (m_straightline && m_p!=0 ) newpars[Trk::qOverP]=1/m_p; 
           muonpar1= firstmuonpar->associatedSurface().createTrackParameters(newpars[0],newpars[1],newpars[2],newpars[3],newpars[4],0);
         } 
@@ -2981,7 +3011,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
         }
       }
       const TrackParameters *prevtp=muonpar1;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Obtaining downstream layers from Extrapolator" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Obtaining downstream layers from Extrapolator" << endmsg;
       //std::cout << "prevtp: " << *prevtp << std::endl;
       m_matvecmuondownstream=m_extrapolator->extrapolateM(*prevtp,*states.back()->surface(),alongMomentum,false,Trk::nonInteractingMuon);
       matvec=m_matvecmuondownstream;
@@ -3008,7 +3038,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       if (!m_msEntrance){
         m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
         if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");  
-        if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endreq;
+        if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
       }
       if (m_msEntrance && m_msEntrance->inside(firstcalopar->position())) { 
         muonpar1=m_extrapolator->extrapolateToVolume(*firstcalopar,*m_msEntrance,Trk::oppositeMomentum,Trk::nonInteracting);
@@ -3048,12 +3078,12 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
     if (distance<0 && distsol.numberOfSolutions()>0){
       
       const TrackParameters *prevtp=muonpar1;
-      msg(MSG::DEBUG) << "Collecting upstream muon material from extrapolator" << endreq;
+      msg(MSG::DEBUG) << "Collecting upstream muon material from extrapolator" << endmsg;
 
       m_matvecmuonupstream=m_extrapolator->extrapolateM(*prevtp,*states[0]->surface(),oppositeMomentum,false,Trk::nonInteractingMuon);
       matvec=m_matvecmuonupstream;
       if (matvec && !matvec->empty()){
-        msg(MSG::DEBUG) << "Retrieved " << matvec->size() << " material states" << endreq;
+        msg(MSG::DEBUG) << "Retrieved " << matvec->size() << " material states" << endmsg;
         for (int j=0;j<(int)matvec->size();j++){
           const MaterialEffectsBase *meb=(*matvec)[j]->materialEffectsOnTrack();
           if (meb) {
@@ -3069,7 +3099,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
     }
     if (muonpar1!=refpar && muonpar1!=firstcalopar) delete muonpar1;
   } 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of layers: " << matstates.size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of layers: " << matstates.size() << endmsg;
   
   // Now insert the material states into the trajectory
   std::vector<GXFTrackState*> oldstates=states;
@@ -3111,8 +3141,8 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
       if (addlayer){
         GXFMaterialEffects *meff=matstates[layerno]->materialEffects();
         if (meff->sigmaDeltaPhi()>.4 || (meff->sigmaDeltaPhi()==0 && meff->sigmaDeltaE()<=0)) { 
-          if (meff->sigmaDeltaPhi()>.4) msg(MSG::WARNING) << "Material state with excessive scattering, skipping it" << endreq; 
-          if (meff->sigmaDeltaPhi()==0) msg(MSG::WARNING) << "Material state with zero scattering, skipping it" << endreq; 
+          if (meff->sigmaDeltaPhi()>.4) msg(MSG::WARNING) << "Material state with excessive scattering, skipping it" << endmsg; 
+          if (meff->sigmaDeltaPhi()==0) msg(MSG::WARNING) << "Material state with zero scattering, skipping it" << endmsg; 
           delete matstates[layerno];
           layerno++;
           continue;
@@ -3138,7 +3168,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
           if (layerpar) msg(MSG::DEBUG) << " qoverp: " << layerpar->parameters()[Trk::qOverP];
           msg(MSG::DEBUG) << " sigmascat " << meff->sigmaDeltaTheta();
           msg(MSG::DEBUG) << " eloss: " << meff->deltaE() << " sigma eloss: " << meff->sigmaDeltaE();
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }  
         layerno++;
       }
@@ -3146,7 +3176,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
     }     
     states.push_back(oldstates[i]);
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total X0: " << trajectory.totalX0() << " total eloss: " << trajectory.totalEnergyLoss() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total X0: " << trajectory.totalX0() << " total eloss: " << trajectory.totalEnergyLoss() << endmsg;
   
   for (;layerno<(int)matstates.size();layerno++){
     delete matstates[layerno];
@@ -3168,7 +3198,7 @@ const TrackParameters *GlobalChi2Fitter::makePerigee(const TrackParameters &para
   PerigeeSurface tmppersf;
   per=m_extrapolator->extrapolate(param,tmppersf,oppositeMomentum,false,matEffects);
   if (!per){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot make Perigee with starting parameters" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot make Perigee with starting parameters" << endmsg;
     return 0;
   }
   return per;
@@ -3180,7 +3210,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionPixel, m_multiTruthCollectionPixelName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionPixelName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionPixelName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionPixel=0;
     }
@@ -3189,7 +3219,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
   if(evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruthCollectionSCTName)){
     StatusCode sc = evtStore()->retrieve(m_truthCollectionSCT, m_multiTruthCollectionSCTName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionSCTName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionSCTName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionSCT=0;
     }
@@ -3199,7 +3229,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionTRT, m_multiTruthCollectionTRTName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionTRT=0;
     }
@@ -3210,7 +3240,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionMDT, m_multiTruthCollectionMDTName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionMDTName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionMDTName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionMDT=0;
     }
@@ -3220,7 +3250,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionRPC, m_multiTruthCollectionRPCName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionRPCName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionRPCName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionRPC=0;
     }
@@ -3229,7 +3259,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionTGC, m_multiTruthCollectionTGCName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTGCName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTGCName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionTGC=0;
     }
@@ -3238,7 +3268,7 @@ void GlobalChi2Fitter::retrieveTruth() const{
 
     StatusCode sc = evtStore()->retrieve(m_truthCollectionCSC, m_multiTruthCollectionCSCName);
     if(sc.isFailure()){
-      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionCSCName << endreq;
+      msg(MSG::INFO) << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionCSCName << endmsg;
       sc=StatusCode::SUCCESS; // not having truth information is not a failure
       m_truthCollectionCSC=0;
     }
@@ -3296,7 +3326,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
     else trajectory.setNumberOfPerigeeParameters(5);
   }
   if (trajectory.nDOF()<0) {
-    msg(MSG::WARNING) << "Not enough measurements, reject track" << endreq;
+    msg(MSG::WARNING) << "Not enough measurements, reject track" << endmsg;
     //cleanup();
     return 0;
   }
@@ -3308,13 +3338,13 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
   m_lastmeasurement.clear();
 
   if (matEffects!=nonInteracting && param.parameters()[Trk::qOverP]==0 && m_p==0){
-    msg(MSG::WARNING) << "Attempt to apply material corrections with q/p=0, reject track" << endreq;
+    msg(MSG::WARNING) << "Attempt to apply material corrections with q/p=0, reject track" << endmsg;
     //cleanup();
     return 0;
   }
   
   if (matEffects==Trk::electron && m_straightline){
-    msg(MSG::WARNING) << "Electron fit requires helix track model" << endreq;
+    msg(MSG::WARNING) << "Electron fit requires helix track model" << endmsg;
     //cleanup();
     return 0;
   }
@@ -3322,12 +3352,12 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
   double mass = m_particleMasses.mass[matEffects];
   trajectory.setMass(mass);
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "start param: " << param << " pos: " << param.position() << " pt: " << param.pT() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "start param: " << param << " pos: " << param.position() << " pt: " << param.pT() << endmsg;
   const TrackParameters *per= makePerigee(param,matEffects); // When acceleration is enabled, perigee is constructed below instead of in makePerigee()
   if (!m_acceleration && !per) {
     m_fittercode=FitterStatusCode::ExtrapolationFailure;
     m_propfailed++;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 1" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 1" << endmsg;
     //cleanup();
     return 0;
   }
@@ -3414,7 +3444,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
             if (i!=0) delete nearestpar;
             m_fittercode=FitterStatusCode::ExtrapolationFailure;
             m_propfailed++;
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 2" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 2" << endmsg;
             //cleanup();
             return 0;
           }
@@ -3450,7 +3480,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
     if (!per) {
       m_fittercode=FitterStatusCode::ExtrapolationFailure;
       m_propfailed++;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 3" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 3" << endmsg;
       //cleanup();
       return 0;
     }
@@ -3464,7 +3494,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
   if (!per && !trajectory.referenceParameters()) {
     m_fittercode=FitterStatusCode::ExtrapolationFailure;
     m_propfailed++;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 4" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation to perigee failed 4" << endmsg;
     //cleanup();
     return 0;
   }
@@ -3516,7 +3546,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
     m_lastiter=it;
     if (it>=m_maxit-1){
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endmsg;
       m_fittercode=FitterStatusCode::NoConvergence;
       m_notconverge++;
       gErrorIgnoreLevel=originalErrorLevel;
@@ -3545,10 +3575,10 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
       if (it>0 && it<4 && ((redchi2<prevredchi2 && (redchi2>prevredchi2-1 || redchi2<2)) || nsihits+ntrthits==nhits) && (runOutlier || m_trtrecal) && ntrthits>0) {
         if (!(it==1 && nsihits==0 && trajectory.nDOF()>0 && trajectory.chi2()/trajectory.nDOF()>3)) {
           
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running TRT cleaner" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running TRT cleaner" << endmsg;
           runTrackCleanerTRT(trajectory,m_a,b,lu,runOutlier,m_trtrecal,it);
           if (m_fittercode!=FitterStatusCode::Success) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT cleaner failed, returning null..." << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT cleaner failed, returning null..." << endmsg;
             gErrorIgnoreLevel=originalErrorLevel;
             //cleanup();
 	    m_miniter=tmpminiter;
@@ -3590,7 +3620,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
     }
     //bool ok=lu.Invert(ainv);
     if (ok) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endmsg;
       m_matrixinvfailed++;
       m_fittercode=FitterStatusCode::MatrixInversionFailure;
       gErrorIgnoreLevel=originalErrorLevel;
@@ -3610,7 +3640,7 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
   gErrorIgnoreLevel=originalErrorLevel;
 
   if (m_fittercode!=FitterStatusCode::Success) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Silicon cleaner failed, returning null..." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Silicon cleaner failed, returning null..." << endmsg;
     if (finaltrajectory!=&trajectory) delete finaltrajectory;
     //cleanup();
     return 0;
@@ -3814,7 +3844,7 @@ void GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory,int it,TMatrixDSy
       //double signafterbrem= (p>0) ? 1 : -1;
       double mass=.001*trajectory.mass();
       //res[nmeas-nbrem+bremno]=.001*averagenergyloss-sqrt(1./(qoverp*qoverp)+mass*mass)+signafterbrem*sqrt(1./(qoverpbrem*qoverpbrem)+mass*mass);
-      res[nmeas-nbrem+bremno]=.001*averagenergyloss-sqrt(p*p+mass*mass)+sqrt(pbrem*pbrem+mass*mass);
+      res[nmeas-nbrem+bremno]=.001*averagenergyloss-std::sqrt(p*p+mass*mass)+std::sqrt(pbrem*pbrem+mass*mass);
       double sigde=state->materialEffects()->sigmaDeltaE();
       //double sigdeave=state->materialEffects()->sigmaDeltaEAve();
       double sigdepos=state->materialEffects()->sigmaDeltaEPos();
@@ -3855,7 +3885,7 @@ void GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory,int it,TMatrixDSy
           double newres=.001*averagenergyloss-sqrt(p*p+mass*mass)+sqrt(pbrem*pbrem+mass*mass);
           double newerr=.001*calomeots[1].energyLoss()->sigmaDeltaE();
           if (std::abs(newres/newerr)<std::abs(res[nmeas-nbrem+bremno]/error[nmeas-nbrem+bremno])) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing from measured to parametrized energy loss" << endmsg;
             state->materialEffects()->setEloss(calomeots[1].energyLoss()->clone());
             state->materialEffects()->setSigmaDeltaE(calomeots[1].energyLoss()->sigmaDeltaE());
             res[nmeas-nbrem+bremno]=newres;
@@ -3875,7 +3905,7 @@ void GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory,int it,TMatrixDSy
     }
     chi2+=res[measno]*(1./(error[measno]*error[measno]))*res[measno];
   
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "res[" << measno << "]: " << res[measno] << " error[" << measno << "]: " <<  error[measno] << " res/err: " << res[measno]/error[measno] << endreq; 
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "res[" << measno << "]: " << res[measno] << " error[" << measno << "]: " <<  error[measno] << " res/err: " << res[measno]/error[measno] << endmsg; 
   }
   if (!doderiv && (scatwasupdated /* || nbrem>0*/)) lu.SetMatrix(a);  
   /* if (trajectory.nDOF()>0 && chi2/trajectory.nDOF()>1.e4){
@@ -4277,7 +4307,7 @@ FitterStatusCode GlobalChi2Fitter::runIteration(GXFTrajectory &trajectory,int it
     for (measno=0;measno<nmeas;measno++){
  
       for (int k=0;k<nfitpars;k++){
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "deriv[" << measno << "][" << k << "]=" << weightderiv[measno][k]*error[measno] << " error: " << error[measno] << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "deriv[" << measno << "][" << k << "]=" << weightderiv[measno][k]*error[measno] << " error: " << error[measno] << endmsg;
       }
     }
   }
@@ -4310,7 +4340,7 @@ FitterStatusCode GlobalChi2Fitter::runIteration(GXFTrajectory &trajectory,int it
 }   
 
 FitterStatusCode GlobalChi2Fitter::updateFitParameters(GXFTrajectory &trajectory,TVectorD &b,TDecompChol &lu) const {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "UpdateFitParameters" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "UpdateFitParameters" << endmsg;
 
   const TrackParameters *refpar=trajectory.referenceParameters();
   double d0=refpar->parameters()[Trk::d0];
@@ -4340,9 +4370,9 @@ result[2]*=0.02/maxphiscat;
   }
   
   if (!correctAngles(phi,theta)){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "angles out of range: " << theta << " " << phi << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "angles out of range: " << theta << " " << phi << endmsg;
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit failed" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit failed" << endmsg;
     
     return FitterStatusCode::InvalidAngles;
   }
@@ -4418,7 +4448,7 @@ void GlobalChi2Fitter::runTrackCleanerTRT(GXFTrajectory &trajectory,TMatrixDSym 
       if (hittype==TrackState::TRT){  
       
         if (runOutlier && fabs(state->trackParameters()->parameters()[Trk::driftRadius])>1.05*state->surface()->bounds().r()) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing TRT hit #" << hitno << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing TRT hit #" << hitno << endmsg;
 	  trajectory.setOutlier(stateno);
           outlierremoved=true;
 	  
@@ -4452,11 +4482,13 @@ void GlobalChi2Fitter::runTrackCleanerTRT(GXFTrajectory &trajectory,TMatrixDSym 
             if (distance < scalefactor*dcerror && (olderror > 1. || trackradius*oldradius < 0)) newrot=m_ROTcreator->correct(*oldrot->prepRawData(),*state->trackParameters());
             if (distance > scalefactor*dcerror && olderror < 1.) newrot=m_broadROTcreator->correct(*oldrot->prepRawData(),*state->trackParameters());
             if (newrot){
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recalibrating TRT hit #" << hitno << endreq;
+	      ATH_MSG_DEBUG( "Recalibrating TRT hit #" << hitno );
               hitrecalibrated=true;
               double newradius=newrot->localParameters()[Trk::driftRadius];
               double newerror=sqrt(newrot->localCovariance()(Trk::driftRadius,Trk::driftRadius));
-
+     if ((measno <0) or (measno>=(int)res.size())){
+        throw std::runtime_error("'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:"+std::to_string(__LINE__));
+      }
 	      double oldres=res[measno];
 	      double newres=newradius-state->trackParameters()->parameters()[Trk::driftRadius];
 	      errors[0]=newerror;
@@ -4545,13 +4577,13 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
            weight1=errors[0]*errors[0]-trackcov(0,0);
         }
           
-        double mdtpull= weight1 > 0 ? std::abs(res[measno]/sqrt(weight1)) : -1;
+        double mdtpull= weight1 > 0 ? std::abs(res[measno]/std::sqrt(weight1)) : -1;
           
 	  
         if (mdtpull>maxmdtpull && (state->measurement()->localParameters()[Trk::locX]*state->trackParameters()->parameters()[Trk::locX]>0 || state->isRecalibrated())){
           maxmdtpull=mdtpull;
           measno_maxmdtpull=measno;
-          state_maxmdtpull=state;
+          //state_maxmdtpull=state; not used
           stateno_maxmdtpull=stateno;
           hitno_maxmdtpull=hitno;
         }
@@ -4565,12 +4597,12 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
             const RIO_OnTrack *newrot=0;
             if (prd && !state->isRecalibrated()) newrot=m_ROTcreator->correct(*prd,*state->trackParameters());
             if (newrot) {
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Flipping MDT hit #" << hitno << " hit radius=" << state->measurement()->localParameters()[Trk::locX] << " track radius=" << state->trackParameters()->parameters()[Trk::locX] << endreq;
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Flipping MDT hit #" << hitno << " hit radius=" << state->measurement()->localParameters()[Trk::locX] << " track radius=" << state->trackParameters()->parameters()[Trk::locX] << endmsg;
               trackok=false;
               state->setMeasurement(newrot);
               double newres=newrot->localParameters()[Trk::locX]-state->trackParameters()->parameters()[Trk::locX];
               const AmgSymMatrix(5) &newcovmat=newrot->localCovariance();
-              double newerror=sqrt(newcovmat(0,0));
+              double newerror=std::sqrt(newcovmat(0,0));
               trackok=false;
               double oldres=res[measno];
               res[measno]=newres;
@@ -4598,14 +4630,17 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
     }
     double maxpull=maxmdtpull;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " maxmdtpull: " << maxmdtpull << " hitno_maxmdtpull: " << hitno_maxmdtpull << endreq;
+    ATH_MSG_DEBUG( " maxmdtpull: " << maxmdtpull << " hitno_maxmdtpull: " << hitno_maxmdtpull );
 
     if ( maxpull>4){
       trackok=false;
 
       state_maxmdtpull=trajectory.trackStates()[stateno_maxmdtpull];
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxmdtpull << ", measno=" << measno_maxmdtpull << " pull=" << maxmdtpull << " hit radius=" << state_maxmdtpull->measurement()->localParameters()[Trk::locX] << " track radius=" << state_maxmdtpull->trackParameters()->parameters()[Trk::locX] << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxmdtpull << ", measno=" << measno_maxmdtpull << " pull=" << maxmdtpull << " hit radius=" << state_maxmdtpull->measurement()->localParameters()[Trk::locX] << " track radius=" << state_maxmdtpull->trackParameters()->parameters()[Trk::locX] << endmsg;
       double olderror=state_maxmdtpull->measurementErrors()[0];
+      if ((measno_maxmdtpull <0) or (measno_maxmdtpull>=(int)res.size())){
+        throw std::runtime_error("'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:"+std::to_string(__LINE__));
+      }
       double oldres=res[measno_maxmdtpull];
       res[measno_maxmdtpull]=0;
       for (int i=0;i<nfitpars;i++){
@@ -4634,7 +4669,7 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
       for (int it=1;it<m_maxit;it++){
         if (it==m_maxit-1){
      
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endmsg;
           m_fittercode=FitterStatusCode::NoConvergence;
           m_notconverge++;
           return;
@@ -4658,7 +4693,7 @@ void GlobalChi2Fitter::runTrackCleanerMDT(GXFTrajectory &trajectory,TMatrixDSym 
         else {
           bool invok=lu.Invert(fullcov);    
           if (!invok) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endmsg;
             m_matrixinvfailed++;
             m_fittercode=FitterStatusCode::MatrixInversionFailure;
             return;
@@ -4755,7 +4790,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
     }
     double maxpull=maxsipull;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " maxsipull: " << maxsipull << " hitno_maxsipull: " << hitno_maxsipull << " n3sigma: " << n3sigma << " cut: " << cut << " cut2: " << cut2 << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " maxsipull: " << maxsipull << " hitno_maxsipull: " << hitno_maxsipull << " n3sigma: " << n3sigma << " cut: " << cut << " cut2: " << cut2 << endmsg;
 
     //TMatrixDSym *olda=&a;  
     TMatrixDSym *newap=&a;
@@ -4836,7 +4871,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
           }
         }       
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recovering outlier, hitno=" << hitno_maxsipull << " measno=" << measno_maxsipull << " pull=" 
-        << maxsipull << " olderror_0=" << olderror[0] << " newerror_0=" << newerror[0] << " olderror_1=" << olderror[1] <<  " newerror_1=" << newerror[1] << endreq; 
+        << maxsipull << " olderror_0=" << olderror[0] << " newerror_0=" << newerror[0] << " olderror_1=" << olderror[1] <<  " newerror_1=" << newerror[1] << endmsg; 
 	
         state_maxsipull->setMeasurement(broadrot.release());
         state_maxsipull->setSinStereo(newsinstereo);
@@ -4846,7 +4881,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       else if  (((((n3sigma<2 && maxsipull>cut2 && maxsipull<cut) || n3sigma>1) && (oldtrajectory->chi2()/oldtrajectory->nDOF()>.3*m_chi2cut 
 || noutl>1)) || maxsipull>cut) && (oldtrajectory->nDOF()>1 || hittype_maxsipull==TrackState::SCT) && runoutlier ) {
         trackok=false;
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxsipull << ", measno=" << measno_maxsipull << " pull=" << maxsipull << endreq;	          
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxsipull << ", measno=" << measno_maxsipull << " pull=" << maxsipull << endmsg;	          
  	newa=a;
 	newb=b;
         newap=&newa;
@@ -4857,7 +4892,9 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
         std::vector<double> &newres=newtrajectory->residuals();
         //std::vector<double> &newerr=newtrajectory->errors();
         std::vector<std::vector<double> > &newweightderiv=newtrajectory->weightedResidualDerivatives();
-
+        if ((measno_maxsipull<0) or (measno_maxsipull>=(int)res.size())){
+          throw std::runtime_error("'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:"+std::to_string(__LINE__)); 
+        }
         double oldres1=res[measno_maxsipull];
         newres[measno_maxsipull]=0;
         for (int i=0;i<nfitpars;i++){
@@ -4900,7 +4937,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       for (int it=0;it<m_maxit;it++){
         if (it==m_maxit-1){
      
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endmsg;
           m_fittercode=FitterStatusCode::NoConvergence;
           m_notconverge++;
           return 0;
@@ -4932,7 +4969,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
             if (noutl==0 && maxsipull<cut-.5 && oldchi2<.5*m_chi2cut) mindiff=2.;
           }
           if (newchi2>oldchi2 || (newchi2>oldchi2-mindiff && newchi2>.33*oldchi2)){
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Outlier not confirmed, keeping old trajectory" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Outlier not confirmed, keeping old trajectory" << endmsg;
 	    if (oldchi2>m_chi2cut) {
               m_fittercode=FitterStatusCode::OutlierLogicFailure;
               m_notenoughmeas++;
@@ -4960,7 +4997,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
 
           //bool ok=newlu.Invert(fullcov);    
           if (ok) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "matrix inversion failed!" << endmsg;
             m_matrixinvfailed++;
             m_fittercode=FitterStatusCode::MatrixInversionFailure;
             return 0;
@@ -5021,7 +5058,7 @@ TrackStateOnSurface *GlobalChi2Fitter::makeTSOS(GXFTrackState* state, ParticleHy
   else {
     if (tstype==TrackState::Fittable) {
       typePattern.set(TrackStateOnSurface::Measurement);
-      if (fitQual && msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF() << endreq;
+      if (fitQual && msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF() << endmsg;
       if (fitQual && (fitQual->chiSquared()>1.e5 || fitQual->chiSquared()<0)){
         double newchi2=0;
         int ndf=fitQual->numberDoF();
@@ -5174,7 +5211,7 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
     if (!per){
       delete trajectory;
       delete qual;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to extrapolate to perigee, returning 0" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to extrapolate to perigee, returning 0" << endmsg;
       m_fittercode=FitterStatusCode::ExtrapolationFailure;
 
       m_propfailed++;
@@ -5191,7 +5228,7 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern; 
   typePattern.set(TrackStateOnSurface::Perigee); 
   const TrackStateOnSurface *pertsos=new TrackStateOnSurface(0,per,0,0,typePattern); 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT() << endmsg;
   if (!m_acceleration) trajectory->insert(trajectory->begin()+oldtrajectory.numberOfUpstreamStates(),pertsos);
   else trajectory->insert(trajectory->begin(),pertsos);
     
@@ -5213,7 +5250,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
   //
   // Loop over states, calculate track parameters and (optionally) jacobian at each state
   //    
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateTrackParameters" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateTrackParameters" << endmsg;
   
   std::vector<GXFTrackState*> &states=trajectory.trackStates();
   int nstatesupstream=trajectory.numberOfUpstreamStates();
@@ -5258,11 +5295,11 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
     }
 
     if (propdir==Trk::alongMomentum && currenttrackpar && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>5*mm) {
-      msg(MSG::DEBUG) << "Propagation in wrong direction" << endreq; 
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar << endreq;
+      msg(MSG::DEBUG) << "Propagation in wrong direction" << endmsg; 
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar << endmsg;
     }
     if (!currenttrackpar) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar << " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar << " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endmsg;
       if (jac) delete jac;
       if (hitno!=nstatesupstream-1 && (prevtstype==TrackState::Scatterer || prevtstype==TrackState::Brem)) delete prevtrackpar;
       return FitterStatusCode::ExtrapolationFailure;
@@ -5274,7 +5311,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
     surf=states[hitno]->surface();
 
     if (calcderiv && !jac) {
-      msg(MSG::WARNING) << "Jacobian is null" << endreq;
+      msg(MSG::WARNING) << "Jacobian is null" << endmsg;
       return FitterStatusCode::ExtrapolationFailure;
     }
 
@@ -5303,7 +5340,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
       double newtheta=currenttrackpar->parameters()[Trk::theta]-meff->deltaTheta();
       bool ok=correctAngles(newphi,newtheta);
       if (!ok){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endmsg;
         return FitterStatusCode::InvalidAngles;
       }
       double newqoverp; 
@@ -5364,11 +5401,11 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
     }
 
     if (currenttrackpar && propdir==Trk::oppositeMomentum && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>5*mm) {
-      msg(MSG::DEBUG) << "Propagation in wrong direction" << endreq;
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "downstream prevtrackpar: " << *prevtrackpar << " surf: " << prevtrackpar->associatedSurface() << " current par: " << *currenttrackpar << " surf: " << currenttrackpar->associatedSurface() << endreq;
+      msg(MSG::DEBUG) << "Propagation in wrong direction" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "downstream prevtrackpar: " << *prevtrackpar << " surf: " << prevtrackpar->associatedSurface() << " current par: " << *currenttrackpar << " surf: " << currenttrackpar->associatedSurface() << endmsg;
     }
     if (!currenttrackpar) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar << " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar << " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endmsg;
       if (jac) delete jac;
           
       return FitterStatusCode::ExtrapolationFailure;
@@ -5396,7 +5433,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
     }
 	
     if (calcderiv && !jac) {
-      msg(MSG::WARNING) << "Jacobian is null" << endreq;
+      msg(MSG::WARNING) << "Jacobian is null" << endmsg;
       delete currenttrackpar;
       return FitterStatusCode::ExtrapolationFailure;
     }
@@ -5409,7 +5446,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
       double newtheta=currenttrackpar->parameters()[Trk::theta]+meff->deltaTheta();
       bool ok=correctAngles(newphi,newtheta);
       if (!ok){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endmsg;
         delete currenttrackpar;
         return FitterStatusCode::InvalidAngles;
 	
@@ -5423,7 +5460,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
           double oldp=std::abs(1/currenttrackpar->parameters()[Trk::qOverP]);
           double newp2=oldp*oldp-2*std::abs(meff->deltaE())*sqrt(mass*mass+oldp*oldp)+meff->deltaE()*meff->deltaE();
           if (newp2<0) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track killed by energy loss update" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track killed by energy loss update" << endmsg;
             delete currenttrackpar;
             return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
           }
@@ -5465,7 +5502,7 @@ void GlobalChi2Fitter::calculateDerivatives(GXFTrajectory &trajectory) const{
   //
   // Loop over states, calculate derivatives of local track parameters w.r.t. fit parameters
   //
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateDerivatives" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateDerivatives" << endmsg;
   
   std::vector<GXFTrackState*> &states=trajectory.trackStates();
   int scatno=trajectory.numberOfUpstreamScatterers()-1;
@@ -5796,7 +5833,7 @@ void GlobalChi2Fitter::calculateTrackErrors(GXFTrajectory &trajectory,TMatrixDSy
   // Calculate track errors at each state, except scatterers and brems
   //
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateTrackErrors" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalculateTrackErrors" << endmsg;
 
   std::vector<GXFTrackState*> &states=trajectory.trackStates();
   int nstatesupstream=trajectory.numberOfUpstreamStates();

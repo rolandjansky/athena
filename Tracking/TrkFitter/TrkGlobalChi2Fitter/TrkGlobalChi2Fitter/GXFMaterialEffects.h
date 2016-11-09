@@ -5,7 +5,7 @@
 #ifndef TRKGXFMATERIALEFFECTS_H
 #define TRKGXFMATERIALEFFECTS_H
 
-#include <vector>
+
 
 namespace Trk{
 
