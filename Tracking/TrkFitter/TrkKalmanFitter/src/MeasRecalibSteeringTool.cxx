@@ -151,7 +151,7 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
           << MSG::INFO << " TRT wire hit: "<<rot->localParameters()[Trk::locX]
           << ", predict " << trkPar.parameters()[Trk::locX]
           << " --> " << (newrot->localParameters())[Trk::locX]
-          << " +/- " << newrot->localErrorMatrix().covariance().fast(1,1) << endreq;
+          << " +/- " << newrot->localErrorMatrix().covariance().fast(1,1) << endmsg;
         return newrot;
         } else { */
         const Trk::RIO_OnTrack* newrot = m_rotCreator->correct(*(rot->prepRawData()), trkPar);

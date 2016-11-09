@@ -59,15 +59,13 @@ private:
 		double m_Trajectory_Chi2PerNdfCut;
         //! cut above which chi2/ndt to flag a single state as outlier
 		double m_State_Chi2PerNdfCut;
-        //! position tolerance in sigmas when a track should be defined as being outside detector bounds
-                //double m_surfaceProximityCut;
         //! trajectory chi2/ndf cut turned into a probability
-        double m_Trajectory_Chi2ProbCut;
+    double m_Trajectory_Chi2ProbCut;
 
-        IExtrapolator*                    m_extrapolator;
-        const IUpdator*                   m_updator;
-        const IMeasurementRecalibrator*   m_recalibrator;
-        const ProtoTrajectoryUtility*     m_utility;
+    IExtrapolator*                    m_extrapolator;
+    const IUpdator*                   m_updator;
+    const IMeasurementRecalibrator*   m_recalibrator;
+    const ProtoTrajectoryUtility*     m_utility;
 
 	};
 	

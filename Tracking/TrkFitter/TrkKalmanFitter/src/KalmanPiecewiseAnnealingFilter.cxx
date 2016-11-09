@@ -30,10 +30,14 @@ Trk::KalmanPiecewiseAnnealingFilter::KalmanPiecewiseAnnealingFilter(const std::s
   m_smoother     ("Trk::KalmanSmoother/InDetAnnealBKS"),
   m_compRotTool  ("Trk::CompetingRIOsOnTrackTool/KalmanCompROT_Tool"),
   m_option_outlierCut(0.20),
-  m_extrapolator(0),
-  m_updator(0),
-  m_recalibrator(0),
-  m_dynamicNoiseAdjustor(0)
+  m_extrapolator(nullptr),
+  m_updator(nullptr),
+  m_recalibrator(nullptr),
+  m_dynamicNoiseAdjustor(nullptr),
+  m_trajPiece{},
+  m_utility(nullptr),
+  m_chi2DuringAnnealing{},
+  m_particleMasses{}
 {
   declareInterface<IKalmanPiecewiseAnnealingFilter>(this);
 
@@ -352,7 +356,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     msg(MSG::DEBUG) << "entering filterTrajectoryPiece() with annealing scheme";
     for (unsigned int annealer=0; annealer < m_option_annealingScheme.size(); ++annealer)
       msg(MSG::DEBUG) <<" " << m_option_annealingScheme.at(annealer);
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
   if (pieceSize<3) pieceSize=8; // some reasonable size for annealing
   Trk::KalmanMatEffectsController dafMec(particleType, m_dynamicNoiseAdjustor!=NULL);
@@ -579,7 +583,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     if (assgnProbSum < 0.5) {
       if (msgLvl(MSG::DEBUG)) {
 	msg(MSG::DEBUG) << "not enough assignment probability left in entire trajectory "
-			<< "piece! Stopping." << endreq;
+			<< "piece! Stopping." << endmsg;
 	m_utility->dumpTrajectory(m_trajPiece, name());
       }
       m_trajPiece.clear();

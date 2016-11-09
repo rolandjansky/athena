@@ -51,15 +51,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 Trk::ForwardKalmanFitter::ForwardKalmanFitter(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
-  m_extrapolator(0),
+  m_extrapolator(nullptr),
   m_extrapolationEngine(""),
   m_useExEngine(false),
-  m_updator(0),
-  m_ROTcreator(0),
-  m_dynamicNoiseAdjustor(0),
-  m_alignableSurfaceProvider(0),
-  m_recalibrator(0),
-  m_internalDAF(0)
+  m_updator(nullptr),
+  m_ROTcreator(nullptr),
+  m_dynamicNoiseAdjustor(nullptr),
+  m_alignableSurfaceProvider(nullptr),
+  m_recalibrator(nullptr),
+  m_internalDAF(nullptr),
+  m_idHelper(nullptr),
+  m_utility(nullptr),
+  m_StateChiSquaredPerNumberDoFPreCut{}
 {
   // AlgTool stuff
   declareInterface<IForwardKalmanFitter>( this );
@@ -141,16 +144,16 @@ StatusCode Trk::ForwardKalmanFitter::configureWithTools(const Trk::IExtrapolator
     ATH_MSG_ERROR ("Extrapolator missing, need to configure with it !");
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "Configuring " << name() << " with tools from KalmanFitter:" << endreq;
-  msg(MSG::INFO) << "Updator and Extrapolator    - present" << endreq;
+  msg(MSG::INFO) << "Configuring " << name() << " with tools from KalmanFitter:" << endmsg;
+  msg(MSG::INFO) << "Updator and Extrapolator    - present" << endmsg;
   msg(MSG::INFO) << "Dyn.NoiseAdjustment Pix/SCT - " 
-        << (m_dynamicNoiseAdjustor? "present" : "none") << endreq;
+        << (m_dynamicNoiseAdjustor? "present" : "none") << endmsg;
   msg(MSG::INFO) << "General RIO_OnTrackCreator  - " 
-        << (m_ROTcreator? "present" : "none") << endreq;
-  msg(MSG::INFO) << "RIO_OnTrack Recalibrator    - " << (m_recalibrator?"present":"none")<<endreq;
-  msg(MSG::INFO) << "Internal Piecewise DAF      - " << (m_internalDAF?"present":"none")<<endreq;
+        << (m_ROTcreator? "present" : "none") << endmsg;
+  msg(MSG::INFO) << "RIO_OnTrack Recalibrator    - " << (m_recalibrator?"present":"none")<<endmsg;
+  msg(MSG::INFO) << "Internal Piecewise DAF      - " << (m_internalDAF?"present":"none")<<endmsg;
   if (m_alignableSurfaceProvider)
-    msg(MSG::INFO) << "Ext. for alignable Surfaces - present" << endreq;
+    msg(MSG::INFO) << "Ext. for alignable Surfaces - present" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -371,7 +374,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 {
   if (msgLvl(MSG::DEBUG) && filterCounter == 1)
     printGlobalParams( (tjPositionCounter-1), "  init", updatedPar );
-  //  m_log << MSG::DEBUG << "From " << *updatedPar << " to " << destinationSurface << endreq;
+  //  m_log << MSG::DEBUG << "From " << *updatedPar << " to " << destinationSurface << endmsg;
   
   const Trk::Surface& destinationSurface = m_alignableSurfaceProvider              ?
     m_alignableSurfaceProvider->retrieveAlignableSurface(nominalDestSurface):
@@ -421,7 +424,8 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
       const Trk::StraightLineSurface* wireSurface = 
         dynamic_cast<const Trk::StraightLineSurface*>(&destinationSurface);
       if (testPer and wireSurface) {
-        predPar = new Trk::AtaStraightLine(updatedPar->position(),
+        predPar = new Trk::AtaStraightLine(updatedPar->parameters()[Trk::loc1],
+					   updatedPar->parameters()[Trk::loc2],
                                            updatedPar->parameters()[Trk::phi],
                                            updatedPar->parameters()[Trk::theta],
                                            updatedPar->parameters()[Trk::qOverP],
@@ -671,7 +675,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
   // analyse the fit quality, possibly flag as outlier
   if (fitQuality == NULL) {
     ATH_MSG_INFO ( "Updator failed to create any FitQuality object at all!"
-                   << endreq << "==> OK to flag as outlier?");
+                   << endmsg << "==> OK to flag as outlier?");
     predictedState->isOutlier(Trk::TrackState::FilterOutlier);
   }
   else if (runOutlier && fitQuality->chiSquared() >  m_StateChiSquaredPerNumberDoFPreCut
@@ -832,8 +836,8 @@ void Trk::ForwardKalmanFitter::printGlobalParams(int istate, std::string ptype,
         << std::setw(8) << std::setprecision(0) << param->momentum()[0]
         << std::setw(8) << std::setprecision(0) << param->momentum()[1]
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
-        << std::setprecision(6) << endreq;
+        << std::setprecision(6) << endmsg;
   if (mefot)
     msg(MSG::VERBOSE) << (istate>9?" T":" T0") << istate << ", Mefot found with " 
-          << *mefot << endreq;
+          << *mefot << endmsg;
 }

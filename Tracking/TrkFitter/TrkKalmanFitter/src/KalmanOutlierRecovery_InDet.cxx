@@ -37,10 +37,13 @@
 // constructor
 Trk::KalmanOutlierRecovery_InDet::KalmanOutlierRecovery_InDet(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
-  m_extrapolator(0),
-  m_updator(0),
-  m_recalibrator(0),
-  m_utility(0)
+  m_Trajectory_Chi2PerNdfCut(17.0),
+  m_State_Chi2PerNdfCut(12.5),
+  m_Trajectory_Chi2ProbCut{},
+  m_extrapolator(nullptr),
+  m_updator(nullptr),
+  m_recalibrator(nullptr),
+  m_utility(nullptr)
 
 {
   // AlgTool stuff
@@ -439,7 +442,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                               <<  " Mbs = " 
                               << it->measurement()->localParameters()[Trk::locR] << ", Prd = "
                               <<(rot->prepRawData() ? rot->prepRawData()->localPosition()[Trk::locR] : -999.)
-                              << endreq;
+                              << endmsg;
         }
         
         const Trk::TrackParameters* refTrkPar = it->smoothedTrackParameters();
@@ -460,7 +463,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
             it->replaceMeasurement(recalibratedROT,Trk::TrackState::TubeHit);
             it->isOutlier(false);
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " as tube hitdR="  <<
-              it->measurement()->localCovariance()(Trk::locR)<<endreq;
+              it->measurement()->localCovariance()(Trk::locR)<<endmsg;
           }
         }
 	else
@@ -559,7 +562,7 @@ bool Trk::KalmanOutlierRecovery_InDet::reject(const Trk::FitQuality& fitQuality)
   //  if ( fitQuality.chiSquared() > m_Trajectory_Chi2PerNdfCut * fabs(fitQuality.numberDoF()) ) {
   //  ATH_MSG_DEBUG ( << "-O- trajectory with total chi2/ndf="
   //				  << fitQuality.chiSquared()/fabs(fitQuality.numberDoF())
-  //				  << " fails quality cut" << endreq;
+  //				  << " fails quality cut" << endmsg;
 
   // use probablity
   if (fitQuality.numberDoF() > 0 && fitQuality.chiSquared() > 0) {
