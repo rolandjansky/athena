@@ -94,7 +94,10 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
          if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-            InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            try :
+               InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
+            except:
+               pass
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
          if NewTrackingCuts.mode() == "SLHC":
             InDetSiSpacePointsSeedMaker.minRadius1         = 0

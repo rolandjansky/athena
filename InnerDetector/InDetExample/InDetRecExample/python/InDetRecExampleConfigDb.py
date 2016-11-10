@@ -14,6 +14,8 @@ addTool('InDetRecExample.InDetRecExampleConfig.InDetFKFRef','InDetFKFRef')
 addTool('InDetRecExample.InDetRecExampleConfig.InDetAnnealFKF','InDetAnnealFKF')
 addTool('InDetRecExample.InDetRecExampleConfig.InDetFKF','InDetFKF')
 addTool('InDetRecExample.InDetRecExampleConfig.InDetBKS','InDetBKS')
+addTool('InDetRecExample.InDetRecExampleConfig.InDetAnnealBKS','InDetAnnealBKS')
+
 addTool('InDetRecExample.InDetRecExampleConfig.KalmanInternalDAF','KalmanInternalDAF')
 addTool('InDetRecExample.InDetRecExampleConfig.KalmanInternalDAFRef','KalmanInternalDAFRef')
 addTool('InDetRecExample.InDetRecExampleConfig.KOL_RecoveryID','KOL_RecoveryID')

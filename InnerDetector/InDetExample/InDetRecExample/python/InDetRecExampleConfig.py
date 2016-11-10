@@ -62,11 +62,19 @@ def InDetFKF(name='InDetFKF',**kwargs) :
 def InDetBKS(name='InDetBKS',**kwargs) :
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother
     kwargs.setdefault('InitialCovarianceSeedFactor',200.)
+
+    return Trk__KalmanSmoother(name,**kwargs)
+
+def InDetAnnealBKS(name='InDetAnnealBKS',**kwargs) :
+    from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother
+    kwargs.setdefault('InitialCovarianceSeedFactor',200.)
+
     return Trk__KalmanSmoother(name,**kwargs)
 
 def KalmanInternalDAF(name='KalmanInternalDAF',**kwargs) :
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter
     setTool('CompetingRIOsOnTrackCreator', 'KalmanCompetingRIOsTool',kwargs)
+    setTool('BackwardSmoother', 'InDetAnnealBKS',kwargs)
     return Trk__KalmanPiecewiseAnnealingFilter(name,**kwargs)
 
 def KalmanInternalDAFRef(name='KalmanInternalDAFRef',**kwargs) :
