@@ -152,7 +152,6 @@ def setupMdtCondDB():
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
 # end of function setupMdtCondDB()
 
-
 def MdtCalibDbTool(name="MdtCalibDbTool",**kwargs):
     # setup COOL folders
     global mdt_folder_name_appendix
@@ -167,14 +166,14 @@ def MdtCalibDbTool(name="MdtCalibDbTool",**kwargs):
        kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
     kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
     if globalflags.DataSource == 'data':
-        kwargs.setdefault("defaultT0", 580)
+        kwargs.setdefault("defaultT0", 40)
     elif globalflags.DataSource == 'geant4':
         kwargs.setdefault("defaultT0", 799)
+    kwargs.setdefault("UseMLRt",  mdtCalibFlags.useMLRt() )
     kwargs.setdefault("TimeSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", mdtCalibFlags.mdtPropagationSpeedBeta())
     return CfgMgr.MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs)
-
 
 def MdtCalibrationDbSvc(name="MdtCalibrationDbSvc",**kwargs):
     kwargs.setdefault( "CreateBFieldFunctions", mdtCalibFlags.correctMdtRtForBField() )
@@ -183,12 +182,13 @@ def MdtCalibrationDbSvc(name="MdtCalibrationDbSvc",**kwargs):
     kwargs.setdefault( "DBTool", "MdtCalibDbTool" )
     return CfgMgr.MdtCalibrationDbSvc(name,**kwargs)
 
-
 def MdtCalibrationSvc(name="MdtCalibrationSvc",**kwargs):
     # call dependent tools. TODO: fix in C++ (move to ServiceHandle + declareProperty)
     from AthenaCommon.CfgGetter import getService
     getService("MdtCalibrationDbSvc")
     kwargs.setdefault( "DoSlewingCorrection",  mdtCalibFlags.correctMdtRtForTimeSlewing() )
+
+# Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
     kwargs.setdefault( "DoTemperatureCorrection", mdtCalibFlags.applyRtScaling() )
     kwargs.setdefault( "DoWireSagCorrection",  mdtCalibFlags.correctMdtRtWireSag() )
     if beamFlags.beamType() == 'collisions':
