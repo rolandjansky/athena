@@ -116,30 +116,28 @@ TrigInDetVxInJetTool::TrigInDetVxInJetTool(const std::string& type,
 
 //Destructor---------------------------------------------------------------
 TrigInDetVxInJetTool::~TrigInDetVxInJetTool(){
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrigInDetVxInJetTool destructor called" << endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrigInDetVxInJetTool destructor called" << endmsg;
 }
 
 //Initialize---------------------------------------------------------------
 StatusCode TrigInDetVxInJetTool::initialize(){
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrigInDetVxInJetTool initialize() called" << endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrigInDetVxInJetTool initialize() called" << endmsg;
 
-  StatusCode sc; sc.isSuccess();
-
- 
   if (m_fitSvc.retrieve().isFailure()) {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "TrigInDetVxInJetTool TrkVKalVrtFitter found" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "TrigInDetVxInJetTool TrkVKalVrtFitter found" << endmsg;
   }
 
   if(m_getNegativeTag){
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endreq;
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endmsg;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endmsg;
     m_getNegativeTail=false;
   }
 
-  for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv; m_chiScale[0]=m_chiScale[2];
+  for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv;
+  m_chiScale[0]=m_chiScale[2];
   for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]/=m_chiScale[0];
 
   if(m_RobustFit>7)m_RobustFit=7;
@@ -151,7 +149,7 @@ StatusCode TrigInDetVxInJetTool::initialize(){
 
 
 StatusCode TrigInDetVxInJetTool::finalize() {
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"TrigInDetVxInJetTool finalize()" << endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"TrigInDetVxInJetTool finalize()" << endmsg;
   return StatusCode::SUCCESS; 
 }
 
