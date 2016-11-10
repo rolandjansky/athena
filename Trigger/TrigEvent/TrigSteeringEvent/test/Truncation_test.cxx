@@ -26,14 +26,14 @@ int test_Truncation (HLTResult &res, int payload_size, unsigned expected_size, u
 
   
   int size = 0;
-  log << MSG::INFO << "serialize with payload free " << payload_size  << endreq;
+  log << MSG::INFO << "serialize with payload free " << payload_size  << endmsg;
 
 
   res.serialize(p1, size, payload_size);
-  log << MSG::INFO << "serialized tot size " << size  << endreq;
+  log << MSG::INFO << "serialized tot size " << size  << endmsg;
 
   if (size != int(expected_size) ) { 
-    log << MSG::INFO << "serialized size distinct from expected, got: " << size << " expected: " << expected_size << endreq;
+    log << MSG::INFO << "serialized size distinct from expected, got: " << size << " expected: " << expected_size << endmsg;
     return -1;
   }
   
@@ -41,22 +41,22 @@ int test_Truncation (HLTResult &res, int payload_size, unsigned expected_size, u
   back.deserialize(p1, size);
   log << MSG::INFO << "Deserialized sizes chains: " <<  back.getChainResult().size() 
       << " navigation: " << back.getNavigationResult().size() 
-      << " extras: " << back.getExtras().size() << endreq;
+      << " extras: " << back.getExtras().size() << endmsg;
   
   if ( back.getChainResult().size()  != expected_chains_size ) { 
-    log << MSG::INFO << "deserialized chains size distinct from expected, got: " << back.getChainResult().size() << " expected: " << expected_chains_size << endreq;
+    log << MSG::INFO << "deserialized chains size distinct from expected, got: " << back.getChainResult().size() << " expected: " << expected_chains_size << endmsg;
     return -1;
   }
 
 
   if ( back.getNavigationResult().size()  != expected_nav_size ) { 
-    log << MSG::INFO << "deserialzied navigation size distinct from expected, got: " << back.getNavigationResult().size() << " expected: " << expected_nav_size << endreq;
+    log << MSG::INFO << "deserialzied navigation size distinct from expected, got: " << back.getNavigationResult().size() << " expected: " << expected_nav_size << endmsg;
     return -1;
   }
 
 
   if ( back.getExtras().size()  != expected_extras_size ) { 
-    log << MSG::INFO << "deserialzied extras size distinct from expected, got: " << back.getExtras().size() << " expected: " << expected_extras_size << endreq;
+    log << MSG::INFO << "deserialzied extras size distinct from expected, got: " << back.getExtras().size() << " expected: " << expected_extras_size << endmsg;
     return -1;
   }
   delete p1;
@@ -85,9 +85,9 @@ int main() {
 
   // try to serialzie it with very small payload
 
-  log << MSG::INFO << "payload smaller than chains"  << endreq;
+  log << MSG::INFO << "payload smaller than chains"  << endmsg;
   if ( test_Truncation(res, 600, 14, 0, 0, 0) != 0 ) {
-    log << MSG::ERROR << "payload smaller than chains, this test failed"  << endreq;
+    log << MSG::ERROR << "payload smaller than chains, this test failed"  << endmsg;
     return -1;
   }
 
@@ -95,42 +95,42 @@ int main() {
   res.getNavigationResult() = nav;
 
 
-  log << MSG::INFO << "payload bigger than chains"  << endreq;
+  log << MSG::INFO << "payload bigger than chains"  << endmsg;
   if ( test_Truncation(res, 900, 816, 800, 0, 0) != 0 ) {
-    log << MSG::ERROR << "payload bigger than chains, this test failed"  << endreq;
+    log << MSG::ERROR << "payload bigger than chains, this test failed"  << endmsg;
     return -1;
   }
 
 
   res.getNavigationResult() = nav;
 
-  log << MSG::INFO << "payload enough for first nav piece "  << endreq;
+  log << MSG::INFO << "payload enough for first nav piece "  << endmsg;
   if ( test_Truncation(res, 1900, 1816, 800, 1000, 0) != 0 ) {
-    log << MSG::ERROR << "payload enough for first nav piece, this test failed"  << endreq;
+    log << MSG::ERROR << "payload enough for first nav piece, this test failed"  << endmsg;
     return -1;
   }
 
   res.getNavigationResult() = nav;
 
-  log << MSG::INFO << "payload enough for almost all nav pieces "  << endreq;
+  log << MSG::INFO << "payload enough for almost all nav pieces "  << endmsg;
   if ( test_Truncation(res, 4816, 4816, 800, 4000, 0) != 0 ) {
-    log << MSG::ERROR << "payload enough for almost all nav pieces, this test failed"  << endreq;
+    log << MSG::ERROR << "payload enough for almost all nav pieces, this test failed"  << endmsg;
     return -1;
   }
 
   res.getNavigationResult() = nav;
 
-  log << MSG::INFO << "payload enough for  all nav pieces "  << endreq;
+  log << MSG::INFO << "payload enough for  all nav pieces "  << endmsg;
   if ( test_Truncation(res, 4820, 4816, 800, 4000, 0) != 0 ) {
-    log << MSG::ERROR << "payload enough for  all nav pieces, this test failed"  << endreq;
+    log << MSG::ERROR << "payload enough for  all nav pieces, this test failed"  << endmsg;
     return -1;
   }
 
   res.getNavigationResult() = nav;
 
-  log << MSG::INFO << "payload enough for  all  "  << endreq;
+  log << MSG::INFO << "payload enough for  all  "  << endmsg;
   if ( test_Truncation(res, 5000, 4857, 800, 4000, 40) != 0 ) {
-    log << MSG::ERROR << "payload enough for  all , this test failed"  << endreq;
+    log << MSG::ERROR << "payload enough for  all , this test failed"  << endmsg;
     return -1;
   }
 

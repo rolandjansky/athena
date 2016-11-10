@@ -14,7 +14,6 @@
 
 #include <stdint.h>
 #include <map>
-#include <ostream>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
