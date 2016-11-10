@@ -36,7 +36,7 @@ class METCollisionFilter : public AthAlgorithm
   StatusCode doClusterTimes(bool& passCut);
 
   // MB: reference to MET Goodies map for storing derived met goodness quantities
-  static MET::Goodies& goodies;
+  static MET::Goodies& s_goodies;
 
   unsigned int m_prescale;
   unsigned int m_counter;

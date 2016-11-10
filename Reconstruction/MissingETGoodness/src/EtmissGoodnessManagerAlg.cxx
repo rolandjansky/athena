@@ -38,7 +38,7 @@ StatusCode EtmissGoodnessManagerAlg::initialize()
   ATH_MSG_DEBUG ("initialize()");
 
   // set output level
-  MET::TMsgLogger::SetMinLevel(static_cast<MET::TMsgLevel>(outputLevel()));
+  MET::TMsgLogger::SetMinLevel(static_cast<MET::TMsgLevel>(msgLevel()));
 
   // Get StoreGate service:
   StatusCode status = service("StoreGateSvc", m_storeGate);
@@ -73,23 +73,23 @@ EtmissGoodnessManagerAlg::execute()
   MET::EtmissGoodnessManager::instance().ClearEvent();
 
   // get event number here ...
-  const xAOD::EventInfo*  _evt = 0;
+  const xAOD::EventInfo*  evt = 0;
   StatusCode status = StatusCode::SUCCESS;
   // retrieve event info
-  status = m_storeGate->retrieve(_evt);
-  if ( !status.isSuccess() || _evt==0 ) {
+  status = m_storeGate->retrieve(evt);
+  if ( !status.isSuccess() || evt==0 ) {
     ATH_MSG_WARNING ("Unable to retrieve EventInfo from StoreGate");
     return status;
   } 
 
-  int m_eventNumber = _evt->eventNumber();
-  int m_runNumber = _evt->runNumber();
-  //int m_lumiBlock = _evt->event_ID()->lumi_block();
-  //int m_timeStamp = _evt->event_ID()->time_stamp();
-  ATH_MSG_DEBUG ("Got run number = " << m_runNumber << ", event number = " << m_eventNumber);
+  int eventNumber = evt->eventNumber();
+  int runNumber = evt->runNumber();
+  //int m_lumiBlock = evt->event_ID()->lumi_block();
+  //int m_timeStamp = evt->event_ID()->time_stamp();
+  ATH_MSG_DEBUG ("Got run number = " << runNumber << ", event number = " << eventNumber);
 
-  goodies.setEntry(m_eventNumber);
-  goodies.setRunNumber(m_runNumber);
+  goodies.setEntry(eventNumber);
+  goodies.setRunNumber(runNumber);
 
   ATH_MSG_DEBUG ("execute() successful");
 

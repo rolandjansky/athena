@@ -31,24 +31,24 @@ namespace MET
     inline int getIntValue(const TString& varKey, const int& defaultValue=MET::MagicNumber) const { return get(varKey,defaultValue); }
     //inline vector<double> getVectorValue(const TString& varKey, const vector<double>& defaultValue=MET::MagicNumber) const { return get(varKey,defaultValue); }
 
-    inline void setEntry(Long64_t entry)  { _entry=entry; }
-    inline void setRunNumber(Int_t runnr) { _runnr=runnr; }
-    inline void setValue(const TString& varKey, const double& value) { _gDouble[varKey] = value; }
-    inline void setValue(const TString& varKey, const int& value) { _gInt[varKey] = value; }
-    inline void setValue(const TString& varKey, const std::vector<double> & value) { _gVectorDouble[varKey]=value; }
-    inline void setValue(const TString& varKey, const std::vector<int> & value) { _gVectorInt[varKey]=value; }
-    inline void setVectorValue(const TString& varKey, const double& value) { _gVectorDouble[varKey].push_back(value); }
-    inline void setVectorValue(const TString& varKey, const int& value) { _gVectorInt[varKey].push_back(value); }
+    inline void setEntry(Long64_t entry)  { m_entry=entry; }
+    inline void setRunNumber(Int_t runnr) { m_runnr=runnr; }
+    inline void setValue(const TString& varKey, const double& value) { m_gDouble[varKey] = value; }
+    inline void setValue(const TString& varKey, const int& value) { m_gInt[varKey] = value; }
+    inline void setValue(const TString& varKey, const std::vector<double> & value) { m_gVectorDouble[varKey]=value; }
+    inline void setValue(const TString& varKey, const std::vector<int> & value) { m_gVectorInt[varKey]=value; }
+    inline void setVectorValue(const TString& varKey, const double& value) { m_gVectorDouble[varKey].push_back(value); }
+    inline void setVectorValue(const TString& varKey, const int& value) { m_gVectorInt[varKey].push_back(value); }
 
     void print();
     void clear();
     
-    Long64_t entry()  { return _entry; } 
-    Int_t runNumber() { return _runnr; }
-    std::map< TString, int >& gInt()       { return _gInt; }
-    std::map< TString, double >& gDouble() { return _gDouble; }
-    std::map< TString, std::vector<int> >& gVectorInt() { return _gVectorInt; }
-    std::map< TString, std::vector<double> >& gVectorDouble() { return _gVectorDouble; }
+    Long64_t entry()  { return m_entry; } 
+    Int_t runNumber() { return m_runnr; }
+    std::map< TString, int >& gInt()       { return m_gInt; }
+    std::map< TString, double >& gDouble() { return m_gDouble; }
+    std::map< TString, std::vector<int> >& gVectorInt() { return m_gVectorInt; }
+    std::map< TString, std::vector<double> >& gVectorDouble() { return m_gVectorDouble; }
 
   private:
     // default constructor 
@@ -59,12 +59,12 @@ namespace MET
     std::vector<double> get(const TString& varKey, const std::vector<double>& defaultValue) const;
     std::vector<int> get(const TString& varKey, const std::vector<int>& defaultValue) const; 
 
-    mutable Long64_t _entry; //!
-    mutable Int_t _runnr; //!
-    mutable std::map< TString, int > _gInt; //!
-    mutable std::map< TString, double > _gDouble; //!
-    mutable std::map< TString, std::vector<int> > _gVectorInt; //!
-    mutable std::map< TString, std::vector<double> > _gVectorDouble; //!
+    mutable Long64_t m_entry; //!
+    mutable Int_t m_runnr; //!
+    mutable std::map< TString, int > m_gInt; //!
+    mutable std::map< TString, double > m_gDouble; //!
+    mutable std::map< TString, std::vector<int> > m_gVectorInt; //!
+    mutable std::map< TString, std::vector<double> > m_gVectorDouble; //!
     
     ClassDef(MET::Goodies,1)
   };

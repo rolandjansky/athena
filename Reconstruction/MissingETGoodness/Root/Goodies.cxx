@@ -4,19 +4,20 @@
 
 
 #include "MissingETGoodness/Goodies.h"
+#include "TBuffer.h"
 #include <iostream>
 
 ClassImp(MET::Goodies)
 
 // Constructor
 MET::Goodies::Goodies(Long64_t entry) :
-  _entry(entry),
-  _runnr(-1)
+  m_entry(entry),
+  m_runnr(-1)
 {
-  _gInt.clear();
-  _gDouble.clear();
-  _gVectorInt.clear();
-  _gVectorDouble.clear();
+  m_gInt.clear();
+  m_gDouble.clear();
+  m_gVectorInt.clear();
+  m_gVectorDouble.clear();
 }
 
 
@@ -30,8 +31,8 @@ MET::Goodies::~Goodies()
 MET::Goodies&
 MET::Goodies::instance() {
   // created on first call, deleted after main()
-  static MET::Goodies _instance;
-  return _instance;
+  static MET::Goodies instance;
+  return instance;
 }
 
 
@@ -41,12 +42,12 @@ MET::Goodies::operator=(const MET::Goodies& other)
   if (&other==this) {
     return *this ;
   } 
-  _entry     = other._entry ;
-  _runnr     = other._runnr ;
-  _gDouble   = other._gDouble ;
-  _gInt      = other._gInt ;
-  _gVectorInt   = other._gVectorInt ;
-  _gVectorDouble   = other._gVectorDouble ;
+  m_entry     = other.m_entry ;
+  m_runnr     = other.m_runnr ;
+  m_gDouble   = other.m_gDouble ;
+  m_gInt      = other.m_gInt ;
+  m_gVectorInt   = other.m_gVectorInt ;
+  m_gVectorDouble   = other.m_gVectorDouble ;
 
   return *this ;
 }
@@ -55,18 +56,18 @@ MET::Goodies::operator=(const MET::Goodies& other)
 void
 MET::Goodies::clear()
 {
-  _entry = -1;
-  _runnr = -1;
-  _gInt.clear();
-  _gDouble.clear();
+  m_entry = -1;
+  m_runnr = -1;
+  m_gInt.clear();
+  m_gDouble.clear();
 
-  std::map<TString,std::vector<int> >::iterator gVectorIItr = _gVectorInt.begin();
-  for (; gVectorIItr != _gVectorInt.end(); ++gVectorIItr) gVectorIItr->second.clear();
-  std::map<TString,std::vector<double> >::iterator gVectorDItr = _gVectorDouble.begin();
-  for (; gVectorDItr != _gVectorDouble.end(); ++gVectorDItr) gVectorDItr->second.clear();
+  std::map<TString,std::vector<int> >::iterator gVectorIItr = m_gVectorInt.begin();
+  for (; gVectorIItr != m_gVectorInt.end(); ++gVectorIItr) gVectorIItr->second.clear();
+  std::map<TString,std::vector<double> >::iterator gVectorDItr = m_gVectorDouble.begin();
+  for (; gVectorDItr != m_gVectorDouble.end(); ++gVectorDItr) gVectorDItr->second.clear();
 
-  _gVectorInt.clear();
-  _gVectorDouble.clear();
+  m_gVectorInt.clear();
+  m_gVectorDouble.clear();
 }
 
 
@@ -76,15 +77,15 @@ int MET::Goodies::get(const TString& varKey, const int& defaultValue) const
 
   bool found(false);
   if (!found) {
-    std::map<TString,int>::const_iterator gIntItr = _gInt.find(varKey);
-    if (gIntItr != _gInt.end()) {
+    std::map<TString,int>::const_iterator gIntItr = m_gInt.find(varKey);
+    if (gIntItr != m_gInt.end()) {
       varValue = (*gIntItr).second;
       found = true;
     }
   }
   if (!found) {
-    std::map<TString,double>::const_iterator gDoubleItr = _gDouble.find(varKey);
-    if (gDoubleItr != _gDouble.end()) {
+    std::map<TString,double>::const_iterator gDoubleItr = m_gDouble.find(varKey);
+    if (gDoubleItr != m_gDouble.end()) {
       varValue = static_cast<int>((*gDoubleItr).second);
       found = true;
     }
@@ -99,15 +100,15 @@ double MET::Goodies::get(const TString& varKey, const double& defaultValue) cons
 
   bool found(false);
   if (!found) {
-    std::map<TString,double>::const_iterator gDoubleItr = _gDouble.find(varKey);
-    if (gDoubleItr != _gDouble.end()) {
+    std::map<TString,double>::const_iterator gDoubleItr = m_gDouble.find(varKey);
+    if (gDoubleItr != m_gDouble.end()) {
       varValue = (*gDoubleItr).second;
       found = true;
     }
   }
   if (!found) {
-    std::map<TString,int>::const_iterator gIntItr = _gInt.find(varKey);
-    if (gIntItr != _gInt.end()) {
+    std::map<TString,int>::const_iterator gIntItr = m_gInt.find(varKey);
+    if (gIntItr != m_gInt.end()) {
       varValue = static_cast<double>((*gIntItr).second);
       found = true;
     }
@@ -122,8 +123,8 @@ std::vector<double> MET::Goodies::get(const TString& varKey, const std::vector<d
 
   bool found(false);
   if (!found) {
-    std::map<TString,std::vector<double> >::const_iterator gVectorItr = _gVectorDouble.find(varKey);
-    if (gVectorItr != _gVectorDouble.end()) {
+    std::map<TString,std::vector<double> >::const_iterator gVectorItr = m_gVectorDouble.find(varKey);
+    if (gVectorItr != m_gVectorDouble.end()) {
       varValue = (*gVectorItr).second;
       found = true;
     }
@@ -138,8 +139,8 @@ std::vector<int> MET::Goodies::get(const TString& varKey, const std::vector<int>
 
   bool found(false);
   if (!found) {
-    std::map<TString,std::vector<int> >::const_iterator gVectorItr = _gVectorInt.find(varKey);
-    if (gVectorItr != _gVectorInt.end()) {
+    std::map<TString,std::vector<int> >::const_iterator gVectorItr = m_gVectorInt.find(varKey);
+    if (gVectorItr != m_gVectorInt.end()) {
       varValue = (*gVectorItr).second;
       found = true;
     }
@@ -155,20 +156,20 @@ MET::Goodies::contains(const TString& varKey, bool suprWarn) const
   bool found(false);
 
   if (!found) {
-    std::map<TString,double>::const_iterator gDoubleItr = _gDouble.find(varKey);
-    if (gDoubleItr != _gDouble.end()) { found = true; }
+    std::map<TString,double>::const_iterator gDoubleItr = m_gDouble.find(varKey);
+    if (gDoubleItr != m_gDouble.end()) { found = true; }
   }
   if (!found) {
-    std::map<TString,int>::const_iterator gIntItr = _gInt.find(varKey);
-    if (gIntItr != _gInt.end()) { found = true; }
+    std::map<TString,int>::const_iterator gIntItr = m_gInt.find(varKey);
+    if (gIntItr != m_gInt.end()) { found = true; }
   }
   if (!found) {
-    std::map<TString, std::vector<double> >::const_iterator gVecDoubleItr = _gVectorDouble.find(varKey);
-    if (gVecDoubleItr != _gVectorDouble.end()) { found = true; }
+    std::map<TString, std::vector<double> >::const_iterator gVecDoubleItr = m_gVectorDouble.find(varKey);
+    if (gVecDoubleItr != m_gVectorDouble.end()) { found = true; }
   }
   if (!found) {
-    std::map<TString, std::vector<int> >::const_iterator gVecIntItr = _gVectorInt.find(varKey);
-    if (gVecIntItr != _gVectorInt.end()) { found = true; }
+    std::map<TString, std::vector<int> >::const_iterator gVecIntItr = m_gVectorInt.find(varKey);
+    if (gVecIntItr != m_gVectorInt.end()) { found = true; }
   }
 
   // variable still not found ...
@@ -186,22 +187,22 @@ MET::Goodies::print()
 { 
   TString varName;
   
-  std::cout << "MET::Goodies::print() : Properties of event <" << _entry << ">, run <" << _runnr << "> : " << std::endl;
+  std::cout << "MET::Goodies::print() : Properties of event <" << m_entry << ">, run <" << m_runnr << "> : " << std::endl;
     
-  std::map<TString,double>::const_iterator gDoubleItr = _gDouble.begin();
-  for (; gDoubleItr != _gDouble.end(); ++gDoubleItr) {
+  std::map<TString,double>::const_iterator gDoubleItr = m_gDouble.begin();
+  for (; gDoubleItr != m_gDouble.end(); ++gDoubleItr) {
     varName  = (*gDoubleItr).first;
     double varValue = (*gDoubleItr).second;
     std::cout << ">> " << varName << " (d) : " << varValue << std::endl;
   }
-  std::map<TString,int>::const_iterator gIntItr = _gInt.begin();
-  for (; gIntItr != _gInt.end(); ++gIntItr) {
+  std::map<TString,int>::const_iterator gIntItr = m_gInt.begin();
+  for (; gIntItr != m_gInt.end(); ++gIntItr) {
     varName  = (*gIntItr).first;
     int varValue = (*gIntItr).second;
     std::cout << ">> " << varName << " (i) : " << varValue << std::endl;
   }
-  std::map<TString,std::vector<int> >::const_iterator gVecIntItr = _gVectorInt.begin();
-  for (; gVecIntItr != _gVectorInt.end(); ++gVecIntItr) {
+  std::map<TString,std::vector<int> >::const_iterator gVecIntItr = m_gVectorInt.begin();
+  for (; gVecIntItr != m_gVectorInt.end(); ++gVecIntItr) {
     varName  = (*gVecIntItr).first;
     std::vector<int> varValue = (*gVecIntItr).second;
     std::vector<int>::const_iterator iter=varValue.begin();
@@ -209,8 +210,8 @@ MET::Goodies::print()
       std::cout << ">> " << varName << " (v) : " << *iter << std::endl;
     }
   }
-  std::map<TString,std::vector<double> >::const_iterator gVecDoubleItr = _gVectorDouble.begin();
-  for (; gVecDoubleItr != _gVectorDouble.end(); ++gVecDoubleItr) {
+  std::map<TString,std::vector<double> >::const_iterator gVecDoubleItr = m_gVectorDouble.begin();
+  for (; gVecDoubleItr != m_gVectorDouble.end(); ++gVecDoubleItr) {
     varName  = (*gVecDoubleItr).first;
     std::vector<double> varValue = (*gVecDoubleItr).second;
     std::vector<double>::const_iterator iter=varValue.begin();
@@ -239,26 +240,26 @@ MET::Goodies::Streamer(TBuffer &R__b)
       TObject::Streamer(R__b);
 
       // event info
-      R__b >> _entry;
-      R__b >> _runnr;
+      R__b >> m_entry;
+      R__b >> m_runnr;
 
       // gInt,gDouble
-      _gDouble.clear();
+      m_gDouble.clear();
       R__b >> mapSize;
       if (mapSize) {
 	for (int i=0; i<mapSize; ++i) {
 	  varName.Streamer(R__b);
 	  R__b >> varValueD;
-	  _gDouble[varName.Data()] = varValueD;
+	  m_gDouble[varName.Data()] = varValueD;
 	}
       }
-      _gInt.clear();
+      m_gInt.clear();
       R__b >> mapSize;
       if (mapSize) {
 	for (int i=0; i<mapSize; ++i) {
 	  varName.Streamer(R__b);
 	  R__b >> varValueI;
-	  _gInt[varName.Data()] = varValueI;
+	  m_gInt[varName.Data()] = varValueI;
 	}
       }    
 
@@ -268,28 +269,28 @@ MET::Goodies::Streamer(TBuffer &R__b)
       TObject::Streamer(R__b);
 
       // event info
-      R__b << _entry;
-      R__b << _runnr;
+      R__b << m_entry;
+      R__b << m_runnr;
 
       // gInt,gDouble
-      mapSize = int(_gDouble.size());
+      mapSize = int(m_gDouble.size());
       R__b << mapSize;
       if (mapSize) {
-	std::map<TString,double>::const_iterator _gDoubleItr = _gDouble.begin();
-	for (; _gDoubleItr != _gDouble.end(); ++_gDoubleItr) {
-	  varName  = (*_gDoubleItr).first;
-	  varValueD = (*_gDoubleItr).second;
+	std::map<TString,double>::const_iterator gDoubleItr = m_gDouble.begin();
+	for (; gDoubleItr != m_gDouble.end(); ++gDoubleItr) {
+	  varName  = (*gDoubleItr).first;
+	  varValueD = (*gDoubleItr).second;
 	  varName.Streamer(R__b);
 	  R__b << varValueD;
 	}
       }
-      mapSize = int(_gInt.size());
+      mapSize = int(m_gInt.size());
       R__b << mapSize;
       if (mapSize) {
-	std::map<TString,int>::const_iterator _gIntItr = _gInt.begin();
-	for (; _gIntItr != _gInt.end(); ++_gIntItr) {
-	  varName  = (*_gIntItr).first;
-	  varValueI = (*_gIntItr).second;
+	std::map<TString,int>::const_iterator gIntItr = m_gInt.begin();
+	for (; gIntItr != m_gInt.end(); ++gIntItr) {
+	  varName  = (*gIntItr).first;
+	  varValueI = (*gIntItr).second;
 	  varName.Streamer(R__b);
 	  R__b << varValueI;
 	}

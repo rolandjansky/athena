@@ -8,12 +8,11 @@
 
 
 // MB: reference to MET Goodies map for storing derived quantities
-MET::Goodies& SkimDecisionFilter::goodies(MET::Goodies::instance());
+MET::Goodies& SkimDecisionFilter::s_goodies(MET::Goodies::instance());
 
 
 SkimDecisionFilter::SkimDecisionFilter(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_storeGate(0),
     m_metaStoreInInit(0)
 {
   declareProperty( "ContainerName", m_containerName = "DESD_COLLCAND_SkimDecisionsContainer");
@@ -29,23 +28,12 @@ StatusCode SkimDecisionFilter::initialize()
 {
   ATH_MSG_DEBUG ("initialize()");
 
-  /** get a handle of StoreGate for access to the Event Store */  // AnalysisSkeleton has this lines as default
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGateSvc");
-     return StatusCode::FAILURE;
-  }
-
   /** get a handle of StoreGate for access to the EventBookkeepers */
-  sc = service("StoreGateSvc/InputMetaDataStore", m_metaStoreInInit);
-  if (!sc.isSuccess() || 0 == m_metaStoreInInit) {
-    ATH_MSG_ERROR ("Could not find MetaDataStoreInInit");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service("StoreGateSvc/InputMetaDataStore", m_metaStoreInInit) );
 
   /** Get EventBookkeepers */
   const EventBookkeeperCollection* coll = 0;
-  sc = m_metaStoreInInit->retrieve(coll, "EventBookkeepers");
+  StatusCode sc = m_metaStoreInInit->retrieve(coll, "EventBookkeepers");
   if (sc.isSuccess()) {
     EventBookkeeperCollection::const_iterator itr=coll->begin(), itrEnd = coll->end();
     for (; itr != itrEnd; itr++){
@@ -73,15 +61,15 @@ SkimDecisionFilter::execute()
 
   const SkimDecisionCollection *SDcoll = 0;
 
-  if (m_storeGate->contains<SkimDecisionCollection>(m_containerName)) {
-    sc = m_storeGate->retrieve(SDcoll, m_containerName);
+  if (evtStore()->contains<SkimDecisionCollection>(m_containerName)) {
+    sc = evtStore()->retrieve(SDcoll, m_containerName);
     if ( sc.isSuccess() ) {
       SkimDecisionCollection::const_iterator itr=SDcoll->begin(), itrEnd = SDcoll->end();
       for(; itr != itrEnd; itr++){
         bool isAc = (*itr)->isAccepted();
         std::string name = (*itr)->getName();
         ATH_MSG_DEBUG ("SkimDecName = " << name <<" isAccepted: "<< isAc);
-        goodies.setValue(name,static_cast<int>(isAc));
+        s_goodies.setValue(name,static_cast<int>(isAc));
       }
     } else {
       ATH_MSG_WARNING ("Could not retrieve SkimDecisionCollection from StoreGate. key = " << m_containerName);

@@ -29,11 +29,10 @@ class SkimDecisionFilter : public AthAlgorithm
  private:
 
   // MB: reference to MET Goodies map for storing derived met goodness quantities
-  static MET::Goodies& goodies;
+  static MET::Goodies& s_goodies;
   
   std::string m_containerName;
 
-  StoreGateSvc* m_storeGate; //AnalysisSkeletion has it as default
   StoreGateSvc* m_metaStoreInInit;
 
 };

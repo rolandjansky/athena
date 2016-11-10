@@ -34,7 +34,7 @@ EtmissGoodnessManagerTool::initialize()
   ATH_MSG_DEBUG ("initialize()");
 
   // set output level
-  MET::TMsgLogger::SetMinLevel(static_cast<MET::TMsgLevel>(outputLevel()));
+  MET::TMsgLogger::SetMinLevel(static_cast<MET::TMsgLevel>(msgLevel()));
 
   // now set version and quality
   MET::EtmissGoodnessManager& manager = MET::EtmissGoodnessManager::instance();
