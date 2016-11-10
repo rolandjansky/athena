@@ -16,7 +16,7 @@
 /** list of ALL the Muon attributes  */
 namespace MuonTAG { 
   static const int NmuonAttr=10;        // This the number of Muon TAG attributes
-  static const int NumMuon = 4;        // This the max number of Muons in the TAG
+  static const int NumMuon = 6;        // This the max number of Muons in the TAG
   enum { NMuon=0, Pt=1, Eta=2, Phi=3, Tight=4, Isol=5, NPrecLay=6, NPrecHoleLay=7, NPhiLay=8, MomBalSign=9 }; 
 }
 

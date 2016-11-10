@@ -15,7 +15,7 @@
 /** list of ALL the Jet attribute  */
 namespace PJet { 
   static const int NjetAttr=9;   // This is the number of Jet TAG attributes
-  static const int NumJet = 6;   // This is the max number of ParticleJets in the TAG
+  static const int NumJet = 10;   // This is the max number of ParticleJets in the TAG
   enum { NJet=0, Pt=1, Eta=2, Phi=3, JetSumET=4, E=5, JetPID=6, NpTJet=7, NpTBJet=8 };
 }
 

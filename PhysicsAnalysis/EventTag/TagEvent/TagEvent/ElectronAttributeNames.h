@@ -15,7 +15,7 @@
 /** list of ALL the Electron attributes  */
 namespace ElectronID { 
   static const int NelecAttr = 6;                     // This the number of electron TAG attributes
-  static const int NumElectron = 4;                   // this maximum number of electrons in the TAG
+  static const int NumElectron = 6;                   // this maximum number of electrons in the TAG
   enum { NElectron=0, Pt=1, Eta=2, Phi=3, Tight=4, Isol=5 };
 }
 
