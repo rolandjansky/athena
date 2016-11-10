@@ -24,7 +24,11 @@ description          : Implementation code for MultiComponentStateModeCalculator
 Trk::MultiComponentStateModeCalculator::MultiComponentStateModeCalculator( const std::string& type, const std::string& name, const IInterface* parent )
   :
   AthAlgTool( type, name, parent ),
-  m_outputlevel(1)
+  m_outputlevel(1),
+  m_NumberOfCalls(0),
+  m_ConverganceFilures(0),
+  m_NoErrorMatrix(0),
+  m_MixtureSizeZero(0)
 {
 
   declareInterface<IMultiComponentStateModeCalculator>(this);
@@ -44,7 +48,7 @@ StatusCode Trk::MultiComponentStateModeCalculator::initialize()
   m_NoErrorMatrix = 0;
   m_MixtureSizeZero = 0;
   
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -53,14 +57,14 @@ StatusCode Trk::MultiComponentStateModeCalculator::initialize()
 StatusCode Trk::MultiComponentStateModeCalculator::finalize()
 {
 
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "         GSF ModeCalulator Statistics          "<< endreq;
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endreq;
-  msg(MSG::INFO) << "No Error Matrix    " << m_NoErrorMatrix          << endreq;
-  msg(MSG::INFO) << "MixtureSize = Zero " << m_MixtureSizeZero        << endreq;
-  msg(MSG::INFO) << "Failed to converge " << m_ConverganceFilures     << endreq;
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "         GSF ModeCalulator Statistics          "<< endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endmsg;
+  msg(MSG::INFO) << "No Error Matrix    " << m_NoErrorMatrix          << endmsg;
+  msg(MSG::INFO) << "MixtureSize = Zero " << m_MixtureSizeZero        << endmsg;
+  msg(MSG::INFO) << "Failed to converge " << m_ConverganceFilures     << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
  
   return StatusCode::SUCCESS;
 
@@ -105,10 +109,7 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
       
       double pdfVal = pdf( modes[i], i );      
       double highX(0); 
-      double lowX(0);
-      
-      
-      
+      double lowX(0);      
 
       double upperbound =modes[i] + 1.5 * currentWidth;
       while(true){
@@ -151,6 +152,14 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
         ATH_MSG_DEBUG( i << " Failed to find 1/2 width "  );
         
       }
+      //Ensure that phi is between -pi and pi
+      if(i==2){
+        if(  modes[i] > M_PI ){
+          modes[i] -= 2 * M_PI;
+        } else if (  modes[i] < -M_PI ){
+          modes[i] += 2 * M_PI;
+        }
+      }
     }
     
 
@@ -185,6 +194,19 @@ void Trk::MultiComponentStateModeCalculator::fillMixture( const Trk::MultiCompon
     double sigma  = sqrt(fabs((*measuredCov)(parameter[i],parameter[i])));
 
     
+    //Ensure that we don't have any problems with the cyclical nature of phi
+    //Use first state as reference point
+    if(i==2){ //phi
+      double deltaPhi = multiComponentState.begin()->first->parameters()[2] -mean;  
+      if( deltaPhi > M_PI ){
+        mean += 2 * M_PI;
+      } else if ( deltaPhi < -M_PI ){
+        mean -= 2 * M_PI;
+      }
+    }
+
+
+
     Mixture mixture(weight, mean, sigma );
 
     m_mixture[i].push_back( mixture );

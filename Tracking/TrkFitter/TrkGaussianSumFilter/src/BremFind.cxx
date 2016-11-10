@@ -48,24 +48,69 @@ Trk::BremFind::BremFind(const std::string& type, const std::string& name, const 
   AthAlgTool(type, name, parent),
   m_stateCombiner("Trk::MultiComponentStateCombiner"),
   m_propagator("Trk::IntersectorWrapper/IntersectorWrapper"),
+  //m_fieldProperties
   m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
   m_trackingGeometryName("AtlasTrackingGeometry"),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
+  //m_validationMode
   m_validationTreeName("BremInfo"),
   m_validationTreeName2("BremInfoZ"),
   m_validationTreeDescription("Brem Information"),
   m_validationTreeFolder("/valGSF2/BremInfo"),
   m_validationTreeFolder2("/valGSF2/BremInfoZ"),
-  m_validationTree(0),
-  m_validationTree2(0)
+  m_validationTree(nullptr),
+  m_validationTree2(nullptr),
+  //m_useCalibration{},
+  //m_usePropagate{},
+  m_forwardparameters{},
+  m_smoothedparameters{},
+  m_combinedparameters{},
+  m_perigee_1overP{},
+  m_perigee_Phi{},
+  m_perigee_Theta{},
+  m_perigee_d0{},
+  m_perigee_z0{},
+  m_brem_value{},
+  m_brem_phi{},
+  m_brem_theta{},
+  m_brem_energy{},
+  m_brem_UpperBound{},
+  m_brem_LowerBound{},
+  m_forward_kink{},
+  m_smoothed_kink{},
+  m_brem_significance{},
+  m_brem_valueCalibrated{},
+  m_surfaceX{},
+  m_surfaceY{},
+  m_surfaceZ{},
+  m_nBrems{},
+  m_Z_mode{},
+  //vectors could be initialised here
+  m_event_ID{},
+  m_forwardparameter_constant{},
+  m_forwardparameter_coefficient{},
+  m_forwardparameter_value{},
+  m_forwardparameter_width{},
+  m_smoothparameter_constant{},
+  m_smoothparameter_coefficient{},
+  m_smoothparameter_value{},
+  m_smoothparameter_width{},
+  m_forward_1overP{},
+  m_forward_1overPerr{},
+  m_forward_value{},
+  m_smooth_1overP{},
+  m_smooth_1overPerr{},
+  m_smooth_value{},
+  m_KinkSeparationScores{},
+  m_KinkSeparationScoresErr{},
+  m_forwardBremFit{},
+  m_smoothedBremFit{}
 {
-  declareInterface<IBremsstrahlungFinder>(this);  
+  declareInterface<IBremsstrahlungFinder>(this);
+  //jobOptions Variables
   declareProperty("StateCombiner",   m_stateCombiner );
   declareProperty("TrackingGeometrySvc",  m_trackingGeometrySvc);
   declareProperty("Propagator", m_propagator);
-  
-  
-  //jobOptions Variables
   declareProperty("UseCalibration", m_useCalibration=true);
   declareProperty("ValidationMode", m_validationMode=false);
   declareProperty("UseSurfacePropagation", m_usePropagate=false);
@@ -76,31 +121,19 @@ Trk::BremFind::BremFind(const std::string& type, const std::string& name, const 
 
 StatusCode Trk::BremFind::initialize()
 {
- 
-  
    // The TrackingGeometrySvc ------------------------------------------------------
-  if (m_trackingGeometrySvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to load TrackingGeometrySvc " << m_trackingGeometrySvc << endreq;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::INFO) << "Retrieved service " << m_trackingGeometrySvc << endreq;
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  }
+  ATH_CHECK (m_trackingGeometrySvc.retrieve());
+  
+  msg(MSG::DEBUG) << "Retrieved service " << m_trackingGeometrySvc << endmsg;
+  m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+  
 
   // Request the state combiner
-  if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Request to retrieve the multi-component state combiner failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_stateCombiner.retrieve() );
  
-
   //Retrieve the propagator
-  if (m_propagator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_propagator << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK (m_propagator.retrieve());
+  
   m_fieldProperties= Trk::MagneticFieldProperties(Trk::FullField);
 
 
@@ -109,7 +142,7 @@ StatusCode Trk::BremFind::initialize()
   
   if (m_validationMode) {
     
-    if (m_validationTree == 0) {
+    if (not m_validationTree) {
       //Crate a new tree if there doesn't exist one already
       m_validationTree = new TTree( m_validationTreeName.c_str(), m_validationTreeDescription.c_str() );
     
@@ -151,7 +184,7 @@ StatusCode Trk::BremFind::initialize()
     
 
 
-    if (m_validationTree2 == 0) {
+    if (not m_validationTree2) {
       //Crate a new tree if there doesn't exist one already
       m_validationTree2 = new TTree( m_validationTreeName2.c_str(), m_validationTreeDescription.c_str() );
     
@@ -194,19 +227,19 @@ StatusCode Trk::BremFind::initialize()
     //register the Tree
     ITHistSvc* tHistSvc = 0;
     if (service("THistSvc",tHistSvc).isFailure()) {
-      msg(MSG::ERROR) << "initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endreq;
+      msg(MSG::ERROR) << "initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endmsg;
       delete m_validationTree; 
       delete m_validationTree2;
       m_validationTree=0;
       m_validationTree2=0;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
-      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree -> Switching ValidationMode off !" << endreq;
+      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree -> Switching ValidationMode off !" << endmsg;
       delete m_validationTree;
       m_validationTree = 0;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder2, m_validationTree2)).isFailure()) {
-      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree 2 -> Switching ValidationMode off !" << endreq;
+      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree 2 -> Switching ValidationMode off !" << endmsg;
       delete m_validationTree2;
       m_validationTree2 = 0;
     }
@@ -215,7 +248,7 @@ StatusCode Trk::BremFind::initialize()
 
   //---------------------------- end of validation mode ------------------------------------
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  ATH_MSG_DEBUG( "Initialisation of " << name() << " was successful" );
   
   return StatusCode::SUCCESS;
 
@@ -224,7 +257,7 @@ StatusCode Trk::BremFind::initialize()
 
 StatusCode Trk::BremFind::finalize(){
  
- msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+ ATH_MSG_DEBUG( "Finalisation of " << name() << " was successful" );
 
  return StatusCode::SUCCESS;
 
@@ -242,7 +275,7 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
     retrieveTrackingGeometry();
 
   
-  msg(MSG::DEBUG) << "Entering BremFinder Function " << endreq;
+  msg(MSG::DEBUG) << "Entering BremFinder Function " << endmsg;
 
   m_brem_value = new std::vector<double>;
   m_brem_phi = new std::vector<double>;
@@ -383,7 +416,7 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
   //* Retrieve the event info for later syncrinization
   const xAOD::EventInfo*   eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve event info" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
   }
        
   m_event_ID            =  eventInfo->eventNumber();
@@ -554,7 +587,7 @@ void Trk::BremFind::GetBremLocations()
       //If there are multiple back kinks before the forward kink, then the back kinks must
       //iterate forward until it's just before the forward kink
       //Therefore the forward loop is broken to iterate the smooth_counter
-      if (!(smooth_counter+1 > (int) m_smoothedparameters.value.size()) ) {
+      if ((smooth_counter+1 < (int) m_smoothedparameters.value.size()) ) {
 	if (m_forwardparameters.value[forward_counter] > m_smoothedparameters.value[smooth_counter+1] && m_smoothedparameters.coefficient[smooth_counter+1]/sin(m_perigee_Theta) > (MIN_KINK_THRESHOLD/normalisation)) {
 	  double_back_boolean=true;
 	}
@@ -644,34 +677,34 @@ int Trk::BremFind::ClosestMeasurement(double x, QoverPBremFit *BremFit)
   return measurement_no;
 }
 
-double Trk::BremFind::BremSignificance(double x,QoverPBremFit *m_forwardBremFit, QoverPBremFit *m_smoothedBremFit)
+double Trk::BremFind::BremSignificance(double x,QoverPBremFit *forwardBremFit, QoverPBremFit *smoothedBremFit)
 {
-  int measurement_noF( ClosestMeasurement(x, m_forwardBremFit) );
-  double PiF( 1/m_forwardBremFit->Get1overP(measurement_noF) );
+  int measurement_noF( ClosestMeasurement(x, forwardBremFit) );
+  double PiF( 1/forwardBremFit->Get1overP(measurement_noF) );
 
   //Making sure the next measurement is not on the same surface
   int additional_forward(1);
-  double value1F( m_forwardBremFit->GetValue(measurement_noF+1) );
+  double value1F( forwardBremFit->GetValue(measurement_noF+1) );
   while (fabs(x-value1F) < 20.0) {
     additional_forward++;
-    value1F = m_forwardBremFit->GetValue(measurement_noF + additional_forward);
+    value1F = forwardBremFit->GetValue(measurement_noF + additional_forward);
   }
-    double Pi1F( 1/m_forwardBremFit->Get1overP(measurement_noF+1) );
+    double Pi1F( 1/forwardBremFit->Get1overP(measurement_noF+1) );
 
 
-  int measurement_noS( ClosestMeasurement(x, m_smoothedBremFit) );
-  double PiS( 1/m_smoothedBremFit->Get1overP(measurement_noS) );
+  int measurement_noS( ClosestMeasurement(x, smoothedBremFit) );
+  double PiS( 1/smoothedBremFit->Get1overP(measurement_noS) );
 
   int additional_smoothed(1);
-  double value1S( m_smoothedBremFit->GetValue(measurement_noS-1) );
+  double value1S( smoothedBremFit->GetValue(measurement_noS-1) );
   while (fabs(x-value1S) < 20.0){
     additional_smoothed++;
-    value1S = m_smoothedBremFit->GetValue(measurement_noS - additional_smoothed);
+    value1S = smoothedBremFit->GetValue(measurement_noS - additional_smoothed);
   }
-  double Pi1S( 1/m_smoothedBremFit->Get1overP(measurement_noS-1) );
+  double Pi1S( 1/smoothedBremFit->Get1overP(measurement_noS-1) );
 
-  double sigf( (1-(Pi1F/PiF))/m_forwardBremFit->Get1overPerror(measurement_noF) );
-  double sigb( (1-(PiS/Pi1S))/m_smoothedBremFit->Get1overPerror(measurement_noS) );
+  double sigf( (1-(Pi1F/PiF))/forwardBremFit->Get1overPerror(measurement_noF) );
+  double sigb( (1-(PiS/Pi1S))/smoothedBremFit->Get1overPerror(measurement_noS) );
 
   double sigsum( sigf + sigb);
 
@@ -681,29 +714,29 @@ double Trk::BremFind::BremSignificance(double x,QoverPBremFit *m_forwardBremFit,
 //This function provides an estimate of the phi position using the value
 //The smoothed trajectory is used because it is more accurate in the pixels
 //where the majority of brems occur
-double Trk::BremFind::GetPhiFromValue(double value, QoverPBremFit* m_smoothedBremFit)
+double Trk::BremFind::GetPhiFromValue(double value, QoverPBremFit* smoothedBremFit)
 {
-  int closest_measurement_no( ClosestMeasurement(value, m_smoothedBremFit) );
+  int closest_measurement_no( ClosestMeasurement(value, smoothedBremFit) );
   
   double value_difference;
   double phi_difference;
   
   if (closest_measurement_no == 0) {
-    value_difference = m_smoothedBremFit->GetValue(closest_measurement_no) - m_smoothedBremFit->GetValue(closest_measurement_no + 1);
-    phi_difference = m_smoothedBremFit->GetPhi(closest_measurement_no) - m_smoothedBremFit->GetPhi(closest_measurement_no + 1);
+    value_difference = smoothedBremFit->GetValue(closest_measurement_no) - smoothedBremFit->GetValue(closest_measurement_no + 1);
+    phi_difference = smoothedBremFit->GetPhi(closest_measurement_no) - smoothedBremFit->GetPhi(closest_measurement_no + 1);
   }
 
   else {
-    value_difference = m_smoothedBremFit->GetValue(closest_measurement_no) - m_smoothedBremFit->GetValue(closest_measurement_no - 1);
-    phi_difference = m_smoothedBremFit->GetPhi(closest_measurement_no) - m_smoothedBremFit->GetPhi(closest_measurement_no - 1);
+    value_difference = smoothedBremFit->GetValue(closest_measurement_no) - smoothedBremFit->GetValue(closest_measurement_no - 1);
+    phi_difference = smoothedBremFit->GetPhi(closest_measurement_no) - smoothedBremFit->GetPhi(closest_measurement_no - 1);
   }
 
   double gradient( phi_difference/value_difference );
   double estimated_phi;
   if (closest_measurement_no == 0) 
-    estimated_phi = m_smoothedBremFit->GetPhi(closest_measurement_no+1) + gradient*(value - m_smoothedBremFit->GetValue(closest_measurement_no + 1));
+    estimated_phi = smoothedBremFit->GetPhi(closest_measurement_no+1) + gradient*(value - smoothedBremFit->GetValue(closest_measurement_no + 1));
   else
-    estimated_phi = m_smoothedBremFit->GetPhi(closest_measurement_no-1) + gradient*(value - m_smoothedBremFit->GetValue(closest_measurement_no - 1)); 
+    estimated_phi = smoothedBremFit->GetPhi(closest_measurement_no-1) + gradient*(value - smoothedBremFit->GetValue(closest_measurement_no - 1)); 
 			 
   return estimated_phi;
 
@@ -840,7 +873,7 @@ StatusCode Trk::BremFind::retrieveTrackingGeometry()
   // Retrieve the TrackingGeometry from the DetectorStore
   StatusCode sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not retrieve TrackingGeometry from DetectorStore!" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve TrackingGeometry from DetectorStore!" << endmsg;
   }
   return sc;
 

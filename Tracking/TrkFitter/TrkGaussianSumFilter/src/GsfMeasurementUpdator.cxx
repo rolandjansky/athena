@@ -47,31 +47,31 @@ StatusCode Trk::GsfMeasurementUpdator::initialize()
 
   // Request the Chrono Service
   if ( m_chronoSvc.retrieve().isFailure() ) {
-   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endreq;
+   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endmsg;
    return StatusCode::FAILURE;
   } else 
-   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endreq;
+   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endmsg;
 
   // Retrieve the updator tool
   if ( m_updator.retrieve().isFailure() ){
     msg(MSG::FATAL)
-        << "Could not retrieve measurement updator AlgTool ... Exiting!" << endreq;
+        << "Could not retrieve measurement updator AlgTool ... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve the Posterior Weights Calculator
   if ( m_posteriorWeightsCalculator.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not find the Posterior Weights Calculator Service... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not find the Posterior Weights Calculator Service... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Request an instance of the MultiComponentStateAssembler
   if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::ERROR) << "Could not access the MultiComponentStateAssembler Service" << endreq;
+    msg(MSG::ERROR) << "Could not access the MultiComponentStateAssembler Service" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -79,7 +79,7 @@ StatusCode Trk::GsfMeasurementUpdator::initialize()
 StatusCode Trk::GsfMeasurementUpdator::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -88,7 +88,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Updating using GsfMeasurementUpdator" << endreq;
+    msg(MSG::VERBOSE) << "Updating using GsfMeasurementUpdator" << endmsg;
 
   const Trk::MultiComponentState* updatedState = 0;
 
@@ -113,7 +113,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
 
     if ( !measuredCov ){
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Component in the state awaiting update has no error matrix... rebuilding the entire state" << endreq;
+        msg(MSG::DEBUG) << "Component in the state awaiting update has no error matrix... rebuilding the entire state" << endmsg;
       rebuildStateWithErrors = true;
     }
 
@@ -122,7 +122,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
   if ( rebuildStateWithErrors ){
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Rebuilding state with errors" << endreq;
+      msg(MSG::VERBOSE) << "Rebuilding state with errors" << endmsg;
 
     Trk::MultiComponentState* stateWithInsertedErrors = new Trk::MultiComponentState();
     const Trk::TrackParameters* trackParametersWithError = 0;
@@ -140,7 +140,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
       if ( !measuredCov ){
 
         if (m_outputlevel <= 0) 
-          msg(MSG::DEBUG) << "No measurement associated with track parameters, creating a big one" << endreq;
+          msg(MSG::DEBUG) << "No measurement associated with track parameters, creating a big one" << endmsg;
         AmgSymMatrix(5)* bigNewCovarianceMatrix = new AmgSymMatrix(5);
         bigNewCovarianceMatrix->setZero();
         double covarianceScaler = 1.;
@@ -170,7 +170,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
 
     if ( !updatedState ) {
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
+        msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endmsg;
       return 0;
     }
 
@@ -183,7 +183,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
 
   if ( !updatedState ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
+      msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endmsg;
     return 0;
   }
 
@@ -212,7 +212,7 @@ Trk::GsfMeasurementUpdator::fitQuality (const MultiComponentState& updatedState,
   // Fit quality assumes that a state that has been updated by the measurement updator has been supplied to it
 
   if ( updatedState.empty() ){
-    msg(MSG::WARNING) << "Attempting to calculate chi2 of a hit with respect to an empty multiple-component state" << endreq;
+    msg(MSG::WARNING) << "Attempting to calculate chi2 of a hit with respect to an empty multiple-component state" << endmsg;
     return 0;
   }
 
@@ -256,7 +256,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Calculate Filter Step" << endreq;
+    msg(MSG::VERBOSE) << "Calculate Filter Step" << endmsg;
 
   // Start the timer
   //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
@@ -266,12 +266,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   if ( !isAssemblerReset ){
     if (m_outputlevel <= 0) 
-      msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endreq;
+      msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
     return 0;
   }
 
   if ( stateBeforeUpdate.empty() ){
-    msg(MSG::WARNING) << "Cannot update multi-state with no components!" << endreq;
+    msg(MSG::WARNING) << "Cannot update multi-state with no components!" << endmsg;
     return 0;
   }
 
@@ -282,12 +282,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   if ( !stateWithNewWeights ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Cacluation of state posterior weights failed... Exiting!" << endreq;
+      msg(MSG::DEBUG) << "Cacluation of state posterior weights failed... Exiting!" << endmsg;
     return 0;
   }
   else
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Calculation of state posterior weights successful" << endreq;
+      msg(MSG::VERBOSE) << "Calculation of state posterior weights successful" << endmsg;
 
   // Update each component using the specified updator
   Trk::MultiComponentState::const_iterator component = stateWithNewWeights->begin();
@@ -297,7 +297,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     const Trk::TrackParameters* updatedTrackParameters = 0;
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Performing update of predicted component state with measurement..." << endreq;
+      msg(MSG::VERBOSE) << "Performing update of predicted component state with measurement..." << endmsg;
 
     Trk::FitQualityOnSurface* fitQuality = 0;
 
@@ -309,7 +309,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     if ( !updatedTrackParameters ) {
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Update of state with Measurement has failed 1... Exiting!" << endreq;
+        msg(MSG::DEBUG) << "Update of state with Measurement has failed 1... Exiting!" << endmsg;
       if ( fitQuality )  delete fitQuality;
       continue;
     }
@@ -322,7 +322,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     
     if ( fitQuality && fitQuality->chiSquared() <= 0. ){
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Fit quality of update failed... Exiting!" << endreq;
+        msg(MSG::DEBUG) << "Fit quality of update failed... Exiting!" << endmsg;
       delete updatedTrackParameters;      
       delete fitQuality;
       continue;
@@ -332,7 +332,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     delete fitQuality;
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Successful measurement update with Measurement" << endreq;
+      msg(MSG::VERBOSE) << "Successful measurement update with Measurement" << endmsg;
 
     // Updator does not change the weighting
     Trk::ComponentParameters updatedComponentParameters(updatedTrackParameters, component->second);
@@ -342,7 +342,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     if ( !componentAdded )
       if (m_outputlevel <= 0) 
-        msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+        msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
     delete updatedTrackParameters;
   
@@ -365,7 +365,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successful calculation of filter step" << endreq; 
+    msg(MSG::VERBOSE) << "Successful calculation of filter step" << endmsg; 
 
   return renormalisedUpdatedState;
 
@@ -378,7 +378,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Updating using GsfMeasurementUpdator" << endreq;
+    msg(MSG::VERBOSE) << "Updating using GsfMeasurementUpdator" << endmsg;
 
   const Trk::MultiComponentState* updatedState = 0;
 
@@ -400,7 +400,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
 
     if ( !measuredCov ){
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Component in the state awaiting update has no error matrix... rebuilding the entire state" << endreq;
+        msg(MSG::DEBUG) << "Component in the state awaiting update has no error matrix... rebuilding the entire state" << endmsg;
       rebuildStateWithErrors = true;
     }
   }
@@ -408,7 +408,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
   if ( rebuildStateWithErrors ){
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Rebuilding state with errors" << endreq;
+      msg(MSG::VERBOSE) << "Rebuilding state with errors" << endmsg;
 
     Trk::MultiComponentState* stateWithInsertedErrors = new Trk::MultiComponentState();
     const Trk::TrackParameters* trackParametersWithError = 0;
@@ -426,7 +426,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
       if ( !measuredCov ){
 
         if (m_outputlevel <= 0) 
-          msg(MSG::DEBUG) << "No measurement associated with track parameters, creating a big one" << endreq;
+          msg(MSG::DEBUG) << "No measurement associated with track parameters, creating a big one" << endmsg;
         AmgSymMatrix(5)* bigNewCovarianceMatrix = new AmgSymMatrix(5);
         bigNewCovarianceMatrix->setZero();
         double covarianceScaler = 1.;
@@ -455,7 +455,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
 
     if ( !updatedState ) {
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
+        msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endmsg;
       fitQoS.reset();
       return 0;
     }
@@ -469,7 +469,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
 
   if ( !updatedState ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
+      msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endmsg;
     fitQoS.reset();
     return 0;
   }
@@ -486,7 +486,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Calculate Filter Step" << endreq;
+    msg(MSG::VERBOSE) << "Calculate Filter Step" << endmsg;
 
   // Start the timer
   //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
@@ -496,12 +496,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   if ( !isAssemblerReset ){
     if (m_outputlevel <= 0) 
-      msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endreq;
+      msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
     return 0;
   }
 
   if ( stateBeforeUpdate.empty() ){
-    msg(MSG::WARNING) << "Cannot update multi-state with no components!" << endreq;
+    msg(MSG::WARNING) << "Cannot update multi-state with no components!" << endmsg;
     return 0;
   }
 
@@ -512,12 +512,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   if ( !stateWithNewWeights ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Cacluation of state posterior weights failed... Exiting!" << endreq;
+      msg(MSG::DEBUG) << "Cacluation of state posterior weights failed... Exiting!" << endmsg;
     return 0;
   }
   else
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Calculation of state posterior weights successful" << endreq;
+      msg(MSG::VERBOSE) << "Calculation of state posterior weights successful" << endmsg;
 
   // Update each component using the specified updator
   Trk::MultiComponentState::const_iterator component = stateWithNewWeights->begin();
@@ -531,11 +531,11 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     const Trk::TrackParameters* updatedTrackParameters = 0;
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Performing update of predicted component state with measurement..." << endreq;
+      msg(MSG::VERBOSE) << "Performing update of predicted component state with measurement..." << endmsg;
 
     if (fabs((*component).first->parameters()[Trk::qOverP])>0.033333) { //GC: protection against low momentum tracks getting lost
       if (m_outputlevel<=0)                                                            // cutoff is 30MeV
-        msg(MSG::DEBUG) << "About to update component with p<50MeV...skipping component! (2)"<<endreq;
+        msg(MSG::DEBUG) << "About to update component with p<50MeV...skipping component! (2)"<<endmsg;
       continue;
     }
 
@@ -546,7 +546,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     if ( !updatedTrackParameters ) {
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Update of state with Measurement has failed 2... Exiting!" << endreq;
+        msg(MSG::DEBUG) << "Update of state with Measurement has failed 2... Exiting!" << endmsg;
       if ( componentFitQuality ) delete componentFitQuality;
       continue;
     }
@@ -559,7 +559,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     if ( !componentFitQuality || componentFitQuality->chiSquared() <= 0. ){
       if (m_outputlevel <= 0) 
-        msg(MSG::DEBUG) << "Fit quality of update failed... Exiting!" << endreq;
+        msg(MSG::DEBUG) << "Fit quality of update failed... Exiting!" << endmsg;
       delete updatedTrackParameters;      
       delete componentFitQuality;
       continue;
@@ -577,7 +577,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     delete componentFitQuality;
 
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Successful measurement update with Measurement" << endreq;
+      msg(MSG::VERBOSE) << "Successful measurement update with Measurement" << endmsg;
 
     // Updator does not change the weighting
     Trk::ComponentParameters updatedComponentParameters(updatedTrackParameters, component->second);
@@ -587,7 +587,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     if ( !componentAdded )
       if (m_outputlevel <= 0) 
-        msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+        msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
     delete updatedTrackParameters;
 
@@ -614,7 +614,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successful calculation of filter step: " << renormalisedUpdatedState->size() << endreq; 
+    msg(MSG::VERBOSE) << "Successful calculation of filter step: " << renormalisedUpdatedState->size() << endmsg; 
 
   return renormalisedUpdatedState;
 

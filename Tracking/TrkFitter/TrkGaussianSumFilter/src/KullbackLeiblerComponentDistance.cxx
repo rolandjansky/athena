@@ -32,7 +32,7 @@ StatusCode Trk::KullbackLeiblerComponentDistance::initialize()
 
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
   
-  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -41,7 +41,7 @@ StatusCode Trk::KullbackLeiblerComponentDistance::initialize()
 StatusCode Trk::KullbackLeiblerComponentDistance::finalize()
 {
   
-  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -50,7 +50,7 @@ StatusCode Trk::KullbackLeiblerComponentDistance::finalize()
 double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentParameters& firstComponent, const Trk::ComponentParameters& secondComponent) const
 {
 
-  // msg(MSG::VERBOSE) << "Calculating the Kullback-Leibler distance between 2 components" << endreq;
+  // msg(MSG::VERBOSE) << "Calculating the Kullback-Leibler distance between 2 components" << endmsg;
 
   const AmgSymMatrix(5)* firstMeasuredCov  = firstComponent.first->covariance();
   const AmgSymMatrix(5)* secondMeasuredCov = secondComponent.first->covariance();
@@ -60,7 +60,7 @@ double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentPa
 
   if (!firstMeasuredCov || !secondMeasuredCov){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Attempting to calculate the separation of components without errors... return 0" << endreq;
+      msg(MSG::DEBUG) << "Attempting to calculate the separation of components without errors... return 0" << endmsg;
     return 0.; 
   }
 
@@ -95,15 +95,25 @@ double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentPa
     AmgSymMatrix(5) G1 =  firstMeasuredCov->inverse();
     
     //if (matrixInversionError != 0 && m_outputlevel <= 0 )
-    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of first component failed" << endreq;
+    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of first component failed" << endmsg;
 
     AmgSymMatrix(5) G2 =  secondMeasuredCov->inverse();
 
     //if (matrixInversionError != 0 && m_outputlevel <= 0 )
-    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of second component failed" << endreq;
+    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of second component failed" << endmsg;
 
 
     Amg::VectorX parametersDifference = firstComponentParameters - secondComponentParameters;
+
+    //Ensure that we don't have any problems with the cyclical nature of phi 
+    if( parametersDifference[2] > M_PI ){
+      parametersDifference[2] -= 2 * M_PI;
+    } else if ( parametersDifference[2] < -M_PI ){
+      parametersDifference[2] += 2 * M_PI;
+    }
+
+    
+    
     AmgSymMatrix(5) covarianceDifference = *firstMeasuredCov - *secondMeasuredCov;
     AmgSymMatrix(5) G_difference = G2 - G1;
     AmgSymMatrix(5) G_sum        = G1 + G2;
@@ -133,14 +143,14 @@ double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentPa
     AmgSymMatrix(5) G1 = firstMeasuredCov->inverse();
   
     //if (matrixInversionError != 0 && m_outputlevel <= 0 )
-    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of first component failed" << endreq;
+    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of first component failed" << endmsg;
   
     //matrixInversionError = 0;
   
     AmgSymMatrix(5) G2 = secondMeasuredCov->inverse();
     
     //if (matrixInversionError != 0 && m_outputlevel <= 0 )
-    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of second component failed" << endreq;
+    //  msg(MSG::DEBUG) << "Inversion of covariance matrix of second component failed" << endmsg;
   
     Amg::VectorX parametersDifference = firstComponentParameters - secondComponentParameters;
   
@@ -154,7 +164,7 @@ double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentPa
     double distance = (covarianceDifference * G_difference).trace() + (parametersDifference.transpose() * G_sum * parametersDifference);
   
   
-    //msg(MSG::VERBOSE) << "Kullback-Leibler distance: " << distance << endreq;
+    //msg(MSG::VERBOSE) << "Kullback-Leibler distance: " << distance << endmsg;
     //std::cout << "Kullback-Leibler distance: " <<  distance << std::endl;
   
     return distance;

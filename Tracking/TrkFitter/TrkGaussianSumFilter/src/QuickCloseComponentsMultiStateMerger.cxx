@@ -30,6 +30,17 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 typedef boost::bimap<boost::bimaps::multiset_of<float>, boost::bimaps::set_of<int>> bimap_t;
 
 
+#if !defined(__GNUC__)
+# define __builtin_assume_aligned(X, N) X
+#else
+# if defined(__clang__)
+#  if !__has_builtin(__builtin_assume_aligned)
+#    define __builtin_assume_aligned(X, N) X
+#  endif
+# endif
+#endif
+
+
 Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -39,7 +50,9 @@ Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(
   m_stateAssembler("Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler"),
   m_chronoSvc("ChronoStatSvc", name),
   m_useFullDistanceCalcArray(true),
-  m_useFullDistanceCalcVector(true)
+  m_useFullDistanceCalcVector(true),
+  m_useMap{}
+  
 {
 
   declareInterface<IMultiComponentStateMerger>(this);
@@ -241,7 +254,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
       // Combine the closest distance components
       const Trk::ComponentParameters* combinedComponents = m_stateCombiner->combineWithWeight( *componentsToBeMerged );
       
-      if (msgLvl(MSG::VERBOSE)) msg() << "Weight of new component"<< combinedComponents->second << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Weight of new component"<< combinedComponents->second << endmsg;
             
       // Erase these components from the unmerged components map. These need to be deleted also as new memory is assigned in the combiner
       delete componentsToBeMerged;
@@ -620,7 +633,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
     bool componentAdded = m_stateAssembler->addComponent(*(*mcsIter));
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
   }
 
@@ -649,7 +662,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   //std::vector<Trk::ComponentParameters>().swap(tempComponents);
   //delete tempComponents;
 
-  //if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endreq;
+  //if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endmsg;
 
   m_chronoSvc->chronoStop("QCCM::mergeFullDist");
   

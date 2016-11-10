@@ -40,18 +40,18 @@ StatusCode Trk::LargestWeightsMultiStateMerger::initialize()
   // Retrieve an instance of the multi-component state combiner
 
   if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state combiner... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state combiner... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve an instance of the multi-component state assembler
 
   if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state assembler... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state assembler... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -60,7 +60,7 @@ StatusCode Trk::LargestWeightsMultiStateMerger::initialize()
 StatusCode Trk::LargestWeightsMultiStateMerger::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -70,29 +70,29 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Merging state with " << multiComponentState.size() << " components" << endreq;
+    msg(MSG::VERBOSE) << "Merging state with " << multiComponentState.size() << " components" << endmsg;
 
   // Check that the assember is reset
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
     return 0;
   }
 
   if ( multiComponentState.empty() ){
-    msg(MSG::ERROR) << "Attempting to merge multi-state with zero components" << endreq;
+    msg(MSG::ERROR) << "Attempting to merge multi-state with zero components" << endmsg;
     return 0;
   }
 
   if ( m_maximumNumberOfComponents <= 0 ){
-    msg(MSG::ERROR) << "Attempting to merge multi-state into zero components... stop being silly!" << endreq;
+    msg(MSG::ERROR) << "Attempting to merge multi-state into zero components... stop being silly!" << endmsg;
     return 0;
   }
 
   if ( multiComponentState.size() <= m_maximumNumberOfComponents){
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "State is already sufficiently small... no component reduction required" << endreq;
+      msg(MSG::VERBOSE) << "State is already sufficiently small... no component reduction required" << endmsg;
     return multiComponentState.clone();
   }
 
@@ -116,7 +116,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
         bool componentAdded = m_stateAssembler->addComponent(*component);
       
         if ( !componentAdded )
-          msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+          msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
       }
 
@@ -141,7 +141,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
    delete collapsedComponent;
 
    if ( !componentAdded )
-	  msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+	  msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
    const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(1.);
 

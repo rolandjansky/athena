@@ -28,7 +28,7 @@ StatusCode Trk::MahalanobisComponentDistance::initialize()
 
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
 
-  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -37,7 +37,7 @@ StatusCode Trk::MahalanobisComponentDistance::initialize()
 StatusCode Trk::MahalanobisComponentDistance::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -50,7 +50,7 @@ double Trk::MahalanobisComponentDistance::operator() (const Trk::ComponentParame
   const AmgSymMatrix(5)* secondMeasuredCov = secondComponent.first->covariance();
 
   if (!firstMeasuredCov || !secondMeasuredCov){
-    msg(MSG::ERROR) << "Attempting to calculate the separation of components without errors" << endreq;
+    msg(MSG::ERROR) << "Attempting to calculate the separation of components without errors" << endmsg;
     return -1.;
   }
 

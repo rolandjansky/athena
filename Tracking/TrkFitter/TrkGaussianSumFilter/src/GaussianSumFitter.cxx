@@ -73,13 +73,52 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   m_BremFind("Trk::BremFind"),
   m_BremFind2("Trk::BremFind"),
   m_chronoSvc("ChronoStatSvc", name),
+  m_inputPreparator(0),
+  m_FitPRD(0),
+  m_FitMeasuremnetBase(0),
+  m_FowardFailure(0),
+  m_SmootherFailure(0),
+  m_PerigeeFailure(0),
+  m_fitQualityFailure(0),
   m_validationMode(false),
   m_validationTreeName("GSFValidation"),
   m_validationTreeDescription("Surface MCSOS"),
   m_validationTreeFolder("/valGSF/GSFValidation"),
   m_validationTree(0),
   m_surfaceCounterF(0),
-  m_surfaceCounterS(0)
+  m_surfacesF(0),
+  m_surfaceXF{},
+  m_surfaceYF{},
+  m_surfaceRF{},
+  m_surfaceZF{},
+  m_surfaceTypeF{},
+  m_surfaceNstatesF{},
+
+  m_surfaceThetaF{},
+  m_surfacePhiF{},
+  m_surfaceQoverPF{},
+  m_surfaceWeightF{},
+  m_surfaceErrThetaF{},
+  m_surfaceErrPhiF{},
+  m_surfaceErrQoverPF{},
+  m_surfaceCounterS(0),
+  m_surfacesS(0),
+  m_surfaceXS{},
+  m_surfaceYS{},
+  m_surfaceRS{},
+  m_surfaceZS{},
+  m_surfaceTypeS{},
+  m_surfaceNstatesS{},
+
+  m_surfaceThetaS{},
+  m_surfacePhiS{},
+  m_surfaceQoverPS{},
+  m_surfaceWeightS{},
+  m_surfaceErrThetaS{},
+  m_surfaceErrPhiS{},
+  m_surfaceErrQoverPS{},
+
+  m_event_ID(0)
 
 {
 
@@ -114,54 +153,29 @@ StatusCode Trk::GaussianSumFitter::initialize()
   StatusCode sc;
 
   // Request the Chrono Service
-  if ( m_chronoSvc.retrieve().isFailure() ) {
-   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endreq;
-   return StatusCode::FAILURE;
-  } else 
-   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endreq;
-
-
+  ATH_CHECK( m_chronoSvc.retrieve() );
 
   // Request the GSF forward fitter - hardwired type and instanace name for the GSF
-  if ( m_forwardGsfFitter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the forward GSF fitter failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_forwardGsfFitter.retrieve());
 
   // Request the GSF smoother - hardwired type and instance name for the GSF
-  if ( m_gsfSmoother.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF smoother failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_gsfSmoother.retrieve() );
 
   // Request the GSF Outlier m_logic - hardwired type and instance name for the GSF
-  if ( m_outlierLogic.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF outlier m_logic failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_outlierLogic.retrieve() );
 
   // Request the GSF measurement updator - hardwired type and instance name for the GSF
-  if ( m_updator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF measurement updator failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_updator.retrieve() );
 
   // Request the GSF extrapolator
-  if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF extrapolator failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_extrapolator.retrieve() );
  
   // Request the state combiner
-  if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Request to retrieve the multi-component state combiner failed... Exiting!" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK ( m_stateCombiner.retrieve() );
    //Request the brem finder
   if (m_runBremFinder){
     if ( m_BremFind.retrieve().isFailure() || m_BremFind2.retrieve().isFailure() ) {
-      msg(MSG::WARNING) << "Request is to retrieve the bremsstrahlung finder failed... turning off brem finding!" << endreq;
+      msg(MSG::WARNING) << "Request is to retrieve the bremsstrahlung finder failed... turning off brem finding!" << endmsg;
       m_runBremFinder = false; 
     }
   }
@@ -170,12 +184,12 @@ StatusCode Trk::GaussianSumFitter::initialize()
   if( m_rioOnTrackCreator.retrieve().isFailure() ){
 
     if (!m_refitOnMeasurementBase){
-      msg(MSG::FATAL) << "Attempting to use PrepRawData with no RIO_OnTrack creator tool provided... Exiting!" << endreq;
+      msg(MSG::FATAL) << "Attempting to use PrepRawData with no RIO_OnTrack creator tool provided... Exiting!" << endmsg;
       return StatusCode::FAILURE;
     }
 
     else
-      msg(MSG::INFO) << "Request to retrieve the RIO_OnTrack Creator failed but track is fit at the MeasurementBase level... Continuing!" << endreq;
+      ATH_MSG_INFO( "Request to retrieve the RIO_OnTrack Creator failed but track is fit at the MeasurementBase level... Continuing!");
 
   }
 
@@ -187,7 +201,7 @@ StatusCode Trk::GaussianSumFitter::initialize()
   m_trkParametersComparisonFunction = new Trk::TrkParametersComparisonFunction( referencePosition );
 
   if (!m_trkParametersComparisonFunction) {
-    msg(MSG::FATAL) << "Request to instansiate the ClosestTrackParametersFinder object failed... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Request to instansiate the ClosestTrackParametersFinder object failed... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -195,7 +209,7 @@ StatusCode Trk::GaussianSumFitter::initialize()
   sc = m_forwardGsfFitter->configureTools(m_extrapolator, m_updator, m_rioOnTrackCreator );
 
   if ( sc.isFailure() ) {
-    msg(MSG::FATAL) << "Could not configure the forwards GSF fitter... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not configure the forwards GSF fitter... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -203,7 +217,7 @@ StatusCode Trk::GaussianSumFitter::initialize()
   sc = m_gsfSmoother->configureTools(m_extrapolator, m_updator);
 
   if ( sc.isFailure() ) {
-    msg(MSG::FATAL) << "Could not configure the GSF smoother... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not configure the GSF smoother... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -259,20 +273,20 @@ StatusCode Trk::GaussianSumFitter::initialize()
     }
 
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()){ 
-      msg(MSG::ERROR)<<"initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endreq;
+      msg(MSG::ERROR)<<"initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endmsg;
       delete m_validationTree; m_validationTree = 0;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure()) {
-      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree -> Switching ValidationMode Off !" << endreq;
+      msg(MSG::ERROR)<<"initialize() Could not register the validation Tree -> Switching ValidationMode Off !" << endmsg;
       delete m_validationTree; m_validationTree = 0;
     }
   } // ------------- end of validation mode -----------------------------------------------------------------
   
   m_inputPreparator = new TrackFitInputPreparator();
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -286,19 +300,19 @@ StatusCode Trk::GaussianSumFitter::finalize()
   delete m_trkParametersComparisonFunction;
   delete m_inputPreparator;
 
-  msg(MSG::INFO) << "-----------------------------------------------" << endreq;
-  msg(MSG::INFO) << "            Some Brief GSF Statistics          " << endreq;
-  msg(MSG::INFO) << "-----------------------------------------------" << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
+  msg(MSG::INFO) << "            Some Brief GSF Statistics          " << endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
   
-  msg(MSG::INFO) << "Number of Fit PrepRawData Calls:          "<< m_FitPRD             << endreq;
-  msg(MSG::INFO) << "Number of Fit MeasurementBase Calls:      "<< m_FitMeasuremnetBase << endreq;
-  msg(MSG::INFO) << "Number of Forward Fit Failures:           "<< m_FowardFailure      << endreq;
-  msg(MSG::INFO) << "Number of Smoother Failures:              "<< m_SmootherFailure    << endreq;
-  msg(MSG::INFO) << "Number of MakePerigee Failures:           "<< m_PerigeeFailure     << endreq;
-  msg(MSG::INFO) << "Number of Trks that fail fitquality test: "<< m_fitQualityFailure  << endreq;
-  msg(MSG::INFO) << "-----------------------------------------------" << endreq;
+  msg(MSG::INFO) << "Number of Fit PrepRawData Calls:          "<< m_FitPRD             << endmsg;
+  msg(MSG::INFO) << "Number of Fit MeasurementBase Calls:      "<< m_FitMeasuremnetBase << endmsg;
+  msg(MSG::INFO) << "Number of Forward Fit Failures:           "<< m_FowardFailure      << endmsg;
+  msg(MSG::INFO) << "Number of Smoother Failures:              "<< m_SmootherFailure    << endmsg;
+  msg(MSG::INFO) << "Number of MakePerigee Failures:           "<< m_PerigeeFailure     << endmsg;
+  msg(MSG::INFO) << "Number of Trks that fail fitquality test: "<< m_fitQualityFailure  << endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
   
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -308,7 +322,7 @@ StatusCode Trk::GaussianSumFitter::finalize()
 StatusCode Trk::GaussianSumFitter::configureTools(const IMultiStateMeasurementUpdator* measurementUpdator, const IRIO_OnTrackCreator* rioOnTrackCreator)
 {
   
-  msg(MSG::INFO) << "Configuring the GaussianSumFilter!" << endreq;
+  msg(MSG::INFO) << "Configuring the GaussianSumFilter!" << endmsg;
 
   StatusCode sc;
 
@@ -319,7 +333,7 @@ StatusCode Trk::GaussianSumFitter::configureTools(const IMultiStateMeasurementUp
   sc = m_forwardGsfFitter->configureTools(m_extrapolator, m_updator, m_rioOnTrackCreator );
 
   if ( sc.isFailure() ) {
-    msg(MSG::FATAL) << "Could not configure the forwards GSF fitter... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not configure the forwards GSF fitter... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -327,11 +341,11 @@ StatusCode Trk::GaussianSumFitter::configureTools(const IMultiStateMeasurementUp
   sc = m_gsfSmoother->configureTools(m_extrapolator, m_updator);
 
   if ( sc.isFailure() ) {
-    msg(MSG::FATAL) << "Could not configure the GSF smoother... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not configure the GSF smoother... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Configuration of Gaussian Sum Fitter successful" << endreq;
+  msg(MSG::INFO) << "Configuration of Gaussian Sum Fitter successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -352,20 +366,20 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
 {
   
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Trk::GaussianSumFilter::fit() - Refitting a track" << endreq;
+    msg() << "Trk::GaussianSumFilter::fit() - Refitting a track" << endmsg;
 
   // Start the timer
   Chrono chrono( &(*m_chronoSvc), name() );
 
   // Check that the input track has well defined parameters
   if ( inputTrack.trackParameters()->empty() ) {
-    msg(MSG::FATAL) << "No estimation of track parameters near origin... Exiting!" << endreq;
+    msg(MSG::FATAL) << "No estimation of track parameters near origin... Exiting!" << endmsg;
     return 0;
   }
 
   // Check that the input track has associated MeasurementBase objects
   if ( inputTrack.trackStateOnSurfaces()->empty() ) {
-    msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase collection... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase collection... Exiting!" << endmsg;
     return 0;
   }
 
@@ -375,7 +389,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
                     *m_trkParametersComparisonFunction ) );
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Estimation parameters near reference point: " << *parametersNearestReference << endreq;
+    msg() << "Estimation parameters near reference point: " << *parametersNearestReference << endmsg;
 
   // If refitting of track is at the MeasurementBase level extract the MeasurementBase from the input track and create a new vector
   if (m_refitOnMeasurementBase) {
@@ -386,7 +400,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
     for ( ; trackStateOnSurface != inputTrack.trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
       
       if ( !(*trackStateOnSurface) ){
-        msg(MSG::WARNING) << "This track contains an empty MeasurementBase object that won't be included in the fit" << endreq;
+        msg(MSG::WARNING) << "This track contains an empty MeasurementBase object that won't be included in the fit" << endmsg;
         continue;
       }
       
@@ -415,7 +429,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
     for ( ; measurementOnTrack != inputTrack.measurementsOnTrack()->end(); ++ measurementOnTrack ) {
 
       if ( !(*measurementOnTrack) ){
-        msg(MSG::DEBUG) << "This track contains an empty MeasurementBase object... Ignoring object" << endreq;
+        msg(MSG::DEBUG) << "This track contains an empty MeasurementBase object... Ignoring object" << endmsg;
         continue;
       }
 
@@ -423,14 +437,14 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::Track&             inputTra
       const Trk::RIO_OnTrack* rioOnTrack = dynamic_cast< const Trk::RIO_OnTrack* >(*measurementOnTrack);
       
       if ( !rioOnTrack){
-        msg(MSG::DEBUG) << "Measurement could not be cast as a RIO_OnTrack object... continuing" << endreq;
+        msg(MSG::DEBUG) << "Measurement could not be cast as a RIO_OnTrack object... continuing" << endmsg;
         continue;
       }
       
       const PrepRawData* prepRawData = rioOnTrack->prepRawData();
       
       if ( !prepRawData ){
-        msg(MSG::DEBUG) << "Defined RIO_OnTrack object has no associated PrepRawData object... this object will be ignored in fit" << endreq;
+        msg(MSG::DEBUG) << "Defined RIO_OnTrack object has no associated PrepRawData object... this object will be ignored in fit" << endmsg;
         continue;
       }
       
@@ -460,9 +474,9 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 {
 
   if (msgLvl(MSG::VERBOSE)){
-    msg() << "Trk::GaussianSumFilter::fit() - Fitting a set of PrepRawData objects" << endreq;
-    msg() << "Material effects switch: " << particleHypothesis << endreq;
-    msg() << "Outlier removal switch:  " << outlierRemoval << endreq;
+    msg() << "Trk::GaussianSumFilter::fit() - Fitting a set of PrepRawData objects" << endmsg;
+    msg() << "Material effects switch: " << particleHypothesis << endmsg;
+    msg() << "Outlier removal switch:  " << outlierRemoval << endmsg;
   }
   
   ++m_FitPRD;
@@ -473,7 +487,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 
   // Protect against empty PrepRawDataSet object
   if ( prepRawDataSet.empty() ) {
-    msg(MSG::FATAL) << "PrepRawData set for fit is empty... Exiting!" << endreq;
+    msg(MSG::FATAL) << "PrepRawData set for fit is empty... Exiting!" << endmsg;
     return 0;
   }
   
@@ -494,19 +508,19 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   const ForwardTrajectory* forwardTrajectory = m_forwardGsfFitter->fitPRD( sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis );
 
   if ( !forwardTrajectory ) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Forward GSF fit failed... Exiting!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Forward GSF fit failed... Exiting!" << endmsg;
     ++m_FowardFailure;
     return 0;
   }
   
   if ( forwardTrajectory->empty() ){
-    if (msgLvl(MSG::DEBUG)) msg() << "No states in forward trajectory... Exiting!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "No states in forward trajectory... Exiting!" << endmsg;
     ++m_FowardFailure;
     delete forwardTrajectory;
     return 0;
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "*** Forward GSF fit passed! ***" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "*** Forward GSF fit passed! ***" << endmsg;
 
   // Perform GSF smoother operation  
   SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit( *forwardTrajectory, particleHypothesis );
@@ -517,19 +531,19 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 
   // Protect against failed smoother fit
   if ( !smoothedTrajectory ) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Smoother GSF fit failed... Exiting!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Smoother GSF fit failed... Exiting!" << endmsg;
     ++m_SmootherFailure;
     delete forwardTrajectory;
     return 0;
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "*** GSF smoother fit passed! ***" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "*** GSF smoother fit passed! ***" << endmsg;
 
   // Outlier m_logic and track finalisation
   const FitQuality* fitQuality = m_outlierLogic->fitQuality( *smoothedTrajectory );
 
   if ( !fitQuality ){
-    if (msgLvl(MSG::DEBUG)) msg() << "Chi squared could not be calculated... Bailing" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Chi squared could not be calculated... Bailing" << endmsg;
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
@@ -539,15 +553,15 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   Track* fittedTrack = 0;
 
   if (outlierRemoval && msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Outlier removal not yet implemented for the Gaussian Sum Filter" << endreq;
+    msg(MSG::DEBUG) << "Outlier removal not yet implemented for the Gaussian Sum Filter" << endmsg;
   
   
   if ( m_makePerigee ){
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface = this->makePerigee( smoothedTrajectory, particleHypothesis );
-    if (msgLvl(MSG::DEBUG)) msg() << "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface << endmsg;
     if ( perigeeMultiStateOnSurface ) smoothedTrajectory->push_back( perigeeMultiStateOnSurface );
     else {  
-      if (msgLvl(MSG::DEBUG)) msg() << "Perigee asked to be created but failed.....Exiting" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Perigee asked to be created but failed.....Exiting" << endmsg;
       ++m_PerigeeFailure;
       delete smoothedTrajectory;
       delete forwardTrajectory;
@@ -557,7 +571,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
  
   //Find bremsstrahlung points and save them
   if (m_runBremFinder) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endmsg;
     
     //The z mode must be ahead of the r mode to make sure the right TSOS is being pushed into the smoothedTrajectory
     m_BremFind2->BremFinder(*forwardTrajectory, *smoothedTrajectory,true);
@@ -592,12 +606,12 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
   fittedTrack = new Track(info, smoothedTrajectory, fitQuality );
 
   if ( fittedTrack && msgLvl(MSG::VERBOSE)) {
-    msg() << "Fitting of a set of PrepRawData objects is successful" << endreq;      
-    msg() << "Track fit chi squared... " << fitQuality->chiSquared() << endreq;
-    msg() << "Track fit number of degrees of freedom... " << fitQuality->numberDoF() << endreq;
+    msg() << "Fitting of a set of PrepRawData objects is successful" << endmsg;      
+    msg() << "Track fit chi squared... " << fitQuality->chiSquared() << endmsg;
+    msg() << "Track fit number of degrees of freedom... " << fitQuality->numberDoF() << endmsg;
   }
   else
-    if (msgLvl(MSG::DEBUG)) msg() << "Trk::GaussianSumFilter::fit() failed!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Trk::GaussianSumFilter::fit() failed!" << endmsg;
 
   return fittedTrack;
 
@@ -621,16 +635,16 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   Chrono chrono( &(*m_chronoSvc), name() );
 
   if (msgLvl(MSG::VERBOSE)){
-    msg() << "Trk::GaussianSumFilter::fit() - Fitting a set of MeasurementBase objects" << endreq;
-    msg() << "Material effects switch: " << particleHypothesis << endreq;
-    msg() << "Outlier removal switch:  " << outlierRemoval << endreq;
+    msg() << "Trk::GaussianSumFilter::fit() - Fitting a set of MeasurementBase objects" << endmsg;
+    msg() << "Material effects switch: " << particleHypothesis << endmsg;
+    msg() << "Outlier removal switch:  " << outlierRemoval << endmsg;
   }
   
   ++m_FitMeasuremnetBase;
   
   // Protect against empty PrepRawDataSet object
   if ( measurementSet.empty() ) {
-    msg(MSG::FATAL) << "MeasurementSet for fit is empty... Exiting!" << endreq;
+    msg(MSG::FATAL) << "MeasurementSet for fit is empty... Exiting!" << endmsg;
     return 0;
   }
 
@@ -642,7 +656,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   MeasurementSet::const_iterator itSetEnd = measurementSet.end();
   for ( ; itSet!=itSetEnd; ++itSet) {
     if (!(*itSet)) {
-      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endreq;
+      msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
     } else {
       ccot = dynamic_cast<const Trk::CaloCluster_OnTrack*>(*itSet);
       if (!ccot){
@@ -672,20 +686,20 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   const ForwardTrajectory* forwardTrajectory = m_forwardGsfFitter->fitMeasurements( sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis );
 
   if ( !forwardTrajectory ) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Forward GSF fit failed... Exiting!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Forward GSF fit failed... Exiting!" << endmsg;
     ++m_FowardFailure;
     return 0;
   }   
   
   if ( forwardTrajectory->empty() ){
-    if (msgLvl(MSG::DEBUG)) msg() << "No states in forward trajectory... Exiting!" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "No states in forward trajectory... Exiting!" << endmsg;
     delete forwardTrajectory;
     ++m_FowardFailure;
     return 0;
   }
   
   if (msgLvl(MSG::VERBOSE))
-    msg() << "*** Forward GSF fit passed! ***" << endreq;
+    msg() << "*** Forward GSF fit passed! ***" << endmsg;
 
   
   // Perform GSF smoother operation
@@ -693,7 +707,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
 
   // Protect against failed smoother fit
   if ( !smoothedTrajectory ) {
-    msg(MSG::DEBUG) << "Smoother GSF fit failed... Exiting!" << endreq;
+    msg(MSG::DEBUG) << "Smoother GSF fit failed... Exiting!" << endmsg;
     ++m_SmootherFailure;
     delete forwardTrajectory;
     return 0;
@@ -701,7 +715,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
           
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "*** GSF smoother fit passed! ***" << endreq;
+    msg() << "*** GSF smoother fit passed! ***" << endmsg;
 
   if(m_validationMode) SaveMCSOSF( *forwardTrajectory );
 
@@ -710,7 +724,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
 
   if ( !fitQuality ){
     if (msgLvl(MSG::DEBUG)) 
-      msg() << "Chi squared could not be calculated... Bailing" << endreq;
+      msg() << "Chi squared could not be calculated... Bailing" << endmsg;
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
@@ -718,15 +732,15 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   }
 
   if (outlierRemoval && msgLvl(MSG::DEBUG))
-    msg() << "Outlier removal not yet implemented for the Gaussian Sum Filter" << endreq;
+    msg() << "Outlier removal not yet implemented for the Gaussian Sum Filter" << endmsg;
 
   if ( m_makePerigee ){
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface = this->makePerigee( smoothedTrajectory, particleHypothesis );
-    if (msgLvl(MSG::DEBUG)) msg() << "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface << endmsg;
   
     if ( perigeeMultiStateOnSurface ) smoothedTrajectory->push_back( perigeeMultiStateOnSurface );
     else {  
-      if (msgLvl(MSG::DEBUG)) msg() << "Perigee asked to be created but failed.....Exiting" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Perigee asked to be created but failed.....Exiting" << endmsg;
       ++m_PerigeeFailure;
       delete fitQuality;
       delete forwardTrajectory;
@@ -737,7 +751,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
 
   //Find bremsstrahlung points and save them
   if (m_runBremFinder) {
-    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Entering the BremFind tool" << endmsg;
 
     //The z mode must be ahead of the r mode to make sure the right TSOS is being pushed into the smoothedTrajectory
     m_BremFind2->BremFinder(*forwardTrajectory, *smoothedTrajectory,true);
@@ -771,11 +785,11 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   Track* fittedTrack = new Track(info, smoothedTrajectory, fitQuality );  
 
   if ( fittedTrack ) {
-    msg(MSG::DEBUG) << "Fitting of a set of MeasurementBase objects is successful" << endreq;
-    msg(MSG::DEBUG) << "Track fit chi squared... " << fitQuality->chiSquared() << endreq;
-    msg(MSG::DEBUG) << "Track fit number of degrees of freedom... " << fitQuality->numberDoF() << endreq;
+    msg(MSG::DEBUG) << "Fitting of a set of MeasurementBase objects is successful" << endmsg;
+    msg(MSG::DEBUG) << "Track fit chi squared... " << fitQuality->chiSquared() << endmsg;
+    msg(MSG::DEBUG) << "Track fit number of degrees of freedom... " << fitQuality->numberDoF() << endmsg;
   } else {
-    msg(MSG::DEBUG) << "Trk::GaussianSumFilter::fit() failed!" << endreq;
+    msg(MSG::DEBUG) << "Trk::GaussianSumFilter::fit() failed!" << endmsg;
   }
    
   return fittedTrack;
@@ -789,13 +803,13 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Track&             intrk,
 {
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg() << "--> enter GaussianSumFitter::fit(Track,PrdSet,,)" << endreq;
-    msg() << "    with Track from author = " << intrk.info().dumpInfo() << endreq;
+    msg() << "--> enter GaussianSumFitter::fit(Track,PrdSet,,)" << endmsg;
+    msg() << "    with Track from author = " << intrk.info().dumpInfo() << endmsg;
   }
   
   // protection, if empty PrepRawDataSet
   if (addPrdColl.empty()) {
-    msg(MSG::WARNING) << "client tries to add an empty PrepRawDataSet to the track fit." << endreq;
+    msg(MSG::WARNING) << "client tries to add an empty PrepRawDataSet to the track fit." << endmsg;
     return fit(intrk, runOutlier, matEffects);
   }
 
@@ -803,7 +817,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Track&             intrk,
       i.e. closest to the reference point */
   if (msgLvl(MSG::VERBOSE)) msg()<< "get track parameters near origin " 
                              << (m_doHitSorting? "via STL sort" : "from 1st state")
-                             << endreq;
+                             << endmsg;
   
   const TrackParameters* estimatedStartParameters = m_doHitSorting
     ?  *(std::min_element(intrk.trackParameters()->begin(),
@@ -837,23 +851,23 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Track&             inputTrack,
 {
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Trk::GaussianSumFilter::fit() - Refitting a track with a additional information " << endreq;
+    msg() << "Trk::GaussianSumFilter::fit() - Refitting a track with a additional information " << endmsg;
 
   // protection, if empty MeasurementSet
   if (measurementSet.empty()) {
-    msg(MSG::WARNING) << "Client tries to add an empty MeasurementSet to the track fit." << endreq;
+    msg(MSG::WARNING) << "Client tries to add an empty MeasurementSet to the track fit." << endmsg;
     return fit(inputTrack, runOutlier, matEffects);
   }
 
   // Check that the input track has well defined parameters
   if ( inputTrack.trackParameters()->empty() ) {
-    msg(MSG::FATAL) << "No estimation of track parameters near origin... Exiting!" << endreq;
+    msg(MSG::FATAL) << "No estimation of track parameters near origin... Exiting!" << endmsg;
     return 0;
   }
  
   // Check that the input track has associated MeasurementBase objects
   if ( inputTrack.trackStateOnSurfaces()->empty() ) {
-    msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase collection... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase collection... Exiting!" << endmsg;
     return 0;
   }
 
@@ -879,12 +893,12 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Track&             intrk1,
   //Not a great implementation but simple...  Just add the hits on track
   // protection against not having measurements on the input tracks 
   if (!intrk1.trackStateOnSurfaces() || !intrk2.trackStateOnSurfaces() || intrk1.trackStateOnSurfaces()->size() < 2) { 
-    msg(MSG::WARNING) << "called to refit empty track or track with too little information, reject fit" << endreq; 
+    msg(MSG::WARNING) << "called to refit empty track or track with too little information, reject fit" << endmsg; 
     return 0; 
   } 
     
   if (!intrk1.trackParameters() || intrk1.trackParameters()->empty()) { 
-    msg(MSG::WARNING) << "input #1 fails to provide track parameters for seeding the GXF, reject fit" << endreq; 
+    msg(MSG::WARNING) << "input #1 fails to provide track parameters for seeding the GXF, reject fit" << endmsg; 
     return 0; 
   } 
   
@@ -922,7 +936,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
 {
 
   if (msgLvl(MSG::VERBOSE)) 
-    msg() << "Trk::GaussianSumFilter::makePerigee... starting" << endreq;
+    msg() << "Trk::GaussianSumFilter::makePerigee... starting" << endmsg;
 
   // Propagate track to perigee
   const Trk::PerigeeSurface perigeeSurface;
@@ -936,7 +950,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
   if ( !multiComponentStateOnSurfaceNearestOrigin ){
 
     if (msgLvl(MSG::VERBOSE)) 
-      msg() << "State nearest perigee is not a multi-component state... Converting" << endreq;
+      msg() << "State nearest perigee is not a multi-component state... Converting" << endmsg;
     
     Trk::ComponentParameters componentParameters( stateOnSurfaceNearestOrigin->trackParameters(), 1. );
     multiComponentState = new Trk::MultiComponentState( componentParameters );
@@ -956,7 +970,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
   if (!stateExtrapolatedToPerigee){
     
     if (msgLvl(MSG::DEBUG))
-      msg() << "Track could not be extrapolated to perigee... returning 0" << endreq;
+      msg() << "Track could not be extrapolated to perigee... returning 0" << endmsg;
     
     return 0;
   }
@@ -971,7 +985,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
   double modeQoverP = 0;
 
   if ( modeQoverP  && msgLvl(MSG::VERBOSE) )
-    msg() << "Calculated mode is stored by default in the Perigee Parameters and is NO Longer Stored as a seperate Parameter"  << endreq;
+    msg() << "Calculated mode is stored by default in the Perigee Parameters and is NO Longer Stored as a seperate Parameter"  << endmsg;
 
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
   const Trk::TrackParameters* combinedPerigee = m_stateCombiner->combine( *stateExtrapolatedToPerigee, true );
@@ -982,7 +996,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
 
   if (fabs(combinedPerigee->parameters()[Trk::qOverP])>1e8) { //GC: protection against 0-momentum track .. this check should NEVER be needed.
                                                               //    actual cutoff is 0.01eV track 
-    msg(MSG::ERROR) <<"makePerigee() about to return with 0 momentum!! Returning null instead"<<endreq;
+    msg(MSG::ERROR) <<"makePerigee() about to return with 0 momentum!! Returning null instead"<<endmsg;
     delete combinedPerigee;
     return 0;
   }
@@ -996,7 +1010,7 @@ const Trk::MultiComponentStateOnSurface* Trk::GaussianSumFitter::makePerigee (
                                                                                   pattern,
                                                                                   modeQoverP );
 
-  msg(MSG::DEBUG) << "makePerigee() returning sucessfully!"<<endreq;
+  msg(MSG::DEBUG) << "makePerigee() returning sucessfully!"<<endmsg;
   
   return perigeeMultiStateOnSurface;
 }
@@ -1011,7 +1025,7 @@ void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTra
   //* Retrieve the event info for later syncrinization
   const xAOD::EventInfo*   eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve event info" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
   }
        
   m_event_ID            =  eventInfo->eventNumber();
@@ -1061,7 +1075,7 @@ void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTra
 	m_surfaceZF[m_surfaceCounterF]    = posOnSurf.z();
 	m_surfaceTypeF[m_surfaceCounterF] = (int) (*trackStateOnSurface)->type(TrackStateOnSurface::Measurement);
       } else {
-	msg(MSG::WARNING) << "forwardsMultiStateOnSurface is null! Setting surface position values to -999 ..." << endreq;
+	msg(MSG::WARNING) << "forwardsMultiStateOnSurface is null! Setting surface position values to -999 ..." << endmsg;
 	m_surfaceXF[m_surfaceCounterF]    = -999.;
 	m_surfaceYF[m_surfaceCounterF]    = -999.;
 	m_surfaceRF[m_surfaceCounterF]    = -999.;
@@ -1172,7 +1186,7 @@ void Trk::GaussianSumFitter::SaveMCSOSS( const Trk::SmoothedTrajectory& smoothed
 	m_surfaceZS[m_surfaceCounterS]    = posOnSurf.z();
 	m_surfaceTypeS[m_surfaceCounterS] = (int) (*trackStateOnSurfaceS)->type(TrackStateOnSurface::Measurement);
       } else {
-	msg(MSG::WARNING) << "smoothedMultiStateOnSurface is null! Setting surface position values to -999 ..." << endreq;
+	msg(MSG::WARNING) << "smoothedMultiStateOnSurface is null! Setting surface position values to -999 ..." << endmsg;
 	m_surfaceXS[m_surfaceCounterS]    = -999.;
 	m_surfaceYS[m_surfaceCounterS]    = -999.;
 	m_surfaceRS[m_surfaceCounterS]    = -999.;
