@@ -54,7 +54,7 @@ name           = "HIElectronsMonTool",
 
 
 
-if DQMonFlags.monManEnvironment == 'tier0': 
+if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0': 
     ToolSvc += HIEventShapeMonTool
     HIEventShapeMonMan = AthenaMonManager( "HIEventShapeManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
@@ -103,7 +103,7 @@ if DQMonFlags.monManEnvironment == 'tier0':
                                    AthenaMonTools      = [ HIElectronsMonTool ])
     topSequence += HIElectronsMonMan
 
-if DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'online':
+if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'online':
     ToolSvc += HIZdcMonTool
     HIZdcMonMan = AthenaMonManager( "HIZdcMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
