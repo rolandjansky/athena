@@ -74,17 +74,17 @@ public:
   bool m_usesimulation;  
 
  protected: 
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
-  static  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
-  static  std::map<Identifier ,std::string> RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
-  static  std::map<Identifier ,float> RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
-  static  std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
-  static  std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
-  static  std::map<Identifier,     std::vector<double> >& RPCCondSummarySvc_RPC_StripTimeMap_empty;  
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
+  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
+  static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
+  static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
+  static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
+  static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
+  static  std::map<Identifier,     std::vector<double> >& s_RPCCondSummarySvc_RPC_StripTimeMap_empty;  
 private:
   
   ServiceHandleArray<IRPCConditionsSvc> m_reportingServices; //!< list of services to be used
@@ -95,8 +95,8 @@ private:
   ServiceHandle<IRPC_DCSConditionsSvc>    m_rpc_DCSSvc      ;
 
   bool m_noReports;
-  std::vector<Identifier> emptyId;
-  std::vector<std::string> empty;
+  std::vector<Identifier> m_emptyId;
+  std::vector<std::string> m_empty;
  
 
 

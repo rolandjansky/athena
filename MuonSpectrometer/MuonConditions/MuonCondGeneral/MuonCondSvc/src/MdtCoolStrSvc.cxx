@@ -55,13 +55,13 @@ StatusCode MdtCoolStrSvc::initialize()
 
   MsgStream log(msgSvc(),name());
 
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  log << MSG::DEBUG << "in initialize()" << endmsg;
 
   // get detector store
 
   
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    log << MSG::FATAL << "Detector store not found" << endreq; 
+    log << MSG::FATAL << "Detector store not found" << endmsg; 
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -70,7 +70,7 @@ StatusCode MdtCoolStrSvc::initialize()
 StatusCode MdtCoolStrSvc::finalize()
 {
   MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  log << MSG::DEBUG << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -78,7 +78,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
    const std::string& filename, const int chan, const int tech) const {
   MsgStream log(msgSvc(),name());
   log << MSG::INFO << "PutFile for file " << filename << " folder " <<
-    folder << " chan " << chan << " technology " << tech << endreq;
+    folder << " chan " << chan << " technology " << tech << endmsg;
   
   std::ifstream f(filename.c_str());
   std::string sdata="";
@@ -134,7 +134,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
     
     putData(folder,filename,chan,tech,sdata_t0 ); 
   } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
+    log << MSG::INFO << "Cannot open file " << filename << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -144,7 +144,7 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
 	          const std::string& filename, const int chan, const int tech) const {
   MsgStream log(msgSvc(),name());
   log << MSG::INFO << "PutFile for RT file " << filename << " folder " <<
-    folder << " chan " << chan << " technology " << tech << endreq;
+    folder << " chan " << chan << " technology " << tech << endmsg;
   // transform to a string
   FILE* f = fopen (filename.c_str(),"rb");
   int size;
@@ -210,43 +210,43 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
     i++;
     // in the header version + # region
   }
-  log << "header finale "<< endreq;
+  log << "header finale "<< endmsg;
   puts(header);
 
-  if (f != NULL)   {
-    log << MSG::INFO << "Input file size is " << size << endreq;
-    char pack[1000]={""};
-    while(!feof(f))
-      {
-	float rad; float sigma; float time;
-	
-	int ret = fscanf(f,"%80f %80f %80f", &rad, &time, &sigma);
-	//printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
-	if (ret!=0){
-	  char * xmlt0;
-	  asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
-	  if (strlen(pack)+strlen(xmlt0) <= sizeof(pack) ) strcpy(pack,xmlt0);
-	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
-	  if (strlen(header)+strlen(pack) <= sizeof(header) ) strcat(header,pack);
-	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
-	}
+  //if (f != NULL)   { //f==NULL case is handled on line 156 above
+  log << MSG::INFO << "Input file size is " << size << endmsg;
+  char pack[1000]={""};
+  while(!feof(f))
+    {
+      float rad; float sigma; float time;
+      
+      int ret = fscanf(f,"%80f %80f %80f", &rad, &time, &sigma);
+      //printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
+      if (ret!=0){
+	char * xmlt0;
+	asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
+	if (strlen(pack)+strlen(xmlt0) <= sizeof(pack) ) strcpy(pack,xmlt0);
+	else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	if (strlen(header)+strlen(pack) <= sizeof(header) ) strcat(header,pack);
+	else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
       }
-
-    std::string sdata = strcat(header," end ");
-    int size_rt = sdata.size();
-    std::cout << size_rt << std::endl;
-    fclose (f);
-    std::string sdata_rt;
-
-      sdata_rt+= sdata;
-      int size_fin2 = sdata_rt.size();
-      std::cout << "size of fin " << size_fin2 << std::endl;
-
-    putData(folder,filename,chan,tech,sdata_rt );
-  } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
-    return StatusCode::FAILURE;
-  }
+    }
+  
+  std::string sdata = strcat(header," end ");
+  int size_rt = sdata.size();
+  std::cout << size_rt << std::endl;
+  fclose (f);
+  std::string sdata_rt;
+  
+  sdata_rt+= sdata;
+  int size_fin2 = sdata_rt.size();
+  std::cout << "size of fin " << size_fin2 << std::endl;
+  
+  putData(folder,filename,chan,tech,sdata_rt );
+  //} else {
+  //log << MSG::INFO << "Cannot open file " << filename << endmsg;
+  //return StatusCode::FAILURE;
+  //}
   return StatusCode::SUCCESS;
 }// fine RT
 
@@ -255,7 +255,7 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
    const std::string& filename, const int chan, const int tech) const {
   MsgStream log(msgSvc(),name());
   log << MSG::INFO << "PutFile for file " << filename << " folder " <<
-    folder << " chan " << chan << " technology " << tech << endreq;
+    folder << " chan " << chan << " technology " << tech << endmsg;
 
    // Reads the ascii file and write it in a string
   std::ifstream f(filename.c_str());
@@ -316,24 +316,24 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
    int year, month, day, hour, minute, second, ns;
    sscanf(since,"%80d/%80d/%80d %80d:%80d:%80d.%80d",&year,&month,&day,&hour,&minute,&second,&ns);
    log << MSG::INFO << "since : " << year << "/" << month << "/" << day << " " 
-	<< hour << ":" << minute << ":" << second << endreq;
+	<< hour << ":" << minute << ":" << second << endmsg;
    //  seal::Time since_T(year,month,day,hour,minute,second,0,true);
 
    sscanf(till,"%80d/%80d/%80d %80d:%80d:%80d.%80d",&year,&month,&day,&hour,&minute,&second,&ns);
    //seal::Time till_T(year,month,day,hour,minute,second,0,true);
 
-   //log << MSG::INFO << "SINCE Seal " << since_T.format(true,"%F %T") << endreq;
-   //log << MSG::INFO << "TILL Seal " << till_T.format(true,"%F %T") << endreq;
+   //log << MSG::INFO << "SINCE Seal " << since_T.format(true,"%F %T") << endmsg;
+   //log << MSG::INFO << "TILL Seal " << till_T.format(true,"%F %T") << endmsg;
 
-   log << MSG::INFO << "End of blob parsing" << endreq;
-   log << MSG::INFO << "Dumping BLOB : " << sdata << endreq;
+   log << MSG::INFO << "End of blob parsing" << endmsg;
+   log << MSG::INFO << "Dumping BLOB : " << sdata << endmsg;
 
 
    f.close();
    //return StatusCode::SUCCESS;
    putData(folder,filename,chan,tech,sdata );
   } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
+    log << MSG::INFO << "Cannot open file " << filename << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -345,10 +345,10 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
     const std::string& filename, const int chan, const int tech) const {
   MsgStream log(msgSvc(),name());
   log << MSG::INFO << "PutFile for file " << filename << " folder " <<
-    folder << " chan " << chan << " technology " << tech << endreq;
+    folder << " chan " << chan << " technology " << tech << endmsg;
   FILE* f = fopen (filename.c_str(),"rb");
   if(!f){
-    log << MSG::ERROR << "Cannot open file or empty" << filename << endreq;
+    log << MSG::ERROR << "Cannot open file or empty" << filename << endmsg;
     return StatusCode::FAILURE;
   }
   fseek (f, 0L, SEEK_END);
@@ -357,7 +357,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
   
   std::string sdata;
   if (size!=0)   {
-    log << MSG::INFO << "Input file size is " << size << endreq;
+    log << MSG::INFO << "Input file size is " << size << endmsg;
     char pack[1000]={""};
     while(!feof(f)){
       
@@ -396,7 +396,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
     putData(folder,filename,chan,tech,sdata );
   } else {
     fclose (f);
-    log << MSG::INFO << "Cannot open file or empty" << filename << endreq;
+    log << MSG::INFO << "Cannot open file or empty" << filename << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -409,12 +409,12 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
    const std::string& filename, const int chan, const int tech) const {
   MsgStream log(msgSvc(),name());
   log << MSG::INFO << "PutFile for file " << filename << " folder " <<
-    folder << " chan " << chan << " technology " << tech << endreq;
+    folder << " chan " << chan << " technology " << tech << endmsg;
    // transform to a string
   
   FILE* f = fopen (filename.c_str(),"rb");
   if(!f){
-    log << MSG::ERROR << "Cannot open file or empty" << filename << endreq;
+    log << MSG::ERROR << "Cannot open file or empty" << filename << endmsg;
     return StatusCode::FAILURE;
   }
   fseek (f, 0L, SEEK_END);
@@ -426,10 +426,10 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
   //char * fname=filename.c_str();
   
   std::string sdata;
-  // log << MSG::INFO << "entro nel loop"  << endreq;
+  // log << MSG::INFO << "entro nel loop"  << endmsg;
 
   if (size!=0)   {
-    log << MSG::INFO << "Input file size is " << size << endreq;
+    log << MSG::INFO << "Input file size is " << size << endmsg;
     
     while(!feof(f)){
       
@@ -490,7 +490,7 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
     putData(folder,filename,chan,tech,sdata );
   } else {
     fclose (f);
-    log << MSG::INFO << "Cannot open file or emtpy" << filename << endreq;
+    log << MSG::INFO << "Cannot open file or emtpy" << filename << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -517,14 +517,14 @@ StatusCode MdtCoolStrSvc::getFile(const std::string& folder, const int chan,
 
   FILE* f = fopen (rfile.c_str(),"wb");
   if(!f){
-    log << MSG::ERROR << "Cannot open file or empty" << rfile << endreq;
+    log << MSG::ERROR << "Cannot open file or empty" << rfile << endmsg;
     return StatusCode::FAILURE;
   }
 
   int size=data.size();
   fwrite(data.c_str(),size,1,f);
   log << MSG::INFO << "getFile: written data of length " << size <<
-  " into file " << rfile << endreq;
+  " into file " << rfile << endmsg;
   fclose (f);
 
   return StatusCode::SUCCESS;
@@ -537,53 +537,53 @@ StatusCode MdtCoolStrSvc::putData(const std::string& folder,
 
   // check technology type
   if (tech!=INLINE_STRING && tech!=INLINE_CLOB) {
-    log << MSG::ERROR << "Bad technology type (must be 0 or 1)" << endreq;
+    log << MSG::ERROR << "Bad technology type (must be 0 or 1)" << endmsg;
     return StatusCode::FAILURE;
   }
   // check data length for strings
   if (tech==INLINE_STRING && data.size()>=4000) {
     log << MSG::ERROR << "String technology selected (" << INLINE_STRING << 
-      ") but data size is >4000 characters " << endreq;
+      ") but data size is >4000 characters " << endmsg;
     return StatusCode::FAILURE;
   }
   // check channel zero is not being requested
   if (chan==0) {
-    log << MSG::ERROR << "Channel 0 cannot be used" << endreq;
+    log << MSG::ERROR << "Channel 0 cannot be used" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // check if collection already exists, if not have to create in TDS
   log << MSG::INFO << "putData to folder " << folder << " channel " << chan <<
     " from file " << filename << " using technology ";
-  if (tech==INLINE_STRING) log << INLINE_STRING << " (String)" << endreq;
-  if (tech==INLINE_CLOB) log << INLINE_CLOB << " (CLOB<16M)" << endreq;
+  if (tech==INLINE_STRING) log << INLINE_STRING << " (String)" << endmsg;
+  if (tech==INLINE_CLOB) log << INLINE_CLOB << " (CLOB<16M)" << endmsg;
   CondAttrListCollection* atrc=0;
   if (!p_detstore->contains<CondAttrListCollection>(folder)) {
     log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-	<< folder << endreq;
+	<< folder << endmsg;
     CondAttrListCollection* atrc=new CondAttrListCollection(true);
     if (StatusCode::SUCCESS!=p_detstore->record(atrc,folder)) {
     log << MSG::ERROR << "Could not create CondAttrListCollection " <<
-     folder << endreq;
+     folder << endmsg;
     return StatusCode::FAILURE;
     }
   }
   // do const cast here so we can add to already exisiting collections
   const CondAttrListCollection* catrc=0;
-  log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endreq;
+  log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
   if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,folder)) {
     log << MSG::ERROR << "Could not retrieve CondAttrListCollection " <<
-       folder << endreq;
+       folder << endmsg;
     return StatusCode::FAILURE;
   }
   atrc=const_cast<CondAttrListCollection*>(catrc);
   if (atrc==0) {
     log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-      endreq;
+      endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << "About to create AttributeListSpecification" << endreq;
+  log << MSG::DEBUG << "About to create AttributeListSpecification" << endmsg;
   coral::AttributeListSpecification* aspec=0;
   // different things for string and CLOB technlogies
   aspec=new coral::AttributeListSpecification();
@@ -615,7 +615,7 @@ StatusCode MdtCoolStrSvc::putData(const std::string& folder,
 
   std::ostringstream atrstring;
   alist.print(atrstring);
-  log << MSG::DEBUG << "About to add channel to: " << atrc << endreq;
+  log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
   atrc->add(channum,alist);
   return StatusCode::SUCCESS;
 }
@@ -627,7 +627,7 @@ StatusCode MdtCoolStrSvc::getData(const std::string& folder,
   data="";
   if (StatusCode::SUCCESS!=p_detstore->retrieve(atrc,folder)) {
     log << MSG::ERROR << "getData failed for folder " << folder << " channel "
-	<< chan << endreq;
+	<< chan << endmsg;
     return StatusCode::FAILURE;
   }
   CondAttrListCollection::ChanNum channum=chan;
@@ -646,9 +646,9 @@ StatusCode MdtCoolStrSvc::getData(const std::string& folder,
       std::ostringstream atrstring;
       atr.toOutputStream(atrstring);
       log << MSG::DEBUG << "read Channum " << channum << " atrlist: " << 
-	atrstring.str() << endreq;
+	atrstring.str() << endmsg;
     } else {
-      log << MSG::ERROR << "Invalid channel number" << endreq;
+      log << MSG::ERROR << "Invalid channel number" << endmsg;
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

@@ -41,14 +41,14 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
 {
   
   msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endreq;
+		 << PACKAGE_VERSION << endmsg;
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq; 
+    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endreq; 
+    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
     
   }
   if(m_dcsInfofromCool)
@@ -57,12 +57,12 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
       if ( sc.isFailure() )
 	{
 	  
-	  msg(MSG::ERROR) << "Could not retrieve MDT_DCSConditionsRun2Tool" << endreq;
+	  msg(MSG::ERROR) << "Could not retrieve MDT_DCSConditionsRun2Tool" << endmsg;
 	}
       else
 	{
 	  
-	  msg(MSG::DEBUG)<<"MDT_DCSConditionsRun2Tool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
+	  msg(MSG::DEBUG)<<"MDT_DCSConditionsRun2Tool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
 	}
       std::vector<std::string> folderNames;
       
@@ -71,7 +71,7 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
       //folderNames.push_back((m_condDataTool)->JTAGFolderName());
       
       // }
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
       //  bool aFolderFound = false;
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
@@ -80,7 +80,7 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
 	  msg(MSG::DEBUG)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::DEBUG)<<"     found in the DetStore"<<endreq;
+	    msg(MSG::DEBUG)<<"     found in the DetStore"<<endmsg;
 	    const DataHandle<CondAttrListCollection> MDTDCSData;
 	    if (detStore->regFcn(&IMDT_DCSConditionsRun2Svc::initInfo,
 				 dynamic_cast<IMDT_DCSConditionsRun2Svc *>(this),
@@ -89,12 +89,12 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
 	      {
 		msg(MSG::WARNING)<<"Unable to register call back for initDCSInfo against folder <"<<(*ifld)<<">";
 	      }
-	    else msg(MSG::DEBUG)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+	    else msg(MSG::DEBUG)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
 	  }
 	  else
 	    {   
 	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endreq;
+			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
 	    }
 	}
       
@@ -106,28 +106,28 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
 StatusCode MDT_DCSConditionsRun2Svc::finalize()
 {
   
-  msg(MSG::INFO) << "Finalize" << endreq;
+  msg(MSG::INFO) << "Finalize" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode MDT_DCSConditionsRun2Svc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::DEBUG) << "queryInterface Start" << endreq;
+  msg(MSG::DEBUG) << "queryInterface Start" << endmsg;
   if(IMDT_DCSConditionsRun2Svc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::DEBUG) << "versionMatch=true" << endreq;
-      msg(MSG::DEBUG) << "OK***************************" << endreq;
+      msg(MSG::DEBUG) << "versionMatch=true" << endmsg;
+      msg(MSG::DEBUG) << "OK***************************" << endmsg;
       *ppvInterface = this;      
     } else if ( IMDTConditionsSvc::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<IMDTConditionsSvc*>(this);
-      msg(MSG::DEBUG) << "service cast***************************" << endreq;
+      msg(MSG::DEBUG) << "service cast***************************" << endmsg;
     } else {
-      msg(MSG::DEBUG) << "cannot find the interface!***************************" << endreq;
+      msg(MSG::DEBUG) << "cannot find the interface!***************************" << endmsg;
       
       return AthService::queryInterface(riid, ppvInterface);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endreq;
+  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   addRef(); 
   return StatusCode::SUCCESS;
 }
@@ -136,8 +136,8 @@ StatusCode MDT_DCSConditionsRun2Svc::queryInterface(const InterfaceID& riid, voi
 
 StatusCode MDT_DCSConditionsRun2Svc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::DEBUG)<<"initDCSInfo has been called"<<endreq;
-  msg(MSG::DEBUG)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
+  msg(MSG::DEBUG)<<"initDCSInfo has been called"<<endmsg;
+  msg(MSG::DEBUG)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
   
   if(m_dcsInfofromCool)
     {
@@ -145,7 +145,7 @@ StatusCode MDT_DCSConditionsRun2Svc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
       StatusCode sc = m_condDataTool->loadParameters(I, keys);
       if (sc.isFailure())
 	{
-	  msg(MSG::WARNING)<<"Reading DCS from COOL failed; NO MDT DCS INFO AVAILABLE"<<endreq;
+	  msg(MSG::WARNING)<<"Reading DCS from COOL failed; NO MDT DCS INFO AVAILABLE"<<endmsg;
 	}
       
     }

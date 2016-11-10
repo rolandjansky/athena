@@ -61,17 +61,17 @@ StatusCode TriggerCoolSvc::initialize()
   m_log.setLevel(outputLevel());    //individual outputlevel not known before inialize
   m_debugLevel = (m_log.level() <= MSG::DEBUG);
   
-  m_log << MSG::INFO << "Initializing TriggerCoolSvc" <<endreq;
+  m_log << MSG::INFO << "Initializing TriggerCoolSvc" <<endmsg;
   
   // get detector store, linked to cool database by other algorithms in your
   // jobOptions file.
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq; 
+    m_log << MSG::FATAL << "Detector store not found" << endmsg; 
     return StatusCode::FAILURE;
   }
   
-  m_log << MSG::INFO << "using folder phi ******************** " << m_phifolder<<endreq;
-  m_log << MSG::INFO << "using folder eta ********************" << m_etafolder<<endreq;
+  m_log << MSG::INFO << "using folder phi ******************** " << m_phifolder<<endmsg;
+  m_log << MSG::INFO << "using folder eta ********************" << m_etafolder<<endmsg;
   
 
   // StoreGateSvc* detStore= 0;
@@ -84,18 +84,18 @@ StatusCode TriggerCoolSvc::initialize()
   
 StatusCode TriggerCoolSvc::finalize()
 {
-  m_log << MSG::DEBUG << "in finalize()" << endreq;
+  m_log << MSG::DEBUG << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 
 
 
-StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const std::string& filename_CM,const std::string& filename_Th0,
+StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std::string& filename_CM,const std::string& filename_Th0,
 					const int chan, const std::string& sequence,const std::string& info) const{
   
   // this writes the contents of theEntries in the db
-  m_log << MSG::INFO << "using folder eta ********************" << m_phifolder<<endreq;
+  m_log << MSG::INFO << "using folder eta ********************" << m_phifolder<<endmsg;
 
   // reading files to store in string
  
@@ -108,7 +108,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
     fseek (f, 0L, SEEK_END);
     unsigned int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input Th0 file size is " << size << endreq;
+    m_log << MSG::INFO << "Input Th0 file size is " << size << endmsg;
 
     std::vector<char> sbuf(size);
 
@@ -116,7 +116,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
        size_t readbytes = 0;
        readbytes = fread(&sbuf[0],size,1,f);
        if(readbytes == 0)
-         m_log << MSG::ERROR << "Empty file read!" << size << endreq;
+         m_log << MSG::ERROR << "Empty file read!" << size << endmsg;
     }
     
     fclose (f);
@@ -132,7 +132,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
     fseek (f1, 0L, SEEK_END);
     int size = ftell (f1);
     fseek (f1, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input Th1 file size is " << size << endreq;
+    m_log << MSG::INFO << "Input Th1 file size is " << size << endmsg;
     std::vector<char> sbuf(size);
     fread(&sbuf[0],size,1,f1);
     fclose (f1);
@@ -148,7 +148,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
     fseek (f2, 0L, SEEK_END);
     int size = ftell (f2);
     fseek (f2, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input Th2 file size is " << size << endreq;
+    m_log << MSG::INFO << "Input Th2 file size is " << size << endmsg;
     std::vector<char> sbuf(size);
     fread(&sbuf[0],size,1,f2);
     fclose (f2);
@@ -162,39 +162,39 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
 
   
   CondAttrListCollection* atrc=0;
-  if (!p_detstore->contains<CondAttrListCollection>(m_etafolder)) {
+  if (!p_detstore->contains<CondAttrListCollection>(etafolder)) {
     m_log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-	  << m_etafolder << endreq;
+	  << etafolder << endmsg;
     CondAttrListCollection* atrc=new CondAttrListCollection(true);
-    if (StatusCode::SUCCESS!=p_detstore->record(atrc,m_etafolder)) {
+    if (StatusCode::SUCCESS!=p_detstore->record(atrc,etafolder)) {
       m_log << MSG::ERROR << "Could not create CondAttrListCollection " <<
-	m_etafolder << endreq;
+	etafolder << endmsg;
       return StatusCode::FAILURE;
     }
   }
   
   // do const cast here so we can add to already exisiting collections
   const CondAttrListCollection* catrc=0;
-  m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endreq;
-  if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,m_etafolder)) {
+  m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
+  if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,etafolder)) {
     m_log << MSG::ERROR << "Could not retrieve CondAttrListCollection " <<
-      m_etafolder << endreq;
+      etafolder << endmsg;
     return StatusCode::FAILURE;
   }
   atrc=const_cast<CondAttrListCollection*>(catrc);
   if (atrc==0) {
     m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-      endreq;
+      endmsg;
     return StatusCode::FAILURE;
   }
 
   // check channel zero is not being requested
   if (chan==0) {
-    m_log << MSG::ERROR << "Channel 0 cannot be used" << endreq;
+    m_log << MSG::ERROR << "Channel 0 cannot be used" << endmsg;
     return StatusCode::FAILURE;
   }
   
-  m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endreq;
+  m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endmsg;
   
   coral::AttributeListSpecification* aspec=0;
   aspec=new coral::AttributeListSpecification();
@@ -217,9 +217,9 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
 
   std::ostringstream atrstring;
   alist.print(atrstring);
-  m_log << MSG::DEBUG << "About to add channel to: " << atrc << endreq;
+  m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
   atrc->add(channum,alist);
-  m_log << MSG::DEBUG << " craetion folder" << endreq;
+  m_log << MSG::DEBUG << " craetion folder" << endmsg;
   return StatusCode::SUCCESS;
 
   
@@ -237,12 +237,12 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
     fseek (f, 0L, SEEK_END);
     int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input file size is " << size << endreq;
+    m_log << MSG::INFO << "Input file size is " << size << endmsg;
     std::vector<char> sbuf(size);
     size_t readbytes = 0;
     readbytes = fread(&sbuf[0],size,1,f);
     if(readbytes == 0)
-      m_log << MSG::ERROR << "Empty file read!" << size << endreq;
+      m_log << MSG::ERROR << "Empty file read!" << size << endmsg;
     fclose (f);
     
     std::string sdata_Th0(sbuf.begin(),sbuf.begin()+size);
@@ -251,44 +251,44 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
     
   }
  
-  //m_log << MSG::DEBUG << " Data++++++" << sdata_Th0_new<<endreq;
+  //m_log << MSG::DEBUG << " Data++++++" << sdata_Th0_new<<endmsg;
   //std::cout<< "dentro writeToDBPhi ************************88 " <<std::endl;
-  //m_log << MSG::DEBUG << " folder" << phifolder<<endreq;
-  //m_log << MSG::DEBUG << " filename " << filename_CM<<endreq;
+  //m_log << MSG::DEBUG << " folder" << phifolder<<endmsg;
+  //m_log << MSG::DEBUG << " filename " << filename_CM<<endmsg;
   CondAttrListCollection* atrc=0;
   if (!p_detstore->contains<CondAttrListCollection>(phifolder)) {
     m_log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-	  << phifolder << endreq;
+	  << phifolder << endmsg;
     CondAttrListCollection* atrc=new CondAttrListCollection(true);
     if (StatusCode::SUCCESS!=p_detstore->record(atrc,phifolder)) {
       m_log << MSG::ERROR << "Could not create CondAttrListCollection " <<
-	phifolder << endreq;
+	phifolder << endmsg;
       return StatusCode::FAILURE;
     }
   }
   
   // do const cast here so we can add to already exisiting collections
   const CondAttrListCollection* catrc=0;
-  m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endreq;
+  m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
   if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,phifolder)) {
     m_log << MSG::ERROR << "Could not retrieve CondAttrListCollection " <<
-      phifolder << endreq;
+      phifolder << endmsg;
     return StatusCode::FAILURE;
   }
   atrc=const_cast<CondAttrListCollection*>(catrc);
   if (atrc==0) {
     m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-      endreq;
+      endmsg;
     return StatusCode::FAILURE;
   }
 
   // check channel zero is not being requested
   if (chan==0) {
-    m_log << MSG::ERROR << "Channel 0 cannot be used" << endreq;
+    m_log << MSG::ERROR << "Channel 0 cannot be used" << endmsg;
     return StatusCode::FAILURE;
   }
   
-  m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endreq;
+  m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endmsg;
   
   coral::AttributeListSpecification* aspec=0;
   aspec=new coral::AttributeListSpecification();
@@ -306,10 +306,10 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
 
   std::ostringstream atrstring;
   alist.print(atrstring);
-  m_log << MSG::DEBUG << "About to add channel to: " << atrc << endreq;
+  m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
   std::cout<< "channel ************************ " <<chan<<std::endl;
   atrc->add(channum,alist);
-  m_log << MSG::DEBUG << " craetion folder" << endreq;
+  m_log << MSG::DEBUG << " craetion folder" << endmsg;
   return StatusCode::SUCCESS;
 
   
@@ -318,14 +318,14 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
 StatusCode TriggerCoolSvc::getData(const std::string& phifolder, 
 	    const int chan) const {
   MsgStream log(msgSvc(),name());
-  //m_log << MSG::INFO << "using folder phi dentro read ******************** " << phifolder<<endreq;
+  //m_log << MSG::INFO << "using folder phi dentro read ******************** " << phifolder<<endmsg;
   const CondAttrListCollection* atrc;
   std::string file="";
   std::string th0="";
   std::string info="";
   if (StatusCode::SUCCESS!=p_detstore->retrieve(atrc,phifolder)) {
     log << MSG::ERROR << "getData failed for folder " << phifolder << " channel "
-	<< chan << endreq;
+	<< chan << endmsg;
     return StatusCode::FAILURE;
   }
   CondAttrListCollection::ChanNum channum=chan;
@@ -340,9 +340,9 @@ StatusCode TriggerCoolSvc::getData(const std::string& phifolder,
       std::ostringstream atrstring;
       atr.toOutputStream(atrstring);
       log << MSG::DEBUG << "read Channum " << channum << " atrlist: " << 
-	atrstring.str() << endreq;
+	atrstring.str() << endmsg;
     } else {
-      log << MSG::ERROR << "Invalid channel number" << endreq;
+      log << MSG::ERROR << "Invalid channel number" << endmsg;
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

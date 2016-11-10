@@ -39,14 +39,14 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 {
   
   msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endreq;
+		 << PACKAGE_VERSION << endmsg;
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq; 
+    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endreq; 
+    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
     
   }
 
@@ -54,28 +54,29 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
   if ( sc.isFailure() )
     {
       
-      msg(MSG::ERROR) << "Could not retrieve MuonAlignmentErrorDbTool" << endreq;
+      msg(MSG::ERROR) << "Could not retrieve MuonAlignmentErrorDbTool" << endmsg;
     }
   else
     {
 	  
-      msg(MSG::INFO)<<"MuonAlignmentErrorTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
+      msg(MSG::INFO)<<"MuonAlignmentErrorTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
     }
 
   
-  int I=0;
+//  int I=0;
   std::list<std::string> keys;
-  if (initInfo(I,keys).isFailure())
-    {
-      return StatusCode::FAILURE;
-    }   
-      msg(MSG::INFO)<<"dopo init "<<sc<<endreq;
+// at this stage the folder is not yet known to conddb and the information cannot be read - do it via callback
+// if (initInfo(I,keys).isFailure())
+//   {
+//     return StatusCode::FAILURE;
+//   }
+      msg(MSG::INFO)<<"dopo init "<<sc<<endmsg;
 
       std::vector<std::string> folderNames;
       folderNames.push_back((m_condDataTool)->ErrorFolderName());
 
 
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
 
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
@@ -84,7 +85,7 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
 	    const DataHandle<CondAttrListCollection> MUONERRORData;
 	    if (detStore->regFcn(&IMuonAlignmentErrorDbSvc::initInfo,
 				 dynamic_cast<IMuonAlignmentErrorDbSvc *>(this),
@@ -93,12 +94,12 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 	      {
 		msg(MSG::WARNING)<<"Unable to register call back for initErrorInfo against folder <"<<(*ifld)<<">";
 	      }
-	    else msg(MSG::INFO)<<"initInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+	    else msg(MSG::INFO)<<"initInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
 	  }
 	  else
 	    {   
 	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endreq;
+			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
 	    }
 	}
  
@@ -108,26 +109,26 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 StatusCode MuonAlignmentErrorDbSvc::finalize()
 {
   
-  msg(MSG::INFO) << "Finalize" << endreq;
+  msg(MSG::INFO) << "Finalize" << endmsg;
   return StatusCode::SUCCESS;
 }
 /*
 StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endreq;
+  msg(MSG::INFO) << "queryInterface Start" << endmsg;
   if(IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endreq;
+      msg(MSG::INFO) << "versionMatch=true" << endmsg;
       *ppvIF = this;
     }else if ( IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) ){
     *ppvIF = dynamic_cast<IMuonAlignmentErrorSvc*>(this);
-    msg(MSG::INFO) << "service cast***************************" << endreq;
+    msg(MSG::INFO) << "service cast***************************" << endmsg;
 
   } else {
-    msg(MSG::INFO) << "cannot find the interface!" << endreq;
+    msg(MSG::INFO) << "cannot find the interface!" << endmsg;
     return AthService::queryInterface(riid, ppvIF);
   }
-  msg(MSG::INFO) << "queryInterface succesfull" << endreq;
+  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   //addRef();  // is this needed ??                                                                                             
   return StatusCode::SUCCESS;
 }
@@ -135,7 +136,7 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
 
 StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endreq;
+  msg(MSG::INFO) << "queryInterface Start" << endmsg;
  
   if(IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) )
     {
@@ -143,7 +144,7 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
     } else {
     return AthService::queryInterface(riid, ppvInterface);
   }
-  msg(MSG::INFO) << "queryInterface succesfull" << endreq;
+  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   addRef(); 
   return StatusCode::SUCCESS;
 }
@@ -152,14 +153,14 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
 
 StatusCode MuonAlignmentErrorDbSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initInfo has been called"<<endreq;
-  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
+  msg(MSG::INFO)<<"initInfo has been called"<<endmsg;
+  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
   
   
   StatusCode sc = m_condDataTool->loadParameters(I, keys);
   if (sc.isFailure())
     {
-      msg(MSG::WARNING)<<"Reading Alignment Error from COOL failed; NO ERROR INFO AVAILABLE"<<endreq;
+      msg(MSG::WARNING)<<"Reading Alignment Error from COOL failed; NO ERROR INFO AVAILABLE"<<endmsg;
     }
   
   
