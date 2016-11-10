@@ -35,7 +35,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
                                             std::vector<const TrigInDetTrack*>      & ListSecondTracks,
                                             std::vector<const TrigInDetTrack*>      & TrkFromV0) {
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "GetVrtSec() called # tracks = " << InpTrk.size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "GetVrtSec() called # tracks = " << InpTrk.size() << endmsg;
    
   std::vector<const TrigInDetTrack*> SelectedTracks;
   SelectedTracks.clear();
@@ -44,7 +44,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
   //* Reason "# ini trks = 0,1" *//
   if( InpTrk.size() < 2 ) { 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# ini trks = 0,1'" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# ini trks = 0,1'" << endmsg;
     m_cutFlowTrkSel.push_back(1); return 0; 
   }
 
@@ -58,11 +58,11 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
       
   //* Reason "# sel trks = 0,1" *//
   if( NTracks < 2 ) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# sel trks = 0,1'" << endreq; 
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# sel trks = 0,1'" << endmsg; 
     m_cutFlowTrkSel.push_back(1); return 0; 
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of selected tracks inside jet = " << NTracks << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of selected tracks inside jet = " << NTracks << endmsg;
       
   CLHEP::HepLorentzVector MomentumJet = TotalMom(SelectedTracks);
 
@@ -94,11 +94,11 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
   // sort(ListSecondTracks.begin(),ListSecondTracks.end(),TrigInDetVxInJetTool::sortbyPtPredicate); TODO: is it needed?
 
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Found different tracks in pairs = "<< ListSecondTracks.size() << endreq;
+    msg(MSG::DEBUG) << "Found different tracks in pairs = "<< ListSecondTracks.size() << endmsg;
 
   //* Reason "# 2vrt trk = 0,1" *//
   if(ListSecondTracks.size() < 2) { 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# 2vrt trk = 0,1'" << endreq; 
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason '# 2vrt trk = 0,1'" << endmsg; 
     m_cutFlowTrkSel.push_back(2); return 0;
   }
 
@@ -119,7 +119,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
   //* Reason "vtx not reconstr." *//
   if( Chi2 < 0) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'vtx not reconstr.'" << endreq; 
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'vtx not reconstr.'" << endmsg; 
     m_cutFlowTrkSel.push_back(3); return 0; 
   }
 
@@ -143,7 +143,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
   //* Reason "vtx not reconstr." *//
   if( Chi2 < 0) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'vtx not reconstr.'" << endreq;  
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'vtx not reconstr.'" << endmsg;  
     m_cutFlowTrkSel.push_back(3); return 0;
   }
 
@@ -187,7 +187,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
       //* Reason "inside bl but no bl hits" *//
       if( blTrk[0]==0 || blTrk[1]==0 ) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside bl but no bl hits'" << endreq;   
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside bl but no bl hits'" << endmsg;   
 	m_cutFlowTrkSel.push_back(4); return 0;
       }
 
@@ -196,7 +196,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
       //* Reason "outside bl but no bl hits" *//
       if( blTrk[0]==1 || blTrk[1]==1 ) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside bl but no bl hits'" << endreq;   
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside bl but no bl hits'" << endmsg;   
 	m_cutFlowTrkSel.push_back(5); return 0;
       }
 
@@ -212,14 +212,14 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
       //* Reason "inside l1 but no l1 hits" *//
       if (Dist2D < m_Rlayer1) {  
 	if( l1Trk[0]==0 || l1Trk[1]==0 ) { 
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l1 but no l1 hits'" << endreq;   
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l1 but no l1 hits'" << endmsg;   
 	  m_cutFlowTrkSel.push_back(6); return 0;
 	}
       } else {  
 
 	//* Reason "outside l1 but has l1 hits" *//
 	if( l1Trk[0]==1 || l1Trk[1]==1 ) { 
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l1 but no l1 hits'" << endreq;   
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l1 but no l1 hits'" << endmsg;   
 	  m_cutFlowTrkSel.push_back(7); return 0;
 	}
       }  // Outside 1st-layer
@@ -230,14 +230,14 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
       //* Reason "inside l2 but no l2 hits" *//
       if (Dist2D < m_Rlayer2) {  
 	if( l2Trk[0]==0 || l2Trk[1]==0 ) {
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l2 but no l2 hits'" << endreq;   
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l2 but no l2 hits'" << endmsg;   
 	  m_cutFlowTrkSel.push_back(8); return 0;
 	}
       } else {
 
 	//* Reason "outside l2 but has l2 hits" *//
 	if( l2Trk[0]==1 || l2Trk[1]==1 ) {
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l2 but no l2 hits'" << endreq;   
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'inside l2 but no l2 hits'" << endmsg;   
 	  m_cutFlowTrkSel.push_back(9); return 0;
 	}
       }
@@ -255,7 +255,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
       }
 
       //* Reason "K0 rejection" *//
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'K0 rejection'" << endreq;   
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'K0 rejection'" << endmsg;   
       m_cutFlowTrkSel.push_back(10); return 0;
     }
 
@@ -268,7 +268,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
     //* Reason "AntiFake2trVrtCut" *//
     if(selVar<m_AntiFake2trVrtCut) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'AntiFake2trVrtCut'" << endreq;   
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'AntiFake2trVrtCut'" << endmsg;   
       m_cutFlowTrkSel.push_back(11); return 0;
     }
   }
@@ -283,7 +283,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
     //* Reason "getNegTag but pos. sig." *//
     if( JetVrtDir>0. ) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'getNegTag but pos. sig.'" << endreq;   
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'getNegTag but pos. sig.'" << endmsg;   
       m_cutFlowTrkSel.push_back(11); return 0;
     }
 
@@ -293,7 +293,7 @@ TrigVertex* TrigInDetVxInJetTool::GetVrtSec(const std::vector<const TrigInDetTra
 
     //* Reason "not NegTail but neg. sig." *//
     if( JetVrtDir<0. ) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'not NegTail but neg. sig.'" << endreq;   
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stop SV fitting routine. Reason 'not NegTail but neg. sig.'" << endmsg;   
       m_cutFlowTrkSel.push_back(11); return 0; 
     }
   } 
@@ -347,7 +347,7 @@ double TrigInDetVxInJetTool::FitCommonVrt(std::vector<const Track*>          & L
   const
 {
 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called " <<ListSecondTracks.size()<< endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called " <<ListSecondTracks.size()<< endmsg;
   //preparation
   StatusCode sc;
   std::vector<double> Chi2PerTrk;
@@ -387,7 +387,7 @@ double TrigInDetVxInJetTool::FitCommonVrt(std::vector<const Track*>          & L
   }
   //--
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" SecVrt fit converged="<< ListSecondTracks.size()<<", "
-                                       <<Chi2<<", "<<Chi2PerTrk[Outlier]<<" Mass="<<Momentum.m()<<endreq;
+                                       <<Chi2<<", "<<Chi2PerTrk[Outlier]<<" Mass="<<Momentum.m()<<endmsg;
   //--
   if( ListSecondTracks.size()==2 ){
     if( Momentum.m() > 6000. || FitProb < 0.001 || Chi2PerTrk[Outlier] > m_SecTrkChi2Cut) { return -10000.;  }  
@@ -609,27 +609,27 @@ void TrigInDetVxInJetTool::Select2TrVrt(std::vector<const Track*>     & Selected
         //  Creation on V0 tracks
         //
         if(BadTracks){
-          std::vector<double> _InpMass;
+          std::vector<double> inpMass;
           m_fitSvc->setDefault();                     //Reset VKalVrt settings
           m_fitSvc->setMomCovCalc(1);                 //Total momentum and its covariance 
 		                                              //matrix are calculated
 		  if( BadTracks == 1 ) {  // K0 case
-		    _InpMass.push_back(m_massPi);_InpMass.push_back(m_massPi);
-            m_fitSvc->setMassInputParticles( _InpMass );
+		    inpMass.push_back(m_massPi);inpMass.push_back(m_massPi);
+            m_fitSvc->setMassInputParticles( inpMass );
             m_fitSvc->setMassForConstraint(m_massK0);
             m_fitSvc->setCnstType(1);       // Set mass  constraint
           }
 		  if( BadTracks == 2 ) {  // Lambda case
             if( fabs(1./TrkAtVrt[0][2]) > fabs(1./TrkAtVrt[1][2]) ) {
-              _InpMass.push_back(m_massP);_InpMass.push_back(m_massPi);
-            }else{  _InpMass.push_back(m_massPi);_InpMass.push_back(m_massP); }
-            m_fitSvc->setMassInputParticles( _InpMass );
+              inpMass.push_back(m_massP);inpMass.push_back(m_massPi);
+            }else{  inpMass.push_back(m_massPi);inpMass.push_back(m_massP); }
+            m_fitSvc->setMassInputParticles( inpMass );
             m_fitSvc->setMassForConstraint(m_massLam);
             m_fitSvc->setCnstType(1);       // Set mass  constraint
           }
 		  if( BadTracks == 3 ) {  // Gamma case
-		    _InpMass.push_back(m_massE);_InpMass.push_back(m_massE);
-            m_fitSvc->setMassInputParticles( _InpMass );
+		    inpMass.push_back(m_massE);inpMass.push_back(m_massE);
+            m_fitSvc->setMassInputParticles( inpMass );
             m_fitSvc->setCnstType(12);       // Set 3d angular constraint
           }
           m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); 

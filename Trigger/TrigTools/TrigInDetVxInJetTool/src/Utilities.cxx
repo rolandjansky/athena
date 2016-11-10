@@ -198,11 +198,11 @@ CLHEP::HepLorentzVector TrigInDetVxInJetTool::TotalMom(const std::vector<const T
   double Pt=0;
   for (int i = 0; i < (int)InpTrk.size(); ++i) {
     if( InpTrk[i] == NULL ){ continue; } 
-    const TrigInDetTrackFitPar* m_Per=InpTrk[i]->param();
-    Pt= fabs(m_Per->pT());
-    px += cos ( m_Per->phi0()) * Pt;
-    py += sin ( m_Per->phi0()) * Pt;
-    double Theta = 2.0*atan(exp(-m_Per->eta())); 
+    const TrigInDetTrackFitPar* Per=InpTrk[i]->param();
+    Pt= fabs(Per->pT());
+    px += cos ( Per->phi0()) * Pt;
+    py += sin ( Per->phi0()) * Pt;
+    double Theta = 2.0*atan(exp(-Per->eta())); 
     pz += Pt/tan(Theta);
     ee += sqrt(  Pt*Pt + pz*pz + m_massPi*m_massPi);
   }
