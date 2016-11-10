@@ -58,15 +58,20 @@ MdtCalibDbCoolStrTool::MdtCalibDbCoolStrTool(const std::string &type,
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_IOVDbSvc("IOVDbSvc", name),
     m_regionSvc("MdtCalibrationRegionSvc", name),
-    m_rtFolder("/MDT/RT"), m_tubeFolder("/MDT/T0"),
-    m_rtDataLocation("RtKey"), m_tubeDataLocation("TubeKey"), m_defaultT0(80.),
+    m_rtFolder("/MDT/RTBLOB"), m_tubeFolder("/MDT/T0BLOB"),
+    m_rtDataLocation("RtKey"), m_tubeDataLocation("TubeKey"),
+    m_TimeSlewingCorrection(false),
+    m_UseMLRt(true),
+    m_TsCorrectionT0(0.),
+    m_defaultT0(40.),
     m_t0Shift(0.),
     m_t0Spread(0.),
     m_rtShift(0.),
     m_rtScale(1.),
+    m_prop_beta(1.0),
     m_AtRndmGenSvc ("AtRndmGenSvc", name),
     m_buffer_length(0),
-    m_decompression_buffer(NULL) {
+    m_decompression_buffer(NULL){
 
   declareInterface< IMdtCalibDBTool >(this);
 
@@ -95,11 +100,9 @@ MdtCalibDbCoolStrTool::MdtCalibDbCoolStrTool(const std::string &type,
 
   // defaultT0, used for tubes not found in DB
   declareProperty("defaultT0",m_defaultT0,"default T0 value to be used in absence of DB information");
-  m_TimeSlewingCorrection=false;
   declareProperty("TimeSlewingCorrection", m_TimeSlewingCorrection);
   declareProperty("MeanCorrectionVsR", m_MeanCorrectionVsR);
-  m_TsCorrectionT0=0.;
-  m_prop_beta=1.0;
+  declareProperty("UseMLRt", m_UseMLRt,"Enable use of ML-RTs from COOL");
   declareProperty("PropagationSpeedBeta", m_prop_beta);
 }  //end MdtCalibDbCoolStrTool::MdtCalibDbCoolStrTool
 
@@ -125,10 +128,10 @@ StatusCode MdtCalibDbCoolStrTool::updateAddress(StoreID::type /*storeID*/, SG::T
 }
 
 StatusCode MdtCalibDbCoolStrTool::initialize() { 
-  ATH_MSG_DEBUG( "Initializing " );
+  ATH_MSG_DEBUG( "MdtCalibDbCoolStrTool::initialize START " );
 
-  // if timeslew correction vector m_MeanCorrectionVsR has non-zero size then 
-  // set m_TsCorrectionT0=m_MeanCorrectionVsR[0] and subtract this each value in the vector.
+// if timeslew correction vector m_MeanCorrectionVsR has non-zero size then set
+// m_TsCorrectionT0=m_MeanCorrectionVsR[0] and subtract this each value in the vector.
   if(m_MeanCorrectionVsR.size()) {
     m_TsCorrectionT0 = m_MeanCorrectionVsR[0];
     for(std::vector<float>::iterator it=m_MeanCorrectionVsR.begin(); it!=m_MeanCorrectionVsR.end(); it++) {
@@ -195,15 +198,16 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
   ATH_MSG_DEBUG( "set address provider for MdtTubeCalibContainerCollection" );
 
-  // initialize MdtRtRelationCollection
-  // WARNING: the region mapping is currently hardcoded in 
-  //          MdtCalibrationRegionSvc and we use the folder names to select
-  //	      Rt data organized in a single region (default /MDT/RTUNIQUE folder)
-  //          or organized in one region per chamber 
-  if(m_rtFolder != "/MDT/RTUNIQUE") {
+  // initialize MdtRtRelationCollection 
+  // if COOL RT folder is called /MDT/RTUNIQUE then only read one RT from COOL and use for all chambers
+  // Not sure this option has ever been used, perhaps could be used for simulated data.
+  // Job option RtFolder would need to be set to "/MDT/RTUNIQUE" to make this work.
+  if(m_rtFolder == "/MDT/RTUNIQUE") {
+    m_regionSvc->remapRtRegions("OneRt"); 
+  } else if( m_UseMLRt ) {
+    m_regionSvc->remapRtRegions("OnePerMultilayer");
+  } else {
     m_regionSvc->remapRtRegions("OnePerChamber");
-    //  Need some control on use this or not
-    //    m_regionSvc->remapRtRegions("OnePerMultilayer");
   }
   ATH_CHECK( defaultRt() );
   ATH_CHECK( detStore()->record( m_rtData, m_rtDataLocation, true ) );
@@ -257,7 +261,7 @@ StatusCode MdtCalibDbCoolStrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (itr=keys.begin(); itr!=keys.end(); ++itr) {
       msg() << MSG::DEBUG << *itr << " I="<<I<<" ";
     }
-    msg() << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endmsg;
   }
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
@@ -461,15 +465,15 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
 // use 1238547719 to get the IOVRange from DB (
 //    IOVRange range;
 //    sc = m_IOVSvc->getRange(1238547719, m_tubeFolder, range);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endreq;}
-//    if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endreq;
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endmsg;}
+//    if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endmsg;
 
 //    IOVRange range2;
 //    sc = m_IOVSvc->setRange(1221928754, m_tubeDataLocation, range);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endreq;}
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endmsg;}
 //    sc = m_IOVSvc->getRange(1221928754, m_tubeDataLocation, range2);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endreq;}
-//    if( m_debug ) *m_log << MSG::DEBUG <<"MdtTubeCalibContainerCollection new IOVRange "<<range2<<endreq;
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endmsg;}
+//    if( m_debug ) *m_log << MSG::DEBUG <<"MdtTubeCalibContainerCollection new IOVRange "<<range2<<endmsg;
 
   // finally record MdtTubeCalibContainerCollection
   sc = detStore()->record( m_tubeData, m_tubeDataLocation );
@@ -502,7 +506,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
 // may potentially contain multiple RT functions.  However, only the first valid RT function in 
 // the first text file is used as the default for all chambers.
 StatusCode MdtCalibDbCoolStrTool::defaultRt() {
-  ATH_MSG_INFO( "MdtCalibDbCoolStrTool::defaultRt START");
+  ATH_MSG_DEBUG( "MdtCalibDbCoolStrTool::defaultRt START");
   
   m_rtData = NULL;
   // Try to retrieve MdtTubeCalibContainerCollection from StoreGate
@@ -512,7 +516,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt() {
   }
   // If no MdtTubeCalibContainerCollection in StoreGate then create it.
   if(m_rtData==NULL) {
-    ATH_MSG_INFO( "Creating new MdtRtRelationCollection");
+    ATH_MSG_DEBUG( "Creating new MdtRtRelationCollection");
     m_rtData = new MdtRtRelationCollection(); 
   }
  
@@ -656,7 +660,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt() {
 
 // Read the RTs from the DB and loads them in StoreGate (in m_rtData)
 StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
-  ATH_MSG_DEBUG( "Load Rt Calibration from DB" );
+  ATH_MSG_DEBUG( "Load Rt Calibration from COOL" );
 
   //tr-relation creators
   //  MuonCalib::RtResolutionFromPoints res_from_points;  //never used
@@ -723,14 +727,18 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
       if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_mdtIdHelper->multilayer(athenaId)==2 ) {
+        ATH_MSG_VERBOSE("MdtCalibDbCoolStrTool::loadRt Ignore ML2 RT for region "<<regionId<<" "<<
+			m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(athenaId))<<"_"<<
+			m_mdtIdHelper->stationPhi(athenaId)<<"_"<<m_mdtIdHelper->stationEta(athenaId)<<
+			" ML"<<m_mdtIdHelper->multilayer(athenaId));  //TEMP
 	continue;
       }
-      IdentifierHash hash;
+      IdentifierHash hash;  //chamber hash
       IdContext idCont = m_mdtIdHelper->module_context();
       idCont = m_mdtIdHelper->module_context();
       m_mdtIdHelper->get_hash( athenaId, hash, &idCont );
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
-      regionId=hash;
+      regionId = hash;      //reset regionId to chamber hash
     }
     // extract npoints in RT function
     pch = strtok (NULL, "_,");
@@ -843,16 +851,20 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
 	    rt->SetTmaxDiff(multilayer_tmax_diff);
 	  }
 	  //Store RT and resolution functions for this region
-	  //TEMP change these to debug
-	  //int ii = m_mdtIdHelper->stationName(athenaId);  //TEMP
-	  //ATH_MSG_INFO("MdtCalibDbCoolStrTool::loadRt Load RT for region "<<regionId<<" "<<m_mdtIdHelper->stationNameString(ii)<<"_"<<m_mdtIdHelper->stationPhi(athenaId)<<"_"<<m_mdtIdHelper->stationEta(athenaId)<<" ML"<<m_mdtIdHelper->multilayer(athenaId));
+	  if( m_regionSvc->RegionType() == ONERT ) {
+	    (*m_rtData)[0] = new MuonCalib::MdtRtRelation( rt, reso, 0.);
+	    break;   // only read one RT from COOL for ONERT option.
 	  // If doing ML2 RTs, and this is a ML2 RT function then add it to the end of m_rtData
-	  if( m_regionSvc->RegionType()==ONEPERMULTILAYER && m_mdtIdHelper->multilayer(athenaId)==2 ) {
+	  } else if( m_regionSvc->RegionType()==ONEPERMULTILAYER && m_mdtIdHelper->multilayer(athenaId)==2 ) {
+	    ATH_MSG_VERBOSE("MdtCalibDbCoolStrTool::loadRt Load ML2 RT for region "<<regionId<<" "<<
+			 m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(athenaId))<<"_"<<
+			 m_mdtIdHelper->stationPhi(athenaId)<<"_"<<m_mdtIdHelper->stationEta(athenaId)<<
+			 " ML"<<m_mdtIdHelper->multilayer(athenaId));
 	    (*m_rtData).push_back(new MuonCalib::MdtRtRelation( rt, reso, 0.));
 	    IdentifierHash mlHash;
 	    m_mdtIdHelper->get_detectorElement_hash( athenaId, mlHash ); 
 	    m_regionSvc->setRegionHash(mlHash);
-	  } else {
+	  } else {   //store RT for chamber or ML1 if doing ONEPERMULTILAYER
 	    (*m_rtData)[regionId] = new MuonCalib::MdtRtRelation( rt, reso, 0.);
 	  }
 	}      //end else regionId is OK
@@ -867,18 +879,19 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
     }
     
   }  //end loop over itr (strings read from COOL)
+  ATH_MSG_INFO("MdtCalibDbCoolStrTool::loadRt Read "<<m_regionSvc->numberOfRegions()<<"RTs from COOL");
 
 //   IOVRange range;
    // sc = m_IOVSvc->getRange(1238547719, m_rtFolder, range);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endreq;}
-   // if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endreq;
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endmsg;}
+   // if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endmsg;
                                                                                 
    // IOVRange range2;
    // sc = m_IOVSvc->setRange(1270996316, m_rtDataLocation, range);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endreq;}
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endmsg;}
    // sc = m_IOVSvc->getRange(1270996316, m_rtDataLocation, range2);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endreq;}
-   // if( m_debug ) *m_log << MSG::DEBUG <<"MdtRtRelationCollection new IOVRange "<<range2<<endreq;
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endmsg;}
+   // if( m_debug ) *m_log << MSG::DEBUG <<"MdtRtRelationCollection new IOVRange "<<range2<<endmsg;
                                                                                 
    // finally record MdtRtRelationCollection in StoreGate
   sc = detStore()->record( m_rtData, m_rtDataLocation );

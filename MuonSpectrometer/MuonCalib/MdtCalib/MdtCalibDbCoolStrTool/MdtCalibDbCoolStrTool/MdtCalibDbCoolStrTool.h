@@ -86,7 +86,7 @@ private:
   std::string      m_rtDataLocation;     //string used to access m_rtData in StoreGate
   std::string      m_tubeDataLocation;   //string used to access m_tubeData in StoreGate
 
-//if m_TimeSlewingCorrection is set to true, it is assumed, that the
+//if m_TimeSlewingCorrection is set to true then it is assumed that the
 //time slewing correction is applied. If false not. If this flag does 
 //not match the bit in the creation parameters, the rt-relation and t0 
 //will be corrected.  
@@ -95,6 +95,7 @@ private:
 //have TS-correction. In the default reco-jobs however, this is
 //configured by one muonRecFlag, that will be used to set this job-option.
   bool   m_TimeSlewingCorrection;
+  bool   m_UseMLRt;
   std::vector<float> m_MeanCorrectionVsR;
   float  m_TsCorrectionT0;
   double m_defaultT0;
