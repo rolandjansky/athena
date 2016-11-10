@@ -30,7 +30,7 @@ Purpose : Tool to buid the Global Trigegr Tags
 #include <vector>
 #include <string>
 
-using namespace Trig;
+//using namespace Trig;
 namespace Trig {
   class ChainGroup;
 }

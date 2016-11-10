@@ -155,8 +155,8 @@ std::map<int,std::string> GlobalTriggerTagTool::getChainCounter(std::string leve
   ATH_MSG_DEBUG("in getchaincounter ");
 
   // get the chains for each trigger level.
-  const Trig::ChainGroup* m_level = m_trigDec->getChainGroup(level);
-  std::vector<std::string> name = m_level->getListOfTriggers();
+  const Trig::ChainGroup* group = m_trigDec->getChainGroup(level);
+  std::vector<std::string> name = group->getListOfTriggers();
   
   std::map<int,std::string> ccname;
   for(unsigned int i=0; i<name.size(); ++i) {

@@ -90,7 +90,7 @@ GlobalEventTagTool::attributeSpecification(std::vector<std::pair<std::string,Ath
 
   if ( m_includeRecoTime )
     {
-      for (unsigned int i = Evt::RecoTimeRAW2ESD; i <= Evt::RecoTimeESD2AOD; ++i)
+      for (unsigned int i = Evt::RecoTimeRAW2ESD; i <= Evt::RecoTimeRAWtoALL; ++i)
 	{
 	  attrMap.push_back(std::make_pair(EventAttributeSpecs[i].name(),
 					   EventAttributeSpecs[i].attributeType() ) );
@@ -121,7 +121,7 @@ GlobalEventTagTool::attributeSpecification(std::vector<AthenaAttributeSpecificat
   
   if ( m_includeRecoTime )
     {
-      for (unsigned int i = Evt::RecoTimeRAW2ESD; i <= Evt::RecoTimeESD2AOD; ++i)
+      for (unsigned int i = Evt::RecoTimeRAW2ESD; i <= Evt::RecoTimeRAWtoALL; ++i)
 	{
 	  attrMap.push_back(EventAttributeSpecs[i]);
 	}
@@ -250,6 +250,30 @@ StatusCode  GlobalEventTagTool::execute(TagFragmentCollection& globalEventTag)
         }
       ATH_MSG_VERBOSE("inserting RecoTiming <" << recoTime << ">.");
       globalEventTag.insert (EventAttributeSpecs[Evt::RecoTimeESD2AOD].name(), recoTime );
+
+
+      recoTime=0;
+      if ( evtStore()->contains<RecoTimingObj>("RAWtoALL_timings") )
+        {
+          scbase = evtStore()->retrieve( recTiming, "RAWtoALL_timings" );
+          if (scbase.isFailure()) {
+            ATH_MSG_ERROR("Cannot get RecoTimingObj with name <RAWtoALL_timings>.");
+            return StatusCode::SUCCESS;
+          }
+          if ( m_recoInclPers )
+            {
+              if ( (*recTiming).size() > 0 )
+                recoTime=*((*recTiming).rbegin());
+            }
+          else
+            {
+              if ( (*recTiming).size() > 1 )
+                recoTime=(*recTiming)[(*recTiming).size()-2];
+            }
+        }
+      ATH_MSG_VERBOSE("inserting RecoTiming <" << recoTime << ">.");
+      globalEventTag.insert (EventAttributeSpecs[Evt::RecoTimeRAWtoALL].name(), recoTime );
+
     }
   return StatusCode::SUCCESS;
 

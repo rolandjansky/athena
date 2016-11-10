@@ -56,7 +56,7 @@ StatusCode RawInfoSummaryForTagTool::attributeSpecification(
            std::map<std::string,AthenaAttributeType>& attrMap) {
 
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  mLog << MSG::DEBUG << "in attributeSpecification()" << endmsg;
 
   // specifiy the Data Quality - Detector Status attributes 
   // Attention: The group and unit names are the same for all the Detector. 
