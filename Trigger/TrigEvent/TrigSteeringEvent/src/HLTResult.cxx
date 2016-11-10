@@ -8,6 +8,10 @@
 #include "CLIDSvc/CLASS_DEF.h"
 #include <cassert>
 #include <algorithm>
+#include <numeric>
+#include <utility>
+#include <map>
+#include <set>
 using namespace HLT;
 
 ///

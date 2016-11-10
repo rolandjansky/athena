@@ -17,6 +17,7 @@ int main(){return 0;}
 
 #include "TrigSteeringEvent/HLTExtraData.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 using namespace HLT;

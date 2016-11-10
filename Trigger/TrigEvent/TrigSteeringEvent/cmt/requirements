@@ -36,8 +36,8 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavigation"
 pattern dummypattern \
   macro dummymacro "dummyvalue_<selectionfile>_<dict>_<headerfiles>_<dataLinks>_<files>_<typesWithNamespace>_<libtag>"
 
-macro dictpatternname			"lcgdict" \
-		      AthAnalysisBase		"dummypattern"
+#macro dictpatternname			"lcgdict" \
+#		      AthAnalysisBase		"dummypattern"
 
 macro sercnvpatternname			"sercnv" \
 		      AthAnalysisBase	"dummypattern"
@@ -73,10 +73,7 @@ apply_pattern UnitTest_run unit_test=TrigPassBits
 apply_pattern UnitTest_run unit_test=HLTExtraData
 apply_pattern UnitTest_run unit_test=StringSerializer
 
-
-
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
-
 
 end_private
