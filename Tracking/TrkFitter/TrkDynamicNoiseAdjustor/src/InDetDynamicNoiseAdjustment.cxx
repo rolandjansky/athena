@@ -26,6 +26,7 @@
 
 //#include "TrkParameters/MeasuredTrackParameters.h"
 #include "TrkFitterUtils/DNA_MaterialEffects.h"
+#include <cmath>
 
 #include <ext/algorithm>
 
@@ -50,7 +51,9 @@ Trk::InDetDynamicNoiseAdjustment::InDetDynamicNoiseAdjustment
   m_lambdaxmin_electron(0.0),
   m_lambdaqop_generic (0.),
   m_lambdaqop_electron(0.),
-  m_currentDnaStrategy(Trk::InDetDynamicNoiseAdjustment::unidentifiedStrategy)
+  m_currentDnaStrategy(Trk::InDetDynamicNoiseAdjustment::unidentifiedStrategy),
+  m_extrapolator(nullptr),
+  m_updator(nullptr)
 {
 	// AlgTool stuff
 	declareInterface<IDynamicNoiseAdjustor>( this );
@@ -75,24 +78,23 @@ Trk::InDetDynamicNoiseAdjustment::~InDetDynamicNoiseAdjustment()
 // initialize
 StatusCode Trk::InDetDynamicNoiseAdjustment::initialize()
 {
-  StatusCode s = AthAlgTool::initialize();
   msg(MSG::INFO)
         << "DNA tuning: yminmax <GEN> = " << m_yminmax_generic
-        << "(activity level of DNA, range 0.0 to 100)" << endreq
-        << "DNA tuning: signifmin <GEN> = " << m_signifmin_generic << endreq
-        << "DNA tuning: lambdaxmin <GEN> = " << m_lambdaxmin_generic
-        << "(par to tune the width of the pull, range -2.0 to 4.0)" << endreq
-        << "DNA tuning: lambdaqop <GEN> = " << m_lambdaqop_generic << endreq;
+        << "(activity level of DNA, range 0.0 to 100)" 
+        << "\nDNA tuning: signifmin <GEN> = " << m_signifmin_generic
+        << "\nDNA tuning: lambdaxmin <GEN> = " << m_lambdaxmin_generic
+        << "\n(par to tune the width of the pull, range -2.0 to 4.0)" 
+        << "\nDNA tuning: lambdaqop <GEN> = " << m_lambdaqop_generic << endmsg;
   msg(MSG::INFO)
         << "DNA tuning: yminmax <ELE> = " << m_yminmax_electron
-        << "(activity level of DNA, range 0.0 to 100)" << endreq
-        << "DNA tuning: signifmin <ELE> = " << m_signifmin_electron << endreq
-        << "DNA tuning: lambdaxmin <ELE> = " << m_lambdaxmin_electron
-        << "(par to tune the width of the pull, range -2.0 to 4.0)" << endreq
-        << "DNA tuning: lambdaqop <ELE> = " << m_lambdaqop_electron << endreq;
+        << "(activity level of DNA, range 0.0 to 100)" 
+        << "\nDNA tuning: signifmin <ELE> = " << m_signifmin_electron 
+        << "\nDNA tuning: lambdaxmin <ELE> = " << m_lambdaxmin_electron
+        << "\n(par to tune the width of the pull, range -2.0 to 4.0)" 
+        << "\nDNA tuning: lambdaqop <ELE> = " << m_lambdaqop_electron << endmsg;
 
   ATH_MSG_INFO ("initialize() successful in " << name());
-  return s;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -148,7 +150,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
                 const Trk::DNA_MaterialEffects* /*forwardMEF*/) const{
 
 //  if (m_outputlevel <=0) m_log << MSG::DEBUG << "VATO-7777 : entered "
-//                               << "DNA_Adjust, dir = " << direction << endreq;
+//                               << "DNA_Adjust, dir = " << direction << endmsg;
 
   if ( predPar==NULL || updatedPar == NULL || fittableMeasurement == NULL) {
     ATH_MSG_WARNING ("Inconsistent use: inputs are NULL pointers! " <<
@@ -218,10 +220,10 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
   double z1 =updatedPar->position().z();
   double z2 =predPar->position().z();
   double cost12 = (rxy1*rxy2+z1*z2)/sqrt((rxy1*rxy1+z1*z1)*(rxy2*rxy2+z2*z2));
-  double sint1 = sin(updatedPar->parameters()[Trk::theta]);
-  double sint2 = sin(predPar->parameters()[Trk::theta]);
+  double sint1 = std::sin(updatedPar->parameters()[Trk::theta]);
+  double sint2 = std::sin(predPar->parameters()[Trk::theta]);
   double  dsint = sint1-sint2;
-  double eta1=-log(tan((updatedPar->parameters()[Trk::theta])/2.0));
+  double eta1=-std::log(std::tan((updatedPar->parameters()[Trk::theta])/2.0));
   double phi1= updatedPar->parameters()[Trk::phi];
 
   double sigmaQoverP=0.0;
@@ -242,12 +244,12 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 	          
   // Geometric cuts to exclude weird "tracks"
   if( cost12>0.98
-      && fabs(dsint)<0.003
+      && std::fabs(dsint)<0.003
       && rxy1<rxymax && rxy1>rxymin
 //    && rxy2<rxymax && rxy2>rxymin
       && sign*rxy1<sign*rxy2
       && sint1>0.0 
-      && fabs(eta1)<2.7
+      && std::fabs(eta1)<2.7
 //     && fabs(rxy1-rxy2)<200.0
 //     && sign*fabs(z1)<sign*fabs(z2)
 //     && rxy1>fabs(z1)*tantmin & rxy2>fabs(z2)*tantmin)
@@ -264,7 +266,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       return 0;
     }
     chi20 = fitQuality0->chiSquared();
-    dof0  = fabs(fitQuality0->numberDoF());
+    dof0  = std::fabs(fitQuality0->numberDoF());
     delete fitQuality0;
 
     y0=1.0, y1=1.0, y2=1.0;
@@ -277,7 +279,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
                         << (qop0==0.0 ? qop0 : chi20) <<"). Stop dna at this state");
       return 0;
     }
-    double qoplimit, stepFactor = 1.0+3.0*sqrt(chi20)*sigmaqop0/fabs(qop0);
+    double qoplimit, stepFactor = 1.0+3.0*sqrt(chi20)*sigmaqop0/std::fabs(qop0);
     if (direction == Trk::alongMomentum) {
       if (stepFactor>1.6) stepFactor=1.6;                      ///// needs tuning
       zinv1=stepFactor;
@@ -292,8 +294,8 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
 //if brem is suspected:
     if ( chi20 > chi2threshold*dof0 
-         && fabs(qop0) < qoplimit 
-         && fabs(qop0)*0.08 > sigmaqop0 )    // excludes undeveloped tracks
+         && std::fabs(qop0) < qoplimit 
+         && std::fabs(qop0)*0.08 > sigmaqop0 )    // excludes undeveloped tracks
       {
 
         // Change momentum for step one
@@ -425,9 +427,9 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
     ATH_MSG_DEBUG ("VATO-708-1-1: dir, Rxy, eta, phi, pT, dp/p, chi20, dof0, xmin+/-dx, "<<
                    "ymin, m, dpdna/p: " << direction <<"   "<< rxy1 <<"   "<< eta1 <<"   "<<
-                   phi1 <<"   " << sint1/qop0 << "   " << sigmaqop0/fabs(qop0) <<"   "<<chi20<<
+                   phi1 <<"   " << sint1/qop0 << "   " << sigmaqop0/std::fabs(qop0) <<"   "<<chi20<<
                    "   "<<dof0<<"   " << xmin <<"   "<< dx <<"   "<< ymin <<"   "<< m <<"   "<<
-                   sigmaQoverP/fabs(qop0));
+                   sigmaQoverP/std::fabs(qop0));
     
   } else if (xmin > 1.0) { // good minimum was found, determine DNA strategy further
 
@@ -438,7 +440,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
       // Estimate m (sometimes called c, pathlength in X0, corrected for theta, divided by ln2)
       // calculate the pathcorrection
-      double pathcorrection = fabs(lay->surfaceRepresentation().pathCorrection(updatedPar->position(), updatedPar->momentum()));
+      double pathcorrection = std::fabs(lay->surfaceRepresentation().pathCorrection(updatedPar->position(), updatedPar->momentum()));
       // prepare the material properties
       const Trk::MaterialProperties* mat = lay->fullUpdateMaterialProperties(*updatedPar);
 
@@ -454,7 +456,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
       // --- Calcluate the pathlength
       pathlength = pathcorrection * thick;
-      m=pathlength/log(2.);
+      m=pathlength/std::log(2.);
 
 
       // --- Calculate the median of B-H with that m: {approximation to 1-(0.5)**(1/m)}
@@ -514,11 +516,11 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
     if (matEff.aggressiveDNA()) { // now they are the same, near future test different tunings here
       //double dilerr = 0.1, dilcor = 0.9;        
       double dilerr = 1.0, dilcor = 1.0;        
-      zcor = 1.0 - dilcor*(1.0-zcor) - (1.0-dilcor)*(1.0-pow(0.5,m));                  // reweight z correction
+      zcor = 1.0 - dilcor*(1.0-zcor) - (1.0-dilcor)*(1.0-std::pow(0.5,m));                  // reweight z correction
       if(signif>cut_signifmin) zest=1.0 - (1.0 - 1.0/denom)*dilerr*(1.0-lambdaqop);  // dilute dna argument
     } else {
       double dilerr = 0.1, dilcor = 0.9;        
-      zcor = 1.0 - dilcor*(1.0-zcor) - (1.0-dilcor)*(1.0-pow(0.5,m));                  // reweight z correction
+      zcor = 1.0 - dilcor*(1.0-zcor) - (1.0-dilcor)*(1.0-std::pow(0.5,m));                  // reweight z correction
       if(signif>cut_signifmin) zest=1.0 - (1.0 - 1.0/denom)*dilerr*(1.0-lambdaqop);  // dilute dna argument
     }
     dna=Trk::InDetDynamicNoiseAdjustment::calculateDna(xth, m, zest);
@@ -534,8 +536,8 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
   }
 
   ATH_MSG_DEBUG ("VATO-803-3: chi20 dof0  pt  dpt eta  m *  dna zcor zinv1 zinv2  * Rxy lay casino : "
-                 << chi20 <<"   "<< dof0 <<"  "<< fabs(sint1/qop0) <<"   "
-                 << fabs(sigmaqop0/qop0) <<"   "<< eta1 <<"   "<< m <<"   *   "
+                 << chi20 <<"   "<< dof0 <<"  "<< std::fabs(sint1/qop0) <<"   "
+                 << std::fabs(sigmaqop0/qop0) <<"   "<< eta1 <<"   "<< m <<"   *   "
                  << dna <<"   "<< zcor <<"   "  << zinv1<<"   "<< zinv2 << "   *   "
                  << rxy1 <<"   "<< lay <<"   "<< m_currentDnaStrategy <<"      cas ");
 
@@ -547,7 +549,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
     updatedParameters[Trk::qOverP] *= zcor/zinv1/zinv2;    //should be z0 here!
     // Calculate the DNA term to the error
       
-    sigmaQoverP=dna*fabs(updatedParameters[Trk::qOverP]);
+    sigmaQoverP=dna*std::fabs(updatedParameters[Trk::qOverP]);
 
     AmgSymMatrix(5)* updatedCovariance =  new AmgSymMatrix(5)(merr);
     (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sigmaQoverP*sigmaQoverP;
@@ -580,13 +582,13 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
                               (direction == Trk::alongMomentum),
                               updatedPar->associatedSurface()); 
     // p is now corrected by DNA itself.
-    estimatedMatEffects->setDeltaP(1.0/fabs(qop0)*(1.-zcor));
+    estimatedMatEffects->setDeltaP(1.0/std::fabs(qop0)*(1.-zcor));
 
     ATH_MSG_DEBUG ("VATO-708-2-1: dir, Rxy, eta, phi, pT, dp/p, chi20, dof0, xmin+/-dx, ymin, m, dpdna/p: "
                    << direction <<"   "<< rxy1 <<"   "<< eta1 <<"   "<< phi1 <<"   "
-                   << sint1/qop0 << "   " << sigmaqop0/fabs(qop0) <<"   "<<chi20<<"   "<<dof0<<"   " 
+                   << sint1/qop0 << "   " << sigmaqop0/std::fabs(qop0) <<"   "<<chi20<<"   "<<dof0<<"   " 
                    << xmin <<"   "<< dx <<"   "<< ymin <<"   "<< m <<"   "
-                   << sigmaQoverP/fabs(qop0));
+                   << sigmaQoverP/std::fabs(qop0));
   }
   return estimatedMatEffects;
   //==============================================================================
@@ -605,7 +607,7 @@ double Trk::InDetDynamicNoiseAdjustment::calculateDna(double xth, double c, doub
         double m = c; if(c>0.2) m=0.2;
 	if(zest<1.0 && zest>1.0/xth && m>0.0 && m<=0.2) {
 		double p1=0.23+m*1.5, p2=0.96-m*2.5, p3=0.325, p4=0.84-m*3.0;     //parameters for dna
-		dna=(p1*pow((log(1./zest)),p2)*pow(zest,p3)*(1.+p4*zest)); //dna parametrization
+		dna=(p1*std::pow((std::log(1./zest)),p2)*std::pow(zest,p3)*(1.+p4*zest)); //dna parametrization
 //        dna=0.0; // Dirty and ugly way of running without dna
 //          dna=2.0*dna; //temporary !!!!!!!
 	}
