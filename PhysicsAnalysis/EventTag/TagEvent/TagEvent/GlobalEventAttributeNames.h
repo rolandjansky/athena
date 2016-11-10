@@ -22,8 +22,8 @@ namespace Evt {
          Pixel=8, SCT=9, TRT=10, LAr=11, Tile=12, Muon=13, ForwardDet=14, Core=15, 
          Simu=16, Calib=17, Test=18, Random=19, ActualInt=20, AvgInt=21,
          NCaloClus=22, NTrk=23, NVx=24, VtxX=25, VtxY=26, VtxZ=27, VtxChiSq=28, VtxNdof=29,//, NVxTight=30, 
-         RecoTimeRAW2ESD=30, RecoTimeESD2AOD=31, RecoTimeEVNT2HITS=32, RecoTimeHITS2RDO=33,
-         NevtAttr = 34
+         RecoTimeRAW2ESD=30, RecoTimeESD2AOD=31,  RecoTimeRAWtoALL=32, RecoTimeEVNT2HITS=33, RecoTimeHITS2RDO=34,
+         NevtAttr = 35
        }; 
 }
 
@@ -62,6 +62,7 @@ static const AthenaAttributeSpecification EventAttributeSpecs[Evt::NevtAttr] =
    //   AthenaAttributeSpecification("NVtxTight","int",                 GroupNames[Grp::Vertex],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("RecoTimeRAWtoESD","float",        GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("RecoTimeESDtoAOD","float",        GroupNames[Grp::Time],UnitNames[Unt::Number]),
+   AthenaAttributeSpecification("RecoTimeRAWtoALL","float",        GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("RecoTimeEVNTtoHITS","float",      GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("RecoTimeHITStoRDO","float",       GroupNames[Grp::Time],UnitNames[Unt::Number])
 

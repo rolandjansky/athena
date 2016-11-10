@@ -15,7 +15,7 @@
 /** list of ALL the Photon attributes  */
 namespace PhotonID { 
   static const int NphotonAttr=7;                                // This is the number of Photon Tag Attributes
-  static const int NumPhoton = 2;                                // This max number of Photons on the TAG
+  static const int NumPhoton = 4;                                // This max number of Photons on the TAG
   enum { NPhoton=0, NConverted=1, Pt=2, Eta=3, Phi=4, Tight=5, Isol=6 }; 
 }
 

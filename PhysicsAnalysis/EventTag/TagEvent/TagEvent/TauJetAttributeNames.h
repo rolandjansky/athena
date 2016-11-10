@@ -16,7 +16,7 @@
 
 namespace TauID { 
   static const int NtauJetAttr=5;   // This is the number of Tau TAG attributes
-  static const int NumTauJet = 2;   // This is the max number of TauJets in the TAG
+  static const int NumTauJet = 4;   // This is the max number of TauJets in the TAG
   enum { NTau=0, Pt=1, Eta=2, Phi=3, PID=4 }; 
 }
 
