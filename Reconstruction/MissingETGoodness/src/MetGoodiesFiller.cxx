@@ -6,7 +6,7 @@
 #include "MissingETGoodness/EtmissGoodness.h"
 #include "MissingETEvent/MissingET.h"
 
-MET::Goodies& MetGoodiesFiller::goodies(MET::Goodies::instance());
+MET::Goodies& MetGoodiesFiller::s_goodies(MET::Goodies::instance());
 
 MetGoodiesFiller::MetGoodiesFiller(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
@@ -46,7 +46,7 @@ StatusCode MetGoodiesFiller::execute() {
       if ( sc.isFailure() ) {
 	 ATH_MSG_WARNING("Couldn't retrieve MET collection "<<metNameSelected);
       } else {
-	 goodies.setValue("EtoverRootSigmaEt", 
+	 s_goodies.setValue("EtoverRootSigmaEt", 
 			  (double)sqrt((METSelected->etx()*METSelected->etx()+METSelected->ety()*METSelected->ety())
                                        / METSelected->sumet()));	 
       }
@@ -58,7 +58,7 @@ StatusCode MetGoodiesFiller::execute() {
    std::string metNameTrack("MET_Track"); 
    const MissingET* METTopo = 0;
    const MissingET* METTrack = 0;
-//   goodies.setValue("DeltaTrackTopo", -999); // set default value 
+//   s_goodies.setValue("DeltaTrackTopo", -999); // set default value 
    StatusCode scA=StatusCode::FAILURE;
    StatusCode scB=StatusCode::FAILURE;
    if (evtStore()->contains<MissingET>(metNameTopo)) scA = evtStore()->retrieve( METTopo, metNameTopo );
@@ -67,12 +67,12 @@ StatusCode MetGoodiesFiller::execute() {
       if ( scA.isFailure() || !METTopo ) ATH_MSG_WARNING("Couldn't retrieve MET collection "<<metNameTopo);
       if ( scB.isFailure() || !METTrack ) ATH_MSG_WARNING("Couldn't retrieve MET collection "<<metNameTrack);
       sc=StatusCode::SUCCESS;
-      goodies.setValue("DeltaTrackTopo", -999); 
+      s_goodies.setValue("DeltaTrackTopo", -999); 
    }else{
       double Dx=(double)METTopo->etx()-(double)METTrack->etx();
       double Dy=(double)METTopo->ety()-(double)METTrack->ety();
       double D=sqrt( Dx*Dx + Dy*Dy); 
-      goodies.setValue("DeltaTrackTopo", D); 
+      s_goodies.setValue("DeltaTrackTopo", D); 
       if (!sc.isFailure()) sc=StatusCode::SUCCESS;
    }
    

@@ -22,9 +22,9 @@
 #include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloCellPrefetchIterator.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace {
 
@@ -173,7 +173,7 @@ bool isBad(const Jet* jet)
   if( emf>0.95 && fabs(jetQuality)>0.8 && fabs(jet->eta(P4SignalState::JETEMSCALE)) < 2.8) return true;
 
   if( fabs(jetTime)>10 ) return true;
-  if( fmax > 0.99 and fabs(jet->eta(P4SignalState::JETEMSCALE)) < 2.0) return true;
+  if( fmax > 0.99 && fabs(jet->eta(P4SignalState::JETEMSCALE)) < 2.0) return true;
   if( emf<0.05 && chf < 0.05 && fabs(jet->eta(P4SignalState::JETEMSCALE)) < 2.0) return true;  
   if( emf<0.05 && fabs(jet->eta(P4SignalState::JETEMSCALE)) >= 2.0) return true;  
 
@@ -360,12 +360,12 @@ int nLeadingConstituents(const Jet* jet,double threshold)
 
 } // anonymous namespace
 
-MET::Goodies& JetGoodiesFiller::goodies(MET::Goodies::instance());
+MET::Goodies& JetGoodiesFiller::s_goodies(MET::Goodies::instance());
 
 JetGoodiesFiller::JetGoodiesFiller(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator) ,
      m_storeGate(0),
-     _JetVariables ("JetVarTool")
+     m_JetVariables ("JetVarTool")
 {  
   declareProperty( "NamePrimaryJetAlg",   m_PrimaryJetAlg = "AntiKt4TopoJets");
   declareProperty( "NameSecondaryJetAlg", m_SecondaryJetAlg = "AntiKt4TopoJets" ); 
@@ -383,57 +383,57 @@ void JetGoodiesFiller::initGoodiesMap()
 {
    ATH_MSG_DEBUG ("execute initGoodiesMap()");
 
-   goodies.setValue("LArNoisyROSummary",(float)MET::MagicNumber);
-   goodies.setValue("EventEMFraction",(float)MET::MagicNumber);
+   s_goodies.setValue("LArNoisyROSummary",(float)MET::MagicNumber);
+   s_goodies.setValue("EventEMFraction",(float)MET::MagicNumber);
 
-   goodies.gInt()["N_Jets"] = (int)MET::MagicNumber;
-   goodies.gVectorDouble()["Phi_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["PtCal_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["DeltaPhi_MET_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["Eta_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["DeltaEt_JetAlgs_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["DeltaPhi_JetAlgs_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["DeltaEta_JetAlgs_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracPS_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracEM_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracFCAL_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracHEC_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracHEC3_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracTile_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracTile2_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracTile10_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracGap_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracCryo_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["SamplingFracMax_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["HECf_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["EMFraction_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["ChargeFraction_Jet"]= std::vector<double>();
-   goodies.gVectorDouble()["LArQuality_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["TileQuality_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["QualityFrac_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["Timing_Jet"]= std::vector<double>();
-   goodies.gVectorDouble()["ootE25_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["ootE50_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["ootE75_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["E_BadCells_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["E_BadCellsCorr_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["BCH_CORR_CELL_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["BCH_CORR_JET_FORCELL_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["BCH_CORR_JET"] = std::vector<double>();
-   goodies.gVectorDouble()["ECal_Jet"] = std::vector<double>();
-   goodies.gVectorDouble()["tileGap3F_Jet"] = std::vector<double>();
+   s_goodies.gInt()["N_Jets"] = (int)MET::MagicNumber;
+   s_goodies.gVectorDouble()["Phi_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["PtCal_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["DeltaPhi_MET_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["Eta_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["DeltaEt_JetAlgs_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["DeltaPhi_JetAlgs_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["DeltaEta_JetAlgs_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracPS_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracEM_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracFCAL_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracHEC_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracHEC3_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracTile_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracTile2_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracTile10_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracGap_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracCryo_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["SamplingFracMax_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["HECf_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["EMFraction_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["ChargeFraction_Jet"]= std::vector<double>();
+   s_goodies.gVectorDouble()["LArQuality_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["TileQuality_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["QualityFrac_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["Timing_Jet"]= std::vector<double>();
+   s_goodies.gVectorDouble()["ootE25_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["ootE50_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["ootE75_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["E_BadCells_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["E_BadCellsCorr_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["BCH_CORR_CELL_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["BCH_CORR_JET_FORCELL_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["BCH_CORR_JET"] = std::vector<double>();
+   s_goodies.gVectorDouble()["ECal_Jet"] = std::vector<double>();
+   s_goodies.gVectorDouble()["tileGap3F_Jet"] = std::vector<double>();
 
-   goodies.gVectorInt()["isGood_Jet"] = std::vector<int>();
-   goodies.gVectorInt()["isBad_Jet"]  = std::vector<int>();
-   goodies.gVectorInt()["isUgly_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["isGood_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["isBad_Jet"]  = std::vector<int>();
+   s_goodies.gVectorInt()["isUgly_Jet"] = std::vector<int>();
    
-   goodies.gVectorInt()["NumTracks_Jet"]= std::vector<int>();
-   goodies.gVectorInt()["N90Cells_Jet"]= std::vector<int>();
-   goodies.gVectorInt()["N90Constituents_Jet"] = std::vector<int>();
-   goodies.gVectorInt()["NConstituents_Jet"]= std::vector<int>();
-   goodies.gVectorInt()["N_BadCells_Jet"] = std::vector<int>();
-   goodies.gVectorInt()["N_BadCellsCorr_Jet"] = std::vector<int>();
-   goodies.gVectorInt()["SamplingMaxID_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["NumTracks_Jet"]= std::vector<int>();
+   s_goodies.gVectorInt()["N90Cells_Jet"]= std::vector<int>();
+   s_goodies.gVectorInt()["N90Constituents_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["NConstituents_Jet"]= std::vector<int>();
+   s_goodies.gVectorInt()["N_BadCells_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["N_BadCellsCorr_Jet"] = std::vector<int>();
+   s_goodies.gVectorInt()["SamplingMaxID_Jet"] = std::vector<int>();
    
 }
 
@@ -458,14 +458,14 @@ StatusCode JetGoodiesFiller::execute() {
      }
    }
 
-   goodies.setValue("LArNoisyROSummary", (noisyRO!=0 ? (double)noisyRO->get_noisy_febs().size() : (double)MET::MagicNumber) );
+   s_goodies.setValue("LArNoisyROSummary", (noisyRO!=0 ? (double)noisyRO->get_noisy_febs().size() : (double)MET::MagicNumber) );
    
-   sc = _JetVariables->retrieveContainers();
+   sc = m_JetVariables->retrieveContainers();
    if ( !sc.isSuccess() ) {
       ATH_MSG_WARNING("JetGoodiesFiller retrieve containers() Failed");
       return sc;
    }
-   goodies.setValue("EventEMFraction", _JetVariables->EventEMFraction());
+   s_goodies.setValue("EventEMFraction", m_JetVariables->EventEMFraction());
    
    //MET::EtmissGoodness mGood;   
    //MET::EtmissGoodnessManager& manager = MET::EtmissGoodnessManager::instance();
@@ -480,7 +480,7 @@ StatusCode JetGoodiesFiller::execute() {
    
    //std::string jetName(manager.GetJetKey()); //crashing here
    std::string jetName(m_PrimaryJetAlg); //REMOVE HACK
-   sc = _JetVariables->retrieveJetContainer(jetName);
+   sc = m_JetVariables->retrieveJetContainer(jetName);
    if ( !sc.isSuccess() ) {
       ATH_MSG_ERROR("JetGoodiesFiller retrieve jet containers() Failed");
       return sc;
@@ -495,8 +495,8 @@ StatusCode JetGoodiesFiller::execute() {
      }
    }
 
-   // now fill goodies map per jet
-   const JetCollection* constJets = _JetVariables->jetCollection();
+   // now fill s_goodies map per jet
+   const JetCollection* constJets = m_JetVariables->jetCollection();
    JetCollection jets;
    for (JetCollection::const_iterator it = constJets->begin(); it != constJets->end(); ++it) {
       jets.push_back(new Jet(*it));
@@ -522,47 +522,47 @@ StatusCode JetGoodiesFiller::execute() {
 
      njets++;
      
-     goodies.setVectorValue(TString("ECal_Jet"), ecal );
-     goodies.setVectorValue(TString("PtCal_Jet"), ptcal );
+     s_goodies.setVectorValue(TString("ECal_Jet"), ecal );
+     s_goodies.setVectorValue(TString("PtCal_Jet"), ptcal );
 
-     goodies.setVectorValue(TString("Phi_Jet"), jet->phi());
-     goodies.setVectorValue(TString("DeltaPhi_MET_Jet"), MissingETUtils::DiffPhi(jet->phi() , MET->phi()) );
-     goodies.setVectorValue(TString("Eta_Jet"), jet->eta());
-     goodies.setVectorValue(TString("NConstituents_Jet"), (int)jet->constituentsN());
-     goodies.setVectorValue(TString("NumTracks_Jet"),       _JetVariables->JetNumAssociatedTracks(jet) );
-     goodies.setVectorValue(TString("ChargeFraction_Jet"),  _JetVariables->JetChargeFraction(jet) );
-     goodies.setVectorValue(TString("ootE25_Jet"),  jetOutOfTimeEnergyFraction(jet,25) );
-     goodies.setVectorValue(TString("ootE50_Jet"),  jetOutOfTimeEnergyFraction(jet,50) );
-     goodies.setVectorValue(TString("ootE75_Jet"),  jetOutOfTimeEnergyFraction(jet,75) );
-     goodies.setVectorValue(TString("LArQuality_Jet")  , _JetVariables->jetWLArQuality(jet) );
-     goodies.setVectorValue(TString("TileQuality_Jet") , _JetVariables->jetWTileQuality(jet) );
-     goodies.setVectorValue(TString("SamplingFracPS_Jet"), _JetVariables->SamplingFracPS(jet));
-     goodies.setVectorValue(TString("SamplingFracEM_Jet"), _JetVariables->SamplingFracEM(jet));
-     goodies.setVectorValue(TString("SamplingFracFCAL_Jet"), _JetVariables->SamplingFracFCAL(jet));
-     goodies.setVectorValue(TString("SamplingFracHEC_Jet"), _JetVariables->SamplingFracHEC(jet));
-     goodies.setVectorValue(TString("SamplingFracHEC3_Jet"), _JetVariables->SamplingFracHEC3(jet));
-     goodies.setVectorValue(TString("SamplingFracTile_Jet"), _JetVariables->SamplingFracTile(jet));
-     goodies.setVectorValue(TString("SamplingFracTile2_Jet"), _JetVariables->SamplingFracTile2(jet));
-     goodies.setVectorValue(TString("SamplingFracTile10_Jet"), _JetVariables->SamplingFracTile10(jet));
-     goodies.setVectorValue(TString("SamplingFracGap_Jet"), _JetVariables->SamplingFracGap(jet));
-     goodies.setVectorValue(TString("SamplingFracCryo_Jet"), _JetVariables->SamplingFracCryo(jet));
-     goodies.setVectorValue(TString("tileGap3F_Jet"), tileGap3F(jet));
+     s_goodies.setVectorValue(TString("Phi_Jet"), jet->phi());
+     s_goodies.setVectorValue(TString("DeltaPhi_MET_Jet"), MissingETUtils::DiffPhi(jet->phi() , MET->phi()) );
+     s_goodies.setVectorValue(TString("Eta_Jet"), jet->eta());
+     s_goodies.setVectorValue(TString("NConstituents_Jet"), (int)jet->constituentsN());
+     s_goodies.setVectorValue(TString("NumTracks_Jet"),       m_JetVariables->JetNumAssociatedTracks(jet) );
+     s_goodies.setVectorValue(TString("ChargeFraction_Jet"),  m_JetVariables->JetChargeFraction(jet) );
+     s_goodies.setVectorValue(TString("ootE25_Jet"),  jetOutOfTimeEnergyFraction(jet,25) );
+     s_goodies.setVectorValue(TString("ootE50_Jet"),  jetOutOfTimeEnergyFraction(jet,50) );
+     s_goodies.setVectorValue(TString("ootE75_Jet"),  jetOutOfTimeEnergyFraction(jet,75) );
+     s_goodies.setVectorValue(TString("LArQuality_Jet")  , m_JetVariables->jetWLArQuality(jet) );
+     s_goodies.setVectorValue(TString("TileQuality_Jet") , m_JetVariables->jetWTileQuality(jet) );
+     s_goodies.setVectorValue(TString("SamplingFracPS_Jet"), m_JetVariables->SamplingFracPS(jet));
+     s_goodies.setVectorValue(TString("SamplingFracEM_Jet"), m_JetVariables->SamplingFracEM(jet));
+     s_goodies.setVectorValue(TString("SamplingFracFCAL_Jet"), m_JetVariables->SamplingFracFCAL(jet));
+     s_goodies.setVectorValue(TString("SamplingFracHEC_Jet"), m_JetVariables->SamplingFracHEC(jet));
+     s_goodies.setVectorValue(TString("SamplingFracHEC3_Jet"), m_JetVariables->SamplingFracHEC3(jet));
+     s_goodies.setVectorValue(TString("SamplingFracTile_Jet"), m_JetVariables->SamplingFracTile(jet));
+     s_goodies.setVectorValue(TString("SamplingFracTile2_Jet"), m_JetVariables->SamplingFracTile2(jet));
+     s_goodies.setVectorValue(TString("SamplingFracTile10_Jet"), m_JetVariables->SamplingFracTile10(jet));
+     s_goodies.setVectorValue(TString("SamplingFracGap_Jet"), m_JetVariables->SamplingFracGap(jet));
+     s_goodies.setVectorValue(TString("SamplingFracCryo_Jet"), m_JetVariables->SamplingFracCryo(jet));
+     s_goodies.setVectorValue(TString("tileGap3F_Jet"), tileGap3F(jet));
 
-     goodies.setVectorValue(TString("isGood_Jet"), isGood(jet));
-     goodies.setVectorValue(TString("isBad_Jet"),  isBad(jet));
-     goodies.setVectorValue(TString("isUgly_Jet"), isUgly(jet));
+     s_goodies.setVectorValue(TString("isGood_Jet"), isGood(jet));
+     s_goodies.setVectorValue(TString("isBad_Jet"),  isBad(jet));
+     s_goodies.setVectorValue(TString("isUgly_Jet"), isUgly(jet));
      
      int SamplingMax = CaloSampling::Unknown; 
-     goodies.setVectorValue(TString("SamplingFracMax_Jet"), fracSamplingMax(jet,SamplingMax));
-     goodies.setVectorValue(TString("SamplingMaxID_Jet"),  SamplingMax );
+     s_goodies.setVectorValue(TString("SamplingFracMax_Jet"), fracSamplingMax(jet,SamplingMax));
+     s_goodies.setVectorValue(TString("SamplingMaxID_Jet"),  SamplingMax );
 
-     goodies.setVectorValue(TString("N90Cells_Jet"), (int)jet->getMoment("n90")); 
-     goodies.setVectorValue(TString("N90Constituents_Jet"), (int)nLeadingConstituents(jet,0.9) );
-     goodies.setVectorValue(TString("EMFraction_Jet"),      jetEMFraction(jet));
+     s_goodies.setVectorValue(TString("N90Cells_Jet"), (int)jet->getMoment("n90")); 
+     s_goodies.setVectorValue(TString("N90Constituents_Jet"), (int)nLeadingConstituents(jet,0.9) );
+     s_goodies.setVectorValue(TString("EMFraction_Jet"),      jetEMFraction(jet));
      
-     goodies.setVectorValue( TString("QualityFrac_Jet"), jet->getMoment("LArQuality"));
-     goodies.setVectorValue( TString("Timing_Jet"), jetTime(jet)); 
-     goodies.setVectorValue(TString("HECf_Jet"), hecF(jet));
+     s_goodies.setVectorValue( TString("QualityFrac_Jet"), jet->getMoment("LArQuality"));
+     s_goodies.setVectorValue( TString("Timing_Jet"), jetTime(jet)); 
+     s_goodies.setVectorValue(TString("HECf_Jet"), hecF(jet));
 
      
      double j1 = static_cast<double>(jet->getMoment("BCH_CORR_CELL"));
@@ -573,13 +573,13 @@ StatusCode JetGoodiesFiller::execute() {
      int j6 = static_cast<int>(jet->getMoment("N_BAD_CELLS_CORR"));
      double j7 = static_cast<double>(jet->getMoment("BAD_CELLS_CORR_E"));
      
-     goodies.setVectorValue(TString("N_BadCells_Jet"),           j5 );
-     goodies.setVectorValue(TString("N_BadCellsCorr_Jet"),       j6 );
-     goodies.setVectorValue(TString("E_BadCells_Jet"),           j4 );
-     goodies.setVectorValue(TString("E_BadCellsCorr_Jet"),       j7 );
-     goodies.setVectorValue(TString("BCH_CORR_CELL_Jet"),        j1 );
-     goodies.setVectorValue(TString("BCH_CORR_JET_FORCELL_Jet"), j3 );
-     goodies.setVectorValue(TString("BCH_CORR_JET"),             j2 );
+     s_goodies.setVectorValue(TString("N_BadCells_Jet"),           j5 );
+     s_goodies.setVectorValue(TString("N_BadCellsCorr_Jet"),       j6 );
+     s_goodies.setVectorValue(TString("E_BadCells_Jet"),           j4 );
+     s_goodies.setVectorValue(TString("E_BadCellsCorr_Jet"),       j7 );
+     s_goodies.setVectorValue(TString("BCH_CORR_CELL_Jet"),        j1 );
+     s_goodies.setVectorValue(TString("BCH_CORR_JET_FORCELL_Jet"), j3 );
+     s_goodies.setVectorValue(TString("BCH_CORR_JET"),             j2 );
 
      // todo: here we need to do a matching, cannot simply assume lead jet
      // collection 1 matches lead jet collection 2; instead, implement
@@ -592,19 +592,19 @@ StatusCode JetGoodiesFiller::execute() {
          const Jet* theOtherJet = (*otherJets)[jetCount];
          if(theOtherJet) {
       DeltaFilled = true;
-	   goodies.setVectorValue(TString("DeltaEt_JetAlgs_Jet"), jet->et() - theOtherJet->et());
-	   goodies.setVectorValue(TString("DeltaPhi_JetAlgs_Jet"), MissingETUtils::DiffPhi(jet->phi(), theOtherJet->phi()));
-	   goodies.setVectorValue(TString("DeltaEta_JetAlgs_Jet"), jet->eta() - theOtherJet->eta());
+	   s_goodies.setVectorValue(TString("DeltaEt_JetAlgs_Jet"), jet->et() - theOtherJet->et());
+	   s_goodies.setVectorValue(TString("DeltaPhi_JetAlgs_Jet"), MissingETUtils::DiffPhi(jet->phi(), theOtherJet->phi()));
+	   s_goodies.setVectorValue(TString("DeltaEta_JetAlgs_Jet"), jet->eta() - theOtherJet->eta());
         }
        } 
      }
      if (!DeltaFilled) {
-	   goodies.setVectorValue(TString("DeltaEt_JetAlgs_Jet"), (double)MET::MagicNumber);
-	   goodies.setVectorValue(TString("DeltaPhi_JetAlgs_Jet"), (double)MET::MagicNumber);
-	   goodies.setVectorValue(TString("DeltaEta_JetAlgs_Jet"), (double)MET::MagicNumber );
+	   s_goodies.setVectorValue(TString("DeltaEt_JetAlgs_Jet"), (double)MET::MagicNumber);
+	   s_goodies.setVectorValue(TString("DeltaPhi_JetAlgs_Jet"), (double)MET::MagicNumber);
+	   s_goodies.setVectorValue(TString("DeltaEta_JetAlgs_Jet"), (double)MET::MagicNumber );
      }
    } 
-   goodies.setValue(TString("N_Jets"), njets);
+   s_goodies.setValue(TString("N_Jets"), njets);
    ATH_MSG_DEBUG ("execute() successful");
    return sc;
 }
