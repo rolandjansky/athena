@@ -34,8 +34,8 @@ MET::EtmissGoodnessManager::~EtmissGoodnessManager()
 MET::EtmissGoodnessManager&
 MET::EtmissGoodnessManager::instance() {
   // created on first call, deleted after main()
-  static MET::EtmissGoodnessManager _instance;
-  return _instance;
+  static MET::EtmissGoodnessManager instance;
+  return instance;
 }
 
 

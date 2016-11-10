@@ -15,7 +15,7 @@ using CLHEP::ns;
 
 
 // MB: reference to MET Goodies map for storing derived quantities
-MET::Goodies& METCollisionFilter::goodies(MET::Goodies::instance());
+MET::Goodies& METCollisionFilter::s_goodies(MET::Goodies::instance());
 
 METCollisionFilter::METCollisionFilter(const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator)
@@ -143,12 +143,12 @@ METCollisionFilter::execute()
     } else 
       ATH_MSG_DEBUG ("Event rejected by CaloTimeFilter.");
 
-    goodies.setValue("Calo_pass",     static_cast<int>(passCalo));
-    goodies.setValue("Calo_timeDiff", timeDiff);
-    goodies.setValue("Calo_timeA",    timeA);
-    goodies.setValue("Calo_timeC",    timeC);
-    goodies.setValue("Calo_countA",   countA);
-    goodies.setValue("Calo_countC",   countC);
+    s_goodies.setValue("Calo_pass",     static_cast<int>(passCalo));
+    s_goodies.setValue("Calo_timeDiff", timeDiff);
+    s_goodies.setValue("Calo_timeA",    timeA);
+    s_goodies.setValue("Calo_timeC",    timeC);
+    s_goodies.setValue("Calo_countA",   countA);
+    s_goodies.setValue("Calo_countC",   countC);
   }
 
   if (m_doCaloClusterTimeFilter) {
@@ -179,19 +179,19 @@ METCollisionFilter::execute()
     } else
       ATH_MSG_DEBUG ("Event rejected by MBTSTimeFilter.");
 
-    goodies.setValue("MBTS_pass",     static_cast<int>(passMBTS));
-    goodies.setValue("MBTS_timeDiff", timeDiff);
-    goodies.setValue("MBTS_timeA",    timeA);
-    goodies.setValue("MBTS_timeC",    timeC);
-    goodies.setValue("MBTS_countA",   countA);
-    goodies.setValue("MBTS_countC",   countC);
+    s_goodies.setValue("MBTS_pass",     static_cast<int>(passMBTS));
+    s_goodies.setValue("MBTS_timeDiff", timeDiff);
+    s_goodies.setValue("MBTS_timeA",    timeA);
+    s_goodies.setValue("MBTS_timeC",    timeC);
+    s_goodies.setValue("MBTS_countA",   countA);
+    s_goodies.setValue("MBTS_countC",   countC);
   }
 
   //////////////////////////////////////////////  
 
   if (m_doLBFilter) {
     passLB = m_GoodRunsListSelectorTool->passThisRunLB(m_grlnameVec,m_brlnameVec);
-    goodies.setValue(m_prefix+"OkayLB", static_cast<int>(passLB));
+    s_goodies.setValue(m_prefix+"OkayLB", static_cast<int>(passLB));
   }
 
   //////////////////////////////////////////////
@@ -200,13 +200,13 @@ METCollisionFilter::execute()
     pass = passCalo && passMBTS;
     ATH_MSG_DEBUG ("Event accepted as collision ? " << pass);
     //this->setFilterPassed (pass); // This skips the execution of following algs for this event
-    goodies.setValue(m_prefix+"IsCollisionCandidate",static_cast<int>(pass));
+    s_goodies.setValue(m_prefix+"IsCollisionCandidate",static_cast<int>(pass));
     if (pass) ++m_overlap;
   }
 
   //////////////////////////////////////////////  
 
-  //goodies.print();
+  //s_goodies.print();
 
   ATH_MSG_DEBUG ("execute() successful");
 
@@ -251,7 +251,7 @@ METCollisionFilter::doClusterTimes(bool& passCutForwardBackward)
       if (msgLvl(MSG::INFO)) {
 	 msg(MSG::INFO)
 	    << " Could not get pointer to CaloClusterContainer "
-	    << endreq;
+	    << endmsg;
       }
       return StatusCode::SUCCESS;
    }
@@ -341,31 +341,31 @@ METCollisionFilter::doClusterTimes(bool& passCutForwardBackward)
       }
    }
 
-   goodies.setValue("CalClus_eventTime", eventTime);   
-   goodies.setValue("CalClusForwBackw_pass", static_cast<int>(passCutForwardBackward));
-   goodies.setValue("CalClusForwBackw_timeDiff", timeDiffForwardBackward);
-   goodies.setValue("CalClus_timeA",    timeA);
-   goodies.setValue("CalClus_timeC",    timeC);
-   goodies.setValue("CalClusUpDown_pass",     static_cast<int>(passCutUpDown));
-   goodies.setValue("CalClusUpDown_timeDiff", timeDiffUpDown);
+   s_goodies.setValue("CalClus_eventTime", eventTime);   
+   s_goodies.setValue("CalClusForwBackw_pass", static_cast<int>(passCutForwardBackward));
+   s_goodies.setValue("CalClusForwBackw_timeDiff", timeDiffForwardBackward);
+   s_goodies.setValue("CalClus_timeA",    timeA);
+   s_goodies.setValue("CalClus_timeC",    timeC);
+   s_goodies.setValue("CalClusUpDown_pass",     static_cast<int>(passCutUpDown));
+   s_goodies.setValue("CalClusUpDown_timeDiff", timeDiffUpDown);
 
-   if(totalClusterEnergy > 0.) goodies.setValue("CalClus_InTimeFraction", 1.-ootClusterEnergy10 / totalClusterEnergy);
-   else goodies.setValue("CalClus_InTimeFraction", 1.);
-   goodies.setValue("CalClus_OutTimeEnergy",ootClusterEnergy10);
+   if(totalClusterEnergy > 0.) s_goodies.setValue("CalClus_InTimeFraction", 1.-ootClusterEnergy10 / totalClusterEnergy);
+   else s_goodies.setValue("CalClus_InTimeFraction", 1.);
+   s_goodies.setValue("CalClus_OutTimeEnergy",ootClusterEnergy10);
 
-   if(totalClusterEnergy > 0.) goodies.setValue("CalClus_ootFraction10", ootClusterEnergy10 / totalClusterEnergy);
-   else goodies.setValue("CalClus_ootFraction10", 0.);
-   if(totalClusterEnergy > 0.) goodies.setValue("CalClus_ootFraction15", ootClusterEnergy15 / totalClusterEnergy);
-   else goodies.setValue("CalClus_ootFraction15", 0.);
-   if(totalClusterEnergy > 0.) goodies.setValue("CalClus_ootFraction20", ootClusterEnergy20 / totalClusterEnergy);
-   else goodies.setValue("CalClus_ootFraction20", 0.);
-   if(totalClusterEnergy > 0.) goodies.setValue("CalClus_ootFraction25", ootClusterEnergy25 / totalClusterEnergy);
-   else goodies.setValue("CalClus_ootFraction25", 0.);
+   if(totalClusterEnergy > 0.) s_goodies.setValue("CalClus_ootFraction10", ootClusterEnergy10 / totalClusterEnergy);
+   else s_goodies.setValue("CalClus_ootFraction10", 0.);
+   if(totalClusterEnergy > 0.) s_goodies.setValue("CalClus_ootFraction15", ootClusterEnergy15 / totalClusterEnergy);
+   else s_goodies.setValue("CalClus_ootFraction15", 0.);
+   if(totalClusterEnergy > 0.) s_goodies.setValue("CalClus_ootFraction20", ootClusterEnergy20 / totalClusterEnergy);
+   else s_goodies.setValue("CalClus_ootFraction20", 0.);
+   if(totalClusterEnergy > 0.) s_goodies.setValue("CalClus_ootFraction25", ootClusterEnergy25 / totalClusterEnergy);
+   else s_goodies.setValue("CalClus_ootFraction25", 0.);
 
-   goodies.setValue("CalClus_ootEnergy10",ootClusterEnergy10);
-   goodies.setValue("CalClus_ootEnergy15",ootClusterEnergy15);
-   goodies.setValue("CalClus_ootEnergy20",ootClusterEnergy20);
-   goodies.setValue("CalClus_ootEnergy25",ootClusterEnergy25);
+   s_goodies.setValue("CalClus_ootEnergy10",ootClusterEnergy10);
+   s_goodies.setValue("CalClus_ootEnergy15",ootClusterEnergy15);
+   s_goodies.setValue("CalClus_ootEnergy20",ootClusterEnergy20);
+   s_goodies.setValue("CalClus_ootEnergy25",ootClusterEnergy25);
 
    return StatusCode::SUCCESS;
 }

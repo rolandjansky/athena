@@ -29,6 +29,7 @@ use muonEvent	        muonEvent-*		Reconstruction/MuonIdentification
 
 private
 use AtlasCLHEP                  AtlasCLHEP-*               External
+use AthenaKernel                AthenaKernel-*             Control
 use EventBookkeeperMetaData     EventBookkeeperMetaData-*  Event
 use xAODEventInfo               xAODEventInfo-*            Event/xAOD
 use FourMomUtils                FourMomUtils-*                  Event

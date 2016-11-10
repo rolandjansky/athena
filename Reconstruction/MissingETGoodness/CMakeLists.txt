@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/Particle
                           PRIVATE
+                          Control/AthenaKernel
                           DataQuality/GoodRunsLists
                           Event/EventBookkeeperMetaData
                           Event/FourMomUtils
@@ -45,14 +46,14 @@ atlas_add_library( MissingETGoodnessLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthenaBaseComps CxxUtils GaudiKernel JetEvent JetUtils MissingETEvent muonEvent Particle StoreGateLib SGtests GoodRunsListsLib PrimaryDPDMakerLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthenaBaseComps CxxUtils GaudiKernel JetEvent JetUtils MissingETEvent muonEvent Particle StoreGateLib SGtests AthenaKernel GoodRunsListsLib PrimaryDPDMakerLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} EventBookkeeperMetaData FourMomUtils xAODEventInfo LArRecEvent TileEvent )
 
 atlas_add_component( MissingETGoodness
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps CxxUtils StoreGateLib SGtests GaudiKernel JetEvent JetUtils MissingETEvent muonEvent Particle GoodRunsListsLib EventBookkeeperMetaData FourMomUtils xAODEventInfo LArRecEvent PrimaryDPDMakerLib TileEvent MissingETGoodnessLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps CxxUtils StoreGateLib SGtests GaudiKernel JetEvent JetUtils MissingETEvent muonEvent Particle AthenaKernel GoodRunsListsLib EventBookkeeperMetaData FourMomUtils xAODEventInfo LArRecEvent PrimaryDPDMakerLib TileEvent MissingETGoodnessLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

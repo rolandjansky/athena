@@ -28,7 +28,7 @@ public:
   
 private:
    void initGoodiesMap();
-   static MET::Goodies& goodies;
+   static MET::Goodies& s_goodies;
 };
 
 #endif // MissingETGoodness_MetGoodiesFiller_H

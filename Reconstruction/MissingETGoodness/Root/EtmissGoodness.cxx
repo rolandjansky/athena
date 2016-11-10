@@ -78,18 +78,18 @@ MET::EtmissGoodness::GetBitMask( const Quality& quality ) const
 void
 MET::EtmissGoodness::Summary() const 
 {
-  MET::TMsgLogger m_logger("EtmissGoodness");
-  m_logger << kINFO 
-           << "Using Etmiss Goodness version = " << m_manager.GetVersion() 
-           << " and quality = " << m_manager.GetQuality() 
-           << GEndl;
-  m_logger << kINFO << "isGood  = " << this->IsGood() << GEndl;
-  m_logger << kINFO << "bitmask = " << this->GetBitMask() << GEndl;
-  m_logger << kINFO << "etx     = " << this->etx() << GEndl;
-  m_logger << kINFO << "ety     = " << this->ety() << GEndl;
-  m_logger << kINFO << "et      = " << this->et() << GEndl;
-  m_logger << kINFO << "sumet   = " << this->sumet() << GEndl;
-  m_logger << kINFO << "phi     = " << this->phi() << GEndl;
+  MET::TMsgLogger logger("EtmissGoodness");
+  logger << kINFO 
+         << "Using Etmiss Goodness version = " << m_manager.GetVersion() 
+         << " and quality = " << m_manager.GetQuality() 
+         << GEndl;
+  logger << kINFO << "isGood  = " << this->IsGood() << GEndl;
+  logger << kINFO << "bitmask = " << this->GetBitMask() << GEndl;
+  logger << kINFO << "etx     = " << this->etx() << GEndl;
+  logger << kINFO << "ety     = " << this->ety() << GEndl;
+  logger << kINFO << "et      = " << this->et() << GEndl;
+  logger << kINFO << "sumet   = " << this->sumet() << GEndl;
+  logger << kINFO << "phi     = " << this->phi() << GEndl;
 }
 
 

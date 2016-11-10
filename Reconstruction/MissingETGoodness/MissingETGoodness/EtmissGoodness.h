@@ -10,8 +10,8 @@
  *      Max Baak <mbaak@cern.ch> - CERN, Switzerland                              *
  **********************************************************************************/
 
-#ifndef __MissingETGoodness_EtmissGoodness__
-#define __MissingETGoodness_EtmissGoodness__
+#ifndef MISSINGETGOODNESS_ETMISSGOODNESS_H
+#define MISSINGETGOODNESS_ETMISSGOODNESS_H
 
 #include "TObject.h"
 #include "MissingETGoodness/EtmissGoodnessManager.h"
@@ -53,5 +53,5 @@ namespace MET {
   };
 }
 
-#endif
+#endif // MISSINGETGOODNESS_ETMISSGOODNESS_H
 

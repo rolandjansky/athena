@@ -31,16 +31,11 @@ class MuonGoodiesFiller : public AthAlgorithm
 
  private:
 
-  /** a handle on Store Gate for access to the Event Store */
-  StoreGateSvc* m_storeGate;
-
-  MsgStream *mLog;
-
-  static MET::Goodies& goodies;
+  static MET::Goodies& s_goodies;
   //ToolHandle< IMuonTRTTimingTool > p_ITRTTimingTool ; //!< Pointer on IMuonTRTTimingTool
   //storegate key names
-  std::string _muonSpShowerContainerKey;
-  std::string _muonContainerKey;
+  std::string m_muonSpShowerContainerKey;
+  std::string m_muonContainerKey;
 };
 
 #endif  

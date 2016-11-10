@@ -17,8 +17,8 @@ ClassImp(MET::Goodies)
 
 MET::NtupleGoodiesFiller::NtupleGoodiesFiller() :
   TObject(), 
-  firstTask(kTRUE), 
-  _stripprefix("MET_Goodness_")
+  m_firstTask(kTRUE), 
+  m_stripprefix("MET_Goodness_")
 {
 }
 
@@ -30,8 +30,8 @@ MET::NtupleGoodiesFiller::execute()
   // before filling, clear goodies map
   goodies.clear();
   
-  std::vector<TTree* >::iterator treeVecItr = _treeVec.begin();
-  for(; treeVecItr!=_treeVec.end(); ++treeVecItr) {
+  std::vector<TTree* >::iterator treeVecItr = m_treeVec.begin();
+  for(; treeVecItr!=m_treeVec.end(); ++treeVecItr) {
 
     TTree *tree = *treeVecItr;
     if( !tree ) {
@@ -45,7 +45,7 @@ MET::NtupleGoodiesFiller::execute()
     TObject* obj ;
 
     // store names of all variables of interest
-    if (firstTask) {
+    if (m_firstTask) {
       TIterator* itr = brlist->MakeIterator() ;
       while( (obj = itr->Next())) {
 
@@ -68,7 +68,7 @@ MET::NtupleGoodiesFiller::execute()
 	// skip arrays
 	if (tlc) continue;
 
-	varNameVec.push_back(obj->GetName());
+	m_varNameVec.push_back(obj->GetName());
       }
       delete itr;
     }
@@ -76,8 +76,8 @@ MET::NtupleGoodiesFiller::execute()
     //TIterator* iter = brlist->MakeIterator() ;
     //while(obj = iter->Next()) {
 
-    std::vector<TString>::iterator varNameItr = varNameVec.begin();
-    for ( ; varNameItr!=varNameVec.end(); ++varNameItr ) { 
+    std::vector<TString>::iterator varNameItr = m_varNameVec.begin();
+    for ( ; varNameItr!=m_varNameVec.end(); ++varNameItr ) { 
 
       obj = brlist->FindObject((*varNameItr).Data());
       if (!obj) continue;
@@ -104,7 +104,7 @@ MET::NtupleGoodiesFiller::execute()
 
       // possibility to strip part of name
       TString name = *varNameItr; //(branch->GetName());
-      if (name.BeginsWith(_stripprefix)) { name.Replace( 0, _stripprefix.Length(), "", 0 ); }
+      if (name.BeginsWith(m_stripprefix)) { name.Replace( 0, m_stripprefix.Length(), "", 0 ); }
       
       TString title(branch->GetTitle());
 
@@ -127,7 +127,7 @@ MET::NtupleGoodiesFiller::execute()
 
   } // end loop over treeVec
 
-  firstTask=false;
+  m_firstTask=false;
   return kTRUE ;
 }
 
@@ -135,7 +135,7 @@ MET::NtupleGoodiesFiller::execute()
 Bool_t 
 MET::NtupleGoodiesFiller::addTree (TTree* tree)
 {
-  if (tree!=0) _treeVec.push_back(tree);
+  if (tree!=0) m_treeVec.push_back(tree);
   else {
     std::cout << "MET::NtupleGoodiesFiller::addTree() : WARNING : Trying to add empty tree. Return false."
               << std::endl;
