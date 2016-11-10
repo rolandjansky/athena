@@ -63,12 +63,13 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
     }
 
   
-  int I=0;
+//  int I=0;
   std::list<std::string> keys;
-  if (initInfo(I,keys).isFailure())
-    {
-      return StatusCode::FAILURE;
-    }   
+// at this stage the folder is not yet known to conddb and the information cannot be read - do it via callback
+// if (initInfo(I,keys).isFailure())
+//   {
+//     return StatusCode::FAILURE;
+//   }
       msg(MSG::INFO)<<"dopo init "<<sc<<endmsg;
 
       std::vector<std::string> folderNames;
