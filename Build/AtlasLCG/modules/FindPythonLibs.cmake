@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindPythonLibs.cmake 787095 2016-11-29 13:47:14Z krasznaa $
+# $Id: FindPythonLibs.cmake 782719 2016-11-07 12:30:42Z limosani $
 #
 # This file is here to intercept find_package(PythonLibs) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -72,7 +72,7 @@ if( PYTHONLIBS_FOUND AND NOT GAUDI_ATLAS )
 
    get_filename_component( PYTHONHOME ${PYTHONLIBS_LIBRARY_DIRS} PATH )
    set( PythonLibs_ENVIRONMENT
-   	FORCESET PYTHONHOME ${PYTHONHOME} )
+   	  SET PYTHONHOME ${PYTHONHOME} )
 endif()
 
 

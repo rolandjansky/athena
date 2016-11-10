@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig.cmake 790613 2016-12-20 14:56:58Z krasznaa $
+# $Id: LCGConfig.cmake 769797 2016-08-24 10:03:31Z krasznaa $
 #
 # File implementing the code that gets called when a project imports
 # LCG using something like:
@@ -403,7 +403,6 @@ if( NOT LCG_VERSION EQUAL 0 )
    list( APPEND CMAKE_PREFIX_PATH ${COIN3D_ROOT} )
    list( APPEND CMAKE_PREFIX_PATH ${EXPAT_ROOT} )
    set( TCMALLOC_ROOT ${GPERFTOOLS_ROOT} )
-   set( JAVA_HOME ${JAVA_ROOT} )
 
 endif()
 
