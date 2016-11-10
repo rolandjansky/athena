@@ -4,10 +4,9 @@
 
 #ifndef TRIGSTEERINGEVENT_STRINGSERIALIZER_H
 #define TRIGSTEERINGEVENT_STRINGSERIALIZER_H
-#include <iostream>
 #include <sstream>
 #include <vector>
-#include <cstdlib>
+#include <cstddef>
 #include <iterator>
 #include <stdint.h>
 
