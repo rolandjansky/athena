@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindCASTOR.cmake 718732 2016-01-20 12:30:12Z krasznaa $
+# $Id: FindCASTOR.cmake 783446 2016-11-10 12:40:34Z krasznaa $
 #
 # - Locate CASTOR libraries
 # Defines:
@@ -21,7 +21,7 @@ include( LCGFunctions )
 
 # Declare the external module:
 lcg_external_module( NAME CASTOR
-   INCLUDE_SUFFIXES usr/include INCLUDE_NAMES shift.h
+   INCLUDE_SUFFIXES include usr/include INCLUDE_NAMES shift.h
    EXTRA_OPTIONS NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH )
 
 # Reset the library lists:
@@ -45,7 +45,7 @@ foreach( component ${CASTOR_FIND_COMPONENTS} )
 
    # The the requested library:
    find_library( _CASTOR_${component}_library NAMES ${name}
-      PATH_SUFFIXES usr/lib64 PATHS ${CASTOR_ROOT}
+      PATH_SUFFIXES lib lib64 usr/lib usr/lib64 PATHS ${CASTOR_ROOT}
       EXTRA_OPTIONS NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH )
    if( _CASTOR_${component}_library )
       set( CASTOR_${component}_FOUND TRUE )
