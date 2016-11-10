@@ -61,7 +61,7 @@ class RDBMaterialManager: public StoredMaterialManager {
   virtual std::ostream & printAll(std::ostream & o=std::cout) const;
 
  private:
-  static bool _specialMaterials;
+  static bool s_specialMaterials;
   void buildSpecialMaterials();
   void buildSpecialMaterials() const;
 
@@ -100,8 +100,8 @@ class RDBMaterialManager: public StoredMaterialManager {
   IRDBRecordset_ptr m_toromaterials;
   IRDBRecordset_ptr m_toromatcomponents;
 
-  mutable std::vector < GeoElement *>        _elementVector;
-  mutable StoredMaterialManager::MaterialMap _materialMap;
+  mutable std::vector < GeoElement *>        m_elementVector;
+  mutable StoredMaterialManager::MaterialMap m_materialMap;
 };
 
 

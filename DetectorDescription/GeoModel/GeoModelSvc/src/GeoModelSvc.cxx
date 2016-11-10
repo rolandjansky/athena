@@ -16,6 +16,7 @@
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -72,6 +73,7 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_useTagInfo(true),
     m_useCaloAlign(false),
     m_statisticsToFile(false),
+    m_supportedGeometry(0),
     m_ignoreTagSupport(false)
 {
   declareProperty( "DetectorTools",               m_detectorTools);
@@ -93,6 +95,7 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
   declareProperty( "IgnoreTagDifference",         m_ignoreTagDifference);
   declareProperty( "UseTagInfo",                  m_useTagInfo);
   declareProperty( "StatisticsToFile",            m_statisticsToFile);
+  declareProperty( "SupportedGeometry",           m_supportedGeometry);
   declareProperty( "IgnoreTagSupport",            m_ignoreTagSupport);
 }
 
@@ -110,6 +113,11 @@ GeoModelSvc::~GeoModelSvc()
 StatusCode
 GeoModelSvc::initialize()
 {
+  if(m_supportedGeometry==0) {
+    ATH_MSG_FATAL("The Supported Geometry flag was not set in Job Options! Exiting ...");
+    return StatusCode::FAILURE;
+  }
+
   StatusCode result = service("DetectorStore", m_pDetStore );  
   if (result.isFailure()) 
   {
@@ -229,7 +237,7 @@ GeoModelSvc::initialize()
 
       // I want to register IGeoModelSvc::align() even if no alignment callback is registered by
       // subsystem tool. So that clients like CaloTowerBuilder can simply go after IGeoModelSvc::align()
-      bool _alignRegistered = false;
+      bool alignRegistered = false;
 
       // register align() functions for all Tools 
       itPriv = m_detectorTools.begin();
@@ -245,7 +253,7 @@ GeoModelSvc::initialize()
 							&IGeoModelSvc::align,dynamic_cast<IGeoModelSvc*>(this)))
 	  {
 	    ATH_MSG_DEBUG("IGeoModelSvc::align() callback registered");
-	    _alignRegistered = true;
+	    alignRegistered = true;
 
 	    // Set useCaloAlign flag if the successful tool is LAr
 	    if((*itPriv).typeAndName().find("LAr")!=std::string::npos)
@@ -275,7 +283,7 @@ GeoModelSvc::initialize()
 	{
 	  ATH_MSG_DEBUG("Registered compareTags callback for key: " << tagInfoKey);
 
-	  if(!_alignRegistered)
+	  if(!alignRegistered)
 	  {
 	    // There is no successfull alignment callback registration from subsystems
 	    // Register IGeoModelSvc::align() after IGeoModelSvc::compareTags() then
@@ -317,7 +325,7 @@ GeoModelSvc::initialize()
 
     // I want to register IGeoModelSvc::align() even if no alignment callback is registered by
     // subsystem tool. So that DD clients can go after IGeoModelSvc::align()
-    bool _alignRegistered = false;
+    bool alignRegistered = false;
 
     // register align() functions for all Tools 
     // *** 1. after geoInit
@@ -340,7 +348,7 @@ GeoModelSvc::initialize()
 							&IGeoModelSvc::align,dynamic_cast<IGeoModelSvc*>(this)))
 	  {
 	    ATH_MSG_DEBUG("IGeoModelSvc::align() callback registered");
-	    _alignRegistered = true;
+	    alignRegistered = true;
 
 	    // Set useCaloAlign flag if the successful tool is LAr
 	    if((*itPriv).typeAndName().find("LAr")!=std::string::npos)
@@ -352,7 +360,7 @@ GeoModelSvc::initialize()
       }      
     }
 
-    if(!_alignRegistered)
+    if(!alignRegistered)
     {
       // There is no successfull alignment callback registration from subsystems
       // Register IGeoModelSvc::align() after IGeoModelSvc::geoInit() then
@@ -526,8 +534,10 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 	}
       }
       else if(supportedSpec.type()==typeid(int)) {
-	if(atlasTagDetails["SUPPORTED"].data<int>()<1) {
-	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion << " is OBSOLETE and can NOT be supported any more! *** ***");
+	if(atlasTagDetails["SUPPORTED"].data<int>()<m_supportedGeometry) {
+	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion 
+			<< " is OBSOLETE in rel " << m_supportedGeometry 
+			<< " and can NOT be supported any more! *** ***");
 	  return StatusCode::FAILURE;
 	}
       }
@@ -641,9 +651,9 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
     result = m_pDetStore->record( theExperiment, "ATLAS" );
     if ( result.isSuccess( ) ) {
       int mem,cpu;
-      std::ofstream* geoModelStats = 0;
+      std::unique_ptr<std::ofstream> geoModelStats;
       if(m_statisticsToFile) {
-	geoModelStats = new std::ofstream("GeoModelStatistics");
+	geoModelStats = CxxUtils::make_unique<std::ofstream>("GeoModelStatistics");
 	*geoModelStats << "Detector Configuration flag = " << m_AtlasVersion << std::endl; 
       }
 
@@ -668,15 +678,14 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 	
 	if(m_statisticsToFile)
 	  *geoModelStats << theTool->name() << "\t SZ= " << 
-	    GeoPerfUtils::getMem() - mem << "Kb \t Time = " << (GeoPerfUtils::getCpu() - cpu)/100. << "S" << std::endl;
+	    GeoPerfUtils::getMem() - mem << "Kb \t Time = " << (GeoPerfUtils::getCpu() - cpu) * 0.01 << "S" << std::endl;
 	else
-	  ATH_MSG_INFO(theTool->name() << "\t SZ= " << GeoPerfUtils::getMem() - mem << "Kb \t Time = " << (GeoPerfUtils::getCpu() - cpu)/100. << "S");
+	  ATH_MSG_INFO(theTool->name() << "\t SZ= " << GeoPerfUtils::getMem() - mem << "Kb \t Time = " << (GeoPerfUtils::getCpu() - cpu) * 0.01 << "S");
 	
       }
 
       if(m_statisticsToFile) {
 	geoModelStats->close();
-	delete geoModelStats;
       }
     } else {
       ATH_MSG_ERROR("Could not register ATLAS Experiment within transient detector store");
@@ -798,7 +807,7 @@ GeoModelSvc::compareTags(IOVSVC_CALLBACK_ARGS)
     if(!tagsMatch)
     {
       msg((m_ignoreTagDifference? MSG::WARNING : MSG::ERROR)) 
-	<< "*** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***" << endreq;
+	<< "*** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***" << endmsg;
       ATH_MSG_INFO("** Job Option configuration: ");
       ATH_MSG_INFO("* ATLAS tag: " << m_AtlasVersion);
       ATH_MSG_INFO("* InDet tag: " << m_InDetVersionOverride);
@@ -1008,7 +1017,7 @@ const IGeoModelTool* GeoModelSvc::getTool(std::string toolName) const
   ToolHandleArray< IGeoModelTool >::const_iterator itPriv = m_detectorTools.begin();
 
   for(; itPriv!=m_detectorTools.end(); itPriv++) {
-    IGeoModelTool* theTool = &(**itPriv);
+    const IGeoModelTool* theTool = &(**itPriv);
     if(theTool->name().find(toolName)!=std::string::npos)
       return theTool;
   }
@@ -1022,7 +1031,7 @@ StatusCode GeoModelSvc::clear()
   StatusCode retval = StatusCode::SUCCESS;
 
   // Call clear() for all tools
-  ToolHandleArray< IGeoModelTool >::const_iterator itPriv = m_detectorTools.begin();
+  ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin();
   for(; itPriv!=m_detectorTools.end(); itPriv++) {
     IGeoModelTool* theTool = &(**itPriv);
     retval = theTool->clear(m_pDetStore);
@@ -1039,9 +1048,9 @@ StatusCode GeoModelSvc::clear()
   std::vector<std::string> sgkeysExp;
   m_pDetStore->keys<GeoModelExperiment>(sgkeysExp);
   for(it=sgkeysExp.begin(); it!=sgkeysExp.end(); it++) {
-    SG::DataProxy* _proxy = m_pDetStore->proxy(ClassID_traits<GeoModelExperiment>::ID(),*it);
-    if(_proxy) {
-      _proxy->reset();
+    SG::DataProxy* proxy = m_pDetStore->proxy(ClassID_traits<GeoModelExperiment>::ID(),*it);
+    if(proxy) {
+      proxy->reset();
       ATH_MSG_DEBUG(*it << " GeoModel experiment released");
     }
   }
@@ -1050,9 +1059,9 @@ StatusCode GeoModelSvc::clear()
   std::vector<std::string> sgkeysMat;
   m_pDetStore->keys<StoredMaterialManager>(sgkeysMat);
   for(it=sgkeysMat.begin(); it!=sgkeysMat.end(); it++) {
-    SG::DataProxy* _proxy = m_pDetStore->proxy(ClassID_traits<StoredMaterialManager>::ID(),*it);
-    if(_proxy) {
-      _proxy->reset();
+    SG::DataProxy* proxy = m_pDetStore->proxy(ClassID_traits<StoredMaterialManager>::ID(),*it);
+    if(proxy) {
+      proxy->reset();
       ATH_MSG_DEBUG(*it << " material manager released");
     }
   }

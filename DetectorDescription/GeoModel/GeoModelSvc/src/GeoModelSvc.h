@@ -109,6 +109,8 @@ private:
     bool          m_useTagInfo;                   // Flag for TagInfo usage
     bool          m_useCaloAlign;                 // Flag for using alignments for Calo
     bool          m_statisticsToFile;             // Flag for generating GeoModelStatistics file in the run directory
+
+    int           m_supportedGeometry;            // Supported geometry flag is set in jobOpt and is equal to major release version
     bool          m_ignoreTagSupport;             // If true then don't check SUPPORT flag for ATLAS tag
 
     const std::string & atlasVersion()         const {return m_AtlasVersion; }
