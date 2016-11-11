@@ -131,7 +131,7 @@ for(i=0;i<2;i++) {
   rpcpnt=rpcpntnext;
  }//end-of-while(rpcpnt)
 }//end-of-for(i
-if(rpcpnt) delete rpcpnt;
+//if(rpcpnt) delete rpcpnt;
 //
 // set DEFAULT parameters for the Coincidence Matrix
 //
@@ -522,12 +522,15 @@ if(matrixDebug&1<<df) {
 //
 // put this digi in the dynamic store
 //
-   rpcpntnew = new rpcdata;
+// coverity change
+//   rpcpntnew = new rpcdata;
 //
 // check the stripaddress is consistent with the Matrix dimension
 //
 
    if( stripaddress>=0 && stripaddress < nchan[sidemat] )  {  
+  // coverity change
+   rpcpntnew = new rpcdata;
 
    if(!rpcpntnew) {  
     DISP<<"=========================="<<endl
@@ -560,7 +563,6 @@ if(matrixDebug&1<<df) {
         <<stripaddress<<" for matrix side "<<sidemat<<endl;
     DISP_ERROR;
    }//end-of-if
-//
 }//end-of-putData
 //----------------------------------------------------------------------//
 void Matrix::putPatt (const Matrix *p) {
@@ -1708,7 +1710,7 @@ const ubit16 maxchan=100;
 const ubit16 maxtimes=1000;
 ubit16 i,j,l;
 ubit16 IJ[maxtimes][4], channels[maxtimes][4][maxchan]; 
-float times[maxtimes]; char plane[4][2];
+float times[maxtimes]; char plane[4][3];
 const float timeOffsetHit=114.675;
 //
 rpcdata *rpcpnt;

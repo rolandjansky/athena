@@ -4,6 +4,7 @@
 
 #ifndef NOBXS_H
 #define NOBXS_H
-const int NOBXS=8;
+// const int NOBXS=8;
+const int NOBXS=9;
 const int BCZERO=3;
 #endif

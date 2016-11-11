@@ -33,6 +33,21 @@ PadReadOutStructure::PadReadOutStructure() {
   //
   // Constructor used by the simulation program
   //
+m_padid  =0xffff;
+m_l1id =0xffff;
+m_bcid =0xffff;
+m_fifoCM  =0xffff;
+m_fifoOR  =0xffff;
+m_fifoL1 =0xffff;
+m_fifoPAD =0xffff;
+m_status =0xffff;
+m_errorSH =0xffff;
+m_errorL1 =0xffff;
+m_errorH =0xffff;
+m_errorCM =0xffff;
+m_errorCMID =0xffff;
+m_errorCode  =0xffff;
+vectorStruct = 0;
   setInit();
 }
 //----------------------------------------------------------------------------//
@@ -40,6 +55,7 @@ PadReadOutStructure::PadReadOutStructure(ubit16 inputData) {
   //
   // Constructor used by the simulation program
   //
+  vectorStruct = 0;
   decodeFragment(inputData,m_field);
 }
 //----------------------------------------------------------------------------//

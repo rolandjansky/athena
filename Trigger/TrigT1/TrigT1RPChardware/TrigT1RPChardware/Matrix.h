@@ -189,7 +189,7 @@ rpcdata *datarpc[2]; // pointers to the rpc raw data, one for each
    CMAword input   [2][2][8*NOBXS][2]      // input signals to CMA
           ,prepr[3][2][2][8*NOBXS][2]      // prepro pattern in CMA
           ,mjori[3][2][2][8*NOBXS][2]      // majority pattern in CMA
-          ,trigg[3][8*NOBXS]               // trigger pattern in CMA
+          ,trigg[3][9*NOBXS]               // trigger pattern in CMA
           ;                                // to high-pt CM
 //
 ubit16 trigger[3][NOBXS];        // triggered thresholds 0=no_trigger; 1=trigger

@@ -20,8 +20,10 @@ class SectorLogicRXReadOutStructure : public RPCReadOut {
   //
   virtual ubit16 makeHeader(ubit16 *inputData);
   virtual ubit16 makeSubHeader(){ return 0;};
-  virtual ubit16 makeBody(ubit16 *inputData) {return (*inputData)&0x0;};
-  virtual ubit16 makeFooter(ubit16  errorCode){return errorCode&0x0;};
+  //virtual ubit16 makeBody(ubit16 *inputData) {return (*inputData)&0x0;};
+  virtual ubit16 makeBody(ubit16 *inputData) {return *inputData;};
+  //virtual ubit16 makeFooter(ubit16  errorCode){return errorCode&0x0;};
+  virtual ubit16 makeFooter(ubit16  errorCode){return errorCode;};
   virtual ubit16 makeFooter(ubit16 *errorCode);
 
   //**************************************************//
