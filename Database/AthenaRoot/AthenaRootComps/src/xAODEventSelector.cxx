@@ -25,6 +25,8 @@
 #include "TKey.h"
 #include "TLeaf.h"
 
+#include "GaudiKernel/Property.h"
+
 // Framework includes
 //#include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/FileIncident.h"
@@ -36,9 +38,6 @@
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
-
-// CxxUtils
-#include "CxxUtils/unordered_set.h" // FIXME: move to stl
 
 // StoreGate includes
 
@@ -55,8 +54,6 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 #include "xAODEventInfo/EventInfo.h"
-
-#include "CxxUtils/unordered_map.h"
 
 // Package includes
 #include "xAODEventSelector.h"
@@ -123,7 +120,8 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
   m_needReload (true),
   m_rootAddresses (),
   m_tevent(NULL),
-  m_tfile(NULL)
+  m_tfile(NULL),
+  m_tevent_entries(0)
 {
 //Properties important to end user:
    declareProperty( "InputCollections", m_inputCollectionsName,"List of input (ROOT) file names" );
@@ -167,7 +165,7 @@ StatusCode xAODEventSelector::initialize()
 
   const std::size_t nbrInputFiles = m_inputCollectionsName.value().size();
   if ( nbrInputFiles < 1 ) {
-    ATH_MSG_ERROR("You need to give at least 1 input file !!" << endreq
+    ATH_MSG_ERROR("You need to give at least 1 input file !!" << endmsg
        << "(Got [" << nbrInputFiles << "] file instead !)");
     return StatusCode::FAILURE;
   } else {
@@ -254,6 +252,22 @@ StatusCode xAODEventSelector::initialize()
   }
 */
 
+  //ensure the xAODCnvSvc is listed in the EventPersistencySvc
+  ServiceHandle<IProperty> epSvc("EventPersistencySvc",name());
+  
+
+  std::vector<std::string> propVal;
+  CHECK( Gaudi::Parsers::parse( propVal , epSvc->getProperty("CnvServices").toString() ) );
+  bool foundSvc(false);
+  for(auto s : propVal) {
+    if(s=="Athena::xAODCnvSvc") { foundSvc=true; break; }
+  }
+  if(!foundSvc) {
+    propVal.push_back("Athena::xAODCnvSvc");
+    CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
+  }
+
+
   //we should also add ourself as a proxy provider
   ServiceHandle<IProxyProviderSvc> ppSvc("ProxyProviderSvc",name());
   CHECK( ppSvc.retrieve() );
@@ -262,6 +276,7 @@ StatusCode xAODEventSelector::initialize()
   //not actually needed
   //CHECK( m_dataStore->loadEventProxies() );
   CHECK( ppSvc.release() );
+
 
 
   return StatusCode::SUCCESS;
@@ -679,11 +694,20 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
 
   const void* value_ptr = m_tevent; //passed as 'parameter' to the address object
 
+  std::set<std::string> missingAux;
+
   for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
     //ATH_MSG_DEBUG("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
       CLID id = 0;
       if( m_clidsvc->getIDOfTypeInfoName(itr->second.className(), id).isFailure() ) {
-         ATH_MSG_ERROR("No CLID for class " << itr->second.className() << " , cannot read " << itr->second.branchName()); continue;
+	//if this is an AuxStore (infer if key ends in Aux.), its possible we schema-evolved away from the version in the input file, but that this evolution is actually 'ok' in some cases. So don't print an error if the CLID is missing for an Aux, but we will print a warning at the end for these aux stores
+	if(itr->second.branchName().compare(itr->second.branchName().length()-4,4,"Aux.")==0) {
+	  missingAux.insert( itr->second.className() );
+	} else {
+         ATH_MSG_WARNING("No CLID for class " << itr->second.className() << " , cannot read " << itr->second.branchName());
+	}
+	continue;
+
       }
 
       const std::string br_name = itr->second.branchName();
@@ -730,7 +754,10 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
       // }
   }
 
-
+  if(missingAux.size()) {
+    std::string allAux; for(auto& s : missingAux) allAux += s + ", ";
+    ATH_MSG_WARNING("The following AuxStore types are not directly accessible (missing CLID, possibly from schema evolution): " << allAux);
+  }
   
 
   m_needReload = false;
@@ -763,6 +790,7 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
   TTree* tree = dynamic_cast<TTree*>(m_tfile->Get(m_metadataName.value().c_str()));
   ATH_MSG_DEBUG("m_tfile = " << m_tfile );
   ATH_MSG_DEBUG("tree = " << tree );
+  if (!tree) std::abort();
   TObjArray *leaves = tree->GetListOfLeaves();
   if (!leaves) {
     ATH_MSG_INFO("no leaves!!");

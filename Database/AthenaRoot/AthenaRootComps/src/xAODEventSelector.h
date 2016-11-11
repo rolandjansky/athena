@@ -11,9 +11,6 @@
 #ifndef ATHENAROOTCOMPS_ATHENA_XAODEVENTSELECTOR_H 
 #define ATHENAROOTCOMPS_ATHENA_XAODEVENTSELECTOR_H 1
 
-// STL includes
-#include "CxxUtils/unordered_map.h" // move to STL when available
-
 // framework includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -31,6 +28,8 @@
 #include "TFile.h"
 
 #include "xAODTEvent.h"
+
+#include <unordered_map>
 
 // Forward declaration
 class ISvcLocator;
@@ -216,7 +215,7 @@ class xAODEventSelector :
   // the list of transient addresses we "manage" or know about
   // these addresses are the things we can retrieve from the TEvent
   // for the event data
-  SG::unordered_map<SG::TransientAddress*, bool> m_rootAddresses;
+  std::unordered_map<SG::TransientAddress*, bool> m_rootAddresses;
 
 
   /// current TEvent being read

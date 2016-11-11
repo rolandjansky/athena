@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <unordered_map>
+#include <unordered_set>
 
 // ROOT includes
 #include "TROOT.h"
@@ -36,9 +38,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 
-// CxxUtils
-#include "CxxUtils/unordered_set.h" // FIXME: move to stl
-
 // StoreGate includes
 
 #include "SGTools/BuiltinsClids.h"   // to make sure we have their clids
@@ -58,7 +57,6 @@ CLASS_DEF( TObject,    74939790 , 1 )
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 
-#include "CxxUtils/unordered_map.h"
 
 // Package includes
 #include "RootNtupleEventSelector.h"
@@ -69,7 +67,7 @@ namespace {
   std::string
   root_typename(const std::string& root_type_name)
   {
-    static SG::unordered_map<std::string,std::string> s;
+    static std::unordered_map<std::string,std::string> s;
     static bool first = true;
     if (first) {
       first = false;
@@ -320,13 +318,13 @@ StatusCode RootNtupleEventSelector::initialize()
   const std::size_t nbrInputFiles = m_inputCollectionsName.value().size();
   if ( nbrInputFiles < 1 ) {
     ATH_MSG_ERROR
-      ("You need to give at least 1 input file !!" << endreq
+      ("You need to give at least 1 input file !!" << endmsg
        << "(Got [" << nbrInputFiles << "] file instead !)");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
-       << endreq
+       << endmsg
        << "                      tuple [" << m_tupleName.value() << "]");
   }
 
@@ -397,6 +395,14 @@ StatusCode RootNtupleEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  // Explicitly delete all the files we created.
+  // If we leave it up to root, then xrootd can get cleaned up before
+  // the root destructors run, leading to a crash.
+  for (TFile* f : m_files)
+    delete f;
+  m_files.clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -1047,8 +1053,10 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
   RootGlobalsRestore rgr;
   // std::cout << "::TFile::Open()..." << std::endl;
   TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(fname.c_str());
+  TFile* fnew = nullptr;
   if (!f) {
     f = TFile::Open(fname.c_str(), "READ");
+    fnew = f;
     if (f) {
       f->SetName(fname.c_str());
     }
@@ -1069,6 +1077,10 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
     f->Close();
     return tree;
   }
+
+  if (fnew)
+    m_files.push_back(fnew);
+
   // std::cout << "::TTree::SetBranchStatus()..." << std::endl;
   // disable all branches
   tree->SetBranchStatus("*", 0);
@@ -1092,7 +1104,7 @@ void RootNtupleEventSelector::addMetadataFromDirectoryName(const std::string &me
 
 void RootNtupleEventSelector::addMetadataFromDirectory(TDirectoryFile *metadir, const std::string &prefix) const
 {
-  SG::unordered_set<std::string> meta_keys;
+  std::unordered_set<std::string> meta_keys;
   const TList *keys = metadir->GetListOfKeys();
   for (Int_t i=0; i < keys->GetSize(); ++i) {
     TKey* key = dynamic_cast<TKey*>(keys->At(i));
@@ -1140,7 +1152,7 @@ void RootNtupleEventSelector::addMetadata(TTree *metatree, const std::string &pa
     return;
   }
 
-  if (!createMetaDataRootBranchAddresses(&*m_imetaStore, metatree, path).isSuccess()) {
+  if (!createMetaDataRootBranchAddresses(m_imetaStore.get(), metatree, path).isSuccess()) {
     ATH_MSG_INFO("Could not create metadata for tree [" << path << "]");
   }
 }
