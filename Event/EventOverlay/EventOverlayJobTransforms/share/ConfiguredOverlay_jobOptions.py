@@ -39,6 +39,8 @@ if readBS:
     #if isRealData:
     #   include ("RecExCommission/RecExCommission_BSRead_config_hack.py")
     #else:
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    include ("InDetRecExample/InDetRecConditionsAccess.py")
     from ByteStreamCnvSvc import ReadByteStream
     include("RecExCommon/BSRead_config.py")
     ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
