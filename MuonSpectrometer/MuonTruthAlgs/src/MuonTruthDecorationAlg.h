@@ -54,6 +54,7 @@ private:
                         const xAOD::TruthVertex* vertex ) const;
   void addHitCounts( xAOD::TruthParticle& truthParticle, const std::vector<const PRD_MultiTruthCollection*>& collections,
 		     ChamberIdMap* ids = 0 ) const;
+  void addHitIDVectors( xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
   void createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink,
                        const MuonTruthDecorationAlg::ChamberIdMap& ids, 
 		       xAOD::MuonSegmentContainer& segmentContainer,
@@ -62,7 +63,7 @@ private:
 
   std::string m_truthParticleContainerName;
   std::string m_muonTruthParticleContainerName;
-  std::vector<std::string> m_trackRecordColletionNames;
+  std::vector<std::string> m_trackRecordCollectionNames;
   std::vector<std::string> m_PRD_TruthNames;
   std::vector<std::string> m_SDO_TruthNames;
   std::string              m_CSC_SDO_TruthNames;

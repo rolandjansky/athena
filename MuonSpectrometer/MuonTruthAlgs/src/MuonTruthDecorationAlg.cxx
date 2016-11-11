@@ -35,14 +35,14 @@ namespace Muon {
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   {  
     
-    m_trackRecordColletionNames.push_back("CaloEntryLayer");
-    m_trackRecordColletionNames.push_back("MuonEntryLayer");
-    m_trackRecordColletionNames.push_back("MuonExitLayer");
+    m_trackRecordCollectionNames.push_back("CaloEntryLayer");
+    m_trackRecordCollectionNames.push_back("MuonEntryLayer");
+    m_trackRecordCollectionNames.push_back("MuonExitLayer");
 
     // Get parameter values from jobOptions file
     declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
     declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
-    declareProperty("TrackRecordCollectionNames"    , m_trackRecordColletionNames);
+    declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames);
 
     m_PRD_TruthNames.push_back("CSC_TruthMap");
     m_PRD_TruthNames.push_back("RPC_TruthMap");
@@ -98,7 +98,7 @@ namespace Muon {
     ATH_MSG_DEBUG("Retrieved TruthContainer " << m_truthParticleContainerName << " size " << truthContainer->size());
     // retrieve TrackRecord info
     std::vector< std::pair<const TrackRecordCollection*,std::string> > trackRecords;
-    for( const auto& name : m_trackRecordColletionNames ){
+    for( const auto& name : m_trackRecordCollectionNames ){
       if ( evtStore()->contains<TrackRecordCollection>(name) ) {
 	const TrackRecordCollection* col = 0;
 	if( evtStore()->retrieve(col,name ).isSuccess() ){
@@ -234,6 +234,9 @@ namespace Muon {
 
       // add hit counts
       addHitCounts(*truthParticle,prdCollections,&ids);
+
+      //add hit ID vectors
+      addHitIDVectors(*truthParticle,ids);
 
       bool goodMuon = true;
       if( iType != 6 && iType != 7 )     goodMuon = false;
@@ -682,6 +685,35 @@ namespace Muon {
     }
   }
 
+  void MuonTruthDecorationAlg::addHitIDVectors( xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const{
+    std::vector<unsigned long long> mdtTruthHits;
+    std::vector<unsigned long long> cscTruthHits;
+    std::vector<unsigned long long> tgcTruthHits;
+    std::vector<unsigned long long> rpcTruthHits;
+
+    // loop over chamber layers
+    int nEI=0,nEM=0;
+    for( const auto& lay : ids ){
+      // loop over hits
+      if(lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) nEI++;
+      if(lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) nEM++;
+      for( const auto& id : lay.second ){
+	if(m_idHelper->isMdt(id)) mdtTruthHits.push_back(id.get_compact());
+	else if(m_idHelper->isCsc(id)) cscTruthHits.push_back(id.get_compact());
+	else if(m_idHelper->isTgc(id)){
+	  if((lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) && nEI>1) continue; //otherwise we double-count
+	  if((lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) && nEM>1) continue; //otherwise we double-count
+	  tgcTruthHits.push_back(id.get_compact());
+	}
+	else if(m_idHelper->isRpc(id)) rpcTruthHits.push_back(id.get_compact());
+      }
+    }
+    truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits")=mdtTruthHits;
+    truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
+    truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits")=rpcTruthHits;
+    truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits")=tgcTruthHits;
+    ATH_MSG_VERBOSE("Added "<<mdtTruthHits.size()<<" mdt truth hits, "<<cscTruthHits.size()<<" csc truth hits, "<<rpcTruthHits.size()<<" rpc truth hits, and "<<tgcTruthHits.size()<<" tgc truth hits");
+  }
 
   // Finalize method:
   StatusCode MuonTruthDecorationAlg::finalize() 
