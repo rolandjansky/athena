@@ -9,15 +9,8 @@
 //
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
-#include "GeneratorObjects/McEventCollection.h"
 //
-#include "InDetSimEvent/SiHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
-#include "InDetSimEvent/TRTUncompressedHitCollection.h"
-#include "MuonSimEvent/MDTSimHitCollection.h"
-#include "MuonSimEvent/RPCSimHitCollection.h"
-#include "MuonSimEvent/TGCSimHitCollection.h"
-#include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
 #include "MuonSimEvent/CSCSimHit.h"
 // CLHEP
@@ -27,27 +20,66 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <climits>
+#include "CxxUtils/make_unique.h"
 
-McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_inputTruthCollection("StoreGateSvc/TruthEventOLD")
+  , m_inputBCMHits("StoreGateSvc/BCMHitsOLD")
+  , m_inputPixelHits("StoreGateSvc/PixelHitsOLD")
+  , m_inputSCTHits("StoreGateSvc/SCT_HitsOLD")
+  , m_inputTRTHits("StoreGateSvc/TRTUncompressedHitsOLD")
+  , m_inputCSCHits("StoreGateSvc/CSCHitsOLD")
+  , m_inputMDTHits("StoreGateSvc/MDTHitsOLD")
+  , m_inputRPCHits("StoreGateSvc/RPCHitsOLD")
+  , m_inputTGCHits("StoreGateSvc/TGCHitsOLD")
+  , m_outputTruthCollection("StoreGateSvc/TruthEvent")
+  , m_outputBCMHits("StoreGateSvc/BCMHits")
+  , m_outputPixelHits("StoreGateSvc/PixelHits")
+  , m_outputSCTHits("StoreGateSvc/SCT_Hits")
+  , m_outputTRTHits("StoreGateSvc/TRTUncompressedHits")
+  , m_outputCSCHits("StoreGateSvc/CSCHits")
+  , m_outputMDTHits("StoreGateSvc/MDTHits")
+  , m_outputRPCHits("StoreGateSvc/RPCHits")
+  , m_outputTGCHits("StoreGateSvc/TGCHits")
+  , m_IsKeepTRTElect(false)
+  , m_PileupPartPDGID(999) //Geantino
+  , m_UseTRTHits(true)
+  , m_RefBarcode(0)
 {
- declareProperty("IsKeepTRTElect"    , m_IsKeepTRTElect   = false);  //
- declareProperty("McEventCollection" , m_mcEventCollection  = "TruthEvent");
- declareProperty("PileupPartPDGID"   , m_PileupPartPDGID    = 999);  //Geantino
- declareProperty("UseTRTHits"        , m_UseTRTHits   = true);  //
+  declareProperty("TruthInput"        , m_inputTruthCollection);
+  declareProperty("TruthOutput"       , m_outputTruthCollection);
+  declareProperty("BCMHitsInput"      , m_inputBCMHits);
+  declareProperty("BCMHitsOutput"     , m_outputBCMHits);
+  declareProperty("PixelHitsInput"    , m_inputPixelHits);
+  declareProperty("PixelHitsOutput"   , m_outputPixelHits);
+  declareProperty("SCTHitsInput"      , m_inputSCTHits);
+  declareProperty("SCTHitsOutput"     , m_outputSCTHits);
+  declareProperty("TRTHitsInput"      , m_inputTRTHits);
+  declareProperty("TRTHitsOutput"     , m_outputTRTHits);
+  declareProperty("CSCHitsInput"      , m_inputCSCHits);
+  declareProperty("CSCHitsOutput"     , m_outputCSCHits);
+  declareProperty("MDTHitsInput"      , m_inputMDTHits);
+  declareProperty("MDTHitsOutput"     , m_outputMDTHits);
+  declareProperty("RPCHitsInput"      , m_inputRPCHits);
+  declareProperty("RPCHitsOutput"     , m_outputRPCHits);
+  declareProperty("TGCHitsInput"      , m_inputTGCHits);
+  declareProperty("TGCHitsOutput"     , m_outputTGCHits);
+  declareProperty("IsKeepTRTElect"    , m_IsKeepTRTElect);
+  declareProperty("PileupPartPDGID"   , m_PileupPartPDGID);
+  declareProperty("UseTRTHits"        , m_UseTRTHits);
 
- m_RefBarcode=0;
 }
 
 
 //-----------------------------------------------------
 McEventCollectionFilter::~McEventCollectionFilter(){
-//----------------------------------------------------
+  //----------------------------------------------------
 }
 
 //----------------------------------------------------
 StatusCode McEventCollectionFilter::initialize(){
-//----------------------------------------------------
+  //----------------------------------------------------
 
   return StatusCode::SUCCESS;
 
@@ -55,7 +87,7 @@ StatusCode McEventCollectionFilter::initialize(){
 
 //-------------------------------------------------
 StatusCode McEventCollectionFilter::execute(){
-//-------------------------------------------------
+  //-------------------------------------------------
 
   ATH_MSG_DEBUG( " execute..... " );
 
@@ -68,24 +100,24 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( ReduceMCEventCollection() );
 
   //.......to relink all Si hits to the new particle
-  ATH_CHECK( SiHistsTruthRelink() );
+  ATH_CHECK( SiliconHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
   if(m_UseTRTHits) {
-    ATH_CHECK( TRTHistsTruthRelink() );
+    ATH_CHECK( TRTHitsTruthRelink() );
   }
 
   //.......to relink all MDT hits to the new particle
-  ATH_CHECK( MDTHistsTruthRelink() );
+  ATH_CHECK( MDTHitsTruthRelink() );
 
   //.......to relink all CSC hits to the new particle
-  ATH_CHECK( CSCHistsTruthRelink() );
+  ATH_CHECK( CSCHitsTruthRelink() );
 
   //.......to relink all RPC hits to the new particle
-  ATH_CHECK( RPCHistsTruthRelink() );
+  ATH_CHECK( RPCHitsTruthRelink() );
 
   //.......to relink all TGC hits to the new particle
-  ATH_CHECK( TGCHistsTruthRelink() );
+  ATH_CHECK( TGCHitsTruthRelink() );
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
 
@@ -95,24 +127,26 @@ StatusCode McEventCollectionFilter::execute(){
 
 //-------------------------------------------------
 StatusCode McEventCollectionFilter::finalize(){
-//-------------------------------------------------
-//
+  //-------------------------------------------------
+  //
   ATH_MSG_DEBUG( "McEventCollectionFilter:: finalize completed successfully" );
   return StatusCode::SUCCESS;
 
 }
 //----------------------------------------------------------------
 StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
-//----------------------------------------------------------------
-//.......to reduce McEventCollection for pileup  particles
-//----------------------------------------------------------------
-//
-  // ....... Retrieve MC truht collection
-  const McEventCollection* pMcEvtColl=0;
-  ATH_CHECK( evtStore()->retrieve(pMcEvtColl,m_mcEventCollection) );
+  //----------------------------------------------------------------
+  //.......to reduce McEventCollection for pileup  particles
+  //----------------------------------------------------------------
+  //
+  if(!m_inputTruthCollection.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find McEventCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found McEventCollection");
 
-  //.......Create new McEventCollection
-  McEventCollection* pMcEvtCollNew= new McEventCollection();
+  if (!m_outputTruthCollection.isValid()) m_outputTruthCollection = CxxUtils::make_unique<McEventCollection>();
 
   //.......Create new particle (geantino) to link  hits from pileup
   HepMC::GenParticle* genPart=new HepMC::GenParticle();
@@ -123,7 +157,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   HepMC::GenVertex* genVertex=new HepMC::GenVertex();
   genVertex->add_particle_out(genPart);
 
-  const HepMC::GenEvent* genEvt = *(pMcEvtColl->begin());
+  const HepMC::GenEvent* genEvt = *(m_inputTruthCollection->begin());
 
   //......copy GenEvent to the new one and remove all vertex
   HepMC::GenEvent* evt=new HepMC::GenEvent(*genEvt);
@@ -135,7 +169,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
   //to set geantino vertex as a truth primary vertex
   HepMC::GenVertex* hScatVx = genEvt->barcode_to_vertex(-3);
-  if(hScatVx!=0) {
+  if(hScatVx!=nullptr) {
     HepMC::FourVector pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
@@ -183,165 +217,140 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
       HepMC::GenVertex* vx_new=new HepMC::GenVertex(pos);
       vx_new->add_particle_out(thePart_new);
       evt->add_vertex(vx_new);
-
     }
   }
 
-  //.....add new vetex with geantino
+  //.....add new vertex with geantino
   evt->add_vertex(genVertex);
   m_RefBarcode=genPart->barcode();
 
-  pMcEvtCollNew->push_back(evt);
-
-
-  //......remove old McEventCollection
-  ATH_CHECK( evtStore()->remove(pMcEvtColl) );
-
-  //......write new McEventCollection to SG
-  ATH_CHECK( evtStore()->record(pMcEvtCollNew, m_mcEventCollection) );
+  m_outputTruthCollection->push_back(evt);
 
   return StatusCode::SUCCESS;
 
 }
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
-//--------------------------------------------------------
-//.......to relink all Si hits to the new particle
-//--------------------------------------------------------
-//
-  std::vector <std::string> m_HitContainer;
-  m_HitContainer.push_back("PixelHits");
-  m_HitContainer.push_back("SCT_Hits");
-  m_HitContainer.push_back("BCMHits");
-  //??? m_HitContainer.push_back("BLMHits");
-
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++){
-
-    //.......retrive SiHit collection
-    const DataHandle<SiHitCollection> pSiHitColl;
-    if(evtStore()->contains<SiHitCollection>(m_HitContainer[iHitContainer])) {
-      ATH_CHECK( evtStore()->retrieve(pSiHitColl,m_HitContainer[iHitContainer] ) );
-    } else {
-      ATH_MSG_ERROR( "Could not find SiHitCollection containing " <<  m_HitContainer[iHitContainer] );
+StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all Si hits to the new particle
+  //--------------------------------------------------------
+  //
+  if(!m_inputPixelHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find Pixel SiHitCollection");
       return StatusCode::FAILURE;
     }
+  ATH_MSG_DEBUG( "Found Pixel SiHitCollection");
 
-    SiHitCollection * pSiHitC = const_cast<SiHitCollection *> (&*pSiHitColl);
+  if (!m_outputPixelHits.isValid()) m_outputPixelHits = CxxUtils::make_unique<SiHitCollection>();
 
-    //.......create new SiHit collection and copy all hits with the new HepMcParticleLink
-    SiHitCollection *pSiHitCollNew = new SiHitCollection();
+  ATH_CHECK(this->SiHitsTruthRelink(m_inputPixelHits,m_outputPixelHits));
 
-    for (SiHitCollection::const_iterator i = pSiHitC->begin(); i != pSiHitC->end(); ++i) {
-      const HepMcParticleLink McLink = (*i).particleLink();
-
-
-      HepGeom::Point3D<double>   lP1  = (*i).localStartPosition();
-      HepGeom::Point3D<double>   lP2  = (*i).localEndPosition();
-      double       edep = (*i).energyLoss();
-      double       mt   = (*i).meanTime();
-      unsigned int id   = (*i).identify();
-
-      int CurBarcode=0;
-      if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
-
-
-      SiHit newSiHit(lP1,lP2, edep, mt,CurBarcode , id);
-      pSiHitCollNew->Insert(newSiHit);
+  if(!m_inputSCTHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find SCT SiHitCollection");
+      return StatusCode::FAILURE;
     }
+  ATH_MSG_DEBUG( "Found SCT SiHitCollection");
 
-    //......remove old SiHitCollection
-    ATH_CHECK( evtStore()->remove(pSiHitC) );
+  if (!m_outputSCTHits.isValid()) m_outputSCTHits = CxxUtils::make_unique<SiHitCollection>();
 
-    //......write new SiHitCollection
-    ATH_CHECK( evtStore()->record(pSiHitCollNew,m_HitContainer[iHitContainer]) );
+  ATH_CHECK(this->SiHitsTruthRelink(m_inputSCTHits,m_outputSCTHits));
 
-  }
+  if(!m_inputBCMHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find BCM SiHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found BCM SiHitCollection");
+
+  if (!m_outputBCMHits.isValid()) m_outputBCMHits = CxxUtils::make_unique<SiHitCollection>();
+
+  ATH_CHECK(this->SiHitsTruthRelink(m_inputBCMHits,m_outputBCMHits));
 
   return StatusCode::SUCCESS;
-
 }
 
-//--------------------------------------------------------
-StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
-//--------------------------------------------------------
-//.......to relink all TRT hits to the new particle
-//--------------------------------------------------------
-//
-  //.......retrive TRTUncompressedHitCollection collection
-  m_HitName  = "TRTUncompressedHits";
-  const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
-
-  if(evtStore()->contains<TRTUncompressedHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
-
-  TRTUncompressedHitCollection*  pTRTHitC= const_cast<TRTUncompressedHitCollection*> (&*pTRTHitColl);
-
-  //.......Create new TRTUncompressedHitCollection
-  TRTUncompressedHitCollection *pTRTHitCollNew =  new TRTUncompressedHitCollection();
-  for (TRTUncompressedHitCollection::const_iterator i = pTRTHitColl->begin(); i != pTRTHitColl->end(); ++i) {
-
+StatusCode McEventCollectionFilter::SiHitsTruthRelink(SG::ReadHandle<SiHitCollection>& m_inputHits, SG::WriteHandle<SiHitCollection>& m_outputHits){
+  for (SiHitCollection::const_iterator i = m_inputHits->begin(); i != m_inputHits->end(); ++i) {
     const HepMcParticleLink McLink = (*i).particleLink();
 
-    int   pdgID = (*i).GetParticleEncoding();
+
+    HepGeom::Point3D<double>   lP1  = (*i).localStartPosition();
+    HepGeom::Point3D<double>   lP2  = (*i).localEndPosition();
+    double       edep = (*i).energyLoss();
+    double       mt   = (*i).meanTime();
+    unsigned int id   = (*i).identify();
+
     int CurBarcode=0;
-    if(McLink.barcode()!=0&&!m_IsKeepTRTElect)                      CurBarcode=m_RefBarcode;
-    else if(McLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)!=11) CurBarcode=m_RefBarcode;
-    else if(McLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)==11) CurBarcode=McLink.barcode();
+    if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
 
-    int   id         = (*i).GetHitID();
-    float kinEnergy  = (*i).GetKineticEnergy();
-    float eneDeposit = (*i).GetEnergyDeposit();
-    float preX       = (*i).GetPreStepX();
-    float preY       = (*i).GetPreStepY();
-    float preZ       = (*i).GetPreStepZ();
-    float postX      = (*i).GetPostStepX();
-    float postY      = (*i).GetPostStepY() ;
-    float postZ      = (*i).GetPostStepZ();
-    float time       = (*i).GetGlobalTime();
-
-    TRTUncompressedHit newTRTHit(id,CurBarcode,pdgID,kinEnergy,eneDeposit,preX,preY,preZ,postX,postY,postZ,time);
-    pTRTHitCollNew->Insert(newTRTHit);
-
+    m_outputHits->Emplace(lP1,lP2, edep, mt,CurBarcode , id);
   }
-
-  //.......remove old TRTUncompressedHitCollection
-  ATH_CHECK( evtStore()->remove(pTRTHitC) );
-
-  //.......write new  TRTUncompressedHitCollection
-  ATH_CHECK( evtStore()->record(pTRTHitCollNew,m_HitName) );
 
   return StatusCode::SUCCESS;
-
 }
+
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
+StatusCode McEventCollectionFilter::TRTHitsTruthRelink()
+{
+  //--------------------------------------------------------
+  //.......to relink all TRT hits to the new particle
+  //--------------------------------------------------------
+  //
+  if(!m_inputTRTHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find TRTUncompressedHitsCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found TRTUncompressedHitsCollection");
+
+  if (!m_outputTRTHits.isValid()) m_outputTRTHits = CxxUtils::make_unique<TRTUncompressedHitCollection>();
+  for (TRTUncompressedHitCollection::const_iterator i = m_inputTRTHits->begin(); i != m_inputTRTHits->end(); ++i)
+    {
+
+      const HepMcParticleLink McLink = (*i).particleLink();
+
+      int   pdgID = (*i).GetParticleEncoding();
+      int CurBarcode=McLink.barcode();
+      if(CurBarcode!=0)
+        {
+          if(!(m_IsKeepTRTElect && fabs(pdgID)==11))
+            {
+              CurBarcode=m_RefBarcode;
+            }
+        }
+      int   id         = (*i).GetHitID();
+      float kinEnergy  = (*i).GetKineticEnergy();
+      float eneDeposit = (*i).GetEnergyDeposit();
+      float preX       = (*i).GetPreStepX();
+      float preY       = (*i).GetPreStepY();
+      float preZ       = (*i).GetPreStepZ();
+      float postX      = (*i).GetPostStepX();
+      float postY      = (*i).GetPostStepY() ;
+      float postZ      = (*i).GetPostStepZ();
+      float time       = (*i).GetGlobalTime();
+
+      m_outputTRTHits->Emplace(id,CurBarcode,pdgID,kinEnergy,eneDeposit,preX,preY,preZ,postX,postY,postZ,time);
+    }
+
+  return StatusCode::SUCCESS;
+}
+
 //--------------------------------------------------------
-//.......to relink all MDT hits to the new particle
-//--------------------------------------------------------
+StatusCode McEventCollectionFilter::MDTHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all MDT hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputMDTHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find MDTSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found MDTSimHitCollection");
 
-  m_HitName="MDT_Hits";
-  const DataHandle<MDTSimHitCollection> pMDTHitColl;
-
-  if(evtStore()->contains<MDTSimHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pMDTHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find MDTSimHitCollection  containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
-
-
-  MDTSimHitCollection* pMDTHitC = const_cast<MDTSimHitCollection*> (&*pMDTHitColl);
-
-  //.......Create new MDTSimHitCollection
-  MDTSimHitCollection* pMDTHitCollNew = new MDTSimHitCollection();
-
-  for(MDTSimHitConstIterator i=pMDTHitColl->begin();i!=pMDTHitColl->end();++i){
+  if (!m_outputMDTHits.isValid()) m_outputMDTHits = CxxUtils::make_unique<MDTSimHitCollection>();
+  for(MDTSimHitConstIterator i=m_inputMDTHits->begin();i!=m_inputMDTHits->end();++i){
 
     const HepMcParticleLink McLink = (*i).particleLink();
     int CurBarcode=0;
@@ -351,49 +360,32 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
     double       time = (*i).globalTime();
     double     radius = (*i).driftRadius();
     Amg::Vector3D  lP = (*i).localPosition();
-   //int  trackNumber = (*i).trackNumber();
+    //int  trackNumber = (*i).trackNumber();
     double stepLength = (*i).stepLength();
     double eneDeposit = (*i).energyDeposit();
     int         pdgID = (*i).particleEncoding();
     double  kinEnergy = (*i).kineticEnergy();
 
-
-    MDTSimHit newMDTHit(id,time,radius,lP,CurBarcode,stepLength,eneDeposit,pdgID,kinEnergy);
-    pMDTHitCollNew->Insert(newMDTHit);
+    m_outputMDTHits->Emplace(id,time,radius,lP,CurBarcode,stepLength,eneDeposit,pdgID,kinEnergy);
   }
-
-  //.......remove old MDTSimHitCollection
-  ATH_CHECK( evtStore()->remove(pMDTHitC) );
-
-  //.......write new  MDTSimHitCollection
-  ATH_CHECK( evtStore()->record(pMDTHitCollNew,m_HitName) );
 
   return StatusCode::SUCCESS;
-
 }
+
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
-//--------------------------------------------------------
-//.......to relink all CSC hits to the new particle
-//--------------------------------------------------------
+StatusCode McEventCollectionFilter::CSCHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all CSC hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputCSCHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find CSCSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found CSCSimHitCollection");
 
-  m_HitName="CSC_Hits";
-  const DataHandle<CSCSimHitCollection> pCSCHitColl;
-
-  if(evtStore()->contains<CSCSimHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pCSCHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find CSCSimHitCollection  containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
-
-
-  CSCSimHitCollection* pCSCHitC = const_cast<CSCSimHitCollection*> (&*pCSCHitColl);
-
-  //.......Create new CSCSimHitCollection
-  CSCSimHitCollection* pCSCHitCollNew = new CSCSimHitCollection();
-
-  for(CSCSimHitConstIterator i=pCSCHitColl->begin();i!=pCSCHitColl->end();++i){
+  if (!m_outputCSCHits.isValid()) m_outputCSCHits = CxxUtils::make_unique<CSCSimHitCollection>();
+  for(CSCSimHitConstIterator i=m_inputCSCHits->begin();i!=m_inputCSCHits->end();++i){
 
     const HepMcParticleLink McLink = (*i).particleLink();
     int CurBarcode=0;
@@ -407,41 +399,26 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
     int          pdgID  = (*i).particleID();
     double    kinEnergy = (*i).kineticEnergy();
 
-    CSCSimHit newCSCHit(id,time,eneDeposit,HitStart,HitEnd,pdgID,CurBarcode,kinEnergy);
-    pCSCHitCollNew->Insert(newCSCHit);
+    m_outputCSCHits->Emplace(id,time,eneDeposit,HitStart,HitEnd,pdgID,CurBarcode,kinEnergy);
   }
-
-  //.......remove old CSCSimHitCollection
-  ATH_CHECK( evtStore()->remove(pCSCHitC) );
-
-  //.......write new  CSCSimHitCollection
-  ATH_CHECK( evtStore()->record(pCSCHitCollNew,m_HitName) );
 
   return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
-//--------------------------------------------------------
-//.......to relink all RPC hits to the new particle
-//--------------------------------------------------------
+StatusCode McEventCollectionFilter::RPCHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all RPC hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputRPCHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find RPCSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found RPCSimHitCollection");
 
-  m_HitName="RPC_Hits";
-  const DataHandle<RPCSimHitCollection> pRPCHitColl;
-
-  if(evtStore()->contains<RPCSimHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pRPCHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find RPCSimHitCollection  containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
-
-  RPCSimHitCollection* pRPCHitC = const_cast<RPCSimHitCollection*> (&*pRPCHitColl);
-
-  //.......Create new RPCSimHitCollection
-  RPCSimHitCollection* pRPCHitCollNew = new RPCSimHitCollection();
-
-  for(RPCSimHitConstIterator i=pRPCHitColl->begin();i!=pRPCHitColl->end();++i){
+  if (!m_outputRPCHits.isValid()) m_outputRPCHits = CxxUtils::make_unique<RPCSimHitCollection>();
+  for(RPCSimHitConstIterator i=m_inputRPCHits->begin();i!=m_inputRPCHits->end();++i){
 
     const HepMcParticleLink McLink = (*i).particleLink();
     int CurBarcode=0;
@@ -456,41 +433,27 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
     double kinEnergy  = (*i).kineticEnergy();
     double stepLength = (*i).stepLength();
 
-    RPCSimHit newRPCHit(id,time,prepos,CurBarcode,ppos,eneDeposit,stepLength,pdgID,kinEnergy);
-    pRPCHitCollNew->Insert(newRPCHit);
-
+    m_outputRPCHits->Emplace(id,time,prepos,CurBarcode,ppos,eneDeposit,stepLength,pdgID,kinEnergy);
   }
-
-  //.......remove old RPCSimHitCollection
-  ATH_CHECK( evtStore()->remove(pRPCHitC) );
-
-  //.......write new  RPCSimHitCollection
-  ATH_CHECK( evtStore()->record(pRPCHitCollNew,m_HitName) );
 
   return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
-//--------------------------------------------------------
-//.......to relink all TGC hits to the new particle
-//--------------------------------------------------------
-  m_HitName="TGC_Hits";
-  const DataHandle<TGCSimHitCollection> pTGCHitColl;
+StatusCode McEventCollectionFilter::TGCHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all TGC hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputTGCHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find TGCSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found TGCSimHitCollection");
 
-  if(evtStore()->contains<TGCSimHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pTGCHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find TGCSimHitCollection  containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
+  if (!m_outputTGCHits.isValid()) m_outputTGCHits = CxxUtils::make_unique<TGCSimHitCollection>();
+  for(TGCSimHitConstIterator i=m_inputTGCHits->begin();i!=m_inputTGCHits->end();++i){
 
-  TGCSimHitCollection* pTGCHitC = const_cast<TGCSimHitCollection*> (&*pTGCHitColl);
-
-  //.......Create new TGCSimHitCollection
-  TGCSimHitCollection* pTGCHitCollNew = new TGCSimHitCollection();
-
-  for(TGCSimHitConstIterator i=pTGCHitColl->begin();i!=pTGCHitColl->end();++i){
     const HepMcParticleLink McLink = (*i).particleLink();
     int CurBarcode=0;
     if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
@@ -504,45 +467,35 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
     int          pdgID = (*i).particleEncoding();
     double  kinEnergy  = (*i).kineticEnergy();
 
-    TGCSimHit newTGCHit(id,time,pos,dir,CurBarcode,enDeposit,stpLen,pdgID,kinEnergy);
-    pTGCHitCollNew->Insert(newTGCHit);
-
+    m_outputTGCHits->Emplace(id,time,pos,dir,CurBarcode,enDeposit,stpLen,pdgID,kinEnergy);
   }
 
-  //.......remove old TGCSimHitCollection
-  ATH_CHECK( evtStore()->remove(pTGCHitC) );
-
-  //.......write new  TGCSimHitCollection
-  ATH_CHECK( evtStore()->record(pTGCHitCollNew,m_HitName) );
   return StatusCode::SUCCESS;
 }
 
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::FindTRTElectronHits(){
-//--------------------------------------------------------
+StatusCode McEventCollectionFilter::FindTRTElectronHits()
+{
+  //--------------------------------------------------------
   //.......retrive TRTUncompressedHitCollection collection
-  m_HitName  = "TRTUncompressedHits";
-  const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
-
-  if(evtStore()->contains<TRTUncompressedHitCollection>(m_HitName)) {
-    ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
-  } else {
-    ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
+  if(!m_inputTRTHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find TRTUncompressedHitsCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found TRTUncompressedHitsCollection");
 
   m_elecBarcode.clear();
 
   std::set<int> barcode_tmp;
 
-  for (TRTUncompressedHitCollection::const_iterator i = pTRTHitColl->begin(); i != pTRTHitColl->end(); ++i) {
-    const HepMcParticleLink McLink = (*i).particleLink();
-    int  pdgID = (*i).GetParticleEncoding();
-    if(fabs(pdgID)==11&&McLink.barcode()!=0) barcode_tmp.insert(McLink.barcode());
-  }
+  for (TRTUncompressedHitCollection::const_iterator i = m_inputTRTHits->begin(); i != m_inputTRTHits->end(); ++i)
+    {
+      const HepMcParticleLink McLink = (*i).particleLink();
+      int  pdgID = (*i).GetParticleEncoding();
+      if(fabs(pdgID)==11&&McLink.barcode()!=0) barcode_tmp.insert(McLink.barcode());
+    }
 
   m_elecBarcode.assign(barcode_tmp.begin(),barcode_tmp.end());
 

@@ -33,3 +33,4 @@ atlas_add_component( McEventCollectionFilter
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives GaudiKernel GeneratorObjects InDetSimEvent MuonSimEvent McEventCollectionFilterLib )
 
+atlas_install_python_modules( python/*.py )
