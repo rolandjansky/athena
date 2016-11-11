@@ -63,13 +63,13 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
   StatusCode sc = Gaudi::svcLocator()->service("DetectorStore", detStore);
   if (sc.isFailure()) {
    MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
-   log << MSG::WARNING << "Unable to retrieve DetectorStore" << endreq;
+   log << MSG::WARNING << "Unable to retrieve DetectorStore" << endmsg;
    return false;
   }
   sc = detStore->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
    MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
-   log << MSG::WARNING << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
+   log << MSG::WARNING << "Unable to retrieve CaloIdMgr in LArHitEMap " << endmsg;
    return false;
   }
   m_larem_id   = m_caloIdMgr->getEM_ID();
@@ -81,14 +81,14 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
     sc = detStore->retrieve(m_calodetdescrmgr);
     if (sc.isFailure()) {
        MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
-       log << MSG::WARNING << "Unable to retrieve CaloDetDescrMgr in LArHitEMap "  << endreq;
+       log << MSG::WARNING << "Unable to retrieve CaloDetDescrMgr in LArHitEMap "  << endmsg;
        return false;
     }
   }
 
   if (m_cablingService.retrieve().isFailure()) {
    MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
-   log << MSG::WARNING << "Unable to retrieve LArCablingService in tools " << endreq;
+   log << MSG::WARNING << "Unable to retrieve LArCablingService in tools " << endmsg;
    return false;
   }
   
@@ -111,7 +111,7 @@ bool LArHitEMap::Initialize(std::vector<bool>& flags, bool windows, bool digit)
 
   MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
   log << MSG::INFO << "LArHitEmap:Number of cells " << m_ncellem << " " << m_ncellhec << " "
-            << m_ncellfcal << endreq;
+            << m_ncellfcal << endmsg;
   size = m_ncellem + m_ncellhec + m_ncellfcal;
   m_emap.resize(size,0);
 
@@ -310,7 +310,7 @@ bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
        MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
        log << MSG::WARNING 
            << "LArHitEMap:cannot retrieve McEventCollection  (keyless)"
-           << endreq;
+           << endmsg;
         return false;
     }
     McEventCollection::const_iterator itr;
