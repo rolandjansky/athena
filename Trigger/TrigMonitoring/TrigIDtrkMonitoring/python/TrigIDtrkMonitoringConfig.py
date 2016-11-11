@@ -88,7 +88,10 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-                        # HI chains 
+                        # HI chains - pPb running
+                        "HLT_e15_lhloose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+                        "HLT_e15_lhloose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+                        # PbPb running
 			"HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
