@@ -4,14 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// LeafCnv.cxx 
-// Implementation file for class LeafCnv
-// Author: S.Binet<binet@cern.ch>
+// xAODCnv.cxx 
+// Implementation file for class xAODCnv
+// Author: Johannes Elmsheuser, Will Buttinger
 /////////////////////////////////////////////////////////////////// 
 
 // AthenaRootComps includes
-#include "LeafCnv.h"
-#include "RootBranchAddress.h"
+#include "xAODCnv.h"
+#include "xAODBranchAddress.h"
 #include "RootDataBucketBranch.h"
 
 // STL includes
@@ -39,7 +39,7 @@ namespace {
   std::string name_from_clid (const CLID clid)
   {
     std::ostringstream o;
-    o << "AthenaRootLeafCnv_" << clid;
+    o << "AthenaRootxAODCnv_" << clid;
     return o.str();
   }
 }
@@ -52,9 +52,9 @@ namespace Athena {
 
 // Constructors
 ////////////////
-LeafCnv::LeafCnv( const CLID& clid,
+xAODCnv::xAODCnv( const CLID& clid,
                   ISvcLocator* pSvcLocator ) : 
-  ::Converter( ROOT_StorageType, clid, pSvcLocator ),
+  ::Converter( POOL_ROOTTREE_StorageType, clid, pSvcLocator ),
   ::AthMessaging( msgSvc(),    name_from_clid(clid) ),
   m_type()
 {
@@ -65,8 +65,8 @@ LeafCnv::LeafCnv( const CLID& clid,
 
 }
 
-LeafCnv::LeafCnv( ISvcLocator* pSvcLocator ) : 
-  ::Converter   ( ROOT_StorageType, CLID_NULL, pSvcLocator ),
+xAODCnv::xAODCnv( ISvcLocator* pSvcLocator ) : 
+  ::Converter   ( POOL_ROOTTREE_StorageType, CLID_NULL, pSvcLocator ),
   ::AthMessaging( msgSvc(),    name_from_clid(CLID_NULL) ),
   m_type()
 {
@@ -74,24 +74,25 @@ LeafCnv::LeafCnv( ISvcLocator* pSvcLocator ) :
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
+  ATH_MSG_DEBUG("Constructor xAODCnv...");
 
 }
 
 // Destructor
 ///////////////
-LeafCnv::~LeafCnv()
+xAODCnv::~xAODCnv()
 { 
   ATH_MSG_DEBUG("Calling destructor");
 }
 
 // Athena Service's Hooks
 ////////////////////////////
-StatusCode LeafCnv::initialize()
+StatusCode xAODCnv::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( MSG::INFO );
+  //msg().setLevel( MSG::INFO );
 
-  ATH_MSG_DEBUG("Initializing LeafCnv...");
+  ATH_MSG_DEBUG("Initializing xAODCnv...");
 
   ATH_MSG_DEBUG("Initializing base class...");
   if ( ::Converter::initialize().isFailure() ) {
@@ -104,7 +105,7 @@ StatusCode LeafCnv::initialize()
   // retrieve the dict-loader-svc
   typedef ServiceHandle<IDictLoaderSvc> IDictLoaderSvc_t;
   IDictLoaderSvc_t dictSvc("AthDictLoaderSvc", 
-                           "Athena::LeafCnv");
+                           "Athena::xAODCnv");
                            // name_from_clid(objType()));
   if ( !dictSvc.retrieve().isSuccess() ) {
     ATH_MSG_ERROR("could not retrieve [" << dictSvc.typeAndName() << "] !");
@@ -133,7 +134,7 @@ StatusCode LeafCnv::initialize()
   return StatusCode::SUCCESS;
 }
 
-// StatusCode LeafCnv::finalize()
+// StatusCode xAODCnv::finalize()
 // {
 //   m_msg << MSG::INFO 
 //      << "Finalizing " << name() << "..." 
@@ -148,7 +149,7 @@ StatusCode LeafCnv::initialize()
 //   Return: StatusCode indicating SUCCESS or FAILURE.
 // N.B. Don't forget to release the interface after use!!!
 // StatusCode 
-// LeafCnv::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+// xAODCnv::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 // {
 //   if ( IConverter::interfaceID().versionMatch(riid) ) {
 //     *ppvInterface = dynamic_cast<IConverter*>(this);
@@ -165,9 +166,10 @@ StatusCode LeafCnv::initialize()
 ///////////////////////////////////////////////////////////////////
 
 long
-LeafCnv::repSvcType() const
+xAODCnv::repSvcType() const
 {
-  return ROOT_StorageType;
+  ATH_MSG_DEBUG("Calling xAODCnv::repSvcType");
+  return POOL_ROOTTREE_StorageType;
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -178,21 +180,28 @@ LeafCnv::repSvcType() const
 /// @param pAddr [IN] IOpaqueAddress of persistent representation.
 /// @param pObj [OUT] pointer to the transient object.
 StatusCode 
-LeafCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
+xAODCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 {
   ATH_MSG_DEBUG("::createObj(" << pAddr << ", " << pObj << ")");
-  Athena::RootBranchAddress *rba = dynamic_cast<Athena::RootBranchAddress*>(pAddr);
+  Athena::xAODBranchAddress *rba = dynamic_cast<Athena::xAODBranchAddress*>(pAddr);
   if (!rba) {
     ATH_MSG_DEBUG(*pAddr->par() << " is NOT a GenericAddress!");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("loading branch: [" << rba->par()[0]
                 << "/" << rba->par()[1] << "]...");
-  rba->setBranchAddress(m_type);
+  //rba->setBranchAddress(m_type);
+  ATH_MSG_DEBUG("xAODCnv::createObj 1");
+  // FIXME JE
+  rba->setTEventAddress();
   ATH_MSG_DEBUG("loading branch: [" << rba->par()[0]
                 << "/" << rba->par()[1] << "]... [done]");
-  Athena::DataBucketBranch *dbb = new DataBucketBranch(rba->clID(), rba->m_type, rba->m_ptr);
+  ATH_MSG_DEBUG("xAODCnv::createObj 2");
+  Athena::DataBucketBranch *dbb = new DataBucketBranch(rba->clID(), m_type, rba->m_ptr);
+   dbb->allowMismatchCLID = true; //FIXME WB : hack to allow requests from other clid types
+  ATH_MSG_DEBUG("xAODCnv::createObj 3");
   pObj = dbb;
+  ATH_MSG_DEBUG("xAODCnv::createObj 4");
   return StatusCode::SUCCESS;
 }
 
@@ -200,8 +209,10 @@ LeafCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 /// @param pObj [IN] pointer to the transient object.
 /// @param pAddr [OUT] IOpaqueAddress of persistent representation.
 StatusCode 
-LeafCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
+xAODCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 {
+  ATH_MSG_DEBUG("Calling xAODCnv::createRep");
+
   ATH_MSG_INFO("::createRep(" << pObj << ", " << pAddr << ")");
   if (0==pObj) {
     ATH_MSG_ERROR("::createRep: received null ptr to dobj");
@@ -222,19 +233,19 @@ LeafCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 
   // FIXME:
   // Athena::RootBranchAddress* addr = new Athena::RootBranchAddress
-  //   (ROOT_StorageType, 
+  //   (POOL_ROOTTREE_StorageType, 
   //    dbb->clID(), 
   //    m_tupleName.value(), 
   //    br_name, 
   //    (unsigned long)(value_ptr),
   //    (unsigned long)(m_nbrEvts-1));
 #if 1
-  GenericAddress* addr = new GenericAddress(ROOT_StorageType, 
+  GenericAddress* addr = new GenericAddress(POOL_ROOTTREE_StorageType, 
                                             pObj->clID(),
                                             pObj->name());
 #else
-  Athena::RootBranchAddress* addr = new Athena::RootBranchAddress
-    (ROOT_StorageType, id, 
+  Athena::xAODBranchAddress* addr = new Athena::xAODBranchAddress
+    (POOL_ROOTTREE_StorageType, id, 
      "foo",//m_tupleName.value(), 
      dbb->name(), 
      (unsigned long)(value_ptr),
@@ -245,9 +256,12 @@ LeafCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 }
 
 long 
-LeafCnv::storageType()
+xAODCnv::storageType()
 {
-  return ROOT_StorageType;
+  std::cout << "Calling xAODCnv::storageType" << std::endl;
+
+  return POOL_ROOTTREE_StorageType;
+
 }
 
 /////////////////////////////////////////////////////////////////// 

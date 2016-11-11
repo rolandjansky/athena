@@ -13,6 +13,8 @@ from AthenaCommon.AppMgr import (theApp,
 # install the ROOT event loop
 import AthenaRootComps.ReadAthenaRoot
 
+import AthenaRootComps.ReadAthenaxAOD
+
 svcMgr.THistSvc.OutputLevel = DEBUG
 svcMgr.EventSelector.OutputLevel = DEBUG
 

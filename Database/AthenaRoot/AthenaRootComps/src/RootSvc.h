@@ -28,6 +28,7 @@
 
 // fwd declares
 class IDictLoaderSvc;
+class Placement;
 namespace pool { class IFileCatalog; }
 namespace Athena { class RootConnection; }
 

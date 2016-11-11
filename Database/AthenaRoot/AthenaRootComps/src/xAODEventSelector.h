@@ -4,15 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// RootNtupleEventSelector.h 
-// Header file for class RootNtupleEventSelector
-// Author: S.Binet<binet@cern.ch>
+// xAODEventSelector.h 
+// Header file for class xAODEventSelector
+// Author: Johannes Elmsheuser, Will Buttinger
 /////////////////////////////////////////////////////////////////// 
-#ifndef ATHENAROOTCOMPS_ATHENA_ROOTNTUPLEEVENTSELECTOR_H 
-#define ATHENAROOTCOMPS_ATHENA_ROOTNTUPLEEVENTSELECTOR_H 1
-
-// STL includes
-#include <unordered_map>
+#ifndef ATHENAROOTCOMPS_ATHENA_XAODEVENTSELECTOR_H 
+#define ATHENAROOTCOMPS_ATHENA_XAODEVENTSELECTOR_H 1
 
 // framework includes
 #include "AthenaBaseComps/AthService.h"
@@ -26,8 +23,13 @@
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/ICollectionSize.h"
 
+#include "PoolSvc/IPoolSvc.h"
+
 #include "TFile.h"
-#include "TObjString.h"
+
+#include "xAODTEvent.h"
+
+#include <unordered_map>
 
 // Forward declaration
 class ISvcLocator;
@@ -35,21 +37,21 @@ class StoreGateSvc;
 class TTree;
 class IClassIDSvc;
 class IDictLoaderSvc;
-namespace Athena { class RootNtupleEventContext; }
+namespace Athena { class xAODEventContext; }
 
 namespace Athena {
 
 /** @brief Class implementing the GAUDI @c IEvtSelector interface using 
  *         ROOT @c TTree as a backend
  */
-class RootNtupleEventSelector : 
-    virtual public IEvtSelector, virtual public ICollectionSize,
+class xAODEventSelector : 
+  virtual public IEvtSelector, virtual public ICollectionSize, 
   virtual public IEventSeek,
   virtual public IAddressProvider,
   virtual public IIoComponent, virtual public IIncidentListener,
           public ::AthService
 { 
-  friend class Athena::RootNtupleEventContext;
+  friend class Athena::xAODEventContext;
 
 
 
@@ -59,10 +61,10 @@ class RootNtupleEventSelector :
  public: 
 
   /// Constructor with parameters: 
-  RootNtupleEventSelector( const std::string& name, ISvcLocator* svcLoc );
+  xAODEventSelector( const std::string& name, ISvcLocator* svcLoc );
 
   /// Destructor: 
-  virtual ~RootNtupleEventSelector(); 
+  virtual ~xAODEventSelector(); 
 
   // Athena hooks
   virtual StatusCode initialize();
@@ -124,24 +126,11 @@ class RootNtupleEventSelector :
   StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
   ///@}
 
-  ///@c ICollectionSize interface
+  ///@c ICollectionSize  interface
   virtual int size();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private methods: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /// callback to synchronize the list of input files
-  void setupInputCollection( Property& inputCollectionsName );
 
   /// helper method to create proxies
   StatusCode createRootBranchAddresses(StoreID::type storeID,
@@ -149,23 +138,16 @@ class RootNtupleEventSelector :
 
 
   /// helper method to retrieve the correct tuple
-  TTree* fetchNtuple(const std::string& fname) const;
+  TFile* fetchNtupleFile(const std::string& fname) const;
 
-  void addMetadataFromDirectoryName(const std::string &metadirname, 
-                                    TFile *fileObj, 
-                                    const std::string &prefix = "") const;
-  void addMetadataFromDirectory(TDirectoryFile *metadir, 
-                                const std::string &prefix = "") const;
-  void addMetadata(TTree *metatree, const std::string &path = "") const;
-  void addMetadata(TObjString *metastring, const std::string &path = "") const;
-  
   /// helper method to create proxies for the metadata store
-  StatusCode createMetaDataRootBranchAddresses(StoreGateSvc *store,
-   					       TTree *tree,
-   					       const std::string& prefix) const;
+  StatusCode createMetaDataRootBranchAddresses() const;
 
   /// helper method to init the i/o components
   StatusCode do_init_io();
+
+  /// switch to given file, loading metadata and triggering a beginInputFile incident
+  StatusCode setFile(const std::string& fname);
 
   /// helper method to get the collection index (into `m_inputCollectionsName`)
   /// for a given event index `evtidx`.
@@ -173,35 +155,28 @@ class RootNtupleEventSelector :
   int find_coll_idx(int evtidx);
 
   /// non-const access to self (b/c ::next() is const)
-  RootNtupleEventSelector *self() const
-  { return const_cast<RootNtupleEventSelector*>(this); }
+  xAODEventSelector *self() const
+  { return const_cast<xAODEventSelector*>(this); }
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
   /// Pointer to the @c StoreGateSvc event store
-  StoreGateSvc_t m_dataStore;
-
+  ServiceHandle<StoreGateSvc> m_dataStore;
   /// Pointer to the @c StoreGateSvc input metadata store
-  StoreGateSvc_t m_imetaStore;
-
+  ServiceHandle<StoreGateSvc> m_imetaStore;
   /// Pointer to the @c StoreGateSvc output metadata store
-  StoreGateSvc_t m_ometaStore;
-
-  typedef ServiceHandle<IClassIDSvc> ICLIDSvc_t;
+  ServiceHandle<StoreGateSvc> m_ometaStore;
   /// Pointer to the @c IClassIDSvc
-  ICLIDSvc_t m_clidsvc;
-
-  typedef ServiceHandle<IDictLoaderSvc> IDictSvc_t;
+  ServiceHandle<IClassIDSvc> m_clidsvc;
   /// Pointer to the @c IDictLoaderSvc
-  IDictSvc_t m_dictsvc;
-
-  typedef ServiceHandle<IIncidentSvc> IIncSvc_t;
+  ServiceHandle<IDictLoaderSvc> m_dictsvc;
   /// Handle to the incident service
-  IIncSvc_t m_incsvc;
+  ServiceHandle<IIncidentSvc> m_incsvc;
+  /// Handle to the PoolSvc (used in Hybrid mode when user is reading metadata with pool)
+  ServiceHandle<IPoolSvc> m_poolSvc;
 
   /// List of input files containing @c TTree 
   StringArrayProperty m_inputCollectionsName;
@@ -209,8 +184,8 @@ class RootNtupleEventSelector :
   /// Name of @c TTree to load from collection of input files
   StringProperty m_tupleName;
 
-  /// List of branches to activate in the @c TTree 
-  StringArrayProperty m_activeBranchNames;
+  /// Name of @c TTree to load from metadata of input files
+  StringProperty m_metadataName;
 
   /// Number of events to skip at the beginning 
   long m_skipEvts;
@@ -233,38 +208,36 @@ class RootNtupleEventSelector :
   /// cache of the number of entries for each collection
   mutable std::vector<CollMetaData> m_collEvts;
 
-  /// current tree being read
-  mutable TTree *m_tuple;
-
-  /** The (python) selection function to apply on the @c TChain we are reading
-   */
-  //PyObject* m_pySelectionFct;
 
   // flag to trigger reloading of root branch addresses
   mutable bool m_needReload;
-  // flag to trigger firing BeginInputFile incidents once the root branch 
-  // addresses have been reloaded. 
-  // Reloading addresses (we assume?) means a new TTree
-  // has been loaded from a new file in the list of input files.
-  //
-  // FIXME: use some kind of state-machine to couple 
-  //   m_needReload and m_fireBIF ?
-  mutable bool m_fireBIF;
 
-  typedef std::unordered_map<SG::TransientAddress*, bool> Addrs_t;
   // the list of transient addresses we "manage" or know about
-  // these addresses are the actual TTree's branch names
+  // these addresses are the things we can retrieve from the TEvent
   // for the event data
-  Addrs_t m_rootAddresses;
+  std::unordered_map<SG::TransientAddress*, bool> m_rootAddresses;
 
-  // the list of transient addresses we "manage" or know about
-  // these addresses are the actual TTree's branch names
-  // for the metadata tree(s)
-  //Addrs_t m_rootAddressesMetaData;
 
-  // List of files that we've created, so that we can delete them
-  // during finalize.  FIXME: get rid of the mutable.
-  mutable std::vector<TFile*> m_files;
+  /// current TEvent being read
+  mutable xAOD::xAODTEvent* m_tevent;
+
+  /// current TFile being read
+  mutable TFile* m_tfile;
+
+  mutable long m_tevent_entries; //used to cache getEntries result of tevent
+
+  int m_accessMode; //tevent access mode
+
+  bool m_fillEventInfo = false; //if true, will fill EventInfo from xAOD::EventInfo
+
+  bool m_readMetadataWithPool = false; //interacts with PoolSvc to create collections, needed by MetaDataSvc
+
+#ifndef XAOD_ANALYSIS
+  //these are here just for compatibility with RecExCommon ... we were trying to use this selector in recexcommon jobs for a bit
+  bool m_backNavigation=false;
+  StringProperty m_collectionType;
+#endif
+
 }; 
 
 /////////////////////////////////////////////////////////////////// 
@@ -273,4 +246,4 @@ class RootNtupleEventSelector :
 
 } //> namespace Athena
 
-#endif //> ATHENAROOTCOMPS_ATHENA_ROOTNTUPLEEVENTSELECTOR_H
+#endif //> ATHENAROOTCOMPS_ATHENA_XAODEVENTSELECTOR_H

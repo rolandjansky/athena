@@ -81,6 +81,9 @@ public:
   CLID m_clid;
   RootType m_type;
   void* m_ptr;
+
+  bool allowMismatchCLID=false;
+
 };
 
 inline

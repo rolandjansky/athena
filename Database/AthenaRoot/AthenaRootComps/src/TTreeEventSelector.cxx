@@ -11,6 +11,7 @@
 
 // STL includes
 #include <sstream>
+#include <unordered_map>
 
 // ROOT includes
 #include "TChain.h"
@@ -47,8 +48,6 @@ CLASS_DEF( TObject,    74939790 , 1 )
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 
-#include "CxxUtils/unordered_map.h"
-
 // Package includes
 #include "TTreeEventSelector.h"
 #include "TTreeEventContext.h"
@@ -59,7 +58,7 @@ namespace {
   std::string
   root_typename(const std::string& root_type_name)
   {
-    static SG::unordered_map<std::string,std::string> s;
+    static std::unordered_map<std::string,std::string> s;
     static bool first = true;
     if (first) {
       first = false;
@@ -169,13 +168,13 @@ StatusCode TTreeEventSelector::initialize()
   const std::size_t nbrInputFiles = m_inputCollectionsName.value().size();
   if ( nbrInputFiles < 1 ) {
     ATH_MSG_ERROR
-      ("You need to give at least 1 input file !!" << endreq
+      ("You need to give at least 1 input file !!" << endmsg
        << "(Got [" << nbrInputFiles << "] file instead !)");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
-       << endreq
+       << endmsg
        << "                      tuple [" << m_tupleName.value() << "]");
   }
 
@@ -232,7 +231,7 @@ StatusCode TTreeEventSelector::initialize()
       ("Number of events to skip (" << m_skipEvts << ") is greater than "
        << "the total number of events in the input collections ("
        << m_totalNbrEvts << ") !"
-       << endreq
+       << endmsg
        << "Please correct your jobOptions file");
     return StatusCode::FAILURE;
   }
@@ -272,7 +271,7 @@ StatusCode TTreeEventSelector::finalize()
   // Cleaning-up: make the tuple disappear from the tuple service's registery
   if ( !m_tupleSvc->deReg( m_tuple ).isSuccess() ) {
     ATH_MSG_WARNING 
-      ("Could not unregister our (chain of) tuple(s) !" << endreq
+      ("Could not unregister our (chain of) tuple(s) !" << endmsg
        << "Tuple service may barf.");
   }
 
