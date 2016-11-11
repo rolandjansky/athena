@@ -194,9 +194,9 @@ private: // properties
    BooleanProperty m_keepInputFilesOpen;
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
-   ToolHandleArray<IAthenaSelectorTool> m_helperTools;
-   ToolHandle<IAthenaSelectorTool> m_counterTool;
-   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
+   mutable ToolHandleArray<IAthenaSelectorTool> m_helperTools;
+   mutable ToolHandle<IAthenaSelectorTool> m_counterTool;
+   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
 
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for

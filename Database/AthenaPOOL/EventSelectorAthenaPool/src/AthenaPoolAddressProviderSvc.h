@@ -15,6 +15,7 @@
 
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
+#include "PersistentDataModel/Guid.h"
 
 #include <map>
 #include <string>
@@ -58,6 +59,7 @@ public: // Constructor and Destructor
 private: // data
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
    ServiceHandle<IClassIDSvc> m_clidSvc;
+   Guid m_guid;
 
 private: // properties
    /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
@@ -68,6 +70,10 @@ private: // properties
 
    /// DataHeaderKey, StoreGate key of event entry object (type DataHeader).
    StringProperty m_dataHeaderKey;
+
+   /// DataHeaderIterator, switch to turn on iteration on Token, rather than DataHeader reading.
+   /// Assumes nice/homogeneous input files and may not work for all use cases: default = false.
+   BooleanProperty m_dataHeaderIterator;
 
 private: // internal helper functions
    /// Use back navigation through DataHeaders to locate object, if possible
