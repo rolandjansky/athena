@@ -9,33 +9,35 @@
 //  This is aimed to run at first stage for very large luminosity pileup
 
 #include "LArDigitization/LArHitFilter.h"
-#include "LArSimEvent/LArHitContainer.h"
 #include "LArSimEvent/LArHit.h"
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/IdentifierHash.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "LArDigitization/LArHitEMap.h"
 
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
-
 LArHitFilter::LArHitFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator), m_larem_id(NULL),m_larhec_id(NULL),m_larfcal_id(NULL)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_larem_id(nullptr)
+  , m_larhec_id(nullptr)
+  , m_larfcal_id(nullptr)
+  , m_SubDetectors("LAr_All")
+  , m_inputEMBHits("StoreGateSvc/LArHitEMBOLD")
+  , m_outputEMBHits("StoreGateSvc/LArHitEMB")
+  , m_inputEMECHits("StoreGateSvc/LArHitEMECOLD")
+  , m_outputEMECHits("StoreGateSvc/LArHitEMEC")
+  , m_inputHECHits("StoreGateSvc/LArHitHECOLD")
+  , m_outputHECHits("StoreGateSvc/LArHitHEC")
+  , m_inputFCALHits("StoreGateSvc/LArHitFCALOLD")
+  , m_outputFCALHits("StoreGateSvc/LArHitFCAL")
 {
-  m_SubDetectors      = "LAr_All"; 
-  m_EmBarrelHitContainerName = "LArHitEMB";
-  m_EmEndCapHitContainerName = "LArHitEMEC";
-  m_HecHitContainerName      = "LArHitHEC";
-  m_ForWardHitContainerName  = "LArHitFCAL";
-  //
-  // ........ declare the private data as properties
-  //
-  declareProperty("SubDetectors",m_SubDetectors,"subdetector selection");
-  declareProperty("EmBarrelHitContainerName",m_EmBarrelHitContainerName,"Hit container name for EMB");
-  declareProperty("EmEndCapHitContainerName",m_EmEndCapHitContainerName,"Hit container name for EMEC");
-  declareProperty("HecHitContainerName",m_HecHitContainerName,"Hit container name for HEC");
-  declareProperty("ForWardHitContainerName",m_ForWardHitContainerName,"Hit container name for FCAL");
+  declareProperty("SubDetectors"   ,m_SubDetectors,"subdetector selection");
+  declareProperty("EMBHitsInput"   , m_inputEMBHits);
+  declareProperty("EMBHitsOutput"  , m_outputEMBHits);
+  declareProperty("EMECHitsInput"  , m_inputEMECHits);
+  declareProperty("EMECHitsOutput" , m_outputEMECHits);
+  declareProperty("HECHitsInput"   , m_inputHECHits);
+  declareProperty("HECHitsOutput"  , m_outputHECHits);
+  declareProperty("FCALHitsInput"  , m_inputFCALHits);
+  declareProperty("FCALHitsOutput" , m_outputFCALHits);
 
   m_ecut[0][0]=0.05;
   m_ecut[0][1]=0.2;
@@ -54,112 +56,98 @@ LArHitFilter::LArHitFilter(const std::string& name, ISvcLocator* pSvcLocator)
   m_ecut[3][2]=0.05;
   m_ecut[3][3]=0.05;
 
-
   return;
 }
 
 
 LArHitFilter::~LArHitFilter()
-{  
-return;
+{
+  return;
 }
 
 
 StatusCode LArHitFilter::initialize()
 {
-//
-// ......... make the Sub-detector flag vector
-//
+  //
+  // ......... make the Sub-detector flag vector
+  //
 
   for (int i=0; i < LArHitEMap::NUMDET ; i++)
-  {
-   m_SubDetFlag.push_back(false);
-  }
+    {
+      m_SubDetFlag.push_back(false);
+    }
 
-//
-// ......... make the digit container name list
-//
+  //
+  // ......... make the digit container name list
+  //
 
-  if ( m_SubDetectors == "LAr_All" ) 
-  {
-    m_HitContainer.push_back(m_EmBarrelHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-  
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
+  if ( m_SubDetectors == "LAr_All" )
+    {
+      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+      m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
 
-    m_HitContainer.push_back(m_HecHitContainerName);
-    m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-    
-    m_HitContainer.push_back(m_ForWardHitContainerName);
-    m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }  
+      m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
+      m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
+
+      m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
+      m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
+
+      m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
+      m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
+    }
   else if ( m_SubDetectors == "LAr_Em" )
-  { 
-    m_HitContainer.push_back(m_EmBarrelHitContainerName); 
-    m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-  
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
+    {
+      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+      m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
+
+      m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
+      m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
+    }
   else if ( m_SubDetectors == "LAr_EmBarrel" )
-  {
-    m_HitContainer.push_back(m_EmBarrelHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-    m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-  }
+    {
+      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+      m_SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
+    }
   else if ( m_SubDetectors == "LAr_EmEndCap" )
-  {
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
+    {
+      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+      m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
+    }
   else if ( m_SubDetectors == "LAr_HEC" )
-  {
-    m_HitContainer.push_back(m_HecHitContainerName);
-    m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-  }
+    {
+      m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
+      m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
+    }
   else if ( m_SubDetectors == "LAr_Fcal" )
-  {  
-    m_HitContainer.push_back(m_ForWardHitContainerName);
-    m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
+    {
+      m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
+      m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
+    }
   else if (m_SubDetectors == "LAr_EndCap")
-  {
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
-    m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
+    {
+      m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+      m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
 
-    m_HitContainer.push_back(m_HecHitContainerName);
-    m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
-    m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
+      m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
+      m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
 
-    m_HitContainer.push_back(m_ForWardHitContainerName);
-    m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
-    m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
-  else  
-  { 
-    ATH_MSG_ERROR("Invalid SubDetector properties");
-    return(StatusCode::FAILURE); 
-  } 
-  
+      m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
+      m_SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
+    }
+  else
+    {
+      ATH_MSG_ERROR("Invalid SubDetector properties");
+      return(StatusCode::FAILURE);
+    }
 
- //retrieve ID helpers
+
+  //retrieve ID helpers
   const DataHandle<CaloIdManager> caloIdMgr;
   StatusCode sc = detStore()->retrieve(caloIdMgr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectoreStore");
     return StatusCode::FAILURE;
-  }   
+  }
   m_larem_id   = caloIdMgr->getEM_ID();
   m_larhec_id  = caloIdMgr->getHEC_ID();
   m_larfcal_id  = caloIdMgr->getFCAL_ID();
@@ -171,91 +159,115 @@ StatusCode LArHitFilter::initialize()
 
 StatusCode LArHitFilter::execute()
 {
+  unsigned int nhit_tot=0;
+  unsigned int nhit_out=0;
 
-  StatusCode sc;
-
-//
-// ............ loop over the wanted hit containers
-//
-  int nhit_tot=0;
-  int nhit_out=0;
-
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-  {
-
-    int ical=0;
-    if (m_CaloType[iHitContainer] == LArHitEMap::EMBARREL_INDEX)       ical=0;
-    else if( m_CaloType[iHitContainer] == LArHitEMap::EMENDCAP_INDEX)  ical=1;
-    else if (m_CaloType[iHitContainer] == LArHitEMap::HADENDCAP_INDEX) ical=2; 
-    else if (m_CaloType[iHitContainer] == LArHitEMap::FORWARD_INDEX)   ical=3;
-    else
+  if(m_SubDetFlag[LArHitEMap::EMBARREL_INDEX])
     {
-     ATH_MSG_ERROR("unknown calo type ! ");
-     return StatusCode::FAILURE;
-    }
-
-    const LArHitContainer* hitcont;
-    sc = evtStore()->retrieve(hitcont,m_HitContainer[iHitContainer]);
-    if (sc.isFailure()) {
-       ATH_MSG_ERROR(" cannot retrieve LarHit container " << m_HitContainer[iHitContainer] );
-       return sc;
-    }
-
-    ATH_MSG_DEBUG("Found " <<  m_HitContainer[iHitContainer] << " ical: " << ical << " with " << hitcont->size() << " hits ");
-    LArHitContainer* hitcont2 = const_cast<LArHitContainer*>(hitcont);
-
-// Loop over cells in this LArHitContainer
-    LArHitContainer::const_iterator f_cell=hitcont2->begin();
-    LArHitContainer::const_iterator l_cell=hitcont2->end();
-
-    std::vector<LArHit*> tmphit;
-    unsigned int guess_size = hitcont2->size()/2 + 1;
-    tmphit.reserve(guess_size);
-       
-    while (f_cell != l_cell) {
-        double energy = (*f_cell)->energy();
-        nhit_tot++;
-        int ilayer=0;
-        Identifier cellId = (*f_cell)->cellID();
-        if (ical==0 || ical==1) ilayer = m_larem_id->sampling(cellId);
-        if (ical==2 ) ilayer = m_larhec_id->sampling(cellId);
-        if (ical==3 ) ilayer = m_larfcal_id->module(cellId);
-        if (energy>m_ecut[ical][ilayer]) {
-           nhit_out++;
-           double time = (*f_cell)->time();
-           LArHit* newhit = new LArHit(cellId,energy,time);        
-           newhit->finalize();
-           tmphit.push_back(newhit);
+      /// Filter EMB LArHitContainer
+      if(!m_inputEMBHits.isValid())
+        {
+          ATH_MSG_ERROR( "Could not find EMB LArHitsContainer");
+          return StatusCode::FAILURE;
         }
-       ++f_cell;
-     }              //  loop over  hits
-
-     hitcont2->Clear();
-     hitcont2->reserve(nhit_out);
-    
-     f_cell=tmphit.begin();
-     l_cell=tmphit.end();
-     while (f_cell != l_cell) {
-        LArHit* hit = (*f_cell);
-        hitcont2->push_back(hit);
-        ++f_cell;
-     }
-     ATH_MSG_DEBUG("  -- > size after filtering " << hitcont2->size());
-  } // .... end of loop over containers
-
+      ATH_MSG_DEBUG( "Found EMB LArHitsContainer");
+      if (!m_outputEMBHits.isValid()) m_outputEMBHits = CxxUtils::make_unique<LArHitContainer>();
+      ATH_CHECK(this->filterContainer(m_inputEMBHits,m_outputEMBHits,0));
+      nhit_tot+= m_inputEMBHits->size();
+      nhit_out+= m_outputEMBHits->size();
+    }
+  if(m_SubDetFlag[LArHitEMap::EMENDCAP_INDEX])
+    {
+      /// Filter EMEC LArHitContainer
+      if(!m_inputEMECHits.isValid())
+        {
+          ATH_MSG_ERROR( "Could not find EMEC LArHitsContainer");
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_DEBUG( "Found EMEC LArHitsContainer");
+      if (!m_outputEMECHits.isValid()) m_outputEMECHits = CxxUtils::make_unique<LArHitContainer>();
+      ATH_CHECK(this->filterContainer(m_inputEMECHits,m_outputEMECHits,1));
+      nhit_tot+= m_inputEMECHits->size();
+      nhit_out+= m_outputEMECHits->size();
+    }
+  if(m_SubDetFlag[LArHitEMap::HADENDCAP_INDEX])
+    {
+      /// Filter HEC LArHitContainer
+      if(!m_inputHECHits.isValid())
+        {
+          ATH_MSG_ERROR( "Could not find HEC LArHitsContainer");
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_DEBUG( "Found HEC LArHitsContainer");
+      if (!m_outputHECHits.isValid()) m_outputHECHits = CxxUtils::make_unique<LArHitContainer>();
+      ATH_CHECK(this->filterContainer(m_inputHECHits,m_outputHECHits,1));
+      nhit_tot+= m_inputHECHits->size();
+      nhit_out+= m_outputHECHits->size();
+    }
+  if(m_SubDetFlag[LArHitEMap::FORWARD_INDEX])
+    {
+      /// Filter FCAL LArHitContainer
+      if(!m_inputFCALHits.isValid())
+        {
+          ATH_MSG_ERROR( "Could not find FCAL LArHitsContainer");
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_DEBUG( "Found FCAL LArHitsContainer");
+      if (!m_outputFCALHits.isValid()) m_outputFCALHits = CxxUtils::make_unique<LArHitContainer>();
+      ATH_CHECK(this->filterContainer(m_inputFCALHits,m_outputFCALHits,1));
+      nhit_tot+= m_inputFCALHits->size();
+      nhit_out+= m_outputFCALHits->size();
+    }
   ATH_MSG_INFO(" total number of hits found "  << nhit_tot << " " << nhit_out);
 
   return StatusCode::SUCCESS;
 
 }
 
+StatusCode LArHitFilter::filterContainer(SG::ReadHandle<LArHitContainer>& inputContainer, SG::WriteHandle<LArHitContainer>& outputContainer, int ical)
+{
+  // Loop over cells in this LArHitContainer
+  LArHitContainer::const_iterator f_cell=inputContainer->begin();
+  LArHitContainer::const_iterator l_cell=inputContainer->end();
+
+  const unsigned int guess_size = inputContainer->size()/2 + 1;
+  std::vector<LArHit*> tmphit;
+  tmphit.reserve(guess_size);
+  unsigned int nhit_out(0);
+  while (f_cell != l_cell) {
+    double energy = (*f_cell)->energy();
+    //nhit_tot++;
+    int ilayer=0;
+    Identifier cellId = (*f_cell)->cellID();
+    if (ical==0 || ical==1) ilayer = m_larem_id->sampling(cellId);
+    if (ical==2 ) ilayer = m_larhec_id->sampling(cellId);
+    if (ical==3 ) ilayer = m_larfcal_id->module(cellId);
+    if (energy>m_ecut[ical][ilayer]) {
+      nhit_out++;
+      double time = (*f_cell)->time();
+      LArHit* newhit = new LArHit(cellId,energy,time);
+      newhit->finalize();
+      tmphit.push_back(newhit);
+    }
+    ++f_cell;
+  }              //  loop over  hits
+
+  outputContainer->Clear();
+  outputContainer->reserve(nhit_out);
+
+  f_cell=tmphit.begin();
+  l_cell=tmphit.end();
+  while (f_cell != l_cell) {
+    LArHit* hit = (*f_cell);
+    outputContainer->push_back(hit);
+    ++f_cell;
+  }
+  ATH_MSG_DEBUG("  -- > size after filtering " << outputContainer->size());
+  return StatusCode::SUCCESS;
+}
+
 StatusCode LArHitFilter::finalize()
 {
-
-//
   ATH_MSG_DEBUG(" LArHitFilter finalize completed successfully");
-
-//
   return StatusCode::SUCCESS;
-
 }
