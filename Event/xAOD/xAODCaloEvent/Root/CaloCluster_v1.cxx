@@ -2,14 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.cxx 744492 2016-05-03 14:20:44Z krasznaa $
+// $Id: CaloCluster_v1.cxx 783594 2016-11-11 05:03:25Z ssnyder $
 
 // System include(s):
 #include <cmath>
 #include <iostream>
-#if __cplusplus >= 201100
-#   include <array>
-#endif // C++11
+#include <array>
 
 // EDM include(s):
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -49,7 +47,7 @@ namespace xAOD {
     if (links) {
       this->addCellLink(new CaloClusterCellLink(*links));
     }
-    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by makePrivateStore, invalidate it
       accCellLinks(*this).reset();
     } //end if have element link to CaloClusterCellLink
@@ -72,7 +70,7 @@ namespace xAOD {
      if (links) {
        this->addCellLink(new CaloClusterCellLink(*links));
      }
-     static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
      if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by  SG::AuxElement::operator=, invalidate it
        accCellLinks(*this).reset();
      } //end if have element link to CaloClusterCellLink
@@ -89,14 +87,14 @@ namespace xAOD {
   void CaloCluster_v1::setSamplingPattern( const unsigned sp, const bool clearSamplingVars) {
 
       // Check sampling variables ....
-      static Accessor< std::vector< float > > etaAcc( "eta_sampl" );
-      static Accessor< std::vector< float > > phiAcc( "phi_sampl" );
-      static Accessor< std::vector< float > > eAcc( "e_sampl" );
-      static Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
-      static Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
-      static Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
-      static Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
-      static Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
+      static const Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+      static const Accessor< std::vector< float > > phiAcc( "phi_sampl" );
+      static const Accessor< std::vector< float > > eAcc( "e_sampl" );
+      static const Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
+      static const Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
+      static const Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
+      static const Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
+      static const Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
 
 #if __cplusplus < 201100
       static std::vector<  Accessor< std::vector< float > >* > allAcc;
@@ -128,7 +126,7 @@ namespace xAOD {
          }
       }
 #else
-      static std::array< Accessor< std::vector< float > >*, 8 > allAcc = {
+      static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
          { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc, &etasizeAcc,
            &phisizeAcc } };
       for( auto a : allAcc ) {
@@ -278,38 +276,38 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  time, setTime )			 
 
   void CaloCluster_v1::setBadChannelList(const CaloClusterBadChannelList& bcl) {
-    static Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
+    static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
     accBCL(*this)=bcl;
     return;
   }
     
    const CaloClusterBadChannelList& CaloCluster_v1::badChannelList() const {
-    static Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
+    static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
     return accBCL(*this);
   }
 
   void CaloCluster_v1::setRawE(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accRawE("rawE");
+    static const Accessor<CaloCluster_v1::flt_t> accRawE("rawE");
     accRawE(*this)=value;
     m_ptCached.reset(UNCALIBRATED);
     m_p4Cached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawEta(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accRawEta("rawEta");
+    static const Accessor<CaloCluster_v1::flt_t> accRawEta("rawEta");
     accRawEta(*this)=value;
     m_ptCached.reset(UNCALIBRATED);
     m_p4Cached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawPhi(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accRawPhi("rawPhi");
+    static const Accessor<CaloCluster_v1::flt_t> accRawPhi("rawPhi");
     accRawPhi(*this)=value;
     m_ptCached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawM(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accRawM("rawM");
+    static const Accessor<CaloCluster_v1::flt_t> accRawM("rawM");
     accRawM(*this)=value;
     m_ptCached.reset(UNCALIBRATED);
     m_p4Cached.reset(UNCALIBRATED);
@@ -318,27 +316,27 @@ namespace xAOD {
   //----------------------------------------------------------------
 
   void CaloCluster_v1::setCalE(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accCalE("calE");
+    static const Accessor<CaloCluster_v1::flt_t> accCalE("calE");
     accCalE(*this)=value;
     m_ptCached.reset(CALIBRATED);
     m_p4Cached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalEta(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accCalEta("calEta");
+    static const Accessor<CaloCluster_v1::flt_t> accCalEta("calEta");
     accCalEta(*this)=value;
     m_ptCached.reset(CALIBRATED);
     m_p4Cached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalPhi(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accCalPhi("calPhi");
+    static const Accessor<CaloCluster_v1::flt_t> accCalPhi("calPhi");
     accCalPhi(*this)=value;
     m_ptCached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalM(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accCalM("calM");
+    static const Accessor<CaloCluster_v1::flt_t> accCalM("calM");
     accCalM(*this)=value;
     m_ptCached.reset(CALIBRATED);
     m_p4Cached.reset(CALIBRATED);
@@ -347,27 +345,27 @@ namespace xAOD {
   //----------------------------------------------------------------
 
   void CaloCluster_v1::setAltE(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accAltE("altE");
+    static const Accessor<CaloCluster_v1::flt_t> accAltE("altE");
     accAltE(*this)=value;
     m_ptCached.reset(ALTCALIBRATED);
     m_p4Cached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltEta(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accAltEta("altEta");
+    static const Accessor<CaloCluster_v1::flt_t> accAltEta("altEta");
     accAltEta(*this)=value;
     m_ptCached.reset(ALTCALIBRATED);
     m_p4Cached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltPhi(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accAltPhi("altPhi");
+    static const Accessor<CaloCluster_v1::flt_t> accAltPhi("altPhi");
     accAltPhi(*this)=value;
     m_ptCached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltM(const CaloCluster_v1::flt_t value) {
-    static Accessor<CaloCluster_v1::flt_t> accAltM("altM");
+    static const Accessor<CaloCluster_v1::flt_t> accAltM("altM");
     accAltM(*this)=value;
     m_ptCached.reset(ALTCALIBRATED);
     m_p4Cached.reset(ALTCALIBRATED);
@@ -390,12 +388,12 @@ namespace xAOD {
 
 
   CaloCluster_v1::ClusterSize  CaloCluster_v1::clusterSize() const {
-    static Accessor<unsigned> acc("clusterSize");
+    static const Accessor<unsigned> acc("clusterSize");
     return (CaloCluster_v1::ClusterSize)acc(*this);
   }
    
   void  CaloCluster_v1::setClusterSize(CaloCluster_v1::ClusterSize sc) {
-    static Accessor<unsigned> acc("clusterSize");
+    static const Accessor<unsigned> acc("clusterSize");
     acc(*this)=sc;
   }
   
@@ -579,7 +577,7 @@ namespace xAOD {
    }
 
   
-  float CaloCluster_v1::getSamplVarFromAcc(Accessor< std::vector <float > >& acc , const CaloSample sampling, const float errorvalue) const {
+  float CaloCluster_v1::getSamplVarFromAcc(const Accessor< std::vector <float > >& acc , const CaloSample sampling, const float errorvalue) const {
     const std::vector<float>& vec=acc(*this);
     const unsigned idx=sampVarIdx(sampling); 
     if (idx<vec.size() ) {
@@ -590,7 +588,7 @@ namespace xAOD {
       return errorvalue;
   }
 
-  bool CaloCluster_v1::setSamplVarFromAcc(Accessor< std::vector <float > >& acc, const CaloSample sampling, const float value) {
+  bool CaloCluster_v1::setSamplVarFromAcc(const Accessor< std::vector <float > >& acc, const CaloSample sampling, const float value) {
     const unsigned idx=sampVarIdx(sampling); 
     std::vector<float>& vec=acc(*this);
     //std::cout << "Set sampling var. Sampling " << sampling << ", index=" << idx << " size=" << vec.size() << std::endl;
@@ -607,18 +605,18 @@ namespace xAOD {
 
 
   float CaloCluster_v1::eSample( CaloSample sampling ) const {
-    static Accessor< std::vector <float > > eAcc("e_sampl");
+    static const Accessor< std::vector <float > > eAcc("e_sampl");
     return getSamplVarFromAcc(eAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
   }
 
   bool CaloCluster_v1::setEnergy(const CaloSample sampling, const float theEnergy) {
-    static Accessor< std::vector <float > > eAcc("e_sampl");
+    static const Accessor< std::vector <float > > eAcc("e_sampl");
     return setSamplVarFromAcc(eAcc,sampling,theEnergy);
   }
   
 
   float CaloCluster_v1::etaSample(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > etaAcc("eta_sampl");
+    static const Accessor< std::vector <float > > etaAcc("eta_sampl");
     if (!etaAcc.isAvailable( *this ))
       return -999;
     else
@@ -626,13 +624,13 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setEta(const CaloSample sampling, const float eta) {
-    static Accessor< std::vector <float > > etaAcc("eta_sampl");
+    static const Accessor< std::vector <float > > etaAcc("eta_sampl");
     return setSamplVarFromAcc(etaAcc,sampling,eta);
    }
 
 
   float CaloCluster_v1::phiSample(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > phiAcc("phi_sampl");
+    static const Accessor< std::vector <float > > phiAcc("phi_sampl");
     if (!phiAcc.isAvailable( *this ))
       return -999;
     else
@@ -640,14 +638,14 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setPhi(const CaloSample sampling, const float phi) {
-    static Accessor< std::vector <float > > phiAcc("phi_sampl");
+    static const Accessor< std::vector <float > > phiAcc("phi_sampl");
     return setSamplVarFromAcc(phiAcc,sampling,phi);
   }
   
 
 
   float CaloCluster_v1::energy_max(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > emaxAcc("emax_sampl");
+    static const Accessor< std::vector <float > > emaxAcc("emax_sampl");
     if (!emaxAcc.isAvailable( *this ))
       return 0.0;
     else
@@ -655,12 +653,12 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setEmax(const CaloSample sampling, const float eMax ) {
-    static Accessor< std::vector <float > > emaxAcc("emax_sampl");
+    static const Accessor< std::vector <float > > emaxAcc("emax_sampl");
     return setSamplVarFromAcc(emaxAcc,sampling,eMax);
   }
   
   float CaloCluster_v1::etamax(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
+    static const Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
     if (!etamaxAcc.isAvailable( *this ))
       return -999;
     else
@@ -668,12 +666,12 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setEtamax(const CaloSample sampling, const float etaMax ) {
-    static Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
+    static const Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
     return setSamplVarFromAcc(etamaxAcc,sampling,etaMax);
   }
   
   float CaloCluster_v1::phimax(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
+    static const Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
     if (!phimaxAcc.isAvailable( *this ))
       return -999;
     else
@@ -681,13 +679,13 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setPhimax(const CaloSample sampling, const float phiMax ) {
-    static Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
+    static const Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
     return setSamplVarFromAcc(phimaxAcc,sampling,phiMax);
   }
 
   
   float CaloCluster_v1::etasize(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
+    static const Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
     if (!etasizeAcc.isAvailable( *this ))
       return -999;
     else
@@ -695,12 +693,12 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setEtasize(const CaloSample sampling, const float etaSize ) {
-    static Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
+    static const Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
     return setSamplVarFromAcc(etasizeAcc,sampling,etaSize);
   }
   
   float CaloCluster_v1::phisize(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
+    static const Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
     if (!phisizeAcc.isAvailable( *this ))
       return -999;
     else
@@ -708,7 +706,7 @@ namespace xAOD {
   }
 
   bool CaloCluster_v1::setPhisize(const CaloSample sampling, const float phiSize ) {
-    static Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
+    static const Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
     return setSamplVarFromAcc(phisizeAcc,sampling,phiSize);
   }
 
@@ -795,14 +793,14 @@ namespace xAOD {
 
    void  CaloCluster_v1::clearSamplingData() {
 
-      static Accessor< std::vector< float > > etaAcc( "eta_sampl" );
-      static Accessor< std::vector< float > > phiAcc( "phi_sampl" );
-      static Accessor< std::vector< float > > eAcc( "e_sampl" );
-      static Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
-      static Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
-      static Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
-      static Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
-      static Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
+      static const Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+      static const Accessor< std::vector< float > > phiAcc( "phi_sampl" );
+      static const Accessor< std::vector< float > > eAcc( "e_sampl" );
+      static const Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
+      static const Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
+      static const Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
+      static const Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
+      static const Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
 
 #if __cplusplus < 201100
       static std::vector<  Accessor< std::vector< float > >* > allAcc;
@@ -826,7 +824,7 @@ namespace xAOD {
          }
       }
 #else
-      static std::array< Accessor< std::vector< float > >*, 8 > allAcc = {
+      static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
          { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
            &etasizeAcc, &phisizeAcc } };
       for( auto a : allAcc ) {
@@ -926,7 +924,7 @@ namespace xAOD {
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
   /*
   bool CaloCluster_v1::createCellElemLink(const std::string& CCCL_key, const size_t idx) {
-    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     ElementLink<CaloClusterCellLinkContainer> el(CCCL_key,idx);
     accCellLinks(*this)=el;
     if (m_cellLinks!=0 && m_cellLinks!=(*el)) {
@@ -937,13 +935,13 @@ namespace xAOD {
   }
   */
   bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
-                               IProxyDictWithPool* sg /*= nullptr*/)
+                               IProxyDict* sg /*= nullptr*/)
   {
     if (!m_cellLinks || !cccl) return false;
     cccl->push_back(m_cellLinks);
     m_ownCellLinks=false; //Cell Links now owned by CaloClusterCellLinkContainer
     const size_t idx=cccl->size()-1; //Use index for speed
-    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     const CaloClusterCellLinkContainer& ref=*cccl;
     ElementLink<CaloClusterCellLinkContainer> el(ref,idx,sg);
     accCellLinks(*this)=el;    
@@ -952,7 +950,7 @@ namespace xAOD {
 
   const CaloClusterCellLink* CaloCluster_v1::getCellLinks() const {
     if (m_cellLinks) return m_cellLinks;
-    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     if (!accCellLinks.isAvailable(*this)) return 0;
 
     ElementLink<CaloClusterCellLinkContainer> el=accCellLinks(*this);
@@ -979,14 +977,14 @@ namespace xAOD {
    void CaloCluster_v1::toPersistent() {
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
-      static Accessor< ElementLink< CaloClusterCellLinkContainer > >
+      static const Accessor< ElementLink< CaloClusterCellLinkContainer > >
          accCellLinks( "CellLink" );
       if( accCellLinks.isAvailableWritable( *this ) ) {
          accCellLinks( *this ).toPersistent();
       }
 #endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
-      static Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+      static const Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
       if( accSisterCluster.isAvailableWritable( *this ) ) {
          accSisterCluster( *this ).toPersistent();
       }
@@ -996,7 +994,7 @@ namespace xAOD {
    }
 
   const CaloCluster_v1* CaloCluster_v1::getSisterCluster() const {
-    static Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+    static const Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
     if (!accSisterCluster.isAvailable(*this)) return 0;
     ElementLink<CaloClusterContainer_v1> el=accSisterCluster(*this);
     if (el.isValid()) 
@@ -1005,15 +1003,19 @@ namespace xAOD {
       return 0;
   }
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
-  bool CaloCluster_v1::setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, 
-					IProxyDictWithPool* sg /*nullptr*/)  {
+  const ElementLink<xAOD::CaloClusterContainer_v1>& CaloCluster_v1::getSisterClusterLink() const {
+    static const Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+    static const ElementLink<xAOD::CaloClusterContainer_v1> empty;
+    if (!accSisterCluster.isAvailable(*this))
+      return empty;
+    return accSisterCluster(*this);
+  }
 
-    static Accessor< ElementLink<xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
-    ElementLink<xAOD::CaloClusterContainer_v1 > link(sisterSgKey,sisterIndex,sg);
-    accSisterCluster(*this)=link;
+  bool CaloCluster_v1::setSisterClusterLink(const ElementLink<xAOD::CaloClusterContainer_v1>& sister)
+  {
+    static const Accessor< ElementLink<xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
+    accSisterCluster(*this)=sister;
     return true;
   }
-#endif
 
 } // namespace xAOD

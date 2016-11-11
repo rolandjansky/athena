@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster.h 766396 2016-08-04 11:31:11Z wlampl $
+// $Id: CaloCluster.h 766395 2016-08-04 11:31:05Z wlampl $
 #ifndef XAODCALOEVENT_CALOCLUSTER_H
 #define XAODCALOEVENT_CALOCLUSTER_H
 
