@@ -128,36 +128,36 @@ SCT_ReadCalibDataSvc::~SCT_ReadCalibDataSvc(){
 StatusCode SCT_ReadCalibDataSvc::initialize(){
   StatusCode sc;
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in initialize()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in initialize()" << endmsg;
   // Get SCT detector manager
   sc = m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT");
   if (sc.isFailure()) {
-    msg(MSG:: FATAL) << "Failed to get SCT detector manager" << endreq;
+    msg(MSG:: FATAL) << "Failed to get SCT detector manager" << endmsg;
     return StatusCode::FAILURE;
   }else {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found SCT detector manager" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found SCT detector manager" << endmsg;
   }
 
   // Get SCT helper
   sc = m_detStoreSvc->retrieve(m_id_sct, "SCT_ID");
   if (sc.isFailure()) {
-    msg(MSG:: FATAL) << "Failed to get SCT helper" << endreq;
+    msg(MSG:: FATAL) << "Failed to get SCT helper" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found SCT helper" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found SCT helper" << endmsg;
   }
 
   // Retrieve IOVDb service
   sc = m_IOVDbSvc.retrieve();
   if (sc.isFailure()) {  
-    msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endreq;
+    msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve SCT Cabling service
   sc = m_cabling.retrieve();
   if (sc.isFailure()) {  
-    msg(MSG:: ERROR)<< "Failed to retrieve SCT cabling service" << endreq;
+    msg(MSG:: ERROR)<< "Failed to retrieve SCT cabling service" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -167,20 +167,20 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
   for (;itr!=end;++itr) {
     m_key = *itr;
     if ( m_key == "/SCT/DAQ/Calibration/NPtGainDefects" ){
-      if ( StatusCode::SUCCESS==m_detStoreSvc->regFcn(&SCT_ReadCalibDataSvc::fillData,this,CalibDefects_NP,m_key) ){
-        msg(MSG:: INFO) << "Registered callback for key: " << m_key << endreq;
+      if ( StatusCode::SUCCESS==m_detStoreSvc->regFcn(&SCT_ReadCalibDataSvc::fillData,this,m_CalibDefects_NP,m_key) ){
+        msg(MSG:: INFO) << "Registered callback for key: " << m_key << endmsg;
       } else {
-        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endreq;
+        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endmsg;
       }
     }
     else if ( m_key == "/SCT/DAQ/Calibration/NoiseOccupancyDefects" ){
-      if ( StatusCode::SUCCESS==m_detStoreSvc->regFcn(&SCT_ReadCalibDataSvc::fillData,this,CalibDefects_NO,m_key) ){
-        msg(MSG:: INFO) << "Registered callback for key: " << m_key << endreq;
+      if ( StatusCode::SUCCESS==m_detStoreSvc->regFcn(&SCT_ReadCalibDataSvc::fillData,this,m_CalibDefects_NO,m_key) ){
+        msg(MSG:: INFO) << "Registered callback for key: " << m_key << endmsg;
       } else {
-        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endreq;
+        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endmsg;
       }
     } else {
-      msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endreq;
+      msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endmsg;
     }
   }
   
@@ -197,7 +197,7 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
   
   //Check ignoreDefects vectors are the same size
   if ( m_ignoreDefects.size() != m_ignoreDefectParameters.size() ){
-    msg(MSG:: ERROR) << "IgnoreDefect != IgnoreDefectsParameters, check job options!" << endreq;
+    msg(MSG:: ERROR) << "IgnoreDefect != IgnoreDefectsParameters, check job options!" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -249,7 +249,7 @@ StatusCode SCT_ReadCalibDataSvc::fillData(int& /*i*/ , std::list<std::string>& l
   for (itr=l.begin(); itr!=l.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endreq;
+  msg() << endmsg;
 
   StatusCode sc0= SCT_ReadCalibDataSvc::fillCalibDefectData(l);
   // No longer need the conditions folder as stored locally
@@ -259,20 +259,20 @@ StatusCode SCT_ReadCalibDataSvc::fillData(int& /*i*/ , std::list<std::string>& l
 
   if ( sc0==StatusCode::SUCCESS ){
     m_dataFilled = true;
-    msg(MSG:: INFO) << "Calib Defect array/maps filled ok" << endreq;
+    msg(MSG:: INFO) << "Calib Defect array/maps filled ok" << endmsg;
     // Print the defect maps
     if ( m_printCalibDefectMaps and !m_recoOnly ){
       std::string NPGCalibDefectMap;
       std::string NOCalibDefectMap;
       NPGCalibDefectMap = m_NPGDefects -> str();
       NOCalibDefectMap = m_NODefects -> str();
-      msg(MSG::DEBUG) << "\n" << NPGCalibDefectMap << endreq;
-      msg(MSG::DEBUG) << NOCalibDefectMap << endreq;
+      msg(MSG::DEBUG) << "\n" << NPGCalibDefectMap << endmsg;
+      msg(MSG::DEBUG) << NOCalibDefectMap << endmsg;
     }
     return StatusCode::SUCCESS;
   } else {
     m_dataFilled = false;
-    msg(MSG:: ERROR) << "fillData failed" << endreq;
+    msg(MSG:: ERROR) << "fillData failed" << endmsg;
     return StatusCode::FAILURE;
   }
 } //SCT_ReadCalibDataSvc::fillData()
@@ -313,14 +313,14 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
     coral::TimeStamp::ValueType nsTime=event->event_ID()->time_stamp()*1000000000LL;
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In run/event [" << event->event_ID()->run_number() <<
       "," << event->event_ID()->event_number() << "] timestamp " << nsTime << 
-      endreq;
+      endmsg;
     // print the timestamp in UTC and local
     // coral::TimeStamp utctime(nsTime);
     // coral::TimeStamp localtime(utctime.time(), true); // get ptime and convert to local
     // if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Timestamp UTC: " << utctime.toString() << 
-    //  " local: " << localtime.toString() << endreq;
+    //  " local: " << localtime.toString() << endmsg;
   } else {
-    msg(MSG:: ERROR) << "Could not get pointer to event" << endreq;
+    msg(MSG:: ERROR) << "Could not get pointer to event" << endmsg;
   }
 
   if (!m_recoOnly){
@@ -435,37 +435,37 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
           // Fill the CalibDefectData maps with the Calib defect objects
           if ( folderfoundNP!=string::npos ){ 
             if ( theseDefects.begDefects.empty() ){
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No NPtGain defects for module " << moduleId << endreq;  
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No NPtGain defects for module " << moduleId << endmsg;  
               continue;
             }
             if (!(m_NPGDefects -> addModule( moduleId, theseDefects ))) {
-              msg(MSG:: ERROR) << "Unable to add module " << moduleId << " to NPtGain defect map" << endreq;
+              msg(MSG:: ERROR) << "Unable to add module " << moduleId << " to NPtGain defect map" << endmsg;
               return StatusCode::FAILURE;
             } else {
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defects for module " << moduleId << " added to NPG defect map" << endreq;
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defects for module " << moduleId << " added to NPG defect map" << endmsg;
             }
           }else if ( folderfoundNO!=string::npos ){  
             if ( theseDefects.begDefects.empty() ){
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No NoiseOccupancy defects for module " << moduleId << endreq; 
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No NoiseOccupancy defects for module " << moduleId << endmsg; 
               continue;
             }
             if (!(m_NODefects -> addModule( moduleId, theseDefects ))) {
-              msg(MSG:: ERROR) << "Unable to add module " << moduleId << " to NoiseOccupancy defect map" << endreq;
+              msg(MSG:: ERROR) << "Unable to add module " << moduleId << " to NoiseOccupancy defect map" << endmsg;
               return StatusCode::FAILURE;
             } else {
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defects for module " << moduleId << " added to NoiseOccupancy defect map" << endreq;
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defects for module " << moduleId << " added to NoiseOccupancy defect map" << endmsg;
             } 
           }
         }
       }
     } else {
-      msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection " << *itr_key << endreq;
+      msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection " << *itr_key << endmsg;
     }  
   }
 
   if (!m_recoOnly){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are " << m_NPGDefects->size() << " elements in the NPtGain module defect map" << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are " << m_NODefects->size() << " elements in the NoiseOccupancy module defect map" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are " << m_NPGDefects->size() << " elements in the NPtGain module defect map" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are " << m_NODefects->size() << " elements in the NoiseOccupancy module defect map" << endmsg;
   }
  
   return StatusCode::SUCCESS;
@@ -483,21 +483,21 @@ SCT_ReadCalibDataSvc::isGood(const Identifier & elementId, InDetConditions::Hier
     case InDetConditions::SCT_MODULE:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Module good/bad is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Module good/bad is not applicable for Calibration data" << endmsg;
       break;
     }
 
     case InDetConditions::SCT_SIDE:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Wafer good/bad is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Wafer good/bad is not applicable for Calibration data" << endmsg;
       break;
     }
 
     case InDetConditions::SCT_CHIP:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Chip good/bad is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Chip good/bad is not applicable for Calibration data" << endmsg;
       break;
     }
     case InDetConditions::SCT_STRIP:
@@ -519,7 +519,7 @@ SCT_ReadCalibDataSvc::isGood(const Identifier & elementId, InDetConditions::Hier
     default:
     {
       status = true ;
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unknown component has been asked for, should be Module/Wafer/Chip or Strip; returning 'good' and continuing" << endreq ; 
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unknown component has been asked for, should be Module/Wafer/Chip or Strip; returning 'good' and continuing" << endmsg ; 
     }    
   }//end of switch structure
   
@@ -532,11 +532,11 @@ SCT_ReadCalibDataSvc::isGood(const Identifier & elementId, InDetConditions::Hier
 // Returns a defect summary of a defect strip, scan, type and value
 SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Identifier & stripId, InDetConditions::Hierarchy h){
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in defectType()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in defectType()" << endmsg;
 
   // Extract the moduleId from the comp identifier
   Identifier moduleId = m_id_sct->module_id(stripId);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Summary wanted for component: " << stripId << " on module: " << moduleId << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Summary wanted for component: " << stripId << " on module: " << moduleId << endmsg;
 
   // Create the CalibDataDefect objects
   SCT_CalibDefectData::CalibModuleDefects wantedNPGDefects;
@@ -552,21 +552,21 @@ SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
     case InDetConditions::SCT_MODULE:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Module defect summary is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Module defect summary is not applicable for Calibration data" << endmsg;
       break;
     }
 
     case InDetConditions::SCT_SIDE:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Wafer defect summary is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Wafer defect summary is not applicable for Calibration data" << endmsg;
       break;
     }
 
     case InDetConditions::SCT_CHIP:
     {
       // Not applicable for Calibration data
-      msg(MSG:: WARNING) << "summary(): Chip defect summary is not applicable for Calibration data" << endreq;
+      msg(MSG:: WARNING) << "summary(): Chip defect summary is not applicable for Calibration data" << endmsg;
       break;
     }
     case InDetConditions::SCT_STRIP:
@@ -588,7 +588,7 @@ SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
       
       // Find the bad strip and fill calibDefectSummary
       if ( wantedNPGDefects.begDefects.empty() ){
-        msg(MSG::VERBOSE) << "No NPtGain defects in this module" << endreq;
+        msg(MSG::VERBOSE) << "No NPtGain defects in this module" << endmsg;
       }
       else{
         for ( unsigned int i = 0; i < wantedNPGDefects.begDefects.size(); ++i ){
@@ -596,31 +596,31 @@ SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
             theseSummaryDefects.scan.push_back("NPtGain");
             theseSummaryDefects.defect.push_back(wantedNPGDefects.typeOfDefect[i]);
             theseSummaryDefects.value.push_back(wantedNPGDefects.parValue[i]);
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "NPtGain defect summary for strip " << stripNum << " filled" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "NPtGain defect summary for strip " << stripNum << " filled" << endmsg;
           }
         }
       }
 
       if ( wantedNODefects.begDefects.empty() ){
-        msg(MSG::VERBOSE) << "No NoiseOccupancy defects in this module" << endreq;
+        msg(MSG::VERBOSE) << "No NoiseOccupancy defects in this module" << endmsg;
       }else{
         for ( unsigned int i = 0; i != wantedNODefects.begDefects.size(); ++i ){
           if ( stripNum >= wantedNODefects.begDefects[i] && stripNum <= wantedNODefects.endDefects[i] ){
             theseSummaryDefects.scan.push_back("NoiseOccupancy");
             theseSummaryDefects.defect.push_back(wantedNODefects.typeOfDefect[i]);
             theseSummaryDefects.value.push_back(wantedNODefects.parValue[i]);
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "NoiseOccupancy defect summary for strip " << stripNum << "  filled" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "NoiseOccupancy defect summary for strip " << stripNum << "  filled" << endmsg;
           }
         }       
       } 
       if ( theseSummaryDefects.scan.empty() ){
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "defectSummary(): can't retrieve the defects for this strip: " <<  stripNum << " since strip good" << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "defectSummary(): can't retrieve the defects for this strip: " <<  stripNum << " since strip good" << endmsg;
       }     
       break;    
     }
     default:
     {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unknown component requested, should be one of Module/Side/Chip or Strip" << endreq ; 
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unknown component requested, should be one of Module/Side/Chip or Strip" << endmsg ; 
       return theseSummaryDefects;
     }
 
@@ -640,7 +640,7 @@ SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataSvc::defectsSummary(con
   } else if ( scan == "NoiseOccupancy" ){
     wantedDefects = m_NODefects->findModule(moduleId);
   } else{
-    msg(MSG:: ERROR) << "defectsSummary(): Module defects for scan" << scan << " does not exist (only NPtGain or NoiseOccupancy)." << endreq; 
+    msg(MSG:: ERROR) << "defectsSummary(): Module defects for scan" << scan << " does not exist (only NPtGain or NoiseOccupancy)." << endmsg; 
   }
 
   return wantedDefects;

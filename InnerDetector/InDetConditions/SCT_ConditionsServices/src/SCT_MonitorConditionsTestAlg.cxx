@@ -42,7 +42,7 @@ SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& n
 
 SCT_MonitorConditionsTestAlg::~SCT_MonitorConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 // -------------------------------------------------------------------------
@@ -54,17 +54,17 @@ StatusCode SCT_MonitorConditionsTestAlg::initialize()
 
   sc = detStore()->retrieve(m_sctId, "SCT_ID");  
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;      
+    msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endmsg;      
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Found SCT_ID Tool" << endreq;
+  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Found SCT_ID Tool" << endmsg;
 
   sc = m_pMonitorConditionsSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR) << "Could not retrieve the monitor conditions service" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve the monitor conditions service" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Found SCT_MoniotorConditinosSvc" << endreq;
+  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Found SCT_MoniotorConditinosSvc" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -82,29 +82,29 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   //       simply done by doing a standard StoreGate retrieve from
   //       the DetectorStore.
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " in execute()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " in execute()" << endmsg;
 
   StatusCode sc = evtStore()->retrieve(m_evt);
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "could not get event info " 
-	  << endreq;
+	  << endmsg;
     return( StatusCode::FAILURE);
   }
   else {
     if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event: [" << m_evt->event_ID()->run_number()
 	  << "," << m_evt->event_ID()->event_number()
 	  << ":" << m_evt->event_ID()->time_stamp()
-	  << "]" << endreq;
+	  << "]" << endmsg;
   }
  
   // We create the conditions objects only for a specified run and event
   if ( m_evt->event_ID()->run_number() != m_select_run || 
        m_evt->event_ID()->event_number() != m_select_event ) {
-    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event NOT selected for creating conditions objects " << endreq;
+    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event NOT selected for creating conditions objects " << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
-    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Creating condtions objects " << endreq;
+    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Creating condtions objects " << endmsg;
   }
 
   std::string defectlist; 
@@ -114,7 +114,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   Identifier moduleid1;
 
   // For testing of reading back from database
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Testing isGood() function" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Testing isGood() function" << endmsg;
 
   SCT_ID::const_id_iterator waferItr  = m_sctId->wafer_begin();
   SCT_ID::const_id_iterator waferItrE = m_sctId->wafer_end();
@@ -127,21 +127,21 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
 	n_bad++;
     }
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): #bad strips(Total) = " << n_bad << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): #bad strips(Total) = " << n_bad << endmsg;
 
   // check if strip is noisy
   stripid1 = m_sctId->strip_id(0,3,41,-4,1,703);
   waferid1 = m_sctId->wafer_id(stripid1);
   moduleid1 = m_sctId->module_id(waferid1);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endmsg;
   //    SCT_ComponentIdentifier compid = SCT_ComponentIdentifier(stripid1,"STRIP");
   //    SCT_Conditions::SCT_ComponentIdentifier compid(stripid1,"STRIP");
   bool isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,1,703) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,1,703) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,1,703) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,1,703) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,3,41,-4,0,703);
@@ -150,91 +150,91 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,0,703) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,0,703) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,0,703) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,41,-4,0,703) is noisy " << endmsg;
   }
   
   // Added 04/06/09
   stripid1 = m_sctId->strip_id(0,2,39,-1,0,397);
   waferid1 = m_sctId->wafer_id(stripid1);
   moduleid1 = m_sctId->module_id(waferid1);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endmsg;
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,397) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,397) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,397) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,397) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,2,39,-1,0,396);
   waferid1 = m_sctId->wafer_id(stripid1);
   moduleid1 = m_sctId->module_id(waferid1);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endmsg;
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,396) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,396) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,396) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,396) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,2,39,-1,0,398);
   waferid1 = m_sctId->wafer_id(stripid1);
   moduleid1 = m_sctId->module_id(waferid1);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): stripid  = " << stripid1 << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): moduleid = " << moduleid1 << endmsg;
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,398) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,398) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,398) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,2,39,-1,0,398) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,567) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,567) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,567) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,567) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,566);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,566) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,566) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,566) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,0,566) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,1,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,1,567) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,1,567) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,1,567) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,3,13,-3,1,567) is noisy " << endmsg;
   }
 
   stripid1 = m_sctId->strip_id(0,0,7,2,0,700);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,0,700) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,0,700) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,0,700) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,0,700) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,0,7,2,1,700);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,1,700) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,1,700) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,1,700) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): strip(0,0,7,2,1,700) is noisy " << endmsg;
   }
 
   // check if chip is noisy
@@ -242,18 +242,18 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"CHIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_CHIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): chip(0,0,8,-4,0,100) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): chip(0,0,8,-4,0,100) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): chip(0,0,8,-4,0,100) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): chip(0,0,8,-4,0,100) is noisy " << endmsg;
   }
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"CHIP");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_CHIP);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): chip(0,3,13,-3,0,567) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): chip(0,3,13,-3,0,567) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): chip(0,3,13,-3,0,567) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): chip(0,3,13,-3,0,567) is noisy " << endmsg;
   }
   
   // check if wafer is noisy
@@ -261,9 +261,9 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"WAFER");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_SIDE);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): wafer(0,0,8,-4,0,100) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): wafer(0,0,8,-4,0,100) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): wafer(0,0,8,-4,0,100) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): wafer(0,0,8,-4,0,100) is noisy " << endmsg;
   }
   
   // check if module is noisy
@@ -271,18 +271,18 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"MODULE");
   isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_MODULE);
   if( isthisGood ){
-    msg(MSG::INFO) << "isGood(): module(0,0,8,-4,0,100) is not noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): module(0,0,8,-4,0,100) is not noisy " << endmsg;
   } else {
-    msg(MSG::INFO) << "isGood(): module(0,0,8,-4,0,100) is noisy " << endreq;
+    msg(MSG::INFO) << "isGood(): module(0,0,8,-4,0,100) is noisy " << endmsg;
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): execute finished successfully." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "(MonitorTest): execute finished successfully." << endmsg;
   return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_MonitorConditionsTestAlg::finalize()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT_MonitorConditionsTestAlg::finalize" <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT_MonitorConditionsTestAlg::finalize" <<endmsg;
 
   return StatusCode::SUCCESS;
 }

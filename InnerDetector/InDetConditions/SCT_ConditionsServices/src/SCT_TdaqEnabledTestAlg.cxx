@@ -32,17 +32,17 @@ SCT_TdaqEnabledTestAlg::SCT_TdaqEnabledTestAlg(
 
 SCT_TdaqEnabledTestAlg::~SCT_TdaqEnabledTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode 
 SCT_TdaqEnabledTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling initialize" << endreq;
+  msg(MSG::INFO) << "Calling initialize" << endmsg;
   sc = m_pTdaqEnabledSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the veto service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the veto service"<<endmsg;
   }
   return sc;
 }
@@ -53,29 +53,29 @@ SCT_TdaqEnabledTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling execute" << endreq;
-  msg(MSG::INFO) <<"Dummy call to module idHash 0: module is "<<endreq;
+  msg(MSG::INFO) << "Calling execute" << endmsg;
+  msg(MSG::INFO) <<"Dummy call to module idHash 0: module is "<<endmsg;
   bool result=m_pTdaqEnabledSvc->isGood(IdentifierHash(0));
-  msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  msg(MSG::INFO) <<"Dummy call to module Identifier 1: module is "<<endreq;
+  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
+  msg(MSG::INFO) <<"Dummy call to module Identifier 1: module is "<<endmsg;
   result=m_pTdaqEnabledSvc->isGood(Identifier(1));
-  msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  msg(MSG::INFO) << "Using Identifier Hash method: with number 2137 "<<endreq;
+  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
+  msg(MSG::INFO) << "Using Identifier Hash method: with number 2137 "<<endmsg;
   result=m_pTdaqEnabledSvc->isGood(IdentifierHash(2137));
-  msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  msg(MSG::INFO) <<"Dummy call to module idHash 3: module is "<<endreq;
+  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
+  msg(MSG::INFO) <<"Dummy call to module idHash 3: module is "<<endmsg;
   result=m_pTdaqEnabledSvc->isGood(IdentifierHash(3));
-   msg(MSG::INFO) << (result?"good":"bad") << endreq;
+   msg(MSG::INFO) << (result?"good":"bad") << endmsg;
    unsigned int printNbad(10),printNgood(10);
-   msg(MSG::INFO)<<"Printing the first "<<printNbad<<" bad modules, and the first "<<printNgood<<" good modules."<<endreq;
+   msg(MSG::INFO)<<"Printing the first "<<printNbad<<" bad modules, and the first "<<printNgood<<" good modules."<<endmsg;
    for (int i(0);i!=8176;++i){
      IdentifierHash idh(i);
      if ( printNbad and (not  m_pTdaqEnabledSvc->isGood(idh)) ){
-        msg(MSG::INFO) <<i<<" is bad."<<endreq;
+        msg(MSG::INFO) <<i<<" is bad."<<endmsg;
         --printNbad;
       }
       if ( printNgood and m_pTdaqEnabledSvc->isGood(idh) ){
-          msg(MSG::INFO) <<i<<" is good."<<endreq;
+          msg(MSG::INFO) <<i<<" is good."<<endmsg;
           --printNgood;
         }
    }
@@ -88,6 +88,6 @@ StatusCode
 SCT_TdaqEnabledTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
   MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Calling finalize" << endreq;
+  log << MSG::INFO << "Calling finalize" << endmsg;
   return sc;
 }

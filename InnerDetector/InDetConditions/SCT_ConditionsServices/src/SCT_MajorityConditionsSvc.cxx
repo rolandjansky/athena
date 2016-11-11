@@ -39,24 +39,24 @@ SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc( const std::string& name, I
 
 // Initialize
 StatusCode SCT_MajorityConditionsSvc::initialize(){
-  msg(MSG:: INFO)<< "Initializing SCT_MajorityConditionsSvc" << endreq;
+  msg(MSG:: INFO)<< "Initializing SCT_MajorityConditionsSvc" << endmsg;
 
   // Retrieve detector store
-  if (m_detStore.retrieve().isFailure()) return msg(MSG:: FATAL)<< "Detector service  not found !" << endreq, StatusCode::FAILURE;
+  if (m_detStore.retrieve().isFailure()) return msg(MSG:: FATAL)<< "Detector service  not found !" << endmsg, StatusCode::FAILURE;
 
   // Retrieve IOV service
-  if (m_IOVSvc.retrieve().isFailure()) return msg(MSG:: ERROR)<< "Failed to retrieve IOVSvc " << endreq, StatusCode::FAILURE;
+  if (m_IOVSvc.retrieve().isFailure()) return msg(MSG:: ERROR)<< "Failed to retrieve IOVSvc " << endmsg, StatusCode::FAILURE;
 
   // Register callbacks for folders 
   if (m_detStore->regFcn(&SCT_MajorityConditionsSvc::fillData,this, m_dataMajority, coolMajorityFolderName).isFailure())
-    return msg(MSG:: ERROR)<< "Failed to register callback" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
 
 // Finalize
 StatusCode SCT_MajorityConditionsSvc::finalize(){
-  msg(MSG:: INFO)<< "Finalizing SCT_MajorityConditionsSvc" << endreq;
+  msg(MSG:: INFO)<< "Finalizing SCT_MajorityConditionsSvc" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -97,7 +97,7 @@ bool SCT_MajorityConditionsSvc::isGood(int bec) {
   } else if (bec == 2) {
     result = m_majorityState[ECA]    && m_hvFraction[ECA] > m_majorityFraction;
   } else {
-    msg(MSG::WARNING) << "Unrecognised BEC " << bec << endreq;
+    msg(MSG::WARNING) << "Unrecognised BEC " << bec << endmsg;
   }
 
   return result;
@@ -111,9 +111,9 @@ StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/ , std::list<std::strin
 
   // Get Majority folder
   if (retrieveFolder(m_dataMajority, coolMajorityFolderName).isFailure()) {
-    return msg(MSG:: ERROR)<< "Could not fill majority data" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Could not fill majority data" << endmsg, StatusCode::FAILURE;
   } else {
-    msg(MSG:: INFO)<< "fillMajorityData: IOV callback resulted in a Chip CondAttrListCollection of size " << m_dataMajority->size() << endreq;
+    msg(MSG:: INFO)<< "fillMajorityData: IOV callback resulted in a Chip CondAttrListCollection of size " << m_dataMajority->size() << endmsg;
   }
 
   CondAttrListCollection::const_iterator majItr(m_dataMajority->begin());
@@ -132,19 +132,19 @@ StatusCode SCT_MajorityConditionsSvc::fillData(int& /*i*/ , std::list<std::strin
 
       // Majority state
       if (!payload[3].isNull()) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Majority state for " << channelNumber << " = " << payload[3].data<int>() << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Majority state for " << channelNumber << " = " << payload[3].data<int>() << endmsg;
 	m_majorityState[channelNumber] = (payload[3].data<int>() == HighAndLowVoltageOK);
       }
 
       // HV fraction in majority state (>50% by definition) IF majority state is HV and LV on
       if (m_majorityState[channelNumber] && !payload[1].isNull()) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Majority HV fraction for " << channelNumber << " = " << payload[1].data<float>() << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Majority HV fraction for " << channelNumber << " = " << payload[1].data<float>() << endmsg;
 	m_hvFraction[channelNumber] = payload[1].data<float>();
 	numFilled++;
       }
 
     } else {
-      msg(MSG::WARNING) << "Unexpected channel number " << channelNumber << endreq;
+      msg(MSG::WARNING) << "Unexpected channel number " << channelNumber << endmsg;
     }
   }
 
@@ -161,10 +161,10 @@ bool SCT_MajorityConditionsSvc::filled() const{
 
 // Get a DB folder
 StatusCode SCT_MajorityConditionsSvc::retrieveFolder(const DataHandle<CondAttrListCollection> &pDataVec, const std::string & folderName){
-  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endreq), StatusCode::FAILURE;
+  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endmsg), StatusCode::FAILURE;
   if (m_detStore->retrieve(pDataVec, folderName).isFailure()) 
-    return (msg(MSG:: FATAL) << "Could not retrieve AttrListCollection for " << folderName << endreq), StatusCode::FAILURE;
-  if (0 == pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endreq), StatusCode::FAILURE;
+    return (msg(MSG:: FATAL) << "Could not retrieve AttrListCollection for " << folderName << endmsg), StatusCode::FAILURE;
+  if (0 == pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endmsg), StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 

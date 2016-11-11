@@ -38,7 +38,7 @@ AthService( name, pSvcLocator ),
 m_detStore("DetectorStore",name),
 m_IOVDbSvc("IOVDbSvc", name),
 m_dataFilled(false),
-status(0),
+m_status(0),
 m_readAllDBFolders(true),
 m_returnHVTemp(true),
 m_dropFolder(true),
@@ -60,7 +60,7 @@ m_useHVUpLimit(1000000.0),
 m_useHVChanCut("LOOSE") { 
   //declare variables which will be filled by jobOptions
   declareProperty("DetectorStore", m_detStore);
-  declareProperty("AttrListCollFolders",par_atrcollist);
+  declareProperty("AttrListCollFolders",m_par_atrcollist);
   declareProperty("ReadAllDBFolders", m_readAllDBFolders);
   declareProperty("ReturnHVTemp", m_returnHVTemp);
   declareProperty("DropDCSFolders", m_dropFolder);
@@ -81,7 +81,7 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   static const StatusCode fail(StatusCode::FAILURE);
   if (AthService::initialize().isFailure()) return fail;
   if (m_detStore.retrieve().isFailure()) {
-    msg(MSG::ERROR) << " Cannot retrieve detector store " << endreq;
+    msg(MSG::ERROR) << " Cannot retrieve detector store " << endmsg;
     return fail;
   }
   if (m_readAllDBFolders && m_returnHVTemp){
@@ -89,55 +89,55 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
     names[0] = m_folderPrefix+std::string("/HV");
     names[1] = m_folderPrefix+std::string("/MODTEMP");
     names[2] = m_folderPrefix+std::string("/CHANSTAT");
-    par_atrcollist.setValue(names);
+    m_par_atrcollist.setValue(names);
   } else if (m_returnHVTemp) { 
     std::vector<std::string> names(2);
     names[0] = m_folderPrefix+std::string("/HV");
     names[1] = m_folderPrefix+std::string("/MODTEMP");
-    par_atrcollist.setValue(names);
+    m_par_atrcollist.setValue(names);
   } else if (!m_readAllDBFolders && !m_returnHVTemp) {
     std::vector<std::string> names(1);
     names[0] = m_folderPrefix+std::string("/CHANSTAT");
-    par_atrcollist.setValue(names);
+    m_par_atrcollist.setValue(names);
   } else {
-    msg(MSG::INFO) << "Please check jobOptions, SCT_DCSConditionsSvs does nothing as set up." << endreq;
+    msg(MSG::INFO) << "Please check jobOptions, SCT_DCSConditionsSvs does nothing as set up." << endmsg;
   }
-  msg(MSG::INFO) << "Test: How many folders in Coll: " << par_atrcollist.value().size()  << endreq;
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return  msg(MSG::ERROR) << "SCT helper failed to retrieve " << endreq, fail;
+  msg(MSG::INFO) << "Test: How many folders in Coll: " << m_par_atrcollist.value().size()  << endmsg;
+  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return  msg(MSG::ERROR) << "SCT helper failed to retrieve " << endmsg, fail;
   
   if (m_useHV){
     m_hvLowLimit = m_useHVLowLimit;
     m_hvUpLimit = m_useHVUpLimit;
     m_chanstatCut = m_useHVChanCut;
-    msg(MSG::INFO) << "Using HV and Chanstat"<< m_chanstatCut << " for marking modules bad. >=Hvlow: "<<  m_hvLowLimit<< " and <=Hv Up: " <<  m_hvUpLimit << par_atrcollist.value().size()  << ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!"<< endreq;
+    msg(MSG::INFO) << "Using HV and Chanstat"<< m_chanstatCut << " for marking modules bad. >=Hvlow: "<<  m_hvLowLimit<< " and <=Hv Up: " <<  m_hvUpLimit << m_par_atrcollist.value().size()  << ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!"<< endmsg;
   }
 
   //Register callbacks for folders in CondAttrListCollection using vector of keys (not hard-coded)
-  std::vector<std::string>::const_iterator itr(par_atrcollist.value().begin());
-  std::vector<std::string>::const_iterator end(par_atrcollist.value().end());
+  std::vector<std::string>::const_iterator itr(m_par_atrcollist.value().begin());
+  std::vector<std::string>::const_iterator end(m_par_atrcollist.value().end());
   for (;itr!=end;++itr) {
-    std::string m_key = *itr ;
-    msg(MSG::INFO) << m_key << endreq;
-    if (m_key==m_folderPrefix+std::string("/HV")){
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,DCSData_HV,m_key)) {
-	msg(MSG::INFO) << "Registered callback for key: " << *itr << endreq;
+    std::string key = *itr ;
+    msg(MSG::INFO) << key << endmsg;
+    if (key==m_folderPrefix+std::string("/HV")){
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,m_DCSData_HV,key)) {
+	msg(MSG::INFO) << "Registered callback for key: " << *itr << endmsg;
       } else {
-	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endreq;
+	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endmsg;
       }
-    } else if (m_key==m_folderPrefix+std::string("/MODTEMP")){
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,DCSData_MT,m_key)) {
-	msg(MSG::INFO) << "Registered callback for key: " << *itr << endreq;
+    } else if (key==m_folderPrefix+std::string("/MODTEMP")){
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,m_DCSData_MT,key)) {
+	msg(MSG::INFO) << "Registered callback for key: " << *itr << endmsg;
       } else {
-	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endreq;
+	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endmsg;
       }
-    } else if (m_key==m_folderPrefix+std::string("/CHANSTAT")){
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,DCSData_CS,m_key)) {
-	msg(MSG::INFO) << "Registered callback for key: " << *itr << endreq;
+    } else if (key==m_folderPrefix+std::string("/CHANSTAT")){
+      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData,this,m_DCSData_CS,key)) {
+	msg(MSG::INFO) << "Registered callback for key: " << *itr << endmsg;
       } else {
-	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endreq;
+	msg(MSG::ERROR) << "Cannot register callback function for key " <<  *itr  << endmsg;
       }
     } else { 
-	  msg(MSG::INFO) << "Cannot registered callback for key: " << *itr <<" Missing data handle."<<endreq;
+	  msg(MSG::INFO) << "Cannot registered callback for key: " << *itr <<" Missing data handle."<<endmsg;
     }
   }
   m_pBadModules = new SCT_DCSConditionsData;
@@ -297,7 +297,7 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
  
   m_dataFilled=false;
   if (not m_pBadModules) {
-    msg(MSG::ERROR) << "Bad modules data object has NULL pointer" << endreq;
+    msg(MSG::ERROR) << "Bad modules data object has NULL pointer" << endmsg;
     return StatusCode::FAILURE;
   }
 

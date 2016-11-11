@@ -187,13 +187,13 @@ SCT_TdaqEnabledSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/
     //range check on the rod channel number has been removed, since it refers both to existing channel names
     //which can be rods in slots 1-128 but also historical names which have since been removed
     if (SCT_OnlineId::rodIdInRange(rodNumber)){
-      if (!enabled.empty() and !m_goodRods.insert(rodNumber).second) msg(MSG::WARNING)<<"Set insertion failed for rod "<<rodNumber<<endreq;
+      if (!enabled.empty() and !m_goodRods.insert(rodNumber).second) msg(MSG::WARNING)<<"Set insertion failed for rod "<<rodNumber<<endmsg;
     } else {
-      msg(MSG::WARNING)<<"Names in "<<m_coolFolderName<<" should be of the form ROL-SCT-BA-00-210000 this channel, number "<<channelNumber<<", is: "<<chanName<<endreq;
+      msg(MSG::WARNING)<<"Names in "<<m_coolFolderName<<" should be of the form ROL-SCT-BA-00-210000 this channel, number "<<channelNumber<<", is: "<<chanName<<endmsg;
     }
   }
   if (m_goodRods.size()>NRODS){
-    msg(MSG::ERROR)<<"The number of rods declared as good appears to be greater than the permissible number of rods ("<<NRODS<<")"<<endreq;
+    msg(MSG::ERROR)<<"The number of rods declared as good appears to be greater than the permissible number of rods ("<<NRODS<<")"<<endmsg;
     m_filled=false;
     return StatusCode::FAILURE;
   }

@@ -125,8 +125,8 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   std::vector<float> m_ignoreDefectParameters;
   
   // DataHandles for callback
-  const DataHandle<CondAttrListCollection> CalibDefects_NP;
-  const DataHandle<CondAttrListCollection> CalibDefects_NO;
+  const DataHandle<CondAttrListCollection> m_CalibDefects_NP;
+  const DataHandle<CondAttrListCollection> m_CalibDefects_NO;
   // Key for DataHandle
   std::string m_key;
   

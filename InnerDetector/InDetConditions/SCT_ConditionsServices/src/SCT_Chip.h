@@ -82,7 +82,7 @@ private:
   bool                      m_end;         //!< Is chip an end
   bool                      m_master;      //!< Is chip a master
   std::bitset<nBitsMask>    m_mask;        //!< Chip strip mask 
-  unsigned int              m_numMasked;   //!< Number of masked chips
+  //unsigned int              m_numMasked;   //!< Number of masked chips
 };
 
 /** Output stream for printing chip information*/

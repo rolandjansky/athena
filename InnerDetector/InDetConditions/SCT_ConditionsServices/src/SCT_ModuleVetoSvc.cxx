@@ -78,20 +78,20 @@ SCT_ModuleVetoSvc::initialize(){
     ATH_MSG_WARNING( "0th Disk not defined (-N to N) - check your setup!" );
   }   
 
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)<<"SCT helper failed to retrieve"<<endreq, StatusCode::FAILURE;
-  else  msg(MSG::INFO)<<"Successfully retrieved SCT_ID helper"<<endreq;  
+  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)<<"SCT helper failed to retrieve"<<endmsg, StatusCode::FAILURE;
+  else  msg(MSG::INFO)<<"Successfully retrieved SCT_ID helper"<<endmsg;  
 
   m_useDatabase=(std::find(m_badElements.value().begin(),m_badElements.value().end(),databaseSignature) != m_badElements.value().end());
   if (not m_useDatabase){
-    if (fillData().isFailure()) return msg(MSG::ERROR)<<"Failed to fill data"<<endreq, StatusCode::FAILURE;
+    if (fillData().isFailure()) return msg(MSG::ERROR)<<"Failed to fill data"<<endmsg, StatusCode::FAILURE;
   } else {
-     if (m_detStore->regFcn(&SCT_ModuleVetoSvc::fillData,this,m_dbList,coolFolderName).isFailure()) return msg(MSG::ERROR)<<"Failed to register callback"<<endreq, StatusCode::FAILURE;
+     if (m_detStore->regFcn(&SCT_ModuleVetoSvc::fillData,this,m_dbList,coolFolderName).isFailure()) return msg(MSG::ERROR)<<"Failed to register callback"<<endmsg, StatusCode::FAILURE;
   }
   //
   const std::string databaseUseString(m_useDatabase?"":"not ");
   msg(MSG::INFO)<<"Initialized veto service with data, "
   <<(m_badElements.value().size() - int(m_useDatabase))
-  <<" elements declared bad. Database will "<<databaseUseString<<"be used."<<endreq;
+  <<" elements declared bad. Database will "<<databaseUseString<<"be used."<<endmsg;
  
   return sc;
 }
@@ -145,7 +145,7 @@ StatusCode
 SCT_ModuleVetoSvc::fillData(){
   StatusCode sc(StatusCode::SUCCESS);
   if ((m_badElements.value().size() - int(m_useDatabase)) == 0 && !m_maskLayers){
-    msg(MSG::INFO)<<"No bad modules in job options."<<endreq;
+    msg(MSG::INFO)<<"No bad modules in job options."<<endmsg;
     return sc;
   } 
   bool success(true);
@@ -158,8 +158,8 @@ SCT_ModuleVetoSvc::fillData(){
 
   if(m_maskLayers){
     
-    msg(MSG::INFO)<<"Masking "<<m_layersToMask.size()<<" SCT Layers"<<endreq;
-    msg(MSG::INFO)<<"Masking "<<m_disksToMask.size()<<" SCT Disks"<<endreq;
+    msg(MSG::INFO)<<"Masking "<<m_layersToMask.size()<<" SCT Layers"<<endmsg;
+    msg(MSG::INFO)<<"Masking "<<m_disksToMask.size()<<" SCT Disks"<<endmsg;
     for(unsigned int i = 0; i < m_pHelper->wafer_hash_max(); i++){
       Identifier mID( m_pHelper->wafer_id(i) );
       if (
@@ -167,14 +167,14 @@ SCT_ModuleVetoSvc::fillData(){
 	  (m_pHelper->barrel_ec(mID) == 2  && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), (m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end())) ||
 	  (m_pHelper->barrel_ec(mID) == -2 && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), -1*(m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end()))
 	  ){
-	msg(MSG::DEBUG)<<"Masking ID Hash"<<i<<endreq;
+	msg(MSG::DEBUG)<<"Masking ID Hash"<<i<<endmsg;
 	m_badIds.insert(mID);
       }
     }
   }
   
   m_filled=true;
-  msg(MSG::DEBUG)<<"Successfully filled bad SCT identifiers list"<<endreq;
+  msg(MSG::DEBUG)<<"Successfully filled bad SCT identifiers list"<<endmsg;
   return success?sc:(StatusCode::FAILURE);
 }
 
@@ -187,7 +187,7 @@ SCT_ModuleVetoSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/)
   std::string badModuleString=m_dbList[0]["ModuleList"].data<std::string>();
   std::vector<int> v=string2Vector<int>(badModuleString);
   int numberInDb=v.size();
-  msg(MSG::INFO)<<numberInDb<<" elements were declared bad in the database."<<endreq;
+  msg(MSG::INFO)<<numberInDb<<" elements were declared bad in the database."<<endmsg;
   for (std::vector<int>::const_iterator i(v.begin());i!=v.end();++i){
     m_badIds.insert(Identifier(*i));
   }

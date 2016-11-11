@@ -25,7 +25,7 @@
 
 SCT_ReadoutTestAlg::SCT_ReadoutTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
-  m_readout("SCT_ReadoutTool"),
+  m_readout("SCT_ReadoutTool", this),
   m_moduleId(168497152),
   m_link0ok(true),
   m_link1ok(true)
@@ -74,13 +74,13 @@ StatusCode SCT_ReadoutTestAlg::execute(){
   std::vector<SCT_Chip*>::const_iterator end(m_chips.end());
 
   ATH_MSG_INFO( "Chips before readout ..." );
-  for (;itr != end; ++itr)  msg(MSG::INFO) << *(*itr) << endreq;
+  for (;itr != end; ++itr)  msg(MSG::INFO) << *(*itr) << endmsg;
 
   // Determin readout for this module
   ATH_CHECK(m_readout->determineReadout(Identifier(m_moduleId), m_chips, m_link0ok, m_link1ok));
   
   ATH_MSG_INFO( "Chips after readout ..." );
-  for (itr = m_chips.begin();itr != end; ++itr) msg(MSG::INFO) << *(*itr) << endreq;
+  for (itr = m_chips.begin();itr != end; ++itr) msg(MSG::INFO) << *(*itr) << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -88,7 +88,7 @@ StatusCode SCT_ReadoutTestAlg::execute(){
 
 // Finalize
 StatusCode SCT_ReadoutTestAlg::finalize(){
-  msg(MSG::INFO) << "Calling finalize" << endreq;
+  msg(MSG::INFO) << "Calling finalize" << endmsg;
 
   // Free up the memory associated to the chips
   std::vector<SCT_Chip*>::const_iterator itr(m_chips.begin());
@@ -112,7 +112,7 @@ int SCT_ReadoutTestAlg::bin2dec(const char *bin)
   for (k = 0; k <= len; k++) {
       n = (bin[k] - '0'); // char to numeric value
       if ((n > 1) || (n < 0)) {
-	msg(MSG::ERROR) << "ERROR! BINARY has only 1 and 0!" << endreq;
+	msg(MSG::ERROR) << "ERROR! BINARY has only 1 and 0!" << endmsg;
 	return 0;
       }
       

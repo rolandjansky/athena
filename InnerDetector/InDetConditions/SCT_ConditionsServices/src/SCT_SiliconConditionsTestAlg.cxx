@@ -29,15 +29,15 @@ SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg( const std::string& n
 
 SCT_SiliconConditionsTestAlg::~SCT_SiliconConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode SCT_SiliconConditionsTestAlg::initialize()
 {  
-  msg(MSG::INFO) << "Calling initialize" << endreq;
+  msg(MSG::INFO) << "Calling initialize" << endmsg;
   if (m_siliconSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) <<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR) <<"Could not retrieve the summary service"<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -47,10 +47,10 @@ StatusCode SCT_SiliconConditionsTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   
-  msg(MSG::INFO) << "Calling execute" << endreq;
-  msg(MSG::INFO) << "Temperature  = " << m_siliconSvc->temperature(IdentifierHash(804)) << endreq;
-  msg(MSG::INFO) << "Depletion V  = " << m_siliconSvc->depletionVoltage(IdentifierHash(804)) << endreq;
-  msg(MSG::INFO) << "Bias Voltage = " << m_siliconSvc->biasVoltage(IdentifierHash(804)) << endreq;  // was 216808130
+  msg(MSG::INFO) << "Calling execute" << endmsg;
+  msg(MSG::INFO) << "Temperature  = " << m_siliconSvc->temperature(IdentifierHash(804)) << endmsg;
+  msg(MSG::INFO) << "Depletion V  = " << m_siliconSvc->depletionVoltage(IdentifierHash(804)) << endmsg;
+  msg(MSG::INFO) << "Bias Voltage = " << m_siliconSvc->biasVoltage(IdentifierHash(804)) << endmsg;  // was 216808130
   return StatusCode::SUCCESS;
 }
 
@@ -58,6 +58,6 @@ StatusCode SCT_SiliconConditionsTestAlg::execute(){
 //Finalize
 StatusCode
 SCT_SiliconConditionsTestAlg::finalize(){
-  msg(MSG::INFO) << "Calling finalize" << endreq;
+  msg(MSG::INFO) << "Calling finalize" << endmsg;
   return StatusCode::SUCCESS;
 }

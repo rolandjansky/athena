@@ -77,7 +77,7 @@ StatusCode SCT_ReadoutTool::finalize() {
 void SCT_ReadoutTool::setModuleType(Identifier moduleId) {
   // Set module type as per the ModuleType enum
   int bec = m_sctId->barrel_ec(moduleId);
-  if (fabs(bec) == 2) {
+  if (std::abs(bec) == 2) {
     m_type = SCT_Parameters::ENDCAP;
   } else if (modified0(moduleId)) {
     m_type = SCT_Parameters::MODIFIED_0;
@@ -215,11 +215,11 @@ void SCT_ReadoutTool::checkLink(int link) {
   bool linkSane = followReadoutUpstream(link, startChip);
 
   if (!linkSane) { 
-    std::vector<int>& m_chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
+    std::vector<int>& chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
 
     // Remove chips in that link from the readout
-    std::vector<int>::const_iterator linkItr(m_chipsOnThisLink.begin());
-    std::vector<int>::const_iterator linkEnd(m_chipsOnThisLink.end());
+    std::vector<int>::const_iterator linkItr(chipsOnThisLink.begin());
+    std::vector<int>::const_iterator linkEnd(chipsOnThisLink.end());
     
     for (; linkItr != linkEnd; ++linkItr) setChipOut(*m_chips.at(*linkItr));
 
@@ -241,7 +241,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (inChipId == None) {
 #ifndef NDEBUG
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is not an end but port " << chip.inPort() 
-				    << " is not mapped to anything" << endreq;
+				    << " is not mapped to anything" << endmsg;
 #endif
     return false;
   }
@@ -251,7 +251,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (m_chips.at(inChipId)->outPort() != chip.inPort()) {
     
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip" << chip.id() << " is not an end and is listening on Port " 
-				    << chip.inPort() << " but nothing is talking to it" << endreq;
+				    << chip.inPort() << " but nothing is talking to it" << endmsg;
     return false;
   }
   return true;
@@ -270,7 +270,7 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   
   for (; chipItr != chipEnd; ++chipItr) {
     if (outputChip(*(*chipItr)) == chip.id()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is configured as end but something is trying to talk to it" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is configured as end but something is trying to talk to it" << endmsg;
       return true;
     }
   }
@@ -364,13 +364,13 @@ bool SCT_ReadoutTool::isLinkStandard(int link){
   // First, the link must be active
   if (!m_linkActive[link]) return false;
 
-  std::vector<int>& m_chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
+  std::vector<int>& chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
 
   // Then it must have six chips being readout ...
-  if (m_chipsOnThisLink.size() != 6) return false;
+  if (chipsOnThisLink.size() != 6) return false;
 
-  std::vector<int>::const_iterator linkItr(m_chipsOnThisLink.begin());
-  std::vector<int>::const_iterator linkEnd(m_chipsOnThisLink.end());
+  std::vector<int>::const_iterator linkItr(chipsOnThisLink.begin());
+  std::vector<int>::const_iterator linkEnd(chipsOnThisLink.end());
   
   // ... in the correct order
   for (int ichip(link*6); linkItr != linkEnd; ++linkItr, ++ichip) {
@@ -411,5 +411,5 @@ void SCT_ReadoutTool::printStatus(const Identifier& moduleId) {
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endreq; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endmsg; 
 }
