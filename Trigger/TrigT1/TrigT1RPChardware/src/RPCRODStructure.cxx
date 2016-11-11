@@ -23,6 +23,10 @@ RPCRODStructure::RPCRODStructure(ubit16 /*inputData*/) {
 // Constructor used by the simulation program
 //
 //decodeFragment;
+m_sourceIDreserved=0xffff;
+m_moduleType=      0xffff;
+m_subDetectorID=   0xffff;
+m_RODID=           0xffff;
 }//end-of-RPCRODStructure::RPCRODStructure()
 //----------------------------------------------------------------------------//
 RPCRODStructure::~RPCRODStructure() {

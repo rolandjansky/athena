@@ -53,7 +53,7 @@ while(p) {
  q->next = 0;
  if(!cnter) {
   m_Body = q;
-  if(cnter==(nGates*nLinks)) m_BodyCounter = q;
+//  if(cnter==(nGates*nLinks)) m_BodyCounter = q;
  } 
   else r->next=q;
  cnter++;
