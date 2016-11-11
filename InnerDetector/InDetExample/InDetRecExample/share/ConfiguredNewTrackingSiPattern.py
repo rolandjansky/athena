@@ -417,6 +417,7 @@ class  ConfiguredNewTrackingSiPattern:
 
            use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
            fitter_list=[( InDetTrackFitter if not use_low_pt_fitter else InDetTrackFitterLowPt )]
+
            if InDetFlags.doRefitInvalidCov() :
               from AthenaCommon import CfgGetter
               fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
@@ -430,7 +431,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                  tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                  pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                 RefitPrds          = not InDetFlags.refitROT())
+                                                 RefitPrds          = not InDetFlags.refitROT(),
+                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
          else:
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),

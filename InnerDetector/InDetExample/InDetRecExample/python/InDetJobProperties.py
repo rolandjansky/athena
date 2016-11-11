@@ -1034,7 +1034,13 @@ class doTIDE_Ambi(InDetFlagsJobProperty):
   StoredValue  = True
 
 class doRefitInvalidCov(InDetFlagsJobProperty):
-  """ Try Kalman fitter if the track fit in the ambiguity processor produces invalid covariance matrices."""
+  """ Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doRejectInvalidCov(InDetFlagsJobProperty):
+  """ Reject all tracks which have a non positive definite covariance matrix after the refit."""
   statusOn     = True
   allowedTypes = ['bool']
   StoredValue  = False
@@ -1152,7 +1158,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.InDet25nsec            , True)
 
     if self.doHIP300 :
-       self.checkThenSet(self.doRefitInvalidCov      ,True)
+       self.checkThenSet(self.doRejectInvalidCov      ,True)
 
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
@@ -2671,6 +2677,7 @@ _list_InDetJobProperties = [Enabled,
                             doInnerDetectorCommissioning,
                             doTIDE_Ambi,
                             doRefitInvalidCov,
+                            doRejectInvalidCov,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,
