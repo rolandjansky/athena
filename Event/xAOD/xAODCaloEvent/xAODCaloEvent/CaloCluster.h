@@ -4,9 +4,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster.h 628097 2014-11-13 09:24:54Z krasznaa $
+// $Id: CaloCluster.h 766395 2016-08-04 11:31:05Z wlampl $
 #ifndef XAODCALOEVENT_CALOCLUSTER_H
 #define XAODCALOEVENT_CALOCLUSTER_H
+
+#include <memory>
 
 // Local include(s):
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
@@ -15,6 +17,12 @@
 namespace xAOD {
    /// Define the latest version of the calorimeter cluster class
    typedef CaloCluster_v1 CaloCluster;
+
+  //Overloaded function to allow shallow-copying CaloClusters, perserving the sampling pattern
+  //See also xAODCore/ShallowCopy.h
+  std::unique_ptr<CaloCluster> prepareElementForShallowCopy(const CaloCluster* orgCluster);
+
+
 }
 
 // Set up a CLID for the object:

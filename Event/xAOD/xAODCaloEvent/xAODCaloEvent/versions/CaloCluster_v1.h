@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 749805 2016-05-26 08:03:45Z wlampl $
+// $Id: CaloCluster_v1.h 783594 2016-11-11 05:03:25Z ssnyder $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -21,10 +21,11 @@ extern "C" {
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
+#include "xAODCaloEvent/CaloClusterContainerFwd.h"
+#include "AthLinks/ElementLink.h"
 
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
-#include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
 #endif // not SIMULATIONBASE
@@ -39,13 +40,15 @@ typedef unsigned CaloRecoStatus;
 class CaloClusterChangeSignalState;
 
 namespace xAOD {
+   class CaloCluster_v1;
+   typedef DataVector<CaloCluster_v1> CaloClusterContainer_v1;
 
    /// Description of a calorimeter cluster
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 749805 $
-   /// $Date: 2016-05-26 10:03:45 +0200 (Thu, 26 May 2016) $
+   /// $Revision: 783594 $
+   /// $Date: 2016-11-11 06:03:25 +0100 (Fri, 11 Nov 2016) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -522,10 +525,11 @@ namespace xAOD {
      /// Get a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
      const CaloCluster_v1* getSisterCluster() const;
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
-     /// Set a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
-     bool setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, IProxyDictWithPool* sg= nullptr);
-#endif
+     /// Get a link to a 'sister' cluster (eg the non-calibrated counterpart)
+     const ElementLink<xAOD::CaloClusterContainer_v1>& getSisterClusterLink() const;
+
+     /// Set a link to a 'sister' cluster (eg the non-calibrated counterpart)
+     bool setSisterClusterLink(const ElementLink<CaloClusterContainer_v1>& sister);
 
      //For debugging only...
      //std::vector<std::pair<std::string,float> > getAllMoments();
@@ -555,10 +559,10 @@ namespace xAOD {
 
      unsigned sampVarIdx(const CaloSample) const;
 
-     float getSamplVarFromAcc(Accessor<std::vector<float > >& acc, 
+     float getSamplVarFromAcc(const Accessor<std::vector<float > >& acc, 
 			      const CaloSample sampling, const float errorvalue=-999) const; //FIXME find a better errorcode
 
-     bool setSamplVarFromAcc(Accessor<std::vector<float> >& acc, 
+     bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc, 
 			     const CaloSample sampling, const float value);
    public:
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
@@ -588,7 +592,7 @@ namespace xAOD {
       * @return true on success
       */  
      bool setLink(CaloClusterCellLinkContainer* CCCL,
-                  IProxyDictWithPool* sg = nullptr);
+                  IProxyDict* sg = nullptr);
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
@@ -734,7 +738,7 @@ namespace xAOD {
 
   inline double CaloCluster_v1::getMomentValue( CaloCluster_v1::MomentType type) const {
     double value=-999;
-    this->retrieveMoment(type,value);
+    (void)this->retrieveMoment(type,value);
     return value;
   }
 
