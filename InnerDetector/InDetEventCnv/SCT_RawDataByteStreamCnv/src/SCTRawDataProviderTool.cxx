@@ -19,7 +19,7 @@
 SCTRawDataProviderTool::SCTRawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_decoder   ("SCT_RodDecoder"), 
+     m_decoder   ("SCT_RodDecoder", this), 
      m_bsErrSvc  ("SCT_ByteStreamErrorsSvc",name),
      m_robIdSet()
 {
@@ -42,23 +42,23 @@ StatusCode SCTRawDataProviderTool::initialize()
 
   StatusCode sc = AlgTool::initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to init baseclass" << endreq;
+    msg(MSG::FATAL) << "Failed to init baseclass" << endmsg;
     return StatusCode::FAILURE;
   }
    
   /** Retrieve decoder */
   if (m_decoder.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endmsg;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::DEBUG) << "Retrieved tool " << m_decoder << endreq;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_decoder << endmsg;
 
   /** Get ByteStreamErrorsSvc  */
   if (m_bsErrSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_bsErrSvc << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_bsErrSvc << endmsg;
     return StatusCode::FAILURE;
   } else
-    msg(MSG::DEBUG) << "Retrieved service " << m_bsErrSvc << endreq;
+    msg(MSG::DEBUG) << "Retrieved service " << m_bsErrSvc << endmsg;
 
   IIncidentSvc* incsvc;
   sc = service("IncidentSvc", incsvc);
@@ -91,7 +91,7 @@ void SCTRawDataProviderTool::handle(const Incident& inc) {
 
 StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,SCT_RDO_Container* rdoIdc ){
   if(vecRobs.empty()) return StatusCode::SUCCESS;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCTRawDataProviderTool::convert()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCTRawDataProviderTool::convert()" << endmsg;
   static int DecodeErrCount = 0;
 
   /**  are we working on a new event ? */
@@ -108,15 +108,15 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     if (!m_robIdSet.insert(robid).second) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " ROB Fragment with ID  "
 					      << std::hex<<robid<<std::dec
-					      << " already decoded, skip" << endreq; 
+					      << " already decoded, skip" << endmsg; 
     } else {
       sc = m_decoder->fillCollection( &**rob_it, rdoIdc);
       if ( sc==StatusCode::FAILURE ) {
 	if ( DecodeErrCount < 100 ) {
-	  msg(MSG::ERROR) << "Problem with SCT ByteStream Decoding!" << endreq;
+	  msg(MSG::ERROR) << "Problem with SCT ByteStream Decoding!" << endmsg;
 	  DecodeErrCount++;
 	} else if ( 100 == DecodeErrCount ) {
-	  msg(MSG::ERROR) << "Too many Problem with SCT Decoding messages, turning message off.  "<< endreq;
+	  msg(MSG::ERROR) << "Too many Problem with SCT Decoding messages, turning message off.  "<< endmsg;
 	  DecodeErrCount++;
 	}
       }
@@ -124,7 +124,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
   }  
 
   if (sc==StatusCode::FAILURE) {
-    msg(MSG::ERROR) << "There was a problem with SCT ByteStream conversion" << endreq;   
+    msg(MSG::ERROR) << "There was a problem with SCT ByteStream conversion" << endmsg;   
     return sc;
   }
   int nLVL1ID = m_bsErrSvc->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size();
@@ -152,7 +152,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     }
 
     if ((not setOK_xAOD) and (not setOK_old)) {
-      msg(MSG::ERROR)<<"Failed to retrieve EventInfo containers or to set error states"<<endreq;
+      msg(MSG::ERROR)<<"Failed to retrieve EventInfo containers or to set error states"<<endmsg;
       return StatusCode::RECOVERABLE;
     }
 
