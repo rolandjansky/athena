@@ -1,5 +1,5 @@
 /*********************************
- * DisambiguationInvariantMass2.cpp
+ * DisambiguationInvmIncl2.cpp
  * Created by Davide Gerbaudo on 2016-10-10.
  * Copyright (c) 2016 Davide Gerbaudo. All rights reserved.
  *
@@ -12,7 +12,7 @@
 
 #include <cmath>
 
-#include "L1TopoAlgorithms/DisambiguationInvariantMass2.h"
+#include "L1TopoAlgorithms/DisambiguationInvmIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 // Bitwise implementation utils
@@ -20,12 +20,12 @@
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
 
-REGISTER_ALG_TCS(DisambiguationInvariantMass2)
+REGISTER_ALG_TCS(DisambiguationInvmIncl2)
 
 using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DisambiguationInvariantMass2:     "
+#define LOG cout << "TCS::DisambiguationInvmIncl2:     "
 
 namespace {
 unsigned int
@@ -70,7 +70,7 @@ calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
 }
 } // namespace
 
-TCS::DisambiguationInvariantMass2::DisambiguationInvariantMass2(const std::string & name) : DecisionAlg(name)
+TCS::DisambiguationInvmIncl2::DisambiguationInvmIncl2(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth1", 9);
    defineParameter("InputWidth2", 9);
@@ -89,10 +89,10 @@ TCS::DisambiguationInvariantMass2::DisambiguationInvariantMass2(const std::strin
    setNumberOutputBits(2);
 }
 
-TCS::DisambiguationInvariantMass2::~DisambiguationInvariantMass2(){}
+TCS::DisambiguationInvmIncl2::~DisambiguationInvmIncl2(){}
 
 TCS::StatusCode
-TCS::DisambiguationInvariantMass2::initialize() {
+TCS::DisambiguationInvmIncl2::initialize() {
     p_NumberLeading1 = parameter("InputWidth1").value();
     p_NumberLeading2 = parameter("InputWidth2").value();
     if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
@@ -113,9 +113,9 @@ TCS::DisambiguationInvariantMass2::initialize() {
 }
 
 TCS::StatusCode
-TCS::DisambiguationInvariantMass2::processBitCorrect(const std::vector<TCS::TOBArray const *> & input,
-                                                     const std::vector<TCS::TOBArray *> & output,
-                                                     Decision & decision)
+TCS::DisambiguationInvmIncl2::processBitCorrect(const std::vector<TCS::TOBArray const *> & input,
+                                                const std::vector<TCS::TOBArray *> & output,
+                                                Decision & decision)
 {
     if(input.size() == 2) {
         for(TOBArray::const_iterator tob1 = input[0]->begin();
@@ -144,15 +144,15 @@ TCS::DisambiguationInvariantMass2::processBitCorrect(const std::vector<TCS::TOBA
             } // for(tob2)
         } // for(tob1)
     } else {
-        TCS_EXCEPTION("DisambiguationInvariantMass2 alg must have  2 inputs, but got " << input.size());
+        TCS_EXCEPTION("DisambiguationInvmIncl2 alg must have  2 inputs, but got " << input.size());
     }
     return TCS::StatusCode::SUCCESS;
 }
 
 TCS::StatusCode
-TCS::DisambiguationInvariantMass2::process(const std::vector<TCS::TOBArray const *> & input,
-                                           const std::vector<TCS::TOBArray *> & output,
-                                           Decision & decision)
+TCS::DisambiguationInvmIncl2::process(const std::vector<TCS::TOBArray const *> & input,
+                                      const std::vector<TCS::TOBArray *> & output,
+                                      Decision & decision)
 {
    if( input.size() == 2) {
        for( TOBArray::const_iterator tob1 = input[0]->begin();
@@ -179,7 +179,7 @@ TCS::DisambiguationInvariantMass2::process(const std::vector<TCS::TOBArray const
            } // for(tob2)
        } // for(tob1)
    } else {
-       TCS_EXCEPTION("DisambiguationInvariantMass2 alg must have  2 inputs, but got " << input.size());
+       TCS_EXCEPTION("DisambiguationInvmIncl2 alg must have  2 inputs, but got " << input.size());
    }
    return TCS::StatusCode::SUCCESS;
 }
