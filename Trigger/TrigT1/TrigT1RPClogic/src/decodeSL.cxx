@@ -14,7 +14,7 @@ unsigned short int moreThan2(unsigned long int slword) {
 //
  unsigned short int field=0x1;
  unsigned short int posit=0;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short int ROI1(unsigned long int slword) {
@@ -23,7 +23,7 @@ unsigned short int ROI1(unsigned long int slword) {
 //
  unsigned short int field=0x1f;
  unsigned short int posit=1;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short int OVL1(unsigned long int slword) {
@@ -32,7 +32,7 @@ unsigned short int OVL1(unsigned long int slword) {
 //
  unsigned short int field=0x3;
  unsigned short int posit=8;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short int ROI2(unsigned long int slword) {
@@ -41,7 +41,7 @@ unsigned short int ROI2(unsigned long int slword) {
 //
  unsigned short int field=0x1f;
  unsigned short int posit=10;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short int OVL2(unsigned long int slword) {
@@ -50,7 +50,7 @@ unsigned short int OVL2(unsigned long int slword) {
 //
  unsigned short int field=0x3;
  unsigned short int posit=17;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short int PT1(unsigned long int slword) {
@@ -59,7 +59,7 @@ unsigned short int PT1(unsigned long int slword) {
 //
  unsigned short int field=0x7;
  unsigned short int posit=19;
- unsigned short int ptcode=((slword&(field<<posit))>>posit);
+ unsigned short int ptcode=((slword&((unsigned short int) field<<posit))>>posit);
  if(!ptcode) {
   return 0;
  } else {
@@ -74,7 +74,7 @@ unsigned short int PT2(unsigned long int slword) {
 //
  unsigned short int field=0x7;
  unsigned short int posit=22;
- unsigned short int ptcode=((slword&(field<<posit))>>posit);
+ unsigned short int ptcode=((slword&((unsigned short int) field<<posit))>>posit);
  if(!ptcode) {
   return 0;
  } else {
@@ -90,7 +90,7 @@ unsigned short moreThan1_1(unsigned long int slword) {
 //
  unsigned short int field=0x1;
  unsigned short int posit=25;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short moreThan1_2(unsigned long int slword) {
@@ -100,7 +100,7 @@ unsigned short moreThan1_2(unsigned long int slword) {
 //
  unsigned short int field=0x1;
  unsigned short int posit=26;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 //****************************************************************************//
 unsigned short BunchXID(unsigned long int slword) {
@@ -109,7 +109,7 @@ unsigned short BunchXID(unsigned long int slword) {
 //
  unsigned short int field=0x7;
  unsigned short int posit=27;
- return ((slword&(field<<posit))>>posit);
+ return ((slword&((unsigned short int) field<<posit))>>posit);
 }
 
 
