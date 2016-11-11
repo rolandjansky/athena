@@ -218,24 +218,14 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     kwargs.setdefault("UseCaloTG", True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     if muonRecFlags.enableErrorTuning():
-        # enable error scaling for Muid/MuGirl
-        kwargs.setdefault("MuonScaledErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidScaledErrorOptimisationTool",
-                                                                         "MuonErrorOptimisationTool",
-                                                                         PrepareForFit              = False,
-                                                                         RecreateStartingParameters = False,
-                                                                         RefitTool = CfgGetter.getPublicToolClone("TMEF_MuidScaledRefitTool",
-                                                                                                        "MuonRefitTool",
-                                                                                                        AlignmentErrors = False,
-                                                                                                        Fitter = CfgGetter.getPublicTool("iPatFitter"))))
-        # use alignment effects on track in the fitter
-        kwargs.setdefault("MuonAlignmentErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidAlignmentErrorOptimisationTool",
-                                                                            "MuonErrorOptimisationTool",
-                                                                            PrepareForFit              = False,
-                                                                            RecreateStartingParameters = False,
-                                                                            RefitTool = CfgGetter.getPublicToolClone("TMEF_MuidAlignmentRefitTool",
-                                                                                                           "MuonRefitTool",
-                                                                                                           AlignmentErrors = False,
-                                                                                                           Fitter = CfgGetter.getPublicTool("iPatFitter"))))
+        kwargs.setdefault("MuonErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidErrorOptimisationTool",
+                                                                             "MuonErrorOptimisationTool",
+                                                                             PrepareForFit              = False,
+                                                                             RecreateStartingParameters = False,
+                                                                             RefitTool = CfgGetter.getPublicToolClone("TMEF_MuidRefitTool",
+                                                                                                                      "MuonRefitTool",
+                                                                                                                      AlignmentErrors = False,
+                                                                                                                      Fitter = CfgGetter.getPublicTool("iPatFitter"))))
 	
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
