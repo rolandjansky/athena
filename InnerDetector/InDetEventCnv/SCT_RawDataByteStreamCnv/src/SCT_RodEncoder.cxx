@@ -144,7 +144,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
   for(unsigned int iRdo=0; iRdo<rdoVec.size(); iRdo++) {
     const RDO* rawdata = rdoVec.at(iRdo);
     if(rawdata==0) {
-      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endreq;
+      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endmsg;
       v_isDuplicated.at(iRdo) = true;
       continue;
     }

@@ -87,7 +87,7 @@ StatusCode SCT_RodDecoder::initialize() {
  
   /** Retrieve cabling service */
   ATH_CHECK(m_cabling.retrieve());
-  msg(MSG::DEBUG) << "Retrieved service " << m_cabling << endreq;
+  msg(MSG::DEBUG) << "Retrieved service " << m_cabling << endmsg;
 
   ATH_CHECK(detStore()->retrieve(m_indet_mgr,"SCT")) ;
   
@@ -112,7 +112,7 @@ SCT_RodDecoder::handle(const Incident& inc) {
   if ((inc.type() == "BeginEvent") && (! m_triggerMode) ){
     m_bsErrCont = new InDetBSErrContainer();
     StatusCode sc = evtStore()->record(m_bsErrCont,m_bsErrContainerName);
-    if (sc.isFailure() ) msg(MSG::ERROR) << "Failed to record BSErrors to SG"<<endreq;
+    if (sc.isFailure() ) msg(MSG::ERROR) << "Failed to record BSErrors to SG"<<endmsg;
   }
   m_byteStreamErrSvc->setCondensedReadout(m_condensedMode);
   return;
@@ -122,45 +122,45 @@ StatusCode
 SCT_RodDecoder::finalize() {
   
   /** print out summaries of data and errors decoded */
-  msg(MSG::INFO)<<"SCT BytestreamCnv summary: "<<m_headnumber  <<" link headers found"  <<endreq;
+  msg(MSG::INFO)<<"SCT BytestreamCnv summary: "<<m_headnumber  <<" link headers found"  <<endmsg;
   if(m_condensedMode) {
-    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_singleCondHitNumber <<" single strips with hit in condensed mode"  <<endreq;
-    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_pairedCondHitNumber <<" paired strips with hit in condensed mode"  <<endreq;
+    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_singleCondHitNumber <<" single strips with hit in condensed mode"  <<endmsg;
+    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_pairedCondHitNumber <<" paired strips with hit in condensed mode"  <<endmsg;
   } else {
-    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_firstExpHitNumber <<" first strips with hit in expanded mode"  <<endreq;
-    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_evenExpHitNumber <<" consecutive paired strips with hit in expanded mode"  <<endreq;
-    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_lastExpHitNumber <<" last consecutive strip with hit in expanded mode"  <<endreq;
+    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_firstExpHitNumber <<" first strips with hit in expanded mode"  <<endmsg;
+    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_evenExpHitNumber <<" consecutive paired strips with hit in expanded mode"  <<endmsg;
+    msg(MSG::INFO)<<"SCT decoding bytestream summary: "<<m_lastExpHitNumber <<" last consecutive strip with hit in expanded mode"  <<endmsg;
   }
 
-  msg(MSG::INFO)<<"SCT BytestreamCnv summary: "<<m_trailnumber <<" link trailers found" <<endreq;
-  if (m_head_error_bcid > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_bcid<<" BCID errors found"<<endreq;
-  if (m_head_error_lvl1id > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_lvl1id<<" LVL1d errors found"<<endreq;
-  if (m_head_error_timeout > 0)   msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_timeout   <<" timeout errors found"<<endreq;
-  if (m_head_error_formatter > 0) msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_formatter <<" formatter errors found"<<endreq;
-  if (m_head_error_preamb > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_preamb<<" preamble errors found"<<endreq;
-  if (m_maskedLinkNumber > 0)     msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> " <<m_maskedLinkNumber<<" masked links found"<<endreq;
-  if (m_trail_error_overflow > 0) msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_overflow <<" trailer data overflow errors found"<<endreq;
-  if (m_trail_error_limit > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_limit<<" header trailer limit errors found"<<endreq; 
-  if (m_trail_error_bit > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_bit<<" trailer bit errors found"<<endreq; 
-  if (m_config_data_bit > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: raw Data-> "     <<m_config_data_bit <<" raw data found: Config data mode"<<endreq;
-  if (m_flag_error_bit > 0)       msg(MSG::INFO)<<"SCT BytestreamCnv summary: flag-> "         <<m_flag_error_bit<<" module link flag bit errors found"<<endreq;
-  if (m_cond_hit1_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit1_error<<" 1st hit error found in condensed mode" <<endreq;
-  if (m_cond_hit2_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit2_error<<" 2nd hit error found in condensed mode" <<endreq;
-  if (m_chip_number_error > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_chip_number_error<<" Chip number > 5 error found"<<endreq;
-  if (m_unknown_data_format > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: unknown data-> " <<m_unknown_data_format<<" Unknown data format found"<<endreq;
-  if (m_RODClockErrorNumber > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROD status word-> " <<m_RODClockErrorNumber<<" ROD clock errors found"<<endreq;
-  if (m_maskedRODNumber > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROB status word-> " <<m_maskedRODNumber<<" masked RODs found"<<endreq;
-  if (m_truncatedRODNumber > 0)   msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROB status word-> " <<m_truncatedRODNumber<<" truncated ROBFragments"<<endreq;
-  msg(MSG::INFO)<<"Number of SCT hits in ByteStream-> "<<m_nHits<<endreq;
-  msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endreq;
+  msg(MSG::INFO)<<"SCT BytestreamCnv summary: "<<m_trailnumber <<" link trailers found" <<endmsg;
+  if (m_head_error_bcid > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_bcid<<" BCID errors found"<<endmsg;
+  if (m_head_error_lvl1id > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_lvl1id<<" LVL1d errors found"<<endmsg;
+  if (m_head_error_timeout > 0)   msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_timeout   <<" timeout errors found"<<endmsg;
+  if (m_head_error_formatter > 0) msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_formatter <<" formatter errors found"<<endmsg;
+  if (m_head_error_preamb > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> "       <<m_head_error_preamb<<" preamble errors found"<<endmsg;
+  if (m_maskedLinkNumber > 0)     msg(MSG::INFO)<<"SCT BytestreamCnv summary: header-> " <<m_maskedLinkNumber<<" masked links found"<<endmsg;
+  if (m_trail_error_overflow > 0) msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_overflow <<" trailer data overflow errors found"<<endmsg;
+  if (m_trail_error_limit > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_limit<<" header trailer limit errors found"<<endmsg; 
+  if (m_trail_error_bit > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: trailer-> "      <<m_trail_error_bit<<" trailer bit errors found"<<endmsg; 
+  if (m_config_data_bit > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: raw Data-> "     <<m_config_data_bit <<" raw data found: Config data mode"<<endmsg;
+  if (m_flag_error_bit > 0)       msg(MSG::INFO)<<"SCT BytestreamCnv summary: flag-> "         <<m_flag_error_bit<<" module link flag bit errors found"<<endmsg;
+  if (m_cond_hit1_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit1_error<<" 1st hit error found in condensed mode" <<endmsg;
+  if (m_cond_hit2_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit2_error<<" 2nd hit error found in condensed mode" <<endmsg;
+  if (m_chip_number_error > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_chip_number_error<<" Chip number > 5 error found"<<endmsg;
+  if (m_unknown_data_format > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: unknown data-> " <<m_unknown_data_format<<" Unknown data format found"<<endmsg;
+  if (m_RODClockErrorNumber > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROD status word-> " <<m_RODClockErrorNumber<<" ROD clock errors found"<<endmsg;
+  if (m_maskedRODNumber > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROB status word-> " <<m_maskedRODNumber<<" masked RODs found"<<endmsg;
+  if (m_truncatedRODNumber > 0)   msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROB status word-> " <<m_truncatedRODNumber<<" truncated ROBFragments"<<endmsg;
+  msg(MSG::INFO)<<"Number of SCT hits in ByteStream-> "<<m_nHits<<endmsg;
+  msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endmsg;
 
-  if (m_numMissingLinkHeader > 0) msg(MSG::WARNING)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
+  if (m_numMissingLinkHeader > 0) msg(MSG::WARNING)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endmsg;
   if (m_numUnknownOfflineId  > 0) ATH_MSG_WARNING("SCT unknown onlineId found "<<m_numUnknownOfflineId);
 
 
   StatusCode sc = AlgTool::finalize();
   if (sc.isFailure()) return sc ;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"SCT_RodDecoder::finalize()"<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"SCT_RodDecoder::finalize()"<<endmsg;
   delete m_errorHit;
   return sc;
 }
@@ -223,7 +223,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       sc = StatusCode::RECOVERABLE;
       /// now look for specific problems, e.g. truncated or masked-off RODs
       if (((*rob_status) >> 27) & 0x1) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ROB status word for robid "<<std::hex<<robid<<std::dec<<" indicates data truncation."<<endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ROB status word for robid "<<std::hex<<robid<<std::dec<<" indicates data truncation."<<endmsg;
         addRODError(robid,SCT_ByteStreamErrors::TruncatedROD);
         m_truncatedRODNumber++;
         return sc;
@@ -734,6 +734,15 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip "<<chip<<" Error code ABCerror "<<ABCerror<<" Link Nb (or Stream) "<<linkNb) ;
 	m_flag_error_bit++ ;
 	addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError);
+	if(     chip==0) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip0);
+	else if(chip==1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip1);
+	else if(chip==2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip2);
+	else if(chip==3) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip3);
+	else if(chip==4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip4);
+	else if(chip==5) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip5);
+	if(ABCerror & 0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1);
+	if(ABCerror & 0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2);
+	if(ABCerror & 0x4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error4);
 	sc=StatusCode::RECOVERABLE;
 	continue;
       } else if (((d[n]>>13)&0x7) == 0x3){
@@ -777,7 +786,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
   // Set this ROD as decoded in SCT_ByteStreamErrorSvc
   m_byteStreamErrSvc->setDecodedROD(robid);
 
-  if (sc.isFailure() and msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "One or more ByteStream errors found " << endreq;
+  if (sc.isFailure() and msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "One or more ByteStream errors found " << endmsg;
   return sc;
 }
 /** makeRDO has 3 possible return values: 
@@ -866,7 +875,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
     theColl->setIdentifier(idColl);
     /** add collection into IDC */
     StatusCode sc = rdoIdc->addCollection(theColl, idCollHash);
-    if (sc.isFailure()) msg(MSG::ERROR) <<"Failed to add SCT RDO collection to container"<<endreq;
+    if (sc.isFailure()) msg(MSG::ERROR) <<"Failed to add SCT RDO collection to container"<<endmsg;
   }
   
   /** Now the Collection is there for sure. Create RDO and push it

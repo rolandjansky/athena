@@ -7,7 +7,6 @@
 
 // Gaudi
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -19,7 +18,7 @@
 
 class DataObject;
 class IByteStreamEventAccess;
-class ISCTRawContByteStreamTool;
+class ISCTRawContByteStreamService;
 
 /** Externals */ 
 extern long ByteStream_StorageType;
@@ -28,7 +27,7 @@ extern long ByteStream_StorageType;
  * This will do the conversion on demand, triggered by the 
  * ByteStreamAddressProviderSvc. 
  * Since it is not possible to configure a Converter with
- * Python Configurables, we use an AlgTool (SCTRawContByteStreamTool)
+ * Python Configurables, we use a service (SCTRawContByteStreamService)
  * which in turn uses the  lightweight SCT_RodEncoder class, 
  * to do the actual converting. */
 
@@ -61,7 +60,7 @@ class SCTRawContByteStreamCnv: public Converter {
 
  private: 
   /** for BS infrastructure */
-  ToolHandle<ISCTRawContByteStreamTool>  m_tool;                  
+  ServiceHandle<ISCTRawContByteStreamService> m_service;
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 
   MsgStream m_log;
 };

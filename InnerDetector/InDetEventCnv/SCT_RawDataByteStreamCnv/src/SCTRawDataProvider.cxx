@@ -47,7 +47,7 @@ StatusCode SCTRawDataProvider::initialize() {
 StatusCode SCTRawDataProvider::execute() {
   SCT_RDO_Container *container = new SCT_RDO_Container(m_sct_id->wafer_hash_max()); 
   if (evtStore()->record(container, m_RDO_Key).isFailure()) {
-    msg(MSG::FATAL) << "Unable to record SCT RDO Container." << endreq;
+    msg(MSG::FATAL) << "Unable to record SCT RDO Container." << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -59,7 +59,7 @@ StatusCode SCTRawDataProvider::execute() {
   m_cabling->getAllRods(rodList);
   m_robDataProvider->getROBData( rodList , listOfRobf);
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments " << listOfRobf.size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments " << listOfRobf.size() << endmsg;
 
   m_LVL1Collection = new InDetTimeCollection();
   m_LVL1Collection->reserve(listOfRobf.size());
@@ -84,26 +84,26 @@ StatusCode SCTRawDataProvider::execute() {
     std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(std::make_pair(robid,bcid));
     m_BCIDCollection->push_back(bcidPair);
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections"<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections"<<endmsg;
     
   }
 
   
   StatusCode sc = evtStore()->record(m_LVL1Collection,"SCT_LVL1ID");  
   if (sc.isFailure() ) {   
-    msg(MSG::ERROR) << "failed to record LVL1ID TimeCollection" << endreq;   
+    msg(MSG::ERROR) << "failed to record LVL1ID TimeCollection" << endmsg;   
     return sc;   
   }
   sc = evtStore()->record(m_BCIDCollection,"SCT_BCID");  
   if (sc.isFailure() ) {   
-    msg(MSG::ERROR) << "failed to record BCID TimeCollection" << endreq;   
+    msg(MSG::ERROR) << "failed to record BCID TimeCollection" << endmsg;   
     return sc;   
   }
   
 
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
   if (m_rawDataTool->convert(listOfRobf,container)==StatusCode::FAILURE)
-    msg(MSG::ERROR) << "BS conversion into RDOs failed" << endreq;
+    msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
   
   return StatusCode::SUCCESS;
 }
