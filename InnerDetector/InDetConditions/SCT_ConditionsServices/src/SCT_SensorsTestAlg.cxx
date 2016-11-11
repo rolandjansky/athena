@@ -41,16 +41,16 @@ SCT_SensorsTestAlg::SCT_SensorsTestAlg(
 
 SCT_SensorsTestAlg::~SCT_SensorsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode SCT_SensorsTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling initialize" << endreq;
+  msg(MSG::INFO) << "Calling initialize" << endmsg;
   sc = m_SensorsSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the service"<<endmsg;
   }
   return sc;
 }
@@ -60,7 +60,7 @@ StatusCode SCT_SensorsTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling execute" << endreq;
+  msg(MSG::INFO) << "Calling execute" << endmsg;
   std::vector<std::string> values;
   m_SensorsSvc->getSensorsData(values);
   for (std::vector<std::string>::const_iterator i=values.begin();i!=values.end();++i){
@@ -73,6 +73,6 @@ StatusCode SCT_SensorsTestAlg::execute(){
 StatusCode SCT_SensorsTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
   MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Calling finalize" << endreq;
+  log << MSG::INFO << "Calling finalize" << endmsg;
   return sc;
 }

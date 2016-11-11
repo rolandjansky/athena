@@ -32,17 +32,17 @@ SCT_RODVetoTestAlg::SCT_RODVetoTestAlg(
 
 SCT_RODVetoTestAlg::~SCT_RODVetoTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode 
 SCT_RODVetoTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling initialize" << endreq;
+  msg(MSG::INFO) << "Calling initialize" << endmsg;
   sc = m_pRODVetoSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the veto service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the veto service"<<endmsg;
   }
   return sc;
 }
@@ -53,13 +53,13 @@ SCT_RODVetoTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling execute" << endreq;
-  msg(MSG::INFO) <<"Call to module in ROD : Module is "<<endreq;
+  msg(MSG::INFO) << "Calling execute" << endmsg;
+  msg(MSG::INFO) <<"Call to module in ROD : Module is "<<endmsg;
   bool result=m_pRODVetoSvc->isGood(0x240100);//invented, no idea what this is
-  msg(MSG::INFO) << (result?"good":"bad") << endreq;
+  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
   IdentifierHash anyRandomHash(1000);
   result=m_pRODVetoSvc->isGood(anyRandomHash);
-  msg(MSG::INFO) << (result?"good":"bad") << endreq;
+  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
  
   return sc;
 }
@@ -70,6 +70,6 @@ StatusCode
 SCT_RODVetoTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
   MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Calling finalize" << endreq;
+  log << MSG::INFO << "Calling finalize" << endmsg;
   return sc;
 }

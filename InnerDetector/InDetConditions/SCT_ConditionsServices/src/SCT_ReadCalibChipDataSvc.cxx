@@ -140,11 +140,11 @@ StatusCode
 SCT_ReadCalibChipDataSvc::initialize(){
   // Print where you are
   // Get SCT detector manager
-  if (m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT").isFailure()) return msg(MSG:: FATAL) << "Failed to get SCT detector manager" << endreq,  StatusCode::FAILURE;
+  if (m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT").isFailure()) return msg(MSG:: FATAL) << "Failed to get SCT detector manager" << endmsg,  StatusCode::FAILURE;
   // Get SCT helper
-  if( m_detStoreSvc->retrieve(m_id_sct, "SCT_ID").isFailure()) return msg(MSG:: FATAL) << "Failed to get SCT helper" << endreq, StatusCode::FAILURE;
+  if( m_detStoreSvc->retrieve(m_id_sct, "SCT_ID").isFailure()) return msg(MSG:: FATAL) << "Failed to get SCT helper" << endmsg, StatusCode::FAILURE;
   // Retrieve IOVDb service
-  if (m_IOVDbSvc.retrieve().isFailure()) return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endreq, StatusCode::FAILURE;
+  if (m_IOVDbSvc.retrieve().isFailure()) return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endmsg, StatusCode::FAILURE;
   //Register callbacks for CalibData folders using a vector of keys defined in jobOpt
   std::vector<std::string>::const_iterator itr(m_atrcollist.value().begin());
   std::vector<std::string>::const_iterator end(m_atrcollist.value().end()); 
@@ -152,13 +152,13 @@ SCT_ReadCalibChipDataSvc::initialize(){
     m_key = *itr;
     if ( m_key == "/SCT/DAQ/Calibration/ChipGain"){
       if (m_detStoreSvc->regFcn(&SCT_ReadCalibChipDataSvc::fillData,this,m_coolGainData,m_key).isFailure()){
-        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endreq;
+        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endmsg;
         return StatusCode::FAILURE;
       }
     }
     if ( m_key == "/SCT/DAQ/Calibration/ChipNoise" ){
       if (m_detStoreSvc->regFcn(&SCT_ReadCalibChipDataSvc::fillData,this,m_coolNoiseData,m_key).isFailure()){
-        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endreq;
+        msg(MSG:: ERROR) << "Cannot register callbacks function for key " << m_key << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -225,7 +225,7 @@ StatusCode SCT_ReadCalibChipDataSvc::fillData(int& /*i*/ , std::list<std::string
     for (; itr!=end; ++itr) {
       msg() << *itr << " ";
     }
-    msg() << endreq;
+    msg() << endmsg;
   }
   StatusCode sc0 = SCT_ReadCalibChipDataSvc::fillCalibData(l);
   // No longer need the conditions folder as stored locally
@@ -234,11 +234,11 @@ StatusCode SCT_ReadCalibChipDataSvc::fillData(int& /*i*/ , std::list<std::string
   }
   if ( sc0==StatusCode::SUCCESS ){
     m_dataFilled = true;
-    msg(MSG:: INFO) << "Calib Data maps filled ok" << endreq;
+    msg(MSG:: INFO) << "Calib Data maps filled ok" << endmsg;
     return StatusCode::SUCCESS;
   } else {
     m_dataFilled = false;
-    msg(MSG:: ERROR) << "fillData failed" << endreq;
+    msg(MSG:: ERROR) << "fillData failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -251,7 +251,7 @@ StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys)
   const string nPtGainFolder("/SCT/DAQ/Calibration/ChipGain");
     // Retrieve CondAttrListCollection
   if (std::find(keys.begin(), keys.end(),noiseOccFolder) != keys.end()){
-    if (m_detStoreSvc->retrieve(m_coolNoiseData,noiseOccFolder).isFailure()) return msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection for: " << noiseOccFolder << endreq, StatusCode::FAILURE;
+    if (m_detStoreSvc->retrieve(m_coolNoiseData,noiseOccFolder).isFailure()) return msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection for: " << noiseOccFolder << endmsg, StatusCode::FAILURE;
     // loop over collection
     CondAttrListCollection::const_iterator itLoop=m_coolNoiseData->begin();
     CondAttrListCollection::const_iterator itLoop_end=m_coolNoiseData->end();
@@ -270,7 +270,7 @@ StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys)
     }
   }
   if (std::find(keys.begin(), keys.end(),nPtGainFolder) != keys.end()){
-    if (m_detStoreSvc->retrieve(m_coolGainData,nPtGainFolder).isFailure()) return msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection for: " << nPtGainFolder << endreq, StatusCode::FAILURE;
+    if (m_detStoreSvc->retrieve(m_coolGainData,nPtGainFolder).isFailure()) return msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection for: " << nPtGainFolder << endmsg, StatusCode::FAILURE;
     // loop over collection
     CondAttrListCollection::const_iterator itLoop=m_coolGainData->begin();
     CondAttrListCollection::const_iterator itLoop_end=m_coolGainData->end();
@@ -300,7 +300,7 @@ bool SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash & elementHashId){
 
     // Retrieve the data
   int i=noiseOccIndex("NoiseByChip");
-  if (i==-1) return  msg(MSG:: ERROR) << "This NoiseOccupancy noise data does not exist" << endreq, true;
+  if (i==-1) return  msg(MSG:: ERROR) << "This NoiseOccupancy noise data does not exist" << endmsg, true;
   ModuleNoise_t & moduleNoiseData=noiseOccData[i];
 
     // Calcuate module status
@@ -355,7 +355,7 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier & moduleId, const int 
     //find the correct index for the required data
     int dataIdx= nPtGainIndex(datatype);
     if (dataIdx<0){
-      msg(MSG:: ERROR) << "This N-point gain data: " << datatype << " does not exist" << endreq;
+      msg(MSG:: ERROR) << "This N-point gain data: " << datatype << " does not exist" << endmsg;
       return waferData;
     }
     ModuleGain_t & moduleGains=wantedNPGData[dataIdx];
@@ -391,7 +391,7 @@ SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier & moduleId, con
      //find the correct index for the required data
     int dataIdx=noiseOccIndex(datatype);
     if (dataIdx<0){
-      msg(MSG:: ERROR) << "This Noise Occupancy data: " << datatype << " does not exist" << endreq;
+      msg(MSG:: ERROR) << "This Noise Occupancy data: " << datatype << " does not exist" << endmsg;
       return waferData;
     }
     ModuleNoise_t & moduleNoise=wantedNoiseData[dataIdx];

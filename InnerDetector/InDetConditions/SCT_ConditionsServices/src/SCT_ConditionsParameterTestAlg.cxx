@@ -44,11 +44,11 @@ SCT_ConditionsParameterTestAlg::~SCT_ConditionsParameterTestAlg(){ }
 //----------------------------------------------------------------------
 StatusCode SCT_ConditionsParameterTestAlg::initialize(){  
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in initialize()" << endreq;
+  msg(MSG::INFO) << "in initialize()" << endmsg;
   //
   StatusCode sc(StatusCode::SUCCESS);
   sc = m_conditionsParameterSvc.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the parameter conditions service" << endreq), sc;
+  if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the parameter conditions service" << endmsg), sc;
   
   return sc;
 } // SCT_ConditionsParameterTestAlg::execute()
@@ -57,27 +57,27 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize(){
 StatusCode SCT_ConditionsParameterTestAlg::execute(){
   //This method is only used to test the service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endmsg;
   //
   StatusCode sc(StatusCode::SUCCESS);
   
   // Get the current event
   sc = evtStore()->retrieve(m_currentEvent);
-  if ( sc.isFailure() ) return (msg(MSG::ERROR) << "Could not get event info" << endreq), sc;
+  if ( sc.isFailure() ) return (msg(MSG::ERROR) << "Could not get event info" << endmsg), sc;
   //
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
   << "[" << m_currentEvent->event_ID()->run_number()
   << "." << m_currentEvent->event_ID()->event_number()
   << "," << m_currentEvent->event_ID()->time_stamp()
-  << "]" << endreq;
+  << "]" << endmsg;
   
   bool paramFilled(false);
-  msg(MSG::INFO) << m_conditionsParameterSvc << endreq;
+  msg(MSG::INFO) << m_conditionsParameterSvc << endmsg;
   
   try{
       paramFilled =(m_conditionsParameterSvc->filled());
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to determine whether the data object was filled" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to determine whether the data object was filled" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -88,14 +88,14 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(){
      float sd=m_conditionsParameterSvc->sd(AVG_THRESHOLD);
      unsigned int n=m_conditionsParameterSvc->n(AVG_THRESHOLD);
      float thresh=m_conditionsParameterSvc->value(IdentifierHash(1760), AVG_THRESHOLD);
-     msg(MSG::INFO) << "   value element 1760: "<<thresh<<endreq;
-     msg(MSG::INFO) << "        max threshold: "<<maxval<<endreq;
-     msg(MSG::INFO) << "        min threshold: "<<minval<<endreq;
-     msg(MSG::INFO) << "        avg threshold: "<<avg<<endreq;
-     msg(MSG::INFO) << "   standard deviation: "<<sd<<endreq;
-     msg(MSG::INFO) << "          no measured: "<<n<<endreq;
+     msg(MSG::INFO) << "   value element 1760: "<<thresh<<endmsg;
+     msg(MSG::INFO) << "        max threshold: "<<maxval<<endmsg;
+     msg(MSG::INFO) << "        min threshold: "<<minval<<endmsg;
+     msg(MSG::INFO) << "        avg threshold: "<<avg<<endmsg;
+     msg(MSG::INFO) << "   standard deviation: "<<sd<<endmsg;
+     msg(MSG::INFO) << "          no measured: "<<n<<endmsg;
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to access the thresholds" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to access the thresholds" << endmsg;
     return StatusCode::FAILURE;
   }
   //simple histogram
@@ -115,11 +115,11 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(){
 //----------------------------------------------------------------------
 StatusCode SCT_ConditionsParameterTestAlg::finalize(){
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in finalize()" << endreq;
+  msg(MSG::INFO) << "in finalize()" << endmsg;
   string testAreaPath=CoveritySafe::getenv("TestArea");
   string stylePath="./histo.xsl";
   string filename=testAreaPath+"/InnerDetector/InDetConditions/SCT_ConditionsServices/share/thresholds.xml";
-  msg(MSG::INFO)<<"Filename: "<<filename<<endreq;
+  msg(MSG::INFO)<<"Filename: "<<filename<<endmsg;
   cout<<m_histoString<<endl;
   cout<<"------------"<<endl;
   ofstream opFile(filename.c_str(),ios::out);

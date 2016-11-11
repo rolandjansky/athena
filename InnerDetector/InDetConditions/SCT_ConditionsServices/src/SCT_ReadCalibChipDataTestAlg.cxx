@@ -77,7 +77,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::initialize(){
   // Get the SCT_ReadCaliChipDataSvc
   m_sc = m_ReadCalibChipDataSvc.retrieve();
   if (m_sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot locate CalibChipData service" << endreq;
+    msg(MSG::FATAL) << "Cannot locate CalibChipData service" << endmsg;
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("CalibChipData Service located ");
@@ -101,14 +101,14 @@ StatusCode SCT_ReadCalibChipDataTestAlg::processProperties()
   int offlineSide      = (*itLoop); ++itLoop;
   int offlineStrip     = (*itLoop); ++itLoop;
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module positions from jobOpt property:" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module positions from jobOpt property:" << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "B-EC/layer-disk/eta/phi: "
       << offlineBarrelEC  << "/"
       << offlineLayerDisk << "/"
       << offlineEta       << "/"
       << offlinePhi       << "/"
       << offlineSide      << "/"
-      << offlineStrip     << endreq;
+      << offlineStrip     << endmsg;
   
   // Create offline Identifier for this module position, wafer,chip and strip
   m_moduleId = m_id_sct->module_id(offlineBarrelEC, offlineLayerDisk, offlinePhi, offlineEta);

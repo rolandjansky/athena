@@ -35,30 +35,30 @@ SCT_LinkMaskingSvc::SCT_LinkMaskingSvc( const std::string& name, ISvcLocator* pS
 
 // Initialize
 StatusCode SCT_LinkMaskingSvc::initialize(){
-  msg(MSG:: INFO)<< "Initializing configuration" << endreq;
+  msg(MSG:: INFO)<< "Initializing configuration" << endmsg;
 
   // Retrieve cabling service
-  if (m_cablingSvc.retrieve().isFailure())                     return msg(MSG:: ERROR)<< "Can't get the cabling service." << endreq, StatusCode::FAILURE;
+  if (m_cablingSvc.retrieve().isFailure())                     return msg(MSG:: ERROR)<< "Can't get the cabling service." << endmsg, StatusCode::FAILURE;
 
   // Retrieve detector store
-  if (m_detStore.retrieve().isFailure())                       return msg(MSG:: FATAL)<< "Detector service  not found !" << endreq, StatusCode::FAILURE;
+  if (m_detStore.retrieve().isFailure())                       return msg(MSG:: FATAL)<< "Detector service  not found !" << endmsg, StatusCode::FAILURE;
   
   // Retrieve SCT ID helper
-  if (m_detStore->retrieve(m_sctHelper, "SCT_ID").isFailure()) return msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_sctHelper, "SCT_ID").isFailure()) return msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg, StatusCode::FAILURE;
 
   // Retrieve IOV service
-  if (m_IOVSvc.retrieve().isFailure())                         return msg(MSG:: ERROR)<< "Failed to retrieve IOVSvc " << endreq, StatusCode::FAILURE;
+  if (m_IOVSvc.retrieve().isFailure())                         return msg(MSG:: ERROR)<< "Failed to retrieve IOVSvc " << endmsg, StatusCode::FAILURE;
 
   // Register callbacks for folders 
   if (m_detStore->regFcn(&SCT_LinkMaskingSvc::fillData,this, m_dataLink,coolLinkFolderName).isFailure()) 
-    return msg(MSG:: ERROR)<< "Failed to register callback" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
 
 // Finalize
 StatusCode SCT_LinkMaskingSvc::finalize(){
-  msg(MSG:: INFO)<< "Configuration finalize" << endreq;
+  msg(MSG:: INFO)<< "Configuration finalize" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -103,9 +103,9 @@ StatusCode SCT_LinkMaskingSvc::fillData(int& /*i*/ , std::list<std::string>& /*l
 
   // Get link folder
   if (retrieveFolder(m_dataLink, coolLinkFolderName).isFailure()) {
-    return msg(MSG:: ERROR)<< "Could not fill masked link data" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Could not fill masked link data" << endmsg, StatusCode::FAILURE;
   } else {
-    msg(MSG:: INFO)<< "fillChannelData: IOV callback resulted in a link CondAttrListCollection of size " << m_dataLink->size() << endreq;
+    msg(MSG:: INFO)<< "fillChannelData: IOV callback resulted in a link CondAttrListCollection of size " << m_dataLink->size() << endmsg;
   }
 
   // 
@@ -124,7 +124,7 @@ StatusCode SCT_LinkMaskingSvc::fillData(int& /*i*/ , std::list<std::string>& /*l
   m_filled = (m_maskedLinkIds.size() != 0);
 
   const unsigned int totalMasked(m_maskedLinkIds.size());
-  msg(MSG:: INFO)<< "Total number of masked links is " << totalMasked << endreq;
+  msg(MSG:: INFO)<< "Total number of masked links is " << totalMasked << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -135,12 +135,12 @@ bool SCT_LinkMaskingSvc::filled() const{
 
 // Get a DB folder
 StatusCode SCT_LinkMaskingSvc::retrieveFolder(const DataHandle<CondAttrListCollection> &pDataVec, const std::string & folderName){
-  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endreq), StatusCode::FAILURE;
+  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endmsg), StatusCode::FAILURE;
 
   if (m_detStore->retrieve(pDataVec, folderName).isFailure()) 
-    return (msg(MSG:: FATAL) << "Could not retrieve AttrListCollection for " << folderName << endreq), StatusCode::FAILURE;
+    return (msg(MSG:: FATAL) << "Could not retrieve AttrListCollection for " << folderName << endmsg), StatusCode::FAILURE;
 
-  if (0 == pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endreq), StatusCode::FAILURE;
+  if (0 == pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endmsg), StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }

@@ -50,8 +50,8 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   m_isSCT(true),
   m_detManager(0),
   m_getdoCTrap(false),
-  m_PotentialValue{0.},
-  m_electricFieldTool("SCT_ElectricFieldTool")
+  m_PotentialValue{{0.}},
+  m_electricFieldTool("SCT_ElectricFieldTool", this)
 {
   
   declareProperty("SiConditionsServices", m_siConditionsSvc);
@@ -88,26 +88,26 @@ SCT_ChargeTrappingSvc::initialize()
   
   StatusCode sc = AthService::initialize();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endreq;
+    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endmsg;
     return sc;
   }
   
   // Detector store
   if (m_detStore.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" <<  endreq;
+    msg(MSG::FATAL) << "DetectorStore service not found !" <<  endmsg;
     return StatusCode::FAILURE;
   }
   
   // GeoModelSvc
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
   //ElectricFieldTool
   if (m_electricFieldTool.retrieve().isFailure())
   {
-    msg(MSG::FATAL) << "Could not initialize the electric field svc: " << m_electricFieldTool << endreq;
+    msg(MSG::FATAL) << "Could not initialize the electric field svc: " << m_electricFieldTool << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -120,7 +120,7 @@ SCT_ChargeTrappingSvc::initialize()
 			     &SCT_ChargeTrappingSvc::geoInitCallback,  this);
     
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register geoInitCallback function  "  << endreq;
+      msg(MSG::ERROR) << "Cannot register geoInitCallback function  "  << endmsg;
     } else {
     }
   }
@@ -137,7 +137,7 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
 {
   
   if (m_detectorName != "SCT") {
-    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endreq;
+    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;
     return StatusCode::FAILURE;
   }
   m_isSCT = (m_detectorName == "SCT");
@@ -149,7 +149,7 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
   if (!m_siConditionsSvc.empty()) {
     sc =  m_siConditionsSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Unable to to retrieve Conditions Summary  Service" << endreq;
+      msg(MSG::FATAL) << "Unable to to retrieve Conditions Summary  Service" << endmsg;
       return StatusCode::FAILURE;
     } else {
       m_conditionsSvcValid = true;
@@ -161,7 +161,7 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
   // Get the detector manager
   m_detStore->retrieve(m_detManager, m_detectorName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the detector manager: " <<  m_detectorName << " !" << endreq;
+    msg(MSG::FATAL) << "Could not find the detector manager: " <<  m_detectorName << " !" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -171,7 +171,7 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
                               &ISCT_ChargeTrappingSvc::callBack,  dynamic_cast<ISCT_ChargeTrappingSvc *>(this),
                               true);
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Could not register callback." << endreq;
+        msg(MSG::ERROR) << "Could not register callback." << endmsg;
         return sc;
       }
     } else {
@@ -184,13 +184,13 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
     // SCT
     const SCT_ID * idHelper;
     if (m_detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get SCT_ID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get SCT_ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
     maxHash = idHelper->wafer_hash_max();
   } else {
-    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endreq;
-    msg(MSG::FATAL) << "Could not get " << m_detectorName << " ID helper" << endreq;
+    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;
+    msg(MSG::FATAL) << "Could not get " << m_detectorName << " ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -238,7 +238,7 @@ StatusCode SCT_ChargeTrappingSvc::callBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   (void) I; // avoid warning about unused parameter
   (void) keys;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Callback called." <<  endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Callback called." <<  endmsg;
   
   invalidateCache();
   
@@ -325,7 +325,7 @@ void SCT_ChargeTrappingSvc::getInitPotentialValue()
 
 void SCT_ChargeTrappingSvc::invalidateCache()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Invalidating general  cache." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Invalidating general  cache." << endmsg;
   
   // Invalidate all caches.
   std::fill(m_cacheValid.begin(), m_cacheValid.end(), false);
@@ -349,7 +349,7 @@ bool SCT_ChargeTrappingSvc::valid(const IdentifierHash & elementHash){
 
 void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  const double & pos) {  
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Updating cache  for elementHash = " << elementHash << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Updating cache  for elementHash = " << elementHash << endmsg;
   
   if (m_conditionsSvcWarning) {
     // Only print the warning once.
@@ -357,7 +357,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
     msg(MSG::WARNING)
       << "Conditions Summary Service is not used. Will use temperature and voltages from job options. "
       << "Effects of radiation damage may be wrong!"
-      << endreq;
+      << endmsg;
   }
   
   //  m_cacheValid[elementHash] = true;
@@ -394,7 +394,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   if (!(temperatureC > m_temperatureMin && temperatureC <  m_temperatureMax)) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Invalid  temperature: " << temperatureC << " C. "
                                                 << "Setting to "  << m_temperature << " C."
-                                                << endreq;
+                                                << endmsg;
     temperature = m_temperature + 273.15;
   }
   
@@ -510,22 +510,22 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
     msg(MSG::VERBOSE) << "Temperature (C), bias voltage, depletion  voltage: "
                       << temperature - 273.15 << ", "
                       << biasVoltage/CLHEP::volt << ", "
-                      << deplVoltage/CLHEP::volt << endreq;
-    msg(MSG::VERBOSE) << "Depletion depth: " << depletionDepth/CLHEP::mm  << endreq;
-    msg(MSG::VERBOSE) << "Electric Field: " << electricField/(CLHEP::volt/CLHEP::mm)  << endreq;
-    msg(MSG::VERBOSE) << "Electron drift mobility (cm2/V/s): " <<  electronDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endreq;
-    msg(MSG::VERBOSE) << "Electron drift velocity (cm/s): " <<   electronDriftVelocity << endreq;
-    msg(MSG::VERBOSE) << "Electron mean free path (cm): " <<  m_meanFreePathElectrons[elementHash] << endreq;
-    // msg(MSG::VERBOSE) << "Electron trapping probability: " <<  m_trappingProbability[elementHash] << endreq;
-    msg(MSG::VERBOSE) << "Electron trapping probability: " <<  trappingProbability_electron << endreq;
+                      << deplVoltage/CLHEP::volt << endmsg;
+    msg(MSG::VERBOSE) << "Depletion depth: " << depletionDepth/CLHEP::mm  << endmsg;
+    msg(MSG::VERBOSE) << "Electric Field: " << electricField/(CLHEP::volt/CLHEP::mm)  << endmsg;
+    msg(MSG::VERBOSE) << "Electron drift mobility (cm2/V/s): " <<  electronDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endmsg;
+    msg(MSG::VERBOSE) << "Electron drift velocity (cm/s): " <<   electronDriftVelocity << endmsg;
+    msg(MSG::VERBOSE) << "Electron mean free path (cm): " <<  m_meanFreePathElectrons[elementHash] << endmsg;
+    // msg(MSG::VERBOSE) << "Electron trapping probability: " <<  m_trappingProbability[elementHash] << endmsg;
+    msg(MSG::VERBOSE) << "Electron trapping probability: " <<  trappingProbability_electron << endmsg;
 
     
     if (m_calcHoles) {
-      msg(MSG::VERBOSE) << "Hole drift mobility (cm2/V/s): " <<  holeDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endreq;
-      msg(MSG::VERBOSE) << "Hole drift velocity (cm/s): " <<   holeDriftVelocity << endreq;
-      msg(MSG::VERBOSE) << "Hole mean free path (cm): " <<  m_meanFreePathHoles[elementHash] << endreq;
-      // msg(MSG::VERBOSE) << "Hole trapping probability: " <<  m_trappingProbability[elementHash] << endreq;
-      msg(MSG::VERBOSE) << "Hole trapping probability: " <<  trappingProbability_hole << endreq;
+      msg(MSG::VERBOSE) << "Hole drift mobility (cm2/V/s): " <<  holeDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endmsg;
+      msg(MSG::VERBOSE) << "Hole drift velocity (cm/s): " <<   holeDriftVelocity << endmsg;
+      msg(MSG::VERBOSE) << "Hole mean free path (cm): " <<  m_meanFreePathHoles[elementHash] << endmsg;
+      // msg(MSG::VERBOSE) << "Hole trapping probability: " <<  m_trappingProbability[elementHash] << endmsg;
+      msg(MSG::VERBOSE) << "Hole trapping probability: " <<  trappingProbability_hole << endmsg;
 
 
     }
@@ -560,13 +560,13 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
   // the center of the strip (istrip=0) is x = 0.004 [cm]
   double deltax = 0.0005, deltay = 0.00025;
   
-  double m_bulk_depth = 0.0285;    // in [cm]
-  double m_strip_pitch = 0.0080;   // in [cm]
+  double bulk_depth = 0.0285;    // in [cm]
+  double strip_pitch = 0.0080;   // in [cm]
 
   // x is width, y is depth
 
-  if ( y < 0. || y > m_bulk_depth) return 0;
-  double xc = m_strip_pitch * (istrip + 0.5);
+  if ( y < 0. || y > bulk_depth) return 0;
+  double xc = strip_pitch * (istrip + 0.5);
   double dx = fabs( x-xc );
   int ix = int( dx / deltax );
   if ( ix > 79 ) return 0.;
@@ -597,7 +597,7 @@ void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfi
   // External parameters to be specified
   //     m_transportTimeMax  [nsec]
   //     m_transportTimeStep [nsec]     
-  //     m_bulk_depth        [cm]
+  //     bulk_depth        [cm]
   // Induced currents are added to
   //     Q_m2,Q_m1,Q_00,Q_p1,Q_p2   
   // 

@@ -32,19 +32,19 @@ SCT_ConfigurationConditionsTestAlg::~SCT_ConfigurationConditionsTestAlg()
 {}
 
 StatusCode SCT_ConfigurationConditionsTestAlg::initialize(){  
-  msg(MSG::INFO) << "in initialize()" << endreq;
+  msg(MSG::INFO) << "in initialize()" << endmsg;
  
   if (m_configConditions.retrieve().isFailure()) 
-    return msg(MSG::ERROR) << "Unable to retrieve SCT_ConfigurationConditions service" << endreq, StatusCode::FAILURE;
+    return msg(MSG::ERROR) << "Unable to retrieve SCT_ConfigurationConditions service" << endmsg, StatusCode::FAILURE;
 
   if (detStore()->retrieve(m_sctId,"SCT_ID").isFailure()) 
-    return msg(MSG::ERROR) << "Unable to retrieve SCT_ID" << endreq,  StatusCode::FAILURE;
+    return msg(MSG::ERROR) << "Unable to retrieve SCT_ID" << endmsg,  StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 } 
 
 StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
-  msg(MSG::INFO) << "in execute()" << endreq;
+  msg(MSG::INFO) << "in execute()" << endmsg;
 
   // Bad modules
   unsigned int nBadMods   = m_configConditions->badModules()->size();
@@ -95,27 +95,27 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
     ++stripItr;
   }
   
-  msg(MSG::INFO) << "-----------------------------------------------------------------------" << endreq;
-  msg(MSG::INFO) << "Number of bad modules                          = " << nBadMods             << endreq;
-  msg(MSG::INFO) << "Number of bad link 0                           = " << nBadLink0            << endreq;
-  msg(MSG::INFO) << "Number of bad link 1                           = " << nBadLink1            << endreq;
-  msg(MSG::INFO) << "Number of bad link both                        = " << nBadLinkBoth         << endreq;
-  msg(MSG::INFO) << "Number of bad chips                            = " << nBadChips            << endreq;  
-  msg(MSG::INFO) << "Number of bad strips                           = " << nBadStrips           << endreq;
-  msg(MSG::INFO) << "Number of bad strips exclusive                 = " << nBadStripsExclusive  << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------------------------------" << endmsg;
+  msg(MSG::INFO) << "Number of bad modules                          = " << nBadMods             << endmsg;
+  msg(MSG::INFO) << "Number of bad link 0                           = " << nBadLink0            << endmsg;
+  msg(MSG::INFO) << "Number of bad link 1                           = " << nBadLink1            << endmsg;
+  msg(MSG::INFO) << "Number of bad link both                        = " << nBadLinkBoth         << endmsg;
+  msg(MSG::INFO) << "Number of bad chips                            = " << nBadChips            << endmsg;  
+  msg(MSG::INFO) << "Number of bad strips                           = " << nBadStrips           << endmsg;
+  msg(MSG::INFO) << "Number of bad strips exclusive                 = " << nBadStripsExclusive  << endmsg;
   msg(MSG::INFO) << "Number of bad strips exclusive (ECC, B, ECA)   = " 
  		 << nBadStripsExclusiveBEC[0] << ", "
 		 << nBadStripsExclusiveBEC[1] << ", "
-		 << nBadStripsExclusiveBEC[2] << ", " << endreq;
+		 << nBadStripsExclusiveBEC[2] << ", " << endmsg;
 
-  msg(MSG::INFO) << "-----------------------------------------------------------------------" << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------------------------------" << endmsg;
 
   return StatusCode::SUCCESS;
 } 
 
 
 StatusCode SCT_ConfigurationConditionsTestAlg::finalize(){
-  msg(MSG::INFO) << "in finalize()" << endreq;
+  msg(MSG::INFO) << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 } 
 

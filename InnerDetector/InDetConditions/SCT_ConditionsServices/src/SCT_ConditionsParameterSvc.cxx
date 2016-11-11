@@ -102,14 +102,14 @@ SCT_ConditionsParameterSvc::SCT_ConditionsParameterSvc( const std::string& name,
 StatusCode
 SCT_ConditionsParameterSvc::initialize(){
   // Retrieve detector store
-  if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service  not found !" << endreq, StatusCode::FAILURE;
+  if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service  not found !" << endmsg, StatusCode::FAILURE;
   // Retrieve cabling service
-  if (m_cablingSvc.retrieve().isFailure())  return msg(MSG:: ERROR)<< "Can't get the cabling service." << endreq, StatusCode::FAILURE;
+  if (m_cablingSvc.retrieve().isFailure())  return msg(MSG:: ERROR)<< "Can't get the cabling service." << endmsg, StatusCode::FAILURE;
   // Retrieve SCT ID helper
-  if (m_detStore->retrieve(m_pHelper, "SCT_ID").isFailure()) return msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_pHelper, "SCT_ID").isFailure()) return msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg, StatusCode::FAILURE;
   //
   if (m_detStore->regFcn(&SCT_ConditionsParameterSvc::fillData,this, m_thresholdData,chipFolderName).isFailure()) {
-    return msg(MSG::FATAL) << "Failed to register callback" << endreq, StatusCode::FAILURE;
+    return msg(MSG::FATAL) << "Failed to register callback" << endmsg, StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
@@ -230,7 +230,7 @@ SCT_ConditionsParameterSvc::insert(const IdentifierHash & idHash, const SCT_Cond
 ///Callback for fill from database
 StatusCode 
 SCT_ConditionsParameterSvc::fillData(int& /* i */ , std::list<std::string>& /*keys*/){
-  if (m_detStore->retrieve(m_thresholdData,chipFolderName).isFailure())  return msg(MSG:: ERROR)<< "Could not fill chip configuration data" << endreq, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_thresholdData,chipFolderName).isFailure())  return msg(MSG:: ERROR)<< "Could not fill chip configuration data" << endmsg, StatusCode::FAILURE;
   for (unsigned int i(0);i!=SCT_ConditionsServices::N_PARAMETERS;++i){
     m_n[i]=0;
     m_sum[i]=0.0;
@@ -280,7 +280,7 @@ SCT_ConditionsParameterSvc::fillData(int& /* i */ , std::list<std::string>& /*ke
         m_min[SCT_ConditionsServices::AVG_THRESHOLD]=std::min(m_min[SCT_ConditionsServices::AVG_THRESHOLD], moduleAverage);
         m_max[SCT_ConditionsServices::AVG_THRESHOLD]=std::max(m_max[SCT_ConditionsServices::AVG_THRESHOLD], moduleAverage);
       } else {
-        msg(MSG::WARNING) << "Insertion failed for hash: "<<elementHash<<" and parameter: "<<SCT_ConditionsServices::parameterNames[SCT_ConditionsServices::AVG_THRESHOLD] << endreq;
+        msg(MSG::WARNING) << "Insertion failed for hash: "<<elementHash<<" and parameter: "<<SCT_ConditionsServices::parameterNames[SCT_ConditionsServices::AVG_THRESHOLD] << endmsg;
       }
     }//side loop
   }//module loop
