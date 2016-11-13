@@ -24,10 +24,11 @@ formatter = logging.Formatter('%(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
+def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False):
     q=qtest
-    if q != "q221":
-        extraArg=""
+    if q == 'q431' and doR2A:
+        extraArg += " --steering='doRAWtoALL'"
+
     logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
 
@@ -38,10 +39,11 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg):
+def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False):
     q=qtest
-    if q != "q221":
-        extraArg=""
+    if q == 'q431' and doR2A:
+        extraArg += " --steering='doRAWtoALL'"
+
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
 
     if 'WorkDir_DIR' in os.environ:
@@ -180,7 +182,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID):
 
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --ignore-leaves --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     passed_frozen_tier0_test=False
@@ -297,7 +299,6 @@ def RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqID):
             for w in wn:
                 logging.error(w)
             _Test=False
-            sys.exit(0)
 
         elif (len(warnings_test) < len(warnings_ref)):
             logging.error("Test log file "+test_file+" has "+str(len(warnings_ref) - len(warnings_test))+" less warnings than the reference log file "+ref_file)
@@ -363,20 +364,24 @@ def main():
     parser=OptionParser(usage="\n ./RunTier0Test.py \n")
 
     parser.add_option("-e","--extra"     ,type="string"       ,dest="extraArgs"        ,default=""    ,help="define additional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
+    parser.add_option("-a","--r2a"      ,action="store_true"       ,dest="r2a_flag"         ,default=False    ,help="r2a option will run q431 test in r2a mode")
     parser.add_option("-f","--fast"     ,action="store_true"       ,dest="fast_flag"        ,default=False    ,help="fast option will run all q tests simultaneously, such that it will run faster if you have 4 cpu core slots on which to run. Be warned! Only recommended when running on a high performance machine, not lxplus")
     parser.add_option("-c","--cleanDir"     ,type="string"       ,dest="cleanDir"        ,default="/tmp/"    ,help="specify the head directory for running the clean Tier0 tests. The default is /tmp/${USER}")
     parser.add_option("-r","--ref"     ,type="string"        ,dest="ref"   ,default=None    ,help="define a particular reference release")
-    parser.add_option("-v","--val"    ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
-
+    parser.add_option("-v","--val"     ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
 
     (options,args)=parser.parse_args()
 
     extraArg = ""
     if options.extraArgs == "MC_pp_v5":
         extraArg = "--preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' "
+    else:
+        extraArg = options.extraArgs
 
     RunFast = options.fast_flag
     CleanRunHeadDir=options.cleanDir
+    r2aMode = options.r2a_flag
+
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"                                                       
     
     
@@ -424,10 +429,19 @@ def main():
         
 
 ########### Define which q-tests to run
-        qTestsToRun = { 
+
+        qTestsToRun = {}
+        if r2aMode:
+            qTestsToRun = { 
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
+            'q431':[ 'RAWtoALL']
+            }
+        else:
+            qTestsToRun = { 
             'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
             'q431':[ 'RAWtoESD','ESDtoAOD','AODtoTAG']
             }          
+
         
 ########### Get release info
         mysetup = GetReleaseSetup() 
@@ -458,11 +472,11 @@ def main():
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode)
                     pass
     
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg)
+                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
