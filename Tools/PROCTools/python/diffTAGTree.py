@@ -7,7 +7,7 @@ sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile, TTree
 sys.argv.pop()
 
-setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","JetMissingETWord")
+setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","RecoTimeRAWtoALL","JetMissingETWord")
 
 def diffTTree(tOld,tNew,details=None): 
     nOld = tOld.GetEntriesFast()

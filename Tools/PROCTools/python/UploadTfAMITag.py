@@ -17,6 +17,7 @@ cmProjTag = "data[0-9][0-9]_(cos|1beam|comm)" # only for commissioning
 cpProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm)" #For commissioning or pp but not HI
 pcProjTag = "data[0-9][0-9]_(1beam|.*eV|comm)" #For commissioning or pp but not cosmics
 cphipProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm|hip)" # Above plus hip, i.e. all bar Pb-Pb HI
+cphiProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm|hi)" # Above plus hi, HI
 pphipProjTag = "data[0-9][0-9]_(.*eV|hip)" # pp or hip, for hip outputs in pp
 
 #Setup script locations
@@ -30,42 +31,106 @@ specialT0Setup = specialT0Setup_Oracle # By Default
 OutputsVsStreams = {
 
 # The basics:
-    'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced, except for DRAW input'},
-    'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cpProjTag, 'HumanOutputs': 'always produced except for ZeroBias stream.'},
+    ## modification for pp reference run - only produce for the express stream
+    #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced, except for DRAW input'},
+    ## special version for 2 part of HI
+    #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(.*express.*|.*L1Calo.*|.*ZeroBias.*|.*CosmicCalo.*|.*Late.*)', 'HumanOutputs': 'always produced, except for DRAW input'},
+    ## previous pp setup
+    ##'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*physics_Main.*)', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
+    ## setup for cosmics
+    #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*IDCosmic.*)', 'HumanOutputs': 'always produced, except for DRAW input and IDCosmic'},
+    #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced, except for DRAW'},
+    #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*physics_Main.*)', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
+    'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.(.*physics_Main\..*|.*Background.*|.*L1Topo.*))', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
+    'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cphiProjTag+'(?!.*DRAW_RPVLL.*)(?!.*Background.*)', 'HumanOutputs': 'always produced except for DRAW_RPVLL.'},
     'outputTAGFile': {'dstype': 'TAG', 'ifMatch': HIProjTag+'(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in AOD merging'},
-    'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for debug stream'},  # note was disabled for Pb-Pb HardProbes
-    
+    'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for DRAW and debugrec'},  # note was disabled for Pb-Pb HardProbes
+    'outputRDOFile': {'dstype': 'RDO', 'ifMatch': cphiProjTag, 'HumanOutputs': 'always produced.'},
 # NTuples
-    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
-                                 'HumanOutputs': 'produced for IDCosmic and CosmicMuons streams'},
+#    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
+#                                 'HumanOutputs': 'produced for IDCosmic and CosmicMuons streams'},
+
+### put it to all streams for M10 tags
+#    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(?!.*Background.*)',
+#                                 'HumanOutputs': 'always produced except for DRAW'},
 
 # DRAW production 
-   'outputDRAW_ZMUMUFile': {'dstype': 'DRAW_ZMUMU', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_ZMUMUFile': {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
                               'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
-   'outputDRAW_TAUMUHFile' : {'dstype': 'DRAW_TAUMUH', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_TAUMUHFile' : {'dstype': 'DRAW_TAUMUH', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
     ### These don't work in 20.1.5.4, code updates from Paul coming soon
     ### Added three new outputs in 20.1.5.5 - DRAW_EGZ, DRAW_EGJPSI, DRAW_EMU
-   'outputDRAW_EGZFile'  : {'dstype': 'DRAW_EGZ', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_EGZFile'  : {'dstype': 'DRAW_EGZ', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
                             'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
    #'outputDRAW_EGJPSIFile'  : {'dstype': 'DRAW_EGJPSI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
    #                         'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
-   'outputDRAW_EMUFile'  : {'dstype': 'DRAW_EMU', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
-                            'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+    'outputDRAW_EMUFile'  : {'dstype': 'DRAW_EMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                             'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+
+    'outputDRAW_RPVLLFile'  : {'dstype': 'DRAW_RPVLL', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                               'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
 
 # Special reconstruction outputs for DRAW
-    #'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_ZMCP', 'ifMatch': cpProjTag+'(.*DRAW_ZMUMU.*)', 
-    #                             'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
-    'outputDESDM_ALLCELLSFile': {'dstype': 'replace RAW ESDM', 'ifMatch': cpProjTag+'(.*DRAW.*)(?!.*TAUMUH.*)', 
+#    'outputDESDM_MSPerfFile'  : {'dstype': '!replace RAW DESDM_MCP DDESDM_MCP_ZMUMU DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*physics_Main\..*|.*CosmicMuons.*)(.*\.RAW\.*|.*DRAW_ZMUMU.*)',
+#                                 'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
+#    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*DRAW_ZMUMU.*)', 
+#                                 'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
+    'outputDESDM_ALLCELLSFile': {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(?!.*DRAW_TAUMUH.*)(.*DRAW.*)', 
                                  'HumanOutputs': 'produced when reconstructing all DRAW formats'},
 
+#    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*CosmicMuons.*)',
+#                                 'HumanOutputs': 'produced when reconstructing RAW'},
+    'outputDESDM_MCPFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*CosmicMuons.*)',
+                                 'HumanOutputs': 'produced when reconstructing RAW'},
+
+    'outputDESDM_EXOTHIPFile'  : {'dstype': 'DESDM_EXOTHIP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                                 'HumanOutputs': 'produced when reconstructing RAW'},
+
+#    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*\.DRAW_EGZ\.*|.*DRAW_ZMUMU.*)(.*physics_Main.*)',
+    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*physics_Main.*)(.*\.DRAW_EGZ\.*|.*DRAW_ZMUMU.*)',
+                                 'HumanOutputs': 'produced when reconstructing DRAW_EGZ and DRAW_ZMUMU formats'},
+
 # DESDs made from full ESD files
+    'outputDAOD_IDNCBFile' : {'dstype': 'DAOD_IDNCB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*Background.*)',
+                                 'HumanOutputs': 'produced for Background streams.'},
+ 
     'outputDAOD_IDTRKVALIDFile' : {'dstype': 'DAOD_IDTRKVALID', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*MinBias.*|.*IDCosmic.*)',
                                  'HumanOutputs': 'produced for MinBias and IDCosmic streams.'},
-    'outputDAOD_IDTRKLUMIFile' : {'dstype': 'DAOD_IDTRKLUMI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*VdM.*|.*PixelBeam.*)',
+
+    'outputDAOD_IDTRKLUMIFile' : {'dstype': 'DAOD_IDTRKLUMI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*VdM.*|.*PixelBeam*.)',
                                  'HumanOutputs': 'produced for calibration streams.'},
+
+    'outputDAOD_IDPIXLUMIFile' : {'dstype': 'DAOD_IDPIXLUMI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*VdM.*|.*PixelBeam*.)',
+                                 'HumanOutputs': 'produced for PixelBeam and VdM calibration streams.'},
+
+    'outputDAOD_SCTVALIDFile': {'dstype': 'DAOD_SCTVALID', 'ifMatch': cphiProjTag+'(?!.*DRAW.*)(.*express_express.*)',
+                                'HumanOutputs': 'produced for express stream only'},
+
+
+    'outputDAOD_IDTIDEFile' : {'dstype': 'DAOD_IDTIDE', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                                 'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
     'outputDESDM_RPVLLFile': {'dstype': 'DESDM_RPVLL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
-                              'HumanOutputs': 'produced for collision runs, for physics_JetTauEtMiss, physics_Egamma and physics_Muons streams.'},
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
+    'outputDESDM_SLTTMUFile': {'dstype': 'DESDM_SLTTMU','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
+    'outputDESDM_PHOJETFile': {'dstype': 'DESDM_PHOJET','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
+    'outputDESDM_CALJETFile': {'dstype': 'DESDM_CALJET','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main.'},
+
+    'outputDESDM_SGLELFile': {'dstype': 'DESDM_SGLEL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
+    'outputDESDM_EGAMMAFile': {'dstype': 'DESDM_EGAMMA','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
+
+    'outputDESDM_TILEMUFile': {'dstype': 'DESDM_TILEMU','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
+                              'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
 
 }
 
@@ -118,14 +183,14 @@ def GetProcessConfigs(release,patcharea):
     # AOD merging
     processConfigs['aodmerge'] = {
         'inputs': {'inputAODFile': {}},
-        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'},
-                    'outputTAGFile': {'dstype': 'TAG'}
+        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'}
+                    #'outputTAGFile': {'dstype': 'TAG', 'ifMatch': '(?!.*calibration.*)'}
                     },
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
-        'description': 'Produces merged AODs plus associated physics TAGs with AODMerge_tf.py. '}
+        'description': 'Produces merged AODs with AODMerge_tf.py. '}
 
     # DAOD merging
     processConfigs['daodmerge'] = {
@@ -135,17 +200,17 @@ def GetProcessConfigs(release,patcharea):
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
-        'description': 'Produces merged DAODs plus associated physics TAGs with AODMerge_tf.py. '}
+        'description': 'Produces merged DAODs with AODMerge_tf.py. '}
 
     # DPD merging
     processConfigs['dpdmerge'] = {
         'inputs': {'inputESDFile': {}},
-        'outputs': {'outputESDFile': {'dstype': '!likeinput' }},
-        'phconfig': {'ignoreerrors': 'ALL', 'autoConfiguration': 'everything', 'preExec': 'rec.doDPD.set_Value_and_Lock(False)'},
-        'transformation': 'Merging_tf.py',
-        'tasktransinfo': {'trfpath': 'Merging_tf.py',
+        'outputs': {'outputESD_MRGFile': {'dstype': '!likeinput' }},
+        'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
+        'transformation': 'ESDMerge_tf.py',
+        'tasktransinfo': {'trfpath': 'ESDMerge_tf.py',
                           'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
-        'description': 'Produces merged DPDs with Merging_trf. ' }
+        'description': 'Produces merged DPDs with ESDMerge_tf. ' }
 
 
     # Fast Physics Monitoring Ntuple
@@ -290,17 +355,16 @@ if __name__ == '__main__':
 
         print startingDic
 
-        from PATJobTransforms.Configuration import ConfigDic
         didConditionsUpdate = False
         for key in startingDic.keys():
-            if ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isInput"):
+            if key.startswith("input"):
                 if amiTag.startswith("q"): # only write the input file for q-tags
                     inputDic[key]=startingDic[key]
                 else:
                     inputDic[key]={}
                 #print "inputDic[%s] = %s" % (key, inputDic[key])
 
-            elif ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isOutput") and (key!="tmpESD" and key!="tmpAOD"):
+            elif key.startswith("output"):
                 try:
                     #print "key: " , key , " isOutput"
                     outputDic[key]=OutputsVsStreams[key]
@@ -401,9 +465,11 @@ if __name__ == '__main__':
     c['trfsetupcmd']=str(moreInfoDic['tasktransinfo']['trfsetupcmd'])
     c['moreInfo']=str(moreInfoDic.__str__())
     if amiTag.startswith("f") or amiTag.startswith("x") or amiTag.startswith("q") or amiTag.startswith("v") or amiTag.startswith("c"):
-        c['Geometry']='Auto-config. See dataset info.'
-        if not amiTag.startswith("x"):
-            c['ConditionsTag']='Auto-config. See dataset info.'
+        c['Geometry']=startingDic['geometryVersion']['all']
+        #c['Geometry']='Auto-config. See dataset info.'
+        #if not amiTag.startswith("x"):
+        c['ConditionsTag']=configDic['conditionsTag']['all']
+        #c['ConditionsTag']='Auto-config. See dataset info.'
 
     #print c['Human-readable outputs']
 
