@@ -166,26 +166,12 @@ if DQMonFlags.doMuonSegmentMon():
 #------------- ---------#
 if DQMonFlags.doMuonTrackMon():
    try:
-       if DQMonFlags.useTrigger(): ## monitoring tool cannot have a dependence on TrigDecisionTool if DQMonFlags.useTrigger==False (ATLASRECTS-3549)
-           if MuonDQADetFlags.doMuonTrackMon():
-               include ("MuonTrackMonitoring/MuonTrackDQA_options.py")
-           if MuonDQADetFlags.MuonTrkMonDoTrigger():
-               include ("MuonTrackMonitoring/MuonTrigTrackDQA_options.py")
+       if MuonDQADetFlags.doMuonTrackMon():
+           include ("MuonTrackMonitoring/MuonTrackDQA_options.py")
+           # if MuonDQADetFlags.MuonTrkMonDoTrigger() and DQMonFlags.useTrigger(): ## monitoring tool cannot have a dependence on TrigDecisionTool if DQMonFlags.useTrigger==False (ATLASRECTS-3549)
+           #     include ("MuonTrackMonitoring/MuonTrigTrackDQA_options.py")
    except Exception:
        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
-
-#-------------------------#
-# MuonTrkPhys  monitoring #
-#-------------------------#
-if DQMonFlags.doMuonTrkPhysMon():
-    try:
-        if MuonDQADetFlags.doMuonTrkPhysMon():
-            include ("MuonTrkPhysMonitoring/MuonTrkPhysDQA_options.py")
-        if MuonDQADetFlags.doMuonCbTrkAlignMon():
-            include ("MuonTrkPhysMonitoring/MuonCbTrkAlignMon_options.py")    
-    except Exception:
-        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon TrkPhys monitoring")
-
 
 #-------------------------#
 # Muon physics monitoring #
