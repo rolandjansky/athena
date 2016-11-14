@@ -11,6 +11,7 @@
 
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
+from tauRec.tauRecFlags import tauFlags
 
 cached_instances = {}
 
@@ -820,44 +821,35 @@ def getTauTrackClassifier():
 
     # =========================================================================
     _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
-                                                #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT.weights.xml",
-                                                InputWeightsPath = "TMVAClassification_BDT.weights.root",
-                                                Threshold      = -0.005,
-                                                # ExpectedFlag   = 9, # unclassified
-                                                # SignalType     = 5, # charged
-                                                # BackgroundType = 7  # isolation
-                                                ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, # unclassified
-                                                SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
-                                                BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation  # isolation
-                                                )
+                                   #InputWeightsPath = "TMVAClassification_BDT.weights.root",
+                                   InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[0],
+                                   Threshold      = -0.005,
+                                   ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
+                                   SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, 
+                                   BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation  
+                                   )
     ToolSvc += _BDT_TTCT_ITFT_0
     cached_instances[_BDT_TTCT_ITFT_0.name] = _BDT_TTCT_ITFT_0
     
     _BDT_TTCT_ITFT_0_0 = TrackMVABDT(name = _name + "_0_0",
-                                                  #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_0.weights.xml",
-                                                  InputWeightsPath = "TMVAClassification_BDT_0.weights.root",
-                                                  Threshold      = -0.0074,
-                                                  # ExpectedFlag   = 5, # charged
-                                                  # SignalType     = 5, # charged
-                                                  # BackgroundType = 6  # conversion
-                                                  ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
-                                                  SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged, # charged
-                                                  BackgroundType = ROOT.xAOD.TauJetParameters.classifiedConversion  # conversion
-                                                  )
+                                     #InputWeightsPath = "TMVAClassification_BDT_0.weights.root",
+                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[1],
+                                     Threshold      = -0.0074,
+                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedCharged,
+                                     SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
+                                     BackgroundType = ROOT.xAOD.TauJetParameters.classifiedConversion
+                                     )
     ToolSvc += _BDT_TTCT_ITFT_0_0
     cached_instances[_BDT_TTCT_ITFT_0_0.name] = _BDT_TTCT_ITFT_0_0
     
     _BDT_TTCT_ITFT_0_1 = TrackMVABDT(name = _name + "_0_1",
-                                                  #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_1.weights.xml",
-                                                  InputWeightsPath = "TMVAClassification_BDT_1.weights.root",
-                                                  Threshold      = 0.0005,
-                                                  # ExpectedFlag   = 7, # isolation
-                                                  # SignalType     = 7, # isolation
-                                                  # BackgroundType = 8 # fake
-                                                  ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedIsolation, # isolation
-                                                  SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, # isolation
-                                                  BackgroundType = ROOT.xAOD.TauJetParameters.classifiedFake # fake
-                                                  )
+                                     #InputWeightsPath = "TMVAClassification_BDT_1.weights.root",
+                                     InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[2], 
+                                     Threshold      = 0.0005,
+                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
+                                     SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
+                                     BackgroundType = ROOT.xAOD.TauJetParameters.classifiedFake 
+                                     )
     ToolSvc += _BDT_TTCT_ITFT_0_1
     cached_instances[_BDT_TTCT_ITFT_0_1.name] = _BDT_TTCT_ITFT_0_1
 

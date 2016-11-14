@@ -48,8 +48,13 @@ class TauRecConfigured ( Configured ) :
 
     def AddToolsToToolSvc(self, tools=[]):
         from AthenaCommon.AppMgr import ToolSvc
+        from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            if tool not in ToolSvc : ToolSvc += tool
+            if tool.__slots__['calibFolder'].count('TauDiscriminant'):
+                tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
+            else :
+                tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+            if tool not in ToolSvc : ToolSvc += tool            
             pass
 
     def TauProcessorAlgHandle(self):
