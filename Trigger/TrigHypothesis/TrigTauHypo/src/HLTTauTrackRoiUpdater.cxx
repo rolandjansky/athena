@@ -38,14 +38,14 @@ HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
 HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
 {
 
-  msg() << MSG::INFO << "in initialize()" << endreq;
-  msg() << MSG::INFO << " REGTEST: HLTTauTrackRoiUpdater parameters 	" 	<< endreq;
-  msg() << MSG::INFO << " REGTEST: Input Track Collection 		" 	<< m_InputTrackColl << endreq;
-  msg() << MSG::INFO << " REGTEST: z0HalfWidth            		" 	<< m_z0HalfWidth << endreq;
-  msg() << MSG::INFO << " REGTEST: nHitPix            			" 	<< m_nHitPix << endreq;
-  msg() << MSG::INFO << " REGTEST: nSiHoles            		        " 	<< m_nSiHoles << endreq;
-  msg() << MSG::INFO << " REGTEST: UpdateEta            		" 	<< m_updateEta << endreq;
-  msg() << MSG::INFO << " REGTEST: UpdatePhi            		" 	<< m_updatePhi << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
+  msg() << MSG::INFO << " REGTEST: HLTTauTrackRoiUpdater parameters 	" 	<< endmsg;
+  msg() << MSG::INFO << " REGTEST: Input Track Collection 		" 	<< m_InputTrackColl << endmsg;
+  msg() << MSG::INFO << " REGTEST: z0HalfWidth            		" 	<< m_z0HalfWidth << endmsg;
+  msg() << MSG::INFO << " REGTEST: nHitPix            			" 	<< m_nHitPix << endmsg;
+  msg() << MSG::INFO << " REGTEST: nSiHoles            		        " 	<< m_nSiHoles << endmsg;
+  msg() << MSG::INFO << " REGTEST: UpdateEta            		" 	<< m_updateEta << endmsg;
+  msg() << MSG::INFO << " REGTEST: UpdatePhi            		" 	<< m_updatePhi << endmsg;
   return HLT::OK;
 
 }
@@ -53,7 +53,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
 HLT::ErrorCode HLTTauTrackRoiUpdater::hltFinalize()
 {
 
-  msg() << MSG::DEBUG << "in finalize()" << endreq;
+  msg() << MSG::DEBUG << "in finalize()" << endmsg;
 
   return HLT::OK;
 
@@ -68,7 +68,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   const TrigRoiDescriptor* roiDescriptor = 0;
   status = getFeature(outputTE, roiDescriptor);
   if ( status != HLT::OK || roiDescriptor == 0 ) {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return status;
   }
 
@@ -84,12 +84,12 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   status = getFeatures(outputTE, vectorFoundTracks);
 
   if (status !=HLT::OK) {
-    msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endreq;
+    msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endmsg;
     return HLT::NAV_ERROR;
   }
   else {
     if (vectorFoundTracks.size()<1) {
-      msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endreq;
+      msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endmsg;
       return HLT::NAV_ERROR;
     }
   }
@@ -99,15 +99,15 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   // add a passbits container
   std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<TrackCollection>(foundTracks);
 
-  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
-  else msg() << MSG::DEBUG << " Input track collection not found " << endreq;  
+  if(foundTracks!=0) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endmsg;
+  else msg() << MSG::DEBUG << " Input track collection not found " << endmsg;  
 
   const Trk::Track *leadTrack = 0;
   const Trk::Perigee *trackPer = 0;
   const Trk::TrackSummary* summary = 0;
   double trkPtMax = 0;
   
-  if(foundTracks){
+  if(foundTracks!=0){
     
     TrackCollection::const_iterator it = foundTracks->begin();
     TrackCollection::const_iterator itEnd = foundTracks->end();
@@ -125,7 +125,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
  
       if(summary==0){
-        msg() << MSG::DEBUG << " track summary not available in RoI updater " << trkPtMax << endreq;
+        msg() << MSG::DEBUG << " track summary not available in RoI updater " << trkPtMax << endmsg;
       }
 
  
@@ -143,7 +143,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
 	  if(nPix < m_nHitPix) {
 
-	    msg() << MSG::DEBUG << "Track rejected because of nHitPix " << nPix << " < " << m_nHitPix << endreq;
+	    msg() << MSG::DEBUG << "Track rejected because of nHitPix " << nPix << " < " << m_nHitPix << endmsg;
 
 	    continue;
 
@@ -158,7 +158,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 	
 	  if((nPixHole + nSCTHole) > m_nSiHoles) {
 	    
-	    msg() << MSG::DEBUG << "Track rejected because of nSiHoles " << nPixHole + nSCTHole << " > " << m_nSiHoles << endreq;
+	    msg() << MSG::DEBUG << "Track rejected because of nSiHoles " << nPixHole + nSCTHole << " > " << m_nSiHoles << endmsg;
 	    
 	    continue;
 	  
@@ -178,9 +178,9 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
 
     if(leadTrack) {
-      msg() << MSG::DEBUG << " leading track pT " << trkPtMax << endreq;
+      msg() << MSG::DEBUG << " leading track pT " << trkPtMax << endmsg;
     }
-    else msg() << MSG::DEBUG << " no leading track pT found " << endreq;
+    else msg() << MSG::DEBUG << " no leading track pT found " << endmsg;
     
     if(leadTrack){
       leadTrkZ0  = leadTrack->perigeeParameters()->parameters()[Trk::z0];

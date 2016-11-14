@@ -50,15 +50,15 @@ T2CaloTauHypo::~T2CaloTauHypo(){
 
 HLT::ErrorCode T2CaloTauHypo::hltInitialize(){
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: initialization..." << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: initialization..." << endmsg;
 
-  msg() << MSG::INFO << "REGTEST: EtRaw cut = " <<  m_etRaw_Cut << endreq;
+  msg() << MSG::INFO << "REGTEST: EtRaw cut = " <<  m_etRaw_Cut << endmsg;
 
-  if ( m_emRadius3S_Cut < 100.0 ) msg() << MSG::INFO << "REGTEST: EmRadius3S cut = "   <<  m_emRadius3S_Cut << endreq;
-  else                            msg() << MSG::INFO << "REGTEST: EmRadius3S cut disabled" << endreq;
+  if ( m_emRadius3S_Cut < 100.0 ) msg() << MSG::INFO << "REGTEST: EmRadius3S cut = "   <<  m_emRadius3S_Cut << endmsg;
+  else                            msg() << MSG::INFO << "REGTEST: EmRadius3S cut disabled" << endmsg;
 
-  if ( m_coreFraction_Cut > 0.0 ) msg() << MSG::INFO << "REGTEST: CoreFraction cut = " <<  m_coreFraction_Cut <<  endreq;
-  else                            msg() << MSG::INFO << "REGTEST: CoreFraction cut disabled" << endreq;
+  if ( m_coreFraction_Cut > 0.0 ) msg() << MSG::INFO << "REGTEST: CoreFraction cut = " <<  m_coreFraction_Cut <<  endmsg;
+  else                            msg() << MSG::INFO << "REGTEST: CoreFraction cut disabled" << endmsg;
       
   
   return HLT::OK;
@@ -71,7 +71,7 @@ HLT::ErrorCode T2CaloTauHypo::hltFinalize(){
 HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
 
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
 
   pass         = false;
   m_cutCounter = 0;
@@ -85,7 +85,7 @@ HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
       msg() << MSG::DEBUG << "REGTEST: " //event : " << IdEvent  
             << "/ RoI id : " << roiDescriptor->roiId() << "/ with LVL1 id :" << roiDescriptor->l1Id() 
             << " / located at phi = " <<  roiDescriptor->phi()
-            << ", eta = " << roiDescriptor->eta() << endreq;
+            << ", eta = " << roiDescriptor->eta() << endmsg;
     }
   }
   
@@ -96,7 +96,7 @@ HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
 
 
   if( hltstatus != HLT::OK ) {
-     msg() << MSG::ERROR << "Retrieval of std::vector<TrigTauCluster*> failed" << endreq;
+     msg() << MSG::ERROR << "Retrieval of std::vector<TrigTauCluster*> failed" << endmsg;
      return hltstatus;
   }
   m_cutCounter++;//1
@@ -104,7 +104,7 @@ HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   
   // Check that there is only one RecEmTauROI. We only expect ONE input RoI.
   if (vectorOfClusters.size() != 1){
-    msg() << MSG::ERROR << "Size of std::vector<TrigTauCluster*> is not 1" << endreq;
+    msg() << MSG::ERROR << "Size of std::vector<TrigTauCluster*> is not 1" << endmsg;
     return HLT::OK;
   }
   m_cutCounter++;//2
@@ -113,7 +113,7 @@ HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   // Get first (and only) RoI:
   const TrigTauCluster* pCluster = vectorOfClusters.front();
   if(!pCluster){
-    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endreq;
+    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endmsg;
     return HLT::OK;
   }
   m_cutCounter++;//3
@@ -140,12 +140,12 @@ HLT::ErrorCode T2CaloTauHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
 
   // Reach this point successfully
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: etRaw :"        << etRaw    << endreq;
-    if ( m_emRadius3S_Cut < 100.0 ) msg() << MSG::DEBUG << "REGTEST: emRad3S :"      << emRad3S  << endreq;
-    if ( m_coreFraction_Cut > 0.0 ) msg() << MSG::DEBUG << "REGTEST: CoreFraction :" << coreFrac << endreq;
+    msg() << MSG::DEBUG << "REGTEST: etRaw :"        << etRaw    << endmsg;
+    if ( m_emRadius3S_Cut < 100.0 ) msg() << MSG::DEBUG << "REGTEST: emRad3S :"      << emRad3S  << endmsg;
+    if ( m_coreFraction_Cut > 0.0 ) msg() << MSG::DEBUG << "REGTEST: CoreFraction :" << coreFrac << endmsg;
 
-    if ( pass ) msg() << MSG::DEBUG << "REGTEST: RoI is accepted " << endreq;
-    else        msg() << MSG::DEBUG << "REGTEST: RoI is rejected " << endreq;
+    if ( pass ) msg() << MSG::DEBUG << "REGTEST: RoI is accepted " << endmsg;
+    else        msg() << MSG::DEBUG << "REGTEST: RoI is rejected " << endmsg;
   }
 
   return HLT::OK;

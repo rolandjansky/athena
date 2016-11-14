@@ -36,7 +36,7 @@ L2TauTopoHypo::~L2TauTopoHypo()
 HLT::ErrorCode L2TauTopoHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-	msg() << MSG::INFO << "in initialize()" << endreq;
+	msg() << MSG::INFO << "in initialize()" << endmsg;
 	
 	return HLT::OK;
 }

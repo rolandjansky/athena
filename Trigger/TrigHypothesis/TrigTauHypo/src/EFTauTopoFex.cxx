@@ -26,7 +26,7 @@ EFTauTopoFex::~EFTauTopoFex(){}
 
 HLT::ErrorCode EFTauTopoFex::hltInitialize()
 {
-	msg() << MSG::INFO << "in initialize()" << endreq;
+	msg() << MSG::INFO << "in initialize()" << endmsg;
 	return HLT::OK;
 }
 
@@ -76,13 +76,13 @@ HLT::ErrorCode EFTauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 
 	if ( getFeatures(te1, vectorTauContainers1) != HLT::OK || getFeatures(te2, vectorTauContainers2) != HLT::OK )
 		{
-                       msg() << MSG::WARNING << "Failed to get xAOD::TauJetContainer collections" << endreq;
+                       msg() << MSG::WARNING << "Failed to get xAOD::TauJetContainer collections" << endmsg;
                         return HLT::MISSING_FEATURE;
                 }
-	else { msg() << MSG::DEBUG  << "xAOD::TauJetContainer collections successfully retrieved" << endreq; }
+	else { msg() << MSG::DEBUG  << "xAOD::TauJetContainer collections successfully retrieved" << endmsg; }
 
         if (vectorTauContainers1.size() < 1 || vectorTauContainers2.size() < 1) {
-                msg() << MSG::DEBUG << " empty xAOD::TauJetContainer" << endreq;
+                msg() << MSG::DEBUG << " empty xAOD::TauJetContainer" << endmsg;
                 return HLT::OK;
         }
 

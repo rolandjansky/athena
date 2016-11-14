@@ -29,9 +29,9 @@ HLTTauCaloRoiUpdater::~HLTTauCaloRoiUpdater()
 HLT::ErrorCode HLTTauCaloRoiUpdater::hltInitialize()
 {
 
-  msg() << MSG::DEBUG << "in initialize()" << endreq;
-  msg() << MSG::DEBUG << " REGTEST: HLTTauCaloRoiUpdater parameters " << endreq;
-  msg() << MSG::DEBUG << " REGTEST: dRForCenter = " << m_dRForCenter << endreq;
+  msg() << MSG::DEBUG << "in initialize()" << endmsg;
+  msg() << MSG::DEBUG << " REGTEST: HLTTauCaloRoiUpdater parameters " << endmsg;
+  msg() << MSG::DEBUG << " REGTEST: dRForCenter = " << m_dRForCenter << endmsg;
 
   return HLT::OK;
 
@@ -39,7 +39,7 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltInitialize()
 
 HLT::ErrorCode HLTTauCaloRoiUpdater::hltFinalize()
 {
-  msg() << MSG::DEBUG << "in finalize()" << endreq;
+  msg() << MSG::DEBUG << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -51,7 +51,7 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT:
   const TrigRoiDescriptor* roiDescriptor = 0;
   status = getFeature(outputTE, roiDescriptor);
   if ( status != HLT::OK || roiDescriptor == 0 ) {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return status;
   }
 
@@ -64,19 +64,19 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT:
   status = getFeatures(outputTE, vectorCaloClusterContainer);
 
   if(status!=HLT::OK ) {
-    msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endreq;
+    msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endmsg;
     return status;
   }
 
   if (vectorCaloClusterContainer.size() < 1) {
     msg() << MSG::ERROR
           << "  CaloCluster container is empty"
-          << endreq;
+          << endmsg;
     return HLT::ERROR;
   }
 
   //if( msgLvl() <= MSG::DEBUG )
-  //  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endreq;
+  //  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endmsg;
 
   // Grab the last cluster collection attached
   const xAOD::CaloClusterContainer* RoICaloClusterContainer = vectorCaloClusterContainer.back();
@@ -85,17 +85,17 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT:
     msg() << MSG::DEBUG
           << "REGTEST: Size of vector CaloCluster container is "
           << RoICaloClusterContainer->size()
-          << endreq;
+          << endmsg;
     if(RoICaloClusterContainer->size()==0) {
       msg() << MSG::DEBUG
             << "Cannot proceed, size of vector CaloCluster container is "
             << RoICaloClusterContainer->size()
-            << endreq;
+            << endmsg;
       return HLT::OK;
     }
   }
   else {
-    msg() << MSG::ERROR << "no CaloCluster container found "<< endreq;
+    msg() << MSG::ERROR << "no CaloCluster container found "<< endmsg;
     return HLT::ERROR;
   }
   

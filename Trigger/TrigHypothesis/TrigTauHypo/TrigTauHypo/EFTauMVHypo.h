@@ -77,9 +77,9 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   int m_mon_nWideTrackAccepted;
   int m_inputTaus;
 
-  std::string s_cut_level;
+  std::string m_cut_level;
   std::map<std::string,TGraph> m_cuts;
-  TGraph *OneProngGraph,*MultiProngGraph;
+  TGraph *m_OneProngGraph,*m_MultiProngGraph;
 };
 #endif
 

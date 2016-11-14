@@ -64,7 +64,7 @@ HLT::ErrorCode T2IDIsoTauHypo::hltInitialize()
 {
 
   if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "in initialize()" << endreq;
+      msg() << MSG::DEBUG << "in initialize()" << endmsg;
   
 
   //check that only general or 1P/MP cuts are enabled
@@ -73,27 +73,27 @@ HLT::ErrorCode T2IDIsoTauHypo::hltInitialize()
           << "  SumPtRatioMax = " << m_sumPtRatio_Cut
           << ", SumPtRatioMax1P = " << m_sumPtRatio_1PCut
           << ", SumPtRatioMaxMP = " << m_sumPtRatio_MPCut
-          << endreq;
+          << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
 
   // Print put default settings
-  if( m_sumPtRatio_Cut < 100.0 )   msg() << MSG::INFO << "REGTEST: general sumPtRatio <= "               << m_sumPtRatio_Cut << endreq;
-  else                             msg() << MSG::INFO << "REGTEST: cut on general sumPtRatio disabled: " << m_sumPtRatio_Cut << endreq; 
+  if( m_sumPtRatio_Cut < 100.0 )   msg() << MSG::INFO << "REGTEST: general sumPtRatio <= "               << m_sumPtRatio_Cut << endmsg;
+  else                             msg() << MSG::INFO << "REGTEST: cut on general sumPtRatio disabled: " << m_sumPtRatio_Cut << endmsg; 
 
-  if( m_sumPtRatio_1PCut < 100.0 ) msg() << MSG::INFO << "REGTEST: 1P sumPtRatio <= "                    << m_sumPtRatio_1PCut << endreq;
-  else                             msg() << MSG::INFO << "REGTEST: cut on 1P sumPtRatio disabled: "      << m_sumPtRatio_1PCut << endreq; 
+  if( m_sumPtRatio_1PCut < 100.0 ) msg() << MSG::INFO << "REGTEST: 1P sumPtRatio <= "                    << m_sumPtRatio_1PCut << endmsg;
+  else                             msg() << MSG::INFO << "REGTEST: cut on 1P sumPtRatio disabled: "      << m_sumPtRatio_1PCut << endmsg; 
 
-  if( m_sumPtRatio_MPCut < 100.0 ) msg() << MSG::INFO << "REGTEST: MP sumPtRatio <= "                    << m_sumPtRatio_MPCut << endreq;
-  else                             msg() << MSG::INFO << "REGTEST: cut on MP sumPtRatio disabled: "      << m_sumPtRatio_MPCut << endreq;
+  if( m_sumPtRatio_MPCut < 100.0 ) msg() << MSG::INFO << "REGTEST: MP sumPtRatio <= "                    << m_sumPtRatio_MPCut << endmsg;
+  else                             msg() << MSG::INFO << "REGTEST: cut on MP sumPtRatio disabled: "      << m_sumPtRatio_MPCut << endmsg;
 
 
 
   //For internal use set prong dependent cuts in case only general cut is setup
   if ( m_sumPtRatio_Cut < 100.0 ) {
     msg() << MSG::INFO << "General sumPtRatio enabled: " << m_sumPtRatio_Cut
-          << ", copying to 1P (" << m_sumPtRatio_1PCut << ") and MP (" <<m_sumPtRatio_MPCut << ") for internal use" << endreq;
+          << ", copying to 1P (" << m_sumPtRatio_1PCut << ") and MP (" <<m_sumPtRatio_MPCut << ") for internal use" << endmsg;
     m_sumPtRatio_1PCut = m_sumPtRatio_Cut;
     m_sumPtRatio_MPCut = m_sumPtRatio_Cut;
   }
@@ -108,7 +108,7 @@ HLT::ErrorCode T2IDIsoTauHypo::hltFinalize()
 // ----------------------------------------------------------------------
 {
   if( msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in finalize()" << endreq;
+    msg() << MSG::DEBUG << "in finalize()" << endmsg;
   return  HLT::OK;
 }
 
@@ -119,7 +119,7 @@ HLT::ErrorCode T2IDIsoTauHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 // ----------------------------------------------------------------------
 {
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << name() << ": in execute()" << endmsg;
 
   pass         = false;
   m_cutCounter = 0;
@@ -132,22 +132,22 @@ HLT::ErrorCode T2IDIsoTauHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
     //get RoI descriptor
     const TrigRoiDescriptor* roiDescriptor = 0;
     HLT::ErrorCode status = getFeature(inputTE, roiDescriptor); 
-    if ( status != HLT::OK || roiDescriptor == 0 ) msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    if ( status != HLT::OK || roiDescriptor == 0 ) msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     else msg() << MSG::DEBUG << "REGTEST: RoI id : "
                << roiDescriptor->roiId() << "/ with LVL1 id :" << roiDescriptor->l1Id()
                << " / located at phi = " <<  roiDescriptor->phi()
-               << ", eta = " << roiDescriptor->eta() << endreq;
+               << ", eta = " << roiDescriptor->eta() << endmsg;
     
 
     //get run/event #, if debug
     const EventInfo* pEventInfo;
     int IdRun=0;
     int IdEvent=0;
-    if ( !store() || store()->retrieve(pEventInfo).isFailure() ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
+    if ( !store() || store()->retrieve(pEventInfo).isFailure() ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
     else {
       IdRun   = pEventInfo->event_ID()->run_number();
       IdEvent = pEventInfo->event_ID()->event_number();
-      msg() << MSG::DEBUG << "REGTEST: event : " << IdEvent << ", run " << IdRun << endreq;
+      msg() << MSG::DEBUG << "REGTEST: event : " << IdEvent << ", run " << IdRun << endmsg;
     }
   }
 
@@ -157,7 +157,7 @@ HLT::ErrorCode T2IDIsoTauHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
   const TrigTauTracksInfo * tracksInfo(0);
   HLT::ErrorCode status = getFeature(inputTE, tracksInfo);
   if(status != HLT::OK ||tracksInfo  == 0 ){  
-    msg() << MSG::DEBUG <<"No input  TrigTauTracksInfo found in the chain" << endreq;
+    msg() << MSG::DEBUG <<"No input  TrigTauTracksInfo found in the chain" << endmsg;
     return HLT::OK;
   }
   m_cutCounter++;//1
@@ -183,10 +183,10 @@ HLT::ErrorCode T2IDIsoTauHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
     if ( m_sumPtRatio_1PCut < 100.0 || m_sumPtRatio_MPCut ) 
                 msg() << MSG::DEBUG << "REGTEST: sumPt_core = " << tracksInfo->scalarPtSumCore() 
                       << ", sumPt_isol = " << tracksInfo->scalarPtSumIso() 
-                      << ", ratio = "<< m_sumPtRatio <<endreq;
+                      << ", ratio = "<< m_sumPtRatio <<endmsg;
     
-    if ( pass ) msg() << MSG::DEBUG << "REGTEST: RoI is accepted ! " << endreq;
-    else        msg() << MSG::DEBUG << "REGTEST: RoI is rejected!! " << endreq;
+    if ( pass ) msg() << MSG::DEBUG << "REGTEST: RoI is accepted ! " << endmsg;
+    else        msg() << MSG::DEBUG << "REGTEST: RoI is rejected!! " << endmsg;
   }
   
   return HLT::OK;

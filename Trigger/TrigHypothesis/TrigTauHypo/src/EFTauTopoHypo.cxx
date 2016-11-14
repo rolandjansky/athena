@@ -41,13 +41,13 @@ EFTauTopoHypo::~EFTauTopoHypo()
 HLT::ErrorCode EFTauTopoHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-        msg() << MSG::INFO << "in initialize()" << endreq;
-        msg() << MSG::INFO << " REGTEST: EFTauTopoHypo will cut on "<<endreq;
-        msg() << MSG::INFO << " REGTEST: param DRMin " << m_dRmin <<endreq;
-        msg() << MSG::INFO << " REGTEST: param DRMax " << m_dRmax <<endreq;
+        msg() << MSG::INFO << "in initialize()" << endmsg;
+        msg() << MSG::INFO << " REGTEST: EFTauTopoHypo will cut on "<<endmsg;
+        msg() << MSG::INFO << " REGTEST: param DRMin " << m_dRmin <<endmsg;
+        msg() << MSG::INFO << " REGTEST: param DRMax " << m_dRmax <<endmsg;
 
         if(m_dRmax < m_dRmin){
-                msg() << MSG::ERROR << "EFPhotonTauHypo is uninitialized! " << endreq;
+                msg() << MSG::ERROR << "EFPhotonTauHypo is uninitialized! " << endmsg;
                 return HLT::BAD_JOB_SETUP;
         }
 	
