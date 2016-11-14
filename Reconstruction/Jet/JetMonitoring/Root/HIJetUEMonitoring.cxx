@@ -6,6 +6,7 @@
 
 #include "JetMonitoring/HIJetUEMonitoring.h"
 #include "JetMonitoring/ToolHandleHistoHelper.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -133,6 +134,16 @@ int HIJetUEMonitoring::buildHistos(){
 }
 
 int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
+
+  const xAOD::EventInfo* evtInfo;
+  CHECK(evtStore()->retrieve( evtInfo ));
+
+//LAr event veto: skip events rejected by LAr
+  if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
+    ATH_MSG_DEBUG("SKIP for LAR error");
+    return StatusCode::SUCCESS;
+  }
+
   n=2;
   harmonic=n-1;
   m_eventShape=nullptr;
@@ -188,6 +199,7 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
     m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
     m_2dSubtractedET_2Dphi->Fill( Acos,SubtractedET);
     m_SubtractedET_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
+    m_SubtractedET_pt->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
     m_SubtractedET_2Dphi->Fill( Acos,SubtractedET);
 
     if (m_FCalET > 2.7){//0-10%
