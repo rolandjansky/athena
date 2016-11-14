@@ -23,8 +23,9 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecUtils
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools
                           LArCalorimeter/LArCabling
+                          LArCalorimeter/LArCabling
+			   LArCalorimeter/LArBadChannelTool
                           PhysicsAnalysis/AnalysisCommon/AnalysisTools
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           Reconstruction/egamma/egammaEvent
@@ -104,5 +105,5 @@ atlas_add_executable( LArSamplesMerge
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/LArHistMerge_trf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py )
+atlas_install_scripts( share/LArHistMerge_trf.py share/LArCAF_tf.py share/LArNoiseBursts_tf.py share/LArNoiseBursts_fromraw_tf.py )
 

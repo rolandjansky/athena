@@ -12,7 +12,6 @@ use GaudiInterface GaudiInterface-* External
 use LArRawEvent LArRawEvent-* LArCalorimeter
 use LArRawConditions LArRawConditions-* LArCalorimeter
 use LArRecUtils      LArRecUtils-*      LArCalorimeter
-use LArTools LArTools-* LArCalorimeter
 use LArCabling LArCabling-* LArCalorimeter
 use PyJobTransformsCore PyJobTransformsCore-* Tools
 use StoreGate StoreGate-* Control
@@ -27,11 +26,11 @@ use CaloDetDescr CaloDetDescr-* Calorimeter
 use CaloInterface CaloInterface-* Calorimeter
 use Identifier Identifier-* DetectorDescription
 use LArRecConditions LArRecConditions-* LArCalorimeter
+use LArBadChannelTool LArBadChannelTool-* LArCalorimeter
 
 use AnalysisTools       AnalysisTools-* PhysicsAnalysis/AnalysisCommon
 use AtlasCLHEP              AtlasCLHEP-*    External
 use egammaEvent             egammaEvent-*   Reconstruction/egamma
-use AtlasHepMC          AtlasHepMC-*        External
 
 apply_tag ROOTBasicLibs
 apply_tag ROOTGraphicsLibs
@@ -66,7 +65,7 @@ use CaloEvent           CaloEvent-*     Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use LArHV               LArHV-*         LArCalorimeter/LArGeoModel
 use LArReadoutGeometry  LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
-use LArRecEvent         LArRecEvent-*           LArCalorimeter/LArRecEvent
+use LArRecEvent         LArRecEvent-*           LArCalorimeter
 use NavFourMom          NavFourMom-*            Event
 
 # for dbg
@@ -83,5 +82,4 @@ macro_append LArQuickHistMerge_dependencies " LArCafJobsLib"
 application LArSamplesMerge ../src/LArSamplesMerge.cxx
 macro_append LArSamplesMerge_dependencies " LArCafJobsLib" 
 
-apply_pattern declare_jobtransforms trfs='../share/LArNoiseBursts_tf.py ../share/LArCAF_tf.py ../share/LArMerge_trf.py' jo='skeleton.LArCAF.py'
-
+apply_pattern declare_jobtransforms trfs='../share/LArNoiseBursts_fromraw_tf.py ../share/LArNoiseBursts_tf.py ../share/LArCAF_tf.py ../share/LArMerge_trf.py' jo='skeleton.LArCAF.py skeleton.LArNoise.py skeleton.LArNoise_fromraw.py'

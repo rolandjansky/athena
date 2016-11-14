@@ -20,11 +20,12 @@
 #include "Identifier/IdentifierHash.h"
 //#include "Identifier/HWIdentifier.h"
 //#include "LArElecCalib/ILArPedestal.h"
-#include "LArRecConditions/ILArBadChannelMasker.h"
+//#include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArBadChannelTool/LArBadChanTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -91,6 +92,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int GetPartitionLayerIndex(const Identifier& id);
    std::vector<int>* GetHVLines(const Identifier& id);
      
+   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain);
 
  private:
 
@@ -103,6 +105,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    ToolHandle<LArHVCablingTool> m_LArHVCablingTool;
    ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
+   ToolHandle<ILArBadChanTool> m_badchan_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
@@ -130,16 +133,16 @@ class LArNoiseBursts : public AthAlgorithm  {
    int m_lowqfactor;
    int m_medqfactor;
    int m_hiqfactor;
-   long n_noisycell;
+   long m_noisycell;
    int  m_nt_larcellsize;
    int  m_nt_cellsize;
    int  m_nt_run ;
-   int  m_nt_evtId;
+   unsigned long  m_nt_evtId;
    int  m_nt_evtTime;
    int  m_nt_evtTime_ns;
    int  m_nt_lb;
    int  m_nt_bcid;
-   int  m_nt_ntracks;
+   //int  m_nt_ntracks;
    int  m_nt_isbcidFilled;
    int  m_nt_isbcidInTrain;
    std::vector<int> m_nt_isBunchesInFront;
@@ -152,6 +155,8 @@ class LArNoiseBursts : public AthAlgorithm  {
    short  m_nt_larnoisyro;
    short  m_nt_larnoisyro_opt;
    short  m_nt_larnoisyro_satTwo;
+   short  m_nt_larmnbnoisy;
+   short  m_nt_larmnbnoisy_sat;
 
    //event info veto variables
 //   short  m_nt_veto_mbts;
@@ -217,7 +222,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    std::vector<float> m_nt_phicell;
    std::vector<float> m_nt_etacell;
    std::vector<float> m_nt_signifcell;
-   float m_nt_noisycellpercent;
+   //float m_nt_noisycellpercent;
    std::vector<short> m_nt_ft_noisy;
    std::vector<short> m_nt_slot_noisy;
    std::vector<short> m_nt_channel_noisy;

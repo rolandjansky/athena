@@ -224,20 +224,6 @@ ToolSvc+=theCaloNoiseTool
 
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
-
-from LArCafJobs.LArCafJobsConfig import DefaultShapeDumper
-DefaultShapeDumper('LArShapeDumper', 'FREE', noiseSignifCut = 5, doShape = True, doTrigger = True, caloType = 'EMHECFCAL')
-topSequence.LArShapeDumper.CaloNoiseTool=theCaloNoiseTool
-topSequence.LArShapeDumper.TrigDecisionTool=tdt
-topSequence.LArShapeDumper.FileName=runArgs.outputNTUP_SAMPLESMONFile
-topSequence.LArShapeDumper.OutputLevel=DEBUG
-topSequence.LArShapeDumper.BunchCrossingTool=BunchCrossingTool()
-
-if ("Empty" in rec.triggerStream()):
-    print "LArCellsEmpty: Process only empty bunch crossings"
-    topSequence.LArShapeDumper.onlyEmptyBC=True 
-
-
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
@@ -251,6 +237,18 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
 
 if hasattr(runArgs,"outputNTUP_SAMPLESMONFile"):
+    from LArCafJobs.LArCafJobsConfig import DefaultShapeDumper
+    DefaultShapeDumper('LArShapeDumper', 'FREE', noiseSignifCut = 5, doShape = True, doTrigger = True, caloType = 'EMHECFCAL')
+    topSequence.LArShapeDumper.CaloNoiseTool=theCaloNoiseTool
+    topSequence.LArShapeDumper.TrigDecisionTool=tdt
+    topSequence.LArShapeDumper.FileName=runArgs.outputNTUP_SAMPLESMONFile
+    topSequence.LArShapeDumper.OutputLevel=DEBUG
+    topSequence.LArShapeDumper.BunchCrossingTool=BunchCrossingTool()
+
+    if ("Empty" in rec.triggerStream()):
+       print "LArCellsEmpty: Process only empty bunch crossings"
+       topSequence.LArShapeDumper.onlyEmptyBC=True 
+
     svcMgr.THistSvc.Output += ["AANT DATAFILE='"+runArgs.outputNTUP_SAMPLESMONFile+"' OPT='RECREATE'"]
 
 if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
@@ -258,6 +256,7 @@ if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
     topSequence += LArHECNoise('LArHECNoise')
     #topSequence.LArHECNoise.OutputLevel=DEBUG
     svcMgr.THistSvc.Output += ["HEC DATAFILE='"+runArgs.outputNTUP_HECNOISEFile+"' OPT='RECREATE'"]
+
 
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 svcMgr += AthenaEventLoopMgr()
