@@ -198,7 +198,6 @@ void TrigOpMoni::FillIOVDbHist()
   
    // create and fill histogram for IOVDb entries
   vector<string>             KeyList(m_IOVDbSvc->getKeyList());
-  vector<string>::iterator   KeyListIter;
   ostringstream              TmpStream;
   string                     FolderName;
   string                     Tag;
@@ -216,11 +215,11 @@ void TrigOpMoni::FillIOVDbHist()
   IOVDbReadTimeHist->SetYTitle("Update time [ms]");
   
   // fill histograms
-  for(KeyListIter = KeyList.begin(); KeyListIter != KeyList.end(); KeyListIter++) {
+  for(const string& key : KeyList) {
     
-    if(m_IOVDbSvc->getKeyInfo(*KeyListIter, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
+    if(m_IOVDbSvc->getKeyInfo(key, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
       
-      m_currentIOVs[*KeyListIter] = Range;
+      m_currentIOVs[key] = Range;
       
       IOVTime StartTime(Range.start());
       IOVTime StopTime(Range.stop());
@@ -332,23 +331,22 @@ void TrigOpMoni::FillIOVDbChangeHist()
   float readTime;
 
   vector<string> keys(m_IOVDbSvc->getKeyList());
-  vector<string>::const_iterator k;
 
   // Loop over all keys known to IOVDbSvc
-  for(k = keys.begin(); k != keys.end(); k++) {
-    if ( not m_IOVDbSvc->getKeyInfo(*k, folder, tag, iov, retrieved, bytesRead, readTime) )
+  for(const string& k : keys) {
+    if ( not m_IOVDbSvc->getKeyInfo(k, folder, tag, iov, retrieved, bytesRead, readTime) )
       continue;
     if ( not retrieved ) continue;
 
-    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(*k);
+    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(k);
     if ( curIOV == m_currentIOVs.end() ) {
-      m_currentIOVs[*k] = iov;
+      m_currentIOVs[k] = iov;
       continue;
     }
     
     // Print IOV changes and fill histogram
     if ( iov != curIOV->second ) {
-      ATH_MSG_INFO("IOV of " << *k << " changed from " << curIOV->second
+      ATH_MSG_INFO("IOV of " << k << " changed from " << curIOV->second
                     << " to " << iov
                     << " on event: " << *m_pEvent->event_ID() );
 
@@ -386,7 +384,7 @@ void TrigOpMoni::FillIOVDbChangeHist()
         h->second.total_bytes += bytesRead;
       }
       
-      m_currentIOVs[*k] = iov;
+      m_currentIOVs[k] = iov;
     }
   }
 }

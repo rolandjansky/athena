@@ -67,7 +67,7 @@ StatusCode TrigMemAuditor::queryInterface( const InterfaceID& riid, void** ppvIf
 {
    if(riid == ITrigMemAuditor::interfaceID())
    {
-      *ppvIf = (ITrigMemAuditor*)this;
+      *ppvIf = static_cast<ITrigMemAuditor*>(this);
       addRef();
       return StatusCode::SUCCESS;
    }
