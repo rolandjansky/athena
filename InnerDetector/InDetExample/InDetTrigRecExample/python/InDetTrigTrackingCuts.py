@@ -214,6 +214,17 @@ class InDetTrigTrackingCuts :
       #self.__Xi2maxNoAdd             = 35.0
       self.__nWeightedClustersMin    = self.__minClusters-1
 
+    if mode == "FTK":
+      self.__extension        = "FTK"
+      # --- cluster cuts
+      #self.__minClusters             = 9
+      #self.__minSiNotShared          = 8
+      #self.__maxShared               = 5
+      self.__maxHoles                = 4
+      self.__maxPixelHoles           = 2
+      self.__maxSctHoles             = 4
+      self.__maxDoubleHoles          = 2
+
     # --- changes for Pixel/SCT segments
     from AthenaCommon.DetFlags    import DetFlags
     if ( DetFlags.haveRIO.pixel_on() and not DetFlags.haveRIO.SCT_on() ):
