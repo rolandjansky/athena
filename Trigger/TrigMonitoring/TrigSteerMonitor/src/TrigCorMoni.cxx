@@ -34,7 +34,7 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "TrigSteerMonitor/TrigCorMoni.h"
+#include "TrigCorMoni.h"
 
 //------------------------------------------------------------------------------------------
 TrigCorMoni::TrigCorMoni(const std::string & type,
@@ -193,27 +193,22 @@ StatusCode TrigCorMoni::bookHists()
   // Make map from HLT chains to CTP ids
   // 
   unsigned chain_bin = 0;
-
   
-  for( std::map<std::string, TrigConf::HLTChain *>::const_iterator ich =  chains.begin();
-       ich != chains.end(); ich++) {
-    //for(unsigned i = 0; i < chains.size(); ++i) {
-    //const TrigConf::HLTChain *chain = chains.at(i);
-    const TrigConf::HLTChain *chain = ich->second;
-    if(!chain) {
+  for (const auto& ch : chains) { // std::map<std::string, TrigConf::HLTChain *>
+    if(!ch.second) {
       ATH_MSG_WARNING("Null HLTChain pointer");
       continue;
     }
     
-    const std::vector<const TrigConf::TriggerItem *> items = FindL1Items(*chain);
-    Data &data = m_hash2chain[chain->chain_hash_id()];
+    const std::vector<const TrigConf::TriggerItem *> items = FindL1Items(*ch.second);
+    Data &data = m_hash2chain[ch.second->chain_hash_id()];
 
     for(unsigned t = 0; t < items.size(); ++t) {
       data.ctpids.insert(items.at(t)->ctpId());
     }
 
     data.bin = ++chain_bin;
-    m_acceptL1->GetYaxis()->SetBinLabel(data.bin, ich->first.c_str());
+    m_acceptL1->GetYaxis()->SetBinLabel(data.bin, ch.first.c_str());
   }
 
   return StatusCode::SUCCESS;
@@ -236,7 +231,7 @@ StatusCode TrigCorMoni::fillHists()
     return StatusCode::SUCCESS;
   }
 
-  TriggerInfo *trig = event_handle->trigger_info();
+  const TriggerInfo *trig = event_handle->trigger_info();
   if(!trig) {    
     ATH_MSG_WARNING("Null TriggerInfo pointer");
     return StatusCode::SUCCESS;

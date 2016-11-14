@@ -24,27 +24,21 @@
 
 #include "TrigInterfaces/AlgoConfig.h"
 
-#include "TrigSteering/ResultBuilder.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigSteering/StreamTag.h"
 #include "TrigSteering/TrigSteer.h"
 
-#include "TrigSteerMonitor/TrigRateMoni.h"
+#include "TrigRateMoni.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 
 
  
-static bool getDebugStreams(  IJobOptionsSvc* jobOptionsSvc, MsgStream* log, unsigned int logLvl, 
-			      bool isL2, std::vector<std::string> &errStreamNames );
-
 TrigRateMoni::TrigRateMoni(const std::string & type, const std::string & name,
 			   const IInterface* parent) 
   : TrigMonitorToolBase(type, name, parent),
     m_duration(10),
     m_intervals(6),
     m_timeDivider(0),
-    m_buffer(0),
-    m_timer(0),
     m_in_running(false)
 {  
   declareProperty("IntervalDuration",  m_duration,  "The time interval over which the rate information is collected. If <60 then it is in seconds, if >60 then in minutes (must be multiple of 60)");
@@ -58,8 +52,8 @@ TrigRateMoni::TrigRateMoni(const std::string & type, const std::string & name,
 }
 
 TrigRateMoni::~TrigRateMoni() {
-  if (m_timeDivider) delete m_timeDivider; m_timeDivider = 0;
-  if (m_buffer) delete m_buffer; m_buffer = 0;
+  delete m_timeDivider;
+  delete m_buffer;
 }
 
 
@@ -115,67 +109,63 @@ void TrigRateMoni::SetUpStreamSets() {
 
   m_specialStreamSets.clear();
   m_specialStream_OtherName = "";
-
-  for(std::vector<std::string>::const_iterator is = m_specialStreamSetProperties.begin();
-      is != m_specialStreamSetProperties.end(); is++) {
-
-
+  
+  for (const std::string& is : m_specialStreamSetProperties) {
+    
     std::vector<std::string> streamNames;
-
+    
     // Decode the property string
     
     unsigned int start = 0;
-    for(start = 0; start < is->length(); start++) {
-      if((*is)[start] != ' ') break;
+    for(start = 0; start < is.length(); start++) {
+      if(is[start] != ' ') break;
     }
-    if(start == is->length()) {
+    if(start == is.length()) {
       break;
     }
     unsigned int colon = start;
-    for(colon = start; colon < is->length(); colon++) {
-      if((*is)[colon] == ':') break;
+    for(colon = start; colon < is.length(); colon++) {
+      if(is[colon] == ':') break;
     }
-    if(colon == is->length()) {
+    if(colon == is.length()) {
       break;
     }
-
-    std::string setName = is->substr(start, colon-start);
+    
+    std::string setName = is.substr(start, colon-start);
     
     start = colon+1;
     unsigned int end = start;
-    while(start < is->length()) {
-      for(end = start; end < is->length(); end++) {
-	if((*is)[end] == ' ') continue; // assumes no embedded blanks in stream names
-	if((*is)[end] == ',') break;
+    while(start < is.length()) {
+      for(end = start; end < is.length(); end++) {
+        if(is[end] == ' ') continue; // assumes no embedded blanks in stream names
+        if(is[end] == ',') break;
       }
       if(end == start) {
-	start++;
-	continue;
+        start++;
+        continue;
       }
-      streamNames.push_back(is->substr(start, end-start));
+      streamNames.push_back(is.substr(start, end-start));
       start = end+1;
     }
-    if(end > start) 
-      streamNames.push_back(is->substr(start, end-start));
+    if(end > start) {
+      streamNames.push_back(is.substr(start, end-start));
+    }
 
     m_specialStreamSets.insert(std::pair<std::string, std::vector<std::string> >
-			       (setName, streamNames));
+                               (setName, streamNames));
 
     if(streamNames.size() == 0)
-      m_specialStream_OtherName = setName;
-
+      m_specialStream_OtherName = setName;    
   }
 
   // Check
   ATH_MSG_INFO("Adding rate monitoring stream sets from python properties");
-
-  std::string otherName = "";
-  for(std::map<std::string, std::vector<std::string > >::const_iterator iss = m_specialStreamSets.begin();
-      iss != m_specialStreamSets.end(); iss++) {
-    std::string outString = "Adding set name: " + iss->first + " with streams: ";
-
-    for(std::vector<std::string>::const_iterator isn= iss->second.begin(); isn != iss->second.end(); isn++) {
-      outString += *isn + " ";
+  
+  for (const auto& sss : m_specialStreamSets) { // std::map<std::string, std::vector<std::string>>
+    std::string outString = "Adding set name: " + sss.first + " with streams: ";
+    
+    for (const std::string& isn : sss.second) {
+      outString += isn + " ";
     }
     ATH_MSG_INFO(outString);
   }
@@ -189,13 +179,11 @@ void TrigRateMoni::SetUpStreamSets() {
 
 // normalizes groups name
 std::string grp_bin_name(const std::string& grp ) {
-  int colon_pos = grp.find(':');
-  return "grp_"+grp.substr(colon_pos+1);
+  return "grp_"+grp.substr(grp.find(':')+1);
 }
 
 
 StatusCode TrigRateMoni::bookHists() {
-
 
   // find about all possible chains
   std::vector<const HLT::SteeringChain*> configuredChains = m_parentAlg->getConfiguredChains();
@@ -213,43 +201,19 @@ StatusCode TrigRateMoni::bookHists() {
     }
 
     for (const std::string& gr : chainGroupList) {
-      if ( gr.find("RATE") == 0 ) // name starts from string RATE
+      if ( gr.compare(0,4,"RATE") == 0 ) // name starts with string RATE
         groups.insert(gr);
     }
 
-    std::vector<HLT::StreamTag>::const_iterator streamsIt;
-    for(HLT::StreamTag stream : chain->getStreamTags()) {
+    for (const HLT::StreamTag& stream : chain->getStreamTags()) {
       streams.insert("str_" + stream.getStream() + "_" + stream.getType());
     }
   }
-  // get streams defined in ResultBuilder options
-  std::vector<std::string> errStreamNames;
 
-  // First set up the job service
-  IJobOptionsSvc* jobOptionsSvc;
-  StatusCode sc;
-  sc = service("JobOptionsSvc", jobOptionsSvc);
-
-  bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING("Could not find JobOptionsSvc");
-  } else {
-    
-    if (getDebugStreams(jobOptionsSvc, &msg(), msg().level(), isL2, errStreamNames ) ) {
-
-      std::vector<std::string>::const_iterator esnit;
-      for(esnit = errStreamNames.begin(); esnit != errStreamNames.end(); esnit++) {
-	streams.insert("str_" + (*esnit));
-      }
-
-      // the "hardwired" hlterror stream:
-      // streams.insert("str_hlterror_debug");
-      
-      // now a catch-all
-      // streams.insert("str_other");
-    }
-    // release JobOptionsSvc
-    jobOptionsSvc->release();
+  // get debug stream names
+  for (const auto& s : m_parentAlg->getErrorStreamTags()) {
+    streams.insert("str_" + s.name()+"_"+s.type());
+    ATH_MSG_INFO("adding error stream name: " << s.name()+"_"+s.type());
   }
 
   // initialize m_genericStreamSets and m_specialStreamSets
@@ -275,6 +239,7 @@ StatusCode TrigRateMoni::bookHists() {
     //+ m_intervals  // and one to mark the source
     + 1; //for absolute time
 
+  bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
   if(isL2) nbins++; // for total_physics
 
     // second pass to find mapping between chains and bins
@@ -315,45 +280,42 @@ StatusCode TrigRateMoni::bookHists() {
   bin++;
 
   // the generic stream sets
-  for(std::vector<std::string>::const_iterator igs = m_genericStreamSets.begin();
-      igs != m_genericStreamSets.end(); igs++, bin++) {
-
-    m_published->GetXaxis()->SetBinLabel(bin, ("recording_" + *igs).c_str());
-    m_stream_map[*igs] = bin;
+  for (const std::string& gs : m_genericStreamSets) {
+    m_published->GetXaxis()->SetBinLabel(bin, ("recording_" + gs).c_str());
+    m_stream_map[gs] = bin;
+    bin++;
   }
 
   if ( m_doStreams ) {
 
     if(!isL2) {
-      for (std::map<std::string, std::vector<std::string > >::const_iterator sssi =
-	     m_specialStreamSets.begin(); sssi != m_specialStreamSets.end();sssi++) {
-	m_published->GetXaxis()->SetBinLabel(bin, sssi->first.c_str());
-	if(sssi->first != m_specialStream_OtherName) {
-	  m_stream_map[sssi->first] = bin;
-	  bin++;
-	}
+      for (const auto& sss : m_specialStreamSets) { // std::map<std::string, std::vector<std::string>>
+        m_published->GetXaxis()->SetBinLabel(bin, sss.first.c_str());
+        if(sss.first != m_specialStream_OtherName) {
+          m_stream_map[sss.first] = bin;
+          bin++;
+        }
       }
       // put the "other" stream-set last
       if(m_specialStream_OtherName != "") {
-	m_stream_map[m_specialStream_OtherName] = bin;
-	m_published->GetXaxis()->SetBinLabel(bin, m_specialStream_OtherName.c_str() );
-	bin++;
+        m_stream_map[m_specialStream_OtherName] = bin;
+        m_published->GetXaxis()->SetBinLabel(bin, m_specialStream_OtherName.c_str() );
+        bin++;
       }
     }
-
-    // a bin for each stream
-    std::set<std::string>::const_iterator sIt;
-    for ( sIt = streams.begin(); sIt != streams.end(); ++sIt, bin++ ) {
-      m_published->GetXaxis()->SetBinLabel(bin, (*sIt).c_str());
-      m_stream_map[*sIt] = bin;
-    }
     
+    // a bin for each stream
+    for ( const std::string& s : streams ) {
+      m_published->GetXaxis()->SetBinLabel(bin, s.c_str());
+      m_stream_map[s] = bin;
+      bin++;
+    }    
   }
   
   // a bin for each group
   if ( m_doGroups ) {
-    for (std::set<std::string>::const_iterator sIt = groups.begin(); sIt != groups.end(); ++sIt ) {
-      m_published->GetXaxis()->SetBinLabel(bin, grp_bin_name(*sIt).c_str());
+    for ( const std::string& g : groups ) {
+      m_published->GetXaxis()->SetBinLabel(bin, grp_bin_name(g).c_str());
       bin++;
     }
   }
@@ -369,8 +331,10 @@ StatusCode TrigRateMoni::bookHists() {
       if ( m_doGroups ) {
         // preserve chain -> group bin map
         const std::set<std::string> chainGroupList = chain->getConfigChain()->groups();
-        for ( std::string group : chainGroupList ) { // !!!!!!!!!!
-          m_groups_map[chain].insert(m_published->GetXaxis()->FindBin(  grp_bin_name(group).c_str() ));
+        for ( std::string grp : chainGroupList ) {
+          if (groups.find(grp)!=groups.end()) { // only consider RATE groups previously defined
+            m_groups_map[chain].insert(m_published->GetXaxis()->FindBin( grp_bin_name(grp).c_str() ));
+          }
         }
       }
     }
@@ -500,13 +464,7 @@ void TrigRateMoni::fillAbsoluteTime(const time_t& t) {
   m_published->SetBinContent(bin, input+1,    tmstr.tm_yday);  
   m_published->SetBinContent(bin, prescale+1, tmstr.tm_hour);
   m_published->SetBinContent(bin, raw+1,      tmstr.tm_min);
-  m_published->SetBinContent(bin, output+1,   tmstr.tm_sec);
-  
-//   if(m_logLvl <= MSG::INFO)
-//     (*m_log) << MSG::INFO << "absolute time yday" << tmstr.tm_yday 
-// 	     << " hour " << tmstr.tm_hour 
-// 	     << " min "  << tmstr.tm_min
-// 	     << " sec "  << tmstr.tm_sec << endreq;
+  m_published->SetBinContent(bin, output+1,   tmstr.tm_sec);  
 }
 
 void TrigRateMoni::fillTotalAndStreamTagBins() {
@@ -518,53 +476,48 @@ void TrigRateMoni::fillTotalAndStreamTagBins() {
   }
 
   std::vector<TriggerInfo::StreamTag> streamTags= constEventInfo->trigger_info()->streamTags();
-  std::vector<TriggerInfo::StreamTag>::const_iterator it;
 
   bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
   bool L2PhysicsStreamHit = false;
-
+  
   if ( m_doStreams ) {
-
-    for ( it = streamTags.begin() ; it != streamTags.end(); ++ it ) {      
+    
+    for ( const TriggerInfo::StreamTag& st : streamTags ) {
       m_buffer->Fill( m_stream_map["recording"]-0.5, output); // recording
       
       // Fill the special set bins
-      if(!isL2 && it->type() == "physics") {
-	bool inSpecialGroup = false;
-	for (std::map<std::string, std::vector<std::string > >::const_iterator sssi =
-	       m_specialStreamSets.begin(); sssi != m_specialStreamSets.end(); sssi++) {
-	  
-	  for(std::vector<std::string >::const_iterator ssi = sssi->second.begin(); 
-	      ssi != sssi->second.end(); ssi++) {
-	    
-	    if( it->name() == *ssi ) {
-	      int bin = m_stream_map[sssi->first];
-	      m_buffer->Fill(bin - 0.5, output);
-	      inSpecialGroup = true;
-	    }
-	  }
-	}
-	if(!inSpecialGroup) {
-	  m_buffer->Fill(m_stream_map[m_specialStream_OtherName]-0.5, output);
-	}
-
-      } else if(isL2 && it->type() == "physics") {
-	L2PhysicsStreamHit = true;
+      if(!isL2 && st.type() == "physics") {
+        bool inSpecialGroup = false;
+        for (const auto& sss : m_specialStreamSets) {  // std::map<std::string, std::vector<std::string>>
+          for (const std::string& ssi : sss.second) {             
+            if( st.name() == ssi ) {
+              int bin = m_stream_map[sss.first];
+              m_buffer->Fill(bin - 0.5, output);
+              inSpecialGroup = true;
+            }
+          }
+        }
+        if(!inSpecialGroup) {
+          m_buffer->Fill(m_stream_map[m_specialStream_OtherName]-0.5, output);
+        }
+        
+      } else if(isL2 && st.type() == "physics") {
+        L2PhysicsStreamHit = true;
       }
 
       // fill generic types (this will give recording i.e. duplication rate) 
-      float x = m_stream_map[it->type()]-0.5;
+      float x = m_stream_map[st.type()]-0.5;
 
       m_buffer->Fill( x, output); // recording per type
 
       // fill particular strings
       // construct the name
-      std::string n = "str_"+it->name()+"_"+it->type();
+      std::string n = "str_"+st.name()+"_"+st.type();
       
       if ( m_stream_map[n] != 0 ) { 
-	// it might happen that the ST unknown in the configuration will apear. i.e. error tag
-	float x = m_stream_map[n]-0.5;
-	m_buffer->Fill( x, output);
+        // it might happen that the ST unknown in the configuration will apear. i.e. error tag
+        float x = m_stream_map[n]-0.5;
+        m_buffer->Fill( x, output);
       }
     }
   }
@@ -583,9 +536,8 @@ void TrigRateMoni::fillTotalAndStreamTagBins() {
 void TrigRateMoni::fillChainAndGroupBins() {
   // clear helpers for groups
   
-  
   if ( m_doGroups ) {
-     for(GroupHelper::value_type& gh : m_group_helper) 
+    for(GroupHelper::value_type& gh : m_group_helper) 
       gh.second.clear();
   }
 
@@ -593,269 +545,103 @@ void TrigRateMoni::fillChainAndGroupBins() {
   
   bool eventPassed = false;  
   bool isPhysicsAccept = false;
-  for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
-       chain != activeChains.end(); ++chain) {
-      // check whether the event is accepted
-     eventPassed = (*chain)->chainPassed() || eventPassed;
-     if ( (*chain)->chainPassed()){
-       for (auto chain_stream : (*chain)->getStreamTags()){
-	  if ( chain_stream.getType() == "physics" ){
-	    isPhysicsAccept=true;
-	    break;
-	  }
-	}
-     }
-     if (isPhysicsAccept) break;
-   }
+  for (const HLT::SteeringChain* chain : activeChains) {
+    // check whether the event is accepted
+    eventPassed = chain->chainPassed() || eventPassed;
+    if ( chain->chainPassed() ) {
+      for (auto chain_stream : chain->getStreamTags()){
+        if ( chain_stream.getType() == "physics" ){
+          isPhysicsAccept=true;
+          break;
+        }
+      }
+    }
+    if (isPhysicsAccept) break;
+  }  
 
 
-
-  for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
-       chain != activeChains.end(); ++chain) {
-    const HLT::SteeringChain* ch = *chain;
+  for (const HLT::SteeringChain* ch : activeChains) {
     if ( m_doChains ) {
       if ( m_chains_map[ch] != 0 ) {	
-	float x = m_chains_map[ch] - 0.5;  
-
-	if (!ch->isResurrected() ){ // not prescaled chains
-
-	  m_buffer->Fill(x, input);
-	  
-	  if (! ch->isPrescaled() )
-	    m_buffer->Fill(x, prescale );
-	  
-	  if ( !ch->isPrescaled() || ch->isPassedThrough() )
-	    m_buffer->Fill(x, algoIn );
-	  
-	  if ( ch->chainPassedRaw())
-	    m_buffer->Fill(x, raw );
-	  
-	  if ( ch->chainPassedRaw() || ch->isPassedThrough() ) 
-	    m_buffer->Fill(x, output );
-
-	} else if ( ch->runInSecondPass() && isPhysicsAccept) {// prescaled chains in rerun
-
-	  m_buffer->Fill(x, rerun);
-
-	  if ( ch->chainPassedRaw()) 
-	    m_buffer->Fill(x, passedrerun );
-	}
+        float x = m_chains_map[ch] - 0.5;  
+        
+        if (!ch->isResurrected() ){ // not prescaled chains
+          
+          m_buffer->Fill(x, input);
+          
+          if (! ch->isPrescaled() )
+            m_buffer->Fill(x, prescale );
+          
+          if ( !ch->isPrescaled() || ch->isPassedThrough() )
+            m_buffer->Fill(x, algoIn );
+          
+          if ( ch->chainPassedRaw())
+            m_buffer->Fill(x, raw );
+          
+          if ( ch->chainPassedRaw() || ch->isPassedThrough() ) 
+            m_buffer->Fill(x, output );
+          
+        } else if ( ch->runInSecondPass() && isPhysicsAccept) {// prescaled chains in rerun
+          
+          m_buffer->Fill(x, rerun);
+          
+          if ( ch->chainPassedRaw()) 
+            m_buffer->Fill(x, passedrerun );
+        }
       } else {
         ATH_MSG_ERROR("the chain " << ch->getChainName() << " is unknown ");
       }
     }
     if ( m_doGroups ) {
       if ( m_groups_map.count(ch) != 0  ) {
-	// keep the state for the group
-	std::set<int>::const_iterator bIt;
-	for ( bIt = m_groups_map[ch].begin(); bIt != m_groups_map[ch].end(); ++bIt) {
-	    int bin = *bIt;	    
-	    if ( !ch->isResurrected() ) {
-	      m_group_helper[bin].input = true;
-
-	      if ( !ch->isPrescaled()) 
-		m_group_helper[bin].not_ps = true;
-	      
-	      if ( ch->chainPassedRaw())
-		m_group_helper[bin].raw = true;
-	      
-	      if ( ch->chainPassedRaw() || ch->isPassedThrough() ) 
-		m_group_helper[bin].output = true;
-	      
-	    } else if ( ch->runInSecondPass() ) {
-		m_group_helper[bin].rerun = true;
-	    }
-	}
-      } else {
-	//(*m_log) << MSG::INFO << "the chain " << ch->getChainName() << " has no group" << endreq;
-      }
+        // keep the state for the group
+        for ( int bin : m_groups_map[ch] ) {
+          if ( !ch->isResurrected() ) {
+            m_group_helper[bin].input = true;
+            
+            if ( !ch->isPrescaled()) 
+              m_group_helper[bin].not_ps = true;
+            
+            if ( ch->chainPassedRaw())
+              m_group_helper[bin].raw = true;
+            
+            if ( ch->chainPassedRaw() || ch->isPassedThrough() ) 
+              m_group_helper[bin].output = true;
+            
+          } else if ( ch->runInSecondPass() ) {
+            m_group_helper[bin].rerun = true;
+          }
+        }
+      } 
     }
   } // OF loop over chains
 
   if ( m_doGroups ) {
-     for(GroupHelper::value_type& gh : m_group_helper) {
+    for(GroupHelper::value_type& gh : m_group_helper) {
       if (gh.second.input) {
-	float x = gh.first - 0.5;  
-	m_buffer->Fill(x,input);
+        float x = gh.first - 0.5;  
+        m_buffer->Fill(x,input);
       }
-
+      
       if (gh.second.not_ps) {
-	float x = gh.first - 0.5;  
-	m_buffer->Fill(x,prescale);
+        float x = gh.first - 0.5;  
+        m_buffer->Fill(x,prescale);
       }
-
+      
       if (gh.second.raw) {
-	float x = gh.first - 0.5;  
-	m_buffer->Fill(x,raw);
+        float x = gh.first - 0.5;  
+        m_buffer->Fill(x,raw);
       }
-
+      
       if (gh.second.output) {
-	float x = gh.first - 0.5;  
-	m_buffer->Fill(x,output);
+        float x = gh.first - 0.5;  
+        m_buffer->Fill(x,output);
       }
       
       if (gh.second.rerun) {
-	float x = gh.first - 0.5;  
-	m_buffer->Fill(x,rerun);
-      }
-      
+        float x = gh.first - 0.5;  
+        m_buffer->Fill(x,rerun);
+      }      
     } // EOF loop
   }
 }
-
-static void extractErrorStreamNames( const std::string &errStreamString, std::vector<std::string> &errStreamNames );
-
-static bool getDebugStreams(IJobOptionsSvc* jobOptionsSvc,   MsgStream* log, unsigned int logLvl, 
-			    bool isL2, std::vector<std::string> &errStreamNames )
-{
-  /* 
-     If this function fails for any reason, any debug streams which have been defined
-     in the ResultBuilder's job options will not be added to the histograms. That's
-     the only consequence. So I remove most warnings.
-  */
-
-  errStreamNames.clear();
-
-  IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-  if(svc != 0 ) {
-    if(logLvl <= MSG::INFO) (*log) << MSG::INFO << " TrigRateMoni " 
-				       << " is connected to JobOptionsSvc Service = "
-				       << svc->name() << endreq;
-  }
-  
-  //  if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << " About to ask for properties of the ResultBuilder" 
-  //			      << endreq;
-  
-  const std::vector<const Property*> *rb_properties;
-  
-  try {
-    if(isL2)
-      rb_properties = jobOptionsSvc->getProperties("TrigSteer_L2.ResultBuilder");
-    else
-      rb_properties = jobOptionsSvc->getProperties("TrigSteer_EF.ResultBuilder");
-      if (rb_properties==0)
-        rb_properties = jobOptionsSvc->getProperties("TrigSteer_HLT.ResultBuilder");
-    
-    //if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << " Back from request for properties of the ResultBuilder" 
-    //				<< endreq;
-  }
-  catch(...) {
-    if(logLvl <= MSG::WARNING) (*log) << MSG::WARNING << 
-      "Attempt to retrieve ResultBuilder properties provoked an exception." << endreq;
-    return false;
-  }
-  std::vector<const Property*>::const_iterator rb_it;
-  
-  if(rb_properties == 0) {
-    if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-      "Unable to get the job properties of the ResultBuilder" << endreq;
-    return false;
-  }
-  
-  for(rb_it = rb_properties->begin(); rb_it != rb_properties->end(); rb_it++) {
-    
-    
-    if( (*rb_it)->name() == "DefaultStreamTagForErrors") {
-      
-      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
-      
-      if(sprop == 0) {
-	//const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
- 	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-	  "dynamic_cast of DefaultStreamTagForErrors property to StringProperty failed" << endreq;	
-	continue;
-      }		
-      
-      if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << "value of DefaultStreamTagForErrors property: " 
-				     << sprop->value() << endreq;
-      
-      errStreamNames.push_back( sprop->value() + "_debug");
-      
-    } else if( (*rb_it)->name() == "ErrorStreamTags") {
-      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
-      // on lxplus tests and RTT, the cast works but online it is a StringArrayProperty
-      if(sprop != 0) {
-	
-	
-	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << "value of ErrorStreamTags property: " 
-				       << sprop->value() << endreq;
-	extractErrorStreamNames( sprop->value(), errStreamNames );
-	
-      } else {
- 	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-	  "dynamic_cast of ErrorStreamTags property to StringProperty failed" << endreq;	
-	
-	const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
-
-	if ( saprop != 0 ) {
-	  const std::vector<std::string>& theProps = saprop->value( );
-	  for ( std::vector<std::string>::const_iterator ip = theProps.begin();
-		  ip != theProps.end();  ip++ )  {
-
-	    if(logLvl <= MSG::DEBUG) 
-	      (*log) << MSG::DEBUG << "array property value: " << *ip << endreq;
-
-	    extractErrorStreamNames( *ip, errStreamNames );
-	  }
-        } else {
-	  if(logLvl <= MSG::INFO) (*log) << MSG::DEBUG << 
-	    "dynamic_cast of ErrorStreamTags property to StringArrayProperty failed" << endreq;	
-	}
-      }
-    }    
-  }
-  
-  if(logLvl <= MSG::INFO) {
-    for(std::vector<std::string>::const_iterator it_name = errStreamNames.begin(); 
-	it_name != errStreamNames.end(); it_name++) {
-      (*log) << MSG::INFO << "adding error stream name: " << *it_name << endreq;
-    }
-  }
-  return true;
-}
-
-static void extractErrorStreamNames( const std::string &errStreamString, std::vector<std::string> &errStreamNames )
-{
-  /*
-    Parse the string returned by getProperties.  I don't understand
-    why but getProperties returns a string containing all error
-    streams rather than a vector of streams.
-  */
-
-  std::stringstream ss;
-  
-  // assuming errStreamString looks something like:
-  //['ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics', 'ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltex2 physics']
-  
-  ss.str(errStreamString);
-  char c;
-
-  /* there are no brackets when the tag comes from a StringArrayProperty
-  if( (c = ss.get()) != '[') {
-    //std::cout << "MMMM I'm lost already" << std::endl;
-    return;
-  }
-  */
-  while( (c = ss.get()) && ss.good() ) {
-    
-    if( c == '\'') {
-      const int bufSize = 100;
-      char charBuf[bufSize];
-
-      ss.getline(charBuf, bufSize, ':');
-      
-      ss.getline(charBuf, bufSize, '\'');
-
-      char *pBuf = charBuf;
-      for(int i = 0; i<bufSize-1 && charBuf[i] == ' '; i++) pBuf++;
-
-      for(int i = 0; i<bufSize - (pBuf-charBuf) && pBuf[i] != '\0'; i++) { // change space to underscore
-	pBuf[i] = (pBuf[i] == ' ')? '_' : pBuf[i];
-      }
-
-      errStreamNames.push_back(pBuf);
-    }
-  }
-}
-
-  

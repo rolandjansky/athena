@@ -10,7 +10,7 @@
  * @brief  ROB data access monitoring
  * @author Frank Winklmeier
  *
- * $Id: TrigROBMoni.h,v 1.1 2009-03-16 13:52:56 fwinkl Exp $
+ * $Id: TrigROBMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
  */
 
 // STL includes

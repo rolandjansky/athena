@@ -14,14 +14,18 @@
 
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "EventInfo/EventID.h"  /* number_type */
 #include "AthenaKernel/IOVRange.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 #include <map>
 #include <string>
 
 class TH1I;
 class TH2I;
 class TH1F;
+class TProfile;
 namespace MagField {
   class IMagFieldSvc;
 }
@@ -52,6 +56,7 @@ private:
   void FillSubDetHist();
   void FillReleaseData();
   void FillLbDiffHist();
+  void FillLumiHist();
 
   template<class HTYPE>
   bool regHist(HTYPE*& hist, bool verbose=true);
@@ -71,25 +76,29 @@ private:
     float total_bytes;
   };
     
-  bool  m_MagFieldHistFilled;
-  bool  m_IOVDbHistFilled;
-  bool  m_SubDetHistFilled;
+  bool  m_MagFieldHistFilled{false};
+  bool  m_IOVDbHistFilled{false};
+  bool  m_SubDetHistFilled{false};
 
   ServiceHandle<IJobOptionsSvc>       m_JobOptionsSvc;
-  MagField::IMagFieldSvc*             m_MagFieldSvc;  
-  IIOVDbSvc*                          m_IOVDbSvc;
+  ToolHandle<ILuminosityTool>         m_lumiTool; 
+  MagField::IMagFieldSvc*             m_MagFieldSvc{0};  
+  IIOVDbSvc*                          m_IOVDbSvc{0};
 
   TrigMonGroup m_monGroup;
   
-  TH2I*       m_MagFieldHist;
-  TH2I*       m_iovChangeHist;  
-  TH1I*       m_generalHist;
-  TH1I*       m_lbDiffHist;
+  TH2I*       m_MagFieldHist{0};
+  TH2I*       m_iovChangeHist{0};  
+  TH1I*       m_generalHist{0};
+  TH1I*       m_lbDiffHist{0};
+  TProfile*   m_lumiHist{0};
+  TProfile*   m_muHist{0};
 
   std::string      m_releaseData;
   bool             m_detailedHists;
-  EventID::number_type    m_previousLB;       //!< LB of previous event
-  const EventInfo*        m_pEvent;           //!< current event
+  unsigned short int      m_maxLB;
+  EventID::number_type    m_previousLB{0};    //!< LB of previous event
+  const EventInfo*        m_pEvent{0};        //!< current event
   std::map<std::string, IOVRange>   m_currentIOVs;      //!< current IOVs managed by IOVDbSvc
   std::map<std::string, FolderHist> m_folderHist;       //!< histograms for COOL folders
 };

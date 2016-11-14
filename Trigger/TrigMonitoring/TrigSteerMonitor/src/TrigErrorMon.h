@@ -45,33 +45,19 @@ class TrigErrorMon: public TrigMonitorToolBase {
   virtual StatusCode fillHists();
 
  private:
-  const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
-  TrigLBNHist<TH1I>* m_histo_reason;
-  TrigLBNHist<TH1I>* m_histo_action;
-  TrigLBNHist<TH1I>* m_histo_steeringInternalReason;
+  const HLT::TrigSteer* m_parentAlg{0}; // should give us pointer to TrigSteer topAlgorithm!!!
+  TrigLBNHist<TH1I>* m_histo_reason{0};
+  TrigLBNHist<TH1I>* m_histo_action{0};
+  TrigLBNHist<TH1I>* m_histo_steeringInternalReason{0};
 
-  TH2I* m_histo2d_reason;
-  TH2I* m_histo2d_action;
-  TH2I* m_histo2d_steeringInternalReason;
+  TH2I* m_histo2d_reason{0};
+  TH2I* m_histo2d_action{0};
+  //TH2I* m_histo2d_steeringInternalReason{0};
+  TH2I* m_histo_te_errors_etaphi{0};
 
-  TH2I* m_histo_te_errors_etaphi;
-  TH1I* m_histo_te_errors_names;
-
-  TH2I* m_histo_tau_errors_etaphi;
-  TH2I* m_histo_trk_errors_etaphi;
-  TH2I* m_histo_e_errors_etaphi;
-  TH2I* m_histo_g_errors_etaphi;
-  TH2I* m_histo_j_errors_etaphi;
-  TH2I* m_histo_b_errors_etaphi;
-  TH2I* m_histo_mu_errors_etaphi;
-  TH2I* m_histo_xe_errors_etaphi;
-
-  std::string m_trigLvl;  
+  std::string m_trigLvl;
   std::map< unsigned int, unsigned int > m_binmap; // maps chain_counter to histogram bin
-
-  std::vector<std::string> m_te_names;
-  bool m_expertMode;
-  
+  bool m_expertMode;  
 };
 
 #endif

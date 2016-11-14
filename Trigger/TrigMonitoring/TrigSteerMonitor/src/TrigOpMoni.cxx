@@ -10,7 +10,7 @@
  *
  */
 
-#include "TrigSteerMonitor/TrigOpMoni.h"
+#include "TrigOpMoni.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -44,25 +44,17 @@ TrigOpMoni::TrigOpMoni(const std::string& type,
                        const std::string& name,
                        const IInterface* parent) :
    TrigMonitorToolBase(type, name, parent),
-   m_MagFieldHistFilled(false),
-   m_IOVDbHistFilled(false),
-   m_SubDetHistFilled(false),
    m_JobOptionsSvc("JobOptionsSvc", name),
-   m_MagFieldSvc(0),   
-   m_IOVDbSvc(0),
-   m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert),   
-   m_MagFieldHist(0),
-   m_iovChangeHist(0),
-   m_generalHist(0),
-   m_lbDiffHist(0),
-   m_previousLB(0),
-   m_pEvent(0)
+   m_lumiTool("LuminosityTool"),
+   m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert)
 {
    declareProperty("JobOptionsSvc",   m_JobOptionsSvc, "JobOptionsSvc");
    declareProperty("ReleaseDataFile", m_releaseData = "../ReleaseData",
                    "Path to ReleaseData file (relative to LD_LIBRARY_PATH entries");
    declareProperty("DetailedFolderHists", m_detailedHists = true,
                    "Detailed histograms for COOL folder updates during run");
+   declareProperty("LuminosityTool", m_lumiTool, "Luminosity tool");
+   declareProperty("MaxLumiblocks", m_maxLB = 3000, "Number of lumiblocks for histograms");
 }
 
 TrigOpMoni::~TrigOpMoni()
@@ -76,6 +68,7 @@ StatusCode TrigOpMoni::initialize()
   // Register incident handlers 
   ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name());  
   ATH_CHECK(IncidSvc.retrieve());
+  ATH_CHECK(m_lumiTool.retrieve());
   IncidSvc->addListener(this, "EndOfBeginRun", 0);
                 
   return StatusCode::SUCCESS;
@@ -133,11 +126,18 @@ StatusCode TrigOpMoni::bookHists()
                            "Lumiblock difference between events;LB difference (!=0)",
                            16, -5.5, 10.5);
    
-   const int nHists = 4;
-   TH1* hist[nHists] = {m_generalHist, m_lbDiffHist, m_iovChangeHist, m_MagFieldHist};
-   for (int i=0; i<nHists; ++i) regHist(hist[i]);
+   m_lumiHist = new TProfile("Luminosity", "Luminosity;Lumiblock;Luminosity [10^{33} cm^{-2}s^{-1}]",
+                             m_maxLB, 0, m_maxLB);
 
-   // Release data can be filled immediatelly (and only once)
+   m_muHist = new TProfile("Pileup", "Pileup;Lumiblock;Interactions per BX",
+                           m_maxLB, 0, m_maxLB);
+   
+   TH1* hist[] = {m_generalHist, m_lbDiffHist, m_iovChangeHist, m_MagFieldHist, 
+                  m_lumiHist, m_muHist};
+
+   for (TH1* h : hist) regHist(h);
+
+   // Release data can be filled immediately (and only once)
    if (m_generalHist) FillReleaseData();
 
    return StatusCode::SUCCESS;
@@ -167,6 +167,9 @@ StatusCode TrigOpMoni::fillHists()
     // Fill IOV diff histogram
     FillIOVDbChangeHist();
 
+    // Fill lumi histogram
+    FillLumiHist();
+
     m_previousLB = m_pEvent->event_ID()->lumi_block();
   }
   
@@ -195,7 +198,6 @@ void TrigOpMoni::FillIOVDbHist()
   
    // create and fill histogram for IOVDb entries
   vector<string>             KeyList(m_IOVDbSvc->getKeyList());
-  vector<string>::iterator   KeyListIter;
   ostringstream              TmpStream;
   string                     FolderName;
   string                     Tag;
@@ -213,11 +215,11 @@ void TrigOpMoni::FillIOVDbHist()
   IOVDbReadTimeHist->SetYTitle("Update time [ms]");
   
   // fill histograms
-  for(KeyListIter = KeyList.begin(); KeyListIter != KeyList.end(); KeyListIter++) {
+  for(const string& key : KeyList) {
     
-    if(m_IOVDbSvc->getKeyInfo(*KeyListIter, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
+    if(m_IOVDbSvc->getKeyInfo(key, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
       
-      m_currentIOVs[*KeyListIter] = Range;
+      m_currentIOVs[key] = Range;
       
       IOVTime StartTime(Range.start());
       IOVTime StopTime(Range.stop());
@@ -329,23 +331,22 @@ void TrigOpMoni::FillIOVDbChangeHist()
   float readTime;
 
   vector<string> keys(m_IOVDbSvc->getKeyList());
-  vector<string>::const_iterator k;
 
   // Loop over all keys known to IOVDbSvc
-  for(k = keys.begin(); k != keys.end(); k++) {
-    if ( not m_IOVDbSvc->getKeyInfo(*k, folder, tag, iov, retrieved, bytesRead, readTime) )
+  for(const string& k : keys) {
+    if ( not m_IOVDbSvc->getKeyInfo(k, folder, tag, iov, retrieved, bytesRead, readTime) )
       continue;
     if ( not retrieved ) continue;
 
-    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(*k);
+    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(k);
     if ( curIOV == m_currentIOVs.end() ) {
-      m_currentIOVs[*k] = iov;
+      m_currentIOVs[k] = iov;
       continue;
     }
     
     // Print IOV changes and fill histogram
     if ( iov != curIOV->second ) {
-      ATH_MSG_INFO("IOV of " << *k << " changed from " << curIOV->second
+      ATH_MSG_INFO("IOV of " << k << " changed from " << curIOV->second
                     << " to " << iov
                     << " on event: " << *m_pEvent->event_ID() );
 
@@ -383,11 +384,16 @@ void TrigOpMoni::FillIOVDbChangeHist()
         h->second.total_bytes += bytesRead;
       }
       
-      m_currentIOVs[*k] = iov;
+      m_currentIOVs[k] = iov;
     }
   }
 }
 
+void TrigOpMoni::FillLumiHist()
+{
+  m_lumiHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageLuminosity());
+  m_muHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageInteractionsPerCrossing());
+}
 
 void TrigOpMoni::FillSubDetHist()
 {
@@ -427,31 +433,32 @@ void TrigOpMoni::FillSubDetHist()
             | (((uint64_t)EventId->detector_mask1()) << 32);
 
       // get list of enabled ROBs
-      if(!(ROBProperty = Gaudi::Utils::getProperty(
-         m_JobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs")))
-      {
+      if(!(ROBProperty = Gaudi::Utils::getProperty(m_JobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs"))) {
          msg(MSG::DEBUG) << "Could not find enabled ROB IDs: ";
 
          if(!m_JobOptionsSvc->getProperties("DataFlowConfig"))
          {
-            msg() << "\"DataFlowConfig\" does not exist!" << endreq;
+            msg() << "\"DataFlowConfig\" does not exist!" << endmsg;
             m_SubDetHistFilled = true;
          }
 
-         else
-         {
-            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endreq;
+         else {
+            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endmsg;
 
             const vector<const Property* >* PropTmp = m_JobOptionsSvc->getProperties("DataFlowConfig");
 
-            for(unsigned int i = 0; i != PropTmp->size(); i++)
-            {
-              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endreq;
+            for(unsigned int i = 0; i != PropTmp->size(); i++) {
+              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endmsg;
             }
          }
       }
 
-      else EnabledROBsArray.assign(*ROBProperty);
+      else {
+        if (!EnabledROBsArray.assign(*ROBProperty)) {
+          ATH_MSG_WARNING("Could not read DF_Enabled_ROB_IDs property");
+          m_SubDetHistFilled = true;
+        }
+      }
 
       // decode subdetector masks
       eformat::helper::DetectorMask(SubDetMask).sub_detectors(SubDetOnIdList);

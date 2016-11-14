@@ -121,24 +121,6 @@ class TrigTEMoniConfigOnline(TrigTEMoni):
     def target(self):
         return [ "Online", "Cosmic" ]
 
-class TrigRateMoniConfig10s(TrigRateMoni):
-    """ Rates monitor for online use only """
-    def __init__(self,name="TrigRate10s"):
-        super(TrigRateMoniConfig10s, self).__init__(name)
-        self.IntervalDuration = 10
-        self.NumberOfIntervals = 6 
-        self.doChains=True
-        self.doStreams=True
-        self.StreamSets = [
-            'recording_physics_prompt:JetTauEtmiss,Muons,Egamma,MinBias',
-            'recording_physics_delayed:Bphysics,HadDelayed,JetCalibDelayed',
-            'recording_physics_other:'
-            ]
-        
-    def target(self):
-        return [ "Online", "Cosmic" ]    
-
-
 class TrigRateMoniConfig20s(TrigRateMoni):
     """ Rates monitor for online use only """
     def __init__(self,name="TrigRate20s"):
@@ -148,25 +130,14 @@ class TrigRateMoniConfig20s(TrigRateMoni):
         self.doChains=True
         self.doStreams=True
         self.StreamSets = [
-            'recording_physics_prompt:JetTauEtmiss,Muons,Egamma,MinBias',
-            'recording_physics_delayed:Bphysics,HadDelayed,JetCalibDelayed',
+            'recording_physics_prompt:Main',
+            'recording_physics_delayed:BphysDelayed,ExoDelayed',
             'recording_physics_other:'
             ]
         
     def target(self):
         return [ "Online", "Cosmic" ]    
 
-
-
-# class TrigRateMoniConfig5min(TrigRateMoni):
-#     """ Rates monitor for online use only """
-#     def __init__(self,name="TrigRate5min"):
-#         super(TrigRateMoniConfig5min, self).__init__(name)
-#         self.IntervalDuration = 600
-#         self.NumberOfIntervals = 2 
-        
-#     def target(self):
-#         return [ "Online", "Cosmic" ]
 
 class TrigOpMonitor(TrigOpMoni):
     """ Trigger operation monitor """
@@ -188,7 +159,7 @@ class TrigMemMonitor(TrigMemMoni):
             theApp.AuditAlgorithms = True
         
     def target(self):
-        return [ "Online", "Validation", "Cosmic" ]
+        return [ "Online" ]
 
 class TrigROBMoniConfig(TrigROBMoni):
     """ ROB request monitor for online use """
@@ -217,17 +188,8 @@ TrigSteerMonitorToolList = [  TrigChainMoniConfigValidation(),
                               TrigSignatureMoniConfigOnline(),
                               TrigTEMoniConfigOnline(),
                               TrigOpMonitor(),
-			      TrigMemMonitor(),
+                              TrigMemMonitor(),
                               TrigROBMoniConfig(),
                               TrigCorMonitor() ]
 
 
-TrigSteerMonitorToolList_L2 = [  TrigRateMoniConfig20s() ]
-TrigSteerMonitorToolList_EF = [  TrigRateMoniConfig20s() ]
-
-
-##TrigSignatureMoniConfigOnline(), TrigTEMoniConfigOnline(), TrigRoIMoniConfigOnline(), TrigErrorMonConfigOnline() ]
-##TrigSteerMonitorToolList = [ TrigChainMoniConfigValidation(),  TrigRoIMoniConfigValidation(), TrigErrorMonConfigValidation(),TrigChainMoniConfigOnline(),  TrigRoIMoniConfigOnline(), TrigErrorMonConfigOnline() ]
-
-
-# etc

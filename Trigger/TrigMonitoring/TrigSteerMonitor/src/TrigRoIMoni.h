@@ -91,10 +91,9 @@ class TrigRoIMoni: public TrigMonitorToolBase {
   ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool; //!< tool to handle L1 objects
 
   // muon specific svc
-  const LVL1::RecMuonRoiSvc* m_recRPCRoiSvc; //!< Muon RoI svc
-  const LVL1::RecMuonRoiSvc* m_recTGCRoiSvc; //!< Muon RoI svc
+  const LVL1::RecMuonRoiSvc* m_recRPCRoiSvc{0}; //!< Muon RoI svc
+  const LVL1::RecMuonRoiSvc* m_recTGCRoiSvc{0}; //!< Muon RoI svc
   
-  unsigned m_nxmax;
   std::string m_histoPathexpert;
   std::vector< unsigned int > m_configuredTETypes;
   std::map< unsigned int, unsigned int > m_labels; // TriggerElement ID -> bin

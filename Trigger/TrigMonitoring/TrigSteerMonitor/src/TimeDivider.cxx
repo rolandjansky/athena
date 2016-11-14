@@ -5,7 +5,7 @@
 #include <algorithm>
 
 
-#include "TrigSteerMonitor/TrigRateMoni.h"
+#include "TrigRateMoni.h"
 
 
 TimeDivider::TimeDivider(unsigned int intervals, unsigned int duration, unit u ) 

@@ -9,8 +9,8 @@
  *
  */
 
-#include "TrigSteerMonitor/ITrigMemAuditor.h"
-#include "TrigSteerMonitor/TrigMemMoni.h"
+#include "ITrigMemAuditor.h"
+#include "TrigMemMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigInterfaces/TECreateAlgo.h"
 
@@ -85,7 +85,7 @@ StatusCode TrigMemMoni::initialize()
   
    if(m_pSteering == 0)
    {
-      msg() << MSG::ERROR << "Parent algorithm is not of type TrigSteer. Cannot create histograms." << endreq;
+      msg() << MSG::ERROR << "Parent algorithm is not of type TrigSteer. Cannot create histograms." << endmsg;
       return StatusCode::FAILURE;
    }
     
@@ -112,7 +112,7 @@ StatusCode TrigMemMoni::initialize()
    }
 
    if (m_AlgMap.empty()) {
-     msg() << MSG::INFO << "No algorithms to monitor." << endreq;
+     msg() << MSG::INFO << "No algorithms to monitor." << endmsg;
      m_MemRelMem = false;
    }
 
@@ -121,11 +121,11 @@ StatusCode TrigMemMoni::initialize()
       !(pAuditor = pAuditSvc->getAuditor("TrigMemAuditor")) ||
       !(pTrigMemAudit = dynamic_cast<ITrigMemAuditor*>(pAuditor)))
    {
-      msg() << MSG::ERROR << "Cannot find memory auditor." << endreq;
+      msg() << MSG::ERROR << "Cannot find memory auditor." << endmsg;
       return StatusCode::FAILURE;
    }
    
-   else pTrigMemAudit->regclient((ITrigMemMoni*)this);
+   else pTrigMemAudit->regclient(static_cast<ITrigMemMoni*>(this));
 
    return StatusCode::SUCCESS;
 }
@@ -163,7 +163,7 @@ StatusCode TrigMemMoni::bookHists()
       // register histogram
       if(MonGroup.regHist(m_pRelMemHist).isFailure())
       {  
-         msg() << MSG::WARNING << "Cannot register histogram " << m_pRelMemHist->GetName() << endreq;
+         msg() << MSG::WARNING << "Cannot register histogram " << m_pRelMemHist->GetName() << endmsg;
          delete m_pRelMemHist;
          m_MemRelMem = false; // do not fill histogram
       }
@@ -183,7 +183,7 @@ StatusCode TrigMemMoni::bookHists()
       // register histogram
       if(MonGroup.regHist(m_pAbsMemHist).isFailure())
       {  
-         msg() << MSG::WARNING << "Cannot register histogram " << m_pAbsMemHist->GetName() << endreq;
+         msg() << MSG::WARNING << "Cannot register histogram " << m_pAbsMemHist->GetName() << endmsg;
          delete m_pAbsMemHist;
          m_MemAbsMem = false; // do not fill histogram
       }
@@ -201,7 +201,7 @@ StatusCode TrigMemMoni::fillHists()
    m_event++;
 
    // Print memory consumption
-   if(outputLevel() <= MSG::VERBOSE) {
+   if(msgLvl(MSG::VERBOSE)) {
      if (m_MemAbsMem) {
        msg() << MSG::VERBOSE << "Event #" << m_event << ": VMEM = " << m_AbsMemSize << " kB";
      }
@@ -219,7 +219,7 @@ StatusCode TrigMemMoni::fillHists()
 	   msg() << MSG::VERBOSE << " [" << it->first << ": " << it->second.virtdelta << " kB]";
        }
      }
-     msg() << endreq;
+     msg() << endmsg;
    }
       
 
@@ -289,7 +289,7 @@ StatusCode TrigMemMoni::queryInterface( const InterfaceID& riid, void** ppvIf )
 {
    if(riid == ITrigMemMoni::interfaceID())
    {
-      *ppvIf = (ITrigMemMoni*)this;
+      *ppvIf = static_cast<ITrigMemMoni*>(this);
       addRef();
       return StatusCode::SUCCESS;
    }

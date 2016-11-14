@@ -9,8 +9,8 @@
  *
  */
  
-#include "TrigSteerMonitor/TrigMemAuditor.h"
-#include "TrigSteerMonitor/ITrigMemMoni.h"
+#include "TrigMemAuditor.h"
+#include "ITrigMemMoni.h"
 #include "GaudiKernel/Memory.h"
 
 TrigMemAuditor::TrigMemAuditor(const std::string &name, ISvcLocator *svcloc)
@@ -67,7 +67,7 @@ StatusCode TrigMemAuditor::queryInterface( const InterfaceID& riid, void** ppvIf
 {
    if(riid == ITrigMemAuditor::interfaceID())
    {
-      *ppvIf = (ITrigMemAuditor*)this;
+      *ppvIf = static_cast<ITrigMemAuditor*>(this);
       addRef();
       return StatusCode::SUCCESS;
    }
