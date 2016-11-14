@@ -201,7 +201,7 @@ StatusCode TrigRateMoni::bookHists() {
     }
 
     for (const std::string& gr : chainGroupList) {
-      if ( gr.find("RATE") == 0 ) // name starts from string RATE
+      if ( gr.compare(0,4,"RATE") == 0 ) // name starts with string RATE
         groups.insert(gr);
     }
 

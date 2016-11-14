@@ -125,7 +125,7 @@ StatusCode TrigMemMoni::initialize()
       return StatusCode::FAILURE;
    }
    
-   else pTrigMemAudit->regclient((ITrigMemMoni*)this);
+   else pTrigMemAudit->regclient(static_cast<ITrigMemMoni*>(this));
 
    return StatusCode::SUCCESS;
 }
@@ -289,7 +289,7 @@ StatusCode TrigMemMoni::queryInterface( const InterfaceID& riid, void** ppvIf )
 {
    if(riid == ITrigMemMoni::interfaceID())
    {
-      *ppvIf = (ITrigMemMoni*)this;
+      *ppvIf = static_cast<ITrigMemMoni*>(this);
       addRef();
       return StatusCode::SUCCESS;
    }
