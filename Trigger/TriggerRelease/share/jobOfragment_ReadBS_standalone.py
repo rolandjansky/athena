@@ -53,3 +53,5 @@ ByteStreamAddressProviderSvc.TypeNames += [
     "L1TopoRDOCollection/L1TopoRDOCollection"
     ] 
 
+if TriggerFlags.doFTK():
+    ByteStreamAddressProviderSvc.TypeNames += [ "FTK_RawTrackContainer/FTK_RDO_Tracks"]
