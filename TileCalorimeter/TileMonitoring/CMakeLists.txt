@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740812 2016-04-17 07:18:58Z krasznaa $
+# $Id: CMakeLists.txt 767269 2016-08-10 15:10:39Z aryzhov $
 ################################################################################
 # Package: TileMonitoring
 ################################################################################
@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODEventInfo
   Event/xAOD/xAODTrigger
+  Event/xAOD/xAODMuon
   Reconstruction/Jet/JetMomentTools
   Reconstruction/Jet/JetUtils
   TileCalorimeter/TileCalib/TileCalibBlobObjs
@@ -48,7 +49,7 @@ atlas_add_component( TileMonitoring
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AsgTools
   AthenaMonitoringLib xAODJet GaudiKernel JetInterface TileIdentifier
   CaloEvent CaloGeoHelpers CaloIdentifier AthenaKernel
-  ByteStreamCnvSvcBaseLib xAODCaloEvent xAODEventInfo xAODTrigger JetUtils
+  ByteStreamCnvSvcBaseLib xAODCaloEvent xAODEventInfo xAODTrigger xAODMuon JetUtils
   TileCalibBlobObjs TileConditionsLib TileEvent TileRecUtilsLib LWHists
   TrigDecisionToolLib TrigConfL1Data TrigT1Result )
 

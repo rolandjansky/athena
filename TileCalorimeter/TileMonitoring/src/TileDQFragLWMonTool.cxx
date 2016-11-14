@@ -563,12 +563,15 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros + 1, drawer);
       if (m_checkDCS 
           && ((m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn)
-               && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::NoHV)) 
+               && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::NoHV)
+               && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::WrongHV))
               || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 1) 
-                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::NoHV))
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::NoHV)
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::WrongHV))
               || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 2) 
-                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::NoHV)))) {
-
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::NoHV)
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::WrongHV)))) {
+        
         fillOneError(ros, drawer, idmu, 14);      
       }
 

@@ -45,6 +45,7 @@ ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileDQFragMon ]
 toolSvc += CfgMgr.TileRODMonTool( name             = 'TileRODMon'
                                   , OutputLevel    = INFO
                                   , histoPathBase  = "/Tile/ROD"
+                                  , NumberOfEventsToAverageFragmentSize = 50
                                   , doOnline       =  athenaCommonFlags.isOnline())
 
 ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileRODMon ];
@@ -77,7 +78,7 @@ if doTileTMDBRawChannelMon:
 						, OutputLevel	          = INFO
 						, TileRawChannelContainer = "TileMuRcvRawChannelOpt2"
                                                 , NotDSP                   = True
-                                                , AmplitudeThresholdForTime = 10.0
+                                                , AmplitudeThresholdForTime = 80.0
 						, histoPathBase           = "/Tile/TMDBRawChannel")
 
 
@@ -99,7 +100,8 @@ if doTileCells:
                                       , OutputLevel        = INFO
                                       , doOnline           = athenaCommonFlags.isOnline()
                                       , cellsContainerName = "AllCalo"
-                                      , histoPathBase      = "/Tile/Cell")
+                                      , histoPathBase      = "/Tile/Cell"
+                                      , NumberOfLastLumiblocks4MaskedChannelsOnFly = 7)
 
     if (jobproperties.Beam.beamType() == 'singlebeam'):
         toolSvc.TileCellMon.FillTimeHistograms = True

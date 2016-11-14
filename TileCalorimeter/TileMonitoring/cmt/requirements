@@ -40,6 +40,10 @@ use LWHists              LWHists-*             Tools
 # added by Tomas Davidek to accommodate TileJetMonTool
 use JetUtils             JetUtils-*            Reconstruction/Jet
 use JetMomentTools 	 JetMomentTools-*      Reconstruction/Jet
+
+#added by Andrey
+use xAODMuon             xAODMuon-*            Event/xAOD
+
 end_private
 public
 use JetInterface 	 JetInterface-*	       Reconstruction/Jet

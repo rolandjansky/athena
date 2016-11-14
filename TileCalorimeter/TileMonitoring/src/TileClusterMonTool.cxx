@@ -38,8 +38,8 @@
 TileClusterMonTool::TileClusterMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_TileClusterTrig(0)
-  , m_partitionTimeLB{0}
-  , m_paritionTimeOnlineLB{0}
+  , m_partitionTimeLB{{0}}
+  , m_paritionTimeOnlineLB{{0}}
   , m_doOnline(false)
   , m_oldLumiblock(-1)
   , m_fillTimingHistograms(false)
@@ -455,8 +455,7 @@ StatusCode TileClusterMonTool::fillHistograms() {
 
           Identifier id = cell->ID();
           
-          if (m_is_collision 
-              || cell->badcell() 
+          if (cell->badcell() 
               || cell->energy() < m_cellEnergyThresholdForTiming
               || usedCells.find(id) != usedCells.end() ) continue;
           
