@@ -104,10 +104,10 @@ int main( int argc, char* argv[] )
   tool_jtc.setTypeAndName("CP::JetTileCorrectionTool/JetTileCorrectionTool");
   
   //Set properties if needed
-  CHECK( tool_jtc.setProperty("CorrectionFileName", "JetTileCorrection/JetTile_pFile_010216.root") );
-  std::vector<std::string> dead_modules = {"1 04","1 05","1 06","1 07","1 08","1 09",
-					   "2 04","2 05","2 06","2 07","2 08","2 09"  }; // LBA/C5-10 :  not real scenario! just trying to get some broader effect for testing! 
-  CHECK( tool_jtc.setProperty("UserMaskedRegions", dead_modules));
+  CHECK( tool_jtc.setProperty("CorrectionFileName", "JetTileCorrection/JetTile_pFile_010216.root") ); //default anyway
+  // std::vector<std::string> dead_modules = {"1 04","1 05","1 06","1 07","1 08","1 09",
+  // 					   "2 04","2 05","2 06","2 07","2 08","2 09"  }; // LBA/C5-10 :  NOT REAL SCENARIO !! just trying to get some magnified effect for testing! 
+  // CHECK( tool_jtc.setProperty("UserMaskedRegions", dead_modules));
 
   CHECK( tool_jtc.retrieve() );
 
@@ -143,7 +143,7 @@ int main( int argc, char* argv[] )
       const CP::CorrectionCode retCode = tool_jtc->applyCorrection(*jet);
 
       if ( retCode == CP::CorrectionCode::OutOfValidityRange ){
-	Warning("JetTileCorrectionTester","No valid pt/eta range. No correction applied.");
+	Warning("JetTileCorrectionTester","No valid pt/eta range. No correction applied."); // It might get too verbosed, just here to illustrate all return values.
       }
       else if( retCode != CP::CorrectionCode::Ok ){
 	Error("JetTileCorrectionTester","Failed to apply JetTileCorrection!");
@@ -157,11 +157,41 @@ int main( int argc, char* argv[] )
 	str_status = "NotAffected";
       else if(j_status == (unsigned int)JTC::TS::EDGE)
 	str_status = "EdgeAffected";
-      else //if(j_status == JTC::CORE)
+      else if(j_status == (unsigned int)JTC::TS::CORE)
 	str_status = "CoreAffected";
-      
+      else
+	str_status = "Unknown";
+
       Info(APP_NAME, "Jet status : %s, Pt raw = %.3f GeV, Pt corrected %.3f GeV", str_status.c_str(), acc_ptraw(*jet)*0.001, jet->pt()*0.001);
     }
+
+
+
+    // //Check status only 
+    // tool_jtc->setRJET(0.1); //change jet radius (for tile status checks only!)
+    // for( xAOD::Jet* jet : *jets_sc ){
+
+    //   JTC::TS j_status = tool_jtc->getTileStatus(*jet);
+
+    //   //or well:
+    //   //CHECK( tool_jtc->addTileStatus(*jet) );
+    //   //unsigned int j_status = acc_tileok(*jet);
+
+    //   std::string str_status="";
+    //   if(j_status == JTC::TS::GOOD)
+    // 	str_status = "NotAffected";
+    //   else if(j_status == JTC::TS::EDGE)
+    // 	str_status = "EdgeAffected";
+    //   else if(j_status == JTC::TS::CORE)
+    // 	str_status = "CoreAffected";
+    //   else
+    // 	str_status = "Unknown";
+
+    //   Info(APP_NAME, "Jet status : %s, Pt raw = %.3f GeV, Pt corrected %.3f GeV", str_status.c_str(), acc_ptraw(*jet)*0.001, jet->pt()*0.001);
+      
+    // }    
+    // //back to default
+    // tool_jtc->setRJET(0.4);
     
   }
 

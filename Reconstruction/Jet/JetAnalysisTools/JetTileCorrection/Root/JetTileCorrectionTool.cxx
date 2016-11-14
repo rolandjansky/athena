@@ -68,6 +68,8 @@ namespace CP {
 
     m_isMC = ei->eventType( xAOD::EventInfo::IS_SIMULATION );
 
+    //set RJET
+    setRJET( (float) RJET );
     
     //Load user dead regions map
     loadDeadUser();
@@ -133,12 +135,15 @@ namespace CP {
 
   CorrectionCode JetTileCorrectionTool :: applyCorrection( xAOD::Jet& jet ){
 
+    //init decorations
+    dec_ptraw(jet)  = jet.pt();
+    dec_status(jet) = (unsigned int) TS::UNKNOWN;
+
     //check validity range of the correction
     if( fabs(jet.eta()) > iov_aeta_max ) return CorrectionCode::OutOfValidityRange;
     if( jet.pt() < iov_pt_min || jet.pt() > iov_pt_max ) return CorrectionCode::OutOfValidityRange;    
 
-    TS status = TS::GOOD;
-    dec_ptraw(jet)=jet.pt();
+    JTC::TS status = TS::GOOD;
     if( loadAllModules(jet, status) != StatusCode::SUCCESS )
       return CorrectionCode::Error;
     
@@ -249,7 +254,7 @@ namespace CP {
   }
   
 
-  TS JetTileCorrectionTool :: overlap(const xAOD::Jet& j, Hole region){
+  JTC::TS JetTileCorrectionTool :: overlap(const xAOD::Jet& j, Hole region){
 
     double phisize   = region.phi2-region.phi1;
     double phicenter = (region.phi1+region.phi2)/2.;
@@ -257,9 +262,9 @@ namespace CP {
     float  jet_phi   = j.jetP4(xAOD::JetConstitScaleMomentum).phi();
 
     // GOOD?
-    if( region.eta2 < (jet_eta-RJET) ) return TS::GOOD;
-    if( region.eta1 > (jet_eta+RJET) ) return TS::GOOD;
-    if( fabs(TVector2::Phi_mpi_pi(jet_phi-phicenter)) > RJET+phisize/2.) return TS::GOOD;
+    if( region.eta2 < (jet_eta-m_RJET) ) return TS::GOOD;
+    if( region.eta1 > (jet_eta+m_RJET) ) return TS::GOOD;
+    if( fabs(TVector2::Phi_mpi_pi(jet_phi-phicenter)) > m_RJET+phisize/2.) return TS::GOOD;
     
     // CORE-BAD?
     if( inHole(jet_eta, jet_phi, region) ) return TS::CORE;
@@ -324,40 +329,69 @@ namespace CP {
     m_db_dead_LB = {};
     m_db_dead_EB = {};
 
-    //read map file
-    std::string mapFilename = PathResolverFindCalibFile(m_bd_dead_mapFile); 
-    std::ifstream mapFile;
-    mapFile.open(mapFilename);
-
-
     std::vector<Hole> dbholes={};
-    std::string line;
-    while (std::getline(mapFile, line)){
 
-      if(line[0]=='#') continue;
+    //Simulation
+    if(m_isMC){
 
-      std::istringstream iss(line);
-      int part,mod, irun, erun;
-      std::string modname;
+      //-- MC15c : no dead modules
+      //COOLOFL_TILE/OFLP200 /TILE/OFL02/STATUS/ADC TileOfl02StatusAdc-IOVDEP-05
+      //COOLOFL_TILE/OFLP200 /TILE/OFL02/NOISE/CELL TileOfl02NoiseCell-OF2-07
+      //
 
-      if (!(iss >> part >> mod >> irun >> erun >> modname)) { break; } // error
+      //TODO:  add RunNumber check and add these below if running on MC15b //M.T.
 
-      Hole rdead = partModToHole(part, mod);
-      rdead.iov = make_pair(irun,erun);
-      dbholes.push_back( rdead );  
+      //-- MC15b : two dead modules
+      //COOLOFL_TILE/OFLP200 /TILE/OFL02/STATUS/ADC TileOfl02StatusAdc-IOVDEP-05
+      //COOLOFL_TILE/OFLP200 /TILE/OFL02/NOISE/CELL TileOfl02NoiseCell-OF2-07
+      //
+      // //LBA10 
+      // Hole rdead = partModToHole(0, 9);
+      // rdead.iov = make_pair(0,1000000); //no range
+      // dbholes.push_back( rdead );  
+
+      // //EBC21
+      // rdead = partModToHole(3, 20);
+      // rdead.iov = make_pair(0,1000000); //no range
+      // dbholes.push_back( rdead );  
 
     }
+    else{ //DATA
 
+      //read map file
+      std::string mapFilename = PathResolverFindCalibFile(m_bd_dead_mapFile); 
+      std::ifstream mapFile;
+      mapFile.open(mapFilename);
+     
+      std::string line;
+      while (std::getline(mapFile, line)){
+	
+	if(line[0]=='#') continue;
+	
+	std::istringstream iss(line);
+	int part,mod, irun, erun;
+	std::string modname;
+	
+	if (!(iss >> part >> mod >> irun >> erun >> modname)) { break; } // error
+	
+	Hole rdead = partModToHole(part, mod);
+	rdead.iov = make_pair(irun,erun);
+	dbholes.push_back( rdead );  
+	
+      }
+    }
+      
     int dbh=1;
     for(const auto& h : dbholes){
       if(fabs(h.eta1)>1 || fabs(h.eta2)>1){
-        m_db_dead_EB[Form("DB%d",dbh)] = h;
+	m_db_dead_EB[Form("DB%d",dbh)] = h;
       }
       else{
-        m_db_dead_LB[Form("DB%d",dbh)] = h;
+	m_db_dead_LB[Form("DB%d",dbh)] = h;
       }
- 
+      
       dbh++;
+      ATH_MSG_INFO("Adding DB dead module at (eta1,phi1)=(" << h.eta1 << "," << h.phi1 << ")");
       ATH_MSG_DEBUG("Adding DB dead module at (eta1,phi1)=(" << h.eta1 << "," << h.phi1 << ")");
     }
   }
@@ -393,11 +427,11 @@ namespace CP {
     return make_pair(ineta+8, inphi);
   }
 
-  void JetTileCorrectionTool :: loadModulesFromMap(const xAOD::Jet& jet, TS &status, std::map<std::string,Hole> hmap, PART part, TYPE type){
+  void JetTileCorrectionTool :: loadModulesFromMap(const xAOD::Jet& jet, JTC::TS &status, std::map<std::string,Hole> hmap, PART part, TYPE type){
 
     float cfactor(0.);
     IPair mpos;
-    TS cstatus = TS::GOOD; 
+    JTC::TS cstatus = TS::GOOD; 
 
     for (const auto& mod : hmap){
 
@@ -427,7 +461,29 @@ namespace CP {
 
   }
 
-  StatusCode JetTileCorrectionTool :: loadAllModules(const xAOD::Jet& jet, TS &status){
+  
+  JTC::TS JetTileCorrectionTool :: getTileStatus(const xAOD::Jet& jet){
+    JTC::TS status = TS::GOOD;
+    if( loadAllModules(jet, status) != StatusCode::SUCCESS ){
+      ATH_MSG_ERROR( "Something went wrong while loading/checking the modules!");
+      return TS::UNKNOWN;
+    }
+    return status;
+  }
+
+
+  StatusCode JetTileCorrectionTool :: addTileStatus(const xAOD::Jet& jet){
+    JTC::TS status = getTileStatus(jet);
+    dec_status(jet) = (unsigned int) status; //save status decoration
+    return StatusCode::SUCCESS;
+  }
+
+  void JetTileCorrectionTool :: setRJET(float r){ 
+    m_RJET = r; 
+  }
+
+
+  StatusCode JetTileCorrectionTool :: loadAllModules(const xAOD::Jet& jet, JTC::TS &status){
 
     m_position_masked.clear();
 
@@ -446,13 +502,13 @@ namespace CP {
     
       m_current_run = ei->runNumber();
       
-      //load DB-defined modules in LB
-      loadModulesFromMap(jet, status, m_db_dead_LB, PART::LB, TYPE::DB);
-      //load DB-defined modules in EB
-      loadModulesFromMap(jet, status, m_db_dead_EB, PART::EB, TYPE::DB);
-      
     }
 
+    //load DB-defined modules in LB
+    loadModulesFromMap(jet, status, m_db_dead_LB, PART::LB, TYPE::DB);
+    //load DB-defined modules in EB
+    loadModulesFromMap(jet, status, m_db_dead_EB, PART::EB, TYPE::DB);
+    
     //load user-defined modules in LB
     loadModulesFromMap(jet, status, m_user_dead_LB, PART::LB, TYPE::User);
     //load user-defined modules in EB

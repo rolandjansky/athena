@@ -38,52 +38,6 @@
 //--------------
 
 
-//eta-phi (parametrization) coordinates 
-typedef std::pair<int,int> IPair;
-
-namespace JTC{
-
-  enum class PART : unsigned int {LB, EB};
-
-  enum class TS : unsigned int {GOOD,EDGE,CORE};
-
-  enum class TYPE : unsigned int {User, DB};
-
-  struct Hole{
-    double eta1;
-    double eta2;
-    double phi1;
-    double phi2;
-    std::pair<int,int> iov;
-  };
-
-  struct Region{
-
-    Hole  hole;
-    IPair ep;
-    PART  part;
-    float cfactor;
-    TS    status;
-    TYPE  type;
-
-    Region(Hole h, IPair pair, PART p, float cf, TS st, TYPE t)
-      : hole(h), 
-    	ep(pair),
-    	part(p),
-    	cfactor(cf),
-    	status(st),
-    	type(t)
-    {}
-
-    bool operator < (const Region& r) const {
-      return (this->cfactor < r.cfactor);
-    }
-    bool operator > (const Region& r) const {
-      return (this->cfactor > r.cfactor);
-    }
-  }; 
-
-}
 
 namespace CP {
   
@@ -131,6 +85,14 @@ namespace CP {
     ( const SystematicSet& systConfig );
 
     CP::SystematicCode registerSystematics();
+
+
+    //status helpers
+    JTC::TS getTileStatus(const xAOD::Jet& jet);
+    StatusCode addTileStatus(const xAOD::Jet& jet);
+
+    //DR helper
+    void setRJET(float r); //Set Jet Radius. NOTE: Only for checking overlap! The correction is only derived for EMTopo R=0.4 jets at the moment.
 
   protected:
     // Arguments and tool dependencies
@@ -189,6 +151,7 @@ namespace CP {
     std::map<std::string,JTC::Hole> m_user_dead_LB;
     std::map<std::string,JTC::Hole> m_user_dead_EB;
 
+    float m_RJET;
 
     /// Systematics filter map
     boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;

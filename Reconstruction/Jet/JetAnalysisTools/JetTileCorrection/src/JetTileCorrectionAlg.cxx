@@ -81,7 +81,7 @@ StatusCode JetTileCorrectionAlg::execute() {
     CP::CorrectionCode retCode = m_jtcTool->applyCorrection(*jet);
 
     if ( retCode == CP::CorrectionCode::OutOfValidityRange ){
-      ATH_MSG_WARNING("No valid pt/eta range. No correction applied.");
+      ATH_MSG_VERBOSE("No valid pt/eta range. No correction applied.");
     }
     else if( retCode != CP::CorrectionCode::Ok ){
       ATH_MSG_ERROR("Failed to apply JetTileCorrection!");
@@ -95,9 +95,11 @@ StatusCode JetTileCorrectionAlg::execute() {
       str_status = "NotAffected";
     else if(j_status == (unsigned int)JTC::TS::EDGE)
       str_status = "EdgeAffected";
-    else //if(j_status == JTC::CORE)
+    else if(j_status == (unsigned int)JTC::TS::CORE)
       str_status = "CoreAffected";
-    
+    else
+      str_status = "Unknown";
+
     ATH_MSG_INFO("Jet status : " << str_status << ", Pt raw = " << acc_ptraw(*jet)*0.001 << " GeV, Pt corrected = " << jet->pt()*0.001 << " GeV");
   }
   ATH_MSG_INFO("--------------------\n");

@@ -9,9 +9,9 @@ svcMgr.EventSelector.InputCollections=[ inputFile ]           #insert your list 
 
 ToolSvc += CfgMgr.CP__JetTileCorrectionTool("JTCtool")
 
-ToolSvc.JTCtool.CorrectionFileName = "JetTileCorrection/JetTile_pFile_010216.root"
-ToolSvc.JTCtool.UserMaskedRegions = ["1 04","1 05","1 06","1 07","1 08","1 09",
-                                     "2 04","2 05","2 06","2 07","2 08","2 09"  ] #just to get some interesting output. These are NOT the current masked modules in TileCal!
+ToolSvc.JTCtool.CorrectionFileName = "JetTileCorrection/JetTile_pFile_010216.root" #default anyway
+#ToolSvc.JTCtool.UserMaskedRegions = ["1 04","1 05","1 06","1 07","1 08","1 09",
+#                                    "2 04","2 05","2 06","2 07","2 08","2 09"  ] #just to get some interesting output. These are NOT the current masked modules in TileCal!
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                     #gets the main AthSequencer
 algseq += CfgMgr.CP__JetTileCorrectionAlg("JTCtester")        #adds an instance of your alg to it
