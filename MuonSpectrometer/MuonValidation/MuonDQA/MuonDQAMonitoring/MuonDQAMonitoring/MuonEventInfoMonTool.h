@@ -67,10 +67,6 @@ namespace MuonDQA {
   
       ActiveStoreSvc* m_activeStore;
 
-      mutable MsgStream      m_log;                  //!< Gaudi message stream - msgstream as private member (-> speed)
-      bool                   m_debuglevel;           //!< private member to control debug messages  
-
- 
       int mdt_eventstotal; 
       int mdt_event_inarea;
   
