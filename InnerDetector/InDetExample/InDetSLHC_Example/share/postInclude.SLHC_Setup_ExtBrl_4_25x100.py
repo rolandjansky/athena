@@ -8,14 +8,12 @@ SLHC_Setup = SLHC_Setup()
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup_Common.py")
 
-##   this block is commented out for now, as re-tuning is necessary for 25x100
-##       ideally the code should be made aware of pixel pitch to adjust the cuts accordingly
-#
-#if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
-#    ## Improved pixel clustering with extended barrel
-#    from AthenaCommon.AppMgr import ToolSvc
-#    from AthenaCommon.DetFlags import DetFlags
-#    if DetFlags.makeRIO.pixel_on():
-#        ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
-#        ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
-#        ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
+if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
+    from AthenaCommon.AppMgr import ToolSvc
+
+    ## Improved pixel clustering with extended barrel
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.makeRIO.pixel_on():
+        ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
+        ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
+        ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
