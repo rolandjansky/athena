@@ -534,7 +534,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   //2)Probe track with the smallest value of deltaR (gives quantitative measure of the cluster-track alignment)
   
   //declare variables to temporarily store invariant mass and deltaR of all tracks
-  double m_InvMass, m_deltaR=9999;
+  double InvMass, deltaR=9999;
   //declare variables to store optimal track Minv for both PT and FTF. Also define ints to store iterator value of the optimal tracks (used for DEBUG messages at end of code)
   double PTOptInvMass=0, FTFOptInvMass=0; int PTOptIterator=-1, PTOptIteratorAlt=-1, FTFOptIterator=-1, FTFOptIteratorAlt=-1;
   //declare variables to store the difference in Z0 between tag and probe tracks for both methods
@@ -558,17 +558,17 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
       continue;
     }
     //Calculate invariant mass and delta R
-    m_InvMass=CombinedInvMass(tagpT,tagPx,tagPy,tagPz,probeTrack);
-    m_deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
+    InvMass=CombinedInvMass(tagpT,tagPx,tagPy,tagPz,probeTrack);
+    deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
     //push back invariant mass onto vector (this stores Minv of all tracks in probe region (not just the optimal ones))
-    m_PTinv.push_back(m_InvMass);
-    m_PTdeltaR.push_back(m_deltaR);
+    m_PTinv.push_back(InvMass);
+    m_PTdeltaR.push_back(deltaR);
     
     //Finding the optimal track
     //1)Probe track with Minv closest to Zmass
-    if(fabs(m_InvMass-Zmass)<fabs(PTOptInvMass-Zmass)){
+    if(fabs(InvMass-Zmass)<fabs(PTOptInvMass-Zmass)){
       //Set new optimal track
-      PTOptInvMass=m_InvMass;
+      PTOptInvMass=InvMass;
       PTOptIterator=p;
 
       //Determine delta eta and delta phi between cluster and track and store in monitored variable to be histogrammed
@@ -595,9 +595,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
       InvMasscriteriadZ0=tagZ0-probeTrack->z0();
     }
     //METHOD2: Minimum deltaR
-    if(m_deltaR<PTOptDeltaR){
+    if(deltaR<PTOptDeltaR){
       //Set new optimum track deltaR
-      PTOptDeltaR=m_deltaR;
+      PTOptDeltaR=deltaR;
       PTOptIteratorAlt=p;
 
       //determine difference in z0 between tag and probe (PT) track for deltaR method
@@ -615,24 +615,24 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
       continue;
     }
     //Calc inv mass
-    m_InvMass=CombinedInvMass(tagpT,tagPx,tagPy,tagPz,probeTrack);
-    m_deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
+    InvMass=CombinedInvMass(tagpT,tagPx,tagPy,tagPz,probeTrack);
+    deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
     //push back onto vector
-    m_FTFinv.push_back(m_InvMass);
-    m_FTFdeltaR.push_back(m_deltaR);
+    m_FTFinv.push_back(InvMass);
+    m_FTFdeltaR.push_back(deltaR);
     
     //Find optimal track -> 
     //METHOD!: Probe track corresponding to Minv closest to Zmass                                                                                                                                                                              
-    if(fabs(m_InvMass-Zmass)<fabs(FTFOptInvMass-Zmass)){
+    if(fabs(InvMass-Zmass)<fabs(FTFOptInvMass-Zmass)){
 
       //Set new optimal track                                                                                                                                                                                                                               
-      FTFOptInvMass=m_InvMass;
+      FTFOptInvMass=InvMass;
       FTFOptIterator=p;
     }
     //METHOD2: Minimum deltaR
-    if(m_deltaR<FTFOptDeltaR){
+    if(deltaR<FTFOptDeltaR){
       //Set new optimum track deltaR                                                                                                                                                                                                                        
-      FTFOptDeltaR=m_deltaR;
+      FTFOptDeltaR=deltaR;
       FTFOptIteratorAlt=p;
     }
     p++;
@@ -673,7 +673,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   //INVARIANT MASS CALCULATION - from tag "track" - probe track pair 
   //Note this is NOT required by algorithm. Used as a check for effect of bremstrahlung on the track variables. Remove when running in the online.
   //declare monitored variable
-  double m_trackInvMass;
+  double trackInvMass;
   //iterate over tag and probe pairs
   for(auto tagTrack:tagTracks){
     for(auto probeTrack:PTprobeTracks){
@@ -683,9 +683,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
       }
       else{
 	//Calc inv mass
-	m_trackInvMass=TrackInvMass(tagTrack,probeTrack);
+	trackInvMass=TrackInvMass(tagTrack,probeTrack);
 	//push back onto m_PTinvTrack to fill histogram...
-	m_PTinvTrack.push_back(m_trackInvMass);	
+	m_PTinvTrack.push_back(trackInvMass);	
       }
     }
     //FTF
@@ -696,9 +696,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
       }
       else{
 	//Calc inv mass                                   
-	m_trackInvMass=TrackInvMass(tagTrack,probeTrack);
+	trackInvMass=TrackInvMass(tagTrack,probeTrack);
 	//push back onto m_FTFinvTrack to fill histogram...                                                                                                                                                                                                 
-	m_FTFinvTrack.push_back(m_trackInvMass);
+	m_FTFinvTrack.push_back(trackInvMass);
       }
     }
   }

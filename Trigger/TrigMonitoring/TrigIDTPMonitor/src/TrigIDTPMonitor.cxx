@@ -33,6 +33,7 @@
 #include "xAODMuon/MuonContainer.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include <cmath>
 
 //#include "AthenaKernel/errorcheck.h"
 
@@ -148,7 +149,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
   }
 
   double invMass = 0;
-  int m_ptype = 9999;
+  int ptype = 9999;
 
   for(auto bphys : *trigBphysColl){
 
@@ -167,17 +168,17 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
     ATH_MSG_DEBUG( "\tz: "<< bphys->fitz() );
 
     //find Bphys inv mass closest to Z mass for histogramming
-    if(abs((bphys->mass())-m_mumuMass)<(abs(invMass-m_mumuMass)))
+    if(std::abs((bphys->mass())-m_mumuMass)<(std::abs(invMass-m_mumuMass)))
       {
         invMass=bphys->mass();
       }
     
-    m_ptype = bphys->particleType();
+    ptype = bphys->particleType();
   }
 
   m_invBS = invMass;
 
-  if(abs(invMass-m_mumuMass)>m_massAcceptanceTP)
+  if(std::abs(invMass-m_mumuMass)>m_massAcceptanceTP)
     {
       ATH_MSG_DEBUG( "Invalid Candidate from TrigEFBPhys mass" );
       return HLT::OK;
@@ -243,13 +244,15 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
   ATH_MSG_VERBOSE( "\t[ eta2(z+) " << roi2->etaPlus() << " eta2(z-) " << roi2->etaMinus() << " ]" );
   ATH_MSG_VERBOSE( "\tphi2: " << roi2->phi() << " +/- " << ((roi2->phiPlus()-roi2->phiMinus())/2.) );
 
-  float m_deltaEta = fabs(roi1->eta() - roi2->eta());
-  float m_deltaPhi = roi1->phi() - roi2->phi();
-  while (m_deltaPhi >= kPI) m_deltaPhi -= kTWOPI;
-  while (m_deltaPhi < -kPI) m_deltaPhi += kTWOPI;
+  {
+    float deltaEta = fabs(roi1->eta() - roi2->eta());
+    float deltaPhi = roi1->phi() - roi2->phi();
+    while (deltaPhi >= kPI) deltaPhi -= kTWOPI;
+    while (deltaPhi < -kPI) deltaPhi += kTWOPI;
 
-  ATH_MSG_VERBOSE("Delta Phi between two muons:" << m_deltaPhi);
-  ATH_MSG_VERBOSE("Delta Eta between two muons:" << m_deltaEta);
+    ATH_MSG_VERBOSE("Delta Phi between two muons:" << deltaPhi);
+    ATH_MSG_VERBOSE("Delta Eta between two muons:" << deltaEta);
+  }
 
   //retrieve Muon Containers
 
@@ -549,14 +552,14 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
   for(auto tagTrack : tagMuonTracks){
     for(auto probeTrack : probeMuonTracks){
 
-      double m_trackInvMass = TrackInvMass(tagTrack, probeTrack);
+      double trackInvMass = TrackInvMass(tagTrack, probeTrack);
 
-      m_massDiff = m_mumuMass - m_trackInvMass;
+      m_massDiff = m_mumuMass - trackInvMass;
       float invmassdiff = fabs(m_massDiff);
 
       ATH_MSG_VERBOSE( "tagTrack pT = " << tagTrack->pt() );
       ATH_MSG_VERBOSE( "probeTrack pT = " << probeTrack->pt() );
-      ATH_MSG_VERBOSE( "TrackInvMass = " << m_trackInvMass );
+      ATH_MSG_VERBOSE( "TrackInvMass = " << trackInvMass );
       ATH_MSG_VERBOSE( "Mass difference of track inv mass and mumuMass = " << invmassdiff );
       ATH_MSG_VERBOSE( "Mass acceptance = " << m_massAcceptanceTP );
       ATH_MSG_VERBOSE( "probeTrack d0 = " << probeTrack->d0() );
@@ -604,7 +607,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	}
 	if(!found){
 	  ATH_MSG_INFO( "Inefficient event, no Precision Tracking ID match found" );
-	  ATH_MSG_INFO( "Bphys particle type = " << m_ptype );
+	  ATH_MSG_INFO( "Bphys particle type = " << ptype );
 	}	
 
 
@@ -631,7 +634,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
 	  }
 	  if(!FTFfound){
 	    ATH_MSG_INFO( "Inefficient event in FTF, no ID candidate found" );
-	    ATH_MSG_INFO( "Bphys particle type = " << m_ptype );
+	    ATH_MSG_INFO( "Bphys particle type = " << ptype );
 	  }
 	}
       }

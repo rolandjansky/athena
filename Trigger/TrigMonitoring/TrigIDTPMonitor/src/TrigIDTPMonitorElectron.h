@@ -84,8 +84,8 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
 
 
   //monitored values
-  double m_PTOptInv;
-  double m_FTFOptInv;
+  //double m_PTOptInv;
+  //double m_FTFOptInv;
   double m_PTdeltaEta;
   double m_FTFdeltaEta;
   double m_PTdeltaPhi;
