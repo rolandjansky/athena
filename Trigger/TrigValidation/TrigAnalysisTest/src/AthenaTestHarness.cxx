@@ -4,7 +4,7 @@
 
 /** J.Montejo - 10/11/2015 - AthenaTestHarness **/
 
-#include "TrigAnalysisTest/AthenaTestHarness.h"
+#include "AthenaTestHarness.h"
 #include "TrigAnalysisTest/TestFactory.h"
 
 #include <cmath>

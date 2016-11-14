@@ -4,7 +4,7 @@
 
 /** J.Montejo - 15/10/2015 - tests for TrigDecisionTool **/
 
-#include "TrigAnalysisTest/TriggersFiredTest.h"
+#include "TriggersFiredTest.h"
 
 #include <cmath>
 #include <algorithm>

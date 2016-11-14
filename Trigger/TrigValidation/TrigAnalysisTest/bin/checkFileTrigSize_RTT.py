@@ -42,6 +42,13 @@ class checkFileTrigSize_RTT:
         self.error     = -1
 
         self.checkFile = paramDict.get('checkFile', 'AOD.pool.root.checkFile')
+        self.triggerAlgList = []
+        self.triggerAlgListNotIncluded = []
+        self.nontriggerAlgList = []
+        self.triggerAlgSize = {}
+        self.totalAlgSize = 0.0
+        self.totalAlgSizeInLists = 0.0
+        self.total = 0.0
 
     def run(self): 
 
@@ -1024,7 +1031,7 @@ class checkFileTrigSize_RTT:
             if file == 0:
                 return self.error
 
-        total = 0
+        self.total = 0
         notUsedList = [] #if an entry in the checkFile output is not included in a Counter
         doublesList = {} #if an entry in the checkFile output matches >=2 Counter items
     
@@ -1035,10 +1042,10 @@ class checkFileTrigSize_RTT:
 
         ## Added by Rodger
         ## list of trigger algorithms found in AOD, their category, and their size in the AOD
-        triggerAlgList = []
+        self.triggerAlgList = []
         triggerAlgListNotIncluded = []
         nontriggerAlgList = []
-        totalAlgSize = 0.0
+        self.totalAlgSize = 0.0
         
         while 1:
     
@@ -1050,12 +1057,12 @@ class checkFileTrigSize_RTT:
 
             #get the total from the last line of the file
             if re.search("TOTAL",line):
-                total = float(splitline[4])
+                self.total = float(splitline[4])
 
             #for new xAOD    
             if re.search("Total",line):
                 if (unicode(splitline[4])).isnumeric():
-                    total = float(splitline[4])
+                    self.total = float(splitline[4])
 
             #only count the good lines (ie. not "=====", etc.)
             if len(splitline)!=10:
@@ -1076,7 +1083,7 @@ class checkFileTrigSize_RTT:
             ## ========================================================
 
             # sum of all algorithm sizes in checkFile
-            totalAlgSize += float(sizePerEvent)
+            self.totalAlgSize += float(sizePerEvent)
             
             # Variable for testing if algorithm might be trigger related
             # Used in the last elif statement
@@ -1086,13 +1093,13 @@ class checkFileTrigSize_RTT:
             ## Add trigger algorithm to trigger list if it's found in TriggerEDM.py dictionary
             ## !! It should definately be found if it's a trigger algorithm !!
             if getCategory(name) != 'NOTFOUND':
-                triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
+                self.triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
 
                 
             ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary
             ## Add these manually to list
             elif getCategory(name) == 'NOTFOUND' and name.count('IOVMetaDataContainer'):
-                triggerAlgList.append([name, 'Config', float(sizePerEvent)])
+                self.triggerAlgList.append([name, 'Config', float(sizePerEvent)])
 
             ## Do some simple checks if algorithm is not found in dictionary (and isn't IOVMetaDataContainer*)
             ## Add these to triggerAlgsNotIncluded
@@ -1140,17 +1147,17 @@ class checkFileTrigSize_RTT:
         ## Added by Rodger
         ## Calculate trigger category sizes and store in dictionary
         ## ========================================================
-        triggerAlgSize = {}
-        triggerAlgSize[ 'Total' ] = 0.0
-        for triggerAlg in triggerAlgList:
-            if not triggerAlg[1] in triggerAlgSize: triggerAlgSize[ triggerAlg[1] ] = triggerAlg[2]
-            else: triggerAlgSize[ triggerAlg[1] ] += triggerAlg[2]
-            triggerAlgSize[ 'Total' ] += triggerAlg[2]
+        self.triggerAlgSize = {}
+        self.triggerAlgSize[ 'Total' ] = 0.0
+        for triggerAlg in self.triggerAlgList:
+            if not triggerAlg[1] in self.triggerAlgSize: self.triggerAlgSize[ triggerAlg[1] ] = triggerAlg[2]
+            else: self.triggerAlgSize[ triggerAlg[1] ] += triggerAlg[2]
+            self.triggerAlgSize[ 'Total' ] += triggerAlg[2]
             
-        totalAlgSizeInLists = 0.0
-        allAlgList = triggerAlgList + triggerAlgListNotIncluded + nontriggerAlgList
+        self.totalAlgSizeInLists = 0.0
+        allAlgList = self.triggerAlgList + triggerAlgListNotIncluded + nontriggerAlgList
         for item in allAlgList:
-            totalAlgSizeInLists += item[2]
+            self.totalAlgSizeInLists += item[2]
         ## ========================================================
 
         fout =open(self.checkFile+"trigSize.txt",'w')
@@ -1170,10 +1177,10 @@ class checkFileTrigSize_RTT:
             sumTrig += counter.size
             # print counter.name.ljust(24), "%6.3f" % counter.size
             # fout.write( counter.name.ljust(24) + "%6.3f" % counter.size + "\n")
-        for key in sorted(triggerAlgSize):
+        for key in sorted(self.triggerAlgSize):
             if not key == 'Total':
-                print "trigger"+key.ljust(24), "%6.3f" % triggerAlgSize[key]
-                fout.write( "trigger"+key.ljust(24) + "%6.3f" % triggerAlgSize[key] + "\n")
+                print "trigger"+key.ljust(24), "%6.3f" % self.triggerAlgSize[key]
+                fout.write( "trigger"+key.ljust(24) + "%6.3f" % self.triggerAlgSize[key] + "\n")
 
         #Compute the total size of non trigger component
         for counter in listofNonTrigCounters:
@@ -1187,19 +1194,19 @@ class checkFileTrigSize_RTT:
             #print "sumNonTrig = ", sumNonTrig
             # print "Total Trigger Size".ljust(23), "%6.3f" % sumTrig
             # fout.write("Total Trigger Size".ljust(23) + "%6.3f" % sumTrig + "\n")
-            print "Total Trigger Size".ljust(23), "%6.3f" % triggerAlgSize[ 'Total' ]
-            fout.write("Total Trigger Size".ljust(23) + "%6.3f" % triggerAlgSize[ 'Total' ] + "\n")
+            print "Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ]
+            fout.write("Total Trigger Size".ljust(23) + "%6.3f" % self.triggerAlgSize[ 'Total' ] + "\n")
             #print "trig+nonTrig=", sumNonTrig+sumTrig
             #print "sum = ", sum
             tsize = sumNU+sum
             # print "Total file size".ljust(23), tsize
             # fout.write("Total file size".ljust(23) + "%6.3f" % tsize + "\n")
-            print "Total file size".ljust(23), totalAlgSize
-            fout.write("Total file size".ljust(23) + "%6.3f" % totalAlgSize + "\n")
-            print "Total file size (list)".ljust(23), totalAlgSizeInLists
-            fout.write("Total file size (list)".ljust(23) + "%6.3f" % totalAlgSizeInLists + "\n")
-            print "Total (from checkFile)".ljust(23), total
-            fout.write("Total (from checkFile)".ljust(23)+"%6.3f" % total + "\n")
+            print "Total file size".ljust(23), self.totalAlgSize
+            fout.write("Total file size".ljust(23) + "%6.3f" % self.totalAlgSize + "\n")
+            print "Total file size (list)".ljust(23), self.totalAlgSizeInLists
+            fout.write("Total file size (list)".ljust(23) + "%6.3f" % self.totalAlgSizeInLists + "\n")
+            print "Total (from checkFile)".ljust(23), self.total
+            fout.write("Total (from checkFile)".ljust(23)+"%6.3f" % self.total + "\n")
             print 
             ##print triggerlist in order of size
             #orderedlist = [(v, k) for k, v in triggerlist.items()]
@@ -1222,7 +1229,7 @@ class checkFileTrigSize_RTT:
                 # return self.error
                 
             fout.write( "\nThe following were found in TriggerEDM and counted but have a classification 'Unknown'. \n")
-            for item in triggerAlgList:
+            for item in self.triggerAlgList:
                 if item[1] == 'Unknown':
                     fout.write( "INFO:  "+item[0]+"\n" )
                 
