@@ -42,8 +42,8 @@ class T2IDTauHypo : public HLT::HypoAlgo {
 
  private:
 
-   SimpleProperty<float> mp_sumPtRatio_MPCut;
-   SimpleProperty<float> mp_sumPtRatio_1PCut;
+   SimpleProperty<float> m_prop_sumPtRatio_MPCut;
+   SimpleProperty<float> m_prop_sumPtRatio_1PCut;
 
 
   // define the properties:

@@ -38,13 +38,13 @@ EFPhotonTauHypo::~EFPhotonTauHypo()
 HLT::ErrorCode EFPhotonTauHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-	msg() << MSG::INFO << "in initialize()" << endreq;
-        msg() << MSG::INFO << " REGTEST: EFPhotonTauHypo will cut on "<<endreq;
-	msg() << MSG::INFO << " REGTEST: param MvisMin [MeV] " << m_mvis_min <<endreq;
-        msg() << MSG::INFO << " REGTEST: param MvisMax [MeV] " << m_mvis_max <<endreq;
+	msg() << MSG::INFO << "in initialize()" << endmsg;
+        msg() << MSG::INFO << " REGTEST: EFPhotonTauHypo will cut on "<<endmsg;
+	msg() << MSG::INFO << " REGTEST: param MvisMin [MeV] " << m_mvis_min <<endmsg;
+        msg() << MSG::INFO << " REGTEST: param MvisMax [MeV] " << m_mvis_max <<endmsg;
 	
 	if(m_mvis_max < m_mvis_min){
-		msg() << MSG::ERROR << "EFPhotonTauHypo is uninitialized! " << endreq;
+		msg() << MSG::ERROR << "EFPhotonTauHypo is uninitialized! " << endmsg;
 		return HLT::BAD_JOB_SETUP;
 	}
 

@@ -93,14 +93,14 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
-  msg() << MSG::INFO << " REGTEST: HLTCaloPreSelHypo will cut on "                   << endreq;
-  msg() << MSG::INFO << " REGTEST: LowerPtCut " << m_lowerPtCut << endreq;  
-  msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
+  msg() << MSG::INFO << " REGTEST: HLTCaloPreSelHypo will cut on "                   << endmsg;
+  msg() << MSG::INFO << " REGTEST: LowerPtCut " << m_lowerPtCut << endmsg;  
+  msg() << MSG::INFO << " REGTEST: ------ "                                       << endmsg;
 
 
-  msg() << MSG::INFO << "Initialization of EFHadCalibHypo completed successfully" << endreq;
+  msg() << MSG::INFO << "Initialization of EFHadCalibHypo completed successfully" << endmsg;
   return HLT::OK;
 }
 
@@ -112,7 +112,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltInitialize()
 HLT::ErrorCode HLTCaloPreSelHypo::hltFinalize(){
 // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -128,7 +128,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   // Get the messaging service, print where you are
   
   if( msgLvl() <= MSG::DEBUG )  
-    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endreq;
+    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endmsg;
   
   // general reset
   pass = false;
@@ -138,7 +138,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode status = getFeature(inputTE, roiDescriptor);
   if ( status != HLT::OK || roiDescriptor == 0 ) {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return status;
   }
 
@@ -155,19 +155,19 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   status = getFeatures(inputTE, vectorCaloClusterContainer);
   
   if(status!=HLT::OK ) {
-    msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endreq;
+    msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endmsg;
     return status;
   }
   
   if (vectorCaloClusterContainer.size() < 1) {
     msg() << MSG::ERROR
           << "  CaloCluster container is empty"
-          << endreq;
+          << endmsg;
     return HLT::ERROR;
   }
   
   if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endreq;
+    msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endmsg;
   
   // Grab the last cluster collection attached
   const xAOD::CaloClusterContainer* RoICaloClusterContainer = vectorCaloClusterContainer.back();
@@ -176,18 +176,18 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
     msg() << MSG::DEBUG
           << "REGTEST: Size of vector CaloCluster container is "
           << RoICaloClusterContainer->size()
-          << endreq;
+          << endmsg;
     if(RoICaloClusterContainer->size()==0) {
       msg() << MSG::DEBUG
             << "Cannot proceed, size of vector CaloCluster container is "
             << RoICaloClusterContainer->size()
-            << endreq;
+            << endmsg;
       //m_calo_errors.push_back(EmptyClustCont);
       return HLT::OK;
     }
   }
   else {
-    msg() << MSG::ERROR << "no CaloCluster container found "<< endreq;
+    msg() << MSG::ERROR << "no CaloCluster container found "<< endmsg;
     //m_calo_errors.push_back(NoClustCont);
     return HLT::ERROR;
   }
@@ -210,12 +210,12 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   xAOD::CaloClusterContainer::const_iterator clusterIt;
   for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
     if( msgLvl() <= MSG::DEBUG )
-      msg()<< MSG::DEBUG <<" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" << endreq;
+      msg()<< MSG::DEBUG <<" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" << endmsg;
     
     if((*clusterIt)->e() < 0)
       {
 	if( msgLvl() <= MSG::DEBUG )
-	  msg()<< MSG::DEBUG <<" Negative energy cluster is rejected" << endreq;
+	  msg()<< MSG::DEBUG <<" Negative energy cluster is rejected" << endmsg;
 	continue;
       }
     
@@ -227,7 +227,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   }
   
   if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG :: DEBUG << "Jet formed (pT, eta, phi, m): ("<< TauBarycenter.Pt()<<" , "<<TauBarycenter.Eta()<<" , "<<TauBarycenter.Phi()<<" , "<<TauBarycenter.M()<< " )" << endreq;
+    msg() << MSG :: DEBUG << "Jet formed (pT, eta, phi, m): ("<< TauBarycenter.Pt()<<" , "<<TauBarycenter.Eta()<<" , "<<TauBarycenter.Phi()<<" , "<<TauBarycenter.M()<< " )" << endmsg;
   
 
   //TauBarycenter.SetPtEtaPhiM(aJet.pt(), aJet.eta(), aJet.phi(), aJet.m());
@@ -257,14 +257,14 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
               << " REGTEST: The cluster-based tau pT = " << m_seedPt
               << "did not pass the pt threshold: "
               << m_lowerPtCut
-              << endreq;
+              << endmsg;
       return HLT::OK;
     } else if(m_cellCut==false)
     {
       // Not cutting on cells -> pass straight through
       pass = true;
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endreq;
+	msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
       return HLT::OK;
     }
 
@@ -325,7 +325,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
               << " REGTEST: The calo-based tau fCore = " << m_fCore
 	      << " and hadRadius = " << m_hadRadius
               << " did not pass the thresholds: " << m_coreFractionCut << " , " << m_hadRadiusCut
-              << endreq;
+              << endmsg;
       
       return HLT::OK;
     }
@@ -336,7 +336,7 @@ HLT::ErrorCode HLTCaloPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE,
   pass = true;
   
   if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endreq;
+    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
   
   return HLT::OK;
   

@@ -27,7 +27,7 @@ L2TauTopoFex::~L2TauTopoFex(){}
 
 HLT::ErrorCode L2TauTopoFex::hltInitialize()
 {
-	msg() << MSG::INFO << "in initialize()" << endreq;
+	msg() << MSG::INFO << "in initialize()" << endmsg;
 	return HLT::OK;
 }
 

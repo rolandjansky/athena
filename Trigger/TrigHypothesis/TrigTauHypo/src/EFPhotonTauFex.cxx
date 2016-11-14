@@ -32,7 +32,7 @@ EFPhotonTauFex::~EFPhotonTauFex(){}
 
 HLT::ErrorCode EFPhotonTauFex::hltInitialize()
 {
-	msg() << MSG::INFO << "in initialize()" << endreq;
+	msg() << MSG::INFO << "in initialize()" << endmsg;
 	return HLT::OK;
 }
 
@@ -82,14 +82,14 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 	HLT::ErrorCode status1 = getFeatures(te1, vectorTauContainers);
 	HLT::ErrorCode status2 = getFeatures(te2, vectorEgammaContainers);
 	if (status1 != HLT::OK || status2 != HLT::OK) {
-	  msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer and xAOD::TauJetContainer collections" << endreq;
+	  msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer and xAOD::TauJetContainer collections" << endmsg;
 	  return HLT::MISSING_FEATURE;
 	} else {
-	  msg() << MSG::DEBUG << "xAOD::PhotonContainer and xAOD::TauJetContainer collections successfully retrieved" << endreq;
+	  msg() << MSG::DEBUG << "xAOD::PhotonContainer and xAOD::TauJetContainer collections successfully retrieved" << endmsg;
 	}
 
   	if (vectorEgammaContainers.size() < 1 || vectorTauContainers.size() < 1) {
-    		msg() << MSG::WARNING << " empty xAOD::PhotonContainer or xAOD::TauJetContainer from the trigger elements" << endreq;
+    		msg() << MSG::WARNING << " empty xAOD::PhotonContainer or xAOD::TauJetContainer from the trigger elements" << endmsg;
     		return HLT::OK;
   	}  
 
@@ -116,17 +116,17 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         for ( photon = photonContainer1->begin(); photon != photonContainer1->end(); ++photon ) {
 
 		if((*photon)==0){ 
-                    msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endreq;
+                    msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endmsg;
 		    continue;
                 }
 
                 if(!bits->isPassing((*photon),photonContainer1)){
-			msg() << MSG::WARNING << "Photon found not passing Hypo object" << endreq;
+			msg() << MSG::WARNING << "Photon found not passing Hypo object" << endmsg;
 			continue;
 		}
 
 		const xAOD::CaloCluster* clus = (*photon)->caloCluster();
-		if(!clus) { msg() << MSG::WARNING << "REGTEST no cluster pointer in egamma object " << endreq;
+		if(!clus) { msg() << MSG::WARNING << "REGTEST no cluster pointer in egamma object " << endmsg;
 			continue;}
 		
 		float gphi = clus->phi();
@@ -139,7 +139,7 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 	tlv_photon_tau.SetPtEtaPhiM(gpt,geta,gphi,0.);
 
 			if((*tau)->nTracks()==0){
-				msg() << MSG::DEBUG << " 0prong tau skipped " <<endreq;
+				msg() << MSG::DEBUG << " 0prong tau skipped " <<endmsg;
 				continue;
 			}			
 
@@ -157,7 +157,7 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
       				}
       				catch(std::exception e)
       				{
-        				msg() << MSG::WARNING << " REGTEST: EFPhotonTauFex, failed to get tau track link! " <<endreq;
+        				msg() << MSG::WARNING << " REGTEST: EFPhotonTauFex, failed to get tau track link! " <<endmsg;
       				} 
       				if(trk) {
          				tmpKaon.SetPtEtaPhiM(trk->pt(), trk->eta(), trk->phi(), 493.677); //TODO: kaon mass?
@@ -169,7 +169,7 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 			// store vismass in container
 			float mass = tlv_photon_tau.M();
 			m_mvis.push_back(mass);
-			msg() << MSG::DEBUG << " photon+tau mass " << mass <<endreq;
+			msg() << MSG::DEBUG << " photon+tau mass " << mass <<endmsg;
 
 		} // end tau loop
 	} // end photon loop

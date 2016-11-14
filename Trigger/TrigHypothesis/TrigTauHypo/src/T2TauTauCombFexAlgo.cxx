@@ -57,19 +57,19 @@ T2TauTauCombFexAlgo::~T2TauTauCombFexAlgo()
 HLT::ErrorCode T2TauTauCombFexAlgo::hltInitialize()
 {
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
   }
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-          << (m_acceptAll==true ? "True" : "False") << endreq; 
+          << (m_acceptAll==true ? "True" : "False") << endmsg; 
 //     msg() << MSG::DEBUG << "ValidTau        = " 
-//           << (m_tauValid==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
-    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endreq;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+//           << (m_tauValid==true ? "True" : "False") << endmsg; 
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
+    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endmsg;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
   }
   return HLT::OK;
 }
@@ -77,7 +77,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::hltInitialize()
 HLT::ErrorCode T2TauTauCombFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -86,9 +86,9 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   m_monCut=0;
   m_tautauTopoColl=0;
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running T2TauTauCombFexAlgo::acceptInputs" << endreq;
+    msg() << MSG::DEBUG << "Running T2TauTauCombFexAlgo::acceptInputs" << endmsg;
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -96,14 +96,14 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   if (m_acceptAll) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-            << endreq;
+            << endmsg;
     pass = true;
     return HLT::OK;
   } 
   else {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-            << endreq;
+            << endmsg;
   }
 
   // The 2 TEs which we will eventually combine
@@ -116,12 +116,12 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
       if ( msgLvl() <= MSG::WARNING) {
-        msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
+        msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endmsg;
       }
     //  return HLT::MISSING_FEATURE; 
     } else {
       if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
+        msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endmsg;
     }
   }
 
@@ -140,25 +140,25 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 
   if(m_acceptAll){
     pass=true;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endmsg;
     return HLT::OK;
   }
   
   if ( getFeature(te1, tau1) == HLT::OK){
     if( getFeature(te2, tau2) == HLT::OK){
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "TrigTauContainers 1&2 collection successfully retrieved" << endreq;     
-	tautau=true;
+	msg() << MSG::DEBUG  << "TrigTauContainers 1&2 collection successfully retrieved" << endmsg;     
+      tautau=true;
        
     }
     else{
       if ( msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "Failed to get TrigTauContainer 2" << endreq;
+	msg() << MSG::DEBUG << "Failed to get TrigTauContainer 2" << endmsg;
     }
   }
   else{
     if ( msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Failed to get TrigTauContainer 1" << endreq;
+      msg() << MSG::DEBUG << "Failed to get TrigTauContainer 1" << endmsg;
   }
   
   pass =false;
@@ -167,12 +167,12 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   
   m_monCut = 1;
   if(tau1==0){
-    msg()<<MSG::DEBUG << "Null point in TrigTauContainer 1."<<endreq;
+    msg()<<MSG::DEBUG << "Null point in TrigTauContainer 1."<<endmsg;
     tautau=false;
   }
 
   if(tau2==0){
-    msg() << MSG::DEBUG << "Null pointer in TrigTauContainer 2."<<endreq;
+    msg() << MSG::DEBUG << "Null pointer in TrigTauContainer 2."<<endmsg;
     tautau=false;
   }
 
@@ -185,18 +185,18 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(getFeature(te2, tau1) != HLT::OK  || tau1 == 0)
 	  {
 	    if ( msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "Failed to get TrigTauContainer" << endreq;
+	      msg() << MSG::DEBUG << "Failed to get TrigTauContainer" << endmsg;
 	    
 	  }
 	else{
 	  if ( msgLvl() <= MSG::DEBUG )
-	    msg() << MSG::DEBUG  << "TrigTauContainer successfully retrieved" << endreq;     
+	    msg() << MSG::DEBUG  << "TrigTauContainer successfully retrieved" << endmsg;     
 	  hastau=true;
 	}
 	
       }else{
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "TrigTauContainer successfully retrieved" << endreq;     
+	msg() << MSG::DEBUG  << "TrigTauContainer successfully retrieved" << endmsg;     
       hastau=true;
     }
   }
@@ -207,18 +207,18 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if(getFeatures(te2, muonContainer1) != HLT::OK  || muonContainer1.size() == 0)
 	{
 	  if ( msgLvl() <= MSG::DEBUG) 
-	    msg() << MSG::DEBUG << "Failed to get MuonCombinedFeature collection" << endreq;
+	    msg() << MSG::DEBUG << "Failed to get MuonCombinedFeature collection" << endmsg;
 	  
 	}
       else{
 	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq;     
+	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg;     
 	hasmu=true;
       }
       
     }else{
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq;     
+      msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg;     
     hasmu=true;
   }
   
@@ -228,18 +228,18 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if(getFeature(te2, electronContainer1) != HLT::OK  || electronContainer1 == 0)
 	{
 	  if ( msgLvl() <= MSG::DEBUG) 
-	    msg() << MSG::DEBUG << "Failed to get TrigElectron collection" << endreq;
+	    msg() << MSG::DEBUG << "Failed to get TrigElectron collection" << endmsg;
 	  
 	}
       else{
 	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << " TrigElectron collection successfully retrieved" << endreq;     
+	  msg() << MSG::DEBUG  << " TrigElectron collection successfully retrieved" << endmsg;     
 	haselec=true;
       }
       
     }else{
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG  << " TrigElectron collection collection successfully retrieved" << endreq;     
+      msg() << MSG::DEBUG  << " TrigElectron collection collection successfully retrieved" << endmsg;     
     haselec=true;
   }
 
@@ -248,7 +248,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 
   if(!tautau&&!taumu&&!tauelec)
     if ( msgLvl() <= MSG::WARNING ){
-      msg() << MSG::WARNING  << " No topo candidate features" << endreq;     
+      msg() << MSG::WARNING  << " No topo candidate features" << endmsg;     
       return HLT::MISSING_FEATURE;
     }
   
@@ -257,21 +257,21 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     ElectronMuonTopoInfo* TauTauTopoInfo = new ElectronMuonTopoInfo();
     
     if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "New combination:" << endreq; 
+      msg() << MSG::DEBUG << "New combination:" << endmsg; 
       msg() << MSG::DEBUG << "1st TrigTau: addr=" << tau1
 	    << "RoI id="  << tau1->roiId()
 	    << "; pt="    << tau1->pt() 
 	    << "; eta="   << tau1->eta() 
 	    << "; phi="   << tau1->phi() 
 	    << "; Zvtx="  << tau1->Zvtx()<<"+-"<< tau1->err_Zvtx() 
-	    << endreq;
+	    << endmsg;
       msg() << MSG::DEBUG << "2nd TrigTau: addr=" << (*tau2)
 	    << " RoI id=" << tau2->roiId()
 	    << " pt="     << tau2->pt() 
 	    << "; eta="   << tau2->eta()  
 	    << "; phi="   << tau2->phi()  
 	    << "; Zvtx="  << tau2->Zvtx()<<"+-"<< tau2->err_Zvtx() 
-	    << endreq;
+	    << endmsg;
     }
     
     TauTauTopoInfo->SetRoiWord(tau1->roiId());
@@ -284,7 +284,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       msg() << MSG::VERBOSE 
 	    << "Delta Phi between tau1 and tau2 is " << m_DPhi 
 	    <<" Delta Eta is " << m_DEta 
-	    <<" Radial distance delta R is " << m_DR << endreq;
+	    <<" Radial distance delta R is " << m_DR << endmsg;
     }
     
     m_monDPhiAll=m_DPhi;
@@ -302,7 +302,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     if(msgLvl() <= MSG::DEBUG){
       msg() <<MSG::DEBUG << "Created following object: "
 	    <<(*TauTauTopoInfo)
-	    <<endreq;
+	    <<endmsg;
     }
     
     if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
@@ -316,20 +316,20 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     for ( electron1 = electronContainer1->begin(); electron1 != electronContainer1->end(); ++electron1 ) {
       if((*electron1)==0)
 	{
-	  msg() << MSG::DEBUG << "Null pointer in TrigElectronContainer. Skipping." << endreq;
+	  msg() << MSG::DEBUG << "Null pointer in TrigElectronContainer. Skipping." << endmsg;
 	  continue;
 	}
       ElectronMuonTopoInfo* TauTauTopoInfo = new ElectronMuonTopoInfo();
       
       if(msgLvl() <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "New combination:" << endreq; 
+	msg() << MSG::DEBUG << "New combination:" << endmsg; 
 	msg() << MSG::DEBUG << "1st TrigTau: addr=" << tau1
 	      << "RoI id="  << tau1->roiId()
 	      << "; pt="    << tau1->pt() 
 	      << "; eta="   << tau1->eta() 
 	      << "; phi="   << tau1->phi() 
 	      << "; Zvtx="  << tau1->Zvtx()<<"+-"<< tau1->err_Zvtx() 
-	      << endreq;
+	      << endmsg;
 	msg() << MSG::DEBUG << "1st TrigElectron: addr=" << (*electron1)
 	      << ((*electron1)->isValid() ? "(valid" : "(not valid")
 	      << ") RoI id="<< (*electron1)->roiId()
@@ -337,7 +337,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	      << "; eta="   << (*electron1)->eta() <<"+-"<< (*electron1)->err_eta()
 	      << "; phi="   << (*electron1)->phi() <<"+-"<< (*electron1)->err_phi()
 	      << "; Zvtx="  << (*electron1)->Zvtx()<<"+-"<< (*electron1)->err_Zvtx()
-	      <<endreq;
+	      <<endmsg;
 	  }
       TauTauTopoInfo->SetRoiWord(tau1->roiId());
       TauTauTopoInfo->SetElecValid(true);
@@ -349,7 +349,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	msg() << MSG::VERBOSE 
 	      << "Delta Phi between tau1 and electron1 is " << m_DPhi 
 	      <<" Delta Eta is " << m_DEta 
-	      <<" Radial distance delta R is " << m_DR << endreq;
+	      <<" Radial distance delta R is " << m_DR << endmsg;
       }
       
       m_monDPhiAll=m_DPhi;
@@ -367,7 +367,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if(msgLvl() <= MSG::DEBUG){
 	msg() <<MSG::DEBUG << "Created following object: "
 	      <<(*TauTauTopoInfo)
-	      <<endreq;
+	      <<endmsg;
       }
       
       if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
@@ -382,13 +382,13 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     for ( muon1 = muonContainer1.begin(); muon1 != muonContainer1.end(); ++muon1 ) {
       if((*muon1)==0)
 	{
-	  msg() << MSG::DEBUG << "Null pointer in CombinedMuonFeature vector. Skipping." << endreq;
+	  msg() << MSG::DEBUG << "Null pointer in CombinedMuonFeature vector. Skipping." << endmsg;
 	  continue;
 	}
       if((*muon1)->IDTrack()==0)
 	{
 	  if(msgLvl() <= MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endreq;
+	    msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endmsg;
 	  }
 	  continue;       
 	}
@@ -396,20 +396,20 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       ElectronMuonTopoInfo* TauTauTopoInfo = new ElectronMuonTopoInfo();
       
       if(msgLvl() <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "New combination:" << endreq; 
+	msg() << MSG::DEBUG << "New combination:" << endmsg; 
 	msg() << MSG::DEBUG << "1st TrigTau: addr=" << tau1
 	      << "RoI id="  << tau1->roiId()
 	      << "; pt="    << tau1->pt() 
 	      << "; eta="   << tau1->eta() 
 	      << "; phi="   << tau1->phi() 
 	      << "; Zvtx="  << tau1->Zvtx()<<"+-"<< tau1->err_Zvtx() 
-	      << endreq;
+	      << endmsg;
 	msg() << MSG::DEBUG << "1st CombinedMuonFeature: addr=" << (*muon1)
 	      << " pt=" << 1/(*muon1)->ptq() << " trkAddr=" << (*muon1)->IDTrack()
 	      << " " << *(*muon1)
 	      << "; Zvtx =" << (*muon1)->IDTrack()->param()->z0() 
 	      << "+-" << (*muon1)->IDTrack()->param()->ez0()
-	      << endreq;
+	      << endmsg;
       }
       
       TauTauTopoInfo->SetRoiWord(tau1->roiId());
@@ -422,7 +422,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	msg() << MSG::VERBOSE 
 	      << "Delta Phi between tau1 and electron1 is " << m_DPhi 
 	      <<" Delta Eta is " << m_DEta 
-	      <<" Radial distance delta R is " << m_DR << endreq;
+	      <<" Radial distance delta R is " << m_DR << endmsg;
       }
       
       m_monDPhiAll=m_DPhi;
@@ -440,7 +440,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if(msgLvl() <= MSG::DEBUG){
 	msg() <<MSG::DEBUG << "Created following object: "
 	      <<(*TauTauTopoInfo)
-	      <<endreq;
+	      <<endmsg;
       }
       
       if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
@@ -455,7 +455,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   if(tauelec)m_moncombtype=3;
   
   // set output TriggerElement true if good combination  
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endmsg;
   return HLT::OK;
   
 }
@@ -463,7 +463,7 @@ HLT::ErrorCode T2TauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 HLT::ErrorCode
 T2TauTauCombFexAlgo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* outputTE){
   if(msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "Attaching TauTauTopoInfoCollection of the length " <<  m_tautauTopoColl->size() << endreq;
+    msg() << MSG::VERBOSE << "Attaching TauTauTopoInfoCollection of the length " <<  m_tautauTopoColl->size() << endmsg;
   }
   if(m_tautauTopoColl!=0) attachFeature(outputTE, m_tautauTopoColl, "TauTauTopoFEX"); 
   return HLT::OK;

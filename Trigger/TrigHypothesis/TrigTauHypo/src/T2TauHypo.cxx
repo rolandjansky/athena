@@ -70,7 +70,7 @@ HLT::ErrorCode T2TauHypo::hltInitialize()
 {
 
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in initialize()" << endreq;
+    msg() << MSG::DEBUG << "in initialize()" << endmsg;
 
   //EtOverPtLeadTrk check that only general or 1P/MP cuts are enabled
   if ( m_etOverPtLeadTrk_Cut < 100.0 && ( m_etOverPtLeadTrk_1PCut < 100.0 || m_etOverPtLeadTrk_MPCut < 100.0 ) ) {
@@ -78,7 +78,7 @@ HLT::ErrorCode T2TauHypo::hltInitialize()
           << "  EtOverPtLeadTrkMax = "   << m_etOverPtLeadTrk_Cut
           << ", EtOverPtLeadTrkMax1P = " << m_etOverPtLeadTrk_1PCut
           << ", EtOverPtLeadTrkMaxMP = " << m_etOverPtLeadTrk_MPCut
-          << endreq;
+          << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -89,41 +89,41 @@ HLT::ErrorCode T2TauHypo::hltInitialize()
           << "  TrkAvgDistMax = "   << m_trkAvgDist_Cut
           << ", TrkAvgDistMax1P = " << m_trkAvgDist_1PCut
           << ", TrkAvgDistMaxMP = " << m_trkAvgDist_MPCut
-          << endreq;
+          << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
 
 
-  if ( m_emRadius3S1p_Cut      < 100.0 ) msg() << MSG::INFO << "REGTEST: EmRadius3S1p cut = "                     << m_emRadius3S1p_Cut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: EmRadius3S1p cut disabled : "            << m_emRadius3S1p_Cut << endreq;
+  if ( m_emRadius3S1p_Cut      < 100.0 ) msg() << MSG::INFO << "REGTEST: EmRadius3S1p cut = "                     << m_emRadius3S1p_Cut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: EmRadius3S1p cut disabled : "            << m_emRadius3S1p_Cut << endmsg;
   
-  if ( m_etOverPtLeadTrk_Cut   < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk general cut = "          << m_etOverPtLeadTrk_Cut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk general cut disabled : " << m_etOverPtLeadTrk_Cut << endreq;
-  if ( m_etOverPtLeadTrk_1PCut < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk 1P cut = "               << m_etOverPtLeadTrk_1PCut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk 1P cut disabled : "      << m_etOverPtLeadTrk_1PCut << endreq;
-  if ( m_etOverPtLeadTrk_MPCut < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk MP cut = "               << m_etOverPtLeadTrk_MPCut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk MP cut disabled : "      << m_etOverPtLeadTrk_MPCut << endreq;
+  if ( m_etOverPtLeadTrk_Cut   < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk general cut = "          << m_etOverPtLeadTrk_Cut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk general cut disabled : " << m_etOverPtLeadTrk_Cut << endmsg;
+  if ( m_etOverPtLeadTrk_1PCut < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk 1P cut = "               << m_etOverPtLeadTrk_1PCut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk 1P cut disabled : "      << m_etOverPtLeadTrk_1PCut << endmsg;
+  if ( m_etOverPtLeadTrk_MPCut < 100.0 ) msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk MP cut = "               << m_etOverPtLeadTrk_MPCut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: EtOverPtLeadTrk MP cut disabled : "      << m_etOverPtLeadTrk_MPCut << endmsg;
 
-  if ( m_trkAvgDist_Cut        < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist general cut = "               << m_trkAvgDist_Cut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist general cut disabled : "      << m_trkAvgDist_Cut << endreq;
-  if ( m_trkAvgDist_1PCut      < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist 1P cut = "                    << m_trkAvgDist_1PCut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist 1P cut disabled : "           << m_trkAvgDist_1PCut << endreq;
-  if ( m_trkAvgDist_MPCut      < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist MP cut = "                    << m_trkAvgDist_MPCut << endreq;
-  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist MP cut disabled : "           << m_trkAvgDist_MPCut << endreq;
+  if ( m_trkAvgDist_Cut        < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist general cut = "               << m_trkAvgDist_Cut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist general cut disabled : "      << m_trkAvgDist_Cut << endmsg;
+  if ( m_trkAvgDist_1PCut      < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist 1P cut = "                    << m_trkAvgDist_1PCut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist 1P cut disabled : "           << m_trkAvgDist_1PCut << endmsg;
+  if ( m_trkAvgDist_MPCut      < 100.0 ) msg() << MSG::INFO << "REGTEST: TrkAvgDist MP cut = "                    << m_trkAvgDist_MPCut << endmsg;
+  else                                   msg() << MSG::INFO << "REGTEST: TrkAvgDist MP cut disabled : "           << m_trkAvgDist_MPCut << endmsg;
 
 
   //For internal use set prong dependent cuts in case only general cut is setup
   if ( m_etOverPtLeadTrk_Cut   < 100.0 ) {
     msg() << MSG::INFO << "General etOverPtLeadTrk enabled: " << m_etOverPtLeadTrk_Cut 
-          << ", copying to 1P (" << m_etOverPtLeadTrk_1PCut << ") and MP (" << m_etOverPtLeadTrk_MPCut << ") for internal use" << endreq;
+          << ", copying to 1P (" << m_etOverPtLeadTrk_1PCut << ") and MP (" << m_etOverPtLeadTrk_MPCut << ") for internal use" << endmsg;
     m_etOverPtLeadTrk_1PCut = m_etOverPtLeadTrk_Cut;
     m_etOverPtLeadTrk_MPCut = m_etOverPtLeadTrk_Cut;
   }
 
   if ( m_trkAvgDist_Cut   < 100.0 ) {
     msg() << MSG::INFO << "General trkAvgDist enabled: " << m_trkAvgDist_Cut 
-          << ", copying to 1P (" << m_trkAvgDist_1PCut << ") and MP (" << m_trkAvgDist_MPCut << ") for internal use" << endreq;
+          << ", copying to 1P (" << m_trkAvgDist_1PCut << ") and MP (" << m_trkAvgDist_MPCut << ") for internal use" << endmsg;
     m_trkAvgDist_1PCut = m_trkAvgDist_Cut;
     m_trkAvgDist_MPCut = m_trkAvgDist_Cut;
   }
@@ -146,7 +146,7 @@ HLT::ErrorCode T2TauHypo::hltFinalize()
 HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& pass)
 // ----------------------------------------------------------------------
 {
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << name() << ": in execute()" << endmsg;
 
   pass         = false;
   m_cutCounter = 0;
@@ -158,7 +158,7 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
     const TrigRoiDescriptor* roiDescriptor = 0;
     HLT::ErrorCode status = getFeature(inputTE, roiDescriptor); 
     if ( status != HLT::OK || roiDescriptor == 0 ) {
-      msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+      msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
       //return status;
     } else {
     
@@ -166,14 +166,14 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
       //int IdRun=0;
       int IdEvent=0;
       if ( !store() || store()->retrieve(pEventInfo).isFailure() ) {
-        msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
+        msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
       } else {
         //IdRun   = pEventInfo->event_ID()->run_number();
         IdEvent = pEventInfo->event_ID()->event_number();
         msg() << MSG::DEBUG << "REGTEST: event : " << IdEvent << "/ RoI id : "
             << roiDescriptor->roiId() << "/ with LVL1 id :" << roiDescriptor->l1Id()
             << " / located at phi = " <<  roiDescriptor->phi()
-            << ", eta = " << roiDescriptor->eta() << endreq;
+            << ", eta = " << roiDescriptor->eta() << endmsg;
       }
     }
   }
@@ -190,14 +190,14 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
     const TrigTauCluster* pClus(0);
     HLT::ErrorCode status = getFeature(inputTE, pClus);
     if(status != HLT::OK || pClus == 0) {
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauCluster* is found in the chain" << endreq;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauCluster* is found in the chain" << endmsg;
     }
 
     //and tracks
     const TrigTauTracksInfo* tracksInfo(0);
     status = getFeature(inputTE, tracksInfo);
     if(status != HLT::OK || tracksInfo == 0 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauTracksInfo* is found in the chain" << endreq;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauTracksInfo* is found in the chain" << endmsg;
     }
 
     //apply cut
@@ -206,7 +206,7 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
       m_nTrks2011 = tracksInfo->nCoreTracks() + tracksInfo->nIsoTracks();//2011 definition!!!
       if ( m_nTrks2011 == 1 && emRad3S > m_emRadius3S1p_Cut ) pass = false;
     } else {
-      msg() << MSG::DEBUG << "m_emRadius3S1p_Cut cannot be applied : " << m_emRadius3S1p_Cut << ", accept event" << endreq;
+      msg() << MSG::DEBUG << "m_emRadius3S1p_Cut cannot be applied : " << m_emRadius3S1p_Cut << ", accept event" << endmsg;
     }
   }
   if ( pass ) m_cutCounter++;//1
@@ -220,13 +220,13 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
   if ( m_etOverPtLeadTrk_1PCut < 100.0 || m_etOverPtLeadTrk_MPCut < 100.0 || m_trkAvgDist_1PCut < 100.0  || m_trkAvgDist_MPCut < 100.0) {
     HLT::ErrorCode status = getFeature(inputTE, tau);
     if(status != HLT::OK || tau == 0 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTau* is found in the chain" << endreq;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTau* is found in the chain" << endmsg;
     }
     
     //and tracks
     status = getFeature(inputTE, tracksInfo);
     if(status != HLT::OK || tracksInfo == 0 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauTracksInfo* is found in the chain" << endreq;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"No input TrigTauTracksInfo* is found in the chain" << endmsg;
     }
   }
 
@@ -245,7 +245,7 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
       if ( m_nTrks2012 > 1  && m_etOverPtLeadTrk_MPCut < 100.0 && m_etOverPtLeadTrk > m_etOverPtLeadTrk_MPCut ) pass = false;
 
     } else {
-      msg() << MSG::DEBUG << "m_etOverPtLeadTrk_Cut cannot be applied (1P: " << m_etOverPtLeadTrk_1PCut << ", MP: " << m_etOverPtLeadTrk_MPCut << "), accept event" << endreq;  
+      msg() << MSG::DEBUG << "m_etOverPtLeadTrk_Cut cannot be applied (1P: " << m_etOverPtLeadTrk_1PCut << ", MP: " << m_etOverPtLeadTrk_MPCut << "), accept event" << endmsg;  
     }
   }
   if ( pass ) m_cutCounter++;//2
@@ -264,7 +264,7 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
       if ( m_nTrks2012 >  1 && m_trkAvgDist_MPCut < 100.0 && m_trkAvgDist > m_trkAvgDist_MPCut ) pass = false;
 
     } else {
-      msg() << MSG::DEBUG << "m_trkAvgDist_Cut cannot be applied (1P: " << m_trkAvgDist_1PCut << ", MP: " << m_trkAvgDist_MPCut << "), accept event" << endreq;  
+      msg() << MSG::DEBUG << "m_trkAvgDist_Cut cannot be applied (1P: " << m_trkAvgDist_1PCut << ", MP: " << m_trkAvgDist_MPCut << "), accept event" << endmsg;  
     }
   }
   if ( pass ) m_cutCounter++;//3
@@ -272,18 +272,18 @@ HLT::ErrorCode T2TauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool& p
   
   //debug print outs
   if(msgLvl() <= MSG::DEBUG) {
-    if ( m_emRadius3S1p_Cut < 100.0 )    msg() << MSG::DEBUG << "REGTEST: nTrks2011 = " << m_nTrks2011 << endreq;
-    if ( m_emRadius3S1p_Cut < 100.0 )    msg() << MSG::DEBUG << "REGTEST: emRad3S = "   << emRad3S     << endreq;
+    if ( m_emRadius3S1p_Cut < 100.0 )    msg() << MSG::DEBUG << "REGTEST: nTrks2011 = " << m_nTrks2011 << endmsg;
+    if ( m_emRadius3S1p_Cut < 100.0 )    msg() << MSG::DEBUG << "REGTEST: emRad3S = "   << emRad3S     << endmsg;
 
-    if ( m_etOverPtLeadTrk_1PCut < 100.0 || m_etOverPtLeadTrk_MPCut < 100.0 ) msg() << MSG::DEBUG << "REGTEST: etOverPtLeadTrk = " << m_etOverPtLeadTrk << endreq;
-    if ( m_trkAvgDist_1PCut < 100.0      || m_trkAvgDist_MPCut < 100.0 )      msg() << MSG::DEBUG << "REGTEST: trkAvgDist= "       << m_trkAvgDist      << endreq;
+    if ( m_etOverPtLeadTrk_1PCut < 100.0 || m_etOverPtLeadTrk_MPCut < 100.0 ) msg() << MSG::DEBUG << "REGTEST: etOverPtLeadTrk = " << m_etOverPtLeadTrk << endmsg;
+    if ( m_trkAvgDist_1PCut < 100.0      || m_trkAvgDist_MPCut < 100.0 )      msg() << MSG::DEBUG << "REGTEST: trkAvgDist= "       << m_trkAvgDist      << endmsg;
 
     if ( m_etOverPtLeadTrk_1PCut < 100.0 || m_etOverPtLeadTrk_MPCut < 100.0 ||  
          m_trkAvgDist_1PCut < 100.0      || m_trkAvgDist_MPCut < 100.0 ) 
-        msg() << MSG::DEBUG << "REGTEST: nTrks2012 = " << m_nTrks2012 << endreq;
+        msg() << MSG::DEBUG << "REGTEST: nTrks2012 = " << m_nTrks2012 << endmsg;
     
-    if (pass) msg() << MSG::DEBUG << "REGTEST: RoI is accepted !! " << endreq;
-    else      msg() << MSG::DEBUG << "REGTEST: RoI is rejected !! " << endreq;
+    if (pass) msg() << MSG::DEBUG << "REGTEST: RoI is accepted !! " << endmsg;
+    else      msg() << MSG::DEBUG << "REGTEST: RoI is rejected !! " << endmsg;
   }
   
   return HLT::OK;

@@ -109,7 +109,7 @@ class EFHadCalibHypo : public HLT::HypoAlgo
   int m_cutCounter;
 
   // Additional cut counter (tracks)
-  int cutCounter2;
+  int m_cutCounter2;
 
   //sum pT in isolation region:
   //int m_sumPtInIso;
