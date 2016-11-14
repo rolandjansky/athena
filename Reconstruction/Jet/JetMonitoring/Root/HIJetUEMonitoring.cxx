@@ -6,6 +6,7 @@
 
 #include "JetMonitoring/HIJetUEMonitoring.h"
 #include "JetMonitoring/ToolHandleHistoHelper.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -38,9 +39,16 @@ int HIJetUEMonitoring::buildHistos(){
 
   m_FCALET = bookHisto( hbuilder.build<TH1F>("FCalET") ); 
 
+ //inclusive
   m_SubtractedET_Centrality = bookHisto( hbuilder.build<TProfile>("SubtractedET_Centrality") ); 
   m_2dSubtractedET_Centrality = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_Centrality") ); 
   m_2dSubtractedET_Expected_Centrality = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_Expected_Centrality") ); 
+  m_2dSubtractedET_Expected_eta = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_Expected_eta") ); 
+  m_SubtractedET_Expected_eta = bookHisto( hbuilder.build<TProfile>("SubtractedET_Expected_eta") ); 
+  m_2dSubtractedET_2Dphi = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_2Dphi") );
+  m_SubtractedET_eta = bookHisto( hbuilder.build<TProfile>("SubtractedET_eta") ); 
+  m_SubtractedET_pt = bookHisto( hbuilder.build<TProfile>("SubtractedET_pt") ); 
+  m_SubtractedET_2Dphi = bookHisto( hbuilder.build<TProfile>("SubtractedET_2Dphi") ); 
 
   //0-10%
   m_JetUnsubtractedScaleMomentum_pt_0_10 = bookHisto( hbuilder.build<TH1F>("JetUnsubtractedScaleMomentum_pt_0_10") );
@@ -126,6 +134,16 @@ int HIJetUEMonitoring::buildHistos(){
 }
 
 int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
+
+  const xAOD::EventInfo* evtInfo;
+  CHECK(evtStore()->retrieve( evtInfo ));
+
+//LAr event veto: skip events rejected by LAr
+  if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
+    ATH_MSG_DEBUG("SKIP for LAR error");
+    return StatusCode::SUCCESS;
+  }
+
   n=2;
   harmonic=n-1;
   m_eventShape=nullptr;
@@ -176,6 +194,13 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
     m_SubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
     m_2dSubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
     m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, (SubtractedET/m_FCalET)*0.025);
+
+    m_2dSubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+    m_SubtractedET_Expected_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta") , (SubtractedET/m_FCalET)*0.025);
+    m_2dSubtractedET_2Dphi->Fill( Acos,SubtractedET);
+    m_SubtractedET_eta->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"),SubtractedET ); 
+    m_SubtractedET_pt->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
+    m_SubtractedET_2Dphi->Fill( Acos,SubtractedET);
 
     if (m_FCalET > 2.7){//0-10%
       m_JetUnsubtractedScaleMomentum_pt_0_10->Fill( j.getAttribute<float>("JetUnsubtractedScaleMomentum_pt")*toGeV );
