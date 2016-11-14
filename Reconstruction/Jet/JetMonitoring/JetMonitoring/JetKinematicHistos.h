@@ -39,8 +39,14 @@ protected:
   TH1F* m_phi;
   TH1F* m_m;
   TH1F* m_e;
-
   TH1F* m_nConstit;
+
+  // high pT
+  TH1F* m_pt_high;
+  TH1F* m_eta_high;
+  TH1F* m_m_high;
+  TH1F* m_e_high;
+  TH1F* m_nConstit_high;
 
   TH2F* m_occupancyEtaPhi;
   TProfile2D* m_averagePtEtaPhi;
