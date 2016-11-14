@@ -69,13 +69,35 @@ LArHECNoise::LArHECNoise(const std::string& name,
     m_LArOnlineIDHelper(0),
     m_caloIdMgr(0),
     m_calodetdescrmgr(0),
+    m_calocell_id(nullptr),
     m_nt_run(0),
     m_nt_evtId(0),
     m_nt_evtCount(0),
     m_nt_evtTime(0),
     m_nt_evtTime_ns(0),
     m_nt_lb(0),
-    m_nt_bcid(0)
+    m_nt_bcid(0),
+    m_nt_gain(0),
+    m_nt_side(0),
+    m_nt_samp(0),
+    m_nt_reg(0),
+    m_nt_ieta(0),
+    m_nt_iphi(0),
+    m_nt_quality(0),
+    m_nt_digi(),
+    m_nt_max(0),
+    m_nt_min(0),
+    m_nt_OID(0),
+    m_nt_avgMu(0),
+    m_nt_actMu(0),
+    m_nt_e(0),
+    m_nt_t(0),
+    m_nt_eta(0),
+    m_nt_phi(0),
+    m_nt_z(0),
+    m_nt_r(0),
+    m_nt_ped(0),
+    m_nt_pedRMS(0)
  {
 
    // Trigger
@@ -213,7 +235,7 @@ StatusCode LArHECNoise::execute() {
   } else if (evtStore()->contains<LArDigitContainer>("FREE")) {
       ATH_CHECK(evtStore()->retrieve(ld, "FREE"));
   } else {
-        msg(MSG::WARNING) << "Neither LArDigitContainer nor LArDigitContainer_Thinned nor FREE present, not filling anything "<<endreq;
+        msg(MSG::WARNING) << "Neither LArDigitContainer nor LArDigitContainer_Thinned nor FREE present, not filling anything "<<endmsg;
         return StatusCode::SUCCESS;
   }
   /** Define iterators to loop over Digits containers*/
@@ -272,7 +294,7 @@ StatusCode LArHECNoise::execute() {
               if(cc) {
                  const CaloCell *rcell = cc->findCell(ihash);
                  if(rcell->ID() != oid) {
-                     msg(MSG::WARNING) <<"Cell iHash does not match ..."<<endreq;
+                     msg(MSG::WARNING) <<"Cell iHash does not match ..."<<endmsg;
                  }else{
                      m_nt_e = rcell->e();
                      m_nt_t = rcell->time();
@@ -288,7 +310,7 @@ StatusCode LArHECNoise::execute() {
                     }
                  }
               }
-              CaloDetDescrElement *cdde =  m_calodetdescrmgr->get_element(oid);
+              const CaloDetDescrElement *cdde =  m_calodetdescrmgr->get_element(oid);
               m_nt_eta = cdde->eta();
               m_nt_phi = cdde->phi();
               m_nt_z = cdde->z();

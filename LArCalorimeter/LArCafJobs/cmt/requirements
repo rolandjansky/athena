@@ -12,7 +12,6 @@ use GaudiInterface GaudiInterface-* External
 use LArRawEvent LArRawEvent-* LArCalorimeter
 use LArRawConditions LArRawConditions-* LArCalorimeter
 use LArRecUtils      LArRecUtils-*      LArCalorimeter
-use LArTools LArTools-* LArCalorimeter
 use LArCabling LArCabling-* LArCalorimeter
 use PyJobTransformsCore PyJobTransformsCore-* Tools
 use StoreGate StoreGate-* Control

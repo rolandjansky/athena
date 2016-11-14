@@ -1,3 +1,6 @@
+from AthenaCommon.Logging import logging
+recoLog = logging.getLogger('LArNoise_fromraw')
+
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -20,6 +23,18 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.AutoConfiguration import GetProjectName,ConfigureTriggerStream
 from RecExConfig.AutoConfiguration import GetProjectName,ConfigureGeo
 rec.projectName=GetProjectName()
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+     recoLog.info("transform pre-exec")
+     for cmd in runArgs.preExec:
+         recoLog.info(cmd)
+         exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+     for fragment in runArgs.preInclude:
+         include(fragment)
 
 ConfigureGeo()
 
@@ -191,8 +206,8 @@ CaloCellGetter()
 
 from LArCellRec.LArNoisyROSummaryGetter import LArNoisyROSummaryGetter
 LArNoisyROSummaryGetter()
-topSequence.LArNoisyROAlg.OutputLevel=DEBUG
-topSequence.LArNoisyROAlg.Tool.OutputLevel=DEBUG
+#topSequence.LArNoisyROAlg.OutputLevel=DEBUG
+#topSequence.LArNoisyROAlg.Tool.OutputLevel=DEBUG
 
 if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HECNOISEFile"):
    include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
@@ -268,7 +283,7 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile"):
    topSequence.LArNoiseBursts.BCTool = theBCTool
    topSequence.LArNoiseBursts.SigmaCut = 3.0
    topSequence.LArNoiseBursts.NumberOfBunchesInFront = 30
-   topSequence.LArNoiseBursts.OutputLevel=DEBUG
+   #topSequence.LArNoiseBursts.OutputLevel=DEBUG
 
    conddb.addFolder("TDAQ","/TDAQ/RunCtrl/DataTakingMode")
    #conddb.addFolder("TRIGGER","/TRIGGER/HLT/PrescaleKey")
@@ -295,8 +310,8 @@ if hasattr(runArgs,"outputHIST_LARNOISEFile"):
    theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
    theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() #LArNoisyROFEBCutHelper()
    theLArNoisyROMon.doTrigger = False
-   theLArNoisyROMon.doHisto = False
-   theLArNoisyROMon.OutputLevel = DEBUG
+   theLArNoisyROMon.doHisto = True
+   #theLArNoisyROMon.OutputLevel = DEBUG
    
    ToolSvc += theLArNoisyROMon
    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -371,3 +386,15 @@ svcMgr.MessageSvc.defaultLimit=1000000
 #svcMgr.MessageSvc.OutputLevel=DEBUG
 
 #svcMgr.StoreGateSvc.Dump=True
+
+## Post-include
+if hasattr(runArgs,"postInclude"): 
+    for fragment in runArgs.postInclude:
+        include(fragment)
+
+## Post-exec
+if hasattr(runArgs,"postExec"):
+    recoLog.info("transform post-exec")
+    for cmd in runArgs.postExec:
+        recoLog.info(cmd)
+        exec(cmd)

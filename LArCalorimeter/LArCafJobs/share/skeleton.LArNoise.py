@@ -1,3 +1,6 @@
+from AthenaCommon.Logging import logging
+recoLog = logging.getLogger('LArNoise')
+
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -20,6 +23,18 @@ from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.AutoConfiguration import GetProjectName,ConfigureGeo
 rec.projectName=GetProjectName()
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+     recoLog.info("transform pre-exec")
+     for cmd in runArgs.preExec:
+         recoLog.info(cmd)
+         exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+     for fragment in runArgs.preInclude:
+         include(fragment)
 
 ConfigureGeo()
 
@@ -211,3 +226,15 @@ svcMgr.MessageSvc.defaultLimit=1000000
 #svcMgr.MessageSvc.OutputLevel=DEBUG
 
 #svcMgr.StoreGateSvc.Dump=True
+
+## Post-include
+if hasattr(runArgs,"postInclude"): 
+    for fragment in runArgs.postInclude:
+        include(fragment)
+
+## Post-exec
+if hasattr(runArgs,"postExec"):
+    recoLog.info("transform post-exec")
+    for cmd in runArgs.postExec:
+        recoLog.info(cmd)
+        exec(cmd)
