@@ -22,7 +22,8 @@ rec.doWriteESD=False
 rec.doWriteAOD=False 
 rec.doAOD=False
 rec.doDPD=False 
-rec.doWriteTAG=False 
+rec.doWriteTAG=False
+rec.doInDet=False
 #rec.doMonitoring=True
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -46,11 +47,10 @@ from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "HLTMonManager")
 HLTMonManager = topSequence.HLTMonManager
 
-if('useLoader' in dir()):
-    from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolLoader
-    HLTMonManager.AthenaMonTools += TrigEgammaMonToolLoader()
+from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
+if ('derivation' in dir()):
+    HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool(derivation=True)
 else:
-    from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
     HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
 
 HLTMonManager.FileKey = "GLOBAL"
@@ -60,4 +60,5 @@ print HLTMonManager;
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 #
-
+if ('derivation' in dir()):
+    ToolSvc.TrigDecisionTool.Navigation.ReadonlyHolders=True
