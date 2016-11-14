@@ -31,12 +31,33 @@ class doTauRec(JobProperty):
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.tauRecFlags.Enabled()
 
+class tauRecToolsCVMFSPath(JobProperty):
+    """ path to cvmfs file location
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="tauRecTools/00-00-10/"
+
+class TauDiscriminantCVMFSPath(JobProperty):
+    """ path to cvmfs file location
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="TauDiscriminant/02-00-09/"
+
 class tauRecMVATrackClassification(JobProperty):
     """Run the MVA Track Classifier
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
+
+class tauRecMVATrackClassificationConfig(JobProperty):
+    """Config file for MVATrackClassification
+    """
+    statusOn=True
+    allowedTypes=[[]]
+    StoredValue=[ "TMVAClassification_BDT.weights.root", "TMVAClassification_BDT_0.weights.root", "TMVAClassification_BDT_1.weights.root" ]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed
@@ -147,7 +168,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,tauRecMVATrackClassification,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

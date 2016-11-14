@@ -295,6 +295,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
             #these tools need pantau info
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
+            tools.append(taualgs.getCombinedP4FromRecoTaus())
 
             # TauDiscriminant:
             if tauFlags.doRunTauDiscriminant() :
