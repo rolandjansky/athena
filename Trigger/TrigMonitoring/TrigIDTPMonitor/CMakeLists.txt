@@ -1,15 +1,15 @@
 ################################################################################
 # Package: TrigIDTPMonitor
 ################################################################################
-
 # Declare the package name:
 atlas_subdir( TrigIDTPMonitor )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Control/DataModel
-                          Control/StoreGate
+                          Control/AthLinks
                           Event/EventInfo
+                          Event/xAOD/xAODEgamma
+			  Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigBphysicsEvent
+                          Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces )
 
@@ -24,7 +25,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigIDTPMonitor
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES DataModel StoreGateLib SGtests EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys GaudiKernel TrigConfHLTData TrigBphysicsEvent TrigSteeringEvent TrigInterfacesLib )
+                     LINK_LIBRARIES AthLinks EventInfo xAODEgamma xAODCaloEvent xAODEventInfo xAODMuon xAODTracking xAODTrigBphys GaudiKernel TrigConfHLTData TrigBphysicsEvent TrigParticle TrigSteeringEvent TrigInterfacesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
