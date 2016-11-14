@@ -6,6 +6,7 @@
 
 #include "JetMonitoring/HIJetUEMonitoring.h"
 #include "JetMonitoring/ToolHandleHistoHelper.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -133,6 +134,16 @@ int HIJetUEMonitoring::buildHistos(){
 }
 
 int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
+
+  const xAOD::EventInfo* evtInfo;
+  CHECK(evtStore()->retrieve( evtInfo ));
+
+//LAr event veto: skip events rejected by LAr
+  if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
+    ATH_MSG_DEBUG("SKIP for LAR error");
+    return StatusCode::SUCCESS;
+  }
+
   n=2;
   harmonic=n-1;
   m_eventShape=nullptr;

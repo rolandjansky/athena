@@ -6,6 +6,9 @@ from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
 from RecExConfig.ObjKeyStore import cfgKeyStore
+#New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
+from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
+monbadlb = GetLArBadLBFilterTool()
 
 monitorTracks = cfgKeyStore.isInTransient('xAOD::JetContainer','AntiKt3PV0TrackJets')
 
@@ -28,9 +31,6 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         selectionAndHistos( "60000<pt<400000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "FracSamplingMax"], "highpt_60_400" ),
         selectionAndHistos( "400000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents",  "FracSamplingMax"], "highpt_400_1000" ),
         selectionAndHistos( "1000000<pt<2500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents",  "FracSamplingMax"], "highpt_1000_2500" ),
-#        selectionAndHistos( "60000<pt<400000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_60_400" ),
-#        selectionAndHistos( "400000<pt<1000000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_400_1000" ),
-#        selectionAndHistos( "1000000<pt<2500000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_1000_2500" ),
         selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
         selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
         jhm.Width,
@@ -131,9 +131,15 @@ athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4
 if monitorTracks :
      athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt4HITrackJets" ) ]
 
+#cbg
+athenaMonTool.FilterTools += [ monbadlb ]
+
 ToolSvc += athenaMonTool
 
 athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ] ,IntervalType = 2)
+
+#cbg
+athenaMonTool_LB.FilterTools += [ monbadlb ]
 
 ToolSvc += athenaMonTool_LB
 
@@ -143,6 +149,8 @@ if DQMonFlags.useTrigger() :
                                            [
                                                commonMonitoringTool( "AntiKt4HIJets", pathSuffix='_trig' ),
                                                ] , IntervalType = 6 )
+    #cbg
+    athenaMonTool_trig.FilterTools += [ monbadlb ]
     ToolSvc += athenaMonTool_trig
     athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
