@@ -42,7 +42,7 @@ TauESDList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 #------------------------------------------------------------------------------
 # Tau Pi0 cluster cell container and links
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterCellLinkContainer#TauPi0ClusterLinks" ]
+TauESDList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
 TauESDList += [ "CaloCellContainer#TauCommonPi0Cells" ]
 
 #------------------------------------------------------------------------------
