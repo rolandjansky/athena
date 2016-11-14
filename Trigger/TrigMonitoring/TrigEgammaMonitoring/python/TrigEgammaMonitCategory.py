@@ -68,17 +68,66 @@ monitoring_mam_cosmic = {'primary_single_ele':'HLT_e0_perf_L1EM3_EMPTY',
     'primary_single_pho':'HLT_g0_perf_L1EM3_EMPTY'}
 
 # Validation Items for MC
-validation_electron=monitoring_electron
-validationTP_electron = ['HLT_e0_perf_L1EM15']
+validation_electron=[
+        'HLT_e60_lhmedium',
+        'HLT_e60_lhmedium_nod0_L1EM24VHI',
+        'HLT_e120_lhloose',
+        'HLT_e140_lhloose_nod0_L1EM24VHI',
+        'HLT_e60_lhmedium_nod0_ringer_L1EM24VHI',
+        'HLT_e140_lhloose_nod0_ringer_L1EM24VHI',
+        'HLT_e60_lhloose',
+        'HLT_e70_lhloose_nod0',
+        ]
+validation_electron.extend(monitoring_electron)
+validationTP_Jpsiee = ['HLT_e5_lhtight_nod0','HLT_e9_lhtight_nod0','HLT_e14_lhtight_nod0']
+validationTP_electron = ['HLT_e0_perf_L1EM15',
+    'HLT_e24_lhmedium_L1EM20VH','HLT_e24_lhtight_idperf_L1EM20VH',
+    'HLT_e26_lhtight_idperf','HLT_e28_lhtight_idperf',
+    'HLT_e17_lhvloose_nod0_ringer',
+    'HLT_e26_lhtight_nod0','HLT_e28_lhtight_nod0',
+    'HLT_e12_lhloose_L1EM10VH',
+    'HLT_e17_lhvloose_nod0',
+    'HLT_e17_lhloose',
+    'HLT_e17_lhloose_nod0',
+    'HLT_e9_lhloose',
+    'HLT_e9_lhloose_nod0',
+    'HLT_e7_lhmedium',
+    'HLT_e7_lhmedium_nod0',
+    'HLT_e12_lhloose',
+    'HLT_e12_lhloose_nod0',
+    'HLT_e24_lhmedium_L1EM20VHI',
+    'HLT_e26_lhmedium_nod0_L1EM22VHI',
+    'HLT_e28_lhmedium_nod0_L1EM24VHI',
+    'HLT_e20_lhmedium',
+    'HLT_e20_lhmedium_nod0']
 validationTP_electron.extend(monitoringTP_electron)
-validation_photon = ['HLT_g0_perf_L1EM15','HLT_g35_medium','HLT_g25_loose','HLT_g35_loose','HLT_g45_tight','HLT_g120_loose']
+validation_photon = ['HLT_g0_perf_L1EM15',
+    'HLT_g35_medium',
+    'HLT_g25_loose',
+    'HLT_g35_loose',
+    'HLT_g45_tight',
+    'HLT_g120_loose',
+    'HLT_g140_tight',
+    'HLT_g15_loose',
+    'HLT_g20_loose',
+    'HLT_g20_tight',
+    'HLT_g22_tight',
+    'HLT_g22_tight_ivloose',
+    'HLT_g22_tight_iloose',
+    'HLT_g22_tight_itight',
+    'HLT_g25_loose',
+    'HLT_g25_medium',
+    'HLT_g35_loose',
+    'HLT_g35_medium',
+    'HLT_g50_loose',
+    ]
 validation_photon.extend(monitoring_photon)
 validation_mam=monitoring_mam
 
 # Heavy Ion items
-monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose']
-monitoring_photon_hi=['HLT_g15_loose','HLT_g15_medium']
+monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose','HLT_e15_lhloose_nod0','HLT_e17_lhloose','HLT_e17_lhloose_nod0']
+monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose']
 monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose',
-        'primary_single_ele':'HLT_e15_lhloose',
-        'primary_single_pho':'HLT_g15_medium'}
+        'primary_single_ele':'HLT_e15_lhloose_nod0',
+        'primary_single_pho':'HLT_g15_loose'}
 
