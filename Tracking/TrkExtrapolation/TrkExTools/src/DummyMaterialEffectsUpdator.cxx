@@ -20,227 +20,218 @@
 #include "TrkDetDescrInterfaces/IMaterialMapper.h"
 
 // constructor
-Trk::DummyMaterialEffectsUpdator::DummyMaterialEffectsUpdator(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+Trk::DummyMaterialEffectsUpdator::DummyMaterialEffectsUpdator(const std::string &t, const std::string &n,
+                                                              const IInterface *p) :
+  AthAlgTool(t, n, p),
   m_considerPrePostMapping(true),
   m_validationMode(false),
   m_validationDirectionSwitch(1),
   m_validationDirection(Trk::alongMomentum),
   m_materialMapper("Trk::MaterialMapper"),
   m_etaFinalize(0.),
-  m_phiFinalize(0.)
-
-{
-      declareInterface<IMaterialEffectsUpdator>(this);
-      declareProperty("ValidationMode"                   , m_validationMode);
-      declareProperty("ValidationDirection"              , m_validationDirectionSwitch);
-      declareProperty("ValidationMaterialMapper"         , m_materialMapper);
-
+  m_phiFinalize(0.) {
+  declareInterface<IMaterialEffectsUpdator>(this);
+  declareProperty("ValidationMode", m_validationMode);
+  declareProperty("ValidationDirection", m_validationDirectionSwitch);
+  declareProperty("ValidationMaterialMapper", m_materialMapper);
 }
 
 // destructor
-Trk::DummyMaterialEffectsUpdator::~DummyMaterialEffectsUpdator()
-{}
+Trk::DummyMaterialEffectsUpdator::~DummyMaterialEffectsUpdator() {
+}
 
 // Athena standard methods
 // initialize
-StatusCode Trk::DummyMaterialEffectsUpdator::initialize()
-{
+StatusCode
+Trk::DummyMaterialEffectsUpdator::initialize() {
+  if (m_materialMapper.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_materialMapper);
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_INFO("Retrieved tool " << m_materialMapper);
+  }
 
-    if ( m_materialMapper.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_materialMapper );
-      return StatusCode::FAILURE;
-    } else 
-      ATH_MSG_INFO( "Retrieved tool " << m_materialMapper );
- 
-    // set the validation switch
-    m_validationDirection = (m_validationDirectionSwitch == 1 ) ? Trk::alongMomentum : Trk::oppositeMomentum; 
+  // set the validation switch
+  m_validationDirection = (m_validationDirectionSwitch == 1) ? Trk::alongMomentum : Trk::oppositeMomentum;
 
-    ATH_MSG_INFO( "initialize() successful" );
-    return StatusCode::SUCCESS;
+  ATH_MSG_INFO("initialize() successful");
+  return StatusCode::SUCCESS;
 }
 
 // finalize
-StatusCode Trk::DummyMaterialEffectsUpdator::finalize()
-{
-    ATH_MSG_INFO( "finalize() successful" );
-    return StatusCode::SUCCESS;
+StatusCode
+Trk::DummyMaterialEffectsUpdator::finalize() {
+  ATH_MSG_INFO("finalize() successful");
+  return StatusCode::SUCCESS;
 }
 
+const Trk::TrackParameters *
+Trk::DummyMaterialEffectsUpdator::update(const TrackParameters *parm,
+                                         const Layer &lay,
+                                         PropDirection,
+                                         ParticleHypothesis,
+                                         MaterialUpdateMode) const {
+  if (m_validationMode && parm) {
+    // get the numbers according
+    const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
+    const Trk::MaterialProperties *mprop = lay.fullUpdateMaterialProperties(*parm);
 
+    const Trk::MaterialProperties *updateProperties
+      = dynamic_cast<const Trk::MaterialProperties *>(mprop);
 
-const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::update(const TrackParameters* parm,
-                                                                      const Layer& lay,
-                                                                      PropDirection,
-                                                                      ParticleHypothesis,
-                                                                      MaterialUpdateMode) const
-{
-    if (m_validationMode && parm) {
-      // get the numbers according
-      const Trk::TrackingVolume* tvol = lay.enclosingTrackingVolume();
-      const Trk::MaterialProperties* mprop = lay.fullUpdateMaterialProperties(*parm);
+    if (tvol && updateProperties) {
+      double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
+      // material properties
+      double pathInX0 = updateProperties->thicknessInX0();
+      double x0 = updateProperties->x0();
+      double l0 = updateProperties->l0();
+      double A = updateProperties->averageA();
+      double Z = updateProperties->averageZ();
+      double rho = updateProperties->averageRho();
+      // correct
+      pathInX0 *= fabs(correctionFactor);
+      // record
+      m_etaFinalize = parm->eta();
+      m_phiFinalize = parm->parameters()[Trk::phi];
+      // create the extended material step
+      Trk::AssociatedMaterial assMatHit(parm->position(),
+                                        pathInX0,
+                                        x0, l0, A, Z, rho,
+                                        correctionFactor,
+                                        lay.enclosingTrackingVolume(),
+                                        &lay);
 
-      const Trk::MaterialProperties* updateProperties 
-            = dynamic_cast<const Trk::MaterialProperties*>(mprop);
-
-      if (tvol && updateProperties){
-
-	   double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
-           // material properties
-           double pathInX0         = updateProperties->thicknessInX0();
-           double x0               = updateProperties->x0();
-           double l0               = updateProperties->l0();
-           double A                = updateProperties->averageA();
-           double Z                = updateProperties->averageZ();
-           double rho              = updateProperties->averageRho();
-           // correct
-           pathInX0 *= fabs(correctionFactor);
-           // record
-           m_etaFinalize = parm->eta();
-           m_phiFinalize = parm->parameters()[Trk::phi];
-           // create the extended material step
-           Trk::AssociatedMaterial assMatHit(parm->position(),
-                                                pathInX0,
-                                                x0, l0, A, Z, rho,
-                                                correctionFactor,
-                                                lay.enclosingTrackingVolume(),
-                                                &lay);
-
-          // record it
-          m_materialMapper->recordMaterialHit(assMatHit,parm->momentum());
-
-       }
-       else {
-           ATH_MSG_WARNING( "update() ... dynamic cast to MaterialProperties failed!" );
-       }
-   }
-   return parm;
+      // record it
+      m_materialMapper->recordMaterialHit(assMatHit, parm->momentum());
+    }else {
+      ATH_MSG_WARNING("update() ... dynamic cast to MaterialProperties failed!");
+    }
+  }
+  return parm;
 }
 
-const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters* parm,
-                                                                         const Layer& lay,
-                                                                         PropDirection dir,
-                                                                         ParticleHypothesis,
-                                                                         MaterialUpdateMode) const
-{
-   if (m_validationMode && dir == m_validationDirection && parm){
-      // get the numbers according 
-      const Trk::TrackingVolume* tvol = lay.enclosingTrackingVolume();
-      // the preFactor
-      double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
-      // retrun if the preFactor is too small
-      if (preFactor < 0.1) return (parm);
+const Trk::TrackParameters *
+Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
+                                            const Layer &lay,
+                                            PropDirection dir,
+                                            ParticleHypothesis,
+                                            MaterialUpdateMode) const {
+  if (m_validationMode && dir == m_validationDirection && parm) {
+    // get the numbers according
+    const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
+    // the preFactor
+    double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
+    // retrun if the preFactor is too small
+    if (preFactor < 0.1) {
+      return(parm);
+    }
 
-      double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
-      /** surfaceValidation is never used
-      bool  surfaceValidation = false;
-      **/
-      // get the material properties
-      const Trk::MaterialProperties* updateProperties = lay.fullUpdateMaterialProperties(*parm);
-      
-      correctionFactor *= preFactor;
+    double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
+    /** surfaceValidation is never used
+       bool  surfaceValidation = false;
+     **/
+    // get the material properties
+    const Trk::MaterialProperties *updateProperties = lay.fullUpdateMaterialProperties(*parm);
 
-      if (tvol && updateProperties){
-           // material properties
-           double pathInX0         = updateProperties->thicknessInX0();
-           double x0               = updateProperties->x0();
-           double l0               = updateProperties->l0();
-           double A                = updateProperties->averageA();
-           double Z                = updateProperties->averageZ();
-           double rho              = updateProperties->averageRho();
-           // record
-           m_etaFinalize = parm->eta();
-           m_phiFinalize = parm->parameters()[Trk::phi];
-           // correct
-           pathInX0 *= fabs(correctionFactor)*preFactor;
-           // create the extended material step
-           Trk::AssociatedMaterial assMatHit(parm->position(),
-                                                pathInX0,
-                                                x0, l0, A, Z, rho,
-                                                correctionFactor,
-                                                lay.enclosingTrackingVolume(),
-                                                &lay);
-          // record it
-          m_materialMapper->recordMaterialHit(assMatHit,parm->momentum());
-          // and if it was a reference material : the SurfaceValidation
-          /** sroe: surfaceValidation must be false at this point, so the following line is redundant **/
-          //if (surfaceValidation)  m_materialMapper->recordSurfaceHit(parm->localPosition(),assMatHit);
-			} else {
-					ATH_MSG_WARNING( "preUpdate() ... dynamic cast to MaterialProperties failed!" );
-			}
-   }
-   return parm;
+    correctionFactor *= preFactor;
+
+    if (tvol && updateProperties) {
+      // material properties
+      double pathInX0 = updateProperties->thicknessInX0();
+      double x0 = updateProperties->x0();
+      double l0 = updateProperties->l0();
+      double A = updateProperties->averageA();
+      double Z = updateProperties->averageZ();
+      double rho = updateProperties->averageRho();
+      // record
+      m_etaFinalize = parm->eta();
+      m_phiFinalize = parm->parameters()[Trk::phi];
+      // correct
+      pathInX0 *= fabs(correctionFactor) * preFactor;
+      // create the extended material step
+      Trk::AssociatedMaterial assMatHit(parm->position(),
+                                        pathInX0,
+                                        x0, l0, A, Z, rho,
+                                        correctionFactor,
+                                        lay.enclosingTrackingVolume(),
+                                        &lay);
+      // record it
+      m_materialMapper->recordMaterialHit(assMatHit, parm->momentum());
+      // and if it was a reference material : the SurfaceValidation
+      /** sroe: surfaceValidation must be false at this point, so the following line is redundant **/
+      // if (surfaceValidation)  m_materialMapper->recordSurfaceHit(parm->localPosition(),assMatHit);
+    } else {
+      ATH_MSG_WARNING("preUpdate() ... dynamic cast to MaterialProperties failed!");
+    }
+  }
+  return parm;
 }
 
+const Trk::TrackParameters *
+Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
+                                             const Layer &lay,
+                                             PropDirection dir,
+                                             ParticleHypothesis,
+                                             MaterialUpdateMode) const {
+  if (m_validationMode && dir == m_validationDirection) {
+    const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
 
-const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters& parm,
-                                                                          const Layer& lay,
-                                                                          PropDirection dir,
-                                                                          ParticleHypothesis,
-                                                                          MaterialUpdateMode) const
-{
-   if (m_validationMode && dir == m_validationDirection){
-      const Trk::TrackingVolume* tvol = lay.enclosingTrackingVolume();
+    // get the quantities
+    double postFactor = lay.postUpdateMaterialFactor(parm, dir);
 
-      // get the quantities
-      double postFactor = lay.postUpdateMaterialFactor( parm, dir);
+    if (postFactor < 0.1) {
+      return 0;
+    }
 
-      if (postFactor < 0.1 ) return 0;
+    // the correction Factor to the layer
+    double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(), parm.momentum()));
+    // get the material properties
+    const Trk::MaterialProperties *updateProperties = lay.fullUpdateMaterialProperties(parm);
+    correctionFactor *= postFactor;
 
-      // the correction Factor to the layer
-      double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(),parm.momentum()));
-      // get the material properties
-      const Trk::MaterialProperties* updateProperties = lay.fullUpdateMaterialProperties(parm);
-      correctionFactor *= postFactor;
-
-      if (tvol && updateProperties){
-
-           // material properties
-           double pathInX0         = updateProperties->thicknessInX0();
-           double x0               = updateProperties->x0();
-           double l0               = updateProperties->l0();
-           double A                = updateProperties->averageA();
-           double Z                = updateProperties->averageZ();
-           double rho              = updateProperties->averageRho();
-           // record
-           m_etaFinalize = parm.eta();
-           m_phiFinalize = parm.parameters()[Trk::phi];
-           // correct
-           pathInX0 *= fabs(correctionFactor);
-           // create the extended material step
-           Trk::AssociatedMaterial assMatHit(parm.position(),
-                                                pathInX0,
-                                                x0, l0, A, Z, rho,
-                                                correctionFactor,
-                                                lay.enclosingTrackingVolume(),
-                                                &lay);
-          // record it
-          m_materialMapper->recordMaterialHit(assMatHit,parm.momentum());
-
-      }
-      else {
-          ATH_MSG_WARNING( "postUpdate() ... dynamic cast to MaterialProperties failed!" );
-      }
-   }
-   return (parm.clone());
+    if (tvol && updateProperties) {
+      // material properties
+      double pathInX0 = updateProperties->thicknessInX0();
+      double x0 = updateProperties->x0();
+      double l0 = updateProperties->l0();
+      double A = updateProperties->averageA();
+      double Z = updateProperties->averageZ();
+      double rho = updateProperties->averageRho();
+      // record
+      m_etaFinalize = parm.eta();
+      m_phiFinalize = parm.parameters()[Trk::phi];
+      // correct
+      pathInX0 *= fabs(correctionFactor);
+      // create the extended material step
+      Trk::AssociatedMaterial assMatHit(parm.position(),
+                                        pathInX0,
+                                        x0, l0, A, Z, rho,
+                                        correctionFactor,
+                                        lay.enclosingTrackingVolume(),
+                                        &lay);
+      // record it
+      m_materialMapper->recordMaterialHit(assMatHit, parm.momentum());
+    }else {
+      ATH_MSG_WARNING("postUpdate() ... dynamic cast to MaterialProperties failed!");
+    }
+  }
+  return(parm.clone());
 }
-
 
 // actual update method
-const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::update(const TrackParameters& parm,
-                                                                      const MaterialProperties&,
-                                                                      double,
-                                                                      PropDirection,
-                                                                      ParticleHypothesis,
-                                                                      MaterialUpdateMode) const
-{
-    return (parm.clone());
+const Trk::TrackParameters *
+Trk::DummyMaterialEffectsUpdator::update(const TrackParameters &parm,
+                                         const MaterialProperties &,
+                                         double,
+                                         PropDirection,
+                                         ParticleHypothesis,
+                                         MaterialUpdateMode) const {
+  return(parm.clone());
 }
 
-
-void Trk::DummyMaterialEffectsUpdator::validationAction() const
-{
-    // first record the values
+void
+Trk::DummyMaterialEffectsUpdator::validationAction() const {
+  // first record the values
   // if (m_validationMode && m_materialMapper)
   //      m_materialMapper->finalizeEvent(m_etaFinalize, m_phiFinalize);
 }
