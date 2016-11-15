@@ -188,12 +188,9 @@ def main():
    if not opts.noSkipList:
       opts.skip += ["TIMERS"]
       opts.skip += ["TimerTot"]         # For TrigCalo[Cell,Cluster,Tower]Maker
-      opts.skip += ["FullCalo.Total"]   # TrigCaloCellMaker_fullcalo/FullCalo.Total
-      opts.skip += ["TCRec_.*"]         # TrigCaloCellMaker timers
+      opts.skip += ["FullCalo_Total"]   # TrigCaloCellMaker_fullcalo/FullCalo_Total
       opts.skip += ["signatureAcceptance"]
-      opts.skip += ["_0$","_1$"]
       opts.skip += ["ErrorCodes_vs_Chains_"]
-      opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Time$","time_","Time_"]
       opts.skip += ["Unpck$"]
@@ -204,10 +201,12 @@ def main():
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
       opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
       opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
-      opts.skip += ["Lvl2EventLoopMgr/L2ResultSize"]  # L2 result size
       opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff
       opts.skip += ["HLTConfigSvc/PrescaleKey_LB"]  
       opts.skip += ["HLTConfigSvc/TimePrescaleUpdate"]  
+      opts.skip += ["run_[0-9]/lb_[0-9]+/"]           # LB histograms (ATR-15027)
+      opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
+      opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       
    # Default thresholds
    if not opts.threshold:
