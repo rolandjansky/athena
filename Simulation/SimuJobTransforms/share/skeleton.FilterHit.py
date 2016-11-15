@@ -152,10 +152,17 @@ Stream1.ItemList += ["SiHitCollection#SCT_Hits"]
 #TRT
 Stream1.ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
 #LAr
-Stream1.ItemList += ["LArHitContainer#*"]
+Stream1.ItemList += ["LArHitContainer#LArHitEMB"]
+Stream1.ItemList += ["LArHitContainer#LArHitEMEC"]
+Stream1.ItemList += ["LArHitContainer#LArHitHEC"]
+Stream1.ItemList += ["LArHitContainer#LArHitFCAL"]
 #Tile
-Stream1.ItemList += ["TileHitVector#TileHitVec",
-                     "TileHitVector#MBTSHits"]
+Stream1.ItemList += ["TileHitVector#TileHitVec"]
+
+if hasattr(DetFlags.detdescr, 'HGTD_on') and DetFlags.detdescr.HGTD_on():
+    Stream1.ItemList += ["LArHitContainer#LArHitHGTD"]
+else:
+    Stream1.ItemList += ["TileHitVector#MBTSHits"]
 #Calo Calibration Hits - not required, so leave out to save space
 #Stream1.ItemList += ["CaloCalibrationHitContainer#LArCalibrationHitActive",
 #                     "CaloCalibrationHitContainer#LArCalibrationHitDeadMaterial",
@@ -164,13 +171,13 @@ Stream1.ItemList += ["TileHitVector#TileHitVec",
 #                     "CaloCalibrationHitContainer#TileCalibHitInactiveCell",
 #                     "CaloCalibrationHitContainer#TileCalibHitDeadMaterial" ]
 #CSC
-Stream1.ItemList+=["CSCSimHitCollection#*"]
+Stream1.ItemList+=["CSCSimHitCollection#CSC_Hits"]
 #MDT
-Stream1.ItemList+=["MDTSimHitCollection#*"]
+Stream1.ItemList+=["MDTSimHitCollection#MDT_Hits"]
 #RPC
-Stream1.ItemList+=["RPCSimHitCollection#*"]
+Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 #TGC
-Stream1.ItemList+=["TGCSimHitCollection#*"]
+Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
 
 Stream1.ForceRead = True
 
@@ -194,14 +201,39 @@ except:
 from LArDigitization.LArDigitizationConf import LArHitFilter
 LArHitFilter = LArHitFilter("LArHitFilter")
 topSequence += LArHitFilter
+try:
+    from SGComps import AddressRemappingSvc
+    AddressRemappingSvc.addInputRename("LArHitContainer","LArHitEMB" ,"LArHitEMBOLD")
+    AddressRemappingSvc.addInputRename("LArHitContainer","LArHitEMEC","LArHitEMECOLD")
+    AddressRemappingSvc.addInputRename("LArHitContainer","LArHitFCAL","LArHitFCALOLD")
+    AddressRemappingSvc.addInputRename("LArHitContainer","LArHitHEC" ,"LArHitHECOLD")
 
+except:
+    pass
 #--------------------------------------------------------------
 # McEventCollection filter algorithm
 #--------------------------------------------------------------
 if hasattr(runArgs,'TruthReductionScheme'):
+    #--------------------------------------------------------------
+    # Add aliases for input SimHit Collections (if possible)
+    #--------------------------------------------------------------
+    try:
+        from SGComps import AddressRemappingSvc
+        AddressRemappingSvc.addInputRename("McEventCollection","TruthEvent","TruthEventOLD")
+        AddressRemappingSvc.addInputRename("SiHitCollection","BCMHits","BCMHitsOLD")
+        AddressRemappingSvc.addInputRename("SiHitCollection","PixelHits","PixelHitsOLD")
+        AddressRemappingSvc.addInputRename("SiHitCollection","SCT_Hits","SCT_HitsOLD")
+        AddressRemappingSvc.addInputRename("TRTUncompressedHitCollection","TRTUncompressedHits","TRTUncompressedHitsOLD")
+        AddressRemappingSvc.addInputRename("CSCSimHitCollection","CSC_Hits","CSC_HitsOLD")
+        AddressRemappingSvc.addInputRename("MDTSimHitCollection","MDT_Hits","MDT_HitsOLD")
+        AddressRemappingSvc.addInputRename("RPCSimHitCollection","RPC_Hits","RPC_HitsOLD")
+        AddressRemappingSvc.addInputRename("TGCSimHitCollection","TGC_Hits","TGC_HitsOLD")
+    except:
+        pass
+
     from McEventCollectionFilter.McEventCollectionFilterConf import McEventCollectionFilter
     McEventCollectionFilter = McEventCollectionFilter("McEventCollectionFilter")
-    if runArgs.TruthReductionScheme != 'SingleGenEvent':
+    if runArgs.TruthReductionScheme != 'SingleGenParticle':
         filterHitLog.warning( 'Unknown TruthReductionScheme (' + runArgs.TruthReductionScheme + '). Currently just a dummy value, but please check.' )
     ## here configure the level of Truth reduction required
 
