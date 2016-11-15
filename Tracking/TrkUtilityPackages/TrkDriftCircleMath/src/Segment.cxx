@@ -36,21 +36,21 @@ std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::Segment& s
 
 MsgStream& operator<< (MsgStream & os, const TrkDriftCircleMath::Segment& seg)
 {
-  os << seg.line() << " chi2 " << seg.chi2() << " ndof " << seg.ndof() << " t0 shift " << seg.t0Shift() << endreq
-     << "   hot " << seg.hitsOnTrack()
+  os << seg.line() << " chi2 " << seg.chi2() << " ndof " << seg.ndof() << " t0 shift " << seg.t0Shift() 
+     << "\n   hot " << seg.hitsOnTrack()
      << " deltas " << seg.deltas() 
      << " hoo " << seg. hitsOutOfTime() 
      << " cl " << seg.closeHits()
      << " ml1 " << seg.hitsMl1() << " ml2 " << seg.hitsMl2() 
      << " cls " << seg.clusterLayers() 
      << " empty " << seg.emptyTubes().size()  
-     << " cross ml1 " << seg.crossedTubesMl1() << " ml2 " << seg.crossedTubesMl2() << endreq;
+     << " cross ml1 " << seg.crossedTubesMl1() << " ml2 " << seg.crossedTubesMl2() << endmsg;
     
   TrkDriftCircleMath::DCOnTrackCit it       = seg.dcs().begin();
   TrkDriftCircleMath::DCOnTrackCit it_end   = seg.dcs().end();
     
   for (; it != it_end; ++it) {
-    os << *it << endreq;
+    os << *it << endmsg;
   }
     
   return os;
