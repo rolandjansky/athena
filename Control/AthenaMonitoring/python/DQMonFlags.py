@@ -223,6 +223,13 @@ class doLucidMon(JobProperty):
     StoredValue=True
 list+=[doLucidMon]
 
+class doAFPMon(JobProperty):
+    """Switch for AFP monitoring"""
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doAFPMon]
+
 class doHIMon(JobProperty):
     """ Switch for dedicated Heavy Ion monitoring """
     statusOn=True
@@ -234,7 +241,7 @@ class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 list+=[doStreamAwareMon]
 
 class monType(JobProperty):
@@ -353,7 +360,7 @@ class nameTrigDecTool(JobProperty):
     """ name of trigger decision tool """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'monTrigDecTool'
+    StoredValue  = 'TrigDecisionTool'
 list+=[nameTrigDecTool]
 
 class nameTrigTransTool(JobProperty):

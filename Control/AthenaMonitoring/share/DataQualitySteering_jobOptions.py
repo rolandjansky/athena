@@ -4,7 +4,7 @@
 # $Id: DataQualitySteering_jobOptions.py,v 1.15 2009-05-05 08:20:08 sschaetz Exp $
 # ********************************************************************************
 
-# disable InDetPerformanceMonitoring, JetMonitoring until further notice 
+# disable TRTEleMon until further notice
 # - PUEO 20140401
 TRTELEMON=False
 
@@ -218,6 +218,16 @@ if DQMonFlags.doMonitoring():
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LUCID monitoring")
 
+   #------------------#                                                                                                                       
+   # AFP monitoring   #                                                                                                                       
+   #------------------#                                                                                                                       
+   if DQMonFlags.doAFPMon():
+      try:
+         include("AFP_Monitoring/AFPMonitoring_jobOptions.py")
+      except Exception:
+         treatException("DataQualitySteering_jobOptions.py: exception when setting up AFP monitoring")
+
+
    #---------------------#
    # HeavyIon monitoring #
    #---------------------#
@@ -248,19 +258,22 @@ if DQMonFlags.doMonitoring():
    local_logger.debug('DQ Post-Setup Configuration')
    for tool in monToolSet_after-monToolSet_before:
       # stop lumi access if we're in MC or enableLumiAccess == False
-      if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
-         if 'EnableLumi' in dir(tool):
+      if 'EnableLumi' in dir(tool):
+         if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
             tool.EnableLumi = False
+         else:
+            tool.EnableLumi = True
       # if we have the FilterTools attribute, assume this is in fact a
       # monitoring tool
       if hasattr(tool, 'FilterTools'):
          # if express: use ATLAS Ready filter
-         local_logger.warning('Processing for tool %s', tool)
+         local_logger.debug('Setting up filters for tool %s', tool)
          if rec.triggerStream()=='express':
-            local_logger.warning('Stream is express and we will add ready tool')
+            local_logger.info('Stream is express and we will add ready tool for %s', tool)
             tool.FilterTools += [monAtlasReadyFilterTool]
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
+            tool.TrigDecisionTool = monTrigDecTool
             tool.TriggerTranslatorTool = monTrigTransTool
 
          if DQMonFlags.monToolPostExec():

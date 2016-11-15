@@ -138,15 +138,15 @@ public:
         AthMonBench m_bench_algfin_convertLWHists;
         void report(AthenaMonManager*a) {
             MSG::Level l(AthMonBench::s_resourceMonThreshold);
-            a->msg(l)<<"Init ResourceSummary ["<<m_theTool->name()<<"] --> load/create/initialize : "<<m_bench_alginit_retrieve<<endreq;
+            a->msg(l)<<"Init ResourceSummary ["<<m_theTool->name()<<"] --> load/create/initialize : "<<m_bench_alginit_retrieve<<endmsg;
             m_bench_algexec_checkHists.setUnitCount();
             m_bench_algexec_bookHists.setUnitCount();
-            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> book : "<<m_bench_algexec_bookHists<<endreq;
-            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> check : "<<m_bench_algexec_checkHists<<endreq;
-            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> fill : "<<m_bench_algexec_fillHists<<endreq;
-            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> finalHists : "<<m_bench_algfin_finalHists<<endreq;
-            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> checkHists(fromFinalize==true) : "<<m_bench_algfin_checkHists<<endreq;
-            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> final LWHist conversion+writeout : "<<m_bench_algfin_convertLWHists<<endreq;
+            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> book : "<<m_bench_algexec_bookHists<<endmsg;
+            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> check : "<<m_bench_algexec_checkHists<<endmsg;
+            a->msg(l)<<"Exec ResourceSummary ["<<m_theTool->name()<<"] --> fill : "<<m_bench_algexec_fillHists<<endmsg;
+            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> finalHists : "<<m_bench_algfin_finalHists<<endmsg;
+            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> checkHists(fromFinalize==true) : "<<m_bench_algfin_checkHists<<endmsg;
+            a->msg(l)<<"Fin ResourceSummary ["<<m_theTool->name()<<"] --> final LWHist conversion+writeout : "<<m_bench_algfin_convertLWHists<<endmsg;
         }
 
     };
@@ -234,12 +234,12 @@ AthenaMonManager::
 ~AthenaMonManager()
 {
     if (m_d->m_nActiveLWHists)
-        msg(MSG::WARNING) << m_d->m_nActiveLWHists<< " LW histograms were created but never deleted" << endreq;
+        msg(MSG::WARNING) << m_d->m_nActiveLWHists<< " LW histograms were created but never deleted" << endmsg;
     /*
     if (m_d->m_nMonGroupCopies)
       msg(MSG::WARNING) << "Usage of MonGroup copy constructor or assignment operator detected in associated tools "
     	      << m_d->m_nMonGroupCopies<<" time(s). This usually happens when tools pass MonGroup's around by"
-    	      <<" value. This behaviour will be forbidden at the compilation stage soon, so please fix your packages!" << endreq;
+    	      <<" value. This behaviour will be forbidden at the compilation stage soon, so please fix your packages!" << endmsg;
     */
     delete m_d;
 
@@ -277,7 +277,7 @@ envStringToEnum( const std::string& str )
         if( sc.isSuccess() ) {
             MsgStream log( ms, "AthenaMonManager::envStringToEnum()" );
             log << MSG::WARNING << "Unknown AthenaMonManager::Environment_t \""
-                << str << "\", returning \"user\"" << endreq;
+                << str << "\", returning \"user\"" << endmsg;
         }
     }
 
@@ -308,7 +308,7 @@ dataTypeStringToEnum( const std::string& str )
         if( sc.isSuccess() ) {
             MsgStream log( ms, "AthenaMonManager::dataTypeStringToEnum()" );
             log << MSG::WARNING << "Unknown AthenaMonManager::DataType_t \""
-                << str << "\", returning \"userDefined\"" << endreq;
+                << str << "\", returning \"userDefined\"" << endmsg;
         }
     }
 
@@ -374,7 +374,7 @@ initialize()
     //typedef std::vector<IMonitorToolBase*> MonList_t;
     //typedef MonList_t::iterator            MonIter_t;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::initialize():" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::initialize():" << endmsg;
 
     if (Imp::s_svcLocator->service("SGAudSvc", m_d->m_sgAudSvc, false/*do not create*/).isFailure())
         m_d->m_sgAudSvc=0;
@@ -387,15 +387,15 @@ initialize()
 
     sc = service( "THistSvc", m_THistSvc, true );
     if( !sc.isSuccess() ) {
-        msg(MSG::ERROR) << "!! Unable to locate the THistSvc service !!" << endreq;
+        msg(MSG::ERROR) << "!! Unable to locate the THistSvc service !!" << endmsg;
         return sc;
     }
 
     if( !Imp::s_staticDataAreInit ) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Initializing static data" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Initializing static data" << endmsg;
 
         if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "      * \"ManualDataTypeSetup\" = " << m_d->m_manualDataTypeSetupProp << endreq;
+            msg(MSG::DEBUG) << "      * \"ManualDataTypeSetup\" = " << m_d->m_manualDataTypeSetupProp << endmsg;
         }
 
 #if 0  // The two branches of the conditional are identical.
@@ -410,35 +410,35 @@ initialize()
             Imp::s_dataType = dataTypeStringToEnum( m_d->m_dataTypeProp );
         }
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"DataType\" = " << Imp::s_dataType << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"DataType\" = " << Imp::s_dataType << endmsg;
 
         Imp::s_environmentStr = m_d->m_environmentProp;
         Imp::s_environment = envStringToEnum( m_d->m_environmentProp );
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"Environment\" = " << Imp::s_environment << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"Environment\" = " << Imp::s_environment << endmsg;
 
         Imp::s_LBsLowStat = m_d->m_LBsLowStatProp;
         Imp::s_LBsMedStat = m_d->m_LBsMedStatProp;
         Imp::s_LBsHigStat = m_d->m_LBsHigStatProp;
         if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "      * \"LBsInLowStatInterval\" = " << Imp::s_LBsLowStat << endreq;
-            msg(MSG::DEBUG) << "      * \"LBsInMediumStatInterval\" = " << Imp::s_LBsMedStat << endreq;
-            msg(MSG::DEBUG) << "      * \"LBsInHighStatInterval\" = " << Imp::s_LBsHigStat << endreq;
+            msg(MSG::DEBUG) << "      * \"LBsInLowStatInterval\" = " << Imp::s_LBsLowStat << endmsg;
+            msg(MSG::DEBUG) << "      * \"LBsInMediumStatInterval\" = " << Imp::s_LBsMedStat << endmsg;
+            msg(MSG::DEBUG) << "      * \"LBsInHighStatInterval\" = " << Imp::s_LBsHigStat << endmsg;
         }
 
         m_d->m_isPrimaryManager = true;
         Imp::s_staticDataAreInit = true;
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"ManualRunLBSetup\" = " << m_d->m_manualRunLBProp << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "      * \"ManualRunLBSetup\" = " << m_d->m_manualRunLBProp << endmsg;
 
         if( m_d->m_manualRunLBProp ) {
             Imp::s_run = m_d->m_runProp;
             Imp::s_lumiBlock = m_d->m_lumiBlockProp;
             if (msgLvl(MSG::DEBUG))
-                msg(MSG::DEBUG) << "          --> using run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endreq;
+                msg(MSG::DEBUG) << "          --> using run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;
         } else {
             if (msgLvl(MSG::DEBUG))
-                msg(MSG::DEBUG) << "          --> using run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endreq;
+                msg(MSG::DEBUG) << "          --> using run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;
         }
     }
 
@@ -450,7 +450,7 @@ initialize()
     IJobOptionsSvc* joSvc = 0;
     sc = service( "JobOptionsSvc", joSvc );
     if( !sc.isSuccess() ) {
-        msg(MSG::ERROR) << "!! Unable to locate the JobOptionsSvc service !!" << endreq;
+        msg(MSG::ERROR) << "!! Unable to locate the JobOptionsSvc service !!" << endmsg;
         return sc;
     }
     ATH_MSG_DEBUG("  --> Found service \"JobOptionsSvc\"");
@@ -462,7 +462,7 @@ initialize()
     StatusCode sc3 = joSvc->addPropertyToCatalogue( client, StringProperty("Environment",m_d->m_environmentProp) );
     joSvc->release();
     if( !(sc1.isSuccess() && sc2.isSuccess() && sc3.isSuccess()) ) {
-        msg(MSG::ERROR) << "!! Unable to add properties to JobOptionsSvc service !!" << endreq;
+        msg(MSG::ERROR) << "!! Unable to add properties to JobOptionsSvc service !!" << endmsg;
         return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("  --> Added Properties");
@@ -477,10 +477,10 @@ initialize()
 //    if( m_monTools.size() > 0 ) {
 //       sc = m_monTools.retrieve();
 //       if( !sc.isSuccess() ) {
-//          msg(MSG::ERROR) << "!! Unable to retrieve monitoring tool " << m_monTools << endreq;
+//          msg(MSG::ERROR) << "!! Unable to retrieve monitoring tool " << m_monTools << endmsg;
 //          return sc;
 //       }
-//       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Retrieved AthenaMonTools" << endreq;
+//       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Retrieved AthenaMonTools" << endmsg;
 //    }
 
     m_d->m_eventCounter = m_d->m_everyNevents;
@@ -497,11 +497,11 @@ initialize()
             bench_tmp.finishMeasurement();
         m_d->toolAudEnd();
         if( sc_toolret.isFailure() ) {
-            msg(MSG::ERROR) << "Failed to retrieve monitoring tool " << tool << endreq;
+            msg(MSG::ERROR) << "Failed to retrieve monitoring tool " << tool << endmsg;
             return StatusCode::FAILURE;
         }
         else {
-            msg(MSG::INFO) << "Retrieved tool " << tool << endreq;
+            msg(MSG::INFO) << "Retrieved tool " << tool << endmsg;
         }
         IMonitorToolBase* mon = tool.operator->();
         ManagedMonitorToolBase* managed = dynamic_cast<ManagedMonitorToolBase*>( mon );
@@ -514,7 +514,7 @@ initialize()
         }
 
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Exiting successfully" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -525,13 +525,13 @@ AthenaMonManager::
 execute()
 {
     Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::execute():" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::execute():" << endmsg;
 
     StatusCode sc;
     sc.setChecked();
 
     if( !m_d->m_manualRunLBProp ) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Calling setEventInfo()" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Calling setEventInfo()" << endmsg;
         setEventInfo();
     }
 
@@ -543,7 +543,7 @@ execute()
         if (m_d->m_doResourceMon)
             bench_tmp.startMeasurement();
         if( tool->preSelector() ) {
-            //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> The tool is preSelector" << endreq;
+            //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> The tool is preSelector" << endmsg;
 
             // Uncomment to test luminosity tools
             // I don't know where exactly it must be placed exactly
@@ -553,35 +553,35 @@ execute()
             ManagedMonitorToolBase* managed = dynamic_cast<ManagedMonitorToolBase*>( mon );
 
             float avgmu = managed->lbAverageInteractionsPerCrossing();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average mu: " << avgmu << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average mu: " << avgmu << endmsg;
 
             float instmu = managed->lbInteractionsPerCrossing();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous mu: " << instmu << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous mu: " << instmu << endmsg;
 
             float avglumi = managed->lbAverageLuminosity();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average lumi: " << avglumi << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Average lumi: " << avglumi << endmsg;
 
             float instlumi = managed->lbLuminosityPerBCID();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous lumi: " << instlumi << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Instantaneous lumi: " << instlumi << endmsg;
 
             double duration = managed->lbDuration();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock duration: " << duration << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock duration: " << duration << endmsg;
 
             double live = managed->livefractionPerBCID();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiinst livefraction: " << live << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiinst livefraction: " << live << endmsg;
 
             float lumilive = managed->lbAverageLivefraction();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiavg livefraction: " << lumilive << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, lumiavg livefraction: " << lumilive << endmsg;
 
             double lumiweight = managed->lbLumiWeight();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock weight: " << lumiweight << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Test, Lumiblock weight: " << lumiweight << endmsg;
             */
             // Yuriy - end
 
             sc = tool->fillHists();
 
             if( !sc.isSuccess() ) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::fillHists() unsuccessful" << endreq;
+                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::fillHists() unsuccessful" << endmsg;
             }
         }
 
@@ -590,11 +590,11 @@ execute()
             bench_tmp.finishMeasurement();
             Imp::ToolBench* tb =  m_d->getToolBench(tool.operator->());
             tb->m_bench_algexec_fillHists += bench_tmp;//fixme: count events and subdivide
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> m_doResourceMon is True" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> m_doResourceMon is True" << endmsg;
         }
         m_d->toolAudEnd();
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::fillHists()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::fillHists()" << endmsg;
 
     if( m_d->m_eventCounter > 0 ) {
         m_d->m_eventCounter--;
@@ -614,15 +614,15 @@ execute()
                 tb->m_bench_algexec_checkHists += bench_tmp;//fixme: count events and subdivide
             }
             if( !sc.isSuccess() ) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::checkHists() unsuccessful" << endreq;
+                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::checkHists() unsuccessful" << endmsg;
             }
             m_d->toolAudEnd();
         }
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::checkHists()" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::checkHists()" << endmsg;
 
         m_d->m_eventCounter = m_d->m_everyNevents;
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Exiting successfully" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -640,7 +640,7 @@ AthenaMonManager::
 stop()
 {
     Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::finalize():" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::finalize():" << endmsg;
 
     StatusCode sc;
     sc.setChecked();
@@ -656,7 +656,7 @@ stop()
         if (tb)
             tb->m_bench_algfin_finalHists.finishMeasurement();
         if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::finalHists() unsuccessful" << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::finalHists() unsuccessful" << endmsg;
         }
         if (tb)
             tb->m_bench_algfin_checkHists.startMeasurement();
@@ -664,7 +664,7 @@ stop()
         if (tb)
             tb->m_bench_algfin_checkHists.finishMeasurement();
         if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::checkHists() unsuccessful" << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::checkHists() unsuccessful" << endmsg;
         }
         if (tb)
             tb->m_bench_algfin_convertLWHists.startMeasurement();
@@ -672,15 +672,15 @@ stop()
         if (tb)
             tb->m_bench_algfin_convertLWHists.finishMeasurement();
         if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::convertLWHists() unsuccessful" << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::convertLWHists() unsuccessful" << endmsg;
         }
         if (tb)
             tb->report(this);
         m_d->toolAudEnd();
     }
     if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::finalHists() and IMonitorToolBase::checkHists()" << endreq;
-        msg(MSG::DEBUG) << "  --> Exiting successfully" << endreq;
+        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::finalHists() and IMonitorToolBase::checkHists()" << endmsg;
+        msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
     }
     return StatusCode::SUCCESS;
 }
@@ -691,7 +691,7 @@ AthenaMonManager::
 beginRun()
 {
     Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::beginRun():" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::beginRun():" << endmsg;
 
     StatusCode sc;
     sc.setChecked();
@@ -710,13 +710,13 @@ beginRun()
             tb->m_bench_algexec_bookHists += bench_tmp;
         }
         if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::bookHists() unsuccessful" << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::bookHists() unsuccessful" << endmsg;
         }
         m_d->toolAudEnd();
     }
     if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::bookHists()" << endreq;
-        msg(MSG::DEBUG) << "  --> Exiting successfully" << endreq;
+        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::bookHists()" << endmsg;
+        msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
     }
 
     return StatusCode::SUCCESS;
@@ -728,7 +728,7 @@ AthenaMonManager::
 endRun()
 {
     Imp::LWHistLeakChecker lc(m_d);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::endRun():" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::endRun():" << endmsg;
 
     StatusCode sc;
     sc.setChecked();
@@ -739,13 +739,13 @@ endRun()
         m_d->toolAudStart(tool);
         sc = tool->runStat();
         if( !sc.isSuccess() ) {
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::runStat() unsuccessful" << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "IMonitorToolBase::runStat() unsuccessful" << endmsg;
         }
         m_d->toolAudEnd();
     }
     if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::runStat()" << endreq;
-        msg(MSG::DEBUG) << "  --> Exiting successfully" << endreq;
+        msg(MSG::DEBUG) << "  --> Done calling IMonitorToolBase::runStat()" << endmsg;
+        msg(MSG::DEBUG) << "  --> Exiting successfully" << endmsg;
     }
     return StatusCode::SUCCESS;
 }
@@ -839,7 +839,7 @@ writeAndDeleteLWHist( const std::string& key, const std::string& streamName )
                 StatusCode sc = m_THistSvc->deReg( h );
                 if( !sc.isSuccess() )
                 {
-                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
+                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endmsg;
                 }
 
                 m_d->m_objMapLW.erase( iLW );
@@ -898,7 +898,7 @@ writeAndResetLWHist( const std::string& key, const std::string& streamName )
                 StatusCode sc = m_THistSvc->deReg( h );
                 if( !sc.isSuccess() )
                 {
-                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
+                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endmsg;
                 }
 
                 m_d->m_objMapLW.erase( iLW );
@@ -949,7 +949,7 @@ writeAndDelete( const std::string& key )
 
             StatusCode sc = m_THistSvc->deReg( h );
             if( !sc.isSuccess() ) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
+                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endmsg;
             }
             delete o;
             gROOT->SetMustClean(doRecursiveReferenceDelete);
@@ -972,7 +972,7 @@ setEventInfo()
         StatusCode sc = evtStore()->retrieve( evt, evtEnd );
 
         if( !sc.isSuccess() ) {
-            msg(MSG::ERROR) << "!! Unable to retrieve Event from StoreGate !!" << endreq;
+            msg(MSG::ERROR) << "!! Unable to retrieve Event from StoreGate !!" << endmsg;
             return;
         }
 
@@ -980,7 +980,7 @@ setEventInfo()
         Imp::s_lumiBlock = evt->event_ID()->lumi_block();
 
         if (msgLvl(MSG::DEBUG))
-            msg(MSG::DEBUG) << "          --> setEventInfo: run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endreq;
+            msg(MSG::DEBUG) << "          --> setEventInfo: run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;
 
     }
 }

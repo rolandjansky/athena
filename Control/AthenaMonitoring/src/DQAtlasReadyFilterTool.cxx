@@ -54,7 +54,7 @@ StatusCode DQAtlasReadyFilterTool::updateCache() {
   return StatusCode::SUCCESS;
 }
         
-bool DQAtlasReadyFilterTool::accept() {
+bool DQAtlasReadyFilterTool::accept() const {
   if (m_alwaysReturnTrue) {
     return true;
   } else {

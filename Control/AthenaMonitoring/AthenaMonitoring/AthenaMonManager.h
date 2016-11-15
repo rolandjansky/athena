@@ -45,7 +45,7 @@ class AthenaMonManager : public AthAlgorithm {
        * transform or during the ESD --> AOD transform (but not both!)
        * Strings of the same names may be given as jobOptions.
        */
-      enum Environment_t { user = 0, noOutput, online, tier0, tier0Raw, tier0ESD, altprod, AOD };
+      enum Environment_t { user = 0, noOutput, online, tier0, tier0Raw, tier0ESD, AOD, altprod };
 
       /**
        * An enumeration of the different types of data the

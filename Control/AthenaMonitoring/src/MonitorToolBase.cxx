@@ -61,7 +61,7 @@ MonitorToolBase::~MonitorToolBase()
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "destructor has been called" << endreq;
+  log << MSG::INFO << "destructor has been called" << endmsg;
 }
 
 /*---------------------------------------------------------*/
@@ -76,7 +76,7 @@ MonitorToolBase::getStreamName(unsigned int number, bool useDefault /* =true */ 
       {
 	MsgStream log(msgSvc(), name ());
 	log << MSG::ERROR
-	    << "Could not setup Outputstreams !" << endreq;
+	    << "Could not setup Outputstreams !" << endmsg;
       }
   
   // valid entry in vector ?
@@ -103,7 +103,7 @@ MonitorToolBase::getStreamName(std::string stream, bool useDefault /* = true */ 
       {
 	MsgStream log(msgSvc(), name ());
 	log << MSG::ERROR
-	    << "Could not setup Outputstreams !" << endreq;
+	    << "Could not setup Outputstreams !" << endmsg;
       }
   
   // valid entry in map ?
@@ -145,7 +145,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	{
 	  log << MSG::ERROR
 	      << "No '/' found in StreamName " << *itr
-	      << " ! Will not use this stream !" << endreq;
+	      << " ! Will not use this stream !" << endmsg;
 	  itr = m_THistSvc_streamnameMapping.erase(itr);
 	  continue;
 	}
@@ -160,7 +160,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	      << iter->first << iter->second << "\" with \""
 	      << itr->substr(0,location)
 	      << itr->substr(location) << "\" !!"
-	      << endreq;
+	      << endmsg;
 	  iter->second=itr->substr(location);
 	}else{
 	  m_map_THistSvc_streamnames[itr->substr(0,location)]=itr->substr(location);
@@ -173,7 +173,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
     {
       log << MSG::INFO
 	  << "Using following mapping of mnemonics to streams (in alphabetical order):"
-	  << endreq;
+	  << endmsg;
       for( map_type::const_iterator iter = m_map_THistSvc_streamnames.begin();
 	   iter != m_map_THistSvc_streamnames.end(); iter++ )
 	log << MSG::INFO 
@@ -181,7 +181,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	    << iter->first << " writes to "
 	    << std::setw(20)
 	    << iter->second
-	    << endreq;
+	    << endmsg;
     }
   // don't call again
   m_setupStreamMap=true;
@@ -223,7 +223,7 @@ StatusCode MonitorToolBase::finalHists() // Default finalHists(): do nothing.
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "default finalHists() called." << endreq;
+  log << MSG::INFO << "default finalHists() called." << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -243,9 +243,9 @@ StatusCode MonitorToolBase::checkHists(bool fromFinalize) // Default checkHists(
     log.setFormat(m_FormatString);
   
   if(fromFinalize)
-    log << MSG::INFO << "default checkHists() called from finalize()." << endreq;
+    log << MSG::INFO << "default checkHists() called from finalize()." << endmsg;
   else
-    log << MSG::INFO << "default checkHists() called periodically." << endreq;
+    log << MSG::INFO << "default checkHists() called periodically." << endmsg;
   return StatusCode::SUCCESS;
 }
 /*---------------------------------------------------------*/
@@ -256,7 +256,7 @@ IHistogramSvc* MonitorToolBase::ToolHistoSvc()
  
   StatusCode sc = service("HistogramDataSvc",m_histsvc, true);
   if( sc.isFailure() ) {
-    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endreq;
+    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endmsg;
   }
 
   return m_histsvc;
@@ -269,7 +269,7 @@ ITHistSvc* MonitorToolBase::ToolRootHistSvc()
  
   StatusCode sc = service("THistSvc",m_rootsvc, true);
   if( sc.isFailure() ) {
-    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endreq;
+    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endmsg;
   }
   
   return m_rootsvc;
