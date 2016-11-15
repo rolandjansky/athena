@@ -48,3 +48,16 @@ apply_pattern lcgdict dict=DataModelTestDataWrite selectionfile=selection.xml\
   headerfiles="../DataModelTestDataWrite/DataModelTestDataWriteDict.h" \
   elementLinks="$(elemLinks_DataModelTestDataWrite)" \
   extralibfiles=../src/dict/*.cxx
+
+
+private
+use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
+
+
+apply_tag no_merge_componentslist
+
+apply_pattern sercnv \
+ typesWithNamespace="DMTest::HVec DMTest::HView DMTest::HAuxContainer" \
+ files=" -s=${DataModelTestDataWrite_root}/DataModelTestDataWrite \
+             HVec.h HView.h HAuxContainer.h "
+

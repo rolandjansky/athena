@@ -18,19 +18,17 @@
 namespace DMTest {
 
 
-StatusCode recordView1 (StoreGateSvc* svc,
-                        std::unique_ptr<ConstDataVector<ViewVector<DMTest::CVec> > > view,
-                        const std::string& key)
+StatusCode recordView1 (SG::WriteHandle<ConstDataVector<ViewVector<DMTest::CVec> > >& h,
+                        std::unique_ptr<ConstDataVector<ViewVector<DMTest::CVec> > > view)
 {
-  return svc->record (std::move(view), key, false);
+  return h.record (std::move (view));
 }
 
 
-StatusCode recordView2 (StoreGateSvc* svc,
-                        std::unique_ptr<DMTest::HVec> view,
-                        const std::string& key)
+StatusCode recordView2 (SG::WriteHandle<ViewVector<DMTest::HVec> >& h,
+                        std::unique_ptr<ViewVector<DMTest::HVec> > view)
 {
-  return svc->record (std::move(view), key, false);
+  return h.record (std::move (view));
 }
 
 
