@@ -38,8 +38,8 @@ class IRPC_DCSConditionsTool: virtual public IAlgTool,
  
    
   
-   virtual const std::vector<Identifier>& deadPanelId()=0;
-   virtual const std::vector<Identifier>& offPanelId()=0;
+   virtual const std::vector<Identifier>& deadPanelId() const=0;
+   virtual const std::vector<Identifier>& offPanelId() const=0;
     
   
 };

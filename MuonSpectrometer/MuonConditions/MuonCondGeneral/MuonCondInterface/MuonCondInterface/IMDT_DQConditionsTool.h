@@ -37,10 +37,10 @@ class IMDT_DQConditionsTool: virtual public IAlgTool,
    virtual StatusCode loadNoisyChamber(IOVSVC_CALLBACK_ARGS) = 0;
 
    //   virtual const std::vector<std::string>& deadTubes()=0;     
-   virtual const std::vector<Identifier>& deadTubesId()=0;  
-   virtual const std::vector<Identifier>& deadMultiLayersId()=0;  
-   virtual const std::vector<Identifier>& deadLayersId()=0;  
-   virtual const std::vector<Identifier>& List_Chambers_with_deadTube()=0;
+   virtual const std::vector<Identifier>& deadTubesId() const=0;  
+   virtual const std::vector<Identifier>& deadMultiLayersId() const=0;  
+   virtual const std::vector<Identifier>& deadLayersId() const=0;  
+   virtual const std::vector<Identifier>& List_Chambers_with_deadTube() const=0;
 };
 
 

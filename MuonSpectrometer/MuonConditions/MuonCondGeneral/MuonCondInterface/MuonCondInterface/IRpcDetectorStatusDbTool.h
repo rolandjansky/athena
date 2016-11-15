@@ -26,20 +26,20 @@ class IRpcDetectorStatusDbTool: virtual public IAlgTool,
   static const InterfaceID& interfaceID() {return IID_IRpcDetectorStatusDbTool;};
   
  
-  virtual const std::vector<Identifier>&  EffPanelId()=0 ;
-  virtual const std::vector<Identifier>&  EffStripId()=0 ;
+  virtual const std::vector<Identifier>&  EffPanelId() const=0 ;
+  virtual const std::vector<Identifier>&  EffStripId() const=0 ;
   
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap()=0              ; 
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap()=0           ; 
-  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap()=0         ; 
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map()=0        ; 
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map()=0        ; 
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map()=0        ; 
-  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap()=0           ; 
-  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap()=0           ; 
-  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap()=0         ;  
-  virtual const std::map<Identifier,        int>& RPC_DeadStripList()=0              ; 
-  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip()=0      ;	
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap() const=0              ; 
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap() const=0           ; 
+  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap() const=0         ; 
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map() const=0        ; 
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map() const=0        ; 
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map() const=0        ; 
+  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap() const=0           ; 
+  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap() const=0           ; 
+  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap() const=0         ;  
+  virtual const std::map<Identifier,        int>& RPC_DeadStripList() const=0              ; 
+  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip() const=0      ;	
 };
 
  

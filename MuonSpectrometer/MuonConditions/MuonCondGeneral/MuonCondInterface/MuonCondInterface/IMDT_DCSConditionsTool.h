@@ -42,10 +42,10 @@ class IMDT_DCSConditionsTool: virtual public IAlgTool,
    virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) = 0;
    virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS) = 0;
     virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS) = 0;
-   virtual const std::vector<std::string>& deadStations()=0;
-   virtual const std::vector<Identifier>& deadStationsId()=0;
+   virtual const std::vector<std::string>& deadStations() const=0;
+   virtual const std::vector<Identifier>& deadStationsId() const=0;
    //virtual const std::vector<std::string>& deadMultiLayer()=0;
-   virtual const std::vector<Identifier>& deadMultiLayersId()=0;
+   virtual const std::vector<Identifier>& deadMultiLayersId() const=0;
   
 };
 

@@ -33,9 +33,9 @@ class IMDT_DeadTubeConditionsTool: virtual public IAlgTool,
 
    
    virtual StatusCode loadDeadTube(IOVSVC_CALLBACK_ARGS) = 0;
-   virtual const std::vector<std::string>& deadTubes()=0;     
-   virtual const std::vector<Identifier>& deadTubesId()=0;  
-   virtual const std::vector<Identifier>& List_Chambers_with_deadTube()=0;
+   virtual const std::vector<std::string>& deadTubes() const=0;     
+   virtual const std::vector<Identifier>& deadTubesId() const=0;  
+   virtual const std::vector<Identifier>& List_Chambers_with_deadTube() const=0;
 };
 
 

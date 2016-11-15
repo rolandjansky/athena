@@ -35,7 +35,7 @@ class IMuonAlignmentErrorDbTool: virtual public IAlgTool,
    
    virtual StatusCode loadAlignmentError(IOVSVC_CALLBACK_ARGS) = 0;
 
-   virtual const std::string& errorValue()=0;
+   virtual const std::string& errorValue() const=0;
 };
 
 
