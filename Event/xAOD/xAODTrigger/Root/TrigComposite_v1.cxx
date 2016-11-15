@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.cxx 761887 2016-07-14 13:16:16Z tbold $
+// $Id: TrigComposite_v1.cxx 784384 2016-11-15 16:37:49Z tamartin $
 
 // System include(s):
 #include <algorithm>
@@ -188,8 +188,6 @@ namespace xAOD {
      return status;
    }
 
-
-
    bool TrigComposite_v1::getDetail( const std::string& name,
                                      std::vector< float >& value ) const {
 
@@ -226,6 +224,11 @@ namespace xAOD {
       // The check itself is pretty simple:
       const std::vector< std::string >& names = accNames( *this );
       return ( std::find( names.begin(), names.end(), name ) != names.end() );
+   }
+
+   bool TrigComposite_v1::hasObjectCollectionLinks( const std::string& collectionName ) const {
+      const std::string mangledName = collectionName + m_collectionSuffix;
+      return hasObjectLink( mangledName );
    }
 
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.icc 761887 2016-07-14 13:16:16Z tbold $
+// $Id: TrigComposite_v1.icc 784388 2016-11-15 17:08:58Z tamartin $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
 
@@ -44,6 +44,12 @@ namespace xAOD {
    return temp; // RVO
   }
 
+  template<typename TYPE>
+  std::pair<bool, TYPE> TrigComposite_v1::returnDetail( const std::string& name ) const {
+    TYPE temp;
+    bool result = getDetail(name, temp);
+    return std::make_pair(result, temp);
+  }
 
    template< class CONTAINER >
    bool
@@ -144,6 +150,58 @@ namespace xAOD {
                 << "detected" << std::endl;
       return 0;
    }
+
+  template< class CONTAINER >
+  bool
+  TrigComposite_v1::addObjectCollectionLink( const std::string& collectionName,
+                                             const ElementLink< CONTAINER >& link ) {
+
+    // No method currently provided to update or check for uniqueness of a link
+    // being added to a container.
+
+    // Add a new object:
+    const std::string mangledName = collectionName + m_collectionSuffix;
+    linkColNamesNC().push_back( mangledName );
+    linkColKeysNC().push_back( link.key() );
+    linkColIndicesNC().push_back( link.index() );
+    linkColClidsNC().push_back( ClassID_traits< CONTAINER >::ID() );
+    return true;
+  }
+
+  template< class CONTAINER >
+  bool
+  TrigComposite_v1::addObjectCollectionLinks( const std::string& collectionName,
+                                              const ElementLinkVector< CONTAINER >& links ) {
+    // Add all links
+    for (const ElementLink< CONTAINER >& link : links ) {
+      addObjectCollectionLink( collectionName, link );
+    }
+    return true;
+  }
+
+  template< class CONTAINER >
+  ElementLinkVector< CONTAINER >
+  TrigComposite_v1::objectCollectionLinks( const std::string& collectionName ) const {
+    ElementLinkVector< CONTAINER > links;
+    const std::string mangledName = collectionName + m_collectionSuffix;
+
+    const std::vector< std::string >& names = linkColNames();
+    for( size_t i = 0; i < names.size(); ++i ) {
+       if( names[ i ] != mangledName ) continue;
+       // Check that it is of the right type:
+       if( linkColClids()[ i ] != ClassID_traits< CONTAINER >::ID() ) {
+          const std::string typeName =
+             SG::normalizedTypeinfoName( typeid( CONTAINER ) );
+          throw std::runtime_error( "xAOD::TrigComposite::objectCollectionLinks: "
+                                    "Wrong type (" + typeName + ") requested "
+                                    "for collection name \"" + collectionName + "\"" );
+       }
+       // Construct and add the link:
+       links.push_back( ElementLink< CONTAINER >(linkColKeys()[ i ],
+                                                 linkColIndices()[ i ]) );
+     }
+     return std::move(links);
+  }
 
 } // namespace xAOD
 
