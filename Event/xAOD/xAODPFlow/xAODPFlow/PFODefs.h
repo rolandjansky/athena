@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFODefs.h 745308 2016-05-06 14:39:05Z mhodgkin $
+// $Id: PFODefs.h 784235 2016-11-15 10:51:31Z mhodgkin $
 #ifndef XAODPFLOW_PFODEFS_H
 #define XAODPFLOW_PFODEFS_H
 
@@ -141,7 +141,10 @@ namespace PFODetails
     CaloCluster = 0,
     Track,
     TauShot,
-    HadronicCalo
+    HadronicCalo,
+    ChargedPFO,
+    NeutralPFO,
+    TauTrack
   };
 
   /** This enum is used to label the lepton type of the neutral PFO */

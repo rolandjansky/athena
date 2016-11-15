@@ -3,6 +3,8 @@
 */
 
 
+// -*-c++-*-
+
 #include "xAODPFlow/versions/PFOAttributesAccessor_v1.h"
 
 namespace xAOD{
@@ -38,6 +40,14 @@ namespace xAOD{
       anAttribute = acc(*this);
       return true;
     }
+  }
+
+  template<class T> void PFO_v1::convertLink(ElementLink<IParticleContainer>& IParticleLink, const ElementLink<T>& templateLink) {
+   ElementLink<T> tempLink;
+   tempLink.setElement(*templateLink);
+   tempLink.setStorableObject(templateLink.getStorableObjectRef());
+   tempLink.toPersistent();
+   IParticleLink.resetWithKeyAndIndex( tempLink.persKey(), tempLink.persIndex() ); 
   }
 
   

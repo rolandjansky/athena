@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAttributesAccessor_v1.h 745308 2016-05-06 14:39:05Z mhodgkin $
+// $Id: PFOAttributesAccessor_v1.h 784235 2016-11-15 10:51:31Z mhodgkin $
 #ifndef PFOATTRIBUTESACCESSOR_H
 #define PFOATTRIBUTESACCESSOR_H
 
@@ -158,6 +158,12 @@ namespace xAOD{
 	return true;
       case PFODetails::HadronicCalo:
         stringName = "pfo_TauShotLinks";
+      case PFODetails::ChargedPFO:
+	stringName = "pfo_Charged";
+      case PFODetails::NeutralPFO:
+	stringName = "pfo_Neutral";
+      case PFODetails::TauTrack:
+	stringName = "pfo_TauTrack";
       }//switch
       return false;
     }//getValue
