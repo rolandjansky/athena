@@ -33,11 +33,11 @@ class ICSC_DCSConditionsTool: virtual public IAlgTool,
    
    virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) = 0;
    virtual StatusCode loadchamber(IOVSVC_CALLBACK_ARGS) = 0;
-   virtual const std::vector<Identifier>& deadStationsId()=0;
-   virtual const std::vector<Identifier>& deadWireLayersId()=0;
+   virtual const std::vector<Identifier>& deadStationsId() const=0;
+   virtual const std::vector<Identifier>& deadWireLayersId() const=0;
 
-   virtual const std::vector<std::string>& deadStations()=0;
-   virtual const std::vector<std::string>& deadWireLayers()=0;
+   virtual const std::vector<std::string>& deadStations() const=0;
+   virtual const std::vector<std::string>& deadWireLayers() const=0;
   
 };
 
