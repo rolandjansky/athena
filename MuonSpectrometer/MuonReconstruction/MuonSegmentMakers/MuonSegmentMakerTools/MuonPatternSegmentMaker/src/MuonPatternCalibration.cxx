@@ -218,7 +218,7 @@ namespace Muon {
       // do some magic to avoid problems at phi = 0 and 2*pi
       double phiStart = patdire.phi();
       double chPhi  = prd->detectorElement()->center().phi();
-      double pi = 3.14159265358979324;
+      double pi = M_PI;
       double phiRange = 0.75*pi;
       double phiRange2 = 0.25*pi;
       double phiOffset = 0.;
