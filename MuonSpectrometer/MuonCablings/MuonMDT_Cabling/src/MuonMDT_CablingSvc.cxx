@@ -443,7 +443,7 @@ StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 
 // initalize the map without using the callback
-StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback() const
+StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback()
 {
 
   msg(MSG::INFO) << "initMappingModel has been called" << endmsg;
