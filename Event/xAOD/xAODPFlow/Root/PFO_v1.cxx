@@ -27,6 +27,15 @@ namespace xAOD {
       case PFODetails::HadronicCalo:
 	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_ts("pfo_TauShotLinks");
 	return &acc_ts;
+      case PFODetails::ChargedPFO:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_cpfo("pfo_Charged");
+	return &acc_cpfo;
+      case PFODetails::NeutralPFO:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_npfo("pfo_Neutral");
+	return &acc_npfo;
+      case PFODetails::TauTrack:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_tt("pfo_TauTrack");
+	return &acc_tt;	
       }//switch
       return NULL;
     }//getAccessor
@@ -504,38 +513,28 @@ namespace xAOD {
   }
 
   bool PFO_v1::setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink){
-    // ElementLink< xAOD::VertexContainer > tempVertexLink;
-
-    // if (theVertexLink.isValid()){
-    //   tempVertexLink.setElement(*theVertexLink);
-    //   tempVertexLink.setStorableObject(theVertexLink.getStorableObjectRef());
-    //   tempVertexLink.toPersistent();
-    // }
     const static Accessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
     acc(*this) = theVertexLink;
     acc(*this).toPersistent();
     return true;
   }
-  
 
   bool PFO_v1::setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack){
-    ElementLink< xAOD::TrackParticleContainer > tempTrackLink;
-    tempTrackLink.setElement(*theTrack);
-    tempTrackLink.setStorableObject(theTrack.getStorableObjectRef());
-    tempTrackLink.toPersistent();
     ElementLink< xAOD::IParticleContainer > myTrackLink;
-    myTrackLink.resetWithKeyAndIndex( tempTrackLink.persKey(), tempTrackLink.persIndex() ); 
+    this->convertLink(myTrackLink,theTrack);
     return this->setAssociatedParticleLink(PFODetails::Track, myTrackLink);
   }
 
-   bool PFO_v1::setClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster){
-     ElementLink< xAOD::CaloClusterContainer > tempClusterLink;
-     tempClusterLink.setElement(*theCluster);
-     tempClusterLink.setStorableObject(theCluster.getStorableObjectRef());
-     tempClusterLink.toPersistent();
+  bool PFO_v1::setClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster){
      ElementLink< xAOD::IParticleContainer > myClusterLink;
-     myClusterLink.resetWithKeyAndIndex( tempClusterLink.persKey(), tempClusterLink.persIndex() ); 
+     this->convertLink(myClusterLink,theCluster);
      return this->setAssociatedParticleLink(PFODetails::CaloCluster, myClusterLink);
+  }
+
+  bool PFO_v1::addClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster){
+    ElementLink< xAOD::IParticleContainer > myClusterLink;
+    this->convertLink(myClusterLink,theCluster);
+    return this->addAssociatedParticleLink(PFODetails::CaloCluster, myClusterLink);
   }
 
   bool PFO_v1::setAssociatedParticleLink(PFODetails::PFOParticleType ParticleType, const ElementLink<IParticleContainer>& theParticle){
@@ -548,6 +547,35 @@ namespace xAOD {
     this->setAssociatedParticleLinks(ParticleType,theLinks);
   }
 
+  bool PFO_v1::addAssociatedParticleLink(PFODetails::PFOParticleType ParticleType,  const ElementLink<IParticleContainer>& theParticle) {
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    if (!p_acc) return false;
+    else{
+      if (!p_acc->isAvailable(*this)) return false;
+      else{
+	std::vector<ElementLink<IParticleContainer> > storedContainer = (*p_acc)(*this);
+	storedContainer.push_back(theParticle);
+	(*p_acc)(*this) = storedContainer;
+	return true;
+      }
+    }
+  }
+
+  void PFO_v1::addAssociatedParticleLink(const std::string& ParticleType, const ElementLink<IParticleContainer>& theParticle) {
+
+    Accessor<std::vector<ElementLink<IParticleContainer > > > acc(ParticleType);
+    std::vector<ElementLink<IParticleContainer> > storedContainer = acc(*this);
+
+    ElementLink<xAOD::IParticleContainer> newLink;
+    newLink.setElement(*theParticle);
+    newLink.setStorableObject(theParticle.getStorableObjectRef());
+    newLink.toPersistent();
+    storedContainer.push_back(newLink);
+
+    acc(*this) = storedContainer;
+    
+  }
+  
   bool PFO_v1::setAssociatedParticleLinks(PFODetails::PFOParticleType ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) {
 
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
@@ -577,7 +605,6 @@ namespace xAOD {
 
   }
 
-
   void PFO_v1::setAssociatedParticleLinks(const std::string& ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) {
 
     //Given we do not know in advance in the POOL convertors about these containers, we set toPersistent() internally here.
@@ -585,11 +612,9 @@ namespace xAOD {
     std::vector<ElementLink<IParticleContainer> > storedContainer;
     std::vector<ElementLink<IParticleContainer> >::const_iterator firstParticle = theParticles.begin();
     for (; firstParticle != theParticles.end(); ++firstParticle){
-      ElementLink<xAOD::IParticleContainer> newLink;
-      newLink.setElement(**firstParticle);
-      newLink.setStorableObject((*firstParticle).getStorableObjectRef());
-      newLink.toPersistent();
-      storedContainer.push_back(newLink);
+      ElementLink<xAOD::IParticleContainer> myLink = *firstParticle;
+      myLink.toPersistent();
+      storedContainer.push_back( myLink );
     }
 
     Accessor<std::vector<ElementLink<IParticleContainer > > > acc(ParticleType);

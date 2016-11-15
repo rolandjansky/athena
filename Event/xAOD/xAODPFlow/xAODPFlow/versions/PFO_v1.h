@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFO_v1.h 744541 2016-05-03 15:55:30Z krasznaa $
+// $Id: PFO_v1.h 783497 2016-11-10 15:00:53Z mhodgkin $
 #ifndef XAODPFLOW_VERSIONS_PFO_V1_H
 #define XAODPFLOW_VERSIONS_PFO_V1_H
 
@@ -128,16 +128,25 @@ namespace xAOD {
 
     /** Set a vertex link */
     bool setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink);
-    
-    /** Set a track constituent */
-    bool setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack);
-    /** Set a cluster constituent */
-    bool setClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster);
-    /** Set an IParticle constituent via enum */
-    bool setAssociatedParticleLink(PFODetails::PFOParticleType ParticleType, const ElementLink<IParticleContainer>& theParticle);
-    /** Set an IParticle constituent via string */
-    void setAssociatedParticleLink(const std::string& ParticleType, const ElementLink<IParticleContainer>& theParticle);
 
+    /** Convert a generic link to an IParticleLink - perhaps this will go in a dedicated helper tool? */
+    template<class T> void convertLink(ElementLink<IParticleContainer>& IParticleLink, const ElementLink<T>& templateLink);
+    
+    /** Set a track constituent - does NOT append to existing container  */
+    bool setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack);
+    /** Set a cluster constituent - does NOT append to existing container  */
+    bool setClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster);
+    /** Add a cluster constituent  appends to existing container */
+    bool addClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster);
+    /** Set an IParticle constituent via enum - does NOT append to existing container */
+    bool setAssociatedParticleLink(PFODetails::PFOParticleType ParticleType, const ElementLink<IParticleContainer>& theParticle);
+    /** Set an IParticle constituent via string  - does NOT append to existing container */
+    void setAssociatedParticleLink(const std::string& ParticleType, const ElementLink<IParticleContainer>& theParticle);
+    /** Add an IParticle constituent via enum - appends to existing container */
+    bool addAssociatedParticleLink(PFODetails::PFOParticleType ParticleType,  const ElementLink<IParticleContainer>& theParticle);
+     /** Add an IParticle constituent via enum - appends to existing container */
+    void addAssociatedParticleLink(const std::string& ParticleType,  const ElementLink<IParticleContainer>& theParticle);
+    
     //switch to elementlinkvector
     /** Set a vector of PFO constituent particle types via enum - overwrite is allowed */
     bool setAssociatedParticleLinks(PFODetails::PFOParticleType ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) ;
