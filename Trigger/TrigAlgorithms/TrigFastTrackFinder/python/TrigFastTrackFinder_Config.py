@@ -21,11 +21,11 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('roi_nSPsPIX',
                                              type='TH1F',
                                              title="Number of Pixel SPs",
-                                             xbins = 500, xmin=-0.5, xmax=4999.5)]
+                                             xbins = 500, xmin=-0.5, xmax=49999.5)]
         self.Histograms += [ defineHistogram('roi_nSPsSCT',
                                              type='TH1F',
                                              title="Number of SCT SPs",
-                                             xbins = 500, xmin=-0.5, xmax=4999.5)]
+                                             xbins = 500, xmin=-0.5, xmax=49999.5)]
         self.Histograms += [ defineHistogram('roi_eta',
                                              type='TH1F',
                                              title="Eta of the input RoI",
@@ -97,7 +97,7 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('roi_nSeeds',
                                              type='TH1F',
                                              title="Number of seeds",
-                                             xbins = 1000, xmin=-0.5, xmax=999.5)]
+                                             xbins = 1000, xmin=-0.5, xmax=99999.5)]
         self.Histograms += [ defineHistogram('roi_nZvertices',
                                              type='TH1F',
                                              title="Number of z vertices",
@@ -106,6 +106,10 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="ZFinder Vertices",
                                              xbins = 501, xmin=-250, xmax=250)]
+        self.Histograms += [ defineHistogram('roi_nTrk_zVtx',
+                                             type='TH1F',
+                                             title="Ntrk ZFinder Vertices",
+                                             xbins = 100, xmin=-0.5, xmax=49.5)]
 
         #self.Histograms += [ defineHistogram('sp_x , sp_y',
         #                                     type='TH2F',
@@ -135,6 +139,26 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              title="Pure PattReco time",
                                              xbins = nbin , xmin=0.0, xmax=200.0)]
     def addResidualHistograms(self):
+        self.Histograms += [ defineHistogram('IBL_Layer',
+                                             type='TH1F',
+                                             title="IBL layer",
+                                             xbins = 10, xmin=0., xmax=10.)]
+        self.Histograms += [ defineHistogram('PixB_Layer',
+                                             type='TH1F',
+                                             title="Pixel Barrel layer",
+                                             xbins = 10, xmin=0., xmax=10.)]
+        self.Histograms += [ defineHistogram('PixEC_Layer',
+                                             type='TH1F',
+                                             title="Pixel Endcap layer",
+                                             xbins = 10, xmin=0., xmax=10.)]
+        self.Histograms += [ defineHistogram('SCTB_Layer',
+                                             type='TH1F',
+                                             title="SCT Barrel layer",
+                                             xbins = 10, xmin=0., xmax=10.)]
+        self.Histograms += [ defineHistogram('SCTEC_Layer',
+                                             type='TH1F',
+                                             title="SCT Endcap layer",
+                                             xbins = 10, xmin=0., xmax=10.)]
         self.Histograms += [ defineHistogram('hit_IBLPhiResidual',
                                              type='TH1F',
                                              title="IBL hit-track phi residual",
@@ -159,6 +183,30 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="Pixel Barrel hit-track eta residual",
                                              xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL1PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L1 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL1EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L1 hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL2PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L2 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL2EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L2 hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL3PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L3 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelL3EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel L3 hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
         self.Histograms += [ defineHistogram('hit_PIXBarrelPhiPull',
                                              type='TH1F',
                                              title="Pixel Barrel hit-track phi pull",
@@ -182,6 +230,30 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('hit_PIXEndCapEtaResidual',
                                              type='TH1F',
                                              title="Pixel EC hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL1PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L1 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL1EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L1 hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL2PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L2 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL2EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L2 hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL3PhiResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L3 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapL3EtaResidual',
+                                             type='TH1F',
+                                             title="Pixel EC L3 hit-track eta residual",
                                              xbins = 100, xmin=-1.0, xmax=1.0)]
         self.Histograms += [ defineHistogram('hit_PIXEndCapPhiPull',
                                              type='TH1F',
@@ -344,7 +416,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         else:
           #Spacepoint conversion
           from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
-          spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool' + remapped_type)
+          spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool_' + remapped_type)
           spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
           spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
           spTool.UseBeamTilt = False
@@ -448,8 +520,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
             ToolSvc += theTrigZFinder
             self.trigZFinder = theTrigZFinder
-
-        
+            self.doFastZVertexSeeding = True
+            self.zVertexResolution = 7.5
+          
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
