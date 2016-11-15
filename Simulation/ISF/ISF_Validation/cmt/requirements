@@ -5,7 +5,6 @@ manager John Chapman <chapman@hep.phy.cam.ac.uk>
 
 private
 use AtlasPolicy                 AtlasPolicy-*
-use AtlasReconstructionRunTime  AtlasReconstructionRunTime-*
 
 private
 use TestPolicy                  TestPolicy-*
