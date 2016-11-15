@@ -104,38 +104,38 @@ namespace Muon {
 
     // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
     m_selectors.resize(MuonStationIndex::ChIndexMax);
-    m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
-    m_selectors[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
-    m_selectors[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); // old values: 5.9
-    m_selectors[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
-    m_selectors[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
-    m_selectors[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 7.9 
+    m_selectors[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); // old values: 5.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
 
     m_selectorsLoose.resize(MuonStationIndex::ChIndexMax);
-    m_selectorsLoose[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 3.9
-    m_selectorsLoose[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
-    m_selectorsLoose[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
-    m_selectorsLoose[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 4.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 3.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
 
 
     // call handle in case of EndEvent

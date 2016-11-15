@@ -1691,10 +1691,8 @@ namespace Muon {
       for( ;iti!=iti_end;++iti ) {
 	// One seed selected
 	float tubeRadius=14.6;
-	std::string statname;
 	if((*iti).rot()){ //if no access to rot, can't do anything here
-	  statname=(*iti).rot()->detectorElement()->getStationType();
-	  if(statname.compare("BME")==0) tubeRadius=7.1;
+	  tubeRadius = (*iti).rot()->detectorElement()->innerTubeRadius();
 	}
 	for( int j = 7; j > i; j-- ) {
 	  if (layerHits.count(j) != 1) continue;    
