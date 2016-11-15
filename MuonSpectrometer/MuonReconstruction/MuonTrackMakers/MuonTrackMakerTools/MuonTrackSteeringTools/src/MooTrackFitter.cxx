@@ -1381,7 +1381,7 @@ namespace Muon {
 
     double phiStart = fitterData.etaHits.front()->globalPosition().phi();
     double phiOffset = 0.;
-    double pi = 3.14159265358979324;
+    double pi = M_PI;
     double phiRange = 0.75*pi;
     double phiRange2 = 0.25*pi;
     if( phiStart > phiRange || phiStart < -phiRange ) phiOffset = 2*pi;
@@ -2351,7 +2351,7 @@ namespace Muon {
       }
 
       ATH_MSG_DEBUG("detector element of station type "<<detEl->getStationType());
-      if(detEl->getStationType().compare("BME")==0) tubeRadius=7.1;
+      tubeRadius=detEl->innerTubeRadius();
 
       // calculate local AMDB position
       Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
