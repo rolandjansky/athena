@@ -235,8 +235,8 @@ namespace Muon {
     if( !tsos ) return false;
 
     // loop over hits
-    std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit = tsos->begin();
-    std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end = tsos->end();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = tsos->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = tsos->end();
     for( ;tsit!=tsit_end;++tsit ){
 
       // do not take into account scatteres and holes for now
@@ -279,7 +279,7 @@ namespace Muon {
       if( msgLvl(MSG::VERBOSE) ) {
 	msg(MSG::VERBOSE) << " inserting hit " << m_printer->print(*meas);
 	if( hitInfo.status == MuPatHit::Outlier ) msg(MSG::VERBOSE) << " Outlier";
-	msg(MSG::VERBOSE) << endreq;
+	msg(MSG::VERBOSE) << endmsg;
       }
       
       currentHitIt = insert(hitList,currentHitIt, hit);

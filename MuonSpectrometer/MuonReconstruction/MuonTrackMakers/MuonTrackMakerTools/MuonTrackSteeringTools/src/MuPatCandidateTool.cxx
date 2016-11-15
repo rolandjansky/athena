@@ -507,7 +507,7 @@ namespace Muon {
 	  msg(MSG::VERBOSE) << "   " << m_idHelperTool->toString((*clit)->identify());
 	  
 	  // hack to get correct print-out
-	  if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endreq;
+	  if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endmsg;
 	  else                     msg(MSG::VERBOSE) << std::endl;
 	}
       }
@@ -577,18 +577,18 @@ namespace Muon {
       chambers.insert(m_idHelperTool->chamberIndex(id));
       
       if( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << " in recal " << m_idHelperTool->toString(id) << endreq;
+	msg(MSG::VERBOSE) << " in recal " << m_idHelperTool->toString(id) << endmsg;
       }
 
     }
     if( msgLvl(MSG::VERBOSE) ) {
       msg(MSG::VERBOSE) << " recalculateCandidateSegmentContent, old chambers " << candidate.chambers().size()
-	     << " new chambers " << chambers.size() << endreq;
+	     << " new chambers " << chambers.size() << endmsg;
       std::set<MuonStationIndex::ChIndex>::iterator chit = candidate.chambers().begin();
       std::set<MuonStationIndex::ChIndex>::iterator chit_end = candidate.chambers().end();
       for( ;chit!=chit_end;++chit ){
 	if( !chambers.count(*chit) ){
-	  msg(MSG::VERBOSE) << " removing chamber index from candidate " << MuonStationIndex::chName(*chit) << endreq;
+	  msg(MSG::VERBOSE) << " removing chamber index from candidate " << MuonStationIndex::chName(*chit) << endmsg;
 	}
       }
     }
@@ -604,7 +604,7 @@ namespace Muon {
     updateHits(candidate,candidate.track().measurementsOnTrack()->stdcont());
 
     if( msgLvl(MSG::VERBOSE) ){
-      msg(MSG::VERBOSE)  << m_hitHandler->print(candidate.hitList()) << endreq;
+      msg(MSG::VERBOSE)  << m_hitHandler->print(candidate.hitList()) << endmsg;
     }
 
     return bRemovedSegments;

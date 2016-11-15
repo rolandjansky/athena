@@ -97,7 +97,6 @@ namespace Muon {
     declareProperty("FitterPreFit",        m_trackFitterPrefit);
     declareProperty("SegmentMomentum",     m_momentumEstimator);
     declareProperty("HitTool",m_hitHandler);
-    declareProperty("MomentumEstimator",m_momentumEstimator);
     declareProperty("IdHelper",m_idHelperTool);
     declareProperty("MuonHelperTool",m_helperTool);
     declareProperty("MuonPrinterTool",m_printer);
@@ -306,7 +305,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
         msg(MSG::VERBOSE) << std::endl << m_printer->printMeasurements( track );
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
     // fit track
     Trk::Track* newTrack = m_trackFitter->fit(track,false,m_ParticleHypothesis);
@@ -511,7 +510,7 @@ namespace Muon {
     if( track ) ++m_counters.nsuccess;
     
     cleanUp();
-    if( msgLvl(MSG::DEBUG) && track ) msg(MSG::DEBUG) << MSG::DEBUG << " Track found " << endreq;
+    if( msgLvl(MSG::DEBUG) && track ) msg(MSG::DEBUG) << MSG::DEBUG << " Track found " << endmsg;
     return track;
   }
 
@@ -572,14 +571,14 @@ namespace Muon {
       if( fitterData.secondIsTrack ) msg(MSG::DEBUG) << " track ";
       else                           msg(MSG::DEBUG) << " segment ";
       msg(MSG::DEBUG) << fitterData.secondEntry->etaHits().size() << std::endl
-             << m_hitHandler->print(fitterData.secondEntry->hitList()) << endreq;
+             << m_hitHandler->print(fitterData.secondEntry->hitList()) << endmsg;
     }
 
     if( msgLvl(MSG::DEBUG) ) {
       msg(MSG::DEBUG) << MSG::DEBUG << " merged hit lists, new list size:  " << hitList.size();
-      if( usePrecise ) msg(MSG::DEBUG) << " using precise errors" << endreq;
+      if( usePrecise ) msg(MSG::DEBUG) << " using precise errors" << endmsg;
       if( msgLvl(MSG::VERBOSE) )  msg(MSG::DEBUG) << std::endl << m_hitHandler->print(hitList);
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
 
     return extractData( fitterData, usePrecise );
@@ -589,8 +588,8 @@ namespace Muon {
 
     if( msgLvl(MSG::DEBUG) ) {
       msg(MSG::DEBUG) << MSG::DEBUG << " extracting hits from hit list, using ";
-      if( usePreciseHits ) msg(MSG::DEBUG) << "precise measurements" << endreq;
-      else                 msg(MSG::DEBUG) << "broad measurements" << endreq;
+      if( usePreciseHits ) msg(MSG::DEBUG) << "precise measurements" << endmsg;
+      else                 msg(MSG::DEBUG) << "broad measurements" << endmsg;
     }
     
     MuPatHitList& hitList = fitterData.hitList;
@@ -625,7 +624,7 @@ namespace Muon {
       fitterData.stations.insert(stIndex);
       
       if( firstStation == MuonStationIndex::StUnknown ) {
-        if( msgLvl(MSG::VERBOSE) && !usePreciseHits && m_preciseFirstStation  ) msg(MSG::VERBOSE) << " Using precise errors for first station " << endreq;
+        if( msgLvl(MSG::VERBOSE) && !usePreciseHits && m_preciseFirstStation  ) msg(MSG::VERBOSE) << " Using precise errors for first station " << endmsg;
         firstStation = stIndex;
       }
 
@@ -699,21 +698,21 @@ namespace Muon {
 
     // require at least 6 measurements on a track
     if( fitterData.measurements.size() < 7 ){
-      if( msgLvl(MSG::VERBOSE) )  msg(MSG::VERBOSE) << " Too few measurements, cannot perform fit  " << fitterData.measurements.size() << endreq;
+      if( msgLvl(MSG::VERBOSE) )  msg(MSG::VERBOSE) << " Too few measurements, cannot perform fit  " << fitterData.measurements.size() << endmsg;
       return false;
     }
 
     // require at least 6 measurements on a track
     if( fitterData.etaHits.size() < 7 ){
-      if( msgLvl(MSG::VERBOSE) )  msg(MSG::VERBOSE) << " Too few eta measurements, cannot perform fit  " << fitterData.etaHits.size() << endreq;
+      if( msgLvl(MSG::VERBOSE) )  msg(MSG::VERBOSE) << " Too few eta measurements, cannot perform fit  " << fitterData.etaHits.size() << endmsg;
       return false;
     }
 
     if( msgLvl(MSG::DEBUG) ){
       msg(MSG::DEBUG) << MSG::DEBUG << " Extracted measurements: total " << fitterData.measurements.size() << "  eta " << fitterData.etaHits.size()
              << "  phi " << fitterData.phiHits.size();
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << std::endl << m_printer->print(fitterData.measurements) << endreq;
-      else            msg(MSG::DEBUG) << endreq;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << std::endl << m_printer->print(fitterData.measurements) << endmsg;
+      else            msg(MSG::DEBUG) << endmsg;
     }
 
 
@@ -731,7 +730,7 @@ namespace Muon {
           ( fitterData.firstEntry->phiHits().empty() || 
             (fitterData.firstEntry->containsChamber(MuonStationIndex::CSS) || 
              fitterData.firstEntry->containsChamber(MuonStationIndex::CSL) ) ) ){
-        if( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << MSG::DEBUG << " Special treatment of the forward region: adding fake at ip " << endreq;
+        if( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << MSG::DEBUG << " Special treatment of the forward region: adding fake at ip " << endmsg;
       }
       return true;
     }
@@ -770,10 +769,10 @@ namespace Muon {
 
       if( msgLvl(MSG::VERBOSE) ){
         if( fitterData.numberOfSLOverlaps() > 0 ){
-          if( fitterData.stations.size() == 1 ) msg(MSG::VERBOSE) << " one station fit with SL overlap, using overlapPos " << *overlapPos << endreq;
-          else                                  msg(MSG::VERBOSE) << " multi station fit with SL overlap, using overlapPos " << *overlapPos << endreq;
+          if( fitterData.stations.size() == 1 ) msg(MSG::VERBOSE) << " one station fit with SL overlap, using overlapPos " << *overlapPos << endmsg;
+          else                                  msg(MSG::VERBOSE) << " multi station fit with SL overlap, using overlapPos " << *overlapPos << endmsg;
         }else if(fitterData.numberOfSmallChambers() > 0 && fitterData.numberOfLargeChambers() > 0 ) {
-          msg(MSG::VERBOSE) << " multi station fit, SL overlap not in same station, using overlapPos " << *overlapPos << endreq;
+          msg(MSG::VERBOSE) << " multi station fit, SL overlap not in same station, using overlapPos " << *overlapPos << endmsg;
         }else ATH_MSG_WARNING(" Unknown overlap type " );
       }
     }
@@ -1247,7 +1246,7 @@ namespace Muon {
       if( fakePos ){
         msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperTool->toStringChamber( id ) 
                << "   locY " << ly
-               << "  errpr " << errPos << " phi " << fakePos->phi() << endreq;
+               << "  errpr " << errPos << " phi " << fakePos->phi() << endmsg;
         
         if( !shiftedPos && !overlapPos && phiPos && fakePos && fabs( phiPos->phi() - fakePos->phi() ) > 0.01 ){
 	  Amg::Transform3D gToLocal = meas.associatedSurface().transform().inverse();
@@ -1312,7 +1311,7 @@ namespace Muon {
              << " | nphi hits | distance | SL station overlaps | small ch | large ch | nphiConstraints " << std::endl
              << std::setw(12) <<  fitterData.phiHits.size() << std::setw(11) << (int)distance 
              << std::setw(22) << fitterData.numberOfSLOverlaps() << std::setw(11) << fitterData.numberOfSmallChambers()
-             << std::setw(11) << fitterData.numberOfLargeChambers() << std::setw(18) << nphiConstraints << endreq;
+             << std::setw(11) << fitterData.numberOfLargeChambers() << std::setw(18) << nphiConstraints << endmsg;
     }
 
     return nphiConstraints;
@@ -1382,7 +1381,7 @@ namespace Muon {
 
     double phiStart = fitterData.etaHits.front()->globalPosition().phi();
     double phiOffset = 0.;
-    double pi = 3.14159265358979324;
+    double pi = M_PI;
     double phiRange = 0.75*pi;
     double phiRange2 = 0.25*pi;
     if( phiStart > phiRange || phiStart < -phiRange ) phiOffset = 2*pi;
@@ -1942,7 +1941,7 @@ namespace Muon {
     if( msgLvl(MSG::DEBUG) ){
       msg(MSG::DEBUG) << MSG::DEBUG << std::setprecision(5) << " creating perigee: phi " << phi << " theta " << theta 
              << " q*mom " << perigee->charge()*perigee->momentum().mag() << " r " << perigee->position().perp()
-             << " z " << perigee->position().z() << " input q*mom " << firstPars.charge()*firstPars.momentum().mag() << endreq;
+             << " z " << perigee->position().z() << " input q*mom " << firstPars.charge()*firstPars.momentum().mag() << endmsg;
     }
     delete garbage;
     
@@ -1980,7 +1979,7 @@ namespace Muon {
              << " q*mom " << startPars.charge()*startPars.momentum().mag() << " r " << startPars.position().perp()
              << " z " << startPars.position().z() << std::endl
              << " start par is a perigee " << " partHypo " << partHypo;
-      msg(MSG::VERBOSE) << std::endl << m_printer->print(hits) << endreq;
+      msg(MSG::VERBOSE) << std::endl << m_printer->print(hits) << endmsg;
     }
 
 
@@ -2008,7 +2007,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
         msg(MSG::DEBUG) << std::endl << m_printer->print(hits);
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
     Trk::Track* track =  prefit ? 
       m_trackFitterPrefit->fit(hits,*pars,m_runOutlier,partHypo) :
@@ -2042,7 +2041,7 @@ namespace Muon {
             if ( msgLvl(MSG::VERBOSE) ) {
               msg(MSG::DEBUG) << std::endl << m_printer->print(hits);
             }
-            msg(MSG::DEBUG) << endreq;
+            msg(MSG::DEBUG) << endmsg;
           }
           Trk::Track* refittedTrack = m_trackFitter->fit(hits,*pp,false,m_ParticleHypothesis);
           if( refittedTrack ){
@@ -2136,7 +2135,7 @@ namespace Muon {
       for( ;rit!=rit_end;++rit ){
         msg(MSG::DEBUG) << std::endl << "   " << m_printer->print( **rit );
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
 
     // if available, extract additional phi hits from the road that were not on the entries
@@ -2166,7 +2165,7 @@ namespace Muon {
         for( ;pit!=pit_end; ++pit ) {
           msg(MSG::DEBUG) << "   " << m_printer->print( **pit );
           if( pit+1 != pit_end ) msg(MSG::DEBUG) << std::endl;
-          else                   msg(MSG::DEBUG) << endreq;
+          else                   msg(MSG::DEBUG) << endmsg;
         }
       }
     }
@@ -2352,7 +2351,7 @@ namespace Muon {
       }
 
       ATH_MSG_DEBUG("detector element of station type "<<detEl->getStationType());
-      if(detEl->getStationType().compare("BME")==0) tubeRadius=7.1;
+      tubeRadius=detEl->innerTubeRadius();
 
       // calculate local AMDB position
       Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
@@ -2440,7 +2439,7 @@ namespace Muon {
     std::set<Identifier>::iterator iit_end = removedIdentifiers.end();
     for( ;iit!=iit_end;++iit ){
       if( msgLvl(MSG::VERBOSE) ) {
-        msg(MSG::VERBOSE) << m_idHelperTool->toString( *iit ) << endreq;
+        msg(MSG::VERBOSE) << m_idHelperTool->toString( *iit ) << endmsg;
       }
       m_hitHandler->remove(*iit,fitterData.hitList);
     }
@@ -2509,7 +2508,7 @@ namespace Muon {
       if( (*tit)->type(Trk::TrackStateOnSurface::Perigee) && dynamic_cast<const Trk::Perigee*>(pars) ){
         ++nperigees;
         
-        if( msgLvl(MSG::DEBUG) && nperigees == 1 ) msg(MSG::DEBUG) << MSG::DEBUG << " found first perigee on track " << endreq;
+        if( msgLvl(MSG::DEBUG) && nperigees == 1 ) msg(MSG::DEBUG) << MSG::DEBUG << " found first perigee on track " << endmsg;
 
         // if this is the second perigee, switch to second part of the track
         if( nperigees == 2 ){
@@ -2569,12 +2568,12 @@ namespace Muon {
     if( msgLvl(MSG::DEBUG) ) {
 
       if( firstTrack.firstParameters )
-        msg(MSG::DEBUG) << MSG::DEBUG << " first track content: states " << firstTrack.tsos.size() << " stations " << firstTrack.stations.size() << endreq
-               << " first pars " << m_printer->print(*firstTrack.firstParameters) << endreq;
+        msg(MSG::DEBUG) << MSG::DEBUG << " first track content: states " << firstTrack.tsos.size() << " stations " << firstTrack.stations.size() << endmsg
+               << " first pars " << m_printer->print(*firstTrack.firstParameters) << endmsg;
 
       if( secondTrack.firstParameters )
-        msg(MSG::DEBUG) << MSG::DEBUG << " second track content: states " << secondTrack.tsos.size() << " stations " << secondTrack.stations.size() << endreq
-               << " first pars " << m_printer->print(*secondTrack.firstParameters) << endreq;
+        msg(MSG::DEBUG) << MSG::DEBUG << " second track content: states " << secondTrack.tsos.size() << " stations " << secondTrack.stations.size() << endmsg
+               << " first pars " << m_printer->print(*secondTrack.firstParameters) << endmsg;
     }
 
 

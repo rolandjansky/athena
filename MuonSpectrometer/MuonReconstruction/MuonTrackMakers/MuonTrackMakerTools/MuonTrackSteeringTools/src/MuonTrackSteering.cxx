@@ -624,7 +624,7 @@ namespace Muon {
 
       // Preprocessing step two : sort all layers' segments by quality
       for (unsigned int lit=0;lit<mySegColVec.size();++lit){
-        std::sort( mySegColVec[lit].begin() , mySegColVec[lit].end() , SortSegInfoByQuality() );
+        std::stable_sort( mySegColVec[lit].begin() , mySegColVec[lit].end() , SortSegInfoByQuality() );
       }
 
       if( m_doSummary || msgLvl(MSG::DEBUG) ){
@@ -640,7 +640,7 @@ namespace Muon {
           for (unsigned int lit=0;lit<mySegColVec.size();++lit)
             for (unsigned int sit=0;sit<mySegColVec[lit].size();++sit)
               msg(m_doSummary ? MSG::INFO : MSG::DEBUG) << std::endl << "  " << m_candidateTool->print(*(mySegColVec[lit])[sit]);
-          msg(m_doSummary ? MSG::INFO : MSG::DEBUG) << endreq;
+          msg(m_doSummary ? MSG::INFO : MSG::DEBUG) << endmsg;
         }
       }
 
@@ -657,7 +657,7 @@ namespace Muon {
         for (unsigned int lit=0;lit<mySegColVec.size();++lit){
           occupancy.push_back( std::pair<int,unsigned int>(mySegColVec[lit].size(),lit) );
         }
-        std::sort( occupancy.begin() , occupancy.end() );
+        std::stable_sort( occupancy.begin() , occupancy.end() );
         for (unsigned int lit=0;lit<occupancy.size();++lit){
           seeds.push_back( occupancy[lit].second );
         }
@@ -744,7 +744,7 @@ namespace Muon {
       // Post-processing : ambiguity resolution
       if(msgLvl(MSG::DEBUG) && result && !result->empty()){
         msg(MSG::DEBUG)  << "Initial track collection for strategy: " << strategy.getName()
-          << "  " << m_candidateTool->print(*result) << endreq;
+          << "  " << m_candidateTool->print(*result) << endmsg;
       }
 
       if( result && !result->empty()){
@@ -831,8 +831,8 @@ namespace Muon {
 
     // Output all the tracks that we are ending with
     if( resultAll && !resultAll->empty()){
-      if( m_doSummary ) ATH_MSG_INFO("Final Output : " << m_candidateTool->print(*resultAll) << endreq);
-      else              ATH_MSG_DEBUG("Final Output : " << m_candidateTool->print(*resultAll) << endreq);
+      if( m_doSummary ) ATH_MSG_INFO("Final Output : " << m_candidateTool->print(*resultAll) << endmsg);
+      else              ATH_MSG_DEBUG("Final Output : " << m_candidateTool->print(*resultAll) << endmsg);
     }
     TrackCollection* finalTrack = 0;
     if( resultAll && !resultAll->empty()){
@@ -1246,7 +1246,7 @@ namespace Muon {
     }
     if( msgLvl(MSG::DEBUG) ){
       ATH_MSG_DEBUG("From strat: " << strategy << " with success " << success << " end " << endIdx << " beg " << begIdx << " Name: " << name << " options: ");
-      for( std::vector<std::string>::iterator oit = options.begin(); oit != options.end(); ++oit ) msg(MSG::DEBUG) << "  " << *oit << endreq;
+      for( std::vector<std::string>::iterator oit = options.begin(); oit != options.end(); ++oit ) msg(MSG::DEBUG) << "  " << *oit << endmsg;
     }
     // Name and options successfully decoded, now decode the sequence and groups
     if (success) {
