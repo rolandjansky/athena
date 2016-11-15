@@ -27,7 +27,7 @@ void xx_print( const TriggerElement::FeatureVec& fe, const std::string& prefix) 
   TriggerElement::FeatureVec::const_iterator i;
   for ( i = fe.begin(); i != fe.end(); ++i ) {
     PCI (prefix << " " << *i );
-    //    log << prefix << " " << *i << endreq;
+    //    log << prefix << " " << *i << endmsg;
   }
 }
 */
@@ -161,15 +161,15 @@ void printObjects(MsgStream* mlog, const TriggerElement* cache, const TriggerEle
     std::string l2; 
     TrigConf::HLTTriggerElement::getLabel(cache->getId(), l2);
 
-    (*mlog) << MSG::DEBUG << "found objects in querried TE: " << l1 << " in already executed (cache): " << l2 << endreq;
+    (*mlog) << MSG::DEBUG << "found objects in querried TE: " << l1 << " in already executed (cache): " << l2 << endmsg;
     (*mlog) << MSG::DEBUG << "cache had : " <<cache->getPreviousFeatures().size() 
-	    << " while TE has: " << te->getPreviousFeatures().size() << endreq;
+	    << " while TE has: " << te->getPreviousFeatures().size() << endmsg;
     unsigned int i;
     for ( i = 0 ; i < te->getPreviousFeatures().size(); ++i ) {
       (*mlog) << MSG::DEBUG 
 	      << (te->getPreviousFeatures()[i] == cache->getPreviousFeatures()[i] ? "==": "!!")
 	      << "this TE " << te->getPreviousFeatures()[i] << " in cache: "  << cache->getPreviousFeatures()[i] 
-	      << endreq;
+	      << endmsg;
     }  
   }
 }
@@ -223,7 +223,7 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
   // No history... no future
   if(m_questions.empty()) {
     //    MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-    //    log << MSG::DEBUG << "No history available in this RoI, algorithms did not request any objecrs, safer not to cache" << endreq;
+    //    log << MSG::DEBUG << "No history available in this RoI, algorithms did not request any objecrs, safer not to cache" << endmsg;
     return false;
   }
 
@@ -326,7 +326,7 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
     
   }
   //     MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-  //     log << MSG::DEBUG << "history the same, yesss" << endreq;
+  //     log << MSG::DEBUG << "history the same, yesss" << endmsg;
   PCI("          History is the same - can cache");	
   return true; 
 }

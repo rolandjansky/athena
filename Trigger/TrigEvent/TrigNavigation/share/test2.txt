@@ -6,7 +6,7 @@ ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreG
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 ApplicationMgr.ExtSvc += { "ToolSvc" };
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
-StoreGateSvc.OutputLevel = 0;
+StoreGateSvc.OutputLevel = 1;
 StoreGateSvc.ActivateHistory = false;
 //CLIDSvc.OutputLevel = 1;
 //ClassIDSvc.OutputLevel = 1;
@@ -28,9 +28,10 @@ MessageSvc.useColors        = false;
 //Navigation.ReferenceAllClasses = 1
 //ApplicationMgr.DLLs += { "TrigCaloEvent" };
 ToolSvc.Navigation.ReferenceAllClasses = 1;
-ToolSvc.Navigation.ClassesToPreregister = {"TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#","TrigNavTest::TestBContainer#BContainer1", "TrigNavTest::TestBContainer#BContainer2", "TestDContainer#DContainer1"};
-//ToolSvc.Navigation.AuxClasses = {"TestAuxA#EverEmptyButPresent", "TrigNavTest::TestAuxB#BContainer2"};
+//ToolSvc.Navigation.ClassesToPreregister =
+//{"TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty",
+//"TestA#","TestBContainer#BContainer1", "TestBContainer#BContainer2"};
+//ToolSvc.Navigation.AuxClasses = {"TestAuxA#EverEmptyButPresent", "TestAuxB#BContainer2"};
 
 ToolSvc.Navigation.OutputLevel=1;
 Holder_test.OutputLevel=1;
-RoICache_test.OutputLevel=3;

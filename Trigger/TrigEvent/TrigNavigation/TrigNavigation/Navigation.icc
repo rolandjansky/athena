@@ -39,16 +39,16 @@ bool HLT::Navigation::attachFeature( TriggerElement* te, const T* feature,
   MLOG(DEBUG) << "attachFeature: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
 	      << " to TE: " << te->getId()
 	      << " label: \"" << label << "\""
-	      << " memory management: " << mmanagement <<  endreq;
+	      << " memory management: " << mmanagement <<  endmsg;
 
   // get a holder for this type --- if that's new it will be created
 
-  MLOG(VERBOSE) << "getting Holder for label: " << label << endreq;
+  MLOG(VERBOSE) << "getting Holder for label: " << label << endmsg;
   HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));
-  MLOG(VERBOSE) << "got Holder: " << holder << endreq;
+  MLOG(VERBOSE) << "got Holder: " << holder << endmsg;
 
   if ( ! holder ) {
-    MLOG(WARNING) << "attachFeature: Holder missing for CLID: " << clid << endreq;
+    MLOG(WARNING) << "attachFeature: Holder missing for CLID: " << clid << endmsg;
     return false;
   }
 
@@ -66,10 +66,10 @@ bool HLT::Navigation::associateExternalCollection(const std::string& label) {
   CLID clid = ClassID_traits<T>::ID();
   
   MLOG(DEBUG) << "associateExternalCollection: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
-	      << " label: \"" << label << "\"" <<  endreq;
+	      << " label: \"" << label << "\"" <<  endmsg;
   HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));    
   if ( ! holder ) { 
-    MLOG(WARNING) << "associateExternalCollection: Holder missing for CLID: " << clid << endreq;
+    MLOG(WARNING) << "associateExternalCollection: Holder missing for CLID: " << clid << endmsg;
     return false;
   }
   return true;
@@ -85,9 +85,9 @@ bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*
   if ( id != 0 ) {
     it      = m_factory.listOfProduced(id).begin();
     itEnd   = m_factory.listOfProduced(id).end();
-    MLOG(VERBOSE) << "findOwners will scann TEs of ID : " << id << " #: " << itEnd-it << endreq;
+    MLOG(VERBOSE) << "findOwners will scann TEs of ID : " << id << " #: " << itEnd-it << endmsg;
   } else {
-    MLOG(VERBOSE) << "findOwners will scann ALL TEs (slow):" << itEnd-it << endreq;
+    MLOG(VERBOSE) << "findOwners will scann ALL TEs (slow):" << itEnd-it << endmsg;
   }
 
   CLID clid = ClassID_traits<T>::ID();
@@ -97,13 +97,13 @@ bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*
   if(holders_of_clid.empty())
     return true;
 
-  MLOG(VERBOSE) << "findOwners features of this CLID present " << endreq;
+  MLOG(VERBOSE) << "findOwners features of this CLID present " << endmsg;
   bool holderFound = false;
   HLT::TriggerElement::ObjectIndex idx;
   for(auto holder : holders_of_clid ) {
     if ( holder->contains(obj, idx) ) {
       holderFound = true;
-      MLOG(VERBOSE) << "findOwners found holder owning the object " << *holder << " and index: " << idx << endreq;
+      MLOG(VERBOSE) << "findOwners found holder owning the object " << *holder << " and index: " << idx << endmsg;
       break;
     }
   }
@@ -121,7 +121,7 @@ bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*
       if ( featureAccessIt->getCLID() == clid &&
 	   featureAccessIt->getIndex().isSameOrWithin(&idx) ) {
 	owners.push_back(*it);
-	MLOG(VERBOSE) << "findOwners while looking in TE(id): " << *it <<"(" << (*it)->getId() << ")" << " and access helper " << featureAccessIt->getIndex() << " found owner " << endreq;	
+	MLOG(VERBOSE) << "findOwners while looking in TE(id): " << *it <<"(" << (*it)->getId() << ")" << " and access helper " << featureAccessIt->getIndex() << " found owner " << endmsg;	
 	break;
       }
     }

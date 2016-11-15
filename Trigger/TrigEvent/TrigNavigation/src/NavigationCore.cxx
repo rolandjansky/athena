@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <iterator> // remove it (it is here to help with debugging)
 
-#include <boost/lexical_cast.hpp>
 #include "GaudiKernel/IConversionSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "SGTools/DataBucketBase.h"
@@ -47,7 +46,7 @@ NavigationCore::NavigationCore()
 }
 
 NavigationCore::~NavigationCore() {
-  MLOG(VERBOSE) << "~NavigationCore: cleaning static type information" << endreq;
+  MLOG(VERBOSE) << "~NavigationCore: cleaning static type information" << endmsg;
   {
     HLT::TypeMaps::CLIDtoTypeProxyMap::iterator it;
     for ( it = HLT::TypeMaps::proxies().begin(); it != HLT::TypeMaps::proxies().end(); ++it ) {
@@ -118,26 +117,26 @@ HLT::TrigEDMSizes* NavigationCore::retrieveOrCreateTrigEDMSizes(const std::strin
   // this is an issue when running L2 and EF together in athena
   TrigEDMSizes* sizes(0);
   if ( m_storeGate->transientContains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name )) {
-    MLOG(DEBUG) << "A previously registered object of type = (HLT::TrigEDMSizes) and name = " << name << " was found in SG." << endreq;
+    MLOG(DEBUG) << "A previously registered object of type = (HLT::TrigEDMSizes) and name = " << name << " was found in SG." << endmsg;
     const TrigEDMSizes* sizesSG(0) ;
     if ( m_storeGate->retrieve(sizesSG, name).isFailure() ) {
-      MLOG(WARNING) << "There was an error when retrieving the old object of type = (HLT::TrigEDMSizes) and name = " << name << " from SG." << endreq;
+      MLOG(WARNING) << "There was an error when retrieving the old object of type = (HLT::TrigEDMSizes) and name = " << name << " from SG." << endmsg;
     } else {
       sizes = const_cast<TrigEDMSizes*>(sizesSG);
     }
   } else {
     if ( m_storeGate->contains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name) ) {
-      MLOG(DEBUG) << "An object of type = (HLT::TrigEDMSizes) and name = " << name << " accessible through SG was found." << endreq;
+      MLOG(DEBUG) << "An object of type = (HLT::TrigEDMSizes) and name = " << name << " accessible through SG was found." << endmsg;
       const TrigEDMSizes* sizesSG(0) ;
       if ( m_storeGate->retrieve(sizesSG, name).isFailure() ) {
-	MLOG(WARNING) << "There was an error when retrieving the object contained in SG of type = (HLT::TrigEDMSizes) and name = " << name << "." << endreq;
+	MLOG(WARNING) << "There was an error when retrieving the object contained in SG of type = (HLT::TrigEDMSizes) and name = " << name << "." << endmsg;
       } else {
 	sizes = const_cast<TrigEDMSizes*>(sizesSG);
       }
     } else {
       sizes = new TrigEDMSizes();
       m_storeGate->record(sizes, name).setChecked(); //
-      MLOG(DEBUG) << "A new object of type = (HLT::TrigEDMSizes) and name = " << name << " was registered in SG." << endreq;
+      MLOG(DEBUG) << "A new object of type = (HLT::TrigEDMSizes) and name = " << name << " was registered in SG." << endmsg;
     }
   }
   return sizes;
@@ -155,18 +154,18 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
   }
 
   if(!status){
-    MLOG(WARNING) << "holder serialization failed" << endreq;
+    MLOG(WARNING) << "holder serialization failed" << endmsg;
     return false;
   }
   
   status = serializeWithHolderSection(holderdata,holderblobsizes,output,cuts,clid_name);
 
   if(!status){
-    MLOG(WARNING) << "full serialization failed" << endreq;
+    MLOG(WARNING) << "full serialization failed" << endmsg;
     return false;
   }
 
-  MLOG(DEBUG) << "total size of serialized navigation: " << output.size() << endreq;
+  MLOG(DEBUG) << "total size of serialized navigation: " << output.size() << endmsg;
 
   return true;
 }
@@ -177,17 +176,17 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
 
   bool status = serializeHoldersWithPayload(m_classesToPayload_DSonly,holderdata,holderblobsizes,clid_name,true);
   if(!status){
-    MLOG(WARNING) << "holder serialization failed" << endreq;
+    MLOG(WARNING) << "holder serialization failed" << endmsg;
     return false;
   }
 
   status = serializeWithHolderSection(holderdata,holderblobsizes,output,cuts,clid_name);
   if(!status){
-    MLOG(WARNING) << "full serialization failed" << endreq;
+    MLOG(WARNING) << "full serialization failed" << endmsg;
     return false;
   }
   
-  MLOG(DEBUG) << "total size of serialized navigation (DS only): " << output.size() << endreq;
+  MLOG(DEBUG) << "total size of serialized navigation (DS only): " << output.size() << endmsg;
 
   return true;
 }
@@ -202,54 +201,54 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
 bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
   std::vector<uint32_t>::const_iterator inputIt = input.begin();
 
-  MLOG(DEBUG) << "deserialize: deserializing input of size:  " << input.size() << endreq;
+  MLOG(DEBUG) << "deserialize: deserializing input of size:  " << input.size() << endmsg;
 
 
   if (input.size()==0) {
-    MLOG(WARNING) << "Cannot work on empty payload" << endreq;
+    MLOG(WARNING) << "Cannot work on empty payload" << endmsg;
     return false;
   }
   unsigned int  version = *inputIt++; // ignore version
 
-  MLOG(DEBUG) << "deserialize: the serialized input has versions " << version << endreq;
+  MLOG(DEBUG) << "deserialize: the serialized input has versions " << version << endmsg;
 
   if ( version != 3 and version !=4  ) {
     MLOG(WARNING) << "No backward compatibility beyond version 3 possible; data was serialized with V: " << version
-                << " while we are in version 4" << endreq;
+                << " while we are in version 4" << endmsg;
     return true;
   }
-  MLOG(DEBUG) << "deserialize: deserialization of Navigation version: " << version << endreq;
+  MLOG(DEBUG) << "deserialize: deserialization of Navigation version: " << version << endmsg;
 
   unsigned int totalSize =  *inputIt++; // total size
   if ( totalSize != input.size() )
     MLOG(WARNING) << "deserialize: the navigation is truncated: " << input.size()
-                  << " while should be: " << totalSize  << endreq;
+                  << " while should be: " << totalSize  << endmsg;
 
   if ( input.size() == 2 ) { // there was only space for version and size
-    MLOG(WARNING) << "deserialize: the navigation is truncated badly, no recovery possible "  << endreq;
+    MLOG(WARNING) << "deserialize: the navigation is truncated badly, no recovery possible "  << endmsg;
     return false;
   }
 
   bool tesDeserializationStatus = deserializeTEs(inputIt,input.size());
-  MLOG(DEBUG) << "deserialize: TEs structure unpacked, status: " << tesDeserializationStatus  << endreq;
+  MLOG(DEBUG) << "deserialize: TEs structure unpacked, status: " << tesDeserializationStatus  << endmsg;
 
 
-  MLOG(DEBUG) << "do we have holder payload? " << (inputIt != input.end()) << endreq;
+  MLOG(DEBUG) << "do we have holder payload? " << (inputIt != input.end()) << endmsg;
   
   // EOF TEs deserialization
   // deserialize Features
   std::vector<uint32_t>::const_iterator it  = inputIt; 
   std::vector<uint32_t> blob;
   while ( extractBlob(input, it, blob) ) {
-    MLOG(DEBUG) << "deserializing holder blob of size: " << blob.size() << endreq;
+    MLOG(DEBUG) << "deserializing holder blob of size: " << blob.size() << endmsg;
     auto holder = std::shared_ptr<HLT::BaseHolder>(m_holderfactory->fromSerialized(version,blob.begin(),blob.end()));
     if (! holder ) {
-      MLOG(ERROR) << "deserialize: deserialization of holder from serialized blob failed"<< endreq;
+      MLOG(ERROR) << "deserialize: deserialization of holder from serialized blob failed"<< endmsg;
       continue;
     }
  
     if(!m_holderstorage.registerHolder(holder)){
-      MLOG(WARNING) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endreq;
+      MLOG(WARNING) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endmsg;
     }
   }
   return true;
@@ -259,7 +258,7 @@ bool NavigationCore::merge(const NavigationCore& l2) {
   // we need to pick the holders which are at L2 and move them to EF
   for(auto l2holder : l2.m_holderstorage.getAllHolders<IHolder>()){
     if ( m_log->level()<=MSG::DEBUG )
-        *m_log << MSG::DEBUG << "will add holder " << *l2holder << endreq;
+        *m_log << MSG::DEBUG << "will add holder " << *l2holder << endmsg;
     std::string label(l2holder->label());
     IHolder* efholder = getHolder(l2holder->typeClid(), label);
     if ( efholder != 0 ) {
@@ -267,7 +266,7 @@ bool NavigationCore::merge(const NavigationCore& l2) {
 	   || (efholder->subTypeIndex() != l2holder->subTypeIndex()) ) {
 	
 	if ( m_log->level()<=MSG::DEBUG )
-	  *m_log << MSG::DEBUG << "fixing bug for " << *efholder <<    endreq;
+	  *m_log << MSG::DEBUG << "fixing bug for " << *efholder <<    endmsg;
 	// bug which we need to fix (some week of data in autumn 2008)
 	// we have to delete current holder
 	// and replace it by L2 one
@@ -275,20 +274,20 @@ bool NavigationCore::merge(const NavigationCore& l2) {
 	// efholder->setSubTypeIndex(l2holder->subTypeIndex());
 	
 	if ( m_log->level()<=MSG::DEBUG )
-	  *m_log << MSG::DEBUG << "after fixing   " << *efholder <<    endreq;
+	  *m_log << MSG::DEBUG << "after fixing   " << *efholder <<    endmsg;
       }
     } else {
       if ( m_log->level()<=MSG::DEBUG )
-	*m_log << MSG::DEBUG << "cloning the holder from L2 " << *l2holder << endreq;
+	*m_log << MSG::DEBUG << "cloning the holder from L2 " << *l2holder << endmsg;
 
       bool status = createHolder(efholder, l2holder->typeClid(),l2holder->label(), l2holder->subTypeIndex());
       if(!status){
-	*m_log << MSG::WARNING << "in merge could not create EF holder" << endreq;
+	*m_log << MSG::WARNING << "in merge could not create EF holder" << endmsg;
       }
       
       //not sure if there is any possibility for this case but check anyways -Lukas
       if(efholder->key()!=l2holder->key()){
-	*m_log << MSG::WARNING << "in merge the created EF holder has different SG access key than L2 holder we tried to copy" << endreq;
+	*m_log << MSG::WARNING << "in merge the created EF holder has different SG access key than L2 holder we tried to copy" << endmsg;
       }
       
       registerHolder(efholder);
@@ -306,7 +305,7 @@ void NavigationCore::reset() {
   TrigNavStructure::reset();
 
   if ( m_log->level()<=MSG::DEBUG )
-    *m_log << MSG::DEBUG << "Navigation reset done" << endreq;
+    *m_log << MSG::DEBUG << "Navigation reset done" << endmsg;
 }
 
 uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
@@ -324,31 +323,31 @@ uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*
 
 HLTNavDetails::IHolder* NavigationCore::prepareOneHolder(CLID clid, const std::string& label) {
 
-  MLOG( VERBOSE ) << "NavigationCore::prepare preregistering objects of clid: " << clid << " label: " << label << endreq;
+  MLOG( VERBOSE ) << "NavigationCore::prepare preregistering objects of clid: " << clid << " label: " << label << endmsg;
   IHolder *holder = getHolder(clid, label);
   if ( holder ) {    
-    MLOG( VERBOSE ) << "NavigationCore::prepare preregistering objects  not executed as it already exists " << *holder << endreq;
+    MLOG( VERBOSE ) << "NavigationCore::prepare preregistering objects  not executed as it already exists " << *holder << endmsg;
     return holder;
   }
   
   uint16_t index =  nextSubTypeIndex(clid, label);
   if ( m_log->level() <= MSG::DEBUG )
     MLOG( VERBOSE ) << "NavigationCore::prepare creating handler for type (CLID): " << clid
-			 << " label: " << label << " index: " << index << endreq;
+			 << " label: " << label << " index: " << index << endmsg;
   
   if ( !createHolder(holder, clid, label, index) ) {
-    MLOG( INFO ) << "NavigationCore::prepare Can't create storage for objects of CLID: " << clid << " as it is requested by configuration" << endreq;
+    MLOG( INFO ) << "NavigationCore::prepare Can't create storage for objects of CLID: " << clid << " as it is requested by configuration" << endmsg;
       return 0;
   }
 
-  MLOG( VERBOSE ) << "Holder created, registering " << holder << " " << *holder << endreq;
+  MLOG( VERBOSE ) << "Holder created, registering " << holder << " " << *holder << endmsg;
 
   if ( !registerHolder(holder) ) {
-    MLOG( WARNING ) << "Holder registration failed " << holder << " " << *holder << endreq;
+    MLOG( WARNING ) << "Holder registration failed " << holder << " " << *holder << endmsg;
     return 0;
   }
   if ( !holder->syncWithSG() ) {
-    MLOG( WARNING ) << "Holder SG sync failed" << holder << " " << *holder << endreq;
+    MLOG( WARNING ) << "Holder SG sync failed" << holder << " " << *holder << endmsg;
     return 0;
   }
   
@@ -359,44 +358,44 @@ void NavigationCore::prepare() {
   if ( m_log->level()<=MSG::DEBUG ) {
     HLT::TypeMaps::CLIDtoHolderMap::const_iterator hIt;
     for ( hIt = HLT::TypeMaps::holders().begin(); hIt != HLT::TypeMaps::holders().end(); ++hIt ) {
-      MLOG( VERBOSE ) << "NavigationCore::prepare Compile time known types : " << *(hIt->second) << endreq;
+      MLOG( VERBOSE ) << "NavigationCore::prepare Compile time known types : " << *(hIt->second) << endmsg;
     }
   }
   
-  MLOG( VERBOSE ) << "NavigationCore::prepare Preregistering objects #:" <<  m_classesToPreregister.size()<< endreq;
+  MLOG( VERBOSE ) << "NavigationCore::prepare Preregistering objects #:" <<  m_classesToPreregister.size()<< endmsg;
 
   // populate structure with "must have" features
   std::vector<std::pair<CLID, std::string> >::const_iterator confIt;
-  for ( confIt = m_classesToPreregister.begin(); confIt != m_classesToPreregister.end() ; ++confIt ) {
-    CLID clid = confIt->first;
-    std::string label  = confIt->second;
+  for ( const CSPair& conf : m_classesToPreregister ) {
+    CLID clid = conf.first;
+    std::string label  = conf.second;
     if ( prepareOneHolder(clid, label) == 0 ) {
-      MLOG( WARNING  )<< "NavigationCore::prepare failed preparing the holder for CLID: " << clid << " and label " << label << endreq;
+      MLOG( WARNING  )<< "NavigationCore::prepare failed preparing the holder for CLID: " << clid << " and label " << label << endmsg;
     }
   }
-  MLOG( DEBUG  )<< "NavigationCore::prepare Navigation structure prepared for next event" << endreq;
+  MLOG( DEBUG  )<< "NavigationCore::prepare Navigation structure prepared for next event" << endmsg;
 }
 
 bool NavigationCore::registerHolder(IHolder* holder) {
   auto shared_holder = std::shared_ptr<HLT::BaseHolder>(holder);
   m_holderstorage.registerHolder(shared_holder);
-  *m_log << MSG::DEBUG <<  "registerHolder for OK " << *holder << endreq;
+  *m_log << MSG::DEBUG <<  "registerHolder for OK " << *holder << endmsg;
   return true;
 }
 
 bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
-  *m_log << MSG::DEBUG << "createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << endreq;
+  *m_log << MSG::DEBUG << "createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << endmsg;
   //reset holder
   holder = 0;
   auto baseholder = m_holderfactory->createHolder(clid,label, index);
   if(!baseholder){
-    *m_log << MSG::ERROR << "createHolder: creation of holder for CLID: " << clid  << " label: " << label << " and index: " << index << " failed" << endreq;
+    *m_log << MSG::ERROR << "createHolder: creation of holder for CLID: " << clid  << " label: " << label << " and index: " << index << " failed" << endmsg;
   }
 
   holder = dynamic_cast<IHolder*>(baseholder);
   
   if(!holder){
-    *m_log << MSG::ERROR << "createHolder: cast to IHolder* failed" << endreq;
+    *m_log << MSG::ERROR << "createHolder: cast to IHolder* failed" << endmsg;
   }
 
   return true;
@@ -425,14 +424,14 @@ void NavigationCore::tweakMsgLvl(int newOffset) {
 
 void NavigationCore::testMsgService() const {
   if (m_log) {
-    MLOG(DEBUG) << "MLOG printout" << endreq;
-    *m_log << MSG::FATAL << "MSG::FATAL" << MSG::FATAL << endreq;
-    *m_log << MSG::ERROR << "MSG::ERROR " << MSG::ERROR << endreq;
-    *m_log << MSG::WARNING << "MSG::WARNING " << MSG::WARNING << endreq;
-    *m_log << MSG::INFO << "MSG::INFO " << MSG::INFO << endreq;
-    *m_log << MSG::DEBUG << "MSG::DEBUG " << MSG::DEBUG << endreq;
-    *m_log << MSG::VERBOSE << "MSG::VERBOSE " << MSG::VERBOSE <<endreq;
-    *m_log << MSG::INFO << "MSG level()=" << m_log->level() << endreq;
+    MLOG(DEBUG) << "MLOG printout" << endmsg;
+    *m_log << MSG::FATAL << "MSG::FATAL" << MSG::FATAL << endmsg;
+    *m_log << MSG::ERROR << "MSG::ERROR " << MSG::ERROR << endmsg;
+    *m_log << MSG::WARNING << "MSG::WARNING " << MSG::WARNING << endmsg;
+    *m_log << MSG::INFO << "MSG::INFO " << MSG::INFO << endmsg;
+    *m_log << MSG::DEBUG << "MSG::DEBUG " << MSG::DEBUG << endmsg;
+    *m_log << MSG::VERBOSE << "MSG::VERBOSE " << MSG::VERBOSE <<endmsg;
+    *m_log << MSG::INFO << "MSG level()=" << m_log->level() << endmsg;
   } else {
     std::cerr << "ERROR -> No MessageSvc available !" << std::endl;
   }
@@ -452,16 +451,16 @@ void NavigationCore::getAllOfType ( const std::string& id, std::vector< HLT::Tri
 
 void NavigationCore::testStaticMaps()
 {
-  *m_log << MSG::INFO << "print statis map: CLID -> class name "  << endreq;
+  *m_log << MSG::INFO << "print statis map: CLID -> class name "  << endmsg;
   for ( static HLT::TypeMaps::NametoCLIDMap::const_iterator it = HLT::TypeMaps::type2clid().begin();
 	it != HLT::TypeMaps::type2clid().end(); ++it) {
-    *m_log << MSG::INFO << "entry: " << (*it).first << " -> " << (*it).second << endreq;
+    *m_log << MSG::INFO << "entry: " << (*it).first << " -> " << (*it).second << endmsg;
   }
 
-  *m_log << MSG::INFO << "print statis map: CLID -> holder "  << endreq;
+  *m_log << MSG::INFO << "print statis map: CLID -> holder "  << endmsg;
   for ( static HLT::TypeMaps::CLIDtoHolderMap::const_iterator it = HLT::TypeMaps::holders().begin();
 	it != HLT::TypeMaps::holders().end(); ++it) {
-    *m_log << MSG::INFO << "entry: " << (*it).first << " -> " << (* (*it).second) << endreq;
+    *m_log << MSG::INFO << "entry: " << (*it).first << " -> " << (* (*it).second) << endmsg;
   }
 
 }
@@ -520,7 +519,7 @@ bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& hol
   // clid_name.clear(); Don't reset this vector here since the vector is not remade. Otherwise datascouting stops working.
 
   unsigned int version=4;
-  MLOG(DEBUG) << "NavigationCore::serialize: serializing with version " << version << endreq;
+  MLOG(DEBUG) << "NavigationCore::serialize: serializing with version " << version << endmsg;
 
   output.push_back(version);
 
@@ -532,7 +531,7 @@ bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& hol
 
   bool tesSerializationStatus = serializeTEs(output);
 
-  MLOG(DEBUG) << "serializes: TE serialization status: " << tesSerializationStatus << " size: " << output.size() << endreq;
+  MLOG(DEBUG) << "serializes: TE serialization status: " << tesSerializationStatus << " size: " << output.size() << endmsg;
 
   cuts.push_back(output.size()); // mark a cut place
 
@@ -542,7 +541,7 @@ bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& hol
 
   output[totalSizeIndex] = output.size();
 
-  MLOG(DEBUG) << "serialization done" << endreq;
+  MLOG(DEBUG) << "serialization done" << endmsg;
   return true;
 }
 
@@ -550,23 +549,23 @@ bool NavigationCore::serializeHoldersWithPayload(const std::vector<CSPair>& payl
 						 std::vector<uint32_t>& holderblobsizes,
 						 std::vector<std::pair<CLID, std::string> >& clid_name, bool recordSizes) const {
 
-  MLOG(DEBUG) << "serialization: number of classes to payload: " << payload.size() << endreq;
+  MLOG(DEBUG) << "serialization: number of classes to payload: " << payload.size() << endmsg;
   for ( auto& cl :  payload) {
-    MLOG(DEBUG) << "serialization (ordered) of featue attempting : " <<  cl.first << " " <<  cl.second << endreq;
+    MLOG(DEBUG) << "serialization (ordered) of featue attempting : " <<  cl.first << " " <<  cl.second << endmsg;
     
     IHolder *holder = getHolder(cl.first,cl.second);
     if ( ! holder ) {
-      MLOG(DEBUG) << "serialization (ordered) of feature skipped, nothing know on this objects"  << endreq;
+      MLOG(DEBUG) << "serialization (ordered) of feature skipped, nothing know on this objects"  << endmsg;
       continue;
     }
     MLOG(DEBUG) << "serialization (ordered) of feature: " << holder->typeClid() << " label: " << holder->label()
-		<< " size of payload up to now: " << output.size() << endreq;
+		<< " size of payload up to now: " << output.size() << endmsg;
     
     std::vector<uint32_t> holderblob;
     size_t payloadsize = 0;
-    bool status = holder->serializeWithPayload(holderblob,payloadsize);
+    bool status = holder->serializeWithPayload(cl.sel,holderblob,payloadsize);
     if(!status){
-      MLOG(WARNING) << "problem serializing holder: " << *holder << endreq;
+      MLOG(WARNING) << "problem serializing holder: " << *holder << endmsg;
       return false;
     }
 
@@ -588,12 +587,12 @@ bool NavigationCore::serializeHoldersWithPayload(const std::vector<CSPair>& payl
 bool NavigationCore::serializeHoldersWithoutPayload(const std::vector<IHolder*>& holders, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes, std::vector<std::pair<CLID, std::string> >& clid_name) const {
   for(auto& holder : holders){
     MLOG(DEBUG) << "serialization of feature: " << holder->typeClid() << " label: " << holder->label()
-		<< " size of payload: " << output.size() << endreq;
+		<< " size of payload: " << output.size() << endmsg;
     
     std::vector<uint32_t> holderblob;
     bool status = holder->serialize(holderblob);
     if(!status){
-      MLOG(WARNING) << "problem serializing holder: " << *holder << endreq;
+      MLOG(WARNING) << "problem serializing holder: " << *holder << endmsg;
       return false;
     }
     output.push_back(holderblob.size()); //leading bit indicates size

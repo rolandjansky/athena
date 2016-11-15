@@ -179,7 +179,7 @@ namespace HLT {
     std::vector<std::string>               m_dlls;
     FullHolderFactory                      m_fullholderfactory;
     bool                                   m_readonly;
-    StatusCode classKey2CLIDKey(const std::vector<std::string> prop, std::vector<std::pair<CLID, std::string> >& decoded);
+    StatusCode classKey2CLIDKey(const std::vector<std::string>& property, std::vector<CSPair>& decoded);
 
   };
 

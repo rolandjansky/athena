@@ -17,6 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "xAODCore/AuxSelection.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 
@@ -392,7 +393,16 @@ namespace HLT {
 
     ITrigHolderFactory* m_holderfactory;
 
-    typedef std::pair<CLID, std::string> CSPair;
+    struct CSPair
+    {
+      CSPair (CLID clid, const std::string& key, xAOD::AuxSelection&& the_sel)
+        : first (clid), second (key), sel (std::move (the_sel))
+      {
+      }
+      CLID first;
+      std::string second;
+      xAOD::AuxSelection sel;
+    };
 
     std::vector<std::string> m_classesToPayloadProperty;              //!< list of classes#keys to be put to BS payload
     std::vector<CSPair>  m_classesToPayload;   //!< classess are put to payload according to that priority list (CLID + key)

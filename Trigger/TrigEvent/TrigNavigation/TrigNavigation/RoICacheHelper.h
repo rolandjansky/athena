@@ -27,7 +27,7 @@ namespace HLT {
      *
      * If false is returned then caching has heppened. Nothing else needs to be done.
      *
-     * After event processing the cahce needs to be reset.
+     * After event processing the cache needs to be reset.
      *
      *
      */

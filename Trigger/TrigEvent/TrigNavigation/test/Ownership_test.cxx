@@ -22,6 +22,7 @@
 using namespace std;
 using namespace HLTNavDetails;
 using namespace HLT;
+using namespace TrigNavTest;
 // Hi-lock: (("REPORT_AND_STOP" (0 (quote hi-yellow) t)))
 
 //const int OK=1;
@@ -175,7 +176,7 @@ int main() {
    msglog = &log;
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endreq;
+    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
   } else {
     ABORT( "ERROR no SG available" );
   }
@@ -183,7 +184,7 @@ int main() {
   IToolSvc* toolSvc;
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
-    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endreq;
+    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
   } else 
     ABORT ( "no ToolSvc available" );
 
@@ -191,10 +192,10 @@ int main() {
 
   IAlgTool* algTool;
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
-    log << MSG::DEBUG << "OK navigation tool retrieved" << endreq;
+    log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
     if ( hns ) {
-      log << MSG::DEBUG << "OK navigation casted" << endreq;    
+      log << MSG::DEBUG << "OK navigation casted" << endmsg;    
     } else 
       ABORT( "navigation cast failed" );    
 
@@ -218,8 +219,8 @@ int main() {
   REPORT_AND_CONTINUE( "END all went fine" );
   return 0;
 
-  *msglog << MSG::INFO << "SUCCESS " << endreq;
-  *msglog << MSG::DEBUG << "deleting messages below are related to scope exit " << endreq;
+  *msglog << MSG::INFO << "SUCCESS " << endmsg;
+  *msglog << MSG::DEBUG << "deleting messages below are related to scope exit " << endmsg;
   
   return 0;
 }
