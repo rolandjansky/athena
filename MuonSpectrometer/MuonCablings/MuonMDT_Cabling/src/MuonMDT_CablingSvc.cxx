@@ -52,24 +52,24 @@ StatusCode MuonMDT_CablingSvc::initialize()
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    msg(MSG::INFO) << "in initialize() with Configuration: "<<(m_useOldCabling ? "'Old MDT Cabling'" : "'New MDT Cabling'") <<", callback "<< (m_forceUse?"Disabled":"Enabled")<<  endreq;
+    msg(MSG::INFO) << "in initialize() with Configuration: "<<(m_useOldCabling ? "'Old MDT Cabling'" : "'New MDT Cabling'") <<", callback "<< (m_forceUse?"Disabled":"Enabled")<<  endmsg;
 
     sc = serviceLocator()->service("DetectorStore", m_detStore);
     if ( sc.isFailure()) {
         msg(MSG::WARNING)<< "Could not find det store. Exiting."
-            << endreq;
+            << endmsg;
         return StatusCode::FAILURE;
     }
 
-    msg(MSG::DEBUG)<<"Trying to locate the DB Tool"<<endreq;
+    msg(MSG::DEBUG)<<"Trying to locate the DB Tool"<<endmsg;
     if (!m_useOldCabling){
       if ( m_dbTool.retrieve().isFailure()) {
         msg(MSG::WARNING)<< "Could not find tool " << m_dbTool << ". Exiting."
-            << endreq;
+            << endmsg;
         return StatusCode::FAILURE;
       } else {
         msg(MSG::DEBUG)<< "Database tool \"" << m_dbTool << "\" retrieved."
-            << endreq;
+            << endmsg;
       }
     } else {
         // for old cabling, don't do this.
@@ -79,14 +79,14 @@ StatusCode MuonMDT_CablingSvc::initialize()
     if(m_forceUse) { 
         // Selected cabling is used without comparison 
         m_tagsCompared = true;
-        msg(MSG::DEBUG)<< "'ForcedUse' property is set to 'True', so disabling the callback. Configuration fixed to: "<<(m_useOldCabling ? "'Old MDT Cabling'" : "'New MDT Cabling'") << endreq;     
+        msg(MSG::DEBUG)<< "'ForcedUse' property is set to 'True', so disabling the callback. Configuration fixed to: "<<(m_useOldCabling ? "'Old MDT Cabling'" : "'New MDT Cabling'") << endmsg;     
     } else { 
         // The cabling to be used and the cabling in tag info will be compared by compareTags method
         const DataHandle<TagInfo> tagInfoH;
         std::string tagInfoKey = "";
        // get the key
         if(m_tagInfoMgr.retrieve().isFailure() || m_tagInfoMgr==0) {
-            msg(MSG::WARNING) << " Unable to locate TagInfoMgr service" << endreq; 
+            msg(MSG::WARNING) << " Unable to locate TagInfoMgr service" << endmsg; 
         } else {
             tagInfoKey = m_tagInfoMgr->tagInfoKey();
         }
@@ -95,18 +95,18 @@ StatusCode MuonMDT_CablingSvc::initialize()
             tagInfoH, 
             tagInfoKey) 
         != StatusCode::SUCCESS) {
-            msg(MSG::WARNING)<< "Cannot register compareTags function for key "  << tagInfoKey << endreq;
+            msg(MSG::WARNING)<< "Cannot register compareTags function for key "  << tagInfoKey << endmsg;
         } else {
-            msg(MSG::DEBUG)<< "Registered compareTags callback for key: " << tagInfoKey << endreq;
+            msg(MSG::DEBUG)<< "Registered compareTags callback for key: " << tagInfoKey << endmsg;
         }
     }
 
   /** Get a pointer to the old cabling if needed */
     //if (m_useOldCabling || (!m_forceUse)) {
     //  
-    //  if (m_useOldCabling) msg(MSG::DEBUG) << "===> The old cabling service is being used within the new one" << endreq; 
+    //  if (m_useOldCabling) msg(MSG::DEBUG) << "===> The old cabling service is being used within the new one" << endmsg; 
     //    if (m_oldCablingSvc.retrieve().isFailure()) {
-    //        msg(MSG::ERROR) << "Could not get a pointer to the MDTcablingSvc" << endreq;
+    //        msg(MSG::ERROR) << "Could not get a pointer to the MDTcablingSvc" << endmsg;
     //        return StatusCode::FAILURE;
     //    }
     //}
@@ -115,10 +115,10 @@ StatusCode MuonMDT_CablingSvc::initialize()
     // register the init mapping model for callback against the
     // cabling folders --- only if not using the old   cabling 
     msg(MSG::INFO) << "Registering for callback the initMappingModel function" 
-		   << endreq;
+		   << endmsg;
     
     std::string mapFolderName = m_dbTool->mapFolderName();
-    msg(MSG::INFO) << "Map folder name: " << m_dbTool->mapFolderName() << endreq;
+    msg(MSG::INFO) << "Map folder name: " << m_dbTool->mapFolderName() << endmsg;
     
     const DataHandle<CondAttrListCollection> MapData;
     
@@ -130,14 +130,14 @@ StatusCode MuonMDT_CablingSvc::initialize()
       
       msg(MSG::ERROR) 
 	<< "Could not register initMapping function for callback against: " << mapFolderName 
-	<< endreq;
+	<< endmsg;
       return sc;
     }
     
     // register the mezzanine folder for callback 
     std::string mezzanineFolderName = m_dbTool->mezzanineFolderName();
     msg(MSG::INFO) << "Mezzanine folder name: " 
-		   << mezzanineFolderName << endreq;
+		   << mezzanineFolderName << endmsg;
     
     const DataHandle<CondAttrListCollection> MapData_mez;
     
@@ -148,7 +148,7 @@ StatusCode MuonMDT_CablingSvc::initialize()
       
       msg(MSG::ERROR) 
 	<< "Could not register initMapping function for callback against: " << mezzanineFolderName 
-	<< endreq;
+	<< endmsg;
       return sc;
     }
 
@@ -156,10 +156,10 @@ StatusCode MuonMDT_CablingSvc::initialize()
     // No use of the callback but initialize the map at service initialization 
     // Activated only when running on the calibration stream
     if ( m_doCalStreamInit ) {
-      msg(MSG::INFO) << "Initializing the MDT calibration map to read the calibration stream" << endreq;
+      msg(MSG::INFO) << "Initializing the MDT calibration map to read the calibration stream" << endmsg;
       sc = initMappingModelNoCallback();
       if ( sc.isFailure() ) {
-	msg(MSG::ERROR) << "Could not initialize the MDT cabling service for the calibration stream" << endreq;
+	msg(MSG::ERROR) << "Could not initialize the MDT cabling service for the calibration stream" << endmsg;
 	return StatusCode::FAILURE;
       }
     }
@@ -191,12 +191,12 @@ StatusCode
     MuonMDT_CablingSvc::compareTags(IOVSVC_CALLBACK_ARGS)
 {
     StatusCode sc;
-    msg(MSG::DEBUG) << "compareTags() callback triggered. Current configuration is: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endreq;
+    msg(MSG::DEBUG) << "compareTags() callback triggered. Current configuration is: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endmsg;
 
     if (m_forceUse) {
         // shouldn't ever be called, as callback shouldn't have been registered.
         m_tagsCompared=true;
-        msg(MSG::INFO) <<"Aborting compareTags call back because ForcedUse property is true. Will use current configuration: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling")<<endreq;
+        msg(MSG::INFO) <<"Aborting compareTags call back because ForcedUse property is true. Will use current configuration: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling")<<endmsg;
         return StatusCode::SUCCESS;
     }
 
@@ -209,12 +209,12 @@ StatusCode
     std::string cablingType;
 
     if (sc.isFailure() || tagInfo==0) {
-        msg(MSG::WARNING)<< "No TagInfo in DetectorStore while attempting to compare tags. Will use current configuration: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endreq;
+        msg(MSG::WARNING)<< "No TagInfo in DetectorStore while attempting to compare tags. Will use current configuration: "<<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endmsg;
         return StatusCode::RECOVERABLE;
     } else {
         tagInfo->findInputTag("MDT_CablingType", cablingType);
 
-        msg(MSG::DEBUG)<< "MDT_CablingType from TagInfo: " << cablingType << endreq;
+        msg(MSG::DEBUG)<< "MDT_CablingType from TagInfo: " << cablingType << endmsg;
 
 	// either have empty cabling tag and set to old cabling, or new and don't use old cabling
         bool tagMatch = (cablingType=="" && m_useOldCabling) || (cablingType == "NewMDT_Cabling"&& !m_useOldCabling);  
@@ -227,7 +227,7 @@ StatusCode
             m_firstAccess=true;
             //retrieve tool now to avoid unpleasent surprises later!
             if ( m_dbTool.retrieve().isFailure()) {
-               msg(MSG::WARNING)<< "Could not find tool " << m_dbTool << ". Exiting."<< endreq;
+               msg(MSG::WARNING)<< "Could not find tool " << m_dbTool << ". Exiting."<< endmsg;
                return StatusCode::FAILURE;
             }
           } else {
@@ -238,12 +238,12 @@ StatusCode
           msg(MSG::INFO)<< "MDT_CablingType : " << cablingType << " is mismatched "
             << "with configuration of this service ."
             << "m_useOldCabling flag is flipped to " << (m_useOldCabling ? "true" : "false") << " ." 
-            << endreq; 
+            << endmsg; 
         }
     }
 
     msg(MSG::INFO)<< "compareTags() callback determined that the taginfo for MDT cabling is: "<< cablingType << " (blank = old). Current configuration is: "
-                  <<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endreq;
+                  <<(m_useOldCabling ? "OldMDT_Cabling" : "NewMDT_Cabling") << endmsg;
     m_tagsCompared=true;
     return StatusCode::SUCCESS;
 }
@@ -282,7 +282,7 @@ std::vector<uint32_t> MuonMDT_CablingSvc::getROBId(const std::vector<IdentifierH
         int robId = this->getROBId(mdtHashVector[i]);
         if (robId==0) {
 
-            msg(MSG::ERROR) << "ROB id not found for Hash Id: " << mdtHashVector[i] << endreq;
+            msg(MSG::ERROR) << "ROB id not found for Hash Id: " << mdtHashVector[i] << endmsg;
 
         } else {
             ATH_MSG_DEBUG("Found ROB id 0x" << MSG::hex << robId << MSG::dec << " for hashId " << mdtHashVector[i]);
@@ -386,7 +386,7 @@ bool MuonMDT_CablingSvc::getOnlineId(int stationName, int stationEta, int statio
 //                << " phi: " << stationPhi
 //                << " multilayer: " << multiLayer 
 //                << " layer: " << layer
-//                << " tube: " << tube << endreq;
+//                << " tube: " << tube << endmsg;
 //        }
 //        else {
 //            subdetectorId = (uint8_t) subdet;
@@ -410,14 +410,14 @@ bool MuonMDT_CablingSvc::getOnlineId(int stationName, int stationEta, int statio
 StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  msg(MSG::INFO) << "initMappingModel has been called" << endreq;
-  msg(MSG::INFO) << "ToolHandle in initMappingModel - <" << m_dbTool << ">" << endreq;
+  msg(MSG::INFO) << "initMappingModel has been called" << endmsg;
+  msg(MSG::INFO) << "ToolHandle in initMappingModel - <" << m_dbTool << ">" << endmsg;
   
   if(!m_useOldCabling) {
     
     StatusCode sc = m_dbTool->loadParameters(I, keys);
     if (sc.isFailure()) {
-      msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endreq;
+      msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -425,16 +425,16 @@ StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     
     sc = m_detStore->retrieve(m_cablingMap);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endreq;
+      msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endmsg;
       return false;
     }
     else {
-      msg(MSG::DEBUG) << "Retrieved map from the detector store" << endreq;
+      msg(MSG::DEBUG) << "Retrieved map from the detector store" << endmsg;
     }
   
   }
   else {
-    msg(MSG::INFO) << "Using the old cabling, no callback" << endreq;
+    msg(MSG::INFO) << "Using the old cabling, no callback" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -443,11 +443,11 @@ StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 
 // initalize the map without using the callback
-StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback() const
+StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback()
 {
 
-  msg(MSG::INFO) << "initMappingModel has been called" << endreq;
-  msg(MSG::INFO) << "ToolHandle in initMappingModel - <" << m_dbTool << ">" << endreq;
+  msg(MSG::INFO) << "initMappingModel has been called" << endmsg;
+  msg(MSG::INFO) << "ToolHandle in initMappingModel - <" << m_dbTool << ">" << endmsg;
   
   if(!m_useOldCabling) {
     
@@ -459,7 +459,7 @@ StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback() const
 
     StatusCode sc = m_dbTool->loadParameters(I, keys);
     if (sc.isFailure()) {
-      msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endreq;
+      msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -467,16 +467,16 @@ StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback() const
     
     sc = m_detStore->retrieve(m_cablingMap);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endreq;
+      msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endmsg;
       return false;
     }
     else {
-      msg(MSG::DEBUG) << "Retrieved map from the detector store" << endreq;
+      msg(MSG::DEBUG) << "Retrieved map from the detector store" << endmsg;
     }
   
   }
   else {
-    msg(MSG::INFO) << "Using the old cabling, no callback" << endreq;
+    msg(MSG::INFO) << "Using the old cabling, no callback" << endmsg;
   }
 
   return StatusCode::SUCCESS;
