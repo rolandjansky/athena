@@ -1,0 +1,457 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn>
+    <TEST name="Digit" type="script" suite="SimuJobTransforms-Core">
+      <doc>Digit trf reading muon hits</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_digi_mu</options_atn>
+      <timelimit>15</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="G4Param" type="script" suite="SimuJobTransforms-Core">
+      <doc>Simulation trf reading muon events and using parametrization</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_G4param</options_atn>
+      <timelimit>20</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="FilterMinbias" type="script" suite="SimuJobTransforms-Core">
+      <doc>Filtering minbias hits files</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_filterHIT</options_atn>
+      <timelimit>15</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="HitMerge" type="script" suite="SimuJobTransforms-Core">
+      <doc>Merge two hits files</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_mergeHIT</options_atn>
+      <timelimit>15</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="DigiMerge" type="script" suite="SimuJobTransforms-Core">
+      <doc>Digitize ev=13,14 or output of HitMerge</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_digi_mergeHIT</options_atn>
+      <timelimit>15</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="DigiUnMerge" type="script" suite="SimuJobTransforms-Core">
+      <doc>Digitize ev=13,14 or input of HitMerge</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_digi_unmergeHIT</options_atn>
+      <timelimit>15</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="DiffHitMerge" type="script" suite="SimuJobTransforms-Core">
+      <doc>Do a diff of output of DigiMerge and DigiUnMerge</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_diffmerged</options_atn>
+      <timelimit>5</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>ERR</errorMessage>
+        <errorMessage>FAILURE (ERROR) </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="PileUp" type="script" suite="SimuJobTransforms-Core">
+      <doc>Run a pile-up digi job on a single particle event</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simu</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_pileup</options_atn>
+      <timelimit>20</timelimit>
+      <author>John Chapman</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <prescript>source ${ATN_PACKAGE}/test/test_setup</prescript>
+      <expectations>
+        <errorMessage>ERR</errorMessage>
+        <errorMessage>FAILURE (ERROR) </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+
+  <kv>
+    <kvtest name='MC15ISF_G4SelePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - single electron G4 event atlasG4 (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <inpath></inpath>
+      <infile></infile>
+      <inpool></inpool>
+      <outpath>${T_DATAPATH}/MC15SimulHITSSelePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15SimulHITSSelePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15SimulHITSSelePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --outputHITSFile="${T_OUTFILE}" --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --simulator FullG4 --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 222525
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15digitSelePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - single electron Digitization (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC15SimulHITSSelePyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15SimulHITSSelePyJT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15digitSelePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15digitSelePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15digitSelePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15ISF_G4SmuonPyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - single muon G4 event atlasG4 (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <inpath></inpath>
+      <infile></infile>
+      <inpool></inpool>
+      <outpath>${T_DATAPATH}/MC15SimulHITSSmuonPyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15SimulHITSSmuonPyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15SimulHITSSmuonPyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --outputHITSFile="${T_OUTFILE}" --preInclude=SimulationJobOptions/preInclude.SingleMuonGenerator.py  --simulator FullG4 --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 222525
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15digitSmuonPyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - single muon Digitization (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC15SimulHITSSmuonPyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15SimulHITSSmuonPyJT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15digitSmuonPyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15digitSmuonPyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15digitSmuonPyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15ISF_G4SpionPyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>MC15 2012 ATLAS detector - single pion G4 event atlasG4 (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <inpath></inpath>
+      <infile></infile>
+      <inpool></inpool>
+      <outpath>${T_DATAPATH}/MC15SimulHITSSpionPyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15SimulHITSSpionPyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15SimulHITSSpionPyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --outputHITSFile="${T_OUTFILE}" --preInclude=SimulationJobOptions/preInclude.SinglePionGenerator.py  --simulator FullG4 --maxEvents=5 --skipEvents=0 --randomSeed=26741007 --geometryVersion ATLAS-R1-2012-03-00-00_VALIDATION --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 212272
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15digitSpionPyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>MC15 2012 ATLAS detector - single pion Digitization (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC15SimulHITSSpionPyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15SimulHITSSpionPyJT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15digitSpionPyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15digitSpionPyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15digitSpionPyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --geometryVersion ATLAS-R1-2012-03-00-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+
+    <kvtest name='MC12AtlasG4ZeePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC12</kvsuite>
+      <trf>AtlasG4_tf.py</trf>
+      <desc>MC12 Z -> e e G4 event atlasG4 (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <inpath>${T_DATAPATH}/EvgenZeePyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-EvgenZeePyJT-${T_RELEASE}.pool.root</infile>
+
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC12SimulHITSZeePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC12SimulHITSZeePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC12SimulHITSZeePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC12digitZeePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC12</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>MC12 Z -> e e Digitization (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC12SimulHITSZeePyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC12SimulHITSZeePyJT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC12digitZeePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC12digitZeePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC12digitZeePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --geometryVersion=ATLAS-GEO-20-00-01 --conditionsTag=OFLCOND-MC12-SIM-00 --digiSeedOffset1=11 --digiSeedOffset2=22
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+
+    <kvtest name='MC15ISF_G4ZeePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - Z->ee G4 event atlasG4 (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <inpath>${T_DATAPATH}/EvgenZeePyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-EvgenZeePyJT-${T_RELEASE}.pool.root</infile>
+
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15SimulHITSZeePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15SimulHITSZeePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15SimulHITSZeePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}"  --simulator FullG4 --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 222525
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15digitZeePyJT' enabled='true'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>MC15 2015 ATLAS detector - Z->ee Digitization (python JT)</desc>
+      <author>John Chapman [atlas-simulation-testreports@cern.ch]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC15SimulHITSZeePyJT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15SimulHITSZeePyJT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15digitZeePyJT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15digitZeePyJT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15digitZeePyJT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+
+    <kvtest name='AtlasG4ZeeJet' enabled='false'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>Z -> e e jet Simulation</desc>
+      <author>Alessandro De Salvo [Alessandro.DeSalvo@roma1.infn.it]</author>
+      <inpath>${T_DATAPATH}/EvgenZeeJet-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-EvgenZeeJet-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/SimulHITSZeeJet-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-SimulHITSZeeJet-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-SimulHITSZeeJet-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}"  --simulator FullG4 --maxEvents=3 --skipEvents=0 --randomSeed=26741007 --preInclude=KitValidation/kv_reflex.py --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 222525
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='DigitZeeJet' enabled='false'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>Z -> e e jet Digitization</desc>
+      <author>Alessandro De Salvo [Alessandro.DeSalvo@roma1.infn.it]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/SimulHITSZeeJet-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-SimulHITSZeeJet-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/DigitZeeJet-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-DigitZeeJet-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-DigitZeeJet-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=3 --skipEvents=0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22 --preInclude=KitValidation/kv_reflex.py
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15ISF_G4TT' enabled='false'>
+      <release>ALL</release>
+      <priority>20</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Sim_tf.py</trf>
+      <desc>Benchmark[1] tt Simulation</desc>
+      <author>Alessandro De Salvo [Alessandro.DeSalvo@roma1.infn.it]</author>
+      <inpath>${T_DATAPATH}/MC15EvgenTT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15EvgenTT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15SimulHITSTT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15SimulHITSTT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15SimulHITSTT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}"  --simulator FullG4 --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-19 --DataRunNumber 222525 --preInclude=KitValidation/kv_perfmon.py
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+    <kvtest name='MC15digitTT' enabled='false'>
+      <release>ALL</release>
+      <priority>30</priority>
+      <kvsuite>MC15</kvsuite>
+      <trf>Digi_tf.py</trf>
+      <desc>Benchmark[1] tt Digitization</desc>
+      <author>Alessandro De Salvo [Alessandro.DeSalvo@roma1.infn.it]</author>
+      <version>1.0.0</version>
+      <inpath>${T_DATAPATH}/MC15SimulHITSTT-${T_RELEASE}</inpath>
+      <infile>${T_PREFIX}-MC15SimulHITSTT-${T_RELEASE}.pool.root</infile>
+      <inpool>PoolFileCatalog.xml</inpool>
+      <outpath>${T_DATAPATH}/MC15digitTT-${T_RELEASE}</outpath>
+      <outfile>${T_PREFIX}-MC15digitTT-${T_RELEASE}.pool.root</outfile>
+      <logfile>${T_PREFIX}-MC15digitTT-${T_RELEASE}.log</logfile>
+      <signature>
+        --inputHITSFile="${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE},${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=100 --skipEvents=0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-25 --digiSeedOffset1=11 --digiSeedOffset2=22 --preInclude=KitValidation/kv_perfmon.py
+      </signature>
+      <copyfiles>
+        ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
+      </copyfiles>
+      <checkfiles>${T_OUTPATH}/${T_OUTFILE}</checkfiles>
+    </kvtest>
+  </kv>
+
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt" />
+
+</unifiedTestConfiguration>

@@ -1,0 +1,34 @@
+#! /usr/bin/env bash
+
+## Any arguments to the script are overrides or options (added at the end)
+if [[ $# -ge 1 ]]; then
+  ARGS=$@
+else
+  ARGS=''
+fi
+
+if [[ x$TESTDATA == x ]]; then
+  echo "ERROR: TESTDATA not defined"
+  exit 1
+fi
+
+DIGIOFFSET1=10
+DIGIOFFSET2=20
+INPUTFILE=mu_E50_eta0-25_${GEOMETRY}.merged.hits.pool.root
+FILENAME=`basename ${INPUTFILE}`
+FILEBASE=${FILENAME%.hits.pool.root}
+RDOFILE=${FILEBASE}.rdo.pool.root
+MINBIASFILE=NONE
+CAVERNFILE=NONE
+JOBCONFIG=NONE
+DBRELEASETARBALL='current'
+
+TRF=Digi_tf.py
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="skip_if_AthSimulation.sh $TRF --inputHITSFile=$INPUTFILE --outputRDOFile=$RDOFILE --maxEvents=2 --skipEvents=11 --geometryVersion=$GEOMETRY --digiSeedOffset1=$DIGIOFFSET1 --digiSeedOffset2=$DIGIOFFSET2 --conditionsTag=$IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
+echo $cmd
+$cmd

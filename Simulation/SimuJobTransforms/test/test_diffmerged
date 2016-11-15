@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+# ERROR_MESSAGE :FAILURE (ERROR)
+# ERROR_MESSAGE :[ERR]
+# SUCCESS_MESSAGE :[OK]
+
+## Diff the output files from test_digi_mergeHIT and test_digi_unmergeHIT
+## TODO: Reinstate with new input files
+
+skip_if_AthSimulation.sh diffPoolFiles.py mu_E50_eta0-25_${GEOMETRY}.merged.rdo.pool.root mu_E50_eta0-25_${GEOMETRY}.unmerged.rdo.pool.root | \
+    sed 's/\[ERR\]\(.*\)POOLContainer_DataHeaderForm$/\[WARN\]\1POOLContainer_DataHeaderForm/g' | \
+    sed 's/## Comparison : \[ERR\]/## Comparison : \[WARN\]/g'
