@@ -29,6 +29,6 @@ if [[ $? -ne 0 ]]; then
   echo "ERROR: $TRF not found"
   exit 2
 fi
-cmd="$TRF --inputHITSFile=$INPUTFILE --outputRDOFile=$RDOFILE --maxEvents=2 --skipEvents=11 --geometryVersion=$GEOMETRY --digiSeedOffset1=$DIGIOFFSET1 --digiSeedOffset2=$DIGIOFFSET2 --conditionsTag=$IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
+cmd="skip_if_AthSimulation.sh $TRF --inputHITSFile=$INPUTFILE --outputRDOFile=$RDOFILE --maxEvents=2 --skipEvents=11 --geometryVersion=$GEOMETRY --digiSeedOffset1=$DIGIOFFSET1 --digiSeedOffset2=$DIGIOFFSET2 --conditionsTag=$IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
 echo $cmd
 $cmd

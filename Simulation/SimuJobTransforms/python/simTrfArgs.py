@@ -200,6 +200,9 @@ def addCommonSimDigTrfArgs(parser):
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='The number of this job in the current RunDependentSimulation task.', group='SimDigi')
+    parser.add_argument('--eventService',
+                        type=argFactory(argBool),
+                        help='Switch AthenaMP to the Event Service configuration', group='SimDigi')
 
 def addHITSMergeArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)

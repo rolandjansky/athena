@@ -342,7 +342,7 @@ if hasattr(runArgs,"doAllNoise"):
             digitizationFlags.doCaloNoise=False
             digitizationFlags.doMuonNoise=False
 
-if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"ZDCOn") or hasattr(runArgs,"AFPOn") or hasattr(runArgs,"FwdRegionOn"):
+if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"ZDCOn") or hasattr(runArgs,"AFPOn") or hasattr(runArgs,"FwdRegionOn") or hasattr(runArgs,"HGTDOn"):
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags

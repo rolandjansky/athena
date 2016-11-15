@@ -5,7 +5,7 @@ def hitColls2SimulatedDetectors(inputlist):
     simulatedDetectors = []
     simulatedDictionary = {'PixelHits': 'pixel', 'SCT_Hits': 'SCT', 'TRTUncompressedHits': 'TRT',
                            'BCMHits': 'BCM', 'LucidSimHitsVector': 'Lucid', 'LArHitEMB': 'LAr',
-                           'LArHitEMEC': 'LAr', 'LArHitFCAL': 'LAr', 'LArHitHEC': 'LAr',
+                           'LArHitEMEC': 'LAr', 'LArHitFCAL': 'LAr', 'LArHitHEC': 'LAr', 'LArHitHGTD': 'HGTD',
                            'MBTSHits': 'Tile', 'TileHitVec': 'Tile', 'MDT_Hits': 'MDT',
                            'MicromegasSensitiveDetector': 'Micromegas',
                            'sTGCSensitiveDetector': 'sTGC',

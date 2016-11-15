@@ -112,6 +112,10 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
     include('SimulationJobOptions/preInclude.G4ReadCavern.py')
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
+    
+# Avoid command line preInclude for event service
+if hasattr(runArgs, "eventService") and runArgs.eventService:
+    include('AthenaMP/AthenaMP_EventService.py')
 
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     include('SimulationJobOptions/preInclude.Cosmics.py')
@@ -283,14 +287,12 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
-        # this configures the MT LooperKiller
+    # this configures the MT LooperKiller
+    try:
         from G4UserActions import G4UserActionsConfig
-        try:
-            G4UserActionsConfig.addLooperKillerTool()
-        except AttributeError:
-            atlasG4log.warning("Could not add the MT-version of the LooperKiller")
-    else:
+        G4UserActionsConfig.addLooperKillerTool()
+    except AttributeError, ImportError:
+        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
         # this configures the non-MT looperKiller
         try:
             from G4AtlasServices.G4AtlasUserActionConfig import UAStore
