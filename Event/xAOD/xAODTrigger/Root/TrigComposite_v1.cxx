@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.cxx 631318 2014-11-26 18:32:04Z krasznaa $
+// $Id: TrigComposite_v1.cxx 784384 2016-11-15 16:37:49Z tamartin $
 
 // System include(s):
 #include <algorithm>
@@ -23,6 +23,19 @@ namespace xAOD {
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
                                       name, setName )
 
+
+   template<>     
+   bool TrigComposite_v1::hasDetail<unsigned int>( const std::string& name ) const {
+     return hasDetail<int>(name);
+   }
+
+   template<>     
+   bool TrigComposite_v1::hasDetail<std::vector<unsigned int>>( const std::string& name ) const {
+     return hasDetail<std::vector<int>>(name);
+   }
+
+
+
    /////////////////////////////////////////////////////////////////////////////
    //
    //                   Simple detail accessor functions
@@ -39,6 +52,10 @@ namespace xAOD {
 
       // Return gracefully:
       return true;
+   }
+
+   bool TrigComposite_v1::setDetail( const std::string& name, unsigned int value ) {
+     return setDetail(name, (int)value); // place for conversion if needed
    }
 
    bool TrigComposite_v1::setDetail( const std::string& name, float value ) {
@@ -67,6 +84,23 @@ namespace xAOD {
       // Return gracefully:
       return true;
    }
+
+
+   bool TrigComposite_v1::setDetail( const std::string& name,
+                                     const std::vector< unsigned int >& value ) {
+
+      // It should be pretty strange if this should fail:
+     std::vector<int> temp(value.begin(), value.end()); //
+      try {
+         auxdata< std::vector< int > >( name ) = temp;
+      } catch(...) {
+         return false;
+      }
+
+      // Return gracefully:
+      return true;
+   }
+
 
    bool TrigComposite_v1::setDetail( const std::string& name,
                                      const std::vector< float >& value ) {
@@ -98,6 +132,17 @@ namespace xAOD {
       return true;
    }
 
+
+   bool TrigComposite_v1::getDetail( const std::string& name,
+                                     unsigned int& value ) const {
+     int v;
+     const bool status = getDetail(name, v); 
+     value = v; // place for cast
+     return status;
+     
+   }
+
+
    bool TrigComposite_v1::getDetail( const std::string& name,
                                      float& value ) const {
 
@@ -114,6 +159,7 @@ namespace xAOD {
       return true;
    }
 
+
    bool TrigComposite_v1::getDetail( const std::string& name,
                                      std::vector< int >& value ) const {
 
@@ -128,6 +174,18 @@ namespace xAOD {
       // Retrieve this detail:
       value = acc( *this );
       return true;
+   }
+
+   bool TrigComposite_v1::getDetail( const std::string& name,
+                                     std::vector< unsigned int >& value ) const {
+
+     std::vector<int> temp;
+     const bool status = getDetail(name, temp);
+     
+     value.reserve(temp.size());
+     for ( int i: temp )
+       value.push_back(i);
+     return status;
    }
 
    bool TrigComposite_v1::getDetail( const std::string& name,
@@ -166,6 +224,11 @@ namespace xAOD {
       // The check itself is pretty simple:
       const std::vector< std::string >& names = accNames( *this );
       return ( std::find( names.begin(), names.end(), name ) != names.end() );
+   }
+
+   bool TrigComposite_v1::hasObjectCollectionLinks( const std::string& collectionName ) const {
+      const std::string mangledName = collectionName + m_collectionSuffix;
+      return hasObjectLink( mangledName );
    }
 
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,

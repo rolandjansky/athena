@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigPassBits_v1.icc 704009 2015-10-28 08:32:05Z krasznaa $
+// $Id: TrigPassBits_v1.icc 773869 2016-09-19 15:27:05Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_ICC
 #define XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_ICC
 
@@ -57,6 +57,13 @@ namespace xAOD {
    void TrigPassBits_v1::markPassing( const OBJ* obj, const CONT* container,
                                       bool passed ) {
 
+      // Check if the CLID of the specified container is the same as the
+      // container that the information was collected for originally:
+      if( ClassID_traits< CONT >::ID() != containerClid() ) {
+         throw std::runtime_error( "The CLID of the passed container does "
+                                   "not match that of the original container" );
+      }
+
       // Check that we received the correct container:
       if( m_container && ( m_container != container ) ) {
          throw std::runtime_error( "Function called with a wrong container" );
@@ -87,9 +94,11 @@ namespace xAOD {
    bool TrigPassBits_v1::isPassing( const OBJ* obj,
                                     const CONT* container ) const {
 
-      // Check that we received the correct container:
-      if( m_container && ( m_container != container ) ) {
-         throw std::runtime_error( "Function called with a wrong container" );
+      // Check if the CLID of the specified container is the same as the
+      // container that the information was collected for originally:
+      if( ClassID_traits< CONT >::ID() != containerClid() ) {
+         throw std::runtime_error( "The CLID of the passed container does "
+                                   "not match that of the original container" );
       }
 
       // Find the element in the container:
@@ -101,6 +110,48 @@ namespace xAOD {
 
       // Call the non-templated function to check the status of the bit:
       return isPassing( itr - container->begin() );
+   }
+
+   /// This function can be used to check whether an element of a container
+   /// passed the hypothesis selections. While checking that we use the
+   /// container with the right key.
+   ///
+   /// @param obj       The objects whose state we should check
+   /// @param container The container that the object is part of
+   /// @param key       The hashed key of the container we are checking
+   /// @returns The "passing state" of the object
+   ///
+   template< class OBJ, class CONT >
+   bool TrigPassBits_v1::isPassing( const OBJ* obj,
+                                    const CONT* container,
+                                    uint32_t key ) const {
+
+      // Check if the key of the container matches the recorded one:
+      if( key != containerKey() ) {
+         throw std::runtime_error( "The specified key doesn't match the one "
+                                   "stored in the object" );
+      }
+
+      // Let the other function do the rest:
+      return isPassing( obj, container );
+   }
+
+   /// This function can be used to check whether an element of a container
+   /// passed the hypothesis selections. While checking that we use the
+   /// container with the right key.
+   ///
+   /// @param obj       The objects whose state we should check
+   /// @param container The container that the object is part of
+   /// @param key       The key of the container we are checking
+   /// @returns The "passing state" of the object
+   ///
+   template< class OBJ, class CONT >
+   bool TrigPassBits_v1::isPassing( const OBJ* obj,
+                                    const CONT* container,
+                                    const std::string& key ) const {
+
+      // Let the other function do the heavy lifting:
+      return isPassing( obj, container, hash( key ) );
    }
 
    /// This function is an analogue of the HLT::makeTrigPassBits function,
@@ -123,6 +174,34 @@ namespace xAOD {
       result->makePrivateStore();
       // Set it up:
       result->reset( container, containerKey );
+      // And now return it:
+      return result;
+   }
+
+   /// This function is an analogue of the HLT::makeTrigPassBits function,
+   /// written for the original TrigPassBits type. It behaves much the
+   /// same way, it just makes it clear in its interface that the user
+   /// is supposed to take ownership of the received object.
+   ///
+   /// It's a more convenient way for hypo algorithm developers to specify
+   /// a key/label for the container that this TrigPassBits object should
+   /// be describing.
+   ///
+   /// @param container Pointer to the container that this object should
+   ///                  describe
+   /// @param containerKey A unique key describing the target container.
+   ///                     (The label of the container in most cases.)
+   ///
+   template< class CONT >
+   std::unique_ptr< TrigPassBits_v1 >
+   makeTrigPassBits( const CONT* container, const std::string& containerKey ) {
+
+      // Create the new object:
+      std::unique_ptr< TrigPassBits_v1 > result( new TrigPassBits_v1() );
+      // Give it a private auxiliary store:
+      result->makePrivateStore();
+      // Set it up:
+      result->reset( container, xAOD::TrigPassBits_v1::hash( containerKey ) );
       // And now return it:
       return result;
    }

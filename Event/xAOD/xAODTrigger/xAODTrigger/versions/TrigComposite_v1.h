@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.h 631318 2014-11-26 18:32:04Z krasznaa $
+// $Id: TrigComposite_v1.h 784388 2016-11-15 17:08:58Z tamartin $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H
 
@@ -18,6 +18,7 @@ extern "C" {
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 namespace xAOD {
 
@@ -30,8 +31,8 @@ namespace xAOD {
    /// @author Camille Belanger-Champagne <Camille.Belanger-Champagne@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 631318 $
-   /// $Date: 2014-11-26 19:32:04 +0100 (Wed, 26 Nov 2014) $
+   /// $Revision: 784388 $
+   /// $Date: 2016-11-15 18:08:58 +0100 (Tue, 15 Nov 2016) $
    ///
    class TrigComposite_v1 : public SG::AuxElement {
 
@@ -54,33 +55,56 @@ namespace xAOD {
 
       /// Check if a given type of detail is available
       template< typename TYPE >
-      bool hasDetail( const std::string& name );
+      bool hasDetail( const std::string& name ) const;
 
       /// Set an integer detail on the object
       bool setDetail( const std::string& name, int value );
+      /// Set an unsigned detail on the object
+      bool setDetail( const std::string& name, unsigned int value );
       /// Set a floating point detail on the object
       bool setDetail( const std::string& name, float value );
       /// Set a vector<int> detail on the object
       bool setDetail( const std::string& name,
                       const std::vector< int >& value );
+      /// Set a vector<unsigned int> detail on the object 
+      bool setDetail( const std::string& name,
+                      const std::vector< unsigned int >& value );
       /// Set a vector<float> detail on the object
       bool setDetail( const std::string& name,
                       const std::vector< float >& value );
 
       /// Get an integer detail from the object
       bool getDetail( const std::string& name, int& value ) const;
+
+      /// Get an unsigned integer detail from the object
+      bool getDetail( const std::string& name, unsigned int& value ) const;
+
       /// Get a floating point detail from the object
       bool getDetail( const std::string& name, float& value ) const;
+
       /// Get a vector<int> detail from the object
       bool getDetail( const std::string& name,
                       std::vector< int >& value ) const;
+
+      /// Get a vector<insigned int> detail from the object
+      bool getDetail( const std::string& name,
+                      std::vector< unsigned int>& value ) const;     
       /// Get a vector<float> detail from the object
       bool getDetail( const std::string& name,
                       std::vector< float >& value ) const;
 
+
+      /// Get a detail by name, missing detail will result on std::runtime_error exception
+      template<typename T>
+      T getDetail( const std::string& name ) const;
+
+      /// Get a detail by name, will not throw. Name change to solve disambiguation
+      template<typename T>
+      std::pair<bool, T> returnDetail( const std::string& name ) const;
+
       /// @}
 
-      /// @name Functions for accessing links to component objects
+      /// @name Functions for accessing links to component objects and object collections
       /// @{
 
       /// Set the link to an object
@@ -96,6 +120,22 @@ namespace xAOD {
       /// Get a bare pointer with the requested name
       template< class OBJECT >
       const OBJECT* object( const std::string& name ) const;
+
+      /// Add a link to a single object within a collection
+      template< class CONTAINER >
+      bool addObjectCollectionLink( const std::string& collectionName,
+                                    const ElementLink< CONTAINER >& link );
+      /// Add links to multiple objects within a collection
+      template< class CONTAINER >
+      bool addObjectCollectionLinks( const std::string& collectionName,
+                                     const ElementLinkVector< CONTAINER >& links );
+      /// Check if links exist to a collection of objects with given name
+      bool hasObjectCollectionLinks( const std::string& collectionName ) const;
+      /// Get a vector of all element links from the collection
+      template< class CONTAINER >
+      ElementLinkVector< CONTAINER >
+      objectCollectionLinks( const std::string& collectionName ) const;
+
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
@@ -117,6 +157,8 @@ namespace xAOD {
       std::vector< uint16_t >& linkColIndicesNC();
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
+
+      const std::string m_collectionSuffix = "__COLL";
 
    }; // class TrigComposite_v1
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodtrigger_trigcomposite_test.cxx 631223 2014-11-26 15:46:35Z krasznaa $
+// $Id: ut_xaodtrigger_trigcomposite_test.cxx 761887 2016-07-14 13:16:16Z tbold $
 
 // System include(s):
 #include <cmath>
@@ -56,26 +56,84 @@ int main() {
    // Set some simple properties on it:
    obj->setName( "TestObj" );
    obj->setDetail( "IntValue", 12 );
+   const unsigned uintTestConst = (1<<(sizeof(unsigned)*4-1)) + 41;
+   obj->setDetail( "UnsignedIntValue", uintTestConst );
    obj->setDetail( "FloatValue", 3.14f );
    obj->setDetail( "IntVecValue", std::vector< int >( { 1, 2, 3 } ) );
+   obj->setDetail( "UnsignedIntVecValue", std::vector< unsigned int >( { uintTestConst, 2, 3 } ) );
    obj->setDetail( "FloatVecValue", std::vector< float >( { 1.23, 2.34 } ) );
+   
+   std::cout << "Set detail ok." << std::endl;
+   SIMPLE_ASSERT( obj->hasDetail<int>("IntValue") );
+   SIMPLE_ASSERT( obj->hasDetail<unsigned int>("UnsignedIntValue") );
+   SIMPLE_ASSERT( obj->hasDetail<std::vector<unsigned int> >("UnsignedIntVecValue") );
+   SIMPLE_ASSERT( obj->hasDetail<std::vector<int> >("IntVecValue") );
 
    // Check them:
    SIMPLE_ASSERT( obj->name() == "TestObj" );
+
    int intValue = 0;
    SIMPLE_ASSERT( obj->getDetail( "IntValue", intValue ) );
    SIMPLE_ASSERT( intValue == 12 );
+
+   unsigned int unsignedIntValue = 0; // we want to use also the sin bit
+   SIMPLE_ASSERT( obj->getDetail( "UnsignedIntValue", unsignedIntValue ) );
+   SIMPLE_ASSERT( unsignedIntValue == uintTestConst );
+
    float floatValue = 0;
    SIMPLE_ASSERT( obj->getDetail( "FloatValue", floatValue ) );
    SIMPLE_ASSERT( std::abs( floatValue - 3.14 ) < 0.001 );
+		  
    std::vector< int > intVector;
    SIMPLE_ASSERT( obj->getDetail( "IntVecValue", intVector ) );
    SIMPLE_ASSERT( intVector == std::vector< int >( { 1, 2, 3 } ) );
+
+   std::vector<unsigned int> unsignedIntVector;
+   SIMPLE_ASSERT( obj->getDetail("UnsignedIntVecValue", unsignedIntVector) );
+   SIMPLE_ASSERT( unsignedIntVector == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
+
    std::vector< float > floatVector;
    SIMPLE_ASSERT( obj->getDetail( "FloatVecValue", floatVector ) );
 
    // Simply just print the last one:
    std::cout << "FloatVecValue = " << floatVector << std::endl;
+
+   int intValue2 = obj->getDetail<int>("IntValue");
+   SIMPLE_ASSERT( intValue2 == 12 );		  
+   unsigned int unsignedIntValue2 = obj->getDetail<unsigned int>("UnsignedIntValue");
+   SIMPLE_ASSERT( unsignedIntValue2 == uintTestConst);
+   float floatValue2 = obj->getDetail<float>("FloatValue");
+   SIMPLE_ASSERT( std::abs( floatValue2 - 3.14 ) < 0.001 );
+   std::vector<int> intVector2 =  obj->getDetail<std::vector<int>>( "IntVecValue");
+   SIMPLE_ASSERT( intVector2 == std::vector< int >( { 1, 2, 3 } ) );
+   std::vector< float > floatVector2 = obj->getDetail<std::vector<float>>( "FloatVecValue");
+   std::cout << "Simple getDetail API ok." << std::endl;
+
+
+
+   std::vector<unsigned int> unsignedIntVector2 = obj->getDetail<std::vector<unsigned int>>("UnsignedIntVecValue");
+   SIMPLE_ASSERT( unsignedIntVector2 == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
+
+   try {
+     obj->getDetail<int>("NonExistent");
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   try {
+     obj->getDetail<int>("FloatValue"); // confuse type
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   try {
+     obj->getDetail<int>("IntVecValue"); // confuse cardinality
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+   std::cout << "Missing details handled ok." << std::endl;
+
+
+   
+
+
 
    // Now test the ElementLink functionality in a basic way:
    obj->setObjectLink( "MuonRoI",

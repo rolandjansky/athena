@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigPassBits_v1.cxx 703368 2015-10-27 08:45:13Z krasznaa $
+// $Id: TrigPassBits_v1.cxx 773869 2016-09-19 15:27:05Z krasznaa $
+
+// System include(s):
+#include <functional>
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -87,6 +90,22 @@ namespace xAOD {
       const uint32_t bit = ( 0x1 << vec_index );
       const uint32_t mask = bits[ vec_element ];
       return ( mask & bit );
+   }
+
+   /// Helper function used to create a well defined hash of a string key.
+   /// Used to create the containerKey value stored in the object.
+   ///
+   /// @param key The string key to create a hash out of
+   /// @returns The hashed value for the specified key
+   ///
+   uint32_t TrigPassBits_v1::hash( const std::string& key ) {
+
+      // The helper object:
+      static std::hash< std::string > helper;
+
+      // The mask comes from how StoreGate creates hashes from keys. Could use
+      // some other value here as well though.
+      return ( static_cast< uint32_t >( helper( key ) ) & 0x3fffffff );
    }
 
    // Implementation of the raw accessor functions:
