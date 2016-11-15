@@ -27,13 +27,13 @@ MsgStream& operator<< (MsgStream & os, const TrkDriftCircleMath::SegmentCandidat
 {    
     os << "line " << seg.line()
        << " dcs " << seg.dcs().size()
-       << " cls " << seg.clusters().size() << endreq;
+       << " cls " << seg.clusters().size() << endmsg;
     
     TrkDriftCircleMath::DCCit it       = seg.dcs().begin();
     TrkDriftCircleMath::DCCit it_end   = seg.dcs().end();
     
     for (; it != it_end; ++it) {
-      os << *it << endreq;
+      os << *it << endmsg;
     }
     
     return os;
