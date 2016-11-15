@@ -47,6 +47,8 @@ namespace Muon {
     declareProperty("DoTruth",m_doTruth = false );
     declareProperty("DebugHough",m_debugHough = false );
     declareProperty("UseSeeds",m_useSeeds = true );
+    declareProperty("DoParabolicExtrapolation",m_doParabolicExtrapolation = true );
+    declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
 
   }
 
@@ -102,38 +104,38 @@ namespace Muon {
 
     // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
     m_selectors.resize(MuonStationIndex::ChIndexMax);
-    m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
-    m_selectors[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
-    m_selectors[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); // old values: 5.9
-    m_selectors[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
-    m_selectors[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
-    m_selectors[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
-    m_selectors[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
-    m_selectors[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 7.9
+    m_selectors[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 7.9 
+    m_selectors[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); // old values: 5.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9; optimized: 7.9
+    m_selectors[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
+    m_selectors[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9; optimized: 5.9
 
     m_selectorsLoose.resize(MuonStationIndex::ChIndexMax);
-    m_selectorsLoose[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 3.9
-    m_selectorsLoose[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
-    m_selectorsLoose[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
-    m_selectorsLoose[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
-    m_selectorsLoose[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
-    m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 4.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 3.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9; optimized: 3.9
+    m_selectorsLoose[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
+    m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
 
 
     // call handle in case of EndEvent
@@ -595,10 +597,21 @@ namespace Muon {
     road.phiMaxima.clear();
     road.phiMaxima.insert(road.phiMaxima.end(),road.phiMaximumSet.begin(),road.phiMaximumSet.end());
     
-    auto maximaSortingLambda = []( const MuonHough::MuonPhiLayerHough::Maximum* m1, const MuonHough::MuonPhiLayerHough::Maximum* m2 ) { 
+    auto maximaSortingLambda = [road]( const MuonHough::MuonPhiLayerHough::Maximum* m1, const MuonHough::MuonPhiLayerHough::Maximum* m2 ) { 
                                    if( m1->max == m2->max ){
-                                     if( m1->hits.size() == m2->hits.size() ) return m1->pos < m2->pos;
-                                     return m1->hits.size() < m2->hits.size();  // least hits -> most collimated maximum
+                                     if (m1->sector == m2->sector){   // prefer the same sector as the seed sector
+                                       if( m1->hits.size() == m2->hits.size() ) {
+                                         if( m1->pos == m2->pos ) {
+                                           if( std::abs(m1->binposmax - m1->binposmin) == std::abs(m2->binposmax - m2->binposmin) ) {
+                                             return (m1->binposmin) < (m2->binposmin);
+                                           }
+                                           return std::abs(m1->binposmax - m1->binposmin) < std::abs(m2->binposmax - m2->binposmin);
+                                         }
+                                         return m1->pos < m2->pos;
+                                       }
+                                       return m1->hits.size() < m2->hits.size();  // least hits -> most collimated maximum
+                                     }
+                                     return m1->sector == road.seed->hough->m_descriptor.sector;
                                    }
                                    return m1->max > m2->max; 
                                  };
@@ -627,8 +640,29 @@ namespace Muon {
         // refind maximum
         MuonHough::MuonPhiLayerHough localHough(60, -TMath::Pi(), TMath::Pi(), ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
         std::vector<MuonHough::PhiHit*> hits = phiMaximum.hits;
+        /* too ambiguous producing irreproducibilities because of sorting by pointer value
         std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
                                                      const MuonHough::PhiHit* h2 ){ return h1->layer < h2->layer; } );
+        */
+
+        std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
+                                                     const MuonHough::PhiHit* h2 ){
+                                                      if( h1->layer == h2->layer ) {
+                                                        if( h1->w == h2->w ) {
+                                                          if( h1->r == h2->r ) {
+                                                            if( std::abs(h1->phimax - h1->phimin) == std::abs(h2->phimax - h2->phimin) ){
+                                                              if( h1->phimin == h2->phimin ) return h1->phimax < h2->phimax;
+                                                              return h1->phimin < h2->phimin;
+                                                            }
+                                                            return std::abs(h1->phimax - h1->phimin) < std::abs(h2->phimax - h2->phimin);
+                                                          }
+                                                          return h1->r < h2->r;
+                                                        }
+                                                        return h1->w > h2->w;
+                                                      }
+                                                      return h1->layer < h2->layer;
+                                                     } );
+
         ATH_MSG_VERBOSE("  updating phi maximum " << phiMaximum.pos  << " bin " << phiMaximum.binpos 
                         << " val " << phiMaximum.max << " number of hits " << hits.size() );
         if( msgLvl(MSG::VERBOSE) ) localHough.setDebug(true);
@@ -667,7 +701,7 @@ namespace Muon {
       
       // untrue -> look in neighboring layer
       // true -> look only in this layer
-      double distanceCut = layer == seedLayer ? 500. : 1500.;
+      double distanceCut = layer == seedLayer ? 500. : m_extrapolationDistance;
 
       unsigned int layerHash = MuonStationIndex::sectorLayerHash(region,layer);
       
@@ -680,20 +714,17 @@ namespace Muon {
       // loop over maxima in layer
       for( auto mit = maxima.begin();mit!=maxima.end();++mit ){
         MuonHough::MuonLayerHough::Maximum* candMaximum = *mit;
-        // extrapolate seed to layer assuming a pointing straight line, swap coordinates for BEE
-        float yloc = layer != MuonStationIndex::BarrelExtended ? // yloc is linear extrapolation -> here change for making the straight line a bent line
-          candMaximum->hough->m_descriptor.referencePosition*seed.pos/seed.hough->m_descriptor.referencePosition :
-          candMaximum->hough->m_descriptor.referencePosition*seed.hough->m_descriptor.referencePosition/seed.pos;
-
+        // extrapolate seed to layer assuming a pointing straight line or parabolic
         // add maximum to road if close enough
-        if( fabs(yloc - candMaximum->pos) < distanceCut ) {
-          ATH_MSG_VERBOSE(" Adding maximum position " << candMaximum->pos << " intersect " << yloc );
+        float yloc_diff =  MuonHough::extrapolate(seed, *candMaximum, m_doParabolicExtrapolation);
+        if( fabs( MuonHough::extrapolate(seed, *candMaximum, m_doParabolicExtrapolation) ) < distanceCut ) {
+          ATH_MSG_VERBOSE(" Adding maximum position " << candMaximum->pos << " intersect diff" << yloc_diff );
           road.add(candMaximum);
         }else{
           ATH_MSG_VERBOSE(" Maximum position: y " << candMaximum->pos 
                                         <<  " x " << candMaximum->hough->m_descriptor.referencePosition 
                                     << " seed y " << seed.hough->m_descriptor.referencePosition 
-                                         << " x " << seed.pos << " intersect " << yloc );
+                                         << " x " << seed.pos << " intersect diff " << yloc_diff );
         }
       }
     }
@@ -737,15 +768,14 @@ namespace Muon {
         for( auto mit = maxima.begin();mit!=maxima.end();++mit ){
           MuonHough::MuonLayerHough::Maximum* candMaximum = *mit;
           // extrapolate seed to layer assuming a pointing straight line, swap coordinates
-          float yloc = candMaximum->hough->m_descriptor.referencePosition*seed.hough->m_descriptor.referencePosition/seed.pos;
-
+          float yloc_diff =  MuonHough::extrapolate(seed, *candMaximum, m_doParabolicExtrapolation);
           ATH_MSG_VERBOSE(" Maximum position: y " << candMaximum->pos 
                                          << " x " << candMaximum->hough->m_descriptor.referencePosition 
                                     << " seed y " << seed.hough->m_descriptor.referencePosition 
                                          << " x " << seed.pos 
-                                 << " intersect " << yloc );
+                                 << " intersect diff " << yloc_diff );
 
-          if( fabs(yloc - candMaximum->pos) < distanceCut ) {
+          if( fabs(yloc_diff) < distanceCut ) {
             road.add(candMaximum);
             road.neighbouringRegion = neighbourRegion;
           }
@@ -1685,18 +1715,49 @@ namespace Muon {
         }
         
         maximum.sector = sector; // very fragile passing on of sector
-        maxima.push_back( new MuonHough::MuonPhiLayerHough::Maximum(maximum) );
+        
+        //check if the maximum is already filled, if so, don't add it again
+        bool maximum_matched = false;
+        for( auto pit = maxima.begin();pit!=maxima.end();++pit ){
+          // reference to phi maximum
+          MuonHough::MuonPhiLayerHough::Maximum& pmaximum = **pit;
+          if (pmaximum.sector == maximum.sector && pmaximum.max == maximum.max && pmaximum.pos == maximum.pos && 
+            pmaximum.hits.size() == maximum.hits.size() && pmaximum.binpos == maximum.binpos && 
+            pmaximum.binposmin == maximum.binposmin && pmaximum.binposmax == maximum.binposmax){
+            ATH_MSG_DEBUG("extendSeed: sector has already been added! Skip. ");
+            bool maximum_hitmatched = true;//  check if there is a hit that is not the same
+            for ( unsigned int k=0; k < maximum.hits.size(); ++k){
+              if (maximum.hits[k] != pmaximum.hits[k]){// directly compare pointer address
+                maximum_hitmatched = false;
+                break;
+              }
+            }
+            if (maximum_hitmatched){
+              maximum_matched = true;
+              break;
+            }
+          }
+        }
+        //remove the hits from hough
         hough.fillLayer2(maximum.hits,true);
-        ++nmaxima;
+        if (maximum_matched){
+          //++nmaxima;
+          continue;
         }
         else{
-          if( nmaxima > 0 ) {
-            ATH_MSG_VERBOSE("findMaxima(Phi): No more maxima found " << nmaxima );
-          }
-          // ?!? same here, the function should return false if nothing was found, right?
-          break;      
+          maxima.push_back( new MuonHough::MuonPhiLayerHough::Maximum(maximum) );
+          ++nmaxima;
+        }
+      }
+      else{
+        if( nmaxima > 0 ) {
+          ATH_MSG_VERBOSE("findMaxima(Phi): No more maxima found " << nmaxima );
+        }
+        // ?!? same here, the function should return false if nothing was found, right?
+        break;     
       }
     }
+    hough.reset();
     return true;
   }
 
@@ -2047,7 +2108,7 @@ namespace Muon {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no 3D clusters! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endreq;
+          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endmsg;
         }
       }
       return;
@@ -2056,7 +2117,7 @@ namespace Muon {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no eta cluster selected! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endreq;
+          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endmsg;
         }
       }
       return;
@@ -2268,7 +2329,7 @@ namespace Muon {
       }
       if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << std::endl;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
   }
 
   void MuonLayerHoughTool::HoughDataPerSector::cleanUp() {

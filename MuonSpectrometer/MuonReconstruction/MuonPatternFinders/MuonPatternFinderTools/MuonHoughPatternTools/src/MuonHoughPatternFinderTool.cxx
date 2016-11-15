@@ -229,9 +229,9 @@ namespace Muon {
 
     // summary
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
-      if( patCombiCol->empty() ) msg() << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endreq;
+      if( patCombiCol->empty() ) msg() << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endmsg;
       else msg() << MSG::DEBUG << " summarizing Combined pattern combination output: " << std::endl 
-		 << m_printer->print( *patCombiCol ) << endreq;
+		 << m_printer->print( *patCombiCol ) << endmsg;
     }
 
     // clean up tool for next call
@@ -285,10 +285,10 @@ namespace Muon {
     MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns();
     
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
-      if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endreq;
-      else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endreq;
-      if( etapatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endreq;
-      else msg() << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endreq;
+      if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endmsg;
+      else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endmsg;
+      if( etapatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endmsg;
+      else msg() << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endmsg;
     }
     
     ATH_MSG_DEBUG ("writePatterns");
@@ -552,12 +552,12 @@ namespace Muon {
   {
     if (1)
       {
-	//msg() << MSG::VERBOSE << "Event through Cut()" << endreq;
+	//msg() << MSG::VERBOSE << "Event through Cut()" << endmsg;
 	return true;
       }
 
     else {
-      //msg() << MSG::VERBOSE << "Event not through Cut()" << endreq;
+      //msg() << MSG::VERBOSE << "Event not through Cut()" << endmsg;
       return false;
     }
   }
@@ -1024,7 +1024,7 @@ namespace Muon {
 	    m_weighthistogram->Fill(0);
 	    m_weighthistogrammdt->Fill(0);
 	  }
-	  //msg() << MSG::DEBUG << "Hit accepted" << endreq;
+	  //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
 	} // collection
 	return;
@@ -1271,7 +1271,7 @@ namespace Muon {
 	m_weighthistogram->Fill(weights[i]);
 	m_weighthistogrammdt->Fill(weights[i]);
       }
-      //msg() << MSG::DEBUG << "Hit accepted" << endreq;
+      //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
     } // collection
   }
@@ -1406,11 +1406,11 @@ namespace Muon {
       }
     // if (evtStore()->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
     // {
-    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endreq;
+    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endmsg;
     // }
     // else 
     // {
-    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endreq;
+    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endmsg;
     // }
   }
 
@@ -1691,10 +1691,8 @@ namespace Muon {
       for( ;iti!=iti_end;++iti ) {
 	// One seed selected
 	float tubeRadius=14.6;
-	std::string statname;
 	if((*iti).rot()){ //if no access to rot, can't do anything here
-	  statname=(*iti).rot()->detectorElement()->getStationType();
-	  if(statname.compare("BME")==0) tubeRadius=7.1;
+	  tubeRadius = (*iti).rot()->detectorElement()->innerTubeRadius();
 	}
 	for( int j = 7; j > i; j-- ) {
 	  if (layerHits.count(j) != 1) continue;    
