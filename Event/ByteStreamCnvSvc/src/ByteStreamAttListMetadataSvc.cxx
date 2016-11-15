@@ -47,13 +47,13 @@ StatusCode ByteStreamAttListMetadataSvc::readInit(const std::vector<std::string>
          StatusCode sc2 = mdStore->record(attlist, *it );
          if (sc2.isFailure()) {
             msg() << MSG::WARNING 
-                  << "Unable to store AthenaAttributeList for " << *it << endreq;
+                  << "Unable to store AthenaAttributeList for " << *it << endmsg;
             allok = StatusCode::FAILURE;
          }
       }
       else {
           msg() << MSG::DEBUG << *it << " already present in " 
-                << m_outputStoreName.toString() << endreq;
+                << m_outputStoreName.toString() << endmsg;
        }
        ++it;
    }
@@ -70,7 +70,7 @@ StatusCode ByteStreamAttListMetadataSvc::serialize(const std::vector<std::string
       ATH_MSG_FATAL("Cannot get serial.");
       return(StatusCode::FAILURE);
    }
-   msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::serialize" << endreq;
+   msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::serialize" << endmsg;
 
    m_serial->reset();
 
@@ -82,7 +82,7 @@ StatusCode ByteStreamAttListMetadataSvc::serialize(const std::vector<std::string
    while (it != keys.end()) {
       sc = inStore->retrieve( attList, *it );
       if (sc.isSuccess()) {
-         msg() << MSG::INFO << "Found " << *it << " in " << m_inputStoreName.toString() << endreq;
+         msg() << MSG::INFO << "Found " << *it << " in " << m_inputStoreName.toString() << endmsg;
          ByteStream::FreeMetadata* metacont = new ByteStream::FreeMetadata();
          std::string cl = "AthenaAttributeList";
          std::string cnvname;
@@ -98,7 +98,7 @@ StatusCode ByteStreamAttListMetadataSvc::serialize(const std::vector<std::string
 
 StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::string>& keys)
 {
-   msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::toBSMetadata" << endreq;
+   msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::toBSMetadata" << endmsg;
    const DataHandle< AthenaAttributeList > attList;
    StoreGateSvc* inStore;
    StatusCode sc = service(m_inputStoreName.toString(),inStore);
@@ -107,7 +107,7 @@ StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::str
    while (it != keys.end()) {
       sc = inStore->retrieve( attList, *it );
       if (sc.isSuccess()) {
-        msg() << MSG::INFO << "Found " << *it << " in " << m_inputStoreName.toString() << endreq;
+        msg() << MSG::INFO << "Found " << *it << " in " << m_inputStoreName.toString() << endmsg;
         ByteStream::FreeMetadata* metacont = new ByteStream::FreeMetadata();
         coral::AttributeList::const_iterator first1 = attList->begin();
         coral::AttributeList::const_iterator last1  = attList->end();
@@ -148,7 +148,7 @@ StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::str
            ATH_MSG_DEBUG(" name " << name << " type " << type << " value " << buf.str());
            //buf << first1->data<(*first1).specification().type()>();
            const std::string value = buf.str();
-           msg() << MSG::INFO << "About to push back " << name << ", " << value << endreq;
+           msg() << MSG::INFO << "About to push back " << name << ", " << value << endmsg;
            metacont->push_back(ByteStreamFreeMetadataString(name+"/"+type,value));
         }
         StoreGateSvc* outStore;
@@ -156,19 +156,19 @@ StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::str
         if (sc2.isSuccess()) {
            sc2 = outStore->record(metacont, *it );
            if (sc2.isFailure()) {
-              msg() << MSG::WARNING << "Unable to store ByteStreamFreeMetadataString for " << *it << endreq;
+              msg() << MSG::WARNING << "Unable to store ByteStreamFreeMetadataString for " << *it << endmsg;
            }
         }
         else {
-           msg() << MSG::WARNING << "Could not find store " << m_outputStoreName.toString() << endreq;
+           msg() << MSG::WARNING << "Could not find store " << m_outputStoreName.toString() << endmsg;
            delete metacont; 
            return StatusCode::FAILURE;
         }
      }
      else {
         msg() << MSG::WARNING << "Did NOT find " << *it << " in "
-              << m_inputStoreName.toString() << endreq;
-        msg() << MSG::DEBUG << inStore->dump() << endreq;
+              << m_inputStoreName.toString() << endmsg;
+        msg() << MSG::DEBUG << inStore->dump() << endmsg;
      }
      ++it;
   }
@@ -188,7 +188,7 @@ StatusCode ByteStreamAttListMetadataSvc::fromBSMetadata(const std::vector<std::s
     sc = inStore->retrieve( metacont, *it );
 
     if (sc.isSuccess()) {
-       msg() << MSG::DEBUG << "Found " << *it << " in " << m_inputStoreName.toString() << endreq;
+       msg() << MSG::DEBUG << "Found " << *it << " in " << m_inputStoreName.toString() << endmsg;
 
        // Check for attlist in detector store (should be there from initialize)
        AthenaAttributeList* attlist;
@@ -212,7 +212,7 @@ StatusCode ByteStreamAttListMetadataSvc::fromBSMetadata(const std::vector<std::s
           std::string name = first1->first.substr(0,first1->first.find('/'));
           std::string type = first1->first.substr(first1->first.find('/')+1);
           msg() << MSG::INFO
-                << "name = " << name << ", type = " << type << ", value = " << first1->second << endreq;
+                << "name = " << name << ", type = " << type << ", value = " << first1->second << endmsg;
           attlist->extend(name,type);
        }
 
@@ -262,12 +262,12 @@ StatusCode ByteStreamAttListMetadataSvc::fromBSMetadata(const std::vector<std::s
        if (!found) {
           sc = outStore->record(attlist, *it );
           if (sc.isFailure()) {
-             msg() << MSG::WARNING << "Unable to store AthenaAttributeList for " << *it << endreq;
+             msg() << MSG::WARNING << "Unable to store AthenaAttributeList for " << *it << endmsg;
           }
        }
     }
     else {
-       msg() << MSG::WARNING << "Did NOT find " << *it << " in " << m_outputStoreName.toString() << endreq;
+       msg() << MSG::WARNING << "Did NOT find " << *it << " in " << m_outputStoreName.toString() << endmsg;
     }
     ++it;
   }

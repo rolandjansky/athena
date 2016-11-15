@@ -317,7 +317,7 @@ void ByteStreamEventStorageOutputSvc::checkForUserMetadata(EventStorage::freeMet
    if (m_keys.size()>0) {
       StatusCode sc = m_attlistsvc->toBSMetadata(m_keys);
       if (sc.isFailure()) {
-         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endreq;
+         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
       }
    }
 
@@ -432,5 +432,7 @@ StatusCode ByteStreamEventStorageOutputSvc::io_reinit() {
       // FIXME: modify file name, not done for now because of IoUtils.update_io_registry vs. merge conflict.
       //m_simpleFileName.setValue(outputFile.substr(outputFile.find_last_of("/") + 1));
    }
+   ATH_MSG_DEBUG("Deleting DataWriter");
+   m_dataWriter.reset();
    return(this->reinit());
 }

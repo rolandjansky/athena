@@ -132,15 +132,16 @@ private:
 
    bool m_firstFileFired;
    bool m_beginFileFired;
+   bool m_inputCollectionsFromIS;
    mutable long m_NumEvents; // Number of Events read so far.
 
-   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
+   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
 
    BooleanProperty    m_procBadEvent;  //!< process bad events, which fail check_tree().
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
-   ToolHandleArray<IAthenaSelectorTool> m_helperTools;
-   ToolHandle<IAthenaSelectorTool> m_counterTool;
+   mutable ToolHandleArray<IAthenaSelectorTool> m_helperTools;
+   mutable ToolHandle<IAthenaSelectorTool> m_counterTool;
          
    /**@name Athena standard EventSelector properties */
 

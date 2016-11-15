@@ -42,6 +42,7 @@ EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLo
         m_evtStore( "StoreGateSvc", name ),
         m_firstFileFired(false),
         m_beginFileFired(false),
+	m_inputCollectionsFromIS(false),
 	m_NumEvents(0),
  	m_eventStreamingTool("", this),
         m_helperTools(this),
@@ -112,19 +113,20 @@ StatusCode EventSelectorByteStream::initialize() {
          std::vector<const Property*>::const_iterator ii = esProps->begin();
          if (esProps != 0) {
             while (ii != esProps->end()) {
-               StringArrayProperty temp;
                if ((*ii)->name() == "FullFileName") {
+                  StringArrayProperty temp;
                   if ((*ii)->load(temp)) {
                      retrieve = true;
-                     m_inputCollectionsProp = temp;
+                     m_inputCollectionsProp.assign(temp);
+                     m_inputCollectionsFromIS = true;
                      ATH_MSG_INFO("Retrieved InputCollections from InputSvc");
                   }
                }
-               StringProperty temp2;
                if ((*ii)->name() == "EventStore") {
+                  StringProperty temp2;
                   if ((*ii)->load(temp2)) {
                      m_evtStore = ServiceHandle<StoreGateSvc>(temp2.value(),this->name());
-                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp);
+                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp2);
                   }
                }
                ++ii;
@@ -262,7 +264,7 @@ StatusCode EventSelectorByteStream::reinit() {
    m_NumEvents = 0;
    bool retError = false;
    if (!m_helperTools.empty()) {
-      for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
+      for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
            last = m_helperTools.end(); iter != last; iter++) {
          if (!(*iter)->postInitialize().isSuccess()) {
             ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
@@ -330,7 +332,7 @@ StatusCode EventSelectorByteStream::finalize() {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
    }
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
+   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
         last = m_helperTools.end(); iter != last; iter++) {
       if (!(*iter)->preFinalize().isSuccess()) {
          ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
@@ -431,7 +433,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
       return(StatusCode::SUCCESS);
    }
    // Call all selector tool preNext before starting loop
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
+   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
                    last = m_helperTools.end(); iter != last; iter++) {
       if (!(*iter)->preNext().isSuccess()) {
          ATH_MSG_WARNING("Failed to preNext() " << (*iter)->name());
@@ -506,7 +508,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
          if (buildEventAttributeList().isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
-         for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
+         for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
 		         last = m_helperTools.end(); iter != last; iter++) {
             StatusCode toolStatus = (*iter)->postNext();
             if (toolStatus.isRecoverable()) {
@@ -1006,6 +1008,20 @@ StatusCode EventSelectorByteStream::io_reinit() {
    if (!iomgr->io_hasitem(this)) {
       ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
       return(StatusCode::FAILURE);
+   }
+   if (m_inputCollectionsFromIS) {
+      /*   MN: don't copy the FullFileName again - rely on FileSchedulingTool
+           to modify the EventSelector Input property directly
+      IProperty* propertyServer = dynamic_cast<IProperty*>(m_eventSource);
+      std::vector<std::string> vect;
+      StringArrayProperty inputFileList("FullFileName", vect);
+      StatusCode sc = propertyServer->getProperty(&inputFileList);
+      if(sc.isFailure()) {
+         ATH_MSG_FATAL("Unable to retrieve ByteStreamInputSvc");
+         return(StatusCode::FAILURE);
+      }
+      m_inputCollectionsProp = inputFileList;
+      */
    }
    std::vector<std::string> inputCollections = m_inputCollectionsProp.value();
    for (std::size_t i = 0, imax = inputCollections.size(); i != imax; ++i) {

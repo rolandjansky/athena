@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740489 2016-04-15 09:17:00Z krasznaa $
+# $Id: CMakeLists.txt 768274 2016-08-16 19:05:07Z ssnyder $
 ################################################################################
 # Package: ByteStreamCnvSvc
 ################################################################################
@@ -29,7 +29,7 @@ atlas_depends_on_subdirs(
    Event/ByteStreamCnvSvcLegacy )
 
 # External dependencies:
-find_package( Boost )
+find_package( Boost COMPONENTS system )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( tdaq-common COMPONENTS eformat_old eformat_write RawFileName
    DataReader DataWriter )

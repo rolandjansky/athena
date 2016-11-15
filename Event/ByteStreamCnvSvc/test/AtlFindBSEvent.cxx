@@ -21,7 +21,14 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "eformat/eformat.h"
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 #include "eformat/old/util.h"
 #include "EventStorage/pickDataReader.h"
 #include <time.h>

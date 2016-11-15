@@ -100,7 +100,7 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
    if (m_keys.size()>0) {
      StatusCode sc = m_attlistsvc->readInit(m_keys);
      if (sc.isFailure()) {
-       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endreq;
+       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endmsg;
      }
    }
 
@@ -223,7 +223,7 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
   if (m_keys.size()>0) {
     StatusCode sc = m_attlistsvc->fromBSMetadata(m_keys);
     if (sc.isFailure()) {
-       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endreq;
+       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
     }
   }
 
@@ -520,7 +520,7 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     if (ioc.isSuccess()) {
       const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
       if (ptmp !=0) {
-        DataHeaderElement DheEI(ptmp->transientAddress(),"ByteStreamEventInfo");
+        DataHeaderElement DheEI(ptmp->transientAddress(), 0, "ByteStreamEventInfo");
         Dh->insert(DheEI);
       }
       //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
