@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/CxxUtils
+                          Control/StoreGate
                           DetectorDescription/IRegionSelector
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
