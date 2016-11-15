@@ -8,9 +8,11 @@
 #define TRIGNAVIGATION_HOLDER_H
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "GaudiKernel/ClassID.h"
 
+#include "xAODCore/AuxSelection.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLinkVector.h"
@@ -24,8 +26,15 @@
 #include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
 
 #include "TrigNavStructure/BaseHolder.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class MsgStream;
+class ITrigSerializerToolBase;
+
+namespace SG {
+  class IAuxStoreIO;
+  class AuxStoreInternal;
+}
 
 namespace HLTNavDetails {
 
@@ -47,11 +56,11 @@ namespace HLTNavDetails {
   class IHolder : public HLT::BaseHolder {
   public:
     IHolder();
-    //    IHolder(const std::string& label, uint16_t idx );
+    IHolder(const std::string& prefix, const std::string& label, uint16_t idx );
     virtual ~IHolder();
 
 
-    virtual IHolder* clone(const std::string& label,  uint16_t idx) = 0; // actual constructor
+    virtual IHolder* clone(const std::string& prefix, const std::string& label,  uint16_t idx) = 0; // actual constructor
 
     /**
      * @brief prepares this holder by setting messaging, StoreGate access and providing serializer
@@ -73,24 +82,25 @@ namespace HLTNavDetails {
      */
     inline const std::string& label() const { return  m_label; }
 
-
-    void setObjectsKeyPrefix(const std::string& p) { m_prefix = p; }
+    /**
+     * @brief returns the containers StoreGate prefix
+     */
+    virtual const std::string& prefix() const { return m_prefix; }
 
     /**
      * @brief returns the containers StoreGate key
      */
-
-    virtual const std::string key() const = 0;
+    virtual const std::string& key() const = 0;
 
     /**
      * @brief returns the object's name stored by this holder
      */
-    virtual const std::string typeName() const = 0;
+    virtual const std::string& typeName() const = 0;
 
     /**
      * @brief returns the collection's name stored by this holder
      */
-    virtual const std::string collectionName() const = 0;
+    virtual const std::string& collectionName() const = 0;
 
     /**
      * @brief returns the index (short number used when linking object to the TE)
@@ -108,13 +118,18 @@ namespace HLTNavDetails {
     /**
      * @brief serializes this Holder including payload
      */
-    virtual bool serializeWithPayload(std::vector<uint32_t>& output, size_t& payloadsize);
+    bool serializeWithPayload(const xAOD::AuxSelection& sel,
+                              std::vector<uint32_t>& output,
+                              size_t& payloadsize);
 
 
     /**
      * @brief serializes the payload of this Holder
      */
-    bool serializePayload(std::vector<uint32_t>& dataBlob);
+    bool serializePayload(std::vector<uint32_t>& dataBlob,
+                          const xAOD::AuxSelection& sel);
+
+
 
     virtual void print(MsgStream& m) const;
 
@@ -140,20 +155,89 @@ namespace HLTNavDetails {
     virtual std::string getNextKey() = 0;   // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
 
   protected:
-    mutable std::vector<uint32_t>*  m_serialized;              //!< serialized vector of this type
     // serialization helpers
-    MsgStream*                      m_log;
-    IConversionSvc*                 m_objectserializerSvc;     //!< pointer to object serializer
-    HLT::AccessProxy*               m_storeGate;               //!< pointer to SG
+    MsgStream*                      m_log{0};
+    IConversionSvc*                 m_objectserializerSvc{0};     //!< pointer to object serializer
+    HLT::AccessProxy*               m_storeGate{0};               //!< pointer to SG
 
-    std::string  m_label;          //!< label given to the objects in this holder (labels given at attachFeature)
-    std::string  m_prefix;         //!< prefix for key given to the objects
-    uint16_t     m_subTypeIndex;   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
-    bool         m_readonly;     
-    ITypeProxy*  m_aux;
+    bool         m_readonly{false};
+    ITypeProxy*  m_aux{0};
+
   private:
-    mutable std::ostringstream m_ostream; //!< used internally for keys generation
-    int m_uniqueCounter; 
+    /**
+     * @brief Serialize all selected dynamic variables for an xAOD object.
+     * @param iio The auxiliary store for the xAOD object.
+     * @param sel Selection object for variables to write.
+     * @param[out] dataBlob Serialized data.
+     *
+     * Returns true on success, false on failure.
+     *
+     * Each selected dynamic variable is concatenated to @c dataBlob as follows.
+     *
+     *   - Length serialized name data (1 word).
+     *   - Serialized name data.
+     *   - Length of serialized type name (1 word).
+     *   - Serialized type name data.
+     *   - Length of serialized variable data (1 word).
+     *   - Serialized data for the variable, as produced by TrigTSerializer.
+     */
+    bool serializeDynVars (const SG::IAuxStoreIO& iio,
+                           const xAOD::AuxSelection& sel,
+                           std::vector<uint32_t>& dataBlob);
+
+
+    /**
+     * @brief Read dynamic auxiliary variables from a serialized buffer.
+     * @param dataBlob Serialized data.
+     * @param offs Offset in @c dataBlob where dynamic variables start.
+     * @param[out] store Auxiliary store for the object being read.
+     *
+     * @c dataBlob should be formatted as described in the documentation
+     * for @c serializeDynVars starting at @c offs.
+     * @c store should be convertable to @c IAuxStoreHolder.
+     * A new dynamic store will be created and registered with @c store
+     * via @c setStore.
+     *
+     * Returns true on success, false on failure.
+     */
+    bool deserializeDynVars (const std::vector<uint32_t>& dataBlob,
+                             size_t offs,
+                             SG::IAuxStore& store);
+
+
+    /**
+     * @brief Read dynamic auxiliary variables from a serialized buffer.
+     * @param dataBlob Serialized data.
+     * @param offs Offset in @c dataBlob where dynamic variables start.
+     * @param sz Number of elements in the xAOD container.
+     *
+     * @c dataBlob should be formatted as described in the documentation
+     * for @c serializeDynVars starting at @c offs.
+     * Returns a new dynamic store.
+     */
+    std::unique_ptr<SG::IAuxStore>
+    deserializeDynVars (const std::vector<uint32_t>& dataBlob,
+                        size_t offs);
+
+    
+    /**
+     * @brief Find the type of an element of a vector.
+     * @param tname The name of the type to analyze.
+     * @param[out[ elementTypeName The name of the type of an element of the vector.
+     *
+     * Returns the @c type_info for an element of the vector.
+     */
+    const std::type_info* getElementType (const std::string& tname,
+                                          std::string& elementTypeName) const;
+    
+
+    std::string  m_prefix;            //!< prefix for key given to the objects
+    std::string  m_label;             //!< label given to the objects in this holder (labels given at attachFeature)
+    uint16_t     m_subTypeIndex{0};   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
+    int          m_uniqueCounter{0};
+
+    /// Serializer tool; used for dynamic variables.
+    ToolHandle<ITrigSerializerToolBase> m_serializer;
   };
 
 
@@ -198,7 +282,7 @@ namespace HLTNavDetails {
   class Holder : public IHolder {
   public:
     Holder();
-    Holder(const std::string& label, uint16_t idx);
+    Holder(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~Holder();
 
     virtual HLT::TriggerElement::ObjectIndex add( const STORED* f, bool inSG, const std::string& = "" ) = 0;          //!< saved object in this holder
@@ -211,7 +295,7 @@ namespace HLTNavDetails {
     bool get(ElementLinkVector<CONTAINER2>& cont, HLT::TriggerElement::ObjectIndex idx);
 
     template<class CONTAINER2> 
-    bool getWithLink(typename set_link<STORED,CONTAINER2,boost::is_same<STORED,CONTAINER2>::value>::type& link,
+    bool getWithLink(typename set_link<STORED,CONTAINER2,std::is_same<STORED,CONTAINER2>::value>::type& link,
                      HLT::TriggerElement::ObjectIndex& idx) {
       
       bool result = static_cast<HolderImp<STORED,CONTAINER2>*>(this)->getWithLink(link,idx);
@@ -243,10 +327,10 @@ namespace HLTNavDetails {
     typedef HLTNavDetails::TypeProxy<CONTAINER> ContainerProxy;
 
     HolderImp();
-    HolderImp(const std::string& label, uint16_t idx);
+    HolderImp(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~HolderImp();
 
-    virtual IHolder* clone(const std::string& label, uint16_t idx );
+    virtual IHolder* clone(const std::string& prefix, const std::string& label, uint16_t idx );
 
     /**
      * @brief adds object(s) to be holded
@@ -266,7 +350,7 @@ namespace HLTNavDetails {
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont,  HLT::TriggerElement::ObjectIndex idx);
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont);
         
-    bool getWithLink(typename set_link<STORED,CONTAINER,boost::is_same<STORED,CONTAINER>::value>::type& link,
+    bool getWithLink(typename set_link<STORED,CONTAINER,std::is_same<STORED,CONTAINER>::value>::type& link,
                      HLT::TriggerElement::ObjectIndex& idx);
         
     virtual std::string getUniqueKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
@@ -278,9 +362,7 @@ namespace HLTNavDetails {
 
     virtual bool serialize(std::vector<uint32_t>& output) const;
 
-    virtual const std::string key() const {
-      return formatSGkey(this->m_prefix,ClassID_traits<CONTAINER>::typeName(),this->m_label);
-    };
+    virtual const std::string& key() const { return m_key; }
     virtual void print(MsgStream& m) const;
 
     virtual DataObject* getDataObject();
@@ -289,9 +371,9 @@ namespace HLTNavDetails {
     virtual bool setAuxDataObject(DataObject* dobjaux);
 
     virtual CLID typeClid() const { return ClassID_traits<STORED>::ID(); }
-    virtual const std::string typeName() const { return ClassID_traits<STORED>::typeName(); }
+    virtual const std::string& typeName() const { return ClassID_traits<STORED>::typeName(); }
     virtual CLID containerClid() const { return ClassID_traits<CONTAINER>::ID(); }
-    virtual const std::string collectionName() const { return ClassID_traits<CONTAINER>::typeName(); }
+    virtual const std::string& collectionName() const { return ClassID_traits<CONTAINER>::typeName(); }
     virtual CLID auxClidOrZero() const;
 
     virtual const ITypeProxy& containerTypeProxy() const { return m_containerProxy; }
@@ -309,6 +391,9 @@ namespace HLTNavDetails {
 
     typedef std::multimap<HLT::TriggerElement::ObjectIndex, MemoryMgr> MemoryMgrMap;
     MemoryMgrMap m_memMgr;
+
+  private:
+    std::string m_key; //<! StoreGate key
   };
 
   MsgStream& operator<< ( MsgStream& m, const HLTNavDetails::IHolder& nav ); //<! printing helper

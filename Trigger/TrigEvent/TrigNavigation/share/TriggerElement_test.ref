@@ -1,0 +1,47 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+TriggerElement_...   INFO small 
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x8010005c
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 12 begin: 4 end: 5
+TriggerElement_...   INFO original     SubTypeIdx: 12 begin: 4 end: 5
+TriggerElement_...   INFO deserialized SubTypeIdx: 12 begin: 4 end: 5
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x8010007f
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 15 begin: 4 end: 7
+TriggerElement_...   INFO original     SubTypeIdx: 15 begin: 4 end: 7
+TriggerElement_...   INFO deserialized SubTypeIdx: 15 begin: 4 end: 7
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO LINE:68 Test progress fine:  big 
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x159
+TriggerElement_...   INFO serialized word: 0xea60ea61
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 345 begin: 60000 end: 60001
+TriggerElement_...   INFO original     SubTypeIdx: 345 begin: 60000 end: 60001
+TriggerElement_...   INFO deserialized SubTypeIdx: 345 begin: 60000 end: 60001
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x159
+TriggerElement_...   INFO serialized word: 0xea60f389
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 345 begin: 60000 end: 62345
+TriggerElement_...   INFO original     SubTypeIdx: 345 begin: 60000 end: 62345
+TriggerElement_...   INFO deserialized SubTypeIdx: 345 begin: 60000 end: 62345
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO huge 
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x4000000c
+TriggerElement_...   INFO serialized word: 0xffff
+TriggerElement_...   INFO serialized word: 0x10000
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 12 begin: 65535 end: 65536
+TriggerElement_...   INFO original     SubTypeIdx: 12 begin: 65535 end: 65536
+TriggerElement_...   INFO deserialized SubTypeIdx: 12 begin: 65535 end: 65536
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO LINE:16 Start of the test: Unit0 test
+TriggerElement_...   INFO serialized word: 0x4000000c
+TriggerElement_...   INFO serialized word: 0xc8320
+TriggerElement_...   INFO serialized word: 0xc8321
+TriggerElement_...   INFO serialziation works well for orig     SubTypeIdx: 12 begin: 820000 end: 820001
+TriggerElement_...   INFO original     SubTypeIdx: 12 begin: 820000 end: 820001
+TriggerElement_...   INFO deserialized SubTypeIdx: 12 begin: 820000 end: 820001
+TriggerElement_...   INFO LINE:38 End of the test: Unit0 test
+TriggerElement_...   INFO LINE:90 Test progress fine:  SUCCESS

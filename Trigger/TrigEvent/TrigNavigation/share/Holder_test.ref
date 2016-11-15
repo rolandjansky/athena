@@ -1,0 +1,562 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
+JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
+JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
+JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["ActiveStoreSvc"]
+JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvc += ["ToolSvc"]
+JobOptionsSvc        INFO # (8,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
+JobOptionsSvc        INFO # (9,1): StoreGateSvc.OutputLevel = 0
+JobOptionsSvc        INFO # (10,1): StoreGateSvc.ActivateHistory = 0
+JobOptionsSvc        INFO # (14,1): MessageSvc.useColors = 0
+JobOptionsSvc        INFO # (30,1): ToolSvc.Navigation.ReferenceAllClasses = 1
+JobOptionsSvc        INFO # (31,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TrigNavTest::TestBContainer#BContainer1", "TrigNavTest::TestBContainer#BContainer2", "TestDContainer#DContainer1"]
+JobOptionsSvc        INFO # (34,1): ToolSvc.Navigation.OutputLevel = 1
+JobOptionsSvc        INFO # (35,1): Holder_test.OutputLevel = 1
+JobOptionsSvc        INFO # (36,1): RoICache_test.OutputLevel = 3
+JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus002.cern.ch on Tue Oct 25 16:44:13 2016
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1404 CLIDRegistry entries for module ALL
+TrigSerializeCn...   INFO initialize()
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+Holder_test          INFO LINE:63 Start of the test: Creation of the holders Container <-> Container
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2afd080 with key _TrigNavTest__TestBContainer_creation0Aux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2b04b90
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2afcf70 with key _TrigNavTest__TestBContainer_creation0 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b04dd0
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:68 Test progress fine:  Creation of the holders Object <-> Container
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b05f10 with key _DataVector<TestA>_creation1Aux. of type TestAuxA(CLID 642300)
+ in DataObject @0x2b06210
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b05e00 with key _DataVector<TestA>_creation1 of type DataVector<TestA>(CLID 64210)
+ in DataObject @0x2b06920
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:74 Test progress fine:  Creation of the holders Container <-> Container with details
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b074e0 with key _TrigNavTest__TestBContainer_creation2Aux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2b07810
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b073d0 with key _TrigNavTest__TestBContainer_creation2 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b07a10
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:80 Test progress fine:  Creation of the holders Object <-> Container
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b08770 with key _DataVector<TestA>_creation3Aux. of type TestAuxA(CLID 642300)
+ in DataObject @0x2b08a70
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b08660 with key _DataVector<TestA>_creation3 of type DataVector<TestA>(CLID 64210)
+ in DataObject @0x2b09050
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b09ad0 with key _TrigNavTest__TestBContainerView_creation4 of type TrigNavTest::TestBContainerView(CLID 96423)
+ in DataObject @0x2a0dd70
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:90 End of the test: Creation of the holders Container <-> Container
+ClassIDSvc           INFO  getRegistryEntries: read 357 CLIDRegistry entries for module ALL
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0x2b06920  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0x2b09050  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0x2b04dd0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0x2b07a10  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0x2a0dd70  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0x2b06210  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0x2b08a70  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0x2b04b90  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0x2b07810  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+Holder_test          INFO LINE:95 Start of the test: Simple test of Container <-> Container holder (add)
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b073d0 with key _TrigNavTest__TestBContainer_TestBAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2b08a70
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2ae24c0 with key _TrigNavTest__TestBContainer_TestB of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2af88c0
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:105 Test progress fine:  adding simple vec
+StoreGateSvc        DEBUG Recorded object @0x2b07520 with key HLTAutoKey_TestB_96422_11_to_0 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b094b0
+ object not modifiable when retrieved
+Holder_test          INFO LINE:113 Test progress fine:  Added another ownership
+StoreGateSvc        DEBUG Recorded object @0x2b09ad0 with key dav1 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b07a10
+ object modifiable when retrieved
+Holder_test          INFO LINE:121 Test progress fine:  Added another ownership -with the hint
+StoreGateSvc        DEBUG Recorded object @0x2ae2780 with key dav2 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2a0dd70
+ object modifiable when retrieved
+Holder_test          INFO LINE:125 Test progress fine:  Adding a VIEW container
+StoreGateSvc        DEBUG Recorded object @0x2b088f0 with key HLTAutoKey_TestB_96422_11_to_1 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2a63820
+ object not modifiable when retrieved
+Holder_test       WARNING insert::do_it objects can not be inserted because of ownership issues. Destination container has already 5 objects  and ownership policy OWN no action is performed, potential memory leak
+Holder_test       WARNING HolderImp::add  insert failed 
+Holder_test          INFO LINE:153 Test progress fine:  END Simple test of Container <-> Container holder -add-
+Holder_test          INFO LINE:156 Test progress fine:  END Simple test of Object <-> Container holder -add-
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b0feb0 with key _DataVector<TestA>_TestAAux. of type TestAuxA(CLID 642300)
+ in DataObject @0x2a36150
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b06090 with key _DataVector<TestA>_TestA of type DataVector<TestA>(CLID 64210)
+ in DataObject @0x2b06dc0
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:171 End of the test: Simple test of Container <-> Container holder (add)
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+ deleting TestA: 235
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b087c0, recorded with key=_DataVector<TestA>_TestA, CLID=64210, containing data object @0x2b06dc0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08040, recorded with key=HLTAutoKey_TestB_96422_11_to_0, CLID=96422, containing data object @0x2b094b0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2adbef0, recorded with key=HLTAutoKey_TestB_96422_11_to_1, CLID=96422, containing data object @0x2a63820  ... -> DONE
+ deleting TestB: 6
+ deleting TestB: 1
+ deleting TestB: 2
+ deleting TestB: 3
+ deleting TestB: 4
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afced0, recorded with key=_TrigNavTest__TestBContainer_TestB, CLID=96422, containing data object @0x2af88c0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a20840, recorded with key=dav1, CLID=96422, containing data object @0x2b07a10  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09dd0, recorded with key=dav2, CLID=96422, containing data object @0x2a0dd70  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0x2a36150  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0x2b08a70  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+Holder_test          INFO LINE:95 Start of the test: Simple test of Container <-> Container holder (add)
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b09fe0 with key _TrigNavTest__TestBContainer_TestBAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2a63820
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b06090 with key _TrigNavTest__TestBContainer_TestB of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b07a10
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:105 Test progress fine:  adding simple vec
+StoreGateSvc        DEBUG Recorded object @0x2b088f0 with key HLTAutoKey_TestB_96422_11_to_0 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2af88c0
+ object not modifiable when retrieved
+Holder_test          INFO LINE:113 Test progress fine:  Added another ownership
+StoreGateSvc        DEBUG Recorded object @0x2ae24c0 with key dav1 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2a36150
+ object modifiable when retrieved
+Holder_test          INFO LINE:121 Test progress fine:  Added another ownership -with the hint
+StoreGateSvc        DEBUG Recorded object @0x2b09ad0 with key dav2 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b094b0
+ object modifiable when retrieved
+Holder_test          INFO LINE:125 Test progress fine:  Adding a VIEW container
+StoreGateSvc        DEBUG Recorded object @0x2ae2780 with key HLTAutoKey_TestB_96422_11_to_1 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2add980
+ object not modifiable when retrieved
+Holder_test       WARNING insert::do_it objects can not be inserted because of ownership issues. Destination container has already 5 objects  and ownership policy OWN no action is performed, potential memory leak
+Holder_test       WARNING HolderImp::add  insert failed 
+Holder_test          INFO LINE:153 Test progress fine:  END Simple test of Container <-> Container holder -add-
+Holder_test          INFO LINE:156 Test progress fine:  END Simple test of Object <-> Container holder -add-
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b10530 with key _DataVector<TestA>_TestAAux. of type TestAuxA(CLID 642300)
+ in DataObject @0x2acd790
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b10420 with key _DataVector<TestA>_TestA of type DataVector<TestA>(CLID 64210)
+ in DataObject @0x2ae3960
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:171 End of the test: Simple test of Container <-> Container holder (add)
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+ deleting TestA: 235
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b087c0, recorded with key=_DataVector<TestA>_TestA, CLID=64210, containing data object @0x2ae3960  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08040, recorded with key=HLTAutoKey_TestB_96422_11_to_0, CLID=96422, containing data object @0x2af88c0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2adbef0, recorded with key=HLTAutoKey_TestB_96422_11_to_1, CLID=96422, containing data object @0x2add980  ... -> DONE
+ deleting TestB: 6
+ deleting TestB: 1
+ deleting TestB: 2
+ deleting TestB: 3
+ deleting TestB: 4
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afced0, recorded with key=_TrigNavTest__TestBContainer_TestB, CLID=96422, containing data object @0x2b07a10  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a20840, recorded with key=dav1, CLID=96422, containing data object @0x2a36150  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09dd0, recorded with key=dav2, CLID=96422, containing data object @0x2b094b0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0x2acd790  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0x2a63820  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+Holder_test          INFO LINE:176 Start of the test: Operations
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b0a1a0 with key _TrigNavTest__TestBContainer_TestBAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2acd790
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b06090 with key _TrigNavTest__TestBContainer_TestB of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b10680
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b088f0 with key HLTAutoKey_TestB_96422_11_to_0 of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b094b0
+ object not modifiable when retrieved
+Holder_test          INFO LINE:195 End of the test: Operations
+Holder_test          INFO LINE:200 Start of the test: serialization
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b0e6d0 with key _TrigNavTest__TestBContainer_bluAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2af88c0
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b09ad0 with key _TrigNavTest__TestBContainer_blu of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b06010
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Holder_test          INFO LINE:212 Test progress fine:  blob size 5
+Holder_test          INFO LINE:223 End of the test: serialization
+Holder_test          INFO LINE:53 Start of the test: use of unique key without sync to SG
+StoreGateSvc        DEBUG Recorded object @0x2b0ef60 with key Aux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2b0f270
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b0ee50 with key  of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b0f880
+ object modifiable when retrieved
+Holder_test          INFO LINE:57 Test progress fine:  Got unique Key:HLTAutoKey__96422_0_to_0
+Holder_test          INFO LINE:58 End of the test: use of unique key without sync to SG
+Holder_test          INFO LINE:229 Start of the test: externalCollection
+StoreGateSvc        DEBUG Recorded object @0x2b0faf0 with key HLT_external of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b075a0
+ object modifiable when retrieved
+Holder_test          INFO LINE:242 End of the test: externalCollection
+Holder_test          INFO LINE:249 Start of the test: serialize_xAOD
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b087c0, recorded with key=_DataVector<TestA>_TestA, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09370, recorded with key=, CLID=96422, containing data object @0x2b0f880  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08040, recorded with key=HLTAutoKey_TestB_96422_11_to_0, CLID=96422, containing data object @0x2b094b0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2adbef0, recorded with key=HLTAutoKey_TestB_96422_11_to_1, CLID=96422, containing data object @0  ... -> DONE
+ deleting TestB: 1
+ deleting TestB: 2
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f8d0, recorded with key=HLT_external, CLID=96422, containing data object @0x2b075a0  ... -> DONE
+ deleting TestB: 9
+ deleting TestB: 67
+ deleting TestB: 8
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afced0, recorded with key=_TrigNavTest__TestBContainer_TestB, CLID=96422, containing data object @0x2b10680  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07530, recorded with key=_TrigNavTest__TestBContainer_blu, CLID=96422, containing data object @0x2b06010  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a20840, recorded with key=dav1, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09dd0, recorded with key=dav2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0x2b0f270  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0x2acd790  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0x2af88c0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc        DEBUG Recorded object @0x2b088f0 with key _TrigNavTest__TestBContainer_testb of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2b0e920
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b0e6d0 with key _TrigNavTest__TestBContainer_testbAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2b08eb0
+ object modifiable when retrieved
+Holder_test          INFO LINE:38 Start of the test: Registration
+Holder_test          INFO LINE:49 End of the test: Registration
+Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in libISF_FastCaloSimParametrizationLib.so  is already in libCaloEventDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  IntArray found in libISF_FastCaloSimParametrizationLib.so  is already in libISF_FastCaloSimEvent.so 
+Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_tlp1 is available
+Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
+Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_p1 is available
+Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
+Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
+Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
+Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
+ToolSvc.TrigTSe...WARNING Could not re-load  class listOfRules
+ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-02-11
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b087c0, recorded with key=_DataVector<TestA>_TestA, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09370, recorded with key=, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08040, recorded with key=HLTAutoKey_TestB_96422_11_to_0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2adbef0, recorded with key=HLTAutoKey_TestB_96422_11_to_1, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f8d0, recorded with key=HLT_external, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afced0, recorded with key=_TrigNavTest__TestBContainer_TestB, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07530, recorded with key=_TrigNavTest__TestBContainer_blu, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0  ... -> DONE
+ deleting TestB: 0
+ deleting TestB: 1
+ deleting TestB: 2
+ deleting TestB: 3
+ deleting TestB: 4
+ deleting TestB: 5
+ deleting TestB: 6
+ deleting TestB: 7
+ deleting TestB: 8
+ deleting TestB: 9
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a14420, recorded with key=_TrigNavTest__TestBContainer_testb, CLID=96422, containing data object @0x2b0e920  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a20840, recorded with key=dav1, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09dd0, recorded with key=dav2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f1b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0x2b08eb0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f1b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f1b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f1b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f1b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0  ... -> DONE
+Holder_test          INFO LINE:38 Start of the test: Registration
+StoreGateSvc        DEBUG Recorded object @0x2b0e6d0 with key _TrigNavTest__TestBContainer_testbAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0x2a36150
+ object modifiable when retrieved
+StoreGateSvc        DEBUG Recorded object @0x2b088f0 with key _TrigNavTest__TestBContainer_testb of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2acd790
+ object modifiable when retrieved
+Holder_test          INFO LINE:49 End of the test: Registration
+Warning in <TClass::Init>: no dictionary for class coral::AttributeList is available
+StoreGateSvc        DEBUG overwrite: Recorded object @0xb5ae3f0 with key _TrigNavTest__TestBContainer_testb of type TrigNavTest::TestBContainer(CLID 96422)
+ in DataObject @0x2cd6ab0
+ object not modifiable when retrieved
+StoreGateSvc        DEBUG overwrite: Recorded object @0xb5b4620 with key _TrigNavTest__TestBContainer_testbAux. of type TrigNavTest::TestAuxB(CLID 642311)
+ in DataObject @0xb5ae5e0
+ object not modifiable when retrieved
+StoreGateSvc      VERBOSE called associateAux_impl const for key _TrigNavTest__TestBContainer_testb
+StoreGateSvc        DEBUG Retrieved const handle to object _TrigNavTest__TestBContainer_testb  of type TrigNavTest::TestBContainer(CLID 96422)
+testb aux vars:
+::detail [float]
+::dyn [int]
+StoreGateSvc        DEBUG Clearing store with forceRemove=0
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b087c0, recorded with key=_DataVector<TestA>_TestA, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06a40, recorded with key=_DataVector<TestA>_creation1, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b091a0, recorded with key=_DataVector<TestA>_creation3, CLID=64210, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09370, recorded with key=, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08040, recorded with key=HLTAutoKey_TestB_96422_11_to_0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2adbef0, recorded with key=HLTAutoKey_TestB_96422_11_to_1, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f8d0, recorded with key=HLT_external, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afced0, recorded with key=_TrigNavTest__TestBContainer_TestB, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07530, recorded with key=_TrigNavTest__TestBContainer_blu, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05520, recorded with key=_TrigNavTest__TestBContainer_creation0, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07de0, recorded with key=_TrigNavTest__TestBContainer_creation2, CLID=96422, containing data object @0  ... -> DONE
+ deleting TestB: 0
+ deleting TestB: 1
+ deleting TestB: 2
+ deleting TestB: 3
+ deleting TestB: 4
+ deleting TestB: 5
+ deleting TestB: 6
+ deleting TestB: 7
+ deleting TestB: 8
+ deleting TestB: 9
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5adef0, recorded with key=_TrigNavTest__TestBContainer_testb, CLID=96422, containing data object @0x2cd6ab0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2a20840, recorded with key=dav1, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09dd0, recorded with key=dav2, CLID=96422, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b09ca0, recorded with key=_TrigNavTest__TestBContainerView_creation4, CLID=96423, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5ae8b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0xb5ae5e0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5ae8b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0xb5ae5e0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5ae8b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0xb5ae5e0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5ae8b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0xb5ae5e0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b0f360, recorded with key=Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2ad33c0, recorded with key=_DataVector<TestA>_TestAAux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b06480, recorded with key=_DataVector<TestA>_creation1Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b08bf0, recorded with key=_DataVector<TestA>_creation3Aux., CLID=642300, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2afc6d0, recorded with key=_TrigNavTest__TestBContainer_TestBAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b05f60, recorded with key=_TrigNavTest__TestBContainer_bluAux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b03f50, recorded with key=_TrigNavTest__TestBContainer_creation0Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2b07960, recorded with key=_TrigNavTest__TestBContainer_creation2Aux., CLID=642311, containing data object @0  ... -> DONE
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0xb5ae8b0, recorded with key=_TrigNavTest__TestBContainer_testbAux., CLID=642311, containing data object @0xb5ae5e0  ... -> DONE
+Holder_test          INFO LINE:342 End of the test: serialize_xAOD
+Holder_test          INFO LINE:402 Test progress fine:  END all went fine

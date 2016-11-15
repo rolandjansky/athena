@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <iterator> // remove it (it is here to help with debugging)
 
-#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/System.h"
 
 #include "TrigNavigation/Navigation.h"
+#include "AthContainers/AuxElement.h"
+#include "CxxUtils/unused.h"
 
 using namespace HLT;
 using namespace HLTNavDetails;
@@ -65,7 +67,7 @@ StatusCode Navigation::initialize() {
   StatusCode sc = m_storeGateHandle.retrieve();
   if(sc.isFailure()) {
     (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service: "
-             << m_storeGateHandle << endreq;
+             << m_storeGateHandle << endmsg;
     return StatusCode::FAILURE;
   }
   m_storeGate = m_storeGateHandle.operator->();
@@ -73,11 +75,11 @@ StatusCode Navigation::initialize() {
   StatusCode scnv = m_serializerServiceHandle.retrieve();
   if (scnv.isFailure()){
     *m_log << MSG::FATAL << "Navigation::initialize() cannot get TrigSerializeCnvSvc"
-           << endreq;
+           << endmsg;
   } else {
     if (m_log->level() <= MSG::DEBUG )
       *m_log << MSG::DEBUG << "Navigation::initialize() got TrigSerializeCnvSvc"
-             << endreq;
+             << endmsg;
   }
   m_serializerSvc = m_serializerServiceHandle.operator->();
 
@@ -89,13 +91,13 @@ StatusCode Navigation::initialize() {
   // payload def
   if ( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload).isFailure() ) {
     (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: "
-             << m_classesToPayloadProperty << endreq;
+             << m_classesToPayloadProperty << endmsg;
     return  StatusCode::FAILURE;
   }
 
   if ( classKey2CLIDKey(m_classesToPayloadProperty_DSonly,  m_classesToPayload_DSonly).isFailure() ) {
     (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: " 
-	     << m_classesToPayloadProperty_DSonly << endreq;
+	     << m_classesToPayloadProperty_DSonly << endmsg;
     
     return  StatusCode::FAILURE;
   }
@@ -105,14 +107,14 @@ StatusCode Navigation::initialize() {
     CLID cl = m_classesToPayload.at(icl).first;
     StatusCode stmp = m_serializerSvc->addConverter(cl);
     if (stmp.isFailure())
-      *m_log << MSG::WARNING << "Initialization of a converter for CLID=" << cl << " failed" << endreq;
+      *m_log << MSG::WARNING << "Initialization of a converter for CLID=" << cl << " failed" << endmsg;
   }
 
 
   // preregistration def
   if ( classKey2CLIDKey(m_classesToPreregisterProperty,  m_classesToPreregister).isFailure() ) {
     (*m_log) << MSG::FATAL << "failed to decode property ClassesToPreregister: "
-             << m_classesToPreregisterProperty << endreq;
+             << m_classesToPreregisterProperty << endmsg;
     return  StatusCode::FAILURE;
   }
 
@@ -121,9 +123,9 @@ StatusCode Navigation::initialize() {
   if (m_log->level() <= MSG::VERBOSE ) {
     for ( holderIt = HLT::TypeMaps::holders().begin(); holderIt != HLT::TypeMaps::holders().end(); ++holderIt ) {
       if(!holderIt->second){
-	(*m_log) << MSG::FATAL << "static type information not intialized. Holder is null pointer" << endreq;
+	(*m_log) << MSG::FATAL << "static type information not intialized. Holder is null pointer" << endmsg;
       }
-      (*m_log) << MSG::VERBOSE << *(holderIt->second) << endreq;
+      (*m_log) << MSG::VERBOSE << *(holderIt->second) << endmsg;
     }
   }
 
@@ -132,25 +134,24 @@ StatusCode Navigation::initialize() {
   for ( dlIt = m_dlls.begin(); dlIt != m_dlls.end(); ++dlIt ) {
     System::ImageHandle handle = 0;
     if ( System::loadDynamicLib( *dlIt, &handle)  != 1 ) {
-      (*m_log) << MSG::WARNING << "failed to load " << *dlIt << endreq;
+      (*m_log) << MSG::WARNING << "failed to load " << *dlIt << endmsg;
     } else {
       if (m_log->level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "forcibly loaded library " << *dlIt << endreq;
+        (*m_log) << MSG::DEBUG << "forcibly loaded library " << *dlIt << endmsg;
     }
   }
 
   // translate Class names into CLID numbers
   if (m_log->level() <= MSG::DEBUG )
     (*m_log) << MSG::DEBUG << " successfully initialized Navigation "
-             << endreq;
+             << endmsg;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-Navigation::classKey2CLIDKey(const std::vector<std::string> property,
-                             std::vector<std::pair<CLID,
-                             std::string> >& decoded ) {
+Navigation::classKey2CLIDKey(const std::vector<std::string>& property,
+                             std::vector<CSPair>& decoded ) {
   // translate Class names into CLID numbers
 
   std::vector<std::string>::const_iterator it;
@@ -169,22 +170,46 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
 
     if ( m_clidSvc->getIDOfTypeName(type, clid).isFailure() ) {
       (*m_log) << MSG::FATAL << "Unable to get CLID for class: " << *it
-               << " check property" << endreq;
+               << " check property" << endmsg;
       return StatusCode::FAILURE;
     }
 
     if (m_log->level() <= MSG::DEBUG )
       (*m_log) << MSG::DEBUG << "Recognized CLID : " << type << " and key: " << key
-               << endreq;
+               << endmsg;
 
-    decoded.push_back(std::make_pair(clid, key));
+    xAOD::AuxSelection sel;
+
+    // anything after a dot is a list of dynamic Aux attributes, separated by dots
+    size_t dotpos = key.find('.');
+    if( dotpos == std::string::npos ) {
+      // If no explicit selection, we want to select nothing (this is a
+      // difference from the offline logic).  But an empty selection list
+      // in AuxSelection means to accept everything.  So add a dummy name
+      // that shouldn't match anything.
+      const char* dummyName = "__dummyThatShouldNotMatch";
+      static const SG::AuxElement::Accessor<int> UNUSED(dummyVar) (dummyName);
+      static const std::set<std::string> dummySet { dummyName };
+      sel.selectAux (dummySet);
+    }
+    else {
+      std::string aux_attr = key.substr(dotpos+1);
+      key.erase (dotpos, std::string::npos);
+
+      typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+      boost::char_separator<char> sep(".");
+      tokenizer tokens (aux_attr, sep);
+      sel.selectAux (std::set<std::string> (tokens.begin(), tokens.end()));
+    }
+
+    decoded.emplace_back (clid, key, std::move (sel));
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode Navigation::finalize() {
   if (m_log->level() <= MSG::DEBUG )
-    *m_log << MSG::DEBUG << "Navigation finalize" << endreq;
+    *m_log << MSG::DEBUG << "Navigation finalize" << endmsg;
   return StatusCode::SUCCESS;
 }
 

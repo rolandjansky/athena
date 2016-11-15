@@ -34,6 +34,11 @@
   <!-- <class name="HLT::FeatureDescriptor" />
   <class name="std::vector< HLT::FeatureDescriptor >" /> -->
 
-  <class name="HLT::TriggerElement::FeatureAccessHelper" />  
+  <class name="HLT::TriggerElement::FeatureAccessHelper" />
+
+  <class name="TrigNavTest::TestB" id="2022595D-95F0-46FC-A9A2-6624399E1470"/>
+  <class name="DataVector<TrigNavTest::TestB>"/>
+  <class name="TrigNavTest::TestBContainer" id="729E3742-94E3-467D-A40C-7836098C3FC9"/>
+  <class name="TrigNavTest::TestAuxB" id="F3159D39-328A-4F70-8DB3-3A595485DD9E"/>
 
 </lcgdict>

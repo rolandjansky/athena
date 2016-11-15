@@ -13,7 +13,12 @@
 
 
 HLT::FullHolderFactory::FullHolderFactory(const std::string& prefix)
-  : asg::AsgMessaging("HolderFactory"), m_serializerSvc(0), m_storeGate(0), m_prefix(prefix) {
+  : asg::AsgMessaging("HolderFactory"), 
+    m_serializerSvc(0), 
+    m_storeGate(0), 
+    m_prefix(prefix),
+    m_readonly(false)
+{
 }
 
 HLT::BaseHolder* HLT::FullHolderFactory::fromSerialized(int version, const std::vector<uint32_t>::const_iterator& start, const std::vector<uint32_t>::const_iterator& end){
@@ -67,7 +72,7 @@ HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::stri
     return 0;
   }
 
-  auto holder = HLT::TypeMaps::holders()[clid]->clone(label, index);
+  auto holder = HLT::TypeMaps::holders()[clid]->clone(m_prefix, label, index);
   if(!holder){
     ATH_MSG_ERROR("createHolder: clone of holder failed clid: " << clid);
     return 0;
@@ -76,7 +81,6 @@ HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::stri
   ATH_MSG_DEBUG("preparing holder with msg: " << &msg() << " storegate: " << m_storeGate << " and prefix " << m_prefix);
 
   holder->prepare(&msg(), m_storeGate, m_serializerSvc, m_readonly);
-  holder->setObjectsKeyPrefix(m_prefix);
   
   ATH_MSG_DEBUG("createHolder: holder prepared " << *holder);
 
