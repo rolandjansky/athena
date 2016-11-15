@@ -66,10 +66,10 @@ namespace Muon {
     m_log = new MsgStream(msgSvc(),name());
     m_verbose = false;
     m_debug = false;
-    *m_log << MSG::VERBOSE << "MuonPatternCalibration::Initializing" << endreq;
+    *m_log << MSG::VERBOSE << "MuonPatternCalibration::Initializing" << endmsg;
     StatusCode sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-      *m_log << MSG::FATAL << "StoreGate service not found" << endreq;
+      *m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -79,45 +79,45 @@ namespace Muon {
     if ( sc.isSuccess() ) {
       sc = detStore->retrieve( m_detMgr );
       if ( sc.isFailure() ) {
-	*m_log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endreq;
+	*m_log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endmsg;
       } else {
 	m_mdtIdHelper = m_detMgr->mdtIdHelper();
 	m_cscIdHelper = m_detMgr->cscIdHelper();    
 	m_rpcIdHelper = m_detMgr->rpcIdHelper();
 	m_tgcIdHelper = m_detMgr->tgcIdHelper();
-	*m_log << MSG::DEBUG << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endreq;
+	*m_log << MSG::DEBUG << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endmsg;
       }
     } else {
-      *m_log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+      *m_log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endmsg;
     }
 
     if( m_mdtCreator.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_mdtCreator << endreq;
+      *m_log<<MSG::DEBUG << "Retrieved " << m_mdtCreator << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_mdtCreator <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_mdtCreator <<endmsg; 
       return sc;
     }
 
     if( m_printer.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_printer << endreq;
+      *m_log<<MSG::DEBUG << "Retrieved " << m_printer << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_printer <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_printer <<endmsg; 
       return sc;
     }
 
     
     if( m_idHelperTool.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_idHelperTool << endreq;
+      *m_log<<MSG::DEBUG << "Retrieved " << m_idHelperTool << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endmsg; 
       return sc;
     }
 
     
     if( m_clusterCreator.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_clusterCreator << endreq;
+      *m_log<<MSG::DEBUG << "Retrieved " << m_clusterCreator << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_clusterCreator <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_clusterCreator <<endmsg; 
       return sc;
     }
   
@@ -128,7 +128,7 @@ namespace Muon {
   StatusCode MuonPatternCalibration::finalize()
   {
   
-    *m_log << MSG::DEBUG << "finalize()" << endreq;
+    *m_log << MSG::DEBUG << "finalize()" << endmsg;
     delete m_log;
     return StatusCode::SUCCESS;
   }
@@ -184,9 +184,9 @@ namespace Muon {
 						 bool hasPhiMeasurements ) const {
     if( m_debug ) {
       if( hasPhiMeasurements )
-	*m_log << MSG::DEBUG << " pattern has phi measurements using extrapolation to determine second coordinate " << endreq;
+	*m_log << MSG::DEBUG << " pattern has phi measurements using extrapolation to determine second coordinate " << endmsg;
       else 
-	*m_log << MSG::DEBUG << " No phi measurements using center tubes " << endreq;
+	*m_log << MSG::DEBUG << " No phi measurements using center tubes " << endmsg;
     }
 
     retrieveTriggerHitContainers();
@@ -218,7 +218,7 @@ namespace Muon {
       // do some magic to avoid problems at phi = 0 and 2*pi
       double phiStart = patdire.phi();
       double chPhi  = prd->detectorElement()->center().phi();
-      double pi = 3.14159265358979324;
+      double pi = M_PI;
       double phiRange = 0.75*pi;
       double phiRange2 = 0.25*pi;
       double phiOffset = 0.;
@@ -236,7 +236,7 @@ namespace Muon {
       
       if( dphi > m_phiAngleCut ) {
 	if( m_debug ) *m_log << MSG::DEBUG << " Large angular phi difference between pattern and chamber " << std::endl
-			     << " phi pattern " << patdire.phi() << "   phi chamber " << prd->detectorElement()->center().phi() << endreq;
+			     << " phi pattern " << patdire.phi() << "   phi chamber " << prd->detectorElement()->center().phi() << endmsg;
 	continue;
       }
 
@@ -288,7 +288,7 @@ namespace Muon {
 	      
 	      RpcPrepDataContainer::const_iterator pos = m_rpcPrdContainer->indexFind(chit->first);
 	      if( pos == m_rpcPrdContainer->end() ){
-		*m_log << MSG::DEBUG << " RpcPrepDataCollection not found in container!! " << endreq;
+		*m_log << MSG::DEBUG << " RpcPrepDataCollection not found in container!! " << endmsg;
 	      }else{
 		RpcPrepDataCollection::const_iterator rpcit = (*pos)->begin();
 		RpcPrepDataCollection::const_iterator rpcit_end = (*pos)->end();
@@ -302,7 +302,7 @@ namespace Muon {
 	    }else if( m_tgcIdHelper->is_tgc(id) && m_tgcPrdContainer ){
 	      TgcPrepDataContainer::const_iterator pos = m_tgcPrdContainer->indexFind(chit->first);
 	      if( pos == m_tgcPrdContainer->end() ){
-		*m_log << MSG::DEBUG << " TgcPrepDataCollection not found in container!! " << endreq;
+		*m_log << MSG::DEBUG << " TgcPrepDataCollection not found in container!! " << endmsg;
 	      }else{
 		TgcPrepDataCollection::const_iterator tgcit = (*pos)->begin();
 		TgcPrepDataCollection::const_iterator tgcit_end = (*pos)->end();
@@ -645,7 +645,7 @@ namespace Muon {
 	  const MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack( *prd, mdtit->first ); 
 
 	  if( !mdt ) {
-	    if( m_verbose ) *m_log << " Failed to calibrate " << m_idHelperTool->toString(prd->identify()) << endreq;
+	    if( m_verbose ) *m_log << " Failed to calibrate " << m_idHelperTool->toString(prd->identify()) << endmsg;
 	    continue;
 	  }
 	  mdtROTs.push_back( mdt ); 
@@ -661,14 +661,14 @@ namespace Muon {
     if(m_storeGate->contains<Muon::RpcPrepDataContainer>(m_keyRpc)) {
       StatusCode sc =  m_storeGate->retrieve(m_rpcPrdContainer,m_keyRpc);
       if( sc.isFailure() ) {
-	*m_log << MSG::DEBUG << " Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits " << endreq;
+	*m_log << MSG::DEBUG << " Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits " << endmsg;
 	m_rpcPrdContainer = 0;
       }
     }
     if(m_storeGate->contains<Muon::TgcPrepDataContainer>(m_keyTgc)) {
       StatusCode sc =  m_storeGate->retrieve(m_tgcPrdContainer,m_keyTgc);
       if( sc.isFailure() ) {
-	*m_log << MSG::DEBUG << " Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits " << endreq;
+	*m_log << MSG::DEBUG << " Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits " << endmsg;
 	m_tgcPrdContainer = 0;
       }
     }
