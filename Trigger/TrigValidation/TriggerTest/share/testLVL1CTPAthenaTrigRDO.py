@@ -38,7 +38,7 @@ else:
 
 #------------ This is for ATN/RTT tests only ---------
 #TriggerFlags.triggerMenuSetup = 'default' 
-TriggerFlags.triggerMenuSetup = 'Physics_pp_v5' 
+TriggerFlags.triggerMenuSetup = 'Physics_pp_v6' 
 
 #------------ run only LVL1 -------------------------- 
 TriggerFlags.doHLT=False
