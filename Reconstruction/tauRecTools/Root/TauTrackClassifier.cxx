@@ -92,6 +92,9 @@ StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
     charge += trk->track()->charge();
   }
   xTau.setCharge(charge);
+  xTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) xTau.nTracks());
+  xTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) xTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
+  
   return StatusCode::SUCCESS;
 }
 
