@@ -17,6 +17,7 @@
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
@@ -364,6 +365,10 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) co
   return accept(static_cast<const xAOD::Egamma*> (ph));  
 }
 
+unsigned int AsgElectronIsEMSelector::IsemValue() const {
+  return m_rootTool->isEM(); 
+}
+
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -639,4 +644,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      expectHitNextInBLayer,
 			      iflag);
 }
+
+const Root::TAccept& AsgElectronIsEMSelector::getTAccept( ) const{
+    return m_rootTool->getTAccept();
+}
+
 //  LocalWords:  const el

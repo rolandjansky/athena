@@ -24,7 +24,10 @@
 
 // Include the return object and ROOT tool
 #include "PATCore/TAccept.h"
-#include "ElectronPhotonSelectorTools/TElectronMultiLeptonSelector.h"
+
+namespace Root{
+  class TElectronMultiLeptonSelector;
+}
 
 
 class AsgElectronMultiLeptonSelector : public asg::AsgTool,
@@ -68,10 +71,7 @@ public:
   }
 
   /** Method to get the plain TAccept */
-  inline virtual const Root::TAccept& getTAccept( ) const
-  {
-    return m_rootTool->getTAccept();
-  }
+  virtual const Root::TAccept& getTAccept( ) const;
 
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
