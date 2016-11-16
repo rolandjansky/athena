@@ -40,6 +40,7 @@ class LArHVPathologyDbAlg : public AthAlgorithm
  
   BooleanProperty           m_writeCondObjs;
   StringProperty            m_inpFile;
+  StringProperty            m_outFile;
  
   StringProperty            m_folder;
   StringProperty            m_outpTag;

@@ -18,6 +18,12 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+class CaloCell_ID;
+class LArOnlineID;
+class LArCablingService;
+class Identifier;
+class HWIdentifier;
+class CaloDetDescrManager;
 
 class LArHV2Ntuple : public AthAlgorithm {
   public:
@@ -42,6 +48,9 @@ class LArHV2Ntuple : public AthAlgorithm {
   ITHistSvc* m_thistSvc;
   TTree* m_tree;
 
+  bool m_addcells;
+
+  // tree variables
    int m_bec;
    int m_isPresampler;
    float m_eta;
@@ -52,5 +61,19 @@ class LArHV2Ntuple : public AthAlgorithm {
    float m_hv;
    float m_current;
 
+   int m_barrelec;
+   int m_posneg;
+   int m_FT;
+   int m_slot;
+   int m_channel;
+
+  // ID helper
+  const CaloCell_ID* m_caloId; 
+  const LArOnlineID* m_onlId;
+  ToolHandle<LArCablingService> m_cabling;
+  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  std::map<int, std::vector<HWIdentifier> >m_hvonlId_map;
+
+  std::vector<int> GetHVLines(const Identifier& id) ;
 };
 #endif
