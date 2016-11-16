@@ -38,6 +38,10 @@ namespace Trk {
             /** Constructor for all same-size pixels or strips (in cas numCellsY is set to 1) */
             RectangularSegmentation(std::shared_ptr<const Trk::RectangleBounds>,
                                     size_t numCellsX, size_t numCellsY=1); 
+	    
+	    /** Constructor for ATLAS module type pixels or strips */
+           RectangularSegmentation(std::shared_ptr<const Trk::RectangleBounds>,
+                                    size_t numCellsX, double longY, size_t numCellsY, double numOfChips); 
                                     
             /** TODO contructor from BinUtilities for more complex readouts */                        
             
