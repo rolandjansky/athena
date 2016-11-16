@@ -178,8 +178,12 @@ namespace xAOD {
     SiSPSeededFinderSimple                 = 48,
     // Large d0 for displaced vertex searches
     SiSpacePointsSeedMaker_LargeD0         = 49,
-    ///maximum number of enums 
-    NumberOfTrackRecoInfo                  = 50
+    // SLHCConversion Track flag
+    SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+    // Pseudotracking
+    Pseudotracking			   = 51,
+     ///maximum number of enums
+    NumberOfTrackRecoInfo                  = 52
   };
 
   enum ParticleHypothesis { nonInteracting  = 0,
@@ -347,8 +351,45 @@ namespace xAOD {
     isEndcapGoodLayers = 43,                //!< if non-deweighted track chambers are in endcap
     isSmallGoodSectors = 44,                //!< if non-deweighted track chambers are small
 
+    phiLayer1RPCHits  = 45,  //!< number of phi hits  in the first  RPC trigger layer (BML1)
+    phiLayer2RPCHits  = 46,  //!< number of phi hits  in the second RPC trigger layer (BML2)
+    phiLayer3RPCHits  = 47,  //!< number of phi hits  in the third  RPC trigger layer (BOL1)
+
+    etaLayer1RPCHits  = 48,  //!< number of eta hits  in the first  RPC trigger layer (BML1)
+    etaLayer2RPCHits  = 49,  //!< number of eta hits  in the second RPC trigger layer (BML2)
+    etaLayer3RPCHits  = 50,  //!< number of eta hits  in the third  RPC trigger layer (BOL1)
+
+    phiLayer1RPCHoles = 51,  //!< number of phi holes in the first  RPC trigger layer (BML1)
+    phiLayer2RPCHoles = 52,  //!< number of phi holes in the second RPC trigger layer (BML2)
+    phiLayer3RPCHoles = 53,  //!< number of phi holes in the third  RPC trigger layer (BOL1)
+
+    etaLayer1RPCHoles = 54,  //!< number of eta holes in the first  RPC trigger layer (BML1)
+    etaLayer2RPCHoles = 55,  //!< number of eta holes in the second RPC trigger layer (BML2)
+    etaLayer3RPCHoles = 56,  //!< number of eta holes in the third  RPC trigger layer (BOL1)
+
+    phiLayer1TGCHits  = 57,  //!< number of phi hits  in the first  TGC trigger layer (T4)
+    phiLayer2TGCHits  = 58,  //!< number of phi hits  in the second TGC trigger layer (T1)
+    phiLayer3TGCHits  = 59,  //!< number of phi hits  in the third  TGC trigger layer (T2)
+    phiLayer4TGCHits  = 60,  //!< number of phi hits  in the fourth TGC trigger layer (T3)
+
+    etaLayer1TGCHits  = 61,  //!< number of eta hits  in the first  TGC trigger layer (T4)
+    etaLayer2TGCHits  = 62,  //!< number of eta hits  in the second TGC trigger layer (T1)
+    etaLayer3TGCHits  = 63,  //!< number of eta hits  in the third  TGC trigger layer (T2)
+    etaLayer4TGCHits  = 64,  //!< number of eta hits  in the fourth TGC trigger layer (T3)
+
+    phiLayer1TGCHoles = 65,  //!< number of phi holes in the first  TGC trigger layer (T4)
+    phiLayer2TGCHoles = 66,  //!< number of phi holes in the second TGC trigger layer (T1)
+    phiLayer3TGCHoles = 67,  //!< number of phi holes in the third  TGC trigger layer (T2)
+    phiLayer4TGCHoles = 68,  //!< number of phi holes in the fourth TGC trigger layer (T3)
+
+    etaLayer1TGCHoles = 69,  //!< number of eta holes in the first  TGC trigger layer (T4)
+    etaLayer2TGCHoles = 70,  //!< number of eta holes in the second TGC trigger layer (T1)
+    etaLayer3TGCHoles = 71,  //!< number of eta holes in the third  TGC trigger layer (T2)
+    etaLayer4TGCHoles = 72,  //!< number of eta holes in the fourth TGC trigger layer (T3)
+
+
     // -- numbers...
-    numberOfMuonSummaryTypes       = 45
+    numberOfMuonSummaryTypes       = 73
   };
 
   /// A convenience namespace to make the client code easier to understand

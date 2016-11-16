@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744435 2016-05-03 12:16:04Z krasznaa $
+# $Id: CMakeLists.txt 782296 2016-11-04 09:12:22Z krasznaa $
 ################################################################################
 # Package: xAODTracking
 ################################################################################
@@ -7,7 +7,7 @@
 atlas_subdir( xAODTracking )
 
 # Extra dependencies, based on what environment we are in:
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    set( extra_deps Tracking/TrkEvent/TrkNeutralParameters
       Tracking/TrkEvent/TrkParameters
       Tracking/TrkEvent/TrkTrack
