@@ -34,6 +34,52 @@ Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk:
     }           
 }        
 
+ /** Constructor for ATLAS module type pixels */
+Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk::RectangleBounds> mBounds, size_t numCellsX, double longY, size_t numCellsY, double numberOfChip): 
+   m_activeBounds(mBounds),
+   m_binUtility(nullptr),
+   m_binsX(numCellsX),
+   m_binsY(numCellsY)
+{
+    // first the x dimension if needed
+    if (numCellsX > 1)
+         m_binUtility = new Trk::BinUtility(numCellsX, -mBounds->halflengthX(), mBounds->halflengthX(), Trk::open, Trk::binX); 
+    // use y dimension if needed
+    if (numCellsY > 1){
+ 
+      int numCellsYinChip = numCellsY/numberOfChip;
+      double begin = -mBounds->halflengthY();
+      double end = (2. * mBounds->halflengthY() / numberOfChip) - mBounds->halflengthY();
+      std::vector<float> boundaries;
+      
+      boundaries.push_back(begin);
+      
+      for (int i = 0; i< numberOfChip; i++){
+	Trk::BinUtility SmallBinUtility((size_t) numCellsYinChip-2, begin+longY, end-longY, Trk::open, Trk::binY);
+	
+	
+	boundaries.insert(boundaries.end(), SmallBinUtility.binningData().at(0).boundaries.begin(), SmallBinUtility.binningData().at(0).boundaries.end());
+	boundaries.push_back(end);
+	
+	begin=end;
+	end+=(2 * mBounds->halflengthY() / numberOfChip);
+	
+      }
+     
+      
+      if (boundaries.size() != numCellsY+1) exit(1);
+      
+      Trk::BinUtility yBinUtility(boundaries, Trk::open, Trk::binY);
+      if (m_binUtility)
+	(*m_binUtility) += yBinUtility;
+      else 
+	m_binUtility = new Trk::BinUtility(yBinUtility);
+      
+       boundaries.clear();
+    }           
+}        
+
+
 Trk::RectangularSegmentation::~RectangularSegmentation()
 {
     delete m_binUtility;
@@ -143,7 +189,9 @@ void Trk::RectangularSegmentation::createSegmenationSurfaces(std::vector< std::s
     segmentationSurfacesY.reserve(m_binsY);
     for (size_t ibiny = 0; ibiny <= m_binsY; ++ibiny){
         // the position of the bin surface
-        double binPosY = -m_activeBounds->halflengthY()+ibiny*pitchY;
+        //Use the bin utility to find center of different surfaces
+        double binPosY = m_binUtility->binningData().at(1).boundaries[ibiny];
+        //double binPosY = -m_activeBounds->halflengthY()+ibiny*pitchY;
         Amg::Vector3D binSurfaceCenter(0.,binPosY,0.);
         Amg::Transform3D* binTransform = new Amg::Transform3D(Amg::getTransformFromRotTransl(yBinRotationMatrix,binSurfaceCenter));
         // these are the boundaries
