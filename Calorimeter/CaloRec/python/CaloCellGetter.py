@@ -128,7 +128,7 @@ class CaloCellGetter (Configured)  :
                     theLArCellBuilder.badChannelTool = theLArBadChannelTool
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
-                ToolSvc += theLArCellBuilder
+                theCaloCellMaker += theLArCellBuilder
                 theCaloCellMaker.CaloCellMakerToolNames += [theLArCellBuilder]
             
 
@@ -242,7 +242,7 @@ class CaloCellGetter (Configured)  :
                                 theTileCellBuilder.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                                 theTileCellBuilder.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
 
-                    ToolSvc += theTileCellBuilder
+                    theCaloCellMaker += theTileCellBuilder
                     theCaloCellMaker.CaloCellMakerToolNames += [theTileCellBuilder]
                 except:    
                     mlog.error("could not get handle to TileCellBuilder Quit")
@@ -256,7 +256,7 @@ class CaloCellGetter (Configured)  :
             try:
                 from FastCaloSim.FastCaloSimConf import EmptyCellBuilderTool
                 theEmptyCellBuilderTool=EmptyCellBuilderTool()
-                ToolSvc += theEmptyCellBuilderTool
+                theCaloCellMaker += theEmptyCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theEmptyCellBuilderTool ]
 
                 print theEmptyCellBuilderTool
@@ -271,7 +271,7 @@ class CaloCellGetter (Configured)  :
                 from FastCaloSim.FastCaloSimFactory import FastCaloSimFactory
                 theFastShowerCellBuilderTool=FastCaloSimFactory()
 
-                ToolSvc += theFastShowerCellBuilderTool
+                theCaloCellMaker += theFastShowerCellBuilderTool
                 theCaloCellMaker.CaloCellMakerToolNames += [ theFastShowerCellBuilderTool ]
                 mlog.info("configure FastShowerCellBuilderTool worked")
             except:
@@ -295,7 +295,7 @@ class CaloCellGetter (Configured)  :
                     
                     print theAddNoiseCellBuilderTool
 
-                    ToolSvc += theAddNoiseCellBuilderTool
+                    theCaloCellMaker += theAddNoiseCellBuilderTool
                     theCaloCellMaker.CaloCellMakerToolNames += [ theAddNoiseCellBuilderTool ]
                     mlog.info("configure AddNoiseCellBuilderTool worked")
                 except:
@@ -312,7 +312,7 @@ class CaloCellGetter (Configured)  :
     
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool     
         theCaloCellContainerFinalizerTool=CaloCellContainerFinalizerTool()
-        ToolSvc += theCaloCellContainerFinalizerTool
+        theCaloCellMaker += theCaloCellContainerFinalizerTool
         theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerFinalizerTool ]
 
         #
@@ -333,7 +333,7 @@ class CaloCellGetter (Configured)  :
                 print traceback.format_exc()
                 return False
             theLArCellMerger.RawChannelsName = larRODFlags.RawChannelFromDigitsContainerName()
-            ToolSvc += theLArCellMerger
+            theCaloCellMaker += theLArCellMerger
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellMerger]
 
 
@@ -399,7 +399,7 @@ class CaloCellGetter (Configured)  :
             theLArCellNoiseMaskingTool.maskSporadic = doSporadicMask
             # quality cut for sporadic noise masking
             theLArCellNoiseMaskingTool.qualityCut=4000
-            ToolSvc += theLArCellNoiseMaskingTool
+            theCaloCellMaker += theLArCellNoiseMaskingTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellNoiseMaskingTool]
 
         # 
@@ -419,7 +419,7 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to LArBadFebMaskingTool Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArBadFebMaskingTool
+            theCaloCellMaker += theLArBadFebMaskingTool
 
             # bad channel tools
             try:
@@ -451,7 +451,7 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to LArCellGainPatholog< Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArCellGainPathology
+            theCaloCellMaker += theLArCellGainPathology
 
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellGainPathology]
 
@@ -505,7 +505,7 @@ class CaloCellGetter (Configured)  :
                 print traceback.format_exc()
                 return False
 
-            ToolSvc+=theMisCalibTool
+            theCaloCellMaker+=theMisCalibTool
             theCaloCellMaker.CaloCellMakerToolNames += [theMisCalibTool]
 
         #
@@ -519,11 +519,11 @@ class CaloCellGetter (Configured)  :
                mlog.info("Apply cell level pedestal shift correction")
 
         import os
-        if doPedestalCorr and os.getenv("LD_LIBRARY_PATH") and "AtlasTrigger" in os.getenv("LD_LIBRARY_PATH"):
+        if doPedestalCorr and os.getenv("CMTPATH") and "AtlasTrigger" in os.getenv("CMTPATH"):
             try:
                 from CaloCellCorrection.CaloCellPedestalCorrDefault import CaloCellPedestalCorrDefault
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()
-                ToolSvc += theCaloCellPedestalCorr
+                theCaloCellMaker += theCaloCellPedestalCorr
                 theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellPedestalCorr]
             except:
                 mlog.error("could not get handle to CaloCellPedestalCorr")
@@ -557,7 +557,7 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to HVCorrTool Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theHVCorrTool
+            theCaloCellMaker += theHVCorrTool
             theCaloCellMaker.CaloCellMakerToolNames += [theHVCorrTool]
 
         #
@@ -618,7 +618,7 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to HVCorrTool Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArRecalibrationTool
+            theCaloCellMaker += theLArRecalibrationTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArRecalibrationTool]
 
 
@@ -664,7 +664,7 @@ class CaloCellGetter (Configured)  :
                print traceback.format_exc()
                return False
 
-           ToolSvc += theMBAverageTool
+           theCaloCellMaker += theMBAverageTool
            theCaloCellMaker.CaloCellMakerToolNames += [theMBAverageTool]
 
 
@@ -685,7 +685,7 @@ class CaloCellGetter (Configured)  :
                mlog.error("could not get handle to  CaloCellNeighborsAverageCorr  Quit")
                print traceback.format_exc()
                return False
-           ToolSvc +=  theCaloCellNeighborsAverageCorr
+           theCaloCellMaker +=  theCaloCellNeighborsAverageCorr
            theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
 
 
@@ -708,7 +708,7 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
                 print traceback.format_exc()
 
-            ToolSvc += theLArCellDeadOTXCorr
+            theCaloCellMaker += theLArCellDeadOTXCorr
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellDeadOTXCorr]
 
         doCaloEnergyRescaler=False
@@ -718,11 +718,10 @@ class CaloCellGetter (Configured)  :
                 from CaloCellCorrection.CaloCellCorrectionConf import CaloCellEnergyRescaler
                 theCCERescalerTool = CaloCellEnergyRescaler()
                 theCCERescalerTool.Folder = "/LAR/CellCorrOfl/EnergyCorr"
-                ToolSvc += theCCERescalerTool
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/CellCorrOfl/EnergyCorr<tag>EnergyScale-00</tag><db>sqlite://;schema=escale.db;dbname=COMP200</db>")
                 conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr")
-                ToolSvc += theCCERescalerTool
+                theCaloCellMaker += theCCERescalerTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCCERescalerTool]
             except:
                 mlog.error("could not get handle to CaloCellEnergyRescaler Quit")
@@ -744,7 +743,7 @@ class CaloCellGetter (Configured)  :
                 theCaloTimeCorrTool = CaloCellContainerCorrectorTool("LArTimeCorrTool",
                                                                    CellCorrectionToolNames=[theLArTimeCorr]
                                                                    )
-                ToolSvc += theCaloTimeCorrTool
+                theCaloCellMaker += theCaloTimeCorrTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCaloTimeCorrTool]
                 
             except:
@@ -763,7 +762,7 @@ class CaloCellGetter (Configured)  :
         # FIXME
         # theCaloCellContainerCheckerTool.OutputLevel=DEBUG
 
-        ToolSvc += theCaloCellContainerCheckerTool
+        theCaloCellMaker += theCaloCellContainerCheckerTool
         theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool] 
 
 

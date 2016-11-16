@@ -21,7 +21,7 @@
 #define CALOTOPOTMPHASHCLUSTERBASE_H
 
 #include <vector>
-#include "CaloRec/CaloTopoTmpHashCell.h"
+#include "CaloTopoTmpHashCell.h"
 #include "CxxUtils/pointer_list.h"
 
 

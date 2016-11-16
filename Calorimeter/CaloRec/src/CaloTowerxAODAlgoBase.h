@@ -7,7 +7,7 @@
 #ifndef CALOREC_CALOTOWERXAODALGOBASE_H
 #define CALOREC_CALOTOWERXAODALGOBASE_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 #include <string>
@@ -15,9 +15,10 @@
 
 #include "xAODCaloEvent/CaloTowerContainer.h"
 #include "xAODCaloEvent/CaloTowerAuxContainer.h"
+#include "StoreGate/WriteHandle.h"
 
 
-class CaloTowerxAODAlgoBase : public AthAlgorithm
+class CaloTowerxAODAlgoBase : public AthReentrantAlgorithm
 {
 public:
 
@@ -37,7 +38,7 @@ protected:
 
   /// @name Algorithm properties
   /// @{
-  std::string  m_caloTowerContainerKey;   ///< @brief Handle to @c xAOD::CaloTowerContainer
+  SG::WriteHandleKey<xAOD::CaloTowerContainer> m_caloTowerContainerKey;///< @brief Handle to @c xAOD::CaloTowerContainer
   float      m_minEta;                   ///< @brief Tower-grid: lower eta boundary
   float      m_maxEta;                   ///< @brief Tower-grid: upper eta boundary
   int        m_nEtaBins;                 ///< @brief Tower-grid: number of phi bins
@@ -58,9 +59,12 @@ protected:
   std::vector< std::vector<cellToTower_t> > m_cellToTower; ///< @brief map of cell indices to tower indices and weights
   /// @}
 
+  ///< @brief Initialization of this base-class
+  StatusCode initBase();
 
-  StatusCode initBase();                               ///< @brief Initialization of this base-class                
-  xAOD::CaloTowerContainer* makeContainer();          ///< @brief Create @c xAOD::CaloTowerContainer and auxiliary store
+  ///< @brief Create @c xAOD::CaloTowerContainer and auxiliary store
+  SG::WriteHandle<xAOD::CaloTowerContainer>
+  makeContainer(const EventContext& ctx) const;
 
 private:
   StatusCode fillIndexCache(); 

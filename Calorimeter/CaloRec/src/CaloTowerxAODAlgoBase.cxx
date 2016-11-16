@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloRec/CaloTowerxAODAlgoBase.h"
+#include "CaloTowerxAODAlgoBase.h"
 
 #include "xAODCaloEvent/CaloTowerContainer.h"
 #include "xAODCaloEvent/CaloTowerAuxContainer.h"
@@ -16,8 +16,9 @@
 
 
 CaloTowerxAODAlgoBase::CaloTowerxAODAlgoBase(const std::string& name,ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name,pSvcLocator) {
-  declareProperty("CaloTowerContainer", m_caloTowerContainerKey="CmbTowers","Output xAOD::CaloTowerContainer");
+    : AthReentrantAlgorithm(name,pSvcLocator),
+    m_caloTowerContainerKey("CmbTowers") {
+  declareProperty("CaloTowerContainer", m_caloTowerContainerKey,"Output xAOD::CaloTowerContainer");
   declareProperty("minEta",m_minEta=-5,"Tower-grid: lower eta boundary");
   declareProperty("maxEta",m_maxEta=5,"Tower-grid: upper eta boundary");
   declareProperty("nEta",m_nEtaBins=100,"Tower-grid: number of phi bins");
@@ -30,13 +31,11 @@ CaloTowerxAODAlgoBase::~CaloTowerxAODAlgoBase()
 
 
 StatusCode CaloTowerxAODAlgoBase::initBase() {
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( m_caloTowerContainerKey.initialize() );
+  
+  ServiceHandle<IGeoModelSvc> geoModel ("GeoModelSvc", "CaloTowerxAODAlgoBase");
+  ATH_CHECK( geoModel.retrieve() );
+  
   // dummy parameters for the callback:
   int dummyInt=0;
   std::list<std::string> dummyList;
@@ -46,7 +45,7 @@ StatusCode CaloTowerxAODAlgoBase::initBase() {
   }
   else {
     ATH_CHECK(detStore()->regFcn(&IGeoModelSvc::geoInit,
-				 geoModel,
+				 &*geoModel,
 				 &CaloTowerxAODAlgoBase::geoInit,this));
   }
   return StatusCode::SUCCESS;
@@ -57,43 +56,30 @@ StatusCode CaloTowerxAODAlgoBase::geoInit(IOVSVC_CALLBACK_ARGS) {
 }
 
 
+SG::WriteHandle<xAOD::CaloTowerContainer>
+CaloTowerxAODAlgoBase::makeContainer (const EventContext& ctx) const
+{
+  SG::WriteHandle<xAOD::CaloTowerContainer> caloTowerContainer
+    (m_caloTowerContainerKey, ctx);
 
-xAOD::CaloTowerContainer* CaloTowerxAODAlgoBase::makeContainer() {
+  if( caloTowerContainer.record (std::make_unique<xAOD::CaloTowerContainer>(),
+                                  std::make_unique<xAOD::CaloTowerAuxContainer>()).isSuccess())
+  {
+    // configure the container
+    caloTowerContainer->configureGrid(m_nEtaBins,m_minEta,m_maxEta,m_nPhiBins);
 
-  // generate a new container 
-  xAOD::CaloTowerContainer* cont = new xAOD::CaloTowerContainer();
-  if (evtStore()->record(cont,m_caloTowerContainerKey).isFailure()) {
-    ATH_MSG_ERROR("Failed to record xAOD::CaloTowerContainer with key " << m_caloTowerContainerKey);
-    delete cont;
-    return nullptr;
-  }
-  // generate a new auxiliary store
-  xAOD::CaloTowerAuxContainer* aux = new xAOD::CaloTowerAuxContainer();
-  if(evtStore()->record(aux,m_caloTowerContainerKey+"Aux.").isFailure()) {
-    ATH_MSG_ERROR("Failed to record xAOD::CaloTowerAuxContainer with key " << m_caloTowerContainerKey+"Aux.");
-    delete aux;
-    return nullptr;
-  }
+    //Prefill the container:
+    const int nTowers=caloTowerContainer->nTowers();
   
-  // connect the containers
-  cont->setStore(aux);
-
-  // configure the container
-  cont->configureGrid(m_nEtaBins,m_minEta,m_maxEta,m_nPhiBins);
-
-  //Prefill the container:
-  const int nTowers=cont->nTowers();
-  
-  for (int iTower=0;iTower<nTowers;++iTower) {
-    xAOD::CaloTower* tower=new xAOD::CaloTower();
-    cont->push_back(tower);
-    tower->setEnergy(0.0);
+    for (int iTower=0;iTower<nTowers;++iTower) {
+      xAOD::CaloTower* tower=new xAOD::CaloTower();
+      caloTowerContainer->push_back(tower);
+      tower->setEnergy(0.0);
+    }
   }
   
-  return cont;
+  return caloTowerContainer;
 }
-
-
 
 
 StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
@@ -102,7 +88,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
 
   //Some basic sanity checks:
   if (m_minEta>=m_maxEta) {
-    msg(MSG::ERROR) << "Configuration problem: minEta>=maxEta " << m_minEta << "," << m_maxEta << endreq;
+    ATH_MSG_ERROR( "Configuration problem: minEta>=maxEta " << m_minEta << "," << m_maxEta  );
     return StatusCode::FAILURE;
   }
   
@@ -111,7 +97,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
   ATH_CHECK(detStore()->retrieve(theManager));
 
   if ( ! theManager->isInitialized() ){
-    msg(MSG::ERROR) << "CaloDetDescrManager is not yet initialized!" << endreq;
+    ATH_MSG_ERROR( "CaloDetDescrManager is not yet initialized!"  );
     return StatusCode::FAILURE;
   }
 
@@ -123,7 +109,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
   const int nTowers=dummy->nTowers();
   
   if (nTowers<1) {
-    msg(MSG::ERROR) << "Something went wrong with tower grid config: Got container with " << nTowers << " Towers." << endreq;
+    ATH_MSG_ERROR( "Something went wrong with tower grid config: Got container with " << nTowers << " Towers."  );
     return StatusCode::FAILURE;
   }
 
@@ -192,10 +178,9 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
       size_t kp = (size_t) (cellDphi/dummy->deltaPhi()+0.5);
       kp = (kp==0) ? 1 : kp;
       // signal weight
-      if ( msgLvl(MSG::VERBOSE) && (ke>1 || kp>1)) {
-	msg(MSG::VERBOSE) << "Found cell [0x" << std::hex << dde->identify().get_compact() << std::dec 
-			  << "] spanning several towers. nEta=" << ke << "nPhi="<<kp
-			  << endreq;
+      if ( ke>1 || kp>1 ) {
+	ATH_MSG_VERBOSE( "Found cell [0x" << std::hex << dde->identify().get_compact() << std::dec 
+                         << "] spanning several towers. nEta=" << ke << "nPhi="<<kp );
       }
 
 
@@ -244,9 +229,9 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
 	sumWeight+=ct.m_weight;
       if (fabs(sumWeight-1)>0.001) {
 	const Identifier id=caloCellId->cell_id(i);
-	msg(MSG::ERROR) << "Cell with index " << i << ", id=0x" 
-			<< std::hex << id.get_identifier32().get_compact() << std::dec 
-			<< ": Weights don't add up to 1.0, got " << sumWeight << endreq;
+	ATH_MSG_ERROR( "Cell with index " << i << ", id=0x" 
+                       << std::hex << id.get_identifier32().get_compact() << std::dec 
+                       << ": Weights don't add up to 1.0, got " << sumWeight  );
       }
     }//end loop over cells
   }//end if doxCheck

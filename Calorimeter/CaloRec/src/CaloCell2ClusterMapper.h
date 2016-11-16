@@ -22,24 +22,25 @@
 class CaloDetDescrManager; 
 class CaloCell_ID;
 
-//#include "GaudiKernel/Algorithm.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CaloEvent/CaloCell2ClusterMap.h"
+#include "CaloEvent/CaloClusterContainer.h"
 
-class CaloCell2ClusterMapper : public AthAlgorithm
+class CaloCell2ClusterMapper : public AthReentrantAlgorithm
 {
 
  public:
 
   CaloCell2ClusterMapper(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CaloCell2ClusterMapper();
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
   /** Callback added to handle Data-driven GeoModel initialisation
    */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
+  StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
  protected:
 
@@ -51,14 +52,15 @@ class CaloCell2ClusterMapper : public AthAlgorithm
    * @brief Name of the CaloCell2ClusterMap in StoreGate.
    *
    * the map can be retrieved with this key from StoreGate.  */
-  std::string     m_mapOutputName; 
+  SG::WriteHandleKey<CaloCell2ClusterMap> m_mapOutputKey;
 
   /**
    * @brief Name of the CaloClusterContainer to use.
    *
    * the map is filled with all CaloCell objects which are member of
    * at least one CaloCluster in this CaloClusterContainer.  */
-  std::string     m_clustersName;
+  SG::ReadHandleKey<CaloClusterContainer> m_clusterKey;
+  
 };
 #endif // CALOREC_CALOCELL2CLUSTERMAPPER_H
 

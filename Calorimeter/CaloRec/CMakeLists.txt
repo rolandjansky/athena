@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 773815 2016-09-19 09:09:41Z krasznaa $
+# $Id: CMakeLists.txt 773817 2016-09-19 09:17:19Z krasznaa $
 ################################################################################
 # Package: CaloRec
 ################################################################################
@@ -10,31 +10,31 @@ atlas_subdir( CaloRec )
 atlas_depends_on_subdirs(
    PUBLIC
    Calorimeter/CaloConditions
-   Calorimeter/CaloDetDescr
    Calorimeter/CaloEvent
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Calorimeter/CaloUtils
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CxxUtils
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
    Event/xAOD/xAODCaloEvent
    GaudiKernel
-   LArCalorimeter/LArElecCalib
    PRIVATE
    AtlasTest/TestTools
+   Control/CxxUtils
    Control/AthAllocators
    Control/SGTools
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/IdDictParser
+   DetectorDescription/Identifier
    Event/EventKernel
    Event/FourMom
    Event/NavFourMom
+   Calorimeter/CaloDetDescr
+   Calorimeter/CaloGeoHelpers
+   Calorimeter/CaloIdentifier
+   Calorimeter/CaloInterface
+   Calorimeter/CaloUtils
    LArCalorimeter/LArTools
+   LArCalorimeter/LArElecCalib
    TestPolicy )
 
 # External dependencies:

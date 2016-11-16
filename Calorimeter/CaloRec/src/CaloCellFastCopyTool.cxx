@@ -15,7 +15,7 @@
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloConstCellContainer.h"
-#include "CaloRec/CaloCellFastCopyTool.h"
+#include "CaloCellFastCopyTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloUtils/CaloSamplingHelper.h"
 
@@ -32,13 +32,14 @@ CaloCellFastCopyTool::CaloCellFastCopyTool(const std::string& type,
     : AthAlgTool(type, name, parent)
   , m_copyCells(nullptr)
   , m_copyConstCells(nullptr)
+  , m_srcCellContainerKey("AllCalo")
   , m_avoidDuplicates(false)
   , m_isFindCellFast(false)
   , m_caloID(0)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareInterface<ICaloConstCellMakerTool>(this);
-  declareProperty("InputName", m_srcCellContainerName = "AllCalo");
+  declareProperty("InputName", m_srcCellContainerKey);
   declareProperty("IncludeSamplings", m_acceptedSampleNames);
   declareProperty("AvoidDuplicates", m_avoidDuplicates);
   declareProperty("IsFindCellFast", m_isFindCellFast);
@@ -53,8 +54,8 @@ StatusCode CaloCellFastCopyTool::initialize() {
 
   ATH_MSG_INFO( "In initialize ");
 
-  CHECK( detStore()->retrieve(m_caloID));
-
+  ATH_CHECK( detStore()->retrieve(m_caloID));
+  ATH_CHECK(m_srcCellContainerKey.initialize());
   std::vector<bool> acceptedSamplings(m_caloID->Unknown, false);
   std::vector<CaloSampling::CaloSample> acceptedSamples;
 
@@ -117,10 +118,9 @@ StatusCode CaloCellFastCopyTool::initialize() {
 StatusCode CaloCellFastCopyTool::process(CaloCellContainer* theCont)
 {
   // Retrieve source cell container
-  const CaloCellContainer* srcCont;
-  CHECK( evtStore()->retrieve(srcCont, m_srcCellContainerName));
+  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
 
-  CHECK( (this->*m_copyCells)(srcCont, theCont) );
+  ATH_CHECK( (this->*m_copyCells)(srcCont.cptr(), theCont) );
 
   std::vector<CaloCell_ID::SUBCALO>::const_iterator it = m_acceptedCalos.begin();
   for (; it != m_acceptedCalos.end(); ++it) {
@@ -134,10 +134,9 @@ StatusCode CaloCellFastCopyTool::process(CaloCellContainer* theCont)
 StatusCode CaloCellFastCopyTool::process(CaloConstCellContainer* theCont)
 {
   // Retrieve source cell container
-  const CaloCellContainer* srcCont;
-  CHECK( evtStore()->retrieve(srcCont, m_srcCellContainerName));
+  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
 
-  CHECK( (this->*m_copyConstCells)(srcCont, theCont) );
+  ATH_CHECK( (this->*m_copyConstCells)(srcCont.cptr(), theCont) );
 
   std::vector<CaloCell_ID::SUBCALO>::const_iterator it = m_acceptedCalos.begin();
   for (; it != m_acceptedCalos.end(); ++it) {

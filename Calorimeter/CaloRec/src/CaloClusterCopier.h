@@ -38,16 +38,19 @@ class CaloClusterCopier : public AthAlgTool, virtual public CaloClusterCollectio
   CaloClusterCopier(const std::string& type, const std::string& name,
 		    const IInterface* parent);
   // destructor 
-  ~CaloClusterCopier();
+  virtual ~CaloClusterCopier() override;
+  
   // Algorithm virtual methods 
-  virtual StatusCode initialize();
-  virtual StatusCode execute(xAOD::CaloClusterContainer* );
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* ) const override;
 
   void getClusterSize();
 
  private:
   // properties 
-  std::string m_clustersName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersKey;
   bool m_copyCells;
   bool m_useClusterPosition;
   float m_etCut;

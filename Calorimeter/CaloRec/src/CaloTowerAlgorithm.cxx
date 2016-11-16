@@ -14,7 +14,7 @@
 #include "CaloUtils/CaloCollectionHelper.h"
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloEvent/CaloTowerContainer.h"
-#include "CaloRec/CaloTowerAlgorithm.h"
+#include "CaloTowerAlgorithm.h"
 
 #include <string>
 #include <vector>
@@ -29,12 +29,13 @@ CaloTowerAlgorithm::CaloTowerAlgorithm(const std::string& name,
   , m_maxEta(2.5)
   , m_genericLink(true) 
   , m_ptools( this )
+  , m_towerContainerKey("")
 {
   // tool names
   //declareProperty("TowerBuilderTools",m_toolNames);
   declareProperty("TowerBuilderTools",m_ptools);
   // output data
-  declareProperty("TowerContainerName",m_towerContainerName);
+  declareProperty("TowerContainerName",m_towerContainerKey);
   // tower grid
   declareProperty("NumberOfEtaTowers",m_nEtaTowers);
   declareProperty("NumberOfPhiTowers",m_nPhiTowers);
@@ -59,8 +60,8 @@ StatusCode CaloTowerAlgorithm::initialize()
 
   // tool service
   IToolSvc* myToolSvc;
-  CHECK(service("ToolSvc",myToolSvc));
-
+  ATH_CHECK(service("ToolSvc",myToolSvc));
+  ATH_CHECK(m_towerContainerKey.initialize());
   ////////////////////
   // Allocate Tools //
   ////////////////////
@@ -77,15 +78,15 @@ StatusCode CaloTowerAlgorithm::initialize()
   CaloTowerSeg theTowerSeg(m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
 
 
-  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator firstITool = m_ptools.begin();
-  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator lastITool  = m_ptools.end();
+  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator firstITool = m_ptools.begin();
+  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator lastITool  = m_ptools.end();
 
   unsigned int toolCtr = 0;
   ATH_MSG_INFO(" ");
   ATH_MSG_INFO("List of tools in execution sequence:");
   ATH_MSG_INFO("------------------------------------");
 
-  CHECK(m_ptools.retrieve());
+  ATH_CHECK(m_ptools.retrieve());
 
   for (; firstITool != lastITool; firstITool++) {
     toolCtr++;
@@ -133,10 +134,13 @@ StatusCode CaloTowerAlgorithm::execute()
   /////////////////////
 
   CaloTowerSeg theTowerSeg(m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
-  CaloTowerContainer* theTowers = new CaloTowerContainer(theTowerSeg);
 
-  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator firstITool  = m_ptools.begin();
-  ToolHandleArray<ICaloTowerBuilderToolBase>::const_iterator lastITool   = m_ptools.end();
+  SG::WriteHandle<CaloTowerContainer> theTowers(m_towerContainerKey);
+  ATH_CHECK( theTowers.record(std::make_unique<CaloTowerContainer>(theTowerSeg)) );
+  
+
+  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator firstITool  = m_ptools.begin();
+  ToolHandleArray<ICaloTowerBuilderToolBase>::iterator lastITool   = m_ptools.end();
   StatusCode processStatus = StatusCode::SUCCESS;
   //
   // loop stops only when Failure indicated by one of the tools
@@ -151,7 +155,7 @@ StatusCode CaloTowerAlgorithm::execute()
       theTicker->chronoStart((*firstITool)->name());
     }
 
-    processStatus = (*firstITool)->execute(theTowers);
+    processStatus = (*firstITool)->execute(theTowers.ptr());
 
     if (theTicker != 0) {
       theTicker->chronoStop((*firstITool)->name());
@@ -174,13 +178,7 @@ StatusCode CaloTowerAlgorithm::execute()
     }
   }
 
-  const bool allowMods(false);
-  if ((evtStore()->record(theTowers, m_towerContainerName, allowMods)).isSuccess()) {
-    const INavigable4MomentumCollection* theNav4Coll = 0;
-    return evtStore()->symLink(theTowers, theNav4Coll);
-  } else {
-    return StatusCode::FAILURE;
-  }
+  return StatusCode::SUCCESS;
 }
 
 //////////////

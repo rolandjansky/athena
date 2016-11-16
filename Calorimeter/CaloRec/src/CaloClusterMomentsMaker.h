@@ -51,9 +51,11 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   CaloClusterMomentsMaker(const std::string& type, const std::string& name,
 			  const IInterface* parent);
 
-  StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
-  StatusCode initialize();
-  StatusCode finalize();
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusColl) const override final;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   /** Callback added to handle Data-driven GeoModel initialisation
    */
@@ -133,13 +135,9 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   bool m_twoGaussianNoise;
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  // FIXME: mutable
+  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
   ToolHandle<ILArHVCorrTool> m_larHVScaleRetriever;
-
-  /**
-   * @brief HV fraction is need to check for HV affected LAr cells
-   */
-  LArHVFraction * m_larHVFraction;
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.

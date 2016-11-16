@@ -18,7 +18,7 @@
 //
 //-----------------------------------------------------------------------
 
-#include "CaloRec/CaloTopoTmpHashCell.h"
+#include "CaloTopoTmpHashCell.h"
 
 namespace CaloTopoTmpHashCellSort{
 // comparison,  order seed cells by E/V

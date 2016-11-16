@@ -16,7 +16,7 @@
 //
 //-----------------------------------------------------------------------
 
-#include "CaloRec/CaloClusterMomentsMaker.h"
+#include "CaloClusterMomentsMaker.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -134,7 +134,6 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
     m_larHVScaleRetriever("LArHVScaleRetriever"),
-    m_larHVFraction(NULL),
     m_absOpt(false) 
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
@@ -186,7 +185,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -205,7 +204,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
 			  &CaloClusterMomentsMaker::geoInit,this);
     if(sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
+      msg(MSG::ERROR) << "Could not register geoInit callback" << endmsg;
       return sc;
     }
   }
@@ -248,7 +247,7 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
       int count = 0;
       for (const MomentName& m : moment_names)
 	msg() << ((count++)==0?" ":", ") << m.name;
-      msg() << endreq;
+      msg() << endmsg;
     }
   }
 
@@ -289,10 +288,10 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     
     if(m_noiseTool.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find Noise Tool" << endreq;
+	  << "Unable to find Noise Tool" << endmsg;
     }  
     else {
-      msg(MSG::INFO) << "Noise Tool retrieved" << endreq;
+      msg(MSG::INFO) << "Noise Tool retrieved" << endmsg;
     }
   }
 
@@ -300,10 +299,10 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     
     if(m_larHVScaleRetriever.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find LAr HV Scale Retriever Tool" << endreq;
+	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
     }  
     else {
-      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endreq;
+      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
     }
   }
 
@@ -313,10 +312,6 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
 
 StatusCode CaloClusterMomentsMaker::finalize()
 {
-  if ( m_calculateLArHVFraction && m_larHVFraction ) {
-    delete m_larHVFraction;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -339,7 +334,10 @@ struct cellinfo {
 
 } // namespace CaloClusterMomentsMaker_detail
 
-StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusColl)
+StatusCode
+CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
+                                 xAOD::CaloClusterContainer *theClusColl)
+  const
 { 
   ATH_MSG_DEBUG("Executing " << name());
 
@@ -361,7 +359,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
   if ( m_calculateIsolation ) {
 
     if (theClusColl->size() >= noCluster) {
-      msg(MSG::ERROR) << "Too many clusters" << endreq;
+      msg(MSG::ERROR) << "Too many clusters" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -394,11 +392,10 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
     }
   }
 
-  // setup LAr HV Fraction class in case the corresponding moments are
-  // requested
-  if ( m_calculateLArHVFraction && (!m_larHVFraction) ) {
-    m_larHVFraction = new LArHVFraction(m_larHVScaleRetriever.operator->());
-  }
+  const ILArHVCorrTool* hvCorrTool = nullptr;
+  if (m_calculateLArHVFraction)
+    hvCorrTool = &*m_larHVScaleRetriever;
+  LArHVFraction larHVFraction (hvCorrTool);
   
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
@@ -491,7 +488,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	  ePos += ene*weight;
 	}
 	if ( m_calculateLArHVFraction ) {
-	  if ( m_larHVFraction->isHVAffected(pCell) ) {
+	  if ( larHVFraction.isHVAffected(pCell) ) {
 	    eBadLArHV += ene*weight;
 	    nBadLArHV ++;
 	  }
@@ -588,8 +585,8 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	w=0;
 	
 
-	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endreq;
-	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endreq;
+	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endmsg;
+	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endmsg;
 	// shower axis is just the vector pointing from the IP to the shower center
 	// in case there are less than 3 cells in the cluster
 	
@@ -631,7 +628,7 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 
 	  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(C);
 	  if (eigensolver.info() != Eigen::Success) {
-	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endreq;
+	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endmsg;
 	  }
 	  else {
 	    // don't use the principal axes if at least one of the 3 

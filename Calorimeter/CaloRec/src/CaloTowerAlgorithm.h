@@ -70,7 +70,7 @@ class CaloTowerAlgorithm: public AthAlgorithm {
     std::vector<std::string> m_toolNames;
     ToolHandleArray<ICaloTowerBuilderToolBase> m_ptools;
     // output tower container name
-    std::string m_towerContainerName;
+    SG::WriteHandleKey<CaloTowerContainer> m_towerContainerKey;
 
     /////////////////////////
     // Stores and Services //

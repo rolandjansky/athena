@@ -1,40 +1,38 @@
-#include "CaloRec/CaloTowerMonitor.h"
-#include "CaloRec/CaloTowerMaker.h"
-#include "CaloRec/CaloTowerAlgorithm.h"
-#include "CaloRec/CaloTopoTowerAlgorithm.h"
-#include "CaloRec/CaloClusterMaker.h"
-#include "CaloRec/CaloTopoClusterMaker.h"
-#include "CaloRec/CaloTopoClusterSplitter.h"
-#include "CaloRec/CaloClusterCopier.h"
-#include "CaloRec/CaloClusterBuilderSW.h"
-#include "CaloRec/CaloClusterMomentsMaker.h"
-#include "CaloRec/CaloCell2ClusterMapper.h"
-#include "CaloRec/CaloCellContainerMergerTool.h"
-#include "CaloRec/CaloCellContainerCorrectorTool.h"
-#include "CaloRec/CaloCellContainerCheckerTool.h"
-#include "CaloRec/CaloCellContainerFinalizerTool.h"
-#include "CaloRec/CaloCellContainerFromClusterTool.h"
-#include "CaloRec/CaloCellMaker.h"
-#include "CaloRec/CaloConstCellMaker.h"
+#include "../CaloTowerMonitor.h"
+#include "../CaloTowerAlgorithm.h"
+#include "../CaloTopoTowerAlgorithm.h"
+#include "../CaloClusterMaker.h"
+#include "../CaloTopoClusterMaker.h"
+#include "../CaloTopoClusterSplitter.h"
+#include "../CaloClusterCopier.h"
+#include "../CaloClusterBuilderSW.h"
+#include "../CaloClusterMomentsMaker.h"
+#include "../CaloCell2ClusterMapper.h"
+#include "../CaloCellContainerMergerTool.h"
+#include "../CaloCellContainerCorrectorTool.h"
+#include "../CaloCellContainerCheckerTool.h"
+#include "../CaloCellContainerFinalizerTool.h"
+#include "../CaloCellContainerFromClusterTool.h"
+#include "../CaloCellMaker.h"
+#include "../CaloConstCellMaker.h"
 //#include "CaloRec/CaloClusterCellSlimmer.h" Really obsolete AFAIK (commissioning legacy)
-#include "CaloRec/CaloClusterCorrDBWriter.h"
-#include "CaloRec/CaloClusterCorrDumper.h"
+#include "../CaloClusterCorrDBWriter.h"
+#include "../CaloClusterCorrDumper.h"
 //#include "CaloRec/CaloClusterPrinter.h"
 //#include "CaloRec/CaloClusterLockVars.h"
-#include "CaloRec/CaloTopoTowerAlg.h"
+#include "../CaloTopoTowerAlg.h"
 #include "CaloRec/Blob2ToolConstants.h"
-#include "CaloRec/CaloCellOverwrite.h"
-#include "CaloRec/CaloCellFastCopyTool.h"
-#include "CaloRec/CaloClusterCellLinksUpdater.h"
-#include "CaloRec/CaloTowerxAODFromCells.h"
-#include "CaloRec/CaloTowerxAODFromClusters.h"
-#include "CaloRec/CaloClusterSnapshot.h"
+#include "../CaloCellOverwrite.h"
+#include "../CaloCellFastCopyTool.h"
+#include "../CaloClusterCellLinksUpdater.h"
+#include "../CaloTowerxAODFromCells.h"
+#include "../CaloTowerxAODFromClusters.h"
+#include "../CaloClusterSnapshot.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( CaloTowerMonitor )
-DECLARE_ALGORITHM_FACTORY( CaloTowerMaker )
 DECLARE_ALGORITHM_FACTORY( CaloTowerAlgorithm )
 DECLARE_ALGORITHM_FACTORY( CaloTopoTowerAlgorithm )
 DECLARE_ALGORITHM_FACTORY( CaloClusterMaker )
@@ -68,36 +66,3 @@ DECLARE_TOOL_FACTORY ( Blob2ToolConstants )
 DECLARE_TOOL_FACTORY ( CaloCellFastCopyTool )
 DECLARE_TOOL_FACTORY ( CaloClusterSnapshot )
 
-DECLARE_FACTORY_ENTRIES(CaloRec) {
-    DECLARE_ALGORITHM( CaloTowerMonitor );
-    DECLARE_ALGORITHM( CaloTowerMaker );
-    DECLARE_ALGORITHM( CaloTowerAlgorithm );
-    DECLARE_ALGORITHM( CaloTopoTowerAlgorithm );
-    DECLARE_ALGORITHM( CaloClusterMaker );
-    DECLARE_ALGORITHM( CaloCell2ClusterMapper );
-    DECLARE_ALGORITHM( CaloCellMaker );
-    DECLARE_ALGORITHM( CaloConstCellMaker );
-    //    DECLARE_ALGORITHM( CaloClusterCellSlimmer );
-    DECLARE_ALGORITHM( CaloClusterCorrDBWriter )
-    DECLARE_ALGORITHM( CaloClusterCorrDumper )
-    DECLARE_ALGORITHM( CaloTopoTowerAlg )
-    DECLARE_ALGORITHM( CaloCellOverwrite )
-    DECLARE_ALGORITHM ( CaloClusterCellLinksUpdater )
-    DECLARE_ALGORITHM( CaloTowerxAODFromCells )
-    DECLARE_ALGORITHM( CaloTowerxAODFromClusters )
-
-    DECLARE_TOOL( CaloTopoClusterMaker );
-    DECLARE_TOOL( CaloTopoClusterSplitter );
-    DECLARE_TOOL( CaloClusterBuilderSW );
-    DECLARE_TOOL( CaloClusterCopier );
-    DECLARE_TOOL( CaloClusterMomentsMaker );
-    DECLARE_TOOL( CaloCellContainerMergerTool );
-    DECLARE_TOOL( CaloCellContainerCorrectorTool );
-    DECLARE_TOOL( CaloCellContainerCheckerTool );
-    DECLARE_TOOL( CaloCellContainerFinalizerTool );
-    //DECLARE_TOOL( CaloClusterPrinter );
-    //DECLARE_TOOL( CaloClusterLockVars );
-    DECLARE_TOOL( Blob2ToolConstants )
-    DECLARE_TOOL( CaloCellFastCopyTool ) 
-    DECLARE_TOOL( CaloClusterSnapshot )
-}

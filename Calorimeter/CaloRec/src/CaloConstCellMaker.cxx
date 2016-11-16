@@ -11,12 +11,11 @@
  */
 
 
-#include "CaloRec/CaloConstCellMaker.h"
+#include "CaloConstCellMaker.h"
 #include "CaloInterface/ICaloConstCellMakerTool.h"
-#include "CaloEvent/CaloConstCellContainer.h"
+
 #include "AthenaKernel/Chrono.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <memory>
@@ -33,6 +32,7 @@ using CLHEP::second;
 CaloConstCellMaker::CaloConstCellMaker (const std::string& name,
                                         ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
+    m_caloCellsOutputKey(""),
     m_chrono("ChronoStatSvc", name),
     m_evCounter(0)
 {
@@ -40,7 +40,7 @@ CaloConstCellMaker::CaloConstCellMaker (const std::string& name,
                   "Will the new container own its cells?  Default is no.");
   declareProperty("CaloCellMakerTools", m_caloCellMakerTools,
                   "List of tools to run.");
-  declareProperty("CaloCellsOutputName", m_caloCellsOutputName,
+  declareProperty("CaloCellsOutputName", m_caloCellsOutputKey,
                   "Output container name.");
 }
 
@@ -50,15 +50,17 @@ CaloConstCellMaker::CaloConstCellMaker (const std::string& name,
  */
 StatusCode CaloConstCellMaker::initialize()
 {
-  CHECK( m_chrono.retrieve() );
+  ATH_CHECK( m_chrono.retrieve() );
 
   // access tools and store them
-  CHECK( m_caloCellMakerTools.retrieve() );
+  ATH_CHECK( m_caloCellMakerTools.retrieve() );
+  ATH_CHECK( m_caloCellsOutputKey.initialize());
+  
   ATH_MSG_DEBUG( "Successfully retrieved CaloConstCellMakerTools: "
                  << m_caloCellMakerTools );
 
   ATH_MSG_INFO( " Output CaloConstCellContainer Name "
-                << m_caloCellsOutputName );
+                << m_caloCellsOutputKey.key() );
   if (m_ownPolicy == SG::OWN_ELEMENTS) {
     ATH_MSG_INFO( "...will OWN its cells." );
   } else {
@@ -75,8 +77,9 @@ StatusCode CaloConstCellMaker::initialize()
 StatusCode CaloConstCellMaker::execute()
 {
   // Create empty container.
-  std::unique_ptr<CaloConstCellContainer> theContainer = 
-    CxxUtils::make_unique<CaloConstCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy));
+
+  SG::WriteHandle<CaloConstCellContainer> theContainer( m_caloCellsOutputKey);
+  ATH_CHECK( theContainer.record (std::make_unique<CaloConstCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
 
   ++m_evCounter;
 
@@ -98,7 +101,7 @@ StatusCode CaloConstCellMaker::execute()
     sc.ignore();
     {
       Athena::Chrono (chronoName, &*m_chrono);
-      sc = tool->process(theContainer.get());
+      sc = tool->process(theContainer.ptr());
     }
 
     ATH_MSG_DEBUG( "Chrono stop : delta "
@@ -110,8 +113,6 @@ StatusCode CaloConstCellMaker::execute()
     }
   }
 
-  // Record the container.
-  CHECK( evtStore()->record(std::move(theContainer), m_caloCellsOutputName) );
 
   return StatusCode::SUCCESS;
 }

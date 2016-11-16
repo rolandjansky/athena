@@ -7,7 +7,7 @@
 #ifndef CALOREC_CALOTOWERXAODFROMCELLS_H
 #define CALOREC_CALOTOWERXAODFROMCELLS_H
 
-#include "CaloRec/CaloTowerxAODAlgoBase.h"
+#include "CaloTowerxAODAlgoBase.h"
 
 
 #include <string>
@@ -28,23 +28,21 @@ public:
   CaloTowerxAODFromCells(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// @brief Baseclass destructor
-  ~CaloTowerxAODFromCells();
+  virtual ~CaloTowerxAODFromCells();
 
   /// @name @c AthAlgorithm interface implementation
   /// @{
-  virtual StatusCode initialize();     ///< @brief Initialize algorithm
-  virtual StatusCode execute();        ///< @brief Execute algorithm
-  virtual StatusCode finalize();       ///< @brief Finalize algorithm
+  virtual StatusCode initialize() override;     ///< @brief Initialize algorithm
+  virtual StatusCode execute_r(const EventContext& ctx) const override;        ///< @brief Execute algorithm
+  virtual StatusCode finalize() override;       ///< @brief Finalize algorithm
   /// @}
 
 private:
 
   /// @name Algorithm properties
   /// @{
-  //SG::ReadHandle<CaloCellContainer> m_inputCellContainer;
-  std::string m_inputCellContainerKey;///< @brief SG key of the input calo-cell container
+  SG::ReadHandleKey<CaloCellContainer> m_inputCellContainerKey;
   double      m_cellThresholdE;       ///< @brief Cell energy threshold (only for @b FilteredCell mode)
-  //bool        m_useThresholdE;        ///< @brief @c true if tower (@b AllCell ) or cell (@b FilteredCell ) thresholds are to be used  
   /// @}
 
   bool  m_filterCells;

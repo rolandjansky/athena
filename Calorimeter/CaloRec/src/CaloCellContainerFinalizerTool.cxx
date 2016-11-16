@@ -14,7 +14,7 @@ PURPOSE:  Apply necessary finalising operation to CaloCellContainer
 
 ********************************************************************/
 
-#include "CaloRec/CaloCellContainerFinalizerTool.h"
+#include "CaloCellContainerFinalizerTool.h"
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
@@ -79,7 +79,7 @@ StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont )
   } 	
   else {
     msg(MSG::WARNING) << "CaloCellContainer size " << theCont->size() 
-	<< " larger than hashMax ! Too many cells ! " << hashMax << endreq ;
+	<< " larger than hashMax ! Too many cells ! " << hashMax << endmsg ;
 
     }
   

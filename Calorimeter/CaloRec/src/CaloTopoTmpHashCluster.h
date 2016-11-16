@@ -21,7 +21,7 @@
 #ifndef CALOTOPOTMPHASHCLUSTER_H
 #define CALOTOPOTMPHASHCLUSTER_H
 
-#include "CaloRec/CaloTopoTmpHashClusterBase.h"
+#include "CaloTopoTmpHashClusterBase.h"
 class CaloTopoTmpClusterCell;
 
 class CaloTopoTmpHashCluster

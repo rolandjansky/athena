@@ -17,14 +17,14 @@
 //-----------------------------------------------------------------------
 
 
-#include "CaloRec/CaloProtoCluster.h"
-#include "CaloRec/CaloTopoClusterSplitter.h"
-#include "CaloRec/CaloTopoSplitterClusterCell.h"
-#include "CaloRec/CaloTopoSplitterHashCluster.h"
-#include "CaloRec/CaloTopoTmpHashCell.h"
+#include "CaloProtoCluster.h"
+#include "CaloTopoClusterSplitter.h"
+#include "CaloTopoSplitterClusterCell.h"
+#include "CaloTopoSplitterHashCluster.h"
+#include "CaloTopoTmpHashCell.h"
 #include "CaloUtils/CaloClusterEtSort.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloRec/CaloTopoTmpHashCellSort.h"
+#include "CaloTopoTmpHashCellSort.h"
 #include "CaloRec/CaloBadCellHelper.h"
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -60,7 +60,6 @@ CaloTopoClusterSplitter::CaloTopoClusterSplitter(const std::string& type,
     m_minEnergy(500*MeV),
     m_shareBorderCells(false),
     m_emShowerScale(5*cm),
-    m_doALotOfPrintoutInFirstEvent (false),
     m_minSampling (0),
     m_maxSampling (0),
     m_minSecondarySampling (0),
@@ -97,14 +96,14 @@ CaloTopoClusterSplitter::CaloTopoClusterSplitter(const std::string& type,
 
 StatusCode CaloTopoClusterSplitter::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << endreq;
-  msg(MSG::INFO) << "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false") << endreq;
+  msg(MSG::INFO) << "Initializing " << name() << endmsg;
+  msg(MSG::INFO) << "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false") << endmsg;
 
   const IGeoModelSvc *geoModel=0;
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg(MSG::ERROR) <<"Could not locate GeoModelSvc" << endreq;
+    msg(MSG::ERROR) <<"Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -123,7 +122,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
 			  &CaloTopoClusterSplitter::geoInit,this);
     if(sc.isFailure())
     {
-      msg(MSG::ERROR) <<"Could not register geoInit callback" << endreq;
+      msg(MSG::ERROR) <<"Could not register geoInit callback" << endmsg;
       return sc;
     }
   }
@@ -133,8 +132,6 @@ StatusCode CaloTopoClusterSplitter::initialize()
 StatusCode
 CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  m_doALotOfPrintoutInFirstEvent = false;
-
   // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
 
@@ -150,12 +147,12 @@ CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
     m_nOption = LArNeighbours::super3D;
   else {
     msg(MSG::ERROR) <<"Invalid Neighbor Option "
-	<< m_neighborOption << ", exiting ..." << endreq;
+	<< m_neighborOption << ", exiting ..." << endmsg;
     return StatusCode::FAILURE;
   }
 
   msg(MSG::INFO) << "Neighbor Option "
-		 << m_neighborOption << " is selected!" << endreq;
+		 << m_neighborOption << " is selected!" << endmsg;
 
   //--- check sampling names to use
   std::vector<std::string>::iterator samplingIter = m_samplingNames.begin(); 
@@ -219,14 +216,14 @@ CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
           << "TileBar0, TileBar1, TileBar2, "
           << "TileGap1, TileGap2, TileGap3, "
           << "TileExt0, TileExt1, TileExt2, "
-          << "FCAL0, FCAL1, FCAL2." << endreq;
+          << "FCAL0, FCAL1, FCAL2." << endmsg;
   }
 
   msg(MSG::INFO) << "Samplings to consider for local maxima:";
   samplingIter = m_samplingNames.begin(); 
   for(; samplingIter!=samplingIterEnd; samplingIter++)  
     msg() << " " << *samplingIter;
-  msg() << endreq;
+  msg() << endmsg;
 
   m_minSampling=0;
   m_maxSampling=0;
@@ -307,14 +304,14 @@ CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
           << "TileBar0, TileBar1, TileBar2, "
           << "TileGap1, TileGap2, TileGap3, "
           << "TileExt0, TileExt1, TileExt2, "
-          << "FCAL0, FCAL1, FCAL2." << endreq;
+          << "FCAL0, FCAL1, FCAL2." << endmsg;
   }
 
   msg(MSG::INFO) << "Secondary samplings to consider for local maxima:";
   samplingIter = m_secondarySamplingNames.begin(); 
   for(; samplingIter!=samplingIterEnd; samplingIter++)  
     msg() << " " << *samplingIter;
-  msg() << endreq;
+  msg() << endmsg;
 
   m_minSecondarySampling=0;
   m_maxSecondarySampling=0;
@@ -348,7 +345,8 @@ CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
 
 //###############################################################################
 
-StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl)
+StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
+                                            xAOD::CaloClusterContainer* clusColl) const
 {
   ATH_MSG_DEBUG("Executing " << name());
 
@@ -392,7 +390,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
     ATH_MSG_DEBUG("cluster size = " <<clusterSize);
     const CaloClusterCellLink* lnk=(*clusCollIter)->getCellLinks();
     if (!lnk) {
-      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endreq;
+      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endmsg;
       return StatusCode::FAILURE;
     }
     myCellColl = lnk->getCellContainer();    
@@ -407,7 +405,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
     xAOD::CaloCluster* parentCluster = (*clusCollIter);
     CaloClusterCellLink* cellLinks=parentCluster->getCellLinks();
     if (!cellLinks) {
-      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endreq;
+      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -472,7 +470,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
                                     iClusterNumber,is_secondary);  
       // some debug printout - can also be used to construct neighbor
       // tables offline ...
-      if ( m_doALotOfPrintoutInFirstEvent &&  msgLvl(MSG::DEBUG)) {
+      if ( ctx.evt() == 0 &&  msgLvl(MSG::DEBUG)) {
 	msg(MSG::INFO) << " [ExtId|Id|SubDet|HashId|eta|phi|iParent|E]: "
 		       << "[" << m_calo_id->show_to_string(myId,0,'/')
 		       << "|" << myId.getString() 
@@ -482,7 +480,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 		       << "|" << pCell->phi()
 		       << "|" << iClusterNumber
 		       << "|" << signedRatio
-		       << "]" << endreq;
+		       << "]" << endmsg;
       }
       HashCell hashCell(tmpClusterCell);
       HashCluster *tmpCluster =
@@ -758,7 +756,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 		      << (unsigned int)hashCellIter->getCaloTopoTmpClusterCell()->getID() 
 		      << "] has E = " 
 		      << hashCellIter->getCaloTopoTmpClusterCell()->getSignedRatio() 
-		      << endreq;
+		      << endmsg;
     }
   }
 
@@ -793,25 +791,25 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	m_calo_id->get_neighbours(hashid,m_nOption,theNeighbors);
       }
       // loop over all neighbors of that cell (Seed Growing Algo)
-      if ( m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
+      if ( ctx.evt() == 0 && msgLvl(MSG::DEBUG)) {
 	Identifier myId;
 	myId = m_calo_id->cell_id(hashid);
 	msg(MSG::DEBUG)  << " Cell [" << mySubDet << "|" 
 			 << (unsigned int)hashid << "|"
 			 << m_calo_id->show_to_string(myId,0,'/') 
 			 << "] has " << theNeighbors.size() << " neighbors:" 
-			 << endreq; 
+			 << endmsg; 
       }
       int otherSubDet;
       for (unsigned int iN=0;iN<theNeighbors.size();iN++) {
 	otherSubDet = m_calo_id->sub_calo(theNeighbors[iN]);
 	IdentifierHash nId = theNeighbors[iN];
-	if ( m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
+	if ( ctx.evt() == 0 && msgLvl(MSG::DEBUG)) {
 	  Identifier myId;
 	  myId = m_calo_id->cell_id(nId);
 	  msg(MSG::DEBUG) << "  NeighborCell [" << otherSubDet << "|" 
 			  << (unsigned int) nId << "|" 
-			  << m_calo_id->show_to_string(myId,0,'/') << "]" << endreq;
+			  << m_calo_id->show_to_string(myId,0,'/') << "]" << endmsg;
 	  theNNeighbors.clear();
 	  m_calo_id->get_neighbours(nId,m_nOption,theNNeighbors);
 	  bool foundId (false);
@@ -834,7 +832,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	    
 	    msg() << otherSubDet << "|" << nId << "|" 
 		  << m_calo_id->show_to_string(myId,0,'/') 
-		  << "]" << endreq;
+		  << "]" << endmsg;
 	  }
 	}//end if printout
 	HashCell neighborCell = cellVector[(unsigned int)nId - m_hashMin];
@@ -961,26 +959,26 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	  m_calo_id->get_neighbours(hashid,m_nOption,theNeighbors);
 	}
 	// loop over all neighbors of that cell (Seed Growing Algo)
-	if ( m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
+	if ( ctx.evt() == 0 && msgLvl(MSG::DEBUG)) {
 	  Identifier myId;
 	  myId = m_calo_id->cell_id(hashid);
 	  msg(MSG::DEBUG) << " Shared Cell [" << mySubDet << "|" 
 			  << (unsigned int)hashid << "|"
 			  << m_calo_id->show_to_string(myId,0,'/') 
 			  << "] has " << theNeighbors.size() << " neighbors:" 
-			  << endreq; 
+			  << endmsg; 
 	}//end if printout
 	int otherSubDet;
 	for (unsigned int iN=0;iN<theNeighbors.size();iN++) {
 	  otherSubDet = m_calo_id->sub_calo(theNeighbors[iN]);
 	  IdentifierHash nId = theNeighbors[iN];
-	  if (m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
+	  if (ctx.evt() == 0 && msgLvl(MSG::DEBUG)) {
 	    Identifier myId;
 	    myId = m_calo_id->cell_id(nId);
 	    msg(MSG::DEBUG) << "  NeighborCell [" << otherSubDet << "|" 
 			    << (unsigned int) nId << "|" 
 			    << m_calo_id->show_to_string(myId,0,'/') << "]"
-			    << endreq;
+			    << endmsg;
 	    theNNeighbors.clear();
 	    m_calo_id->get_neighbours(nId,m_nOption,theNNeighbors);
 	    bool foundId (false);
@@ -1004,7 +1002,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	      
 	      msg() << otherSubDet << "|" << nId << "|" 
 		    << m_calo_id->show_to_string(myId,0,'/') 
-		    << "]" << endreq;
+		    << "]" << endmsg;
 	    }
 	  }
 	  HashCell neighborCell = cellVector[(unsigned int)nId - m_hashMin];
@@ -1191,7 +1189,7 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   // remove all original clusters from the cluster container
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "erase " << clusColl->size() << " clusters";
   clusColl->clear();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", new size " << clusColl->size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", new size " << clusColl->size() << endmsg;
   clusColl->reserve (myCaloClusters.size());
 
   float eTot(0.);
@@ -1226,14 +1224,11 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   if ( fabs(eTot) > eMax ) 
     eMax = fabs(eTot);
   if ( fabs(eTot-eTotOrig)>0.001*eMax ){
-    msg(MSG::WARNING) << "Energy sum for split Clusters = " << eTot << " MeV does not equal original sum = " << eTotOrig << " MeV !" << endreq;
+    msg(MSG::WARNING) << "Energy sum for split Clusters = " << eTot << " MeV does not equal original sum = " << eTotOrig << " MeV !" << endmsg;
   } 
   if ( abs(nTot-nShared-nTotOrig) > 0 ) {
-    msg(MSG::ERROR) <<"Cell sum for split Clusters does not equal original sum!" << endreq;
+    msg(MSG::ERROR) <<"Cell sum for split Clusters does not equal original sum!" << endmsg;
   } 
-
-  if ( m_doALotOfPrintoutInFirstEvent ) 
-    m_doALotOfPrintoutInFirstEvent = false;
 
   tmpcell_pool.erase();
   tmpclus_pool.erase();

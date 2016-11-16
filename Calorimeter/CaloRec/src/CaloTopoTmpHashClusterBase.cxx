@@ -19,7 +19,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloRec/CaloTopoTmpHashClusterBase.h"
+#include "CaloTopoTmpHashClusterBase.h"
 
 //----------------------------
 // This Class's Base Header --
