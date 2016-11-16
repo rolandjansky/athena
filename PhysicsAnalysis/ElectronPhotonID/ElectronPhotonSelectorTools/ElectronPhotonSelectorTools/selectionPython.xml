@@ -11,5 +11,4 @@
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
   <class name="EGammaAmbiguityTool" /> 
-  <function pattern="AsgConfigHelper::*"/> 
 </lcgdict>

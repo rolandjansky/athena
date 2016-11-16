@@ -18,7 +18,7 @@ UPDATED:
 *********************************************************************/
 
 // This class header
-#include "ElectronPhotonSelectorTools/TPhotonIsEMSelector.h"
+#include "TPhotonIsEMSelector.h"
 #include <cmath>
 
 Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :

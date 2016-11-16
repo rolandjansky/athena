@@ -15,7 +15,8 @@
 
 */
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TForwardElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
@@ -202,6 +203,11 @@ const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::Photon*
   return accept(static_cast<const xAOD::Egamma*> (ph));  
 }
 
+/** The value of the isem **/
+unsigned int AsgForwardElectronIsEMSelector::IsemValue() const {
+  return m_rootForwardTool->isEM(); 
+}
+
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -315,6 +321,10 @@ unsigned int AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egam
 					       centerLambda,
 					       secondR,
 					       iflag);
+}
+
+const Root::TAccept& AsgForwardElectronIsEMSelector::getTAccept( ) const{
+  return m_rootForwardTool->getTAccept();
 }
 
 //=============================================================================

@@ -10,9 +10,15 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
+
+namespace Root{
+  class TElectronLikelihoodTool;
+}
+
 
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
@@ -102,17 +108,10 @@ public:
   const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const; 
 
   /** Method to get the plain TAccept */
-  inline virtual const Root::TAccept& getTAccept( ) const
-  {
-    return m_rootTool->getTAccept();
-  }
-
+  virtual const Root::TAccept& getTAccept( ) const;
 
   /** Method to get the plain TResult */
-  inline virtual const Root::TResult& getTResult( ) const
-  {
-    return m_rootTool->getTResult();
-  }
+  virtual const Root::TResult& getTResult( ) const;
 
   virtual std::string getOperatingPointName( ) const;
 
@@ -121,6 +120,8 @@ private:
   /// Get the number of primary vertices
   unsigned int getNPrimVertices() const;
 
+  /// Get the FCal ET for centrality determination (for HI collisions)
+  double getFcalEt() const;
 
   /// Get the name of the current operating point
 
@@ -152,6 +153,16 @@ private:
 
   /// The primary vertex container name
   std::string m_primVtxContName;
+
+  /// Whether or not to use the CaloSums container in HI events
+  bool m_useCaloSumsCont;
+
+  /// defualt FCal ET (when not using CaloSums container, in HI events)
+  double m_fcalEtDefault;
+
+  /// The CaloSums container name, in HI events
+  std::string m_CaloSumsContName;
+
 
   /// The input ROOT file name that holds the PDFs
   std::string m_pdfFileName;

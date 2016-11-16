@@ -16,7 +16,8 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
@@ -364,6 +365,10 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) co
   return accept(static_cast<const xAOD::Egamma*> (ph));  
 }
 
+unsigned int AsgElectronIsEMSelector::IsemValue() const {
+  return m_rootTool->isEM(); 
+}
+
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -401,7 +406,7 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
   // protection against null pointer
   if (eg==0) {
     // if object is bad then use the bit for "bad eta"
-    ATH_MSG_DEBUG("exiting because el is NULL");
+    ATH_MSG_ERROR("exiting because el is NULL");
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
     return StatusCode::SUCCESS; 
@@ -410,7 +415,7 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
   const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
-    ATH_MSG_DEBUG("exiting because cluster is NULL");
+    ATH_MSG_ERROR("exiting because cluster is NULL");
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
     return StatusCode::SUCCESS; 
@@ -543,7 +548,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   //ATH_MSG_DEBUG("CaloCutsOnly is false");
   // protection against bad pointers
   if ( t == 0 ) {
-    ATH_MSG_DEBUG("Something is bad with the variables as passed");
+    ATH_MSG_ERROR("Something is bad with the variables as passed");
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     return StatusCode::SUCCESS; 
@@ -639,4 +644,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      expectHitNextInBLayer,
 			      iflag);
 }
+
+const Root::TAccept& AsgElectronIsEMSelector::getTAccept( ) const{
+    return m_rootTool->getTAccept();
+}
+
 //  LocalWords:  const el

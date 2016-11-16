@@ -15,7 +15,8 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
 
 // STL includes
@@ -28,6 +29,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
 #include "TEnv.h"
 
 #include "PathResolver/PathResolver.h"
@@ -51,6 +53,10 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
+  declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
+  declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
+  declareProperty("CaloSumsContainer", m_CaloSumsContName="CaloSums", "The CaloSums container name" );
+
 
 
   //
@@ -100,16 +106,22 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("HighETBinThreshold",m_rootTool->HighETBinThreshold,"ET threshold for using high ET cuts and bin");
   // do pileup-dependent transform on discriminant value
   declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
+  // do centrality-dependent transform on discriminant value
+  declareProperty("doCentralityTransform",m_rootTool->doCentralityTransform,"Do centrality-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
   declareProperty("DiscHardCutForPileupTransform",m_rootTool->DiscHardCutForPileupTransform,"Reference disc for very hard cut; used by pileup transform");
   // reference slope on disc for very hard cut; used by pileup transform
   declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->DiscHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
+  // reference quadratic par on disc for very hard cut; used by centrality transform
+  declareProperty("DiscHardCutQuadForPileupTransform",m_rootTool->DiscHardCutQuadForPileupTransform,"Reference quadratic par on disc for very hard cut; used by centrality transform");
   // reference disc for a pileup independent loose menu; used by pileup transform
   declareProperty("DiscLooseForPileupTransform",m_rootTool->DiscLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
   // reference disc for very hard cut; used by pileup transform - 4-7 GeV bin
   declareProperty("DiscHardCutForPileupTransform4GeV",m_rootTool->DiscHardCutForPileupTransform4GeV,"Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
   // reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV bin
   declareProperty("DiscHardCutSlopeForPileupTransform4GeV",m_rootTool->DiscHardCutSlopeForPileupTransform4GeV,"Reference slope on disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  // reference quadratic par on disc for very hard cut; used by centrality transform in 4-7 GeV bin
+  declareProperty("DiscHardCutQuadForPileupTransform4GeV",m_rootTool->DiscHardCutQuadForPileupTransform4GeV,"Reference quadratic par on disc for very hard cut; used by centrality transform in 4-7 GeV bin");
   // reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV bin
   declareProperty("DiscLooseForPileupTransform4GeV",m_rootTool->DiscLooseForPileupTransform4GeV,"Reference disc for pileup indepdendent loose menu; used by pileup transform. 4-7 GeV bin");
   // max discriminant for which pileup transform is to be used
@@ -139,7 +151,6 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
 
-// TODO: Sort out this set operating point stuff.
   std::string PDFfilename(""); //Default
 
   if(!m_WorkingPoint.empty()){
@@ -219,11 +230,14 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->HighETBinThreshold = env.GetValue("HighETBinThreshold", 125);
 
     m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
+    m_rootTool->doCentralityTransform = env.GetValue("doCentralityTransform", false);
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
     m_rootTool->DiscHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
+    m_rootTool->DiscHardCutQuadForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform",env);
     m_rootTool->DiscLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
     m_rootTool->DiscHardCutForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform4GeV",env);
     m_rootTool->DiscHardCutSlopeForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform4GeV",env);
+    m_rootTool->DiscHardCutQuadForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform4GeV",env);
     m_rootTool->DiscLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
     m_rootTool->DiscMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
@@ -279,22 +293,22 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 {
   if ( !eg )
     {
-      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      ATH_MSG_ERROR ("Failed, no egamma object.");
       return m_acceptDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_DEBUG ("Failed, no cluster.");
+      ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
       return m_acceptDummy;
     }  
 
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
-  if ( fabs(eta) > 300.0 )
+  if ( fabs(eta) > 2.5 )
     {
-      ATH_MSG_DEBUG ("Failed, eta range.");
+      ATH_MSG_WARNING("Failed, cluster->etaBE(2) range." << eta );
       return m_acceptDummy;
     }
   
@@ -361,9 +375,11 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 
   } //if not calo ONly
 
-  // Get the number of primary vertices in this event
+  // Get the number of primary vertices or FCal ET in this event
+  bool doCentralityTransform = m_rootTool->doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else {
     ip = mu;
@@ -422,14 +438,14 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
     }
   if ( !eg )
     {
-      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      ATH_MSG_ERROR ("Failed, no egamma object.");
       return m_acceptDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_DEBUG ("Failed, no cluster.");
+      ATH_MSG_ERROR ("Failed, no cluster.");
       return m_acceptDummy;
     }  
   
@@ -437,7 +453,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   const float eta = (cluster->etaBE(2)); 
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_DEBUG ("Failed, eta range.");
+      ATH_MSG_ERROR ("Failed, eta range.");
       return m_acceptDummy;
     }
   
@@ -456,11 +472,14 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   uint8_t nNextToInnerMostLayerOutliers(0); 
   int convBit(0); // this no longer works
 
-  // Get the pileup information
+  // Get the pileup or centrality information
   double ip(0);
 
+  bool doCentralityTransform = m_rootTool->doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
-    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+
   }
   else {
     ip = mu;
@@ -522,14 +541,14 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 {
   if ( !eg )
     {
-      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      ATH_MSG_ERROR ("Failed, no egamma object.");
       return m_resultDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_DEBUG ("Failed, no cluster.");
+      ATH_MSG_ERROR ("Failed, no cluster.");
       return m_resultDummy;
     }  
 
@@ -537,7 +556,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   const float eta = cluster->etaBE(2); 
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_DEBUG ("Failed, eta range.");
+      ATH_MSG_ERROR ("Failed, eta range.");
       return m_resultDummy;
     }
   
@@ -552,11 +571,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   
   
   // number of track hits and other track quantities
-  uint8_t nTRThigh(0); 
-  uint8_t nTRThighOutliers(0); 
-  uint8_t nTRT(0); 
-  uint8_t nTRTOutliers(0);
-  uint8_t nTRTXenon(0); 
   float trackqoverp(0.0);
   float d0(0.0);
   float d0sigma(0.0);
@@ -564,7 +578,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float TRT_PID(0.0);
   double trans_TRT_PID(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
-  double rTRT(0.0);
 
   bool allFound = true;
   if (!m_caloOnly){
@@ -579,11 +592,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	  d0sigma=sqrtf(vard0);
         }
 
-        allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
-        allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
-        allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
-        allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
-        allFound = allFound && t->summaryValue(nTRTXenon, xAOD::numberOfTRTXenonHits);
         allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
 
         //Transform the TRT PID output for use in the LH tool.
@@ -618,8 +626,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
   // rphi e233/e237
   allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
-  // E(7*7) in 2nd sampling
- // allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
   // rhad1 = ethad1/et
   allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
   // rhad = ethad/et
@@ -638,35 +644,27 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   if( !m_caloOnly){
     allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
 
-  // difference between the cluster phi (sampling 2) and the eta of the track extrapolated from the last measurement point.
+    // difference between the cluster phi (sampling 2) and the eta of the track extrapolated from the last measurement point.
     allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
-  
 
-    // TRT high-to-low threshold hits ratio
-    if ( nTRTXenon > 0 )
-      {
-        rTRT = ((double)(nTRThigh+nTRThighOutliers)) / ((double)(nTRTXenon)) ;
-      }
-  // else if ( nTRTXenon < 0 && (nTRT+nTRTOutliers) > 0 ) // this is always false as given
-  //   {
-  //     rTRT = ((double)(nTRThigh+nTRThighOutliers)) / ((double)(nTRT+nTRTOutliers)) ;
-  //   }
   }
 
-  // Get the number of primary vertices in this event
+  // Get the number of primary vertices or FCal ET in this event
   double ip = static_cast<double>(m_nPVdefault);
 
-  if(mu < 0){ // use npv if mu is negative (not given)
-    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  if( mu < 0 ){ // use npv if mu is negative (not given)
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else{
     ip = mu;
   }
 
-  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
-                         deltaEta, d0, rTRT,
+                         deltaEta, d0,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
                          TRT_PID, trans_TRT_PID,
@@ -689,7 +687,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                                 Eratio,
                                 deltaEta,
                                 d0,
-                                rTRT,
                                 d0sigma,
                                 Rphi,
                                 dpOverp,
@@ -711,14 +708,14 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
     }
   if ( !eg )
     {
-      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      ATH_MSG_ERROR ("Failed, no egamma object.");
       return m_resultDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_DEBUG ("Failed, no cluster.");
+      ATH_MSG_ERROR ("Failed, no cluster.");
       return m_resultDummy;
     }  
   
@@ -726,7 +723,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   const float eta = cluster->etaBE(2); 
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_DEBUG ("Failed, eta range.");
+      ATH_MSG_ERROR ("Failed, eta range.");
       return m_resultDummy;
     }
   
@@ -738,7 +735,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   double dpOverp(0.0);
 
   float deltaEta=0, deltaPhiRescaled2=0;
-  double rTRT(0.0);
   float TRT_PID(0.0);
 
   // Calo Variables
@@ -765,18 +761,21 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   // fraction of energy reconstructed in the 3rd sampling
   allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
 
-  // Get the pileup information
+  // Get the pileup or centrality information
   double ip(0);
 
-  if( mu < 0){ // use npv if mu is negative (not given)
-    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
-  } else {
+  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  if( mu < 0 ){ // use npv if mu is negative (not given)
+    if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
+    else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  }
+  else {
     ip = mu;
   }
-  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
-                         deltaEta, d0, rTRT,
+                         deltaEta, d0,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
 			 TRT_PID,
@@ -799,7 +798,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
                                 Eratio,
                                 deltaEta,
                                 d0,
-                                rTRT,
                                 d0sigma,
                                 Rphi,
                                 dpOverp,
@@ -808,6 +806,17 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
                                 ip
                                 );
 }
+
+/** Method to get the plain TAccept */
+const Root::TAccept& AsgElectronLikelihoodTool::getTAccept( ) const{
+  return m_rootTool->getTAccept();
+}
+
+/** Method to get the plain TResult */
+const Root::TResult& AsgElectronLikelihoodTool::getTResult( ) const{
+  return m_rootTool->getTResult();
+}
+
 
 //=============================================================================
 /// Get the name of the current operating point
@@ -875,4 +884,29 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
   return nVtx;
 }
 
+//=============================================================================
+// Helper method to get FCal ET for centrality determination
+//=============================================================================
+double AsgElectronLikelihoodTool::getFcalEt() const
+{
+  static bool CaloSumsExists = true; 
+  double fcalEt(0.);
+  const xAOD::HIEventShapeContainer* HIESContainer(0);
+  if(CaloSumsExists){
+    if ( StatusCode::SUCCESS != evtStore()->retrieve( HIESContainer, m_CaloSumsContName ) )
+    {
+      ATH_MSG_WARNING ( "CaloSums container not found with name: " << m_CaloSumsContName );
+      CaloSumsExists = false; // if retrieve failed, don't try to retrieve again
+      return fcalEt;
+    }
+    xAOD::HIEventShapeContainer::const_iterator es_itr = HIESContainer->begin();
+    xAOD::HIEventShapeContainer::const_iterator es_end = HIESContainer->end();
+    for (; es_itr != es_end; es_itr++){
+      double et = (*es_itr)->et();
+      const std::string name = (*es_itr)->auxdataConst<std::string>("Summary");
+      if (name == "FCal") fcalEt = et*1.e-6;
+    }
+  }
+  return fcalEt;
+}
 

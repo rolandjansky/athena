@@ -228,40 +228,26 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
  * or the author of the object if no overlapping object is found **/
 
 unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) const{
-
-  const static SG::AuxElement::Decorator<uint8_t> acc("ambiguityType");
-  const static SG::AuxElement::Decorator<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityElementLink");
-  ElementLink<xAOD::EgammaContainer> link;
-  //By default the type is  unkown
-  acc(egamma)=xAOD::AmbiguityTool::unknown;
-  ELink(egamma)=link;
-
-  //Fwd and Topo seeded not handled 
+  
+    //Fwd and Topo seeded not handled 
   if (egamma.author() == xAOD::EgammaParameters::AuthorFwdElectron ||
       egamma.author() == xAOD::EgammaParameters::AuthorCaloTopo35){
     ATH_MSG_DEBUG("Author Fwd of Topo seeded.  Do not do overlap or ambiguity");
     return egamma.author();
   }
   
-  // Given an electron (photon), retrieve the photon (electron) container
-  const xAOD::EgammaContainer* egammaContainer = getContainer(egamma.type() != xAOD::Type::Electron);
-  //Find the overlapping object
-  const xAOD::Egamma* other = getOverlappingObject(egamma,egammaContainer);
   //No overlap found so either photon or electron
-  if (!other) {
+  if (!egamma.ambiguousObject()){
+    //!ELink.isAvailable(*egamma)) {
     ATH_MSG_DEBUG("No overlaping object found");
-    acc(egamma) = egamma.type()==xAOD::Type::Electron ? xAOD::AmbiguityTool::electron : xAOD::AmbiguityTool::photon ;
     return egamma.author();
   }
-
-  link = ElementLink<xAOD::EgammaContainer> (other, *egammaContainer);
-  ELink(egamma)=link;
   
   //Overlap found. define the electron and the photon
   const xAOD::Electron *electron = 
-    dynamic_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : other);
+    dynamic_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : egamma.ambiguousObject());
   const xAOD::Photon *photon = 
-    dynamic_cast<const xAOD::Photon*>(egamma.type() == xAOD::Type::Photon ? &egamma : other);
+    dynamic_cast<const xAOD::Photon*>(egamma.type() == xAOD::Type::Photon ? &egamma : egamma.ambiguousObject());
   
   //Error if cannot define any of them
   if (!electron || !photon){
@@ -276,7 +262,6 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) c
 					 electron->trackParticle(),
 					 type);
   ATH_MSG_DEBUG("Performed ambiguity resolution, resulting type is: "<< type);
-  acc(egamma)=type;
   return result;
 }
 
@@ -295,44 +280,6 @@ bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguo
 
  return (author == (egamma.type() == xAOD::Type::Electron ? 
 		     xAOD::EgammaParameters::AuthorElectron : xAOD::EgammaParameters::AuthorPhoton) );
-}
-
-/** Helper for getting overlapping egamma object given electron or photon */
-const xAOD::Egamma* EGammaAmbiguityTool::getOverlappingObject( const xAOD::Egamma& egamma, const xAOD::EgammaContainer* egammaContainer) const{
-
-  // Sanity checks
-  if (!egamma.caloCluster()) {return 0;}
-
-  if (!egammaContainer) {
-    return 0;
-  }
-    
-  // Find the overlapping object based on dR < 0.05 between the clusters
-  for (const auto* other : *egammaContainer){    
-    //Do not do overlaps with topo seeded (i.e when electron is the input)
-    if(other->author() != xAOD::EgammaParameters::AuthorCaloTopo35){
-      if ( xAOD::P4Helpers::deltaR2(egamma.caloCluster(), other->caloCluster()) < 0.0025 ){
-	return other;
-      }
-    }
-  }
-  return 0;
-}
-
-/*Helper to identify the right container to loop over */
-const xAOD::EgammaContainer* EGammaAmbiguityTool::getContainer(bool isElectronContainer) const{
-  if (isElectronContainer){
-    const xAOD::ElectronContainer *electronContainer = 0;
-    if (evtStore()->retrieve(electronContainer, m_electronContainerName).isFailure() ){
-      ATH_MSG_WARNING("Could not retrieve " << m_electronContainerName);
-    }
-    return electronContainer;
-  }
-  const xAOD::PhotonContainer *photonContainer = 0;
-  if (evtStore()->retrieve(photonContainer, m_photonContainerName).isFailure() ){
-    ATH_MSG_WARNING("Could not retrieve " << m_photonContainerName);
-  }
-  return photonContainer;
 }
 
 /** Return true if track has innermost pixel hit 

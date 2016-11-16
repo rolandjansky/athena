@@ -80,9 +80,6 @@ public:
   /** Accept or reject egamma object based on ambiguity resolution */
   virtual bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true) const = 0;
   
-  /** Get overlapping egamma object given electron or photon */
-  virtual const xAOD::Egamma* getOverlappingObject( const xAOD::Egamma& egamma,const xAOD::EgammaContainer* egammaContainer ) const = 0;
-
 }; // End: class definition
 
 

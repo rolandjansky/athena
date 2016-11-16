@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
+#include "TElectronLikelihoodTool.h"
 #include <cmath>
 #include "TSystem.h"
 #include "TROOT.h"
@@ -36,6 +36,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   useOneExtraHighETLHBin(false),
   HighETBinThreshold(125),
   doPileupTransform(false),
+  doCentralityTransform(false),
   DiscMaxForPileupTransform(2.0),
   PileupMaxForPileupTransform(50),
   VariableNames(""),
@@ -201,7 +202,7 @@ int Root::TElectronLikelihoodTool::initialize()
 
   //Load the histograms
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
-    std::string vstr = fVariables[varIndex];
+    const std::string& vstr = fVariables[varIndex];
     // Skip the loading of PDFs for variables we don't care about for this operating point.
     // If the string is empty (which is true in the default 2012 case), load all of them.
     if(VariableNames.find(vstr) == std::string::npos && !VariableNames.empty()){
@@ -233,6 +234,7 @@ int Root::TElectronLikelihoodTool::initialize()
                 << "\n - (bool)useOneExtraHighETLHBin(yes/no)         : " << (useOneExtraHighETLHBin ? "yes" : "no")
                 << "\n - (double)HighETBinThreshold                   : " << HighETBinThreshold
                 << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
+                << "\n - (bool)doCentralityTransform (yes/no)         : " << (doCentralityTransform ? "yes" : "no")
                 << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
                 << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
                 << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
@@ -439,7 +441,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
     if (doSmoothBinInterpolation){
       cutDiscriminant = InterpolateCuts(CutLikelihood,CutLikelihood4GeV,vars_struct.eT,vars_struct.eta);
-      if (!doPileupTransform)
+      if (!doPileupTransform && CutLikelihoodPileupCorrection.size() && CutLikelihoodPileupCorrection4GeV.size())
         cutDiscriminant += vars_struct.ip*InterpolateCuts(CutLikelihoodPileupCorrection,CutLikelihoodPileupCorrection4GeV,vars_struct.eT,vars_struct.eta);
     } else {
       if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
@@ -524,12 +526,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 }
 
 const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, double eT,double f3, double rHad, double rHad1,
-                                                               double Reta, double w2, double f1, /*double wstot,*/ double eratio,
-                                                               double deltaEta, double d0, double TRratio, /*double eOverP,*/
-                                                               /*double deltaPhi,*/ double d0sigma, /*double fside,*/
-                                                               /*double ptcone20,*/ double rphi, /*double ws3,*/
-                                                               double deltaPoverP ,double deltaphires,
-							       double TRT_PID,
+                                                               double Reta, double w2, double f1, double eratio,
+                                                               double deltaEta, double d0, double d0sigma, double rphi,
+                                                               double deltaPoverP ,double deltaphires, double TRT_PID,
                                                                double ip )  const
 {
 
@@ -546,7 +545,6 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, doubl
   vars.eratio      = eratio     ;
   vars.deltaEta    = deltaEta   ;
   vars.d0          = d0         ;
-  vars.TRratio     = TRratio    ;
   vars.d0sigma     = d0sigma    ;
   vars.rphi        = rphi       ;
   vars.deltaPoverP = deltaPoverP;
@@ -572,7 +570,7 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate(LikeEnum::LHCalcVa
   double arr[] = {d0significance,vars_struct.eratio,vars_struct.deltaEta
                   ,vars_struct.f1,vars_struct.f3
                   ,vars_struct.Reta,rhad_corr,vars_struct.rphi
-                  ,vars_struct.d0,vars_struct.TRratio,vars_struct.w2
+                  ,vars_struct.d0,vars_struct.w2
                   ,vars_struct.deltaPoverP,vars_struct.deltaphires
 		  ,vars_struct.TRT_PID};
   std::vector<double> vec (arr, arr + sizeof(arr) / sizeof(double) );
@@ -623,34 +621,38 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   
   double SigmaS = 1.;
   double SigmaB = 1.;
+
+  // define some string constants
+  const std::string TRT_string = "TRT";
+  const std::string el_f3_string = "el_f3";
+  const std::string el_TRT_PID_string = "el_TRT_PID";
+
   for(unsigned int var = 0; var < fnVariables; var++){
     
-    std::string varstr = fVariables[var];
+    const std::string& varstr = fVariables[var];
     
     // Skip variables that are masked off (not used) in the likelihood
     if (!(m_variableBitMask & (0x1 << var))){
       continue;
     }
     // Don't use TRT for outer eta bins (2.01,2.37)
-    if (((etabin == 8) || (etabin == 9)) && (varstr.find("TRT") != std::string::npos)){
+    if (((etabin == 8) || (etabin == 9)) && (varstr.find(TRT_string) != std::string::npos)){
       continue;
     }
     // Don't use f3 for outer eta bin (2.37)
-    if ((etabin == 9) && (varstr.find("el_f3") != std::string::npos)){
+    if ((etabin == 9) && (varstr.find(el_f3_string) != std::string::npos)){
       continue;
     }
     // Don't use f3 for high et (>80 GeV)
-    if (doRemoveF3AtHighEt && (et > 80*GeV) && (varstr.find("el_f3") != std::string::npos)){
+    if (doRemoveF3AtHighEt && (et > 80*GeV) && (varstr.find(el_f3_string) != std::string::npos)){
         continue;
     }
     // Don't use TRTPID for high et (>80 GeV)
-    if (doRemoveTRTPIDAtHighEt && (et > 80*GeV) && (varstr.find("el_TRT_PID") != std::string::npos)){
+    if (doRemoveTRTPIDAtHighEt && (et > 80*GeV) && (varstr.find(el_TRT_PID_string) != std::string::npos)){
         continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
-      std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;
-
       int bin = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->FindBin(varVector[var]);
 
       double prob = 0;
@@ -697,6 +699,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
   // Linearly transform the discriminant as a function of pileup, rather than
   // the old scheme of changing the cut value based on pileup. This is simpler for
   // the tuning, as well as ensuring subsets / making discriminants more transparent.
+  // In the HI case, a quadratic centrality transform is applied instead.
   if(doPileupTransform){
 
     // The variables used by the transform:
@@ -714,17 +717,24 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
       return disc;
     }
 
+    if(doCentralityTransform && DiscHardCutQuadForPileupTransform.size() == 0){
+      ATH_MSG_WARNING("Vectors needed for centrality-dependent transform not correctly filled! Skipping the transform.");
+      return disc;
+    }
+
     unsigned int etabin = getLikelihoodEtaBin(eta);
 
-    double disc_hard_cut_ref      ;
-    double disc_hard_cut_ref_slope;
-    double disc_loose_ref         ;
+    double disc_hard_cut_ref       = 0;
+    double disc_hard_cut_ref_slope = 0;
+    double disc_hard_cut_ref_quad  = 0; // only used for heavy ion implementation of the LH
+    double disc_loose_ref          = 0;
     double disc_max                = DiscMaxForPileupTransform;
     double pileup_max              = PileupMaxForPileupTransform;
 
     if (doSmoothBinInterpolation){
       disc_hard_cut_ref       = InterpolateCuts(DiscHardCutForPileupTransform,DiscHardCutForPileupTransform4GeV,et,eta);
       disc_hard_cut_ref_slope = InterpolateCuts(DiscHardCutSlopeForPileupTransform,DiscHardCutSlopeForPileupTransform4GeV,et,eta);
+      if (doCentralityTransform) disc_hard_cut_ref_quad = InterpolateCuts(DiscHardCutQuadForPileupTransform,DiscHardCutQuadForPileupTransform4GeV,et,eta);
       disc_loose_ref          = InterpolateCuts(DiscLooseForPileupTransform,DiscLooseForPileupTransform4GeV,et,eta);
     } else {
       // default situation, in the case where 4-7 GeV bin is not defined
@@ -733,19 +743,26 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
         unsigned int ibin_combined = etfinebin*10+etabin;
         disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
         disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
+        if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform[ibin_combined];
         disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
       } else {
         if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
           ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
           return disc;
         }
+        if(doCentralityTransform && DiscHardCutQuadForPileupTransform4GeV.size() == 0){
+          ATH_MSG_WARNING("Vectors needed for centrality-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
+          return disc;
+        }
         disc_hard_cut_ref       = DiscHardCutForPileupTransform4GeV[etabin];
         disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform4GeV[etabin];
+        if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform4GeV[etabin];
         disc_loose_ref          = DiscLooseForPileupTransform4GeV[etabin];
       }
     }
 
-    double disc_hard_cut_ref_prime = disc_hard_cut_ref + disc_hard_cut_ref_slope * std::min(ip,pileup_max);
+    double ip_for_corr = std::min(ip,pileup_max); // turn off correction for values > pileup_max
+    double disc_hard_cut_ref_prime = disc_hard_cut_ref + disc_hard_cut_ref_slope * ip_for_corr + disc_hard_cut_ref_quad * ip_for_corr * ip_for_corr;
 
     if(disc <= disc_loose_ref){
       // Below threshold for applying pileup correction
@@ -977,26 +994,21 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
 //----------------------------------------------------------------------------------------
 
 // These are the variables availalble in the likelihood.
-const char* Root::TElectronLikelihoodTool::fVariables[fnVariables] = {"el_d0significance"
-							     ,"el_eratio"
-							     ,"el_deltaeta1"
-							     ,"el_f1"
-							     ,"el_f3"
-							     ,"el_reta"
-							     ,"el_rhad"
-							     ,"el_rphi"
-							     ,"el_trackd0pvunbiased"
-							     ,"el_TRTHighTOutliersRatio"
-							     ,"el_weta2"
-							     ,"el_DeltaPoverP"
-							     ,"el_deltaphiRescaled"
-							     ,"el_TRT_PID"};
-//,"el_ws3"
-//,"el_ptcone20pt"
-//,"el_deltaphi2"
-//,"el_EoverP"
-//,"el_fside"
-//,"el_wstot"
+const std::string Root::TElectronLikelihoodTool::fVariables[fnVariables] = {
+   "el_d0significance"
+  ,"el_eratio"
+  ,"el_deltaeta1"
+  ,"el_f1"
+  ,"el_f3"
+  ,"el_reta"
+  ,"el_rhad"
+  ,"el_rphi"
+  ,"el_trackd0pvunbiased"
+  ,"el_weta2"
+  ,"el_DeltaPoverP"
+  ,"el_deltaphiRescaled"
+  ,"el_TRT_PID"
+};
 
 //=============================================================================
 // SafeTH1, to allow us to immediately free the ROOT TH1 memory

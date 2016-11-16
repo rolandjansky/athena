@@ -15,6 +15,7 @@ use xAODTracking                xAODTracking-*          Event/xAOD
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
+use xAODHIEvent                 xAODHIEvent-*           Event/xAOD
 
 private
 use CxxUtils                    CxxUtils-*              Control
