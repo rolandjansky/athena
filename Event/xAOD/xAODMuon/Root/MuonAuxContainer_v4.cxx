@@ -74,6 +74,42 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer3Holes );
         AUX_VARIABLE( etaLayer4Holes );
 
+        AUX_VARIABLE( phiLayer1RPCHits );
+        AUX_VARIABLE( phiLayer2RPCHits );
+        AUX_VARIABLE( phiLayer3RPCHits );
+
+        AUX_VARIABLE( etaLayer1RPCHits );
+        AUX_VARIABLE( etaLayer2RPCHits );
+        AUX_VARIABLE( etaLayer3RPCHits );
+
+        AUX_VARIABLE( phiLayer1RPCHoles );
+        AUX_VARIABLE( phiLayer2RPCHoles );
+        AUX_VARIABLE( phiLayer3RPCHoles );
+
+        AUX_VARIABLE( etaLayer1RPCHoles );
+        AUX_VARIABLE( etaLayer2RPCHoles );
+        AUX_VARIABLE( etaLayer3RPCHoles );
+
+        AUX_VARIABLE( phiLayer1TGCHits );
+        AUX_VARIABLE( phiLayer2TGCHits );
+        AUX_VARIABLE( phiLayer3TGCHits );
+        AUX_VARIABLE( phiLayer4TGCHits );
+
+        AUX_VARIABLE( etaLayer1TGCHits );
+        AUX_VARIABLE( etaLayer2TGCHits );
+        AUX_VARIABLE( etaLayer3TGCHits );
+        AUX_VARIABLE( etaLayer4TGCHits );
+
+        AUX_VARIABLE( phiLayer1TGCHoles );
+        AUX_VARIABLE( phiLayer2TGCHoles );
+        AUX_VARIABLE( phiLayer3TGCHoles );
+        AUX_VARIABLE( phiLayer4TGCHoles );
+
+        AUX_VARIABLE( etaLayer1TGCHoles );
+        AUX_VARIABLE( etaLayer2TGCHoles );
+        AUX_VARIABLE( etaLayer3TGCHoles );
+        AUX_VARIABLE( etaLayer4TGCHoles );
+
         // Isolation
         AUX_VARIABLE( etcone20 );
         AUX_VARIABLE( etcone30 );

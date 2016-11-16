@@ -100,6 +100,43 @@ namespace xAOD {
       std::vector< uint8_t >          etaLayer2Holes;
       std::vector< uint8_t >          etaLayer3Holes;
       std::vector< uint8_t >          etaLayer4Holes;
+
+      std::vector< uint8_t >          phiLayer1RPCHits;
+      std::vector< uint8_t >          phiLayer2RPCHits;
+      std::vector< uint8_t >          phiLayer3RPCHits;
+      
+      std::vector< uint8_t >          etaLayer1RPCHits;
+      std::vector< uint8_t >          etaLayer2RPCHits;
+      std::vector< uint8_t >          etaLayer3RPCHits;
+      
+      std::vector< uint8_t >          phiLayer1RPCHoles;
+      std::vector< uint8_t >          phiLayer2RPCHoles;
+      std::vector< uint8_t >          phiLayer3RPCHoles;
+      
+      std::vector< uint8_t >          etaLayer1RPCHoles;
+      std::vector< uint8_t >          etaLayer2RPCHoles;
+      std::vector< uint8_t >          etaLayer3RPCHoles;
+      
+      std::vector< uint8_t >          phiLayer1TGCHits;
+      std::vector< uint8_t >          phiLayer2TGCHits;
+      std::vector< uint8_t >          phiLayer3TGCHits;
+      std::vector< uint8_t >          phiLayer4TGCHits;
+      
+      std::vector< uint8_t >          etaLayer1TGCHits;
+      std::vector< uint8_t >          etaLayer2TGCHits;
+      std::vector< uint8_t >          etaLayer3TGCHits;
+      std::vector< uint8_t >          etaLayer4TGCHits;
+      
+      std::vector< uint8_t >          phiLayer1TGCHoles;
+      std::vector< uint8_t >          phiLayer2TGCHoles;
+      std::vector< uint8_t >          phiLayer3TGCHoles;
+      std::vector< uint8_t >          phiLayer4TGCHoles;
+      
+      std::vector< uint8_t >          etaLayer1TGCHoles;
+      std::vector< uint8_t >          etaLayer2TGCHoles;
+      std::vector< uint8_t >          etaLayer3TGCHoles;
+      std::vector< uint8_t >          etaLayer4TGCHoles;
+
       /// @}   
       
       /// @name Isolation values
