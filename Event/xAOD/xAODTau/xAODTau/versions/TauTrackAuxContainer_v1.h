@@ -11,8 +11,6 @@
 #include <vector>
 #include <cstdint>
 
-
-
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -42,8 +40,8 @@ namespace xAOD {
     // std::vector< float > rConvII;
     // std::vector< float > dRJetSeedAxis;
 
-    std::vector< float > etaStrip;
-    std::vector< float > phiStrip;
+    // std::vector< float > etaStrip;
+    // std::vector< float > phiStrip;
       
 
     typedef std::vector< ElementLink< TrackParticleContainer > > TrackLinks_t;
@@ -52,10 +50,8 @@ namespace xAOD {
  
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+// Set up the StoreGate inheritance for the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TauTrackAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTAU_VERSIONS_TAUTRACKAUXCONTAINER_V1_H

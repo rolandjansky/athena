@@ -13,7 +13,6 @@ extern "C" {
 #   include <stdint.h>
 }
 
-
 //local includes
 #include "xAODTau/TauDefs.h"
 
@@ -113,6 +112,11 @@ namespace xAOD {
 
     typedef std::vector< ElementLink< TauTrackContainer > > TauTrackLink_t;
     std::vector< TauTrackLink_t > tauTrackLinks;
+
+    //simply nTracks(TauJetParameters::TauTrackFlag::classifiedCharged)
+    //after the first pass of TauTrackFinder
+    std::vector< int > nChargedTracks;
+    std::vector< int > nIsolatedTracks;
 
     typedef std::vector< ElementLink< IParticleContainer > > IParticleLink_t;
     std::vector< IParticleLink_t > clusterLinks;//actually xAOD::CaloClusters
@@ -318,10 +322,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+// Set up the StoreGate inheritance for the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TauJetAuxContainer_v3, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H

@@ -70,10 +70,8 @@ namespace xAOD {
  
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+// Set up the StoreGate inheritance for the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::DiTauJetAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODDITAU_VERSIONS_DITAUJETAUXCONTAINER_V1_H

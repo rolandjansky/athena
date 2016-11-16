@@ -90,6 +90,7 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayMode );
       //Variables used in BDTs
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_BDTVar_Basic_NNeutralConsts );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayModeExtended );
       
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer panTau Detail ("
@@ -199,7 +200,6 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PFOEngRelDiff );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_pantau_interpolPt );
 
-
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float detail ("
 		<< detail << ") requested" << std::endl;
@@ -219,6 +219,8 @@ break;
       // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );//r21 cleanup
       // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, GhostMuonSegmentCount );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTracks );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nIsolatedTracks );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("

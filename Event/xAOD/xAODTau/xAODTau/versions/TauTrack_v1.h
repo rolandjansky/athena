@@ -75,13 +75,13 @@ namespace xAOD {
     void clearBdtScores();
 
       
-    //name accessors for trackEtaStrip
-    float etaStrip() const;
-    void setEtaStrip(float eta);
+    // //name accessors for trackEtaStrip
+    // float etaStrip() const;
+    // void setEtaStrip(float eta);
 
-    //name accessors for trackPhiStrip
-    float phiStrip() const;
-    void setPhiStrip(float phi);
+    // //name accessors for trackPhiStrip
+    // float phiStrip() const;
+    // void setPhiStrip(float phi);
 
     bool detail( TauJetParameters::TrackDetail detail, float& value ) const;
     void setDetail( TauJetParameters::TrackDetail detail, float value );

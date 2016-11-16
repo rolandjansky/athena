@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 747857 2016-05-18 01:49:34Z griffith $
+// $Id: TauDefs.h 784645 2016-11-16 16:36:25Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -312,6 +312,9 @@ namespace TauJetParameters
       LC_pantau_interpolPt=107,
       electronLink=108,
       
+      nChargedTracks=109,
+      nIsolatedTracks=110,
+
       //Tau/Ele BDTVars
 
     };
@@ -362,9 +365,10 @@ namespace TauJetParameters
       PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts=13,
       PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed=14,
       PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged=15,
+      PanTau_DecayModeExtended=16,
       
       // new variables for pantau BDT
-      PanTau_BDTVar_Charged_HLV_SumM=32
+      PanTau_BDTVar_Charged_HLV_SumM=32,
 
     };
   
