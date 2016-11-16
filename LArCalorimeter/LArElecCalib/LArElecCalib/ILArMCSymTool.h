@@ -27,8 +27,8 @@ class ILArMCSymTool: virtual public IAlgTool
   virtual ~ILArMCSymTool() {}
   
   // retrieve methods 
-  virtual HWIdentifier symOnline(const HWIdentifier & id)=0;
-  virtual HWIdentifier symOnline(const Identifier & id)=0;
+  virtual HWIdentifier symOnline(const HWIdentifier & id) const=0;
+  virtual HWIdentifier symOnline(const Identifier & id) const=0;
 
 };
 

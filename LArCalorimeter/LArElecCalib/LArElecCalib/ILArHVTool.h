@@ -56,12 +56,12 @@ class ILArHVTool: virtual public IAlgTool
   /** brief  Given a Offline Readout ID, return values of HV and Weight 
    */
   virtual StatusCode getHV(const Identifier& id,
-	 std::vector< HV_t > & v  ) =0 ; 
+	 std::vector< HV_t > & v  ) const =0 ; 
 
   /**  Given a Offline Readout ID, return values of Current and Weight 
    */
   virtual StatusCode getCurrent(const Identifier& id,
-	 std::vector< CURRENT_t > & v  ) =0 ; 
+	 std::vector< CURRENT_t > & v  ) const =0 ; 
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
 
