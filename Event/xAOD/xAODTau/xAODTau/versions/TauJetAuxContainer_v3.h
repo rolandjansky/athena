@@ -113,6 +113,11 @@ namespace xAOD {
     typedef std::vector< ElementLink< TauTrackContainer > > TauTrackLink_t;
     std::vector< TauTrackLink_t > tauTrackLinks;
 
+    //simply nTracks(TauJetParameters::TauTrackFlag::classifiedCharged)
+    //after the first pass of TauTrackFinder
+    std::vector< int > nChargedTracks;
+    std::vector< int > nIsolatedTracks;
+
     typedef std::vector< ElementLink< IParticleContainer > > IParticleLink_t;
     std::vector< IParticleLink_t > clusterLinks;//actually xAOD::CaloClusters
     std::vector< IParticleLink_t > pi0Links;//acutally xAOD::Particles
