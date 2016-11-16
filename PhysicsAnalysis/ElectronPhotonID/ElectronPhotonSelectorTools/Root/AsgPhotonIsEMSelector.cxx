@@ -15,6 +15,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TPhotonIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "xAODEgamma/Photon.h"
@@ -368,6 +369,11 @@ const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) co
   return accept(static_cast<const xAOD::Egamma*> (el));  
 }
 
+  /** The value of the isem **/
+unsigned int AsgPhotonIsEMSelector::IsemValue() const {
+    return m_rootTool->isEM(); 
+}
+
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -519,4 +525,8 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
 			       xAOD::EgammaHelpers::isConvertedPhoton(eg));
   m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
+}
+
+const Root::TAccept& AsgPhotonIsEMSelector::getTAccept( ) const {
+  return m_rootTool->getTAccept();
 }

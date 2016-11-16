@@ -9,7 +9,7 @@ PACKAGE:  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 
 *********************************************************************/
 
-#include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
+#include "TElectronIsEMSelector.h"
 #include <cmath>
 
 namespace{

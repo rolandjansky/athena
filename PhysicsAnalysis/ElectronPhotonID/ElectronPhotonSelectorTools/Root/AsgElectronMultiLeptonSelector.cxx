@@ -15,7 +15,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
-
+#include "TElectronMultiLeptonSelector.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -237,7 +237,10 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticl
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
-std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const
-{
+std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const{
   return "MultiLepton";
+}
+
+const Root::TAccept& AsgElectronMultiLeptonSelector::getTAccept( ) const{
+  return m_rootTool->getTAccept();
 }

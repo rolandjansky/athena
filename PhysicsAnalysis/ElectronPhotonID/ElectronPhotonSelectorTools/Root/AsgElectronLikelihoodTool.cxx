@@ -16,6 +16,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
 
 // STL includes
@@ -305,9 +306,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
-  if ( fabs(eta) > 300.0 )
+  if ( fabs(eta) > 2.5 )
     {
-      ATH_MSG_ERROR ("Failed, eta range.");
+      ATH_MSG_WARNING("Failed, cluster->etaBE(2) range." << eta );
       return m_acceptDummy;
     }
   
@@ -805,6 +806,17 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
                                 ip
                                 );
 }
+
+/** Method to get the plain TAccept */
+const Root::TAccept& AsgElectronLikelihoodTool::getTAccept( ) const{
+  return m_rootTool->getTAccept();
+}
+
+/** Method to get the plain TResult */
+const Root::TResult& AsgElectronLikelihoodTool::getTResult( ) const{
+  return m_rootTool->getTResult();
+}
+
 
 //=============================================================================
 /// Get the name of the current operating point

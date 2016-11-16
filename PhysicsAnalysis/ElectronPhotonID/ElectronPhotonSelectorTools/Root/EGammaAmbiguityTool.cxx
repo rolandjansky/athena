@@ -243,8 +243,6 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) c
     return egamma.author();
   }
   
-  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
-  
   //Overlap found. define the electron and the photon
   const xAOD::Electron *electron = 
     dynamic_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : egamma.ambiguousObject());

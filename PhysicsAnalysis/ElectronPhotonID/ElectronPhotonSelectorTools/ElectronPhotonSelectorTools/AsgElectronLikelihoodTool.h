@@ -10,9 +10,15 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
+
+namespace Root{
+  class TElectronLikelihoodTool;
+}
+
 
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
@@ -102,17 +108,10 @@ public:
   const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const; 
 
   /** Method to get the plain TAccept */
-  inline virtual const Root::TAccept& getTAccept( ) const
-  {
-    return m_rootTool->getTAccept();
-  }
-
+  virtual const Root::TAccept& getTAccept( ) const;
 
   /** Method to get the plain TResult */
-  inline virtual const Root::TResult& getTResult( ) const
-  {
-    return m_rootTool->getTResult();
-  }
+  virtual const Root::TResult& getTResult( ) const;
 
   virtual std::string getOperatingPointName( ) const;
 

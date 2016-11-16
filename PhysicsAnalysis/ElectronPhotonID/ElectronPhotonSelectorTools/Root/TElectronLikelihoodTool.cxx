@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
+#include "TElectronLikelihoodTool.h"
 #include <cmath>
 #include "TSystem.h"
 #include "TROOT.h"
