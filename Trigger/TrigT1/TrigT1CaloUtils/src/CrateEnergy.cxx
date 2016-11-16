@@ -79,14 +79,20 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
   for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] > mask) m_overflowT = 1;
-    eT[quad] = eT[quad]&mask ;
+    if (eT[quad] > mask){
+      m_overflowT = 1;
+      eT[quad] = 0x3fff;
+    }
     
-    if (eX[quad] > mask) m_overflowX = 1;
-    eX[quad] = eX[quad]&mask ;
+    if (eX[quad] >= mask) {
+      m_overflowX = 1;
+      eX[quad] = 0x4000;
+    }
     
-    if (eY[quad] > mask) m_overflowY = 1;
-    eY[quad] = eY[quad]&mask ;
+    if (eY[quad] >= mask) {
+      m_overflowY = 1;
+      eY[quad] = 0x4000;
+    }
   }
 
   /** Form crate sums */
@@ -170,14 +176,20 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
   for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] > mask) m_overflowT = 1;
-    eT[quad] = eT[quad]&mask ;
+    if (eT[quad] > mask){
+      m_overflowT = 1;
+      eT[quad] = 0x3fff;
+    }
     
-    if (eX[quad] > mask) m_overflowX = 1;
-    eX[quad] = eX[quad]&mask ;
+    if (eX[quad] >= mask) {
+      m_overflowX = 1;
+      eX[quad] = 0x4000;
+    }
     
-    if (eY[quad] > mask) m_overflowY = 1;
-    eY[quad] = eY[quad]&mask ;
+    if (eY[quad] >= mask) {
+      m_overflowY = 1;
+      eY[quad] = 0x4000;
+    }
   }
 
   /** Form crate sums */

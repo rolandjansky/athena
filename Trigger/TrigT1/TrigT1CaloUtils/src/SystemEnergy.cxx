@@ -68,7 +68,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
   /** Check for EtSum overflow */
   if (m_overflowT != 0) m_systemEt = m_etSumOverflow;
   /** Check for overflow of Ex, Ey sums */
-  int xyMax = (1<<(m_sumBits-1)) - 1;
+  int xyMax = 1<< (m_sumBits - 1);
   if (abs(m_systemEx) > xyMax) {
     m_overflowX = 1;
     m_systemEx = (m_systemEx > 0 ? 1 : -1) * ( abs(m_systemEx)&xyMax );
