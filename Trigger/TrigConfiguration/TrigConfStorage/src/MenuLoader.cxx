@@ -403,7 +403,7 @@ TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
    if( menu.pitVector().size() == menu.tipVector().size() ) {
       // this is the case when we 
       // a) have either no direct inputs in the menu (unlikely, but then the next call doesn't matter), or
-      // b) the direct inputs were not filled in the TIP map (which is the case until we switch that feature on in the TriggerTool)
+      // b) the direct inputs were not filled in the TIP map: this is not the case  since TriggerTool-04-01-06 
       createTipFromDirectThresholds(menu);
    }
 
@@ -513,7 +513,8 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
       tip->setTriggerThresholdId(ttid);
       tip->setThresholdActive(tt->active());
       tip->setThresholdMapping(tt->mapping());
-      tip->setIsDirect(false);
+      if(slot==10) tip->setIsDirect(true);
+      else tip->setIsDirect(false);
       menu.addTip(tip);
       ntips++;
 
