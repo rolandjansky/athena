@@ -24,6 +24,10 @@ namespace asg
 
     /// \brief get the integer property
   public:
+    virtual std::string getPropertyString () const = 0;
+
+    /// \brief get the integer property
+  public:
     virtual int getPropertyInt () const = 0;
 
     /// \brief get the integer property

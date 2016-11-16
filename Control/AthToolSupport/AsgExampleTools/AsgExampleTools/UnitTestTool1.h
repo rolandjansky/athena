@@ -30,8 +30,15 @@ namespace asg
   public:
     UnitTestTool1 (const std::string& val_name);
 
+    /// \brief standard destructor
+  public:
+    ~UnitTestTool1 ();
+
   public:
     StatusCode initialize () override;
+
+  public:
+    virtual std::string getPropertyString () const override;
 
   public:
     virtual int getPropertyInt () const override;
@@ -46,6 +53,10 @@ namespace asg
   public:
     bool m_isInitialized = false;
 
+    /// \brief the string property
+  public:
+    std::string m_propertyString;
+
     /// \brief the integer property
   public:
     int m_propertyInt = 0;
@@ -53,6 +64,11 @@ namespace asg
     /// \brief whether initialize should fail
   public:
     bool m_initializeFail = false;
+
+    /// \brief the number of times the tool of the given name has been
+    /// instantiated
+  public:
+    static int& instance_counts (const std::string& name);
   };
 }
 
