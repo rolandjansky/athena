@@ -138,10 +138,10 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
   int tmpDecayMode;
-  static SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
-  static SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
-  static SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
-  static SG::AuxElement::Decorator<float> decMCombined("m_combined");
+  static SG::AuxElement::Accessor<float> decPtCombined("pt_combined");
+  static SG::AuxElement::Accessor<float> decEtaCombined("eta_combined");
+  static SG::AuxElement::Accessor<float> decPhiCombined("phi_combined");
+  static SG::AuxElement::Accessor<float> decMCombined("m_combined");
 
   decPtCombined(xTau) = 0;
   decEtaCombined(xTau) = 0;
@@ -161,11 +161,13 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
 
   TLorentzVector substructureP4 = getCombinedP4(Tau);
 
+  //  ATH_MSG_INFO("combinedP4: " << substructureP4.Pt() );
+
   // create xAOD variables and fill:
   decPtCombined(xTau) = substructureP4.Pt();
-  decPtCombined(xTau) = substructureP4.Eta();
-  decPtCombined(xTau) = substructureP4.Phi();
-  decPtCombined(xTau) = substructureP4.M();  
+  decEtaCombined(xTau) = substructureP4.Eta();
+  decPhiCombined(xTau) = substructureP4.Phi();
+  decMCombined(xTau) = substructureP4.M();  
 
   // move these to another file? :
   m_weight = -1111.;
@@ -176,40 +178,40 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
 
   if (m_addCalibrationResultVariables){
     substructureP4 = getCalibratedConstituentP4(Tau);
-    static SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
-    static SG::AuxElement::Decorator<float> decEtaConstituent("eta_constituent");
-    static SG::AuxElement::Decorator<float> decPhiConstituent("phi_constituent");
-    static SG::AuxElement::Decorator<float> decMConstituent("m_constituent");
+    static SG::AuxElement::Accessor<float> decPtConstituent("pt_constituent");
+    static SG::AuxElement::Accessor<float> decEtaConstituent("eta_constituent");
+    static SG::AuxElement::Accessor<float> decPhiConstituent("phi_constituent");
+    static SG::AuxElement::Accessor<float> decMConstituent("m_constituent");
     decPtConstituent(xTau)  = substructureP4.Pt(); 
     decEtaConstituent(xTau) = substructureP4.Eta();
     decPhiConstituent(xTau) = substructureP4.Phi();
     decMConstituent(xTau)   = substructureP4.M();  
 
     substructureP4 = getCalibratedTauRecP4(Tau);
-    static SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decMTauRecCalibrated("m_tauRecCalibrated");
+    static SG::AuxElement::Accessor<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
+    static SG::AuxElement::Accessor<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
+    static SG::AuxElement::Accessor<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
+    static SG::AuxElement::Accessor<float> decMTauRecCalibrated("m_tauRecCalibrated");
     decPtTauRecCalibrated(xTau)  = substructureP4.Pt(); 
     decEtaTauRecCalibrated(xTau) = substructureP4.Eta();
     decPhiTauRecCalibrated(xTau) = substructureP4.Phi();
     decMTauRecCalibrated(xTau)   = substructureP4.M();  
 
     substructureP4 = getWeightedP4(Tau);
-    static SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
-    static SG::AuxElement::Decorator<float> decEtaWeighted("eta_weighted");
-    static SG::AuxElement::Decorator<float> decPhiWeighted("phi_weighted");
-    static SG::AuxElement::Decorator<float> decMWeighted("m_weighted");
+    static SG::AuxElement::Accessor<float> decPtWeighted("pt_weighted");
+    static SG::AuxElement::Accessor<float> decEtaWeighted("eta_weighted");
+    static SG::AuxElement::Accessor<float> decPhiWeighted("phi_weighted");
+    static SG::AuxElement::Accessor<float> decMWeighted("m_weighted");
     decPtWeighted(xTau)  = substructureP4.Pt(); 
     decEtaWeighted(xTau) = substructureP4.Eta();
     decPhiWeighted(xTau) = substructureP4.Phi();
     decMWeighted(xTau)   = substructureP4.M();  
 
-    static SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
-    static SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
-    static SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
-    static SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
-    static SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
+    static SG::AuxElement::Accessor<float> decWeightWeighted("weight_weighted");
+    static SG::AuxElement::Accessor<float> decSigmaCombined("sigma_combined");
+    static SG::AuxElement::Accessor<float> decSigmaTaurec("sigma_tauRec");
+    static SG::AuxElement::Accessor<float> decSigmaConstituent("sigma_constituent");    
+    static SG::AuxElement::Accessor<float> decCorrelationCoefficient("correlation_coefficient");    
     decWeightWeighted(xTau)         = m_weight; 
     decSigmaCombined(xTau)          = m_combined_res;
     decSigmaTaurec(xTau)            = m_sigma_tauRec;
@@ -507,7 +509,7 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG("Eta = " << eta << " , eta bin = " << etaIndex );
   if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//is this a warning?
+    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//is this a warning?
     return et_substructure;
   }
 
@@ -635,7 +637,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::Ta
   int etaIndex = GetIndex_Eta(eta);
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
   if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//warning?
+    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );//warning?
     return substructureP4;
   }
 
@@ -676,7 +678,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet*
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
 
   if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
+    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
     return tauRecP4;
   }
 
@@ -717,7 +719,7 @@ TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
   ATH_MSG_DEBUG( "Eta = " << eta << " , eta bin = " << etaIndex );
 
   if(etaIndex == 99){
-    ATH_MSG_WARNING( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
+    ATH_MSG_DEBUG( "Eta = " << eta << " - outside limit! eta bin = " << etaIndex );
     return substructureP4;
   }
 

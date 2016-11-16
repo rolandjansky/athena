@@ -153,7 +153,7 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
         if( (*track_it) == tau_trk->track()) alreadyUsed = true;
           }
           //if this track has already been used by another tau, don't associate it to this new one
-          if(alreadyUsed) ATH_MSG_WARNING( "Found Already Used track new, now removing: " << *track_it );
+          if(alreadyUsed) ATH_MSG_DEBUG( "Found Already Used track new, now removing: " << *track_it );
           if (alreadyUsed)    track_it = tauTracks.erase(track_it);
           else ++track_it;
         }
@@ -194,7 +194,7 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
     }
     // set the charge, which is defined by the core tau tracks only
     pTau.setCharge(charge);
-
+    
     /// FIXME hide the logic to create element links inside xAODTau
     /// was
     // for (unsigned int i = 0; i < wideTracks.size(); ++i)
@@ -225,6 +225,10 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
         pTau.addTauTrackLink(linkToTauTrack);
 
     }
+
+    //These are set again in TauTrackClassifier
+    pTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) pTau.nTracks());
+    pTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) pTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
 
     /// was
     // for (unsigned int i = 0; i < otherTracks.size(); ++i)
@@ -355,7 +359,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
         if (not m_caloExtensionTool->caloExtension(*orgTrack,caloExtension)
             or caloExtension->caloLayerIntersections().empty() )
         { 
-            ATH_MSG_WARNING("Track extrapolation failed");
+            ATH_MSG_DEBUG("Track extrapolation failed");
         }
         else {
             ATH_MSG_DEBUG("Scanning samplings");
@@ -390,11 +394,11 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
             }
             // EM failure warn if within acceptance 
             if( not validECal and abs(orgTrack->pt()) < 2.48 ){
-                ATH_MSG_WARNING("Failed extrapolation to ECal");
+                ATH_MSG_DEBUG("Failed extrapolation to ECal");
             }
             // Had failure warn if enough pt to reach HCal
             if( not validHCal and orgTrack->pt() > 2000. ){
-                ATH_MSG_WARNING("Failed extrapolation to HCal");
+                ATH_MSG_DEBUG("Failed extrapolation to HCal");
             }
 
             ATH_MSG_DEBUG( "Extrapolated track with eta=" << orgTrack->eta()
