@@ -561,7 +561,7 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   
   // calculate perigee parameters wrt. beam-spot
   const Trk::Perigee * perigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*track, *surface));
-  if (!perigee) {
+  if (!perigee) {// if failure 
     const Trk::Perigee * trackPerigee = track->perigeeParameters();
     if ( trackPerigee && ((trackPerigee->associatedSurface())) == *surface )
       perigee = trackPerigee->clone();
@@ -569,10 +569,12 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   
   Eigen::Matrix<double,1,2> Jacobian;
   Jacobian.setZero();
-  double ptInv   =  1./perigee->momentum().perp();
-  Jacobian(0,0) = -ptInv * perigee->momentum().y();
-  Jacobian(0,1) =  ptInv * perigee->momentum().x();
-  
+  if(perigee){
+    double ptInv   =  1./perigee->momentum().perp();
+    Jacobian(0,0) = -ptInv * perigee->momentum().y();
+    Jacobian(0,1) =  ptInv * perigee->momentum().x();
+  }
+
   Amg::MatrixX errorMatrix(Jacobian*(beamSpotCov*Jacobian.transpose()));  
   vot = new Trk::VertexOnTrack(beamSpotParameters, errorMatrix, *surface);
   ATH_MSG_DEBUG(" the VertexOnTrack objects created from BeamSpot are " << *vot);
