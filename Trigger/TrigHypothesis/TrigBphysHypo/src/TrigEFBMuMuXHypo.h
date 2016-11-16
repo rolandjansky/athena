@@ -57,6 +57,9 @@ class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
     bool m_acceptBs;
     bool m_acceptLb;
     bool m_acceptBc;
+    bool m_acceptBcDplus;
+    bool m_acceptBcDstar;
+    bool m_acceptBcD0;
     
     float m_lowerBplusMassCut;
     float m_upperBplusMassCut;
@@ -79,14 +82,36 @@ class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
     float m_lowerLambdaMassCut;
     float m_upperLambdaMassCut;     
     float m_LambdaChi2Cut;     
+    
     float m_lowerBcMassCut;
-    float m_upperBcMassCut;        
+    float m_upperBcMassCut;    
     float m_BcChi2Cut;        
 //     float m_lowerPhiDsMassCut;
 //     float m_upperPhiDsMassCut;        
     float m_lowerDsMassCut;
     float m_upperDsMassCut;        
     float m_DsChi2Cut;        
+    
+    float m_lowerBcDplusMassCut;
+    float m_upperBcDplusMassCut; 
+    float m_BcDplusChi2Cut;        
+    float m_lowerDplusMassCut;
+    float m_upperDplusMassCut;        
+    float m_DplusChi2Cut;       
+    
+    float m_lowerBcDstarMassCut;
+    float m_upperBcDstarMassCut; 
+    float m_BcDstarChi2Cut;        
+    float m_lowerDstarMassCut;
+    float m_upperDstarMassCut;        
+    float m_DstarChi2Cut;       
+    
+    float m_lowerBcD0MassCut;
+    float m_upperBcD0MassCut; 
+    float m_BcD0Chi2Cut;        
+    float m_lowerD0MassCut;
+    float m_upperD0MassCut;        
+    float m_D0Chi2Cut;      
 
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
@@ -103,6 +128,9 @@ class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
     unsigned int m_countPassedBs;
     unsigned int m_countPassedLb;
     unsigned int m_countPassedBc;
+    unsigned int m_countPassedBcDplus;
+    unsigned int m_countPassedBcDstar;
+    unsigned int m_countPassedBcD0;
  
 };
 

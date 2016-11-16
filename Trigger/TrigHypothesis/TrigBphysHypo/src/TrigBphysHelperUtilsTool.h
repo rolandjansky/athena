@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+///////////////////////// -*- C++ -*- /////////////////////////////
 // TrigBphysHelperUtilsTool.h 
 // Header file for class TrigBphysHelperUtilsTool
 // Author: S.Binet<binet@cern.ch>
@@ -91,7 +91,13 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                               std::vector<double>& inputMasses);
+			 std::vector<double>& inputMasses);
+
+
+    StatusCode vertexFit(xAOD::TrigBphys * result,
+		       const std::vector<const xAOD::TrackParticle*> &trks,
+		       std::vector<double>& inputMasses);
+
     // simplify this using templates perhaps? 
     double invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const;
     double invariantMassIP(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const;

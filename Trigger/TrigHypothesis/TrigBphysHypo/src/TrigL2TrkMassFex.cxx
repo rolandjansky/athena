@@ -79,44 +79,44 @@ TrigL2TrkMassFex::TrigL2TrkMassFex(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("TrigVertexingTool" , m_vertexingTool, "TrigVertexingTool");
 
   // Variables for monitoring histograms
-  declareMonitoredStdContainer("Errors"                     , mon_Errors                        , AutoClear);
-  declareMonitoredStdContainer("Acceptance"                 , mon_Acceptance                    , AutoClear);
-  declareMonitoredStdContainer("ROIEta"                     , mon_ROIEta                        , AutoClear);
-  declareMonitoredStdContainer("ROIPhi"                     , mon_ROIPhi                        , AutoClear);
-  declareMonitoredVariable(    "nTracks"                    , mon_nTracks );
-  declareMonitoredStdContainer("TrkPt"                      , mon_TrkPt                         , AutoClear);
-  declareMonitoredStdContainer("TrkPt_wideRange"            , mon_TrkPt_wideRange               , AutoClear);
-  declareMonitoredStdContainer("TrkEta"                     , mon_TrkEta                        , AutoClear);
-  declareMonitoredStdContainer("TrkPhi"                     , mon_TrkPhi                        , AutoClear);
-  declareMonitoredStdContainer("TrkROIdEta"                 , mon_TrkROIdEta                    , AutoClear);
-  declareMonitoredStdContainer("TrkROIdPhi"                 , mon_TrkROIdPhi                    , AutoClear);
-  declareMonitoredStdContainer("TrkROIdR"                   , mon_TrkROIdR                      , AutoClear);
-  declareMonitoredStdContainer("InvMassNoTrkPtCut"          , mon_InvMassNoTrkPtCut             , AutoClear);
-  declareMonitoredStdContainer("InvMassNoTrkPtCut_wideRange", mon_InvMassNoTrkPtCut_wideRange   , AutoClear);
-  declareMonitoredStdContainer("InvMass"                    , mon_InvMass                       , AutoClear);
-  declareMonitoredStdContainer("InvMass_wideRange"          , mon_InvMass_wideRange             , AutoClear);
-  declareMonitoredStdContainer("Trk1Pt"                     , mon_Trk1Pt                        , AutoClear);
-  declareMonitoredStdContainer("Trk2Pt"                     , mon_Trk2Pt                        , AutoClear);
-  declareMonitoredStdContainer("Trk1Eta"                    , mon_Trk1Eta                       , AutoClear);
-  declareMonitoredStdContainer("Trk2Eta"                    , mon_Trk2Eta                       , AutoClear);
-  declareMonitoredStdContainer("Trk1Phi"                    , mon_Trk1Phi                       , AutoClear);
-  declareMonitoredStdContainer("Trk2Phi"                    , mon_Trk2Phi                       , AutoClear);
-  declareMonitoredStdContainer("Trk1Trk2dEta"               , mon_Trk1Trk2dEta                  , AutoClear);
-  declareMonitoredStdContainer("Trk1Trk2dPhi"               , mon_Trk1Trk2dPhi                  , AutoClear);
-  declareMonitoredStdContainer("Trk1Trk2dR"                 , mon_Trk1Trk2dR                    , AutoClear);
-  declareMonitoredStdContainer("SumPtTrk12"                 , mon_SumPtTrk12                    , AutoClear);
-  declareMonitoredStdContainer("FitMass"                    , mon_FitMass                       , AutoClear);
-  declareMonitoredStdContainer("FitMass_wideRange"          , mon_FitMass                       , AutoClear);
-  declareMonitoredStdContainer("InvMass_okFit"              , mon_InvMass_okFit                 , AutoClear);
-  declareMonitoredStdContainer("Chi2toNDoF"                 , mon_Chi2toNDoF                    , AutoClear);
-  declareMonitoredStdContainer("Chi2toNDoFProb"             , mon_Chi2toNDoFProb                , AutoClear);
-  declareMonitoredStdContainer("FitTotalPt"                 , mon_FitTotalPt                    , AutoClear);
-  declareMonitoredStdContainer("SumPtTrk12_okFit"           , mon_SumPtTrk12_okFit              , AutoClear);
-  declareMonitoredStdContainer("FitVtxR"                    , mon_FitVtxR                       , AutoClear);
-  declareMonitoredStdContainer("FitVtxZ"                    , mon_FitVtxZ                       , AutoClear);
-  declareMonitoredVariable(    "nBphys"                     , mon_nBphys );
-  declareMonitoredVariable(    "TotalRunTime"               , mon_TotalRunTime );
-  declareMonitoredVariable(    "VertexingTime"              , mon_VertexingTime );
+  declareMonitoredStdContainer("Errors"                     , m_mon_Errors                        , AutoClear);
+  declareMonitoredStdContainer("Acceptance"                 , m_mon_Acceptance                    , AutoClear);
+  declareMonitoredStdContainer("ROIEta"                     , m_mon_ROIEta                        , AutoClear);
+  declareMonitoredStdContainer("ROIPhi"                     , m_mon_ROIPhi                        , AutoClear);
+  declareMonitoredVariable(    "nTracks"                    , m_mon_nTracks );
+  declareMonitoredStdContainer("TrkPt"                      , m_mon_TrkPt                         , AutoClear);
+  declareMonitoredStdContainer("TrkPt_wideRange"            , m_mon_TrkPt_wideRange               , AutoClear);
+  declareMonitoredStdContainer("TrkEta"                     , m_mon_TrkEta                        , AutoClear);
+  declareMonitoredStdContainer("TrkPhi"                     , m_mon_TrkPhi                        , AutoClear);
+  declareMonitoredStdContainer("TrkROIdEta"                 , m_mon_TrkROIdEta                    , AutoClear);
+  declareMonitoredStdContainer("TrkROIdPhi"                 , m_mon_TrkROIdPhi                    , AutoClear);
+  declareMonitoredStdContainer("TrkROIdR"                   , m_mon_TrkROIdR                      , AutoClear);
+  declareMonitoredStdContainer("InvMassNoTrkPtCut"          , m_mon_InvMassNoTrkPtCut             , AutoClear);
+  declareMonitoredStdContainer("InvMassNoTrkPtCut_wideRange", m_mon_InvMassNoTrkPtCut_wideRange   , AutoClear);
+  declareMonitoredStdContainer("InvMass"                    , m_mon_InvMass                       , AutoClear);
+  declareMonitoredStdContainer("InvMass_wideRange"          , m_mon_InvMass_wideRange             , AutoClear);
+  declareMonitoredStdContainer("Trk1Pt"                     , m_mon_Trk1Pt                        , AutoClear);
+  declareMonitoredStdContainer("Trk2Pt"                     , m_mon_Trk2Pt                        , AutoClear);
+  declareMonitoredStdContainer("Trk1Eta"                    , m_mon_Trk1Eta                       , AutoClear);
+  declareMonitoredStdContainer("Trk2Eta"                    , m_mon_Trk2Eta                       , AutoClear);
+  declareMonitoredStdContainer("Trk1Phi"                    , m_mon_Trk1Phi                       , AutoClear);
+  declareMonitoredStdContainer("Trk2Phi"                    , m_mon_Trk2Phi                       , AutoClear);
+  declareMonitoredStdContainer("Trk1Trk2dEta"               , m_mon_Trk1Trk2dEta                  , AutoClear);
+  declareMonitoredStdContainer("Trk1Trk2dPhi"               , m_mon_Trk1Trk2dPhi                  , AutoClear);
+  declareMonitoredStdContainer("Trk1Trk2dR"                 , m_mon_Trk1Trk2dR                    , AutoClear);
+  declareMonitoredStdContainer("SumPtTrk12"                 , m_mon_SumPtTrk12                    , AutoClear);
+  declareMonitoredStdContainer("FitMass"                    , m_mon_FitMass                       , AutoClear);
+  declareMonitoredStdContainer("FitMass_wideRange"          , m_mon_FitMass                       , AutoClear);
+  declareMonitoredStdContainer("InvMass_okFit"              , m_mon_InvMass_okFit                 , AutoClear);
+  declareMonitoredStdContainer("Chi2toNDoF"                 , m_mon_Chi2toNDoF                    , AutoClear);
+  declareMonitoredStdContainer("Chi2toNDoFProb"             , m_mon_Chi2toNDoFProb                , AutoClear);
+  declareMonitoredStdContainer("FitTotalPt"                 , m_mon_FitTotalPt                    , AutoClear);
+  declareMonitoredStdContainer("SumPtTrk12_okFit"           , m_mon_SumPtTrk12_okFit              , AutoClear);
+  declareMonitoredStdContainer("FitVtxR"                    , m_mon_FitVtxR                       , AutoClear);
+  declareMonitoredStdContainer("FitVtxZ"                    , m_mon_FitVtxZ                       , AutoClear);
+  declareMonitoredVariable(    "nBphys"                     , m_mon_nBphys );
+  declareMonitoredVariable(    "TotalRunTime"               , m_mon_TotalRunTime );
+  declareMonitoredVariable(    "VertexingTime"              , m_mon_VertexingTime );
 
   // Zero the counters
   m_lastEvent           = 999;
@@ -149,49 +149,49 @@ HLT::ErrorCode TrigL2TrkMassFex::hltInitialize()
 
   // Print out properties, cuts
   msg() << MSG::INFO << "AcceptAll               = " <<
-           (m_acceptAll==true ? "True" : "False") << endreq;
+           (m_acceptAll==true ? "True" : "False") << endmsg;
   msg() << MSG::INFO << "Apply opposite sign cut = " <<
-           (m_oppositeCharge==true ? "True" : "False") << endreq;
-  msg() << MSG::INFO << "Muon pT cut        : " << m_muonPtthr << " GeV" << endreq;
-  msg() << MSG::INFO << "Track pT cut        : " << m_trackPtthr << " GeV" << endreq;
-  msg() << MSG::INFO << "Track-RoI match cuts: dEta < " << m_dEta_cut << " dPhi < " << m_dPhi_cut << endreq;
-  msg() << MSG::INFO << "Mass cuts           : " << m_mass_low_cut << " to " << m_mass_high_cut << " GeV" << endreq;
-  msg() << MSG::INFO << "Daughter mass       : " << m_daughterMass << " GeV" << endreq;
+           (m_oppositeCharge==true ? "True" : "False") << endmsg;
+  msg() << MSG::INFO << "Muon pT cut        : " << m_muonPtthr << " GeV" << endmsg;
+  msg() << MSG::INFO << "Track pT cut        : " << m_trackPtthr << " GeV" << endmsg;
+  msg() << MSG::INFO << "Track-RoI match cuts: dEta < " << m_dEta_cut << " dPhi < " << m_dPhi_cut << endmsg;
+  msg() << MSG::INFO << "Mass cuts           : " << m_mass_low_cut << " to " << m_mass_high_cut << " GeV" << endmsg;
+  msg() << MSG::INFO << "Daughter mass       : " << m_daughterMass << " GeV" << endmsg;
 
   msg() << MSG::INFO
         << "Initialization completed successfully"
-        << endreq;
+        << endmsg;
 
   // Retrieve the vertexing tools
   StatusCode sc = m_vertFitter.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrigVertexFitter tool" << endreq;
+    msg() << MSG::FATAL << "Unable to locate TrigVertexFitter tool" << endmsg;
     return HLT::BAD_JOB_SETUP;
   } else {
-    msg() << MSG::INFO << "TrigVertexFitter retrieved" << endreq;
+    msg() << MSG::INFO << "TrigVertexFitter retrieved" << endmsg;
   }
 
   sc = m_L2vertFitter.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool" << endreq;
+    msg() << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   else {
-    msg() << MSG::INFO << "TrigL2VertexFitter retrieved" << endreq;
+    msg() << MSG::INFO << "TrigL2VertexFitter retrieved" << endmsg;
   }
 
   sc = m_vertexingTool.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrigVertexingTool tool" << endreq;
+    msg() << MSG::FATAL << "Unable to locate TrigVertexingTool tool" << endmsg;
     return HLT::BAD_JOB_SETUP;
   } else {
-    msg() << MSG::INFO << "TrigVertexingTool retrieved" << endreq;
+    msg() << MSG::INFO << "TrigVertexingTool retrieved" << endmsg;
   }
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
         return HLT::BAD_JOB_SETUP;
     } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
     }
 
   // Add the timers
@@ -209,11 +209,11 @@ HLT::ErrorCode TrigL2TrkMassFex::hltFinalize()
 /*-------------------------------------------*/
 {
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Run on events/RoIs " << m_countTotalEvents << "/" << m_countTotalRoI << endreq;
-  msg() << MSG::INFO << "Passed events/RoIs " << m_countPassedEvents << "/" << m_countPassedRoIs << endreq;
-  msg() << MSG::INFO << "Passed RoI match " << m_countPassedRoIMatch << endreq;
-  msg() << MSG::INFO << "Passed mass cuts " << m_countPassedMass << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Run on events/RoIs " << m_countTotalEvents << "/" << m_countTotalRoI << endmsg;
+  msg() << MSG::INFO << "Passed events/RoIs " << m_countPassedEvents << "/" << m_countPassedRoIs << endmsg;
+  msg() << MSG::INFO << "Passed RoI match " << m_countPassedRoIMatch << endmsg;
+  msg() << MSG::INFO << "Passed mass cuts " << m_countPassedMass << endmsg;
 
   return HLT::OK;
 }
@@ -296,12 +296,12 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
   if ( timerSvc() ) m_TotTimer->start();
 
   // Initialize the monitoring variables
-  mon_nBphys        = 0;
-  mon_TotalRunTime  = 0;
-  mon_VertexingTime = 0;
+  m_mon_nBphys        = 0;
+  m_mon_TotalRunTime  = 0;
+  m_mon_VertexingTime = 0;
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In B tag and probe FEX acceptInput" << endreq;
-  mon_Acceptance.push_back( ACCEPT_Input );
+  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In B tag and probe FEX acceptInput" << endmsg;
+  m_mon_Acceptance.push_back( ACCEPT_Input );
 
     // Retrieve event info
     int IdRun   = 0;
@@ -309,19 +309,19 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
     // event info
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
     }
     IdRun = runNumber;
     IdEvent = evtNumber;
 
   // Accept-All mode: temporary patch; should be done with force-accept
   if (m_acceptAll) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
     // pass = true;
-    mon_Acceptance.push_back( ACCEPT_AcceptAll );
+    m_mon_Acceptance.push_back( ACCEPT_AcceptAll );
   }
   else {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endmsg;
     // pass = false;
   }
 
@@ -330,27 +330,27 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
   if (getFeature(outputTE, roiDescriptor, "initialRoI") != HLT::OK) roiDescriptor = 0;
 
   if ( !roiDescriptor ) {
-    if ( msgLvl() <= MSG::WARNING) msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
+    if ( msgLvl() <= MSG::WARNING) msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endmsg;
     if ( timerSvc() ) {
       m_TotTimer->stop();
-      mon_TotalRunTime = m_TotTimer->elapsed();
+      m_mon_TotalRunTime = m_TotTimer->elapsed();
     }
-    mon_Errors.push_back( ERROR_No_RoI );
+    m_mon_Errors.push_back( ERROR_No_RoI );
     return HLT::NAV_ERROR;
   }
-  mon_Acceptance.push_back( ACCEPT_Got_RoI );
+  m_mon_Acceptance.push_back( ACCEPT_Got_RoI );
 
   // Print RoI debugging information
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Using TE(" << outputTE << ")->getId(): " << outputTE->getId()
           << "; RoI ID = " << roiDescriptor->roiId()
           << ": Eta = "    << roiDescriptor->eta()
-          << ", Phi = "    << roiDescriptor->phi() << endreq;
+          << ", Phi = "    << roiDescriptor->phi() << endmsg;
   }
 
   // RoI monitoring
-  mon_ROIEta.push_back( roiDescriptor->eta() );
-  mon_ROIPhi.push_back( roiDescriptor->phi() );
+  m_mon_ROIEta.push_back( roiDescriptor->eta() );
+  m_mon_ROIPhi.push_back( roiDescriptor->phi() );
 
   // Create vector for TrigL2Bphys particles
     //  delete m_trigBphysColl;
@@ -369,13 +369,13 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
     //    ELVTrackParticles elvtps;
     //
     //    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(outputTE, elvtps,m_input_trackCollectionKey)!=HLT::OK ) {
-    //        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get TrackParticleContainers feature, exiting" << endreq;
+    //        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get TrackParticleContainers feature, exiting" << endmsg;
     //        if ( timerSvc() ) m_TotTimer->stop();
-    //        mon_Errors.push_back( ERROR_No_TrackColl );
+    //        m_mon_Errors.push_back( ERROR_No_TrackColl );
     //        return HLT::MISSING_FEATURE; // was HLT::OK
     //    }
     //
-    //    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endreq;
+    //    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endmsg;
     //    if(msgLvl() <= MSG::DEBUG) { // print debug
     //        for ( const auto eltp: elvtps) {
     //            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: "
@@ -384,7 +384,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
     //                << " hashkey: "<< eltp.key()
     //                << " valid: "  << eltp.isValid()
     //                << " ptr: "    << (eltp.isValid() ? *eltp : nullptr)
-    //                << endreq;
+    //                << endmsg;
     //        }
     //        
     //    } // if debug
@@ -395,39 +395,39 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
   // Were the track-collections read out ?
   if ( status != HLT::OK ) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections, exiting " << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Failed to get InDetTrackCollections, exiting " << endmsg;
     if ( timerSvc() ) {
       m_TotTimer->stop();
-      mon_TotalRunTime = m_TotTimer->elapsed();
+      m_mon_TotalRunTime = m_TotTimer->elapsed();
     }
-    mon_Errors.push_back( ERROR_No_TrackColl );
+    m_mon_Errors.push_back( ERROR_No_TrackColl );
     return HLT::OK;
   }
-  mon_Acceptance.push_back( ACCEPT_Got_TrackColl );
+  m_mon_Acceptance.push_back( ACCEPT_Got_TrackColl );
 
   // Is there at least one collection ?
   if (vectorOfTrackCollections.size() == 0) {
     if ( timerSvc() ) {
       m_TotTimer->stop();
-      mon_TotalRunTime = m_TotTimer->elapsed();
+      m_mon_TotalRunTime = m_TotTimer->elapsed();
     }
-//    mon_Errors.push_back( ERROR_Empty_TrackColl );
+//    m_mon_Errors.push_back( ERROR_Empty_TrackColl );
     return HLT::OK;
   }
-  mon_Acceptance.push_back( ACCEPT_Full_TrackColl );
+  m_mon_Acceptance.push_back( ACCEPT_Full_TrackColl );
 
   // Is there only one collection ?
   if (vectorOfTrackCollections.size() != 1) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections, expected one unless this is FullScan" << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections, expected one unless this is FullScan" << endmsg;
     if ( timerSvc() ) {
       m_TotTimer->stop();
-      mon_TotalRunTime = m_TotTimer->elapsed();
+      m_mon_TotalRunTime = m_TotTimer->elapsed();
     }
-    //    mon_Errors.push_back( ERROR_More_TrackColl );
+    //    m_mon_Errors.push_back( ERROR_More_TrackColl );
     //return HLT::OK;
   }
 
-  mon_Acceptance.push_back( ACCEPT_Single_TrackColl );
+  m_mon_Acceptance.push_back( ACCEPT_Single_TrackColl );
 
   std::vector<const xAOD::TrackParticleContainer*>::iterator pTrackColl    = vectorOfTrackCollections.begin();
   std::vector<const xAOD::TrackParticleContainer*>::iterator lastTrackColl = vectorOfTrackCollections.end();
@@ -437,9 +437,9 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
     std::vector<const xAOD::TrackParticleContainer*>::iterator findMaxTrackColl    = vectorOfTrackCollections.begin();
     unsigned int Ntracks=0;
     for (;findMaxTrackColl != lastTrackColl; ++ findMaxTrackColl) {
-      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  InDetTrackCollections size, " << (*findMaxTrackColl)->size() << endreq;
+      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  InDetTrackCollections size, " << (*findMaxTrackColl)->size() << endmsg;
       if ((*findMaxTrackColl)->size() > Ntracks) {
-          if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Largest collection so far, assume it is FullScan " << endreq;
+          if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Largest collection so far, assume it is FullScan " << endmsg;
           Ntracks= (*findMaxTrackColl)->size();
           pTrackColl= findMaxTrackColl;
       }
@@ -457,11 +457,11 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
   // Get the number of tracks
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " Got InDetTrackCollections with " << (*pTrackColl)->size() << " tracks" << endreq;
+    msg() << MSG::DEBUG << " Got InDetTrackCollections with " << (*pTrackColl)->size() << " tracks" << endmsg;
 
   // Number of tracks monitoring
-  if ( (*pTrackColl)->size() > 0 ) mon_Acceptance.push_back( ACCEPT_Full_IDTracks );
-  mon_nTracks = (*pTrackColl)->size();
+  if ( (*pTrackColl)->size() > 0 ) m_mon_Acceptance.push_back( ACCEPT_Full_IDTracks );
+  m_mon_nTracks = (*pTrackColl)->size();
 
   // Boolean flags indicating what stages were already reached (for monitoring purposes)
   std::vector<bool> flag_stages( 43, false );
@@ -486,16 +486,16 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
       HLT::ErrorCode status = getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(outputTE,muonEL);
 
    if ( status != HLT::OK || !muonEL.size()) {
-     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Failed to get CombinedMuonFeature, exiting " << endreq;
-     mon_Errors.push_back( ERROR_No_CombMuon );
+     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Failed to get CombinedMuonFeature, exiting " << endmsg;
+     m_mon_Errors.push_back( ERROR_No_CombMuon );
        return HLT::OK;
    }
       if (muonEL.size() > 1) {
-          msg() << MSG::WARNING << "Unexpected number of containers for comb feature: " << endreq;
+          msg() << MSG::WARNING << "Unexpected number of containers for comb feature: " << endmsg;
       }
       if (!muonEL[0].isValid()) {
-          msg() << MSG::WARNING << "Invalid comb muon: " << endreq;
-          mon_Errors.push_back( ERROR_No_CombMuon );
+          msg() << MSG::WARNING << "Invalid comb muon: " << endmsg;
+          m_mon_Errors.push_back( ERROR_No_CombMuon );
           return HLT::OK;
       }
 
@@ -504,7 +504,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got CombinedMuonFeature addr=" << muon
             << " pt=" << muon->charge() *muon->charge() << " trkAddr=" << muon->idTrack()
             << " trackParamAddr=" << muon->idTrack()->track()
-            << endreq;
+            << endmsg;
   }
 
 
@@ -529,13 +529,13 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
               << " pT = "   << (*track1)->pt()
               << " phi = "  << (*track1)->phi()
               << " eta = "  << (*track1)->eta()
-              << " chi2 = " << (*track1)->chiSquared() << endreq;
+              << " chi2 = " << (*track1)->chiSquared() << endmsg;
 
       // Tracks monitoring
-      mon_TrkPt_wideRange.push_back( fabs((*track1)->pt()) / CLHEP::GeV );
-      mon_TrkPt .push_back( fabs((*track1)->pt()) / CLHEP::GeV );
-      mon_TrkEta.push_back( (*track1)->eta() );
-      mon_TrkPhi.push_back( (*track1)->phi() );
+      m_mon_TrkPt_wideRange.push_back( fabs((*track1)->pt()) / CLHEP::GeV );
+      m_mon_TrkPt .push_back( fabs((*track1)->pt()) / CLHEP::GeV );
+      m_mon_TrkEta.push_back( (*track1)->eta() );
+      m_mon_TrkPhi.push_back( (*track1)->phi() );
 
       // Get the pT and chi2 of the tracks
       float trackPt   = fabs( (*track1)->pt() );
@@ -544,19 +544,19 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
       // Check pT and chi2 (monitoring only)
       if ( trackChi2 <= 1e7 ) {
         if ( !flag_stages[ ACCEPT_Mu1_Chi2_Cut ] ) {
-          mon_Acceptance.push_back( ACCEPT_Mu1_Chi2_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Mu1_Chi2_Cut );
           flag_stages[ ACCEPT_Mu1_Chi2_Cut ] = true;
         }
-        mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2_Cut );
+        m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2_Cut );
       }
 
       //JK 4/5/11 changed this to use muonPtthr i.e. different pT cuts for muon and tarck
       if ( trackPt >= m_muonPtthr ) {
         if ( !flag_stages[ ACCEPT_Mu1_pT_Cut ] ){
-          mon_Acceptance.push_back( ACCEPT_Mu1_pT_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Mu1_pT_Cut );
           flag_stages[ ACCEPT_Mu1_pT_Cut ] = true;
         }
-        mon_Acceptance.push_back( ACCEPT_Each_Mu1_pT_Cut );
+        m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_pT_Cut );
       }
 
       // Check pT and chi2
@@ -564,10 +564,10 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
       // Check pT+chi2 (monitoring only)
       if ( !flag_stages[ ACCEPT_Mu1_Chi2Pt_Cuts ] ) {
-        mon_Acceptance.push_back( ACCEPT_Mu1_Chi2Pt_Cuts );
+        m_mon_Acceptance.push_back( ACCEPT_Mu1_Chi2Pt_Cuts );
         flag_stages[ ACCEPT_Mu1_Chi2Pt_Cuts ] = true;
       }
-      mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2Pt_Cuts );
+      m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2Pt_Cuts );
 
       // Match to RoI
       // JK 25/7/11 Add option to match to l2 muon
@@ -590,24 +590,24 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
       }
 
       // Monitoring of the RoI matching
-      mon_TrkROIdEta.push_back( fabs(deta) );
-      mon_TrkROIdPhi.push_back( fabs(dphi) );
-      mon_TrkROIdR  .push_back( sqrt(dphi*dphi+deta*deta) );
+      m_mon_TrkROIdEta.push_back( fabs(deta) );
+      m_mon_TrkROIdPhi.push_back( fabs(dphi) );
+      m_mon_TrkROIdR  .push_back( sqrt(dphi*dphi+deta*deta) );
 
       // Check the deta and dphi cuts (monitoring only)
       if ( fabs(deta) < m_dEta_cut ) {
         if ( !flag_stages[ ACCEPT_Mu1_dEta_Cut ] ) {
-          mon_Acceptance.push_back( ACCEPT_Mu1_dEta_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Mu1_dEta_Cut );
           flag_stages[ ACCEPT_Mu1_dEta_Cut ] = true;
         }
-        mon_Acceptance.push_back( ACCEPT_Each_Mu1_dEta_Cut );
+        m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_dEta_Cut );
       }
       if ( fabs(dphi) < m_dPhi_cut ) {
         if ( !flag_stages[ ACCEPT_Mu1_dPhi_Cut ] ) {
-          mon_Acceptance.push_back( ACCEPT_Mu1_dPhi_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Mu1_dPhi_Cut );
           flag_stages[ ACCEPT_Mu1_dPhi_Cut ] = true;
         }
-        mon_Acceptance.push_back( ACCEPT_Each_Mu1_dPhi_Cut );
+        m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_dPhi_Cut );
       }
 
       // Check the deta and dphi cuts for RoI matching of the track
@@ -615,15 +615,15 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
         // Check deta+dphi cuts (monitoring only)
         if ( !flag_stages[ ACCEPT_Mu1_dR_Cut ] ) {
-          mon_Acceptance.push_back( ACCEPT_Mu1_dR_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Mu1_dR_Cut );
           flag_stages[ ACCEPT_Mu1_dR_Cut ] = true;
         }
-        mon_Acceptance.push_back( ACCEPT_Each_Mu1_dR_Cut );
+        m_mon_Acceptance.push_back( ACCEPT_Each_Mu1_dR_Cut );
 
         PassedRoIMatch = true;
 
         // Match to RoI found
-        if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Track matched RoI, now search other tracks for good mass " << endreq;
+        if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Track matched RoI, now search other tracks for good mass " << endmsg;
 
         xAOD::TrackParticleContainer::const_iterator track2     = (*pTrackColl)->begin();
         xAOD::TrackParticleContainer::const_iterator lastTrack2 = (*pTrackColl)->end();
@@ -640,7 +640,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
                   << " pT = "   << (*track2)->pt()
                   << " phi = "  << (*track2)->phi()
                   << " eta = "  << (*track2)->eta()
-                  << " chi2 = " << (*track2)->chiSquared() << endreq;
+                  << " chi2 = " << (*track2)->chiSquared() << endmsg;
 
           // Get the pT and chi2 of the tracks
           float track2Pt   = fabs( (*track2)->pt() );
@@ -649,17 +649,17 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
           // Check pT and chi2 (monitoring only)
           if ( track2Chi2 <= 1e7 ) {
             if ( !flag_stages[ ACCEPT_Mu2_Chi2_Cut ] ) {
-              mon_Acceptance.push_back( ACCEPT_Mu2_Chi2_Cut );
+              m_mon_Acceptance.push_back( ACCEPT_Mu2_Chi2_Cut );
               flag_stages[ ACCEPT_Mu2_Chi2_Cut ] = true;
             }
-            mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2_Cut );
+            m_mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2_Cut );
           }
           if ( track2Pt >= m_trackPtthr ) {
             if ( !flag_stages[ ACCEPT_Mu2_pT_Cut ] ) {
-              mon_Acceptance.push_back( ACCEPT_Mu2_pT_Cut );
+              m_mon_Acceptance.push_back( ACCEPT_Mu2_pT_Cut );
               flag_stages[ ACCEPT_Mu2_pT_Cut ] = true;
             }
-            mon_Acceptance.push_back( ACCEPT_Each_Mu2_pT_Cut );
+            m_mon_Acceptance.push_back( ACCEPT_Each_Mu2_pT_Cut );
           }
 
           // Prepare the di-muon pair
@@ -677,8 +677,8 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
             if ( track2Pt > 2000. ) {
                 // Mass = InvMass(inputtrks, massHypo);
                 Mass = m_bphysHelperTool->invariantMass(inputtrks,massHypo);
-              mon_InvMassNoTrkPtCut.push_back( Mass / CLHEP::GeV );
-              mon_InvMassNoTrkPtCut_wideRange.push_back( Mass / CLHEP::GeV );
+              m_mon_InvMassNoTrkPtCut.push_back( Mass / CLHEP::GeV );
+              m_mon_InvMassNoTrkPtCut_wideRange.push_back( Mass / CLHEP::GeV );
             } else if ( track2Pt >= m_trackPtthr ) {
                 //Mass = InvMass(inputtrks, massHypo);
                 Mass = m_bphysHelperTool->invariantMass(inputtrks,massHypo);
@@ -690,10 +690,10 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
           // Check pT+chi2 (monitoring only)
           if ( !flag_stages[ ACCEPT_Mu2_Chi2Pt_Cuts ] ) {
-            mon_Acceptance.push_back( ACCEPT_Mu2_Chi2Pt_Cuts );
+            m_mon_Acceptance.push_back( ACCEPT_Mu2_Chi2Pt_Cuts );
             flag_stages[ ACCEPT_Mu2_Chi2Pt_Cuts ] = true;
           }
-          mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2Pt_Cuts );
+          m_mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2Pt_Cuts );
 
           ///////// Check the di-muon properties /////////
 
@@ -701,41 +701,41 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
           if ( m_oppositeCharge ) {
             if (( (*track1)->charge() > 0. && (*track2)->charge() > 0. ) ||
                 ( (*track1)->charge() < 0. && (*track2)->charge() < 0. )) continue;
-            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Tracks " << itrk << " and " << jtrk << " are opposite sign, make mass cuts " << endreq;
+            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Tracks " << itrk << " and " << jtrk << " are opposite sign, make mass cuts " << endmsg;
           } else {
-            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "opposite sign cuts not applied, make mass cuts " << endreq;
+            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "opposite sign cuts not applied, make mass cuts " << endmsg;
           }
 
           // Check opposite charge (monitoring only)
           if ( !flag_stages[ ACCEPT_Opp_Charge ] ) {
-            mon_Acceptance.push_back( ACCEPT_Opp_Charge );
+            m_mon_Acceptance.push_back( ACCEPT_Opp_Charge );
             flag_stages[ ACCEPT_Opp_Charge ] = true;
           }
-          mon_Acceptance.push_back( ACCEPT_Each_Opp_Charge );
+          m_mon_Acceptance.push_back( ACCEPT_Each_Opp_Charge );
 
           // Check the invariant mass cut
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " mass =  " << Mass << endreq;
-          mon_InvMass.push_back( Mass / CLHEP::GeV );
-          mon_InvMass_wideRange.push_back( Mass / CLHEP::GeV );
+          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " mass =  " << Mass << endmsg;
+          m_mon_InvMass.push_back( Mass / CLHEP::GeV );
+          m_mon_InvMass_wideRange.push_back( Mass / CLHEP::GeV );
           if (Mass < m_mass_low_cut || Mass > m_mass_high_cut) continue;
 
           // Check the invariant mass cut (monitoring only)
           if ( !flag_stages[ ACCEPT_InvMass_Cut ] ) {
-            mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
+            m_mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
             flag_stages[ ACCEPT_InvMass_Cut ] = true;
           }
-          mon_Acceptance.push_back( ACCEPT_Each_InvMass_Cut );
+          m_mon_Acceptance.push_back( ACCEPT_Each_InvMass_Cut );
 
           PassedMass = true;
 
           // Monitoring of the di-muon track pairs
-          mon_Trk1Pt .push_back( fabs((*track1)->pt()) / CLHEP::GeV );
-          mon_Trk2Pt .push_back( fabs((*track2)->pt()) / CLHEP::GeV );
-          mon_Trk1Eta.push_back( (*track1)->eta() );
-          mon_Trk2Eta.push_back( (*track2)->eta() );
-          mon_Trk1Phi.push_back( (*track1)->phi() );
-          mon_Trk2Phi.push_back( (*track2)->phi() );
-          mon_SumPtTrk12.push_back ( (fabs((*track1)->pt()) + fabs((*track2)->pt())) / CLHEP::GeV );
+          m_mon_Trk1Pt .push_back( fabs((*track1)->pt()) / CLHEP::GeV );
+          m_mon_Trk2Pt .push_back( fabs((*track2)->pt()) / CLHEP::GeV );
+          m_mon_Trk1Eta.push_back( (*track1)->eta() );
+          m_mon_Trk2Eta.push_back( (*track2)->eta() );
+          m_mon_Trk1Phi.push_back( (*track1)->phi() );
+          m_mon_Trk2Phi.push_back( (*track2)->phi() );
+          m_mon_SumPtTrk12.push_back ( (fabs((*track1)->pt()) + fabs((*track2)->pt())) / CLHEP::GeV );
 
           // Monitoring of the opening between the two tracks
           double dTrkEta = (*track1)->eta()  - (*track2)->eta();
@@ -748,9 +748,9 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
               dTrkPhi = 2* M_PI - absdTrkPhi;
             }
           }
-          mon_Trk1Trk2dEta.push_back( fabs(dTrkEta) );
-          mon_Trk1Trk2dPhi.push_back( fabs(dTrkPhi) );
-          mon_Trk1Trk2dR  .push_back( sqrt(dTrkPhi*dTrkPhi+dTrkEta*dTrkEta) );
+          m_mon_Trk1Trk2dEta.push_back( fabs(dTrkEta) );
+          m_mon_Trk1Trk2dPhi.push_back( fabs(dTrkPhi) );
+          m_mon_Trk1Trk2dR  .push_back( sqrt(dTrkPhi*dTrkPhi+dTrkEta*dTrkEta) );
 
           // Found pair with good mass , now make L2Bphys object
             //          TrigL2Bphys* trigL2Bphys = new TrigL2Bphys((*pTrackColl)->RoI_ID(),
@@ -770,7 +770,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
             
           if ( msgLvl() <= MSG::DEBUG)
             msg() << MSG::DEBUG << "Create Bphys particle with roIId " << trigL2Bphys->roiId() << " mass " << Mass
-                  << " phi, eta " << trigL2Bphys->phi() << " " << trigL2Bphys->eta() << " vertex type " << trigL2Bphys->particleType() << endreq;
+                  << " phi, eta " << trigL2Bphys->phi() << " " << trigL2Bphys->eta() << " vertex type " << trigL2Bphys->particleType() << endmsg;
 
           // Store links to the two tracks forming the di-muon
             ElementLink<xAOD::TrackParticleContainer> track1EL(*(*pTrackColl),itrk);
@@ -796,24 +796,24 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
             bool addTracks = true;
             StatusCode sc = m_vertexingTool->addTrack( (*track1)->track(), pL2V, Trk::muon );
             if ( sc.isFailure() ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool pT, chi2 " << (*track1)->pt() << " " << (*track1)->chiSquared() << endreq;
+              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool pT, chi2 " << (*track1)->pt() << " " << (*track1)->chiSquared() << endmsg;
               addTracks = false;
               // Monitoring only
-              mon_Errors.push_back( ERROR_AddTrack_Fails );
+              m_mon_Errors.push_back( ERROR_AddTrack_Fails );
               if ( !addTrackFails[itrk] ) {
                 addTrackFails[itrk] = true;
-                mon_Errors.push_back( ERROR_Unique_AddTrack_Fails );
+                m_mon_Errors.push_back( ERROR_Unique_AddTrack_Fails );
               }
             }
             sc = m_vertexingTool->addTrack( (*track2)->track(), pL2V, Trk::muon );
             if ( sc.isFailure() ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool pT, chi2 " << (*track2)->pt() << " " << (*track2)->chiSquared() << endreq;
+              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool pT, chi2 " << (*track2)->pt() << " " << (*track2)->chiSquared() << endmsg;
               addTracks = false;
               // Monitoring only
-              mon_Errors.push_back( ERROR_AddTrack_Fails );
+              m_mon_Errors.push_back( ERROR_AddTrack_Fails );
               if ( !addTrackFails[jtrk] ) {
                 addTrackFails[jtrk] = true;
-                mon_Errors.push_back( ERROR_Unique_AddTrack_Fails );
+                m_mon_Errors.push_back( ERROR_Unique_AddTrack_Fails );
               }
             }
 
@@ -823,50 +823,50 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
               // Passed Add-tracks test (monitoring only)
               if ( !flag_stages[ ACCEPT_AddTrack_Test ] ) {
-                mon_Acceptance.push_back( ACCEPT_AddTrack_Test );
+                m_mon_Acceptance.push_back( ACCEPT_AddTrack_Test );
                 flag_stages[ ACCEPT_AddTrack_Test ] = true;
               }
-              mon_Acceptance.push_back( ACCEPT_Each_AddTrack_Test );
+              m_mon_Acceptance.push_back( ACCEPT_Each_AddTrack_Test );
 
               // DO THE VERTEX-FIT
               sc = m_L2vertFitter->fit(pL2V);
 
               // Check the result
               if ( sc.isFailure() ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endreq;
+                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endmsg;
               } else {
                 // Passed vertexing (monitoring only)
                 if ( !flag_stages[ ACCEPT_Vertexing ] ) {
-                  mon_Acceptance.push_back( ACCEPT_Vertexing );
+                  m_mon_Acceptance.push_back( ACCEPT_Vertexing );
                   flag_stages[ ACCEPT_Vertexing ] = true;
                 }
-                mon_Acceptance.push_back( ACCEPT_Each_Vertexing );
+                m_mon_Acceptance.push_back( ACCEPT_Each_Vertexing );
                 // Calculate invariant mass
                 sc = m_vertexingTool->calculateInvariantMass(pL2V);
                 if ( sc.isSuccess() ) {
                   // Calc. Inv. Mass succeeded (monitoring only)
                   if ( !flag_stages[ ACCEPT_CalcInvMass ] ) {
-                    mon_Acceptance.push_back( ACCEPT_CalcInvMass );
+                    m_mon_Acceptance.push_back( ACCEPT_CalcInvMass );
                     flag_stages[ ACCEPT_CalcInvMass ] = true;
                   }
-                  mon_Acceptance.push_back( ACCEPT_Each_CalcInvMass );
+                  m_mon_Acceptance.push_back( ACCEPT_Each_CalcInvMass );
                   // Create mother particle
                   sc = m_vertexingTool->createMotherParticle(pL2V);
                   if ( sc.isSuccess() ) {
                     // Creating mother particle succeeded (monitoring only)
                     if ( !flag_stages[ ACCEPT_CalcMother ] ) {
-                      mon_Acceptance.push_back( ACCEPT_CalcMother );
+                      m_mon_Acceptance.push_back( ACCEPT_CalcMother );
                       flag_stages[ ACCEPT_CalcMother ] = true;
                     }
-                    mon_Acceptance.push_back( ACCEPT_Each_CalcMother );
+                    m_mon_Acceptance.push_back( ACCEPT_Each_CalcMother );
                     //vtx_created = true;
-                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mother particle created: pT " << pL2V->m_getMotherTrack()->pT() << endreq;
+                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mother particle created: pT " << pL2V->m_getMotherTrack()->pT() << endmsg;
                   } else {
-                    mon_Errors.push_back( ERROR_CalcMother_Fails );
+                    m_mon_Errors.push_back( ERROR_CalcMother_Fails );
                   }
                   p_vertex = m_vertexingTool->createTrigVertex(pL2V);
                 } else {
-                  mon_Errors.push_back( ERROR_CalcInvMass_Fails );
+                  m_mon_Errors.push_back( ERROR_CalcInvMass_Fails );
                 }
               }
             } // end of if (addTracks)
@@ -876,7 +876,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
             if ( p_vertex == NULL ) {
 
               if ( msgLvl() <= MSG::DEBUG)
-                msg() << MSG::DEBUG << " vertex fit failed for tracks  " << itrk << " and " << jtrk << endreq;
+                msg() << MSG::DEBUG << " vertex fit failed for tracks  " << itrk << " and " << jtrk << endmsg;
 
               // delete pL2V;
 //               delete p_vertex;
@@ -887,31 +887,31 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
               // Monitoring of p_vertex != NULL
               if ( !flag_stages[ ACCEPT_Vertex_not_NULL ] ) {
-                mon_Acceptance.push_back( ACCEPT_Vertex_not_NULL );
+                m_mon_Acceptance.push_back( ACCEPT_Vertex_not_NULL );
                 flag_stages[ ACCEPT_Vertex_not_NULL ] = true;
               }
-              mon_Acceptance.push_back( ACCEPT_Each_Vertex_not_NULL );
+              m_mon_Acceptance.push_back( ACCEPT_Each_Vertex_not_NULL );
 
               // Some debugging information
               if ( msgLvl() <= MSG::VERBOSE)
-                msg() << MSG::VERBOSE << "vertex fit successful: x= y= z=" << p_vertex->x() << " " << p_vertex->y() << " " << p_vertex->z() << endreq;
+                msg() << MSG::VERBOSE << "vertex fit successful: x= y= z=" << p_vertex->x() << " " << p_vertex->y() << " " << p_vertex->z() << endmsg;
               if ( msgLvl() <= MSG::DEBUG)
-                msg() << MSG::DEBUG << "vertex fit mass = " << p_vertex->mass() << " chi2 " << p_vertex->chi2() << " ndof " << p_vertex->ndof() <<  endreq;
+                msg() << MSG::DEBUG << "vertex fit mass = " << p_vertex->mass() << " chi2 " << p_vertex->chi2() << " ndof " << p_vertex->ndof() <<  endmsg;
               if (p_vertex->massVariance() != 0) {
-                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mass pull = " << (p_vertex->mass()-JPSIMASS)/p_vertex->massVariance() << endreq;
+                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mass pull = " << (p_vertex->mass()-JPSIMASS)/p_vertex->massVariance() << endmsg;
               } else {
-                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Phi mass variance is zero, can't calculate the pull" << endreq;
-                mon_Errors.push_back( ERROR_CalcMassPull_Fails );
+                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Phi mass variance is zero, can't calculate the pull" << endmsg;
+                m_mon_Errors.push_back( ERROR_CalcMassPull_Fails );
               }
 
               double chi2prob = 1.0 - Genfun::CumulativeChiSquare(p_vertex->ndof())(p_vertex->chi2());
 
               if ( msgLvl() <= MSG::VERBOSE ) {
-                msg() << MSG::VERBOSE << "Chi2 probability of the fit = " << chi2prob << endreq;
+                msg() << MSG::VERBOSE << "Chi2 probability of the fit = " << chi2prob << endmsg;
                 msg() << MSG::VERBOSE << "SigmaX =  SigmaY =  SigmaZ = "
                                       << sqrt(p_vertex->cov()[0]) << " "
                                       << sqrt(p_vertex->cov()[2]) << " "
-                                      << sqrt(p_vertex->cov()[5]) << endreq;
+                                      << sqrt(p_vertex->cov()[5]) << endmsg;
               }
 
               // Add vertex results to L2Bphys
@@ -923,20 +923,20 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
               trigL2Bphys->setFitz( p_vertex->z() );
 
               m_VertexColl->push_back(p_vertex);
-              if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "added vertex to vertex collection" << endreq;
+              if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "added vertex to vertex collection" << endmsg;
 
               // Monitoring of the fit results
-              mon_FitMass_wideRange.push_back( p_vertex->mass() / CLHEP::GeV );
-              mon_FitMass          .push_back( p_vertex->mass() / CLHEP::GeV );
-              mon_InvMass_okFit    .push_back( Mass / CLHEP::GeV );
-              mon_Chi2toNDoF       .push_back( p_vertex->chi2() / p_vertex->ndof() );
-              mon_Chi2toNDoFProb   .push_back( chi2prob );
+              m_mon_FitMass_wideRange.push_back( p_vertex->mass() / CLHEP::GeV );
+              m_mon_FitMass          .push_back( p_vertex->mass() / CLHEP::GeV );
+              m_mon_InvMass_okFit    .push_back( Mass / CLHEP::GeV );
+              m_mon_Chi2toNDoF       .push_back( p_vertex->chi2() / p_vertex->ndof() );
+              m_mon_Chi2toNDoFProb   .push_back( chi2prob );
               if ( p_vertex->getMotherTrack() != NULL ) {
-                mon_FitTotalPt.push_back( p_vertex->getMotherTrack()->pT() / CLHEP::GeV );
-                mon_SumPtTrk12_okFit.push_back( (fabs((*track1)->pt()) + fabs((*track2)->pt())) / CLHEP::GeV );
+                m_mon_FitTotalPt.push_back( p_vertex->getMotherTrack()->pT() / CLHEP::GeV );
+                m_mon_SumPtTrk12_okFit.push_back( (fabs((*track1)->pt()) + fabs((*track2)->pt())) / CLHEP::GeV );
               }
-              mon_FitVtxR.push_back( sqrt(p_vertex->x()*p_vertex->x() + p_vertex->y()*p_vertex->y()) / CLHEP::mm );
-              mon_FitVtxZ.push_back( p_vertex->z() / CLHEP::mm );
+              m_mon_FitVtxR.push_back( sqrt(p_vertex->x()*p_vertex->x() + p_vertex->y()*p_vertex->y()) / CLHEP::mm );
+              m_mon_FitVtxZ.push_back( p_vertex->z() / CLHEP::mm );
 
             } // end if vertex fit successful
 
@@ -946,7 +946,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
           } // end if do vertex fit
 
           // Store L2Bphys to the output collection
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Store L2Bphys and move onto next track" << endreq;
+          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Store L2Bphys and move onto next track" << endmsg;
           // moved to next to creation point m_trigBphysColl->push_back(trigL2Bphys);
 
         } // end loop over track 2, looking for track pair with good mass
@@ -955,8 +955,8 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
   } // end loop over track collections
 
   // Check the size of the bphys-objects collection
-  if ( m_trigBphysColl->size() > 0 ) mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
-  mon_nBphys = m_trigBphysColl->size();
+  if ( m_trigBphysColl->size() > 0 ) m_mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
+  m_mon_nBphys = m_trigBphysColl->size();
 
   // Update various counters
   if ( PassedRoIMatch ) m_countPassedRoIMatch++;
@@ -971,12 +971,12 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
   // Some debugging information
   if ( msgLvl() <= MSG::DEBUG) {
-    /*if ( m_VertexColl    != NULL )*/ msg() << MSG::DEBUG << " vertex collection size : " << m_VertexColl->size() << " m_VertexColl " << m_VertexColl << endreq;
-    /*if ( m_trigBphysColl != NULL )*/ msg() << MSG::DEBUG << "Bphys collection size : " << m_trigBphysColl->size() << " m_trigBphysColl " << m_trigBphysColl << endreq;
+    /*if ( m_VertexColl    != NULL )*/ msg() << MSG::DEBUG << " vertex collection size : " << m_VertexColl->size() << " m_VertexColl " << m_VertexColl << endmsg;
+    /*if ( m_trigBphysColl != NULL )*/ msg() << MSG::DEBUG << "Bphys collection size : " << m_trigBphysColl->size() << " m_trigBphysColl " << m_trigBphysColl << endmsg;
   }
 
   // Reach this point successfully
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Run: " << IdRun << " Event: " << IdEvent << "  result is " << result << endreq;
+  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Run: " << IdRun << " Event: " << IdEvent << "  result is " << result << endmsg;
 
   // if (!m_acceptAll) pass = result;
 
@@ -986,26 +986,26 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
     m_VtxFitTimer->resume();
     m_VtxFitTimer->stop();
     // Fill the monitoring variables
-    mon_TotalRunTime  = m_TotTimer   ->elapsed();
-    mon_VertexingTime = m_VtxFitTimer->elapsed();
+    m_mon_TotalRunTime  = m_TotTimer   ->elapsed();
+    m_mon_VertexingTime = m_VtxFitTimer->elapsed();
   }
 
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_VertexColl " << m_VertexColl << "    m_trigBphysColl " << m_trigBphysColl << endreq;
+  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_VertexColl " << m_VertexColl << "    m_trigBphysColl " << m_trigBphysColl << endmsg;
 
   delete m_VertexColl;
   m_VertexColl = 0;
 
   // Attach the resulting bphys-objects to the output trigger element
   if ( /*( m_trigBphysColl != 0 ) &&*/ ( m_trigBphysColl->size() > 0 ) ) {
-    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endreq;
+    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endmsg;
     HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "L2TrackMass" );
     if ( sc != HLT::OK ) {
-      msg() << MSG::WARNING << "Failed to store trigBphys Collection" << endreq;
-      mon_Errors.push_back( ERROR_BphysColl_Fails );
+      msg() << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
+      m_mon_Errors.push_back( ERROR_BphysColl_Fails );
       return sc;
     }
   } else {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "REGTEST: no bphys collection to store " << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "REGTEST: no bphys collection to store " << endmsg;
     delete m_trigBphysColl;
   }
   m_trigBphysColl = nullptr;

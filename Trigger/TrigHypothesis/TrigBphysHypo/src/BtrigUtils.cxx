@@ -26,6 +26,71 @@
 
 #include <exception>
 
+
+//----------------------------------------------
+// pT calculation using Trk::Track.
+//----------------------------------------------
+
+double PtVal(const std::vector<const Trk::Track*> & tracks) {
+
+  std::vector<const Trk::Track*>::const_iterator trkItr    = tracks.begin();
+  std::vector<const Trk::Track*>::const_iterator trkItrEnd = tracks.end();
+
+  double px_sum = 0;
+  double py_sum = 0;
+
+  for ( ; trkItr!=trkItrEnd; trkItr++ ) {
+    px_sum += fabs((*trkItr)->perigeeParameters()->pT()) * cos((*trkItr)->perigeeParameters()->parameters()[Trk::phi0]);
+    py_sum += fabs((*trkItr)->perigeeParameters()->pT()) * sin((*trkItr)->perigeeParameters()->parameters()[Trk::phi0]);
+  }
+
+  double pt2 = px_sum*px_sum + py_sum*py_sum;
+
+  if ( pt2 < 0 ) return 0;
+  else          return sqrt(pt2);
+}
+
+//----------------------------------------------
+// pT calculation using xAOD::TrackParticle.
+//----------------------------------------------
+
+double PtVal(const std::vector<const xAOD::TrackParticle*> & tracks) {
+
+  std::vector<const xAOD::TrackParticle*>::const_iterator trkItr    = tracks.begin();
+  std::vector<const xAOD::TrackParticle*>::const_iterator trkItrEnd = tracks.end();
+
+  double px_sum = 0;
+  double py_sum = 0;
+
+  for ( ; trkItr!=trkItrEnd; trkItr++ ) {
+    px_sum += fabs((*trkItr)->pt()) * cos((*trkItr)->phi());
+    py_sum += fabs((*trkItr)->pt()) * sin((*trkItr)->phi());
+  }
+
+  double pt2 = px_sum*px_sum + py_sum*py_sum;
+
+  if ( pt2 < 0 ) return 0;
+  else          return sqrt(pt2);
+}
+
+//------------------------------------------------------------
+// L_xy calculation using Trk::Track and two vertex positions.
+//------------------------------------------------------------
+
+double LxyVal(const double px, const double py, const Amg::Vector3D Vertex0, const Amg::Vector3D Vertex1) {
+
+  double rdx = Vertex1[0] - Vertex0[0];
+  double rdy = Vertex1[1] - Vertex0[1];
+
+  double pt  = sqrt(px*px+py*py);
+  double rxy = sqrt(rdx*rdx+rdy*rdy);
+
+  double cosxy = 0.;
+  if ( rxy != 0. ) cosxy = (px*rdx+py*rdy)/rxy/pt;
+
+  return rxy*cosxy;
+}
+
 //--------------------------------------------------------------------
 // Base invariant mass calculation using px,py,pz and mass-hypothesis.
 //--------------------------------------------------------------------
@@ -170,43 +235,43 @@ double InvMass(const std::vector<const Trk::Track*> & tracks, const std::vector<
 HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer* trigMuon, std::vector<const Trk::Track*>& indetTracks, MsgStream& msg) {
     bool debug = msg.level() <= MSG::DEBUG;
     if ( !trigMuon ) {
-        msg << MSG::ERROR << "Retrieval of MuonContainer from vector failed" << endreq;
+        msg << MSG::ERROR << "Retrieval of MuonContainer from vector failed" << endmsg;
         return HLT::NAV_ERROR;
     } else {
-        if (debug ) msg << MSG::DEBUG << "MuonContainer OK with size " << trigMuon->size() << endreq;
+        if (debug ) msg << MSG::DEBUG << "MuonContainer OK with size " << trigMuon->size() << endmsg;
     }
 
     xAOD::MuonContainer::const_iterator MuonItr    = trigMuon->begin();
     xAOD::MuonContainer::const_iterator MuonItrEnd = trigMuon->end();
 
     for ( int i=0; MuonItr!=MuonItrEnd; MuonItr++, i++ ) { // loops over muons within the RoI
-        if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endreq;
+        if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endmsg;
         const xAOD::Muon* muonInfo = *MuonItr;
         if ( !muonInfo ) {
-            if ( debug ) msg << MSG::DEBUG << "No xAOD::Muon found" << endreq;
+            if ( debug ) msg << MSG::DEBUG << "No xAOD::Muon found" << endmsg;
             continue;
         }
         if ( debug ) {
-            msg << MSG::DEBUG << "Have xAOD::Muon with ptr: " <<    muonInfo << endreq;
+            msg << MSG::DEBUG << "Have xAOD::Muon with ptr: " <<    muonInfo << endmsg;
 
             const ElementLink< xAOD::TrackParticleContainer >& mstp = muonInfo->muonSpectrometerTrackParticleLink();
-            msg << MSG::DEBUG << "  mstp: " << mstp << " " << mstp.isValid() << endreq;
+            msg << MSG::DEBUG << "  mstp: " << mstp << " " << mstp.isValid() << endmsg;
             if ( mstp.isValid() ) {
                 const xAOD::TrackParticle * tp = *mstp;
-                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track() <<endreq;
+                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track() <<endmsg;
             }
  
             const ElementLink< xAOD::TrackParticleContainer >& cbtp = muonInfo->combinedTrackParticleLink();
-            msg << MSG::DEBUG << "  cbtp: " << cbtp << " " << cbtp.isValid() << endreq;
+            msg << MSG::DEBUG << "  cbtp: " << cbtp << " " << cbtp.isValid() << endmsg;
             if ( cbtp.isValid() ) {
                 const xAOD::TrackParticle * tp = *cbtp;
-                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track()<<endreq;
+                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track()<<endmsg;
             }
             const ElementLink< xAOD::TrackParticleContainer >& idtp = muonInfo->inDetTrackParticleLink();
-            msg << MSG::DEBUG << "  idtp: " << idtp << " " << idtp.isValid() << endreq;
+            msg << MSG::DEBUG << "  idtp: " << idtp << " " << idtp.isValid() << endmsg;
             if ( idtp.isValid() ) {
                 const xAOD::TrackParticle * tp = *idtp;
-                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track() <<endreq;
+                msg << MSG::DEBUG << "    tp: " <<   tp << " " << tp->charge() << " " << tp->pt() << "  " << tp->eta() << "  " << tp->phi() << "  " << tp->track() <<endmsg;
             }
 
         } // end debug
@@ -220,19 +285,19 @@ HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer* trigMuon, std::vecto
         //check for combined muon
         //const xAOD::TrackParticle* tpCombinedMuon = muonInfo->trackParticle( xAOD::Muon::CombinedTrackParticle);
         if (!tpCombinedMuon) {
-            if ( debug ) msg << MSG::DEBUG << "No combined muon TrackParticle found" << endreq;
+            if ( debug ) msg << MSG::DEBUG << "No combined muon TrackParticle found" << endmsg;
             continue;
         }
         // now search for the ID track associated to it
         //const xAOD::TrackParticle* indetTrackParticle  = muonInfo->trackParticle( xAOD::Muon::InnerDetectorTrackParticle);
         if (!indetTrackParticle) {
-            if ( debug ) msg << MSG::DEBUG << "No innerdetector muon TrackParticle found" << endreq;
+            if ( debug ) msg << MSG::DEBUG << "No innerdetector muon TrackParticle found" << endmsg;
             continue;
         }
 
         const Trk::Track* indetTrack = indetTrackParticle->track();
         if ( !indetTrack ) {
-            if ( debug ) msg << MSG::DEBUG << "No id muon id Trk::Track found" << endreq;
+            if ( debug ) msg << MSG::DEBUG << "No id muon id Trk::Track found" << endmsg;
             continue;
         }
         indetTracks.push_back(indetTrack);
@@ -254,20 +319,20 @@ HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer* trigMuon, std::vecto
 //  bool debug = msg.level() <= MSG::DEBUG;
 //
 //  if ( !trigMuon ) {
-//    msg << MSG::ERROR << "Retrieval of TrigMuonEFInfoContainer from vector failed" << endreq;
+//    msg << MSG::ERROR << "Retrieval of TrigMuonEFInfoContainer from vector failed" << endmsg;
 //    return HLT::NAV_ERROR;
 //  } else {
-//    if (debug ) msg << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
+//    if (debug ) msg << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endmsg;
 //  }
 //
 //  TrigMuonEFInfoContainer::const_iterator MuonItr    = trigMuon->begin();
 //  TrigMuonEFInfoContainer::const_iterator MuonItrEnd = trigMuon->end();
 //
 //  for ( int i=0; MuonItr!=MuonItrEnd; MuonItr++, i++ ) { // loops over muons within the RoI
-//    if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endreq;
+//    if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endmsg;
 //    TrigMuonEFInfo* muonInfo = (*MuonItr);
 //    if ( !muonInfo ) {
-//      if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFInfo found" << endreq;
+//      if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFInfo found" << endmsg;
 //      continue;
 //    }
 //    if ( muonInfo->hasTrack() ) { // was there a muon in this RoI ?
@@ -276,25 +341,25 @@ HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer* trigMuon, std::vecto
 //      TrigMuonEFInfoTrackContainer::const_iterator TrackItrEnd = muonTracks->end();
 //      for ( ; TrackItr!=TrackItrEnd; TrackItr++ ) { // loop over muon tracks container content
 //        TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
-//        if ( debug ) msg << MSG::DEBUG << "Muon info track type: " << muonInfoTrack->MuonType() << endreq;
+//        if ( debug ) msg << MSG::DEBUG << "Muon info track type: " << muonInfoTrack->MuonType() << endmsg;
 //        if ( !muonInfoTrack->hasCombinedTrack() ) {
-//          if ( debug ) msg << MSG::DEBUG << "Combined track not initialized" << endreq;
+//          if ( debug ) msg << MSG::DEBUG << "Combined track not initialized" << endmsg;
 //          continue;
 //        }
 //        TrigMuonEFCbTrack* combTrack = muonInfoTrack->CombinedTrack();
 //        if ( !combTrack ) {
-//          if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFCbTrack found" << endreq;
+//          if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFCbTrack found" << endmsg;
 //          continue;
 //        }
-//        if ( debug ) msg << MSG::DEBUG << "Retrieved combined track" << endreq;
+//        if ( debug ) msg << MSG::DEBUG << "Retrieved combined track" << endmsg;
 //        const Rec::TrackParticle* indetTrackParticle = combTrack->getIDTrackParticle();
 //        if ( !indetTrackParticle ) {
-//          if ( debug ) msg << MSG::DEBUG << "No combined muon Rec::TrackParticle found" << endreq;
+//          if ( debug ) msg << MSG::DEBUG << "No combined muon Rec::TrackParticle found" << endmsg;
 //          continue;
 //        }
 //        const Trk::Track* indetTrack = indetTrackParticle->originalTrack();
 //        if ( !indetTrack ) {
-//          if ( debug ) msg << MSG::DEBUG << "No combined muon Trk::Track found" << endreq;
+//          if ( debug ) msg << MSG::DEBUG << "No combined muon Trk::Track found" << endmsg;
 //          continue;
 //        }
 //        indetTracks.push_back(indetTrack);

@@ -28,7 +28,8 @@
 //#include "StoreGate/DataHandle.h"
 //
 #include <math.h>
-#include "TrigSteeringEvent/TrigPassBits.h"
+//#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
@@ -52,12 +53,12 @@ TrigL2TrkMassHypo::TrigL2TrkMassHypo(const std::string & name, ISvcLocator* pSvc
   // Read cuts
   declareProperty("AcceptAll",    m_acceptAll=true);
 
-  declareMonitoredVariable(    "CutCounter",  mon_cutCounter);
-  declareMonitoredVariable(    "NBphys",      mon_NBphys);
-  declareMonitoredStdContainer("Mass",        mon_Mass,        AutoClear);
-  //declareMonitoredStdContainer("FitMass",     mon_FitMass,     AutoClear);
-  //declareMonitoredStdContainer("Chi2",        mon_Chi2,        AutoClear);
-  //declareMonitoredStdContainer("Chi2Prob",    mon_Chi2Prob,    AutoClear);
+  declareMonitoredVariable(    "CutCounter",  m_mon_cutCounter);
+  declareMonitoredVariable(    "NBphys",      m_mon_NBphys);
+  declareMonitoredStdContainer("Mass",        m_mon_Mass,        AutoClear);
+  //declareMonitoredStdContainer("FitMass",     m_mon_FitMass,     AutoClear);
+  //declareMonitoredStdContainer("Chi2",        m_mon_Chi2,        AutoClear);
+  //declareMonitoredStdContainer("Chi2Prob",    m_mon_Chi2Prob,    AutoClear);
 
 }
 
@@ -70,7 +71,7 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltInitialize()
   if(msgLvl() <= MSG::DEBUG) {
 
     msg() << MSG::DEBUG << "AcceptAll            = "
-	<< (m_acceptAll==true ? "True" : "False") << endreq;
+	<< (m_acceptAll==true ? "True" : "False") << endmsg;
   }
 
   m_lastEvent = -1;
@@ -81,10 +82,10 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltInitialize()
   m_countPassedRoIs =0;
     
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
         return HLT::BAD_JOB_SETUP;
     } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
     }
 
   return HLT::OK;
@@ -92,10 +93,10 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltInitialize()
 
 HLT::ErrorCode TrigL2TrkMassHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2TrkMassHypo -------------|" << endreq;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2TrkMassHypo -------------|" << endmsg;
+  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
+  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
 
   return HLT::OK;
 }
@@ -105,7 +106,7 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
 {
 
   bool result = false;
-  mon_cutCounter = -1;
+  m_mon_cutCounter = -1;
 
     // Retrieve event info
     //    int IdRun   = 0;
@@ -113,7 +114,7 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
     // event info
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
     }
     //    IdRun = runNumber;
     IdEvent = evtNumber;
@@ -133,10 +134,10 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   if(msgLvl() <= MSG::DEBUG) {
     if (m_acceptAll) {
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-	  << endreq;
+	  << endmsg;
     } else {
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-	  << endreq;
+	  << endmsg;
     }
   }
 //  create vector for TrigL2Bphys particles
@@ -146,35 +147,37 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endmsg;
     }
 
     return HLT::OK;
   }
 
-   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endreq;
+   if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endmsg;
   // if no Bphys particles were found, just leave TrigBphysColl and leave
   if ( trigBphysColl == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
+      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
 
-    mon_NBphys=0;
+    m_mon_NBphys=0;
     return HLT::OK;
   }
-  mon_cutCounter = 0;  // this is to separate bad input TE and true behaviour of the first cut
+  m_mon_cutCounter = 0;  // this is to separate bad input TE and true behaviour of the first cut
 
-  mon_NBphys=trigBphysColl->size();
+  m_mon_NBphys=trigBphysColl->size();
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size() << " TrigBphys particles " << endreq;
+    msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size() << " TrigBphys particles " << endmsg;
   }
 
-  TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  //TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigBphysContainer>(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes hypo cuts- not ready, just monitoring
   xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin();
   for ( ; bphysIter != trigBphysColl->end(); ++bphysIter) {
-    mon_Mass.push_back(((*bphysIter)->mass()) / CLHEP::GeV);   // conversion to GeV
-    HLT::markPassing(bits, *bphysIter, trigBphysColl);
+    m_mon_Mass.push_back(((*bphysIter)->mass()) / CLHEP::GeV);   // conversion to GeV
+    //HLT::markPassing(bits, *bphysIter, trigBphysColl);
+    xBits->markPassing((*bphysIter),trigBphysColl,true);
   }
 
   result=true;
@@ -189,9 +192,11 @@ HLT::ErrorCode TrigL2TrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   }
 
   // store result
-  if ( attachBits(outputTE, bits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endreq;
-  }
+  //if ( attachBits(outputTE, bits) != HLT::OK ) {
+  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
+  //}
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   return HLT::OK;
 }

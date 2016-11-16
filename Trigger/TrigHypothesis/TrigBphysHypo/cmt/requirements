@@ -16,7 +16,8 @@ use  TrigParticle               TrigParticle-*                  Trigger/TrigEven
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
-use xAODTrigMuon                xAODTrigMuon-*                  Event/xAOD
+use  xAODTrigMuon               xAODTrigMuon-*                  Event/xAOD
+use  xAODTrigger                xAODTrigger-*                   Event/xAOD
 #private
 use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
@@ -38,6 +39,8 @@ use  TrkVKalVrtFitter           TrkVKalVrtFitter-*              Tracking/TrkVert
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  FourMomUtils	        FourMomUtils-*		        Event
+use  xAODBase 			xAODBase-*   			Event/xAOD
 end_private
 
 

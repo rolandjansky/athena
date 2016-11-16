@@ -74,8 +74,8 @@ class TrigL2MultiMuHypo: public HLT::HypoAlgo  {
   unsigned int m_countPassedChi2Cut;
 
   /* monitored variables */
-  int mon_cutCounter;
-  std::vector<float> mon_MuMumass;
+  int m_mon_cutCounter;
+  std::vector<float> m_mon_MuMumass;
   
 };
 

@@ -13,11 +13,14 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo
+                          Event/FourMomUtils
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODBase
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigBphys
                           Event/xAOD/xAODTrigMuon
+                          Event/xAOD/xAODTrigger
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService

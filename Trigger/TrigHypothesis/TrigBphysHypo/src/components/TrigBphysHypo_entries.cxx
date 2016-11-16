@@ -9,9 +9,9 @@
 #include "../TrigEFBMuMuXFex.h"
 #include "../TrigEFBMuMuHypo.h"
 #include "../TrigEFMultiMuHypo.h"
-#include "../TrigL2DiMuHypo.h"
-#include "../TrigEFDiMuFex.h"
-#include "../TrigEFDiMuHypo.h"
+//#include "../TrigL2DiMuHypo.h"
+//#include "../TrigEFDiMuFex.h"
+//#include "../TrigEFDiMuHypo.h"
 //#include "TrigBphysHypo/TrigL2DsPhiPiHypo.h"
 //#include "TrigBphysHypo/TrigL2DsPhiPiFex.h"
 //#include "../TrigL2DiMuXHypo.h"
@@ -19,15 +19,16 @@
 #include "../TrigL2TrkMassFex.h"
 #include "../TrigL2TrkMassHypo.h"
 #include "../TrigEFTrkMassHypo.h"
+#include "../TrigMultiTrkFex.h"
 
-#include "../TrigL2LooseMuonHypo.h"
+//#include "../TrigL2LooseMuonHypo.h"
 
 #include "../TrigBphysHelperUtilsTool.h"
 #include "../TrigEFBMuMuFex.h"
 #include "../TrigEFMultiMuFex.h"
 #include "../TrigEFTrkMassFex.h"
 
-#include "../TrigBphysL1DiMuComboFex.h"
+//#include "../TrigBphysL1DiMuComboFex.h"
 
 
 //DECLARE_ALGORITHM_FACTORY( TrigL2DiMuXHypo )
@@ -42,20 +43,21 @@ DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuHypo )
-DECLARE_ALGORITHM_FACTORY( TrigL2DiMuHypo )
+//DECLARE_ALGORITHM_FACTORY( TrigL2DiMuHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigL2DsPhiPiHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigL2DsPhiPiFex )
 DECLARE_ALGORITHM_FACTORY( TrigL2TrkMassFex )
 DECLARE_ALGORITHM_FACTORY( TrigL2TrkMassHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassHypo )
-DECLARE_ALGORITHM_FACTORY( TrigL2LooseMuonHypo )
+//DECLARE_ALGORITHM_FACTORY( TrigL2LooseMuonHypo )
 
 DECLARE_TOOL_FACTORY( TrigBphysHelperUtilsTool )
 
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuFex   )
 DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuFex )
+DECLARE_ALGORITHM_FACTORY( TrigMultiTrkFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassFex )
-DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
+//DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
 
 
 DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
@@ -71,20 +73,21 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigEFBMuMuXFex )
     DECLARE_ALGORITHM( TrigEFBMuMuHypo )
     DECLARE_ALGORITHM( TrigEFMultiMuHypo )
-    DECLARE_ALGORITHM( TrigL2DiMuHypo )
+//    DECLARE_ALGORITHM( TrigL2DiMuHypo )
 //    DECLARE_ALGORITHM( TrigL2DsPhiPiHypo )
 //    DECLARE_ALGORITHM( TrigL2DsPhiPiFex )
     DECLARE_ALGORITHM( TrigL2TrkMassFex )
     DECLARE_ALGORITHM( TrigL2TrkMassHypo )
     DECLARE_ALGORITHM( TrigEFTrkMassHypo )
-    DECLARE_ALGORITHM( TrigL2LooseMuonHypo )
+//    DECLARE_ALGORITHM( TrigL2LooseMuonHypo )
 
     DECLARE_TOOL( TrigBphysHelperUtilsTool )
 
     DECLARE_ALGORITHM( TrigEFBMuMuFex   )
     DECLARE_ALGORITHM( TrigEFMultiMuFex )
+    DECLARE_ALGORITHM( TrigMultiTrkFex )
     DECLARE_ALGORITHM( TrigEFTrkMassFex )
-    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
+//    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
 
 }
 

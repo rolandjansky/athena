@@ -28,7 +28,8 @@
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
+//#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
@@ -50,8 +51,8 @@ TrigEFTrkMassHypo::TrigEFTrkMassHypo(const std::string & name, ISvcLocator* pSvc
   // Read cuts
   declareProperty("AcceptAll",    m_acceptAll=true);
 
-  declareMonitoredVariable("CutCounter", mon_cutCounter);
-  declareMonitoredVariable("NBphys",     mon_NBphys);
+  declareMonitoredVariable("CutCounter", m_mon_cutCounter);
+  declareMonitoredVariable("NBphys",     m_mon_NBphys);
 
 
 }
@@ -65,7 +66,7 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltInitialize()
   if(msgLvl() <= MSG::DEBUG) {
 
     msg() << MSG::DEBUG << "AcceptAll            = "
-        << (m_acceptAll==true ? "True" : "False") << endreq;
+        << (m_acceptAll==true ? "True" : "False") << endmsg;
   }
 
   m_lastEvent = -1;
@@ -80,10 +81,10 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltInitialize()
 
 HLT::ErrorCode TrigEFTrkMassHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFTrkMassHypo -------------|" << endreq;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFTrkMassHypo -------------|" << endmsg;
+  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
+  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
 
   return HLT::OK;
 }
@@ -93,7 +94,7 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
 {
 
   bool result = false;
-  mon_cutCounter = -1;
+  m_mon_cutCounter = -1;
 
     // Retrieve event info
     int IdRun   = 0;
@@ -103,19 +104,19 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            //mon_Errors.push_back( ERROR_No_EventInfo );
+            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            //m_mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;
+            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endmsg;
         }// found old event info
     }else { // found the xAOD event info
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endreq;
+            << " Event " << evtInfo->eventNumber() << endmsg;
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
@@ -135,10 +136,10 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   if(msgLvl() <= MSG::DEBUG) {
     if (m_acceptAll) {
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-          << endreq;
+          << endmsg;
     } else {
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-          << endreq;
+          << endmsg;
     }
   }
   // for now pass all events - JK changed to false 9/2/10
@@ -151,36 +152,38 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endmsg;
     }
 
     return HLT::OK;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endreq;
+  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endmsg;
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
   if ( xAODTrigBphysColl == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
+      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
 
-    mon_NBphys=0;
+    m_mon_NBphys=0;
     return HLT::OK;
   }
 
-  mon_NBphys=xAODTrigBphysColl->size();
+  m_mon_NBphys=xAODTrigBphysColl->size();
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Got TrigBphys collection with " << xAODTrigBphysColl->size()
-        << " TrigBphys particles " << endreq;
+        << " TrigBphys particles " << endmsg;
   }
 
-  mon_cutCounter = 0;
+  m_mon_cutCounter = 0;
 
-  TrigPassBits *bits = HLT::makeTrigPassBits(xAODTrigBphysColl);
+  //TrigPassBits *bits = HLT::makeTrigPassBits(xAODTrigBphysColl);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigBphysContainer>(xAODTrigBphysColl);
 
   // now loop over Bphys particles to set passBits
   xAOD::TrigBphysContainer::const_iterator bphysIter = xAODTrigBphysColl->begin();
   for ( ; bphysIter != xAODTrigBphysColl->end(); ++bphysIter) {
-    HLT::markPassing(bits, *bphysIter, xAODTrigBphysColl);
+    //HLT::markPassing(bits, *bphysIter, xAODTrigBphysColl);
+    xBits->markPassing((*bphysIter),xAODTrigBphysColl,true);
   }
 
   result=true;
@@ -195,9 +198,11 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   }
 
   // store result
-  if ( attachBits(outputTE, bits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endreq;
-  }
+  //if ( attachBits(outputTE, bits) != HLT::OK ) {
+  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
+  //}
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   return HLT::OK;
 }

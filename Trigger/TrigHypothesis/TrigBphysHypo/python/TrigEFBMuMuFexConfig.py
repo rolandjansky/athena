@@ -1,8 +1,16 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuFex 
+
+# include the python fragment to set up the default bphysics vertex fitter
+#include("TrigBphysHypo/TrigBphysVertexingConfig.py")
+
+from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
+from TrigBphysHypo.TrigBphysHypoConf       import TrigEFBMuMuFex 
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+from TrigBphysHypo import TrigBphysVertexingConfig
 
 from AthenaCommon.AppMgr import ToolSvc
+
 
 #class EFBMuMuFex_1 (TrigEFBMuMuFex):
 #    __slots__ = []
@@ -207,6 +215,15 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuFex_DiMu_legacyVtx (EFBMuMuFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_legacyVtx"):
+        EFBMuMuFex_DiMu.__init__( self, name )
+        
+        # set lecacy helper tool with 'broken' vertex fitter
+        self.TrigBphysHelperTool = ToolSvc.TrigBphysHelperUtilsToolLegacy
+        
+        
 class EFBMuMuFex_DiMu_oneTE (EFBMuMuFex_DiMu):
     __slots__ = []
     def __init__(self, name = "EFBMuMuFex_DiMu_oneTE"):
