@@ -1,4 +1,0 @@
-<lcgdict>
- <enum pattern="egammaIsolationType::*"/>
- <enum pattern="EMAmbiguityType::*"/>
-</lcgdict>
