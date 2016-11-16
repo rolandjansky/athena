@@ -20,10 +20,10 @@ class ICaloCluster_OnTrackBuilder : virtual public IAlgTool
  public:
 	static const InterfaceID& interfaceID() { return IID_caloCluster_OnTrackBuilder; };
 
-  ~ICaloCluster_OnTrackBuilder() {}; 
+	~ICaloCluster_OnTrackBuilder() {}; 
 
-	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0 ) const = 0 ;
-	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0 ) const = 0;
+	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0 ) = 0 ;
+	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0 ) = 0;
   
 };
 
