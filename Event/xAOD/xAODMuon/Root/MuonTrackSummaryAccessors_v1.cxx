@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonTrackSummaryAccessors_v1.cxx 713316 2015-12-08 14:39:35Z wleight $
+// $Id: MuonTrackSummaryAccessors_v1.cxx 784489 2016-11-16 06:48:48Z jomeyer $
 
 // System include(s):
 #include <iostream>
@@ -64,6 +64,42 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer2Holes );
         DEFINE_ACCESSOR( uint8_t, etaLayer3Holes );
         DEFINE_ACCESSOR( uint8_t, etaLayer4Holes );
+
+        DEFINE_ACCESSOR( uint8_t, phiLayer1RPCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2RPCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer3RPCHits );
+
+        DEFINE_ACCESSOR( uint8_t, etaLayer1RPCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2RPCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer3RPCHits );
+
+        DEFINE_ACCESSOR( uint8_t, phiLayer1RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer3RPCHoles );
+
+        DEFINE_ACCESSOR( uint8_t, etaLayer1RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2RPCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer3RPCHoles );
+
+        DEFINE_ACCESSOR( uint8_t, phiLayer1TGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2TGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer3TGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer4TGCHits );
+
+        DEFINE_ACCESSOR( uint8_t, etaLayer1TGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2TGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHits );
+
+        DEFINE_ACCESSOR( uint8_t, phiLayer1TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer3TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer4TGCHoles );
+
+        DEFINE_ACCESSOR( uint8_t, etaLayer1TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
 	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
 	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
