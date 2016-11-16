@@ -85,6 +85,8 @@ namespace xAOD {
     AUX_VARIABLE( isTauFlags );
 
     AUX_VARIABLE( tauTrackLinks );
+    AUX_VARIABLE( nChargedTracks );
+    AUX_VARIABLE( nIsolatedTracks );
     AUX_VARIABLE( clusterLinks );
     AUX_VARIABLE( pi0Links );
 

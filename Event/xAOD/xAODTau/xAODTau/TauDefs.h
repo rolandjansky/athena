@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 778491 2016-10-14 13:33:33Z griffith $
+// $Id: TauDefs.h 784645 2016-11-16 16:36:25Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -312,6 +312,9 @@ namespace TauJetParameters
       LC_pantau_interpolPt=107,
       electronLink=108,
       
+      nChargedTracks=109,
+      nIsolatedTracks=110,
+
       //Tau/Ele BDTVars
 
     };

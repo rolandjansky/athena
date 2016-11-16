@@ -200,7 +200,6 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PFOEngRelDiff );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_pantau_interpolPt );
 
-
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float detail ("
 		<< detail << ") requested" << std::endl;
@@ -220,6 +219,8 @@ break;
       // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nPi0Topo );//r21 cleanup
       // DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTopo );//r21 cleanup
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, GhostMuonSegmentCount );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nChargedTracks );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nIsolatedTracks );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("
