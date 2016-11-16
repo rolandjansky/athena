@@ -475,7 +475,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       //=== now check if combination is OK
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Combination "<< combi.str() 
 				       << ", Ntrk="<< thisIterationTracks.size() 
-				       << " pts=["<< hpts << " ]"<< endmsg;
+				       << " pts=["<< hpts.str() << " ]"<< endmsg;
       
 
       //==== re-check pts
