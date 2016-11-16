@@ -91,12 +91,10 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
     return sc;
   }
 
-  if ( !m_use_mcLUT ) {
-    sc = serviceLocator()->service("AlignmentBarrelLUTSvc", m_alignmentBarrelLUTSvc);
-    if (!sc.isSuccess()) {
-      ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
-      return sc;
-    }
+  sc = serviceLocator()->service("AlignmentBarrelLUTSvc", m_alignmentBarrelLUTSvc);
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
+    return sc;
   }
 
   // Calculation of sagitta and radius

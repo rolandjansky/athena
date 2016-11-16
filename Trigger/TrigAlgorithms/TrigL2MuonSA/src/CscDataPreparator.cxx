@@ -227,8 +227,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	int chamber = xAOD::L2MuonParameters::Chamber::CSC;
 	double aw = muonRoad.aw[chamber][0];
 	double bw = muonRoad.bw[chamber][0];
-	double rWidth = muonRoad.rWidth[chamber][0];
-	double roadphi = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
+	//double rWidth = muonRoad.rWidth[chamber][0];
+	double phiw = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
 
 	//cluster status
 	bool isunspoiled = IsUnspoiled (prepData.status());
@@ -253,14 +253,21 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	cscHit.z   = prepData.globalPosition().z();
 	cscHit.charge = prepData.charge();
 	cscHit.time   = prepData.time();
-	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( cscHit.r,cscHit.phi,roadphi);
+	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
 	cscHit.isOutlier = 0;
-	if( fabs(cscHit.Residual) > rWidth ) {
+	/*if( fabs(cscHit.Residual) > rWidth ) {
 	  cscHit.isOutlier = 2;
+	  }*/
+	double width = (cscHit.MeasuresPhi) ? 250. : 100.;
+	if( fabs(cscHit.Residual)>width ){
+	  cscHit.isOutlier=1;
+	  if( fabs(cscHit.Residual)>3.*width ){
+	    cscHit.isOutlier=2;
+	  }
 	}
-
+	
 	cscHits.push_back( cscHit );
-
+	
 	// Debug print
        	ATH_MSG_DEBUG("CSC Hits: "
 		      << "SN="  << cscHit.StationName << ","
@@ -302,9 +309,11 @@ double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double
 }
 
 
-double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double hitr, double hitphi, double roadphi){
+double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw, double phiw, double hitphi, double hitz){
 
-  return hitr*( cos(hitphi)*sin(roadphi)-sin(hitphi)*cos(roadphi) );
+  double roadr = hitz*aw + bw;
+
+  return roadr*( cos(phiw)*sin(hitphi)-sin(phiw)*cos(hitphi) );
 
 }
 

@@ -28,20 +28,16 @@ ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
 
-class CscRegDict(TrigL2MuonSA__CscRegDict):
-    def __init__(self,name = 'CscRegDict'):
-        super(CscRegDict ,self).__init__(name)
-        self.MCFlag = True
 
 ToolSvc += TrigL2MuonSA__CscSegmentMaker()
-ToolSvc += CscRegDict()
+ToolSvc += TrigL2MuonSA__CscRegDict()
 
 
 class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
         super(PtBarrelLUTSvc ,self).__init__(name)
         self.LUTfile = "pt_barrel.lut"
-        self.SP_LUTfile = "pt_barrelSP.lut"
+        self.SP_LUTfile = "pt_barrelSP_new.lut"
 
 class PtBarrelLUTSvc_MC(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc_MC'):
@@ -52,11 +48,15 @@ class PtEndcapLUTSvc(TrigL2MuonSA__PtEndcapLUTSvc):
     def __init__(self,name = 'PtEndcapLUTSvc'):
         super(PtEndcapLUTSvc ,self).__init__(name)
         self.FileName = "pt_endcap.lut"
+        self.EMeanLUT = "pt_comb_mean.lut"
+        self.ESigmaLUT = "pt_comb_sigma.lut"
 
 class PtEndcapLUTSvc_MC(TrigL2MuonSA__PtEndcapLUTSvc):                            
     def __init__(self,name = 'PtEndcapLUTSvc_MC'):
         super(PtEndcapLUTSvc_MC ,self).__init__(name)
         self.FileName = "pt_endcap.mc10.lut"
+        self.EMeanLUT = "pt_comb_mean.lut"
+        self.ESigmaLUT = "pt_comb_sigma.lut"
 
 class AlignmentBarrelLUTSvc(TrigL2MuonSA__AlignmentBarrelLUTSvc):
     def __init__(self,name = 'AlignmentBarrelLUTSvc'):
@@ -95,6 +95,8 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.DoCalibrationStream = False
 
         self.USE_ROIBASEDACCESS_CSC = True
+
+        self.RpcErrToDebugStream = True
 
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0

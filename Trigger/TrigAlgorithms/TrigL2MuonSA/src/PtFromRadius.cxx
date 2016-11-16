@@ -106,21 +106,16 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 
       ch = (trackPattern.charge>=0.)? 1 : 0;
 
-      if( !m_use_mcLUT && add==1 ) {
+      if( add==1 ) {
 	// Use special table for Large-SP data
 
-	if( fabs(trackPattern.phiMS)>90*TMath::DegToRad() ){
-	  phibin=29-phibin;
-	}
-	int iR = ( superPoints[0]->R > 600 )? 1: 0;
-	if( superPoints[0]->R < 0.01 ){
-	  iR = ( phibin>14 )? 1: 0;
-	}
+	int iR = ( superPoints[0]->R > 6000 )? 1: 0;
+        int qeta = ( trackPattern.charge*trackPattern.etaMap >= 0.)? 1 : 0;
 
-	A0[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][0];
-	A1[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][1];
+	A0[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][0];
+	A1[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][1];
 
-	trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
+	trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
 
       } else {
 

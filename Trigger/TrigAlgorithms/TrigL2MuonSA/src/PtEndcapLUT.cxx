@@ -340,3 +340,142 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::finalize()
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
+double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, double BpT, double &CApT, \
+					     double &CBpT) const
+{
+  msg() << MSG::DEBUG << "pTcombined("
+	<< "iEta="      << iEta
+	<< "iPhi="      << iPhi
+	<< "Alpha pT="  << ApT
+	<< "Beta pT="   << BpT
+	<< ")" << endmsg;
+
+  if (iEta == -1) iEta =  0;
+  if (iEta == 30) iEta = 29;
+
+  if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHIS) {
+    msg() << MSG::WARNING << "pTcombined("<< iEta << ", " << iPhi << ") Invalid indices" << endmsg;
+    return 0.0;
+  }
+
+  const float ZERO_LIMIT = 1e-5;
+  int iphibin=iPhi;
+  int ietabin=iEta/6;
+  if(iPhi==5||iPhi==6)iphibin=5;
+  if(iPhi==4||iPhi==7)iphibin=4;
+  if(iPhi==3||iPhi==8)iphibin=3;
+  if(iPhi==2||iPhi==9)iphibin=2;
+  if(iPhi==1||iPhi==10)iphibin=1;
+  if(iPhi==0||iPhi==11)iphibin=0;
+  CApT=0.;
+  CBpT=0.;
+  double Ameana = m_meana[ietabin][iphibin][0];
+  double Ameanb = m_meanb[ietabin][iphibin][0];
+  double Ameanc = m_meanc[ietabin][iphibin][0];
+  double Bmeana = m_meana[ietabin][iphibin][1];
+  double Bmeanb = m_meanb[ietabin][iphibin][1];
+  double Bmeanc = m_meanc[ietabin][iphibin][1];
+
+  double Asigmaa = m_sigmaa[ietabin][iphibin][0];
+  double Asigmab = m_sigmab[ietabin][iphibin][0];
+  double Asigmac = m_sigmac[ietabin][iphibin][0];
+  double Bsigmaa = m_sigmaa[ietabin][iphibin][1];
+  double Bsigmab = m_sigmab[ietabin][iphibin][1];
+  double Bsigmac = m_sigmac[ietabin][iphibin][1];
+
+  
+  double MeanAP  = ( fabs(ApT) > ZERO_LIMIT)? (Ameana + Ameanb * exp( Ameanc / ApT)) : 1.0;
+  double MeanBP  = ( fabs(BpT) > ZERO_LIMIT)? (Bmeana + Bmeanb * exp( Bmeanc / BpT)) : 1.0;
+  double ApT_tmp = ( fabs(1-MeanAP) > ZERO_LIMIT)? (fabs(ApT) / (1-MeanAP)) : 1.0;
+  ApT_tmp = fabs(ApT_tmp);
+  if(ApT_tmp >= 500) ApT_tmp = 500;
+  double BpT_tmp = ( fabs(1-MeanBP) > ZERO_LIMIT)? (fabs(BpT) / (1-MeanBP)) : 1.0;
+  BpT_tmp = fabs(BpT_tmp);
+  if(BpT_tmp >= 500) BpT_tmp = 500;
+
+  CApT = ApT_tmp;
+  CBpT = BpT_tmp;
+  
+  if(ApT == 0. ) CApT = 0.;
+  if(BpT == 0. ) CBpT = 0.;
+  double NSigmaA= Asigmaa * fabs(ApT_tmp) * fabs(ApT_tmp) + Asigmab * fabs(ApT_tmp) + Asigmac;
+  double NSigmaB= Bsigmaa * fabs(BpT_tmp) * fabs(BpT_tmp) + Bsigmab * fabs(BpT_tmp) + Bsigmac;
+
+  double NVsigpTA =(fabs(ApT_tmp) > ZERO_LIMIT&& fabs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * ApT_tmp) ): 1.0; 
+  double NVsigpTB =(fabs(BpT_tmp) > ZERO_LIMIT&& fabs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * BpT_tmp) ): 1.0; 
+  double NVsigAsq =(fabs(NSigmaA) > ZERO_LIMIT)? (1/(NSigmaA * NSigmaA))  : 1.0; 
+  double NVsigBsq =(fabs(NSigmaB) > ZERO_LIMIT)? (1/(NSigmaB * NSigmaB))  : 1.0; 
+
+  double NVsigpTAsq = NVsigpTA * NVsigpTA;
+  double NVsigpTBsq = NVsigpTB * NVsigpTB;
+  double pt = (fabs(NVsigAsq + NVsigBsq) > ZERO_LIMIT)? (1/sqrt((NVsigpTAsq + NVsigpTBsq)/(NVsigAsq + NVsigBsq))) : 0.;
+  if(pt>500) pt = 500.;
+  return pt;
+}
+// --------------------------------------------------------------------------------                      
+// -------------------------------------------------------------------------------- 
+
+StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std::string lut_sigma)
+{
+  std::ifstream ifsmean(lut_mean.c_str());
+  std::ifstream ifssigma(lut_sigma.c_str());
+  if (!ifsmean.is_open()) {
+    msg() << MSG::ERROR << "Cannot open EndcapLUT Mean file " << lut_mean << endmsg;
+    return StatusCode::FAILURE;
+  }
+  if (!ifssigma.is_open()) {
+    msg() << MSG::ERROR << "Cannot open EndcapLUT Sigma file " << lut_sigma << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  std::string line;
+
+  for(int ei=0; ei < ETAS1; ei++){
+    for(int pi=0; pi < PHIS1; pi++){
+      for(int pti=0; pti < PTS1; pti++){
+        m_meana[ei][pi][pti] =0.;
+        m_meanb[ei][pi][pti] =0.;
+        m_meanc[ei][pi][pti] =0.;
+        m_sigmaa[ei][pi][pti]=0.;
+        m_sigmab[ei][pi][pti]=0.;
+        m_sigmac[ei][pi][pti]=0.;
+      }
+    }
+  }
+
+  while (!ifsmean.eof()) {
+    getline(ifsmean, line);
+    if (line.empty()) continue;
+
+    int iEta, iPhi, iNP;
+    double tmp_par1, tmp_par2, tmp_par3;
+    if (sscanf(line.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
+      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    m_meana[iEta][iPhi][iNP] = tmp_par1;
+    m_meanb[iEta][iPhi][iNP] = tmp_par2;
+    m_meanc[iEta][iPhi][iNP] = tmp_par3;
+  }
+  ifsmean.close();
+  std::string line2;
+  while (!ifssigma.eof()) {
+    getline(ifssigma, line2);
+    if (line2.empty()) continue;
+
+    int iEta, iPhi, iNP;
+    double tmp_par1, tmp_par2, tmp_par3;
+    if (sscanf(line2.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
+      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    m_sigmaa[iEta][iPhi][iNP] = tmp_par1;
+    m_sigmab[iEta][iPhi][iNP] = tmp_par2;
+    m_sigmac[iEta][iPhi][iNP] = tmp_par3;
+  }
+  ifssigma.close();
+
+  return StatusCode::SUCCESS;
+}

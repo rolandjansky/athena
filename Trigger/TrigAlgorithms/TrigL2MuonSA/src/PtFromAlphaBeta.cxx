@@ -134,7 +134,30 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
 
   if (trackPattern.ptEndcapRadius>0 && trackPattern.ptEndcapRadius<500)
       trackPattern.pt = trackPattern.ptEndcapRadius;//use pt calculated from endcap radius
-  
+
+  bool pTCB = false;
+  if( pTCB ){
+    double Co_APt = 0.;
+    double Co_BPt = 0.;
+    
+    double tmpalphaPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, trackPattern.etaBin, trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;
+    trackPattern.ptEndcapAlpha = tmpalphaPt;
+    
+    double tmpbetaPt = 0.;
+    if(fabs(trackPattern.endcapBeta)>ZERO_LIMIT) tmpbetaPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::BETAPOL2, trackPattern.etaBin, trackPattern.phiBin, trackPattern.endcapBeta) / 1000;
+    trackPattern.ptEndcapBeta = tmpbetaPt;
+    
+    double tmp_pt = (*m_ptEndcapLUT)->ptcombined(trackPattern.etaBin, trackPattern.phiBin, tmpalphaPt,tmpbetaPt, Co_APt, Co_BPt);
+    
+    float final_pt = 0.;
+    if(fabs(Co_APt)>ZERO_LIMIT && fabs(Co_BPt)>ZERO_LIMIT && fabs(Co_BPt-Co_APt)/fabs(Co_APt) < 0.5){
+      final_pt = tmp_pt;
+    }else{
+      final_pt = Co_APt;
+    }
+    if(final_pt == 0.)final_pt = tgcPt;
+  }
+
   ATH_MSG_DEBUG("pT determined from alpha and beta: endcapAlpha/endcapBeta/endcapRadius3P/cscGamma/pT/charge/s_address="
 		<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" << trackPattern.cscGamma << "/" 
 		<< trackPattern.pt

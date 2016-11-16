@@ -46,7 +46,9 @@ class TrackPattern
    ptEndcapRadius(0),
    ptCSC(0),
    isRpcFailure(false),
-   isTgcFailure(false)
+   isTgcFailure(false),
+   large_dPhidZ(false),
+   outerCorFactor(0)
      {};
    
     ~TrackPattern() {};
@@ -97,6 +99,9 @@ class TrackPattern
     
     bool   isRpcFailure;
     bool   isTgcFailure;
+
+    bool large_dPhidZ;
+    double outerCorFactor;
 };
  
 // --------------------------------------------------------------------------------

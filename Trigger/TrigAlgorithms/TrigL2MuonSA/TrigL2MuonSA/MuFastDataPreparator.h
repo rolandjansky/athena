@@ -95,6 +95,7 @@ class MuFastDataPreparator: public AthAlgTool
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
+  bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
 
  protected:
   
@@ -126,6 +127,7 @@ class MuFastDataPreparator: public AthAlgTool
 
   BooleanProperty m_use_rpc;
 
+  bool m_isRpcFakeRoi;
 };
   
 } // namespace TrigL2MuonSA

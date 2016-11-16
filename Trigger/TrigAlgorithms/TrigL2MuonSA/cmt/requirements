@@ -67,7 +67,6 @@ apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
-apply_pattern declare_runtime files="pt_barrel.lut pt_barrelSP.lut pt_barrel.mc10.lut pt_endcap.lut pt_endcap.mc10.lut dZ_barrel.lut pt_endcap_small_large.lut pt_endcap_run2.lut"
-
+apply_pattern declare_runtime files="pt_barrel.lut pt_barrelSP.lut pt_barrelSP_new.lut pt_barrel.mc10.lut pt_endcap.lut pt_endcap.mc10.lut dZ_barrel.lut pt_endcap_small_large.lut pt_endcap_run2.lut pt_comb_mean.lut pt_comb_sigma.lut"
 
 #################################################

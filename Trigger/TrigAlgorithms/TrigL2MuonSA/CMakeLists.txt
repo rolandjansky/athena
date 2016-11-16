@@ -50,14 +50,20 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common COMPONENTS MuCalDecode circ_proc )
 
 # Component(s) in the package:
+atlas_add_library( TrigL2MuonSALib
+                     src/*.cxx
+                     PUBLIC_HEADERS TrigL2MuonSA
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver )
+
 atlas_add_component( TrigL2MuonSA
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver circ_proc MuCalDecode )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver )
 
 # Install files from the package:
 atlas_install_headers( TrigL2MuonSA )
 atlas_install_python_modules( python/*.py )
-atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut )
+atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrelSP_new.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut share/pt_comb_sigma.lut share/pt_comb_mean.lut)
 

@@ -241,15 +241,22 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
 		                              slope,      MiddleR, MiddleZ,
 					      sign);
-    } if (CSCR) {
-      trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope) );
+    } 
+    if (CSCZ) {
+      if(trackPattern.large_dPhidZ && (6==trackPattern.phiBin || 7==trackPattern.phiBin) ){
+	trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
+      }else{     
+	double OuterR_modified=OuterR*trackPattern.outerCorFactor;//assume dphidz=0
+	double slope_modified=(OuterR_modified-MiddleR)/(OuterZ-MiddleZ);
+	trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope_modified) );
+      }
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
       if(MiddleZ) {
 	double Ze = MiddleZ+(fabsf(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
-
+	
 	trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,Ze,Re);
 	trackPattern.slope       = MiddleSlope;
 	trackPattern.intercept   = MiddleIntercept;
@@ -261,8 +268,11 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       trackPattern.deltaR       = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
       double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
       trackPattern.endcapRadius = computeRadius(InnerSlope,  InnerR,  InnerZ,
-					   MiddleSlope, MiddleR, MiddleZ,
-					   sign);
+						MiddleSlope, MiddleR, MiddleZ,
+						sign);
+    }
+    if(MiddleZ && CSCZ){
+      trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
     }
   }
 

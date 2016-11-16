@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
+#include <numeric>
 #include <string>
 
 #include "TrigL2MuonSA/MuFastSteering.h"
@@ -89,6 +89,8 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("Scale_Road_BarrelOuter",m_scaleRoadBarrelOuter=1);
   
   declareProperty("WinPt",m_winPt=4.0);
+
+  declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
 
   declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
   declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
@@ -361,7 +363,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<const LVL1::RecMuonRoI*> muonRoIs;
   std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
   HLT::ErrorCode hec = getFeatures(inputTE, muonRoIs);
+
   if (hec != HLT::OK && hec2 != HLT::OK) {
+    ATH_MSG_ERROR("Could not find input TE");
     return hec2;
   }
   
@@ -411,6 +415,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
+
+      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+        ATH_MSG_WARNING("Invalid RoI in RPC data found: event to debug stream");
+	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
+      } 
 
       // Pattern finding
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
@@ -501,6 +512,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                               m_tgcFitResult,
                                               m_trackPatterns);
       }
+      /////csc SuperPoint
+      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
@@ -508,8 +521,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                         m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
          return HLT::OK;
       }
-      /////csc SuperPoint
-      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
 
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
 
@@ -859,7 +870,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     //CSC hits
     for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
       if ( 1/*cscHits[i_hit].MeasuresPhi==0*/ ){
-        if ( 1/*cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1*/ ) {
+        if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
           muonSA->setCscHit(cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber, cscHits[i_hit].StationName,
                             cscHits[i_hit].StationEta, cscHits[i_hit].StationPhi,
                             cscHits[i_hit].ChamberLayer, cscHits[i_hit].WireLayer, cscHits[i_hit].MeasuresPhi, cscHits[i_hit].Strip,
@@ -1517,7 +1528,9 @@ HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inp
   
   std::vector<const TrigRoiDescriptor*> roids;
   HLT::ErrorCode hec = getFeatures(inputTE, roids);
+
   if (hec != HLT::OK) {
+    ATH_MSG_ERROR("Could not find input TE");
     return hec;
   }
   

@@ -39,6 +39,8 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
 
   private:
     StringProperty    m_lut_fileName;
+    StringProperty    m_lut_mean;
+    StringProperty    m_lut_sigma;
 
     ToolHandle<PtEndcapLUT>      m_ptEndcapLUT;
 
