@@ -37,9 +37,11 @@ class TauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase {
   std :: string                 m_tauAuxContainerName; 
   bool                          m_configured;
   bool                          m_AODmode;
+  bool                          m_deep_copy_TauJetContainer;
   bool                          m_deep_copy_chargedPFOContainer;
   bool                          m_deep_copy_hadronicPFOContainer;
   bool                          m_deep_copy_neutralPFOContainer;
+  bool                          m_deep_copy_tauShotPFOContainer;
   bool                          m_deep_copy_SecVtxContainer;
   bool                          m_deep_copy_TauTrackContainer;
   TauEventData m_data;

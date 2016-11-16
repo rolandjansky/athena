@@ -20,7 +20,7 @@
 #include "xAODTau/TauJet.h"
 
 class CombinedP4FromRecoTaus
-: virtual public TauRecToolBase
+: public TauRecToolBase
 {
  public:
   ASG_TOOL_CLASS2( CombinedP4FromRecoTaus, TauRecToolBase, ITauToolBase )

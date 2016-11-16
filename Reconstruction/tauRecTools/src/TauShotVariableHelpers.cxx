@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 /**
  * @brief implementation of photon shot variable calculation 
  * 
@@ -183,7 +184,7 @@ namespace TauShotVariableHelpers {
         if( windowSize > nCells_eta) return 0.;
         float ptWindow  = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-            if(fabs(iCell-seedIndex)>windowSize/2) continue;
+	  if(std::abs(iCell-seedIndex)>windowSize/2) continue;
             if(shotCells.at(0).at(iCell) != NULL) ptWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
             if(shotCells.at(1).at(iCell) != NULL) ptWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
@@ -302,10 +303,10 @@ namespace TauShotVariableHelpers {
         float pt_largerWindow  = 0.;
         float pt_smallerWindow = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-            if(fabs(iCell-seedIndex)>largerWindow/2) continue;
+	    if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
             if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
             if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-            if(fabs(iCell-seedIndex)>smallerWindow/2) continue;
+            if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;
             if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
             if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
         }
@@ -356,3 +357,4 @@ namespace TauShotVariableHelpers {
     }
 }
 
+#endif

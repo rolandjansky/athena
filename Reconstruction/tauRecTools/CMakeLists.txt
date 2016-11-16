@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 779210 2016-10-19 12:38:55Z krasznaa $ 
 ################################################################################
 # Package: tauRecTools
 ################################################################################
@@ -6,58 +7,121 @@
 atlas_subdir( tauRecTools )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloUtils
-                          Control/AthLinks
-                          Control/AthToolSupport/AsgTools
-                          Control/CxxUtils
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTau
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Calorimeter/CaloInterface
-                          Control/AthContainers
-                          Event/FourMomUtils
-                          Event/NavFourMom
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODPFlow
-                          GaudiKernel
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-			  InnerDetector/InDetRecTools/InDetTrackSelectionTool
-                          Reconstruction/Jet/JetEDM
-                          Reconstruction/Particle
-                          Reconstruction/RecoTools/ITrackToVertex
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          Tools/PathResolver
-                          Tracking/TrkEvent/TrkLinks
-                          Tracking/TrkEvent/TrkParametersIdentificationHelpers
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkEvent/VxVertex
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-                          Tracking/TrkVertexFitter/TrkVertexFitters
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
+   set( extra_deps )
+   if( XAOD_ANALYSIS )
+      set( extra_deps GaudiKernel )
+   endif()
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthLinks
+      Control/AthToolSupport/AsgTools
+      Control/CxxUtils
+      Event/xAOD/xAODCaloEvent
+      Event/xAOD/xAODEventInfo
+      Event/xAOD/xAODPFlow
+      Event/xAOD/xAODTau
+      Event/xAOD/xAODTracking
+      Reconstruction/MVAUtils
+      PRIVATE
+      Event/FourMomUtils
+      Event/xAOD/xAODJet
+      Tools/PathResolver
+      ${extra_deps} )
+else()
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Calorimeter/CaloUtils
+      Control/AthLinks
+      Control/AthToolSupport/AsgTools
+      Control/CxxUtils
+      Event/xAOD/xAODCaloEvent
+      Event/xAOD/xAODEventInfo
+      Event/xAOD/xAODPFlow
+      Event/xAOD/xAODTau
+      Event/xAOD/xAODTracking
+      Reconstruction/Particle
+      Reconstruction/MVAUtils
+      PRIVATE
+      Calorimeter/CaloInterface
+      Control/AthContainers
+      Event/FourMomUtils
+      Event/NavFourMom
+      Event/xAOD/xAODJet
+      GaudiKernel
+      InnerDetector/InDetRecTools/InDetRecToolInterfaces
+      InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      Reconstruction/Jet/JetEDM
+      Reconstruction/RecoTools/ITrackToVertex
+      Reconstruction/RecoTools/RecoToolInterfaces
+      Tools/PathResolver
+      Tracking/TrkEvent/TrkLinks
+      Tracking/TrkEvent/TrkParametersIdentificationHelpers
+      Tracking/TrkEvent/TrkTrackSummary
+      Tracking/TrkEvent/VxVertex
+      Tracking/TrkTools/TrkToolInterfaces
+      Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+      Tracking/TrkVertexFitter/TrkVertexFitters
+      Tracking/TrkVertexFitter/TrkVxEdmCnv )
+endif()
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
+find_package( ROOT COMPONENTS Core Tree Hist RIO )
+find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
+	        siscone_spherical )
+find_package( FastJetContrib COMPONENTS VariableR )
 
 # Component(s) in the package:
-atlas_add_library( tauRecToolsLib
-                   src/*.cxx
-                   Root/*.cxx
-                   PUBLIC_HEADERS tauRecTools
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthLinks AsgTools CxxUtils xAODEventInfo xAODTau xAODTracking CaloUtilsLib TrkVertexFittersLib TrkVxEdmCnvLib
-                   PRIVATE_LINK_LIBRARIES AthContainers FourMomUtils NavFourMom xAODCaloEvent xAODJet xAODPFlow GaudiKernel InDetRecToolInterfaces JetEDM Particle ITrackToVertex RecoToolInterfaces PathResolver TrkLinks TrkParametersIdentificationHelpers TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
+   atlas_add_library( tauRecToolsLib
+      tauRecTools/*.h Root/*.cxx
+      PUBLIC_HEADERS tauRecTools
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+      ${FASTJET_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
+      xAODTracking
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PathResolver MVAUtils )
+else()
+   atlas_add_library( tauRecToolsLib
+      tauRecTools/*.h Root/*.cxx
+      PUBLIC_HEADERS tauRecTools
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+      ${FASTJET_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
+      xAODTracking CaloUtilsLib Particle
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PathResolver MVAUtils )
+endif()
 
-atlas_add_component( tauRecTools
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib AthLinks AsgTools CxxUtils xAODEventInfo xAODTau xAODTracking AthContainers FourMomUtils NavFourMom xAODCaloEvent xAODJet xAODPFlow GaudiKernel InDetRecToolInterfaces JetEDM Particle ITrackToVertex RecoToolInterfaces PathResolver TrkLinks TrkParametersIdentificationHelpers TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces TrkVertexFittersLib TrkVxEdmCnvLib tauRecToolsLib )
+if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+      atlas_add_component( tauRecTools
+         src/*.h src/*.cxx src/components/*.cxx
+         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
+         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet 
+         xAODPFlow MVAUtils GaudiKernel tauRecToolsLib )
+   else()
+      atlas_add_component( tauRecTools
+         src/*.h src/*.cxx src/components/*.cxx
+         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib
+         xAODTau xAODTracking AthContainers FourMomUtils NavFourMom
+         xAODCaloEvent xAODJet xAODPFlow MVAUtils GaudiKernel
+         InDetRecToolInterfaces JetEDM Particle ITrackToVertex
+         RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
+         TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
+         TrkVertexFittersLib TrkVxEdmCnvLib InDetTrackSelectionToolLib
+         tauRecToolsLib )
+   endif()
+endif()
 
 # Install files from the package:
 atlas_install_runtime( share/*.xml )
 atlas_install_data( share/* )
-

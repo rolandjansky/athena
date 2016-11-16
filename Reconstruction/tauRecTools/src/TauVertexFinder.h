@@ -9,7 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "JetEDM/TrackVertexAssociation.h"
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@
  * @author Felix Friedrich <Felix.Friedrich@cern.ch>
  */
 
-class TauVertexFinder : virtual public TauRecToolBase {
+class TauVertexFinder : public TauRecToolBase {
 public:
   //-------------------------------------------------------------
   //! Constructor and Destructor

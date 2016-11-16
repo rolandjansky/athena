@@ -17,7 +17,7 @@ std::string TauRecToolBase::find_file(const std::string& fname) const {
   std::string full_path;
   //offline calib files are in GroupData
   //online calib files are in release
-  if(inTrigger()==false) full_path = PathResolverFindCalibFile(m_tauRecToolsTag+fname);
+  if(inTrigger()==false) full_path = PathResolverFindCalibFile(m_tauRecToolsTag+"/"+fname);
   if(full_path=="") full_path = PathResolverFindCalibFile(fname);
   return full_path;
 }
@@ -63,7 +63,6 @@ StatusCode TauRecToolBase::readConfig() {
   for( Int_t i = 0; lList && i < lList->GetEntries(); ++i )
   {
     StatusCode sc;
-    std::string name = lList->At( i )->GetName();
     // types of properties are handled differently as well 
 #ifdef ASGTOOL_ATHENA
     // get type of variable with the entry name

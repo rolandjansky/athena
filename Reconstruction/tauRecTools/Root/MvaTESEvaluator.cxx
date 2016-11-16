@@ -4,6 +4,12 @@
 
 // local include(s)
 #include "tauRecTools/MvaTESEvaluator.h"
+#include "tauRecTools/HelperFunctions.h"
+
+#include "TFile.h"
+#include "TTree.h"
+
+#include <vector>
 
 // tools include(s) 
 
@@ -12,8 +18,25 @@
 //_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   : TauRecToolBase(name)
+  , reader(0)
+  , mu(0)
+  , nVtx(0)    
+  , center_lambda(0)
+  , first_eng_dens(0)
+  , second_lambda(0)
+  , presampler_frac(0)
+  , em_probability(0)    
+  , interpolPt(0)
+  , LC_D_interpolPt(0)
+  , pantau_D_interpolPt(0)
+  , seedCalo_eta(0)    
+  , nTracks(0)
+  , nPi0PFOs(0)
+  , PFOEngRelDiff(0)    
+  , nMuSeg(0)    
+  , truthPtVis(0)
 {
-  declareProperty( "WeightFileName", m_sWeightFileName = "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml" );
+  declareProperty( "WeightFileName", m_sWeightFileName = "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.root" );
   //BDT trained on medium taus: "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml"
   //BDT trained on all taus:    "LC.pantau.interpolPt250GeV_allTaus_BDTG.weights.xml"
 }
@@ -26,40 +49,37 @@ MvaTESEvaluator::~MvaTESEvaluator()
 //_____________________________________________________________________________
 StatusCode MvaTESEvaluator::initialize(){
 
-  // This loads the TMVA library
-  TMVA::Tools::Instance();
-
-  // Create the Reader object
-  reader = new TMVA::Reader( "!Color:!Silent" );
-
   // Declare input variables to the reader
-  reader->AddVariable( "EventInfoAux.averageInteractionsPerCrossing" , &mu );
-  reader->AddVariable( "TauJetsAuxDyn.nVtx"            , &nVtx );
+  m_availableVars.insert( std::make_pair("EventInfoAux.averageInteractionsPerCrossing", &mu) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtx", &nVtx) );
   
-  reader->AddVariable( "TauJetsAuxDyn.center_lambda"   , &center_lambda );
-  reader->AddVariable( "TauJetsAuxDyn.first_eng_dens"  , &first_eng_dens );
-  reader->AddVariable( "TauJetsAuxDyn.second_lambda"   , &second_lambda );
-  reader->AddVariable( "TauJetsAuxDyn.presampler_frac" , &presampler_frac );
-  reader->AddVariable( "TauJetsAuxDyn.em_probability"  , &em_probability );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.center_lambda", &center_lambda) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.first_eng_dens", &first_eng_dens) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.second_lambda", &second_lambda) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.presampler_frac", &presampler_frac) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.em_probability", &em_probability) );
   
-  reader->AddVariable( "TauJetsAuxDyn.LC_pantau_interpolPt" , &interpolPt );
-  reader->AddVariable( "TauJetsAux.LC_TES_precalib/TauJetsAuxDyn.LC_pantau_interpolPt" ,
-                        &LC_D_interpolPt );
-  reader->AddVariable( "TauJetsAux.ptPanTauCellBased/TauJetsAuxDyn.LC_pantau_interpolPt" ,
-                        &pantau_D_interpolPt );
-  reader->AddVariable( "TauJetsAux.seedCalo_eta"       , &seedCalo_eta );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.LC_pantau_interpolPt", &interpolPt) );
+  m_availableVars.insert( std::make_pair("TauJetsAux.LC_TES_precalib/TauJetsAuxDyn.LC_pantau_interpolPt", &LC_D_interpolPt) );
+  m_availableVars.insert( std::make_pair("TauJetsAux.ptPanTauCellBased/TauJetsAuxDyn.LC_pantau_interpolPt", &pantau_D_interpolPt) );
+  m_availableVars.insert( std::make_pair("TauJetsAux.seedCalo_eta", &seedCalo_eta) );
   
-  reader->AddVariable( "TauJetsAuxDyn.nTracks_TauRec"  , &nTracks );
-  reader->AddVariable( "TauJetsAuxDyn.nPi0PFOs"        , &nPi0PFOs );
-  reader->AddVariable( "TauJetsAuxDyn.PFOEngRelDiff"   , &PFOEngRelDiff );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nTracks_TauRec", &nTracks) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nPi0PFOs", &nPi0PFOs) );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.PFOEngRelDiff", &PFOEngRelDiff) );
   
-  reader->AddVariable( "TauJetsAuxDyn.GhostMuonSegmentCount" , &nMuSeg );
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.GhostMuonSegmentCount", &nMuSeg) );
 
   // Spectator variables declared in the training have to be added to the reader, too
-  reader->AddSpectator( "TauJetsAuxDyn.truthPtVis"     , &truthPtVis );
-
+  m_availableVars.insert( std::make_pair("TauJetsAuxDyn.truthPtVis", &truthPtVis) );
+  
   std::string weightFile = find_file(m_sWeightFileName);
-  reader->BookMVA( "BDTG", weightFile.c_str() );
+
+  reader = tauRecTools::configureMVABDT( m_availableVars, weightFile.c_str() );
+  if(reader==0) {
+    ATH_MSG_FATAL("Couldn't configure MVA");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 
@@ -71,9 +91,11 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   // Retrieve input variables
   
   // Retrieve event info
-  mu = xTau.auxdata<double>("mu");
-  nVtx = xTau.auxdata<int>("nVtx");
-  
+  static SG::AuxElement::ConstAccessor<double> acc_mu("mu");
+  static SG::AuxElement::ConstAccessor<int> acc_nVtx("nVtx");
+  mu = acc_mu(xTau);
+  nVtx = acc_nVtx(xTau);
+
   // Retrieve seed jet info
   xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, center_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, first_eng_dens);
@@ -100,7 +122,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   // "Retrieve" spectator variables
   truthPtVis = 0.;
 
-  float ptMVA = float( interpolPt * reader->EvaluateRegression( 0, "BDTG" ) );
+  float ptMVA = float( interpolPt * reader->GetResponse() );
   if(ptMVA<1) ptMVA=1;
   xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, xTau.etaPanTauCellBased(), xTau.phiPanTauCellBased(), 0);
 

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        tau1p3pEleVeto.cxx
 // package:     Reconstruction/tauRec
@@ -384,3 +385,4 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
 
 
+#endif

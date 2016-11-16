@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauShotFinder.cxx
 // package:     Reconstruction/tauRec
@@ -567,3 +568,4 @@ StatusCode TauShotFinder::bookMethod(TMVA::Reader *reader_barrel,
 }
 */
 // EOF
+#endif

@@ -20,7 +20,7 @@
  * @author Felix Friedrich
 */
 
-class JetSeedBuilder : virtual public TauRecToolBase {
+class JetSeedBuilder : public TauRecToolBase {
 public:
 
     //-------------------------------------------------------------

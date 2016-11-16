@@ -12,7 +12,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 class MvaTESVariableDecorator
-: virtual public TauRecToolBase
+: public TauRecToolBase
 {
  public:
   

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 /********************************************************************
 NAME:     PhotonConversionVertex.cxx
 PACKAGE:  offline/Reconstruction/tauRec
@@ -154,3 +155,4 @@ double PhotonConversionVertex::getMinDrTauDecay(const xAOD::TauJetContainer* tau
     }
     return minDR;
 }
+#endif

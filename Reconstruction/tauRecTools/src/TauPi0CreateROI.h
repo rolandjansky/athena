@@ -23,7 +23,7 @@ class ICaloCellMakerTool;
  * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0CreateROI : virtual public TauRecToolBase {
+class TauPi0CreateROI : public TauRecToolBase {
 public:
     TauPi0CreateROI(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0CreateROI, TauRecToolBase, ITauToolBase);

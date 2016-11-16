@@ -19,27 +19,37 @@
 #include "TClass.h"
 #include "TROOT.h"
 
-// // Tools we can configure
-// #include "tauRecTools/TauRecToolBase.h"
-// #include "tauRecTools/TauCalibrateLC.h"
-// #include "tauRecTools/TauCommonCalcVars.h"
-// #include "tauRecTools/TauTrackFilter.h"
-// #include "tauRecTools/TauGenericPi0Cone.h"
-// #include "tauRecTools/TauIDPileupCorrection.h"
+// precompiler macro for 
+#define DEEPCOPY(CONTAINER,NAME)                                        \
+  {                                                                     \
+  xAOD::CONTAINER##Container* pContainer(0);                            \
+  xAOD::CONTAINER* v(0);                                                \
+  if (evtStore()->contains<xAOD::CONTAINER##AuxContainer>(#NAME)){      \
+    xAOD::CONTAINER##AuxContainer* pAuxContainer(0);                    \
+    ATH_CHECK(deepCopy(pContainer, pAuxContainer, v, #NAME));           \
+  } else {                                                              \
+    xAOD::AuxContainerBase* pAuxContainer(0);                           \
+    ATH_CHECK(deepCopy(pContainer, pAuxContainer, v, #NAME));           \
+  }                                                                     \
+  }
 
 //________________________________________
 TauProcessorTool::TauProcessorTool(const std::string& type) :
   asg::AsgTool(type),
   m_tauContainerName("TauJets"),
   m_tauAuxContainerName("TauJetsAux."),
-  m_AODmode(false)
+  m_configured(false),
+  m_AODmode(false),
+  m_data()
 {
   declareProperty("ConfigPath", m_ConfigPath="tauRecTools/TauProcessorTool.conf");
   declareProperty("TauContainer", m_tauContainerName);
   declareProperty("TauAuxContainer", m_tauAuxContainerName);
   declareProperty("Tools", m_tools, "List of ITauToolBase tools");
   declareProperty("runOnAOD", m_AODmode); //AODS are input file
+  declareProperty("deepCopyTauJetContainer", m_deep_copy_TauJetContainer=true);
   declareProperty("deepCopyChargedPFOContainer", m_deep_copy_chargedPFOContainer=true);
+  declareProperty("deepCopyTauShotPFOContainer", m_deep_copy_tauShotPFOContainer=true);
   declareProperty("deepCopyHadronicPFOContainer", m_deep_copy_hadronicPFOContainer=true);
   declareProperty("deepCopyNeutralPFOContainer", m_deep_copy_neutralPFOContainer=true);
   declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=false);  
@@ -55,7 +65,7 @@ StatusCode TauProcessorTool::initialize(){
 
   //ATH_MSG_INFO("FF::TauProcessor :: initialize()");
 
-#ifdef XAOD_ANALYSIS
+#ifdef ROOTCORE
 
   if (!m_configured) {
     if (!readConfig()) {
@@ -73,13 +83,13 @@ StatusCode TauProcessorTool::initialize(){
 
   for (unsigned i = 0 ; i < m_tools.size() ; ++i) {
     // Tools are (normally) not already initialized when running in analysis mode
-    if (!m_tools.at(i)->initialize()) {
-      // TODO output some kind of error message before returning
+    if (m_tools.at(i)->initialize().isFailure()) {
+      ATH_MSG_ERROR("Failed initializing tool "<<m_tools.at(i)->name());
       return StatusCode::FAILURE;
     }
   }
 
-#endif //XAOD_ANALYSIS
+#endif //ROOTCORE
 
   //-------------------------------------------------------------------------
   // No tools allocated!
@@ -105,6 +115,7 @@ StatusCode TauProcessorTool::initialize(){
     sc = itT->retrieve();
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
+      return StatusCode::FAILURE;
     } else {
       ++tool_count;
       ATH_MSG_INFO((*itT)->name());
@@ -137,42 +148,19 @@ StatusCode TauProcessorTool::execute(){
     //-------------------------------------------------------------------------
     // In AODMode, deep copy all PFOs BEFORE reading in tau
     //-------------------------------------------------------------------------
-    if(m_deep_copy_SecVtxContainer){
-      xAOD::VertexContainer* pSecVtxContainer(0);
-      xAOD::VertexAuxContainer* pSecVtxAuxContainer(0);
-      xAOD::Vertex* v(0);
-      ATH_CHECK(deepCopy(pSecVtxContainer, pSecVtxAuxContainer, v, "TauSecondaryVertices"));
-    }
-    if(m_deep_copy_TauTrackContainer){
-      xAOD::TauTrackContainer* pTrackContainer(0);
-      xAOD::TauTrackAuxContainer* pTauTrackAuxContainer(0);
-      xAOD::TauTrack* v(0);
-      ATH_CHECK(deepCopy(pTrackContainer, pTauTrackAuxContainer, v, "TauTracks"));
-    }
+    if(m_deep_copy_SecVtxContainer)
+      DEEPCOPY(Vertex,TauSecondaryVertices);
+    if(m_deep_copy_TauTrackContainer)
+      DEEPCOPY(TauTrack,TauTracks);
+    if(m_deep_copy_neutralPFOContainer)
+      DEEPCOPY(PFO,TauNeutralParticleFlowObjects);
+    if(m_deep_copy_hadronicPFOContainer)
+      DEEPCOPY(PFO,TauHadronicParticleFlowObjects);
+    if(m_deep_copy_chargedPFOContainer)
+      DEEPCOPY(PFO,TauChargedParticleFlowObjects);
+    if(m_deep_copy_tauShotPFOContainer)
+      DEEPCOPY(PFO,TauShotParticleFlowObjects);
 
-    if(m_deep_copy_neutralPFOContainer){
-      xAOD::PFOContainer* neutralPFOContainer(0);
-      xAOD::PFOAuxContainer* neutralPFOAuxStore(0);
-      xAOD::PFO* p(0);
-      //container name hard-coded, but configurable in tool where objects are created in core reco
-      ATH_CHECK(deepCopy(neutralPFOContainer, neutralPFOAuxStore, p, "TauNeutralParticleFlowObjects"));
-    }
-
-    if(m_deep_copy_hadronicPFOContainer){
-      xAOD::PFOContainer* hadronicPFOContainer(0);
-      xAOD::PFOAuxContainer* hadronicPFOAuxStore(0);
-      xAOD::PFO* p(0);
-      //container name hard-coded, but configurable in tool where objects are created in core reco
-      ATH_CHECK(deepCopy(hadronicPFOContainer, hadronicPFOAuxStore, p, "TauHadronicParticleFlowObjects"));
-    }
-
-    if(m_deep_copy_chargedPFOContainer){
-      xAOD::PFOContainer* chargedPFOContainer(0);
-      xAOD::PFOAuxContainer* chargedPFOAuxStore(0);
-      xAOD::PFO* p(0);
-      //container name hard-coded, but configurable in tool where objects are created in core reco
-      ATH_CHECK(deepCopy(chargedPFOContainer, chargedPFOAuxStore, p, "TauChargedParticleFlowObjects"));
-    }
     //-------------------------------------------------------------------------
     // End pre-tau reading operations
     //-------------------------------------------------------------------------
@@ -218,12 +206,120 @@ StatusCode TauProcessorTool::execute(){
   xAOD::TauJetContainer* pContainer = const_cast<xAOD::TauJetContainer*> (pContainerOriginal);
   xAOD::TauJetAuxContainer* pAuxContainer = const_cast<xAOD::TauJetAuxContainer*> (pAuxContainerOriginal);
 
-  if(m_AODmode){
+  if(m_AODmode&&m_deep_copy_TauJetContainer){
     pContainer=0;
     pAuxContainer=0;
     xAOD::TauJet* tau(0);
     ATH_CHECK(deepCopy(pContainer, pAuxContainer, tau, m_tauContainerName, m_tauAuxContainerName));
   }
+
+#ifdef XAOD_ANALYSIS //perhaps this should be ROOTCORE
+
+  typedef std::vector< ElementLink< xAOD::PFOContainer > >  PFOLinks_t;
+  const xAOD::PFOContainer* hadronicPFOs(0);
+  const xAOD::PFOContainer* chargedPFOs(0);
+  const xAOD::PFOContainer* neutralPFOs(0);
+  //  const xAOD::PFOContainer* shotPFOs(0);
+
+  if(evtStore()->contains<xAOD::PFOContainer>("TauHadronicParticleFlowObjectsFix"))
+    ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjectsFix"));
+  else
+    ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjects"));
+
+  if(evtStore()->contains<xAOD::PFOContainer>("TauChargedParticleFlowObjectsFix"))
+    ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjectsFix"));
+  else
+    ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjects"));
+
+  if(evtStore()->contains<xAOD::PFOContainer>("TauNeutralParticleFlowObjectsFix"))
+    ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjectsFix"));
+  else
+    ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjects"));
+
+  // if(evtStore()->contains<xAOD::PFOContainer>("TauShotParticleFlowObjectsFix"))
+  //   ATH_CHECK(evtStore()->retrieve(shotPFOs, "TauShotParticleFlowObjectsFix"));
+  // else
+  //   ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauShotParticleFlowObjects"));
+
+
+  for(xAOD::TauJet* tau : *pContainer ) {    
+
+    const PFOLinks_t hadronicPFOLinks=tau->hadronicPFOLinks();
+    PFOLinks_t new_hadronicPFOLinks;
+    for( auto link : hadronicPFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *hadronicPFOs, hadronicPFOs->at(link.index()) );
+      new_hadronicPFOLinks.push_back(new_link);
+    }
+    tau->setHadronicPFOLinks(new_hadronicPFOLinks);    
+
+    const PFOLinks_t chargedPFOLinks=tau->chargedPFOLinks();
+    PFOLinks_t new_chargedPFOLinks;
+    for( auto link : chargedPFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
+      new_chargedPFOLinks.push_back(new_link);
+    }
+    tau->setChargedPFOLinks(new_chargedPFOLinks);    
+
+    const PFOLinks_t neutralPFOLinks=tau->neutralPFOLinks();
+    PFOLinks_t new_neutralPFOLinks;
+    for( auto link : neutralPFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+      new_neutralPFOLinks.push_back(new_link);
+    }
+    tau->setNeutralPFOLinks(new_neutralPFOLinks);    
+
+    const PFOLinks_t pi0PFOLinks=tau->pi0PFOLinks();
+    PFOLinks_t new_pi0PFOLinks;
+    for( auto link : pi0PFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+      new_pi0PFOLinks.push_back(new_link);
+    }
+    tau->setPi0PFOLinks(new_pi0PFOLinks);    
+
+    const PFOLinks_t protoChargedPFOLinks=tau->protoChargedPFOLinks();
+    PFOLinks_t new_protoChargedPFOLinks;
+    for( auto link : protoChargedPFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
+      new_protoChargedPFOLinks.push_back(new_link);
+    }
+    tau->setProtoChargedPFOLinks(new_protoChargedPFOLinks);    
+
+    const PFOLinks_t protoNeutralPFOLinks=tau->protoNeutralPFOLinks();
+    PFOLinks_t new_protoNeutralPFOLinks;
+    for( auto link : protoNeutralPFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+      new_protoNeutralPFOLinks.push_back(new_link);
+    }
+    tau->setProtoNeutralPFOLinks(new_protoNeutralPFOLinks);    
+
+    const PFOLinks_t protoPi0PFOLinks=tau->protoPi0PFOLinks();
+    PFOLinks_t new_protoPi0PFOLinks;
+    for( auto link : protoPi0PFOLinks ){
+      ElementLink< xAOD::PFOContainer > new_link;
+      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
+      new_protoPi0PFOLinks.push_back(new_link);
+    }
+    tau->setProtoPi0PFOLinks(new_protoPi0PFOLinks);    
+
+    // const PFOLinks_t shotPFOLinks=tau->shotPFOLinks();
+    // PFOLinks_t new_shotPFOLinks;
+    // for( auto link : shotPFOLinks ){
+    //   ElementLink< xAOD::PFOContainer > new_link;
+    //   new_link.toContainedElement( *shotPFOs, shotPFOs->at(link.index()) );
+    //   new_shotPFOLinks.push_back(new_link);
+    // }
+    // tau->setShotPFOLinks(new_shotPFOLinks);    
+
+
+  }
+
+#endif
 
   m_data.xAODTauContainer = pContainer;
   m_data.tauAuxContainer = pAuxContainer;
@@ -479,7 +575,7 @@ StatusCode TauProcessorTool::readConfig() {
       ATH_MSG_FATAL("Couldn't allocate " << toolType << " Is there a default constructor?");
       return StatusCode::FAILURE;      
     }
-#ifdef XAOD_ANALYSIS
+#ifdef ROOTCORE
     asg::ToolStore::remove(toolType);// name of tool is name of class, in case we want multiple instances in store, 
     //remove instance, rename tool, and put tool back in store
     tool->setName(toolName);
@@ -489,7 +585,7 @@ StatusCode TauProcessorTool::readConfig() {
 
     // Set the configuration path for the tool
     asg::AsgTool* asg_tool = dynamic_cast<asg::AsgTool*> (tool);
-    if (!asg_tool->setProperty("ConfigPath", toolConfigPath).isSuccess()) {
+    if (asg_tool && !asg_tool->setProperty("ConfigPath", toolConfigPath).isSuccess()) {
       // TODO output some kind of error message before returning
       ATH_MSG_FATAL("Tool should have ConfigPath defined");
       return StatusCode::FAILURE;

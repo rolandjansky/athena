@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TauVertexFinder.h"
 
 #include "VxVertex/RecVertex.h"
@@ -222,3 +223,4 @@ bool TauVertexFinder::retrieveTool(T & tool) {
   }
   return true;
 }
+#endif

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #ifndef TAUREC_TAUTRACKFINDER_H
 #define TAUREC_TAUTRACKFINDER_H
 
@@ -35,7 +36,7 @@ namespace Trk {
  * @author Felix Friedrich
  */
 
-class TauTrackFinder : virtual public TauRecToolBase {
+class TauTrackFinder : public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor and Destructor
@@ -148,6 +149,12 @@ private:
     bool m_bypassExtrapolator;
 
     //-------------------------------------------------------------
+    // Sets of EM/Had samplings for track extrapolation 
+    //-------------------------------------------------------------
+    std::set<CaloSampling::CaloSample> m_EMSamplings;
+    std::set<CaloSampling::CaloSample> m_HadSamplings;
+
+    //-------------------------------------------------------------
     //! Convenience functions to handle storegate objects
     //-------------------------------------------------------------
     template <class T>
@@ -158,4 +165,5 @@ private:
 
 };
 
-#endif
+#endif //TAUREC_TAUTRACKFINDER_H
+#endif //XAOD_ANALYSIS

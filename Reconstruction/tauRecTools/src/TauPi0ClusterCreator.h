@@ -20,7 +20,7 @@ using std::vector;
  * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0ClusterCreator : virtual public TauRecToolBase {
+class TauPi0ClusterCreator : public TauRecToolBase {
 public:
     TauPi0ClusterCreator(const std::string& name) ;
     ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);

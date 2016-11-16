@@ -17,7 +17,7 @@
  * @author Felix Friedrich
  */
 
-class TauCommonCalcVars : virtual public TauRecToolBase {
+class TauCommonCalcVars : public TauRecToolBase {
 public:
     //-----------------------------------------------------------------
     // Constructor and destructor
