@@ -36,14 +36,15 @@
 
 #include <string>
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
+#include "CaloEvent/CaloCell2ClusterMap.h"
 
 class ICalorimeterNoiseTool;
 class StoreGateSvc;
 
-class CaloTopoTowerAlg : public AthAlgorithm
+class CaloTopoTowerAlg : public AthReentrantAlgorithm
 {
  public:
 
@@ -54,41 +55,41 @@ class CaloTopoTowerAlg : public AthAlgorithm
   virtual ~CaloTopoTowerAlg();
 
   /// initialize
-  virtual  StatusCode  initialize();
+  virtual  StatusCode  initialize() override;
 
   /// finalize   
-  virtual  StatusCode  finalize();
+  virtual  StatusCode  finalize() override;
   
   /// Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
 
-  private:
- 
-    // Container name strings
-    std::string m_cellToClusterMapName;
-    std::string m_cellContainerName;
-    std::string m_towerContainerName;
-    std::string m_newTowerContainerName;
+private:
+  // Container name strings
+  SG::ReadHandleKey<CaloCell2ClusterMap> m_cellToClusterMapKey;
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey;
+  SG::ReadHandleKey<CaloTowerContainer> m_towerContainerKey;
+  SG::WriteHandleKey<CaloTowerContainer> m_newTowerContainerKey;
 
-    // Selection criteria
-    double m_minimumCellEnergy;
-    double m_minimumClusterEnergy;
-    bool   m_useCellWeights;
+  // Selection criteria
+  double m_minimumCellEnergy;
+  double m_minimumClusterEnergy;
+  bool   m_useCellWeights;
    
-    // Noise tool stuff
-    bool m_useNoiseTool;
-    bool m_usePileUpNoise;
-    ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-    float m_noiseSigma;
-    float m_cellESignificanceThreshold; 
+  // Noise tool stuff
+  bool m_useNoiseTool;
+  bool m_usePileUpNoise;
+  // FIXME: mutable
+  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  float m_noiseSigma;
+  float m_cellESignificanceThreshold; 
  
-    // Type definitions 
-    typedef Navigable<CaloClusterContainer>           nav_t;
+  // Type definitions 
+  typedef Navigable<CaloClusterContainer>           nav_t;
     
-    // List of calorimeters from which to use cells
-    std::vector<std::string> m_includedCalos;
-    std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
-    bool m_caloSelection;
+  // List of calorimeters from which to use cells
+  std::vector<std::string> m_includedCalos;
+  std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
+  bool m_caloSelection;
   
 };
 #endif

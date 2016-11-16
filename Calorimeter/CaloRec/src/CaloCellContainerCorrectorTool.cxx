@@ -14,7 +14,7 @@ PURPOSE:  Apply cell correction to CaloCellContainer
 
 ********************************************************************/
 
-#include "CaloRec/CaloCellContainerCorrectorTool.h"
+#include "CaloCellContainerCorrectorTool.h"
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
@@ -60,7 +60,7 @@ StatusCode CaloCellContainerCorrectorTool::initialize() {
   //Retrieve tools
   StatusCode sc = m_cellCorrectionTools.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve tools " << m_cellCorrectionTools << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve tools " << m_cellCorrectionTools << endmsg;
     } 
 
   unsigned int nSubCalo=static_cast<unsigned int>(CaloCell_ID::NSUBCALO) ;
@@ -68,11 +68,11 @@ StatusCode CaloCellContainerCorrectorTool::initialize() {
   //check calo number specified
   m_caloSelection = true ;
   if (m_caloNums.size()==0) {
-    msg(MSG::WARNING) << " no calo specified for correction. Will do nothing. " << endreq;
+    msg(MSG::WARNING) << " no calo specified for correction. Will do nothing. " << endmsg;
     return StatusCode::SUCCESS;
   } else if  (m_caloNums.size()>nSubCalo ) {
     msg(MSG::ERROR) << " More than " 
-		    << nSubCalo << " calo specified. Must be wrong. Stop." << endreq;
+		    << nSubCalo << " calo specified. Must be wrong. Stop." << endmsg;
     return StatusCode::FAILURE;
   }  else if  (m_caloNums.size()==1 && m_caloNums[0]==static_cast<int>(nSubCalo)) {
     m_caloSelection = false ;
@@ -80,7 +80,7 @@ StatusCode CaloCellContainerCorrectorTool::initialize() {
   } else {
     for (unsigned int index=0; index < m_caloNums.size() ; ++index) {
       if (m_caloNums[index]<0 || m_caloNums[index]>=static_cast<int>(nSubCalo) ) {
-	msg(MSG::ERROR) << "Invalid calo specification:" << m_caloNums[index] << "Stop." << endreq ;
+	msg(MSG::ERROR) << "Invalid calo specification:" << m_caloNums[index] << "Stop." << endmsg ;
 	return StatusCode::FAILURE;
       } else {
 	ATH_MSG_INFO("Correction will be applied on calo:" << static_cast<int>(m_caloNums[index]));
@@ -103,7 +103,7 @@ StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
     
     StatusCode sc = processOnCellIterators(itrCellBeg, itrCellEnd );
     if (sc.isFailure()) 
-      msg(MSG::WARNING) << "Failure from processOnCellIterators" << endreq ;
+      msg(MSG::WARNING) << "Failure from processOnCellIterators" << endmsg ;
   }else {
     // selection mode 
 
@@ -117,14 +117,14 @@ StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
       if (!theCont->hasCalo(caloNum))
       {
 	msg(MSG::WARNING) << " Attempt to apply correction but CaloCellContainer has not been filled for this calo : " 
-	    << *itrCalo << endreq ;
+	    << *itrCalo << endmsg ;
       } else 
       {
 	StatusCode sc=processOnCellIterators(itrCellBeg, itrCellEnd );
 	if (sc.isFailure()) 
 	  msg(MSG::WARNING) << "Failure from processOnCellIterators for calo "
 	      << static_cast<int> (caloNum)
-	      << endreq ;
+	      << endmsg ;
 
       }
 	  

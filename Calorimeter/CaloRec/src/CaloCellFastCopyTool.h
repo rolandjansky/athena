@@ -106,7 +106,7 @@ class CaloCellFastCopyTool: public AthAlgTool,
     COPY_CELLS m_copyCells;
     COPY_CONST_CELLS m_copyConstCells;
 
-    std::string m_srcCellContainerName;  // name of input CaloCellContainer
+    SG::ReadHandleKey<CaloCellContainer> m_srcCellContainerKey;
     bool m_avoidDuplicates;
     bool m_isFindCellFast;
     IdentifierHash m_hashMax;

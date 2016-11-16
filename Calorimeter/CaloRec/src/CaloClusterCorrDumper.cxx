@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------
 
 
-#include "CaloRec/CaloClusterCorrDumper.h"
+#include "CaloClusterCorrDumper.h"
 //#include "GaudiKernel/ISvcLocator.h"
 //#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -48,8 +48,6 @@ StatusCode CaloClusterCorrDumper::execute() {
 
 StatusCode CaloClusterCorrDumper::initialize()
 {
-  MsgStream log(messageService(), name());
-
   //Get ToolSvc  
   IToolSvc*     p_toolSvc;
   CHECK( service("ToolSvc", p_toolSvc) );
@@ -88,11 +86,10 @@ StatusCode CaloClusterCorrDumper::initialize()
 }
 
 StatusCode CaloClusterCorrDumper::finalize() {
-  MsgStream log(messageService(), name());
   std::ofstream file;
   file.open(m_fileName.c_str(),std::ios::app);
   if (!file.is_open()) {
-    log << MSG::FATAL << "Failed to open file named " << m_fileName << endreq;
+    ATH_MSG_FATAL( "Failed to open file named " << m_fileName  );
     return StatusCode::FAILURE;
   }
 

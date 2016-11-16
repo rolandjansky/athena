@@ -19,8 +19,8 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloRec/CaloTopoSplitterHashCluster.h"
-#include "CaloRec/CaloTopoSplitterClusterCell.h"
+#include "CaloTopoSplitterHashCluster.h"
+#include "CaloTopoSplitterClusterCell.h"
 
 
 //----------------------------

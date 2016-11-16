@@ -14,7 +14,7 @@ PURPOSE:  check integrity of CaloCellContainer find and iterators
 
 ********************************************************************/
 
-#include "CaloRec/CaloCellContainerCheckerTool.h"
+#include "CaloCellContainerCheckerTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloConstCellContainer.h"
@@ -113,11 +113,11 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
 
     if (aCell->e()!=0 && std::abs(aCell->eta()-aPeta)>0.0001) {
       msg(MSG::WARNING) << "Cell " << index << " eta inconsistency : " << aCell->eta() 
-	  << " vs recalculated " << aPeta << endreq ;
+	  << " vs recalculated " << aPeta << endmsg ;
     }
     if (aCell->e()!=0 && std::abs(aCaloPhiRange.diff(aCell->phi(),aPphi))>0.0001) {
       msg(MSG::WARNING) << "Cell " << index << " phi inconsistency : " << aCell->phi() 
-	  << " vs recalculated " << aPphi << endreq ;
+	  << " vs recalculated " << aPphi << endmsg ;
     }
 	    
 
@@ -131,7 +131,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
 			<< " hash id " << theDDE->calo_hash()
 			<< " eta " << theDDE->eta()
 			<< " phi " << theDDE->phi()
-			<< " e " << aCell->e() << endreq ;
+			<< " e " << aCell->e() << endmsg ;
       ++index;
     }
   }
@@ -141,7 +141,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
     if (nCellCalos[iCalo]>0 && !theCont->hasCalo(static_cast<CaloCell_ID::SUBCALO>(iCalo) ) ) 
     {
       msg(MSG::WARNING) << " There are cells for calo " 
-			<< iCalo << " but hasCalo is not set. " << endreq ;
+			<< iCalo << " but hasCalo is not set. " << endmsg ;
     }
   }
     
@@ -171,7 +171,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
 		      << " theNCellCalo="<<theNCellCalo
 		      <<" nCellCalos[iCalo]=" <<nCellCalos[iCalo] 
 		      <<" theCont->nCellsCalo(enumCalo)=" << theCont->nCellsCalo(enumCalo) 
-		      << endreq;
+		      << endmsg;
       returnSc = StatusCode::FAILURE;
     }
       
@@ -183,7 +183,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
       msg(MSG::ERROR) << " Non const iterators: E sum do not match"
 		      << " subcalo " <<  iCalo
 		      << " should be " << eSumCalos[iCalo]
-		      << " is " << theESumCalo <<" (" << theESumCalo-eSumCalos[iCalo] << ")" << endreq ;
+		      << " is " << theESumCalo <<" (" << theESumCalo-eSumCalos[iCalo] << ")" << endmsg ;
       returnSc = StatusCode::FAILURE;      
     }
 
@@ -213,7 +213,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
 	const int sample=theCaloCCIDM->sample(id);
 	msg(MSG::VERBOSE) << "Cell not found: id=0x" << std::hex << id << std::dec 
 			  << ", SubCalo=" <<subcalo <<", sampling="<< sampling << ", pos_neg=" 
-			  << pos_neg << ", region=" << region << ", sample=" << sample << endreq;
+			  << pos_neg << ", region=" << region << ", sample=" << sample << endmsg;
       }//end if verbose
     }//end if cell==0
   }//end loop over hashes
@@ -245,7 +245,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
       msg(MSG::ERROR) << index << "Cell " << theHash << " " << *itrCell
 		      << " not found back " << reCell 
 		      << " reCaloDDE " << reCaloDDE
-		      << " rehash " << reHash << endreq ;
+		      << " rehash " << reHash << endmsg ;
       returnSc = StatusCode::FAILURE;
     }
     ++index;
@@ -259,7 +259,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
   theCont->findCellVector(hashes,foundCells);
   
   if (hashes.size()!=foundCells.size()){
-    msg(MSG::ERROR) << "number of cells to be found " << hashes.size() << "number found: " << foundCells.size() << endreq ; 
+    msg(MSG::ERROR) << "number of cells to be found " << hashes.size() << "number found: " << foundCells.size() << endmsg ; 
     returnSc = StatusCode::FAILURE;
   }
 
@@ -271,7 +271,7 @@ CaloCellContainerCheckerTool::doProcess(const CaloCellContainer * theCont )
   
  
   if (std::abs(reSumFound-eSumFound)>10 * MeV ){ 
-    msg(MSG::ERROR) << "Found cells wrong E sum " << reSumFound << " instead of " << eSumFound << endreq ;
+    msg(MSG::ERROR) << "Found cells wrong E sum " << reSumFound << " instead of " << eSumFound << endmsg ;
     returnSc = StatusCode::FAILURE;
   }
 

@@ -4,9 +4,9 @@
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
-#include "CaloRec/CaloClusterSnapshot.h"
+#include "CaloClusterSnapshot.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CaloRec/CaloClusterMaker.h"
+#include "CaloClusterMaker.h"
 
 // -------------------------------------------------------------
 // Constructor 
@@ -15,10 +15,11 @@ CaloClusterSnapshot::CaloClusterSnapshot(const std::string& type,
 				   const std::string& name,
 				   const IInterface* parent):
   AthAlgTool(type, name, parent),
+  m_outputKey(""),
   m_finalContName(nullptr)
 { 
   declareInterface<CaloClusterCollectionProcessor> (this);
-  declareProperty("OutputName",m_outputName);
+  declareProperty("OutputName",m_outputKey);
   declareProperty("SetCrossLinks",m_setCrossLinks=false);
   
 }
@@ -34,21 +35,27 @@ StatusCode CaloClusterSnapshot::initialize() {
   if (m_setCrossLinks) {
     const CaloClusterMaker* parentAlgo=dynamic_cast<const CaloClusterMaker*>(parent());
     if (!parentAlgo) {
-      msg(MSG::WARNING) << "Configuration problem. Parent is not CaloClusterMaker. Can't set ElementLink to final cluster." << endreq;
+      ATH_MSG_WARNING( "Configuration problem. Parent is not CaloClusterMaker. Can't set ElementLink to final cluster."  );
     }
     m_finalContName=&(parentAlgo->getOutputContainerName());
   }
-  
+  CHECK(m_outputKey.initialize());
   return StatusCode::SUCCESS;
 
 }
 
 
-StatusCode CaloClusterSnapshot::execute(xAOD::CaloClusterContainer* clusColl) {
+StatusCode
+CaloClusterSnapshot::execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* clusColl) const
+{
   ATH_MSG_DEBUG("Executing CaloClusterSnapshot");
   
-  xAOD::CaloClusterContainer* outputColl=CaloClusterStoreHelper::makeContainer(&(*evtStore()),m_outputName,msg());
-  CaloClusterStoreHelper::copyContainer(clusColl,outputColl);
+  SG::WriteHandle<xAOD::CaloClusterContainer>  outputColl(m_outputKey, ctx);
+  
+  CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),outputColl,msg()));
+  
+  CaloClusterStoreHelper::copyContainer(clusColl,outputColl.ptr());
 
   if (m_setCrossLinks) {
     const size_t nClusters=clusColl->size();
@@ -58,14 +65,17 @@ StatusCode CaloClusterSnapshot::execute(xAOD::CaloClusterContainer* clusColl) {
     }
 
     //final cluster to snapshot:
+    typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
+    ClusterLink_t outputEL (outputColl.name(), 0, ctx);
     for (size_t i=0;i<nClusters;++i) {
-      (*clusColl)[i]->setSisterCluster(m_outputName,i);
+      (*clusColl)[i]->setSisterClusterLink(ClusterLink_t(outputEL, i));
     }
 
     //From snapshot to final cluster
     if (m_finalContName) {
+       ClusterLink_t finalEL (*m_finalContName, 0, ctx);
        for (size_t i=0;i<nClusters;++i) {
-	 (*outputColl)[i]->setSisterCluster(*m_finalContName,i);
+	 (*outputColl)[i]->setSisterClusterLink(ClusterLink_t(finalEL, i));
 	 //	 std::cout << "Setting link to " << *m_finalContName << ", index "<< i <<std::endl;
        }
     }
@@ -74,7 +84,7 @@ StatusCode CaloClusterSnapshot::execute(xAOD::CaloClusterContainer* clusColl) {
   }
 
   
-  CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),outputColl, m_outputName, msg()));
+  CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),outputColl.ptr(), outputColl.name(), msg()));
 
   
   return StatusCode::SUCCESS;

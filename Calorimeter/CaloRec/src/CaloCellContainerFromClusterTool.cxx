@@ -18,7 +18,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Calo includes
-#include "CaloRec/CaloCellContainerFromClusterTool.h"
+#include "CaloCellContainerFromClusterTool.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -57,7 +57,7 @@ StatusCode CaloCellContainerFromClusterTool::initialize() {
     for (const std::string& clusterName : m_caloClusterNameSet) 
       msg(MSG::INFO) << clusterName << ", ";    
 
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << endmsg;
   }
 
   // check sampling names set in properties

@@ -15,7 +15,7 @@ CREATED:  Sep 2005
 
 //#include "CaloUtils/CaloClusterStoreHelper.h"
 
-#include "CaloRec/CaloClusterCopier.h"
+#include "CaloClusterCopier.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -31,11 +31,11 @@ CaloClusterCopier::CaloClusterCopier(const std::string& type,
 				   const std::string& name,
 				   const IInterface* parent):
   AthAlgTool(type, name, parent),
-  m_clustersName(""),
+  m_clustersKey(""),
   m_copyCells(true),m_useClusterPosition(false),m_etCut(-1.), m_clusterSize(xAOD::CaloCluster_v1::CSize_Unknown)
 { 
   declareInterface<CaloClusterCollectionProcessor> (this);
-  declareProperty("ClustersName",m_clustersName);
+  declareProperty("ClustersName",m_clustersKey);
   declareProperty("CopyCells",m_copyCells);
   declareProperty("UseClusterPosition",m_useClusterPosition);
   declareProperty("etCut",m_etCut);
@@ -49,27 +49,28 @@ CaloClusterCopier::~CaloClusterCopier()
 
 StatusCode CaloClusterCopier::initialize() {
 
-  msg() << MSG::INFO << " Careful: CaloClusterCopier only copy eta0 phi0" << endreq ;
+  ATH_MSG_INFO( " Careful: CaloClusterCopier only copy eta0 phi0"  );
   
   if (!m_copyCells){
-    msg() << MSG::INFO << " Do not copy cells " << endreq ;
-//    log << MSG::ERROR << " CopyCell=False : Possibility to copy cluster without cells not implemented yet. Ignored." << endreq ;
+    ATH_MSG_INFO( " Do not copy cells "  );
+    //    ATH_MSG_ERROR( " CopyCell=False : Possibility to copy cluster without cells not implemented yet. Ignored."  );
     
   } else {
-    msg() << MSG::WARNING << " Copy of cluster with cells not well tested " << endreq ;
+    ATH_MSG_WARNING( " Copy of cluster with cells not well tested "  );
   }
-  
+  ATH_CHECK(m_clustersKey.initialize());
   
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode CaloClusterCopier::execute(xAOD::CaloClusterContainer* clusColl) {
+StatusCode
+CaloClusterCopier::execute(const EventContext& ctx,
+                           xAOD::CaloClusterContainer* clusColl) const
+{
   ATH_MSG_DEBUG("Executing CaloClusterCopier");
-
-  const xAOD::CaloClusterContainer* inputContainer; 
-  CHECK(evtStore()->retrieve(inputContainer,m_clustersName));
-
+  SG::ReadHandle<xAOD::CaloClusterContainer> inputContainer( m_clustersKey, ctx);
+  
   xAOD::CaloClusterContainer::const_iterator it = inputContainer->begin();
   xAOD::CaloClusterContainer::const_iterator it_e = inputContainer->end();
   for(; it!=it_e;++it) {

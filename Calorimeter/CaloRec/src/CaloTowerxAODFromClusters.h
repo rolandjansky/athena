@@ -7,7 +7,8 @@
 #ifndef CALOREC_CALOTOWERXAODFROMCLUSTERS_H
 #define CALOREC_CALOTOWERXAODFROMCLUSTERS_H
 
-#include "CaloRec/CaloTowerxAODAlgoBase.h"
+#include "CaloTowerxAODAlgoBase.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 class CaloTowerxAODFromClusters : public CaloTowerxAODAlgoBase
 {
@@ -21,20 +22,20 @@ public:
   CaloTowerxAODFromClusters(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// @brief Baseclass destructor
-  ~CaloTowerxAODFromClusters();
+  virtual ~CaloTowerxAODFromClusters();
 
   /// @name @c AthAlgorithm interface implementation
   /// @{
-  virtual StatusCode initialize();     ///< @brief Initialize algorithm
-  virtual StatusCode execute();        ///< @brief Execute algorithm
-  virtual StatusCode finalize();       ///< @brief Finalize algorithm
+  virtual StatusCode initialize() override;     ///< @brief Initialize algorithm
+  virtual StatusCode execute_r(const EventContext&) const override;        ///< @brief Execute algorithm
+  virtual StatusCode finalize() override;       ///< @brief Finalize algorithm
   /// @}
 
 private:
 
   /// @name Algorithm properties
   /// @{
-  std::string m_inputClusterContainerKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterContainerKey;
   /// @}
 
 };

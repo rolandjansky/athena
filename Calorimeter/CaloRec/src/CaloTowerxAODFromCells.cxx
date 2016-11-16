@@ -3,7 +3,7 @@
 */
 
 
-#include "CaloRec/CaloTowerxAODFromCells.h"
+#include "CaloTowerxAODFromCells.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -18,11 +18,12 @@
 
 CaloTowerxAODFromCells::CaloTowerxAODFromCells(const std::string& name,ISvcLocator* pSvcLocator)
   : CaloTowerxAODAlgoBase(name,pSvcLocator)
+  , m_inputCellContainerKey("AllCalo")
   , m_cellThresholdE(std::numeric_limits<float>::min())
     //, m_useThresholdE(false)
   , m_filterCells(false)
 {
-  declareProperty("InputCellContainer", m_inputCellContainerKey="AllCalo");
+  declareProperty("InputCellContainer", m_inputCellContainerKey);
   declareProperty("CellEnergyThreshold", m_cellThresholdE);
 }
 
@@ -32,7 +33,7 @@ CaloTowerxAODFromCells::~CaloTowerxAODFromCells()
 StatusCode CaloTowerxAODFromCells::initialize() {
 
   m_filterCells=(m_cellThresholdE!=std::numeric_limits<float>::min());
-  
+  ATH_CHECK(m_inputCellContainerKey.initialize());
 
   // process modes
   if ( m_filterCells ) { 
@@ -44,21 +45,23 @@ StatusCode CaloTowerxAODFromCells::initialize() {
   return initBase();
 }
 
-StatusCode CaloTowerxAODFromCells::execute() { 
-
-  const CaloCellContainer* inputCellContainer=0;
-  if (evtStore()->retrieve(inputCellContainer,m_inputCellContainerKey).isFailure()) {
-    msg(MSG::ERROR) << "Can't retrieve CaloCellContainer with key " << m_inputCellContainerKey << endreq;
+StatusCode CaloTowerxAODFromCells::execute_r(const EventContext& ctx) const
+{ 
+  SG::ReadHandle<CaloCellContainer> inputCellContainer(m_inputCellContainerKey, ctx);
+  if (!inputCellContainer.isValid()) {
+    ATH_MSG_ERROR( "Can't retrieve CaloCellContainer with key " << inputCellContainer.name()  );
     return StatusCode::FAILURE;
   }
 
-  // make xAOD::CaloTowerContainer (base-class functionality)
-  xAOD::CaloTowerContainer* caloTowerContainer=this->makeContainer();
+  SG::WriteHandle<xAOD::CaloTowerContainer> caloTowerContainer =
+    this->makeContainer(ctx);
+  if (!caloTowerContainer.isValid())
+    return StatusCode::FAILURE;
 
   const size_t nCell2Tower=m_cellToTower.size();
   if (nCell2Tower<inputCellContainer->size()) {
-    msg(MSG::ERROR) << "Number of cells larger than size of internal cell2tower cache. nCells=" 
-		    << inputCellContainer->size() <<  ", cell2tower size=" << nCell2Tower << endreq;
+    ATH_MSG_ERROR( "Number of cells larger than size of internal cell2tower cache. nCells=" 
+                   << inputCellContainer->size() <<  ", cell2tower size=" << nCell2Tower  );
     return StatusCode::FAILURE;
   }
 
@@ -69,14 +72,14 @@ StatusCode CaloTowerxAODFromCells::execute() {
       const IdentifierHash cellHash=cell->caloDDE()->calo_hash();
       assert(cellHash<m_cellToTower.size());
       if (!(cellHash<m_cellToTower.size())) {
-	msg(MSG::ERROR) << "Cell2Tower mapping too small " << m_cellToTower.size() << ", expected at least" << cellHash << endreq;
-	 return StatusCode::FAILURE;
+	ATH_MSG_ERROR( "Cell2Tower mapping too small " << m_cellToTower.size() << ", expected at least" << cellHash  );
+        return StatusCode::FAILURE;
       }
       const auto& c2ts=m_cellToTower[cellHash];
       //Remember: A cell can contribute to more than one tower!
       for (const cellToTower_t& c2t : c2ts) {
 	if (c2t.m_towerIdx > caloTowerContainer->size()) {
-	  msg(MSG::ERROR) << "Tower container size too small " << caloTowerContainer->size() << ", expected at least" << c2t.m_towerIdx << endreq;
+	  ATH_MSG_ERROR( "Tower container size too small " << caloTowerContainer->size() << ", expected at least" << c2t.m_towerIdx  );
 	  return StatusCode::FAILURE;
 	}
 	(*caloTowerContainer)[c2t.m_towerIdx]->addEnergy(cell->e()*c2t.m_weight);

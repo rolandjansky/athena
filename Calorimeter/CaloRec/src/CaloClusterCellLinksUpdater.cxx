@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // Calo includes
-#include "CaloRec/CaloClusterCellLinksUpdater.h"
+#include "CaloClusterCellLinksUpdater.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
@@ -41,7 +41,7 @@ StatusCode CaloClusterCellLinksUpdater::initialize() {
     msg(MSG::INFO) << "Will update links for clusters in container(s): ";
     for (auto clusterName : m_caloClusterNameSet) 
       msg(MSG::INFO) << clusterName << ", ";    
-    msg(MSG::INFO) << "based on the CaloCellContainer " << m_newCaloCellName << endreq;
+    msg(MSG::INFO) << "based on the CaloCellContainer " << m_newCaloCellName << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -107,7 +107,7 @@ StatusCode CaloClusterCellLinksUpdater::execute() {
 	const int newIdx=cellCont->findIndex(cellHash);
 	if (newIdx<0) {
 	  msg(MSG::ERROR) << "Cell with hash " << cellHash << " not found in new cell container with key "  
-			  << m_newCaloCellName << endreq;
+			  << m_newCaloCellName << endmsg;
 	  return StatusCode::FAILURE; //FIXME: More robust handling
 	}
 	

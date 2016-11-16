@@ -22,19 +22,36 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 static const InterfaceID IID_CaloClusterCollectionProcessor ("CaloClusterCollectionProcessor", 1 , 0);
 
-class CaloClusterCollectionProcessor : virtual public IAlgTool {
-
+class CaloClusterCollectionProcessor
+  : virtual public IAlgTool
+{
 public:
 
   /**
    * @brief Execute on an entire collection of clusters.
-   * @param The container of clusters.
+   * @param collection The container of clusters.
+   * param ctx The event context.
    */
-  virtual StatusCode execute (xAOD::CaloClusterContainer* collection) = 0;
+  virtual StatusCode execute (const EventContext& ctx,
+                              xAOD::CaloClusterContainer* collection) const = 0;
 
+  
+  /**
+   * @brief Execute on an entire collection of clusters.
+   * @param collection The container of clusters.
+   * (deprecated)
+   */
+  virtual StatusCode execute (xAOD::CaloClusterContainer* collection) final
+  {
+    return execute (Gaudi::Hive::currentContext(), collection);
+  }
+
+  
   /**
    * @brief Standard Gaudi interface ID method.
    */

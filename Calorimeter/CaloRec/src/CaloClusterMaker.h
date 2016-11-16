@@ -25,23 +25,23 @@
  * former modify the entire cluster container, the latter just single
  * clusters.  */
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 
 class CaloClusterCellLinkContainer;
 class IChronoStatSvc;
 
-class CaloClusterMaker : public AthAlgorithm
+class CaloClusterMaker : public AthReentrantAlgorithm
 {
 
  public:
 
   CaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloClusterMaker();
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual ~CaloClusterMaker() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute_r(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
   const std::string& getOutputContainerName() const;
 

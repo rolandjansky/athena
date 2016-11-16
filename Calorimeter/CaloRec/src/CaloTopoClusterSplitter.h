@@ -56,8 +56,10 @@ class CaloTopoClusterSplitter: public AthAlgTool, virtual public CaloClusterColl
   CaloTopoClusterSplitter(const std::string& type, const std::string& name,
 			  const IInterface* parent);
   
-  StatusCode execute(xAOD::CaloClusterContainer* theClusters);
-  StatusCode initialize();
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusters) const override;
+  virtual StatusCode initialize() override;
 
   /** Callback added to handle Data-driven GeoModel initialisation
    */
@@ -156,9 +158,6 @@ class CaloTopoClusterSplitter: public AthAlgTool, virtual public CaloClusterColl
    * should roughly match the Moliere radius in the LArEM since here
    * the sharing of cells has the biggest use case. */
   float m_emShowerScale;
-
-  /** @brief produces intolerable amount of output if set to true */
-  bool m_doALotOfPrintoutInFirstEvent;
 
   /** 
    * @brief vector of names of the calorimeter samplings to consider.

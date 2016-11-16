@@ -3,8 +3,8 @@
 */
 
 
-#include "CaloRec/CaloTowerxAODFromClusters.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloTowerxAODFromClusters.h"
+
 
 #include "xAODCaloEvent/CaloTowerContainer.h"
 #include "xAODCaloEvent/CaloTowerAuxContainer.h"
@@ -25,23 +25,26 @@ CaloTowerxAODFromClusters::~CaloTowerxAODFromClusters()
 { }
 
 StatusCode CaloTowerxAODFromClusters::initialize() {
-  return initBase();
+  ATH_CHECK(m_inputClusterContainerKey.initialize());
+  ATH_CHECK( initBase() );
+  return StatusCode::SUCCESS;
 }
 
-StatusCode CaloTowerxAODFromClusters::execute()       
+StatusCode CaloTowerxAODFromClusters::execute_r(const EventContext& ctx) const
 { 
-  const xAOD::CaloClusterContainer* inputClusterContainer;
-  ATH_CHECK(evtStore()->retrieve(inputClusterContainer, m_inputClusterContainerKey));
+  SG::ReadHandle<xAOD::CaloClusterContainer> inputClusterContainer(m_inputClusterContainerKey, ctx);
 
-
-  xAOD::CaloTowerContainer* caloTowerContainer=this->makeContainer();
+  SG::WriteHandle<xAOD::CaloTowerContainer> caloTowerContainer =
+    this->makeContainer(ctx);
+  if (!caloTowerContainer.isValid())
+    return StatusCode::FAILURE;
   
   std::bitset< CALOTOWER_MAX_CELL_COUNT> addedCellsMap;
 
-  for (auto it_cluster : (*inputClusterContainer)) {
+  for (const xAOD::CaloCluster* it_cluster : *inputClusterContainer) {
     const CaloClusterCellLink* cellLinks=it_cluster->getCellLinks();
     if (!cellLinks) {
-      ATH_MSG_ERROR("Cluster without cell links found  in collection: " << m_inputClusterContainerKey);
+      ATH_MSG_ERROR("Cluster without cell links found  in collection: " << inputClusterContainer.name());
       return StatusCode::FAILURE;
     }
 

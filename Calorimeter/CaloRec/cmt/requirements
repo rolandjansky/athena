@@ -10,36 +10,36 @@ end_private
 use AtlasPolicy    AtlasPolicy-* 
 
 use GaudiInterface GaudiInterface-*    External
-use CxxUtils       CxxUtils-*          Control
 use StoreGate      StoreGate-*         Control
 use AthenaKernel   AthenaKernel-*      Control
 use AthenaBaseComps AthenaBaseComps-*  Control
-use CaloInterface  CaloInterface-*     Calorimeter
-use CaloUtils	   CaloUtils-*         Calorimeter
 use CaloEvent	   CaloEvent-*         Calorimeter
-use CaloIdentifier CaloIdentifier-*    Calorimeter
-use Identifier     Identifier-*        DetectorDescription
 use CaloConditions CaloConditions-*    Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-*           Database/AthenaPOOL
 use xAODCaloEvent  xAODCaloEvent-*     Event/xAOD
-use AtlasCLHEP AtlasCLHEP-* External
-use CaloDetDescr   CaloDetDescr-*      Calorimeter
-use CaloGeoHelpers CaloGeoHelpers-*    Calorimeter
-use LArElecCalib   LArElecCalib-*      LArCalorimeter
 
 
 private
 use AtlasROOT      AtlasROOT-*         External
 use AtlasAIDA	   AtlasAIDA-*         External
 use AtlasCORAL     AtlasCORAL-*        External
+use AtlasCLHEP     AtlasCLHEP-*        External
+use AtlasEigen	   AtlasEigen-*        External
+use CxxUtils       CxxUtils-*          Control
 use AthAllocators  AthAllocators-*     Control
 use SGTools        SGTools-*           Control
+use Identifier     Identifier-*        DetectorDescription
 use GeoModelInterfaces    GeoModelInterfaces-*       DetectorDescription/GeoModel
 use FourMom        FourMom-*           Event
 use NavFourMom     NavFourMom-*        Event
-use AtlasEigen	   AtlasEigen-*        External
 use EventKernel    EventKernel-*       Event
+use CaloGeoHelpers CaloGeoHelpers-*    Calorimeter
+use CaloDetDescr   CaloDetDescr-*      Calorimeter
+use CaloIdentifier CaloIdentifier-*    Calorimeter
+use CaloInterface  CaloInterface-*     Calorimeter
+use CaloUtils	   CaloUtils-*         Calorimeter
 use LArTools       LArTools-*          LArCalorimeter
+use LArElecCalib   LArElecCalib-*      LArCalorimeter
 
 end_private
 
@@ -68,4 +68,3 @@ end_private
 private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
-

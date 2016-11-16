@@ -56,7 +56,7 @@ Updated: Aug 25, 2014 (Evgenii Baldin)
 
 ********************************************************************/
 // INCLUDE HEADER FILES:
-#include "CaloRec/CaloClusterBuilderSW.h"
+#include "CaloClusterBuilderSW.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
@@ -104,7 +104,8 @@ CaloClusterBuilderSW::CaloClusterBuilderSW(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_neta(5), m_nphi(5), m_netap(-1), m_nphip(-1), 
     m_ethreshold(5.0 * GeV ),
-    m_towerContainer(0),
+    m_towerContainerKey(""),
+    m_cellContainerKey("AllCalo"),
     m_FillClusterCells(true),
     m_nextra(0),
     m_etaSeedGrid(5),m_phiSeedGrid(5),m_etaDuplicate(5),m_phiDuplicate(5)
@@ -113,8 +114,8 @@ CaloClusterBuilderSW::CaloClusterBuilderSW(const std::string& type,
 // Read the following properties from jobOptions File :
 // (If not found in jobOptions, the defaults are as given above)
 
-  declareProperty("TowerContainer",m_towerContainerName);
-  declareProperty("CaloCellContainer",m_cellContainerName="AllCalo");
+  declareProperty("TowerContainer",m_towerContainerKey);
+  declareProperty("CaloCellContainer",m_cellContainerKey);
   declareProperty("eta_size",m_neta);
   declareProperty("phi_size",m_nphi);
   declareProperty("eta_sizep",m_netap);
@@ -136,41 +137,35 @@ StatusCode CaloClusterBuilderSW::initialize()
 
   if(m_netap < 0 ) m_netap = m_neta; 
   if(m_nphip < 0 ) m_nphip = m_nphi; 
-
+  ATH_CHECK(m_towerContainerKey.initialize());
+  ATH_CHECK(m_cellContainerKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 // EXECUTE:
-StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
+StatusCode
+CaloClusterBuilderSW::execute(const EventContext& ctx,
+                              xAOD::CaloClusterContainer* clusColl) const
 {  
   ATH_MSG_DEBUG("Executing CaloClusterBuilderSW");
 
-  // int nhit=0;
-
   // Get the tower collection from TDS
+  SG::ReadHandle<CaloTowerContainer> towerContainer(m_towerContainerKey, ctx);
 
-  const CaloTowerContainer* towerContainer;
-  StatusCode sc = evtStore()->retrieve(towerContainer, m_towerContainerName);
-  if (sc.isFailure() || !towerContainer) {
-    msg(MSG::ERROR)
-	<< "Could not get towerContainer " << m_towerContainerName
-	<< endreq;
-      return StatusCode::FAILURE;
+  if (!towerContainer.isValid()) {
+    ATH_MSG_ERROR( "Could not get towerContainer " << towerContainer.name() );
+    return StatusCode::FAILURE;
   }
 
   if((m_FillClusterCells==false) && m_nextra>0){
-    msg(MSG::WARNING)
-        << "FillClusterCells = FALSE && nextra>0. nextra is meaningless quantity!!!"
-        << endreq;
+    ATH_MSG_WARNING( "FillClusterCells = FALSE && nextra>0. nextra is meaningless quantity!!!" );
   }
   
-  m_towerContainer = towerContainer;
-
   ATH_MSG_DEBUG("Tower container size " << towerContainer->size());
 
   const CaloTowerSeg& towerSeg = towerContainer->towerseg();
   ATH_MSG_DEBUG("retrieved tower segmentation from CaloTowerContainer @"
-		<< towerContainer 
+		<< towerContainer.cptr() 
 		<< ", stored in object @" 
 		<< &towerSeg
 		<< " with "
@@ -188,12 +183,10 @@ StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
 		<< clusColl->getTowerSeg().nphi() << " phi bins.");
   */
 		
- 
-  const CaloCellContainer* cellCont;
-  sc=evtStore()->retrieve(cellCont,m_cellContainerName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve CaloCellContainer with key " << m_cellContainerName << endreq;
-    return sc;
+  SG::ReadHandle<CaloCellContainer> cellCont(m_cellContainerKey, ctx);
+  if (!cellCont.isValid()) {
+    ATH_MSG_ERROR( "Failed to retrieve CaloCellContainer with key " << m_cellContainerKey.key()  );
+    return StatusCode::FAILURE;
   }
 
   // get a sliding window cluster size, window size=(Neta, Nphi), threshold 
@@ -222,21 +215,18 @@ StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
  //  float threshold=5. * GeV ; 
   //  float threshold=m_ethreshold; 
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "*********** E threshold: " << m_ethreshold << " MeV " << endreq;
-    msg(MSG::DEBUG) << "*********** eta size: " << eta_size << endreq;
-    msg(MSG::DEBUG) << "*********** phi size: " << phi_size << endreq;
+  ATH_MSG_DEBUG( "*********** E threshold: " << m_ethreshold << " MeV "  );
+  ATH_MSG_DEBUG( "*********** eta size: " << eta_size  );
+  ATH_MSG_DEBUG( "*********** phi size: " << phi_size  );
+  ATH_MSG_DEBUG( "*********** E threshold: " << m_ethreshold << " MeV "  );
+  ATH_MSG_DEBUG( "*********** eta size: " << eta_size  );
+  ATH_MSG_DEBUG( "*********** phi size: " << phi_size  );
+  ATH_MSG_DEBUG( "*********** eta SeedGrid: " << eta_SeedGrid  );
+  ATH_MSG_DEBUG( "*********** phi SeedGrid: " << phi_SeedGrid  );
+  ATH_MSG_DEBUG( "*********** eta Duplicate: " << eta_Duplicate  );
+  ATH_MSG_DEBUG( "*********** phi Duplicate: " << phi_Duplicate  );
 
-
-    msg(MSG::DEBUG) << "*********** E threshold: " << m_ethreshold << " MeV " << endreq;
-    msg(MSG::DEBUG) << "*********** eta size: " << eta_size << endreq;
-    msg(MSG::DEBUG) << "*********** phi size: " << phi_size << endreq;
-    msg(MSG::DEBUG) << "*********** eta SeedGrid: " << eta_SeedGrid << endreq;
-    msg(MSG::DEBUG) << "*********** phi SeedGrid: " << phi_SeedGrid << endreq;
-    msg(MSG::DEBUG) << "*********** eta Duplicate: " << eta_Duplicate << endreq;
-    msg(MSG::DEBUG) << "*********** phi Duplicate: " << phi_Duplicate << endreq;
-  }
-  SlidingWindowFinder swin(eta_SeedGrid,phi_SeedGrid,m_ethreshold,towerContainer,m_FillClusterCells,m_nextra) ;
+  SlidingWindowFinder swin(eta_SeedGrid,phi_SeedGrid,m_ethreshold,towerContainer.cptr(),m_FillClusterCells,m_nextra) ;
 
   std::list<ClusterWithCenter> list_cwc; 
 
@@ -310,15 +300,14 @@ StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
 
     ATH_MSG_DEBUG("final  et0 eta0 phi0  " << et0 << " " << eta0 <<" "<<phi0);
 
-
-    xAOD::CaloCluster* cluster_ptr=CaloClusterStoreHelper::makeCluster(cellCont,eta0,phi0,xAOD::CaloCluster::SW_35ele);
+    xAOD::CaloCluster* cluster_ptr=CaloClusterStoreHelper::makeCluster(cellCont.cptr(),eta0,phi0,xAOD::CaloCluster::SW_35ele);
 
     SlidingWindowFinder::data_iterator ifirst = swin.cell_begin();
     SlidingWindowFinder::data_iterator ilast  = swin.cell_end();
     for( ;ifirst!=ilast;ifirst++)  {
       const CaloCellContainer* aContainer = swin.getCellContainer(ifirst); 
-      if (aContainer!=cellCont) {
-	msg(MSG::ERROR) << "Attept to build a cluster from different CaloCellContainers" << endreq;
+      if (aContainer!=cellCont.cptr()) {
+	msg(MSG::ERROR) << "Attept to build a cluster from different CaloCellContainers" << endmsg;
 	return StatusCode::FAILURE;
       }
       size_t theIndex = swin.getCellIndex(ifirst);
@@ -345,7 +334,7 @@ StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
     int elim; 
     elim=0; 
     for(++it2; it2!=list_cwc.end();  ){ 
-       elim = eliminate( *it1, *it2 );
+       elim = eliminate( *towerContainer, *it1, *it2 );
        if(elim==1){ // eliminate it1
          break; 
        } else 
@@ -375,21 +364,20 @@ StatusCode CaloClusterBuilderSW::execute(xAOD::CaloClusterContainer* clusColl)
   list_cwc.sort(gcet); 
 
    
-  // add to cluster container. 
-  it1 = list_cwc.begin();
-  for(; it1!=list_cwc.end(); ++it1   ){
-    xAOD::CaloCluster* cluster = (*it1).cluster;
-    clusColl->push_back(cluster);
+  // add to cluster container.
+  for (const ClusterWithCenter& cwc : list_cwc) {
+    clusColl->push_back(cwc.cluster);
   } 
 
   return StatusCode::SUCCESS;
 }
 
 
-int CaloClusterBuilderSW::eliminate(ClusterWithCenter& cwc1,
-				     ClusterWithCenter& cwc2    )
+int CaloClusterBuilderSW::eliminate(const CaloTowerContainer& towers,
+                                    ClusterWithCenter& cwc1,
+                                    ClusterWithCenter& cwc2    ) const
 {
-  int nphi_tower = m_towerContainer->nphi(); 
+  int nphi_tower = towers.nphi(); 
 
   int deta = abs(cwc1.eta-cwc2.eta); 
   int dphi = abs(cwc1.phi-cwc2.phi); 
@@ -412,8 +400,9 @@ int CaloClusterBuilderSW::eliminate(ClusterWithCenter& cwc1,
       return 2; 
      } else  
   // if et close, then pick the one with high et in the center tower.
-     if(m_towerContainer->et(cwc1.eta,cwc1.phi)< 
-           m_towerContainer->et(cwc2.eta,cwc2.phi) ){ 
+     if(towers.et(cwc1.eta,cwc1.phi)< 
+        towers.et(cwc2.eta,cwc2.phi) )
+     { 
        return 1; 
      } else 
      {

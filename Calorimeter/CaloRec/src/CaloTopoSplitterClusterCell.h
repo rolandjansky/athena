@@ -21,7 +21,7 @@
 #ifndef CALOTOPOSPLITTERCLUSTERCELL_H
 #define CALOTOPOSPLITTERCLUSTERCELL_H
 
-#include "CaloRec/CaloTopoTmpClusterCellBase.h"
+#include "CaloTopoTmpClusterCellBase.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 class CaloTopoSplitterHashCluster;

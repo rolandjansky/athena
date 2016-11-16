@@ -25,12 +25,14 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Calo includes
 //#include "CaloInterface/ICaloCellMakerTool.h"
 
 class IChronoStatSvc;
 class ICaloCellMakerTool;
+class CaloCellContainer;
 
 class CaloCellMaker: public AthAlgorithm {
 
@@ -51,17 +53,19 @@ class CaloCellMaker: public AthAlgorithm {
     /** whether CellContainer to be created will own (default) its cells or not */
     int m_ownPolicy;
 
-    std::string m_caloCellsOutputName;
+    // Output cell continer to be used 
+    //std::string m_caloCellsOutputName;
+    SG::WriteHandleKey<CaloCellContainer> m_caloCellsOutputKey;
 
     // Authorize input to be the same as output (to be done with care)
-    bool m_caloCellHack;
+    //bool m_caloCellHack;
 
     // list of tools to be used
     //std::vector< std::string > m_caloCellMakerToolNames ;
     //std::vector < ICaloCellMakerTool *> m_caloCellMakerTools ;
     ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools;
 
-    unsigned m_evCounter;
+    //unsigned m_evCounter;
 
 };
 #endif

@@ -19,7 +19,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloRec/CaloCell2ClusterMapper.h"
+#include "CaloCell2ClusterMapper.h"
 
 //----------------------------
 // This Class's Base Header --
@@ -43,16 +43,18 @@
 //###############################################################################
 CaloCell2ClusterMapper::CaloCell2ClusterMapper(const std::string& name, 
 					       ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_calo_dd_man(0),
-    m_calo_id(0)
+    m_calo_id(0),
+    m_mapOutputKey(""),
+    m_clusterKey("")
 {
 
   // Name of Cell2Cluster Map to be registered in TDS
-  declareProperty("MapOutputName",m_mapOutputName);  
+  declareProperty("MapOutputName",m_mapOutputKey);  
   
   // Name of CaloClusterContainer to use as input
-  declareProperty("ClustersName",m_clustersName);
+  declareProperty("ClustersName",m_clusterKey);
 }
 
 //###############################################################################
@@ -64,7 +66,7 @@ CaloCell2ClusterMapper::~CaloCell2ClusterMapper()
 
 StatusCode CaloCell2ClusterMapper::initialize() {
   const IGeoModelSvc *geoModel = 0;
-  CHECK(service("GeoModelSvc", geoModel));
+  ATH_CHECK(service("GeoModelSvc", geoModel));
 
   // dummy parameters for the callback:
   int dummyInt = 0;
@@ -74,9 +76,12 @@ StatusCode CaloCell2ClusterMapper::initialize() {
     return geoInit(dummyInt, dummyList);
   }
 
-  CHECK(detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-        &CaloCell2ClusterMapper::geoInit, this));
+  ATH_CHECK(detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
+                               &CaloCell2ClusterMapper::geoInit, this));
 
+  ATH_CHECK(m_mapOutputKey.initialize());
+  ATH_CHECK(m_clusterKey.initialize());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -98,30 +103,28 @@ StatusCode CaloCell2ClusterMapper::finalize()
 
 //###############################################################################
 
-StatusCode CaloCell2ClusterMapper::execute() {
+StatusCode CaloCell2ClusterMapper::execute_r(const EventContext& ctx) const {
 
   // make a DataVector of Navigable CaloClusterContainer 
-  ATH_MSG_DEBUG(" Recording Cell2Cluster Map " << m_mapOutputName);
-  // make the Cell2ClusterMap
-  CaloCell2ClusterMap *cell2ClusterMap = new CaloCell2ClusterMap(
+  ATH_MSG_DEBUG(" Recording Cell2Cluster Map " << m_mapOutputKey.key());
+
+  SG::WriteHandle<CaloCell2ClusterMap> cell2ClusterMap ( m_mapOutputKey, ctx );
 #ifndef ATHENAHIVE
-      SG::VIEW_ELEMENTS);
+  ATH_CHECK( cell2ClusterMap.record(std::make_unique<CaloCell2ClusterMap>
+                                    (SG::VIEW_ELEMENTS)) );
 #else
-      SG::OWN_ELEMENTS);
+  ATH_CHECK( cell2ClusterMap.record(std::make_unique<CaloCell2ClusterMap>
+                                    (SG::OWN_ELEMENTS)) );
 #endif
 
-
   // resize it to total range of IdentifierHash for all calos
-
   Identifier::size_type maxRange = m_calo_id->calo_cell_hash_max();
   cell2ClusterMap->resize(maxRange);
+  
+  SG::ReadHandle<CaloClusterContainer> clusColl(m_clusterKey, ctx);
+  
 
-  CHECK(evtStore()->record(cell2ClusterMap, m_mapOutputName));
-
-  const CaloClusterContainer * clusColl;
-  CHECK(evtStore()->retrieve(clusColl, m_clustersName));
-
-  ATH_MSG_DEBUG("CaloCluster container: " << m_clustersName
+  ATH_MSG_DEBUG("CaloCluster container: " << clusColl.name()
       <<" contains " << clusColl->size() << " clusters");
 
   std::vector<double> weightedESum;
@@ -136,13 +139,11 @@ StatusCode CaloCell2ClusterMapper::execute() {
 
   // loop over cluster collection and add each cluster to the map for 
   // each member cell
-  CaloClusterContainer::const_iterator clusIter = clusColl->begin();
-  CaloClusterContainer::const_iterator clusIterEnd = clusColl->end();
   unsigned int iClus = 0;
-  for (; clusIter != clusIterEnd; clusIter++, iClus++) {
+  for (const CaloCluster* clus : *clusColl) {
     // loop over its cell members
-    CaloCluster::cell_iterator cellIter = (*clusIter)->cell_begin();
-    CaloCluster::cell_iterator cellIterEnd = (*clusIter)->cell_end();
+    CaloCluster::cell_iterator cellIter = clus->cell_begin();
+    CaloCluster::cell_iterator cellIterEnd = clus->cell_end();
     for (; cellIter != cellIterEnd; cellIter++) {
       // look up the IdentifierHash for the current cell
       IdentifierHash myHashId = m_calo_id->calo_cell_hash((*cellIter)->ID());
@@ -160,11 +161,11 @@ StatusCode CaloCell2ClusterMapper::execute() {
         (*cell2ClusterMap)[myHashId] = theNav;
       }
       // add the current cluster to the list of clusters for this cell
-      theNav->putElement(clusColl, *clusIter);
+      theNav->putElement(clusColl.cptr(), clus);
       // add the energy*weight for this cell to the weightedESum 
       //if ( messageService()->outputLevel(name()) <= MSG::DEBUG) {
       if (msgLvl(MSG::DEBUG)) {
-        weightedESum[iClus] += ((*clusIter)->getCellWeight(*cellIter))
+        weightedESum[iClus] += (clus->getCellWeight(*cellIter))
             * ((*cellIter)->energy());
         numberOfCells[iClus]++;
       }
@@ -174,38 +175,33 @@ StatusCode CaloCell2ClusterMapper::execute() {
   // compare weighted sums per cluster from the map with cluster energies
   if (msgLvl(MSG::DEBUG)) {
     double epsilon = 0.001;
-    CaloClusterContainer::const_iterator clusIter = clusColl->begin();
-    CaloClusterContainer::const_iterator clusIterEnd = clusColl->end();
     unsigned int iClus = 0;
-    for (; clusIter != clusIterEnd; clusIter++, iClus++) {
-      if (fabs(weightedESum[iClus] - (*clusIter)->e())
-          > epsilon * fabs((*clusIter)->e())) {
-        msg(MSG::WARNING) << "CaloCluster has E = " << (*clusIter)->e()
-            << " MeV, while weighted sum of cells gives E = "
-            << weightedESum[iClus]
-            << " MeV! Complain with the creator of the CaloClusterContainer named "
-            << m_clustersName << endreq; //FIXME: WARNING printed only if msglevel <=
+    for (const CaloCluster* clus : *clusColl) {
+      if (fabs(weightedESum[iClus] - clus->e())
+          > epsilon * fabs(clus->e()))
+      {
+        //FIXME: WARNING printed only if msglevel <=
+        ATH_MSG_WARNING( "CaloCluster has E = " << clus->e()
+                         << " MeV, while weighted sum of cells gives E = "
+                         << weightedESum[iClus]
+                         << " MeV! Complain with the creator of the CaloClusterContainer named "
+                         << m_clusterKey.key()  );
       } else {
-        msg(MSG::DEBUG)
-            << "CaloCluster and weighted sum of cell members have E = "
-            << (*clusIter)->e() << " MeV, good!" << endreq;
+        ATH_MSG_DEBUG( "CaloCluster and weighted sum of cell members have E = "
+                       << clus->e() << " MeV, good!"  );
       }
-      if (numberOfCells[iClus] != static_cast<int>((*clusIter)->getNumberOfCells())) {
-        msg(MSG::WARNING) << "CaloCluster has N = "
-            << (*clusIter)->getNumberOfCells() << " cells, while N = "
-            << numberOfCells[iClus]
-            << " cells are in the map! Something is wrong with the creation of the Map!"
-            << endreq; //FIXME: WARNING printed only if msglevel <=
+      if (numberOfCells[iClus] != static_cast<int>(clus->getNumberOfCells())) {
+        //FIXME: WARNING printed only if msglevel <=
+        ATH_MSG_WARNING( "CaloCluster has N = "
+                         << clus->getNumberOfCells() << " cells, while N = "
+                         << numberOfCells[iClus]
+                         << " cells are in the map! Something is wrong with the creation of the Map!" );
       } else {
-        msg(MSG::DEBUG) << "CaloCluster with N = "
-            << (*clusIter)->getNumberOfCells() << " cells is in the map, good!"
-            << endreq;
+        ATH_MSG_DEBUG( "CaloCluster with N = "
+                       << clus->getNumberOfCells() << " cells is in the map, good!" );
       }
     } //end loop over clusters
   } //end if DEBUG
-
-  // lock the Map
-  CHECK(evtStore()->setConst(cell2ClusterMap));
 
   // print the Map
   if (msgLvl(MSG::VERBOSE)) {
@@ -214,10 +210,7 @@ StatusCode CaloCell2ClusterMapper::execute() {
       Navigable<CaloClusterContainer> *theNav = (*cell2ClusterMap)[iHash];
       if (theNav) {
         msg(MSG::VERBOSE) << "CaloCell with hashID " << iHash << " belongs to";
-        Navigable<CaloClusterContainer>::object_iter navIter = theNav->begin();
-        Navigable<CaloClusterContainer>::object_iter navIterEnd = theNav->end();
-        for (; navIter != navIterEnd; navIter++) {
-          const CaloCluster *pClus = (*navIter);
+        for (const CaloCluster* pClus : *theNav) {
           // the next line assumes all cells of the cluster belong to the same
           // cell container ...
           const CaloCellContainer *cellColl = pClus->getCellContainer(
@@ -243,7 +236,7 @@ StatusCode CaloCell2ClusterMapper::execute() {
                 << " MeV with weight w_cell = " << pClus->getCellWeight(pCell)
                 << " ";
         }
-        msg() << endreq;
+        msg() << endmsg;
       }
     }
   }

@@ -60,8 +60,10 @@ class CaloClusterBuilderSW : public AthAlgTool, virtual public CaloClusterCollec
   CaloClusterBuilderSW(const std::string& type, const std::string& name,
 		       const IInterface* parent);
 
-  virtual StatusCode execute(xAOD::CaloClusterContainer* theClusters);
-  virtual StatusCode initialize();
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusters) const override;
+  virtual StatusCode initialize() override;
 
   //virtual xAOD::CaloCluster* makeCluster(double eta, double phi); 
 
@@ -73,7 +75,8 @@ class CaloClusterBuilderSW : public AthAlgTool, virtual public CaloClusterCollec
   }; 
 
  protected:
-  int eliminate(ClusterWithCenter& cwc1, ClusterWithCenter& cwc2); 
+  int eliminate(const CaloTowerContainer& towers,
+                ClusterWithCenter& cwc1, ClusterWithCenter& cwc2) const;
   
   // properties 
   int m_neta;     // Cluster sizes in eta and phi
@@ -84,10 +87,10 @@ class CaloClusterBuilderSW : public AthAlgTool, virtual public CaloClusterCollec
 
   double m_ethreshold; // Energy threshold
 
-  std::string 	m_towerContainerName;
-  std::string   m_cellContainerName;
+  SG::ReadHandleKey<CaloTowerContainer> m_towerContainerKey;
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey;
+  
 
-  const CaloTowerContainer* m_towerContainer; 
 
   bool m_FillClusterCells;  //flag to fill or not to fill cells in cluster
   int m_nextra;  // number of extra tower to be saved in the cluster.

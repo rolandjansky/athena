@@ -26,7 +26,7 @@
 
 #include "CaloUtils/CaloTopoTowerBuilderToolBase.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-
+#include "CaloEvent/CaloCell2ClusterMap.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -84,11 +84,11 @@ class CaloTopoTowerAlgorithm : public AthAlgorithm
   //////////////////////////////////////////
   // CaloTopoTowerContainer variables
   // Container name strings
-  std::string m_cellContainerName;
-  std::string m_clusterName;
-  std::string m_cellToClusterMapName;
-  std::string m_towerContainerName;     // input tower name
-  std::string m_newTowerContainerName;  // output tower name
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey;
+  SG::ReadHandleKey<CaloClusterContainer> m_clusterKey;
+  SG::ReadHandleKey<CaloCell2ClusterMap> m_cellToClusterMapKey;
+  SG::ReadHandleKey<CaloTowerContainer> m_towerContainerKey;
+  SG::WriteHandleKey<CaloTopoTowerContainer> m_newTowerContainerKey;
 
   // Selection criteria
   double m_minimumCellEnergy;

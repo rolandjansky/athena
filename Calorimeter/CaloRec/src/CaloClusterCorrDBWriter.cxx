@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------
 
 
-#include "CaloRec/CaloClusterCorrDBWriter.h"
+#include "CaloClusterCorrDBWriter.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -88,7 +88,6 @@ StatusCode CaloClusterCorrDBWriter::initialize()
 
 StatusCode CaloClusterCorrDBWriter::finalize()
 {
-  MsgStream log(messageService(), name());
   if (m_inlineFolder.size()) {
     CaloRec::ToolConstants tc;
     std::string toolnames;

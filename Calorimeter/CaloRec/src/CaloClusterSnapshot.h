@@ -16,14 +16,17 @@ class CaloClusterSnapshot : public AthAlgTool, virtual public CaloClusterCollect
   CaloClusterSnapshot(const std::string& type, const std::string& name,
 		      const IInterface* parent);
   // destructor 
-  ~CaloClusterSnapshot();
+  virtual ~CaloClusterSnapshot() override;
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute(xAOD::CaloClusterContainer* );
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* ) const override;
 
  private:
   // properties 
-  std::string m_outputName;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputKey;
+
   bool m_setCrossLinks;
 
   const std::string* m_finalContName;

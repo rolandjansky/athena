@@ -53,8 +53,10 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
   CaloTopoClusterMaker(const std::string& type, const std::string& name,
 		       const IInterface* parent);
 
-  StatusCode execute(xAOD::CaloClusterContainer* theClusters);
-  StatusCode initialize();
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusters) const override;
+  virtual StatusCode initialize() override;
 
   /** Callback added to handle Data-driven GeoModel initialisation
    */
@@ -71,7 +73,7 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
   /** 
    * @brief vector of names of the cell containers to use as input.
    */
-  std::string  m_cellsName; 
+  SG::ReadHandleKey<CaloCellContainer> m_cellsKey;
 
   /** 
    * @brief vector of names of the calorimeters to consider.
@@ -174,7 +176,8 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * switch is set to false the additional \f$E_\perp\f$ thresholds
    * declared above will be used.  */
   bool m_usePileUpNoise;
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  // FIXME: mutable
+  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
 
   /**
    * @brief constant noise value in case the CaloNoiseTool is not used
@@ -316,9 +319,6 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * This vector serves as a quick lookup table to find out if a cell
    * belongs to a sampling that should be used for seeds. */
   std::vector<bool> m_useSampling;
-
-  /** @brief produces intolerable amount of output if set to true */
-  bool m_doALotOfPrintoutInFirstEvent;
 
   IdentifierHash m_hashMin;
   IdentifierHash m_hashMax;

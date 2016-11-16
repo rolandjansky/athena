@@ -11,6 +11,7 @@
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/Blob.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/make_unique.h"
 
 #include "TBufferFile.h"
 #include "TClass.h"
@@ -27,7 +28,7 @@ Blob2ToolConstants::Blob2ToolConstants (const std::string& type,
   
 
 StatusCode Blob2ToolConstants::initialize() {
-  msg(MSG::DEBUG) << "Initializing..." << endreq;
+  msg(MSG::DEBUG) << "Initializing..." << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -43,7 +44,7 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::strin
 StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vector<std::string> & keys) {
 
   if (keys.size()==0) {
-    msg(MSG::ERROR) << "addFolder: List of keys is empty" << endreq;
+    msg(MSG::ERROR) << "addFolder: List of keys is empty" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -55,9 +56,9 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
 
   if (msgLvl(MSG::DEBUG)) {
     if (newCallback) 
-      msg(MSG::DEBUG) << "Adding COOL inline folder " << fn << endreq; 
+      msg(MSG::DEBUG) << "Adding COOL inline folder " << fn << endmsg; 
     else
-      msg(MSG::DEBUG) << "Have already a callback for COOL inline folder " << fn << endreq; 
+      msg(MSG::DEBUG) << "Have already a callback for COOL inline folder " << fn << endmsg; 
   }
 
   std::vector<std::string>::const_iterator kit=keys.begin();
@@ -67,9 +68,9 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
     const std::string& key=*kit;
     //Insert key/ToolConstants pair:
     if (!fobj.key_tc.insert(std::make_pair(key,(CaloRec::ToolConstants*)NULL)).second)
-      msg (MSG::DEBUG) << "COOL channel "<< key << " already set up." << endreq;
+      msg (MSG::DEBUG) << "COOL channel "<< key << " already set up." << endmsg;
     else
-      msg (MSG::DEBUG) << "Added COOL channel " << key << endreq;
+      msg (MSG::DEBUG) << "Added COOL channel " << key << endmsg;
   }
 
 
@@ -78,14 +79,14 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
     StatusCode sc=detStore()->regFcn(&Blob2ToolConstants::fillObjects,this,
 				     fobj.inlineData,fn,true); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to register callback for CondAttributeListCollection object with key " << fn << endreq;
+      msg(MSG::ERROR) << "Failed to register callback for CondAttributeListCollection object with key " << fn << endmsg;
       // Note that once we've started registering callbacks,
       // we cannot return FAILURE from initialize() --- otherwise,
       // we'll be left with a dangling callback.
       //return StatusCode::FAILURE;
     }
     else
-      msg(MSG::INFO) << "Successfully registered callback for CondAttributeListCollection object with key " << fn << endreq;
+      msg(MSG::INFO) << "Successfully registered callback for CondAttributeListCollection object with key " << fn << endmsg;
   }
 
   return StatusCode::SUCCESS; 
@@ -94,16 +95,16 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
 StatusCode Blob2ToolConstants::fillObjects(IOVSVC_CALLBACK_ARGS_K(inlineFN)) {
   
 
-  msg(MSG::DEBUG) << "Callback method Blob2ToolConstants::fillObjects" << endreq;
-  //msg(MSG::DEBUG) << i << endreq;
+  msg(MSG::DEBUG) << "Callback method Blob2ToolConstants::fillObjects" << endmsg;
+  //msg(MSG::DEBUG) << i << endmsg;
   std::list<std::string>::const_iterator it=inlineFN.begin();
   std::list<std::string>::const_iterator it_e=inlineFN.end();
   
   for (;it!=it_e;++it){ //Loop over COOL folders
-    msg(MSG::DEBUG) << "Working on COOL inline folder " << *it << endreq;
+    msg(MSG::DEBUG) << "Working on COOL inline folder " << *it << endmsg;
     FOLDEROBJ& fobj=m_data[*it];
     if (!fobj.inlineData.isValid()) {
-      msg(MSG::ERROR) << "COOL inline data not valid for key " << *it << endreq;
+      msg(MSG::ERROR) << "COOL inline data not valid for key " << *it << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -112,45 +113,45 @@ StatusCode Blob2ToolConstants::fillObjects(IOVSVC_CALLBACK_ARGS_K(inlineFN)) {
     for (;kit!=kit_e;++kit) {
       const std::string& key=kit->first;
       
-      msg(MSG::DEBUG) << "Working on COOL inline channel name " << key << endreq;
+      msg(MSG::DEBUG) << "Working on COOL inline channel name " << key << endmsg;
       if (!kit->second) {//
 	kit->second=new CaloRec::ToolConstants();
 	StatusCode sc=detStore()->record(kit->second,key);
 	if (sc.isFailure()) {
-	  msg(MSG::ERROR) << "Failed to record ToolConstants object with key " << key << endreq;
+	  msg(MSG::ERROR) << "Failed to record ToolConstants object with key " << key << endmsg;
 	  delete kit->second;
 	  return sc;
 	}
 	else
-	  msg(MSG::DEBUG) << "Successfully recoreded ToolConstants object with key " << key << endreq;
+	  msg(MSG::DEBUG) << "Successfully recoreded ToolConstants object with key " << key << endmsg;
       }//end if !kit->second
       
       const unsigned chNbr=nameToChannelNumber(key);
       //Fixme: Check that this channel actually exits
       const std::string& chanName=fobj.inlineData->chanName(chNbr);
       if (chanName.size()>0 && key!=chanName) {
-	msg(MSG::ERROR) << "Channel name does not match! Expected " << key << " found " << chanName << endreq;
+	msg(MSG::ERROR) << "Channel name does not match! Expected " << key << " found " << chanName << endmsg;
 	return StatusCode::FAILURE;
       }
       else
-	msg(MSG::DEBUG) << "Found channel number " << chNbr << " named " << key << endreq;
+	msg(MSG::DEBUG) << "Found channel number " << chNbr << " named " << key << endmsg;
 
       const coral::AttributeList& attrList=fobj.inlineData->attributeList(chNbr);
-      //msg(MSG::DEBUG) << "Size of attrList=" << attrList.size() << endreq;
+      //msg(MSG::DEBUG) << "Size of attrList=" << attrList.size() << endmsg;
       if (attrList.size()==0) {
-	msg(MSG::ERROR) << "Failed to get valid AttributeList for channel number " << chNbr << " (key " << key << ")" << endreq;
+	msg(MSG::ERROR) << "Failed to get valid AttributeList for channel number " << chNbr << " (key " << key << ")" << endmsg;
 	return StatusCode::FAILURE;
       }
       StatusCode sc=AttrListToToolConstants(attrList, *(kit->second));
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to convert AttributeList to ToolConstants" <<endreq;
+	msg(MSG::ERROR) << "Failed to convert AttributeList to ToolConstants" <<endmsg;
 	return sc;
       }
 
       //Drop inline data from DetStore
       sc=detStore()->remove(fobj.inlineData.cptr());
       if (sc.isFailure()) {
-	msg(MSG::WARNING) << "Failed to remove AttributeList object from DetStore" << endreq;
+	msg(MSG::WARNING) << "Failed to remove AttributeList object from DetStore" << endmsg;
 	//Not a big problem, continue running
       }
    
@@ -170,7 +171,11 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
     spec->extend("Constants","blob");             //Holds the map<string,Arrayrep>
 
 
-    coral::AttributeList* attrList = new coral::AttributeList(*spec);
+    auto attrList = CxxUtils::make_unique<coral::AttributeList>(*spec);
+
+    spec->release();
+    // cppcheck-suppress memleak
+    spec = nullptr;
     
     (*attrList)["clsname"].data<std::string>()=tc->clsname();
     (*attrList)["version"].data<unsigned int>()=(unsigned int)tc->version();
@@ -181,23 +186,23 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
     //typedef std::map<std::string, CaloRec::Arrayrep> T;
     TClass* klass = TClass::GetClass ("std::map<std::string, CaloRec::Arrayrep>");
     if (klass==NULL) {
-      msg( MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endreq;
+      msg( MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
       return 0;
     }
     else
-      msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endreq;
+      msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
 
     TBufferFile buf (TBuffer::kWrite);
 
     if (buf.WriteObjectAny (&tc->map(), klass) != 1) {
-      msg(MSG::ERROR) << "Failed to stream CaloRec::ToolConstants::Maptype " << endreq;
+      msg(MSG::ERROR) << "Failed to stream CaloRec::ToolConstants::Maptype " << endmsg;
       return 0;
     }
     
     blob.resize(buf.Length());
     void* adr = blob.startingAddress();
     memcpy(adr,buf.Buffer(),buf.Length());
-    return attrList;
+    return attrList.release();
   }
 
 
@@ -213,22 +218,22 @@ StatusCode Blob2ToolConstants::AttrListToToolConstants(const coral::AttributeLis
       const coral::Blob& blob = attrList["Constants"].data<coral::Blob>();
 
       if (blobVersion!=0) {
-	msg(MSG::ERROR) << "Can't interpret BLOB version " << blobVersion << endreq;
+	msg(MSG::ERROR) << "Can't interpret BLOB version " << blobVersion << endmsg;
 	return StatusCode::FAILURE;
       }
     
       TClass* klass = TClass::GetClass ("std::map<std::string, CaloRec::Arrayrep>");
       if (klass==NULL) {
-	msg(MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endreq;
+	msg(MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
 	return StatusCode::FAILURE;
       }
       else
-	msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endreq;
+	msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
 
       TBufferFile buf (TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
       map = (T*)buf.ReadObjectAny (klass);
     }catch (coral::AttributeListException &e) {
-      msg(MSG::ERROR) << e.what() << endreq;
+      msg(MSG::ERROR) << e.what() << endmsg;
       delete map;
       return StatusCode::FAILURE;
     }
@@ -255,7 +260,7 @@ uint32_t Blob2ToolConstants::nameToChannelNumber(const std::string& name) const 
   bool Blob2ToolConstants::hasChannel(const std::string& inlineFolder, const std::string& chName) const {
     std::map< std::string, FOLDEROBJ >::const_iterator itf=m_data.find(inlineFolder);
     if (itf==m_data.end()) {
-      msg(MSG::WARNING) << "hasChannel: Nothing known about folder " << inlineFolder << endreq;
+      msg(MSG::WARNING) << "hasChannel: Nothing known about folder " << inlineFolder << endmsg;
       return false;
     }
 
