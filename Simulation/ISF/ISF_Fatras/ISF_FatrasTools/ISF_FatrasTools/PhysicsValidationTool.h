@@ -69,19 +69,19 @@ namespace iFatras
     virtual StatusCode finalize();
 
     /** ISFParticle info: old transport tool */
-    void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 );
+    void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 ) const;
     
     /** ISFParticle info: new transport tool */
     void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
-				     Trk::ExtrapolationCode ecode );
+				     Trk::ExtrapolationCode ecode ) const;
 
     /** ISFParticle info: new transport tool */
     void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
-				     Trk::ExtrapolationCode ecode );
+				     Trk::ExtrapolationCode ecode ) const;
 
 
     void saveISFVertexInfo(int process,Amg::Vector3D vertex,const ISF::ISFParticle& isp,Amg::Vector3D primIn,
-			   Amg::Vector3D* primOut, const ISF::ISFParticleVector children);
+			   Amg::Vector3D* primOut, const ISF::ISFParticleVector children) const;
 
     
   private:
@@ -95,7 +95,7 @@ namespace iFatras
               return StatusCode::SUCCESS;
      }
      
-     void saveInfo(const ISF::ISFParticle& isp); 
+     void saveInfo(const ISF::ISFParticle& isp) const; 
       
     /*---------------------------------------------------------------------
      *  Private members
@@ -105,6 +105,7 @@ namespace iFatras
     std::string                                                  m_validationStream; //!< validation THist stream name
     /** Validation output TTree (+variables) */
 
+    // FIXME mutable variables are not thread-safe.
     TTree                                                                *m_particles;    //!< ROOT tree containing track info
     mutable int                                                           m_pdg;
     mutable int                                                           m_scIn;  
