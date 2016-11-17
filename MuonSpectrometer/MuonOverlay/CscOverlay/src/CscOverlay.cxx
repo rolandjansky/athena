@@ -6,6 +6,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
@@ -143,30 +146,40 @@ StatusCode CscOverlay::overlayExecute() {
 
   //----------------------------------------------------------------
   unsigned int numsamples=0;//to be determined from the data
-  std::auto_ptr<CscRawDataContainer> cdata(0);
-  const CscRawDataContainer* data_input_CSC(0);
-  if ( !m_isByteStream ) {
-     cdata = m_storeGateData->retrievePrivateCopy<CscRawDataContainer>(m_mainInputCSC_Name);
-     if( !cdata.get() ) {
-       msg << MSG::WARNING << "Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"" << endmsg;
-       return StatusCode::SUCCESS;
-     }
-     if ((cdata->begin()==cdata->end()) || !(cdata->begin()->cptr())){
-       msg << MSG::WARNING << "Could not get nsamples, cdata empty?"<< endmsg;
-       //return StatusCode::SUCCESS;
-     }
-     else {numsamples=cdata->begin()->cptr()->numSamples();}
-  } else {
-    if(! (m_storeGateData->retrieve(data_input_CSC, m_mainInputCSC_Name).isSuccess()) ) {
-      msg << MSG::WARNING << "Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"" << endmsg;
-      return StatusCode::SUCCESS;
+  SG::ReadHandle<CscRawDataContainer> cdata(m_mainInputCSC_Name, m_storeGateData->name());
+  SG::ReadHandle<CscRawDataContainer> data_input_CSC(m_mainInputCSC_Name, m_storeGateData->name());
+  if ( !m_isByteStream )
+    {
+      if( !cdata.isValid() )
+	{
+	  ATH_MSG_WARNING("Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"");
+	  return StatusCode::SUCCESS;
+	}
+      if ((cdata->begin()==cdata->end()) || !(cdata->begin()->cptr())){
+	ATH_MSG_WARNING("Could not get nsamples, cdata empty?");
+	//return StatusCode::SUCCESS;
+      }
+      else
+	{
+	  numsamples=cdata->begin()->cptr()->numSamples();
+	}
     }
-    if ((data_input_CSC->begin()==data_input_CSC->end()) || !(data_input_CSC->begin()->cptr())){
-      msg << MSG::WARNING << "Could not get nsamples, data_input_CSC empty?"<< endmsg;
-      //return StatusCode::SUCCESS;
+  else{
+    if(!data_input_CSC.isValid())
+      {
+	ATH_MSG_WARNING("Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"");
+	return StatusCode::SUCCESS;
+      }
+    if ((data_input_CSC->begin()==data_input_CSC->end()) || !(data_input_CSC->begin()->cptr()))
+      {
+	ATH_MSG_WARNING("Could not get nsamples, data_input_CSC empty?");
+	//return StatusCode::SUCCESS;
+      }
+    else
+      {
+	numsamples=data_input_CSC->begin()->cptr()->numSamples();
+      }
     }
-    else {numsamples=data_input_CSC->begin()->cptr()->numSamples();}
-  }
 
   /** in the simulation stream, run digitization of the fly
       and make RDO - this will be used as input to the overlay job */
@@ -196,36 +209,19 @@ StatusCode CscOverlay::overlayExecute() {
   
   if (numsamples>0){
     msg << MSG::DEBUG << "Retrieving MC input CSC container" << endmsg;
-    const CscRawDataContainer* ovl_input_CSC(0);
-    if(! (m_storeGateMC->retrieve(ovl_input_CSC, m_overlayInputCSC_Name).isSuccess()) ) {
-      msg << MSG::WARNING << "Could not get CSC RDO from the simulation stream ... " << m_overlayInputCSC_Name << endmsg;
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<CscRawDataContainer> ovl_input_CSC(m_overlayInputCSC_Name, m_storeGateMC.name());
+    if(!ovl_input_CSC.isValid())
+      {
+	msg << MSG::WARNING << "Could not get CSC RDO from the simulation stream ... " << m_overlayInputCSC_Name << endmsg;
+	return StatusCode::SUCCESS;
+      }
 
     /* now do the overlay - reading real data from the data stream
        and reading simulated RDO produced in the previous steps 
        from the simulation stream */
-    if ( !m_isByteStream ) this->overlayContainer(cdata.get(), ovl_input_CSC);
-    else this->overlayContainer(const_cast<CscRawDataContainer*>(data_input_CSC), ovl_input_CSC); 
+    if ( !m_isByteStream ) this->overlayContainer(cdata.cptr(), ovl_input_CSC.cptr());
+    else this->overlayContainer(data_input_CSC.cptr(), ovl_input_CSC.cptr()); 
   }
-
-  /* record the overlay data to the output stream */
-  if ( !m_isByteStream ) {
-     if ( m_storeGateOutput->record(cdata, m_mainInputCSC_Name).isFailure() ) {
-        msg << MSG::WARNING << "Failed to record CSC overlay container to output store " << endmsg;
-     } 
-  } else {
-     if ( m_storeGateOutput->record(data_input_CSC, m_mainInputCSC_Name).isFailure() ) {
-        msg << MSG::WARNING << "Failed to record CSC overlay container to output store " << endmsg;
-     }
-  }
-
-  //----------------
-  // This kludge is a work around for problems created by another kludge:
-  // Digitization algs keep a pointer to their output Identifiable Container and reuse
-  // the same object over and other again.   So unlike any "normal" per-event object
-  // this IDC is not a disposable one, and we should not delete it.
-  cdata.release();
 
   //----------------------------------------------------------------
   msg<<MSG::DEBUG<<"Processing MC truth data"<<endmsg;
@@ -247,13 +243,33 @@ StatusCode CscOverlay::overlayExecute() {
 }
 
 //================================================================
-void CscOverlay::overlayContainer(CscRawDataContainer *main,
+void CscOverlay::overlayContainer(const CscRawDataContainer *main,
                                   const CscRawDataContainer *overlay)
 {
   MsgStream msg(msgSvc(), name());
   msg << MSG::DEBUG << "overlayContainer<>() begin" << endmsg;
 
-  /** Add data from the ovl container to the main one */
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_mainInputCSC_Name, m_storeGateOutput->name());
+  outputContainer = CxxUtils::make_unique<CscRawDataContainer>();
+
+  /** Add data from the main container to the output one */
+  CscRawDataContainer::const_iterator p_main = main->begin(); 
+  CscRawDataContainer::const_iterator p_main_end = main->end();
+  
+  for(; p_main != p_main_end; ) {
+    
+    /** retrieve the ovl collection by calling cptr() */
+    const CscRawDataCollection *coll_main = p_main->cptr();
+    if ( outputContainer->addCollection(coll_main, p_main.hashId()).isFailure() ) {
+      msg << MSG::WARNING << "addCollection failed for main" << endmsg; 
+    }
+    else {
+      msg << MSG::DEBUG << "data overlayContainer() added overlaid RDO" << endmsg;
+    }
+    ++p_main;
+  }
+  
+  /** Add data from the ovl container to the output one */
   CscRawDataContainer::const_iterator p_ovl = overlay->begin(); 
   CscRawDataContainer::const_iterator p_ovl_end = overlay->end();
 
@@ -264,13 +280,13 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
 
     uint16_t coll_id = (*p_ovl)->identify();
 
-    /** The newly created stuff will go to the data EventStore SG */
+    /** The newly created stuff will go to the output EventStore SG */
     CscRawDataCollection *out_coll = new CscRawDataCollection( coll_id );
 
     /** Look for the same ID in the main StoreGate EventStore */ 
-    CscRawDataContainer::const_iterator q = main->indexFind( coll_id );
+    CscRawDataContainer::const_iterator q = outputContainer->indexFind( coll_id );
 
-    if( q != main->end() ) {
+    if( q != outputContainer->end() ) {
       /** Need to merge the collections
           Retrieve q */
 
@@ -293,9 +309,8 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
 	  Put it in IDC in place of the original collection.
        */
 
-      main->removeCollection(p_ovl.hashId());
-
-      if ( main->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
+      outputContainer->removeCollection(p_ovl.hashId());
+      if(outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure()) {
 	msg << MSG::WARNING << "addCollection failed " << endmsg; 
       }
       else {
@@ -304,7 +319,7 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
 
     }
     else {
-      /** Copy the complete collection from ovl to data, 
+      /** Copy the complete collection from ovl to output, 
           hopefully preserving the "most derived" type of its raw data */ 
 
       out_coll->set_eventType( coll_ovl->eventType() );
@@ -317,7 +332,7 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
       const std::vector<uint8_t> dataType = coll_ovl->dataType();
       for ( unsigned int i=0; i<dataType.size(); ++i ) out_coll->addDataType( dataType[i] );
 
-      /** Copy the complete collection from ovl to data, 
+      /** Copy the complete collection from ovl to output, 
           hopefully preserving the "most derived" type of its raw data */
       unsigned int numSamples = coll_ovl->numSamples();
       for(CscRawDataCollection::const_iterator i=coll_ovl->begin(); i!=coll_ovl->end(); i++) {
@@ -329,7 +344,7 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
 	  continue;
 	}	
 	else{
-	  /** The new RDO goes to m_storeGateData - no need to mess with the pedestal, but add in noise */
+	  /** The new RDO goes to m_storeGateOutput - no need to mess with the pedestal, but add in noise */
           uint16_t width = data->width();
           uint32_t hashOffset = data->hashId();
           std::vector<uint16_t> all_samples; 
@@ -381,10 +396,10 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
 	}
       }
           
-      /** The new collection goes to m_storeGateData */
+      /** The new collection goes to m_storeGateOutput */
 
-      if(main->addCollection(out_coll, out_coll->identify()).isFailure()) {
-	msg << MSG::WARNING << "overlayContainer(): Problem in main->addCollection(Identifier)" << endmsg;
+      if(outputContainer->addCollection(out_coll, out_coll->identify()).isFailure()) {
+	msg << MSG::WARNING << "overlayContainer(): Problem in outputContainer->addCollection(Identifier)" << endmsg;
       }
       else {
 	msg << MSG::DEBUG << "overlayContainer() added new RDO" << endmsg;
