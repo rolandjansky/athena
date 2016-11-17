@@ -40,12 +40,12 @@ class LArMCSymTool: public AthAlgTool, virtual public ILArMCSymTool
   virtual ~LArMCSymTool();
   
   // retrieve methods 
-  HWIdentifier symOnline(const HWIdentifier & id);
-  HWIdentifier symOnline(const Identifier & id);
+  virtual HWIdentifier symOnline(const HWIdentifier & id) const override;
+  virtual HWIdentifier symOnline(const Identifier & id) const override;
   
   // initialize and finalize methods
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** IOV Call Back
    */
@@ -69,16 +69,18 @@ class LArMCSymTool: public AthAlgTool, virtual public ILArMCSymTool
 
   const LArEM_ID*        m_lar_em_id; 
   const LArHEC_ID*       m_lar_hec_id; 
-  const LArFCAL_ID*      m_lar_fcal_id; 
+  const LArFCAL_ID*      m_lar_fcal_id;
 
-  //const CaloCell_ID      m_caloCellID;
-
-  HWIdentifier m_hwid;
-  HWIdentifier m_hwid_sym;
-  HWIdentifier m_hwid_sym2;
-  Identifier m_offid;
-  bool m_validCache; 
-
+  // FIXME: mutable
+  // These are used for memoization.  That appears to actually do some good,
+  // so won't remove these yet; we return the memoized value over half
+  // the time.  This seems to come from LArADC2MeVTool::getADC2MeV, where
+  // we have an outer loop over ids and an inner loop over gains
+  // and tools.
+  mutable HWIdentifier m_hwid;
+  mutable HWIdentifier m_hwid_sym;
+  mutable HWIdentifier m_hwid_sym2;
+  mutable Identifier m_offid;
 };
 
 
