@@ -4,9 +4,12 @@
 
 #include "GeneratorFilters/TauFilter.h"
 #include "CLHEP/Vector/LorentzVector.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 TauFilter::TauFilter( const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter( name,pSvcLocator ),
+    m_rand("AtRndmGenSvc", name),
     m_eventse(0), m_eventsmu(0), m_eventshad(0), 
     m_eventseacc(0), m_eventsmuacc(0), m_eventshadacc(0)
 {
@@ -26,8 +29,15 @@ TauFilter::TauFilter( const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "EtaMaxlep", m_etaMaxlep = 2.6 );
   declareProperty( "Ptcutlep", m_pTminlep = 7000.0 );
   declareProperty( "Ptcutlep_lead", m_pTminlep_lead = 7000.0 );
-  declareProperty( "Ptcuthad_lead", m_pTminhad_lead = 20000.0 );
+  declareProperty( "Ptcuthad_lead", m_pTminhad_lead = 12000.0 );
   declareProperty( "ReverseFilter", m_ReverseFilter = false);
+  
+  declareProperty( "HasTightRegion", m_HasTightRegion = false);
+  declareProperty( "LooseRejectionFactor", m_LooseRejectionFactor = 1);
+  declareProperty( "Ptcutlep_tight", m_pTminlep_tight = 7000.0 );
+  declareProperty( "Ptcutlep_tight_lead", m_pTminlep_tight_lead = 7000.0 );
+  declareProperty( "Ptcuthad_tight", m_pTminhad_tight = 12000.0 );
+  declareProperty( "Ptcuthad_tight_lead", m_pTminhad_tight_lead = 12000.0 );
 }
 
 
@@ -41,6 +51,11 @@ StatusCode TauFilter::filterInitialize() {
 
   for(int i=0; i<6; i++) {
     m_events[i] = 0; m_events_sel[i] = 0;
+  }
+
+  if (m_rand.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Unable to retrieve AtRndmGenSvc " << m_rand);
+    return StatusCode::FAILURE;
   }
   
   return StatusCode::SUCCESS;
@@ -85,6 +100,17 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticle *par
 
 
 StatusCode TauFilter::filterEvent() {
+  // Get random number engine
+  CLHEP::HepRandomEngine* rndm(0);
+  if(m_HasTightRegion) {
+    rndm = m_rand->GetEngine("TauFilter");
+    if (!rndm) {
+      ATH_MSG_ERROR("Failed to retrieve random number engine for TauFilter");
+      setFilterPassed(false);
+      return StatusCode::SUCCESS;
+    }
+  }
+  
   HepMC::GenParticle *tau;
   CLHEP::HepLorentzVector mom_tauprod;   // will contain the momentum of the products of the tau decay
   CLHEP::HepLorentzVector tauvis;
@@ -96,6 +122,8 @@ StatusCode TauFilter::filterEvent() {
   double pthad_max = 0;
   int ntaulep = 0;
   int ntauhad = 0;
+  int ntaulep_tight = 0;
+  int ntauhad_tight = 0;
   double weight = 1;
 
   McEventCollection::const_iterator itr;
@@ -154,6 +182,7 @@ StatusCode TauFilter::filterEvent() {
 	    if ( fabs( tauvis.eta() ) > m_etaMaxlep ) continue;
 	    ntaulep++;
 	    if ( tauvis.perp() >= ptlep_max ) ptlep_max = tauvis.perp();
+	    if ( tauvis.perp() >= m_pTminlep_tight ) ntaulep_tight++;
 	  }
         } else if ( leptonic == 2 ) {
 	  if(!m_NewOpt) {
@@ -168,6 +197,7 @@ StatusCode TauFilter::filterEvent() {
 	    if ( fabs( tauvis.eta() ) > m_etaMaxlep ) continue;
 	    ntaulep++;
 	    if ( tauvis.perp() >= ptlep_max ) ptlep_max = tauvis.perp();
+	    if ( tauvis.perp() >= m_pTminlep_tight ) ntaulep_tight++;
 	  }
         } else if ( leptonic == 0 ) {
           m_eventshad++;
@@ -178,18 +208,41 @@ StatusCode TauFilter::filterEvent() {
 
 	  ntauhad++;
 	  if ( tauvis.perp() >= pthad_max ) pthad_max = tauvis.perp();
+	  if ( tauvis.perp() >= m_pTminhad_tight ) ntauhad_tight++;
         }
       }
     }
   }
 
-  bool pass = ( ntaulep+ntauhad >= m_Ntau
-		&& ntaulep >= m_Nleptau
-		&& ntauhad >= m_Nhadtau
-		&& (ntaulep<2 || ptlep_max>=m_pTminlep_lead)
-		&& (ntauhad<2 || pthad_max>=m_pTminhad_lead)
-		);
-  pass = m_ReverseFilter ? !pass : pass;
+  bool pass1 = ( ntaulep + ntauhad >= m_Ntau
+		 && ntaulep >= m_Nleptau
+		 && ntauhad >= m_Nhadtau
+		 && (ntaulep<2 || ptlep_max>=m_pTminlep_lead)
+		 && (ntauhad<2 || pthad_max>=m_pTminhad_lead)
+		 );
+  bool pass2 = ( ntaulep_tight + ntauhad_tight >= m_Ntau
+		 && ntaulep_tight >= m_Nleptau
+		 && ntauhad_tight >= m_Nhadtau
+		 && (ntaulep_tight<2 || ptlep_max>=m_pTminlep_tight_lead)
+		 && (ntauhad_tight<2 || pthad_max>=m_pTminhad_tight_lead)
+		 );
+
+  bool pass = m_ReverseFilter ? !pass1 : pass1;
+  
+  double extra_weight = 1;
+  if(m_NewOpt && m_HasTightRegion) {
+    if (pass2) {
+      pass = true;
+      extra_weight = 1/m_LooseRejectionFactor;
+      weight *= extra_weight;
+    }
+    else if (pass1) {
+      double rnd = rndm->flat(); // a random number between (0,1)
+      if(rnd > 1/m_LooseRejectionFactor) pass = false;
+      else pass = true;
+    }
+    else pass = false;
+  }
 
   m_events[0]++;
   m_events[3] += weight;
@@ -212,6 +265,28 @@ StatusCode TauFilter::filterEvent() {
     else {
       m_events_sel[2]++;
       m_events_sel[5] += weight;
+    }
+  }
+
+  if(m_NewOpt && m_HasTightRegion) {
+    // Get MC event collection for setting weight
+    const DataHandle<McEventCollection> mecc = 0;
+    if ( evtStore()->retrieve( mecc ).isFailure() || !mecc ){
+      setFilterPassed(false);
+      ATH_MSG_ERROR("Could not retrieve MC Event Collection - weight might not work");
+      return StatusCode::SUCCESS;
+    }
+
+    // Event passed.  Will weight events
+    McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
+    for (unsigned int i = 0; i < mec->size(); ++i) {
+      if (!(*mec)[i]) continue;
+      double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
+      if ((*mec)[i]->weights().size()>0) {
+	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
+      } else {
+	(*mec)[i]->weights().push_back( existingWeight*extra_weight );
+      }
     }
   }
 

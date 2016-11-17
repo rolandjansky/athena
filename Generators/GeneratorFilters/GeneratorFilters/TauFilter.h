@@ -8,8 +8,10 @@
 #include "GeneratorModules/GenFilter.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
+class IAtRndmGenSvc;
 
 /// @author Michael Heldmann, Jan 2003
+/// updated by Xin Chen, Nov. 2016
 class TauFilter : public GenFilter {
 public:
 
@@ -21,6 +23,8 @@ public:
   CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticle *tau );
 
 private:
+
+  ServiceHandle<IAtRndmGenSvc> m_rand; // Random number generator
 
   int m_Ntau;
   double m_etaMaxe;
@@ -40,6 +44,13 @@ private:
   double m_pTminlep_lead;
   double m_pTminhad_lead;
   bool m_ReverseFilter;
+  bool m_HasTightRegion;
+  double m_LooseRejectionFactor;
+  double m_pTminlep_tight;
+  double m_pTminlep_tight_lead;
+  double m_pTminhad_tight;
+  double m_pTminhad_tight_lead;
+  
   double m_events[6];
   double m_events_sel[6];
 
