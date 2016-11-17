@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MCBunchCrossingTool.h 660152 2015-04-13 07:19:38Z krasznaa $
+// $Id: MCBunchCrossingTool.h 762070 2016-07-15 08:39:37Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_MCBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_MCBUNCHCROSSINGTOOL_H
 
@@ -15,7 +15,7 @@
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
-#include "BunchCrossingConfProviderBase.h"
+#include "TrigBunchCrossingTool/BunchCrossingConfProviderBase.h"
 
 namespace Trig {
 
@@ -32,8 +32,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 660152 $
-    * $Date: 2015-04-13 09:19:38 +0200 (Mon, 13 Apr 2015) $
+    * $Revision: 762070 $
+    * $Date: 2016-07-15 10:39:37 +0200 (Fri, 15 Jul 2016) $
     */
    class MCBunchCrossingTool : public BunchCrossingToolBase,
                                public BunchCrossingConfProviderBase {

@@ -4,21 +4,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
+// $Id: TrigConfBunchCrossingTool.h 748399 2016-05-19 14:55:47Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_TRIGCONFBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_TRIGCONFBUNCHCROSSINGTOOL_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/IIncidentSvc.h"
+#ifndef XAOD_STANDALONE
+#   include "GaudiKernel/ServiceHandle.h"
+#endif // not XAOD_STANDALONE
+#include "AsgTools/ToolHandle.h"
 
 // Trigger include(s):
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#ifndef XAOD_STANDALONE
+#   include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#endif // not XAOD_STANDALONE
+#include "TrigConfInterfaces/ITrigConfigTool.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
-#include "BunchCrossingConfProviderBase.h"
+#include "TrigBunchCrossingTool/BunchCrossingConfProviderBase.h"
 
 namespace Trig {
 
@@ -37,23 +41,24 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 618331 $
-    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
+    * $Revision: 748399 $
+    * $Date: 2016-05-19 16:55:47 +0200 (Thu, 19 May 2016) $
     */
-   class TrigConfBunchCrossingTool : public virtual IIncidentListener,
-                                     public BunchCrossingToolBase,
+   class TrigConfBunchCrossingTool : public BunchCrossingToolBase,
                                      public BunchCrossingConfProviderBase {
 
+      /// Create a proper constructor for Athena
+      ASG_TOOL_CLASS2( TrigConfBunchCrossingTool,
+                       Trig::IBunchCrossingTool,
+                       Trig::IBunchCrossingConfProvider )
+
    public:
-      /// Standard AlgTool constructor
-      TrigConfBunchCrossingTool( const std::string& type, const std::string& name,
-                                 const IInterface* parent );
+      /// Default constructor
+      TrigConfBunchCrossingTool( const std::string& name =
+                                 "TrigConfBunchCrossingTool" );
 
       /// Regular AlgTool initialization function
       virtual StatusCode initialize();
-
-      /// Function called when a registered incident happens
-      virtual void handle( const Incident& inc );
 
       /// Unique identifier for the current configuration
       virtual configid_type configID() const;
@@ -66,19 +71,26 @@ namespace Trig {
       /// Override the default implementation because this tool doesn't provide this info
       virtual std::vector< float > configuredUnpairedIntensitiesBeam2() const;
 
+   protected:
+      /// Function called when a new event is loaded
+      virtual StatusCode beginEvent();
+
    private:
       /// Make sure that the latest/correct configuration is loaded
       StatusCode loadConfig();
       /// Print the "raw" configuration for debugging
-      void printBunchGroups() const;
+      void printBunchGroups( const TrigConf::IILVL1ConfigSvc* svc ) const;
 
-      unsigned int m_bgId; ///< DB ID of the BunchGroups settings which was loaded last
+      /// DB ID of the BunchGroups settings which was loaded last
+      unsigned int m_bgId;
 
-      /// Possible names for filled bunch groups
-      std::vector< std::string > m_filledBunchNames;
+#ifndef XAOD_STANDALONE
+      /// The config service handle
+      ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc;
+#endif // not XAOD_STANDALONE
 
-      ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc; ///< The config service handle
-      ServiceHandle< IIncidentSvc > m_incidentSvc; ///< The incident service handle
+      /// The config tool handle
+      ToolHandle< TrigConf::ITrigConfigTool > m_configTool;
 
    }; // class TrigConfBunchCrossingTool
 

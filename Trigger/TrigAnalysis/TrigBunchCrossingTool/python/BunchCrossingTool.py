@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingTool.py 586922 2014-03-10 14:56:39Z krasznaa $
+# $Id: BunchCrossingTool.py 784782 2016-11-17 09:42:26Z krasznaa $
 
 ## @package BunchCrossingTool
 #
@@ -9,8 +9,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 
 ##
 # @short Function instantiating the correct type of bunch crossing tool
@@ -28,8 +28,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def BunchCrossingTool( type = "" ):
 
     # Get ourselves a logger:
@@ -96,8 +96,8 @@ def BunchCrossingTool( type = "" ):
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def TrigConfBunchCrossingTool():
 
     # The default name of the tool:
@@ -128,13 +128,13 @@ def TrigConfBunchCrossingTool():
                    "configuration" )
 
     # Set up the trigger configuration service:
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr( svcMgr, "TrigConfigSvc" ):
-        __logger.error( "You have to make sure that TrigConfigSvc exists to use this "
-                        "tool!" )
-        __logger.error( "Try running in a RecExCommon environment..." )
-        raise NameError( "ServiceMgr.TrigConfigSvc not configured" )
-    __tool.ConfigSvc = svcMgr.TrigConfigSvc
+#    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+#    if not hasattr( svcMgr, "TrigConfigSvc" ):
+#        __logger.error( "You have to make sure that TrigConfigSvc exists to use this "
+#                        "tool!" )
+#        __logger.error( "Try running in a RecExCommon environment..." )
+#        raise NameError( "ServiceMgr.TrigConfigSvc not configured" )
+#    __tool.ConfigSvc = svcMgr.TrigConfigSvc
 
     # Now make sure that DSConfigSvc has access to the BG COOL folders:
     from IOVDbSvc.CondDB import conddb
@@ -163,8 +163,8 @@ def TrigConfBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def MCBunchCrossingTool():
 
     # The default name of the tool:
@@ -228,8 +228,8 @@ def MCBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def LHCBunchCrossingTool():
 
     # The default name of the tool:
@@ -285,8 +285,8 @@ def LHCBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def WebBunchCrossingTool():
 
     # The default name of the tool:
@@ -331,8 +331,8 @@ def WebBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def StaticBunchCrossingTool():
 
     # The default name of the tool:
@@ -369,8 +369,8 @@ def StaticBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
+# $Revision: 784782 $
+# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def D3PDBunchCrossingTool():
 
     # The default name of the tool:

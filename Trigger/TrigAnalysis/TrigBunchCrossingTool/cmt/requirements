@@ -10,6 +10,7 @@ use AsgTools        AsgTools-*        Control/AthToolSupport
 
 # Trigger package(s):
 use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
 
 end_public
 
@@ -17,7 +18,6 @@ private
 
 # Base Gaudi/Athena package(s):
 use AthenaKernel    AthenaKernel-*    Control
-use CxxUtils        CxxUtils-*        Control
 
 # External package(s):
 use AtlasROOT       AtlasROOT-*       External
@@ -27,7 +27,6 @@ use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use AtlasCORAL          AtlasCORAL-*          External
 
 # Trigger package(s):
-use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
 use TrigConfL1Data         TrigConfL1Data-*         Trigger/TrigConfiguration
 
 # xAOD include(s):

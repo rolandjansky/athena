@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_web_bunch_tool_test.cxx 625753 2014-11-03 13:40:15Z krasznaa $
+// $Id: ut_web_bunch_tool_test.cxx 745783 2016-05-10 06:47:18Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -52,6 +52,7 @@ int main() {
 
    // Try to load some configurations by run and lumiblock:
    SIMPLE_CHECK( tool.loadConfig( 194367, 10 ) );
+   SIMPLE_CHECK( tool.loadConfig( 284154, 40 ) );
    SIMPLE_CHECK( tool.loadConfig( 209109, 10 ) );
    SIMPLE_CHECK( tool.loadConfig( 209109, 20 ) );
 

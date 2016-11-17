@@ -1,4 +1,4 @@
-// $Id: TrigBunchCrossingTool_entries.cxx 620838 2014-10-09 11:38:00Z krasznaa $
+// $Id: TrigBunchCrossingTool_entries.cxx 762070 2016-07-15 08:39:37Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -8,8 +8,8 @@
 #include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 #include "TrigBunchCrossingTool/D3PDBunchCrossingTool.h"
 #include "TrigBunchCrossingTool/xAODBunchCrossingTool.h"
+#include "TrigBunchCrossingTool/TrigConfBunchCrossingTool.h"
 
-#include "../TrigConfBunchCrossingTool.h"
 #include "../MCBunchCrossingTool.h"
 #include "../LHCBunchCrossingTool.h"
 

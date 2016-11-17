@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingConfProviderBase.h 618331 2014-09-24 11:55:26Z krasznaa $
+// $Id: BunchCrossingConfProviderBase.h 748399 2016-05-19 14:55:47Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGCONFPROVIDERBASE_H
 #define TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGCONFPROVIDERBASE_H
 
@@ -23,8 +23,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 618331 $
-    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
+    * $Revision: 748399 $
+    * $Date: 2016-05-19 16:55:47 +0200 (Thu, 19 May 2016) $
     */
    class BunchCrossingConfProviderBase :
       public virtual IBunchCrossingConfProvider,

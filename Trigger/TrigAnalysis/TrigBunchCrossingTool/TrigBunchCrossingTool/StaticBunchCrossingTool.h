@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: StaticBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
+// $Id: StaticBunchCrossingTool.h 749252 2016-05-24 09:30:51Z krasznaa $
 #ifndef TRIGBUNCCROSSINGTOOL_STATICBUNCHCROSSINGTOOL_H
 #define TRIGBUNCCROSSINGTOOL_STATICBUNCHCROSSINGTOOL_H
 
@@ -29,8 +29,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 618331 $
-    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
+    * $Revision: 749252 $
+    * $Date: 2016-05-24 11:30:51 +0200 (Tue, 24 May 2016) $
     */
    class StaticBunchCrossingTool : public BunchCrossingToolBase {
 
@@ -55,6 +55,8 @@ namespace Trig {
                              std::vector< int >(),
                              const std::vector< float >& unpairedIntensities =
                              std::vector< float >() );
+      /// Load the configuration specified by the user
+      StatusCode loadConfig( const std::vector< float >& bunches );
 
    private:
       /// Default key to be loaded
