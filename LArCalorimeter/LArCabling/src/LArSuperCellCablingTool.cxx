@@ -61,6 +61,7 @@ StatusCode LArSuperCellCablingTool::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
     ATH_MSG_DEBUG("IOV callback for key " << *itr);
     if (*itr==m_onOffIdKey) {
       m_onOffValid=false;
+      readOnlOffMap();
     }
     else
       msg(MSG::WARNING) << "Callback fired for unknown key " << *itr << endmsg;
