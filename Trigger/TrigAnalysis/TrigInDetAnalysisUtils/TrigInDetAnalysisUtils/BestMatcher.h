@@ -29,33 +29,33 @@ protected:
   /// internal class to store the matching paramter for a pair, 
   /// and in the indices of the pair
 
-  class _matched { 
+  class matched_ { 
     
   public:
     
-    _matched(double d, int i, int j) : md(d), mmatch(std::pair<int,int>(i,j)) { } 
+    matched_(double d, int i, int j) : m_d(d), mmatch(std::pair<int,int>(i,j)) { } 
     
-    double d() const { return md; } 
+    double d() const { return m_d; } 
     
     std::pair<int, int> pair() const { return mmatch; }
     
     int first()  const { return mmatch.first; } 
     int second() const { return mmatch.second; } 
     
-    bool  operator<(const _matched& a) const { return d()<a.d(); }
-    bool  operator>(const _matched& a) const { return d()>a.d(); }
-    bool operator==(const _matched& a) const { return  d()==a.d(); } 
-    bool operator!=(const _matched& a) const { return  d()!=a.d(); } 
+    bool  operator<(const matched_& a) const { return d()<a.d(); }
+    bool  operator>(const matched_& a) const { return d()>a.d(); }
+    bool operator==(const matched_& a) const { return  d()==a.d(); } 
+    bool operator!=(const matched_& a) const { return  d()!=a.d(); } 
     
   private:
-    double              md;
+    double              m_d;
     std::pair<int, int> mmatch; 
   };
 
 public:
 
   BestMatcher(const std::string& name, double d) : 
-    TIDA::Associator<T,S>(name), md(d) 
+    TIDA::Associator<T,S>(name), m_d(d) 
   {   } 
   
   virtual ~BestMatcher() { } 
@@ -91,14 +91,14 @@ protected:
     /// NB: probably quicker to add them to a vector and then 
     ///     sort them afterward
     
-    std::multiset<_matched> m;
+    std::multiset<matched_> m;
     
     for (unsigned int i=0 ; i<ref.size() ; i++ ) { 
       
       for (unsigned int j=0 ; j<test.size() ; j++ ) { 
 	double d = distance(ref[i], test[j]);   
-	if ( d<md ){  
-	  m.insert( _matched(d, i, j) ); 
+	if ( d<m_d ){  
+	  m.insert( matched_(d, i, j) ); 
 	}
       }
     }
@@ -114,9 +114,9 @@ protected:
     /// NB: for some reason, using the multiset is faster 
     ///     than using a vector, even though we are only
     ///     iterating through it later
-    std::multiset<_matched> unique;
+    std::multiset<matched_> unique;
 
-    typename std::multiset<_matched>::iterator mitr = m.begin();
+    typename std::multiset<matched_>::iterator mitr = m.begin();
     
     double  chi2 = 0;
     
@@ -163,7 +163,7 @@ protected:
 
 protected:
 
-  double md;
+  double m_d;
 
 };
 

@@ -16,9 +16,9 @@
 #include "xAODTau/TauJet.h"
        
 namespace TIDA {
-  bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0); 
-  bool isGoodOffline(const xAOD::Muon& muon); 
-  bool isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0, const unsigned int selection = 0);
+  bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0, double ETOffline=0 ); 
+  bool isGoodOffline(const xAOD::Muon& muon, double ETOffline=0); 
+  bool isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, const unsigned int selection = 0, double EtOffline = 0.0 ); 
 }
 
 #else 
@@ -30,7 +30,7 @@ namespace TIDA {
 namespace TIDA {	
   bool isGoodOffline(const Analysis::Electron& elec); 
   bool isGoodOffline(const Analysis::Muon& muon); 	
-  bool isGoodOffline(const Analysis::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
+  bool isGoodOffline(const Analysis::TauJet& tau, bool doThreeProng = false, double EtCutOffline = 0.0);
 }
 #endif
 
