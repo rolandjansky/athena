@@ -27,7 +27,7 @@ StatusCode LArSuperCellCablingTool::initialize () {
   const LArOnline_SuperCellID* onlineId;
   StatusCode sc=detStore()->retrieve(onlineId, "LArOnline_SuperCellID");
   if (sc.isFailure()) {
-    msg() <<  MSG::FATAL << "Could not get LArSuperCellOnlineID helper !" << endreq;
+    msg() <<  MSG::FATAL << "Could not get LArSuperCellOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   m_onlineId=onlineId; //Cast to base-class
@@ -35,35 +35,36 @@ StatusCode LArSuperCellCablingTool::initialize () {
   const CaloCell_SuperCell_ID* caloCell_ID;
   sc=detStore()->retrieve(caloCell_ID,"CaloCell_SuperCell_ID");
   if (sc.isFailure()) {
-    msg() <<  MSG::FATAL << "Could not get CaloSuperCell_ID helper !" << endreq;
+    msg() <<  MSG::FATAL << "Could not get CaloSuperCell_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   m_caloId=caloCell_ID; //Cast to base-class
   
   sc=detStore()->regFcn(&LArSuperCellCablingTool::iovCallBack,this,m_attrOnOff,m_onOffIdKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endreq;
+    msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endmsg;
     return sc;
   }
   else {
-    msg(MSG::INFO) << "Successfully installed callback on folder" << m_onOffIdKey << endreq; 
+    msg(MSG::INFO) << "Successfully installed callback on folder" << m_onOffIdKey << endmsg; 
   }
   // Global INFO on initialize()
-  msg() <<MSG::INFO<< "Sucessfully initialized LArCablingService "<< endreq; //Add more info about regular or SC, with or wo calib-lines, etc.
+  msg() <<MSG::INFO<< "Sucessfully initialized LArCablingService "<< endmsg; //Add more info about regular or SC, with or wo calib-lines, etc.
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArSuperCellCablingTool::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
-  msg() << MSG::INFO<<" ====> iovCallBack " << endreq;
+  msg() << MSG::INFO<<" ====> iovCallBack " << endmsg;
   
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
     ATH_MSG_DEBUG("IOV callback for key " << *itr);
     if (*itr==m_onOffIdKey) {
       m_onOffValid=false;
+      readOnlOffMap();
     }
     else
-      msg(MSG::WARNING) << "Callback fired for unknown key " << *itr << endreq;
+      msg(MSG::WARNING) << "Callback fired for unknown key " << *itr << endmsg;
   } //end loop over keys
   return StatusCode::SUCCESS;
 }
