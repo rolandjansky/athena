@@ -46,7 +46,7 @@ public:
 
   /** given 2 container of data - zero bias real data and the simulation,
       do the merging */
-  void overlayContainer(CscRawDataContainer* main, const CscRawDataContainer* overlay);
+  void overlayContainer(const CscRawDataContainer* main, const CscRawDataContainer* overlay);
   void overlayContainer(std::auto_ptr<CscRawDataContainer>& data, const CscRawDataContainer* mc) {
     this->overlayContainer(data.get(), mc);
   }

@@ -12,6 +12,7 @@ use CscCalibTools	CscCalibTools-*         MuonSpectrometer/MuonCalib/CscCalib
 use MuonCSC_CnvTools    MuonCSC_CnvTools-*      MuonSpectrometer/MuonCnv
 
 private
+use CxxUtils       CxxUtils-*          Control
 use GeneratorObjects    GeneratorObjects-*      Generators
 use MuonDigToolInterfaces       MuonDigToolInterfaces-* MuonSpectrometer/MuonDigitization
 use MuonIdHelpers       MuonIdHelpers-*         MuonSpectrometer
