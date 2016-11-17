@@ -29,3 +29,4 @@ atlas_add_library( pyhlttestapps
 atlas_install_python_modules( python/HLTTestApps/*.py python/HLTTestApps/plugins )
 atlas_install_scripts( python/scripts/*.py python/scripts/*.sh )
 
+atlas_add_alias( athenaHLT "athenaHLT.py" )
