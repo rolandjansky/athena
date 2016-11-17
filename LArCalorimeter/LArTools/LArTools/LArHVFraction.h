@@ -23,7 +23,7 @@
 ///
 class LArHVFraction {  
  public:
-  LArHVFraction(ILArHVCorrTool *tool, double threshold=0.002) : m_tool(tool), m_threshold(threshold) {}
+  LArHVFraction(const ILArHVCorrTool *tool, double threshold=0.002) : m_tool(tool), m_threshold(threshold) {}
   
   struct Result {
     double energySum;
@@ -67,7 +67,7 @@ class LArHVFraction {
   }
   
  protected:
-  ILArHVCorrTool *m_tool;
+  const ILArHVCorrTool *m_tool;
   double m_threshold;
 };
 
