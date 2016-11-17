@@ -26,3 +26,7 @@ use ISF_Event           ISF_Event-*                  Simulation/ISF/ISF_Core
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
+# This setting is needed to set up an interface library in the package for the
+# CMake build:
+apply_pattern cmake_add_command command=metalibrary
