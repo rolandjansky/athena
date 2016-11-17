@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: reader.h 445480 2011-06-25 18:01:30Z krasznaa $
+// $Id: reader.h 780643 2016-10-27 03:39:39Z ssnyder $
 /**********************************************
 
 License: BSD
@@ -15,7 +15,7 @@ Author: Terry Caton
 #include <vector>
 
 // Local include(s):
-#include "elements.h"
+//#include "elements.h"
 
 namespace json {
 
