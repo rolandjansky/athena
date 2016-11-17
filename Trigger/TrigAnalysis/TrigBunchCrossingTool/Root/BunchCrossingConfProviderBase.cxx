@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingConfProviderBase.cxx 511865 2012-07-31 08:44:12Z krasznaa $
+// $Id: BunchCrossingConfProviderBase.cxx 748399 2016-05-19 14:55:47Z krasznaa $
 
 // Local include(s):
-#include "BunchCrossingConfProviderBase.h"
+#include "TrigBunchCrossingTool/BunchCrossingConfProviderBase.h"
 #include "TrigBunchCrossingTool/BunchCrossing.h"
 
 namespace Trig {

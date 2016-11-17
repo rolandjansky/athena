@@ -2,48 +2,59 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfBunchCrossingTool.cxx 628934 2014-11-17 16:42:54Z ssnyder $
+// $Id: TrigConfBunchCrossingTool.cxx 762070 2016-07-15 08:39:37Z krasznaa $
 
 // STL include(s):
 #include <algorithm>
+#include <vector>
 
-// Gaudi/Athena include(s):
-#include "AthenaKernel/errorcheck.h"
+// Gaudi include(s):
+#ifndef XAOD_STANDALONE
+#   include "GaudiKernel/IIncidentSvc.h"
+#endif // not XAOD_STANDALONE
 
 // Trigger config include(s):
 #include "TrigConfL1Data/BunchGroup.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
 
 // Local include(s):
-#include "TrigConfBunchCrossingTool.h"
+#include "TrigBunchCrossingTool/TrigConfBunchCrossingTool.h"
+
+namespace {
+
+   template< typename T >
+   MsgStream& operator<< ( MsgStream& out, const std::vector< T >& vec ) {
+
+      out << "[";
+      for( size_t i = 0; i < vec.size(); ++i ) {
+         out << vec[ i ];
+         if( i < vec.size() - 1 ) {
+            out << ", ";
+         }
+      }
+      out << "]";
+
+      // Return the stream:
+      return out;
+   }
+
+} // private namespace
 
 namespace Trig {
 
-   /// Name of the trigger configuration incidents
-   /**
-    * Unfortunately the name of the trigger configuration incidents is not
-    * published the same way as for the event incidents. So the easiest is just
-    * to create a variable locally.
-    */
-   static const std::string TRIGCONF_INCIDENT_NAME = "TrigConf";
-
-   TrigConfBunchCrossingTool::TrigConfBunchCrossingTool( const std::string&,
-                                                         const std::string& name,
-                                                         const IInterface* )
+   TrigConfBunchCrossingTool::
+   TrigConfBunchCrossingTool( const std::string& name )
       : BunchCrossingToolBase( name ), m_bgId( -1 ),
+#ifndef XAOD_STANDALONE
         m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-        m_incidentSvc( "IncidentSvc", name ) {
-
-      // Declare the interfaces provided by the tool:
-      declareInterface< IBunchCrossingTool >( this );
-      declareInterface< IBunchCrossingConfProvider >( this );
-      declareInterface< IIncidentListener >( this );
+#endif // not XAOD_STANDALONE
+        m_configTool( "TrigConf::xAODConfigTool" ) {
 
       // Declare the properties of the tool:
-      declareProperty( "FilledBunchNames", m_filledBunchNames,
-                       "Possible names for the filled bunch groups (DEPRECATED)" );
-
+#ifndef XAOD_STANDALONE
       declareProperty( "ConfigSvc", m_configSvc );
+#endif // not XAOD_STANDALONE
+      declareProperty( "ConfigTool", m_configTool );
    }
 
    StatusCode TrigConfBunchCrossingTool::initialize() {
@@ -53,44 +64,33 @@ namespace Trig {
       m_bgId = -1;
 
       // Report about the initialization:
-      ATH_MSG_INFO( "Initializing TrigConfBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
+      ATH_MSG_INFO( "Initializing TrigConfBunchCrossingTool" );
       ATH_MSG_INFO( "  Maximal bunch spacing: " << m_maxBunchSpacing << " ns" );
       ATH_MSG_INFO( "  Length of train front: " << m_frontLength << " ns" );
       ATH_MSG_INFO( "  Length of train tail : " << m_tailLength << " ns" );
-      ATH_MSG_DEBUG( "  Filled bunch names   : " << m_filledBunchNames );
+#ifndef XAOD_STANDALONE
       ATH_MSG_DEBUG( "  LVL1 config service  : " << m_configSvc );
+#endif // XAOD_STANDALONE
+      ATH_MSG_DEBUG( "  Trig config tool     : " << m_configTool );
 
-      // Retrieve the incident service, and register the tool for the trigger
-      // configuration incidents:
-      CHECK( m_incidentSvc.retrieve() );
-      m_incidentSvc->addListener( this, TRIGCONF_INCIDENT_NAME );
+      // Retrieve the trigger configuration service/tool:
+#ifndef XAOD_STANDALONE
+      ATH_CHECK( m_configSvc.retrieve() );
+#else
+      ATH_CHECK( m_configTool.retrieve() );
+#endif // not XAOD_STANDALONE
 
-      // Retrieve the trigger configuration service:
-      CHECK( m_configSvc.retrieve() );
-
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   /**
-    * The function checks if it received the expected type of incident, and then
-    * instructs the tool to check if its configuration needs to be changed.
-    */
-   void TrigConfBunchCrossingTool::handle( const Incident& inc ) {
+   StatusCode TrigConfBunchCrossingTool::beginEvent() {
 
-      if( inc.type() == TRIGCONF_INCIDENT_NAME ) {
-         if( loadConfig().isFailure() ) {
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Failed to load the new BunchGroup configuration!";
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Results will be unreliable!";
-            return;
-         }
-         return;
-      }
+      // Simply call the function doing the heavy lifting:
+      ATH_CHECK( loadConfig() );
 
-      REPORT_MESSAGE( MSG::WARNING ) << "Received a not requested incident";
-      return;
+      // Retrun gracefully:
+      return StatusCode::SUCCESS;
    }
 
    /**
@@ -178,38 +178,45 @@ namespace Trig {
     */
    StatusCode TrigConfBunchCrossingTool::loadConfig() {
 
+      // Decide where to take the configuration from:
+      TrigConf::IILVL1ConfigSvc* configSvc = 0;
+#ifndef XAOD_STANDALONE
+      configSvc = m_configSvc.operator->();
+#else
+      configSvc = m_configTool.operator->();
+#endif // not XAOD_STANDALONE
+
       // Check if the needed info is even there:
-      if( ! m_configSvc->bunchGroupSet() ) {
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "Trigger configuration service doesn't provide "
-            << "BunchGroupSet information";
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "Could you be reading MC files with this tool?";
+      if( ! configSvc->bunchGroupSet() ) {
+         ATH_MSG_FATAL( "Trigger configuration service doesn't provide "
+                        "BunchGroupSet information" );
          return StatusCode::FAILURE;
       }
 
       // Check if we already have the correct configuration:
-      if( m_configSvc->bunchGroupSet()->id() == m_bgId ) {
+      if( configSvc->bunchGroupSet()->id() == m_bgId ) {
          return StatusCode::SUCCESS;
       }
 
       // Report to the user what we're doing:
       ATH_MSG_INFO( "Updating tool configuration to BGKey #"
-                    << m_configSvc->bunchGroupSet()->id() );
+                    << configSvc->bunchGroupSet()->id() );
 
       // Print the configuration for debugging purposes, and remember which one
       // we're processing:
-      m_bgId = m_configSvc->bunchGroupSet()->id();
-      printBunchGroups();
+      m_bgId = configSvc->bunchGroupSet()->id();
+      printBunchGroups( configSvc );
 
       //
       // Select the collision bunch group:
       //
       const std::vector< TrigConf::BunchGroup >& bgs =
-         m_configSvc->bunchGroupSet()->bunchGroups();
-      std::vector< TrigConf::BunchGroup >::const_iterator filled_bg = bgs.begin();
+         configSvc->bunchGroupSet()->bunchGroups();
+      std::vector< TrigConf::BunchGroup >::const_iterator filled_bg =
+         bgs.begin();
       ++filled_bg;
-      ATH_MSG_INFO( "Taking the second bunch group as the colliding bunch group" );
+      ATH_MSG_INFO( "Taking the second bunch group as the colliding bunch "
+                    "group" );
 
       //
       // Now interpret the information:
@@ -223,19 +230,15 @@ namespace Trig {
       //
       std::vector< int > unpaired;
       // These are the "unpaired isolated" bunches:
-      if( bgs.size() > 4 ) unpaired.insert( unpaired.end(), bgs[ 4 ].bunches().begin(),
-                                            bgs[ 4 ].bunches().end() );
+      if( bgs.size() > 4 ) {
+         unpaired.insert( unpaired.end(), bgs[ 4 ].bunches().begin(),
+                          bgs[ 4 ].bunches().end() );
+      }
       // These are the "unpaired non-isolated" bunches:
-      if( bgs.size() > 5 ) unpaired.insert( unpaired.end(), bgs[ 5 ].bunches().begin(),
-                                            bgs[ 5 ].bunches().end() );
-      // These are the general unpaired bunches:
-      /*
-        In 2012 bunch group 7 no longer means unpaired bunches, but is a special
-        group used for triggering on bunches excluding the first 3 bunches of trains.
-
-      if( bgs.size() > 7 ) unpaired.insert( unpaired.end(), bgs[ 7 ].bunches().begin(),
-                                            bgs[ 7 ].bunches().end() );
-      */
+      if( bgs.size() > 5 ) {
+         unpaired.insert( unpaired.end(), bgs[ 5 ].bunches().begin(),
+                          bgs[ 5 ].bunches().end() );
+      }
 
       //
       // Now interpret the information:
@@ -245,10 +248,15 @@ namespace Trig {
       // Print the configuration to give some feedback to the user:
       printConfig();
 
+#ifndef XAOD_STANDALONE
       // Let everybody know that the configuration of the tool has changed:
-      m_incidentSvc->fireIncident( Incident( "BunchConfiguration update",
-                                             BUNCH_CONFIG_INCIDENT_NAME ) );
+      ServiceHandle< IIncidentSvc > incidentSvc( "IncidentSvc", name() );
+      ATH_CHECK( incidentSvc.retrieve() );
+      incidentSvc->fireIncident( Incident( "BunchConfiguration update",
+                                           BUNCH_CONFIG_INCIDENT_NAME ) );
+#endif // not XAOD_STANDALONE
 
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
@@ -256,22 +264,20 @@ namespace Trig {
     * This function is only here for debugging. It prints practically the full
     * configuration information that the tool has to work with.
     */
-   void TrigConfBunchCrossingTool::printBunchGroups() const {
+   void TrigConfBunchCrossingTool::
+   printBunchGroups( const TrigConf::IILVL1ConfigSvc* svc ) const {
 
       // Skip the rest if nothing will be printed anyway:
       if( ! msgLvl( MSG::VERBOSE ) ) return;
 
-      REPORT_MESSAGE( MSG::VERBOSE ) << "Printing BunchGroup configuration:";
-      const std::vector< TrigConf::BunchGroup >& bgs =
-         m_configSvc->bunchGroupSet()->bunchGroups();
-      std::vector< TrigConf::BunchGroup >::const_iterator itr = bgs.begin();
-      std::vector< TrigConf::BunchGroup >::const_iterator end = bgs.end();
-      for( ; itr != end; ++itr ) {
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  BG \"" << itr->name() << "\": "
-                                        << itr->bunches();
+      // Print the information:
+      ATH_MSG_VERBOSE( "Printing BunchGroup configuration:" );
+      for( const auto& bg : svc->bunchGroupSet()->bunchGroups() ) {
+         ATH_MSG_VERBOSE( "  BG \"" << bg.name() << "\": " << bg.bunches() );
       }
 
+      // Return gracefully:
       return;
    }
 
-}
+} // namespace Trig

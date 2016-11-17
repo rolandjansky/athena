@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.cxx 689822 2015-08-17 16:25:33Z krasznaa $
+// $Id: LHCBunchCrossingTool.cxx 780643 2016-10-27 03:39:39Z ssnyder $
 
 // System include(s):
 #include <inttypes.h>
@@ -34,8 +34,14 @@ namespace Trig {
                                                const std::string& name,
                                                const IInterface* /*parent*/ )
       : BunchCrossingToolBase( name ),
+        m_id(),
+        m_intValid(false),
         m_incidentSvc( "IncidentSvc", name ),
-        m_iovSvc( "IOVDbSvc", name ) {
+        m_iovSvc( "IOVDbSvc", name ),
+        m_beam1Bunches(0),
+        m_beam2Bunches(0),
+        m_luminousBunches(0)
+   {
 
       // Declare the interfaces provided by the tool:
       declareInterface< IBunchCrossingTool >( this );
@@ -168,7 +174,7 @@ namespace Trig {
          else if( *itr == LHC_BUNCHDATA_FOLDER ) update_bunchdata = true;
          msg() << " " << *itr;
       }
-      msg() << endreq;
+      msg() << endmsg;
 
       // Warn the user in case the update will probably not succeed:
       if( update_fillparams && ( ! update_bunchdata ) ) {

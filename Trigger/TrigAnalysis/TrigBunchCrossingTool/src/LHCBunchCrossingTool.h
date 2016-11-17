@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.h 656931 2015-03-26 10:35:21Z krasznaa $
+// $Id: LHCBunchCrossingTool.h 762070 2016-07-15 08:39:37Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 
@@ -19,7 +19,7 @@
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
-#include "BunchCrossingConfProviderBase.h"
+#include "TrigBunchCrossingTool/BunchCrossingConfProviderBase.h"
 
 // Forward declaration(s):
 namespace coral {
@@ -45,8 +45,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 656931 $
-    * $Date: 2015-03-26 11:35:21 +0100 (Thu, 26 Mar 2015) $
+    * $Revision: 762070 $
+    * $Date: 2016-07-15 10:39:37 +0200 (Fri, 15 Jul 2016) $
     */
    class LHCBunchCrossingTool : public BunchCrossingToolBase,
                                 public BunchCrossingConfProviderBase {
