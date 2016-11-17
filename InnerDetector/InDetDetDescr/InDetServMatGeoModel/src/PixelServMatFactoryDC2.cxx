@@ -46,12 +46,12 @@ PixelServMatFactoryDC2::~PixelServMatFactoryDC2()
 void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
 
   // Get the material manager:  
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
 
   // And the list of materials that we are using:
     std::string mat[6] = {
@@ -68,7 +68,7 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel;
   sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
 
   DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
  

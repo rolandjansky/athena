@@ -44,7 +44,7 @@ SCT_ServMatFactory::~SCT_ServMatFactory()
 void SCT_ServMatFactory::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
   DecodeVersionKey atlasVersionKey(geoModelSvc(), "ATLAS");
   DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
@@ -60,7 +60,7 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
   IRDBRecordset_ptr sctsup = rdbAccessSvc()->getRecordsetPtr("SCTSupport",  indetVersionKey.tag(), indetVersionKey.node());
   IRDBRecordset_ptr weightTable = rdbAccessSvc()->getRecordsetPtr("SctWeights", sctVersionKey.tag(), sctVersionKey.node());
   IRDBRecordset_ptr scalingTable = rdbAccessSvc()->getRecordsetPtr("InDetServMatScaling", indetVersionKey.tag(), indetVersionKey.node());
-  IRDBRecordset_ptr cage = rdbAccessSvc()->getRecordsetPtr("SquirrelCage", sctVersionKey.tag(), sctVersionKey.node());
+  IRDBRecordset_ptr cage = rdbAccessSvc()->getRecordsetPtr("SquirrelCage", atlasVersionKey.tag(), atlasVersionKey.node());
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table.

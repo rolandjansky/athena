@@ -53,11 +53,11 @@ SCT_ServMatFactoryDC2::~SCT_ServMatFactoryDC2()
 void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
  
   double epsilon = 0.002;
 
@@ -67,7 +67,7 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel;
   sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
  
 
   DecodeVersionKey sctVersionKey(geoModel, "SCT");

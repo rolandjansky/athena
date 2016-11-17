@@ -54,14 +54,14 @@ void InDetServMatFactoryDC2::create(GeoPhysVol *world)
   
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
 
 
   // Get the SvcLocator 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel;
   sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
  
 
   DecodeVersionKey atlasVersionKey(geoModel, "ATLAS");
@@ -70,16 +70,16 @@ void InDetServMatFactoryDC2::create(GeoPhysVol *world)
   DecodeVersionKey trtVersionKey(geoModel, "TRT");
 
 
-  msg(MSG::DEBUG) << "Building InDet Service Material with ATLAS Version Tag: " << atlasVersionKey.tag() << endreq;
+  msg(MSG::DEBUG) << "Building InDet Service Material with ATLAS Version Tag: " << atlasVersionKey.tag() << endmsg;
   msg(MSG::DEBUG) << "                                with InDet Version Tag: " << indetVersionKey.tag() << " at Node: "
-      << indetVersionKey.node() << endreq;
+      << indetVersionKey.node() << endmsg;
   msg(MSG::DEBUG) << "                                with SCT   Version Tag: " << sctVersionKey.tag() << " at Node: "
-      << sctVersionKey.node() << endreq;
+      << sctVersionKey.node() << endmsg;
   msg(MSG::DEBUG) << "                                with TRT   Version Tag: " << trtVersionKey.tag() << " at Node: "
-      << trtVersionKey.node() << endreq;
-  msg(MSG::DEBUG) << " InDetServices Version " << m_rdbAccess->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endreq;
-  msg(MSG::DEBUG) << " SCT           Version " << m_rdbAccess->getChildTag("SCT", sctVersionKey.tag(), sctVersionKey.node(), false) << endreq;
-  msg(MSG::DEBUG) << " TRT           Version " << m_rdbAccess->getChildTag("TRT", trtVersionKey.tag(), trtVersionKey.node(), false) << endreq;
+      << trtVersionKey.node() << endmsg;
+  msg(MSG::DEBUG) << " InDetServices Version " << m_rdbAccess->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endmsg;
+  msg(MSG::DEBUG) << " SCT           Version " << m_rdbAccess->getChildTag("SCT", sctVersionKey.tag(), sctVersionKey.node(), false) << endmsg;
+  msg(MSG::DEBUG) << " TRT           Version " << m_rdbAccess->getChildTag("TRT", trtVersionKey.tag(), trtVersionKey.node(), false) << endmsg;
 
 
   IRDBRecordset_ptr atls = m_rdbAccess->getRecordsetPtr("AtlasMother",  atlasVersionKey.tag(), atlasVersionKey.node());

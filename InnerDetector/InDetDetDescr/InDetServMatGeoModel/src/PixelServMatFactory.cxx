@@ -42,7 +42,7 @@ PixelServMatFactory::~PixelServMatFactory()
 //## Other Operations (implementation)
 void PixelServMatFactory::create(GeoPhysVol *mother)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq; 
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg; 
   
   DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
   DecodeVersionKey pixelVersionKey(geoModelSvc(), "Pixel");

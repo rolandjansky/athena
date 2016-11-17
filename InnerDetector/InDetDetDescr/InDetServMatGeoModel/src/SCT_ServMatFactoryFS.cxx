@@ -54,14 +54,14 @@ SCT_ServMatFactoryFS::~SCT_ServMatFactoryFS()
 void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
 
   // Get the SvcLocator 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel;
   StatusCode sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
  
   DecodeVersionKey atlasVersionKey(geoModel, "ATLAS");
   DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");

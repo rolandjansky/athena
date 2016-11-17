@@ -61,7 +61,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
     tmpStr >> sqversion;
   }
-  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endreq;
+  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endmsg;
   
 
 //----------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
     tmpStr >> sqversion;
   }
-  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endreq;
+  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endmsg;
   
 
 //----------------------------------------------------------------------------------

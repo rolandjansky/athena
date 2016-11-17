@@ -48,7 +48,7 @@ SCT_ServMatFactoryDC3::~SCT_ServMatFactoryDC3()
 void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
 
   double epsilon = 0.002;

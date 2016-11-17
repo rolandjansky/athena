@@ -67,7 +67,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 
   if (m_devVersion) {
     msg(MSG::WARNING) << "You are using a development version. There are no guarantees of stability" 
-	<< endreq;
+	<< endmsg;
   }
 
   // 
@@ -77,7 +77,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
     msg(MSG::ERROR) 
         << "Could not find GeoModelExperiment ATLAS" 
-        << endreq; 
+        << endmsg; 
     return (StatusCode::FAILURE); 
   } 
   
@@ -87,7 +87,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   // Get the detector configuration.
   StatusCode sc = m_geoModelSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
  
@@ -95,23 +95,23 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 
   sc = m_rdbAccessSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
   
   std::string versionTag = m_rdbAccessSvc->getChildTag("InDetServices", versionKey.tag(), versionKey.node(), false);
-  msg(MSG::INFO) << "InDetServMat Package Version: " << PACKAGE_VERSION << endreq;
-  if(msgLvl(MSG::DEBUG)) msg() << "versionTag=" << versionTag <<" %%%"<< endreq;
+  msg(MSG::INFO) << "InDetServMat Package Version: " << PACKAGE_VERSION << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg() << "versionTag=" << versionTag <<" %%%"<< endmsg;
 
   // If versionTag is NULL then don't build.
   if (versionTag.empty()) { 
-    msg(MSG::INFO)  << "No InDetService Version. InDetService will not be built." << endreq;
+    msg(MSG::INFO)  << "No InDetService Version. InDetService will not be built." << endmsg;
     if(msgLvl(MSG::DEBUG)) msg() << "InnerDetector Version Tag: " << versionKey.tag() << " at Node: " 
-	<< versionKey.node() << endreq;
+	<< versionKey.node() << endmsg;
     return StatusCode::SUCCESS;
   } 
 
-  if(msgLvl(MSG::DEBUG)) msg() << "Keys for InDetServMat Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << "Keys for InDetServMat Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endmsg;
   
   std::string versionName;
   std::string descrName="noDescr";
@@ -124,15 +124,15 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 
   if (!m_overrideVersionName.empty()) {
     versionName = m_overrideVersionName;
-    msg(MSG::INFO) << "Overriding version name: " << versionName << endreq;
+    msg(MSG::INFO) << "Overriding version name: " << versionName << endmsg;
   }
  
-  msg(MSG::INFO) << "Building Inner Detector Service Material. Version: " << versionName << endreq;
+  msg(MSG::INFO) << "Building Inner Detector Service Material. Version: " << versionName << endmsg;
 
   // Retrieve the Geometry DB Interface
   sc = m_geometryDBSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
+    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
     return (StatusCode::FAILURE); 
   }  
 
@@ -148,15 +148,15 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
     if (!m_builderTool.empty()) {
       sc = m_builderTool.retrieve(); 
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Service builder tool retrieved: " << m_builderTool << endreq;
+	msg(MSG::INFO) << "Service builder tool retrieved: " << m_builderTool << endmsg;
 	m_athenaComps->setBuilderTool(&*m_builderTool);
       } else {
-	msg(MSG::ERROR) << "Could not retrieve " <<  m_builderTool << ",  some services will not be built." << endreq;
+	msg(MSG::ERROR) << "Could not retrieve " <<  m_builderTool << ",  some services will not be built." << endmsg;
       }
     } else {
       // This will become an error once the tool is ready.
-      //msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endreq;
-      msg(MSG::INFO) << "Service builder tool not specified." << endreq; 
+      //msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
+      msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
     }
   }
   
@@ -169,7 +169,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
       //
       GeoPhysVol *world=&*theExpt->getPhysVol();
       if(m_forFrozenShowers) {
-	if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory FS " << endreq;
+	if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory FS " << endmsg;
 	InDetServMatFactoryFS theIDSM(detStore,m_rdbAccessSvc);
 	theIDSM.create(world);
 	m_manager=theIDSM.getDetectorManager();
@@ -177,37 +177,37 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 	if(!m_devVersion) {
 	  if (versionName.empty() || versionName == "DC2") {
 	    // DC2 and Rome
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory DC2 " << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory DC2 " << endmsg;
 	    InDetServMatFactoryDC2 theIDSM(detStore, m_rdbAccessSvc);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
 	  } else if (versionName == "DC3") {
 	    // DC3 
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory DC3 " << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory DC3 " << endmsg;
 	    InDetServMatFactoryDC3 theIDSM(m_athenaComps);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
 	  } else if (versionName == "CSC") {
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory CSC " << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory CSC " << endmsg;
 	    InDetServMatFactory theIDSM(m_athenaComps);
 	    theIDSM.create(world);
 	    m_manager=theIDSM.getDetectorManager();
 	  } else if (versionName == "SLHC") {
-	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory SLHC version " << endreq;
+	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory SLHC version " << endmsg;
 	    InDetServMatFactorySLHC theIDSM(m_athenaComps);
 	    if(descrName.compare("TrackingGeometry")!=0)
 	      theIDSM.create(world);
 	    else
-	      msg(MSG::INFO) << "InDetServices - TrackingGeometry tag - no geometry built" << endreq; 
+	      msg(MSG::INFO) << "InDetServices - TrackingGeometry tag - no geometry built" << endmsg; 
 	    m_manager=theIDSM.getDetectorManager();    
 	  } else {
 	    // Unrecognized name.
-	    msg(MSG::ERROR) << " Unrecognized VersionName: " << versionName << endreq;
+	    msg(MSG::ERROR) << " Unrecognized VersionName: " << versionName << endmsg;
 	    return StatusCode::FAILURE;
 	  }
 	} else { // Development Versions
 	  // CSC 
-	  if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory Development version " << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory Development version " << endmsg;
 	  InDetServMatFactory theIDSM(m_athenaComps);
 	  theIDSM.create(world);
 	  m_manager=theIDSM.getDetectorManager();
@@ -215,7 +215,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
       }
 
     } catch (std::bad_alloc) {
-	msg(MSG::FATAL) << "Could not create new InDetServMatNode!" << endreq;
+	msg(MSG::FATAL) << "Could not create new InDetServMatNode!" << endmsg;
       return StatusCode::FAILURE; 
     }
   }
@@ -223,7 +223,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
     theExpt->addManager(m_manager);
     CHECK( detStore->record (m_manager, m_manager->getName()) );
   } else {
-    msg(MSG::FATAL) << "Could not create InDetServMatManager!" << endreq;
+    msg(MSG::FATAL) << "Could not create InDetServMatManager!" << endmsg;
     return StatusCode::FAILURE;     
   }
   return result;

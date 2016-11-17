@@ -51,14 +51,14 @@ PixelServMatFactoryFS::~PixelServMatFactoryFS()
 //## Other Operations (implementation)
 void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
 
   
  // Get the SvcLocator 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IGeoModelSvc *geoModel;
   StatusCode sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
 
   DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
   DecodeVersionKey pixelVersionKey(geoModel, "Pixel");

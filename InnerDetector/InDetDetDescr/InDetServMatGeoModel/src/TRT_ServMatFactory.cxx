@@ -48,7 +48,7 @@ TRT_ServMatFactory::~TRT_ServMatFactory()
 void TRT_ServMatFactory::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
 
   //double epsilon = 0.002;
   
