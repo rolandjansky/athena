@@ -10,15 +10,14 @@ print("<tr><td>\n<ul>\n");
  $index_page="TrigInDetValidation/$job/TIDAWeb";
 
 $releases = array( 
- "17.3.X.Y-VAL/build/i686-slc5-gcc43-opt/offline", 
- "19.0.X.Y-VAL/build/x86_64-slc6-gcc47-opt/p1hlt",
- "19.0.X.Y-VAL2/build/x86_64-slc6-gcc47-opt/p1hlt",
- "19.1.1.Y-VAL/build/x86_64-slc6-gcc47-opt/offline",
- "19.1.1.Y-VAL/build/x86_64-slc6-gcc47-opt/offline",
- "19.1.1.X.Y-VAL/build/x86_64-slc6-gcc47-opt/p1hlt",
- "dev/build/x86_64-slc6-gcc47-opt/offline",
- "devval/build/x86_64-slc6-gcc47-opt/offline",
- "mig8/build/x86_64-slc6-gcc47-opt/offline" );
+ "20.11.X.Y-VAL/build/x86_64-slc6-gcc49-opt/p1hlt",
+ "20.11.X.Y.Z-VAL/build/x86_64-slc6-gcc49-opt/AtlasCAFHLT",
+ "20.7.X-VAL/build/x86_64-slc6-gcc49-opt/offline",
+ "20.7.X.Y-VAL/build/x86_64-slc6-gcc49-opt/offline",
+ "21.0.X-VAL/build/x86_64-slc6-gcc49-opt/offline",
+ "21.0.X/build/x86_64-slc6-gcc49-opt/offline",
+ "dev/build/x86_64-slc6-gcc49-opt/offline",
+ "devval/build/x86_64-slc6-gcc49-opt/offline" );
 
 
 for ( $i=0 ; $i<count($releases) ; $i++ ) { 

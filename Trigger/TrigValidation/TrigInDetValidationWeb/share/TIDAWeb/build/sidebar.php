@@ -37,7 +37,7 @@
         <!-- print all the different tests from this release -->
         <?php 
 	
-          $job_types = array( "bjet_", "el_", "mu_", "tau_", "ttbar_", "minBias", "cosmic" );
+          $job_types = array( "bjet_", "el_", "mu_", "tau_", "all_", "beamspot_", "minBias", "cosmic" );
 
           $dirs  = scandir("../../");
 //        $plots = scandir("$plot_directory");
@@ -53,7 +53,7 @@
 	      if (   strpos($dir,'merge') == true   ) continue; 
 
   	      if (   strpos($dir,'el_single_e_7-80_pu40') == true  && !( strpos($dir,'IBL') == true || strpos($dir,'large') == true ) ) continue;
-	      if (   strpos($dir,'Jpsi') == true   ) continue;  
+//	      if (   strpos($dir,'Jpsi') == true   ) continue;  
  	      if (   strpos($dir,'single_e_5_run2') == true ) continue;
    
 	      if ( $dir != "." && $dir != ".." ) {  
