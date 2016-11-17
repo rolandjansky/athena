@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerPhotonsReader.cxx 752569 2016-06-03 16:03:26Z ssnyder $
+// $Id: CaloRingerPhotonsReader.cxx 752568 2016-06-03 16:03:21Z ssnyder $
 // =============================================================================
 #include "CaloRingerPhotonsReader.h"
 

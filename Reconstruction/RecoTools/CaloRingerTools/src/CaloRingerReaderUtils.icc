@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerReaderUtils.icc 732386 2016-03-25 03:21:48Z ssnyder $
+// $Id: CaloRingerReaderUtils.icc 771623 2016-09-02 20:35:34Z ssnyder $
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 
@@ -34,7 +34,7 @@ void BuildCaloRingsFctor<particle_t>::displayLoopingMessage() const {
     m_msg << MSG::DEBUG << " ---------- Reading " 
         << m_particle_name << str << " candidate"
         << ++this->m_part_counter << "/" << this->m_part_size
-        << " ----------- " << endreq;
+        << " ----------- " << endmsg;
   }
 }
 
@@ -64,7 +64,7 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
     for ( const auto& clusLink : clustersLinks) {
 
       m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/" 
-        << clustersLinks.size() << endreq;
+        << clustersLinks.size() << endmsg;
 
       // This cluster CaloRings:
       ElementLink<xAOD::CaloRingsContainer> ringsEL;

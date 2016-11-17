@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.cxx 752385 2016-06-03 15:44:20Z ssnyder $
+// $Id: CaloRingsBuilder.cxx 784763 2016-11-17 04:47:21Z wsfreund $
 // =================================================================================
 #include "CaloRingsBuilder.h"
 
@@ -209,7 +209,7 @@ StatusCode CaloRingsBuilder::execute(const xAOD::CaloCluster &cluster,
     const double cosheta = std::cosh(eta2);
     et = (cosheta != 0.) ? energy /cosheta : 0.;
   }
-  if ( et * 0.001 > m_minEnergy )
+  if ( et > m_minEnergy )
   {
     return executeTemp(cluster, clRings);
   } else {
@@ -224,7 +224,7 @@ StatusCode CaloRingsBuilder::execute(
     ElementLink<xAOD::CaloRingsContainer> &clRings)
 {
   double et = particle.pt();
-  if ( et * 0.001 > m_minEnergy )
+  if ( et > m_minEnergy )
   {
     return executeTemp(particle, clRings);
   } else {
