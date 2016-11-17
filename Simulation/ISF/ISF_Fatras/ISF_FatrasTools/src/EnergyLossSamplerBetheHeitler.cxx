@@ -71,6 +71,8 @@ Trk::EnergyLoss* iFatras::EnergyLossSamplerBetheHeitler::energyLoss( const Trk::
   
   double pathLength = pathCorrection*materialProperties.thicknessInX0();
 
+  if (pathLength==0.) return new Trk::EnergyLoss(0.,0.);
+
   double p    = pInitial;
   double me   = s_particleMasses.mass[Trk::electron];
   double E    = sqrt(p*p+me*me);
@@ -116,11 +118,12 @@ Trk::EnergyLoss* iFatras::EnergyLossSamplerBetheHeitler::energyLoss( const Trk::
   double u = CLHEP::RandGamma::shoot(m_randomEngine, pathLength / log(2.), 1.);
   double z = exp( -1. * u );
   double deltaE(0.);
+
   if ( direction == Trk::alongMomentum )
     deltaE = m_scaleFactor*E * ( z - 1. );
   else
     deltaE = m_scaleFactor*E * ( 1. / z - 1. );
-  
+
   simulatedDeltaE+=fabs(deltaE);
   
   // transform into negative energyloss
