@@ -106,20 +106,20 @@ public:
 
   std::string type(int id) { 
     if ( id>1000000000 ) return "nucleus";
-    const_iterator _type = find( id );
-    if ( _type==end() ) return "unknown";
-    else                return _type->second;
+    const_iterator ptype = find( id );
+    if ( ptype==end() ) return "unknown";
+    else                return ptype->second;
   }
 
 
 
   double charge(int id) { 
     if ( id>1000000000 ) return 0; // "nucleus" - don't care about charge in this context
-    const_iterator _type = find( id );
-    if ( _type==end() ) return 0; // "unknown" - don't care about charge in this context
+    const_iterator ptype = find( id );
+    if ( ptype==end() ) return 0; // "unknown" - don't care about charge in this context
     else { 
-      if ( _type->second.find("-")!=std::string::npos ) return -1;
-      if ( _type->second.find("+")!=std::string::npos ) return +1;
+      if ( ptype->second.find("-")!=std::string::npos ) return -1;
+      if ( ptype->second.find("+")!=std::string::npos ) return +1;
     }
     return 0;
   }
@@ -127,9 +127,9 @@ public:
 };
 
 
-inline std::ostream& operator<<( std::ostream& s, const particleType& _p ) {
-  std::map<int, std::string>::const_iterator pitr = _p.begin();
-  std::map<int, std::string>::const_iterator pend = _p.end();
+inline std::ostream& operator<<( std::ostream& s, const particleType& p ) {
+  std::map<int, std::string>::const_iterator pitr = p.begin();
+  std::map<int, std::string>::const_iterator pend = p.end();
 
   while ( pitr!=pend ) { 
     s << "p[" << pitr->first << "]=" << pitr->second << std::endl;

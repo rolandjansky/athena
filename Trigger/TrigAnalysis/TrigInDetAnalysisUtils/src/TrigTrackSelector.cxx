@@ -13,8 +13,9 @@
 
   //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
 TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) : 
-    TrackSelector(selector), m_id(0), xBeam(0), yBeam(0), zBeam(0),
-    m_first(true), m_correctTrkTracks(false) {  } 
+    TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
+    //m_first(true),
+    m_correctTrkTracks(false) {  } 
 
 
 void TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
@@ -114,7 +115,7 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
       double pT    = measPer->pT(); 
       double eta   = measPer->eta();
       double phi   = measPer->parameters()[Trk::phi0];
-      double z0    = measPer->parameters()[Trk::z0] + zBeam; /// temporarily remove interaction mean z position
+      double z0    = measPer->parameters()[Trk::z0] + m_zBeam; /// temporarily remove interaction mean z position
       double d0    = measPer->parameters()[Trk::d0];
 
       double theta = measPer->parameters()[Trk::theta];
@@ -736,7 +737,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 
 
       /// don't correct xaod tracks to the beamline
-      //      if ( xBeam!=0 || yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
+      //      if ( m_xBeam!=0 || m_yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
       
 
       double sintheta = std::sin(theta);
@@ -750,47 +751,47 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
       // stereo clusters making a spacepoint are two "hits"
       
-      uint8_t _nBlayerHits = 0;
-      track->summaryValue( _nBlayerHits, xAOD::numberOfBLayerHits);
-      int nBlayerHits = 2*_nBlayerHits;
+      uint8_t sum_nBlayerHits = 0;
+      track->summaryValue( sum_nBlayerHits, xAOD::numberOfBLayerHits);
+      int nBlayerHits = 2*sum_nBlayerHits;
       
-      uint8_t  _nPixelHits = 0;
-      track->summaryValue( _nPixelHits, xAOD::numberOfPixelHits);
-      int nPixelHits = 2*_nPixelHits;
+      uint8_t  sum_nPixelHits = 0;
+      track->summaryValue( sum_nPixelHits, xAOD::numberOfPixelHits);
+      int nPixelHits = 2*sum_nPixelHits;
 
-      uint8_t  _nSctHits = 0;
-      track->summaryValue( _nSctHits, xAOD::numberOfSCTHits);
-      int nSctHits = _nSctHits;
+      uint8_t  sum_nSctHits = 0;
+      track->summaryValue( sum_nSctHits, xAOD::numberOfSCTHits);
+      int nSctHits = sum_nSctHits;
 
-      uint8_t  _nStrawHits = 0;
-      track->summaryValue( _nStrawHits, xAOD::numberOfTRTHits);
-      int nStrawHits  = _nStrawHits;
+      uint8_t  sum_nStrawHits = 0;
+      track->summaryValue( sum_nStrawHits, xAOD::numberOfTRTHits);
+      int nStrawHits  = sum_nStrawHits;
 
-      uint8_t  _nTrtHits = 0;
-      track->summaryValue( _nTrtHits, xAOD::numberOfTRTHighThresholdHits);
-      int nTrtHits  = _nTrtHits;
+      uint8_t  sum_nTrtHits = 0;
+      track->summaryValue( sum_nTrtHits, xAOD::numberOfTRTHighThresholdHits);
+      int nTrtHits  = sum_nTrtHits;
       
 
-      uint8_t _expectBL  = 0;
-      track->summaryValue( _expectBL, xAOD::expectBLayerHit);
+      uint8_t sum_expectBL  = 0;
+      track->summaryValue( sum_expectBL, xAOD::expectBLayerHit);
 
-      bool expectBL = ( _expectBL ? true : false );
+      bool expectBL = ( sum_expectBL ? true : false );
 
 
       /// holes 
 
-      uint8_t _sctholes  = 0;
-      track->summaryValue( _sctholes, xAOD::numberOfSCTHoles);
+      uint8_t sum_sctholes  = 0;
+      track->summaryValue( sum_sctholes, xAOD::numberOfSCTHoles);
 
-      uint8_t _pixholes  = 0;
-      track->summaryValue( _pixholes, xAOD::numberOfPixelHoles);
+      uint8_t sum_pixholes  = 0;
+      track->summaryValue( sum_pixholes, xAOD::numberOfPixelHoles);
 
       /// cheat !! pack the holes into the hits
       /// so that eg int pixelholes() { return npix/1000; } 
       ///            int  pixelhits() { return npix%1000; }
 
-      nSctHits   += 1000*_sctholes;
-      nPixelHits += 1000*_pixholes;
+      nSctHits   += 1000*sum_sctholes;
+      nPixelHits += 1000*sum_pixholes;
 
       /// get the total number of holes as well
       int nSiHits     = nPixelHits + nSctHits;
@@ -938,23 +939,23 @@ void TrigTrackSelector::correctToBeamline( double& z0,    double& dz0,
     /// make sure that users have set the beamline parameters
     
     //   if ( m_first ) { 
-    //     if ( xBeam==0 && yBeam==0 ) { 
+    //     if ( m_xBeam==0 && m_yBeam==0 ) { 
     //	    std::cerr << "TrigTrackSelector::correctToBeamline() WARNING -- Beamline set to (0,0) -- WARNING" << std::endl;  
     //     }
     //     else { 
-    //	   std::cout << "TrigTrackSelector::correctToBeamline() Beamline set to " << xBeam << " " << yBeam << std::endl;  
+    //	   std::cout << "TrigTrackSelector::correctToBeamline() Beamline set to " << m_xBeam << " " << m_yBeam << std::endl;  
     //     }
     //     m_first = false;
     //   }
     
     
     //      double theta = 2*std::atan( exp( (-1)*eta ) );
-    double z0t = z0 + ((std::cos(phi)*xBeam + std::sin(phi)*yBeam)/std::tan(theta));    
-    double a0t = d0 +   std::sin(phi)*xBeam - std::cos(phi)*yBeam; 
+    double z0t = z0 + ((std::cos(phi)*m_xBeam + std::sin(phi)*m_yBeam)/std::tan(theta));    
+    double a0t = d0 +   std::sin(phi)*m_xBeam - std::cos(phi)*m_yBeam; 
     
     /// error estimates
-    double dz0t = dz0 + ((std::cos(phi)*xBeam + std::sin(phi)*yBeam)/std::tan(theta));
-    double da0t = dd0 +   std::sin(phi)*xBeam - std::cos(phi)*yBeam;
+    double dz0t = dz0 + ((std::cos(phi)*m_xBeam + std::sin(phi)*m_yBeam)/std::tan(theta));
+    double da0t = dd0 +   std::sin(phi)*m_xBeam - std::cos(phi)*m_yBeam;
     
     z0  = z0t;
     d0  = a0t;
