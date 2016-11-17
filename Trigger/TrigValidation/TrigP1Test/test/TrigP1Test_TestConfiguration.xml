@@ -79,6 +79,15 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>  
+
+        <TEST name="HLT_HIV4" type="script" suite="TP1hi"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_HIV4  --rundir HLT_HIV4 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>40</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>  
         
         <!-- End of physics Heavy ION menu chain --> 
         
