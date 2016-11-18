@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToAOD.cxx 644157 2015-02-04 16:01:16Z ssnyder $
+// $Id: RoIBResultToAOD.cxx 784984 2016-11-18 05:53:57Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
@@ -381,7 +381,7 @@ void RoIBResultToAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl
    // Tool to reconstruct EM/tau cluster & isolation sums
    //   - need to form tower map for RoI reconstruction
    const DataVector< LVL1::TriggerTower >* storedTTs;
-   std::map< int, LVL1::CPMTower* > cpmtowers;
+   LVL1::CPMTowerMap_t cpmtowers;
    if( m_retrievedEmTauTool ) {
       if( evtStore()->contains< TriggerTowerCollection >( m_TriggerTowerLocation ) ) {
          StatusCode sc = evtStore()->retrieve( storedTTs, m_TriggerTowerLocation );
@@ -452,8 +452,8 @@ void RoIBResultToAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl
       }
    }
 
-   for( std::map< int, LVL1::CPMTower* >::iterator i = cpmtowers.begin();
-        i != cpmtowers.end(); ++i ) delete i->second;   
+   for( LVL1::CPMTowerMap_t::value_type& p : cpmtowers)
+     delete p.second;
 
    return;
 }
@@ -606,7 +606,7 @@ void RoIBResultToAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI*
             JetET_ROI roi( roIWord, roIWord & 0xF );
 
             // fired Jet ET thresholds
-            for( unsigned int i = 0; i < TrigT1CaloDefs::numOfJetEtSumThresholds; ++i ) {
+            for( unsigned int i = 0; i < LVL1::TrigT1CaloDefs::numOfJetEtSumThresholds; ++i ) {
                if( ( roIWord >> i ) & 0x1 ) {
                   std::string thrName = "NameNotFound";
                   if (jeNames.find(i) != jeNames.end()) thrName = jeNames[i];
