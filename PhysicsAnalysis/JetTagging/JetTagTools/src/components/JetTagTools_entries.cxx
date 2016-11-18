@@ -27,6 +27,7 @@
 #include "JetTagTools/MV1Tag.h"
 #include "JetTagTools/MV1cTag.h"
 #include "JetTagTools/MV2Tag.h"
+#include "JetTagTools/MyTag.h"
 
 #include "JetTagTools/JetVertexCharge.h"
 
@@ -76,6 +77,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DetailedTrackGradeFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1Tag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1cTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV2Tag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MyTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV3Tag )
 
 
@@ -130,6 +132,7 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, MV1Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, MV1cTag );
   DECLARE_NAMESPACE_TOOL( Analysis, MV2Tag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MyTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
   DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTag );

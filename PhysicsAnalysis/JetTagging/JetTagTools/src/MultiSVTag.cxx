@@ -28,8 +28,8 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "TMVA/Reader.h"
-#include "TMVA/Types.h"
 #include "TMVA/MethodBDT.h"
+#include "TMVA/MethodBase.h"
 #include "TList.h"
 #include "TString.h"
 #include "TObjString.h"
@@ -41,9 +41,6 @@
 #include <list>
 #include <string>
 #include <sstream>
-#include "TMVA/IMethod.h"
-#include "TMVA/BinarySearchTree.h"
-#include "TMVA/MethodBase.h"
 #include "AthenaKernel/Units.h"
 
 using Athena::Units::GeV;

@@ -108,6 +108,9 @@ namespace Analysis {
     // bool m_SignWithSvx;
     bool m_unbiasIPEstimation;  // remove track from vertex when computing IP
 
+    // we can save the sorted inputs for each tagger for debugging and
+    // optimization
+    bool m_writeInputsToBtagObject;
 
     //// VD: other (non-bool) configurables
     /** Name of the track-to-jet association in the BTagging object */

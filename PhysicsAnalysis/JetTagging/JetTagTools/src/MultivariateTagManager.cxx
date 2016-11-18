@@ -58,6 +58,7 @@ namespace Analysis {
     declareProperty("inputIP3DSourceName", m_ip3d_infosource = "IP3D");
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputSoftMuonSourceName", m_softmuon_infosource = "SMT");
+    declareProperty("arbitraryAuxData", m_arbitrary_aux_data);
   }
 
   StatusCode MultivariateTagManager::initialize()
@@ -118,6 +119,8 @@ namespace Analysis {
     fill_mv2cl100(inputs, BTag); // fill MV2cl100 variables
     fill_trkSum(inputs,BTag);
     fill_softmuon(inputs,BTag);
+
+    fill_arbitrary_aux_data(inputs, BTag);
 
     ATH_MSG_DEBUG(" #BTAG# Retrieving of inputs successfull" );
 
@@ -719,6 +722,23 @@ namespace Analysis {
     inputs[btagvar::JF_RAPIDITY_AVG ]       = AvgTrkRapidity_jf_path;
 
   } // end of fill_mv2cl100
+
+  void MultivariateTagManager::fill_arbitrary_aux_data(
+    var_map& inputs, xAOD::BTagging* BTag) const {
+
+    for (const auto key: m_arbitrary_aux_data) {
+      // note: we should extend this to data types beyond double at
+      // some point
+      if ( ! BTag->isAvailable<double>(key) ) {
+        ATH_MSG_WARNING("aux data '" + key + "' is missing,"
+                        " tagger inputs may be incomplete");
+      } else {
+        inputs[key] = BTag->auxdata<double>(key);
+      }
+    }
+
+  }
+
 
 } // end vp namespace
 

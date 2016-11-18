@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-55-gab82001)
+// https://github.com/dguest/lwtnn.git (rev v1.0-63-gaf7d736)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share

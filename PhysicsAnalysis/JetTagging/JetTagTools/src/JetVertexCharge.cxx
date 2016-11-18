@@ -30,14 +30,11 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
-#include "TMVA/Types.h"
 #include "TList.h"
 #include "TObjString.h"
 
-#include "TMVA/IMethod.h"
-#include "TMVA/BinarySearchTree.h"
 #include "TMVA/MethodBase.h"
-
+#include "TH1.h"
 
 #include "xAODBTagging/BTagVertex.h"
 
