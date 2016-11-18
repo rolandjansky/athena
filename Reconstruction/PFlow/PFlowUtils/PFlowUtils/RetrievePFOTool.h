@@ -25,18 +25,18 @@ namespace CP {
     RetrievePFOTool(const std::string& name);
     
     /** Fills theContainer with PFO from EM or LC mode in eflowRec - the client owns theContainer */
-    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale);
+    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale) const override;
 
     /** Fills theContainer with PFO from EM or LC mode in eflowRec - additionally allows to choose one of charged, neutral or all PFO configurations - the client owns theContainer */
-    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale, const CP::PFO_JetMETConfig_charge& theCharge); 
+    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale, const CP::PFO_JetMETConfig_charge& theCharge) const override; 
 
   private:
 
     /** Fills theContainer with neutral PFO from EM or LC mode in eflowRec */
-    StatusCode retrieve_neutralPFO(const CP::PFO_JetMETConfig_inputScale& theScale, xAOD::PFOContainer* theContainer);
+    StatusCode retrieve_neutralPFO(const CP::PFO_JetMETConfig_inputScale& theScale, xAOD::PFOContainer* theContainer) const;
 
     /** This retrieves a PFO container with theName and adds the PFO* to newContainer */
-    StatusCode fillPFOContainer( xAOD::PFOContainer* newContainer, const std::string& theName);
+    StatusCode fillPFOContainer( xAOD::PFOContainer* newContainer, const std::string& theName) const;
 
   };
 

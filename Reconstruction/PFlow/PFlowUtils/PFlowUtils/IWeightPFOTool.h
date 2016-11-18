@@ -22,7 +22,7 @@ namespace CP {
     public:
 
     /** given a PFO, extract weight */
-    virtual StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight ) = 0;
+    virtual StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight ) const = 0;
 
   };
 
