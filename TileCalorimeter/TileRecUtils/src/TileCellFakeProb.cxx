@@ -57,13 +57,13 @@ TileCellFakeProb::~TileCellFakeProb() {
 }
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
-double TileCellFakeProb::wtCell(const CaloCell* theCell) {
+double TileCellFakeProb::wtCell(const CaloCell* theCell) const {
 
   Identifier id = theCell->ID();
   double totalweight = 1.0; // default weight
 
   if (m_tileID->is_tile(id)) {
-    std::map<Identifier, double>::iterator cur = m_celllist.find(id);
+    std::map<Identifier, double>::const_iterator cur = m_celllist.find(id);
 
     if (cur != m_celllist.end()) {
       totalweight = (cur->second);

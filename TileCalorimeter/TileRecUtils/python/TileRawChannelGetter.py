@@ -8,6 +8,7 @@ from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+import AthenaCommon.CfgMgr as CfgMgr
 from RecExConfig.Configured import Configured
 import traceback
 
@@ -97,15 +98,27 @@ class TileRawChannelGetter ( Configured)  :
         NoiseFilterTools = []
         if jobproperties.TileRecFlags.noiseFilter() == 1:
 
-            if globalflags.DataSource() == 'data' and not athenaCommonFlags.isOnline():
+            if globalflags.DataSource() == 'data':
                 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                 tileInfoConfigurator = TileInfoConfigurator()
-                # check if there OFC in DB for OF1 method
-                if tileInfoConfigurator.setupCOOLOFC(ofcType = 'OF1'):
-                    tileInfoConfigurator.setupCOOLTIME(online = True)
 
+                # check if there are DSP thresholds in DB
+                if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
+                    jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits = False
+
+                if jobproperties.TileRecFlags.correctPedestalDifference():
+                    # check if offline and there are OFCs in DB for OF1 method
+                    if athenaCommonFlags.isOnline() or not tileInfoConfigurator.setupCOOLOFC(ofcType = 'OF1'):
+                        jobproperties.TileRecFlags.correctPedestalDifference = False
+                    else:
+                        tileInfoConfigurator.setupCOOLTIME(online = True)
+
+                if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() or jobproperties.TileRecFlags.correctPedestalDifference():
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
                     theTileRawChannelOF1Corrector = TileRawChannelOF1Corrector()
+                    theTileRawChannelOF1Corrector.CorrectPedestalDifference = jobproperties.TileRecFlags.correctPedestalDifference()
+                    theTileRawChannelOF1Corrector.ZeroAmplitudeWithoutDigits = jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits()
+
                     ToolSvc += theTileRawChannelOF1Corrector
                     NoiseFilterTools += [theTileRawChannelOF1Corrector]
 
@@ -365,8 +378,8 @@ class TileRawChannelGetter ( Configured)  :
                 if jobproperties.TileRecFlags.OfcFromCOOL():
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC()
-                    theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                    tileInfoConfigurator.setupCOOLOFC(ofcType = 'OF1')
+                    theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCoolOF1
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -499,7 +512,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptATLAS]
             
 
-            jobproperties.TileRecFlags.print_JobProperties('tree&value')
+
 
             # now add algorithm to topSequence
             # this should always come at the end
@@ -519,9 +532,12 @@ class TileRawChannelGetter ( Configured)  :
                     return False
                 #theTileRawCorrelatedNoise.UseMeanFiles = False
                 #theTileRawCorrelatedNoise.PMTOrder = True
-                theTileRawChannelMaker.TileDigitsContainer = "NewDigitsContainer"
+                jobproperties.TileRecFlags.TileDigitsContainer = "NewDigitsContainer"
                 topSequence += theTileRawCorrelatedNoise;
 
+            jobproperties.TileRecFlags.print_JobProperties('tree&value')
+
+            theTileRawChannelMaker.TileDigitsContainer = jobproperties.TileRecFlags.TileDigitsContainer()
             topSequence += theTileRawChannelMaker;
 
         else:

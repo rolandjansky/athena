@@ -14,7 +14,7 @@
 
 // Tile includes
 #include "TileRecUtils/ITileRawChannelTool.h"
-
+#include "TileConditions/ITileCondToolDspThreshold.h"
 
 // forward declarations
 class TileRawChannel;
@@ -25,6 +25,7 @@ class TileCondToolNoiseSample;
 class ITileCondToolOfc;
 class TileCondToolTiming;
 class TileCondToolEmscale;
+//class ITileCondToolDspThresholds;
 
 /**
  @class TileRawChannelOF1Corrector
@@ -43,15 +44,15 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     static const InterfaceID& interfaceID();
 
     /** AlgTool initialize method.*/
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** AlgTool finalize method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     /** Callback to handle Data-driven GeoModel initialisation */
     virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
     /** Correct TileRawChannel amplitudes if pedestal changed */
-    virtual StatusCode process(const TileRawChannelContainer* rawChannelContainer);
+    virtual StatusCode process(const TileRawChannelContainer* rawChannelContainer) override;
 
 
   private:
@@ -62,11 +63,11 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;    
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
     ToolHandle<TileCondToolEmscale> m_tileToolEms;
+    ToolHandle<ITileCondToolDspThreshold> m_tileDspThreshold;
 
     std::string m_digitsContainerName;
     bool m_zeroAmplitudeWithoutDigits;
-    float m_negativeAmplitudeThreshold;
-    float m_positiveAmplitudeThreshold;
+    bool m_correctPedestalDifference;
 };
 
 #endif // TILERECUTILS_TILERAWCHANNELOF1CORRECTOR_H

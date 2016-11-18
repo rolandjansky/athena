@@ -544,7 +544,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     //specify that a given calorimeter has been filled
     if (theCellContainer->hasCalo(caloNum)) {
       // log << MSG::WARNING << "CaloCellContainer has already been filled with TileCells (caloNum = " 
-      //  <<	caloNum << ")" << endreq ;    
+      //  <<	caloNum << ")" << endmsg ;    
     }
     theCellContainer->setHasCalo(caloNum);
   }
@@ -1098,11 +1098,10 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
         amp = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, gain, amp, m_RChUnit);
         if (amp > m_ampMinThresh) // amp cut in ADC counts
           amp *= TileRawChannelBuilder::correctAmp(time,m_of2);
-      } else if (amp > m_ampMinThresh
-                && (m_RChUnit == TileRawChannelUnit::ADCcounts
-                    || m_RChUnit == TileRawChannelUnit::OnlineADCcounts)) {
-
-        amp *= TileRawChannelBuilder::correctAmp(time,m_of2);
+      } else if (m_RChUnit == TileRawChannelUnit::ADCcounts
+                 || m_RChUnit == TileRawChannelUnit::OnlineADCcounts) {
+        if (amp > m_ampMinThresh)
+          amp *= TileRawChannelBuilder::correctAmp(time,m_of2);
       } else {
         ATH_MSG_ERROR( "Units in raw channel container is " << m_RChUnit );
         ATH_MSG_ERROR( "But amplitude correction works only with ADC counts " );

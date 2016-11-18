@@ -90,9 +90,9 @@ StatusCode TileRawChannelMaker::execute() {
 
   ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_TileDigitsContainerID << "'" );
 
-  ToolHandleArray<TileRawChannelBuilder>::const_iterator itRChB =
+  ToolHandleArray<TileRawChannelBuilder>::iterator itRChB =
       m_tileRawChannelBuilderList.begin();
-  ToolHandleArray<TileRawChannelBuilder>::const_iterator itRChBEnd =
+  ToolHandleArray<TileRawChannelBuilder>::iterator itRChBEnd =
       m_tileRawChannelBuilderList.end();
 
   // create  RawChannel Containers for all sub-algs
@@ -154,9 +154,9 @@ StatusCode TileRawChannelMaker::finalize() {
 
 void TileRawChannelMaker::fitOverflowedChannels() {
 
-  ToolHandleArray<TileRawChannelBuilder>::const_iterator itRChB =
+  ToolHandleArray<TileRawChannelBuilder>::iterator itRChB =
       m_tileRawChannelBuilderList.begin();
-  ToolHandleArray<TileRawChannelBuilder>::const_iterator itRChBEnd =
+  ToolHandleArray<TileRawChannelBuilder>::iterator itRChBEnd =
       m_tileRawChannelBuilderList.end();
 
   // Iterate over all sub-algs  
