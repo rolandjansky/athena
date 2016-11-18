@@ -76,7 +76,7 @@ def writeDigitizationMetadata():
                          "initialBunchCrossing", "finalBunchCrossing", "FixedT0BunchCrossing",
                          "doLowPtMinimumBias", "doHighPtMinimumBias",
                          "doCavern", "doBeamGas", "doBeamHalo",
-                         "rndmSvc", "physicsList", "overrideMetadata"]
+                         "rndmSvc", "physicsList", "overrideMetadata","pileupDSID"]
                          #"readSeedsFromFile", "rndmSeedInputFile",
     from Digitization.DigitizationFlags import digitizationFlags
     if (not ModifyingEventIdBySvc()):
