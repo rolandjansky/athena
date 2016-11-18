@@ -4,7 +4,6 @@
 
 #include "GaudiKernel/AlgTool.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -41,7 +40,7 @@ void CaloTopoTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg)
 StatusCode CaloTopoTowerBuilderToolBase::LoadCalibration(IOVSVC_CALLBACK_ARGS)
 {
   /* MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << " in CaloTopoTowerBuilderToolBase::LoadCalibration " << endreq;
+  log << MSG::DEBUG << " in CaloTopoTowerBuilderToolBase::LoadCalibration " << endmsg;
   m_cacheValid=false;*/
   return StatusCode::SUCCESS;
 }

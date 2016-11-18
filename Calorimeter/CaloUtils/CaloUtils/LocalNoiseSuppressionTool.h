@@ -44,23 +44,23 @@ class LocalNoiseSuppressionTool : public AthAlgTool, virtual public ICellWeightT
   virtual ~LocalNoiseSuppressionTool();
 
   // Main access method: Correct cells in cellCollection:
-  StatusCode initialize() ;  
+  virtual StatusCode initialize() override;
 
   /// Implementation for ICellWeightTool.
-  virtual double wtCell(const CaloCell*) ; 
+  virtual double wtCell(const CaloCell*) const override;
 
   // special functions for this tool (hide interface)
   ///Sets the calocell container used for finding neighbors. 
   virtual void   setCaloCellContainer(const CaloCellContainer* ); 
 
   /// Test if the cell should be cut based on neighbors and the cell's energy.
-  virtual bool   cutCell(const CaloCell*) ; 
+  virtual bool   cutCell(const CaloCell*) const;
 
   /// Get the prior probability that this cell is noise based on the neighbors and a given test statistic.
-  virtual double getPrior(const CaloCell*) ; 
+  virtual double getPrior(const CaloCell*) const;
 
   /// Get the test statistic (which is based on neighbors) used to distinguish noisy cells from energetic cells.
-  virtual double getTestStatistic(const CaloCell*); 
+  virtual double getTestStatistic(const CaloCell*, int& nNeighbors) const;
 
   /* ----------versions which explicitly expose the interface--------------*/
   /** returns the weight that should be used to scale this cells
@@ -76,7 +76,8 @@ class LocalNoiseSuppressionTool : public AthAlgTool, virtual public ICellWeightT
   virtual double getPrior(const CaloCellContainer*, const CaloCell*); 
 
   /// Get the test statistic (which is based on neighbors) used to distinguish noisy cells from energetic cells.
-  virtual double getTestStatistic(const CaloCellContainer*, const CaloCell*); 
+  virtual double getTestStatistic(const CaloCellContainer*, const CaloCell*,
+                                  int& nNeighbors); 
 
   /** Callback added to handle Data-driven GeoModel initialisation
    */
@@ -130,12 +131,11 @@ class LocalNoiseSuppressionTool : public AthAlgTool, virtual public ICellWeightT
   double m_s0, m_s1, m_o0, m_o1;  
 
   // used internally
-  double cellSigma(const CaloCell* theCell);
-  double scale() ;
-  double offset();
+  double cellSigma(const CaloCell* theCell) const;
+  double scale (int nNeighbors) const;
+  double offset (int nNeighbors) const;
 
-  int m_nNeighbors;  
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
 
   const CaloDetDescrManager* m_calo_dd_man; 
   const CaloCell_ID* m_calo_id;

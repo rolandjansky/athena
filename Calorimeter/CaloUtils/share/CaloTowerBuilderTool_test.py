@@ -43,4 +43,4 @@ topSequence += CaloUtilsConf.CaloTowerBuilderToolTestAlg ('towertest')
 
 theApp.EvtMax = 1
 
-theApp.getHandle().Dlls += [ 'CaloUtils' ]
+#theApp.getHandle().Dlls += [ 'CaloUtils' ]

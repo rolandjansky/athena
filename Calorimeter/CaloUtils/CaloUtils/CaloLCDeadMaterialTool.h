@@ -58,12 +58,12 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
       sDM
     };
 
-    virtual ~CaloLCDeadMaterialTool();
+    virtual ~CaloLCDeadMaterialTool() override;
 
-    StatusCode weight(xAOD::CaloCluster* theCluster);
-    StatusCode initialize();
+    virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
+    virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
 
     CaloLCDeadMaterialTool(const std::string& type,
                                 const std::string& name,
@@ -95,7 +95,9 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
 
     StatusCode prepare_for_cluster(const xAOD::CaloCluster* theCluster,
                                    std::vector<Area>& areas,
-                                   std::vector<Cell>& cells);
+                                   std::vector<Cell>& cells,
+                                   float* smp_energy,
+                                   float& cls_unweighted_energy) const;
 
     /**
      * @brief name of the key for DM cell weights */
@@ -169,11 +171,6 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
    /** 
     * @brief In Abs Option case, DM calculation has to be handled in a slightly different way*/
    bool m_absOpt;
-
-    // variables for DM areas
-    float m_cls_unweighted_energy;
-    float m_smp_energy[CaloSampling::Unknown];
-    float m_dm_total;
 };
 
 

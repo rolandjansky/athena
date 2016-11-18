@@ -22,7 +22,6 @@ PURPOSE: Loops over list of ICellWeightTools and applies weight to cell
 
 // For Gaudi
 #include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -49,22 +48,9 @@ CaloCellWeightCorrection::~CaloCellWeightCorrection()
 
 StatusCode CaloCellWeightCorrection::initialize() {
 
- // MSGStream object to output messages from your algorithm
-
-  MsgStream log( msgSvc(), name() );
-
 //---- retrieve the noisetool ----------------
   IToolSvc* toolSvc = 0;// Pointer to Tool Service
-  StatusCode sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL
-	 << " Tool Service not found "
-          << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-
-
+  ATH_CHECK( service("ToolSvc", toolSvc) );
 
 // access tools  and store them
 
@@ -77,19 +63,15 @@ StatusCode CaloCellWeightCorrection::initialize() {
    ListItem theItem(*itrName);
 
 
-   log << MSG::DEBUG << "Retrieving " << *itrName << endreq ;
-   sc = toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool);
+   ATH_MSG_DEBUG( "Retrieving " << *itrName  );
+   StatusCode sc = toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool);
 
    if (sc.isFailure()) {
-     log << MSG::INFO
-       << "Unable to find tool for " <<(*itrName)
-       << endreq;
+     ATH_MSG_INFO( "Unable to find tool for " <<(*itrName) );
    }
    else 
      { 
-       log << MSG::INFO
-           << (*itrName) << " successfully retrieved" 
-           << endreq;
+       ATH_MSG_INFO( (*itrName) << " successfully retrieved" );
 
        m_cellWeightTools.push_back( dynamic_cast<ICellWeightTool*>(algtool) );
      }
@@ -97,7 +79,7 @@ StatusCode CaloCellWeightCorrection::initialize() {
 
 
   // Return status code.
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -107,15 +89,11 @@ StatusCode CaloCellWeightCorrection::initialize() {
 
 StatusCode CaloCellWeightCorrection::execute(CaloCellContainer* cellCollection) 
 {
-
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "Executing CaloCellWeightCorrection" << endreq;
+  ATH_MSG_DEBUG( "Executing CaloCellWeightCorrection"  );
 
   if (!cellCollection) 
   {
-    log << MSG::DEBUG 
-	<< " Cell Correction tool receives invalid cell Collection " 
-	<< endreq;
+    ATH_MSG_DEBUG( " Cell Correction tool receives invalid cell Collection " );
     return StatusCode::FAILURE;
   }
 

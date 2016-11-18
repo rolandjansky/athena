@@ -65,8 +65,7 @@ CaloLCClassificationTool::CaloLCClassificationTool(const std::string& type,
 
 StatusCode CaloLCClassificationTool::initialize()
 {
-
-  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
   // callback for conditions data
   StatusCode sc = detStore()->regFcn(&IClusterClassificationTool::LoadConditionsData,
@@ -75,10 +74,10 @@ StatusCode CaloLCClassificationTool::initialize()
   
   //StatusCode sc=detStore()->regHandle(m_data,m_key);
   if(sc.isSuccess()) {
-    msg(MSG::INFO) << "Registered callback for key: " << m_key << endreq;
+    ATH_MSG_INFO( "Registered callback for key: " << m_key  );
   } 
   else {
-    msg(MSG::ERROR) << "Cannot register Callback function for key " << m_key << endreq;
+    ATH_MSG_ERROR( "Cannot register Callback function for key " << m_key  );
   }
 
   if(m_interpolate) {
@@ -86,13 +85,13 @@ StatusCode CaloLCClassificationTool::initialize()
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       msg() << " " << (*it);
     }
-    msg() << endreq;
+    msg() << endmsg;
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it) );
       if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
         m_interpolateDimensions.push_back(int(id));
       }else{
-        msg(MSG::WARNING) << "Dimension '" << (*it) << "' is invalid and will be excluded." << endreq;
+        ATH_MSG_WARNING( "Dimension '" << (*it) << "' is invalid and will be excluded."  );
       }
     }
   }
@@ -100,7 +99,7 @@ StatusCode CaloLCClassificationTool::initialize()
   return sc;
 }
 
-CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* thisCluster)
+CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* thisCluster) const
 {
   CaloLCCoeffHelper hp;
   CaloLocalHadCoeff::LocalHadCoeff parint;
@@ -181,12 +180,11 @@ CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* 
       } // if >0
     } //if got sucessfully retrieved moments
     else {
-      msg(MSG::ERROR)
-	<< "Can not retrieve one or more of the cluster moments "
-	<< "CENTER_LAMBDA, FIRST_ENG_DENS for current cluster"
-	<< "- classification not possible - "
-	<< "you need to enable those moments in the cluster maker!"
-	<< endreq;
+      ATH_MSG_ERROR( "Can not retrieve one or more of the cluster moments "
+                     << "CENTER_LAMBDA, FIRST_ENG_DENS for current cluster"
+                     << "- classification not possible - "
+                     << "you need to enable those moments in the cluster maker!"
+                     );
       recStat = CaloRecoStatus::TAGGEDUNKNOWN;
     } 
   }
@@ -206,9 +204,6 @@ CaloLCClassificationTool::~CaloLCClassificationTool()
 
 StatusCode CaloLCClassificationTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
 {
-  //MsgStream log( msgSvc(), name() );
-  StatusCode sc(StatusCode::SUCCESS);
-  
   ATH_MSG_DEBUG("Callback invoked for " << keys.size() << " keys");
   
   for (std::list<std::string>::const_iterator itr=keys.begin(); 
@@ -217,14 +212,8 @@ StatusCode CaloLCClassificationTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(k
     ATH_MSG_DEBUG("key = " << key);
     if(key==m_key) {
       ATH_MSG_DEBUG("retrieve CaloLocalHadCoeff");
-      sc = detStore()->retrieve(m_data,m_key); 
-      if (sc.isFailure() || !m_data) {
-	msg(MSG::ERROR)
-	  << "Unable to retrieve CaloLocalHadCoeff from DetectorStore"
-	  << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
     }
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }

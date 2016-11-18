@@ -44,9 +44,7 @@ CaloLCDeadMaterialTool::CaloLCDeadMaterialTool(const std::string& type,
     m_MaxChangeInCellWeight(30.0),
     m_useHadProbability(false),
     m_interpolate(false),
-    m_absOpt(false),
-    m_cls_unweighted_energy(0),
-    m_dm_total(0)
+    m_absOpt(false)
 {
   declareInterface<IClusterCellWeightTool>(this);
   declareProperty("HadDMCoeffKey",m_key);
@@ -97,12 +95,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
 {
 
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK(  service("GeoModelSvc", geoModel) );
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
@@ -113,7 +106,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
       }
       msg() << ")";
     }
-    msg() << endreq;
+    msg() << endmsg;
     for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       std::vector<int > *vtmp=0;
       if((*it).first == "AREA_DMFIT") {
@@ -131,7 +124,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
         if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
           vtmp->push_back(int(id));
         }else{
-          msg(MSG::WARNING) << "Dimension '" << (*it2) << "' is invalid and will be excluded." << endreq;
+          ATH_MSG_WARNING( "Dimension '" << (*it2) << "' is invalid and will be excluded."  );
         }
       }
     }
@@ -147,33 +140,24 @@ StatusCode CaloLCDeadMaterialTool::initialize()
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloLCDeadMaterialTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &CaloLCDeadMaterialTool::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 CaloLCDeadMaterialTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
 
   // callback for conditions data
-  StatusCode sc = detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData, dynamic_cast<IClusterCellWeightTool*>(this), m_data, m_key);
-  if(sc.isSuccess()) {
-    msg(MSG::INFO) << "Registered callback for key: " << m_key << endreq;
-  } else {
-    msg(MSG::ERROR) << "Cannot register Callback function for key " << m_key << endreq;
-  }
+  ATH_CHECK(  detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData, dynamic_cast<IClusterCellWeightTool*>(this), m_data, m_key) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -181,13 +165,13 @@ CaloLCDeadMaterialTool::geoInit(IOVSVC_CALLBACK_ARGS)
 /* ****************************************************************************
 - DeadMaterialCorrectionTool2::execute
 **************************************************************************** */
-StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
+StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
 {
   CaloLCCoeffHelper hp;
   CaloLocalHadCoeff::LocalHadCoeff parint;
 
   float wrong_dm_energy = 0.0;
-  m_dm_total = 0.0;
+  float dm_total = 0.0;
 
    
   double weightMom (1);
@@ -206,7 +190,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
 //     cls_em_fraction = 0.99;
 //   }else {
 //     log << MSG::DEBUG<<"Cluster was not selected for local DM calibration. Cluster reco status differs from TAGGEDHAD or TAGGEDEM."
-//         << " Cluster energy " << theCluster->e() << " remains the same." << endreq;
+//         << " Cluster energy " << theCluster->e() << " remains the same." << endmsg;
 // #ifdef MAKE_MOMENTS
 //     set_zero_moments(theCluster);
 // #endif
@@ -235,8 +219,8 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
 
   double center_lambda;
   if ( !theCluster->retrieveMoment(CaloCluster::CENTER_LAMBDA, center_lambda) ){
-    msg(MSG::ERROR) <<"Cannot retreive CENTER_LAMBDA cluster moment, "
-        << " cluster energy " << theCluster->e() << " remains the same." << endreq;
+    ATH_MSG_ERROR("Cannot retreive CENTER_LAMBDA cluster moment, "
+                  << " cluster energy " << theCluster->e() << " remains the same."  );
     return StatusCode::FAILURE;
   }
 
@@ -247,12 +231,15 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
   // calculation of specific cluster quantities for DM correction (i.e. core of procedure)
   std::vector<Area> areas;
   std::vector<Cell> cells;
-  StatusCode sc = prepare_for_cluster(theCluster, areas, cells);
+  float smp_energy[CaloSampling::Unknown];
+  float cls_unweighted_energy = 0;
+  StatusCode sc = prepare_for_cluster(theCluster, areas, cells,
+                                      smp_energy, cls_unweighted_energy);
   if ( !sc.isSuccess() ) {
 #ifdef MAKE_MOMENTS
     set_zero_moments(theCluster);
 #endif
-    msg(MSG::ERROR) <<  "prepare for cluster failed!" << endreq;
+    ATH_MSG_ERROR(  "prepare for cluster failed!"  );
     return sc;
   }
 
@@ -261,8 +248,8 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
   float cls_eta = fabs(theCluster->eta());
   float cls_phi = theCluster->phi();
   float log10ener = 0.0;
-  if(m_cls_unweighted_energy > 0.0) {
-    log10ener = log10(m_cls_unweighted_energy);
+  if(cls_unweighted_energy > 0.0) {
+    log10ener = log10(cls_unweighted_energy);
   }
   float log10lambda;
   if(center_lambda > 0.0) {
@@ -275,7 +262,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
   std::cout << " cls_initial_energy: " << cls_initial_energy << " cls_eta: " << cls_eta << std::endl;
   std::cout << " log10ener: " << log10ener << " log10lambda: " << log10lambda << std::endl;
   for(int i_smp=0; i_smp<CaloSampling::Unknown; i_smp++){
-    std::cout << " i_smp: " << i_smp << " m_smp_energy: " << m_smp_energy[i_smp] << std::endl;
+    std::cout << " i_smp: " << i_smp << " smp_energy: " << smp_energy[i_smp] << std::endl;
   }
 #endif
 
@@ -321,10 +308,10 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
 
       // if dm area is reconstructed using lookup table approach
       }else if(area->getType() == CaloLocalHadDefs::AREA_DMLOOKUP){
-        if( (*pars)[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = m_cls_unweighted_energy*((*pars)[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
+        if( (*pars)[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*((*pars)[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         if(m_interpolate) {
           bool isa = hp.Interpolate(m_data, i_dm, vars, parint, m_interpolateDimensionsLookup);
-          if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = m_cls_unweighted_energy*(parint[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
+          if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > m_MinLookupBinNentry) edm = cls_unweighted_energy*(parint[CaloLocalHadDefs::BIN_WEIGHT] - 1.0 );
         }
 
       // if dm area is reconstructed using new sampling weights
@@ -334,8 +321,8 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
         double ecalonew = 0.0;
         double ecaloold = 0.0;
         for(int i_smp=0; i_smp<nSmp; i_smp++){
-          ecaloold += m_smp_energy[i_smp];
-          ecalonew += m_smp_energy[i_smp] * (*pars)[i_smp];
+          ecaloold += smp_energy[i_smp];
+          ecalonew += smp_energy[i_smp] * (*pars)[i_smp];
         }
         ecalonew += (*pars)[nSmp]; // const Used to be CaloSampling::Unknown but the value of this enum has changed to include the miniFCAL. 
         edm = ecalonew - ecaloold;
@@ -346,8 +333,8 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
 //             ecalonew = 0.0;
 //             ecaloold = 0.0;
 //             for(int i_smp=0; i_smp<CaloSampling::Unknown; i_smp++){
-//               ecaloold += m_smp_energy[i_smp];
-//               ecalonew += m_smp_energy[i_smp] * parint[i_smp];
+//               ecaloold += smp_energy[i_smp];
+//               ecalonew += smp_energy[i_smp] * parint[i_smp];
 //             }
 //             ecalonew += parint[CaloSampling::Unknown]; // const
 //             edm = ecalonew - ecaloold;
@@ -366,7 +353,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
       edm -= areas[i_dm].edm_wrong;
       if(edm > 0.0) {
         areas[i_dm].erec = areas[i_dm].erec + edm*mixWeight;
-        m_dm_total += edm;
+        dm_total += edm;
       }
     } // i_dm
   } // i_mix
@@ -380,10 +367,10 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
   std::cout << "wc> calculation of weights" << std::endl;
 #endif
 
-  if(m_dm_total > 0.0) {
+  if(dm_total > 0.0) {
     if (m_weightModeDM == 0) {
       // method 0: setting cluster energy to new value without changing of cells weights
-      theCluster->setE(cls_initial_energy + m_dm_total - wrong_dm_energy);
+      theCluster->setE(cls_initial_energy + dm_total - wrong_dm_energy);
 
     } else if (m_weightModeDM == 1) {
       // method1: calculation of weights of all cluster cells to treat DM energy.
@@ -396,7 +383,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
         sub_ener_old += cell.weight*cell.energy;
       }
       if(sub_ener_old > 0.0) {
-        float corr = (sub_ener_old + m_dm_total)/sub_ener_old;
+        float corr = (sub_ener_old + dm_total)/sub_ener_old;
         for(size_t i_c = 0; i_c < cells.size(); i_c++)
         {
           if(cells[i_c].energy <= m_MinCellEnergyToDeal) continue;
@@ -448,7 +435,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
         cell.weight *= gblfac;
       }
     } else {
-      msg(MSG::ERROR) << "Unknown m_weightModeDM " << m_weightModeDM << endreq;
+      ATH_MSG_ERROR( "Unknown m_weightModeDM " << m_weightModeDM  );
     }
 
     // setting of calculated weights to the cluster cells
@@ -474,11 +461,11 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
       CaloClusterKineHelper::calculateKine(theCluster,true,m_updateSamplingVars);
     }//end if method 1 or 2
 
-  } // m_dm_total > 0.0
+  } // dm_total > 0.0
 
   ATH_MSG_DEBUG("cls_initial_energy: " << cls_initial_energy 
 		<< " (contains wrongly estimated DM energy: " << wrong_dm_energy << ")"
-		<< " calculated DM energy (to be added):" << m_dm_total
+		<< " calculated DM energy (to be added):" << dm_total
 		<< " new cluster energy:" << theCluster->e());
 
 #ifdef MAKE_MOMENTS
@@ -491,25 +478,25 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
     double x;
     bool useLink = true;
 
-    x = (double)m_smp_energy[CaloSampling::PreSamplerB];
+    x = (double)smp_energy[CaloSampling::PreSamplerB];
     theCluster->insertMoment(CaloCluster::ENG_RECO_EMB0, x);
 
-    x = (double)m_smp_energy[CaloSampling::PreSamplerE];
+    x = (double)smp_energy[CaloSampling::PreSamplerE];
     theCluster->insertMoment(CaloCluster::ENG_RECO_EME0, x);
 
-    x = (double)m_smp_energy[CaloSampling::TileGap3];
+    x = (double)smp_energy[CaloSampling::TileGap3];
     theCluster->insertMoment(CaloCluster::ENG_RECO_TILEG3, x);
 
-    x = (double)(m_dm_total+wrong_dm_energy);
+    x = (double)(dm_total+wrong_dm_energy);
     theCluster->insertMoment(CaloCluster::ENG_RECO_DEAD_TOT, x);
 
     for(size_t i_dm=0; i_dm < areas.size(); i_dm++) {
       Area& dma = areas[i_dm];
       CaloCluster::MomentType m_type = (CaloCluster::MomentType) (int(CaloCluster::ENG_RECO_DEAD_EMB0)+i_dm);
       x = (double)dma.erec;
-      if(i_dm == sDM_EMB0_EMB1 && m_smp_energy[CaloSampling::PreSamplerB]>0.0) x+= m_smp_energy[CaloSampling::PreSamplerB];
-      if(i_dm == sDM_EME0_EME12 && m_smp_energy[CaloSampling::PreSamplerE] > 0.0) x+= m_smp_energy[CaloSampling::PreSamplerE];
-      if(i_dm == sDM_SCN && m_smp_energy[CaloSampling::TileGap3] > 0.0) x+= m_smp_energy[CaloSampling::TileGap3];
+      if(i_dm == sDM_EMB0_EMB1 && smp_energy[CaloSampling::PreSamplerB]>0.0) x+= smp_energy[CaloSampling::PreSamplerB];
+      if(i_dm == sDM_EME0_EME12 && smp_energy[CaloSampling::PreSamplerE] > 0.0) x+= smp_energy[CaloSampling::PreSamplerE];
+      if(i_dm == sDM_SCN && smp_energy[CaloSampling::TileGap3] > 0.0) x+= smp_energy[CaloSampling::TileGap3];
       theCluster->insertMoment(m_type, CaloClusterMoment(x));
     }
   }
@@ -560,19 +547,21 @@ StatusCode
 CaloLCDeadMaterialTool::prepare_for_cluster
   (const CaloCluster* theCluster,
    std::vector<Area>& areas,
-   std::vector<Cell>& cells)
+   std::vector<Cell>& cells,
+   float* smp_energy,
+   float& cls_unweighted_energy) const
 {
   areas.resize(m_data->getSizeAreaSet());
   cells.reserve (theCluster->size());
 
-  bzero(m_smp_energy, CaloSampling::Unknown*sizeof(float));
+  bzero(smp_energy, CaloSampling::Unknown*sizeof(float));
 
   // Finding of energy and noise in different "areas" of cluster. Some of these
   // areas correspond to CaloSamplings, others are special.
   int cell_index = 0;
   CaloCluster::const_cell_iterator itrCell = theCluster->cell_begin();
   CaloCluster::const_cell_iterator itrCellEnd = theCluster->cell_end();
-  m_cls_unweighted_energy = 0;
+  cls_unweighted_energy = 0;
   for (;itrCell!=itrCellEnd; ++itrCell) {
     CxxUtils::prefetchNext(itrCell, itrCellEnd);
     const CaloCell* thisCell = *itrCell;
@@ -583,14 +572,14 @@ CaloLCDeadMaterialTool::prepare_for_cluster
     float energy = thisCell->e();
     float weight = itrCell.weight();
     //float sigma =  m_noiseTool->getNoise(thisCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-    m_cls_unweighted_energy += energy;
+    cls_unweighted_energy += energy;
 
     Cell cell;
     cell.weight = weight;
     cell.energy = energy;
     cell.dm = sDM;
 
-    m_smp_energy[nsmp] += energy; // unweighted energy in samplings for given cluster
+    smp_energy[nsmp] += energy; // unweighted energy in samplings for given cluster
 
     if(energy > m_MinCellEnergyToDeal) {
 
@@ -624,7 +613,7 @@ CaloLCDeadMaterialTool::prepare_for_cluster
 //   Realculate sampling energy as the abs value of the original cluster, if you summed up energies, fluctuations wouldn't cancel and sample energy would be huge   
  if(m_absOpt){
     
-    for(unsigned int i=0; i != CaloSampling::Unknown; ++ i)   m_smp_energy[i] = fabs(theCluster->eSample((CaloSampling::CaloSample)i));
+    for(unsigned int i=0; i != CaloSampling::Unknown; ++ i)   smp_energy[i] = fabs(theCluster->eSample((CaloSampling::CaloSample)i));
     
   } 
   
@@ -633,39 +622,39 @@ CaloLCDeadMaterialTool::prepare_for_cluster
   float x(0), y(0);
 
   // sDM_EMB0_EMB1: energy before EMB0 and between EMB0 and EMB1
-  x = m_smp_energy[CaloSampling::PreSamplerB];
+  x = smp_energy[CaloSampling::PreSamplerB];
   if ( x > 0.) {
     areas[sDM_EMB0_EMB1].eprep = x;
     areas[sDM_EMB0_EMB1].edm_wrong = x;
   }
 
   // sDM_EMB3_TILE0: to correct energy between barrel and tile
-  x = m_smp_energy[CaloSampling::EMB3];
-  y = m_smp_energy[CaloSampling::TileBar0];
+  x = smp_energy[CaloSampling::EMB3];
+  y = smp_energy[CaloSampling::TileBar0];
   if ( x > 0. && y>0.) areas[sDM_EMB3_TILE0].eprep = sqrt(x*y);
 
   // sDM_SCN: to correct energy before scintillator
-  x = m_smp_energy[CaloSampling::TileGap3];
+  x = smp_energy[CaloSampling::TileGap3];
   if ( x > 0.) {
     areas[sDM_SCN].eprep = x;
     areas[sDM_SCN].edm_wrong = x;
   }
 
   // sDM_EME0_EME12: sum of energy before EME0 and between EME0 and EME1
-  x = m_smp_energy[CaloSampling::PreSamplerE];
+  x = smp_energy[CaloSampling::PreSamplerE];
   if ( x > 0.) {
     areas[sDM_EME0_EME12].eprep = x;
     areas[sDM_EME0_EME12].edm_wrong = x;
   }
 
   // sDM_EME3_HEC0: to correct energy between EMEC and HEC
-  x = m_smp_energy[CaloSampling::EME3];
-  y = m_smp_energy[CaloSampling::HEC0];
+  x = smp_energy[CaloSampling::EME3];
+  y = smp_energy[CaloSampling::HEC0];
   if ( x > 0. && y>0.) areas[sDM_EME3_HEC0].eprep = sqrt(x*y);
 
-  areas[sDM_FCAL].eprep = m_cls_unweighted_energy;
-  areas[sDM_LEAKAGE].eprep = m_cls_unweighted_energy;
-  areas[sDM_UNCLASS].eprep = m_cls_unweighted_energy;
+  areas[sDM_FCAL].eprep = cls_unweighted_energy;
+  areas[sDM_LEAKAGE].eprep = cls_unweighted_energy;
+  areas[sDM_UNCLASS].eprep = cls_unweighted_energy;
 
  return StatusCode::SUCCESS;
 }
@@ -674,8 +663,6 @@ CaloLCDeadMaterialTool::prepare_for_cluster
 
 StatusCode CaloLCDeadMaterialTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
 {
-  StatusCode sc(StatusCode::SUCCESS);
-
   ATH_MSG_DEBUG( "Callback invoked for " << keys.size() << " keys");
 
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
@@ -683,13 +670,9 @@ StatusCode CaloLCDeadMaterialTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(key
     ATH_MSG_DEBUG( "key = " << key);
     if(key==m_key) {
       ATH_MSG_DEBUG( "retrieve CaloHadWeight ");
-      sc = detStore()->retrieve(m_data,m_key); 
-      if (sc.isFailure() || !m_data) {
-        msg(MSG::ERROR) << "Unable to retrieve CaloHadWeight from DetectorStore" << endreq;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
     }
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
