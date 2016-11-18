@@ -53,7 +53,7 @@ get_files -xmls LVL1config.dtd
 #upload the first key
 echo "upload the first key"
 
-cmd1="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 60 -w_t 60  >& uploadSMK1"
+cmd1="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 echo $cmd1
 eval $cmd1 &> uploadSMK1.log
@@ -62,8 +62,9 @@ eval $cmd1 &> uploadSMK1.log
 if [ ! -f MenusKeys.txt ]
 then
     echo '... ERROR Upload of key 1 failed'
-    echo 'In ./uploadSMK1:'
-    grep "Can't obtain write lock" uploadSMK1
+    echo 'In ./uploadSMK1.log:'
+    grep "Can't obtain write lock" uploadSMK1.log
+    grep "SEVERE" uploadSMK1.log
     exit 1
 fi
 
@@ -82,9 +83,9 @@ hlt__setup2=ef_Default_setup_rerun.xml
 #upload the second key
 echo "upload the second key"
 
-cmd2="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 60 -w_t 60  >& uploadSMK2"
+cmd2="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
-echo $cmd2
+echo $cmd2 "&> uploadSMK2.log"
 eval $cmd2 &> uploadSMK2.log
 
 
@@ -92,8 +93,9 @@ eval $cmd2 &> uploadSMK2.log
 if [ ! -f MenusKeys.txt ]
 then
     echo '... ERROR Upload of key 2 failed'
-    echo 'In ./uploadSMK2:'
-    grep "Can't obtain write lock" uploadSMK2
+    echo 'In ./uploadSMK2.log:'
+    grep "Can't obtain write lock" uploadSMK2.log
+    grep "SEVERE" uploadSMK2.log
     exit 1
 fi
 

@@ -71,6 +71,14 @@
             </expectations> 
         </TEST> 
         
+        <TEST name="HLT_HIV4" type="script" suite="TP1hi"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_HIV4  --rundir HLT_HIV4 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>40</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>  
         <TEST name="HLT_HIV3" type="script" suite="TP1hi"> 
             <options_atn>trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
@@ -129,6 +137,16 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
+
+        <TEST name="HLT_mcV7" type="script" suite="TP1mc">
+            <options_atn>trigtest.pl --cleardir --test HLT_mcV7 --rundir HLT_mcV7 --conf TrigP1Test.conf</options_atn>
+            <timelimit>50</timelimit>      
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+
         
         
         <!-- end of MC chain of tests -->
@@ -136,6 +154,15 @@
         
         <TEST name="HLT_physicsV6" type="script" suite="TP1phys1"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>
+
+        <TEST name="HLT_physicsV7" type="script" suite="TP1phys1"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7 --rundir HLT_physicsV7 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -271,8 +298,8 @@
         
         <!--  chain of test for automatic menu uploading to trigger DB  -->
         
-        <TEST name="HLT_physicsV6_menu" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_menu --rundir HLT_physicsV6_menu --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV7_menu" type="script" suite="TP1menu">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_menu --rundir HLT_physicsV7_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -295,8 +322,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_menu_rerundb" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_menu_rerundb --rundir HLT_physicsV6_menu_rerundb --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV7_menu_rerundb" type="script" suite="TP1menu">
+            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV7_menu_rerundb --rundir HLT_physicsV7_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -319,8 +346,8 @@
         </TEST>
         
         <!-- CheckKeysV6 needs HLT_physicsV6_rerun -->
-        <TEST name="CheckKeysV6" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
+        <TEST name="CheckKeysV7" type="script" suite="TP1menu">
+            <options_atn>trigtest.pl --cleardir  --test CheckKeysV7 --rundir CheckKeysV7 --conf TrigP1Test.conf</options_atn>
             <timelimit>120</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
@@ -331,8 +358,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_rerunLvL1_menu" type="script" suite="TP1menuRL1">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunLvL1_menu --rundir HLT_physicsV6_rerunLvL1_menu --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV7_rerunLvL1_menu" type="script" suite="TP1menuRL1">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_rerunLvL1_menu --rundir HLT_physicsV7_rerunLvL1_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -355,8 +382,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_rerunLvL1_menu_rerundb" type="script" suite="TP1menuRL1">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV7_rerunLvL1_menu_rerundb" type="script" suite="TP1menuRL1">
+            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV7_rerunLvL1_menu_rerundb --rundir HLT_physicsV7_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -565,18 +592,6 @@
             </classification>    
             
             
-            
-            <jobTransform userJobId="All_data_run_stop_run_chain" >
-                <doc>
-                    athenaHLT on DATA all slices Stop_Run_Stop
-                </doc>
-                <jobTransformJobName>All_data_run_stop_run_chain</jobTransformJobName>
-                <jobTransformCmd>
-                    get_files run-stop-run-saveHist-rtt.trans; athenaHLT.py --perfmon -i -M -F /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/RTT/data/BS/rttEBdataRunStopRunEvents.py -o All_data_run_stop_run -c "testPhysicsV6=True;rerunLVL1=True;doValidation=True" TrigP1Test/runHLT_standaloneRTT.py &lt; run-stop-run-saveHist-rtt.trans
-                </jobTransformCmd>
-                <group>AtlasHLTChainTest</group>
-                <queue>long</queue>
-            </jobTransform>
             
             <jobTransform userJobId="athenaHLT_on_data_leakCheck" >
                 <doc>
