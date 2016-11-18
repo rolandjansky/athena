@@ -3,8 +3,9 @@
 */
 
 #include "JetTagTools/RNNIPTag.h"
-#include "JetTagTools/LightweightRNN.h"
+#include "JetTagTools/LightweightNeuralNetwork.h"
 #include "JetTagTools/parse_json.h"
+#include "JetTagTools/Stack.h" // <-- added for exceptions
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"
@@ -73,6 +74,10 @@ namespace trkvar {
   const std::string DPHI = "dPhi";
   const std::string ABS_ETA = "absEta";
 
+  // need to add
+  const std::string PT_FRAC = "pTFrac";
+  const std::string DR = "dR";
+
   // hit info
   const std::string CHI2 = "chi2";
   const std::string N_INN_HITS = "nInnHits";
@@ -96,6 +101,8 @@ namespace Analysis {
     double z0;
     double z0sig;
     double dphi;
+    double ptfrac;
+    double dr;
     TrackGrade grade;
     const xAOD::TrackParticle* trkP;
     bool fromV0;
@@ -132,14 +139,10 @@ namespace Analysis {
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
-      m_priVtx(0),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),
       m_SVForIPTool("Analysis::SVForIPTool"),
-      m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
-      m_nbjet(0),
-      m_ncjet(0),
-      m_nljet(0)
+      m_trackGradeFactory("Analysis::BasicTrackGradeFactory")
   {
 
     declareInterface<ITagTool>(this);
@@ -156,6 +159,8 @@ namespace Analysis {
     declareProperty("useD0SignForZ0"      , m_useD0SignForZ0      = false);
     declareProperty("RejectBadTracks"     , m_rejectBadTracks     = true);
     declareProperty("unbiasIPEstimation"  , m_unbiasIPEstimation);
+    declareProperty("writeInputsToBtagObject",
+                    m_writeInputsToBtagObject = false);
 
     declareProperty("trackAssociationName"    ,
                     m_trackAssociationName = "BTagTrackToJetAssociator");
@@ -375,18 +380,10 @@ namespace Analysis {
 
     /** jet direction: */
     Amg::Vector3D jetDirection(jetToTag.px(),jetToTag.py(),jetToTag.pz());
-    Amg::Vector3D unit = jetDirection.unit();
-    // if (m_SignWithSvx && canUseSvxDirection) {
-    //   unit = SvxDirection.unit();
-    //   ATH_MSG_DEBUG("#BTAG# Using direction from sec vertex finder: " <<
-    //                 " phi: " << unit.phi() << " theta: " << unit.theta() <<
-    //                 " instead of jet direction phi: " << jetDirection.phi() <<
-    //                 " theta: " << jetDirection.theta() );
-    // }
 
     /** prepare vectors with all track information: TP links,
      * i.p. significances, track grade, etc */
-    auto track_info = get_track_info(tracksInJet, unit, TrkFromV0);
+    auto track_info = get_track_info(tracksInJet, jetDirection, TrkFromV0);
 
     // add the tags
     add_tags(*BTag, author, track_info);
@@ -450,7 +447,9 @@ namespace Analysis {
       } // end loop over networks
       // for each sorting, store inputs
       if (networks.size() > 0) {
-        fill_inputs(tag, networks.front().name, inputs);
+        if (m_writeInputsToBtagObject) {
+          fill_inputs(tag, networks.front().name, inputs);
+        }
       } else {
         ATH_MSG_ERROR("Found sorting function in RNNIP with no accompanying"
                       " inputs. This should not happen.");
@@ -575,8 +574,10 @@ namespace Analysis {
 
   std::vector<IPxDInfo> RNNIPTag::get_track_info(
     const std::vector<GradedTrack>& tracksInJet,
-    const Amg::Vector3D& unit,
+    const Amg::Vector3D& jetDirection,
     const std::vector<const xAOD::TrackParticle*>& TrkFromV0) const {
+    Amg::Vector3D unit = jetDirection.unit();
+    double jet_pt = std::hypot(jetDirection.x(), jetDirection.y());
 
     std::vector<IPxDInfo> track_info;
 
@@ -657,6 +658,8 @@ namespace Analysis {
       tmpObj.trkP =trk;
       tmpObj.fromV0=isFromV0;
       tmpObj.dphi = Amg::deltaPhi(trk_momentum, unit);
+      tmpObj.dr = Amg::deltaR(trk_momentum, unit);
+      tmpObj.ptfrac = trk->pt() / jet_pt;
       track_info.push_back(tmpObj);
     }
     return track_info;
@@ -675,6 +678,7 @@ namespace {
     using namespace trkvar;
     const std::vector<std::string> inputs{
       D0, D0_SIG, Z0, Z0_SIG, D0Z0_SIG, GRADE, FROM_V0, PT, DPHI, ABS_ETA,
+        PT_FRAC, DR,
         CHI2, N_INN_HITS, N_NEXT_TO_INN_HITS, N_BL_HITS, N_SHARED_BL_HITS,
         N_SPLIT_BL_HITS, N_PIX_HITS, N_SHARED_PIX_HITS, N_SPLIT_PIX_HITS,
         N_SCT_HITS, N_SHARED_SCT_HITS, EXPECT_BL_HIT};
@@ -693,6 +697,8 @@ namespace {
       out.at(PT).push_back(tk.trkP->pt());
       out.at(DPHI).push_back(tk.dphi);
       out.at(ABS_ETA).push_back(std::abs(tk.trkP->eta()));
+      out.at(PT_FRAC).push_back(tk.ptfrac);
+      out.at(DR).push_back(tk.dr);
 
       const auto& tp = *tk.trkP;
       out.at(CHI2).push_back(tp.chiSquared());

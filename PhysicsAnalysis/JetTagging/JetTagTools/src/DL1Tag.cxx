@@ -24,6 +24,7 @@
 #include "JetTagTools/DL1Tag.h"
 #include "JetTagTools/LightweightNeuralNetwork.h"
 #include "JetTagTools/parse_json.h"
+#include "JetTagTools/Stack.h" // <-- added for exceptions
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 769886 2016-08-24 14:31:15Z guirriec $
+# $Id: CMakeLists.txt 780621 2016-10-26 22:04:58Z asciandr $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    Control/Navigation
    Event/xAOD/xAODMuon
+   InnerDetector/InDetRecTools/InDetSVWithMuonTool
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    InnerDetector/InDetRecTools/TrackVertexAssociationTool
    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
@@ -72,11 +73,12 @@ atlas_add_library( JetTagToolsLib
    src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
    src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
    src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
+   src/MyTag.cxx
    src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
    src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx
    src/ExKtbbTag.cxx src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx
    src/DL1Tag.cxx src/LightweightNeuralNetwork.cxx src/TagNtupleDumper.cxx
-   src/parse_json.cxx src/LightweightRNN.cxx src/RNNIPTag.cxx
+   src/parse_json.cxx src/Stack.cxx src/RNNIPTag.cxx
    PUBLIC_HEADERS JetTagTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}

@@ -65,6 +65,8 @@ namespace Analysis {
     void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag) const;
     void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag) const;
 
+    void fill_arbitrary_aux_data(var_map& inputs, xAOD::BTagging* BTag) const;
+
     // container information
     std::string m_ip2d_infosource;
     std::string m_ip3d_infosource;
@@ -72,6 +74,9 @@ namespace Analysis {
     std::string m_sv1_infosource;
     std::string m_jftNN_infosource;
     std::string m_softmuon_infosource;
+
+    // any other arbitrary aux data
+    std::vector<std::string> m_arbitrary_aux_data;
 
     ToolHandleArray< IMultivariateJetTagger > m_MultivariateTaggerHandleArray;
 
