@@ -300,6 +300,16 @@ if rec.doHeavyIon():
     except Exception:
         treatException("Could not load HIRecExample/HIRecOutputAODList_jobOptions.py")
 
+# ring-shaped calorimetry
+if rec.doCaloRinger():
+    try:
+        include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
+        fullAODList += CfgItemList( "caloRingerAod", items = caloRingerAODList )
+        StreamAOD_Augmented.AddMetaDataItem( caloRingerMetaDataList )
+    except Exception:
+        treatException("Could not load CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
+
+
 # now merge the explicit AOD list to the one coming from ObjKeyStore
 # (more and more will be taken from ObjKeyStore)
 from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore

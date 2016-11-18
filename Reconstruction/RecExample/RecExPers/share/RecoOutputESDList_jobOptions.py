@@ -112,10 +112,8 @@ if DetFlags.detdescr.Lucid_on():
 
 #ZDC
 if DetFlags.detdescr.ZDC_on():
-    fullESDList += CfgItemList("ZDC", items = ["xAOD::TriggerTowerContainer#ZdcTriggerTowers",
-                                               "xAOD::TriggerTowerAuxContainer#ZdcTriggerTowersAux.",
-                                               "xAOD::ZdcModuleContainer#ZdcModules",
-                                               "xAOD::ZdcModuleAuxContainer#ZdcModulesAux."])
+    fullESDList += CfgItemList("ZDC", items = ["ZdcDigitsCollection#ZdcDigitsCollection","ZdcRawChannelCollection#ZdcRawChannelCollection"])
+
 
 if DetFlags.detdescr.ALFA_on():
     protectedInclude("ForwardRec/ALFARec_OuputItemList_jobOptions.py")
@@ -192,6 +190,18 @@ if recAlgs.doTrackParticleCellAssociation():
                                       "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
     fullESDList += CfgItemList("trackParticleCellAssoEsd",items=trackParticleCellAssociationList)
     
+#CaloRinger
+if rec.doCaloRinger():
+    try:
+        include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
+        fullESDList += CfgItemList( "caloRingerEsd", items = caloRingerESDList )
+        from RecExConfig.ObjKeyStore import objKeyStore
+        objKeyStore['metaData'] += CfgItemList( "caloRingerMeta" , items = caloRingerMetaDataList )
+    except:
+        treatException("Could not load CaloRinger ESD item list")
+        pass
+    pass
+
 
 # Muon combined reconstruction
 if DetFlags.detdescr.Muon_on() or DetFlags.detdescr.Calo_on():

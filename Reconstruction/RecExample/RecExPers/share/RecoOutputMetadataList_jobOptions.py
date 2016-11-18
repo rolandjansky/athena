@@ -1,5 +1,13 @@
+# Itemlist for metadata to be written by RecExCommon
+
 from AthenaCommon.KeyStore import CfgItemList
 
+# for the FileMetaData for MC
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary['evt_type'][0] == 'IS_SIMULATION':
+  svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+
+# ESD
 recoMetadataItemList = CfgItemList("RecoMetadata",
                                     items = ["IOVMetaDataContainer#*",
                                              "xAOD::LumiBlockRangeContainer#*",
@@ -9,7 +17,13 @@ recoMetadataItemList = CfgItemList("RecoMetadata",
                                              "ByteStreamMetadataContainer#*"], 
                                     allowWildCard = True )
 
+# AOD extra
 dfMetadataItemList = CfgItemList("DerivedMetadata",
-                                 items = ["xAOD::TriggerMenuContainer#*","xAOD::TriggerMenuAuxContainer#*"],
+                                 items = ["xAOD::TriggerMenuContainer#*",
+                                          "xAOD::TriggerMenuAuxContainer#*",
+                                          "xAOD::FileMetaData#FileMetaData",
+                                          "xAOD::FileMetaDataAuxInfo#FileMetaDataAux."],
                                  allowWildCard = True )
+
+# AOD = ESD + AOD extra
 dfMetadataItemList.add(recoMetadataItemList())
