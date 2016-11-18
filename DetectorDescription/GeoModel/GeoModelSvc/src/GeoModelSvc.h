@@ -7,7 +7,9 @@
 
 #include "GeoModelKernel/Query.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthService.h"
@@ -72,20 +74,9 @@ private:
     IToolSvc*     m_pToolSvc;     	          // Tool Service Locator
     StoreGateSvc* m_pDetStore;        		  // The Transient Detector Store Service
     ITagInfoMgr*  m_tagInfoMgr;                   // Tag Info Manager
+    ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc;
 
     std::string           m_AtlasVersion;
-
-    std::string           m_InDetVersion;
-    std::string           m_PixelVersion;
-    std::string           m_SCT_Version;
-    std::string           m_TRT_Version;
-    std::string           m_LAr_Version;
-    std::string           m_TileVersion;
-    std::string           m_MuonVersion;
-    std::string           m_CaloVersion;
-    std::string           m_MagFieldVersion;
-    std::string           m_CavernInfraVersion;
-    std::string           m_ForwardDetectorsVersion;
 
     std::string           m_InDetVersionOverride;
     std::string           m_PixelVersionOverride;
@@ -98,8 +89,6 @@ private:
     std::string           m_MagFieldVersionOverride;
     std::string           m_CavernInfraVersionOverride;
     std::string           m_ForwardDetectorsVersionOverride;
-
-    GeoModel::GeoConfig  m_geoConfig;
 
     bool          m_automaticGeomVersion;         // Get geometry version from the input file
     bool          m_callBackON;                   // Register callback for Detector Tools
@@ -126,19 +115,19 @@ private:
     const std::string & cavernInfraVersionOverride()  const {return m_CavernInfraVersionOverride  ;}
     const std::string & forwardDetectorsVersionOverride()  const {return m_ForwardDetectorsVersionOverride  ;}
 
-    const std::string & inDetVersion()         const {return m_InDetVersion ;}
-    const std::string & pixelVersion()         const {return m_PixelVersion ;}
-    const std::string & SCT_Version()          const {return m_SCT_Version  ;}
-    const std::string & TRT_Version()          const {return m_TRT_Version  ;}
-    const std::string & LAr_Version()          const {return m_LAr_Version  ;}
-    const std::string & tileVersion()          const {return m_TileVersion  ;}
-    const std::string & muonVersion()          const {return m_MuonVersion  ;}
-    const std::string & caloVersion()          const {return m_CaloVersion  ;}
-    const std::string & magFieldVersion()      const {return m_MagFieldVersion  ;}
-    const std::string & cavernInfraVersion()   const {return m_CavernInfraVersion  ;}
-    const std::string & forwardDetectorsVersion()   const {return m_ForwardDetectorsVersion  ;}
+    const std::string & inDetVersion()         const {return m_geoDbTagSvc->inDetVersion(); }
+    const std::string & pixelVersion()         const {return m_geoDbTagSvc->pixelVersion(); }
+    const std::string & SCT_Version()          const {return m_geoDbTagSvc->SCT_Version(); }
+    const std::string & TRT_Version()          const {return m_geoDbTagSvc->TRT_Version(); }
+    const std::string & LAr_Version()          const {return m_geoDbTagSvc->LAr_Version(); }
+    const std::string & tileVersion()          const {return m_geoDbTagSvc->tileVersion(); }
+    const std::string & muonVersion()          const {return m_geoDbTagSvc->muonVersion(); }
+    const std::string & caloVersion()          const {return m_geoDbTagSvc->caloVersion(); }
+    const std::string & magFieldVersion()      const {return m_geoDbTagSvc->magFieldVersion(); }
+    const std::string & cavernInfraVersion()   const {return m_geoDbTagSvc->cavernInfraVersion(); }
+    const std::string & forwardDetectorsVersion()   const {return m_geoDbTagSvc->forwardDetectorsVersion(); }
 
-    virtual GeoModel::GeoConfig geoConfig() const {return m_geoConfig;}
+    GeoModel::GeoConfig geoConfig() const {return m_geoDbTagSvc->geoConfig();}
 
     bool geoInitialized() const;
     StatusCode fillTagInfo() const;

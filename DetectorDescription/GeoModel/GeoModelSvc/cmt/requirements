@@ -11,6 +11,7 @@ apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
 
 private
+use CxxUtils         CxxUtils-*          Control
 use StoreGate        StoreGate-*         Control
 use SGTools          SGTools-*           Control
 use AthenaKernel     AthenaKernel-*      Control
