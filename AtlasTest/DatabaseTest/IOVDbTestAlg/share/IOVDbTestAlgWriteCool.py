@@ -66,6 +66,11 @@ IOVDbTestAlg.PrintLB = True
 #     athena  'TESTCOOL="<your test db name>"' IOVDbTestAlgWriteCool.py
 #
 
+import os
+try:
+    os.remove('mytest.db')
+except OSError:
+    pass
 # uncomment this to use a local SQLite file instead
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=mytest.db;dbname=TESTCOOL"
 

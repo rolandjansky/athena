@@ -106,8 +106,3 @@ macro_append IOVDbTestAlgReadCoolAfterTwoStep_test_dependencies " IOVDbTestAlgWr
 # HotSwapTEST
 apply_pattern athenarun_test name="HotSwapTEST" pre_script="../test/HotSwapTEST.sh" options="IOVDbTestAlg/dummy.py" post_script="../test/post_check_with_select.sh HotSwapTEST ^..HotSwapTEST "
 macro_append HotSwapTEST_test_dependencies " IOVDbTestAlgReadCoolAfterTwoStep_test "
-
-
-
-
-
