@@ -5,7 +5,6 @@
 #include "CaloTools/CaloAffectedTool.h" 
 //#include "EventKernel/I4Momentum.h"
 #include "xAODBase/IParticle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -19,7 +18,7 @@ CaloAffectedTool::CaloAffectedTool (const std::string& type,
     m_read(false),
     m_readRaw(true)
 { 
-  m_affectedRegions=0;
+  m_affectedRegions=nullptr;
   declareInterface<ICaloAffectedTool>(this);
   declareProperty("readRaw",m_readRaw);
 }
@@ -35,8 +34,6 @@ CaloAffectedTool::~CaloAffectedTool() {
 
 StatusCode CaloAffectedTool::initialize() {
 
-  MsgStream log( msgSvc(), name() );
-
   if (!m_readRaw) {
    if (detStore()->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
       const DataHandle<CondAttrListCollection> affectedRegionH;
@@ -44,24 +41,20 @@ StatusCode CaloAffectedTool::initialize() {
                           this,
                           affectedRegionH,
                           "/LAR/LArAffectedRegionInfo").isSuccess()) {
-            if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "Registered callback for  LArAffectedRegion " << endreq; 
+        ATH_MSG_DEBUG( "Registered callback for  LArAffectedRegion "  );
       }
         else {
-             log << MSG::WARNING << "Cannot register callback for LArAffectedRegion " << endreq; 
+          ATH_MSG_WARNING( "Cannot register callback for LArAffectedRegion "  );
       }
    }
     else {  
-      log << MSG::WARNING << " no LArAffectedRegion information available from metadata " << endreq; 
+      ATH_MSG_WARNING( " no LArAffectedRegion information available from metadata "  );
    }
   }
   else {
     // register incident handler for begin event
-    IIncidentSvc* incSvc; 
-    if (service( "IncidentSvc", incSvc ).isFailure()) {
-      log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq; 
-      return StatusCode::FAILURE;
-    }
+    IIncidentSvc* incSvc = nullptr; 
+    ATH_CHECK( service( "IncidentSvc", incSvc ) );
     long int priority=100;
     incSvc->addListener(this,"BeginEvent",priority);
 
@@ -75,15 +68,13 @@ StatusCode CaloAffectedTool::initialize() {
 
 void CaloAffectedTool::handle(const Incident& inc) {
 
-   MsgStream log(msgSvc(), name()); 
-
   if (inc.type()!="BeginEvent")
     return; 
 
   if (detStore()->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
      if (detStore()->retrieve(m_affectedRegions,"LArAffectedRegion").isFailure()) {
-      log << MSG::WARNING << " cannot read LArAffectedRegion at begin of event " << endreq;
-      return;
+       ATH_MSG_WARNING( " cannot read LArAffectedRegion at begin of event "  );
+       return;
      }
      m_read=true;
      //std::cout << " got affected regions at beginning of event " << std::endl;
@@ -103,14 +94,13 @@ StatusCode CaloAffectedTool::updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARGS) {
 
 StatusCode  CaloAffectedTool::readDB() {
 
-  MsgStream log(msgSvc(), name());   // Part 1: Get the messaging service, print where you are
-  log << MSG::INFO << "updateAffectedRegionsFromDB()" << endreq;
+  ATH_MSG_INFO( "updateAffectedRegionsFromDB()"  );
 
   // retrieve from detStore
-  const CondAttrListCollection* attrListColl = 0;
+  const CondAttrListCollection* attrListColl = nullptr;
   StatusCode sc = detStore()->retrieve(attrListColl, "/LAR/LArAffectedRegionInfo");
   if (sc.isFailure()) {
-     log << MSG::WARNING  << "attrrListColl not found for /LAR/CaloAffectedRegionInfo " << endreq;
+    ATH_MSG_WARNING( "attrrListColl not found for /LAR/CaloAffectedRegionInfo "  );
      return StatusCode::SUCCESS;
   }
 
@@ -127,8 +117,8 @@ StatusCode  CaloAffectedTool::readDB() {
   for (; first != last; ++first) {
       std::ostringstream attrStr1;
       (*first).second.toOutputStream( attrStr1 );
-      log << MSG::DEBUG << "ChanNum " << (*first).first <<
-          " Attribute list " << attrStr1.str() << endreq;
+      ATH_MSG_DEBUG( "ChanNum " << (*first).first <<
+                     " Attribute list " << attrStr1.str()  );
       //      const AttributeList& attrList = (*first).second;
       const coral::AttributeList& attrList = (*first).second;
       CaloAffectedRegionInfo info;
@@ -152,15 +142,12 @@ StatusCode  CaloAffectedTool::readDB() {
 
 //-------------------------------------------------
 
-bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dphi, int layer_min, int layer_max, int problemType) 
+bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dphi, int layer_min, int layer_max, int problemType) const
 {
 
  static float epsilon=1e-6;
 
   //std::cout << " in isAffected " << p->eta() << " " << p->phi() << std::endl;
-  if (!m_read &&  !m_readRaw) {
-   if (this->readDB().isFailure()) return false;
-  }
   if (!m_read) return false;
   if (!m_affectedRegions) return false;
 
@@ -207,7 +194,7 @@ bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dp
 }
 //-------------------------------------------------
 
-bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta, float dphi, int problemType)
+bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta, float dphi, int problemType) const
 {
 
   bool found = false;
@@ -217,9 +204,6 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& l
   layer_list.clear();
   problem_list.clear();
 
-  if (!m_read && !m_readRaw ) {
-   if (this->readDB().isFailure()) return false;
-  }
   if (!m_read) return false;
   if (!m_affectedRegions) return false;
 

@@ -510,12 +510,9 @@ void CaloCellPacker_400_500::pack (const CaloCellContainer& cells,
     pars.m_status |= header::STATUS_IS_SUPERCELL;
 
   // Loop over input cells.
-  for (CaloCellContainer::const_iterator it = cells.begin();
-       it != cells.end();
-       ++it)
+  for (const CaloCell* cell : cells)
   {
     // Pick up values from the cell.
-    const CaloCell* cell = *it;
     const CaloDetDescrElement* dde = cell->caloDDE();
     unsigned int hash = dde->calo_hash();
     CaloCell_ID::SUBCALO subcalo = dde->getSubCalo();
@@ -603,11 +600,9 @@ void CaloCellPacker_400_500::pack (const CaloCellContainer& cells,
     // now its surely flat.
 
     // add provenance stuff at the end.
-    for (std::vector<short unsigned int>::iterator iter = vProvenance.begin();
-         iter != vProvenance.end();
-         ++iter)
+    for (unsigned short & iter : vProvenance)
     {
-      outit.set (*iter);
+      outit.set (iter);
     }
   }
 
@@ -869,6 +864,14 @@ void CaloCellPacker_400_500::unpack
   pars500 pars;
   pars.m_status = 0;
   pars.m_seq_tile = 0;
+  pars.m_seq_larem = 0;
+  pars.m_seq_larhec = 0;
+  pars.m_seq_larfcal = 0;
+  pars.m_lengthProvenance = 0;
+  pars.m_ncells_tile = 0;
+  pars.m_ncells_larhec = 0;
+  pars.m_ncells_larfcal = 0;
+  pars.m_ncells_larem = 0;
 
   {
     const int* headerbeg = &*vheader.begin();
@@ -930,7 +933,7 @@ void CaloCellPacker_400_500::unpack
   bool is_SC = (pars.m_status & header::STATUS_IS_SUPERCELL);
 
   // We need the detector description.
-  const CaloDetDescrManager_Base *ddmgr = 0;
+  const CaloDetDescrManager_Base *ddmgr = nullptr;
   if (is_SC){
     ddmgr = CaloSuperCellDetDescrManager::instance();
   }else
@@ -1048,7 +1051,7 @@ void CaloCellPacker_400_500::unpack
       // Find the descriptor element for this cell.
       const CaloDetDescrElement *dde = ddmgr->get_element(hash);
 
-      if (dde == 0) {
+      if (dde == nullptr) {
         REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, 
                                     "CaloCellPacker_400_500 ")
           << "Corrupted data: can't find DDE for cell with hash " << hash;

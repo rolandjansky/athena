@@ -27,8 +27,7 @@ SimpleNoiseTool::SimpleNoiseTool(const std::string& type,
 
   declareInterface<ICalorimeterNoiseTool>(this);
 
-  MsgStream report(msgSvc(),name);
-  report << MSG::INFO << " SimpleNoiseTool start" << endreq;
+  ATH_MSG_INFO( " SimpleNoiseTool start"  );
 }
 
 SimpleNoiseTool::~SimpleNoiseTool()
@@ -36,20 +35,13 @@ SimpleNoiseTool::~SimpleNoiseTool()
 
 StatusCode SimpleNoiseTool::initialize()
 {
-  MsgStream report(msgSvc(),name());
-  report << MSG::INFO << " SimpleNoiseTool initialize()" << endreq;
-
-  
+  ATH_MSG_INFO( " SimpleNoiseTool initialize()"  );
   return StatusCode::SUCCESS;
 }
 
 float SimpleNoiseTool::getNoise(const CaloCell* /*aCell*/, CalorimeterNoiseType /*type*/)
 {
   float noise=10.0;
-  
-  MsgStream report(msgSvc(),name());
-  // report << MSG::INFO
-  // << "::getNoise::" << aCell->caloDDE() << " : " << noise << "\n";
   return noise;
 }
 
@@ -57,9 +49,6 @@ float SimpleNoiseTool::getNoise(const CaloDetDescrElement* /*caloDDE*/, Calorime
 {
   float noise=10.0;
   
-  MsgStream report(msgSvc(),name());
-  // report << MSG::INFO
-  // << "::getNoise::" << caloDDE << " : " << noise << "\n";
   return noise;
 }
 

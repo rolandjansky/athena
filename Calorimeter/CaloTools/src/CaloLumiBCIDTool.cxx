@@ -3,7 +3,6 @@
 */
 
 #include "CaloTools/CaloLumiBCIDTool.h" 
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -58,24 +57,16 @@ CaloLumiBCIDTool::~CaloLumiBCIDTool() {}
 
 StatusCode CaloLumiBCIDTool::initialize() {
 
-  msg(MSG::INFO) << " initialize " << endreq;
+  ATH_MSG_INFO( " initialize "  );
 
-  IIncidentSvc* incSvc; 
-  if (service( "IncidentSvc", incSvc ).isFailure()) {
-    msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endreq; 
-    return StatusCode::FAILURE;
-  }
+  IIncidentSvc* incSvc = nullptr;
+  ATH_CHECK( service( "IncidentSvc", incSvc ) );
   long int priority=100;
   incSvc->addListener(this,"BeginEvent",priority);
 
 
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  const IGeoModelSvc *geoModel=nullptr;
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   m_lumiVec.reserve(m_bcidMax);
   m_lumiVec.assign(m_bcidMax,0.0);
@@ -90,140 +81,69 @@ StatusCode CaloLumiBCIDTool::initialize() {
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-                          geoModel,
-                          &CaloLumiBCIDTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &CaloLumiBCIDTool::geoInit,this) );
   }
-  return sc;
-
+  return StatusCode::SUCCESS;
 }
 
 // ------------------------------------------------------------------------------
 
 StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 
-  msg(MSG::INFO) << " geoInit " << endreq;
+  ATH_MSG_INFO( " geoInit "  );
 
 // callback for Shape
 
-  StatusCode sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
-				   dynamic_cast<ICaloLumiBCIDTool*>(this),
-				   m_dd_shape,m_keyShape,true);
-  if(sc.isSuccess()){
-    msg(MSG::INFO) << "Registered callback for key: "
-		   << m_keyShape << endreq;
-  } else {
-    msg(MSG::ERROR) << "Cannot register callback function for key "
-		    << m_keyShape << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
+                                dynamic_cast<ICaloLumiBCIDTool*>(this),
+                                m_dd_shape,m_keyShape,true) );
+  ATH_MSG_INFO( "Registered callback for key: "<< m_keyShape  );
 
 // callback for MinBiasAverage
 
-  sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
-			dynamic_cast<ICaloLumiBCIDTool*>(this),
-			m_dd_minbiasAverage,m_keyMinBiasAverage,true);
-  if(sc.isSuccess()){
-    msg(MSG::INFO) << "Registered callback for key: "
-		   << m_keyMinBiasAverage << endreq;
-  } else { 
-    msg(MSG::ERROR) << "Cannot register callback function for key "
-		    << m_keyMinBiasAverage << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
+                                dynamic_cast<ICaloLumiBCIDTool*>(this),
+                                m_dd_minbiasAverage,m_keyMinBiasAverage,true) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_keyMinBiasAverage  );
 
-  sc=m_cablingService.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::ERROR) << "Unable to get CablingService" << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
 
 
 // get OFC tool and register callback
-
+  
   if (m_isMC) {
-    sc=m_OFCTool.retrieve();
-    if (sc.isFailure())   {
-      msg(MSG::ERROR) << "Unable to retrieve LArOFCTool" << endreq; 
-      return sc;
-    } else {
-      msg(MSG::DEBUG) << " -- LArOFCTool retrieved" << endreq;
-    }
+    ATH_CHECK( m_OFCTool.retrieve() );
+    ATH_MSG_DEBUG( " -- LArOFCTool retrieved"  );
 
-
-    sc=detStore()->regFcn(&ILArOFCTool::LoadCalibration,&(*m_OFCTool),
-			  &ICaloLumiBCIDTool::LoadCalibration,dynamic_cast<ICaloLumiBCIDTool*>(this),true);
-    if (sc.isSuccess()) {
-      msg(MSG::INFO) << "Registered callbacks for LArOFCTool -> CaloLumiBCIDTool"
-		     << endreq;
-    } else { 
-      msg(MSG::ERROR) << "Cannot register callbacks for LArOFCTool -> CaloLumiBCIDTool"
-	<< endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&ILArOFCTool::LoadCalibration,&(*m_OFCTool),
+                                  &ICaloLumiBCIDTool::LoadCalibration,dynamic_cast<ICaloLumiBCIDTool*>(this),true) );
+    ATH_MSG_INFO( "Registered callbacks for LArOFCTool -> CaloLumiBCIDTool" );
 
   } else {
-    sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
-			  dynamic_cast<ICaloLumiBCIDTool*>(this),
-			  m_dd_ofc,m_keyOFC,true);
-    if(sc.isSuccess()){
-      msg(MSG::INFO) << "Registered callback for key: "
-		     << m_keyOFC << endreq;
-    } else {
-      msg(MSG::ERROR) << "Cannot register callback function for key "
-		      << m_keyOFC << endreq;
-      return sc;
-    }
-
+    ATH_CHECK( detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
+                                  dynamic_cast<ICaloLumiBCIDTool*>(this),
+                                  m_dd_ofc,m_keyOFC,true) );
+    ATH_MSG_INFO( "Registered callback for key: " << m_keyOFC  );
   }
 
 // get LumiTool
   if (m_isMC) {
-    sc=m_bunchCrossingTool.retrieve();
-    if (sc.isFailure())   {
-      msg(MSG::ERROR) << "Unable to retrieve bunch crossing Tool" << endreq; 
-      return sc;
-    } else {
-      ATH_MSG_DEBUG(" -- bunch crossing Tool retrieved");
-    }
-
+    ATH_CHECK( m_bunchCrossingTool.retrieve() );
+    ATH_MSG_DEBUG(" -- bunch crossing Tool retrieved");
+  
   } else {
-      sc=m_lumiTool.retrieve();
-      if (sc.isFailure())   {
-        msg(MSG::ERROR) << "Unable to retrieve Lumi Tool" << endreq;
-        return sc;
-      } else {
-        ATH_MSG_DEBUG(" -- Lumi Tool retrieved");
-      }
-
+    ATH_CHECK( m_lumiTool.retrieve() );
+    ATH_MSG_DEBUG(" -- Lumi Tool retrieved");
   }
 
  //
- sc = m_larmcsym.retrieve();
- if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve LArMCSym tool " << endreq;
-      return sc;
-  }
-  else {
-    ATH_MSG_DEBUG(" -- LArMCSmy tool retrieved ");
-  }
+  ATH_CHECK( m_larmcsym.retrieve() );
+  ATH_MSG_DEBUG(" -- LArMCSmy tool retrieved ");
 
- sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
- if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Cannot retrieve LArOnlineID from detector store " << endreq;
-   return sc;
- }
-  
-  sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr in  " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(  detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
+  ATH_CHECK(  detStore()->retrieve( m_caloIdMgr ) );
   m_calocell_id = m_caloIdMgr->getCaloCell_ID();
 
   return StatusCode::SUCCESS;
@@ -350,7 +270,7 @@ void CaloLumiBCIDTool::getListOfCells()
 
 StatusCode CaloLumiBCIDTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
-  msg(MSG::INFO) << "Callback invoked for " << keys.size() << " keys " << endreq;
+  ATH_MSG_INFO( "Callback invoked for " << keys.size() << " keys "  );
 
   m_cacheValid=false;
   return StatusCode::SUCCESS;
@@ -381,7 +301,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
   if (m_isMC) {
      const xAOD::EventInfo* eventInfo;
      if (! evtStore()->retrieve(eventInfo).isSuccess() ) {
-       msg(MSG::WARNING) << " Event info not found in event store . Pileup offsets computed for 0 lumi " << endreq;
+       ATH_MSG_WARNING( " Event info not found in event store . Pileup offsets computed for 0 lumi "  );
      }
      else {
        xlumiMC = eventInfo->averageInteractionsPerCrossing()*0.158478605;     // convert from mu/bunch to lumi in 10**30 units per bunch
@@ -393,7 +313,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
   if (bcid==0) {
     const xAOD::EventInfo* eventInfo;
     if (! evtStore()->retrieve(eventInfo).isSuccess() ) {
-      msg(MSG::WARNING) << " Event info not found in event store . Pileup offsets computed for bcid=1 " << endreq;
+      ATH_MSG_WARNING( " Event info not found in event store . Pileup offsets computed for bcid=1 "  );
       std::cout << " Event info not found in event store . Pileup offsets computed for bcid=1 " << std::endl;
        bcid=1;
      }
@@ -433,7 +353,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
 
       unsigned int nshapes = samp.size();
       if (nshapes < nsamples) {
-//	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
+        //	ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
 	return StatusCode::FAILURE;
       }
 
@@ -488,7 +408,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
 
       unsigned int nshapes = samp.size();
       if (nshapes < nsamples) {
-//	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
+        //	ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
 	return StatusCode::FAILURE;
       }
 

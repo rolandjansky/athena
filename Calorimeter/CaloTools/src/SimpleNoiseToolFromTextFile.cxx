@@ -46,21 +46,8 @@ SimpleNoiseToolFromTextFile::~SimpleNoiseToolFromTextFile()
 
 StatusCode SimpleNoiseToolFromTextFile::initialize()
 {
-  MsgStream report(msgSvc(),name());
-
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    report << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    report << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  const IGeoModelSvc *geoModel=nullptr;
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -72,26 +59,17 @@ StatusCode SimpleNoiseToolFromTextFile::initialize()
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &SimpleNoiseToolFromTextFile::geoInit,this);
-    if(sc.isFailure())
-    {
-      report << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &SimpleNoiseToolFromTextFile::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 SimpleNoiseToolFromTextFile::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  MsgStream report(msgSvc(),name());
-  
-  report << MSG::INFO 
-         << "SimpleNoiseToolFromTextFile initialize()" 
-         << endreq;
+  ATH_MSG_INFO( "SimpleNoiseToolFromTextFile initialize()" );
   
   // access calo detector managers
   m_caloDDM = CaloDetDescrManager::instance(); 
@@ -104,9 +82,7 @@ SimpleNoiseToolFromTextFile::geoInit(IOVSVC_CALLBACK_ARGS)
   
   // exit if the file cannot be opened
   if (!fStream.is_open()) {
-    report << MSG::ERROR 
-           << "Failed to open file: " << m_cellNoiseFileName 
-           << endreq;
+    ATH_MSG_ERROR( "Failed to open file: " << m_cellNoiseFileName );
     return StatusCode::FAILURE;
   }
   
@@ -127,17 +103,14 @@ SimpleNoiseToolFromTextFile::geoInit(IOVSVC_CALLBACK_ARGS)
         // fill the noise map
         m_cellNoise[theID] = cellNoise;
 	
-        report << MSG::DEBUG
-               << "Cell " << theID.get_compact()
+        ATH_MSG_DEBUG( "Cell " << theID.get_compact()
                << std::setbase(16) << std::setiosflags(std::ios_base::showbase) 
                << " : "    << theID.get_compact()  << std::setbase(10)
                << " : "    << std::setw(17) << m_caloIDH->show_to_string(theID)
                << " : noise = " << cellNoise/MeV << " MeV" 
-               << endreq;
+                       );
       } else {
-        report << MSG::ERROR 
-               << "bad format in cell noise file " << m_cellNoiseFileName 
-               << endreq;
+        ATH_MSG_ERROR("bad format in cell noise file " << m_cellNoiseFileName );
         return StatusCode::FAILURE;
       }
     }
@@ -145,10 +118,8 @@ SimpleNoiseToolFromTextFile::geoInit(IOVSVC_CALLBACK_ARGS)
   
   fStream.close();
   
-  report << MSG::INFO 
-         << "SimpleNoiseToolFromTextFile: cell noise values read from file " 
-         << m_cellNoiseFileName 
-         << endreq;
+  ATH_MSG_INFO( "SimpleNoiseToolFromTextFile: cell noise values read from file " 
+                << m_cellNoiseFileName  );
   
   return StatusCode::SUCCESS;
 }
@@ -167,8 +138,6 @@ float SimpleNoiseToolFromTextFile::getNoise(const CaloDetDescrElement* caloDDE, 
 
 float SimpleNoiseToolFromTextFile::getNoiseHelper(Identifier id)
 {
-  MsgStream report( msgSvc(), name() );
-  
   std::map<Identifier, float>::iterator itr = m_cellNoise.find(id);
   if (itr != m_cellNoise.end()) {
     // cell is in the map
@@ -178,15 +147,14 @@ float SimpleNoiseToolFromTextFile::getNoiseHelper(Identifier id)
     // cell not in the map
     // report this if requested
     if (m_cellNoiseDefaultWarning) 
-      report << MSG::WARNING 
-             << "SimpleNoiseToolFromTextFile: default noise " 
+      ATH_MSG_WARNING( "SimpleNoiseToolFromTextFile: default noise " 
              << m_cellNoiseDefault/MeV
              << " MeV for cell " 
              << id.get_compact()
              << std::setbase(16) << std::setiosflags(std::ios_base::showbase) 
              << " : "    << id.get_compact()  << std::setbase(10)
              << " : "    << std::setw(17) << m_caloIDH->show_to_string(id)
-             << endreq;
+                       );
     // return the default noise value set by jobOption
     return m_cellNoiseDefault;
   }

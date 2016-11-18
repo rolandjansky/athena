@@ -68,18 +68,13 @@ CaloNoiseToolDB::initialize()
   m_cached = ICalorimeterNoiseTool::TOTALNOISE;
 
   if (m_folderNames.size()==0) {
-    msg(MSG::ERROR) << "No database folder name give to read noise! Please set " << name() << ".FolderNames=[...]" << endreq;
+    ATH_MSG_ERROR( "No database folder name give to read noise! Please set " << name() << ".FolderNames=[...]"  );
     return StatusCode::FAILURE;
   }
 
 
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  const IGeoModelSvc *geoModel=nullptr;
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -91,27 +86,20 @@ CaloNoiseToolDB::initialize()
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloNoiseToolDB::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &CaloNoiseToolDB::geoInit,this) );
   }
 
-  
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode 
 CaloNoiseToolDB::finalize()
 {
-  msg(MSG::INFO) << "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size() <<endreq;
-  msg(MSG::INFO) << "Cache was recomputed " <<  m_cacheUpdateCounter << " times" << endreq;
+  ATH_MSG_INFO( "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size()  );
+  ATH_MSG_INFO( "Cache was recomputed " <<  m_cacheUpdateCounter << " times"  );
 
   //=== delete old CaloCondBlobFlt (which does not own the blob)
   std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it = m_noiseBlobMap.begin();
@@ -126,21 +114,13 @@ CaloNoiseToolDB::finalize()
 StatusCode
 CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  StatusCode sc;
-
-  msg(MSG::INFO)
-      << "CaloNoiseToolDB initialize() begin" 
-      << endreq;
+  ATH_MSG_INFO( "CaloNoiseToolDB initialize() begin"  );
 
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  
   //retrieves helpers for Identifier
 
   //retrieve ID helpers 
-  sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
   m_Nminbias = m_lumi0*nMinbiasPerLumi;
@@ -156,12 +136,8 @@ CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
     m_lumi0=0;
     if (detStore()->contains<CondAttrListCollection>(m_lumiFolderName)) {
       const DataHandle<CondAttrListCollection> lumiData;
-      sc = detStore()->regFcn(&CaloNoiseToolDB::updateLumi, this , lumiData, m_lumiFolderName, true);
-      if (sc.isFailure()) {
-          msg(MSG::ERROR) << " cannot register callback for luminosity " << endreq;
-          return StatusCode::FAILURE;
-      }
-      msg(MSG::INFO) << " Registered a callback for " << m_lumiFolderName << " Cool folder " << endreq;
+      ATH_CHECK( detStore()->regFcn(&CaloNoiseToolDB::updateLumi, this , lumiData, m_lumiFolderName, true) );
+      ATH_MSG_INFO( " Registered a callback for " << m_lumiFolderName << " Cool folder "  );
     }
   }
 
@@ -173,30 +149,18 @@ CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
   for(;fldr_it!=fldr_it_e;++fldr_it) {
     const std::string& folderName=*fldr_it;
     
-    msg(MSG::INFO) << "Registering callback on folder " << folderName << endreq;
-    sc=detStore()->regFcn(&CaloNoiseToolDB::updateMap, this, const_cast<const DataHandle<CondAttrListCollection>&>(m_noiseAttrListColl[i++]), folderName, true);
-     if (sc.isFailure()) {
-       msg(MSG::ERROR) << " cannot register callback to folder " << folderName <<  endreq;
-       return StatusCode::FAILURE;
-     }
+    ATH_MSG_INFO( "Registering callback on folder " << folderName  );
+    ATH_CHECK( detStore()->regFcn(&CaloNoiseToolDB::updateMap, this, const_cast<const DataHandle<CondAttrListCollection>&>(m_noiseAttrListColl[i++]), folderName, true) );
   }
 
   if (m_rescaleForHV) {
-    sc=m_larHVCellCorrTool.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve LArHVCellCorrTool " << m_larHVCellCorrTool << endreq;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "Retrieved " << m_larHVCellCorrTool << " for on-the-fly noise rescaling" << endreq;
-    sc=detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to install callback to LArHVCellCorrTool::LoadCalibration " << endreq;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "Regestered callback on ILArCellHVCorrTool::LoadCalibration" << endreq;
+    ATH_CHECK( m_larHVCellCorrTool.retrieve() );
+    ATH_MSG_INFO( "Retrieved " << m_larHVCellCorrTool << " for on-the-fly noise rescaling"  );
+    ATH_CHECK( detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this) );
+    ATH_MSG_INFO( "Regestered callback on ILArCellHVCorrTool::LoadCalibration"  );
   }
 
-  msg(MSG::INFO) << "CaloNoiseToolDB geoInit() end" << endreq;
+  ATH_MSG_INFO( "CaloNoiseToolDB geoInit() end"  );
 
   return StatusCode::SUCCESS;
 }
@@ -204,7 +168,7 @@ CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
 StatusCode
 CaloNoiseToolDB::clearCache( IOVSVC_CALLBACK_ARGS ) {
   if (m_rescaleForHV && m_larHVCellCorrTool->updateOnLastCallback()) {
-    msg(MSG::INFO) << "Change of HV situation encountered. Invalidating cached noise" << endreq;
+    ATH_MSG_INFO( "Change of HV situation encountered. Invalidating cached noise"  );
     m_cacheValid=false;
   }
   return StatusCode::SUCCESS;
@@ -216,13 +180,13 @@ StatusCode
 CaloNoiseToolDB::updateLumi( IOVSVC_CALLBACK_ARGS )
 {
 
-  msg(MSG::INFO) << " in updateLumi() " << endreq;
+  ATH_MSG_INFO( " in updateLumi() "  );
 
-  const CondAttrListCollection* attrListColl = 0;
+  const CondAttrListCollection* attrListColl = nullptr;
   StatusCode sc = detStore()->retrieve(attrListColl, m_lumiFolderName);
   if (sc.isFailure() || !attrListColl) {
-     msg(MSG::WARNING)  << "attrrListColl not found for " << m_lumiFolderName << endreq;
-     return StatusCode::SUCCESS;
+    ATH_MSG_WARNING( "attrrListColl not found for " << m_lumiFolderName  );
+    return StatusCode::SUCCESS;
   }
   // Loop over collection
   CondAttrListCollection::const_iterator first = attrListColl->begin();
@@ -234,13 +198,13 @@ CaloNoiseToolDB::updateLumi( IOVSVC_CALLBACK_ARGS )
       ATH_MSG_DEBUG("ChanNum " << (*first).first << " Attribute list " << attrStr1.str());
       const coral::AttributeList& attrList = (*first).second;
       if (attrList["LBAvInstLumi"].isNull()) {
-          msg(MSG::WARNING) << " NULL Luminosity information in database ... set it to 0 " << endreq;
+        ATH_MSG_WARNING( " NULL Luminosity information in database ... set it to 0 "  );
           m_lumi0 = 0.;
       } else {
         m_lumi0 = attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
       }
       if ( !(m_lumi0 == m_lumi0) ) {
-        msg(MSG::WARNING) << " Luminosity is not a number.. " << m_lumi0 << "  ... set it to 0 " << endreq;
+        ATH_MSG_WARNING( " Luminosity is not a number.. " << m_lumi0 << "  ... set it to 0 "  );
         m_lumi0=0.;
       }
       m_Nminbias = m_lumi0*nMinbiasPerLumi;
@@ -258,13 +222,9 @@ CaloNoiseToolDB::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
   std::set<unsigned> channelsFound;
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    msg(MSG::INFO) <<  " updateMap callback for key " << *itr << endreq;
+    ATH_MSG_INFO(  " updateMap callback for key " << *itr  );
     const CondAttrListCollection* noiseAttrListColl;
-    StatusCode sc=detStore()->retrieve(noiseAttrListColl,*itr);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve CondAttrListCollection with key " << *itr << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->retrieve(noiseAttrListColl,*itr) );
 
     //=== loop over collection (all cool channels)
     CondAttrListCollection::const_iterator iColl = noiseAttrListColl->begin();
@@ -278,7 +238,7 @@ CaloNoiseToolDB::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
       }
 
       if (channelsFound.insert(iColl->first).second==false) {
-	msg(MSG::ERROR) << "Channel " << iColl->first << " encountered twice during this callback! Don't know what to do." << endreq;
+	ATH_MSG_ERROR( "Channel " << iColl->first << " encountered twice during this callback! Don't know what to do."  );
 	return StatusCode::FAILURE;
       }
       //=== COOL channel number is system id
@@ -315,40 +275,40 @@ CaloNoiseToolDB::updateCache()
   // the different COOL channels are also up to date. 
   //
 {
- msg(MSG::INFO) << " in update Cache " << endreq;
+  ATH_MSG_INFO( " in update Cache "  );
 
  if (m_noiseBlobMap.size()!=7) {
    msg(MSG::ERROR) << "Not all necessary COOL channels loaded yet. Got only channels [";
    for (auto& mapitem : m_noiseBlobMap) 
      msg(MSG::ERROR) << mapitem.first << " ";
-   msg(MSG::ERROR) << "]" << endreq;
+   msg(MSG::ERROR) << "]" << endmsg;
    //throw .... 
    return;
  }
 
   // Cache, what noise to return
-  m_CachedGetNoiseCDDE=NULL;
+  m_CachedGetNoiseCDDE=nullptr;
   if(m_ReturnNoiseName=="electronicNoise") {
-    msg(MSG::INFO) << "Will cache electronic noise" << endreq;
+    ATH_MSG_INFO( "Will cache electronic noise"  );
     m_CachedGetNoiseCDDE=&CaloNoiseToolDB::elecNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseToolDB::elecNoiseRMS;
     m_cached = ICalorimeterNoiseTool::ELECTRONICNOISE;
   }
   if(m_ReturnNoiseName=="pileupNoise") {
-    msg(MSG::INFO) << "Will cache pileupNoise noise" << endreq;
+    ATH_MSG_INFO( "Will cache pileupNoise noise"  );
     m_CachedGetNoiseCDDE=&CaloNoiseToolDB::pileupNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseToolDB::pileupNoiseRMS;
     m_cached = ICalorimeterNoiseTool::PILEUPNOISE;
   }
   if(m_ReturnNoiseName=="totalNoise") {
-    msg(MSG::INFO) << "Will cache totalNoise noise" << endreq;
+    ATH_MSG_INFO( "Will cache totalNoise noise"  );
     m_CachedGetNoiseCDDE=&CaloNoiseToolDB::totalNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseToolDB::totalNoiseRMS;
     m_cached = ICalorimeterNoiseTool::TOTALNOISE;
   }
-  if(m_CachedGetNoiseCDDE==NULL ||
-     m_CachedGetNoiseCELL==NULL) {
-    msg(MSG::ERROR) << "Unknown noise !" << endreq;
+  if(m_CachedGetNoiseCDDE==nullptr ||
+     m_CachedGetNoiseCELL==nullptr) {
+    ATH_MSG_ERROR( "Unknown noise !"  );
   }
 
 
@@ -377,10 +337,10 @@ CaloNoiseToolDB::updateCache()
   }
 
   if (m_cacheUpdateCounter==0) {
-    msg(MSG::INFO) << " starting cell hash in EM calo " << m_firstSysHash[EMECZNEG] << " " << m_firstSysHash[EMBZNEG]  << " " << m_firstSysHash[EMBZPOS] << " " << m_firstSysHash[EMECZPOS] << endreq;
-    msg(MSG::INFO) << " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS] << endreq;
-    msg(MSG::INFO) << " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
-                   << m_noiseBlobMap[EMBZPOS]->getNChans() << " " << m_noiseBlobMap[EMECZPOS]->getNChans() << endreq;
+    ATH_MSG_INFO( " starting cell hash in EM calo " << m_firstSysHash[EMECZNEG] << " " << m_firstSysHash[EMBZNEG]  << " " << m_firstSysHash[EMBZPOS] << " " << m_firstSysHash[EMECZPOS]  );
+    ATH_MSG_INFO( " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS]  );
+    ATH_MSG_INFO( " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
+                  << m_noiseBlobMap[EMBZPOS]->getNChans() << " " << m_noiseBlobMap[EMECZPOS]->getNChans()  );
   }
   const int MaxGains = 4;  // make sure that code below does not exceed this size
   // m_noise is quite large and memory layout is important; profiling shows that
@@ -389,7 +349,7 @@ CaloNoiseToolDB::updateCache()
 
   bool tile_not_found = true;
   
-  msg(MSG::INFO) << " m_lumi0 " << m_lumi0 << endreq;
+  ATH_MSG_INFO( " m_lumi0 " << m_lumi0  );
   float lumi = m_lumi0;
   for (int i=0;i<m_ncell;i++) {
       IdentifierHash idHash = i;
@@ -400,11 +360,9 @@ CaloNoiseToolDB::updateCache()
           if (tile_not_found) {
               tile_not_found = false;
               if (this->checkObjLength(i) < 5) {
-                  msg(MSG::WARNING) 
-                      << "Old CALO DB detected, double gaussian noise option has no effect" << endreq;
+                ATH_MSG_WARNING( "Old CALO DB detected, double gaussian noise option has no effect"  );
               } else {
-                  msg(MSG::INFO) 
-                      << "New CALO DB detected, double gaussian noise option can be used" << endreq;
+                ATH_MSG_INFO( "New CALO DB detected, double gaussian noise option can be used"  );
               }
           }
       }
@@ -423,12 +381,12 @@ CaloNoiseToolDB::updateCache()
            float noise = this->getDBNoise(i,caloGain,lumi,hvcorr);
            m_noise[igain][i] = noise;
            if (i==0 &&  m_cacheUpdateCounter==0) {
-            msg(MSG::INFO) << " NoiseDB parameters for first cell at gain " << igain << endreq;
-            msg(MSG::INFO) << " a  " << this->getA(i,caloGain) << endreq;
-            msg(MSG::INFO) << " b  " << this->getB(i,caloGain) << endreq;
-            msg(MSG::INFO) << " lumi " << lumi << endreq;
-            msg(MSG::INFO) << " noise " << noise << endreq;
-	    if (m_rescaleForHV)  msg(MSG::INFO) << " HV corr " << hvcorr << endreq;
+             ATH_MSG_INFO( " NoiseDB parameters for first cell at gain " << igain  );
+             ATH_MSG_INFO( " a  " << this->getA(i,caloGain)  );
+             ATH_MSG_INFO( " b  " << this->getB(i,caloGain)  );
+             ATH_MSG_INFO( " lumi " << lumi  );
+             ATH_MSG_INFO( " noise " << noise  );
+             if (m_rescaleForHV)  ATH_MSG_INFO( " HV corr " << hvcorr  );
            }
          }
          if (m_cached==ICalorimeterNoiseTool::ELECTRONICNOISE) {
@@ -608,7 +566,7 @@ CaloNoiseToolDB::getDBNoise(SYSTEM sysId,
   const float b=flt->getData(cellHash,dbGain,1);
 
   if (flt->getObjVersion()!=1) 
-    msg(MSG::ERROR) << "Encountered unexpected object version " << flt->getObjVersion() << endreq;
+    ATH_MSG_ERROR( "Encountered unexpected object version " << flt->getObjVersion()  );
 
  
   return std::sqrt(a*a + b*b*lumi);
@@ -985,8 +943,8 @@ CaloNoiseToolDB::elecNoiseRMS3gains(const CaloDetDescrElement* caloDDE,
 VectorContainer* 
 CaloNoiseToolDB::elecNoiseRMSContainer(const int &iCalo) 
 {
-  msg(MSG::WARNING) << " elecNoiseRMSContainer not implemented " << iCalo << endreq ;
-  return 0;
+  ATH_MSG_WARNING( " elecNoiseRMSContainer not implemented " << iCalo  );
+  return nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -1217,24 +1175,24 @@ CaloNoiseToolDB::totalNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE,
 
 CaloGain::CaloGain CaloNoiseToolDB::estimatedGain(const CaloCell* /* caloCell */,
                                  const int & /*step */) {
- msg(MSG::WARNING) << "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN " << endreq;
+  ATH_MSG_WARNING( "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN "  );
  return CaloGain::INVALIDGAIN;
 }
 CaloGain::CaloGain CaloNoiseToolDB::estimatedGain(const CaloCell* /* caloCell */,
                                  const CaloDetDescrElement* /* caloDDE */,
                                  const int & /*step */){
- msg(MSG::WARNING) << "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN " << endreq;
- return CaloGain::INVALIDGAIN;
+  ATH_MSG_WARNING( "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN "  );
+  return CaloGain::INVALIDGAIN;
 }
 CaloGain::CaloGain CaloNoiseToolDB::estimatedGain(const CaloDetDescrElement* /* caloDDE */,
                                  const float& /* energy */,
                                  const int & /* step */) {
- msg(MSG::WARNING) << "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN " << endreq;
- return CaloGain::INVALIDGAIN;
+  ATH_MSG_WARNING( "  CaloNoiseToolDB::estimatedGain returns INVALIDGAIN "  );
+  return CaloGain::INVALIDGAIN;
 }
 
 StatusCode CaloNoiseToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
- msg(MSG::WARNING) << "  CaloNoiseToolDB::LoadCalibration dummy method " << endreq;
+  ATH_MSG_WARNING( "  CaloNoiseToolDB::LoadCalibration dummy method "  );
  return StatusCode::SUCCESS;
 }
 
