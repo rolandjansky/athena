@@ -28,7 +28,7 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.1'
+        self.version = '1.4.2'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -56,8 +56,11 @@ class MenuAwareMonitoringStandalone:
 
         # flag to record if we have connected to Oracle
         self.connected_to_oracle = False
+        self.connection_alias = ""
 
         # flag to indicate if we are connected to the replica database with a readonly connection
+        self.readonly_db_connection = False
+        # second flag so MAM doesn't break - will remove this later
         self.replica_db_connection = False
 
         # greetings
@@ -73,6 +76,9 @@ class MenuAwareMonitoringStandalone:
                 sys.exit(1)
             else:
                 print "Some Menu-aware Monitoring functions will not be available to you"
+        else:
+            self.connection_alias = alias
+            self.replica_db_connection = self.readonly_db_connection
 
 
     def __connect_to_oracle__(self,alias,database_username,database_password,database_name,database_directory):
@@ -86,7 +92,6 @@ class MenuAwareMonitoringStandalone:
 
         # else if we are not
         else:
-
             # info for user
             print "We are now connecting to the Oracle database"
 
@@ -97,33 +102,52 @@ class MenuAwareMonitoringStandalone:
                 self.connected_to_oracle = True
 
             elif alias in ("TRIGGERDB","TRIGGERDBREPR","TRIGGERDBREPR_R","TRIGGERDBR2MAM"):
-                # try catch
-                try:
 
-                    # get the connection from authentication.xml
-                    connectionSvc = self._getConnectionServicesForAlias(alias)[0]
-                    print "Connection Service %s" % connectionSvc
-                    #if alias is "TRIGGERDBREPR_R":
-                        # _R means we access the regular auth files instead of the ones with read/write access, need to change the alias back to TRIGGERDBREPR so that we look up the right details in the auth files
-                        #alias = "TRIGGERDBREPR"
-                    user,pw = self._readAuthentication(alias)[connectionSvc]
-                    server = connectionSvc.split('/')[2]
-                    if alias is "TRIGGERDBREPR":
-                        directory = "ATLAS_CONF_TRIGGER_REPR"
+                # get the connection from authentication.xml
+                connectionSvcs = self._getConnectionServicesForAlias(alias)
+                # print "Connection Services %s" % connectionSvcs
+                for connectionSvc in connectionSvcs:
+                    print "Trying connection service",connectionSvc
+                    if 'oracle' in connectionSvc:
+                        try:
+                            oracle_server = connectionSvc.split('/')[2]
+                            user,pw = self._readAuthentication(alias)[connectionSvc]
+                            if alias is "TRIGGERDBREPR":
+                                directory = "ATLAS_CONF_TRIGGER_REPR"
+                            else:
+                                directory = "ATLAS_CONF_TRIGGER_RUN2"
+                            print "User %s, server %s, directory %s" % (user,oracle_server,directory)
+                            self.oi.connect_to_oracle(user,pw,oracle_server,directory)
+                            # flag to record that we have connected
+                            self.connected_to_oracle = True
+                            if alias in ["TRIGGERDB","TRIGGERDBREPR_R"]:
+                                self.readonly_db_connection = True
+                            break
+                        except:
+                            print "Direct Oracle connection not possible, trying Frontier if available..."
+                            self.connected_to_oracle = False
+                    elif 'frontier' in connectionSvc:
+                        try:
+                            frontier_server = os.getenv('FRONTIER_SERVER',None)
+                            if alias is "TRIGGERDBREPR":
+                                directory = "ATLAS_CONF_TRIGGER_REPR"
+                            else:
+                                directory = "ATLAS_CONF_TRIGGER_RUN2"
+                            schema = directory
+                            print "Frontier Server %s, schema %s" % (frontier_server,schema)
+                            # connect to oracle
+                            self.oi.connect_to_oracle_via_frontier(frontier_server,schema,directory)
+                            # flag to record that we have connected
+                            self.connected_to_oracle = True
+                            if alias is "TRIGGERDB":
+                                self.readonly_db_connection = True
+                            break
+                        except:
+                            print "Oracle connection via Frontier not possible."
+                            self.connected_to_oracle = False
                     else:
-                        directory = "ATLAS_CONF_TRIGGER_RUN2"
-                    print "User %s, server %s, directory %s" % (user,server,directory)
-                    # connect to oracle
-                    self.oi.connect_to_oracle(user,pw,server,directory)
-                    # flag to record that we have connected
-                    self.connected_to_oracle = True
-                    if alias is "TRIGGERDB":
-                        self.replica_db_connection = True
-
-                except :
-                    # info for user
-                    print "Error while connecting to Oracle database"
-                    self.connected_to_oracle = False
+                        print "Error while connecting to Oracle database, no connections found"
+                        self.connected_to_oracle = False
             else:
                 print "Error while connecting to Oracle database: Unrecognised database alias",alias
                 self.connected_to_oracle = False
@@ -140,7 +164,7 @@ class MenuAwareMonitoringStandalone:
             # disconnect from oracle
             if self.oi.disconnect_from_oracle(): #returns True if disconnection is successful
                 self.connected_to_oracle = False
-                self.replica_db_connection = False
+                self.readonly_db_connection = False
 
     def _getConnectionServicesForAlias(self,alias):
         connectionServices = None # list of services
@@ -678,8 +702,8 @@ class MenuAwareMonitoringStandalone:
             print "You are not connected to the database, so this function is not available."
             return
 
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+        if self.readonly_db_connection == True:
+            print "Your connection is read only, so this function is not available to you."
             return
 
         # check mck exists
@@ -725,8 +749,8 @@ class MenuAwareMonitoringStandalone:
             print "You are not connected to the database, so this function is not available."
             return
 
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+        if self.readonly_db_connection == True:
+            print "Your connection is read only, so this function is not available to you."
             return
 
         # check for empty print_output_here
@@ -836,8 +860,8 @@ class MenuAwareMonitoringStandalone:
             print "You are not connected to the database, so this function is not available."
             return
 
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+        if self.readonly_db_connection == True:
+            print "Your connection is read only, so this function is not available to you."
             return
 
         # check for empty print_output_here
@@ -958,8 +982,8 @@ class MenuAwareMonitoringStandalone:
             print "You are not connected to the database, so this function is not available."
             return
 
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+        if self.readonly_db_connection == True:
+            print "Your connection is read only, so this function is not available to you."
             return
 
         # check for empty print_output_here
@@ -978,7 +1002,7 @@ class MenuAwareMonitoringStandalone:
             return
 
         # then we extract whether this is a default configuration or not
-        default = self.local_global_info['MCK']['MCK_DEFAULT']
+        default = int(self.local_global_info['MCK']['MCK_DEFAULT'])
 
         # and we extract the comment, athena version, stream, step, and user
         comment = self.local_global_info['MCK']['MCK_COMMENT']
@@ -1247,8 +1271,8 @@ class MenuAwareMonitoringStandalone:
             print "You are not connected to the database, so this function is not available."
             return
 
-        if self.replica_db_connection == True:
-            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+        if self.readonly_db_connection == True:
+            print "Your connection is read only, so this function is not available to you."
             return
 
         # check for empty print_output_here
@@ -1757,3 +1781,15 @@ class MenuAwareMonitoringStandalone:
             iov_until = (int(run+1)<<32)
         print "Storing MCK",mck,"with tag",tag,"for IOV",iov_since,"to",iov_until
         folder.storeObject(iov_since,iov_until,data,chan,tag)
+
+    def get_default_from_json(self,json_filename=""):
+        """Get a default configuration from a json file and store it as self.default_global_info"""
+
+        # create a file-like-object to read the json from
+        input_file = open( input_json_filename , "r" )
+
+        # json decode the local global info, and pass it to self.local_global_info, converting unicode to str
+        self.default_global_info = self.oi.__unicode_to_str__( json.load(input_file) )
+
+        # close the input file
+        input_file.close()

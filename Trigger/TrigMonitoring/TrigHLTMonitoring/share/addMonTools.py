@@ -6,6 +6,8 @@
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TrigHLTMonitoring/addMonTools' )
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 
@@ -36,7 +38,7 @@ if HLTMonFlags.doGeneral:
         from TrigHLTMonitoring.TrigHLTMonitoringConfig import HLTGeneralTool
         HLTMonManager.AthenaMonTools += HLTGeneralTool()
     except:
-         print "Problems with the general HLTMonTool"
+         log.info("Problems with the general HLTMonTool, tool not enabled")
 
 if HLTMonFlags.doMonTier0:
 
@@ -49,7 +51,7 @@ if HLTMonFlags.doMonTier0:
         from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
         HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
       except:
-        print "Problems with HLTEgammaTool, tool not enabled"
+        log.info("Problems with HLTEgammaTool, tool not enabled")
 
     # HLTCaloTool - Makes basic comparisons between online/offline
     if HLTMonFlags.doCalo:
@@ -58,7 +60,7 @@ if HLTMonFlags.doMonTier0:
         from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
         HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
       except:
-        print "Problems with HLTCaloTool, tool not enabled"
+        log.info("Problems with HLTCaloTool, tool not enabled")
 
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
@@ -66,7 +68,7 @@ if HLTMonFlags.doMonTier0:
         from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonitoringTool
         HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
       except:
-        print "Problems with HLTMuonTool, tool not enabled"
+        log.info("Problems with HLTMuonTool, tool not enabled")
 
     # IDtrk HLTMonTool
     if HLTMonFlags.doIDtrk:
@@ -74,7 +76,7 @@ if HLTMonFlags.doMonTier0:
         from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
         HLTMonManager.AthenaMonTools += TrigIDtrkMonitoringTool()
       except:
-        print "Problems with HLTIDtrkTool, tool not enabled"
+        log.info("Problems with HLTIDtrkTool, tool not enabled")
 
     # MET HLTMonTool
     if HLTMonFlags.doMET:
@@ -82,7 +84,7 @@ if HLTMonFlags.doMonTier0:
         from TrigMETMonitoring.TrigMETMonitoringConfig import HLTMETMonitoringTool
         HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
       except:
-        print "Problems with HLTMETTool, tool not enabled"
+        log.info("Problems with HLTMETTool, tool not enabled")
 
     # Tau HLTMonTool
     if HLTMonFlags.doTau:
@@ -90,7 +92,7 @@ if HLTMonFlags.doMonTier0:
         from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonitoringTool
         HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
       except:
-        print "Problems with HLTTauTool, tool not enabled"
+        log.info("Problems with HLTTauTool, tool not enabled")
 
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
@@ -98,7 +100,7 @@ if HLTMonFlags.doMonTier0:
         from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
         HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
       except:
-        print "Problems with HLTJetTool, tool not enabled"
+        log.info("Problems with HLTJetTool, tool not enabled")
 
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
@@ -106,7 +108,7 @@ if HLTMonFlags.doMonTier0:
         from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
         HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
       except:
-        print "Problems with HLTBjetTool, tool not enabled"
+        log.info("Problems with HLTBjetTool, tool not enabled")
 
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
@@ -114,7 +116,7 @@ if HLTMonFlags.doMonTier0:
         from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonitoringTool
         HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
       except:
-        print "Problems with HLTBphysTool, tool not enabled"
+        log.info("Problems with HLTBphysTool, tool not enabled")
 
     # MinBias HLTMonTool
     if HLTMonFlags.doMinBias:
@@ -122,7 +124,7 @@ if HLTMonFlags.doMonTier0:
         from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
         HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
       except:
-        print "Problems with HLTMinBiasDumpTool, tool not enabled"
+        log.info("Problems with HLTMinBiasDumpTool, tool not enabled")
 
     # MinBias HLTMonTool
     if HLTMonFlags.doIDJpsiMon:
@@ -130,7 +132,7 @@ if HLTMonFlags.doMonTier0:
         from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConfig import TrigIDJpsiMonitoringTool
         HLTMonManager.AthenaMonTools += TrigIDJpsiMonitoringTool()
       except:
-        print "Problems with, TrigIDJpsiMonTool, tool not enabled"
+        log.info("Problems with TrigIDJpsiMonTool, tool not enabled")
 
 
 ################ Dump Tools ################
@@ -143,7 +145,7 @@ if HLTMonFlags.doDump:
         from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
         HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
       except:
-        print "Problems with HLTEgammaDumpTool, tool not enabled"
+        log.info("Problems with HLTEgammaDumpTool, tool not enabled")
 
 
     #Make the custom tau TTP ntuples.
@@ -155,7 +157,7 @@ if HLTMonFlags.doDump:
       topSequence = AlgSequence()
       topSequence += ttpalgo
      except:
-      print "Problems with OfflineTauTTP, tool not enabled"
+      log.info("Problems with OfflineTauTTP, tool not enabled")
 
 ############################################
 ########## Menu-aware Monitoring ###########
@@ -163,7 +165,7 @@ if HLTMonFlags.doDump:
 #HLTMonFlags.doMaM = True
 #HLTMonFlags.doMaM_ApplyMCK = True
 
-if HLTMonFlags.doMaM:
+if HLTMonFlags.doMaM == True:
 
     # MaM needs to check whether it is running in a Trigger reprocessing job or not, and start an instance of MaM connected to the correct database accordingly
     trigger_reco_tf_job = False
@@ -175,35 +177,35 @@ if HLTMonFlags.doMaM:
 
     from TrigHLTMonitoring.MenuAwareMonitoring import MenuAwareMonitoring
     if trigger_reco_tf_job:
-        print "Will attempt to doMaM with TRIGGERDBREPR"
+        log.info("Will attempt to doMaM with TRIGGERDBREPR")
         mam = MenuAwareMonitoring("TRIGGERDBREPR_R")
     else:
-        print "Will attempt to doMaM with TRIGGERDB"
+        log.info("Will attempt to doMaM with TRIGGERDB")
         mam = MenuAwareMonitoring()
 
     if mam.ms.connected_to_oracle == False:
-        print "Menu-aware Monitoring error: Cannot doMaM without database connection -> Exiting MaM."
+        log.error("Menu-Aware Monitoring: Cannot doMaM without database connection")
     else:
         # if a specific Monitoring Configuration Key (MCK) has been set, then use it
         if HLTMonFlags.MCK.StoredValue > 0:
             if mam.ms.oi.check_if_mck_id_exists( HLTMonFlags.MCK.StoredValue ):
                 if mam.does_mck_athena_version_match_current_athena_version( HLTMonFlags.MCK.StoredValue ):
-                    print "MCK found via transform:",HLTMonFlags.MCK.StoredValue
+                    log.info("MCK found via transform %d" % HLTMonFlags.MCK.StoredValue )
                     # if we are applying configurations to tools according to an MCK, then do that here
                     if  HLTMonFlags.doMaM_ApplyMCK:
-                        print "Applying MCK",HLTMonFlags.MCK.StoredValue
+                        log.info("Applying MCK %d" % HLTMonFlags.MCK.StoredValue)
                         mam.apply_mck( HLTMonFlags.MCK.StoredValue )
                 else:
-                    print "MCK for a different release found via transform:",HLTMonFlags.MCK.StoredValue,"-> MCK ignored."
+                    log.info("MCK for a different release found via transform: %d -> MCK ignored." % HLTMonFlags.MCK.StoredValue )
             else:
-                print "MCK found via transform:",HLTMonFlags.MCK.StoredValue,"is not a vaid MCK -> No MCK applied."
+                log.info("MCK found via transform (%d) is not a vaid MCK -> No MCK applied." % HLTMonFlags.MCK.StoredValue )
 
         # if HLTMonFlags.MCK is -1 (the default) we try to determine the MCK automatically, as long as this is not MC
         is_not_sim = True
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary.__contains__('evt_type'):
             if 'IS_SIMULATION' in inputFileSummary['evt_type']:
-                print "Will not try to get MCK automatically as we are running on MC"
+                log.info("Will not try to get MCK automatically as we are running on MC")
                 is_not_sim = False
 
         if HLTMonFlags.MCK.StoredValue == -1 and is_not_sim:
@@ -219,10 +221,10 @@ if HLTMonFlags.doMaM:
                     SMKrepr = int(runArgs.triggerConfig.split(":")[-1].split(",")[0])
 
                 else:
-                    print "Could not get SMK from DBsmkey or triggerConfig runArgs -> No MCK applied."
+                    log.error("Menu-Aware Monitoring: Could not get SMK from DBsmkey or triggerConfig runArgs")
 
                 if SMKrepr is not None:
-                    print "SMK from runArgs:",SMKrepr
+                    log.info("SMK from runArgs %d" % SMKrepr)
                     # we now have the required input info. Use mam to get the appropriate MCK
                     MCKfromSMKrepr = mam.get_mck_id_from_smk(SMKrepr)
 
@@ -230,15 +232,15 @@ if HLTMonFlags.doMaM:
                     if MCKfromSMKrepr > 0:
                         if mam.does_mck_athena_version_match_current_athena_version( MCKfromSMKrepr ):
                             HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
-                            print "MCK found via SMK link: ",HLTMonFlags.MCK.StoredValue
+                            log.info("MCK found via SMK link %d" % HLTMonFlags.MCK.StoredValue)
                             if HLTMonFlags.doMaM_ApplyMCK:
-                                print "Applying MCK ",HLTMonFlags.MCK.StoredValue
+                                log.info("Applying MCK %d" % HLTMonFlags.MCK.StoredValue)
                                 mam.apply_mck( HLTMonFlags.MCK.StoredValue )
                         else:
-                            print "MCK for a different release found via SMK link:",HLTMonFlags.MCK.StoredValue,"-> MCK ignored."
+                            log.info("MCK for a different release found via SMK link: %d -> MCK ignored." % HLTMonFlags.MCK.StoredValue)
                     elif MCKfromSMKrepr == 0:
                         HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
-                        print "MCK found via SMK link: 0 -> Default configuration used."
+                        log.info("MCK found via SMK link: 0 -> Default configuration used.")
 
             else:
                 # try to get the MCK from Cool
@@ -256,7 +258,7 @@ if HLTMonFlags.doMaM:
                     connstring = "COOLONL_TRIGGER/CONDBR2" # get the MCK from Cool
                     coolDB=indirectOpen(connstring,oracle='True')
                     if coolDB is None:
-                        print "Unable to connect to",connstring,"to get MCK from Cool."
+                        log.error("Menu-Aware Monitoring: Unable to connect to %s to get MCK from Cool." % connstring)
                     else:
                         # try to get the MCK out of COOL
                         foldername = 'MenuAwareMonConfigKey'
@@ -272,26 +274,26 @@ if HLTMonFlags.doMaM:
                             HLTMonFlags.MCK.StoredValue = MonitoringConfigurationKey
 
                             if HLTMonFlags.MCK.StoredValue > 0:
-                                print "MCK found via Cool:",HLTMonFlags.MCK.StoredValue
+                                log.info("MCK found via Cool %d" % HLTMonFlags.MCK.StoredValue)
                                 if  HLTMonFlags.doMaM_ApplyMCK:
-                                    print "Applying MCK",HLTMonFlags.MCK.StoredValue
+                                    log.info("Applying MCK %d" % HLTMonFlags.MCK.StoredValue)
                                     mam.apply_mck( HLTMonFlags.MCK.StoredValue )
                             elif HLTMonFlags.MCK.StoredValue == 0:
-                                print "MCK found via Cool: 0 -> Default monitoring configuration used."
+                                log.info("MCK found via Cool: 0 -> Default monitoring configuration used.")
 
                         except:
-                            print "No MCK in Cool folder",foldername,"for release",mam.ms.current_athena_version,"-> No MCK applied."
+                            log.info("No MCK in Cool folder %s for release %s -> No MCK applied." % (foldername,mam.ms.current_athena_version))
 
                         coolDB.closeDatabase()
                 else:
-                    print "Unable to get run number from metadata"
+                    log.error("Menu-Aware Monitoring: Unable to get run number from metadata")
 
         # if dumping the tool configurations (as a .json file) has been requested, then do that here
-        if  HLTMonFlags.doMaM_ExtractAndDumpConfigs:
-            print "Will attempt to doMaM_ExtractAndDumpConfigs"
+        if HLTMonFlags.doMaM_ExtractAndDumpConfigs == True:
+            log.info("Will not attempt to doMaM_ExtractAndDumpConfigs, this function is yet to be debugged")
             # get updated configs for all tools, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
-            mam.get_current_local_info()
-            mam.dump_local_config_to_json(HLTMonFlags.MaM_OutputJSON.StoredValue)
+            # mam.get_current_local_info()
+            # mam.make_default_json(HLTMonFlags.MaM_OutputJSON.StoredValue,comment="Final job config")
 
 ############################################
 

@@ -14,7 +14,8 @@ import json
 class OracleInterface:
     "An interface to the Oracle database for Menu-aware Monitoring."
 
-    def connect_to_oracle(self,database_username="",database_password="",database_name="",directory=""):
+    def connect_to_oracle(self,database_username,database_password,database_name,directory=""):
+        "Connect to Oracle directly"
 
         # connection information
         USER = database_username
@@ -24,16 +25,25 @@ class OracleInterface:
         # connect to the oracle database
         self.conn = cx_Oracle.connect(USER, PASSWORD, DATASOURCE)
         self.cursor = self.conn.cursor()
+
         # optional directory in which to find the MaM schema in a database
         self.directory = directory
         if self.directory != "":
             self.directory = self.directory+"."
 
+    def connect_to_oracle_via_frontier(self,frontier_server,schema,directory=""):
+        "Connect to Oracle via Frontier"
+
+        from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
+
+        self.cursor = getFrontierCursor(frontier_server,schema)
+
+        self.directory = directory
+        if self.directory != "":
+            self.directory = self.directory+"."
 
     def disconnect_from_oracle(self):
 
-        # close oracle connection
-        #self.conn.close()
         try:
             self.conn.close()
             return True
@@ -71,25 +81,37 @@ class OracleInterface:
         # and return all results
         result = []
         self.cursor.execute(query,parameters_dict)
-        for value in self.cursor:
-            if len(value) > 1:
-                tempvalue = {}
-                listvalue = list(value)
-                for x in range(len(value)):
-                    if type(value[x]) is cx_Oracle.LOB:
-                        # convert this into a string now in order to prevent access errors which occur with fetchall()
-                        listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
-                value = tuple(listvalue)
-            result.append(value)
+        try:
+            for value in self.cursor:
+                if len(value) > 1:
+                    listvalue = list(value)
+                    for x in range(len(value)):
+                        if type(value[x]) is cx_Oracle.LOB:
+                            # convert this into a string now in order to prevent access errors which occur with fetchall()
+                            listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
+                    value = tuple(listvalue)
+                result.append(value)
+        except:
+            for value in self.cursor.result:
+                if len(value) > 1:
+                    listvalue = list(value)
+                    for x in range(len(value)):
+                        if type(value[x]) == str and 'MonitCategoryInfo' in value[x]:
+                            # convert this into a string now in order to prevent access errors which occur with fetchall()
+                            listvalue[x] = self.__unicode_to_str__(json.loads(value[x]))
+                    value = tuple(listvalue)
+                result.append(value)
         return result
-
 
     def insert(self, query, parameters_dict = {}):
 
         # insert a row,
         # optionally providing additional parameters as a dictionary
-        self.cursor.execute(query,parameters_dict)
-        self.conn.commit()
+        try:
+            self.cursor.execute(query,parameters_dict)
+            self.conn.commit()
+        except:
+            print "Insert into DB failed. Your connection is probably of the wrong type"
 
 
     def read_default_mck_id_from_db(self,athena_version):
@@ -118,7 +140,6 @@ class OracleInterface:
 
         # check that there is only one default
         if len(search_results) > 1:
-            print "Something has gone horribly wrong with the Oracle database"
             print "There are",len(search_results),"default mck numbers for Athena ", athena_version
             for row in search_results:
                 print "default mck_id =",row[0]
@@ -130,6 +151,52 @@ class OracleInterface:
 
         # return the default mck_id for this Athena version
         return default_mck
+
+
+    def delete_default_mck_id_from_db(self,athena_version):
+        # delete the default from the DB for the given athena version, including all associated SMCK
+
+        # check for the default
+        default_mck = self.read_default_mck_id_from_db(athena_version)
+        if default_mck:
+            print default_mck
+        else:
+            return
+
+        query = """DELETE FROM """+self.directory+"""mck_to_smck_link \
+        WHERE """+self.directory+"""mck_to_smck_link.link_mck = :DEFAULT_MCK"""
+
+        # create dictionary of input parameter
+        parameters_dict = {}
+        parameters_dict['DEFAULT_MCK'] = default_mck
+
+        # perform deletion
+        self.cursor.execute(query, parameters_dict)
+
+        query = """DELETE FROM """+self.directory+"""smck_table \
+        WHERE """+self.directory+"""smck_table.smck_default = 1 \
+        AND """+self.directory+"""smck_table.smck_athena_version = :ATHENA_VERSION"""
+
+        # create dictionary of input parameter
+        parameters_dict = {}
+        parameters_dict['ATHENA_VERSION'] = athena_version
+
+        # perform deletion
+        self.cursor.execute(query, parameters_dict)
+
+        # construct query to search database for default config
+        query = """DELETE FROM """+self.directory+"""mck_table \
+        WHERE """+self.directory+"""mck_table.mck_default = 1 \
+        AND """+self.directory+"""mck_table.mck_athena_version = :ATHENA_VERSION"""
+
+        # perform deletion
+        self.cursor.execute(query, parameters_dict)
+
+        default_mck = self.read_default_mck_id_from_db(athena_version)
+        if default_mck == -1:
+            print 'Operation successful.'
+        else:
+            print 'Operation failed.'
 
 
     def upload_mck_and_smck(self, global_info):
@@ -595,34 +662,31 @@ class OracleInterface:
         # hard-code table names for now, until a better solution is found
         table_names = ['MCK_TABLE','SMCK_TABLE','MCK_TO_SMCK_LINK','MCK_TO_SMK_LINK']
 
-        # return a list of dictionaries
         return_list = []
 
-        # loop over tables
-        for table in table_names:
+        try:
+            for table in table_names:
 
-            # construct a query
-            query = "SELECT * FROM "+self.directory+table
+                query = "SELECT * FROM "+self.directory+table
+                search_results = self.cursor.execute(query).description
 
-            # perform the search
-            # note that this is a custom search command / magic
-            search_results = self.cursor.execute(query).description
+                # loop over rows in search results
+                for row in search_results:
 
-            # loop over rows in search results
-            for row in search_results:
+                    # construct a dictionary of the results
+                    row_dict = {}
+                    row_dict['TABLE_NAME'] = table.upper()
+                    row_dict['COLUMN_NAME'] = row[0].upper()
+                    row_dict['DATA_TYPE'] = row[1]
+                    row_dict['DATA_LENGTH'] = row[2]
 
-                # construct a dictionary of the results
-                row_dict = {}
-                row_dict['TABLE_NAME'] = table.upper()
-                row_dict['COLUMN_NAME'] = row[0].upper()
-                row_dict['DATA_TYPE'] = row[1]
-                row_dict['DATA_LENGTH'] = row[2]
+                    # add this dictionary to the return list
+                    return_list.append(row_dict)
 
-                # add this dictionary to the return list
-                return_list.append(row_dict)
-
-        # return the return list
-        return return_list
+            # return the return list
+            return return_list
+        except:
+            print "Cannot get database table and column names. Your database connection is probably of the wrong type."
 
 
     def get_db_tables_and_columns_old(self):

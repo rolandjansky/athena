@@ -65,6 +65,7 @@ class MenuAwareMonitoring:
 
         # flag to prevent multiple calls to setup_all_local_tools, as it doesn't seem like the current config is picked up is this is tried
         self.tools_setup = False
+        self.setup_mode = ""
 
         # need to grab ms.local_global_info and make all methods act on that
         # pointer to local tool info
@@ -328,6 +329,7 @@ class MenuAwareMonitoring:
         self.get_current_local_info()
 
         self.tools_setup = True
+        self.setup_mode = mode
 
 
     def upload_smck(self,input1="",processing_step="",comment="",print_output_here=""):
