@@ -45,6 +45,8 @@ else :
     #DetFlags.AFP_setOn()
     #DetFlags.FwdRegion_setOn()
     DetFlags.Calo_setOn()
+    if hasattr(DetFlags, 'HGTD_setOff'):
+        DetFlags.HGTD_setOff()
     DetFlags.Muon_setOn()
     DetFlags.Truth_setOn()
     DetFlags.LVL1_setOn()

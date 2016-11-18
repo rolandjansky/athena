@@ -72,6 +72,19 @@ def expandPileUpType(shortpileuptype):
         return "Beam Halo"
     return "Unknown Pile-Up Type"
 
+def doMC_channel_number(f,pileUpType):
+    print "doMC_channel_number for %s", pileUpType
+    if "mc_channel_number" in f.infos.keys():
+        params = dict()
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.pileupDSID.statusOn:
+            params = digitizationFlags.pileupDSID.get_Value()
+        print "MC channel number from AthFile %s", f.infos["mc_channel_number"]
+        params[pileUpType]= f.infos["mc_channel_number"]
+        digitizationFlags.pileupDSID = params
+        del params
+    return
+
 def doSpecialConfiguration(f):
     #safety checks before trying to access metadata
     if "tag_info" in f.infos.keys():
@@ -133,6 +146,7 @@ def buildDict(inputtype, inputfile):
     ## Not part of building the metadata dictionary, but this is the
     ## most convenient time to access this information.
     doSpecialConfiguration(f)
+    #doMC_channel_number(f,inputtype) #FIXME commented out for now until mc_channel_number is filled properly by AthFile.
 
     metadatadict = dict()
     #safety checks before trying to access metadata
@@ -269,7 +283,7 @@ def signalMetaDataCheck(metadatadict):
     if not skipCheck('SimulatedDetectors'):
         if 'SimulatedDetectors' in simkeys:
             logDigitizationReadMetadata.debug("Switching off subdetectors which were not simulated")
-            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
                 if not subdet in metadatadict['SimulatedDetectors']:

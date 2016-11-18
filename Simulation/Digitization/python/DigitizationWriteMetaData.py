@@ -76,7 +76,7 @@ def writeDigitizationMetadata():
                          "initialBunchCrossing", "finalBunchCrossing", "FixedT0BunchCrossing",
                          "doLowPtMinimumBias", "doHighPtMinimumBias",
                          "doCavern", "doBeamGas", "doBeamHalo",
-                         "rndmSvc", "physicsList", "overrideMetadata"]
+                         "rndmSvc", "physicsList", "overrideMetadata","pileupDSID"]
                          #"readSeedsFromFile", "rndmSeedInputFile",
     from Digitization.DigitizationFlags import digitizationFlags
     if (not ModifyingEventIdBySvc()):
@@ -186,11 +186,11 @@ def writeDigitizationMetadata():
 
     ## Digitized detector flags: add each enabled detector to the DigitizedDetectors list
     digiDets = []
-    for det in ['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth','LVL1']:
+    for det in ['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth','LVL1']:
         attrname = det+"_on"
         checkfn = getattr(DetFlags.digitize, attrname, None)
         if checkfn is None:
-            logDigitizationWriteMetadata.warning("No attribute '%s' found on DetFlags.digitize" % attrname)
+            logDigitizationWriteMetadata.info("No attribute '%s' found on DetFlags.digitize" % attrname)
             continue
         if checkfn():
             digiDets.append(det)

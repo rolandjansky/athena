@@ -1,27 +1,23 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-from AthenaCommon import CfgGetter # import getService, getPrivateTool
+
+#####################################
+##     Test PileUpTool methods     ##
+#####################################
 
 def getTestPileUpTool(name="TestPileUpTool", **kwargs):
+    from AthenaCommon.Constants import *
     kwargs.setdefault('OutputLevel', VERBOSE )
     kwargs.setdefault('FirstXing', -300 )
     kwargs.setdefault('LastXing', +300 )
-    return CfgGetter.TestPileUpTool(name, **kwargs)
+    return CfgMgr.TestPileUpTool(name, **kwargs)
 
-
-def getTestPileUpToolsAlg(name="TestPileUpToolsAlg", **kwargs):
-    PileUpToolsList = [ "TestPileUpTool" ]
-    kwargs.setdefault('PileupTools', PileUpToolsList )
-    from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-    return PileUpToolsAlg(name, **kwargs)
-
-
-def getTestDigitizationAlg(name="TestDigitizationAlg", **kwargs):
-    PileUpToolsList = [ "TestPileUpTool" ]
-    kwargs.setdefault('PileupTools', PileUpToolsList )
-    from PileUpComps.PileUpCompsConf import DigitizationAlg
-    return DigitizationAlg(name, **kwargs)
+def getTestFilterPileUpTool(name="TestFilterPileUpTool", **kwargs):
+    from AthenaCommon.Constants import *
+    kwargs.setdefault('OutputLevel', INFO )
+    kwargs.setdefault('DoFiltering', True )
+    return getTestPileUpTool(name, **kwargs)
 
 #####################################
 ## PileUpToolsList filling methods ##
@@ -85,6 +81,10 @@ def getStandardInDetPileUpTools():
     if DetFlags.digitize.pixel_on():
         if 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "PixelFastDigitizationTool" ]
+        elif 'doLightPixelDigi' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "PixelLightDigitizationTool" ]
+        elif 'doSmearedPixelDigi' in digitizationFlags.experimentalDigi():
+            PileUpToolsList += [ "PixelSmearedDigitizationTool" ]
         else:
             PileUpToolsList += [ "PixelDigitizationTool" ]
     if DetFlags.digitize.SCT_on():
@@ -209,6 +209,8 @@ def getStandardCaloPileUpTools():
     PileUpToolsList = []
     if DetFlags.digitize.LAr_on():
         PileUpToolsList += [ "LArPileUpTool" ]
+    if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
+        PileUpToolsList += [ "HGTDPileUpTool" ]
     if DetFlags.digitize.Tile_on():
         PileUpToolsList += [ "TileHitVecToCntTool" ]
     return PileUpToolsList
@@ -378,68 +380,59 @@ def getStandardPileUpToolsAlg(name="StandardPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardPileUpToolsList() )
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
-        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-        return PileUpToolsAlg(name, **kwargs)
+        return CfgMgr.PileUpToolsAlg(name, **kwargs)
     else:
-        from PileUpComps.PileUpCompsConf import DigitizationAlg
-        return DigitizationAlg(name, **kwargs)
+        return CfgMgr.DigitizationAlg(name, **kwargs)
 
 def getFastPileUpToolsAlg(name="FastPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getFastPileUpToolsList() )
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.doXingByXingPileUp():
-        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-        return PileUpToolsAlg(name, **kwargs)
-    else:
-        from PileUpComps.PileUpCompsConf import DigitizationAlg
-        return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitPileUpToolsAlg(name="SplitPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitPileUpToolsList() )
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.doXingByXingPileUp():
-        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-        return PileUpToolsAlg(name, **kwargs)
-    else:
-        from PileUpComps.PileUpCompsConf import DigitizationAlg
-        return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getStandardSignalOnlyTruthPileUpToolsAlg(name="StandardSignalOnlyTruthPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardSignalOnlyTruthPileUpToolsList() )
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.doXingByXingPileUp():
-        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-        return PileUpToolsAlg(name, **kwargs)
-    else:
-        from PileUpComps.PileUpCompsConf import DigitizationAlg
-        return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getStandardInTimeOnlyTruthPileUpToolsAlg(name="StandardInTimeOnlyTruthPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardInTimeOnlyTruthPileUpToolsList() )
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.doXingByXingPileUp():
-        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
-        return PileUpToolsAlg(name, **kwargs)
-    else:
-        from PileUpComps.PileUpCompsConf import DigitizationAlg
-        return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitNoMergePileUpToolsAlg(name="SplitNoMergePileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitNoMergePileUpToolsList() )
-    from PileUpComps.PileUpCompsConf import DigitizationAlg
-    return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitNoMergeSFPileUpToolsAlg(name="SplitNoMergeSFPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitNoMergeSFPileUpToolsList() )
-    from PileUpComps.PileUpCompsConf import DigitizationAlg
-    return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitNoMergeFSPileUpToolsAlg(name="SplitNoMergeFSPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitNoMergeFSPileUpToolsList() )
-    from PileUpComps.PileUpCompsConf import DigitizationAlg
-    return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getSplitNoMergeFFPileUpToolsAlg(name="SplitNoMergeFFPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitNoMergeFFPileUpToolsList() )
-    from PileUpComps.PileUpCompsConf import DigitizationAlg
-    return DigitizationAlg(name, **kwargs)
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
+def getTestPileUpToolsAlg(name="TestPileUpToolsAlg", **kwargs):
+    PileUpToolsList = [ "TestPileUpTool" ]
+    kwargs.setdefault('PileUpTools', PileUpToolsList )
+    from AthenaCommon.Constants import *
+    kwargs.setdefault('OutputLevel', DEBUG )
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
+def getTestFilterPileUpToolsAlg(name="TestFilterPileUpToolsAlg", **kwargs):
+    PileUpToolsList = [ "TestFilterPileUpTool" ]
+    kwargs.setdefault('PileUpTools', PileUpToolsList )
+    from AthenaCommon.Constants import *
+    kwargs.setdefault('OutputLevel', DEBUG )
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
+def getTestTruthJetFilterPileUpToolsAlg(name="TestTruthJetFilterPileUpToolsAlg", **kwargs):
+    PileUpToolsList = [ "MergeTruthJetsFilterTool" ]
+    kwargs.setdefault('PileUpTools', PileUpToolsList )
+    from AthenaCommon.Constants import *
+    kwargs.setdefault('OutputLevel', DEBUG )
+    return getStandardPileUpToolsAlg(name, **kwargs)
