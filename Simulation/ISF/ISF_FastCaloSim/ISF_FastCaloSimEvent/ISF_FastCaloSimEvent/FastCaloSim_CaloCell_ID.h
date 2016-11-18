@@ -7,6 +7,12 @@
 
 #include "CaloGeoHelpers/CaloSampling.h"
 
+enum CaloSubPos {
+  SUBPOS_MID = 0, // middle
+  SUBPOS_ENT = 1, // entrance
+  SUBPOS_EXT = 2  // exit
+};
+
 namespace CaloCell_ID_FCS {
   enum CaloSample_FCS {
     FirstSample=CaloSampling::PreSamplerB,

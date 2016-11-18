@@ -31,5 +31,5 @@ void TFCSSimulationState::deposit_HIT(int /*sample*/,double /*hit_eta*/,double /
 //========== ROOT persistency stuff ===========
 //=============================================
 
-//ClassImp(TFCSSimulationState)
+ClassImp(TFCSSimulationState)
 
