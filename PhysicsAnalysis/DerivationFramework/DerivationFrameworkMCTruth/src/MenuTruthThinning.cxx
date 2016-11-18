@@ -14,6 +14,7 @@
 // DOES NOT PRESERVE GRAPH INTEGRITY
 
 #include "DerivationFrameworkMCTruth/MenuTruthThinning.h"
+//#include "DerivationFrameworkMCTruth/xPlotterUtils.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
@@ -27,18 +28,18 @@
 using Gaudi::Units::GeV;
 
 namespace {
-
+    
     const int PARTONPDGMAX = 43;
     const int NPPDGMIN = 1000000;
     const int NPPDGMAX = 8999999;
     const int PHOTOSMIN = 10000;
-
+    
 } // anonymous namespace
 
 // Constructor
 DerivationFramework::MenuTruthThinning::MenuTruthThinning(const std::string& t,
-                                                                  const std::string& n,
-                                                                  const IInterface* p ) :
+                                                          const std::string& n,
+                                                          const IInterface* p ) :
 AthAlgTool(t,n,p),
 m_particlesKey("TruthParticles"),
 m_verticesKey("TruthVertices"),
@@ -55,15 +56,15 @@ m_thinningSvc("ThinningSvc",n)
     declareProperty ("ParticlesKey",
                      m_particlesKey = "TruthParticles",
                      "TruthParticle container name");
-
+    
     declareProperty ("VerticesKey",
                      m_verticesKey = "TruthVertices",
-                     "TruthVertex container name"); 
-
+                     "TruthVertex container name");
+    
     declareProperty ("EventsKey",
                      m_eventsKey = "TruthEvents",
-                     "TruthEvent container name"); 
- 
+                     "TruthEvent container name");
+    
     declareProperty ("WritePartons",
                      m_writePartons = true,
                      "Keep partons?");
@@ -101,6 +102,10 @@ m_thinningSvc("ThinningSvc",n)
                      m_writeBosons = false,
                      "Keep bosons?");
     
+    declareProperty ("PhotonPtThresh",
+                     m_photonPtCut = 3000.,
+                     "Photon pt cut with WriteBosons");
+    
     declareProperty ("WriteBSMProducts",
                      m_writeBSMProducts = false,
                      "Keep BSM particle decay products?");
@@ -124,11 +129,11 @@ m_thinningSvc("ThinningSvc",n)
     declareProperty("WriteLeptonsNotFromHadrons",
                     m_writeLeptonsNotFromHadrons = false,
                     "Keep leptons not from hadron decays");
-
+    
     declareProperty("WriteAllStable",
                     m_writeAllStable = false,
                     "Keep all stable particles");
-
+    
     declareProperty("WriteStatus3",
                     m_writeStatus3 = false,
                     "Save all particles with status code 3");
@@ -136,27 +141,35 @@ m_thinningSvc("ThinningSvc",n)
     declareProperty("WriteFirstN",
                     m_writeFirstN = -1,
                     "Keep first N particles in record");
-
-    declareProperty("PreserveDescendants", 
+    
+    declareProperty("PreserveDescendants",
                     m_preserveDescendants = false,
                     "Preserve descendants of retained particles");
-
-    declareProperty("PreserveGeneratorDescendants", 
+    
+    declareProperty("PreserveGeneratorDescendants",
                     m_preserveGeneratorDescendants = false,
-                    "Preserve descendants of retained particles excluding Geant particles"); 
-
-    declareProperty("PreserveAncestors", 
+                    "Preserve descendants of retained particles excluding Geant particles");
+    
+    declareProperty("PreserveAncestors",
                     m_preserveAncestors = false,
                     "Preserve ancestors of retained particles");
-
+    
+    declareProperty ("PreserveParentsSiblingsChildren",
+                     m_preserveImmediate = false,
+                     "Preserve the parents, siblings and children of retained particles");
+    
+    declareProperty ("PreserveHadronizationVertices",
+                     m_preserveHadVtx = false,
+                     "Preserve hadronization vertices with parents/children.");
+    
     declareProperty("SimBarcodeOffset",
                     m_geantOffset = 200000,
                     "Barcode offset for simulation particles");
-
+    
     declareProperty ("WritettHFHadrons",
                      m_writettHFHadrons = false,
                      "Keep tt+HF hadrons?");
-
+    
     
 }
 
@@ -171,8 +184,13 @@ StatusCode DerivationFramework::MenuTruthThinning::initialize()
         ATH_MSG_FATAL("You are asking to keep both all descendants, and only those from the event generator. Please check your job options.");
         return StatusCode::FAILURE;
     }
+    if (m_preserveImmediate && (m_preserveDescendants || m_preserveGeneratorDescendants || m_preserveAncestors)) {
+        ATH_MSG_FATAL("You are asking to preserve only parents/children/siblings of retained states, and also more distant relatives. Please check your job options.");
+        return StatusCode::FAILURE;
+    }
     m_totpart = 0;
     m_removedpart = 0;
+    m_eventCount = 0;
     return StatusCode::SUCCESS;
 }
 
@@ -205,29 +223,35 @@ StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
         return StatusCode::FAILURE;
     }
     
+    // Print events
+    //if( m_eventCount < 20 ){
+    //    printxAODTruth(m_eventCount, importedTruthParticles);
+    //}
+    ++m_eventCount;
+    
     // Set up a mask with the same number of entries as the full TruthParticle collection
     std::vector<bool> particleMask, vertexMask;
     int nTruthParticles = importedTruthParticles->size();
     int nTruthVertices = importedTruthVertices->size();
     particleMask.assign(nTruthParticles,true); // default: keep all particles
     vertexMask.assign(nTruthVertices,false); // throw all vertices: to be discussed
-   
+    
     // Locate the signal process vertices and save them
     // Do we need to do this for pile-up as well??
     std::vector<const xAOD::TruthVertex*> signalProcessVertices;
     for (const xAOD::TruthEvent* evt : *importedTruthEvents) {
-	const xAOD::TruthVertex* vtx = evt->signalProcessVertex();
-	signalProcessVertices.push_back(vtx);
+        const xAOD::TruthVertex* vtx = evt->signalProcessVertex();
+        signalProcessVertices.push_back(vtx);
     }
     for (int vertexCounter = 0; vertexCounter < nTruthVertices; ++vertexCounter) {
-	for (const xAOD::TruthVertex* spVertex : signalProcessVertices) {
-		if ( (*importedTruthVertices)[vertexCounter] == spVertex) vertexMask[vertexCounter]=true;
-	}	   
-    } 
-
+        for (const xAOD::TruthVertex* spVertex : signalProcessVertices) {
+            if ( (*importedTruthVertices)[vertexCounter] == spVertex) vertexMask[vertexCounter]=true;
+        }
+    }
+    
     // Standard particle loop
     for (int particleCounter = 0; particleCounter < nTruthParticles; ++particleCounter) {
-	const xAOD::TruthParticle* particle = (*importedTruthParticles)[particleCounter];
+        const xAOD::TruthParticle* particle = (*importedTruthParticles)[particleCounter];
         // Keep first N particles
         if ( (particleCounter > m_writeFirstN) && (!isAccepted(particle)) ){
             // Particle removal - note mask is true by default
@@ -235,13 +259,13 @@ StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
             ++m_removedpart;
         }
     }
-
+    
     // If user requested preservation of descendants/ancestors:
     // - loop over the masks and work out which particles need to be descended/ascended from
     // - do the recursive loop
     // - update the masks including the descendants/ancestors
-    // To ensure graph completeness, this  over-rides anything set by the special treatment 
-    // of taus in the section above 
+    // To ensure graph completeness, this  over-rides anything set by the special treatment
+    // of taus in the section above
     DerivationFramework::DecayGraphHelper decayHelper(m_geantOffset);
     std::unordered_set<int> encounteredBarcodes; // For loop handling
     if (m_preserveDescendants || m_preserveGeneratorDescendants || m_preserveAncestors) {
@@ -251,14 +275,29 @@ StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
             const xAOD::TruthParticle* particle = (*importedTruthParticles)[i];
             encounteredBarcodes.clear();
             if (m_preserveDescendants) decayHelper.descendants(particle,particleMask,vertexMask,encounteredBarcodes,true);
-            encounteredBarcodes.clear();  
+            encounteredBarcodes.clear();
             if (m_preserveGeneratorDescendants) decayHelper.descendants(particle,particleMask,vertexMask,encounteredBarcodes,false);
             encounteredBarcodes.clear();
-	    if (m_preserveAncestors) decayHelper.ancestors(particle,particleMask,vertexMask,encounteredBarcodes);
-	    encounteredBarcodes.clear();
+            if (m_preserveAncestors) decayHelper.ancestors(particle,particleMask,vertexMask,encounteredBarcodes);
+            encounteredBarcodes.clear();
         }
     }
-        
+    // User only wants to keep parents, siblings and children of retained states
+    // Much simpler case - no recursion so no need for barcodes etc
+    if (m_preserveImmediate) {
+        // Make a copy of the particle mask to avoid changes being propagated
+        // down the chain
+        std::vector<bool> particleMaskCopy = particleMask;
+        for (int i=0; i<nTruthParticles; ++i) {
+            bool toKeep = particleMask[i]; // still loop over the orginal list, not the copy
+            if (!toKeep) continue;
+            const xAOD::TruthParticle* particle = (*importedTruthParticles)[i];
+            decayHelper.immediateRelatives(particle,particleMaskCopy,vertexMask,
+                                           m_preserveHadVtx); // but only update the copy
+        }
+        particleMask = particleMaskCopy; // Now update the original list in one go
+    }
+    
     // Execute the thinning service based on the mask. Finish.
     if (m_thinningSvc->filter(*importedTruthParticles, particleMask, IThinningSvc::Operator::Or).isFailure()) {
         ATH_MSG_ERROR("Application of thinning service failed for truth particles! ");
@@ -356,7 +395,7 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     // tt+HF hadrons
     if (m_writettHFHadrons && isttHFHadron(p))
         ok = true;
-
+    
     // Top quarks
     if(m_writeTopAndDecays && pdg_id==6)
         ok = true;
@@ -364,16 +403,16 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     // All leptons
     if(m_writeAllLeptons && (pdg_id>10 && pdg_id<19)) // Include 4th generation...
         ok = true;
-   
+    
     // All stable
     if (m_writeAllStable && p->status()==1 && barcode<m_geantOffset)
-	ok = true; 
-
+        ok = true;
+    
     // All leptons not from hadron decays
     if(!ok && m_writeLeptonsNotFromHadrons && (pdg_id>10 && pdg_id<19) && p->status()==1) {// Include 4th generation...
         ok = !(matchHadronIncTau(p) || matchQuarkIncTau(p) || isOrphanIncTau(p));
     }
- 
+    
     if ((m_writeBSMProducts || m_writeBosonProducts || m_writeTopAndDecays) && p->hasProdVtx()){ // Either way we have to go through parents
         const xAOD::TruthVertex* prodVtx = p->prodVtx();
         unsigned int nIncoming = prodVtx->nIncomingParticles();
@@ -394,127 +433,127 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
 }
 
 bool DerivationFramework::MenuTruthThinning::matchHadronIncTau(const xAOD::TruthParticle* part) const {
-  //check if part descends from a hadron, possibly passing through a tau decay
-  //ported from TopFiducial
-  std::vector<int> hadrons = std::vector<int>{111};
-  std::vector<int> taus = std::vector<int>{15,-15};
-  return matchGenParticle(part, hadrons, taus, true);
+    //check if part descends from a hadron, possibly passing through a tau decay
+    //ported from TopFiducial
+    std::vector<int> hadrons = std::vector<int>{111};
+    std::vector<int> taus = std::vector<int>{15,-15};
+    return matchGenParticle(part, hadrons, taus, true);
 }
 
 bool DerivationFramework::MenuTruthThinning::matchQuarkIncTau(const xAOD::TruthParticle* part) const {
-  //check if part descends from a hadron, possibly passing through a tau decay
-  //ported from TopFiducial
-  std::vector<int> quarks = std::vector<int>{1,6};
-  std::vector<int> taus = std::vector<int>{15,-15};
-  return matchGenParticle(part, quarks, taus, true);
+    //check if part descends from a hadron, possibly passing through a tau decay
+    //ported from TopFiducial
+    std::vector<int> quarks = std::vector<int>{1,6};
+    std::vector<int> taus = std::vector<int>{15,-15};
+    return matchGenParticle(part, quarks, taus, true);
 }
 
 bool DerivationFramework::MenuTruthThinning::isOrphanIncTau(const xAOD::TruthParticle* part) const {
-  //check if part descends from nothing, possibly passing through a tau decay
-  //(indicating a broken truth record)
-  //ported from TopFiducial
-
-  int pdgId = part->pdgId();
-
-  if (!(part->hasProdVtx())) return true;
-
-  const xAOD::TruthVertex* prodVtx = part->prodVtx();
-  unsigned int nIncoming = prodVtx->nIncomingParticles();
-  unsigned int itrParent = 0;
-
-  // Simple loop catch
-  if (prodVtx==part->decayVtx()) return false;
-
-  //0 incoming-> orphan
-  if(nIncoming == 0) return true;
-
-  unsigned int nParents = 0;
-  while(nParents==0 && itrParent<nIncoming) {
-    const xAOD::TruthParticle* incomingParticle = prodVtx->incomingParticle(itrParent);
-
-    // If the parent is itself migrate up the generator record
-    if(incomingParticle->pdgId() == pdgId) {
-      if(!isOrphanIncTau(incomingParticle)) nParents++;
+    //check if part descends from nothing, possibly passing through a tau decay
+    //(indicating a broken truth record)
+    //ported from TopFiducial
+    
+    int pdgId = part->pdgId();
+    
+    if (!(part->hasProdVtx())) return true;
+    
+    const xAOD::TruthVertex* prodVtx = part->prodVtx();
+    unsigned int nIncoming = prodVtx->nIncomingParticles();
+    unsigned int itrParent = 0;
+    
+    // Simple loop catch
+    if (prodVtx==part->decayVtx()) return false;
+    
+    //0 incoming-> orphan
+    if(nIncoming == 0) return true;
+    
+    unsigned int nParents = 0;
+    while(nParents==0 && itrParent<nIncoming) {
+        const xAOD::TruthParticle* incomingParticle = prodVtx->incomingParticle(itrParent);
+        
+        // If the parent is itself migrate up the generator record
+        if(incomingParticle->pdgId() == pdgId) {
+            if(!isOrphanIncTau(incomingParticle)) nParents++;
+        }
+        else if(abs(incomingParticle->pdgId()) == 15) {
+            if(!isOrphanIncTau(incomingParticle)) nParents++;
+        }
+        else {
+            nParents++;
+        }
+        ++itrParent;
     }
-    else if(abs(incomingParticle->pdgId()) == 15) {
-      if(!isOrphanIncTau(incomingParticle)) nParents++;
-    }
-    else {
-      nParents++;
-    }
-    ++itrParent;
-  }
-  return (nParents==0);
+    return (nParents==0);
 }
 
 bool DerivationFramework::MenuTruthThinning::matchGenParticle(const xAOD::TruthParticle* part, std::vector<int> &targetPdgIds,
-    std::vector<int> &intermediatePdgIds, bool targetsAreRange) const {
-  //check if part descends from a particle, possibly passing through an intermediate decay
-  //ported from TopFiducial
-
-  int pdgId = part->pdgId();
-
-  bool found = false;
-
-  // Iterators for the target pdg or the intermediate pdg ids
-  std::vector<int>::const_iterator itrPdgId, itrPdgIdEnd;
-
-  if (!(part->hasProdVtx())) return false;
-
-  // Loop over the parents
-  const xAOD::TruthVertex* prodVtx = part->prodVtx();
-  unsigned int nIncoming = prodVtx->nIncomingParticles();
-
-  // Simple loop catch
-  if (prodVtx==part->decayVtx()) return false;
-
-  unsigned int itrParent = 0;
-  while(!found && itrParent<nIncoming) {
-    const xAOD::TruthParticle* incomingParticle = prodVtx->incomingParticle(itrParent);
-
-    if(!targetsAreRange) {
-
-      // If the parent is one of the particles in the target pdg list
-      itrPdgId = targetPdgIds.begin();
-      itrPdgIdEnd = targetPdgIds.end();
-      for(;itrPdgId != itrPdgIdEnd; ++itrPdgId) {
-        if(incomingParticle->pdgId() == (*itrPdgId)) return true;
-      }
+                                                              std::vector<int> &intermediatePdgIds, bool targetsAreRange) const {
+    //check if part descends from a particle, possibly passing through an intermediate decay
+    //ported from TopFiducial
+    
+    int pdgId = part->pdgId();
+    
+    bool found = false;
+    
+    // Iterators for the target pdg or the intermediate pdg ids
+    std::vector<int>::const_iterator itrPdgId, itrPdgIdEnd;
+    
+    if (!(part->hasProdVtx())) return false;
+    
+    // Loop over the parents
+    const xAOD::TruthVertex* prodVtx = part->prodVtx();
+    unsigned int nIncoming = prodVtx->nIncomingParticles();
+    
+    // Simple loop catch
+    if (prodVtx==part->decayVtx()) return false;
+    
+    unsigned int itrParent = 0;
+    while(!found && itrParent<nIncoming) {
+        const xAOD::TruthParticle* incomingParticle = prodVtx->incomingParticle(itrParent);
+        
+        if(!targetsAreRange) {
+            
+            // If the parent is one of the particles in the target pdg list
+            itrPdgId = targetPdgIds.begin();
+            itrPdgIdEnd = targetPdgIds.end();
+            for(;itrPdgId != itrPdgIdEnd; ++itrPdgId) {
+                if(incomingParticle->pdgId() == (*itrPdgId)) return true;
+            }
+        }
+        else {
+            int absPdgId = abs(incomingParticle->pdgId());
+            
+            // If the parent is within the range given in the target pdg list
+            if(targetPdgIds.size() == 1) {
+                if(absPdgId >= targetPdgIds.at(0)) return true;
+            }
+            else if(targetPdgIds.size() >= 2) {
+                if(absPdgId >= targetPdgIds.at(0) &&
+                   absPdgId <= targetPdgIds.at(1)) return true;
+            }
+        }
+        
+        // If the parent is itself migrate up the generator record
+        if(incomingParticle->pdgId() == pdgId) {
+            found = matchGenParticle(incomingParticle, targetPdgIds, intermediatePdgIds, targetsAreRange);
+        }
+        else {
+            // If the parent is in the intermediatePdgIds list migrate up the generator record
+            itrPdgId = intermediatePdgIds.begin();
+            itrPdgIdEnd = intermediatePdgIds.end();
+            bool foundIntermediate = false;
+            while(!foundIntermediate && itrPdgId != itrPdgIdEnd) {
+                if(incomingParticle->pdgId() == (*itrPdgId)) foundIntermediate = true;
+                else ++itrPdgId;
+            }
+            if(foundIntermediate) {
+                found = matchGenParticle(incomingParticle, targetPdgIds, intermediatePdgIds, targetsAreRange);
+            }
+        }
+        
+        ++itrParent;
     }
-    else {
-      int absPdgId = abs(incomingParticle->pdgId());
-
-      // If the parent is within the range given in the target pdg list
-      if(targetPdgIds.size() == 1) {
-        if(absPdgId >= targetPdgIds.at(0)) return true;
-      }
-      else if(targetPdgIds.size() >= 2) {
-        if(absPdgId >= targetPdgIds.at(0) &&
-            absPdgId <= targetPdgIds.at(1)) return true;
-      }
-    }
-
-    // If the parent is itself migrate up the generator record
-    if(incomingParticle->pdgId() == pdgId) {
-      found = matchGenParticle(incomingParticle, targetPdgIds, intermediatePdgIds, targetsAreRange);
-    }
-    else {
-      // If the parent is in the intermediatePdgIds list migrate up the generator record
-      itrPdgId = intermediatePdgIds.begin();
-      itrPdgIdEnd = intermediatePdgIds.end();
-      bool foundIntermediate = false;
-      while(!foundIntermediate && itrPdgId != itrPdgIdEnd) {
-        if(incomingParticle->pdgId() == (*itrPdgId)) foundIntermediate = true;
-        else ++itrPdgId;
-      }
-      if(foundIntermediate) {
-        found = matchGenParticle(incomingParticle, targetPdgIds, intermediatePdgIds, targetsAreRange);
-      }
-    }
-
-    ++itrParent;
-  }
-  return found;
+    return found;
 }
 
 bool DerivationFramework::MenuTruthThinning::isLeptonFromTau(const xAOD::TruthParticle* part) const{
@@ -567,7 +606,7 @@ bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle
     if (prod==part->decayVtx()) return false;
     
     // More complex loop catch
-    std::unordered_set<int>::const_iterator foundVtx = m_barcode_trace.find( prod->barcode() ); 
+    std::unordered_set<int>::const_iterator foundVtx = m_barcode_trace.find( prod->barcode() );
     //if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),prod->barcode()) != m_barcode_trace.end()){
     if( foundVtx != m_barcode_trace.end() ) {
         ATH_MSG_DEBUG( "Found a loop (a la Sherpa sample).  Backing out." );
@@ -581,7 +620,7 @@ bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle
         const xAOD::TruthParticle* itrParent = prod->incomingParticle(pitr);
         if (!itrParent) continue;
         if (pitr>2) break; // No point in trying - this vertex does not have a quantum meaning...
-    
+        
         int parentId = itrParent->pdgId();
         if(abs(parentId) == 15) {
             // Check if one of the children of this parent was a tau - if it is, then it is
@@ -622,14 +661,15 @@ bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* pa
         abs(pdg)==42 ||
         abs(pdg)== 7 || // 4th gen beauty
         abs(pdg)== 8 || // 4th gen top
+        (600 < abs(pdg) && abs(pdg) < 607) || // scalar leptoquarks
         (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
         (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
-        abs(pdg)==6000005 || // X5/3 
+        abs(pdg)==6000005 || // X5/3
         abs(pdg)==6000006 || // T2/3
         abs(pdg)==6000007 || // B-1/3
         abs(pdg)==6000008 || // Y-4/3
-        ( (abs(pdg)>=10000100) && (abs(pdg)<=10001000) ) // multi-charged 
-    ) 
+        ( (abs(pdg)>=10000100) && (abs(pdg)<=10001000) ) // multi-charged
+        )
         return true;
     
     return false;
@@ -638,19 +678,19 @@ bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* pa
 
 bool DerivationFramework::MenuTruthThinning::isttHFHadron(const xAOD::TruthParticle* part) const{
     
-  int ttHFClassification=6;
-  
-  if (part->isAvailable<int>("TopHadronOriginFlag")){
-    ttHFClassification = part->auxdata< int >( "TopHadronOriginFlag" );
-  }
-  else{
-    return false;
-  }
+    int ttHFClassification=6;
     
-  if (ttHFClassification < 6 ) // useful Hadrons
-    return true;
-  
-  return false;
+    if (part->isAvailable<int>("TopHadronOriginFlag")){
+        ttHFClassification = part->auxdata< int >( "TopHadronOriginFlag" );
+    }
+    else{
+        return false;
+    }
+    
+    if (ttHFClassification < 6 ) // useful Hadrons
+        return true;
+    
+    return false;
 }
 
 bool DerivationFramework::MenuTruthThinning::isBoson(const xAOD::TruthParticle* part) const{
@@ -662,7 +702,7 @@ bool DerivationFramework::MenuTruthThinning::isBoson(const xAOD::TruthParticle* 
        abs(pdg) != 24 &&
        abs(pdg) != 25 ) return false;
     
-    if(abs(pdg)==22 && part->pt()<3.*GeV) return false;
+    if(abs(pdg)==22 && part->pt()<m_photonPtCut) return false;
     
     return true;
 }
@@ -673,7 +713,7 @@ bool DerivationFramework::MenuTruthThinning::isFsrFromLepton(const xAOD::TruthPa
     if(part->barcode() >= m_geantOffset) return false; // Geant photon
     const xAOD::TruthVertex* prod = part->prodVtx();
     if(!prod) return false; // no parent.
-    // Simple loop check 
+    // Simple loop check
     if (prod==part->decayVtx()) return false;
     // Loop over the parents of this particle.
     unsigned int nIncoming = prod->nIncomingParticles();

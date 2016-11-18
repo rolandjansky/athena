@@ -38,9 +38,23 @@ namespace DerivationFramework{
   //---------------------------------------------------------------------------
   StatusCode HadronOriginClassifier::initialize() {
     ATH_MSG_INFO("Initialize " );
-    if(m_DSID==410003 || m_DSID == 410004 || m_DSID == 410008){m_isHerwigPP=true;}
-    else{m_isHerwigPP=false;}
-    
+    if(m_DSID==410003 || m_DSID == 410004 || m_DSID == 410008 || m_DSID == 410232 || m_DSID == 410233){
+      m_GenUsed=HerwigPP;
+    }
+    else if(m_DSID==410006 || m_DSID==410500 || m_DSID==410159 || m_DSID==410160){
+      m_GenUsed=Pythia8;
+    }
+    else if(m_DSID==410186 || m_DSID==410187 || m_DSID==410188 || m_DSID==410189 || m_DSID==410051){
+      m_GenUsed=Sherpa;
+      
+      if(m_DSID==410051){
+	m_ttbb=true;
+      }
+      
+    }
+    else{
+      m_GenUsed=Pythia6;
+    }
     
     return StatusCode::SUCCESS;
   }
@@ -68,7 +82,6 @@ namespace DerivationFramework{
     matched_partons.clear();
     matched_hadrons.clear();
 
-
     while (matched_partons.size()<partonsOrigin.size() && matched_hadrons.size()<mainHadronMap.size()){
 
 
@@ -81,7 +94,8 @@ namespace DerivationFramework{
 	if(std::find(matched_partons.begin(), matched_partons.end(), (*itr).first) != matched_partons.end()) continue;
 
 	TVector3 v, vtmp;
-	v.SetPtEtaPhi((*itr).first->pt(),(*itr).first->eta(),(*itr).first->phi());
+	v.SetPtEtaPhi((*itr).first->pt(),(*itr).first->eta(),(*itr).first->phi());	
+	
 	
 	for(std::map<const xAOD::TruthParticle*, int>::iterator it = mainHadronMap.begin(); it!=mainHadronMap.end(); it++){
 
@@ -152,13 +166,9 @@ namespace DerivationFramework{
   }
 
 
- 
-  
-  
   
   void HadronOriginClassifier::buildPartonsHadronsMaps(){
   
-    
     
     const xAOD::TruthEventContainer* xTruthEventContainer = 0;
     if (evtStore()->retrieve(xTruthEventContainer,m_mcName).isFailure()) {
@@ -203,16 +213,23 @@ namespace DerivationFramework{
 	  }
 	  else if(isDirectlyFromTop(part, islooping)){
 	    partonsOrigin[ part ] = b_from_top;
-	  }
-	  //working right now for Powheg+Pythia6 only to be updated
-	  
-	  else if(IsHerwigPP()&&isDirectlyFSR(part,islooping)){
+	  }	  
+	  else if(!IsTtBb()&&(IsHerwigPP()||IsSherpa())&&isDirectlyFSR(part,islooping)){
 	    partonsOrigin[ part ] = b_FSR;
 	  }
-	  else if(!IsHerwigPP()&&isDirectlyFSRPythia(part,islooping)){
+	  else if(!IsTtBb()&&IsPythia8()&&isDirectlyFSRPythia8(part,islooping)){
 	    partonsOrigin[ part ] = b_FSR;
 	  }
-	  else if(!IsHerwigPP()&&isDirectlyMPI(part, islooping)){
+	  else if(!IsTtBb()&&IsPythia6()&&isDirectlyFSRPythia6(part,islooping)){
+	    partonsOrigin[ part ] = b_FSR;
+	  }
+	  else if(!IsTtBb()&&IsPythia6()&&isDirectlyMPIPythia6(part, islooping)){
+	    partonsOrigin[ part ] = b_MPI;
+	  }
+	  else if(!IsTtBb()&&IsPythia8()&&isDirectlyMPIPythia8(part, islooping)){
+	    partonsOrigin[ part ] = b_MPI;
+	  }
+	  else if(!IsTtBb()&&IsSherpa()&&isDirectlyMPISherpa(part)){
 	    partonsOrigin[ part ] = b_MPI;
 	  }
 	  
@@ -229,16 +246,27 @@ namespace DerivationFramework{
 	  else if(isDirectlyFromTop(part, islooping)){
 	    partonsOrigin[ part ] = c_from_top;
 	  }
-	  else if(IsHerwigPP()&&isDirectlyFSR(part,islooping)){
+	  else if(!IsTtBb()&&(IsHerwigPP()&&IsSherpa())&&isDirectlyFSR(part,islooping)){
 	    partonsOrigin[ part ] = c_FSR;
 	  }
-	  else if(!IsHerwigPP()&&isDirectlyFSRPythia(part,islooping)){
+	  else if(!IsTtBb()&&IsPythia8()&&isDirectlyFSRPythia8(part,islooping)){
+	    partonsOrigin[ part ] = c_FSR;
+	  }
+	  else if(!IsTtBb()&&IsPythia6()&&isDirectlyFSRPythia6(part,islooping)){
 	    partonsOrigin[ part ] = c_FSR;
 	  }
 
-	  else if(!IsHerwigPP()&&isDirectlyMPI(part, islooping)){
+	  else if(!IsTtBb()&&IsPythia6()&&isDirectlyMPIPythia6(part, islooping)){
 	    partonsOrigin[ part ] = c_MPI;
 	  }
+	  else if(!IsTtBb()&&IsPythia8()&&isDirectlyMPIPythia8(part, islooping)){
+	    partonsOrigin[ part ] = c_MPI;
+	  }
+	  else if(!IsTtBb()&&IsSherpa()&&isDirectlyMPISherpa(part)){
+	    partonsOrigin[ part ] = c_MPI;
+	  }
+
+
 	  
 	}
 
@@ -337,11 +365,6 @@ namespace DerivationFramework{
   }
   
 
-
-
-
-  
-  
   
   void HadronOriginClassifier::fillHadronMap(const xAOD::TruthParticle* mainhad, const xAOD::TruthParticle* ihad, bool decayed){
 
@@ -403,16 +426,7 @@ namespace DerivationFramework{
   }
 
   
-  
-
-
-  
-  
-  
-
-  
-  
-  
+    
   
   bool HadronOriginClassifier::isFromTop(const xAOD::TruthParticle* part, bool looping) const{
     
@@ -490,7 +504,7 @@ namespace DerivationFramework{
   
 
   
-  bool HadronOriginClassifier::isDirectlyFSRPythia(const xAOD::TruthParticle * part, bool looping) const{
+  bool HadronOriginClassifier::isDirectlyFSRPythia6(const xAOD::TruthParticle * part, bool looping) const{
     
     
     if(!part->nParents()) return false;
@@ -555,7 +569,7 @@ namespace DerivationFramework{
 	else if(isFromWTop(parent,looping)){
 	  return true;
 	}
-
+	
       }
     }
     
@@ -571,7 +585,60 @@ namespace DerivationFramework{
 
 
 
-  bool HadronOriginClassifier::isDirectlyMPI(const xAOD::TruthParticle * part, bool looping) const{
+  
+  bool HadronOriginClassifier::isDirectlyFSRPythia8(const xAOD::TruthParticle * part, bool looping) const{
+    
+    
+    if(!part->nParents()) return false;
+    
+    for(unsigned int i=0; i<part->nParents(); ++i){
+      const xAOD::TruthParticle* parent = part->parent(i);
+      if( part->barcode() < parent->barcode() &&  looping ) continue; /// protection for sherpa
+      if( abs(parent->pdgId())== 21 || abs(parent->pdgId())==22 ){
+	if( isFromQuarkTopPythia8( parent,looping ) ) return true;
+      }
+
+    }
+    
+    return false;
+    
+    
+  }
+
+  bool HadronOriginClassifier::isDirectlyFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const{
+    
+    
+    
+    if(!part->nParents()) return false;
+    
+    for(unsigned int i=0; i<part->nParents(); ++i){
+      const xAOD::TruthParticle* parent = part->parent(i);
+      if( part->barcode() < parent->barcode() &&  looping ) continue; /// protection for sherpa
+      if( abs(parent->pdgId())<6 ) {
+	
+	if(isFromWTop(parent,looping)){
+	  return true;
+	}
+	
+      }
+    }
+    
+    return false;
+  }
+  
+  bool HadronOriginClassifier::isFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const{
+    
+    const xAOD::TruthParticle* initpart = findInitial(part, looping);
+    return isDirectlyFromQuarkTopPythia8(initpart, looping);
+    
+  }
+
+
+
+
+
+
+  bool HadronOriginClassifier::isDirectlyMPIPythia6(const xAOD::TruthParticle * part, bool looping) const{
     
     if(!part->nParents()) return false;
       
@@ -588,6 +655,31 @@ namespace DerivationFramework{
   
   
   
+  bool HadronOriginClassifier::isDirectlyMPIPythia8(const xAOD::TruthParticle * part, bool looping) const{
+    
+
+    const xAOD::TruthParticle* initpart = findInitial(part, looping);
+    
+    if( initpart->status()>30 && initpart->status()<40) return true;
+
+    
+    return false;
+    
+  }
+
+  bool HadronOriginClassifier::isDirectlyMPISherpa(const xAOD::TruthParticle * part) const{
+    
+    if(!part->hasProdVtx()) return false;
+    
+    const xAOD::TruthVertex* vertex = part->prodVtx();
+    if(vertex->id()==2) return true;
+
+    
+    return false;
+    
+  }
+
+
   
   bool HadronOriginClassifier::isLooping(const xAOD::TruthParticle* part, std::set<const xAOD::TruthParticle*> init_part) const{
     
@@ -630,7 +722,7 @@ namespace DerivationFramework{
 
   const xAOD::TruthParticle* HadronOriginClassifier::partonToHadron(const xAOD::TruthParticle* parton){
 
-    const xAOD::TruthParticle* hadron;
+    const xAOD::TruthParticle* hadron(NULL);
     
     TVector3 v, vtmp;
     v.SetPtEtaPhi(parton->pt(),parton->eta(),parton->phi());

@@ -43,12 +43,8 @@ namespace DerivationFramework{
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-
-
     static const InterfaceID& interfaceID() { return IID_HadronOriginClassifier; }
-    
-    
-    
+
     
     typedef enum {extrajet=0,
 		  c_MPI     =-1, b_MPI      =1,
@@ -57,12 +53,11 @@ namespace DerivationFramework{
 		  c_from_top=-4, b_from_top =4,
 		  c_from_H  =-5, b_from_H   =5} HF_id;
     
-    
+    typedef enum { Pythia6=0, Pythia8=1, HerwigPP=2, Sherpa=3 } GEN_id;
         
     std::map<const xAOD::TruthParticle*, HF_id> GetOriginMap();
     
   private:
-
 
 
     void initMaps();
@@ -98,18 +93,28 @@ namespace DerivationFramework{
 
     bool isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
     bool isFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
-    bool isDirectlyFSRPythia(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFSRPythia6(const xAOD::TruthParticle* part, bool looping) const;
 
     bool isDirectlyFromQuarkTop(const xAOD::TruthParticle* part, bool looping) const;
     bool isFromQuarkTop(const xAOD::TruthParticle* part, bool looping) const;
     bool isDirectlyFSR(const xAOD::TruthParticle* part, bool looping) const;
     bool isFromWTop(const xAOD::TruthParticle* part, bool looping) const;
 
-    bool isDirectlyMPI(const xAOD::TruthParticle* part, bool looping) const;
-    
-     
-    inline bool IsHerwigPP(){return m_isHerwigPP;};
+    bool isDirectlyMPIPythia6(const xAOD::TruthParticle* part, bool looping) const;
 
+    bool isDirectlyMPIPythia8(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const;
+    bool isFromQuarkTopPythia8(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFSRPythia8(const xAOD::TruthParticle* part, bool looping) const;
+
+    bool isDirectlyMPISherpa(const xAOD::TruthParticle* part) const;
+
+     
+    inline bool IsHerwigPP(){return m_GenUsed==HerwigPP;};
+    inline bool IsPythia8(){return m_GenUsed==Pythia8;};
+    inline bool IsPythia6(){return m_GenUsed==Pythia6;};
+    inline bool IsSherpa(){return m_GenUsed==Sherpa;};
+    inline bool IsTtBb(){return m_ttbb;}
 
     const xAOD::TruthParticle*  partonToHadron(const xAOD::TruthParticle* parton);
 
@@ -126,8 +131,8 @@ namespace DerivationFramework{
     double m_HadronPtMinCut;
     double m_HadronEtaMaxCut;
     int m_DSID;
-    bool m_isHerwigPP;
-    
+    GEN_id m_GenUsed;
+    bool m_ttbb;
     
   };
 
