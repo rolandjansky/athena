@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef EGAMMATOOLS_EGAMMASUPERCLUSTERBUILDER_H
 #define EGAMMATOOLS_EGAMMASUPERCLUSTERBUILDER_H
 
@@ -65,7 +66,6 @@ private:
 
   /** Add the cells in search window, not only those in topoclusters, to the new cluster */
   StatusCode AddRemainingCellsToCluster(xAOD::CaloCluster *myCluster,
-					float seed_eta, float seed_phi,
 					std::vector<const CaloCell*>& cellsInWindow) const;
 
 
@@ -79,9 +79,11 @@ private:
   StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster); 
   // above can't be const because m_caloCellDetPos acceses are not const
 
-  //refine 
+  //Calculate / refine posisiton in 1st sampling
   StatusCode refineEta1Position(xAOD::CaloCluster* cluster) const ;
-
+  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,    
+			     const CaloSampling::CaloSample sample) const ;
+  
 
 
   // these are calculated window values for the windows in which cells of topoclusters are edded

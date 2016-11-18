@@ -313,10 +313,10 @@ bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
     if (seedTrack && secTrack) {
       //Check that the tracks are the same.
       if (seedTrack==secTrack) {
-	ATH_MSG_DEBUG(Form("Track match! Clusters matched to same track."));
+	ATH_MSG_DEBUG("Track match! Clusters matched to same track.");
 	matchesSameTrack = true;
       } else {
-	ATH_MSG_DEBUG(Form("Track don't match: %f vs %f",seedTrack->pt(),secTrack->pt()));
+	ATH_MSG_DEBUG(" Track does not  match seed " <<seedTrack->pt() << " secondary "<< secTrack->pt());
       }
     }
   }
