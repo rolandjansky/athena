@@ -282,7 +282,14 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
                                            'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
   # Setup associators
-  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator(
+                                  'BTagTrackToJetAssociator'
+                                , JetCollection
+                                , ToolSvc
+                                , Verbose = BTaggingFlags.OutputLevel < 3
+                                )
+
+
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
@@ -411,6 +418,7 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   #MultivariateTagManager
   if (set(['DL1','MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2m']) & set(TaggerList)):
     MVTM = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
   if (set(['DL1Flip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2cl100Flip','MV2mFlip']) & set(TaggerList)):
     MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
@@ -446,6 +454,9 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     MVTMFlip.MVTagToolList += [tag,]
   if 'MV2c100' in TaggerList:
     tag = ConfInstance.addTool('MV2c100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    MVTM.MVTagToolList += [tag,]
+  if 'Myc100' in TaggerList:
+    tag = ConfInstance.addTool('Myc100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
     MVTM.MVTagToolList += [tag,]
   if 'MV2c100Flip' in TaggerList:
     tag = ConfInstance.addTool('MV2c100FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
@@ -593,6 +604,8 @@ def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
 
   if (set(['DL1','MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2m']) & set(TaggerList)):
     MVTM = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
+
   if (set(['DL1Flip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2cl100Flip','MV2mFlip']) & set(TaggerList)):
     MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
@@ -641,6 +654,10 @@ def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
     MVTM.MVTagToolList += [tag,]
     #ConfInstance.addTool('MV2c100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
     #                     CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'Myc100' in TaggerList:
+    tag = ConfInstance.addTool('Myc100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+    MVTMFlip.MVTagToolList += [tag,]
   if 'MV2c100Flip' in TaggerList:
     tag = ConfInstance.addTool('MV2c100FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
     MVTMFlip.MVTagToolList += [tag,]
