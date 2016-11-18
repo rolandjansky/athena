@@ -65,7 +65,7 @@ float xAODClusterCompressor::reduceFloatPrecision(const float fValue) const {
 
   //Check for NaN, etc:
   if (ATH_UNLIKELY(!std::isfinite(fValue))) {
-    msg(MSG::WARNING) << "Encountered a infinte or NaN value. Not compressing." << endreq;
+    ATH_MSG_WARNING( "Encountered a infinte or NaN value. Not compressing."  );
     return fValue;
   }
     

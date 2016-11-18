@@ -32,10 +32,12 @@ class EstimEMClusterClassificationTool : public AthAlgTool, virtual public IClus
  public:
 
 
-  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster);
-  StatusCode initialize();
+  virtual
+  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster)
+    const override;
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS)
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override
     { return StatusCode::SUCCESS;}
 
   EstimEMClusterClassificationTool(const std::string& type, 
@@ -46,11 +48,11 @@ class EstimEMClusterClassificationTool : public AthAlgTool, virtual public IClus
   //index is from 0 -> 2
   //slice is from 0 ->24
   //in case of wrong index number or wrong slice number result is unknown
-  double GetA(unsigned int index, unsigned int slice);
-  double GetB(unsigned int index, unsigned int slice);
-  double GetLL(unsigned int slice);
-  double GetLC(unsigned int slice);
-  double GetRR(unsigned int slice);
+  double GetA(unsigned int index, unsigned int slice) const;
+  double GetB(unsigned int index, unsigned int slice) const;
+  double GetLL(unsigned int slice) const;
+  double GetLC(unsigned int slice) const;
+  double GetRR(unsigned int slice) const;
  private:
   
   // cut to define EM cluster  <0;1> (% / 100)

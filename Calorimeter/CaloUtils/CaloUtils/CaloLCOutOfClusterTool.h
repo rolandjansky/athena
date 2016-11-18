@@ -29,10 +29,10 @@ class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWei
 
   virtual ~CaloLCOutOfClusterTool();
 
-  StatusCode weight(xAOD::CaloCluster* theCluster);
-  StatusCode initialize();
+  virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
 
   CaloLCOutOfClusterTool(const std::string& type, 
 			 const std::string& name,

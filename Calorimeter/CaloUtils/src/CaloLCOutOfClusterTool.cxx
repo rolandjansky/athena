@@ -72,7 +72,7 @@ CaloLCOutOfClusterTool::CaloLCOutOfClusterTool(const std::string& type,
 
 StatusCode CaloLCOutOfClusterTool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
   //--- check sampling names to use exclude in correction
   std::vector<std::string>::iterator samplingIter = m_invalidSamplingNames.begin(); 
@@ -97,7 +97,7 @@ StatusCode CaloLCOutOfClusterTool::initialize()
 	else 
 	  msg() << ".";
       }
-      msg() << endreq;
+      msg() << endmsg;
     }
     else {
       m_invalidSamplings.insert(theSampling);
@@ -108,40 +108,34 @@ StatusCode CaloLCOutOfClusterTool::initialize()
   samplingIter = m_invalidSamplingNames.begin(); 
   for(; samplingIter!=samplingIterEnd; samplingIter++)  
     msg() << " " << *samplingIter;
-  msg() << endreq;
+  msg() << endmsg;
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       msg() << " " << (*it);
     }
-    msg() << endreq;
+    msg() << endmsg;
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it) );
       if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
         m_interpolateDimensions.push_back(int(id));
       }else{
-        msg(MSG::WARNING) << "Dimension '" << (*it) << "' is invalid and will be excluded." << endreq;
+        ATH_MSG_WARNING( "Dimension '" << (*it) << "' is invalid and will be excluded."  );
       }
     }
   }
 
   // callback for conditions data
-  StatusCode sc = detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
-  		  dynamic_cast<IClusterCellWeightTool*>(this),
-  		  m_data,m_key);
-  //StatusCode sc=detStore()->regHandle(m_data,m_key);
-  if(sc.isSuccess()) {
-    msg(MSG::INFO) << "Registered callback for key: " << m_key << endreq;
-  } 
-  else {
-    msg(MSG::ERROR) << "Cannot register Callback function for key " << m_key << endreq;
-  }
+  ATH_CHECK(  detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
+                                 dynamic_cast<IClusterCellWeightTool*>(this),
+                                 m_data,m_key) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster)
+StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
 {
   double eWeightedOrig = theCluster->e();
   double eWeighted = theCluster->e();
@@ -304,8 +298,6 @@ CaloLCOutOfClusterTool::~CaloLCOutOfClusterTool()
 
 StatusCode CaloLCOutOfClusterTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
 {
-  StatusCode sc(StatusCode::SUCCESS);
-  
   ATH_MSG_DEBUG("Callback invoked for "<< keys.size() << " keys");
   
   for (std::list<std::string>::const_iterator itr=keys.begin(); 
@@ -314,14 +306,10 @@ StatusCode CaloLCOutOfClusterTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(key
     ATH_MSG_DEBUG("key = " << key);
     if(key==m_key) {
       ATH_MSG_DEBUG("retrieve CaloLocalHadCoeff");
-      sc = detStore()->retrieve(m_data,m_key); 
-      if (sc.isFailure() || !m_data) {
-	msg(MSG::ERROR) << "Unable to retrieve CaloLocalHadCoeff from DetectorStore" << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
     }
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 

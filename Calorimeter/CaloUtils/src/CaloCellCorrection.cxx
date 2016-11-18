@@ -61,7 +61,7 @@ StatusCode CaloCellCorrection::execute(CaloCellContainer* cellCollection)
   ATH_MSG_DEBUG("Executing CaloCellCorrection");
 
   if (!cellCollection) {
-    msg(MSG::ERROR) << "Cell Correction tool receives invalid cell Collection" << endreq;
+    ATH_MSG_ERROR( "Cell Correction tool receives invalid cell Collection"  );
     return StatusCode::FAILURE;
   }
 

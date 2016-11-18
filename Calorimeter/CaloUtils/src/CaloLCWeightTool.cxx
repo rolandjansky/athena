@@ -68,33 +68,21 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
 
 StatusCode CaloLCWeightTool::initialize()
 {
-
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    msg(MSG::ERROR)   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       msg(MSG::INFO) << " " << (*it);
     }
-    msg() << endreq;
+    msg() << endmsg;
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
       CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it) );
       if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
         m_interpolateDimensions.push_back(int(id));
       }else{
-        msg(MSG::WARNING) << "Dimension '" << (*it) << "' is invalid and will be excluded." << endreq;
+        ATH_MSG_WARNING( "Dimension '" << (*it) << "' is invalid and will be excluded."  );
       }
     }
   }
@@ -109,34 +97,23 @@ StatusCode CaloLCWeightTool::initialize()
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloLCWeightTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg( MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                   geoModel,
+                                   &CaloLCWeightTool::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 CaloLCWeightTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
   // callback for conditions data
-  StatusCode sc = detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
-				     dynamic_cast<IClusterCellWeightTool*>(this),
-				     m_data,m_key);
-  if(sc.isSuccess()) {
-    msg( MSG::INFO) << "Registered callback for key: " << m_key << endreq;
-  } 
-  else {
-    msg(MSG::ERROR) << "Cannot register Callback function for key " 
-		    << m_key << endreq;
-  }
+  ATH_CHECK( detStore()->regFcn(&IClusterCellWeightTool::LoadConditionsData,
+                                dynamic_cast<IClusterCellWeightTool*>(this),
+                                m_data,m_key) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_key  );
 
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
@@ -145,16 +122,15 @@ CaloLCWeightTool::geoInit(IOVSVC_CALLBACK_ARGS)
   //---- retrieve the noisetool ----------------
    
   if(m_noiseTool.retrieve().isFailure()){
-    msg(MSG::INFO) << "Unable to find tool for CaloNoiseTool"
-		   << endreq;
+    ATH_MSG_INFO( "Unable to find tool for CaloNoiseTool");
   }    else {
-    msg(MSG::INFO) <<  "Noise Tool retrieved" << endreq;
+    ATH_MSG_INFO(  "Noise Tool retrieved"  );
   } 
  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster)
+StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
 {
   double eEM = theCluster->e();
 
@@ -276,8 +252,6 @@ CaloLCWeightTool::~CaloLCWeightTool()
 
 StatusCode CaloLCWeightTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys)) 
 {
-  StatusCode sc(StatusCode::SUCCESS);
-  
   ATH_MSG_DEBUG("Callback invoked for " 
 		<< keys.size() << " keys");
   
@@ -287,12 +261,7 @@ StatusCode CaloLCWeightTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys))
     ATH_MSG_DEBUG("key = " << key);
     if(key==m_key) {
       ATH_MSG_DEBUG("retrieve CaloLocalHadCoeff ");
-      sc = detStore()->retrieve(m_data,m_key); 
-      if (sc.isFailure() || !m_data) {
-	msg(MSG::ERROR) << "Unable to retrieve CaloLocalHadCoeff from DetectorStore"
-			<< endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( detStore()->retrieve(m_data,m_key) );
       // setup the index map
       m_isampmap.resize(CaloSampling::Unknown,-1);
       for (int iArea=0;iArea<m_data->getSizeAreaSet();iArea++) {
@@ -306,7 +275,7 @@ StatusCode CaloLCWeightTool::LoadConditionsData(IOVSVC_CALLBACK_ARGS_K(keys))
       }
     }
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 

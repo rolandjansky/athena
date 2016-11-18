@@ -28,7 +28,6 @@ PURPOSE: Performs Local Noise Suppression CaloCell objects Inherits
 
 // For Gaudi
 #include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IService.h"
 
 // CONSTRUCTOR:
@@ -43,7 +42,6 @@ LocalNoiseSuppressionTool::LocalNoiseSuppressionTool(const std::string& type,
     m_caloCellContainerName(""), 
     m_testStatistic("max"), m_neighborOption("super3D"),
     m_s0(1.05), m_s1(0.017), m_o0(1.1), m_o1(0.035),
-    m_nNeighbors(0),
     m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault"),
     m_calo_dd_man(nullptr),
     m_calo_id(nullptr),
@@ -88,22 +86,8 @@ LocalNoiseSuppressionTool::~LocalNoiseSuppressionTool()
 
 StatusCode LocalNoiseSuppressionTool::initialize() {
 
- // MSGStream object to output messages from your algorithm
-
-  MsgStream log( msgSvc(), name() );
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -115,54 +99,39 @@ StatusCode LocalNoiseSuppressionTool::initialize() {
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &LocalNoiseSuppressionTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &LocalNoiseSuppressionTool::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 LocalNoiseSuppressionTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  MsgStream log( msgSvc(), name() );
-
 //---- retrieve the noisetool ----------------
 
-  if(m_noiseTool.retrieve().isFailure()){
-    log << MSG::INFO
-	<< "Unable to find tool for CaloNoiseTool"
-	<< endreq;
-  }    else {
-    log << MSG::INFO << "Noise Tool retrieved" << endreq;
-  } 
-
+  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_MSG_INFO( "Noise Tool retrieved"  );
 
   // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
 
-  log << MSG::INFO << "The tool " << name() << " has been initialized with the following settings: " <<
-   "\n\tmaxPrior = " << m_maxPrior<<
-   "\n\tcutThresholdOnPrior = " << m_cutThresholdOnPrior<<
-   "\n\tcutInSigma = " << m_cutInSigma<<
-   "\n\tsymmetricCut = " << m_symmetricCut<<
-   "\n\tusePileUp = " << m_usePileUp<<  
-   "\n\tCaloCellContainerName = " <<m_caloCellContainerName<<
-   "\n\ttestStatisticOption = " <<m_testStatistic<<
-   "\n\tneighborOption = " <<m_neighborOption<<
-   "\n\tscaleConst = " << m_s0<<
-   "\n\tscaleSlope = " << m_s1<<
-   "\n\toffsetConst = " <<m_o0<<
-   "\n\toffsetSlope = " <<m_o1<< endreq;
-  
-
+  ATH_MSG_INFO( "The tool " << name() << " has been initialized with the following settings: " <<
+                "\n\tmaxPrior = " << m_maxPrior<<
+                "\n\tcutThresholdOnPrior = " << m_cutThresholdOnPrior<<
+                "\n\tcutInSigma = " << m_cutInSigma<<
+                "\n\tsymmetricCut = " << m_symmetricCut<<
+                "\n\tusePileUp = " << m_usePileUp<<  
+                "\n\tCaloCellContainerName = " <<m_caloCellContainerName<<
+                "\n\ttestStatisticOption = " <<m_testStatistic<<
+                "\n\tneighborOption = " <<m_neighborOption<<
+                "\n\tscaleConst = " << m_s0<<
+                "\n\tscaleSlope = " << m_s1<<
+                "\n\toffsetConst = " <<m_o0<<
+                "\n\toffsetSlope = " <<m_o1 );
 
   // Return status code.
   return StatusCode::SUCCESS;
@@ -182,7 +151,7 @@ double LocalNoiseSuppressionTool::wtCell( const CaloCellContainer* cellColl,
   return this->wtCell(theCell);
 }
 
-double LocalNoiseSuppressionTool::wtCell( const CaloCell* theCell ) 
+double LocalNoiseSuppressionTool::wtCell( const CaloCell* theCell ) const
 {
   
   double prior = this->getPrior( theCell );
@@ -204,7 +173,7 @@ bool LocalNoiseSuppressionTool::cutCell( const CaloCellContainer* cellColl,
   return this->cutCell(theCell);
 }
 
-bool LocalNoiseSuppressionTool::cutCell( const CaloCell* theCell) {
+bool LocalNoiseSuppressionTool::cutCell( const CaloCell* theCell) const {
 
   double prior = this->getPrior( theCell );
   double Em = theCell->e();
@@ -233,25 +202,24 @@ double LocalNoiseSuppressionTool::getPrior( const CaloCellContainer* cellColl,
   return this->getPrior(theCell);
 }
 
-double LocalNoiseSuppressionTool::getPrior( const CaloCell* theCell) {
+double LocalNoiseSuppressionTool::getPrior( const CaloCell* theCell) const {
   
-  MsgStream log( msgSvc(), name() );
-
   double ret =0;
-  
-  double testStat = this->getTestStatistic(theCell);
+
+  int nNeighbors = 0;
+  double testStat = this->getTestStatistic(theCell, nNeighbors);
   
   if ( m_testStatistic == "sum" )        // For sum E/sigma
-    ret = erfc(testStat / sqrt(2. * m_nNeighbors ) );
+    ret = erfc(testStat / sqrt(2. * nNeighbors ) );
 
   else if ( m_testStatistic == "max" ) { // For max E/sigma
-    ret = .5*( 1. - erf( this->scale() * (testStat - this->offset()) ) );
+    ret = .5*( 1. - erf( this->scale(nNeighbors) * (testStat - this->offset(nNeighbors)) ) );
     
   }
   else{
     
-    log << MSG::ERROR << "TestStatistic not set correctly.  Value = " << 
-      m_testStatistic << endreq;
+    ATH_MSG_ERROR( "TestStatistic not set correctly.  Value = " << 
+                   m_testStatistic  );
 
     ret  = 0;
   }
@@ -267,31 +235,31 @@ double LocalNoiseSuppressionTool::getPrior( const CaloCell* theCell) {
 
 
 double LocalNoiseSuppressionTool::getTestStatistic(const CaloCellContainer* cellColl,
-						   const CaloCell* theCell){
+						   const CaloCell* theCell,
+                                                   int& nNeighbors){
 
   m_caloCellContainer = cellColl;
-  return this->getTestStatistic(theCell);
+  return this->getTestStatistic(theCell, nNeighbors);
   
   
 }
 
-double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell) 
+double
+LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell,
+                                             int& nNeighbors) const
 {
+  const CaloCellContainer* caloCellContainer = m_caloCellContainer;
   
-
-  MsgStream log( msgSvc(), name() );
   // this tool needs access to the neighboring cells via the container
   // The interface of ICellWeightTool does not support that, so until
   // a better solution is found, we will retrieve the container in
   // initialize if the caloCellContainerName is specified.
   if (m_caloCellContainerName != "" ) {
-    StatusCode sc = evtStore()->retrieve(m_caloCellContainer, m_caloCellContainerName);
+    StatusCode sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName);
 
-    if(sc.isFailure()  ||  !m_caloCellContainer) {
-      log << MSG::ERROR 
-	  << "the CaloCellContainer " << m_caloCellContainerName 
-	  << "was not found in TDS"
-	  << endreq; 
+    if(sc.isFailure()  ||  !caloCellContainer) {
+      ATH_MSG_ERROR( "the CaloCellContainer " << m_caloCellContainerName 
+                     << "was not found in TDS" );
       return StatusCode::SUCCESS;
     }    
   }
@@ -317,12 +285,12 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
   
   if ( m_testStatistic == "sum" ) {      // For sum E/sigma
     double sumEoverSigma = 0;
-    m_nNeighbors = 0;
+    nNeighbors = 0;
     for (unsigned int i=0; i<theNNeighbors.size(); i++) {
-      const CaloCell* aNeighbor = m_caloCellContainer->findCell(theNNeighbors[i]);
+      const CaloCell* aNeighbor = caloCellContainer->findCell(theNNeighbors[i]);
 
       if (aNeighbor != 0) {
-	m_nNeighbors++;  // needed in getPrior
+	nNeighbors++;  // needed in getPrior
 	sumEoverSigma  += aNeighbor->e()
 	  / this->cellSigma(aNeighbor);
       }
@@ -335,12 +303,12 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
     double maxEoverSigma = -9999.;
     double thisEoverSigma = -9999.;
   
-    m_nNeighbors = 0;
+    nNeighbors = 0;
     for (unsigned int i=0; i<theNNeighbors.size(); i++) {
-      const CaloCell* aNeighbor = m_caloCellContainer->findCell(theNNeighbors[i]);
+      const CaloCell* aNeighbor = caloCellContainer->findCell(theNNeighbors[i]);
 
       if (aNeighbor != 0) {      
-	m_nNeighbors++; // needed in getPrior
+	nNeighbors++; // needed in getPrior
 	thisEoverSigma = aNeighbor->e() 
 	  / this->cellSigma(aNeighbor);
 
@@ -352,6 +320,7 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
   }
 
   else {
+    nNeighbors = 0;
   
     // log oops
     
@@ -362,7 +331,7 @@ double LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell)
 }
 
 
-double LocalNoiseSuppressionTool::cellSigma( const CaloCell* theCell) {
+double LocalNoiseSuppressionTool::cellSigma( const CaloCell* theCell) const {
 
   double ret = 0;
   
@@ -381,21 +350,21 @@ double LocalNoiseSuppressionTool::cellSigma( const CaloCell* theCell) {
 }
 
 
-double LocalNoiseSuppressionTool::scale() {
+double LocalNoiseSuppressionTool::scale (int nNeighbors) const {
   // the distribution of the "max" test statistic is complicated, 
   //  but has been from Toy MC so to linear functions. 
   //  The scale() and offset() methods are used in the transformation 
   //  of the test statistic to a prior.
-  return m_s0 + m_s1*m_nNeighbors;  
+  return m_s0 + m_s1*nNeighbors;  
 }
 
-double LocalNoiseSuppressionTool::offset() {
+double LocalNoiseSuppressionTool::offset (int nNeighbors) const {
   // the distribution of the "max" test statistic is complicated, 
   //  but has been from Toy MC so to linear functions. 
   //  The scale() and offset() methods are used in the transformation 
   //  of the test statistic to a prior.
 
-  return m_o0 + m_o1*m_nNeighbors;  
+  return m_o0 + m_o1*nNeighbors;  
 }
 
 

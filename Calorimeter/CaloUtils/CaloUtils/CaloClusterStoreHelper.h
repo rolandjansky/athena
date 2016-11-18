@@ -9,6 +9,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "StoreGate/WriteHandle.h"
 
 class CaloCellContainer;
 class StoreGateSvc;
@@ -51,6 +52,17 @@ public:
   static xAOD::CaloCluster* makeCluster(xAOD::CaloClusterContainer* cont, 
 					const CaloCellContainer* cellCont);
 
+
+  /** 
+   * @brief Creates a new \a xAOD::CaloClusterContainer in the given WriteHandle + \a CaloClusterAuxContainer and records them to SG
+   * @param pStoreGate ptr to \a StoreGateSvc (use &(*evtStore()) from an AthAlgorithm) 
+   * @param clusColl SG write handle key of \a ClusterContainer
+   * @param msgStream Reference to the \a MessageStream
+   * @return status code indicating sucess or failure
+   */ 
+  static StatusCode AddContainerWriteHandle(StoreGateSvc* pStoreGate,
+						           SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
+							   MsgStream& msg);
 
   /** 
    * @brief Creates a new \a xAOD::CaloClusterContainer + \a CaloClusterAuxContainer and records them to SG

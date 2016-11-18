@@ -26,7 +26,6 @@
 #include "PathResolver/PathResolver.h"
 
 #include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 */
@@ -41,7 +40,7 @@ EstimEMClusterClassificationTool::EstimEMClusterClassificationTool(const std::st
 
    declareInterface<IClusterClassificationTool>(this);
 //  variables from option file
-  declareProperty("m_debug",m_debug);
+  declareProperty("m_debug",m_debug = false);
   declareProperty("m_maxEstimEM",m_maxEstimEM = 0);
   declareProperty("m_eta_ene_cut",m_eta_ene_cut);
   declareProperty("m_params",m_params);
@@ -56,14 +55,14 @@ StatusCode EstimEMClusterClassificationTool::initialize()
 
 //     energy in MeV !!!
 
-CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloCluster* thisCluster) {
+CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloCluster* thisCluster) const {
 
     
    //bool debug = m_debug;
   
    double cl_energy = thisCluster->e();
    if(cl_energy <=0.0) {
-     msg(MSG::INFO) << "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy << endreq;
+     ATH_MSG_INFO( "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy  );
      return CaloRecoStatus::TAGGEDUNKNOWN;
    }
 
@@ -79,13 +78,12 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
      fabs(cl_eta)>=5.0 ? ieta = 24 : ieta = ((unsigned int)(fabs(cl_eta)*20.0) / 4);
    }
    else {
-       msg(MSG::ERROR)
-	 << "Can not retrieve cluster moments "
-	 << "FIRST_ETA for current cluster"
-	 << "- classification not possible - "
-	 << "you need to enable those moments in the cluster maker!"
-	 << endreq;		  
-       msg(MSG::INFO) << "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy << endreq;
+     ATH_MSG_ERROR( "Can not retrieve cluster moments "
+                    << "FIRST_ETA for current cluster"
+                    << "- classification not possible - "
+                    << "you need to enable those moments in the cluster maker!"
+                    );
+     ATH_MSG_INFO( "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy  );
        return CaloRecoStatus::TAGGEDUNKNOWN;
    } 
 
@@ -99,7 +97,7 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
             // barrel or crack 1
             if( ieta <  8)   
 	    {		  
-		    tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy << endreq;
+              ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy  );
 		    return CaloRecoStatus::TAGGEDHAD;
 	    }
             // EC
@@ -112,27 +110,25 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
                            if(debug) printf("debug_es_clas: lowEn : EC:  cl_centlam = %f \n",cl_centlam);
                            if(cl_centlam > 300.0)        
 			   {	   
-			           tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy << endreq; 
+                                    ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy  );
 				   return CaloRecoStatus::TAGGEDHAD;
 			   }
                            else if (cl_energy > 1000.0)    
 			   {
-				   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type EM cl_energy " << cl_energy << endreq;
+                                   ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type EM cl_energy " << cl_energy  );
 				   return CaloRecoStatus::TAGGEDEM;
 			   }
                            
-			   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy << endreq;
+			   ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy " << cl_energy  );
                            return CaloRecoStatus::TAGGEDHAD;
                       }
                     else
                       {
-//                           MsgStream log(msgSvc(), name());
-                           tolog << MSG::ERROR
-                               << "Can not retrieve  CENTER_LAMBDA for current cluster"
+                               ATH_MSG_ERROR( "Can not retrieve  CENTER_LAMBDA for current cluster"
                                << "- classification not possible - "
                                << "you need to enable this moment in the cluster maker!"
-                               << endreq;
-			   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy << endreq;
+                                );
+                                ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy  );
                            return CaloRecoStatus::TAGGEDUNKNOWN;
 
                       } 
@@ -141,7 +137,7 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
             // crack 2 
             if( ieta < 17)
 	    {
-		    tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<< cl_energy << endreq;
+                    ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<< cl_energy  );
 		    return CaloRecoStatus::TAGGEDHAD;
 	    }
             if( ieta > 16) 
@@ -156,26 +152,25 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
                            if(debug) printf("debug_es_clas: lowEn : FW:  cl_dens = %f \n",cl_dens);                           
                            if(cl_centlam >  350.0)    
 			   {
-				   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<<cl_energy << endreq;
+                                    ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<<cl_energy  );
 				   return CaloRecoStatus::TAGGEDHAD;
 			   }
                            else if (cl_dens > 0.035)    
 		       	   {
-				   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type EM cl_energy "<< cl_energy << endreq;
+                                   ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type EM cl_energy "<< cl_energy  );
 				   return CaloRecoStatus::TAGGEDEM;
 			   }
 
-			   tolog << MSG::INFO << "CLASSIFICATION: ieta "<< ieta <<" em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<< cl_energy << endreq;
+			   ATH_MSG_INFO( "CLASSIFICATION: ieta "<< ieta <<" em_lc - em_ll - em_rr - my_em - type HAD cl_energy "<< cl_energy  );
                            return CaloRecoStatus::TAGGEDHAD;
                        }
                     else
                       {
-                           tolog << MSG::ERROR
-                               << "Can not retrieve  CENTER_LAMBDA for current cluster"
+                           ATH_MSG_ERROR( "Can not retrieve  CENTER_LAMBDA for current cluster"
                                << "- classification not possible - "
                                << "you need to enable this moment in the cluster maker!"
-                               << endreq;
-			   tolog << MSG::INFO << "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy"<<cl_energy << endreq;
+                                );
+                           ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy"<<cl_energy  );
                            return CaloRecoStatus::TAGGEDUNKNOWN;
 
                       } 
@@ -213,58 +208,57 @@ CaloRecoStatus::StatusIndicator EstimEMClusterClassificationTool::classify(CaloC
                    double my_em = em_lc * lc  +  em_ll * ll  +  em_rr * rr;
 		   
 	           if ( my_em < m_maxEstimEM )  {
-		     msg(MSG::INFO) << "CLASSIFICATION: ieta " << ieta << " em_lc " << em_lc << " em_ll " << em_ll << " em_rr " << em_rr << " my_em " << my_em << " type HAD cl_energy "<<cl_energy << endreq;			   
+		     ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc " << em_lc << " em_ll " << em_ll << " em_rr " << em_rr << " my_em " << my_em << " type HAD cl_energy "<<cl_energy  );
 		     return CaloRecoStatus::TAGGEDHAD;
 		   }
 	           else{
-		     msg(MSG::INFO) << "CLASSIFICATION: ieta " << ieta << " em_lc " << em_lc << " em_ll " << em_ll << " em_rr " << em_rr << " my_em " << my_em << " type EM cl_energy "<< cl_energy << endreq;			   
-			   return CaloRecoStatus::TAGGEDEM;
+		     ATH_MSG_INFO( "CLASSIFICATION: ieta " << ieta << " em_lc " << em_lc << " em_ll " << em_ll << " em_rr " << em_rr << " my_em " << my_em << " type EM cl_energy "<< cl_energy  );
+                     return CaloRecoStatus::TAGGEDEM;
 		   }
            }
     else 
            {
-	     msg(MSG::ERROR)
-	       << "Can not retrieve one or more of the cluster moments "
-	       << "FIRST_ETA, CENTER_LAMBDA, SECOND_R, SECOND_LAMBDA for current cluster"
-	       << "- classification not possible - "
-	       << "you need to enable those moments in the cluster maker!"
-	       << endreq;
+	     ATH_MSG_ERROR( "Can not retrieve one or more of the cluster moments "
+                            << "FIRST_ETA, CENTER_LAMBDA, SECOND_R, SECOND_LAMBDA for current cluster"
+                            << "- classification not possible - "
+                            << "you need to enable those moments in the cluster maker!"
+                            );
 		  
-	     msg(MSG::INFO) << "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy << endreq;		  
+	     ATH_MSG_INFO( "CLASSIFICATION: ieta - em_lc - em_ll - em_rr - my_em - type UNKNOWN cl_energy " << cl_energy  );
 	     return CaloRecoStatus::TAGGEDUNKNOWN;
            } 
 
 }
 
-double EstimEMClusterClassificationTool::GetA(unsigned int index, unsigned int slice)
+double EstimEMClusterClassificationTool::GetA(unsigned int index, unsigned int slice) const
 {
 	if (index>2 || slice>24) return 0.0;
 
 	return m_params[9*slice+index]; 
 }
 
-double EstimEMClusterClassificationTool::GetB(unsigned int index, unsigned int slice)
+double EstimEMClusterClassificationTool::GetB(unsigned int index, unsigned int slice) const
 {
 	if (index>2 || slice>24) return 0.0;
 
 	return m_params[9*slice+3+index];
 }
 
-double EstimEMClusterClassificationTool::GetLL(unsigned int slice)
+double EstimEMClusterClassificationTool::GetLL(unsigned int slice) const
 {
 	if (slice>24) return 0.0;
 
 	return m_params[9*slice+6];
 }
 
-double EstimEMClusterClassificationTool::GetLC(unsigned int slice)
+double EstimEMClusterClassificationTool::GetLC(unsigned int slice) const
 {
 	if (slice>24) return 0.0;
 
 	return m_params[9*slice+7];
 }
 
-double EstimEMClusterClassificationTool::GetRR(unsigned int slice)
+double EstimEMClusterClassificationTool::GetRR(unsigned int slice) const
 {
 	if (slice>24) return 0.0;
 

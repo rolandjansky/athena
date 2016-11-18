@@ -31,10 +31,12 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
 
   virtual ~CaloLCClassificationTool();
 
-  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster);
-  StatusCode initialize();
+  virtual
+  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster)
+    const override;
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
 
   CaloLCClassificationTool(const std::string& type, 
 			   const std::string& name,

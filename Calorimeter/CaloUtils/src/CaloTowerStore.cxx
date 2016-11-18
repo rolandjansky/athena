@@ -96,7 +96,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
   // get cell description manager
   const CaloDetDescrManager* theManager = CaloDetDescrManager::instance();
   if ( ! theManager->isInitialized() ){
-	msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!"<< endreq;
+	msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!"<< endmsg;
 	return false;
 	}
 
@@ -104,7 +104,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
   size_t sizeCalos = theCalos.size();
 
   unsigned int ntowers = theTowerSeg.neta() * theTowerSeg.nphi();
-  msg << MSG::DEBUG << " number of towers " << ntowers << endreq;
+  msg << MSG::DEBUG << " number of towers " << ntowers << endmsg;
   std::vector< std::vector<Entry> > ttcmatrix;
   ttcmatrix.resize (ntowers);
   m_weights.reserve (10);
@@ -115,7 +115,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
       // find numerical ranges
       IdentifierHash firstIndex, lastIndex;
       cellIdHelper->calo_cell_hash_range((int)theCalos[iCalo], firstIndex, lastIndex);
-      msg << MSG::DEBUG << " firstInder,lastIndex " << firstIndex << " " << lastIndex << endreq;
+      msg << MSG::DEBUG << " firstInder,lastIndex " << firstIndex << " " << lastIndex << endmsg;
 
       
       // consistent phi convention
@@ -127,7 +127,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
 	  const CaloDetDescrElement* theDDE = theManager->get_element(cellIndex);
 
 	  if(theDDE==0) {
-	    msg << MSG::ERROR<< " CellIndex =  "<< cellIndex<< " has a DDE pointer NULL " << endreq;
+	    msg << MSG::ERROR<< " CellIndex =  "<< cellIndex<< " has a DDE pointer NULL " << endmsg;
 	    continue;
 	  }
 

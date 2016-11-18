@@ -81,7 +81,7 @@ inline
 void
 CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
                                 const CaloCellContainer* cells,
-                                IProxyDictWithPool* sg,
+                                IProxyDict* sg,
                                 CaloTower* tower)
 {
   CaloTowerStore::cell_iterator firstC = tower_it.firstCell();
@@ -115,7 +115,7 @@ inline
 void
 CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
                                    const CaloCellContainer* cells,
-                                   IProxyDictWithPool* sg)
+                                   IProxyDict* sg)
 {
   size_t sz = towers->size();
   assert(m_cellStore->size() ==  sz);
@@ -132,7 +132,7 @@ inline
 void
 CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
                                      const CaloCellContainer* cells,
-                                     IProxyDictWithPool* sg,
+                                     IProxyDict* sg,
                                      const CaloTowerSeg::SubSeg* subseg)
 {
   size_t sz = towers->size();
@@ -213,7 +213,7 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
     }
   }
 
-  IProxyDictWithPool* sg = SG::CurrentEventStore::store();
+  IProxyDict* sg = SG::CurrentEventStore::store();
   if (subseg)
     iterateSubSeg (theTowers, theCells, sg, subseg);
   else

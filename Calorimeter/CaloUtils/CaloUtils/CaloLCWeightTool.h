@@ -37,10 +37,10 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
 
   virtual ~CaloLCWeightTool();
 
-  StatusCode weight(xAOD::CaloCluster* theCluster);
-  StatusCode initialize();
+  virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) override;
 
   CaloLCWeightTool(const std::string& type, 
 		   const std::string& name,
@@ -107,7 +107,7 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
   
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
 };
 
 #endif
