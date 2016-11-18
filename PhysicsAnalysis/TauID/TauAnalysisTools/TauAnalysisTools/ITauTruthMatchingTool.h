@@ -86,6 +86,10 @@ public:
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) = 0;
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) = 0;
 
+  // build the truth tau collection
+  virtual StatusCode buildTruthTausFromTruthParticles() = 0;
+  virtual StatusCode retrieveTruthTaus() = 0;
+
 }; // class ITauTruthMatchingTool
 
 } // namespace TauAnalysisTools

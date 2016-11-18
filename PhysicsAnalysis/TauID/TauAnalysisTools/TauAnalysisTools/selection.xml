@@ -1,4 +1,6 @@
 <lcgdict>
+  <class name="TauAnalysisTools::CommonSmearingTool" />
+  <class name="TauAnalysisTools::CommonEfficiencyTool" />
   <class name="TauAnalysisTools::TauEfficiencyCorrectionsTool" />
   <class name="TauAnalysisTools::TauSelectionTool" />
   <class name="TauAnalysisTools::TauSmearingTool" />

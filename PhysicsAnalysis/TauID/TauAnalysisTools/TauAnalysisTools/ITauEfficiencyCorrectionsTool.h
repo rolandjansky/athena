@@ -46,6 +46,8 @@ public:
   /// Decorate the tau with its efficiency
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau ) = 0;
 
+  virtual bool isSupportedRunNumber(int iRunNumber) = 0;
+
 }; // class ITauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools

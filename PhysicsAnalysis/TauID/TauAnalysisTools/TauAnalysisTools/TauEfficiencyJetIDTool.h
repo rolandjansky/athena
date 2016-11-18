@@ -25,6 +25,8 @@ namespace TauAnalysisTools
 
 class TauEfficiencyJetIDTool : public CommonEfficiencyTool
 {
+  ASG_TOOL_CLASS( TauEfficiencyJetIDTool,
+                  TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
@@ -34,10 +36,6 @@ public:
 
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
       double& efficiencyScaleFactor);
-
-private:
-  std::string m_sIDLevel;
-  int m_iIDLevelCache;
 };
 } // namespace TauAnalysisTools
 

@@ -15,32 +15,84 @@
 
 using namespace TauAnalysisTools;
 
+/*
+  This tool acts as a common tool to apply efficiency scale factors and
+  uncertainties. By default, only nominal scale factors without systematic
+  variations are applied. Unavailable systematic variations are ignored, meaning
+  that the tool only returns the nominal value. In case the one available
+  systematic is requested, the smeared scale factor is computed as:
+    - sf = sf_nominal +/- n * uncertainty
+
+  where n is in general 1 (representing a 1 sigma smearing), but can be any
+  arbitrary value. In case multiple systematic variations are passed they are
+  added in quadrature. Note that it's currently only supported if all are up or
+  down systematics.
+
+  The tool reads in root files including TH2 histograms which need to fullfil a
+  predefined structure:
+
+  scale factors:
+    - sf_<workingpoint>_<prongness>p
+  uncertainties:
+    - <NP>_<up/down>_<workingpoint>_<prongness>p (for asymmetric uncertainties)
+    - <NP>_<workingpoint>_<prongness>p (for symmetric uncertainties)
+
+  where the <workingpoint> (e.g. loose/medium/tight) fields may be
+  optional. <prongness> represents either 1 or 3, whereas 3 is currently used
+  for multiprong in general. The <NP> fields are names for the type of nuisance
+  parameter (e.g. STAT or SYST), note the tool decides whethe the NP is a
+  recommended or only an available systematic based on the first character:
+    - uppercase -> recommended
+    - lowercase -> available
+  This magic happens here:
+    - CommonEfficiencyTool::generateSystematicSets()
+
+  In addition the root input file can also contain objects of type TF1 that can
+  be used to provide kind of unbinned scale factors or systematics. The major
+  usecase for now is the high-pt uncertainty for the tau ID and tau
+  reconstruction.
+
+  The files may also include TNamed objects which is used to define how x and
+  y-axes should be treated. By default the x-axis is given in units of tau-pT in
+  GeV and the y-axis is given as tau-eta. If there is for example a TNamed
+  object with name "Yaxis" and title "|eta|" the y-axis is treated in units of
+  absolute tau eta. All this is done in:
+    - void CommonEfficiencyTool::ReadInputs(TFile* fFile)
+
+  Other tools for scale factors may build up on this tool and overwrite or add
+  praticular functionality (one example is the TauEfficiencyTriggerTool).
+*/
+
 //______________________________________________________________________________
 CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(0)
-  , m_tTECT(0)
   , m_sSystematicSet(0)
   , m_fX(&tauPt)
   , m_fY(&tauEta)
-  , m_sInputFilePath("")
-  , m_sWP("")
-  , m_sVarName("")
-  , m_bSkipTruthMatchCheck(false)
   , m_sSFHistName("sf")
-  , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
+  , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bSFIsAvailable(false)
   , m_bSFIsAvailableChecked(false)
 {
   m_mSystematics = {};
 
-  declareProperty( "InputFilePath", m_sInputFilePath );
-  declareProperty( "VarName", m_sVarName );
-  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck );
-  declareProperty( "WP", m_sWP );
+  declareProperty( "InputFilePath",       m_sInputFilePath       = "" );
+  declareProperty( "VarName",             m_sVarName             = "" );
+  declareProperty( "WP",                  m_sWP                  = "" );
+  declareProperty( "UseHighPtUncert",     m_bUseHighPtUncert     = false );
+  declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
+  declareProperty( "UseInclusiveEta",     m_bUseInclusiveEta     = false );
+  declareProperty( "IDLevel",             m_iIDLevel             = (int)JETIDBDTTIGHT );
+  declareProperty( "EVLevel",             m_iEVLevel             = (int)ELEIDBDTLOOSE );
+  declareProperty( "OLRLevel",            m_iOLRLevel            = (int)TAUELEOLR );
+  declareProperty( "ContSysType",         m_iContSysType         = (int)TOTAL );
 }
 
+/*
+  need to clear the map of histograms cause we have the ownership, not ROOT
+*/
 CommonEfficiencyTool::~CommonEfficiencyTool()
 {
   if (m_mSF)
@@ -49,6 +101,13 @@ CommonEfficiencyTool::~CommonEfficiencyTool()
   delete m_mSF;
 }
 
+/*
+  - Find the root files with scale factor inputs on afs/cvmfs using PathResolver
+    (more info here:
+    https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
+  - Call further functions to process and define NP strings and so on
+  - Configure to provide nominal scale factors by default
+*/
 StatusCode CommonEfficiencyTool::initialize()
 {
   ATH_MSG_INFO( "Initializing CommonEfficiencyTool" );
@@ -69,9 +128,11 @@ StatusCode CommonEfficiencyTool::initialize()
     delete fSF;
   }
 
+  // needed later on in generateSystematicSets(), maybe move it there
   std::vector<std::string> vInputFilePath;
   split(m_sInputFilePath,'/',vInputFilePath);
   m_sInputFileName = vInputFilePath.back();
+
   generateSystematicSets();
 
   if (m_sWP.length()>0)
@@ -83,6 +144,11 @@ StatusCode CommonEfficiencyTool::initialize()
 
   return StatusCode::SUCCESS;
 }
+
+/*
+  Retrieve the scale factors and if requested the values for the NP's and add
+  this stuff in quadrature. Finally return sf_nom +/- n*uncertainty
+*/
 
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
@@ -164,6 +230,15 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   return CP::CorrectionCode::Ok;
 }
 
+/*
+  Get scale factor from getEfficiencyScaleFactor and decorate it to the
+  tau. Note that this can only be done if the variable name is not already used,
+  e.g. if the variable was already decorated on a previous step (enured by the
+  m_bSFIsAvailableChecked check).
+
+  Technical note: cannot use `static SG::AuxElement::Decorator` as we will have
+  multiple instances of this tool with different decoration names.
+*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
 {
@@ -190,6 +265,9 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
   return tmpCorrectionCode;
 }
 
+/*
+  standard check if a systematic is available
+*/
 //______________________________________________________________________________
 bool CommonEfficiencyTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
@@ -197,24 +275,35 @@ bool CommonEfficiencyTool::isAffectedBySystematic( const CP::SystematicVariation
   return sys.find (systematic) != sys.end ();
 }
 
+/*
+  standard way to return systematics that are available (including recommended
+  systematics)
+*/
 //______________________________________________________________________________
 CP::SystematicSet CommonEfficiencyTool::affectingSystematics() const
 {
   return m_sAffectingSystematics;
 }
 
+/*
+  standard way to return systematics that are recommended
+*/
 //______________________________________________________________________________
 CP::SystematicSet CommonEfficiencyTool::recommendedSystematics() const
 {
   return m_sRecommendedSystematics;
 }
 
-//______________________________________________________________________________
-void CommonEfficiencyTool::setParent(TauEfficiencyCorrectionsTool* tTECT)
-{
-  m_tTECT = tTECT;
-}
-
+/*
+  Configure the tool to use a systematic variation for further usage, until the
+  tool is reconfigured with this function. The passed systematic set is checked
+  for sanity:
+    - unsupported systematics are skipped
+    - only combinations of up or down supported systematics is allowed
+    - don't mix recommended systematics with other available systematics, cause
+      sometimes recommended are a quadratic sum of the other variations,
+      e.g. TOTAL=(SYST^2 + STAT^2)^0.5
+*/
 //______________________________________________________________________________
 CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
@@ -266,6 +355,10 @@ CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::Sy
 }
 
 //=================================PRIVATE-PART=================================
+/*
+  prongness converter, note that it returns "_3p" for all values, except
+  fProngness==1, i.e. for 0, 2, 3, 4, 5...
+ */
 //______________________________________________________________________________
 std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
 {
@@ -276,6 +369,15 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   return prong;
 }
 
+/*
+  Read in a root file and store all objects to a map of this type:
+  std::map<std::string, tTupleObjectFunc > (see header) It's basically a map of
+  the histogram name and a function pointer based on the TObject type (TH1F,
+  TH1D, TF1). This is resolved in the function:
+  - CommonEfficiencyTool::addHistogramToSFMap
+  Further this function figures out the axis definition (see description on the
+  top)
+*/
 //______________________________________________________________________________
 void CommonEfficiencyTool::ReadInputs(TFile* fFile)
 {
@@ -322,15 +424,15 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
       continue;
     }
 
-    std::vector<std::string> m_vSplitName = {};
-    split(sKeyName,'_',m_vSplitName);
-    if (m_vSplitName[0] == "sf")
+    std::vector<std::string> vSplitName = {};
+    split(sKeyName,'_',vSplitName);
+    if (vSplitName[0] == "sf")
     {
       addHistogramToSFMap(kKey, sKeyName);
     }
     else
     {
-      // std::string sDirection = m_vSplitName[1];
+      // std::string sDirection = vSplitName[1];
       if (sKeyName.find("_up_") != std::string::npos or sKeyName.find("_down_") != std::string::npos)
         addHistogramToSFMap(kKey, sKeyName);
       else
@@ -344,6 +446,10 @@ void CommonEfficiencyTool::ReadInputs(TFile* fFile)
   ATH_MSG_INFO("data loaded from " << fFile->GetName());
 }
 
+/*
+  Create the tuple objects for the map
+*/
+//______________________________________________________________________________
 void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sKeyName)
 {
   // handling for the 3 different input types TH1F/TH1D/TF1, function pointer
@@ -371,14 +477,27 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
   }
 }
 
+/*
+  This function parses the names of the obejects from the input file and
+  generates the systematic sets and defines which ones are recommended or only
+  available. It also checks, based on the root file name, on which tau it needs
+  to be applied, e.g. only on reco taus coming from true taus or on those faked
+  by true electrons...
+
+  Examples:
+  filename: Reco_TrueHadTau_2016-ichep.root -> apply only to true taus
+  histname: sf_1p -> nominal 1p scale factor
+  histname: TOTAL_3p -> "total" 3p NP, recommended
+  histname: afii_1p -> "total" 3p NP, not recommended, but available
+*/
 //______________________________________________________________________________
 void CommonEfficiencyTool::generateSystematicSets()
 {
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
-  std::vector<std::string> m_vSplitInputFilePath = {};
-  split(m_sInputFileName,'_',m_vSplitInputFilePath);
-  std::string sEfficiencyType = m_vSplitInputFilePath.at(0);
-  std::string sTruthType = m_vSplitInputFilePath.at(1);
+  std::vector<std::string> vSplitInputFilePath = {};
+  split(m_sInputFileName,'_',vSplitInputFilePath);
+  std::string sEfficiencyType = vSplitInputFilePath.at(0);
+  std::string sTruthType = vSplitInputFilePath.at(1);
   std::transform(sEfficiencyType.begin(), sEfficiencyType.end(), sEfficiencyType.begin(), toupper);
   std::transform(sTruthType.begin(), sTruthType.end(), sTruthType.begin(), toupper);
   std::string sSystematicBaseString = "TAUS_"+sTruthType+"_EFF_"+sEfficiencyType+"_";
@@ -393,10 +512,10 @@ void CommonEfficiencyTool::generateSystematicSets()
   for (auto mSF : *m_mSF)
   {
     // parse for nuisance parameter in histogram name
-    std::vector<std::string> m_vSplitNP = {};
-    split(mSF.first,'_',m_vSplitNP);
-    std::string sNP = m_vSplitNP.at(0);
-    std::string sNPUppercase = m_vSplitNP.at(0);
+    std::vector<std::string> vSplitNP = {};
+    split(mSF.first,'_',vSplitNP);
+    std::string sNP = vSplitNP.at(0);
+    std::string sNPUppercase = vSplitNP.at(0);
 
     // skip nominal scale factors
     if (sNP == "sf") continue;
@@ -427,6 +546,10 @@ void CommonEfficiencyTool::generateSystematicSets()
   }
 }
 
+/*
+  return value from the tuple map object based on the pt/eta values (or the
+  corresponding value in case of configuration)
+*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
@@ -453,6 +576,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
   return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dPt, dEta);
 }
 
+/*
+  find the particular value in TH2F depending on pt and eta (or the
+  corresponding value in case of configuration)
+  Note: In case values are outside of bin ranges, the closest bin value is used
+*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
     double& dEfficiencyScaleFactor,
@@ -474,12 +602,17 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
   dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
   dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
 
-  // get bin from TH2 depending in x and y values; finally set the scale factor
+  // get bin from TH2 depending on x and y values; finally set the scale factor
   int iBin = hHist->FindFixBin(dPt,dEta);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
   return CP::CorrectionCode::Ok;
 }
 
+/*
+  find the particular value in TH2D depending on pt and eta (or the
+  corresponding value in case of configuration)
+  Note: In case values are outside of bin ranges, the closest bin value is used
+*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
     double& dEfficiencyScaleFactor,
@@ -501,12 +634,16 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
   dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
   dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
 
-  // get bin from TH2 depending in x and y values; finally set the scale factor
+  // get bin from TH2 depending on x and y values; finally set the scale factor
   int iBin = hHist->FindFixBin(dPt,dEta);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
   return CP::CorrectionCode::Ok;
 }
 
+/*
+  Find the particular value in TF1 depending on pt and eta (or the corresponding
+  value in case of configuration)
+*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
     double& dEfficiencyScaleFactor,
@@ -526,6 +663,11 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
   return CP::CorrectionCode::Ok;
 }
 
+/*
+  Check the type of truth particle, previously matched with the
+  TauTruthMatchingTool. The type to match was parsed from the input file in
+  CommonEfficiencyTool::generateSystematicSets()
+*/
 //______________________________________________________________________________
 e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
 {

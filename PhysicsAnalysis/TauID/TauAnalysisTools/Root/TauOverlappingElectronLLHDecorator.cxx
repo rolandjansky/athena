@@ -28,9 +28,15 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
   , m_bElectonsAvailable(true)
   , m_hCutValues(0)
   , m_bEleOLRMatchAvailable(false)
-  , m_bEleOLRMatchAvailableChecked(false)
   , m_bNewEvent(false)
-  , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
+  // , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
+  , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf")
+  , m_sEleOlrPassDecorationName("ele_olr_pass_fix")
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore_fix")
+#else
+  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
+#endif
 {
   m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 
@@ -51,7 +57,7 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
   ATH_MSG_INFO( "Initializing TauOverlappingElectronLLHDecorator" );
   // create a EM LH tool
   m_tEMLHTool = new AsgElectronLikelihoodTool (name()+"_ELHTool");
-  m_tEMLHTool->msg().setLevel( msg().level() );
+  ATH_CHECK(m_tEMLHTool->setProperty("OutputLevel", msg().level() ));
   if (m_tEMLHTool->setProperty("primaryVertexContainer","PrimaryVertices").isFailure())
   {
     ATH_MSG_FATAL("SelectionCutEleOLR constructor failed setting property primaryVertexContainer");
@@ -68,6 +74,7 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_INFO("Loading ele OLR cut file "<< m_sEleOLRFilePath);
   TFile tmpFile(PathResolverFindCalibFile(m_sEleOLRFilePath).c_str());
   m_hCutValues = (TH2D*) tmpFile.Get("eveto_cutvals");
   m_hCutValues->SetDirectory(0);
@@ -77,24 +84,18 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau)
+StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau) const
 {
   if (m_bNewEvent)
   {
-    if (retrieveElectrons().isFailure())
-      return StatusCode::FAILURE;
+    ATH_CHECK(retrieveElectrons());
     m_bNewEvent = false;
-  }
 
-  if (!m_bEleOLRMatchAvailableChecked)
-  {
-    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>("ele_olr_pass") || xTau.isAvailable<float>("EleMatchLikelihoodScore"));
-    m_bEleOLRMatchAvailableChecked = true;
+    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>("EleMatchLikelihoodScore"));
     if (m_bEleOLRMatchAvailable)
-    {
-      ATH_MSG_DEBUG("ele_olr_pass decoration is available on first tau processed, switched of processing for further taus.");
-      ATH_MSG_DEBUG("If a reprocessing of the electron overlap removal is needed, please pass a shallow copy of the original tau.");
-    }
+      ATH_MSG_DEBUG("ele_olr_pass decoration is available in this event.");
+    else
+      ATH_MSG_DEBUG("ele_olr_pass decoration is not available in this event. Will decorated it.");
   }
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
@@ -120,49 +121,65 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if(xEleMatch!=0)
     fLHScore = (m_tEMLHTool->calculate(xEleMatch)).getMVAResponse ();
 
-  static SG::AuxElement::Decorator< ElementLink< xAOD::ElectronContainer > > decElectronLink("electronLink");
-  // create link to the matched electron
-  if (xEleMatch)
-  {
-    ElementLink < xAOD::ElectronContainer > lElectronMatchLink(xEleMatch, *(m_xElectronContainer));
-    decElectronLink(xTau) = lElectronMatchLink;
-  }
-  else
-  {
-    ElementLink < xAOD::ElectronContainer > lElectronMatchLink;
-    decElectronLink(xTau) = lElectronMatchLink;
-  }
+  // static SG::AuxElement::Decorator< ElementLink< xAOD::ElectronContainer > > decElectronLink("electronLink");
+  // // create link to the matched electron
+  // if (xEleMatch)
+  // {
+  //   ElementLink < xAOD::ElectronContainer > lElectronMatchLink(xEleMatch, *(m_xElectronContainer));
+  //   decElectronLink(xTau) = lElectronMatchLink;
+  // }
+  // else
+  // {
+  //   ElementLink < xAOD::ElectronContainer > lElectronMatchLink;
+  //   decElectronLink(xTau) = lElectronMatchLink;
+  // }
 
   // decorate tau with score
-  static SG::AuxElement::Decorator< float > decEleMatchLhscore("ele_match_lhscore");
+  static SG::AuxElement::Decorator< float > decEleMatchLhscore(m_sEleOlrLhScoreDecorationName);
   decEleMatchLhscore(xTau) = fLHScore;
 
   bool bPass = false;
   if (xTau.nTracks() == 1)
-    bPass = (fLHScore <= getCutVal(xTau.track(0)->eta(),
-                                   xTau.pt()/1000.));
+  {
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+    static SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > trackAcc( "trackLinks" );
+#else
+    static SG::AuxElement::Accessor< xAOD::TauJet::TrackParticleLinks_t > trackAcc( "trackLinks" );
+#endif // XAODTAU_VERSIONS_TAUJET_V3_H
+    if (trackAcc(xTau)[0].isValid())
+      bPass = (fLHScore <= getCutVal(xTau.track(0)->eta(),
+                                     xTau.pt()/1000.));
+    else
+    {
+      ATH_MSG_DEBUG("Invalid track link, TauSelectionTool will discard this tau");
+      bPass = false;
+    }
+  }
   else
     bPass = true;
-  static SG::AuxElement::Decorator< char > decEleOlrPass("ele_olr_pass");
+  static SG::AuxElement::Decorator< char > decEleOlrPass(m_sEleOlrPassDecorationName);
   decEleOlrPass(xTau) = (char)bPass;
 
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 StatusCode TauOverlappingElectronLLHDecorator::initializeEvent()
 {
   return beginEvent();
 }
+#pragma GCC diagnostic pop
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-float TauOverlappingElectronLLHDecorator::getCutVal(float fEta, float fPt)
+float TauOverlappingElectronLLHDecorator::getCutVal(float fEta, float fPt) const
 {
   if(fPt>250) fPt=250;
-  if(fabs(fEta)>2.465) fEta=2.465;
+  if(std::abs(fEta)>2.465) fEta=2.465;
 
-  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
+  int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }
 
@@ -174,7 +191,7 @@ StatusCode TauOverlappingElectronLLHDecorator::beginEvent()
 }
 
 //______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::retrieveElectrons()
+StatusCode TauOverlappingElectronLLHDecorator::retrieveElectrons() const
 {
   if (evtStore()->contains<xAOD::ElectronContainer>(m_sElectronContainerName))
     if ( evtStore()->retrieve(m_xElectronContainer,m_sElectronContainerName).isSuccess() )

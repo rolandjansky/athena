@@ -28,7 +28,8 @@
 namespace TauAnalysisTools
 {
 
-class ITauOverlappingElectronLLHDecorator : public virtual asg::IAsgTool
+class ITauOverlappingElectronLLHDecorator
+  : public virtual asg::IAsgTool
 {
 
   /// Declare the interface that the class provides
@@ -38,7 +39,7 @@ public:
 
   virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst"))) = 0;
 
-  virtual StatusCode decorate(const xAOD::TauJet& xTau) = 0;
+  virtual StatusCode decorate(const xAOD::TauJet& xTau) const = 0;
 
 }; // class ITauOverlappingElectronLLHDecorator
 

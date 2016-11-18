@@ -19,6 +19,7 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -28,19 +29,12 @@
 namespace TauAnalysisTools
 {
 
-// forward includes
-class TauSmearingRun1Tool;
-
 class TauSmearingTool
   : public asg::AsgTool
   , public virtual ITauSmearingTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( TauSmearingTool, TauAnalysisTools::ITauSmearingTool )
-
-  // declaration of classes as friends to access private member variables
-  friend class CommonSmearingTool;
-  friend class TauSmearingRun1Tool;
 
 public:
   /// Create a constructor for standalone usage
@@ -69,12 +63,14 @@ public:
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
 private:
-  std::shared_ptr<CommonSmearingTool> m_tCommonSmearingTool;
+  asg::AnaToolHandle<ITauSmearingTool> m_tCommonSmearingTool;
   std::string m_sInputFilePath;
   std::string m_sRecommendationTag;
+  bool m_bIsData;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
-  bool m_bIsData;
+
+  bool m_bApplyMVATES;
 
 }; // class TauSmearingTool
 

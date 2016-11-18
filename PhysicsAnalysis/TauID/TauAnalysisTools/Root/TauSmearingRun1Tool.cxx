@@ -20,7 +20,7 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 TauSmearingRun1Tool::TauSmearingRun1Tool( const std::string& sName )
   : CommonSmearingTool(sName)
-  , GeV(1000.)
+  , m_GeV(1000.)
   , m_iEtaBins(5)
   , m_dInSituStat1P(0.013)
   , m_dInSituStat3P(0.014)
@@ -79,7 +79,7 @@ StatusCode TauSmearingRun1Tool::initialize()
 //______________________________________________________________________________
 CP::CorrectionCode TauSmearingRun1Tool::applyCorrection( xAOD::TauJet& xTau )
 {
-  if (m_tTST->m_bIsData)
+  if (m_bIsData)
   {
     // apply TES shift only in data
     xTau.setP4( ( 1 + getTESShift(xTau.pt(), xTau.nTracks()) ) * xTau.pt(),
@@ -281,7 +281,7 @@ void TauSmearingRun1Tool::getHist(TFile* fFile, std::string sName, std::string s
 double TauSmearingRun1Tool::getTESShift(double pt, // MeV
                                         int ntracks)
 {
-  pt = pt / GeV;		// pt in GeV
+  pt = pt / m_GeV;		// pt in m_GeV
   if(pt > 70.)
     return 0.;
   double alpha = ntracks == 1 ? 0.008 : 0.011;
@@ -308,14 +308,14 @@ double TauSmearingRun1Tool::getTESUncertainty(double pt, // MeV
   /* switched on for HSG4
      assert(component != REMAININGSYS && "User are not supposed to access REMAININGSYS component. Giving up");
   */
-  pt = pt / GeV;
+  pt = pt / m_GeV;
   if(pt < 15)
     pt = 16.; // Take the lowest bin
 
   if(pt > 199)
     pt = 199.; // Take the highest bin
 
-  if(std::fabs(eta)>2.5)
+  if(std::abs(eta)>2.5)
   {
     ATH_MSG_DEBUG("GetTESUncertainty: There is no TES uncertainty defined for |eta|>=2.5 (you gave " << eta << "). Returning 1.");
     return 1.;
@@ -329,7 +329,7 @@ double TauSmearingRun1Tool::getTESUncertainty(double pt, // MeV
 
   unsigned int iE = 0;
   for(iE = 0; iE < m_iEtaBins; ++iE)
-    if(fabs(eta) >= m_vEtaBins.at(iE) && fabs(eta) <= m_vEtaBins.at(iE + 1))
+    if(std::abs(eta) >= m_vEtaBins.at(iE) && std::abs(eta) <= m_vEtaBins.at(iE + 1))
       break;
   if(iComponent == INSITUSTAT)
     return getInSituStat(ntracks);

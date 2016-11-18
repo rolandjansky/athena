@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Local include(s)
 #include <TauAnalysisTools/TauTruthMatchingTool.h>
 
 // Core include(s):
@@ -9,6 +10,10 @@
 
 // EDM include(s):
 #include "xAODTruth/TruthVertex.h"
+#include "xAODEventInfo/EventInfo.h"
+
+// Tool include(s)
+#include "MCTruthClassifier/MCTruthClassifier.h"
 
 using namespace TauAnalysisTools;
 
@@ -16,6 +21,8 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   : AsgMetadataTool(name)
+  , m_bIsData(false)
+  , m_bIsConfigured(false)
   , m_xTruthParticleContainer(0)
   , m_xTruthTauContainerConst(0)
   , m_xTruthMuonContainerConst(0)
@@ -23,22 +30,11 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   , m_xTruthJetContainerConst(0)
   , m_xTruthTauContainer(0)
   , m_xTruthTauAuxContainer(0)
-  , m_dMaxDeltaR(0.2)
-  , m_bWriteTruthTaus(false)
-  , m_sNewTruthTauContainerName("TruthTaus")
   , m_sNewTruthTauContainerNameAux("TruthTausAux.")
-  , m_sTruthTauContainerName("TruthTaus")
-  , m_sTruthMuonContainerName("TruthMuons")
-  , m_sTruthElectronContainerName("TruthElectrons")
-  , m_sTruthParticlesContainerName("TruthParticles")
   , m_bTruthTauAvailable(true)
   , m_bTruthMuonAvailable(true)
   , m_bTruthElectronAvailable(true)
   , m_bTruthJetAvailable(true)
-  , m_bWriteInvisibleFourMomentum(false)
-  , m_bWriteVisibleChargedFourMomentum(false)
-  , m_bWriteVisibleNeutralFourMomentum(false)
-  , m_bWriteDecayModeVector(true)
   , m_iNChargedPions(0)
   , m_iNNeutralPions(0)
   , m_iNChargedOthers(0)
@@ -47,10 +43,12 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   , m_bIsHadronicTau(false)
   , m_bIsTruthMatchedAvailable(false)
   , m_bIsTruthMatchedAvailableChecked(false)
+  , m_bNewEvent(false)
   , m_accPtVis("pt_vis")
   , m_accEtaVis("eta_vis")
   , m_accPhiVis("phi_vis")
   , m_accMVis("m_vis")
+  , m_tMCTruthClassifier("MCTruthClassifierTool", this)
 {
   declareProperty( "MaxDeltaR", m_dMaxDeltaR = .2);
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
@@ -66,10 +64,6 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   declareProperty( "WriteVisibleChargedFourMomentum", m_bWriteVisibleChargedFourMomentum = false);
   declareProperty( "WriteVisibleNeutralFourMomentum", m_bWriteVisibleNeutralFourMomentum = false);
   declareProperty( "WriteDecayModeVector", m_bWriteDecayModeVector = true);
-
-  // deprecated properties
-  declareProperty( "OptimizeForReco", m_bOptimizeForReco = false);
-  declareProperty( "SampleType", m_iSampleType = -1);
 }
 
 //______________________________________________________________________________
@@ -84,17 +78,16 @@ StatusCode TauTruthMatchingTool::initialize()
   ATH_MSG_INFO( "Initializing TauTruthMatchingTool" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
-  if (m_bOptimizeForReco)
-    ATH_MSG_WARNING("The property OptimizeForReco is not used at the moment");
-  if (m_iSampleType != -1)
-    ATH_MSG_WARNING("The property SampleType is deprecated and will be removed");
-
+  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMCTruthClassifier, MCTruthClassifier));
+  ATH_CHECK(m_tMCTruthClassifier.initialize());
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
 xAOD::TruthParticleContainer* TauTruthMatchingTool::getTruthTauContainer()
 {
+  if (m_bIsData)
+    return 0;
   if (!m_bTruthTauAvailable)
     return m_xTruthTauContainer;
   else
@@ -107,6 +100,8 @@ xAOD::TruthParticleContainer* TauTruthMatchingTool::getTruthTauContainer()
 //______________________________________________________________________________
 xAOD::TruthParticleAuxContainer* TauTruthMatchingTool::getTruthTauAuxContainer()
 {
+  if (m_bIsData)
+    return 0;
   if (!m_bTruthTauAvailable)
     return m_xTruthTauAuxContainer;
   else
@@ -133,6 +128,10 @@ std::vector<const xAOD::TruthParticle*> TauTruthMatchingTool::applyTruthMatch(co
 }
 
 //______________________________________________________________________________
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 StatusCode TauTruthMatchingTool::setTruthParticleContainer(const xAOD::TruthParticleContainer* xTruthParticleContainer)
 {
   m_xTruthParticleContainer = xTruthParticleContainer;
@@ -140,24 +139,47 @@ StatusCode TauTruthMatchingTool::setTruthParticleContainer(const xAOD::TruthPart
   m_bTruthTauAvailable = false;
   return buildTruthTausFromTruthParticles();
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 //______________________________________________________________________________
 StatusCode TauTruthMatchingTool::beginEvent()
 {
-  if (retrieveTruthTaus().isFailure())
-    return StatusCode::FAILURE;
+  m_bNewEvent = true;
+  if (m_bIsConfigured)
+    return StatusCode::SUCCESS;
+
+  const xAOD::EventInfo* xEventInfo = 0;
+  ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
+  m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
+  m_bIsConfigured=true;
+
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 StatusCode TauTruthMatchingTool::initializeEvent()
 {
-  return beginEvent();
+  return StatusCode::SUCCESS;
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 //______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
+  if (m_bIsData)
+    return nullptr;
+
+  if (retrieveTruthTaus().isFailure())
+    return nullptr;
+
   if (findTruthTau(xTau).isFailure())
     ATH_MSG_WARNING("There was a failure in finding the matched truth tau");
 
@@ -356,14 +378,14 @@ int TauTruthMatchingTool::getNTauDecayParticles(const xAOD::TruthParticle& xTrut
   }
 
   static SG::AuxElement::ConstAccessor<std::vector<int> > accDecayModeVector("DecayModeVector");
-  for(auto _iPdgId : accDecayModeVector(xTruthTau))
+  for(auto iPdgId2 : accDecayModeVector(xTruthTau))
     if (!bCompareAbsoluteValues)
     {
-      if (_iPdgId == iPdgId) iNum++;
+      if (iPdgId2 == iPdgId) iNum++;
     }
     else
     {
-      if (fabs(_iPdgId) == fabs(iPdgId)) iNum++;
+      if (std::abs(iPdgId2) == std::abs(iPdgId)) iNum++;
     }
   return iNum;
 }
@@ -457,13 +479,15 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau) const
 //______________________________________________________________________________
 StatusCode TauTruthMatchingTool::retrieveTruthTaus()
 {
+  if (m_bNewEvent)
+    m_bNewEvent = false;
+  else
+    return StatusCode::SUCCESS;
+    
   if ( m_bTruthTauAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthTauContainerName))
-    {
-      if ( evtStore()->retrieve(m_xTruthTauContainerConst,m_sTruthTauContainerName).isFailure() )
-        return StatusCode::FAILURE;
-    }
+      ATH_CHECK( evtStore()->retrieve(m_xTruthTauContainerConst,m_sTruthTauContainerName));
     else
     {
       ATH_MSG_INFO("TruthTaus container with name " << m_sTruthTauContainerName << " is not available, will generate the container for each event from TruthParticles container");
@@ -474,10 +498,7 @@ StatusCode TauTruthMatchingTool::retrieveTruthTaus()
   if ( m_bTruthMuonAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthMuonContainerName))
-    {
-      if ( evtStore()->retrieve(m_xTruthMuonContainerConst,m_sTruthMuonContainerName).isFailure() )
-        return StatusCode::FAILURE;
-    }
+      ATH_CHECK(evtStore()->retrieve(m_xTruthMuonContainerConst,m_sTruthMuonContainerName));
     else
     {
       ATH_MSG_INFO("TruthMuons container with name " << m_sTruthMuonContainerName << " is not available, won't perform matching to truth muons");
@@ -488,10 +509,7 @@ StatusCode TauTruthMatchingTool::retrieveTruthTaus()
   if ( m_bTruthElectronAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthElectronContainerName))
-    {
-      if ( evtStore()->retrieve(m_xTruthElectronContainerConst,m_sTruthElectronContainerName).isFailure() )
-        return StatusCode::FAILURE;
-    }
+      ATH_CHECK(evtStore()->retrieve(m_xTruthElectronContainerConst,m_sTruthElectronContainerName));
     else
     {
       ATH_MSG_INFO("TruthElectrons container with name " << m_sTruthElectronContainerName << " is not available, won't perform matching to truth electrons");
@@ -502,10 +520,7 @@ StatusCode TauTruthMatchingTool::retrieveTruthTaus()
   if ( m_bTruthJetAvailable )
   {
     if (evtStore()->contains<xAOD::JetContainer>(m_sTruthJetContainerName))
-    {
-      if ( evtStore()->retrieve(m_xTruthJetContainerConst,m_sTruthJetContainerName).isFailure() )
-        return StatusCode::FAILURE;
-    }
+      ATH_CHECK(evtStore()->retrieve(m_xTruthJetContainerConst,m_sTruthJetContainerName));
     else
     {
       ATH_MSG_INFO("TruthJets container with name " << m_sTruthJetContainerName << " is not available, won't perform matching to truth jets");
@@ -574,6 +589,13 @@ StatusCode TauTruthMatchingTool::buildTruthTausFromTruthParticles()
         delete xTruthTau;
         continue;
       }
+
+      // Run classification
+      std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> pClassification = m_tMCTruthClassifier->particleTruthClassifier(xTruthTau);
+      static SG::AuxElement::Decorator<unsigned int> decClassifierParticleType("classifierParticleType");
+      static SG::AuxElement::Decorator<unsigned int> decClassifierParticleOrigin("classifierParticleOrigin");
+      decClassifierParticleType(*xTruthTau) = pClassification.first;
+      decClassifierParticleOrigin(*xTruthTau) = pClassification.second;
 
       // create link to the original TruthParticle
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthParticle, *m_xTruthParticleContainer);
@@ -757,6 +779,12 @@ StatusCode TauTruthMatchingTool::examineTruthTau(const xAOD::TruthParticle& xTru
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (!xTruthDaughter)
+    {
+      ATH_MSG_FATAL("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      return StatusCode::FAILURE;
+    }
+
     // if tau decays into tau this is not a proper tau decay
     if ( xTruthDaughter->isTau() )
     {
@@ -857,6 +885,12 @@ StatusCode TauTruthMatchingTool::examineTruthTauDecay(const xAOD::TruthParticle&
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (!xTruthDaughter)
+    {
+      ATH_MSG_FATAL("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      return StatusCode::FAILURE;
+    }
+
     int iAbsPdgId = xTruthDaughter->absPdgId();
     int iPdgId = xTruthDaughter->pdgId();
 
@@ -929,6 +963,11 @@ void TauTruthMatchingTool::printDecay(const xAOD::TruthParticle& xTruthParticle,
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (!xTruthDaughter)
+    {
+      ATH_MSG_FATAL("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      return;
+    }
     ATH_MSG_WARNING("depth "<<depth
                     <<" e "<<xTruthDaughter->e()
                     <<" eta "<<xTruthDaughter->p4().Eta()
