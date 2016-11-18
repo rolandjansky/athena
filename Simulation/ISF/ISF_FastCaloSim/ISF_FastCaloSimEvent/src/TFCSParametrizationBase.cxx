@@ -35,5 +35,5 @@ void TFCSParametrizationBase::Print(Option_t *option) const
 //========== ROOT persistency stuff ===========
 //=============================================
 
-//ClassImp(TFCSParametrizationBase)
+ClassImp(TFCSParametrizationBase)
 

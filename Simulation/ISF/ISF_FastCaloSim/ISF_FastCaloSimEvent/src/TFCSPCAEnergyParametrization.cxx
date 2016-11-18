@@ -57,8 +57,8 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
  double* gauss_rms  =m_Gauss_rms->GetMatrixArray();
  double* lowerBounds=m_LowerBounds->GetMatrixArray();
  
- double output_data[layer.size()];
- double input_data[layer.size()];
+ double output_data[layer.size()] = { };
+ double input_data[layer.size()]  = { };
  
  for(unsigned int l=0;l<layer.size();l++)
  {
@@ -348,5 +348,5 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file)
 //========== ROOT persistency stuff ===========
 //=============================================
 
-//ClassImp(TFCSPCAEnergyParametrization)
+ClassImp(TFCSPCAEnergyParametrization)
 
