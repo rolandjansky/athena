@@ -36,7 +36,7 @@ private:
 
   StatusCode readDB();
 
-    void handle(const Incident& inc);
+  virtual void handle(const Incident& inc) override;
 
   bool m_read;
 
@@ -49,11 +49,11 @@ public:
 		const IInterface* parent); 
   virtual ~CaloAffectedTool();  
 
-  virtual bool isAffected(const xAOD::IParticle *p, float deta=0., float dphi=0., int layer_min=0, int layer_max=-1, int problemType=-1);
+  virtual bool isAffected(const xAOD::IParticle *p, float deta=0., float dphi=0., int layer_min=0, int layer_max=-1, int problemType=-1) const override;
 
-  virtual bool listAffected(const xAOD::IParticle* p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta=0, float dphi=0, int problemType=-1);
+  virtual bool listAffected(const xAOD::IParticle* p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta=0, float dphi=0, int problemType=-1) const override;
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
 };

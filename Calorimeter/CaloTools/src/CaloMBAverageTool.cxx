@@ -3,7 +3,6 @@
 */
 
 #include "CaloTools/CaloMBAverageTool.h" 
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -39,19 +38,12 @@ CaloMBAverageTool::~CaloMBAverageTool() {}
 
 StatusCode CaloMBAverageTool::initialize() {
 
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::INFO << " initialize " << endreq;
+  ATH_MSG_INFO( " initialize "  );
 
   m_ncell = 0;
 
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  const IGeoModelSvc *geoModel=nullptr;
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -63,104 +55,53 @@ StatusCode CaloMBAverageTool::initialize() {
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-                          geoModel,
-                          &CaloMBAverageTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                   geoModel,
+                                   &CaloMBAverageTool::geoInit,this) );
   }
-  return sc;
-
+  return StatusCode::SUCCESS;
 }
 
 // ------------------------------------------------------------------------------
 
 StatusCode CaloMBAverageTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " geoInit " << endreq;
+  ATH_MSG_INFO( " geoInit "  );
 
-  StatusCode sc = detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloIdMgr in  " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK(  detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
-
-
 
 // callback for Shape
 
-  sc=detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
-                         dynamic_cast<ICaloMBAverageTool*>(this),
-                         m_dd_shape,m_keyShape,true);
-  if(sc.isSuccess()){
-       log << MSG::INFO << "Registered callback for key: "
-           << m_keyShape << endreq;
-  } else {
-       log << MSG::ERROR << "Cannot register callback function for key "
-           << m_keyShape << endreq;
-        return sc;
-  }
+  ATH_CHECK( detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
+                                dynamic_cast<ICaloMBAverageTool*>(this),
+                                m_dd_shape,m_keyShape,true) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_keyShape  );
 
 // callback for fSampl
 
-  sc=detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
-                         dynamic_cast<ICaloMBAverageTool*>(this),
-                         m_dd_fsampl,m_keyfSampl,true);
-  if(sc.isSuccess()){
-       log << MSG::INFO << "Registered callback for key: "
-           << m_keyfSampl << endreq;
-  } else {
-       log << MSG::ERROR << "Cannot register callback function for key "
-           << m_keyfSampl << endreq;
-       return sc;
-  }
+  ATH_CHECK( detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
+                                dynamic_cast<ICaloMBAverageTool*>(this),
+                                m_dd_fsampl,m_keyfSampl,true) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_keyfSampl  );
 
 // callback for MinBiasAverage
 
-  sc=detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
-                         dynamic_cast<ICaloMBAverageTool*>(this),
-                         m_dd_minbiasAverage,m_keyMinBiasAverage,true);
-  if(sc.isSuccess()){
-       log << MSG::INFO << "Registered callback for key: "
-           << m_keyMinBiasAverage << endreq;
-  } else { 
-       log << MSG::ERROR << "Cannot register callback function for key "
-           << m_keyMinBiasAverage << endreq;
-       return sc;
-  }
-
+  ATH_CHECK( detStore()->regFcn(&ICaloMBAverageTool::LoadCalibration,
+                                dynamic_cast<ICaloMBAverageTool*>(this),
+                                m_dd_minbiasAverage,m_keyMinBiasAverage,true) );
+  ATH_MSG_INFO( "Registered callback for key: " << m_keyMinBiasAverage  );
 
 
 // get OFC tool and register callback
 
-  sc=m_OFCTool.retrieve();
-  if (sc.isFailure())   {
-        log << MSG::ERROR << "Unable to retrieve LArOFCTool" << endreq; 
-        return sc;
-  } else {
-        log << MSG::DEBUG << " -- LArOFCTool retrieved" << endreq;
-  }
+  ATH_CHECK( m_OFCTool.retrieve() );
+  ATH_MSG_DEBUG( " -- LArOFCTool retrieved"  );
 
 
-  sc=detStore()->regFcn(&ILArOFCTool::LoadCalibration,&(*m_OFCTool),
-                        &ICaloMBAverageTool::LoadCalibration,dynamic_cast<ICaloMBAverageTool*>(this),true);
-  if (sc.isSuccess()) {
-      log << MSG::INFO 
-           << "Registered callbacks for LArOFCTool -> CaloMBAverageTool"
-           << endreq;
-  } else { 
-       log << MSG::ERROR 
-           << "Cannot register callbacks for LArOFCTool -> CaloMBAverageTool"
-           << endreq;
-       return sc;
-  }
-
+  ATH_CHECK( detStore()->regFcn(&ILArOFCTool::LoadCalibration,&(*m_OFCTool),
+                                &ICaloMBAverageTool::LoadCalibration,dynamic_cast<ICaloMBAverageTool*>(this),true) );
+  ATH_MSG_INFO( "Registered callbacks for LArOFCTool -> CaloMBAverageTool" );
 
   return StatusCode::SUCCESS;
 }
@@ -169,10 +110,7 @@ StatusCode CaloMBAverageTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 
 StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 {
-
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::INFO << "Callback invoked for " << keys.size() << " keys " << endreq;
+  ATH_MSG_INFO( "Callback invoked for " << keys.size() << " keys "  );
 
   m_ncell =  m_calo_id->calo_cell_hash_max();
   m_shift.resize(3*m_ncell,0.);
@@ -204,7 +142,7 @@ StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 
          int nshapes = Shape.size();
          if (nshapes < nsamples) {
-             log << MSG::ERROR << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
+           ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
              return StatusCode::FAILURE;
          }
 
