@@ -112,20 +112,21 @@ CaloClusterCorrection::setProperty (const Property& p)
 }
 
 
-StatusCode CaloClusterCorrection::execute(CaloCluster *cluster)
+StatusCode CaloClusterCorrection::execute(const EventContext& /*ctx*/,
+                                          CaloCluster *cluster) const
 {
   this->makeCorrection(Gaudi::Hive::currentContext(), cluster);
 
 #if 0
-  ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endreq);
+  ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endmsg);
   ATH_MSG_DEBUG( " ...... eta, etaBE, etaSmp " << cluster->eta() << " " << cluster->etaBE(2) 
       << " " << cluster->etaSample(CaloSampling::EMB1) 
       << " " << cluster->etaSample(CaloSampling::EMB2) 
-      << " " << cluster->etaSample(CaloSampling::EMB3) << endreq);
+      << " " << cluster->etaSample(CaloSampling::EMB3) << endmsg);
   ATH_MSG_DEBUG( " ...... phi, phiBE, phiSmp " << cluster->phi() << " " << cluster->phiBE(2) 
       << " " << cluster->phiSample(CaloSampling::EMB1) 
       << " " << cluster->phiSample(CaloSampling::EMB2) 
-      << " " << cluster->phiSample(CaloSampling::EMB3) << endreq);
+      << " " << cluster->phiSample(CaloSampling::EMB3) << endmsg);
 #endif
   
   return StatusCode::SUCCESS;

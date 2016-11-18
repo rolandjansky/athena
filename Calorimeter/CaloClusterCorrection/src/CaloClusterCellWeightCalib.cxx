@@ -71,7 +71,7 @@ StatusCode CaloClusterCellWeightCalib::initialize()
     {
       report << MSG::ERROR
 	     << "failed to configure direction calculations."
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -81,7 +81,7 @@ StatusCode CaloClusterCellWeightCalib::initialize()
       report << MSG::ERROR
 	     << "*** configuration insufficient *** "
 	     << "no hadronic cell calibration tool configured"
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -93,7 +93,9 @@ StatusCode CaloClusterCellWeightCalib::initialize()
 // Execution //
 ///////////////
 
-StatusCode CaloClusterCellWeightCalib::execute(xAOD::CaloCluster* pClus)
+StatusCode
+CaloClusterCellWeightCalib::execute(const EventContext& /*ctx*/,
+                                    xAOD::CaloCluster* pClus) const
 {
 
   // retrieve raw cluster signals  
@@ -104,7 +106,7 @@ StatusCode CaloClusterCellWeightCalib::execute(xAOD::CaloCluster* pClus)
  //   report << MSG::INFO << "<UNCALIBRATED> cluster kinematics ("
  // 	 << pClus->e() << ","
  //  	 << pClus->eta() << ","
- // 	 << pClus->phi() << ")" << endreq;
+ // 	 << pClus->phi() << ")" << endmsg;
 
   CaloClusterChangeSignalState chss(pClus,xAOD::CaloCluster::ALTCALIBRATED);
 
@@ -115,7 +117,7 @@ StatusCode CaloClusterCellWeightCalib::execute(xAOD::CaloCluster* pClus)
   //   report << MSG::INFO << "<ALTCALIBRATED> cluster kinematics, initial ("
   // 	 << pClus->e() << "/" << clusterE << ","
   // 	 << pClus->eta() << "/" << clusterEta << ","
-  // 	 << pClus->phi() << "/" << clusterPhi << ")" << endreq;
+  // 	 << pClus->phi() << "/" << clusterPhi << ")" << endmsg;
 
   // calculate new 4-vector
   StatusCode checkOut(StatusCode::SUCCESS);
@@ -132,14 +134,14 @@ StatusCode CaloClusterCellWeightCalib::execute(xAOD::CaloCluster* pClus)
   //   report << MSG::INFO << "<ALTCALIBRATED> cluster kinematics, final ("
   // 	 << pClus->e() << ","
   // 	 << pClus->eta() << ","
-  // 	 << pClus->phi() << ")" << endreq;
+  // 	 << pClus->phi() << ")" << endmsg;
 
   // check result
   if ( checkOut.isFailure() )
     {
       msg(MSG::WARNING)
 	     << "problem in calculation of cell weighted signal state"
-	     << endreq;
+	     << endmsg;
       return StatusCode::SUCCESS;
     }
   else
@@ -185,7 +187,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 	     << "cluster direction ("
 	     << tag
 	     << ") from positive cells only"
-	     << endreq;
+	     << endmsg;
       conf = name;
       calc = m_ignoreGeoWghts 
 	? &CaloClusterCellWeightCalib::f_dirPosNW
@@ -198,7 +200,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 	     << "cluster direction ("
 	     << tag 
 	     << ") from absolute cell signals"
-	     << endreq;
+	     << endmsg;
       conf = name;
       calc = m_ignoreGeoWghts 
 	? &CaloClusterCellWeightCalib::f_dirAbsNW
@@ -211,7 +213,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 	     << "cluster direction ("
 	     << tag
 	     << ") from raw signals (unchanged by this tool)"
-	     << endreq;
+	     << endmsg;
       conf = name;
       calc = m_ignoreGeoWghts 
 	? &CaloClusterCellWeightCalib::f_dirRawNW
@@ -222,7 +224,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
     {
       report << MSG::WARNING
 	     << "invalid configuration, use default!"
-	     << endreq;
+	     << endmsg;
       return this->setup(m_defName,tag,calc,conf,report);
     }
 }
@@ -250,7 +252,7 @@ bool CaloClusterCellWeightCalib::cmpNoCase(const std::string& a,
 /////////////////////////////////////////
 
 // -- keep em scale direction, use geometrical cell signal weights
-StatusCode CaloClusterCellWeightCalib::f_dirRaw(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirRaw(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);
@@ -271,7 +273,7 @@ StatusCode CaloClusterCellWeightCalib::f_dirRaw(xAOD::CaloCluster* pClus)
   return StatusCode::SUCCESS;
 }
 // -- keep em scale direction, ignore geometrical cell signal weights
-StatusCode CaloClusterCellWeightCalib::f_dirRawNW(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirRawNW(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);
@@ -289,7 +291,7 @@ StatusCode CaloClusterCellWeightCalib::f_dirRawNW(xAOD::CaloCluster* pClus)
 }
 
 // -- direction from signals above threshold, use geo weights
-StatusCode CaloClusterCellWeightCalib::f_dirPos(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirPos(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);
@@ -326,7 +328,7 @@ StatusCode CaloClusterCellWeightCalib::f_dirPos(xAOD::CaloCluster* pClus)
   return StatusCode::SUCCESS;
 }
 // -- direction from signals above threshold, ignore geo weights
-StatusCode CaloClusterCellWeightCalib::f_dirPosNW(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirPosNW(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);
@@ -359,7 +361,7 @@ StatusCode CaloClusterCellWeightCalib::f_dirPosNW(xAOD::CaloCluster* pClus)
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloClusterCellWeightCalib::f_dirAbs(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirAbs(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);
@@ -394,7 +396,7 @@ StatusCode CaloClusterCellWeightCalib::f_dirAbs(xAOD::CaloCluster* pClus)
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloClusterCellWeightCalib::f_dirAbsNW(xAOD::CaloCluster* pClus)
+StatusCode CaloClusterCellWeightCalib::f_dirAbsNW(xAOD::CaloCluster* pClus) const
 {
   // loop cells in clusters
   double eCal(0.);

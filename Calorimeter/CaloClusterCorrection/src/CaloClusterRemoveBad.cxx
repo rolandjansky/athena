@@ -44,12 +44,14 @@ CaloClusterRemoveBad::CaloClusterRemoveBad(const std::string& type,
 /**
  * @brief Execute on a single cluster.
  * @param The cluster to process.
+ * @param ctx The event context.
  *
  * For this tool, this is a no-op.
  * We only make this available to avoid getting warnings
  * when corrections are called on single clusters from egammaRec.
  */
-StatusCode CaloClusterRemoveBad::execute (xAOD::CaloCluster* /*cluster*/)
+StatusCode CaloClusterRemoveBad::execute (const EventContext& /*ctx*/,
+                                          xAOD::CaloCluster* /*cluster*/) const
 {
   return StatusCode::SUCCESS;
 }
@@ -58,20 +60,23 @@ StatusCode CaloClusterRemoveBad::execute (xAOD::CaloCluster* /*cluster*/)
 /**
  * @brief Execute on an entire collection of clusters.
  * @param The container of clusters.
+ * @param ctx The event context.
  */
-StatusCode CaloClusterRemoveBad::execute (xAOD::CaloClusterContainer* clusColl)
+StatusCode
+CaloClusterRemoveBad::execute (const EventContext& /*ctx*/,
+                               xAOD::CaloClusterContainer* clusColl) const
 {
   
-  ATH_MSG_DEBUG( "Executing CaloClusterRemoveBad" << endreq); 
+  ATH_MSG_DEBUG( "Executing CaloClusterRemoveBad" << endmsg); 
   
   typedef xAOD::CaloClusterContainer::iterator clus_iterator;
   clus_iterator iter1 = clusColl->begin();
     
-  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endreq);
+  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endmsg);
   for( ;iter1!=clusColl->end(); ) {
-    ATH_MSG_DEBUG( " cluster energy  " << (*iter1)->e() << endreq);
+    ATH_MSG_DEBUG( " cluster energy  " << (*iter1)->e() << endmsg);
     if ((*iter1)->e()<= m_eThreshold ){
-      ATH_MSG_DEBUG( " Removed cluster with energy below threshold, " << (*iter1)->e() << endreq);
+      ATH_MSG_DEBUG( " Removed cluster with energy below threshold, " << (*iter1)->e() << endmsg);
       iter1 = clusColl->erase(iter1);  
       continue ; 
     }
@@ -79,7 +84,7 @@ StatusCode CaloClusterRemoveBad::execute (xAOD::CaloClusterContainer* clusColl)
     iter1++;
 
   } 
-  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endreq);
+  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endmsg);
 
   return StatusCode::SUCCESS;
 }

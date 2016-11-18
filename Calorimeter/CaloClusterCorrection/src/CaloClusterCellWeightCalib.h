@@ -22,14 +22,15 @@ public:
 			     const std::string& name,
 			     const IInterface*  pParent);
   /*! @brief Base tool destructor */
-  virtual ~CaloClusterCellWeightCalib();
+  virtual ~CaloClusterCellWeightCalib() override;
 
   /*! @brief Tool initialization */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /*! @brief Tool execution */
   using CaloClusterProcessor::execute;
-  virtual StatusCode execute(xAOD::CaloCluster* theCluster);
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloCluster* theCluster) const override;
   
 protected:
   /*! @brief Property controlling negative signal handling
@@ -113,40 +114,40 @@ protected:
 
   /*! @brief Calculator type for direction calculation */
   typedef StatusCode
-  (CaloClusterCellWeightCalib::*CALCULATOR)(xAOD::CaloCluster* pClus);
+  (CaloClusterCellWeightCalib::*CALCULATOR)(xAOD::CaloCluster* pClus) const;
 
   /*! @brief Calculator implementation for energy only update 
    *
    *  Direction is taken from electromagnetic scale. This is safe for 
    *  all clusters.
    */
-  StatusCode f_dirRaw(xAOD::CaloCluster* pClus);
+  StatusCode f_dirRaw(xAOD::CaloCluster* pClus) const;
   /*! @brief Calculator implementation for energy only update 
    *
    *  Direction is taken from electromagnetic scale. This is safe for 
    *  all clusters. The energy calculation ignores geometrical weights.
    */
-  StatusCode f_dirRawNW(xAOD::CaloCluster* pClus);
+  StatusCode f_dirRawNW(xAOD::CaloCluster* pClus) const;
   /*! @brief Calculator implementation for direction from positive signal 
    *
    *  Direction is calculated using E>0 cell signals only.  This may be
    *  highly fluctuating for noise clusters.
    */ 
-  StatusCode f_dirPos(xAOD::CaloCluster* pClus);  
+  StatusCode f_dirPos(xAOD::CaloCluster* pClus) const;
   /*! @brief Calculator implementation for direction from positive signal 
    *
    *  Direction is calculated using E>0 cell signals only.  This may be
    *  highly fluctuating for noise clusters. Geometrical weights
    *  are ignored.
    */ 
-  StatusCode f_dirPosNW(xAOD::CaloCluster* pClus);  
+  StatusCode f_dirPosNW(xAOD::CaloCluster* pClus) const;
   /*! @brief Calculator implementation for direction from absolute signal
    *
    *  The absolute signal is used to re-calculate the cluster direction.
    *  This is stable for all clusters but changes the direction with 
    *  respect to the fixed scenario somewhat.  
    */
-  StatusCode f_dirAbs(xAOD::CaloCluster* pClus);
+  StatusCode f_dirAbs(xAOD::CaloCluster* pClus) const;
   /*! @brief Calculator implementation for direction from absolute signal
    *
    *  The absolute signal is used to re-calculate the cluster direction.
@@ -154,7 +155,7 @@ protected:
    *  respect to the fixed scenario somewhat. Geometrical weights are
    *  ignored. 
    */
-  StatusCode f_dirAbsNW(xAOD::CaloCluster* pClus);
+  StatusCode f_dirAbsNW(xAOD::CaloCluster* pClus) const;
 
   /*! @brief Pointer to direction calculation implementation */
   CALCULATOR m_calc;

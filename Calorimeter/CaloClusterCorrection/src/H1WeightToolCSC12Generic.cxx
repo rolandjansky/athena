@@ -101,7 +101,7 @@ double H1WeightToolCSC12Generic::etCell(const CaloCell* thisCell, double weight)
 }
 
 
-double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell)
+double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell) const
 {
 
 

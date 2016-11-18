@@ -92,7 +92,7 @@ double CaloSwCalibHitsShowerDepth::depth (float aeta,
 
   double depth = rsum / esum;
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Shower barycenter ---->> " << depth << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Shower barycenter ---->> " << depth << endmsg;
 
   return depth;
 }

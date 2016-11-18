@@ -40,15 +40,17 @@ CaloClusterRemoveDuplicates::CaloClusterRemoveDuplicates(const std::string& type
   declareProperty ("order",    m_order = 0);
 }
 
-StatusCode CaloClusterRemoveDuplicates::execute(xAOD::CaloClusterContainer*  clusColl)
+StatusCode
+CaloClusterRemoveDuplicates::execute(const EventContext& /*ctx*/,
+                                     xAOD::CaloClusterContainer*  clusColl) const
 {
   
-  ATH_MSG_DEBUG( "Executing CaloClusterRemoveDuplicates" << endreq); 
+  ATH_MSG_DEBUG( "Executing CaloClusterRemoveDuplicates" << endmsg); 
   
   typedef xAOD::CaloClusterContainer::iterator clus_iterator;
   clus_iterator iter1 = clusColl->begin();
     
-  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endreq);
+  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endmsg);
   for( ;iter1!=clusColl->end(); ) {
     int comparison = 0;
     
@@ -81,13 +83,14 @@ StatusCode CaloClusterRemoveDuplicates::execute(xAOD::CaloClusterContainer*  clu
       iter1++;
     }
   } 
-  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endreq);
+  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endmsg);
 
   return StatusCode::SUCCESS;
 }
 
 
-int CaloClusterRemoveDuplicates::compare( xAOD::CaloCluster* clus1 , xAOD::CaloCluster* clus2 )
+int CaloClusterRemoveDuplicates::compare( xAOD::CaloCluster* clus1 ,
+                                          xAOD::CaloCluster* clus2 ) const
 {
   
   double deta = fabs ( clus1->eta() - clus2->eta() );

@@ -11,29 +11,29 @@ use GaudiInterface	GaudiInterface-*	External
 use CxxUtils            CxxUtils-*              Control
 use AthenaKernel        AthenaKernel-*          Control		
 use StoreGate		StoreGate-*		Control
-use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use CaloInterface       CaloInterface-*         Calorimeter
 use CaloRec        	CaloRec-*        	Calorimeter
 use CaloEvent      	CaloEvent-*      	Calorimeter
 use xAODCaloEvent      	xAODCaloEvent-*      	Event/xAOD
 use CaloConditions      CaloConditions-*        Calorimeter
-use CaloCondBlobObjs    CaloCondBlobObjs-*      Calorimeter
-use AthenaPoolUtilities AthenaPoolUtilities-*   Database/AthenaPOOL
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use LArIdentifier       LArIdentifier-*         LArCalorimeter
-use LArCabling          LArCabling-*            LArCalorimeter
 
 private
 use CaloGeoHelpers	CaloGeoHelpers-*	Calorimeter
 use AtlasCLHEP		AtlasCLHEP-*		External
 use AtlasROOT    	AtlasROOT-*        	External
 use AthContainers       AthContainers-*         Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use AthenaPoolUtilities AthenaPoolUtilities-*   Database/AthenaPOOL
 use EventKernel         EventKernel-*           Event
 use PathResolver        PathResolver-*	        Tools
 use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
 use CaloDetDescr   	CaloDetDescr-*   	Calorimeter
 use CaloUtils        	CaloUtils-*        	Calorimeter
+use CaloCondBlobObjs    CaloCondBlobObjs-*      Calorimeter
+use CaloIdentifier      CaloIdentifier-*        Calorimeter
+use LArIdentifier       LArIdentifier-*         LArCalorimeter
+use LArCabling          LArCabling-*            LArCalorimeter
 use Identifier          Identifier-*            DetectorDescription
 end_private
 

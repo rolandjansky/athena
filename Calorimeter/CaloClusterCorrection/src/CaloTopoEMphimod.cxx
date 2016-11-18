@@ -53,17 +53,17 @@ CaloTopoEMphimod::~CaloTopoEMphimod()
 // Initialization
 /*StatusCode CaloTopoEMphimod::initialize()
 {
-  ATH_MSG_DEBUG( " Phi modulation parameters : " << endreq);
-  ATH_MSG_DEBUG( "   P1b =          " << m_P1b << endreq);
-  ATH_MSG_DEBUG( "   P2b =          " << m_P2b << endreq);
-  ATH_MSG_DEBUG( "   P3b =          " << m_P3b << endreq);
-  ATH_MSG_DEBUG( "   P4b =          " << m_P4b << endreq);
-  ATH_MSG_DEBUG( "   P1e =          " << m_P1e << endreq);
-  ATH_MSG_DEBUG( "   P2e =          " << m_P2e << endreq);
-  ATH_MSG_DEBUG( "   P3e =          " << m_P3e << endreq);
-  ATH_MSG_DEBUG( "   P4e =          " << m_P4e << endreq);
-  ATH_MSG_DEBUG( "   Granularity =  " << m_BarrelGranularity << " / " << m_EndcapGranularity << endreq);
-  ATH_MSG_DEBUG( "   EtaFrontier =  " << m_EtaFrontier << endreq);
+  ATH_MSG_DEBUG( " Phi modulation parameters : " << endmsg);
+  ATH_MSG_DEBUG( "   P1b =          " << m_P1b << endmsg);
+  ATH_MSG_DEBUG( "   P2b =          " << m_P2b << endmsg);
+  ATH_MSG_DEBUG( "   P3b =          " << m_P3b << endmsg);
+  ATH_MSG_DEBUG( "   P4b =          " << m_P4b << endmsg);
+  ATH_MSG_DEBUG( "   P1e =          " << m_P1e << endmsg);
+  ATH_MSG_DEBUG( "   P2e =          " << m_P2e << endmsg);
+  ATH_MSG_DEBUG( "   P3e =          " << m_P3e << endmsg);
+  ATH_MSG_DEBUG( "   P4e =          " << m_P4e << endmsg);
+  ATH_MSG_DEBUG( "   Granularity =  " << m_BarrelGranularity << " / " << m_EndcapGranularity << endmsg);
+  ATH_MSG_DEBUG( "   EtaFrontier =  " << m_EtaFrontier << endmsg);
   return StatusCode::SUCCESS;
 }*/
 
@@ -84,8 +84,8 @@ void CaloTopoEMphimod::makeTheCorrection(const EventContext& /*ctx*/,
   // 0 < u < 1
   float u = (phi - elt->phi()) / elt->dphi() + 0.5;
 
-  ATH_MSG_DEBUG( " ... phi-mod BEGIN" << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endreq);
+  ATH_MSG_DEBUG( " ... phi-mod BEGIN" << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endmsg);
 
   // Compute the correction
   if (aeta < m_EtaFrontier[0]) 
@@ -107,13 +107,13 @@ void CaloTopoEMphimod::makeTheCorrection(const EventContext& /*ctx*/,
   
   // Print out the function for debugging
   ATH_MSG_DEBUG( " ... Phi mod " << qphimod << " " << u << " " << phi << " " << elt->phi() 
-      << " " << adj_eta << " " << aeta << " " << iEtaBin << endreq);
+      << " " << adj_eta << " " << aeta << " " << iEtaBin << endmsg);
 
   // Apply the correction
   setenergy (cluster, cluster->e() * qphimod);
 
-  ATH_MSG_DEBUG( " ... phi-mod END" << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endreq);
+  ATH_MSG_DEBUG( " ... phi-mod END" << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endmsg);
 
   // Done
   return ; 

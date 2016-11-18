@@ -36,38 +36,39 @@ CaloClusterLocalCalib::CaloClusterLocalCalib(const std::string& type,
 StatusCode  CaloClusterLocalCalib::initialize() {
 
   if (m_classificationTool.size()>1) {
-    msg(MSG::ERROR) << "More than one classification tool specified!" << endreq;
+    msg(MSG::ERROR) << "More than one classification tool specified!" << endmsg;
     return StatusCode::FAILURE;
   }
   //Retrieve classification tool (if necessary)
   if (m_classificationTool.size()>0) {
     StatusCode sc=m_classificationTool[0].retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve classification tool " << m_classificationTool[0] << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve classification tool " << m_classificationTool[0] << endmsg;
       return sc;
     }
-    msg(MSG::INFO) << "Found classification tool " << m_classificationTool[0] << endreq;
+    msg(MSG::INFO) << "Found classification tool " << m_classificationTool[0] << endmsg;
   }
 
   //Retrieve calibration tools
   for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
     if(tool.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve calibration tool " << m_classificationTool << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve calibration tool " << m_classificationTool << endmsg;
       return StatusCode::FAILURE;
     }
   }
-  msg(MSG::INFO) <<"Loaded "<< m_calibTools.size() <<" hadronic calibration tools"<<endreq;
+  msg(MSG::INFO) <<"Loaded "<< m_calibTools.size() <<" hadronic calibration tools"<<endmsg;
   
   // check that at least one reco status is defined
   if ( m_recoStatus.size() == 0 ) {
-    msg(MSG::ERROR) << "Please specify at least one valid reco status with ClusterRecoStatus = [...] for this calib tool " << endreq;
+    msg(MSG::ERROR) << "Please specify at least one valid reco status with ClusterRecoStatus = [...] for this calib tool " << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
-
+StatusCode  CaloClusterLocalCalib::execute(const EventContext& /*ctx*/,
+                                           CaloCluster* theCluster) const
+{
   CaloRecoStatus& recoStatus=theCluster->recoStatus();
   // call classification tool
   if (!m_classificationTool.empty()) {
@@ -142,9 +143,9 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
         myCluster->insertMoment(xAOD::CaloCluster::ISOLATION,isolation);
         
 //         Weight the new cluster
-        for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
+        for (const ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
           if (tool->weight(myCluster).isFailure())
-            msg(MSG::ERROR) << " failed to weight cluster " << endreq;
+            msg(MSG::ERROR) << " failed to weight cluster " << endmsg;
         }
 
 //       Iterate over new, calibrated cluster and write out the weights of every cell into a map
@@ -194,13 +195,13 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
 //    else, what as was always done     
       else{ 
         
-        for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
+        for (const ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
           if (tool->weight(theCluster).isFailure())
-            msg(MSG::ERROR) << " failed to weight cluster " << endreq;
+            msg(MSG::ERROR) << " failed to weight cluster " << endmsg;
         }       
  
       }
-    //report <<MSG::DEBUG<<"new cluster energy="<<theCluster->e()<<endreq;
+    //report <<MSG::DEBUG<<"new cluster energy="<<theCluster->e()<<endmsg;
   }//end of "has correct reco status" if statement
 
   // PL add calibration method bits to reco status

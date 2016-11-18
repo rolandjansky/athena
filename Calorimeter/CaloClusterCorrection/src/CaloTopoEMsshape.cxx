@@ -46,14 +46,14 @@ CaloTopoEMsshape::~CaloTopoEMsshape()
 // Initialization
 /*StatusCode CaloTopoEMsshape::initialize()
 {
-  ATH_MSG_DEBUG( " S-shape parameters : " << endreq);
-  ATH_MSG_DEBUG( "   P0 =             " << m_P0 << endreq);
-  ATH_MSG_DEBUG( "   P1 =             " << m_P1 << endreq);
-  ATH_MSG_DEBUG( "   P2 =             " << m_P2 << endreq);
-  ATH_MSG_DEBUG( "   P3 =             " << m_P3 << endreq);
-  ATH_MSG_DEBUG( "   P4 =             " << m_P4 << endreq);
-  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endreq);
-  ATH_MSG_DEBUG( "   Eta frontiers =  " << m_EtaFrontier << endreq);
+  ATH_MSG_DEBUG( " S-shape parameters : " << endmsg);
+  ATH_MSG_DEBUG( "   P0 =             " << m_P0 << endmsg);
+  ATH_MSG_DEBUG( "   P1 =             " << m_P1 << endmsg);
+  ATH_MSG_DEBUG( "   P2 =             " << m_P2 << endmsg);
+  ATH_MSG_DEBUG( "   P3 =             " << m_P3 << endmsg);
+  ATH_MSG_DEBUG( "   P4 =             " << m_P4 << endmsg);
+  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endmsg);
+  ATH_MSG_DEBUG( "   Eta frontiers =  " << m_EtaFrontier << endmsg);
   return StatusCode::SUCCESS;
 }*/
 
@@ -79,8 +79,8 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   // compute CaloSampling
   CaloSampling::CaloSample samp = (CaloSampling::CaloSample)elt->getSampling();
 
-  ATH_MSG_DEBUG( " ... s-shapes BEGIN ; u = " << u << " " << eta << " " << adj_eta << " " << elt->eta() << " " << elt->deta() << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
+  ATH_MSG_DEBUG( " ... s-shapes BEGIN ; u = " << u << " " << eta << " " << adj_eta << " " << elt->eta() << " " << elt->deta() << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
   // Compute the correction
   if (aeta < m_EtaFrontier[0] || (aeta > m_EtaFrontier[1] && aeta < m_EtaFrontier[2])) 
@@ -102,7 +102,7 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   
   // Print out the function for debugging
   ATH_MSG_DEBUG( " ... S shape " << qsshape << " " << u << " " << eta << " " << elt->eta() 
-      << " " << adj_eta << " " << aeta << " " << iEtaBin << " " << samp << endreq);
+      << " " << adj_eta << " " << aeta << " " << iEtaBin << " " << samp << endmsg);
 
   // Apply the correction
   // ... there was a sign mistake here
@@ -110,8 +110,8 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   if (eta > 0) qsshape = -qsshape;
   cluster->setEta(samp, eta + qsshape);
 
-  ATH_MSG_DEBUG( " ... s-shapes END" << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
+  ATH_MSG_DEBUG( " ... s-shapes END" << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
   // Done
   return ; 

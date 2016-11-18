@@ -755,7 +755,7 @@ StatusCode CaloFillRectangularCluster::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -774,7 +774,7 @@ StatusCode CaloFillRectangularCluster::initialize()
 			  &CaloFillRectangularCluster::geoInit,this);
     if(sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
+      msg(MSG::ERROR) << "Could not register geoInit callback" << endmsg;
       return sc;
     }
   }
@@ -1102,7 +1102,7 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
                                                 CaloCluster* cluster) const
 {
 
-  ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endreq) ;
+  ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
 
   if (m_fill_cluster) {
 

@@ -48,28 +48,28 @@ CaloClusterTimeTool::~CaloClusterTimeTool() {}
 
 StatusCode CaloClusterTimeTool::initialize(){
 
-  msg() << MSG::INFO << "initialize CaloClusterTimeTool " << endreq;
+  msg() << MSG::INFO << "initialize CaloClusterTimeTool " << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = AthAlgTool::initialize();
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Could not initialize AthAlgTool for CaloClusterTimeTool " << endreq;
+    msg() << MSG::ERROR << "Could not initialize AthAlgTool for CaloClusterTimeTool " << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
-    msg() << MSG::INFO << "initialize AthAlgTool for CaloClusterTimeTool " << endreq;
+    msg() << MSG::INFO << "initialize AthAlgTool for CaloClusterTimeTool " << endmsg;
   }
 
 
   // Retrieve online ID helper  
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg()<< MSG::ERROR << "Could not get LArOnlineIDHelper" << endreq;
+    msg()<< MSG::ERROR << "Could not get LArOnlineIDHelper" << endmsg;
     return StatusCode::SUCCESS;
   }
   else{
-   msg() << MSG::INFO << "LArOnlineIDHelper is retrieved" << endreq;
+   msg() << MSG::INFO << "LArOnlineIDHelper is retrieved" << endmsg;
   }
 
   // Retrieve CaloCell_ID
@@ -85,48 +85,48 @@ StatusCode CaloClusterTimeTool::initialize(){
   // Retrieve LArCabling Service
   sc=m_LArCablingService.retrieve();
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Could not retrieve LArCabling Service " << endreq;
+    msg() << MSG::ERROR << "Could not retrieve LArCabling Service " << endmsg;
     return StatusCode::SUCCESS;
   }
   else{
-   msg() << MSG::DEBUG << "LArCabling Service is retrieved" << endreq;
+   msg() << MSG::DEBUG << "LArCabling Service is retrieved" << endmsg;
   }
 
   // register callback
   if(m_keyFebOffset!=""){
     sc = detStore()->regFcn(&CaloClusterTimeTool::updateFebOffsetMap, this, m_febOffsetColl, m_keyFebOffset);
     if (sc.isFailure()) {
-      msg()<< MSG::ERROR << "Could not register callback" << endreq;
+      msg()<< MSG::ERROR << "Could not register callback" << endmsg;
       return StatusCode::SUCCESS;
     }
     else{
-      msg() << MSG::INFO << "callback is registered" << endreq;
+      msg() << MSG::INFO << "callback is registered" << endmsg;
     }
   }
   
   if(m_keyRunOffset!=""){
     sc = detStore()->regFcn(&CaloClusterTimeTool::updateRunOffsetMap, this, m_runOffsetColl, m_keyRunOffset);
     if (sc.isFailure()) {
-      msg()<< MSG::ERROR << "Could not register callback" << endreq;
+      msg()<< MSG::ERROR << "Could not register callback" << endmsg;
       return StatusCode::SUCCESS;
     }
     else{
-     msg() << MSG::INFO << "callback is registered" << endreq;
+     msg() << MSG::INFO << "callback is registered" << endmsg;
     }
   }
 
-  msg() << MSG::INFO << "CaloClusterTimeTool is initialized " << endreq;	
+  msg() << MSG::INFO << "CaloClusterTimeTool is initialized " << endmsg;	
 
   return sc;
 }
 
 StatusCode CaloClusterTimeTool::updateFebOffsetMap(IOVSVC_CALLBACK_ARGS_K(keys)){
-  msg() << MSG::DEBUG << "CaloClusterTimeTool updateFebOffsetMap is called" << endreq; 
+  msg() << MSG::DEBUG << "CaloClusterTimeTool updateFebOffsetMap is called" << endmsg; 
   std::list<std::string>::const_iterator itr;
   for(itr=keys.begin(); itr!=keys.end(); ++itr){
     msg() << *itr <<"";
   }
-  msg() << endreq; 
+  msg() << endmsg; 
 
   CondAttrListCollection::const_iterator iColl = m_febOffsetColl->begin(); 
   CondAttrListCollection::const_iterator last = m_febOffsetColl->end(); 
@@ -149,12 +149,12 @@ StatusCode CaloClusterTimeTool::updateFebOffsetMap(IOVSVC_CALLBACK_ARGS_K(keys))
 }
 
 StatusCode CaloClusterTimeTool::updateRunOffsetMap(IOVSVC_CALLBACK_ARGS_K(keys)){
-  msg() << MSG::DEBUG << "CaloClusterTimeTool updateRunOffsetMap is called" << endreq;
+  msg() << MSG::DEBUG << "CaloClusterTimeTool updateRunOffsetMap is called" << endmsg;
   std::list<std::string>::const_iterator itr;
   for(itr=keys.begin(); itr!=keys.end(); ++itr){
     msg() << *itr <<"";
   }
-  msg() << endreq;
+  msg() << endmsg;
 
   CondAttrListCollection::const_iterator iColl = m_runOffsetColl->begin();
   CondAttrListCollection::const_iterator last = m_runOffsetColl->end();
@@ -180,7 +180,7 @@ StatusCode CaloClusterTimeTool::updateRunOffsetMap(IOVSVC_CALLBACK_ARGS_K(keys))
 void CaloClusterTimeTool::makeClusterTimeCorrection(float pv_z, const CaloCluster* cluster,  float& time, float& error, unsigned int& flag)
 {
 
-  msg(MSG::DEBUG) << " during CaloClusterTimeTool::makeClusterTimeCorrection  " << endreq;
+  msg(MSG::DEBUG) << " during CaloClusterTimeTool::makeClusterTimeCorrection  " << endmsg;
   error=0.;
   flag=0x0;
 
@@ -208,7 +208,7 @@ void CaloClusterTimeTool::makeClusterTimeCorrection(float pv_z, const CaloCluste
    }
    else{
      flag += ( 0x1 << CELL_INFO_MISSING);
-     msg() << MSG::WARNING << "cell link is invalid "  << endreq;
+     msg() << MSG::WARNING << "cell link is invalid "  << endmsg;
    }
 
    if(cell_maxE){
@@ -216,18 +216,18 @@ void CaloClusterTimeTool::makeClusterTimeCorrection(float pv_z, const CaloCluste
    }
    else{
      flag += ( 0x1 << CLUS_GOODMIDCELL_MISSING);
-     msg() << MSG::WARNING << "no cell found in middle layer with max energy > 5 GeV and good quality "  << endreq;
+     msg() << MSG::WARNING << "no cell found in middle layer with max energy > 5 GeV and good quality "  << endmsg;
    }
   }
   else{
     flag += ( 0x1 << CLUS_INFO_MISSING);
-    msg() << MSG::WARNING << "cluster is empty "  << endreq;
+    msg() << MSG::WARNING << "cluster is empty "  << endmsg;
   }
 }
 
 void CaloClusterTimeTool::makeCellTimeCorrection(float pv_z,const CaloCell* cell, float & time, float & error, unsigned int& flag){
 
-    msg() << MSG::DEBUG << " during CaloClusterTimeTool::makeCellTimeCorrection  " << endreq;
+    msg() << MSG::DEBUG << " during CaloClusterTimeTool::makeCellTimeCorrection  " << endmsg;
 
     time = cell->time();
     error=0.;
@@ -274,7 +274,7 @@ void CaloClusterTimeTool::makeCellTimeCorrection(float pv_z,const CaloCell* cell
        }
     }// end if LAr EM
     else{
-       msg() << MSG::WARNING <<"channel is not in EMEC or EMB no correction" << endreq;
+       msg() << MSG::WARNING <<"channel is not in EMEC or EMB no correction" << endmsg;
        flag += ( 0x1 << CELL_NO_EM); 
        return;
     }
@@ -339,9 +339,9 @@ void CaloClusterTimeTool::makeCellTimeCorrection(float pv_z,const CaloCell* cell
     HWIdentifier feb_onID = m_LArOnlineIDHelper->feb_Id(cell_onID_1);
     HWIdentifier ft_onID = m_LArOnlineIDHelper->feedthrough_Id(cell_onID_1);
     bool ifValidId = m_LArOnlineIDHelper->isValidId(ft_onID);
-    msg() << MSG::DEBUG <<"ifValidId="<<ifValidId << endreq;
+    msg() << MSG::DEBUG <<"ifValidId="<<ifValidId << endmsg;
     if(!ifValidId) {
-      msg() << MSG::WARNING <<"ft_onID is not valid" << endreq;
+      msg() << MSG::WARNING <<"ft_onID is not valid" << endmsg;
       flag += ( 0x1 << CELL_FTONID_INVALID); 
       return;
     }
@@ -423,7 +423,7 @@ void CaloClusterTimeTool::makeCellTimeCorrection(float pv_z,const CaloCell* cell
 float CaloClusterTimeTool::energyCorr(float eneOff[], int num, float energy){
  ATH_MSG_DEBUG("inside energyCorr");
  if(num < 15){
-   msg() << MSG::ERROR << "less than 15 parameters are passed to energyCorr" << endreq;
+   msg() << MSG::ERROR << "less than 15 parameters are passed to energyCorr" << endmsg;
    return 0;
  }  
 
@@ -481,7 +481,7 @@ float CaloClusterTimeTool::pvCorr(float cellX, float cellY, float cellZ, float p
 float CaloClusterTimeTool::errorCompute(float errOff[], int num, float energy){
  ATH_MSG_DEBUG("inside errorCompute");
  if(num < 2){
-   msg() << MSG::ERROR << "less than 2 parameters are passed to errorCompute" << endreq;
+   msg() << MSG::ERROR << "less than 2 parameters are passed to errorCompute" << endmsg;
    return 0;
  }
 

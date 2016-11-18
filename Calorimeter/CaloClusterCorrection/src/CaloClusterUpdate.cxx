@@ -66,7 +66,7 @@ void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
   float wphi=0; 
   // set eta to be weighted average of eta1 and eta2 
  
-  ATH_MSG_DEBUG(" inBarrel "<<cluster->inBarrel() << " inEndcap "<<cluster->inEndcap() << endreq) ;
+  ATH_MSG_DEBUG(" inBarrel "<<cluster->inBarrel() << " inEndcap "<<cluster->inEndcap() << endmsg) ;
 
   for(int i=0; i<5; i=i+4 )
   { 

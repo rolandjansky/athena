@@ -61,7 +61,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
     //m_detStore  ("DetectorStore", name),
     m_jos       ("JobOptionsSvc", name),
     m_toolsvc   ("ToolSvc",       name),
-    m_log(0),
     m_coolInlineTool("Blob2ToolConstants")
 {
   declareProperty ("CorrSpecs",     m_corrspecs);
@@ -82,9 +81,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
  */
 StatusCode CaloRunClusterCorrections::initialize()
 {
-  // Create a message stream.
-  m_log = new MsgStream (Athena::getMessageSvc(), name());
-
   // Fetch services used.
   //CHECK( m_storeGate.retrieve() );
   //CHECK( m_detStore.retrieve() );
@@ -112,9 +108,6 @@ StatusCode CaloRunClusterCorrections::initialize()
  */
 StatusCode CaloRunClusterCorrections::finalize()
 {
-  delete m_log;
-  m_log = 0;
-
   return StatusCode::SUCCESS;
 }
 
@@ -122,6 +115,7 @@ StatusCode CaloRunClusterCorrections::finalize()
 /**
  * @brief Execute on a single cluster.
  * @param The cluster to process.
+ * @param ctx The event context.
  *
  * This will iterate over all correction tools and call them on the
  * cluster.
@@ -129,7 +123,8 @@ StatusCode CaloRunClusterCorrections::finalize()
  * Warning: Any defined tools that cannot process single clusters
  * (only cluster collections) will be skipped!
  */
-StatusCode CaloRunClusterCorrections::execute (CaloCluster* cluster)
+StatusCode CaloRunClusterCorrections::execute (const EventContext& ctx,
+                                               CaloCluster* cluster) const
 {
   // Loop over tools and run each one on the cluster.
   for (unsigned int itool = 0;
@@ -138,7 +133,7 @@ StatusCode CaloRunClusterCorrections::execute (CaloCluster* cluster)
   {
     const Tool& tool = m_tools[m_toolorder[itool]];
     if (tool.clusproc)
-      CHECK( tool.clusproc->execute (cluster) );
+      CHECK( tool.clusproc->execute (ctx, cluster) );
     else {
       REPORT_MESSAGE (MSG::WARNING)
         << "Tool " << tool.name
@@ -153,12 +148,14 @@ StatusCode CaloRunClusterCorrections::execute (CaloCluster* cluster)
 /**
  * @brief Execute on an entire collection of clusters.
  * @param The container of clusters.
+ * @param ctx The event context.
  *
  * This will iterate over all correction tools and call them on the
  * cluster collection.
  */
 StatusCode
-CaloRunClusterCorrections::execute (xAOD::CaloClusterContainer* collection)
+CaloRunClusterCorrections::execute (const EventContext& ctx,
+                                    xAOD::CaloClusterContainer* collection) const
 {
   // Loop over correction tools.
   for (unsigned int itool = 0;
@@ -188,7 +185,7 @@ CaloRunClusterCorrections::execute (xAOD::CaloClusterContainer* collection)
       */
     }
     
-    CHECK( tool.collproc->execute (collection) );
+    CHECK( tool.collproc->execute (ctx, collection) );
   }
 
   return StatusCode::SUCCESS;
@@ -553,12 +550,12 @@ CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
     //COOL-inline case
     if (std::find(keys.begin(),keys.end(),m_folderName)==keys.end()) {
        REPORT_MESSAGE(MSG::DEBUG)
-	 << "The cool folder we care about (" << m_folderName<< ") is not in the list of keys. Do nothing." << endreq;
+	 << "The cool folder we care about (" << m_folderName<< ") is not in the list of keys. Do nothing." << endmsg;
        return StatusCode::SUCCESS;
     }
     else
        REPORT_MESSAGE(MSG::DEBUG)
-	 << "Found cool folder " << m_folderName << " in the list of keys." << endreq;
+	 << "Found cool folder " << m_folderName << " in the list of keys." << endmsg;
   }
 
     for (size_t itool = 0; itool < m_tools.size(); ++itool) {

@@ -33,13 +33,13 @@ class H1WeightToolCSC12Generic : public AthAlgTool, virtual public IHadronicCali
                    const IInterface* parent);
   virtual ~H1WeightToolCSC12Generic();
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual double etCell(const CaloCell* thisCell, double weight) ;
-  virtual double etCryo(double etAccb3, double etTile1)          ;
-  virtual double jetScale(double e, double eta)                  ;
-  virtual double wtCell(const CaloCell* thisCell)                ;
-  virtual double wtCryo()                                        ;
+  virtual double etCell(const CaloCell* thisCell, double weight) override;
+  virtual double etCryo(double etAccb3, double etTile1)          override;
+  virtual double jetScale(double e, double eta)                  override;
+  virtual double wtCell(const CaloCell* thisCell) const          override;
+  virtual double wtCryo()                                        override;
 
   using AlgTool::setProperty;
   // using IHadronicCalibrationTool::setProperty;
@@ -51,7 +51,7 @@ class H1WeightToolCSC12Generic : public AthAlgTool, virtual public IHadronicCali
    * Defined here as required by @c ToolWithConstantsMixin.
    */
   virtual StatusCode setProperty (const std::string& propname,
-                                  const std::string& value);
+                                  const std::string& value) override;
 
   /**
    * @brief Method to set a property value.
@@ -59,7 +59,7 @@ class H1WeightToolCSC12Generic : public AthAlgTool, virtual public IHadronicCali
    *
    * Defined here as required by @c ToolWithConstantsMixin.
    */
-  virtual StatusCode setProperty (const Property& p);
+  virtual StatusCode setProperty (const Property& p) override;
 
  private:
   CaloRec::Array<1> m_wtEMB0;

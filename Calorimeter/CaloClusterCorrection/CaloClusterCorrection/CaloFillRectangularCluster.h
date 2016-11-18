@@ -115,7 +115,7 @@ public:
    * @brief Change the name of the CaloCellContainer used by this tool.
    * @param name The new container name.
    */
-  virtual StatusCode setCaloCellContainerName (const std::string& name);
+  virtual StatusCode setCaloCellContainerName (const std::string& name) override;
 
 
 private:

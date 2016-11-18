@@ -403,11 +403,11 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
   // This causes a lot of overhead (mostly from the MsgStream ctor).
   // Comment out when not needed.
   //MsgStream log( msgSvc(), name() );
-  //log << MSG::DEBUG << "Entering makeCorrection" << endreq;
+  //log << MSG::DEBUG << "Entering makeCorrection" << endmsg;
   //log << MSG::DEBUG << "e, eta, phi, etasize, phisize" << " " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() 
-  //  << " " <<  cluster->etasize(CaloSampling::EMB2) << " " << cluster->phisize(CaloSampling::EMB2) << endreq;
-  //log << MSG::DEBUG << "B / E  " << cluster->inBarrel() << " " << cluster->inEndcap() << endreq;
-  //log << MSG::DEBUG << "region " << m_region << endreq;
+  //  << " " <<  cluster->etasize(CaloSampling::EMB2) << " " << cluster->phisize(CaloSampling::EMB2) << endmsg;
+  //log << MSG::DEBUG << "B / E  " << cluster->inBarrel() << " " << cluster->inEndcap() << endmsg;
+  //log << MSG::DEBUG << "region " << m_region << endmsg;
 
   float eta;
   float phi;

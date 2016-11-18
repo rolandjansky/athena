@@ -43,12 +43,13 @@ class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterC
                            const std::string& name,
                            const IInterface* parent);
 
-  virtual ~CaloClusterLocalCalibCone();
+  virtual ~CaloClusterLocalCalibCone() override;
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   using CaloClusterCollectionProcessor::execute; // xxx temporary
-  StatusCode execute(xAOD::CaloClusterContainer*  clusColl);
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer*  clusColl) const override;
 
   /** Callback added to handle Data-driven GeoModel initialization
    */
