@@ -949,6 +949,9 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
 
   ATH_MSG_DEBUG ( "Building csc segment." );
 
+  //if(use2Lay) std::cout<<"using 2-layer segments"<<std::endl;
+  //std::cout<<"CscSegmentUtilTool::build_segment in chamber "<<m_idHelper->toString(chid)<<std::endl;
+
   const double pi = acos(-1.0);
   const double pi2 = 0.5*pi;
   const CscReadoutElement* pro = m_gm->getCscReadoutElement(chid);
@@ -1006,8 +1009,8 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   Amg::Vector3D lposRefShift = lposRef - ldirRef*lposRef.z();
 
   ATH_MSG_VERBOSE ( " extrapolation to lposRef.z() " << lposRef.z() );
-//   std::cout << " local pos " << lposAMDB << " locref " << lposRef << " ldir ref " << ldirRef << " lpos shift " << lposRefShift
-// 	    << " segpos " << seg.s0 << " angle " << seg.s1 << std::endl;
+  //std::cout << " local pos " << lposAMDB << " locref " << lposRef << " ldir ref " << ldirRef << " lpos shift " << lposRefShift
+  //<< " segpos " << seg.s0 << " angle " << seg.s1 << std::endl;
   double s0 = lposRefShift.x();
 //   for ( int iclu=0; iclu<seg.nclus; ++iclu ) {
 //     double seg_y = seg.s0 + seg.s1*seg.clus[iclu].locX();
@@ -1019,6 +1022,8 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
 
   ATH_MSG_VERBOSE ( "  Input position, slope: " << s0 << " " << seg.s1 );
   ATH_MSG_VERBOSE ( "                  Error: " << seg.d0 << "  " << seg.d1 << " " << seg.d01 );
+  //std::cout<<"  Input position, slope: " << s0 << " " << seg.s1<<std::endl;
+  //std::cout<<"                  Error: " << seg.d0 << "  " << seg.d1 << " " << seg.d01<<std::endl;
   //  ATH_MSG_VERBOSE ( "            Orientation: " << measphi_name(measphi) );
 
 
@@ -1067,6 +1072,10 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   
   Amg::Transform3D globalToLocal = pro->transform(chid).inverse();
   Amg::Vector3D d(globalToLocal.linear()*pseg_ref->globalDirection());
+  //std::cout<<"d.x()="<<d.x()<<"; d.z()="<<d.z()<<std::endl;
+  //std::cout<<"   Position: " << pos[Trk::loc1] << " " << pos[Trk::loc2]<<std::endl;
+  //std::cout<<"seg.s1 : ameas " << seg.s1 << " " << ameas<<std::endl;
+  //std::cout<<"  Direction: " << pdir.angleXZ() << " " << pdir.angleYZ()<<std::endl;
   double tantheta = d.x()/d.z(); // is equal to seg.s1
 
   ATH_MSG_VERBOSE ( "   Position: " << pos[Trk::loc1] << " " << pos[Trk::loc2] );
@@ -1307,6 +1316,9 @@ find_2dsegments(bool measphi, int station,  int eta, int phi,
             }
           } 
           ATH_MSG_DEBUG("find_2dsegments:: " << seg.time << " " << seg.dtime);
+
+	  //reject segments with slope of 0 (should only apply to NCB segments)
+	  if(seg.s1==0 && !m_IPconstraint){ATH_MSG_DEBUG("slope too small, rejecting"); keep=false;}
 
           if ( keep )  segs.push_back(seg);
 
@@ -1872,9 +1884,12 @@ get4dMuonSegmentCombination( MuonSegmentCombination* insegs ) const {
       const MuonSegment& rsg = **irsg;
       const MuonSegment& psg = **ipsg;
       const Trk::FitQuality& rfq   = *rsg.fitQuality();
+      ATH_MSG_DEBUG("got fit quality for r segment");
       const Trk::FitQuality& phifq = *psg.fitQuality();
+      ATH_MSG_DEBUG("and phi segment");
       // Fit quality.
       double chsq = rfq.chiSquared() + phifq.chiSquared();
+      ATH_MSG_DEBUG("total chi2="<<chsq);
       if ( chsq > m_max_chisquare ) {
         ATH_MSG_DEBUG ( "Segment rejected too large chsq: " << chsq);
         continue;
@@ -2531,7 +2546,7 @@ int CscSegmentUtilTool::stripStatusBit ( uint32_t stripHashId ) const {
     }
   } else {
     ATH_MSG_VERBOSE ( "The status word is " << std::hex << status
-                      << " for strip hash = " << std::dec << stripHashId );
+      << " for strip hash = " << std::dec << stripHashId );
   }
   return status;
 }
