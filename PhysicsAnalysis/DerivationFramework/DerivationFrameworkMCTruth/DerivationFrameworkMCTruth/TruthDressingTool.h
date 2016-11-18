@@ -40,12 +40,6 @@ namespace DerivationFramework {
       std::vector<int> m_listOfPIDs;
       /// Parameter: Use antikT algorithm for dressing?
       bool m_useAntiKt;
-
-      //private helper functions
-      void dressVector(const xAOD::TruthParticle* particle, xAOD::TruthParticle::FourMom_t&,
-              const std::vector<const xAOD::TruthParticle*> &,
-              int &) const;
-      float calculateDeltaR(const xAOD::IParticle *p1, const xAOD::IParticle *p2) const;
   }; 
 }
 

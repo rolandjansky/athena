@@ -118,9 +118,18 @@ TRUTH3BSMTool = DerivationFramework__TruthCollectionMaker(name                  
 ToolSvc += TRUTH3BSMTool
 #Taken from the code in DerivationFramework::MenuTruthThinning::isBSM
 
+#Let's save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
+SUSYGenFilt_MCTruthClassifier = MCTruthClassifier(name = "SUSYGenFilt_MCTruthClassifier",
+                                                  ParticleCaloExtensionTool="")
+ToolSvc += SUSYGenFilt_MCTruthClassifier
+GenFilter = CfgMgr.DerivationFramework__SUSYGenFilterTool(
+  "MTandHTGenFilt",
+  )
+ToolSvc += GenFilter
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3Kernel",
-                                                                       AugmentationTools = [DFCommonTruthClassificationTool,
+                                                                       AugmentationTools = [DFCommonTruthClassificationTool,GenFilter,
                                                                                             DFCommonTruthMuonTool,DFCommonTruthElectronTool,TRUTH3PhotonTool,DFCommonTruthNeutrinoTool,
                                                                                             TRUTH3TopTool,TRUTH3BosonTool,TRUTH3BSMTool,
                                                                                             DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
@@ -166,8 +175,9 @@ TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                            'TrimmedAntiKt10TruthJets':'xAOD::JetContainer','TrimmedAntiKt10TruthJetsAux':'xAOD::JetAuxContainer'     
                                           }
 TRUTH3SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","Truth3Photons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
-TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt",
+TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
+TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
 

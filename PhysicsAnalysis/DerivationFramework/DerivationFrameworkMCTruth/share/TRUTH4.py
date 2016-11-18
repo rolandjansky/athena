@@ -14,6 +14,8 @@ if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
 elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
         DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
 
+from DerivationFrameworkHiggs.TruthCategories import *
+
 #====================================================================
 # JET/MET
 #====================================================================
@@ -106,3 +108,4 @@ TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTQuarksFinal" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTausFinal" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelWBosons" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelZBosons" )
+TRUTH4Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

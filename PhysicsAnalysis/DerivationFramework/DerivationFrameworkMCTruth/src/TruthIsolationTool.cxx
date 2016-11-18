@@ -111,12 +111,12 @@ StatusCode DerivationFramework::TruthIsolationTool::addBranches() const
     }
 
     // Standard particle loop over final state particles of interest
-    for (auto pItr=listOfParticlesForIso.begin(); pItr!=listOfParticlesForIso.end(); ++pItr) {
+    for (const auto& part : listOfParticlesForIso) {
       std::vector<float> isolationsCalcs(m_coneSizes2->size(), 0.0);
-      calcIsos(*pItr, candidateParticlesList, isolationsCalcs);
+      calcIsos(part, candidateParticlesList, isolationsCalcs);
 
       for ( unsigned int icone = 0; icone < m_coneSizesSort->size(); ++icone ) {
-        decorators_iso.at(icone)(**pItr) = isolationsCalcs.at(icone);
+        decorators_iso.at(icone)(*part) = isolationsCalcs.at(icone);
       }
     }
 
@@ -133,17 +133,17 @@ void DerivationFramework::TruthIsolationTool::calcIsos(const xAOD::TruthParticle
 
     float part_eta = particle->eta();
     float part_phi = particle->phi();
-    for (auto pItr=candidateParticlesList.begin(); pItr!=candidateParticlesList.end(); ++pItr) {
-      if (find(m_excludeFromCone.begin(), m_excludeFromCone.end(), (*pItr)->pdgId()) != m_excludeFromCone.end()) {
+    for (const auto& cand_part : candidateParticlesList) {
+      if (find(m_excludeFromCone.begin(), m_excludeFromCone.end(), cand_part->pdgId()) != m_excludeFromCone.end()) {
         //skip if we find a particle in the exclude list
         continue;
       }
-      if ((*pItr)->barcode() != particle->barcode()) {
+      if (cand_part->barcode() != particle->barcode()) {
         //iteration over sorted cone sizes
         for ( unsigned int icone = 0; icone < m_coneSizes2->size(); ++icone ) {
-          if (calculateDeltaR2(*pItr, part_eta, part_phi) < m_coneSizes2->at(icone) ) {
+          if (calculateDeltaR2(cand_part, part_eta, part_phi) < m_coneSizes2->at(icone) ) {
             //sum the transverse momenta
-            isoCalcs.at(icone) = isoCalcs.at(icone) + (*pItr)->pt();
+            isoCalcs.at(icone) = isoCalcs.at(icone) + cand_part->pt();
           } else {
             //break out of the loop safely since the cone sizes are sorted descending
             break;

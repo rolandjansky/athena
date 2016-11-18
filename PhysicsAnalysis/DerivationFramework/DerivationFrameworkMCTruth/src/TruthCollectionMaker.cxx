@@ -18,6 +18,7 @@
 //#include "xAODTruth/TruthVertexContainer.h"
 #include <vector>
 #include <string>
+#include <numeric>
 
 // Constructor
 DerivationFramework::TruthCollectionMaker::TruthCollectionMaker(const std::string& t,
