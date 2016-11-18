@@ -2,6 +2,7 @@
 
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
+from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
 
 def declareDefaultTools():
 
@@ -13,14 +14,18 @@ def declareDefaultTools():
   # Retriever for pflow objects.
   jtm += RetrievePFOTool("pflowretriever")
 
-  if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
-    useChargedWeights = True
-  else:
-    useChargedWeights = False
+  # Weight tool for charged pflow objects.
+  jtm += WeightPFOTool("pflowweighter")
+  jtm += WeightPFOTool("pflowweighter_LC",NeutralPFOScale="LC")
 
   useVertices = True
   if False == jetFlags.useVertices:
     useVertices = False
+
+  if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+    useChargedWeights = True
+  else:
+    useChargedWeights = False
 
   useTrackVertexTool = False
   if True == jetFlags.useTrackVertexTool:
@@ -32,6 +37,7 @@ def declareDefaultTools():
     Label = "EMPFlow",
     OutputContainer = "PseudoJetEMPFlow",
     RetrievePFOTool = jtm.pflowretriever,
+    WeightPFOTool = jtm.pflowweighter,
     InputIsEM = True,
     CalibratePFO = False,
     SkipNegativeEnergy = True,
@@ -46,6 +52,7 @@ def declareDefaultTools():
     Label = "EMCPFlow",
     OutputContainer = "PseudoJetEMCPFlow",
     RetrievePFOTool = jtm.pflowretriever,
+    WeightPFOTool = jtm.pflowweighter_LC,
     InputIsEM = True,
     CalibratePFO = True,
     SkipNegativeEnergy = True,
@@ -60,6 +67,7 @@ def declareDefaultTools():
     Label = "LCPFlow",
     OutputContainer = "PseudoJetLCPFlow",
     RetrievePFOTool = jtm.pflowretriever,
+    WeightPFOTool = jtm.pflowweighter_LC,
     InputIsEM = False,
     CalibratePFO = False,
     SkipNegativeEnergy = True,
@@ -67,4 +75,3 @@ def declareDefaultTools():
     UseVertices = useVertices,
     UseTrackToVertexTool = useTrackVertexTool
   )
-
