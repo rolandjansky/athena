@@ -7,10 +7,15 @@
 
 // Utilities for building segments.
 #include <string>
+#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" // separately...
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
+#include "CscClusterization/ICscClusterUtilTool.h"
+#include "MuonCondInterface/CscICoolStrSvc.h"
+//#include "CscClusterization/CalibCscStripFitter.h"
+//#include "CscClusterization/ICscStripFitter.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -27,6 +32,7 @@ namespace Muon {
 }
 class ICscSegmentFinder;
 class ICscClusterFitter;
+class ICscStripFitter;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -70,7 +76,7 @@ public:
   get2dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000 ) const;
+                              const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
 
   
   // Return the counts of spoiled and unspoiled measurements from a list
@@ -112,14 +118,15 @@ private:  // data
  
   ToolHandle<ICscClusterFitter> m_pfitter_prec;
   ToolHandle<Muon::IMuonClusterOnTrackCreator> m_rotCreator;
-  bool m_add2hitSegments;
-
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+  ToolHandle<ICscClusterUtilTool> m_clusterTool;
+  ToolHandle<ICscStripFitter>   m_stripFitter;
+  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
 
   StoreGateSvc* m_storeGateSvc;
 
   // Convert a local 2D segment to MuonSegment
-  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid) const;
+  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;
 
   // Fit a list of RIO's to form a 2D segment.
   // The fit is relative to the passsed surface. called by fit_rio_residual
@@ -150,14 +157,16 @@ private:  // data
                       double localPos, double localSlope) const;
 
     // Find 2 hit segments in a chamber.
-  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, int lay0, int lay1,
+  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> layStat,
                       const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000,
                       ICscSegmentFinder::Segments& segs, 
-                      ICscSegmentFinder::Segments& segs3or4hit, 
                       double localPos, double localSlope) const;
 
   /** Adds 3-hit segments to 4-hit segments **/
   void add_2dsegments(ICscSegmentFinder::Segments &segs4, ICscSegmentFinder::Segments &segs3) const;
+
+  //Stores 2-hit segments (does overlap removal and then saves the remaining segments)
+  void add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, std::vector<int> layStat) const;
   
   // Check to see if 3-hit segment is unique.
   bool unique_hits(ICscSegmentFinder::TrkClusters& fitclus, ICscSegmentFinder::Segments& segs) const;
@@ -166,9 +175,9 @@ private:  // data
                       ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                       ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                       ICscSegmentFinder::Segments& etasegs, ICscSegmentFinder::Segments& phisegs,
-                      const Amg::Vector3D& lpos000 ) const;
+                      const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
 
-  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg) const;
+  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegs) const;
 
   /***** Find outlier cluster *****/
   /* It finds the biggest chisquare contributing cluster:
@@ -222,6 +231,8 @@ private:  // data
   // Likelihood function = psig/(psig +pbkg)
   double qratio_like(double pdf_sig, double pdf_bkg) const;
 
+  bool isGood(uint32_t stripHashId) const;
+  int stripStatusBit(uint32_t stripHashId) const;
 
 };
 

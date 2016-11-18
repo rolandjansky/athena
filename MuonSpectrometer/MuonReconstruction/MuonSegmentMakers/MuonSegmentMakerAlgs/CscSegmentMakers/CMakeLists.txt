@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkRoad
@@ -37,7 +38,7 @@ atlas_add_component( CscSegmentMakers
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel MuonPrepRawData MuonSegment AthenaBaseComps StoreGateLib SGtests Identifier EventPrimitives xAODEventInfo MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonRIO_OnTrack MuonRecHelperToolsLib MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkRoad TrkSegment )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel MuonPrepRawData MuonSegment AthenaBaseComps StoreGateLib SGtests Identifier EventPrimitives xAODEventInfo MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonRIO_OnTrack MuonRecHelperToolsLib MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkRoad TrkSegment  )
 
 # Install files from the package:
 atlas_install_headers( CscSegmentMakers )

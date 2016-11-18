@@ -26,6 +26,8 @@
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
 
+#include "MuonCondInterface/ICSCConditionsSvc.h"
+
 using Muon::CscPrepDataContainer;
 using Muon::CscPrepDataCollection;
 using Muon::CscPrepData;
@@ -76,7 +78,9 @@ Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInte
     m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
     m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool") 
+    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    //m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", aname)
+    //m_cscCondSvc("CSCCondSummarySvc",name())
 {
   declareInterface<ICscSegmentFinder>(this);
   declareProperty("segmentTool", m_segmentTool);
@@ -121,7 +125,18 @@ StatusCode Csc2dSegmentMaker::initialize(){
     ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_idHelper );
     return StatusCode::FAILURE;
   }  
-  
+  /*
+  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
+    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
+    return StatusCode::FAILURE;
+  }
+  */
+  /*
+  if (m_cscCondSvc.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not get ICSConditionsSvc");
+    return StatusCode::FAILURE;
+  }
+  */
   return StatusCode::SUCCESS;
 }
 
@@ -186,9 +201,49 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   Amg::Transform3D gToLocal = detEl->GlobalToAmdbLRSTransform();
   Amg::Vector3D lpos000 = gToLocal*Amg::Vector3D(0.0, 0.0, 0.0);
 
+  int stationEta=detEl->getStationEta();
+  int stationPhi=detEl->getStationPhi();
+  int chamberLayer=detEl->ChamberLayer();
+  std::string stationName=detEl->getStationName();
+  std::string redName=stationName.substr(0,3); //CSS or CSL, all that the CscIdHelper wants
+  std::string isPhi;
+  ATH_MSG_DEBUG("in station "<<stationName<<" eta "<<stationEta<<", phi "<<stationPhi<<", chamber layer "<<chamberLayer);
+  int badLay1=-1,badLay2=-1;
 
-  for ( CscPrepDataCollection::const_iterator iclu=clus.begin();
-        iclu!=clus.end(); ++iclu ) {
+  int nbadlay[2]={0,0}; //eta=0,phi=1
+  for(int iLay=0;iLay<4;iLay++){ //loop over the layers in this chamber
+    for(int iPhi=0;iPhi<2;iPhi++){ //eta or phi
+      int nbad=0;
+      if(iPhi) isPhi="phi";
+      else isPhi="eta";
+      //ATH_MSG_DEBUG("get hashes for "<<detEl->maxNumberOfStrips(iPhi)<<" strips ");
+      for(int iStrip=0;iStrip<detEl->maxNumberOfStrips(iPhi);iStrip++){
+	ATH_MSG_DEBUG("get strip quality for "<<isPhi<<" layer "<<iLay<<" strip "<<iStrip);
+	Identifier stripId=m_phelper->channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
+	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_phelper->chamberLayer(stripId)<<", wire layer "<<m_phelper->wireLayer(stripId)<<", strip "<<m_phelper->strip(stripId));
+	IdentifierHash hashID;
+	m_phelper->get_channel_hash(stripId,hashID);
+	//ATH_MSG_DEBUG("get strip status with hash "<<hashID);
+	if(!m_segmentTool->isGood(hashID)){
+	  ATH_MSG_DEBUG("bad strip");
+	  nbad++;
+	}
+      }
+      ATH_MSG_DEBUG("found "<<nbad<<" bad strips out of "<<detEl->maxNumberOfStrips(iPhi)<<" in "<<isPhi<<" layer "<<iLay);
+      if(nbad==detEl->maxNumberOfStrips(iPhi)){
+	nbadlay[iPhi]++;
+	if(badLay1>-1) badLay2=iLay;
+	else badLay1=iLay;
+      }
+    }
+  }
+
+  bool use2Layers=false;
+  if(nbadlay[0]>1) use2Layers=true;
+  if(nbadlay[0]!=nbadlay[1]) ATH_MSG_WARNING("Counted "<<nbadlay[0]<<" bad eta layers but "<<nbadlay[1]<<" bad phi layers for station "<<stationName<<", "<<stationEta<<", "<<stationPhi<<", "<<chamberLayer);
+  if(use2Layers) ATH_MSG_DEBUG("use 2-layer segment finding for this chamber");
+
+  for ( CscPrepDataCollection::const_iterator iclu=clus.begin(); iclu!=clus.end(); ++iclu ) {
     CscPrepData* pclu = *iclu;
     Identifier id = pclu->identify();
     int station = m_phelper->stationName(id) - 49;
@@ -196,14 +251,15 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     int phisec = m_phelper->stationPhi(id);
     int iwlay = m_phelper->wireLayer(id);
     bool measphi = m_phelper->measuresPhi(id);
+    
     if ( iclu == clus.begin() ) {
       col_station = station;
       col_eta = eta;
       col_phisec = phisec;
     }
     ATH_MSG_DEBUG ( "****** " << chamber(station,eta,phisec)
-                    << measphi_name(measphi) << iwlay );
-
+		    << measphi_name(measphi) << iwlay );
+    
     if ( station!=col_station || eta!=col_eta || phisec!=col_phisec ) {
       ATH_MSG_WARNING ( "Inconsistent collection contents" );
       return 0;
@@ -235,7 +291,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       eta_id = id;
       eta_clus[iwlay-1].push_back(Cluster(lpos,ptclu,measphi));
     }
-  } 
+  }
 
 
   // Insert r-phi-segments.
@@ -252,7 +308,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   MuonSegmentCombination* pcol = 0;
   if (nHitLayer_eta >=2 || nHitLayer_phi >=2) {
     ATH_MSG_DEBUG( "Csc2dSegment calls get2dMuonSegmentCombination !!!" );
-    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000 ); 
+    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, use2Layers, badLay1, badLay2); 
   }
   
   // to avoid memory leak
@@ -287,6 +343,4 @@ StatusCode Csc2dSegmentMaker::finalize() {
   ATH_MSG_DEBUG ( "Goodbye" );
   return StatusCode::SUCCESS;
 }
- 
-
 

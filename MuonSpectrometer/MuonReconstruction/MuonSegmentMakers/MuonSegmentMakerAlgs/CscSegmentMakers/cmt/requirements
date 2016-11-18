@@ -26,6 +26,7 @@ use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
 use AtlasROOT             AtlasROOT-*             External
 use MuonIdHelpers         MuonIdHelpers-*         MuonSpectrometer
 use MuonRecHelperTools     *                      MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonCondInterface     MuonCondInterface-*     MuonSpectrometer/MuonConditions/MuonCondGeneral
 
 public
 library CscSegmentMakers *.cxx -s=components *.cxx
