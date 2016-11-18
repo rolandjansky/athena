@@ -44,7 +44,7 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
 #
 #  functionality : add cells crossed by high pt ID tracks 
 #
-if rec.doESD() and recAlgs.doTrackParticleCellAssociation():
+if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on():
     from AthenaCommon.CfgGetter import getPublicTool
     getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
     topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg")
@@ -53,7 +53,7 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation():
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() ) )  :
+if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and  DetFlags.haveRIO.Muon_allOn()) )  :
     try:
         include( "eflowRec/eflowRec_jobOptions.py" )
     except Exception:
@@ -73,18 +73,6 @@ if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
     except Exception:
         treatException("Could not set up isolation. Switched off !")
 
-if rec.doESD() and rec.doEgamma():
-    try:
-        from egammaRec.egammaLocker import egammaLocker
-        topSequence +=egammaLocker(name= "egLocker",
-                                   doTruth=rec.doTruth(),
-                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
-                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   outputClusterKey=egammaKeys.outputClusterKey(),
-                                   egammakeys=egammaKeysDict.outputs.items())
-    except:
-        treatException("Could not set up egammaLocker. Switched off !")
 
 #AODFix_postMuonCombinedRec()
 #
@@ -92,7 +80,7 @@ if rec.doESD() and rec.doEgamma():
 #
 pdr.flag_domain('jet')
 jetOK=False
-if rec.doJetMissingETTag():
+if rec.doJetMissingETTag() and DetFlags.Calo_on():
     try:
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.Enabled():
@@ -115,7 +103,7 @@ else:
 
 pdr.flag_domain('btagging')
 btaggingOK = False
-if jetOK and rec.doBTagging() and  DetFlags.ID_on():
+if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from BTagging.BTaggingFlags import BTaggingFlags
         protectedInclude( "BTagging/BTagging_jobOptions.py")
@@ -141,7 +129,7 @@ AODFix_posttauRec()
 # functionality : Missing Et
 #
 pdr.flag_domain('jet')
-if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on():
+if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         include( "METReconstruction/METReconstruction_jobOptions.py" )
     except Exception:
@@ -161,6 +149,12 @@ if recAlgs.doMissingETSig() and ( rec.readESD() or DetFlags.haveRIO.Calo_on()) :
 else:
   recAlgs.doMissingETSig=False
 
-  
+#
+# Functionality: CaloRinger
+#
+pdr.flag_domain('caloringer')
+if rec.doCaloRinger:
+  include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+
 
         

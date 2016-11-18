@@ -96,7 +96,7 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
 
     from RecAlgs.RecAlgsConf import TimingAlg
     topSequence+=TimingAlg("RecoTimerBegin")
@@ -169,8 +169,24 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamTyp
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
+
+# Build amitag list
+amitag = ""
+from RecExConfig.InputFilePeeker import inputFileSummary
+try:
+  amitag = inputFileSummary['metadata']['/TagInfo']['AMITag']
+except:
+  logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
+
+# append new if previous exists otherwise take the new alone 
+if amitag != "":
+  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", inputFileSummary['metadata']['/TagInfo']['AMITag'] + "_" + rec.AMITag() ]
+else:
+  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+
+
 
 AODFix_addMetaData()
 
@@ -459,6 +475,17 @@ pdr.flag_domain('admin')
 # one print every 100 event
 topSequence+=EventCounter(Frequency=100)
 
+
+#Temporary: Schedule conversion algorithm for EventInfo object:
+# Note that we need to check whether the HLT already added this algorithm to the
+# algorithm sequence!
+#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+    pass
+
 # bytestream reading need to shedule some algorithm
 
 if globalflags.InputFormat.is_bytestream():
@@ -589,16 +616,7 @@ if rec.doTruth():
 if rec.readESD():
    doMuonboyEDM=False
 
-#Temporary: Schedule conversion algorithm for EventInfo object:
-# Note that we need to check whether the HLT already added this algorithm to the
-# algorithm sequence!
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
-        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
-
+#EventInfoCnv xAOD conversion was here - moved up to run before BS reading algos
 
 if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
@@ -630,7 +648,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
         topSequence.RecoTimerAfterTrigger.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
         try:
@@ -805,7 +823,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
     topSequence.RecoTimerBeforeOutput.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
     try:
@@ -1253,6 +1271,91 @@ if rec.doESD() or rec.doWriteESD():
         protectedInclude ("HIRecExample/heavyion_postOptionsESD.py")
 
 
+#########
+## DPD ##
+#########
+if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
+    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+    from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+
+    # Get an instance of the random number generator
+    # The actual seeds are dummies since event reseeding is used
+    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
+        svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
+                                  OutputLevel    = ERROR,
+                                  Seeds          = [ "DPDRANDOMNUMBERSTREAM 2 3" ],
+                                  SaveToFile     = False,
+                                  EventReseeding = True
+                                  )
+        pass
+
+    # Schedule the AODSelect setup
+    if rec.doAODSelect():
+        try:
+            include("AODSelect/AODSelect_setupOptions.py")
+        except Exception:
+            treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
+            rec.doAODSelect = False
+            pass
+        pass
+
+    #This block may not be needed... something to check if somebody has time!
+    if rec.DPDMakerScripts()!=[]:
+        if globalflags.InputFormat()=='pool':
+            include("PyAnalysisCore/InitPyAnalysisCore.py")
+            pass
+        pass
+
+    #Then include all requested DPD makers
+    logRecExCommon_topOptions.info( "Content of rec.DPDMakerSkripts = %s", rec.DPDMakerScripts() )
+    for DPDMaker in rec.DPDMakerScripts():
+        DPDMakerName = str(DPDMaker)
+        logRecExCommon_topOptions.info( "Including %s...",DPDMakerName )
+        include(DPDMaker)
+        pass
+
+    # Schedule the AODSelect algorithms
+    if rec.doAODSelect():
+        try:
+            include("AODSelect/AODSelect_mainOptions.py")
+        except Exception:
+            treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
+            rec.doAODSelect = False
+            pass
+        pass
+
+    #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
+    logRecExCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )
+    if primDPD.WriteSkimDecisions():
+        MSMgr.WriteSkimDecisionsOfAllStreams()
+        pass
+
+    #Configure CutFlowSv and common metadata
+    if rec.doFileMetaData():
+
+        #Exception for DPD pass-through mode
+        if rec.doDPD.passThroughMode:
+            svcMgr.CutFlowSvc.SkimmingCycle=0
+            svcMgr.CutFlowSvc.InputStream="Virtual"
+            pass
+
+        if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
+            # Add the needed stuff for cut-flow bookkeeping.
+            # Only the configurables that are not already present will be created
+            from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+            logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+            CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
+
+            from RecExConfig.InputFilePeeker import inputFileSummary
+            #Explicitely add file metadata from input and from transient store
+            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
+            MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
+            pass
+        pass
+    pass
+
+
 if rec.doWriteAOD():
 
     # build list of cells from clusters
@@ -1525,89 +1628,7 @@ if not rec.oldFlagCompatibility:
 
 
 
-#########
-## DPD ##
-#########
-if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
-    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 
-    # Get an instance of the random number generator
-    # The actual seeds are dummies since event reseeding is used
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-    if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
-        svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
-                                  OutputLevel    = ERROR,
-                                  Seeds          = [ "DPDRANDOMNUMBERSTREAM 2 3" ],
-                                  SaveToFile     = False,
-                                  EventReseeding = True
-                                  )
-        pass
-
-    # Schedule the AODSelect setup
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_setupOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
-            rec.doAODSelect = False
-            pass
-        pass
-
-    #This block may not be needed... something to check if somebody has time!
-    if rec.DPDMakerScripts()!=[]:
-        if globalflags.InputFormat()=='pool':
-            include("PyAnalysisCore/InitPyAnalysisCore.py")
-            pass
-        pass
-
-    #Then include all requested DPD makers
-    logRecExCommon_topOptions.info( "Content of rec.DPDMakerSkripts = %s", rec.DPDMakerScripts() )
-    for DPDMaker in rec.DPDMakerScripts():
-        DPDMakerName = str(DPDMaker)
-        logRecExCommon_topOptions.info( "Including %s...",DPDMakerName )
-        include(DPDMaker)
-        pass
-
-    # Schedule the AODSelect algorithms
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_mainOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
-            rec.doAODSelect = False
-            pass
-        pass
-
-    #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
-    logRecExCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )
-    if primDPD.WriteSkimDecisions():
-        MSMgr.WriteSkimDecisionsOfAllStreams()
-        pass
-
-    #Configure CutFlowSv and common metadata
-    if rec.doFileMetaData():
-
-        #Exception for DPD pass-through mode
-        if rec.doDPD.passThroughMode:
-            svcMgr.CutFlowSvc.SkimmingCycle=0
-            svcMgr.CutFlowSvc.InputStream="Virtual"
-            pass
-
-        if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
-            # Add the needed stuff for cut-flow bookkeeping.
-            # Only the configurables that are not already present will be created
-            from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-            logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
-            CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
-
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
-            MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
-            pass
-        pass
-    pass
 
 # -------------------------------------------------------------
 # TAG and TAGCOMM making+writing
