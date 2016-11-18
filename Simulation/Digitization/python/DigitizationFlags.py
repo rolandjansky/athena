@@ -207,6 +207,14 @@ class specialConfiguration(JobProperty):
     StoredValue=dict()
 
 #
+class pileupDSID(JobProperty):
+    """ Map from background type to DSID
+    """
+    statusOn=True # False
+    allowedTypes=['dict']
+    StoredValue= {'Low Pt Minimum Bias':361034, 'High Pt Minimum Bias':361035} #{'Signal':110401, 'Low Pt Minimum Bias':361034, 'High Pt Minimum Bias':361035} #dict()
+
+#
 class doLowPtMinBias(JobProperty):
     """ Superimpose mixed low pt minimum bias events (pile-up) on signal events?
          --> will activate the default LowPtMinBiasInputCols as well
@@ -423,9 +431,9 @@ class doBichselSimulation(JobProperty):
     """ Should the Bichsel model be used in Pixel and SCT
     Digitization.
     """
-    statusOn=False
+    statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class IOVDbGlobalTag(JobProperty):
     """ This overrides the default IOVDbGlobalTag which
@@ -800,7 +808,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,specialConfiguration,digiSteeringConf,TRTRangeCut]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)
