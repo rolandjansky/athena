@@ -22,14 +22,14 @@ select=$2
 #    if [ "$status" = 0 ]
 #	then 
 	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
-	reflog=../test/${test}.ref
+	reflog=../share/${test}.ref
 	if [ -r $reflog ]
 	    then
             # If select string is non-zero, use it for the comparison,
             # otherwise do standard diff with exclusions
 	    if [ -n "${select}" ]
 		then
-		echo "Selecting on: ${select}"
+		#echo "Selecting on: ${select}"
 		diff  -a -b -B $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
@@ -100,7 +100,7 @@ select=$2
 	    if [ $diffStatus = 0 ] 
 		then
 		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
 	    fi
@@ -108,6 +108,7 @@ select=$2
 	    tail $joblog
 	    echo "[93;1m post.sh> WARNING: reference output $reflog not available [m"
 	    echo  " post.sh> Please check ${PWD}/$joblog"
+            exit 1
 	fi
 #    else
 #	tail $joblog

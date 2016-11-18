@@ -1,50 +1,52 @@
-Sun Mar  1 10:53:43 CET 2015
+Thu Jun  9 14:31:07 CEST 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-20.1.3] [x86_64-slc6-gcc48-opt] [20.1.X-VAL/rel_0] -- built on [2015-02-28 22:35]
+Py:Athena            INFO using release [AtlasTrigger-20.99.0] [x86_64-slc6-gcc49-opt] [20.99.Y-VAL/rel_4] -- built on [2016-06-09 00:45]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "IOVDbTestAlg/IOVDbTestAlgWriteCoolStep3.py"
-Py:ConfigurableDb    INFO Read module info for 4681 configurables from 10 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libRootCnvDict.so  is already in StorageSvcDict.so 
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "IOVDbTestAlg/IOVDbTestAlgWriteCool.py"
+Py:ConfigurableDb    INFO Read module info for 3388 configurables from 7 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 7 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -RPCStandaloneTracksMon: MuonTrackMonitoring.MuonTrackMonitoringConf - ['RpcRawDataMonitoring.RpcRawDataMonitoringConf']
-Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
+Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TrigCostD3PDMaker.TrigCostD3PDMakerConf - ['TriggerD3PDMaker.TriggerD3PDMakerConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
-EventInfoMgtInit: Got release version  AtlasOffline-rel_0
+EventInfoMgtInit: Got release version  AtlasTrigger-rel_4
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on aibuild012.cern.ch on Sun Mar  1 10:53:45 2015
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus021.cern.ch on Thu Jun  9 14:31:22 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr                   INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr                   INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc                    INFO initialize
 AthDictLoaderSvc                 INFO in initialize...
 AthDictLoaderSvc                 INFO acquired Dso-registry
-ClassIDSvc                       INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18
-ClassIDSvc                       INFO  getRegistryEntries: read 2069 CLIDRegistry entries for module ALL
+ClassIDSvc                       INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc                       INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
 ChronoStatSvc                    INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                      INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                      INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-05
+AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-14
 AthMasterSeq                     INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq                        INFO Member list: IOVDbTestAlg
+IOVDbTestAlg                    DEBUG Property update for OutputLevel : new value = 2
 IOVDbTestAlg                    DEBUG in initialize()
-StoreGateSvc                     INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-10
-PoolSvc                          INFO Initializing PoolSvc - package version PoolSvc-00-24-06
+StoreGateSvc                     INFO Initializing StoreGateSvc - package version StoreGate-03-06-43
+PoolSvc                          INFO Initializing PoolSvc - package version PoolSvc-00-25-03
 PoolSvc                          INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                          INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                          INFO Frontier compression level set to 5
 DBReplicaSvc                     INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                     INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasCore/rel_0/InstallArea/share/dbreplica.config
-DBReplicaSvc                     INFO Total of 10 servers found for host aibuild012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                     INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/20.99.Y-VAL/AtlasCore/rel_4/InstallArea/share/dbreplica.config
+DBReplicaSvc                     INFO Total of 10 servers found for host lxplus021.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                          INFO Successfully setup replica sorting algorithm
 PoolSvc                          INFO Re-initializing PoolSvc
 PoolSvc                          INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -55,76 +57,36 @@ IOVDbSvc                         INFO Only 5 POOL conditions files will be open 
 IOVDbSvc                         INFO Read from meta data only for folder /TagInfo
 IOVDbSvc                         INFO Initialised with 1 connections and 1 folders
 IOVDbSvc                         INFO Service IOVDbSvc initialised successfully
-MetaDataSvc                      INFO Initializing MetaDataSvc - package version AthenaServices-01-59-05
-InputMetaDataStore               INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-10
-MetaDataStore                    INFO Initializing MetaDataStore - package version StoreGate-02-45-01-10
-AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-19
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-DbSession Info     Open     DbSession    
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
-AthenaRootStreamerSvc            INFO POOL/ROOT class loader initialized
-DbSession Info     Closed   DbSession    
-AthenaRootStreamerSvc            INFO 9 ROOT streamers declared
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPVec3dStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepVector3D
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPPoint3dStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepPoint3D
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPRotationStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepRotation
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPGenMatrixStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepGenMatrix
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPMatrixStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepMatrix
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPLorVecStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepLorentzVector
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPTransform3DStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
-AthenaRootStreamerSvc            INFO Adopted streamer for class HepTransform3D
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEP3VectorStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
-AthenaRootStreamerSvc            INFO Adopted streamer for class Hep3Vector
-AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPBasicVectorStreamer
-AthenaRootStreamerSvc            INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
-AthenaRootStreamerSvc            INFO Adopted streamer for class BasicVector3D
-ProxyProviderSvc                 INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
-DetectorStore                    INFO Initializing DetectorStore - package version StoreGate-02-45-01-10
+MetaDataSvc                      INFO Initializing MetaDataSvc - package version AthenaServices-01-60-14
+InputMetaDataStore               INFO Initializing InputMetaDataStore - package version StoreGate-03-06-43
+MetaDataStore                    INFO Initializing MetaDataStore - package version StoreGate-03-06-43
+AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-20
+ProxyProviderSvc                 INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
+DetectorStore                    INFO Initializing DetectorStore - package version StoreGate-03-06-43
 IOVDbSvc                         INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
-ToolSvc.CondStream2              INFO Initializing ToolSvc.CondStream2 - package version OutputStreamAthenaPool-00-02-75
+ToolSvc.CondStream2              INFO Initializing ToolSvc.CondStream2 - package version OutputStreamAthenaPool-00-02-84
+IOVRegistrationSvc              DEBUG Property update for OutputLevel : new value = 2
+IOVRegistrationSvc              DEBUG in initialize()
+IOVRegistrationSvc              DEBUG Found PersistencySvc 
+IOVRegistrationSvc              DEBUG Found CLIDSvc 
+IOVRegistrationSvc              DEBUG Properties 
+IOVRegistrationSvc              DEBUG RecreateFolders  'RecreateFolders':False
+IOVRegistrationSvc              DEBUG BeginRun         'BeginRun':0
+IOVRegistrationSvc              DEBUG EndRun           'EndRun':2147483647
+IOVRegistrationSvc              DEBUG BeginLB       'BeginLB':0
+IOVRegistrationSvc              DEBUG EndLB         'EndLB':4294967295
+IOVRegistrationSvc              DEBUG IOVDbTag         'IOVDbTag':
+IOVRegistrationSvc              DEBUG in queryInterface()
+IOVRegistrationSvc              DEBUG matched IIOVRegistrationSvc
 IOVDbTestAlg                    DEBUG Found IOVRegistrationSvc 
 IOVDbTestAlg                     INFO Tag to be used: COOL-TEST-001
+IOVDbTestAlg                    DEBUG input handles: 0
+IOVDbTestAlg                    DEBUG output handles: 0
+IOVDbTestAlg                    DEBUG Data Deps for IOVDbTestAlg
 HistogramPersistencySvc       WARNING Histograms saving not required.
 EventSelector                    INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr               INFO Setup EventSelector service EventSelector
-ActiveStoreSvc                   INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-10
+ActiveStoreSvc                   INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-43
 ApplicationMgr                   INFO Application Manager Initialized successfully
 InputMetaDataStore               INFO Start InputMetaDataStore
 MetaDataStore                    INFO Start MetaDataStore
@@ -189,10 +151,6 @@ IOVDbTestAlg                    DEBUG Attribute list [xPosition (float) : 0], [i
 IOVDbTestAlg                    DEBUG ChanNum 16 Attribute list [xPosition (float) : 35], [id (int) : 17], [name (string) : TestAttrList]
 IOVDbTestAlg                    DEBUG ChanNum 26 Attribute list [xPosition (float) : 45], [id (int) : 27], [name (string) : TestAttrList]
 IOVDbTestAlg                    DEBUG ChanNum 36 Attribute list [xPosition (float) : 55], [id (int) : 37], [name (string) : TestAttrList]
-IOVDbTestAlg                    DEBUG ChanNum 46 Attribute list [xPosition (float) : 65], [id (int) : 47], [name (string) : TestAttrList]
-IOVDbTestAlg                    DEBUG Add min : since 4 0 till 2147483647 4294967295
-IOVDbTestAlg                    DEBUG ChanNum 56 Attribute list [xPosition (float) : 75], [id (int) : 57], [name (string) : TestAttrList]
-IOVDbTestAlg                    DEBUG Add min : since 5 0 till 2147483647 4294967295
 IOVDbTestAlg                     INFO in printCondObjects()
 IOVDbTestAlg                     INFO Retrieved IOVDbTestMDTEleMap 
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  45
@@ -207,25 +165,21 @@ IOVDbTestAlg                    DEBUG ChanNum 26 Attribute list [xPosition (floa
 IOVDbTestAlg                    DEBUG No range found 
 IOVDbTestAlg                    DEBUG ChanNum 36 Attribute list [xPosition (float) : 55], [id (int) : 37], [name (string) : TestAttrList]
 IOVDbTestAlg                    DEBUG No range found 
-IOVDbTestAlg                    DEBUG ChanNum 46 Attribute list [xPosition (float) : 65], [id (int) : 47], [name (string) : TestAttrList]
-IOVDbTestAlg                    DEBUG Range R/E : since 4 0 till 2147483647 4294967295
-IOVDbTestAlg                    DEBUG ChanNum 56 Attribute list [xPosition (float) : 75], [id (int) : 57], [name (string) : TestAttrList]
-IOVDbTestAlg                    DEBUG Range R/E : since 5 0 till 2147483647 4294967295
 DetectorStore                 WARNING retrieve(const): No valid proxy for object /Simulation/Parameters  of type AthenaAttributeList(CLID 40774348)
 IOVDbTestAlg                  WARNING Could not retrieve Simulation parameters
 DetectorStore                 WARNING retrieve(const): No valid proxy for object /Digitization/Parameters  of type AthenaAttributeList(CLID 40774348)
 IOVDbTestAlg                  WARNING Could not retrieve Digitization parameters
 IOVDbTestAlg                     INFO Retrieved IOVDbTestMDTEleMapColl 
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  45 channel 101
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  55 channel 104
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  65 channel 107
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  75 channel 110
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  85 channel 113
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  95 channel 116
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  105 channel 119
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 122
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 125
-IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 128
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  45 channel 1
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  55 channel 4
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  65 channel 7
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  75 channel 10
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  85 channel 13
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  95 channel 16
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  105 channel 19
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 22
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 25
+IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 28
 AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #2 10 events processed so far  <<<===
 AthenaEventLoopMgr               INFO   ===>>>  start of run 3    <<<===
 AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #3 10 events processed so far  <<<===
@@ -316,14 +270,14 @@ IOVDbTestAlg                    DEBUG Stream out objects directly
 IOVDbTestAlg                    DEBUG entering streamOutCondObjects 
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 33A2A3E1-95E8-1944-8C67-BE0D2F5BD054
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 3719DA83-D4C1-404B-9775-A890DB811598
 Domain[ROOT_All] Info                           SimplePoolFile.root
-RootDatabase.open Success SimplePoolFile.root File version:53424
+RootDatabase.open Success SimplePoolFile.root File version:60602
 IOVDbTestAlg                    DEBUG Stream out for pairs:
 IOVDbTestAlg                    DEBUG IOVDbTestMDTEleMap  
 IOVDbTestAlg                    DEBUG IOVDbTestAmdbCorrection  
 IOVDbTestAlg                    DEBUG IOVDbTestMDTEleMapColl  
-ClassIDSvc                       INFO  getRegistryEntries: read 2472 CLIDRegistry entries for module ALL
+ClassIDSvc                       INFO  getRegistryEntries: read 2612 CLIDRegistry entries for module ALL
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info IOVDbTestMDTEleMap [DBDD3779-7E80-463C-9E29-5AAA08432783]
 StorageSvc Info Building shape according to reflection information using shape ID for:
@@ -336,8 +290,16 @@ StorageSvc Info Building shape according to reflection information using shape I
 StorageSvc Info DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
 IOVDbTestAlg                    DEBUG Streamed out OK 
 IOVDbTestAlg                    DEBUG entering registerCondObject 
-ClassIDSvc                       INFO  getRegistryEntries: read 34 CLIDRegistry entries for module ALL
+IOVRegistrationSvc              DEBUG  in registerIOV() typename: IOVDbTestMDTEleMap - tag: MDTEleMap_COOL-TEST-001 key: *empty* 
+IOVRegistrationSvc              DEBUG  - begin time: [0,0] - end time: [2147483647,4294967295]
+IOVRegistrationSvc              DEBUG  in registerIOVCOOL()
+ClassIDSvc                       INFO  getRegistryEntries: read 38 CLIDRegistry entries for module ALL
+IOVRegistrationSvc              DEBUG clid size 1
+IOVRegistrationSvc              DEBUG clid  130789821
 EventPersistencySvc              INFO Added successfully Conversion service:AthenaPoolCnvSvc
+IOVRegistrationSvc              DEBUG String address = "<address_header service_type="256" clid="130789821" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestMDTEleMap//IOVDbTest/IOVDbTestMDTEleMap)][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000003-0000000000000000]"
+IOVRegistrationSvc              DEBUG Storing ref: 1 Storing AttrListCollection: 0
+IOVRegistrationSvc              DEBUG Using folder name /IOVDbTest/IOVDbTestMDTEleMap
 IOVDbSvc                         INFO Opening COOL connection for sqlite://;schema=mytest.db;dbname=TESTCOOL
 CoralApplication Info Create a cool::CoralApplication...
 CoralApplication Info Create a new own CORAL connection service
@@ -371,10 +333,165 @@ PluginManager Info PluginManager loaded CORAL/RelationalPlugins/sqlite factory f
 CORAL/Services/ConnectionService Info New connection to service "mytest.db" with connectionID=C#1 has been connected
 CORAL/Services/ConnectionService Info New user session with sessionID=S#1(C#1.s#1) started on connectionID=C#1 to service "mytest.db" for user "" in update mode
 RelationalDatabase Info Instantiate a R/W RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RelationalDatabase Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr Info Disconnect from the database server
+CORAL/Services/ConnectionService Info User session with sessionID=S#1(C#1.s#1) will be ended on connectionID=C#1
+CORAL/Services/ConnectionService Info Connection to service "mytest.db" with connectionID=C#1 will be disconnected
+IOVDbSvc                         INFO *** COOL  exception caught: The database does not exist
+IOVDbSvc                         INFO Create a new conditions database: sqlite://;schema=mytest.db;dbname=TESTCOOL
+RalSessionMgr Info Instantiate a R/W RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info New connection to service "mytest.db" with connectionID=C#2 has been connected
+CORAL/Services/ConnectionService Info New user session with sessionID=S#2(C#2.s#1) started on connectionID=C#2 to service "mytest.db" for user "" in update mode
+RelationalDatabase Info Instantiate a R/W RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+IOVRegistrationSvc              DEBUG Identified prod/writer 00
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG COOL Folder /IOVDbTest/IOVDbTestMDTEleMap does not exist - must create it
+IOVRegistrationSvc              DEBUG split address: <address_header service_type="256" clid="130789821" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestMDTEleMap//IOVDbTest/IOVDbTestMDTEleMap)][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000003-0000000000000000]
+IOVRegistrationSvc              DEBUG   hdr:  <address_header service_type="256" clid="130789821" />
+IOVRegistrationSvc              DEBUG   data: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestMDTEleMap//IOVDbTest/IOVDbTestMDTEleMap)][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000003-0000000000000000]
+IOVRegistrationSvc              DEBUG  create folder /IOVDbTest/IOVDbTestMDTEleMap with description <timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="256" clid="130789821" /></addrHeader><typeName>IOVDbTestMDTEleMap</typeName>
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG Creation of CondDBFolder /IOVDbTest/IOVDbTestMDTEleMap done
+IOVRegistrationSvc              DEBUG  Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMap_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> Stored Object( [0,0], [2147483647,4294967295], MDTEleMap_COOL-TEST-001 )
+IOVRegistrationSvc              DEBUG  -->   address: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestMDTEleMap//IOVDbTest/IOVDbTestMDTEleMap)][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000003-0000000000000000]
+IOVRegistrationSvc              DEBUG  storeData OK 
 IOVDbTestAlg                    DEBUG registered IOVDbTestMDTEleMap with tag MDTEleMap_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  in registerIOV() typename: IOVDbTestAmdbCorrection - tag: AmdbCorrection_COOL-TEST-001 key: *empty* 
+IOVRegistrationSvc              DEBUG  - begin time: [0] - end time: [9223372036854775807]
+IOVRegistrationSvc              DEBUG  in registerIOVCOOL()
+IOVRegistrationSvc              DEBUG clid size 1
+IOVRegistrationSvc              DEBUG clid  132798543
+IOVRegistrationSvc              DEBUG String address = "<address_header service_type="256" clid="132798543" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestAmdbCorrection//IOVDbTest/IOVDbTestAMDBCorrection)][CLID=C3B137B3-F09E-4B75-B14C-AAA2B64408BB][TECH=00000202][OID=0000000000000004-0000000000000000]"
+IOVRegistrationSvc              DEBUG Storing ref: 1 Storing AttrListCollection: 0
+IOVRegistrationSvc              DEBUG Using folder name /IOVDbTest/IOVDbTestAMDBCorrection
+IOVRegistrationSvc              DEBUG Identified prod/writer 00
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG COOL Folder /IOVDbTest/IOVDbTestAMDBCorrection does not exist - must create it
+IOVRegistrationSvc              DEBUG split address: <address_header service_type="256" clid="132798543" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestAmdbCorrection//IOVDbTest/IOVDbTestAMDBCorrection)][CLID=C3B137B3-F09E-4B75-B14C-AAA2B64408BB][TECH=00000202][OID=0000000000000004-0000000000000000]
+IOVRegistrationSvc              DEBUG   hdr:  <address_header service_type="256" clid="132798543" />
+IOVRegistrationSvc              DEBUG   data: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestAmdbCorrection//IOVDbTest/IOVDbTestAMDBCorrection)][CLID=C3B137B3-F09E-4B75-B14C-AAA2B64408BB][TECH=00000202][OID=0000000000000004-0000000000000000]
+IOVRegistrationSvc              DEBUG  create folder /IOVDbTest/IOVDbTestAMDBCorrection with description <timeStamp>time</timeStamp><addrHeader><address_header service_type="256" clid="132798543" /></addrHeader><typeName>IOVDbTestAmdbCorrection</typeName>
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG Creation of CondDBFolder /IOVDbTest/IOVDbTestAMDBCorrection done
+IOVRegistrationSvc              DEBUG  Start/stop time [0] [9223372036854775807] 
+IOVRegistrationSvc              DEBUG Object stored with user tag AmdbCorrection_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> Stored Object( [0], [9223372036854775807], AmdbCorrection_COOL-TEST-001 )
+IOVRegistrationSvc              DEBUG  -->   address: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTree(IOVDbTestAmdbCorrection//IOVDbTest/IOVDbTestAMDBCorrection)][CLID=C3B137B3-F09E-4B75-B14C-AAA2B64408BB][TECH=00000202][OID=0000000000000004-0000000000000000]
+IOVRegistrationSvc              DEBUG  storeData OK 
 IOVDbTestAlg                    DEBUG registered IOVDbTestAmdbCorrection with tag AmdbCorrection_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  in registerIOV() typename: AthenaAttributeList - tag: AttrList_COOL-TEST-001 spec_key /IOVDbTest/IOVDbTestAttrList
+IOVRegistrationSvc              DEBUG  - begin time: [0,0] - end time: [2147483647,4294967295]
+IOVRegistrationSvc              DEBUG  in registerIOVCOOL()
+IOVRegistrationSvc              DEBUG Faking address for AthenaAttributeList
+IOVRegistrationSvc              DEBUG Storing ref: 0 Storing AttrListCollection: 0
+IOVRegistrationSvc              DEBUG Using folder name /IOVDbTest/IOVDbTestAttrList
+IOVRegistrationSvc              DEBUG Identified prod/writer 00
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG COOL Folder /IOVDbTest/IOVDbTestAttrList does not exist - must create it
+IOVRegistrationSvc              DEBUG split address: <address_header service_type="256" clid="40774348" /> POOLContainer_AthenaAttributeList][CLID=x
+IOVRegistrationSvc              DEBUG   hdr:  <address_header service_type="256" clid="40774348" />
+IOVRegistrationSvc              DEBUG   data: POOLContainer_AthenaAttributeList][CLID=x
+IOVRegistrationSvc              DEBUG  create folder /IOVDbTest/IOVDbTestAttrList with description <timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="256" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0
+IOVRegistrationSvc              DEBUG In simple atrlist branch
+IOVRegistrationSvc              DEBUG Pointer to atrList is 0x1108ab68
+IOVRegistrationSvc              DEBUG Creation of CondDBFolder /IOVDbTest/IOVDbTestAttrList done
+IOVRegistrationSvc              DEBUG  Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag AttrList_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> Stored Object( [0,0], [2147483647,4294967295], AttrList_COOL-TEST-001 )
+IOVRegistrationSvc              DEBUG  -->   address: POOLContainer_AthenaAttributeList][CLID=x
+IOVRegistrationSvc              DEBUG  storeData OK 
 IOVDbTestAlg                    DEBUG registered AthenaAttributeList with tag AttrList_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  in registerIOV() typename: CondAttrListCollection - tag: AttrListColl_COOL-TEST-001 key: *empty* 
+IOVRegistrationSvc              DEBUG  - begin time: [0,0] - end time: [2147483647,4294967295]
+IOVRegistrationSvc              DEBUG  in registerIOVCOOL()
+IOVRegistrationSvc              DEBUG Faking address for CondAttrListCollection
+IOVRegistrationSvc              DEBUG Storing ref: 0 Storing AttrListCollection: 1
+IOVRegistrationSvc              DEBUG Using folder name /IOVDbTest/IOVDbTestAttrListColl
+IOVRegistrationSvc              DEBUG Identified prod/writer 00
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0x106d1000
+IOVRegistrationSvc              DEBUG COOL Folder /IOVDbTest/IOVDbTestAttrListColl does not exist - must create it
+IOVRegistrationSvc              DEBUG split address: <address_header service_type="256" clid="1238547719" /> POOLContainer_CondAttrListCollection][CLID=x
+IOVRegistrationSvc              DEBUG   hdr:  <address_header service_type="256" clid="1238547719" />
+IOVRegistrationSvc              DEBUG   data: POOLContainer_CondAttrListCollection][CLID=x
+IOVRegistrationSvc              DEBUG  create folder /IOVDbTest/IOVDbTestAttrListColl with description <timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="256" clid="1238547719" /></addrHeader><typeName>CondAttrListCollection</typeName>
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0x106d1000
+IOVRegistrationSvc              DEBUG Size of AttrList collection3
+IOVRegistrationSvc              DEBUG Pointer to atrList is 0x1108b478
+IOVRegistrationSvc              DEBUG Creation of CondDBFolder /IOVDbTest/IOVDbTestAttrListColl done
+IOVRegistrationSvc              DEBUG  Global Start/stop time: [0,0] [2147483647,4294967295] Note: will be ignored for channels with differnt IOVs 
+IOVRegistrationSvc              DEBUG  --> Storing Object( [0,0], [2147483647,4294967295], AttrListColl_COOL-TEST-001 )
+IOVRegistrationSvc              DEBUG  -->   address: POOLContainer_CondAttrListCollection][CLID=x
+IOVRegistrationSvc              DEBUG  --> ChanNum: 16 Payload: [xPosition (float) : 35], [id (int) : 17], [name (string) : TestAttrList]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag AttrListColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 26 Payload: [xPosition (float) : 45], [id (int) : 27], [name (string) : TestAttrList]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag AttrListColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 36 Payload: [xPosition (float) : 55], [id (int) : 37], [name (string) : TestAttrList]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag AttrListColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  storeData OK 
 IOVDbTestAlg                    DEBUG registered CondAttrListCollection with tag AttrListColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  in registerIOV() typename: IOVDbTestMDTEleMapColl - tag: MDTEleMapColl_COOL-TEST-001 key: *empty* 
+IOVRegistrationSvc              DEBUG  - begin time: [0,0] - end time: [2147483647,4294967295]
+IOVRegistrationSvc              DEBUG  in registerIOVCOOL()
+IOVRegistrationSvc              DEBUG clid size 1
+IOVRegistrationSvc              DEBUG clid  155887251
+IOVRegistrationSvc              DEBUG String address = "<address_header service_type="256" clid="155887251" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeCondMultChanCollImpl][CLID=1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA][TECH=00000202][OID=0000000000000006-0000000000000000]"
+IOVRegistrationSvc              DEBUG Storing ref: 0 Storing AttrListCollection: 1
+IOVRegistrationSvc              DEBUG Using folder name /IOVDbTest/IOVDbTestMDTEleMapColl
+IOVRegistrationSvc              DEBUG Identified prod/writer 00
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 
+IOVRegistrationSvc              DEBUG addr, attrAddr, coll 0x11379920 0x11379920 0x107db300
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0x107db300
+IOVRegistrationSvc              DEBUG COOL Folder /IOVDbTest/IOVDbTestMDTEleMapColl does not exist - must create it
+IOVRegistrationSvc              DEBUG split address: <address_header service_type="256" clid="155887251" /> [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeCondMultChanCollImpl][CLID=1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA][TECH=00000202][OID=0000000000000006-0000000000000000]
+IOVRegistrationSvc              DEBUG   hdr:  <address_header service_type="256" clid="155887251" />
+IOVRegistrationSvc              DEBUG   data: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeCondMultChanCollImpl][CLID=1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA][TECH=00000202][OID=0000000000000006-0000000000000000]
+IOVRegistrationSvc              DEBUG  create folder /IOVDbTest/IOVDbTestMDTEleMapColl with description <timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="256" clid="155887251" /></addrHeader><typeName>IOVDbTestMDTEleMapColl</typeName>
+IOVRegistrationSvc              DEBUG Set attr list coll ptr 0x107db300
+IOVRegistrationSvc              DEBUG Size of AttrList collection10
+IOVRegistrationSvc              DEBUG Pointer to atrList is 0x1134a578
+IOVRegistrationSvc              DEBUG Creation of CondDBFolder /IOVDbTest/IOVDbTestMDTEleMapColl done
+IOVRegistrationSvc              DEBUG  Global Start/stop time: [0,0] [2147483647,4294967295] Note: will be ignored for channels with differnt IOVs 
+IOVRegistrationSvc              DEBUG  --> Storing Object( [0,0], [2147483647,4294967295], MDTEleMapColl_COOL-TEST-001 )
+IOVRegistrationSvc              DEBUG  -->   address: [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeCondMultChanCollImpl][CLID=1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA][TECH=00000202][OID=0000000000000006-0000000000000000]
+IOVRegistrationSvc              DEBUG  --> ChanNum: 1 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000000]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 4 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000001]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 7 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000002]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 10 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000003]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 13 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000004]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 16 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000005]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 19 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000006]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 22 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000007]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 25 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000008]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  --> ChanNum: 28 Payload: [PoolRef (string) : [DB=3719DA83-D4C1-404B-9775-A890DB811598][CNT=CollectionTreeIOVDbTestMDTEleMap][CLID=DBDD3779-7E80-463C-9E29-5AAA08432783][TECH=00000202][OID=0000000000000005-0000000000000009]]
+IOVRegistrationSvc              DEBUG  --> Start/stop time [0,0] [2147483647,4294967295] 
+IOVRegistrationSvc              DEBUG Object stored with user tag MDTEleMapColl_COOL-TEST-001
+IOVRegistrationSvc              DEBUG  storeData OK 
 IOVDbTestAlg                    DEBUG registered IOVDbTestMDTEleMapColl with tag MDTEleMapColl_COOL-TEST-001
 IOVDbTestAlg                    DEBUG Register OK 
 AthAlgSeq                        INFO Finalizing AthAlgSeq...
@@ -382,33 +499,31 @@ IOVDbTestAlg                    DEBUG Calling destructor
 AthOutSeq                        INFO Finalizing AthOutSeq...
 AthRegSeq                        INFO Finalizing AthRegSeq...
 AthMasterSeq                     INFO Finalizing AthMasterSeq...
-StoreGateSvc                     INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-10
+StoreGateSvc                     INFO Finalizing StoreGateSvc - package version StoreGate-03-06-43
 EventSelector                    INFO finalize
-DetectorStore                    INFO Finalizing DetectorStore - package version StoreGate-02-45-01-10
-MetaDataStore                    INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-10
-InputMetaDataStore               INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-10
+DetectorStore                    INFO Finalizing DetectorStore - package version StoreGate-03-06-43
+MetaDataStore                    INFO Finalizing MetaDataStore - package version StoreGate-03-06-43
+InputMetaDataStore               INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-43
 IOVDbSvc                         INFO Total payload read from COOL: 0 bytes in ((      0.00 ))s
 IOVDbSvc                         INFO Disconnecting from sqlite://;schema=mytest.db;dbname=TESTCOOL
 RalSessionMgr Info Disconnect from the database server
-CORAL/Services/ConnectionService Info User session with sessionID=S#1(C#1.s#1) will be ended on connectionID=C#1
-CORAL/Services/ConnectionService Info Connection to service "mytest.db" with connectionID=C#1 will be disconnected
+CORAL/Services/ConnectionService Info User session with sessionID=S#2(C#2.s#1) will be ended on connectionID=C#2
+CORAL/Services/ConnectionService Info Connection to service "mytest.db" with connectionID=C#2 will be disconnected
 RelationalDatabase Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
 RalSessionMgr Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
 IOVDbSvc                         INFO Connection sqlite://;schema=mytest.db;dbname=TESTCOOL : nConnect: 1 nFolders: 0 ReadTime: ((     0.00 ))s
-PoolSvc                          INFO I/O finalization...
 SimplePoolFile.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 33A2A3E1-95E8-1944-8C67-BE0D2F5BD054
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3719DA83-D4C1-404B-9775-A890DB811598
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 PoolXMLFileCatalog Info XercesC termination number 0
+PoolSvc                          INFO I/O finalization...
 AthDictLoaderSvc                 INFO in finalize...
 ToolSvc                          INFO Removing all tools created by ToolSvc
 *****Chrono*****                 INFO ****************************************************************************************************
 *****Chrono*****                 INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                 INFO ****************************************************************************************************
-AthenaSealSvc::autoLoading       INFO Time User   : Tot=   39 [ms] Ave/Min/Max=   13(+- 9.42)/    1/   24 [ms] #=  3
-AthenaSealSvc::checkClass        INFO Time User   : Tot=   40 [ms] Ave/Min/Max= 5.71(+- 8.84)/    0/   24 [ms] #=  7
-AthenaSealSvc::dictLoading       INFO Time User   : Tot=   44 [ms]                                             #=  1
-ChronoStatSvc                    INFO Time User   : Tot= 1.42  [s]                                             #=  1
+AthenaSealSvc::dictLoading       INFO Time User   : Tot=   11 [ms]                                             #=  1
+ChronoStatSvc                    INFO Time User   : Tot= 1.14  [s]                                             #=  1
 *****Chrono*****                 INFO ****************************************************************************************************
 ChronoStatSvc.finalize()         INFO  Service finalized successfully 
 ApplicationMgr                   INFO Application Manager Finalized successfully
