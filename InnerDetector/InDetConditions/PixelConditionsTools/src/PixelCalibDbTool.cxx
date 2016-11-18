@@ -84,7 +84,7 @@ StatusCode PixelCalibDbTool::updateAddress(StoreID::type /*storeID*/,SG::Transie
   std::string key = tad->name(); 
   if(146316417 == clid && par_caliblocation == key)
     { 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelCalibDataColl "<<endreq; 
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelCalibDataColl "<<endmsg; 
       return StatusCode::SUCCESS; 
     }
   return StatusCode::FAILURE; 
@@ -103,11 +103,11 @@ StatusCode  PixelCalibDbTool::initialize()
   // Code entered here will be executed once at program start.
   
   //m_log.setLevel(outputLevel());
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
   StatusCode sc = service("ToolSvc", m_toolsvc);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endreq;
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -116,12 +116,12 @@ StatusCode  PixelCalibDbTool::initialize()
   bool CREATEIF(true); 
   sc = service("IOVSvc", m_IOVSvc, CREATEIF); 
   if(sc.isFailure()){ 
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endreq; 
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endmsg; 
     return StatusCode::FAILURE; 
   }
   // determine if RUN1 or RUN2 used 
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return (StatusCode::FAILURE);
   }
   if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN2) { isIBL =true; }
@@ -131,11 +131,11 @@ StatusCode  PixelCalibDbTool::initialize()
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
   if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel")){
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endreq; 
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endmsg; 
     return StatusCode::FAILURE; 
   }
   if (detStore()->retrieve(m_pixid, "PixelID").isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if(isRUN1&&(m_pixid->wafer_hash_max()==2048)){
@@ -169,7 +169,7 @@ StatusCode  PixelCalibDbTool::initialize()
 
   //std::sort(m_calibobjs.begin(), m_calibobjs.end());
   
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" m_calibobjs size "<< m_calibobjs.size()<<" writedb ?" <<par_writedb<<endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" m_calibobjs size "<< m_calibobjs.size()<<" writedb ?" <<par_writedb<<endmsg; 
 
   // if the folder exists, register a callback, if we read from textfile and 
   // the folder already exists, read the textfile in the callback. If the folder does not 
@@ -179,10 +179,10 @@ StatusCode  PixelCalibDbTool::initialize()
   if(!par_writedb){
     const DataHandle<CondAttrListCollection> calibData;
     if( (detStore()->regFcn(&IPixelCalibDbTool::IOVCallBack, dynamic_cast<IPixelCalibDbTool*>(this), calibData, par_calibfolder)).isFailure()){ 
-      if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " PixelCalibDbTool: cannot register callback for folder " <<par_calibfolder << endreq; 
+      if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " PixelCalibDbTool: cannot register callback for folder " <<par_calibfolder << endmsg; 
       return StatusCode::FAILURE; 
     } 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDbTool: The Pixel/Calib keys and chips are: "<<m_calibobjs.size()<<endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDbTool: The Pixel/Calib keys and chips are: "<<m_calibobjs.size()<<endmsg;
   }
   else{
     sc = createPixelCalibObjects(); // need the object to write DB as well 
@@ -195,7 +195,7 @@ StatusCode  PixelCalibDbTool::initialize()
 
 StatusCode  PixelCalibDbTool::finalize()
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelCalibDbTool finalize method called" << endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelCalibDbTool finalize method called" << endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
@@ -205,11 +205,11 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
   StatusCode sc = StatusCode::SUCCESS; 
   std::list<std::string>::const_iterator itr; 
   for( itr=keys.begin(); itr !=keys.end(); ++itr)
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endreq; 
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg; 
 
   for(itr=keys.begin(); itr !=keys.end(); ++itr){ 
     if(*itr ==par_calibfolder){ 
-      if(msgLvl(MSG::INFO))msg(MSG::INFO) <<" Load PixelCalibData from DB" <<endreq; 
+      if(msgLvl(MSG::INFO))msg(MSG::INFO) <<" Load PixelCalibData from DB" <<endmsg; 
       // reintialize the PixelCalibDataColl 
       sc = createPixelCalibObjects(); 
       if(sc.isFailure()) return StatusCode::FAILURE; 
@@ -226,7 +226,7 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       sc = detStore()->retrieve(atrc, par_calibfolder); 
 
       if(sc.isFailure()) { 
-	if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retreive CondAttrListCollection from DB folder "<<par_calibfolder<<endreq; 
+	if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retreive CondAttrListCollection from DB folder "<<par_calibfolder<<endmsg; 
 	return sc; 
       }
 
@@ -292,20 +292,20 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       //update the IOV for the PixelCalibDataColl
       //using the IOV from the string class 
       // finally record PixelCalibDataColl
-      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Collection CondAttrListCollection CLID "<<atrc->clID()<<endreq;
+      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Collection CondAttrListCollection CLID "<<atrc->clID()<<endmsg;
 
       } else {
 	//
 	// load constants from new db -- A.X. // make sure PCDDb working ok
 	//
 	if(!isRUN1){
-          if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "not implemented loading PixelCalibDb with IBL from Coral Db " << endreq;
+          if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "not implemented loading PixelCalibDb with IBL from Coral Db " << endmsg;
           return StatusCode::FAILURE;
 	}
 	else{
 	  PCDDb db(m_connString, m_tableName, true, m_useCoral>1);
 	  if (!db.init(m_dbTag, m_dbRevision)) {
-	    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not load PixelCalibDb" << endreq;
+	    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not load PixelCalibDb" << endmsg;
 	    return StatusCode::FAILURE;
 	  }
 
@@ -325,7 +325,7 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	      }
 	      //}
 	  }
-	  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "loaded " << nDet << " detectors, done with PixelCalibDb" << endreq;
+	  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "loaded " << nDet << " detectors, done with PixelCalibDb" << endmsg;
 	}
       }
     }
@@ -344,7 +344,7 @@ StatusCode PixelCalibDbTool::createPixelCalibObjects() const
   if(m_calibData)delete m_calibData;  //remove the existing PixelCalibDataColl objects 
   m_calibData = new PixelCalibDataColl;
   m_calibData->resize(m_pixid->wafer_hash_max());
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " createPixelCalibObjects method called size " << m_calibobjs.size()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " createPixelCalibObjects method called size " << m_calibobjs.size()<<endmsg;
 
   for(unsigned int i=0; i<m_calibobjs.size(); ++i) {
     /*
@@ -363,23 +363,23 @@ StatusCode PixelCalibDbTool::createPixelCalibObjects() const
     PixelCalib::PixelCalibData* pat = new PixelCalib::PixelCalibData(m_calibobjs[i].first,m_calibobjs[i].second);
     IdentifierHash id_hash = m_pixid->wafer_hash(m_calibobjs[i].first); 
     (*m_calibData)[id_hash] = pat; 
-    if(i<10&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " added empty PixelCalibData for key "<< m_calibobjs[i].first<<" "<<m_calibobjs[i].second<<" "<<pat->getNFEIX()<<endreq;
+    if(i<10&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " added empty PixelCalibData for key "<< m_calibobjs[i].first<<" "<<m_calibobjs[i].second<<" "<<pat->getNFEIX()<<endmsg;
   }
 
   return StatusCode::SUCCESS; 
 }
 
 void PixelCalibDbTool::printPixelCalibObjects() const { 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDb contains " << m_calibobjs.size()<< " PixelCalibData: "<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDb contains " << m_calibobjs.size()<< " PixelCalibData: "<<endmsg;
   const PixelCalib::PixelCalibData *pat; 
   for (std::vector<std::pair<Identifier,int> >::const_iterator iobj=m_calibobjs.begin(); iobj !=m_calibobjs.end();
        ++iobj){ 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Module Identifier " <<iobj->first << endreq; 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Module Identifier " <<iobj->first << endmsg; 
     pat=cgetCalibPtr(iobj->first); 
     if(pat){ 
       pat->print(); 
     } else { 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " Could not find key: "<< iobj->first<<endreq; 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " Could not find key: "<< iobj->first<<endmsg; 
     }
   }
 }
@@ -389,7 +389,7 @@ StatusCode PixelCalibDbTool::readPixelCalibDBtoTextFile(std::string file) const
 { 
   std::ofstream* outfile=0; 
   if(msgLvl(MSG::INFO))msg(MSG::INFO) << " read PixelCalibData to text file: " 
-	<< file << endreq; 
+	<< file << endmsg; 
   outfile = new std::ofstream(file.c_str()); 
   
   int nchips = 0; 
@@ -400,10 +400,10 @@ StatusCode PixelCalibDbTool::readPixelCalibDBtoTextFile(std::string file) const
     Identifier key =iobj->first; 
     IdentifierHash wafsh = m_pixid->wafer_hash(key);
     if(!pat){ 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " Cannot find PixelCalibData for module wafer_hash  " << wafsh << endreq; 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " Cannot find PixelCalibData for module wafer_hash  " << wafsh << endmsg; 
       return StatusCode::FAILURE; 
     }
-    if(nobj%100==0&&msgLvl(MSG::INFO)) msg(MSG::INFO) << " ith Module written:"<<nobj<<" with wafer_hash: " << wafsh<<endreq; 
+    if(nobj%100==0&&msgLvl(MSG::INFO)) msg(MSG::INFO) << " ith Module written:"<<nobj<<" with wafer_hash: " << wafsh<<endmsg; 
    
     if(!isRUN1){
       if(!isIBL)continue;
@@ -434,40 +434,40 @@ StatusCode PixelCalibDbTool::readPixelCalibDBtoTextFile(std::string file) const
   outfile->close(); 
   delete outfile; 
   if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Written "<< nobj <<" PixelCalibData objects" << 
-    " with " << nchips << " chips to text file "<<endreq; 
+    " with " << nchips << " chips to text file "<<endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
 //===================================================================================================
 StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const{ 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "WritePixelCalib constants from text file to DB: "<< file<<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "WritePixelCalib constants from text file to DB: "<< file<<endmsg; 
 
   CondAttrListCollection* atrc=0; 
   // check if collection ready exits 
   if(!detStore()->contains<CondAttrListCollection>(par_calibfolder)) { 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new CondAttrListCollection for folder "<<par_calibfolder <<endreq; 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new CondAttrListCollection for folder "<<par_calibfolder <<endmsg; 
     CondAttrListCollection* atrc = new CondAttrListCollection(true); 
 
     if(StatusCode::SUCCESS !=detStore()->record(atrc,par_calibfolder)){ 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create CondAttrListCollection "<<par_calibfolder<<endreq; 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create CondAttrListCollection "<<par_calibfolder<<endmsg; 
       return StatusCode::FAILURE; 
     }
   }
   //do const cast here so we can add to already existing collections 
   const CondAttrListCollection* catrc = 0; 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Attempting to retrieve collection (const) "<<endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Attempting to retrieve collection (const) "<<endmsg; 
   if(StatusCode::SUCCESS !=detStore()->retrieve(catrc, par_calibfolder)){ 
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve CondAttrListCollection "<<par_calibfolder<<endreq; 
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve CondAttrListCollection "<<par_calibfolder<<endmsg; 
     return StatusCode::FAILURE; 
   }
   atrc = const_cast<CondAttrListCollection*>(catrc); 
 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " About to create AttributeListSpecification "<<endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " About to create AttributeListSpecification "<<endmsg; 
   
   coral::AttributeListSpecification* aspec = new coral::AttributeListSpecification();
 
   if(aspec==0){
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve non-const pointer to aspec"<<endreq;
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve non-const pointer to aspec"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -478,14 +478,14 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
 
   FILE* f = fopen(file.c_str(), "rb"); 
   if(!f){
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Cannot open file "<< file<<endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Cannot open file "<< file<<endmsg;
     return StatusCode::FAILURE;
   }
   fseek (f, 0L, SEEK_END); 
   int size = ftell (f); 
   fseek(f, 0L, SEEK_SET); 
   
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Input file size is "<<size<<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Input file size is "<<size<<endmsg; 
   Identifier ident_save(0);
   while(!feof(f)){ 
     char header[4001];
@@ -494,14 +494,14 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     
     fgets(headerx, 250, f);
 
-    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ith "<<k<<" header: "<< headerx <<endreq;
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ith "<<k<<" header: "<< headerx <<endmsg;
 
     // need to unpact for identifier or Hash 
     char* pch;
 
     pch = strtok(headerx, "NULL"); 
 
-    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endreq; 
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endmsg; 
     strcpy(header,pch);
     int component, eta;
     unsigned int layer,phi;
@@ -521,19 +521,19 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     Identifier ident = m_pixid->wafer_id(component, layer, phi, eta);
     IdentifierHash id_hash = m_pixid->wafer_hash(ident);
     if(ident==ident_save)continue; // make sure there are no two identical modules
-    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier ibc "<<component <<" layer-disk "<<layer<<" ph-module "<<phi<<" eta-module "<<eta<<endreq;
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier ibc "<<component <<" layer-disk "<<layer<<" ph-module "<<phi<<" eta-module "<<eta<<endmsg;
     PixelCalib::PixelCalibData* datamod = getCalibPtr(ident);
 
     for(int i=0; i<datamod->getNFEIX(); ++i){
       char pack[250];
       fgets(pack, 250, f); 
-      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"i "<<i<<" chip data: "<< pack<<endreq;
+      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"i "<<i<<" chip data: "<< pack<<endmsg;
       strcat(header, pack); 
     }
     std::string sdata = header; //strcat(header, " end"); 
     // fill in the database 
     AthenaAttributeList alist(*aspec);
-    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" ident_hash "<<id_hash<<" [ " <<component<<","<<layer<<","<<phi<<","<<eta<<"] "<< " data string: "<< sdata<<endreq; 
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" ident_hash "<<id_hash<<" [ " <<component<<","<<layer<<","<<phi<<","<<eta<<"] "<< " data string: "<< sdata<<endmsg; 
     alist["data"].setValue(sdata); 
     CondAttrListCollection::ChanNum channum = id_hash; 
     atrc->add(channum, alist); 
@@ -542,7 +542,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
   }
   
   fclose(f); 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write File to DB with modules "<< k <<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write File to DB with modules "<< k <<endmsg; 
 
   return StatusCode::SUCCESS; 
 }

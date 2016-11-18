@@ -44,7 +44,7 @@ PixelRecoDbTestWriteRead::~PixelRecoDbTestWriteRead(void)
 StatusCode PixelRecoDbTestWriteRead::initialize() {
   
   msg(MSG::INFO) << "PixelRecoDbTestWriteRead::initialize() called" 
-        << endreq;
+        << endmsg;
   
   //get Database manager tool
   StatusCode sc; 
@@ -55,10 +55,10 @@ StatusCode PixelRecoDbTestWriteRead::initialize() {
   sc = m_calibdbtool.retrieve();
 
   if (StatusCode::SUCCESS!=sc) {
-    msg(MSG::FATAL) << "PixelRecoDbTool not found" << endreq;
+    msg(MSG::FATAL) << "PixelRecoDbTool not found" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " PixelRecoDbTool found " << endreq;
+  msg(MSG::INFO) << " PixelRecoDbTool found " << endmsg;
   
   
   return StatusCode::SUCCESS;
@@ -71,26 +71,26 @@ StatusCode PixelRecoDbTestWriteRead::execute() {
   //
   // at first event:
     // create Conditions objects in the detectorstore
-  msg(MSG::INFO)<<" Event execute "<<endreq; 
+  msg(MSG::INFO)<<" Event execute "<<endmsg; 
 
   if(!m_setup){
     m_setup = true; 
     // write calibration text file into database 
     // the name of the file is a property of the PixelRecoDbTool
     if (par_write){
-      msg(MSG::INFO)<<" Write pixel calibration file into DB "<<endreq; 
+      msg(MSG::INFO)<<" Write pixel calibration file into DB "<<endmsg; 
       sc=m_calibdbtool->writePixelCalibTextFiletoDB();
       if(sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<par_wfile<<" into database. "<< endreq;
+	msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<par_wfile<<" into database. "<< endmsg;
 	return StatusCode::FAILURE;
       }
     }
     // read calibration constants from database 
     if (par_read){
-      msg(MSG::INFO)<<" Read pixel calibration from database into a file: "<<endreq; 
+      msg(MSG::INFO)<<" Read pixel calibration from database into a file: "<<endmsg; 
       sc=m_calibdbtool->readPixelCalibDBtoTextFile();
       if(sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) << " Could not read Pixel Calibration objects from DB "<< endreq;
+	msg(MSG::ERROR) << " Could not read Pixel Calibration objects from DB "<< endmsg;
 	return StatusCode::FAILURE;
       }
     }
@@ -100,6 +100,6 @@ StatusCode PixelRecoDbTestWriteRead::execute() {
  
 StatusCode PixelRecoDbTestWriteRead::finalize() 
 {  
-  msg(MSG::INFO)<<" PixelRecoDbTestWriteRead: finishing "<<endreq; 
+  msg(MSG::INFO)<<" PixelRecoDbTestWriteRead: finishing "<<endmsg; 
   return StatusCode::SUCCESS;
 }

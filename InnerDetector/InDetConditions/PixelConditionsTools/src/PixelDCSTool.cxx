@@ -113,7 +113,7 @@ PixelDCSTool::~PixelDCSTool(){}
 StatusCode PixelDCSTool::initialize()
 {
   //m_log.setLevel(outputLevel());
-  if (msgLvl(MSG::INFO))msg(MSG::INFO) << " Entering PixelDCSTool::initialize()" << endreq;
+  if (msgLvl(MSG::INFO))msg(MSG::INFO) << " Entering PixelDCSTool::initialize()" << endmsg;
 
    StatusCode sc = StatusCode::SUCCESS; 
 
@@ -121,10 +121,10 @@ StatusCode PixelDCSTool::initialize()
   // sc = service("ToolSvc", m_toolsvc);
   sc = m_toolsvc.retrieve();
   if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Unable to retrieve ToolSvc"<< endreq;
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Unable to retrieve ToolSvc"<< endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ToolSvc retrieved" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ToolSvc retrieved" << endmsg;
 
 
 
@@ -132,10 +132,10 @@ StatusCode PixelDCSTool::initialize()
   //sc = service("IOVSvc", m_IOVSvc); 
   sc = m_IOVSvc.retrieve();
   if(sc.isFailure()){ 
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve IOVSvc" << endreq; 
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve IOVSvc" << endmsg; 
     return StatusCode::FAILURE; 
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVSvc retrieved" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVSvc retrieved" << endmsg;
 
 
 
@@ -143,20 +143,20 @@ StatusCode PixelDCSTool::initialize()
   //sc = service("IOVRegistrationSvc", m_IOVRegistrationSvc); 
   sc = m_IOVRegistrationSvc.retrieve();
   if(sc.isFailure()){ 
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve IOVRegistrationSvc" << endreq; 
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve IOVRegistrationSvc" << endmsg; 
     return StatusCode::FAILURE; 
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVRegistrationSvc retrieved" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVRegistrationSvc retrieved" << endmsg;
 
 
   // Retrieve Athena Output Stream Tool
   //sc = m_toolsvc->retrieveTool("AthenaOutputStreamTool","CondStreamPixelDCSTest", m_streamer);
   sc = m_streamer.retrieve();
   if(sc.isFailure()){ 
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve AthenaPoolOutputStreamTool" << endreq;
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve AthenaPoolOutputStreamTool" << endmsg;
     return StatusCode::FAILURE; 
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "AthenaPoolOutputStreamTool retrieved" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "AthenaPoolOutputStreamTool retrieved" << endmsg;
 
 
 
@@ -165,11 +165,11 @@ StatusCode PixelDCSTool::initialize()
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
   if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endreq; 
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endmsg; 
     return StatusCode::FAILURE; 
   }
   if (detStore()->retrieve(m_pixid, "PixelID").isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -183,7 +183,7 @@ StatusCode PixelDCSTool::initialize()
       Identifier ident = element->identify(); 
       if(m_pixid->is_pixel(ident)){
 	IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
-	if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "identifier   " <<ident.get_compact() << "   hash     " << (unsigned int)id_hash << endreq;
+	if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "identifier   " <<ident.get_compact() << "   hash     " << (unsigned int)id_hash << endmsg;
       }
     }
   }
@@ -197,7 +197,7 @@ StatusCode PixelDCSTool::initialize()
       const DataHandle<CondAttrListCollection> attrListCollT;
       if( (detStore()->regFcn(&IPixelDCSTool::IOVCallBack, dynamic_cast<IPixelDCSTool*>(this),
 			      attrListCollT, m_temperatureKey)).isFailure()){ 
-	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_temperatureKey << endreq; 
+	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_temperatureKey << endmsg; 
 	return StatusCode::FAILURE; 
       }
     }
@@ -206,7 +206,7 @@ StatusCode PixelDCSTool::initialize()
       const DataHandle<CondAttrListCollection> attrListCollHV;
       if( (detStore()->regFcn(&IPixelDCSTool::IOVCallBack, dynamic_cast<IPixelDCSTool*>(this),
 			      attrListCollHV, m_HVKey)).isFailure()){ 
-	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_HVKey << endreq; 
+	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_HVKey << endmsg; 
 	return StatusCode::FAILURE; 
       }
     }
@@ -215,7 +215,7 @@ StatusCode PixelDCSTool::initialize()
       const DataHandle<CondAttrListCollection> attrListCollFSMS;
       if( (detStore()->regFcn(&IPixelDCSTool::IOVCallBack, dynamic_cast<IPixelDCSTool*>(this),
 			      attrListCollFSMS, m_FSMStatusKey)).isFailure()){ 
-	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_FSMStatusKey << endreq; 
+	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_FSMStatusKey << endmsg; 
 	return StatusCode::FAILURE; 
       }
     }
@@ -224,7 +224,7 @@ StatusCode PixelDCSTool::initialize()
       const DataHandle<CondAttrListCollection> attrListCollFSMSt;
       if( (detStore()->regFcn(&IPixelDCSTool::IOVCallBack, dynamic_cast<IPixelDCSTool*>(this),
 			      attrListCollFSMSt, m_FSMStateKey)).isFailure()){ 
-	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_FSMStateKey << endreq; 
+	if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to register callback for folder " << m_FSMStateKey << endmsg; 
 	return StatusCode::FAILURE; 
       }
     }
@@ -235,7 +235,7 @@ StatusCode PixelDCSTool::initialize()
 }
 
 StatusCode PixelDCSTool::finalize(){
-  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "Entering PixelDCSTool::finalize()" << endreq; 
+  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "Entering PixelDCSTool::finalize()" << endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
@@ -251,7 +251,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 
   bool data_change = false;
   for(si=keys.begin(); si!=keys.end(); ++si){
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVCALLBACK for key " << *si << " number " << I << endreq; 
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVCALLBACK for key " << *si << " number " << I << endmsg; 
     if(*si == m_temperatureKey || *si == m_HVKey || *si ==m_FSMStatusKey || *si ==m_FSMStateKey){ 
       data_change = true;
     }
@@ -260,18 +260,18 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
   if(data_change){
    
     if (this->createDCSData().isFailure()) {
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not create DCS data" << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not create DCS data" << endmsg;
       return(StatusCode::FAILURE);
     }
 
     if(m_temperature){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS temperature from DB "  << endreq; 
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS temperature from DB "  << endmsg; 
 
       const CondAttrListCollection* atrc_temp; 
       sc = detStore()->retrieve(atrc_temp, m_temperatureKey); 
 
       if(sc.isFailure()) { 
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_temperatureKey<<endreq; 
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_temperatureKey<<endmsg; 
 	return sc; 
       }
 
@@ -286,13 +286,13 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
     }
 
     if(m_HV){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  HV from DB "  << endreq; 
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  HV from DB "  << endmsg; 
 
       const CondAttrListCollection* atrc_hv; 
       sc = detStore()->retrieve(atrc_hv, m_HVKey); 
 
       if(sc.isFailure()) { 
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_HVKey<<endreq; 
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_HVKey<<endmsg; 
 	return sc; 
       }
 
@@ -309,13 +309,13 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 
 
     if(m_FSMStatus){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  FSM status from DB "  << endreq; 
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  FSM status from DB "  << endmsg; 
 
       const CondAttrListCollection* atrc_fsmstatus; 
       sc = detStore()->retrieve(atrc_fsmstatus, m_FSMStatusKey); 
       
       if(sc.isFailure()) { 
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_FSMStatusKey<<endreq; 
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_FSMStatusKey<<endmsg; 
 	return sc; 
       }
 
@@ -331,13 +331,13 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
     }
 
     if(m_FSMState){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  FSM state from DB "  << endreq; 
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Loading DCS  FSM state from DB "  << endmsg; 
 
       const CondAttrListCollection* atrc_fsmstate; 
       sc = detStore()->retrieve(atrc_fsmstate, m_FSMStateKey); 
       
       if(sc.isFailure()) { 
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_FSMStateKey<<endreq; 
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retrieve CondAttrListCollection from DB folder "<<m_FSMStateKey<<endmsg; 
 	return sc; 
       }
 
@@ -356,7 +356,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 
   sc = this->recordDCSData();
   if(!sc.isSuccess()){
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register PixelDCSData to detector store" << endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register PixelDCSData to detector store" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -369,7 +369,7 @@ StatusCode PixelDCSTool::createDCSData()
 {
 
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in PixelDCSTool::createDCSData()" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in PixelDCSTool::createDCSData()" << endmsg;
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
@@ -377,7 +377,7 @@ StatusCode PixelDCSTool::createDCSData()
   itermax = m_pixman->getDetectorElementEnd(); 
 
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "get iterator to detector element ok" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "get iterator to detector element ok" << endmsg;
 
   m_pixelDCSData = new PixelDCSData();
   m_pixelDCSData->resize(m_pixid->wafer_hash_max());
@@ -401,16 +401,16 @@ StatusCode PixelDCSTool::createDCSData()
 
 } 
 
-StatusCode PixelDCSTool::writeDataToDB() const
+StatusCode PixelDCSTool::writeDataToDB()
 {
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writeDataToDB()" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writeDataToDB()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS; 
 
   if(m_writeDefault){
 
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Start writing default values to db " << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Start writing default values to db " << endmsg;
 
 
     // Get the geometry 
@@ -476,64 +476,64 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
     sc = this->commitDataToDetectorStore(attrListColl_temp, m_temperatureKey);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endmsg;
  
     sc = this->registerIOVData(m_temperatureKey, m_temperatureTag);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endmsg;
  
 
 
     sc = this->commitDataToDetectorStore(attrListColl_hv, m_HVKey);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endmsg;
  
     sc = this->registerIOVData(m_HVKey, m_HVTag);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endmsg;
 
 
 
     sc = this->commitDataToDetectorStore(attrListColl_fsmstatus, m_FSMStatusKey);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endmsg;
 
     sc = this->registerIOVData(m_FSMStatusKey, m_FSMStatusTag);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endmsg;
 
 
     sc = this->commitDataToDetectorStore(attrListColl_fsmstate, m_FSMStateKey);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endmsg;
 
     sc = this->registerIOVData(m_FSMStateKey, m_FSMStateTag);
     if(sc.isFailure()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endmsg;
 
 
   }
@@ -567,17 +567,17 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
 	    sc = this->commitDataToDetectorStore(attrListColl_temp, m_temperatureKey);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endmsg;
  
 	    sc = this->registerIOVData(m_temperatureKey, m_temperatureTag);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endmsg;
  
 
 	    moduleToStore.clear();
@@ -601,21 +601,21 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
     if(moduleToStore.size()){
 
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_temperatureKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_temperatureKey << endmsg;
  
       sc = this->commitDataToDetectorStore(attrListColl_temp, m_temperatureKey);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_temperatureKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_temperatureKey << endmsg;
  
       sc = this->registerIOVData(m_temperatureKey, m_temperatureTag);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_temperatureKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_temperatureKey << endmsg;
  
 
       moduleToStore.clear();
@@ -649,17 +649,17 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
 	    sc = this->commitDataToDetectorStore(attrListColl_hv, m_HVKey);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endreq;
+	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endmsg;
  
 	    sc = this->registerIOVData(m_HVKey, m_HVTag);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endmsg;
 
 
 	    moduleToStore.clear();
@@ -680,21 +680,21 @@ StatusCode PixelDCSTool::writeDataToDB() const
     }
 
     if(moduleToStore.size()){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_HVKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_HVKey << endmsg;
 
       sc = this->commitDataToDetectorStore(attrListColl_hv, m_HVKey);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_HVKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_HVKey << endmsg;
  
       sc = this->registerIOVData(m_HVKey, m_HVTag);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_HVKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_HVKey << endmsg;
 
 
       moduleToStore.clear();
@@ -728,17 +728,17 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
 	    sc = this->commitDataToDetectorStore(attrListColl_fsmstatus, m_FSMStatusKey);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endmsg;
 
 	    sc = this->registerIOVData(m_FSMStatusKey, m_FSMStatusTag);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endmsg;
 
 
 	    moduleToStore.clear();
@@ -760,21 +760,21 @@ StatusCode PixelDCSTool::writeDataToDB() const
  
     if(moduleToStore.size()){
 
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_FSMStatusKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_FSMStatusKey << endmsg;
 
       sc = this->commitDataToDetectorStore(attrListColl_fsmstatus, m_FSMStatusKey);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStatusKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStatusKey << endmsg;
 
       sc = this->registerIOVData(m_FSMStatusKey, m_FSMStatusTag);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStatusKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStatusKey << endmsg;
 
       moduleToStore.clear();
     }
@@ -807,17 +807,17 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
 	    sc = this->commitDataToDetectorStore(attrListColl_fsmstate, m_FSMStateKey);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endmsg;
 
 	    sc = this->registerIOVData(m_FSMStateKey, m_FSMStateTag);
 	    if(sc.isFailure()){
-	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endreq;
+	      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endreq;
+	    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endmsg;
 
 
 	    moduleToStore.clear();
@@ -839,21 +839,21 @@ StatusCode PixelDCSTool::writeDataToDB() const
  
     if(moduleToStore.size()){
 
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_FSMStateKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "writing last values for  " << m_FSMStateKey << endmsg;
 
       sc = this->commitDataToDetectorStore(attrListColl_fsmstate, m_FSMStateKey);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not commit " << m_FSMStateKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully commit " << m_FSMStateKey << endmsg;
 
       sc = this->registerIOVData(m_FSMStateKey, m_FSMStateTag);
       if(sc.isFailure()){
-	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endreq;
+	if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register " << m_FSMStateKey << endmsg;
 	return StatusCode::FAILURE;
       }
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Successfully register " << m_FSMStateKey << endmsg;
 
       moduleToStore.clear();
     }
@@ -868,37 +868,37 @@ StatusCode PixelDCSTool::writeDataToDB() const
 
 }
 
-StatusCode PixelDCSTool::recordDCSData() const
+StatusCode PixelDCSTool::recordDCSData() 
 {
- if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "recordDCSData() "  << endreq;
+ if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "recordDCSData() "  << endmsg;
   
   StatusCode sc;
 
   PixelDCSData* dcsd;
   if(detStore()->contains<PixelDCSData>(m_pixelDCSDataSGKey)){
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "found " <<m_pixelDCSDataSGKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "found " <<m_pixelDCSDataSGKey << endmsg;
     sc = detStore()->retrieve(dcsd,m_pixelDCSDataSGKey);
     if(!sc.isSuccess()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not retrieve PixelDCSData" << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not retrieve PixelDCSData" << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "retrieved  " <<m_pixelDCSDataSGKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "retrieved  " <<m_pixelDCSDataSGKey << endmsg;
 
     sc = detStore()->remove(dcsd);
     if(!sc.isSuccess()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not remove PixelDCSData from detector store" << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not remove PixelDCSData from detector store" << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "removed  " <<m_pixelDCSDataSGKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "removed  " <<m_pixelDCSDataSGKey << endmsg;
 
   }
 
   sc = detStore()->record(m_pixelDCSData,m_pixelDCSDataSGKey);  
   if(!sc.isSuccess()){
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register PixelDCSData to detector store" << endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not register PixelDCSData to detector store" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "recorded  " <<m_pixelDCSDataSGKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "recorded  " <<m_pixelDCSDataSGKey << endmsg;
   return sc;
 
 }
@@ -909,38 +909,38 @@ StatusCode PixelDCSTool::commitDataToDetectorStore(CondAttrListCollection* attrL
 {
  
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "commitDataToDetectorStore()" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "commitDataToDetectorStore()" << endmsg;
   StatusCode sc = StatusCode::SUCCESS; 
 
   CondAttrListCollection* calc;
 
   if(detStore()->contains<CondAttrListCollection>(dataKey)){
 
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "found  dataKey  "<< dataKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "found  dataKey  "<< dataKey << endmsg;
     sc = detStore()->retrieve(calc,dataKey);
 
     if(!sc.isSuccess()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not retrieve CondAttrListCollection" << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not retrieve CondAttrListCollection" << endmsg;
       return StatusCode::FAILURE;
     }
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "retrieved  dataKey  "<< dataKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "retrieved  dataKey  "<< dataKey << endmsg;
 
     sc = detStore()->removeDataAndProxy(calc);
     if(!sc.isSuccess()){
-      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not remove CondAttrListCollection from detector store" << endreq;
+      if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "could not remove CondAttrListCollection from detector store" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "removed  dataKey  "<< dataKey << endreq;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "removed  dataKey  "<< dataKey << endmsg;
   }
 
   sc = detStore()->record(attrListColl, dataKey); 
   if (sc.isFailure()) {
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to record CondAttrListCollection with key " << dataKey << endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to record CondAttrListCollection with key " << dataKey << endmsg;
     return StatusCode::FAILURE;
   }
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully record CondAttrListCollection with key " << dataKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully record CondAttrListCollection with key " << dataKey << endmsg;
 
  
   return StatusCode::SUCCESS;
@@ -948,47 +948,47 @@ StatusCode PixelDCSTool::commitDataToDetectorStore(CondAttrListCollection* attrL
 }
 
 
-StatusCode PixelDCSTool::connectOutput()const
+StatusCode PixelDCSTool::connectOutput()
 {
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in connectOutput() " << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in connectOutput() " << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS; 
   sc = m_streamer->connectOutput();
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING))msg(MSG::WARNING) <<"Could not connect Output"  <<endreq;
+    if (msgLvl(MSG::WARNING))msg(MSG::WARNING) <<"Could not connect Output"  <<endmsg;
     return( StatusCode::FAILURE);
 
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "connectOutput " << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "connectOutput " << endmsg;
 
   return sc;
 
 }
 
-StatusCode PixelDCSTool::registerIOVData(std::string dataKey, std::string dataTag) const
+StatusCode PixelDCSTool::registerIOVData(std::string dataKey, std::string dataTag)
 {
   
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in registerIOVData()" << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in registerIOVData()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS; 
 
   for(int ai=0; ai<m_maxAttempt; ai++){
     sc = this->connectOutput();
     if (!sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully connect output  "  << endreq;
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully connect output  "  << endmsg;
       break;
     }
-    if (msgLvl(MSG::WARNING))msg(MSG::WARNING) <<"Could not connect output"  <<endreq;
-    if (msgLvl(MSG::INFO))msg(MSG::INFO) <<"retry to connect output attempt number " << ai+1 <<endreq;
+    if (msgLvl(MSG::WARNING))msg(MSG::WARNING) <<"Could not connect output"  <<endmsg;
+    if (msgLvl(MSG::INFO))msg(MSG::INFO) <<"retry to connect output attempt number " << ai+1 <<endmsg;
   }
   if (sc.isFailure()) {
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not connect Output"  <<endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not connect Output"  <<endmsg;
     return( StatusCode::FAILURE);
   }
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "connectOutput ok " << dataKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "connectOutput ok " << dataKey << endmsg;
 
   IAthenaOutputStreamTool::TypeKeyPairs  typeKeys(1);
 
@@ -997,27 +997,27 @@ StatusCode PixelDCSTool::registerIOVData(std::string dataKey, std::string dataTa
 
   sc = m_streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not stream out typeKeys" << dataKey <<endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not stream out typeKeys" << dataKey <<endmsg;
     return( StatusCode::FAILURE);
   }
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "streamObjects  ok " << dataKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "streamObjects  ok " << dataKey << endmsg;
 
   sc = m_streamer->commitOutput();
   if (sc.isFailure()) {
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not commit output stream" <<endreq;
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"Could not commit output stream" <<endmsg;
     return( StatusCode::FAILURE);
   }
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "commitOutput ok " << dataKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "commitOutput ok " << dataKey << endmsg;
 
   sc = m_IOVRegistrationSvc->registerIOV( "CondAttrListCollection", dataKey, dataTag);
   if(sc.isFailure()) { 
-    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"could not register IOV "<< dataKey <<endreq; 
+    if (msgLvl(MSG::ERROR))msg(MSG::ERROR) <<"could not register IOV "<< dataKey <<endmsg; 
     return sc; 
   }
 
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "registerIOV ok " << dataKey << endreq;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "registerIOV ok " << dataKey << endmsg;
 
 
   return StatusCode::SUCCESS;

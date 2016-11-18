@@ -74,7 +74,7 @@ StatusCode PixelRecoDbTool::updateAddress(StoreID::type, SG::TransientAddress* t
   std::string key = tad->name(); 
   if(146316417 == clid && par_caliblocation == key)
     { 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelRecoDataColl "<<endreq; 
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelRecoDataColl "<<endmsg; 
       return StatusCode::SUCCESS; 
     }
   return StatusCode::FAILURE; 
@@ -94,11 +94,11 @@ StatusCode PixelRecoDbTool::initialize()
   // Code entered here will be executed once at program start.
   
   //m_log.setLevel(outputLevel());
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
   StatusCode sc = service("ToolSvc", m_toolsvc);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endreq;
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< " ToolSvc not found "<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -107,18 +107,18 @@ StatusCode PixelRecoDbTool::initialize()
   bool CREATEIF(true); 
   sc = service("IOVSvc", m_IOVSvc, CREATEIF); 
   if(sc.isFailure()){ 
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endreq; 
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endmsg; 
     return StatusCode::FAILURE; 
   }
 
   switch (m_inputSource) {
   case 0: // just the hardwired constants 
       sc = createPixelCalibObjects();
-      if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Create pixel calib objects failed " << endreq; 
+      if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Create pixel calib objects failed " << endmsg; 
       return StatusCode::SUCCESS;
   case 1: // read the constants from text file
       sc = writePixelCalibTextFiletoDB();
-      if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Reading constant from text file failed " << endreq; 
+      if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Reading constant from text file failed " << endmsg; 
       return StatusCode::SUCCESS;
   case 2: // read from DB
       sc = registerCallBack();
@@ -138,10 +138,10 @@ StatusCode PixelRecoDbTool::initialize()
 	/*
           if(msgLvl(MSG::WARNING))msg(MSG::WARNING) 
                 << "No Calibrations found with callback, reading constants from text file instead" 
-                << endreq; 
+                << endmsg; 
          sc = writePixelCalibTextFiletoDB();
-	 if(sc.isFailure()&&msgLvl(MSG::WARNING) )  msg(MSG::WARNING) << "Reading constants from text file failed!" << endreq;
-         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "callback again" << endreq;
+	 if(sc.isFailure()&&msgLvl(MSG::WARNING) )  msg(MSG::WARNING) << "Reading constants from text file failed!" << endmsg;
+         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "callback again" << endmsg;
 	*/
       }
       return StatusCode::SUCCESS;
@@ -152,9 +152,9 @@ StatusCode PixelRecoDbTool::initialize()
 
 StatusCode PixelRecoDbTool::registerCallBack(){
 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "register callback" << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "register callback" << endmsg;
   if (detStore()->contains<DetCondCFloat>(par_calibfolder)) {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Ok DetCondCFloat found in detector Store " << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Ok DetCondCFloat found in detector Store " << endmsg;
     const DataHandle<DetCondCFloat> calibData;
    
     if( (detStore()->regFcn(&IPixelRecoDbTool::IOVCallBack, 
@@ -162,16 +162,16 @@ StatusCode PixelRecoDbTool::registerCallBack(){
  
       if(msgLvl(MSG::ERROR))msg(MSG::ERROR) 
            << " PixelRecoDbTool: cannot register callback for folder " 
-           << par_calibfolder << endreq; 
+           << par_calibfolder << endmsg; 
       return StatusCode::FAILURE; 
     } 
     if(msgLvl(MSG::INFO))msg(MSG::INFO) 
-          << " PixelRecoDbTool: registered callback "<<endreq;
+          << " PixelRecoDbTool: registered callback "<<endmsg;
     return  StatusCode::SUCCESS; 
   }
   else{
   if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << " No DetCondCFloat found in DetectorStore folder " 
-        << par_calibfolder << endreq;
+        << par_calibfolder << endmsg;
   return StatusCode::FAILURE; 
   }
 }
@@ -180,7 +180,7 @@ StatusCode PixelRecoDbTool::registerCallBack(){
 
 StatusCode  PixelRecoDbTool::finalize()
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelRecoDbTool finalize method called" << endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelRecoDbTool finalize method called" << endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
@@ -188,15 +188,15 @@ StatusCode PixelRecoDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 {
   static ServiceHandle<IIOVDbSvc> lIOVDbSvc("IOVDbSvc",this->name());
   StatusCode sc = StatusCode::SUCCESS; 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVCALLBACK"<< endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "IOVCALLBACK"<< endmsg; 
   
   std::list<std::string>::const_iterator itr; 
   for( itr=keys.begin(); itr !=keys.end(); ++itr){
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " 
-				       << I << endreq; 
+				       << I << endmsg; 
 
     if(*itr == par_calibfolder){ 
-      if(msgLvl(MSG::INFO))msg(MSG::INFO) <<" Load PixelRecoData from DB" <<endreq; 
+      if(msgLvl(MSG::INFO))msg(MSG::INFO) <<" Load PixelRecoData from DB" <<endmsg; 
       // reinitialize the PixelCalibDataColl 
       sc = createPixelCalibObjects(); 
       if(sc.isFailure()) return StatusCode::FAILURE; 
@@ -207,18 +207,18 @@ StatusCode PixelRecoDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       if(sc.isFailure()) { 
       	if(msgLvl(MSG::ERROR))msg(MSG::ERROR)
           <<"could not retreive DetCondCFloat from DB folder "
-	  <<par_calibfolder<<endreq; 
+	  <<par_calibfolder<<endmsg; 
       	return sc; 
       }
       else{
 	if(msgLvl(MSG::INFO))msg(MSG::INFO)
-          <<"Retrieved DetCondCFloat from DB folder " <<endreq;   
+          <<"Retrieved DetCondCFloat from DB folder " <<endmsg;   
       }
 
       // set the properties of the PixelRecoDbData
       const float* constants = data->find(Identifier(1));
       if(constants){
-	if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Found constants with new-style Identifier key" << endreq;
+	if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Found constants with new-style Identifier key" << endmsg;
 	PrintConstants(constants);
 	m_calibData->SetConstants(constants);
       }
@@ -228,12 +228,12 @@ StatusCode PixelRecoDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	key.set_literal(1);
 	const float* const2 = data->find(key);
 	if (const2) {
-	  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Found constants with old-style Identifier key" << endreq;
+	  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Found constants with old-style Identifier key" << endmsg;
 	  PrintConstants(const2);
 	  m_calibData->SetConstants(const2);
 	}
 	else {
-	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not get the constants!" <<endreq; } 
+	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not get the constants!" <<endmsg; } 
       }
       if(m_dump != 0) m_calibData->Dump(); // check if everything is ok
     }
@@ -248,7 +248,7 @@ StatusCode PixelRecoDbTool::createPixelCalibObjects() const
   // Create PixelCalib objects when constants are read in from textfile 
   // Make sure that the objects are not read in by IOV before 
   
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "createPixelCalibObjects method called " <<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "createPixelCalibObjects method called " <<endmsg; 
   // remove the existing PixelCalibDataColl objects 
   if(m_calibData) delete m_calibData; 
   m_calibData = new PixelCalib::PixelOfflineCalibData;
@@ -267,7 +267,7 @@ StatusCode PixelRecoDbTool::createPixelCalibObjects() const
 
 StatusCode PixelRecoDbTool::readPixelCalibDBtoTextFile() const{ 
 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << " read PixelCalibData to text file " << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << " read PixelCalibData to text file " << endmsg;
 
   // std::ofstream* outfile = new std::ofstream(file.c_str()); 
   
@@ -280,7 +280,7 @@ StatusCode PixelRecoDbTool::readPixelCalibDBtoTextFile() const{
   pcoted->Print(m_textFileName2); 
   pcip->Print(m_textFileName3);
   
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Written numbers to text files "<<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Written numbers to text files "<<endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
@@ -289,58 +289,58 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
 
   // create the calib objects; if all went well, they will be filled with the constants read from text file
   StatusCode sc = createPixelCalibObjects();
-  if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Creation of Pixel Calib objects failed"<<endreq; 
+  if(sc.isFailure()&&msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Creation of Pixel Calib objects failed"<<endmsg; 
 
   PixelCalib::PixelClusterErrorData* pced = m_calibData->getPixelClusterErrorData();
   PixelCalib::PixelChargeInterpolationParameters* pcip =  m_calibData->getPixelChargeInterpolationParameters();
   PixelCalib::PixelClusterOnTrackErrorData* pcoted = m_calibData->getPixelClusterOnTrackErrorData();
 
   // Find and open the text file
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelErrorData constants from text file" <<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelErrorData constants from text file" <<endmsg; 
   std::string file_name1 = PathResolver::find_file (m_textFileName1, "DATAPATH");
   if (file_name1.size()==0) {
     if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Input file " << file_name1 
           << " not found! Default (hardwired) values to be used!" 
-          << endreq;
+          << endmsg;
   }
   else{
     pced->Load(file_name1);  
   }
 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelClusterOnTrackErrorData constants from text file" <<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelClusterOnTrackErrorData constants from text file" <<endmsg; 
   std::string file_name2 = PathResolver::find_file (m_textFileName2, "DATAPATH");
   if (file_name2.size()==0) {
     if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Input file " << file_name2 
           << " not found! Default (hardwired) values to be used!" 
-          << endreq;
+          << endmsg;
   }
   else{
     pcoted->Load(file_name2);
   }
 
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelChargeInterpolationData constants from text file" <<endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Load PixelChargeInterpolationData constants from text file" <<endmsg;
   std::string file_name3 = PathResolver::find_file (m_textFileName3, "DATAPATH");
   if (file_name3.size()==0) {
     if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Input file " << file_name3 
           << " not found! Default (hardwired) values to be used!" 
-          << endreq;
+          << endmsg;
   }
   else{
     pcip->Load(file_name3);  
   }
 
   if(m_dump != 0){
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Dump the constants to file" <<endreq; 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Dump the constants to file" <<endmsg; 
     m_calibData->Dump();
   }
   // First constants are info on the number of bins of parametrizations
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Get error constants" <<endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Get error constants" <<endmsg; 
   float* constants = m_calibData->GetConstants();
   if(constants){
-     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "constants pointer is defined" <<endreq; 
+     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "constants pointer is defined" <<endmsg; 
   }
   else{
-     if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "constants pointer is NULL!!!" <<endreq;
+     if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "constants pointer is NULL!!!" <<endmsg;
   } 
   // compute the number of constants
   const int v1 =  lrintf(constants[0]);  // format version number (pixel cluster error)
@@ -369,25 +369,25 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
 
   if(msgLvl(MSG::VERBOSE)){ 
       msg(MSG::VERBOSE) << " version numbering: "
-			<< v1 << " " << v2 << " " << v3 << endreq;
+			<< v1 << " " << v2 << " " << v3 << endmsg;
       msg(MSG::VERBOSE) 
         << " number of pixel cluster errors for barrel  and endcap is "
-	<< constants[3] << " " << constants[4] << endreq;
+	<< constants[3] << " " << constants[4] << endmsg;
       msg(MSG::VERBOSE) 
         << " PixelClusterOnTrack numbers of barrel bins is "  
         << constants[5] << " " << constants[6] << " " 
-	<< constants[7] << " " << constants[8] << endreq; 
+	<< constants[7] << " " << constants[8] << endmsg; 
       if(offset>13)msg(MSG::VERBOSE) 
 		     << " PixelClusterOnTrack numbers of IBL bins is "  
 		     << constants[13] << " " << constants[14] <<" "
-		     <<constants[15]<<" "<<constants[16]<<endreq; 
+		     <<constants[15]<<" "<<constants[16]<<endmsg; 
       msg(MSG::VERBOSE) 
 	<< " number of charge interpolation bins is "
 	<< constants[9] << " " << constants[10] << " " 
-	<< constants[11] << " " << constants[12] << endreq; 
+	<< constants[11] << " " << constants[12] << endmsg; 
       if(offset>13) msg(MSG::VERBOSE) << " number of charge interpolation IBL bins is "
 				      << constants[17] << " " << constants[18] <<" "
-				      <<  constants[19] << " " << constants[20] << endreq;
+				      <<  constants[19] << " " << constants[20] << endmsg;
   }
   const int N0 = 2*n1+2*n2;  // number of cluster error values
   const int N1a = n3a*n3d; // number of cluster on track error values (x direction)
@@ -397,27 +397,27 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
   const int N2b = n4a+n4b+n4c+n4d+4; // number of charge interpolation bin interval values
   int datasize = N0+N1a+N1b+N1c+N2a+N2b+offset;
   if(offset>13) datasize +=2*n1 + n3e+1 + n3f+1 + ncyibl*n3e + ncxibl*n3f +n4e+1 + n4f+1 + ncxibl2*n4e + ncyibl2*n4f;
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of offline constants: " << datasize <<endreq; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of offline constants: " << datasize <<endmsg; 
 
   // check if collection already exits
   if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
     DetCondCFloat *const1 = new DetCondCFloat(datasize,par_calibfolder); 
     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Adding constants to the DetCondCFloat object " 
-					      <<endreq;
+					      <<endmsg;
     const1->add(Identifier(1),constants); 
-    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "That's it. " <<endreq;
+    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "That's it. " <<endmsg;
 
   // check if collection already exits 
   //if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<par_calibfolder <<endreq; 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<par_calibfolder <<endmsg; 
     if(StatusCode::SUCCESS !=detStore()->record(const1,par_calibfolder)){ 
       if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create DetCondCFloat "<<par_calibfolder 
-					    << "with offline parameters" << endreq; 
+					    << "with offline parameters" << endmsg; 
       delete const1;
     }
     else{
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<par_calibfolder 
-					    << " with offline parameters" << endreq; 
+					    << " with offline parameters" << endmsg; 
     }
   }  
   delete [] constants;
@@ -434,64 +434,64 @@ void PixelRecoDbTool::PrintConstants(const float* constants){
   if(constants[0]<-1||constants[1]<-1||constants[2]<-1)offset +=8;
   if(msgLvl(MSG::DEBUG) && !isoldformat){
       msg(MSG::DEBUG) << " version numbering: "
-			<< constants[0] << " " << constants[1] << " " << constants[2] << endreq;
+			<< constants[0] << " " << constants[1] << " " << constants[2] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster error barrel bins for each view is " 
-                        << constants[3] << endreq;
+                        << constants[3] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster error endcap bins for each view is " 
-                        << constants[4] << endreq;
+                        << constants[4] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of x cluster size is " 
-                        << constants[5] << endreq;
+                        << constants[5] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of y cluster size is " 
-                        << constants[6] << endreq;
+                        << constants[6] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of pseudorapidity is " 
-                        << constants[7] << endreq;
+                        << constants[7] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of incidence angle is " 
-                        << constants[8] << endreq;
+                        << constants[8] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation bins for x cluster size is" 
-                        << constants[9] << endreq;
+                        << constants[9] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation bins for y cluster size is" 
-                        << constants[10] << endreq;
+                        << constants[10] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation bins of pseudorapidity is " 
-                        << constants[11] << endreq;
+                        << constants[11] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation bins of incidence angle is " 
-                        << constants[12] << endreq;
+                        << constants[12] << endmsg;
       if(offset>13){
 	msg(MSG::DEBUG) << "Number of cluster on track error IBL bins for x cluster size is " 
-                        << constants[13] << endreq;
+                        << constants[13] << endmsg;
 	msg(MSG::DEBUG) << "Number of cluster on track error IBL bins for y cluster size is " 
-                        << constants[14] << endreq;
+                        << constants[14] << endmsg;
 	msg(MSG::DEBUG) << "Number of cluster on track error IBL bins of pseudorapidity is " 
-                        << constants[15] << endreq;
+                        << constants[15] << endmsg;
 	msg(MSG::DEBUG) << "Number of cluster on track error IBL bins of incidence angle is " 
-                        << constants[16] << endreq;
+                        << constants[16] << endmsg;
 	msg(MSG::DEBUG) << "Number of charge interpolation IBL bins for x cluster size is " 
-                        << constants[17] << endreq;
+                        << constants[17] << endmsg;
 	msg(MSG::DEBUG) << "Number of charge interpolation IBL bins for y cluster size is " 
-                        << constants[18] << endreq;
+                        << constants[18] << endmsg;
 	msg(MSG::DEBUG) << "Number of charge interpolation IBL bins of pseudorapidity is " 
-                        << constants[19] << endreq;
+                        << constants[19] << endmsg;
 	msg(MSG::DEBUG) << "Number of charge interpolation IBL bins of incidence angle is " 
-                        << constants[20] << endreq;
+                        << constants[20] << endmsg;
       }
   }
   if(msgLvl(MSG::DEBUG) && isoldformat){
-      msg(MSG::DEBUG) << "old format constants" << endreq;     
+      msg(MSG::DEBUG) << "old format constants" << endmsg;     
       msg(MSG::DEBUG) << "Number of cluster error barrel bins for each view is " 
-                        << constants[0] << endreq;
+                        << constants[0] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster error endcap bins for each view is " 
-                        << constants[1] << endreq;
+                        << constants[1] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of x cluster size is " 
-                        << constants[2] << endreq;
+                        << constants[2] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of y cluster size is " 
-                        << constants[3] << endreq;
+                        << constants[3] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of incidence angle is " 
-                        << constants[4] << endreq;
+                        << constants[4] << endmsg;
       msg(MSG::DEBUG) << "Number of cluster on track error barrel bins of pseudorapidity is " 
-                        << constants[5] << endreq;
+                        << constants[5] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation constants (x-view) is " 
-                        << constants[6] << endreq;
+                        << constants[6] << endmsg;
       msg(MSG::DEBUG) << "Number of charge interpolation constants (y-view) is " 
-                        << constants[7] << endreq;
+                        << constants[7] << endmsg;
   }
 
   if(!isoldformat){
@@ -527,16 +527,16 @@ void PixelRecoDbTool::PrintConstants(const float* constants){
 			       << "Number of constants is " << N0 << " + " 
 			       << N1a << " + " 
 			       << N1b << " + " << N1c << " + " << N2a
-			       << " + " << N2b<<endreq;
+			       << " + " << N2b<<endmsg;
    if(offset>13 && msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
 					   << " + Number of IBL constants "<<2*n1<< " + "<<
 					   (n3e + n3f+2)<<" + "<<(ncyibl*n3e + ncxibl*n3f)<<" + "<<
-					   (n4e+1 + n4f+1)<<" + "<<ncyibl2*n4e + ncxibl2*n4f<<endreq;
-   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<< " = " << datasize << endreq;
+					   (n4e+1 + n4f+1)<<" + "<<ncyibl2*n4e + ncxibl2*n4f<<endmsg;
+   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<< " = " << datasize << endmsg;
    
    for(int ibin=0; ibin<datasize; ibin++){
      if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Value of costant for bin " << ibin << 
-                               " equal to " << constants[ibin+offset] <<endreq; 
+                               " equal to " << constants[ibin+offset] <<endmsg; 
    }
    
   }
@@ -559,7 +559,7 @@ void PixelRecoDbTool::PrintConstants(const float* constants){
     
     for(int ibin=0; ibin<datasize; ibin++){
       if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Value of costant for bin " << ibin << 
-				" equal to " << constants[ibin+8] <<endreq; 
+				" equal to " << constants[ibin+8] <<endmsg; 
     }
     
 

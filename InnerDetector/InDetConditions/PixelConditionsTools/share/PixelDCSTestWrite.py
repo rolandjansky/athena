@@ -189,6 +189,6 @@ theApp.EvtMax                   = 1
 ## 	    folder = db->createFolder(local_folder,folderSpec,
 ##                   mergedNames,true); 
 ## 	    log << MSG::DEBUG <<" creation of CondDBFolder " << 
-##                    local_folder << " done" << endreq;
+##                    local_folder << " done" << endmsg;
 
 #################################################################################################

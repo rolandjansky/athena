@@ -126,7 +126,7 @@ private:
                                                                                
 inline PixelCalib::PixelOfflineCalibData*
        PixelRecoDbTool::getCalibPtr() const {
-    if(!m_calibData) msg(MSG::WARNING) << "No calibrations! " << endreq;
+    if(!m_calibData) msg(MSG::WARNING) << "No calibrations! " << endmsg;
     return m_calibData;
  }
 

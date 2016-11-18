@@ -40,7 +40,7 @@ PixelCalibDbTestWriteRead::~PixelCalibDbTestWriteRead(void)
 
 StatusCode PixelCalibDbTestWriteRead::initialize() {
   
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelCalibDbTestWriteRead::initialize() called" << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelCalibDbTestWriteRead::initialize() called" << endmsg;
   
   //get Database manager tool
   StatusCode sc; 
@@ -49,23 +49,23 @@ StatusCode PixelCalibDbTestWriteRead::initialize() {
   sc = m_calibdbtool.retrieve();
 
   if (StatusCode::SUCCESS!=sc) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "PixelCalibDbTool not found" << endreq;
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "PixelCalibDbTool not found" << endmsg;
     return StatusCode::FAILURE;
   }
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << " PixelCalibDbTool found " << endreq;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << " PixelCalibDbTool found " << endmsg;
   
   //print the options
   if (par_read){
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << par_rfile<<endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << par_rfile<<endmsg;
     if(par_rfile ==""){
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " It's reading, Output text file is required "<<endreq; 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " It's reading, Output text file is required "<<endmsg; 
       return StatusCode::FAILURE; 
     }
   }
   if (par_write){
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Write Calibration  file: "<<par_wfile << " into DB "<< endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Write Calibration  file: "<<par_wfile << " into DB "<< endmsg;
     if(par_wfile ==""){ 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " It's writing, the input text file is  required "<<endreq; 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< " It's writing, the input text file is  required "<<endmsg; 
       return StatusCode::FAILURE; 
     }
   }  
@@ -79,25 +79,25 @@ StatusCode PixelCalibDbTestWriteRead::execute() {
   //
   // at first event:
     // create Conditions objects in the detectorstore
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Event execute "<<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Event execute "<<endmsg; 
 
   if(!m_setup){
     m_setup = true; 
     // write calibration text file into database 
     if (par_write){
-      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write pixel calibration file: "<< par_wfile<< " into DB "<<endreq; 
+      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write pixel calibration file: "<< par_wfile<< " into DB "<<endmsg; 
       sc=m_calibdbtool->writePixelCalibTextFiletoDB(par_wfile);
       if(sc!=StatusCode::SUCCESS) {
-	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<par_wfile<<" into database. "<< endreq;
+	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<par_wfile<<" into database. "<< endmsg;
 	return StatusCode::FAILURE;
       }
     }
     // read calibration constants from database 
     if (par_read){
-      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Read pixel calibration from database into a file: "<< par_rfile<<endreq; 
+      if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Read pixel calibration from database into a file: "<< par_rfile<<endmsg; 
       sc=m_calibdbtool->readPixelCalibDBtoTextFile(par_rfile);
       if(sc!=StatusCode::SUCCESS) {
-	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << " Could not read Pixel Calibration objects from DB "<< endreq;
+	if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << " Could not read Pixel Calibration objects from DB "<< endmsg;
 	return StatusCode::FAILURE;
       }
     }
@@ -107,6 +107,6 @@ StatusCode PixelCalibDbTestWriteRead::execute() {
  
 StatusCode PixelCalibDbTestWriteRead::finalize() 
 {  
-  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" PixelCalibDbTestWriteRead: finishing "<<endreq; 
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" PixelCalibDbTestWriteRead: finishing "<<endmsg; 
   return StatusCode::SUCCESS;
 }

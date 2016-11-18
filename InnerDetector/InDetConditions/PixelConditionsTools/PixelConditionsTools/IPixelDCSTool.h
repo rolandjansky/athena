@@ -28,8 +28,8 @@ class IPixelDCSTool: virtual public IAlgTool{
   virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS)=0; 
 
   virtual StatusCode createDCSData() =0;
-  virtual StatusCode recordDCSData() const=0;
-  virtual StatusCode writeDataToDB() const=0;
+  virtual StatusCode recordDCSData() =0;
+  virtual StatusCode writeDataToDB() =0;
 
   virtual StatusCode printData() const=0;
 
