@@ -609,7 +609,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
            }
 
 	}// end comb loop
-  
 
 //	if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo"){
 //
@@ -691,7 +690,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
         } 
 
         // end L1 histos
-	
+       
         // HLT histsos ...
 
        for(comb=combBegin;comb!=combEnd;++comb){
@@ -704,11 +703,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
            for(; preselCI != preselCI_e; ++preselCI)
              if(preselCI->cptr()){
              if(preselCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << preselCI->cptr()->size() << " TauJets"); 
-             ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << preselCI->cptr()->size() << " TauJets");
-      	        xAOD::TauJetContainer::const_iterator tauItr = preselCI->cptr()->begin();
+               ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << preselCI->cptr()->size() << " TauJets");
+      	       xAOD::TauJetContainer::const_iterator tauItr = preselCI->cptr()->begin();
                xAOD::TauJetContainer::const_iterator tauEnd = preselCI->cptr()->end();
-                    
-               for(; tauItr != tauEnd; ++tauItr) {
+        
+               for(; tauItr != tauEnd; ++tauItr) { 
      	          if(!Selection(*tauItr)) continue;
       	  	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/PreselectionTau");
                   if(*tauItr) sc = fillPreselTau(*tauItr);
@@ -717,8 +716,9 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      	          if(*tauItr) sc = fillPreselTauVsOffline(*tauItr);
                   if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill PreselectionVsOffline histo. Exiting!"); return StatusCode::FAILURE;}
                  }
+
                }
-         }              
+         }         
 
          const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
          std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator efCI = vec_HLTtau.begin(), efCI_e = vec_HLTtau.end();
@@ -896,7 +896,13 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
 	
     //ATH_MSG_WARNING("Tau ROIWord: "<<aEFTau->ROIWord());
 
-    int EFnTrack = aEFTau->nTracks();
+    int EFnTrack(-1);
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+    EFnTrack = aEFTau->nTracks();
+    #else
+    aEFTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+    #endif
+
     hist("hEFEt")->Fill(aEFTau->pt()/GeV);
     hist("hEFEt2")->Fill(aEFTau->pt()/CLHEP::GeV);
     hist("hFTFnTrack")->Fill(EFnTrack);
@@ -907,12 +913,14 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
     hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
     hist2("hEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/GeV);
     hist2("hEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/GeV);
-   
+  
+    int EFWidenTrack(-1); 
     #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
-    hist("hFTFnWideTrack")->Fill(aEFTau->nWideTracks());
+    EFWidenTrack = aEFTau->nWideTracks();
     #else
-    hist("hFTFnWideTrack")->Fill(aEFTau->nTracksIsolation());
+    aEFTau->detail(xAOD::TauJetParameters::nIsolatedTracks, EFWidenTrack);
     #endif
+    hist("hFTFnWideTrack")->Fill(EFWidenTrack);
  
     return StatusCode::SUCCESS;
 
@@ -965,7 +973,12 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float ptRatioEflowApproxCorr = 0;
   float mu = 0;
 
-  int EFnTrack = aEFTau->nTracks();
+  int EFnTrack(-1);
+  #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+  EFnTrack = aEFTau->nTracks();
+  #else
+  aEFTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+  #endif
   bool is1P(false), isMP(false);   
   if(EFnTrack==1) is1P = true;
   if(EFnTrack>1) isMP = true;
@@ -984,12 +997,14 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
       hist("hEFnTrack")->Fill(EFnTrack);
-    
+   
+      int EFWidenTrack(-1); 
       #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
-      hist("hEFnWideTrack")->Fill(aEFTau->nWideTracks());
+      EFWidenTrack = aEFTau->nWideTracks();
       #else
-      hist("hEFnWideTrack")->Fill(aEFTau->nTracksIsolation());
+      aEFTau->detail(xAOD::TauJetParameters::nIsolatedTracks, EFWidenTrack);
       #endif
+      hist("hEFnWideTrack")->Fill(EFWidenTrack);
 
       hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
       hist2("hEFEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/GeV);
@@ -1289,13 +1304,19 @@ StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
         return StatusCode::SUCCESS;
     }
 
-    int EFnTrack = aEFTau->nTracks();
-    int EFnWideTrack(0),OffnWideTrack(0);
+    int EFnTrack(-1);
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+    EFnTrack = aEFTau->nTracks();
+    #else
+    aEFTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+    #endif
+
+    int EFnWideTrack(-1),OffnWideTrack(-1);
     #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
     EFnWideTrack = aEFTau->nWideTracks();
     OffnWideTrack = aOfflineTau->nWideTracks();
     #else
-    EFnWideTrack = aEFTau->nTracksIsolation();
+    aEFTau->detail(xAOD::TauJetParameters::nIsolatedTracks, EFnWideTrack);
     OffnWideTrack = aOfflineTau->nTracksIsolation();
     #endif
  
@@ -1400,7 +1421,12 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   float etHadAtEMScaleOff = 0;
   float mu = 0;
 
-  int EFnTrack = aEFTau->nTracks();
+  int EFnTrack(-1);
+  #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+  EFnTrack = aEFTau->nTracks();
+  #else
+  aEFTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+  #endif
   bool is1P(false), isMP(false);
   if(EFnTrack==1) is1P = true;
   if(EFnTrack>1) isMP = true;
@@ -1432,13 +1458,20 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   if(BDTinput_type == "basicVars")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFVsOffline");
+
       //Basic Vars
-      hist2("hEFvsOffnTrks")->Fill(aOfflineTau->nTracks(), aEFTau->nTracks());
-      #ifndef XAODTAU_VERSIONS_TAUJET_V3_H    
-      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks()); 
+
+      hist2("hEFvsOffnTrks")->Fill(aOfflineTau->nTracks(), EFnTrack);
+      int EFnWideTrack(-1), OffnWideTrack(-1);
+      #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+      EFnWideTrack = aEFTau->nWideTracks();
+      OffnWideTrack = aOfflineTau->nWideTracks();
       #else
-      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nTracksIsolation(), aEFTau->nTracksIsolation());
+      OffnWideTrack = aOfflineTau->nTracksIsolation();
+      aEFTau->detail(xAOD::TauJetParameters::nIsolatedTracks, EFnWideTrack);
       #endif
+      hist2("hEFvsOffnWideTrks")->Fill(OffnWideTrack,EFnWideTrack); 
+
 
       FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
       FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/GeV, 0, 1);
@@ -1927,12 +1960,23 @@ void HLTTauMonTool::plotUnderOverFlow(TH1* hist){
     
 }
 
-bool HLTTauMonTool::Selection(const xAOD::TauJet *aTau){
-  
-   int nTrk = aTau->nTracks();
-   float pt = aTau->pt();
-   float eta = aTau->eta();
-   float phi = aTau->phi();
+bool HLTTauMonTool::Selection(const xAOD::TauJet *aTau=NULL){
+
+   int nTrk(-1);
+   float pt(0.),eta(-11.),phi(-11.);
+   if(aTau==NULL) return false;
+ 
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+    nTrk = aTau->nTracks();
+    #else
+    aTau->detail(xAOD::TauJetParameters::nChargedTracks, nTrk);
+    #endif
+ 
+//   try{ nTrk = aTau->nTracks();}
+//   catch(std::exception e){ATH_MSG_WARNING("nTracks() raised exception!!");}
+   pt = aTau->pt();
+   eta = aTau->eta();
+   phi = aTau->phi();
 
    if(m_selection_nTrkMax>-1 && nTrk>m_selection_nTrkMax) return false;
    if(m_selection_nTrkMin>-1 && nTrk<m_selection_nTrkMin) return false;
@@ -1946,8 +1990,10 @@ bool HLTTauMonTool::Selection(const xAOD::TauJet *aTau){
    return true;
 }
 
-bool HLTTauMonTool::Selection(const xAOD::EmTauRoI *aTau){
+bool HLTTauMonTool::Selection(const xAOD::EmTauRoI *aTau=NULL){
   
+   if(aTau==NULL) return false;
+
    float pt = aTau->tauClus();
    float eta = aTau->eta();
    float phi = aTau->phi();
@@ -2078,12 +2124,17 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		xAOD::TauJetContainer::const_iterator hltItr, hlt_cont_end = hlt_cont->end();
 		for(hltItr=hlt_cont->begin(); hltItr!=hlt_cont_end; ++hltItr){
 			TLorentzVector hltTLV = (*hltItr)->p4();
-			int ntrack_TAU = (*hltItr)->nTracks();
+			int ntrack_TAU(-1);
+                        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+                        ntrack_TAU = (*hltItr)->nTracks();
+                        #else
+                        (*hltItr)->detail(xAOD::TauJetParameters::nChargedTracks, ntrack_TAU);
+                        #endif
 			int nWideTrack_TAU(0);	
                         #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
     			nWideTrack_TAU = (*hltItr)->nWideTracks();
     			#else
-    			nWideTrack_TAU = (*hltItr)->nTracksIsolation();
+                        (*hltItr)->detail(xAOD::TauJetParameters::nIsolatedTracks, nWideTrack_TAU);
     			#endif 
 			if( !L1TauMatching(trigItem, hltTLV, 0.3) ) continue;
 			if(ntrack_TAU>3) continue;		
@@ -2895,7 +2946,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
 		    {
  		      if(*Itr_tauEFjet)
 			{
-			  ATH_MSG_DEBUG("HLT tau: pt " << (*Itr_tauEFjet)->pt() << ", #trk " << (*Itr_tauEFjet)->nTracks());
+			  ATH_MSG_DEBUG("HLT tau: pt " << (*Itr_tauEFjet)->pt() );
 
 			  /*if(testing_chain.find("emulate")!=std::string::npos){
 				bool pass = false;

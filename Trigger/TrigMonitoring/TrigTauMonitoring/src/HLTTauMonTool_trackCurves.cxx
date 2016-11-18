@@ -68,11 +68,18 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
             continue;
         }
 
-	if(matchedTau->nTracks() == 0) { 
+        int EFnTrack(-1);
+        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+        EFnTrack = matchedTau->nTracks();
+        #else
+        matchedTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+        #endif
+    
+	if(EFnTrack < 1) { 
 	    continue; 
 	}
 
-	hist2("hreco_vs_pres_coreTracks")->Fill((*recoItr)->nTracks(), matchedTau->nTracks());
+	hist2("hreco_vs_pres_coreTracks")->Fill((*recoItr)->nTracks(), EFnTrack);
         #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
 	hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nWideTracks(), 
 						(*recoItr)->nWideTracks() );

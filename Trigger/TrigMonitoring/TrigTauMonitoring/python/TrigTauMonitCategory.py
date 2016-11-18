@@ -1,5 +1,24 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+monitoring_tau_FTK = [
+
+	'tau0_idperf_FTK',
+	'tau0_idperf_FTKRefit',
+	'tau0_idperf_FTKNoPrec',
+	'tau0_perf_FTK',
+	'tau0_perf_FTKRefit',
+	'tau0_perf_FTKNoPrec',
+	'tau0_medium1_FTKNoPrec',
+	'tau25_idperf_FTK',
+	'tau25_idperf_FTKRefit',
+	'tau25_perf_FTK',
+	'tau25_perf_FTKRefit',
+	'tau25_medium1_FTK',
+	'tau25_medium1_FTKRefit'
+] 
+
 monitoring_singleTau = 'tau25_medium1_tracktwo'
 
 monitoring_tau = [
@@ -22,6 +41,8 @@ monitoring_tau = [
                   'tau8_cosmic_ptonly',
                   'tau8_cosmic_track'
         ]
+if TriggerFlags.doFTK():
+    monitoring_tau += monitoring_tau_FTK
 
 monitoring_tau_pp = [
                   'tau0_perf_ptonly_L1TAU12',
@@ -37,6 +58,8 @@ monitoring_tau_pp = [
                   'tau160_perf_tracktwo',
                   'tau160_medium1_tracktwo'
 	]
+if TriggerFlags.doFTK():
+    monitoring_tau_pp += monitoring_tau_FTK
 
 monitoring_tau_validation = [
                   'tau0_perf_ptonly_L1TAU12',
@@ -71,6 +94,8 @@ monitoring_tau_validation = [
                   'tau160_medium1HighptM_tracktwo',
                   'tau160_medium1HighptH_tracktwo',
 	]
+if TriggerFlags.doFTK():
+    monitoring_tau_validation += monitoring_tau_FTK
 
 monitoring_tau_cosmic = [
     'tau1_cosmic_track_L1MU4_EMPTY',
@@ -78,21 +103,4 @@ monitoring_tau_cosmic = [
     'tau8_cosmic_ptonly',
     'tau8_cosmic_track'
 ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
