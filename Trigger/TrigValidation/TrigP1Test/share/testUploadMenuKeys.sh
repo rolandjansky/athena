@@ -28,6 +28,18 @@ elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV6_rerunLvL1" ]; then
   stump="Physics_pp_v6"
+elif [ "$type" == "HLT_physicsV6" ]; then
+  stump="Physics_pp_v6"
+elif [ "$type" == "HLT_physicsV6_rerunLvL1" ]; then
+  stump="Physics_pp_v6"
+elif [ "$type" == "HLT_physicsV7" ]; then
+  stump="Physics_pp_v7"
+elif [ "$type" == "HLT_physicsV7_rerunLvL1" ]; then
+  stump="Physics_pp_v7"
+elif [ "$type" == "HLT_physicsV7" ]; then
+  stump="Physics_pp_v7"
+elif [ "$type" == "HLT_physicsV7_rerunLvL1" ]; then
+  stump="Physics_pp_v7"
 else 
   stump=""
 fi
@@ -48,6 +60,7 @@ hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
 
 # copy the setup files to the local directory to have tests independent of each other
 cp ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt .
+echo "ConvertHLTSetup_txt2xml.py ef_Default_setup.txt ef_Default_setup_setup.txt > convertHLT1"
 ConvertHLTSetup_txt2xml.py ef_Default_setup.txt ef_Default_setup_setup.txt > convertHLT1
 
 convertLog=convertHLT1
@@ -88,14 +101,17 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60  >& uploadSMK1"
+cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
-echo $cmd
+echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
 
 if [ ! -f MenusKeys.txt ]
 then
     echo 'ERROR Upload of SMKey failed'
+    echo 'In ./uploadSMK.log:'
+    grep "Can't obtain write lock" uploadSMK.log
+    grep "SEVERE" uploadSMK.log
     exit 1
 fi
 smk=`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'`
@@ -133,6 +149,9 @@ java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xm
 hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ]; then
     echo "ERROR Upload of prescale key failed"
+    echo 'In ./uploadSMK.log:'
+    grep "Can't obtain write lock" uploadPSK.log
+    grep "SEVERE" uploadPSK.log
     exit 1
 fi
 
