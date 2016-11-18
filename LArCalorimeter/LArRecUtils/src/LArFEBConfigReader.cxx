@@ -19,12 +19,12 @@ LArFEBConfigReader::~LArFEBConfigReader() {}
 StatusCode LArFEBConfigReader::initialize() {
   
   if (detStore()->retrieve(m_onlineID,"LArOnlineID").isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve LArOnlineID" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve LArOnlineID" << endmsg;
     return StatusCode::FAILURE;
   }   
 
   if (m_listOfFolders.size()==0) {
-    msg(MSG::WARNING) << "List of folders is emtpy, do nothing" << endreq;
+    msg(MSG::WARNING) << "List of folders is emtpy, do nothing" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -39,12 +39,12 @@ StatusCode LArFEBConfigReader::initialize() {
 				     chdl,fn);
 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to register callback for DB folder " << fn << endreq;
+      msg(MSG::ERROR) << "Failed to register callback for DB folder " << fn << endmsg;
       return StatusCode::FAILURE;
     }      
   }//end loop over folders
      
-  msg(MSG::DEBUG) << "Successfully initialized LArFEBConfigReader" << endreq;
+  msg(MSG::DEBUG) << "Successfully initialized LArFEBConfigReader" << endmsg;
   return StatusCode::SUCCESS;
 } 
 
@@ -56,7 +56,7 @@ StatusCode LArFEBConfigReader::finalize() {
 
   
 StatusCode LArFEBConfigReader::loadData(IOVSVC_CALLBACK_ARGS) {
-  msg(MSG::INFO) << "In IOV callback method..." << endreq;
+  msg(MSG::INFO) << "In IOV callback method..." << endmsg;
   m_attrPerFeb.clear();
   unsigned nFebs=0;
   const size_t nFolders=m_listOfFolders.size();
@@ -64,7 +64,7 @@ StatusCode LArFEBConfigReader::loadData(IOVSVC_CALLBACK_ARGS) {
     ATH_MSG_DEBUG("Working on folder " << m_listOfFolders[i]);  
     const DataHandle<CondAttrListCollection> dh;
     if (detStore()->retrieve(dh,m_listOfFolders[i]).isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve DataHandle for folder " << m_listOfFolders[i] << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve DataHandle for folder " << m_listOfFolders[i] << endmsg;
       return StatusCode::FAILURE;
     }
     CondAttrListCollection::const_iterator chanit=dh->begin();
@@ -82,7 +82,7 @@ StatusCode LArFEBConfigReader::loadData(IOVSVC_CALLBACK_ARGS) {
     }//End loop over COOL channels
   }//End loop over folders
   m_lastIt=m_attrPerFeb.end(); 
-  msg(MSG::INFO) << "Read gain thresholds for " << nFebs << " Febs from " << m_listOfFolders.size() << " database folders." << endreq;
+  msg(MSG::INFO) << "Read gain thresholds for " << nFebs << " Febs from " << m_listOfFolders.size() << " database folders." << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -90,7 +90,7 @@ StatusCode LArFEBConfigReader::loadData(IOVSVC_CALLBACK_ARGS) {
 short LArFEBConfigReader::getThreshold(const char* MedLow, const HWIdentifier& chid) const {
 
   if (m_attrPerFeb.size()==0) {
-    msg(MSG::WARNING) << "FEB treshold cache is empty. Callback not fired?" << endreq;
+    msg(MSG::WARNING) << "FEB treshold cache is empty. Callback not fired?" << endmsg;
     return ERRORCODE;
   }
 

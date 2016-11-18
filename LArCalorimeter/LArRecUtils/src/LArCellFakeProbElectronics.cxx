@@ -17,11 +17,6 @@ PURPOSE:  Scales down the energy of cells due to simulated
 ********************************************************************/
 #include "LArRecUtils/LArCellFakeProbElectronics.h"
 
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -44,7 +39,6 @@ LArCellFakeProbElectronics::LArCellFakeProbElectronics(
 			     const std::string& name, 
 			     const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_idHelper(nullptr),
     m_cablingService(nullptr),
     m_onlineHelper(nullptr)
 {
@@ -62,38 +56,15 @@ LArCellFakeProbElectronics::LArCellFakeProbElectronics(
 
 StatusCode LArCellFakeProbElectronics::initialize()
 {
-  MsgStream  log(msgSvc(),name());
- 
-  StatusCode sc = detStore()->retrieve( m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(  detStore()->retrieve( m_onlineHelper, "LArOnlineID") );
 
-
-  IToolSvc* toolSvc;
-  sc   = service( "ToolSvc",toolSvc  );
-  if(! sc.isSuccess()) {
-    return sc;
-  }
-
-  //retrieve CablingService
-  sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
-  if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Unable to get CablingService " << endreq;
-      return sc;
-    }
-  
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK(  service( "ToolSvc",toolSvc  ) );
+  ATH_CHECK(  toolSvc->retrieveTool("LArCablingService",m_cablingService) );
 
   // convert string identifiers m_inputStringIDs into identifiers m_inputIDs
-  sc=read_problems();
-  if(! sc.isSuccess()) {
-    log << MSG::ERROR <<"Couldn't process jobOptions"<<endreq;
-    return sc;
-  }
+  ATH_CHECK( read_problems() );
   return StatusCode::SUCCESS;
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -102,20 +73,17 @@ StatusCode LArCellFakeProbElectronics::initialize()
 /////////////////////////////////////////////////////////////////////
 
 
-double  LArCellFakeProbElectronics::wtCell(const CaloCell * theCell )
+double  LArCellFakeProbElectronics::wtCell(const CaloCell * theCell ) const
 {
-  MsgStream  log(msgSvc(),name());
   double weight=1; // default weight
 
 
 
   // get calo id helper
-  m_idHelper = CaloIdManager::instance()->getCaloCell_ID();
-  if ( m_idHelper == 0 )
+  const CaloCell_ID* idHelper = CaloIdManager::instance()->getCaloCell_ID();
+  if ( idHelper == 0 )
     {
-      log << MSG::ERROR
-          << "cannot allocate CaloCell_ID helper!"
-          << endreq;
+      ATH_MSG_ERROR( "cannot allocate CaloCell_ID helper!" );
       return 1;
     }
   
@@ -131,7 +99,7 @@ double  LArCellFakeProbElectronics::wtCell(const CaloCell * theCell )
   //int feb = m_onlineHelper->slot(id);
   
   // find channel in map of dead channels
-  std::map<HWIdentifier,double>::iterator cur  =   m_deadChannels.find(id);
+  std::map<HWIdentifier,double>::const_iterator cur  =   m_deadChannels.find(id);
   if (cur != m_deadChannels.end()){
     weight= cur->second;
   }
@@ -148,7 +116,6 @@ StatusCode LArCellFakeProbElectronics::read_problems()
 /*-------------------------------------------------------*/
 {
   // convect vector of string identifier into vector of identifier
-  MsgStream log(msgSvc(),name());
 
   std::vector<std::string>::const_iterator itrStringID=m_inputStringIDs.begin();
   // decode property here
@@ -189,7 +156,7 @@ StatusCode LArCellFakeProbElectronics::read_problems()
 
   std::map<HWIdentifier,double>::const_iterator itr2Chan=m_deadChannels.begin();
   for (; itr2Chan != m_deadChannels.end();++itr2Chan) {
-    log << MSG::VERBOSE << "Selected online channel: " << itr2Chan->first << "   weight: " << itr2Chan->second << endreq;
+    ATH_MSG_VERBOSE( "Selected online channel: " << itr2Chan->first << "   weight: " << itr2Chan->second  );
 
   }
 
@@ -203,7 +170,6 @@ StatusCode LArCellFakeProbElectronics::read_problems()
 /////////////////////////////////////
 StatusCode LArCellFakeProbElectronics::add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel,double weight)
 {
-  MsgStream log(msgSvc(),name());
   try {
     HWIdentifier l_channelId = m_onlineHelper->channel_Id (iBarrel,
 							   iSide,
@@ -215,15 +181,14 @@ StatusCode LArCellFakeProbElectronics::add_cell(int iBarrel,int iSide,int iFT,in
   catch(LArOnlID_Exception & except){
     
     
-    log << MSG::ERROR 
-	<<  " LArOnlId exception creating l_channelId " 
-	<< (std::string)except
-	<< " barrel_ec, side, feedthrough, slot, channel= " << iBarrel << " " 
-	<< iSide << " " 
-	<< iFT << " " 
-	<< iSlot << " "
-	<< iChannel 
-	<< endreq;
+    ATH_MSG_ERROR(  " LArOnlId exception creating l_channelId " 
+                    << (std::string)except
+                    << " barrel_ec, side, feedthrough, slot, channel= " << iBarrel << " " 
+                    << iSide << " " 
+                    << iFT << " " 
+                    << iSlot << " "
+                    << iChannel 
+                    );
   }
   
   return StatusCode::SUCCESS;
