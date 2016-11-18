@@ -11,8 +11,10 @@ from RecExConfig.RecFlags import rec
 
 def configureClusterCorrections(swTool):
   "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
-  from CaloClusterCorrection.CaloSwCorrections import *
+  from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
+      etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
   from CaloRec.CaloRecMakers import _process_tools
+
   clusterTypes = dict(
     Ele35='ele35', Ele55='ele55', Ele37='ele37',
     Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
@@ -29,21 +31,17 @@ def configureClusterCorrections(swTool):
 
   #Super cluster position only corrections
   if jobproperties.egammaRecFlags.doSuperclusters():
-    clusterTypesSuper = dict(Ele35='ele35',Ele55='ele55', Ele37='ele37',
-                             Gam35='gam35_unconv',Gam55='gam55_unconv',Gam37='gam37_unconv',
-                             Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
-                             )    
     for attrName, clName in clusterTypes.iteritems():
-      x = 'ClusterCorrectionToolsSuperCluster' + attrName
-      if not hasattr(swTool, x) or getattr(swTool, x):
+      n = 'ClusterCorrectionToolsSuperCluster' + attrName
+      if not hasattr(swTool, n) or getattr(swTool, n):
         continue
-      
-      superclusterCorr= make_CaloSwCorrections(clName, suffix ='EGSuperCluster',
-                                              corrlist=[  [rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,'v5'],
-                                                          [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2, 'v5data'], 
-                                                          [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
-                                              cells_name=egammaKeys.caloCellKey())
-      setattr(swTool, x ,_process_tools (swTool, superclusterCorr) )
+  
+      setattr(swTool, n ,_process_tools(swTool, 
+                                        make_CaloSwCorrections(clName, suffix ='EGSuperCluster',
+                                                               corrlist=[[rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,'v5'],
+                                                                         [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2, 'v5data'], 
+                                                                         [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
+                                                               cells_name=egammaKeys.caloCellKey() )))
     #End of super cluster position only corrections
 #-------------------------
 
@@ -113,7 +111,6 @@ electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterB
                                            AddCellsWindowEtaCellsEndcap=5,
                                            AddCellsWindowPhiCellsEndcap=999
                                          )
-
 
 photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
                                          name = 'photonSuperClusterBuilder',

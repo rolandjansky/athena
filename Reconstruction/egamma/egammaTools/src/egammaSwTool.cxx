@@ -210,7 +210,7 @@ StatusCode egammaSwTool::populateTools(const std::vector<std::string>& names , s
  // CaloClusterCorrections tools
  std::vector<std::string>::const_iterator firstTool=names.begin();
  std::vector<std::string>::const_iterator lastTool =names.end();    
- for ( ; firstTool != lastTool; firstTool++ ) {
+ for ( ; firstTool != lastTool; ++firstTool) {
    IAlgTool* algToolPtr;
    ListItem  clusAlgoTool(*firstTool);
    StatusCode sCode = p_toolSvc->retrieveTool(clusAlgoTool.type(),
@@ -218,14 +218,13 @@ StatusCode egammaSwTool::populateTools(const std::vector<std::string>& names , s
 					      algToolPtr,
 					      this);
    if ( sCode.isFailure() ) {
-      ATH_MSG_ERROR("Cannot find tool for " << *firstTool);
-      return StatusCode::FAILURE;
+     ATH_MSG_ERROR("Cannot find tool for " << *firstTool);
+     return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("Found tool for " << *firstTool);
    // check for tool type
-   CaloClusterProcessor* 
-     theTool = dynamic_cast<CaloClusterProcessor*>(algToolPtr);
-   if ( theTool != 0 ) { 
+   CaloClusterProcessor*  theTool = dynamic_cast<CaloClusterProcessor*>(algToolPtr);
+   if (theTool != 0 ) { 
+     ATH_MSG_DEBUG("Tool " << *firstTool <<  " added in list ");
      tools.push_back(theTool); 
    }
  }
@@ -237,11 +236,11 @@ StatusCode egammaSwTool::processTools(const std::vector<CaloClusterProcessor*>& 
   auto firstTool = tools.begin();
   auto lastTool  = tools.end();
   // loop tools
-  for ( ; firstTool != lastTool; firstTool++ ) {
+  for ( ; firstTool != lastTool; ++firstTool ) {
    StatusCode processCheck = (*firstTool)->execute(cluster);
+   ATH_MSG_DEBUG("Tool " << (*firstTool)->name() <<  " executing  ");
    if ( processCheck.isFailure() ) {
      ATH_MSG_ERROR("Cluster corrections failed!");
-     //  return processCheck;
    }
   }
   return StatusCode::SUCCESS;
