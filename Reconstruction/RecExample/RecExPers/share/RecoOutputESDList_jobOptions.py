@@ -115,7 +115,9 @@ if DetFlags.detdescr.ZDC_on():
     fullESDList += CfgItemList("ZDC", items = ["xAOD::TriggerTowerContainer#ZdcTriggerTowers",
                                                "xAOD::TriggerTowerAuxContainer#ZdcTriggerTowersAux.",
                                                "xAOD::ZdcModuleContainer#ZdcModules",
-                                               "xAOD::ZdcModuleAuxContainer#ZdcModulesAux."])
+                                               "xAOD::ZdcModuleAuxContainer#ZdcModulesAux.",
+                                               "xAOD::ZdcModuleContainer#ZdcSums",
+                                               "xAOD::ZdcModuleAuxContainer#ZdcSumsAux."])
 
 if DetFlags.detdescr.ALFA_on():
     protectedInclude("ForwardRec/ALFARec_OuputItemList_jobOptions.py")
@@ -211,7 +213,7 @@ if recAlgs.doAtlfast():
 
 
 # Heavy Ion:
-if rec.doHeavyIon():
+if rec.doHeavyIon() or rec.doHIP():
     protectedInclude ("HIRecExample/HIRecOutputESDList_jobOptions.py")
     fullESDList += CfgItemList( "HeavyIonsEsd", items = HIESDItemList )
 
@@ -235,7 +237,16 @@ if rec.doWriteCalibHits():
                                        ]
                                 )
 
-
+if rec.doCaloRinger():
+    try:
+        include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
+        fullESDList += CfgItemList( "caloRingerEsd", items = caloRingerESDList )
+        from RecExConfig.ObjKeyStore import objKeyStore
+        objKeyStore['metaData'] += CfgItemList( "caloRingerMeta" , items = caloRingerMetaDataList )
+    except:
+        treatException("Could not load CaloRinger ESD item list")
+        pass
+    pass
 
 # now merge the explicit ESD list to the one coming from ObjKeyStore
 # (more and more will be taken from ObjKeyStore)
