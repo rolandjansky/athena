@@ -45,7 +45,7 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     return StatusCode::SUCCESS;
   }
 
-  for(auto tool : m_muonCombinedInDetExtensionTools)
+  for(auto& tool : m_muonCombinedInDetExtensionTools)
     tool->extend(*indetCandidateCollection);
   
   return StatusCode::SUCCESS;
