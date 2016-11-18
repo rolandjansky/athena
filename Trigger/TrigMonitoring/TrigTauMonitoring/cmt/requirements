@@ -12,6 +12,7 @@ apply_tag ROOTMathLibs
 ##use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use AnalysisUtils         AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
 use AthenaMonitoring      AthenaMonitoring-*      Control
+use AthenaKernel          AthenaKernel-*          Control
 use AtlasROOT             AtlasROOT-*             External
 use EventInfo             EventInfo-*             Event
 use GaudiInterface        GaudiInterface-*        External
@@ -22,7 +23,7 @@ use TrigTauEmulation      TrigTauEmulation-*      Trigger/TrigAnalysis/TrigTauAn
 use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
 use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent
-use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
+##use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
 use TrigConfL1Data        TrigConfL1Data-*        Trigger/TrigConfiguration
 use LumiBlockComps        LumiBlockComps-*        LumiBlock
 

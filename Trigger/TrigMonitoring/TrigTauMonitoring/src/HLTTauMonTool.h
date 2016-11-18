@@ -53,19 +53,19 @@ class HLTTauMonTool : public IHLTMonTool {
   virtual ~HLTTauMonTool();
   
   StatusCode init();
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
   StatusCode book();
-#else
-  StatusCode book(bool newEventsBlock, bool newLumiBlock, bool newRun);
-#endif
+//#else
+//  StatusCode book(bool newEventsBlock, bool newLumiBlock, bool newRun);
+//#endif
   StatusCode fill();
 
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
   StatusCode proc();
-#else
-  StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
-#endif
+//#else
+//  StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
+//#endif
 
   /// Method fills the histograms for one tau trigger item.
   StatusCode fillHistogramsForItem(const std::string & trigItem);
@@ -108,9 +108,9 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode trackCurves(const std::string & trigItem);
 
   //Methods for HLT and L1 Matching
-  bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
-  bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
-  bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
+  bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
+  bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
+  bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
   //StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
@@ -122,6 +122,7 @@ class HLTTauMonTool : public IHLTMonTool {
   float m_selection_ptMax, m_selection_ptMin;
   float m_selection_absEtaMax, m_selection_absEtaMin;
   float m_selection_absPhiMax, m_selection_absPhiMin; 
+  bool m_selection_BDT;
 
   bool TruthMatched( const xAOD::TauJet * tau);
 
@@ -149,7 +150,6 @@ class HLTTauMonTool : public IHLTMonTool {
   void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
   template<class T> void FillRelDiffProfile(TProfile * prof, float val1, float val2, T val3, float checkVal, int checkMode);
 
-  bool m_TracksInfo;
   bool m_turnOnCurves;
   std::string m_turnOnCurvesDenom;
   bool m_truth;
@@ -157,17 +157,15 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_emulation;
   bool m_RealZtautauEff;
   bool m_dijetFakeTausEff;
-  bool m_doFTKtest;
   bool m_doTrackCurves;
   bool m_doTopoValidation;
-  std::vector<std::string> CutItems;
-  std::vector<std::string> TauCutFlow;
-  std::vector<std::string> MuCutFlow;
   bool m_bootstrap;
 
-  unsigned int m_L1flag;
-  unsigned int m_Preselectionflag;
-  unsigned int m_HLTflag;
+  std::vector<TLorentzVector> m_true_taus;
+  std::vector<int> m_true_taus_nprong;
+  std::vector<const xAOD::TauJet *> m_taus;
+  const xAOD::TauJetContainer* m_tauCont;
+
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;
   std::string m_L1StringCondition; 
@@ -178,15 +176,17 @@ class HLTTauMonTool : public IHLTMonTool {
 
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
-  double mu_offline;
-  int mu_online;
+  float m_mu_offline;
+  int m_mu_online;
 
   ///Name of the trigger items to be monitored.
   ///Set by job options
   std::vector<std::string> m_trigItems;
   std::vector<std::string> m_trigItemsAll;
   std::vector<std::string> m_trigItemsHighPt;
+  std::vector<std::string> m_trigItemsZtt;
   std::vector<std::string> m_highpt_tau;
+  std::vector<std::string> m_ztt_tau;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
@@ -201,7 +201,7 @@ class HLTTauMonTool : public IHLTMonTool {
   //std::string m_lowest_mettau;
   //std::string m_cosmic_chain;
   // offline tau pt threshold for efficiency plots as a function of eta, phi, and nvtx
-  double m_effOffTauPtCut;
+  float m_effOffTauPtCut;
 
 };
 

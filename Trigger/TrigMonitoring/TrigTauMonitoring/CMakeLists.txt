@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           LumiBlock/LumiBlockComps
+                          Control/AthenaKernel
                           Control/AthenaMonitoring
                           Control/StoreGate
                           Event/EventInfo
@@ -31,7 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxVertex
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauEmulation
-                          Trigger/TrigConfiguration/TrigConfHLTData
+                         # Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigDecisionInterface
                           Trigger/TrigMonitoring/TrigHLTMonitoring )
@@ -44,7 +45,7 @@ atlas_add_component( TrigTauMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests EventInfo xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTrigger xAODTruth GaudiKernel AnalysisUtilsLib tauEvent VxVertex TrigDecisionToolLib TrigConfHLTData TrigConfL1Data TrigHLTMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests EventInfo xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTrigger xAODTruth GaudiKernel AnalysisUtilsLib tauEvent VxVertex TrigDecisionToolLib  TrigConfL1Data TrigHLTMonitoringLib )
 
 # Install files from the package:
 atlas_install_headers( TrigTauMonitoring )

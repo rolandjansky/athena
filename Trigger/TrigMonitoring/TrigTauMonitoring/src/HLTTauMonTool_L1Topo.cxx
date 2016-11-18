@@ -2,98 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/**    @file HLTTauMonTool.cxx
- *
- *    Artur Kalinowski (Artur.Kalinowski@cern.ch)
- *    Based on HLTMonTool example by Christiane Risler and Martin zur Nedden
- *    Maintained by ccuenca, jengbou
- */
-
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-#include "AnalysisUtils/AnalysisMisc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "EventInfo/EventInfo.h"
-#include <EventInfo/EventID.h>
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-//#include "TrigSteeringEvent/TrigOperationalInfo.h"
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
-#include "TrigConfL1Data/PrescaleSet.h"
 
 #include "TrigTauEmulation/Level1EmulationTool.h"
 #include "TrigTauEmulation/HltEmulationTool.h"
 
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthVertexContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODMissingET/MissingET.h"
-#include "xAODMissingET/MissingETContainer.h"
-
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
-
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-
-#include "VxVertex/VxContainer.h"
-
-#include "TROOT.h"
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TEfficiency.h"
 #include "TProfile.h"
-
-#include <vector>
-#include <iostream>
-#include <fstream>
-//#define _USE_MATH_DEFINES
-#include <math.h>
-
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-
 #include "HLTTauMonTool.h"
-
+#include "AthenaKernel/Units.h"
 
 using namespace std;
-using namespace AnalysisUtils;
-
-const float PI=2.0*acos(0.);
-const float TWOPI=2.0*PI;
+using Athena::Units::GeV;
 
 StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support){
 
@@ -159,7 +79,7 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
         double roi_pt_max = -1000.;
 	for(;comb!=combEnd;++comb){
 		const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
-		std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi1 = vec_roi.begin(), roi_e = vec_roi.end();
+		std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin()/*, roi1 = vec_roi.begin()*/, roi_e = vec_roi.end();
 
                 for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
                         jet_roi.push_back(false);
@@ -179,9 +99,9 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
                         bool isTau = false;
                         for(itEMTau = l1taus->begin(); itEMTau!=itEMTau_e; ++itEMTau){
                           double roi_pt = (*itEMTau)->tauClus();
-                          float m_iso_offset = 2000.;
-                          float m_iso_slope = 0.1;
-                          float isolation_cut = m_iso_offset + m_iso_slope * roi_pt;
+                          float iso_offset = 2000.;
+                          float iso_slope = 0.1;
+                          float isolation_cut = iso_offset + iso_slope * roi_pt;
                           double roi_isol = (*itEMTau)->emIsol();
                                 if(roi->cptr()->roiWord()==(*itEMTau)->roiWord() &&
                                     roi_pt > 12000. &&
@@ -251,8 +171,8 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
         	hist("hDRBothtausJetN")->Fill(min_dR_BothtausJetN);
  
                 if (phi_roi.size() >= 1 &&min_dR_Bothtaus>2.8 && min_dR_Bothtaus < 50.) {
-        	  if (index_tau20 > 0) hist("hPTLeading")->Fill(tau_val_roi.at(index_tau20)/1000.);
-        	  if (index_tau12 > 0) hist("hPTSubLeading")->Fill(tau_val_roi.at(index_tau12)/1000.);
+        	  if (index_tau20 > 0) hist("hPTLeading")->Fill(tau_val_roi.at(index_tau20)/GeV);
+        	  if (index_tau12 > 0) hist("hPTSubLeading")->Fill(tau_val_roi.at(index_tau12)/GeV);
         	  if (index_tau20 > 0) hist("hEtaLeading")->Fill(eta_roi.at(index_tau20));
         	  if (index_tau12 > 0) hist("hEtaSubLeading")->Fill(eta_roi.at(index_tau12));
         	  if (index_tau20 > 0) hist("hPhiLeading")->Fill(phi_roi.at(index_tau20));
@@ -261,8 +181,8 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
         	  hist("hMultiJets")->Fill(MultiJets);
                 }
                 if (phi_roi.size() >= 1 &&min_dR_BothtausJet>2.8 && min_dR_BothtausJet < 50.) {
-        	  if (indexJet_tau20 > 0) hist("hPTLeadingJet")->Fill(tau_val_roi.at(indexJet_tau20)/1000.);
-        	  if (indexJet_tau12 > 0) hist("hPTSubLeadingJet")->Fill(tau_val_roi.at(indexJet_tau12)/1000.);
+        	  if (indexJet_tau20 > 0) hist("hPTLeadingJet")->Fill(tau_val_roi.at(indexJet_tau20)/GeV);
+        	  if (indexJet_tau12 > 0) hist("hPTSubLeadingJet")->Fill(tau_val_roi.at(indexJet_tau12)/GeV);
         	  if (indexJet_tau20 > 0) hist("hEtaLeadingJet")->Fill(eta_roi.at(indexJet_tau20));
         	  if (indexJet_tau12 > 0) hist("hEtaSubLeadingJet")->Fill(eta_roi.at(indexJet_tau12));
         	  if (indexJet_tau20 > 0) hist("hPhiLeadingJet")->Fill(phi_roi.at(indexJet_tau20));
