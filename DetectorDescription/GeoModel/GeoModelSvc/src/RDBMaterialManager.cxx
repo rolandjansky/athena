@@ -139,7 +139,7 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 
   StatusCode sc = pSvcLocator->service("GeoModelSvc",iGeoModel);
   if(sc.isFailure())
-    log << MSG::ERROR << "Unable to access GeoModelSvc" << endreq;
+    log << MSG::ERROR << "Unable to access GeoModelSvc" << endmsg;
   else
   {
     sc = pSvcLocator->service("RDBAccessSvc",iAccessSvc);
@@ -154,21 +154,21 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_elements->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting Elements with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting Elements with default tag" <<endmsg;
 	  m_elements = iAccessSvc->getRecordsetPtr("Elements","Materials-00","Materials");
 	}
 	m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents",keyAtlas.tag(),keyAtlas.node());
 	if(m_stdmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting StdMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting StdMatComponents with default tag" <<endmsg;
 	  m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents","Materials-00","Materials");
 	}
 	m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials",keyAtlas.tag(),keyAtlas.node());
 	if(m_stdmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting StdMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting StdMaterials with default tag" <<endmsg;
 	  m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials","Materials-00","Materials");
 	}
 
@@ -178,14 +178,14 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_pixmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting PixMatComponents with default tag" <<endmsg;
 	  m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
 	}
 	m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials",keyPixel.tag(),keyPixel.node());
 	if(m_pixmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting PixMaterials with default tag" <<endmsg;
 	  m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
 	}
 
@@ -194,14 +194,14 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
         if(m_pixtbmatcomponents->size()==0)
         {
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixTBMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting PixTBMatComponents with default tag" <<endmsg;
           m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
         }
         m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixelTBMaterials",keyPixel.tag(),keyPixel.node());
         if(m_pixtbmaterials->size()==0)
         {
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixTBMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting PixTBMaterials with default tag" <<endmsg;
           m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
         }
 
@@ -211,7 +211,7 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_sctmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting SCTMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting SCTMatComponents with default tag" <<endmsg;
 	  m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents","SCTMatComponents-00");
 	}
 
@@ -219,7 +219,7 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_sctmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting SCTMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting SCTMaterials with default tag" <<endmsg;
 	  m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials","SCTMaterials-00");
 	}
 
@@ -229,14 +229,14 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_trtmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TrtMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting TrtMatComponents with default tag" <<endmsg;
 	  m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents","TrtMatComponents-00");
 	}
 	m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials",keyTRT.tag(),keyTRT.node());
 	if(m_trtmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TrtMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting TrtMaterials with default tag" <<endmsg;
 	  m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials","TrtMaterials-00");
 	}
 
@@ -246,7 +246,7 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_indetmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting InDetMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting InDetMatComponents with default tag" <<endmsg;
 	  m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents","InDetMatComponents-00");
 	}
 
@@ -254,7 +254,7 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_indetmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting InDetMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting InDetMaterials with default tag" <<endmsg;
 	  m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials","InDetMaterials-00");
 	}
 
@@ -264,14 +264,14 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_larmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting LArMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting LArMatComponents with default tag" <<endmsg;
 	  m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents","LArMatComponents-00");
 	}
 	m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials",keyLAr.tag(),keyLAr.node());
 	if(m_larmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting LArMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting LArMaterials with default tag" <<endmsg;
 	  m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials","LArMaterials-00");
 	}
 
@@ -281,14 +281,14 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_tilematcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TileMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting TileMatComponents with default tag" <<endmsg;
 	  m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents","TileMatComponents-00");
 	}
 	m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials",keyTile.tag(),keyTile.node());
 	if(m_tilematerials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TileMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting TileMaterials with default tag" <<endmsg;
 	  m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials","TileMaterials-00");
 	}
 
@@ -298,52 +298,52 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 	if(m_muomatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting MUOMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting MUOMatComponents with default tag" <<endmsg;
 	  m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents","MUOMatComponents-00");
 	}
 	m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials",keyMuon.tag(),keyMuon.node());
 	if(m_muomaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting MUOMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting MUOMaterials with default tag" <<endmsg;
 	  m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials","MUOMaterials-00");  
 	}
 	m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents",keyMuon.tag(),keyMuon.node());
 	if(m_shieldmatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ShieldMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting ShieldMatComponents with default tag" <<endmsg;
 	  m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents","ShieldMatComponents-00");
 	}
 	m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials",keyMuon.tag(),keyMuon.node());
 	if(m_shieldmaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ShieldMaterials with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting ShieldMaterials with default tag" <<endmsg;
 	  m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials","ShieldMaterials-00");
 	}
 	m_toromatcomponents = iAccessSvc->getRecordsetPtr("ToroMatComponents",keyMuon.tag(),keyMuon.node());
 	if(m_toromatcomponents->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ToroMatComponents with default tag" <<endreq;
+	    log << MSG::DEBUG << " Getting ToroMatComponents with default tag" <<endmsg;
 	  m_toromatcomponents =	iAccessSvc->getRecordsetPtr("ToroMatComponents","ToroMatComponents-00");
 	}
 	m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials",keyMuon.tag(),keyMuon.node());
 	if(m_toromaterials->size()==0)
 	{
 	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ToroMaterials with default tag" <<endreq; 
+	    log << MSG::DEBUG << " Getting ToroMaterials with default tag" <<endmsg; 
 	  m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials","ToroMaterials-00");
 	}
     
 	iAccessSvc->disconnect();
       }
       else
-	log << MSG::ERROR << "Unable to fetch data from the Geometry DB" << endreq;
+	log << MSG::ERROR << "Unable to fetch data from the Geometry DB" << endmsg;
     }
     else
-      log << MSG::ERROR << "Unable to get RDBAccessSvc" << endreq;
+      log << MSG::ERROR << "Unable to get RDBAccessSvc" << endmsg;
   }
 
 }
@@ -369,12 +369,12 @@ GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name)
   	
   if (m!=end) {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endmsg;	
     return (*m).second;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endmsg;	
     return NULL;
   }
 }
@@ -387,12 +387,12 @@ GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) con
   std::map< std::string, GeoMaterial * >::const_iterator end = m_materialMap.end();
   if (m!=end) {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endmsg;	
     return (*m).second;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endmsg;	
     return NULL;
   }
 }
@@ -407,12 +407,12 @@ GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)
   	
   if (e!=m_elementVector.end()) {	
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endmsg;	
     return *e;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endmsg;	
     return NULL;
   }
 }
@@ -427,12 +427,12 @@ GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  c
   	
   if (e!=m_elementVector.end()) {	
     if(log.level()==MSG::VERBOSE)    		
-      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endmsg;	
     return *e;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endreq;	
+      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endmsg;	
     return NULL;
   }
 }
@@ -447,12 +447,12 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
   	
   if (e!=m_elementVector.end()) {
     if(log.level()==MSG::VERBOSE)  		
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
     return *e;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
     return NULL;
   }
 }
@@ -466,12 +466,12 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
   	
   if (e!=m_elementVector.end()) {
     if(log.level()==MSG::VERBOSE)  		
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
     return *e;
   }
   else {
     if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
     return NULL;
   }
 }
@@ -513,7 +513,7 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()<=MSG::DEBUG) 
-    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endreq;	
+    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endmsg;	
  
 
   pmaterial = NULL;
@@ -612,7 +612,7 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
 	material_density = rec->getDouble("DENSITY");
         		
 	if(log.level()<=MSG::DEBUG)
-	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endreq;	
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endmsg;	
 	break;
       }
     }
@@ -729,7 +729,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()<=MSG::DEBUG) 
-    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endreq;	
+    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endmsg;	
 
   pmaterial = NULL;
   pmaterial = searchMaterialMap( name);
@@ -826,7 +826,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
 	material_density = rec->getDouble("DENSITY");
         		
 	if(log.level()<=MSG::DEBUG)
-	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endreq;	
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endmsg;	
 	break;
       }
     }
@@ -920,7 +920,7 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(): " << name  <<endreq;
+    log << MSG::VERBOSE << " ***** getElement(): " << name  <<endmsg;
 
   for(ind = 0; ind < m_elements->size(); ind++)
     {
@@ -965,7 +965,7 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** const getElement(atomicNumber) const : " << atomicNumber <<endreq;	
+    log << MSG::VERBOSE << " ***** const getElement(atomicNumber) const : " << atomicNumber <<endmsg;	
 
   for(ind = 0; ind < m_elements->size(); ind++)
     {
@@ -1008,7 +1008,7 @@ GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(): " << element_name  <<endreq;
+    log << MSG::VERBOSE << " ***** getElement(): " << element_name  <<endmsg;
 	
   pelement = NULL;
   pelement = searchElementVector( name);
@@ -1057,7 +1057,7 @@ GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << element_name  <<endreq;	
+    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << element_name  <<endmsg;	
 	
   for(ind = 0; ind < m_elements->size(); ind++)
     {
@@ -1088,12 +1088,12 @@ void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *mat
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endreq;
+    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endmsg;
 	
   std::string key = space + std::string("::")+ std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
   if(m_materialMap.find(key)!=m_materialMap.end())
-    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
+    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endmsg;
   else {
     material->lock();             
     material->ref();
@@ -1105,12 +1105,12 @@ void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *mat
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endreq;
+    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endmsg;
 	
   std::string key = space + std::string("::")+ std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
   if(m_materialMap.find(key)!=m_materialMap.end())
-    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
+    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endmsg;
   else {
     material->lock();             
     material->ref();

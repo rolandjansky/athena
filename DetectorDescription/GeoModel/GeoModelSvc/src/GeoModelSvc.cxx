@@ -9,13 +9,14 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelSvc.h"
 #include "RDBMaterialManager.h"
+#include "GeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoAlignTool.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -41,30 +42,8 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_pToolSvc(0),
     m_pDetStore(0),
     m_tagInfoMgr(0),
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_AtlasVersion("AUTO"),
-    m_InDetVersion(""),
-    m_PixelVersion(""),
-    m_SCT_Version(""),
-    m_TRT_Version(""),
-    m_LAr_Version(""),
-    m_TileVersion(""),
-    m_MuonVersion(""),
-    m_CaloVersion(""),
-    m_MagFieldVersion(""),
-    m_CavernInfraVersion(""),
-    m_ForwardDetectorsVersion(""),
-    m_InDetVersionOverride(""),
-    m_PixelVersionOverride(""),
-    m_SCT_VersionOverride(""),
-    m_TRT_VersionOverride(""),
-    m_LAr_VersionOverride(""),
-    m_TileVersionOverride(""),
-    m_MuonVersionOverride(""),
-    m_CaloVersionOverride(""),
-    m_MagFieldVersionOverride(""),
-    m_CavernInfraVersionOverride(""),
-    m_ForwardDetectorsVersionOverride(""),
-    m_geoConfig(GeoModel::GEO_RUN1),
     m_automaticGeomVersion(false),
     m_callBackON(true),
     m_geoInit(false),
@@ -549,90 +528,38 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
     result = m_pDetStore->record(theMaterialManager, "MATERIALS" );
 
     if(result.isFailure()) {
-      ATH_MSG_DEBUG("Unable to record Stored Material Manager");
+      ATH_MSG_FATAL("Unable to record Stored Material Manager");
       return result;
     }
 
-    // Get top level tags for subsystems from database
-
-    if(m_InDetVersionOverride=="")
-      m_InDetVersion = rdbAccess->getChildTag("InnerDetector",m_AtlasVersion,"ATLAS");
-    else
-      m_InDetVersion = m_InDetVersionOverride;
-    
-    if(m_PixelVersionOverride=="")
-      m_PixelVersion = rdbAccess->getChildTag("Pixel",m_InDetVersion,"InnerDetector");
-    else
-      m_PixelVersion = m_PixelVersionOverride;
-
-    if(m_SCT_VersionOverride=="")
-      m_SCT_Version = rdbAccess->getChildTag("SCT",m_InDetVersion,"InnerDetector");
-    else
-      m_SCT_Version = m_SCT_VersionOverride;
-    
-    if(m_TRT_VersionOverride=="")
-      m_TRT_Version = rdbAccess->getChildTag("TRT",m_InDetVersion,"InnerDetector");
-    else
-      m_TRT_Version = m_TRT_VersionOverride;
-    
-    if(m_LAr_VersionOverride=="")
-      m_LAr_Version = rdbAccess->getChildTag("LAr",m_AtlasVersion,"ATLAS");
-    else
-      m_LAr_Version = m_LAr_VersionOverride;
-    
-    if(m_TileVersionOverride=="")
-      m_TileVersion = rdbAccess->getChildTag("TileCal",m_AtlasVersion,"ATLAS");
-    else
-      m_TileVersion = m_TileVersionOverride;
-    
-    if(m_MuonVersionOverride=="")
-      m_MuonVersion = rdbAccess->getChildTag("MuonSpectrometer",m_AtlasVersion,"ATLAS");
-    else
-      m_MuonVersion = m_MuonVersionOverride;
-    
-    if(m_CaloVersionOverride=="")
-      m_CaloVersion = rdbAccess->getChildTag("Calorimeter",m_AtlasVersion,"ATLAS");
-    else
-      m_CaloVersion = m_CaloVersionOverride;
-
-    if(m_MagFieldVersionOverride=="")
-      m_MagFieldVersion = rdbAccess->getChildTag("MagneticField",m_AtlasVersion,"ATLAS");
-    else
-      m_MagFieldVersion = m_MagFieldVersionOverride;
-
-    if(m_CavernInfraVersionOverride=="")
-      m_CavernInfraVersion = rdbAccess->getChildTag("CavernInfra",m_AtlasVersion,"ATLAS");
-    else
-      m_CavernInfraVersion = m_CavernInfraVersionOverride;
-
-    if(m_ForwardDetectorsVersionOverride=="")
-      m_ForwardDetectorsVersion = rdbAccess->getChildTag("ForwardDetectors",m_AtlasVersion,"ATLAS");
-    else
-      m_ForwardDetectorsVersion = m_ForwardDetectorsVersionOverride;
-
-    // Retrieve geometry config information from the database (RUN1, RUN2, etc...)
-    IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",m_AtlasVersion,"ATLAS");
-    if(atlasCommonRec->size()==0) {
-      m_geoConfig = GeoModel::GEO_RUN1;
+    // Setup the GeoDbTagSvc
+    if(m_geoDbTagSvc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve GeoDbTagSvc");
+      return StatusCode::FAILURE;
     }
-    else {
-      std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
-      if(configVal=="RUN1")
-	m_geoConfig = GeoModel::GEO_RUN1;
-      else if(configVal=="RUN2")
-	m_geoConfig = GeoModel::GEO_RUN2;
-      else if(configVal=="RUN3")
-	m_geoConfig = GeoModel::GEO_RUN2;
-      else if(configVal=="RUN4")
-	m_geoConfig = GeoModel::GEO_RUN4;
-      else if(configVal=="ITk")
-	m_geoConfig = GeoModel::GEO_ITk;
-      else if(configVal=="TESTBEAM")
-	m_geoConfig = GeoModel::GEO_TESTBEAM;
-      else {
-	ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
-	return StatusCode::FAILURE;
-      }
+
+    GeoDbTagSvc* dbTagSvc = dynamic_cast<GeoDbTagSvc*>(m_geoDbTagSvc.operator->());
+    if(dbTagSvc==nullptr) {
+      ATH_MSG_FATAL("Unable to dyn-cast the IGeoDbTagSvc pointer to GeoDbTagSvc");
+      return StatusCode::FAILURE;
+    }
+
+    dbTagSvc->setAtlasVersion(m_AtlasVersion);
+    dbTagSvc->setInDetVersionOverride(m_InDetVersionOverride);
+    dbTagSvc->setPixelVersionOverride(m_PixelVersionOverride);
+    dbTagSvc->setSCT_VersionOverride(m_SCT_VersionOverride);
+    dbTagSvc->setTRT_VersionOverride(m_TRT_VersionOverride);
+    dbTagSvc->setLAr_VersionOverride(m_LAr_VersionOverride);
+    dbTagSvc->setTileVersionOverride(m_TileVersionOverride);
+    dbTagSvc->setMuonVersionOverride(m_MuonVersionOverride);
+    dbTagSvc->setCaloVersionOverride(m_CaloVersionOverride);
+    dbTagSvc->setMagFieldVersionOverride(m_MagFieldVersionOverride);
+    dbTagSvc->setCavernInfraVersionOverride(m_CavernInfraVersionOverride);
+    dbTagSvc->setForwardDetectorsVersionOverride(m_ForwardDetectorsVersionOverride);
+
+    if(dbTagSvc->setupTags().isFailure()) {
+      ATH_MSG_FATAL("Failed to setup subsystem tags");
+      return StatusCode::FAILURE;
     }
 
     // Build the world node from which everything else will be suspended
@@ -650,9 +577,9 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
     result = m_pDetStore->record( theExperiment, "ATLAS" );
     if ( result.isSuccess( ) ) {
       int mem,cpu;
-      std::ofstream* geoModelStats = 0;
+      std::unique_ptr<std::ofstream> geoModelStats;
       if(m_statisticsToFile) {
-	geoModelStats = new std::ofstream("GeoModelStatistics");
+	geoModelStats = CxxUtils::make_unique<std::ofstream>("GeoModelStatistics");
 	*geoModelStats << "Detector Configuration flag = " << m_AtlasVersion << std::endl; 
       }
 
@@ -685,7 +612,6 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 
       if(m_statisticsToFile) {
 	geoModelStats->close();
-	delete geoModelStats;
       }
     } else {
       ATH_MSG_ERROR("Could not register ATLAS Experiment within transient detector store");
@@ -807,7 +733,7 @@ GeoModelSvc::compareTags(IOVSVC_CALLBACK_ARGS)
     if(!tagsMatch)
     {
       msg((m_ignoreTagDifference? MSG::WARNING : MSG::ERROR)) 
-	<< "*** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***" << endreq;
+	<< "*** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***" << endmsg;
       ATH_MSG_INFO("** Job Option configuration: ");
       ATH_MSG_INFO("* ATLAS tag: " << m_AtlasVersion);
       ATH_MSG_INFO("* InDet tag: " << m_InDetVersionOverride);
@@ -1017,7 +943,7 @@ const IGeoModelTool* GeoModelSvc::getTool(std::string toolName) const
   ToolHandleArray< IGeoModelTool >::const_iterator itPriv = m_detectorTools.begin();
 
   for(; itPriv!=m_detectorTools.end(); itPriv++) {
-    IGeoModelTool* theTool = &(**itPriv);
+    const IGeoModelTool* theTool = &(**itPriv);
     if(theTool->name().find(toolName)!=std::string::npos)
       return theTool;
   }
@@ -1031,7 +957,7 @@ StatusCode GeoModelSvc::clear()
   StatusCode retval = StatusCode::SUCCESS;
 
   // Call clear() for all tools
-  ToolHandleArray< IGeoModelTool >::const_iterator itPriv = m_detectorTools.begin();
+  ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin();
   for(; itPriv!=m_detectorTools.end(); itPriv++) {
     IGeoModelTool* theTool = &(**itPriv);
     retval = theTool->clear(m_pDetStore);
