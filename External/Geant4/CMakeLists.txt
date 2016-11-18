@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 770353 2016-08-26 15:28:34Z jchapman $
+# $Id: CMakeLists.txt 785143 2016-11-18 16:19:00Z jchapman $
 #
 # Package building Geant4 with all its ATLAS specific patches, for the offline
 # builds.
@@ -25,12 +25,7 @@ find_package( EXPAT )
 # Git repository for Geant4:
 set( _repository https://gitlab.cern.ch/atlas-simulation-team/geant4.git )
 # Git tag to build:
-set( _tag "v10.1.3.1" )
-
-# Version string to replace:
-set( _g4vers_orig "geant4-10-01-patch-03" )
-# Version string to use:
-set( _g4vers_patch "geant4.10.1.patch03.atlas01" )
+set( _tag "v10.1.3.2" )
 
 # Set some environment variables for the build:
 if( APPLE )
@@ -54,7 +49,7 @@ set( _extraOptions )
 if( "${CMAKE_CXX_STANDARD}" EQUAL 11 )
    list( APPEND _extraOptions -DGEANT4_BUILD_CXXSTD=c++11 )
 elseif( "${CMAKE_CXX_STANDARD}" EQUAL 14 )
-   list( APPEND _extraOptions -DGEANT4_BUILD_CXXSTD=c++1y )
+   list( APPEND _extraOptions -DGEANT4_BUILD_CXXSTD=c++14 )
 endif()
 if( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
    list( APPEND _extraOptions -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} )
