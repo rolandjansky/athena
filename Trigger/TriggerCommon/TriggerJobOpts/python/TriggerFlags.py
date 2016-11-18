@@ -414,6 +414,18 @@ class configForStartup(JobProperty):
 
 _flags.append(configForStartup)
 
+class run2Config(JobProperty):
+    """ A flag to specify 2016 or 2017 (tunes, etc) running conditions """
+    statusOn=True
+    allowedType=['string']
+    StoredValue = '2017'
+    allowedValues = [
+        '2016',
+        '2017',
+        ]
+
+_flags.append(run2Config)
+
 class dataTakingConditions(JobProperty):
     """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
     statusOn=True
@@ -1060,6 +1072,7 @@ class triggerMenuSetup(JobProperty):
         'MC_HI_v4', 'MC_HI_v4_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
+        'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
         ]
 
     _default_menu='MC_pp_v6_tight_mc_prescale'
