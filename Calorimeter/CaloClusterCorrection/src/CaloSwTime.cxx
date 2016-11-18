@@ -58,7 +58,7 @@ void CaloSwTime::makeCorrection(const EventContext& /*ctx*/,
       }
    }
 
-   ATH_MSG_DEBUG( " Cluster:  emax,time " << emax << " " << time << endreq);
+   ATH_MSG_DEBUG( " Cluster:  emax,time " << emax << " " << time << endmsg);
 
    if (emax>0.) cluster->setTime(time);
 

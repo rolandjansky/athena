@@ -36,22 +36,29 @@ public:
                         const IInterface* parent);
   
 
+  using CaloClusterProcessor::execute;
+
+
   /**
    * @brief Execute on a single cluster.
    * @param The cluster to process.
+   * @param ctx The event context.
    *
    * For this tool, this is a no-op.
    * We only make this available to avoid getting warnings
    * when corrections are called on single clusters from egammaRec.
    */
-  virtual StatusCode execute (xAOD::CaloCluster* cluster);
+  virtual StatusCode execute (const EventContext& ctx,
+                              xAOD::CaloCluster* cluster) const override;
 
 
   /**
    * @brief Execute on an entire collection of clusters.
    * @param The container of clusters.
+   * @param ctx The event context.
    */
-  virtual StatusCode execute (xAOD::CaloClusterContainer* clusColl);
+  virtual StatusCode execute (const EventContext& ctx,
+                              xAOD::CaloClusterContainer* clusColl) const override;
 
     
  private:

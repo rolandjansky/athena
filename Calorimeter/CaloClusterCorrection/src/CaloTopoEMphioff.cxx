@@ -48,13 +48,13 @@ CaloTopoEMphioff::~CaloTopoEMphioff()
 // Initialization
 /*StatusCode CaloTopoEMphioff::initialize()
 {
-  ATH_MSG_DEBUG( " Phi offset parameters : " << endreq);
-  ATH_MSG_DEBUG( "   EdepA =          " << m_EdepA << endreq);
-  ATH_MSG_DEBUG( "   EdepB =          " << m_EdepB << endreq);
-  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endreq);
-  ATH_MSG_DEBUG( "   EtaFrontier =    " << m_EtaFrontier << endreq);
-  ATH_MSG_DEBUG( "   FlipPhi =        " << m_FlipPhi << endreq);
-  ATH_MSG_DEBUG( "   EndcapOffset =   " << m_EndcapOffset << endreq);
+  ATH_MSG_DEBUG( " Phi offset parameters : " << endmsg);
+  ATH_MSG_DEBUG( "   EdepA =          " << m_EdepA << endmsg);
+  ATH_MSG_DEBUG( "   EdepB =          " << m_EdepB << endmsg);
+  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endmsg);
+  ATH_MSG_DEBUG( "   EtaFrontier =    " << m_EtaFrontier << endmsg);
+  ATH_MSG_DEBUG( "   FlipPhi =        " << m_FlipPhi << endmsg);
+  ATH_MSG_DEBUG( "   EndcapOffset =   " << m_EndcapOffset << endmsg);
   return StatusCode::SUCCESS;
 }*/
 
@@ -78,8 +78,8 @@ void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
   if (eclus <= 0)
     return;
 
-  ATH_MSG_DEBUG( " ... phi-off BEGIN" << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
+  ATH_MSG_DEBUG( " ... phi-off BEGIN" << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
   // Compute the correction
   if (aeta < m_EtaFrontier[0]) 
@@ -107,14 +107,14 @@ void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
     qphioff = -qphioff;
 
   // Print out the function for debugging
-  ATH_MSG_DEBUG( " ... Phi off " << qphioff << " " << adj_eta << " " << eclus << " " << iEtaBin << endreq);
+  ATH_MSG_DEBUG( " ... Phi off " << qphioff << " " << adj_eta << " " << eclus << " " << iEtaBin << endmsg);
 
   // Apply the correction
   phi = CaloPhiRange::fix(phi + qphioff);
   cluster->setPhi(samp,phi);
 
-  ATH_MSG_DEBUG( " ... phi-off END" << endreq);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
+  ATH_MSG_DEBUG( " ... phi-off END" << endmsg);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
   // Done
   return ; 

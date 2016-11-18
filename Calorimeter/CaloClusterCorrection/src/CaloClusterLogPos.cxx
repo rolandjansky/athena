@@ -33,7 +33,7 @@ StatusCode CaloClusterLogPos::initialize() {
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg( MSG::ERROR )  << "Could not locate GeoModelSvc" << endreq;
+    msg( MSG::ERROR )  << "Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -52,7 +52,7 @@ StatusCode CaloClusterLogPos::initialize() {
 			  &CaloClusterLogPos::geoInit,this);
     if(sc.isFailure())
     {
-      msg(  MSG::ERROR ) << "Could not register geoInit callback" << endreq;
+      msg(  MSG::ERROR ) << "Could not register geoInit callback" << endmsg;
       return sc;
     }
   }
@@ -63,7 +63,7 @@ StatusCode
 CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
-  ATH_MSG_DEBUG("Initializing " << name() << endreq ) ;
+  ATH_MSG_DEBUG("Initializing " << name() << endmsg ) ;
 
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
@@ -72,12 +72,14 @@ CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
   return StatusCode::SUCCESS;
 }
    
-StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
+StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
+                                       xAOD::CaloCluster* theCluster) const
+{
   
   if ( msgSvc()->outputLevel(name()) <= MSG::DEBUG ) {
 
     msg(MSG::DEBUG) << " old cluster eta = " << theCluster->eta() 
-		    << " phi = " << theCluster->phi() << endreq;
+		    << " phi = " << theCluster->phi() << endmsg;
 
     // std::vector<double> theEtas;
     // std::vector<double> thePhis;
@@ -85,7 +87,7 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
     // theCluster->getPhiInSamples(thePhis);
     // for(int i=0;i<CaloCell_ID::Unknown;i++) {
     //   report << MSG::DEBUG << " old sampling " << i << " eta = " << theEtas[i]
-    // 	     << " phi = " << thePhis[i] << endreq;
+    // 	     << " phi = " << thePhis[i] << endmsg;
     //}
   }
 
@@ -197,7 +199,7 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
     // theCluster->getPhiInSamples(thePhis);
     // for(int i=0;i<CaloCell_ID::Unknown;i++) {
     //   msg(MSG::DEBUG) << " new sampling " << i << " eta = " << theEtas[i]
-    // 		      << " phi = " << thePhis[i] << endreq;
+    // 		      << " phi = " << thePhis[i] << endmsg;
     // }
   }
 

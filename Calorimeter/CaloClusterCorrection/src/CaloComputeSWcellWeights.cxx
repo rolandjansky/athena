@@ -44,11 +44,13 @@ CaloComputeSWcellWeights::CaloComputeSWcellWeights(const std::string& type,
 }
 
 // Make Corrections for SW cell weights 
-StatusCode CaloComputeSWcellWeights::execute(xAOD::CaloClusterContainer*  clusColl)
+StatusCode
+CaloComputeSWcellWeights::execute(const EventContext& /*ctx*/,
+                                  xAOD::CaloClusterContainer*  clusColl) const
 {
  
 
-  ATH_MSG_DEBUG( "Executing CaloComputeSWcellWeights" << endreq) ; 
+  ATH_MSG_DEBUG( "Executing CaloComputeSWcellWeights" << endmsg) ; 
   
   std::map<IdentifierHash,double> WeightMap; //FIXME: use a vector!
 

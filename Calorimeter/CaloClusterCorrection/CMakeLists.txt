@@ -7,26 +7,26 @@ atlas_subdir( CaloClusterCorrection )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloCondBlobObjs
                           Calorimeter/CaloConditions
                           Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
                           Calorimeter/CaloRec
-                          Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CxxUtils
                           Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODCaloEvent
                           GaudiKernel
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArCabling
                           PRIVATE
                           AtlasTest/TestTools
+                          Control/AthenaBaseComps
+                          Database/AthenaPOOL/AthenaPoolUtilities
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
+                          Calorimeter/CaloCondBlobObjs
+                          Calorimeter/CaloIdentifier
+                          LArCalorimeter/LArIdentifier
+                          LArCalorimeter/LArCabling
                           Control/AthContainers
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier

@@ -54,14 +54,14 @@ StatusCode CaloSwDeadOTX_back::initialize()
   //  CHECK( setProperty ("isDummy", std::string("1")) );
 
   
-  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: retrieving affectedTool" << endreq);
+  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: retrieving affectedTool" << endmsg);
 
   if (m_affectedTool.retrieve().isFailure()){
-      ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: failure retrieving affectedTool !! " << endreq);
+      ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: failure retrieving affectedTool !! " << endmsg);
       return StatusCode::FAILURE;
   } 
 
-  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: affectedTool successfully retrieved" << endreq);
+  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: affectedTool successfully retrieved" << endmsg);
 
   return StatusCode::SUCCESS;;
 }
@@ -100,10 +100,10 @@ void CaloSwDeadOTX_back::makeTheCorrection
    } 
 
 
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);
-   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION : apply correction for dead OTX in the back" << endreq);
-   ATH_MSG_DEBUG(  " Tool Name   " << name() << endreq);
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);  	
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);
+   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION : apply correction for dead OTX in the back" << endmsg);
+   ATH_MSG_DEBUG(  " Tool Name   " << name() << endmsg);
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);  	
 
 // -------------------------------------------------------------
 // check if the cluster is in an affected region
@@ -137,10 +137,10 @@ void CaloSwDeadOTX_back::makeTheCorrection
 // if a cluster is in an affected region set the back energy to zero else return
 
    if (check) { 
-       ATH_MSG_DEBUG(  "The cluster is in an affected region, apply corrections" << endreq);
+       ATH_MSG_DEBUG(  "The cluster is in an affected region, apply corrections" << endmsg);
        cluster->setEnergy (samps[si][3], 0 );
    } else { 
-       ATH_MSG_DEBUG(  "The cluster is NOT in an affected region, skip correction" << endreq);
+       ATH_MSG_DEBUG(  "The cluster is NOT in an affected region, skip correction" << endmsg);
        return; 
    }
 
@@ -169,14 +169,14 @@ void CaloSwDeadOTX_back::makeTheCorrection
    if (raw_energy == 0) return;
    double shower_lbary = shower_lbary_raw / raw_energy;
 	
-   ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endreq);
+   ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endmsg);
    
    double depth_max = 20. + raw_energy*(3./TeV) ;
 
    if ( shower_lbary > depth_max   || shower_lbary < 0.) {
      shower_lbary = 15.;
      ATH_MSG_DEBUG( " replace pathological depth by 15 X0 "
-         << endreq);
+         << endmsg);
    }
 
 
@@ -193,11 +193,11 @@ void CaloSwDeadOTX_back::makeTheCorrection
    }
 
    ATH_MSG_DEBUG( "Leakage     :  " << lleak[0] <<"  " << lleak[1]
-          << " " << lleak[2] << " "  << lleak[3] << endreq);
+          << " " << lleak[2] << " "  << lleak[3] << endmsg);
 
    double e_leak_perc = lleak[3] + lleak[1] * shower_lbary + lleak[2] * exp(shower_lbary);
 
-   ATH_MSG_DEBUG( "LongLeakage correction --> " << e_leak_perc << endreq);
+   ATH_MSG_DEBUG( "LongLeakage correction --> " << e_leak_perc << endmsg);
     
    if (e_leak_perc < 0 ) e_leak_perc = 0.;
    if (e_leak_perc > 100.) e_leak_perc = 100.;
@@ -216,16 +216,16 @@ void CaloSwDeadOTX_back::makeTheCorrection
    
 // take the cluster energy, subtract the old PS energy and add the new one
  
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_back:: cluster energy before correction --> " <<  cluster->e() << endreq);
-   ATH_MSG_DEBUG( "subtracting back energy -->> " << eneBackold << endreq);
-   ATH_MSG_DEBUG( "adding new back energy  -->> " << e_leak_reco << endreq);
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_back:: cluster energy before correction --> " <<  cluster->e() << endmsg);
+   ATH_MSG_DEBUG( "subtracting back energy -->> " << eneBackold << endmsg);
+   ATH_MSG_DEBUG( "adding new back energy  -->> " << e_leak_reco << endmsg);
 
    float e_temp = cluster->e() - eneBackold + e_leak_reco ; 
 
 // set the energy of the cluster
    cluster->setE (e_temp); 
  
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_back::Energy after  correction --> " <<  cluster->e() << endreq); 
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_back::Energy after  correction --> " <<  cluster->e() << endmsg); 
 
 }
 

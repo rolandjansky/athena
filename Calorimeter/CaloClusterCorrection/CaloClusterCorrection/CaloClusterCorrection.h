@@ -100,7 +100,8 @@ class CaloClusterCorrection
                               xAOD::CaloCluster*) const = 0;
 
   using CaloClusterProcessor::execute;
-  StatusCode execute(xAOD::CaloCluster* cluster) override;
+  StatusCode execute(const EventContext& ctx,
+                     xAOD::CaloCluster* cluster) const override;
 
  protected:
   /**

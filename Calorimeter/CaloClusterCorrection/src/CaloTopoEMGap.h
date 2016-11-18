@@ -73,7 +73,7 @@ public:
                                   float adj_eta,
                                   float phi,
                                   float adj_phi,
-                                  CaloSampling::CaloSample samp) const;
+                                  CaloSampling::CaloSample samp) const override;
 
 
 private:

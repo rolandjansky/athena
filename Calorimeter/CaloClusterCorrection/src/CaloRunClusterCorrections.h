@@ -146,38 +146,43 @@ public:
 
 
   /// Standard initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /// Standard finalize method.
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
+  using CaloClusterProcessor::execute;
 
   /**
    * @brief Execute on a single cluster.
    * @param The cluster to process.
+   * @param ctx The event context.
    *
    * Warning: Any defined tools that cannot process single clusters
    * (only cluster collections) will be skipped!
    */
-  virtual StatusCode execute (xAOD::CaloCluster* cluster);
+  virtual StatusCode execute (const EventContext& ctx,
+                              xAOD::CaloCluster* cluster) const override;
 
 
   /**
    * @brief Execute on an entire collection of clusters.
    * @param The container of clusters.
+   * @param ctx The event context.
    *
    * This will iterate over all the clusters in @c collection
    * and call @c execute on each one individually.
    */
-  virtual StatusCode execute (xAOD::CaloClusterContainer* collection);
+  virtual StatusCode execute (const EventContext& ctx,
+                              xAOD::CaloClusterContainer* collection) const override;
 
 
   /**
    * @brief Change the name of the CaloCellContainer used by this tool.
    * @param name The new container name.
    */
-  virtual StatusCode setCaloCellContainerName (const std::string& name);
+  virtual StatusCode setCaloCellContainerName (const std::string& name) override;
 
 
 private:
@@ -367,9 +372,6 @@ private:
 
   /// List of folders for which we've already registered callbacks.
   std::vector<std::string> m_registeredDBObjects;
-
-  /// Message stream.
-  MsgStream* m_log;
 
   /// COOL folder name in case of COOL inline storage
   std::string  m_folderName;

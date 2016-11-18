@@ -39,7 +39,8 @@ class CaloComputeSWcellWeights : public AthAlgTool, virtual public CaloClusterCo
                            const IInterface* parent);
 
   using CaloClusterCollectionProcessor::execute; // xxx temporary
-  StatusCode execute(xAOD::CaloClusterContainer*  clusColl);
+  StatusCode execute(const EventContext& ctx,
+                     xAOD::CaloClusterContainer*  clusColl) const override;
 
  private:
 

@@ -35,11 +35,12 @@ class CaloClusterRemoveDuplicates :  public AthAlgTool, virtual public CaloClust
                               const IInterface* parent);
   
   using CaloClusterCollectionProcessor::execute; // xxx temporary
-  StatusCode execute(xAOD::CaloClusterContainer*  clusColl);
+  StatusCode execute(const EventContext& ctx,
+                     xAOD::CaloClusterContainer*  clusColl) const override;
     
  private:
   
-  int compare( xAOD::CaloCluster* clus1 , xAOD::CaloCluster* clus2 );
+  int compare( xAOD::CaloCluster* clus1 , xAOD::CaloCluster* clus2 ) const;
   
   CaloClusterRemoveDuplicates();
   

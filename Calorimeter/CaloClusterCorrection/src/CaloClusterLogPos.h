@@ -53,11 +53,12 @@ class CaloClusterLogPos : public CaloClusterProcessor
 
  public:
   // Initialization: cache DetDescr manager and Cell ID helper
-  StatusCode initialize();
+  StatusCode initialize() override;
 
   // Calculate logarithmic weighted positions
   using CaloClusterProcessor::execute;
-  StatusCode execute(xAOD::CaloCluster* theCluster);
+  StatusCode execute(const EventContext& ctx,
+                     xAOD::CaloCluster* theCluster) const override;
 
   // Standard AlgTool constructor
   CaloClusterLogPos(const std::string& type,

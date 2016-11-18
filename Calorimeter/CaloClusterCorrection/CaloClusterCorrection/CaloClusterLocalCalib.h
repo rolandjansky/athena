@@ -36,12 +36,13 @@ class CaloClusterLocalCalib : public CaloClusterProcessor {
   //  virtual ~CaloClusterLocalCalib();
   
   /// Tool initialization: load calibration tools specified by jobOptions 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /// Apply corrections to cluster
   using CaloClusterProcessor::execute;
-  StatusCode execute(xAOD::CaloCluster* theCluster);
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloCluster* theCluster) const override;
 
 
   /// Standard AlgTool constructor

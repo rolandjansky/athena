@@ -54,7 +54,7 @@ class CaloSwClcon_g3 : public CaloClusterCorrection
                               xAOD::CaloCluster* cluster) const override;
 
   /// Currently at version==1.
-  virtual int version() const;
+  virtual int version() const override;
   
  private:
   
