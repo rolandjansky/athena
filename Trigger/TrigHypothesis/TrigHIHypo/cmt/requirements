@@ -22,6 +22,7 @@ use AtlasCLHEP          AtlasCLHEP-*            External
 use GaudiInterface      GaudiInterface-*        External
 use TrigInterfaces      TrigInterfaces-*        Trigger/TrigSteer
 use TrigMissingEtEvent  TrigMissingEtEvent-*    Trigger/TrigEvent
+use TrigMuonEvent  	TrigMuonEvent-*    	Trigger/TrigEvent
 use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
 use Particle            Particle-*              Reconstruction
 use TrigParticle        TrigParticle-*          Trigger/TrigEvent
@@ -31,6 +32,8 @@ use CaloInterface       CaloInterface-*         Calorimeter
 use HIGlobal            HIGlobal-*              Reconstruction/HeavyIonRec
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use xAODHIEvent         xAODHIEvent-*           Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
 #use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
 #use TestTools           TestTools-*             AtlasTest
 

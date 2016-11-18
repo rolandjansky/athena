@@ -15,11 +15,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloInterface
                           Control/AthenaBaseComps
                           Event/xAOD/xAODHIEvent
+                          Event/xAOD/xAODMuon
+                          Event/xAOD/xAODTracking
                           GaudiKernel
                           Reconstruction/HeavyIonRec/HIGlobal
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
                           Trigger/TrigEvent/TrigMissingEtEvent
+                          Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces )
@@ -32,7 +35,7 @@ atlas_add_component( TrigHIHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigSteeringEvent CaloEvent AthenaBaseComps xAODHIEvent GaudiKernel Particle TrkParameters TrigMissingEtEvent TrigParticle TrigInterfacesLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigSteeringEvent CaloEvent AthenaBaseComps xAODHIEvent xAODMuon xAODTracking GaudiKernel Particle TrkParameters TrigMissingEtEvent TrigMuonEvent TrigParticle TrigInterfacesLib TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
