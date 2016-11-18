@@ -44,7 +44,7 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
 #
 #  functionality : add cells crossed by high pt ID tracks 
 #
-if rec.doESD() and recAlgs.doTrackParticleCellAssociation():
+if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on():
     from AthenaCommon.CfgGetter import getPublicTool
     getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
     topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg")
@@ -80,7 +80,7 @@ if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
 #
 pdr.flag_domain('jet')
 jetOK=False
-if rec.doJetMissingETTag():
+if rec.doJetMissingETTag() and DetFlags.Calo_on():
     try:
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.Enabled():
@@ -149,6 +149,12 @@ if recAlgs.doMissingETSig() and ( rec.readESD() or DetFlags.haveRIO.Calo_on()) :
 else:
   recAlgs.doMissingETSig=False
 
-  
+#
+# Functionality: CaloRinger
+#
+pdr.flag_domain('caloringer')
+if rec.doCaloRinger:
+  include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+
 
         
