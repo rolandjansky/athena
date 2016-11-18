@@ -84,6 +84,7 @@ from BTagging.BTaggingConfiguration_MV1FlipTag import *
 from BTagging.BTaggingConfiguration_MV1Tag import *
 #from BTagging.BTaggingConfiguration_MV2FlipTag import *
 #from BTagging.BTaggingConfiguration_MV2Tag import *
+from BTagging.BTaggingConfiguration_Myc100Tag import *
 from BTagging.BTaggingConfiguration_MV1cTag import *
 from BTagging.BTaggingConfiguration_MV1cFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c00Tag import *
@@ -1000,6 +1001,15 @@ class Configuration:
       output: The tool."""
       options = dict(options)
       options['name'] = self.getToolName('BTagTrackToJetAssociator', TrackCollection, JetCollection)
+
+
+      if "TracksToTagList" in options:
+          print self.BTagTag() + " you have requested to tag the following collections of tracks: "
+          print options["TracksToTagList"]
+          return None
+
+
+
       tool = self.getTool('BTagTrackToJetAssociator', TrackCollection, JetCollection)
       if tool is None:
           if Verbose:
