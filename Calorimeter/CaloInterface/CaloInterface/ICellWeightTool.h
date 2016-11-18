@@ -52,7 +52,7 @@ class ICellWeightTool : virtual public IAlgTool
 
   static const InterfaceID& interfaceID() { return IID_ICellWeightTool; }
 
-  virtual double wtCell(const CaloCell* thisCell) = 0;
+  virtual double wtCell(const CaloCell* thisCell) const = 0;
 
 
 };

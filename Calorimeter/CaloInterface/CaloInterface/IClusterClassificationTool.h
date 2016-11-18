@@ -38,7 +38,7 @@ class IClusterClassificationTool : virtual public IAlgTool
    *
    * this method is purely virtual because every derived class needs
    * to implement it.  */
-  virtual CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster) = 0;
+  virtual CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster) const = 0;
 
   virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS) =0;
 
