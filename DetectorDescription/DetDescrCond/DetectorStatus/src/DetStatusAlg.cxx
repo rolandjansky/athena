@@ -26,14 +26,14 @@ DetStatusAlg::~DetStatusAlg()
 {}
 
 StatusCode DetStatusAlg::initialize() {
-  m_log << MSG::INFO << "Initialize called" << endreq;
+  m_log << MSG::INFO << "Initialize called" << endmsg;
   // get DetStatusSvc
   if (StatusCode::SUCCESS!=service("DetStatusSvc",p_detstatussvc)) {
-    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endreq;
+    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   if (par_veto) m_log << MSG::INFO << "Events with bad status will be vetoed"
-		      << endreq;
+		      << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -50,7 +50,7 @@ StatusCode DetStatusAlg::execute() {
   if (!(par_print || par_veto)) {
     DetStatusMap::const_iterator begin,end;
     p_detstatussvc->getIter(begin,end);
-    m_log << MSG::DEBUG << "Dummy retrieve of DetStatusMap done" << endreq;
+    m_log << MSG::DEBUG << "Dummy retrieve of DetStatusMap done" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -59,7 +59,7 @@ StatusCode DetStatusAlg::execute() {
 void DetStatusAlg::doVeto() {
   ++m_count;
   if (p_detstatussvc->vetoed()) {
-    m_log << MSG::DEBUG << "Event vetoed due to bad status" << endreq;
+    m_log << MSG::DEBUG << "Event vetoed due to bad status" << endmsg;
     ++m_nveto;
     // set filter to false so this can be used in an algorithm Sequence
     setFilterPassed(false);
@@ -69,7 +69,7 @@ void DetStatusAlg::doVeto() {
 StatusCode DetStatusAlg::finalize() {
   if (par_veto) {
     m_log << MSG::INFO << "Saw " << m_count << " events of which " <<
-      m_nveto << " vetoed due to bad status" << endreq;
+      m_nveto << " vetoed due to bad status" << endmsg;
   }
   return StatusCode::SUCCESS;
 }
