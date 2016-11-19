@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 739036 2016-04-08 20:32:07Z ssnyder $
+// $Id: TrigConfMetadataTool.cxx 739035 2016-04-08 20:32:01Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
