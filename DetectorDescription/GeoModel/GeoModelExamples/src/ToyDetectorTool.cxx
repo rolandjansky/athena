@@ -46,7 +46,7 @@ ToyDetectorTool::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+	<< endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -61,12 +61,12 @@ ToyDetectorTool::create( StoreGateSvc* detStore )
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theToyFactory.create(world);
     } catch (std::bad_alloc) {
-      log << MSG::FATAL << "Could not create new ToyDetectorNode!" << endreq;
+      log << MSG::FATAL << "Could not create new ToyDetectorNode!" << endmsg;
       return StatusCode::FAILURE; 
     }
     // Register the ToyDetectorNode instance with the Transient Detector Store
     theExpt->addManager(theToyFactory.getDetectorManager());
-    detStore->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName());
+    if (detStore->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName())!=StatusCode::SUCCESS) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;
