@@ -49,21 +49,21 @@ StatusCode
 ZdcCablingSvc::initialize()
 {
   MsgStream log(msgSvc(),name());
-  log <<MSG::DEBUG <<"In initialize() " << endreq;
+  log <<MSG::DEBUG <<"In initialize() " << endmsg;
 
   //=== initialize base class
   if(Service::initialize().isFailure()){
-    log << MSG::ERROR << "Unable to initialize base class" << endreq;
+    log << MSG::ERROR << "Unable to initialize base class" << endmsg;
   }
 
   //=== set properties
   if(setProperties().isFailure()){
-    log << MSG::ERROR << "Unable to set properties" << endreq;
+    log << MSG::ERROR << "Unable to set properties" << endmsg;
   }
   
   //=== 
   if(m_detStore.retrieve().isFailure()){
-    log << MSG::ERROR << "Unable to retrieve " << m_detStore << endreq;
+    log << MSG::ERROR << "Unable to retrieve " << m_detStore << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -71,7 +71,7 @@ ZdcCablingSvc::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
+    log << MSG::ERROR << "Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -90,7 +90,7 @@ ZdcCablingSvc::initialize()
 			    &ZdcCablingSvc::geoInit,this);
     if(sc.isFailure())
     {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
+      log << MSG::ERROR << "Could not register geoInit callback" << endmsg;
       return sc;
     }
   }
@@ -101,34 +101,34 @@ StatusCode
 ZdcCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 {
   MsgStream log(msgSvc(),name());
-  log <<MSG::DEBUG <<"In geoInit() " << endreq;
+  log <<MSG::DEBUG <<"In geoInit() " << endmsg;
 
   //=== retrieve all helpers from detector store
 
   /*
   const ZdcLVL1_ID* zdcL1ID(0);
   if(m_detStore->retrieve(caloID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve ZdcLVL1_ID helper from DetectorStore" << endreq;
+    log << MSG::ERROR << "Unable to retrieve ZdcLVL1_ID helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
   */
 
   const ZdcID* zdcID(0);
   if(m_detStore->retrieve(zdcID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endreq;
+    log << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
   const ZdcHardwareID* zdcHWID(0);
   if(m_detStore->retrieve(zdcHWID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve ZdcHWID helper from DetectorStore" << endreq;
+    log << MSG::ERROR << "Unable to retrieve ZdcHWID helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
   //=== Initialize ZdcCablingService singleton
   m_cablingService = ZdcCablingService::getInstance();
   if(!m_cablingService){
-    log << MSG::ERROR << "Cannot get instance of ZdcCablingService"<< endreq ;
+    log << MSG::ERROR << "Cannot get instance of ZdcCablingService"<< endmsg ;
     return StatusCode::FAILURE ;
   }
 
@@ -141,7 +141,7 @@ ZdcCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS)
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
+    log << MSG::ERROR << "Could not locate GeoModelSvc" << endmsg;
   } else {
     // check the DetDescr version
     std::string atlasVersion = geoModel->atlasVersion();
@@ -151,22 +151,22 @@ ZdcCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS)
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
 
     if (geo == 0 || ibl == 0 || slhc == 0) {
-      log << MSG::INFO << "New ATLAS geometry detected: " << atlasVersion << endreq;
+      log << MSG::INFO << "New ATLAS geometry detected: " << atlasVersion << endmsg;
       m_cablingType = 2;
     } else if (comm == 0) {
-      log << MSG::INFO << "ATLAS Commissioning geometry detected: " << atlasVersion << endreq;
+      log << MSG::INFO << "ATLAS Commissioning geometry detected: " << atlasVersion << endmsg;
       m_cablingType = 2;
     } else {
-      log << MSG::INFO << "Old ATLAS geometry detected: " << atlasVersion << endreq;
+      log << MSG::INFO << "Old ATLAS geometry detected: " << atlasVersion << endmsg;
       // in this case change cabling type only if it is not set via jobOptions
       if (m_cablingType < -1 || m_cablingType > 3)
         m_cablingType = 0;
       else 
-        log << MSG::INFO << "Using cabling type from jobOptions " << endreq;
+        log << MSG::INFO << "Using cabling type from jobOptions " << endmsg;
     }
   }
 
-  log << MSG::INFO << "Setting Cabling type to " << m_cablingType << endreq;
+  log << MSG::INFO << "Setting Cabling type to " << m_cablingType << endmsg;
   m_cablingService->setCablingType((ZdcCablingService::ZdcCablingType)m_cablingType);
 
   MSG::Level logLevel = log.level();
@@ -228,7 +228,7 @@ StatusCode
 ZdcCablingSvc::finalize()
 {
   MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "finalize called, deleting ZdcCablingService instance" << endreq;
+  log << MSG::DEBUG << "finalize called, deleting ZdcCablingService instance" << endmsg;
   m_cablingService->deleteInstance();
   return StatusCode::SUCCESS;
 }
