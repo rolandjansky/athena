@@ -1,4 +1,5 @@
-Mon Mar 21 22:40:04 CET 2016
+/afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 112, which is not a valid value for type 'bool'
+/afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 128, which is not a valid value for type 'bool'
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,71 +7,66 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
+Py:ConfigurableDb WARNING Found 1 duplicates among the 43 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -TrigEFDPhiMetJetAllTE: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf', 'TrigJetHypo.TrigJetHypoConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Athena               INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-??-??-??
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthPoolEx::ReadCond/ReadCond, AthPoolEx::ReadData/ReadData
+ReadCond            DEBUG Property update for OutputLevel : new value = 2
 ReadCond             INFO in initialize()
+ReadCond            DEBUG input handles: 0
+ReadCond            DEBUG output handles: 0
+ReadCond            DEBUG Data Deps for ReadCond
+ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
+MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-??-??-??
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-??-??-??
+PoolSvc             DEBUG Property update for OutputLevel : new value = 2
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-??-??-??
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc             DEBUG POOL ReadCatalog is file:Catalog0.xml
 PoolSvc             DEBUG POOL ReadCatalog is file:Catalog1.xml
 PoolSvc              INFO POOL WriteCatalog is file:Catalog2.xml
-XMLFileCatalog Info Connecting to the catalog
-PoolXMLFileCatalog Info Xerces-c initialization Number 0
-XMLFileCatalog Info Connecting to the catalog
-PoolXMLFileCatalog Debug Xerces-c initialization Number 1
-XMLFileCatalog Info Connecting to the catalog
-PoolXMLFileCatalog Debug Xerces-c initialization Number 2
-PoolXMLFileCatalog Info File Catalog0.xml does not exist, a new one is created
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-07
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-31
+PoolSvc              INFO Re-initializing PoolSvc
+EventSelector       DEBUG Property update for OutputLevel : new value = 2
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-??-??-??
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 RootCollection Info Opening Collection File SimplePoolFile1.root in mode: READ
 RootCollection Debug File SimplePoolFile1.root exists.
 RootCollection Info File SimplePoolFile1.root opened
 RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile1.root ( POOL : "RootCollection::open" from "RootCollection" )
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolFile1.root
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
-???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug Opening
+##Shapes Debug    attributes# = 1
+##Shapes Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
 SimplePoolFile1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
@@ -83,7 +79,9 @@ SimplePoolFile1.root Debug --->Reading Shape[4 , ????]: [1 Column(s)]
 SimplePoolFile1.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
-???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug Opening
+##Links Debug    attributes# = 1
+##Links Debug Opened container ##Links of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile1.root Debug ---->ClassID:????
 SimplePoolFile1.root Debug --->Reading Assoc:????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
@@ -104,7 +102,9 @@ SimplePoolFile1.root Debug --->Reading Assoc:????/MetaDataHdr(DataHeader) [202] 
 SimplePoolFile1.root Debug ---->ClassID:????
 ##Links Debug No objects passing selection criteria... Container has 9 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Params
-???? Debug Opened container ##Params of type ROOT_Tree
+##Params Debug Opening
+##Params Debug    attributes# = 1
+##Params Debug Opened container ##Params of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Param:FID=[????]
 SimplePoolFile1.root Debug --->Reading Param:PFN=[SimplePoolFile1.root]
 SimplePoolFile1.root Debug --->Reading Param:POOL_VSN=[1.1]
@@ -113,39 +113,40 @@ SimplePoolFile1.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:SimplePoolFile1.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
+POOLContainer(DataHeader) Debug Opening
+POOLContainer(DataHeader) Debug    attributes# = 1
+POOLContainer(DataHeader) Debug Branch container 'DataHeader'
+POOLContainer(DataHeader) Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
-???? Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+MetaDataHdr(DataHeader) Debug Opening
+MetaDataHdr(DataHeader) Debug    attributes# = 1
+MetaDataHdr(DataHeader) Debug Branch container 'DataHeader'
+MetaDataHdr(DataHeader) Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
-???? Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
+MetaDataHdrForm(DataHeaderForm) Debug Opening
+MetaDataHdrForm(DataHeaderForm) Debug    attributes# = 1
+MetaDataHdrForm(DataHeaderForm) Debug Branch container 'DataHeaderForm'
+MetaDataHdrForm(DataHeaderForm) Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-07
-CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-19-07
+AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-??-??-??
+CondProxyProvider   DEBUG Property update for OutputLevel : new value = 2
+CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-??-??-??
 CondProxyProvider   DEBUG Try item: "SimplePoolFile4.root" from the collection list.
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 RootCollection Info Opening Collection File SimplePoolFile4.root in mode: READ
 RootCollection Debug File SimplePoolFile4.root exists.
 RootCollection Info File SimplePoolFile4.root opened
 RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile4.root ( POOL : "RootCollection::open" from "RootCollection" )
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolFile4.root
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
-???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug Opening
+##Shapes Debug    attributes# = 1
+##Shapes Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
 SimplePoolFile4.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
@@ -154,7 +155,9 @@ SimplePoolFile4.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
 SimplePoolFile4.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 3 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
-???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug Opening
+##Links Debug    attributes# = 1
+##Links Debug Opened container ##Links of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile4.root Debug ---->ClassID:????
 SimplePoolFile4.root Debug --->Reading Assoc:????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [202]  (3 , ffffffff)
@@ -167,7 +170,9 @@ SimplePoolFile4.root Debug --->Reading Assoc:????/ConditionsContainer(ExampleHit
 SimplePoolFile4.root Debug ---->ClassID:????
 ##Links Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Params
-???? Debug Opened container ##Params of type ROOT_Tree
+##Params Debug Opening
+##Params Debug    attributes# = 1
+##Params Debug Opened container ##Params of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Param:FID=[????]
 SimplePoolFile4.root Debug --->Reading Param:PFN=[SimplePoolFile4.root]
 SimplePoolFile4.root Debug --->Reading Param:POOL_VSN=[1.1]
@@ -175,46 +180,24 @@ SimplePoolFile4.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:SimplePoolFile4.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+ReadData            DEBUG input handles: 0
+ReadData            DEBUG output handles: 0
+ReadData            DEBUG Data Deps for ReadData
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
 ApplicationMgr       INFO Application Manager Initialized successfully
-MetaDataStore        INFO Start MetaDataStore
-TagMetaDataStore     INFO Start TagMetaDataStore
-SimplePoolFile1.root Info Database being retired...
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Links
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Shapes
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Params
-RootDatabase.close Debug I/O READ  Bytes: ????
-RootDatabase.close Debug I/O WRITE Bytes: 0
-RootDatabase.close Debug I/O OTHER Bytes: 0
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 RootCollection Info Opening Collection File SimplePoolFile1.root in mode: READ
 RootCollection Debug File SimplePoolFile1.root exists.
 RootCollection Info File SimplePoolFile1.root opened
 RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile1.root ( POOL : "RootCollection::open" from "RootCollection" )
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
-PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
-XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolFile1.root
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
-???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug Opening
+##Shapes Debug    attributes# = 1
+##Shapes Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
 SimplePoolFile1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
@@ -227,7 +210,9 @@ SimplePoolFile1.root Debug --->Reading Shape[4 , ????]: [1 Column(s)]
 SimplePoolFile1.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
-???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug Opening
+##Links Debug    attributes# = 1
+##Links Debug Opened container ##Links of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile1.root Debug ---->ClassID:????
 SimplePoolFile1.root Debug --->Reading Assoc:????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
@@ -248,7 +233,9 @@ SimplePoolFile1.root Debug --->Reading Assoc:????/MetaDataHdr(DataHeader) [202] 
 SimplePoolFile1.root Debug ---->ClassID:????
 ##Links Debug No objects passing selection criteria... Container has 9 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Params
-???? Debug Opened container ##Params of type ROOT_Tree
+##Params Debug Opening
+##Params Debug    attributes# = 1
+##Params Debug Opened container ##Params of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Param:FID=[????]
 SimplePoolFile1.root Debug --->Reading Param:PFN=[SimplePoolFile1.root]
 SimplePoolFile1.root Debug --->Reading Param:POOL_VSN=[1.1]
@@ -258,14 +245,18 @@ ImplicitCollection Info Opened the implicit collection with connection string "P
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 MetaDataSvc         DEBUG handle() BeginTagFile for SimplePoolFile1.root
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-InputMetaDataStore   INFO Start InputMetaDataStore
-StoreGateSvc         INFO Start StoreGateSvc
+POOLContainer(DataHeader) Debug Opening
+POOLContainer(DataHeader) Debug    attributes# = 1
+POOLContainer(DataHeader) Debug Branch container 'DataHeader'
+POOLContainer(DataHeader) Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
 ApplicationMgr       INFO Application Manager Started successfully
 MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolFile1.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolFile1.root
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
-???? Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+MetaDataHdr(DataHeader) Debug Opening
+MetaDataHdr(DataHeader) Debug    attributes# = 1
+MetaDataHdr(DataHeader) Debug Branch container 'DataHeader'
+MetaDataHdr(DataHeader) Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 EventSelector       DEBUG Get AttributeList from the collection
@@ -274,38 +265,34 @@ EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=P
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000]
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainerForm(DataHeaderForm)
-???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+POOLContainerForm(DataHeaderForm) Debug Opening
+POOLContainerForm(DataHeaderForm) Debug    attributes# = 1
+POOLContainerForm(DataHeaderForm) Debug Branch container 'DataHeaderForm'
+POOLContainerForm(DataHeaderForm) Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
-???? Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
+CollectionTree(EventInfo_p4/McEventInfo) Debug Opening
+CollectionTree(EventInfo_p4/McEventInfo) Debug    attributes# = 1
+CollectionTree(EventInfo_p4/McEventInfo) Debug Branch container 'EventInfo_p4_McEventInfo'
+CollectionTree(EventInfo_p4/McEventInfo) Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
 ReadCond            DEBUG in execute()
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-31
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile4.root Info Database being retired...
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Links
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Shapes
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Params
-RootDatabase.close Debug I/O READ  Bytes: ????
-RootDatabase.close Debug I/O WRITE Bytes: 0
-RootDatabase.close Debug I/O OTHER Bytes: 0
+POOLContainer(DataHeader) Debug Opening
+POOLContainer(DataHeader) Debug    attributes# = 1
+POOLContainer(DataHeader) Debug Branch container 'DataHeader'
+POOLContainer(DataHeader) Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-PoolXMLFileCatalog Debug FileID ???? is not in the catalog
-XMLFileCatalog Debug empty physical filename found
-PoolXMLFileCatalog Debug PFname  is not in the xml file
-PoolXMLFileCatalog Debug FileID ???? is not in the catalog
-XMLFileCatalog Debug empty physical filename found
-PoolXMLFileCatalog Debug PFname  is not in the xml file
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All] Info                           SimplePoolFile4.root
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
-???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug Opening
+##Shapes Debug    attributes# = 1
+##Shapes Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
 SimplePoolFile4.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
@@ -314,7 +301,9 @@ SimplePoolFile4.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
 SimplePoolFile4.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 3 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
-???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug Opening
+##Links Debug    attributes# = 1
+##Links Debug Opened container ##Links of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile4.root Debug ---->ClassID:????
 SimplePoolFile4.root Debug --->Reading Assoc:????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [202]  (3 , ffffffff)
@@ -327,30 +316,46 @@ SimplePoolFile4.root Debug --->Reading Assoc:????/ConditionsContainer(ExampleHit
 SimplePoolFile4.root Debug ---->ClassID:????
 ##Links Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Params
-???? Debug Opened container ##Params of type ROOT_Tree
+##Params Debug Opening
+##Params Debug    attributes# = 1
+##Params Debug Opened container ##Params of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Param:FID=[????]
 SimplePoolFile4.root Debug --->Reading Param:PFN=[SimplePoolFile4.root]
 SimplePoolFile4.root Debug --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile4.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
+POOLContainer(DataHeader) Debug Opening
+POOLContainer(DataHeader) Debug    attributes# = 1
+POOLContainer(DataHeader) Debug Branch container 'DataHeader'
+POOLContainer(DataHeader) Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainerForm(DataHeaderForm)
-???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+POOLContainerForm(DataHeaderForm) Debug Opening
+POOLContainerForm(DataHeaderForm) Debug    attributes# = 1
+POOLContainerForm(DataHeaderForm) Debug Branch container 'DataHeaderForm'
+POOLContainerForm(DataHeaderForm) Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 CondProxyProvider   DEBUG The current File contains: 2 objects
 CondProxyProvider   DEBUG preLoadAddresses: DataObject address, clid = 9102, name = PedestalWriteData
 CondProxyProvider   DEBUG The current File contains: 2 objects
 CondProxyProvider   DEBUG preLoadAddresses: DataObject address, clid = 9102, name = PedestalAppendData
-DetectorStore        INFO Start DetectorStore
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData)
-???? Debug Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
+ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) Debug Opening
+ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) Debug    attributes# = 1
+ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) Debug Branch container 'ExampleHitContainer_p1_PedestalWriteData'
+ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) Debug Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
 ReadCond             INFO Pedestal x = 193136 y = 14420 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData)
-???? Debug Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) of type ROOT_Tree
+ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) Debug Opening
+ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) Debug    attributes# = 1
+ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) Debug Branch container 'ExampleHitContainer_p1_PedestalAppendData'
+ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) Debug Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) of type ROOT_Tree
 ReadCond             INFO Pedestal (2) x = 309704 y = 41630 z = -242812 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 ReadData            DEBUG in execute()
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
-???? Debug Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
+MetaData(EventStreamInfo_p3/Stream1) Debug Opening
+MetaData(EventStreamInfo_p3/Stream1) Debug    attributes# = 1
+MetaData(EventStreamInfo_p3/Stream1) Debug Branch container 'EventStreamInfo_p3_Stream1'
+MetaData(EventStreamInfo_p3/Stream1) Debug Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -362,17 +367,20 @@ ReadData             INFO EventInfo event: 0 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
-???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
-ReadData             INFO Hit x = 1.23 y = 97.65 z = 226.67 detector = DummyHitDetector
-ReadData             INFO Hit x = 4.44 y = 91.97 z = 94.73 detector = DummyHitDetector
-ReadData             INFO Hit x = 7.65 y = 86.29 z = 70.23 detector = DummyHitDetector
-ReadData             INFO Hit x = 10.86 y = 80.61 z = 59.91 detector = DummyHitDetector
-ReadData             INFO Hit x = 14.07 y = 74.93 z = 54.22 detector = DummyHitDetector
-ReadData             INFO Hit x = 17.28 y = 69.26 z = 50.62 detector = DummyHitDetector
-ReadData             INFO Hit x = 20.49 y = 63.58 z = 48.13 detector = DummyHitDetector
-ReadData             INFO Hit x = 23.70 y = 57.90 z = 46.31 detector = DummyHitDetector
-ReadData             INFO Hit x = 26.91 y = 52.22 z = 44.92 detector = DummyHitDetector
-ReadData             INFO Hit x = 30.12 y = 46.54 z = 43.83 detector = DummyHitDetector
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug Opening
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug    attributes# = 1
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug Branch container 'ExampleHitContainer_p1_MyHits'
+CollectionTree(ExampleHitContainer_p1/MyHits) Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
+ReadData             INFO Hit x = 1.2345 y = 97.655 z = 226.672 detector = DummyHitDetector
+ReadData             INFO Hit x = 4.4445 y = 91.9761 z = 94.7318 detector = DummyHitDetector
+ReadData             INFO Hit x = 7.6545 y = 86.2972 z = 70.2348 detector = DummyHitDetector
+ReadData             INFO Hit x = 10.8645 y = 80.6183 z = 59.9142 detector = DummyHitDetector
+ReadData             INFO Hit x = 14.0745 y = 74.9394 z = 54.2259 detector = DummyHitDetector
+ReadData             INFO Hit x = 17.2845 y = 69.2605 z = 50.6227 detector = DummyHitDetector
+ReadData             INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = DummyHitDetector
+ReadData             INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
+ReadData             INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
+ReadData             INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -397,16 +405,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 1 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 101.23 y = 97.65 z = 126.67 detector = DummyHitDetector
-ReadData             INFO Hit x = 104.44 y = 91.97 z = -5.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 107.65 y = 86.29 z = -29.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 110.86 y = 80.61 z = -40.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 114.07 y = 74.93 z = -45.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 117.28 y = 69.26 z = -49.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 120.49 y = 63.58 z = -51.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 123.70 y = 57.90 z = -53.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 126.91 y = 52.22 z = -55.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 130.12 y = 46.54 z = -56.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 101.234 y = 97.655 z = 126.672 detector = DummyHitDetector
+ReadData             INFO Hit x = 104.444 y = 91.9761 z = -5.26816 detector = DummyHitDetector
+ReadData             INFO Hit x = 107.654 y = 86.2972 z = -29.7652 detector = DummyHitDetector
+ReadData             INFO Hit x = 110.864 y = 80.6183 z = -40.0858 detector = DummyHitDetector
+ReadData             INFO Hit x = 114.075 y = 74.9394 z = -45.7741 detector = DummyHitDetector
+ReadData             INFO Hit x = 117.284 y = 69.2605 z = -49.3773 detector = DummyHitDetector
+ReadData             INFO Hit x = 120.494 y = 63.5816 z = -51.8642 detector = DummyHitDetector
+ReadData             INFO Hit x = 123.704 y = 57.9027 z = -53.6841 detector = DummyHitDetector
+ReadData             INFO Hit x = 126.915 y = 52.2238 z = -55.0735 detector = DummyHitDetector
+ReadData             INFO Hit x = 130.125 y = 46.5449 z = -56.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -431,16 +439,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 2 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 201.23 y = 97.65 z = 26.67 detector = DummyHitDetector
-ReadData             INFO Hit x = 204.44 y = 91.97 z = -105.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 207.65 y = 86.29 z = -129.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 210.86 y = 80.61 z = -140.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 214.07 y = 74.93 z = -145.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 217.28 y = 69.26 z = -149.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 220.49 y = 63.58 z = -151.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 223.70 y = 57.90 z = -153.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 226.91 y = 52.22 z = -155.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 230.12 y = 46.54 z = -156.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 201.234 y = 97.655 z = 26.6723 detector = DummyHitDetector
+ReadData             INFO Hit x = 204.445 y = 91.9761 z = -105.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 207.654 y = 86.2972 z = -129.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 210.864 y = 80.6183 z = -140.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 214.075 y = 74.9394 z = -145.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 217.285 y = 69.2605 z = -149.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 220.494 y = 63.5816 z = -151.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 223.704 y = 57.9027 z = -153.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 226.915 y = 52.2238 z = -155.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 230.125 y = 46.5449 z = -156.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -465,16 +473,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 3 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 301.23 y = 97.65 z = -73.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 304.44 y = 91.97 z = -205.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 307.65 y = 86.29 z = -229.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 310.86 y = 80.61 z = -240.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 314.07 y = 74.93 z = -245.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 317.28 y = 69.26 z = -249.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 320.49 y = 63.58 z = -251.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 323.70 y = 57.90 z = -253.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 326.91 y = 52.22 z = -255.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 330.12 y = 46.54 z = -256.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 301.235 y = 97.655 z = -73.3277 detector = DummyHitDetector
+ReadData             INFO Hit x = 304.445 y = 91.9761 z = -205.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 307.655 y = 86.2972 z = -229.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 310.865 y = 80.6183 z = -240.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 314.075 y = 74.9394 z = -245.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 317.285 y = 69.2605 z = -249.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 320.495 y = 63.5816 z = -251.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 323.705 y = 57.9027 z = -253.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 326.915 y = 52.2238 z = -255.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 330.125 y = 46.5449 z = -256.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -499,16 +507,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 4 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 401.23 y = 97.65 z = -173.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 404.44 y = 91.97 z = -305.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 407.65 y = 86.29 z = -329.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 410.86 y = 80.61 z = -340.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 414.07 y = 74.93 z = -345.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 417.28 y = 69.26 z = -349.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 420.49 y = 63.58 z = -351.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 423.70 y = 57.90 z = -353.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 426.91 y = 52.22 z = -355.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 430.12 y = 46.54 z = -356.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 401.235 y = 97.655 z = -173.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 404.445 y = 91.9761 z = -305.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 407.655 y = 86.2972 z = -329.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 410.865 y = 80.6183 z = -340.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 414.075 y = 74.9394 z = -345.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 417.285 y = 69.2605 z = -349.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 420.495 y = 63.5816 z = -351.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 423.705 y = 57.9027 z = -353.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 426.915 y = 52.2238 z = -355.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 430.125 y = 46.5449 z = -356.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -533,16 +541,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 5 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 501.23 y = 97.65 z = -273.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 504.44 y = 91.97 z = -405.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 507.65 y = 86.29 z = -429.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 510.86 y = 80.61 z = -440.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 514.07 y = 74.93 z = -445.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 517.28 y = 69.26 z = -449.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 520.49 y = 63.58 z = -451.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 523.70 y = 57.90 z = -453.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 526.91 y = 52.22 z = -455.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 530.12 y = 46.54 z = -456.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 501.235 y = 97.655 z = -273.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 504.445 y = 91.9761 z = -405.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 507.655 y = 86.2972 z = -429.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 510.865 y = 80.6183 z = -440.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 514.075 y = 74.9394 z = -445.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 517.284 y = 69.2605 z = -449.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 520.495 y = 63.5816 z = -451.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 523.705 y = 57.9027 z = -453.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 526.914 y = 52.2238 z = -455.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 530.125 y = 46.5449 z = -456.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -567,16 +575,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 6 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 601.23 y = 97.65 z = -373.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 604.44 y = 91.97 z = -505.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 607.65 y = 86.29 z = -529.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 610.86 y = 80.61 z = -540.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 614.07 y = 74.93 z = -545.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 617.28 y = 69.26 z = -549.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 620.49 y = 63.58 z = -551.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 623.70 y = 57.90 z = -553.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 626.91 y = 52.22 z = -555.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 630.12 y = 46.54 z = -556.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 601.235 y = 97.655 z = -373.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 604.445 y = 91.9761 z = -505.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 607.654 y = 86.2972 z = -529.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 610.865 y = 80.6183 z = -540.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 614.075 y = 74.9394 z = -545.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 617.284 y = 69.2605 z = -549.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 620.495 y = 63.5816 z = -551.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 623.705 y = 57.9027 z = -553.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 626.914 y = 52.2238 z = -555.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 630.125 y = 46.5449 z = -556.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -601,16 +609,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 7 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 701.23 y = 97.65 z = -473.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 704.44 y = 91.97 z = -605.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 707.65 y = 86.29 z = -629.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 710.86 y = 80.61 z = -640.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 714.07 y = 74.93 z = -645.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 717.28 y = 69.26 z = -649.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 720.49 y = 63.58 z = -651.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 723.70 y = 57.90 z = -653.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 726.91 y = 52.22 z = -655.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 730.12 y = 46.54 z = -656.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 701.235 y = 97.655 z = -473.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 704.445 y = 91.9761 z = -605.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 707.654 y = 86.2972 z = -629.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 710.865 y = 80.6183 z = -640.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 714.075 y = 74.9394 z = -645.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 717.284 y = 69.2605 z = -649.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 720.495 y = 63.5816 z = -651.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 723.705 y = 57.9027 z = -653.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 726.914 y = 52.2238 z = -655.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 730.125 y = 46.5449 z = -656.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -635,16 +643,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 8 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 801.23 y = 97.65 z = -573.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 804.44 y = 91.97 z = -705.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 807.65 y = 86.29 z = -729.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 810.86 y = 80.61 z = -740.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 814.07 y = 74.93 z = -745.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 817.28 y = 69.26 z = -749.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 820.49 y = 63.58 z = -751.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 823.70 y = 57.90 z = -753.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 826.91 y = 52.22 z = -755.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 830.12 y = 46.54 z = -756.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 801.235 y = 97.655 z = -573.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 804.445 y = 91.9761 z = -705.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 807.654 y = 86.2972 z = -729.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 810.865 y = 80.6183 z = -740.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 814.075 y = 74.9394 z = -745.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 817.284 y = 69.2605 z = -749.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 820.495 y = 63.5816 z = -751.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 823.705 y = 57.9027 z = -753.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 826.914 y = 52.2238 z = -755.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 830.125 y = 46.5449 z = -756.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -669,16 +677,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 9 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 901.23 y = 97.65 z = -673.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 904.44 y = 91.97 z = -805.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 907.65 y = 86.29 z = -829.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 910.86 y = 80.61 z = -840.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 914.07 y = 74.93 z = -845.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 917.28 y = 69.26 z = -849.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 920.49 y = 63.58 z = -851.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 923.70 y = 57.90 z = -853.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 926.91 y = 52.22 z = -855.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 930.12 y = 46.54 z = -856.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 901.235 y = 97.655 z = -673.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 904.445 y = 91.9761 z = -805.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 907.654 y = 86.2972 z = -829.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 910.865 y = 80.6183 z = -840.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 914.075 y = 74.9394 z = -845.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 917.284 y = 69.2605 z = -849.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 920.495 y = 63.5816 z = -851.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 923.705 y = 57.9027 z = -853.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 926.914 y = 52.2238 z = -855.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 930.125 y = 46.5449 z = -856.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -703,16 +711,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 10 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1001.23 y = 97.65 z = -773.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 1004.44 y = 91.97 z = -905.26 detector = DummyHitDetector
-ReadData             INFO Hit x = 1007.65 y = 86.29 z = -929.76 detector = DummyHitDetector
-ReadData             INFO Hit x = 1010.86 y = 80.61 z = -940.08 detector = DummyHitDetector
-ReadData             INFO Hit x = 1014.07 y = 74.93 z = -945.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1017.28 y = 69.26 z = -949.37 detector = DummyHitDetector
-ReadData             INFO Hit x = 1020.49 y = 63.58 z = -951.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1023.7 y = 57.90 z = -953.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1026.91 y = 52.22 z = -955.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1030.12 y = 46.54 z = -956.16 detector = DummyHitDetector
+ReadData             INFO Hit x = 1001.23 y = 97.655 z = -773.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 1004.44 y = 91.9761 z = -905.268 detector = DummyHitDetector
+ReadData             INFO Hit x = 1007.65 y = 86.2972 z = -929.765 detector = DummyHitDetector
+ReadData             INFO Hit x = 1010.86 y = 80.6183 z = -940.086 detector = DummyHitDetector
+ReadData             INFO Hit x = 1014.07 y = 74.9394 z = -945.774 detector = DummyHitDetector
+ReadData             INFO Hit x = 1017.28 y = 69.2605 z = -949.377 detector = DummyHitDetector
+ReadData             INFO Hit x = 1020.49 y = 63.5816 z = -951.864 detector = DummyHitDetector
+ReadData             INFO Hit x = 1023.7 y = 57.9027 z = -953.684 detector = DummyHitDetector
+ReadData             INFO Hit x = 1026.91 y = 52.2238 z = -955.073 detector = DummyHitDetector
+ReadData             INFO Hit x = 1030.12 y = 46.5449 z = -956.169 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -737,16 +745,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 11 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1101.23 y = 97.65 z = -873.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 1104.44 y = 91.97 z = -1005.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1107.65 y = 86.29 z = -1029.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1110.86 y = 80.61 z = -1040.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1114.07 y = 74.93 z = -1045.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1117.28 y = 69.26 z = -1049.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1120.49 y = 63.58 z = -1051.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1123.7 y = 57.90 z = -1053.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1126.91 y = 52.22 z = -1055.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1130.12 y = 46.54 z = -1056.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1101.23 y = 97.655 z = -873.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 1104.44 y = 91.9761 z = -1005.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1107.65 y = 86.2972 z = -1029.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1110.86 y = 80.6183 z = -1040.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1114.07 y = 74.9394 z = -1045.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1117.28 y = 69.2605 z = -1049.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1120.49 y = 63.5816 z = -1051.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1123.7 y = 57.9027 z = -1053.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1126.91 y = 52.2238 z = -1055.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1130.12 y = 46.5449 z = -1056.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -771,16 +779,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 12 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1201.23 y = 97.65 z = -973.32 detector = DummyHitDetector
-ReadData             INFO Hit x = 1204.44 y = 91.97 z = -1105.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1207.65 y = 86.29 z = -1129.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1210.86 y = 80.61 z = -1140.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1214.07 y = 74.93 z = -1145.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1217.28 y = 69.26 z = -1149.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1220.49 y = 63.58 z = -1151.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1223.7 y = 57.90 z = -1153.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1226.91 y = 52.22 z = -1155.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1230.12 y = 46.54 z = -1156.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1201.23 y = 97.655 z = -973.328 detector = DummyHitDetector
+ReadData             INFO Hit x = 1204.44 y = 91.9761 z = -1105.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1207.65 y = 86.2972 z = -1129.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1210.86 y = 80.6183 z = -1140.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1214.07 y = 74.9394 z = -1145.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1217.28 y = 69.2605 z = -1149.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1220.49 y = 63.5816 z = -1151.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1223.7 y = 57.9027 z = -1153.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1226.91 y = 52.2238 z = -1155.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1230.12 y = 46.5449 z = -1156.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -805,16 +813,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 13 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1301.23 y = 97.65 z = -1073.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1304.44 y = 91.97 z = -1205.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1307.65 y = 86.29 z = -1229.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1310.86 y = 80.61 z = -1240.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1314.07 y = 74.93 z = -1245.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1317.28 y = 69.26 z = -1249.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1320.49 y = 63.58 z = -1251.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1323.7 y = 57.90 z = -1253.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1326.91 y = 52.22 z = -1255.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1330.12 y = 46.54 z = -1256.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1301.23 y = 97.655 z = -1073.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1304.44 y = 91.9761 z = -1205.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1307.65 y = 86.2972 z = -1229.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1310.86 y = 80.6183 z = -1240.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1314.07 y = 74.9394 z = -1245.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1317.28 y = 69.2605 z = -1249.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1320.49 y = 63.5816 z = -1251.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1323.7 y = 57.9027 z = -1253.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1326.91 y = 52.2238 z = -1255.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1330.12 y = 46.5449 z = -1256.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -839,16 +847,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 14 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1401.23 y = 97.65 z = -1173.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1404.44 y = 91.97 z = -1305.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1407.65 y = 86.29 z = -1329.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1410.86 y = 80.61 z = -1340.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1414.07 y = 74.93 z = -1345.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1417.28 y = 69.26 z = -1349.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1420.49 y = 63.58 z = -1351.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1423.7 y = 57.90 z = -1353.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1426.91 y = 52.22 z = -1355.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1430.12 y = 46.54 z = -1356.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1401.23 y = 97.655 z = -1173.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1404.44 y = 91.9761 z = -1305.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1407.65 y = 86.2972 z = -1329.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1410.86 y = 80.6183 z = -1340.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1414.07 y = 74.9394 z = -1345.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1417.28 y = 69.2605 z = -1349.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1420.49 y = 63.5816 z = -1351.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1423.7 y = 57.9027 z = -1353.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1426.91 y = 52.2238 z = -1355.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1430.12 y = 46.5449 z = -1356.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -873,16 +881,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 15 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1501.23 y = 97.65 z = -1273.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1504.44 y = 91.97 z = -1405.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1507.65 y = 86.29 z = -1429.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1510.86 y = 80.61 z = -1440.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1514.07 y = 74.93 z = -1445.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1517.28 y = 69.26 z = -1449.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1520.49 y = 63.58 z = -1451.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1523.7 y = 57.90 z = -1453.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1526.91 y = 52.22 z = -1455.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1530.12 y = 46.54 z = -1456.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1501.23 y = 97.655 z = -1273.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1504.44 y = 91.9761 z = -1405.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1507.65 y = 86.2972 z = -1429.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1510.86 y = 80.6183 z = -1440.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1514.07 y = 74.9394 z = -1445.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1517.28 y = 69.2605 z = -1449.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1520.49 y = 63.5816 z = -1451.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1523.7 y = 57.9027 z = -1453.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1526.91 y = 52.2238 z = -1455.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1530.12 y = 46.5449 z = -1456.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -907,16 +915,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 16 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1601.23 y = 97.65 z = -1373.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1604.44 y = 91.97 z = -1505.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1607.65 y = 86.29 z = -1529.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1610.86 y = 80.61 z = -1540.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1614.07 y = 74.93 z = -1545.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1617.28 y = 69.26 z = -1549.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1620.49 y = 63.58 z = -1551.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1623.7 y = 57.90 z = -1553.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1626.91 y = 52.22 z = -1555.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1630.12 y = 46.54 z = -1556.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1601.23 y = 97.655 z = -1373.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1604.44 y = 91.9761 z = -1505.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1607.65 y = 86.2972 z = -1529.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1610.86 y = 80.6183 z = -1540.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1614.07 y = 74.9394 z = -1545.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1617.28 y = 69.2605 z = -1549.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1620.49 y = 63.5816 z = -1551.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1623.7 y = 57.9027 z = -1553.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1626.91 y = 52.2238 z = -1555.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1630.12 y = 46.5449 z = -1556.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -941,16 +949,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 17 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1701.23 y = 97.65 z = -1473.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1704.44 y = 91.97 z = -1605.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1707.65 y = 86.29 z = -1629.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1710.86 y = 80.61 z = -1640.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1714.07 y = 74.93 z = -1645.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1717.28 y = 69.26 z = -1649.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1720.49 y = 63.58 z = -1651.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1723.7 y = 57.90 z = -1653.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1726.91 y = 52.22 z = -1655.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1730.12 y = 46.54 z = -1656.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1701.23 y = 97.655 z = -1473.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1704.44 y = 91.9761 z = -1605.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1707.65 y = 86.2972 z = -1629.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1710.86 y = 80.6183 z = -1640.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1714.07 y = 74.9394 z = -1645.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1717.28 y = 69.2605 z = -1649.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1720.49 y = 63.5816 z = -1651.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1723.7 y = 57.9027 z = -1653.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1726.91 y = 52.2238 z = -1655.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1730.12 y = 46.5449 z = -1656.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -975,16 +983,16 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 18 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1801.23 y = 97.65 z = -1573.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1804.44 y = 91.97 z = -1705.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1807.65 y = 86.29 z = -1729.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1810.86 y = 80.61 z = -1740.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1814.07 y = 74.93 z = -1745.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1817.28 y = 69.26 z = -1749.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1820.49 y = 63.58 z = -1751.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1823.7 y = 57.90 z = -1753.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1826.91 y = 52.22 z = -1755.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1830.12 y = 46.54 z = -1756.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1801.23 y = 97.655 z = -1573.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1804.44 y = 91.9761 z = -1705.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1807.65 y = 86.2972 z = -1729.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1810.86 y = 80.6183 z = -1740.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1814.07 y = 74.9394 z = -1745.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1817.28 y = 69.2605 z = -1749.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1820.49 y = 63.5816 z = -1751.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1823.7 y = 57.9027 z = -1753.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1826.91 y = 52.2238 z = -1755.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1830.12 y = 46.5449 z = -1756.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
@@ -1009,62 +1017,25 @@ ReadData             INFO TagInfo:
 ReadData             INFO EventInfo event: 19 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Hit x = 1901.23 y = 97.65 z = -1673.33 detector = DummyHitDetector
-ReadData             INFO Hit x = 1904.44 y = 91.97 z = -1805.27 detector = DummyHitDetector
-ReadData             INFO Hit x = 1907.65 y = 86.29 z = -1829.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1910.86 y = 80.61 z = -1840.09 detector = DummyHitDetector
-ReadData             INFO Hit x = 1914.07 y = 74.93 z = -1845.77 detector = DummyHitDetector
-ReadData             INFO Hit x = 1917.28 y = 69.26 z = -1849.38 detector = DummyHitDetector
-ReadData             INFO Hit x = 1920.49 y = 63.58 z = -1851.86 detector = DummyHitDetector
-ReadData             INFO Hit x = 1923.7 y = 57.90 z = -1853.68 detector = DummyHitDetector
-ReadData             INFO Hit x = 1926.91 y = 52.22 z = -1855.07 detector = DummyHitDetector
-ReadData             INFO Hit x = 1930.12 y = 46.54 z = -1856.17 detector = DummyHitDetector
+ReadData             INFO Hit x = 1901.23 y = 97.655 z = -1673.33 detector = DummyHitDetector
+ReadData             INFO Hit x = 1904.44 y = 91.9761 z = -1805.27 detector = DummyHitDetector
+ReadData             INFO Hit x = 1907.65 y = 86.2972 z = -1829.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1910.86 y = 80.6183 z = -1840.09 detector = DummyHitDetector
+ReadData             INFO Hit x = 1914.07 y = 74.9394 z = -1845.77 detector = DummyHitDetector
+ReadData             INFO Hit x = 1917.28 y = 69.2605 z = -1849.38 detector = DummyHitDetector
+ReadData             INFO Hit x = 1920.49 y = 63.5816 z = -1851.86 detector = DummyHitDetector
+ReadData             INFO Hit x = 1923.7 y = 57.9027 z = -1853.68 detector = DummyHitDetector
+ReadData             INFO Hit x = 1926.91 y = 52.2238 z = -1855.07 detector = DummyHitDetector
+ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = DummyHitDetector
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
-SimplePoolFile1.root Info Database being retired...
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Links
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Shapes
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Params
-RootDatabase.close Debug I/O READ  Bytes: ????
-RootDatabase.close Debug I/O WRITE Bytes: 0
-RootDatabase.close Debug I/O OTHER Bytes: 0
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] MetaDataHdr(DataHeader)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainerForm(DataHeaderForm)
-SimplePoolFile1.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG handle() EndTagFile for SimplePoolFile1.root
 MetaDataSvc         DEBUG handle() LastInputFile for end
 AthenaEventLoopMgr   INFO No more events in event selection 
-DetectorStore        INFO Stop DetectorStore
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
-InputMetaDataStore   INFO Stop InputMetaDataStore
 MetaDataSvc         DEBUG Releasing MetaDataTools
-TagMetaDataStore     INFO Stop TagMetaDataStore
-ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData) Debug endTransaction: go to finish
-ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) Debug endTransaction: go to finish
-POOLContainer(DataHeader) Debug endTransaction: go to finish
-POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
-##Params Debug endTransaction:  tree AutoSave
-##Shapes Debug endTransaction:  tree AutoSave
-##Links Debug endTransaction:  tree AutoSave
-SimplePoolFile4.root Info Database being retired...
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Links
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Shapes
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_All] ##Params
-RootDatabase.close Debug I/O READ  Bytes: ????
-RootDatabase.close Debug I/O WRITE Bytes: 0
-RootDatabase.close Debug I/O OTHER Bytes: 0
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData)
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData)
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
-SimplePoolFile4.root Debug --> Deaccess DbContainer  READ      [ROOT_Tree] POOLContainerForm(DataHeaderForm)
 Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
-MetaDataStore        INFO Stop MetaDataStore
 ApplicationMgr       INFO Application Manager Stopped successfully
 ReadCond             INFO in finalize()
 ReadData             INFO in finalize()
@@ -1074,25 +1045,12 @@ ReadData            DEBUG Calling destructor
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-31
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-31
 PoolSvc              INFO I/O finalization...
-XMLFileCatalog Debug There were no updates in the catalog
-XMLFileCatalog Debug There were no updates in the catalog
-XMLFileCatalog Debug There were no updates in the catalog
-PoolXMLFileCatalog Debug XercesC termination number 2
-PoolXMLFileCatalog Debug XercesC termination number 1
-PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=   12 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot=0.88  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

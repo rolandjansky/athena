@@ -35,6 +35,7 @@ use MinimalRunTime        MinimalRunTime-*           Control -no_auto_imports
 macro test_pattern_opt_only "athenarun_test" \
       debug        ""
 
+# Tests were updated for cmake
 # Write out some simple data objects (hits):
 # AthenaPoolExample_Write
 apply_pattern athenarun_test name="AthenaPoolExample_Write" pre_script="../test/pre_check.sh AthenaPoolExample_Write " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_Write "
@@ -108,7 +109,7 @@ apply_pattern athenarun_test name="AthenaPoolExample_RWBs" pre_script="../test/p
 apply_pattern athenarun_test name="AthenaPoolExample_ReadBs" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBs " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBs "
 
 # AthenaPoolExample_ReadBsTag
-apply_pattern athenarun_test name="AthenaPoolExample_ReadBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBsTag " options="./AthenaPoolExample_ReadBsTag.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBsTag "
+#apply_pattern athenarun_test name="AthenaPoolExample_ReadBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBsTag " options="./AthenaPoolExample_ReadBsTag.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBsTag "
 
 # Compressed ByteStream propagation tests
 # AthenaPoolExample_RWcBs
@@ -118,7 +119,7 @@ apply_pattern athenarun_test name="AthenaPoolExample_RWcBs" pre_script="../test/
 apply_pattern athenarun_test name="AthenaPoolExample_ReadcBs" pre_script="../test/pre_check.sh AthenaPoolExample_ReadcBs " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBs AthenaPoolExample_ReadBs "
 
 # AthenaPoolExample_ReadcBsTag
-apply_pattern athenarun_test name="AthenaPoolExample_ReadcBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBscTag " options="./AthenaPoolExample_ReadBsTag.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBsTag AthenaPoolExample_ReadBsTag "
+#apply_pattern athenarun_test name="AthenaPoolExample_ReadcBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBscTag " options="./AthenaPoolExample_ReadBsTagJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBsTag AthenaPoolExample_ReadBsTag "
 
 # AthenaPoolExample_WCond
 apply_pattern athenarun_test name="AthenaPoolExample_WCond" pre_script="../test/pre_check.sh AthenaPoolExample_WCond " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_WCond "
@@ -131,7 +132,7 @@ apply_pattern athenarun_test name="AthenaPoolExample_RCond" pre_script="../test/
 
 # Test zipping POOL files
 # AthenaPoolExample_Read_BNzip
-apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzip" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzip " options="./AthenaPoolExample_ReadBNzip.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzip "
+#apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzip" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzip " options="./AthenaPoolExample_ReadBNzip.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzip "
 
 # AthenaPoolExample_Read_BNzipAgain
 #apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzipAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzipAgain " options="./AthenaPoolExample_ReadBNzipAgain.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzipAgain AthenaPoolExample_ReadBNzip "
@@ -173,6 +174,7 @@ macro_append AthenaPoolExample_ReadTag_test_dependencies " AthenaPoolExample_ReW
 macro_append AthenaPoolExample_ReadBN_test_dependencies " AthenaPoolExample_ReWrite_test "
 macro_append AthenaPoolExample_ReadNoBN_test_dependencies " AthenaPoolExample_Read_test AthenaPoolExample_ReadTag_test AthenaPoolExample_ReadBN_test "
 
+# Delayed in cmake
 macro_append AthenaPoolExample_Copy_test_dependencies " AthenaPoolExample_Write_test "
 macro_append AthenaPoolExample_ReWriteAgain_test_dependencies " AthenaPoolExample_ReadNoBN_test AthenaPoolExample_Copy_test "
 macro_append AthenaPoolExample_ReWriteNext_test_dependencies " AthenaPoolExample_ReWriteAgain_test "
@@ -190,18 +192,19 @@ macro_append AthenaPoolExample_ReadConcat_test_dependencies " AthenaPoolExample_
 
 macro_append AthenaPoolExample_RWBs_test_dependencies " AthenaPoolExample_ReadConcat_test "
 macro_append AthenaPoolExample_ReadBs_test_dependencies " AthenaPoolExample_RWBs_test "
-macro_append AthenaPoolExample_ReadBsTag_test_dependencies " AthenaPoolExample_ReadBs_test "
-macro_append AthenaPoolExample_RWcBs_test_dependencies " AthenaPoolExample_ReadBs_test AthenaPoolExample_ReadBsTag_test "
+#macro_append AthenaPoolExample_ReadBsTag_test_dependencies " AthenaPoolExample_ReadBs_test "
+macro_append AthenaPoolExample_RWcBs_test_dependencies " AthenaPoolExample_ReadBs_test AthenaPoolExample_ReadBs_test "
 macro_append AthenaPoolExample_ReadcBs_test_dependencies " AthenaPoolExample_RWcBs_test "
-macro_append AthenaPoolExample_ReadcBsTag_test_dependencies " AthenaPoolExample_RWcBs_test "
+#macro_append AthenaPoolExample_ReadcBsTag_test_dependencies " AthenaPoolExample_RWcBs_test "
 
-macro_append AthenaPoolExample_WCond_test_dependencies " AthenaPoolExample_ReadConcat_test "
+macro_append AthenaPoolExample_WCond_test_dependencies " AthenaPoolExample_ReadcBs_test "
 macro_append AthenaPoolExample_ACond_test_dependencies " AthenaPoolExample_WCond_test "
 macro_append AthenaPoolExample_RCond_test_dependencies " AthenaPoolExample_ACond_test "
 
-macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_ReadcBsTag_test AthenaPoolExample_RCond_test "
+#macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_ReadcBsTag_test AthenaPoolExample_RCond_test "
+#macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_RCond_test "
 
-macro_append AthenaPoolExample_WMeta_test_dependencies " AthenaPoolExample_ReadBNzip_test "
+macro_append AthenaPoolExample_WMeta_test_dependencies " AthenaPoolExample_RCond_test "
 macro_append AthenaPoolExample_AMeta_test_dependencies " AthenaPoolExample_WMeta_test "
 macro_append AthenaPoolExample_RMeta_test_dependencies " AthenaPoolExample_AMeta_test "
 

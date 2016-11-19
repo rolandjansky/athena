@@ -1,4 +1,5 @@
-Mon Mar 21 22:39:55 CET 2016
+Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,28 +7,29 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-03
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-??-??-??
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthPoolEx::ReadBs/ReadBs, AthPoolEx::ReadData/ReadData
 ReadBs               INFO in initialize()
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-31
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-03
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-31
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-12
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-00
+MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-??-??-??
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-??-??-??
+PoolSvc             DEBUG Property update for OutputLevel : new value = 2
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-??-??-??
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
@@ -37,9 +39,9 @@ PoolSvc              INFO Re-initializing PoolSvc
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-01-34-33
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-07
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-31
+ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-??-??-??
+EventSelector       DEBUG Property update for OutputLevel : new value = 2
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-??-??-??
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query EventNumber==14356
 EventSelector       DEBUG Try item: "SimpleRawCollection.root" from the collection list.
@@ -49,13 +51,14 @@ RootCollection Info File SimpleRawCollection.root opened
 RootCollection Debug Retrieved Collection TTree  "POOLCollectionTree" from file SimpleRawCollection.root
 RootCollection Info Root collection opened, size = 3
 EventSelector        INFO Using collection ref name: StreamRAW
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-07
-ByteStreamNavig...   INFO Initializing ByteStreamNavigationProviderSvc - package version ByteStreamCnvSvc-01-34-33
-ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-12
+AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-??-??-??
+ByteStreamNavig...   INFO Initializing ByteStreamNavigationProviderSvc - package version ByteStreamCnvSvc-??-??-??
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-??-??-??
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
-ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-08-12
+ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-??-??-??
 ByteStreamAddre...   INFO initialized 
 ByteStreamAddre...   INFO -- Module IDs for: 
 ByteStreamAddre...   INFO    CTP                                  = 0x1
@@ -64,15 +67,16 @@ ByteStreamAddre...   INFO    Calorimeter Cluster Processor RoI    = 0xa8, 0xa9, 
 ByteStreamAddre...   INFO    Calorimeter Jet/Energy Processor RoI = 0xac, 0xad
 ByteStreamAddre...   INFO    Topo Processor RoI = 0x81, 0x91
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-??-??-??
+ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+ReadData            DEBUG input handles: 0
+ReadData            DEBUG output handles: 0
+ReadData            DEBUG Data Deps for ReadData
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-??-??-??
 ApplicationMgr       INFO Application Manager Initialized successfully
-MetaDataStore        INFO Start MetaDataStore
-TagMetaDataStore     INFO Start TagMetaDataStore
 RootCollection Info Closing open collection 'SimpleRawCollection.root'
 EventSelector       DEBUG Try item: "SimpleRawCollection.root" from the collection list.
 RootCollection Info Opening Collection File SimpleRawCollection.root in mode: READ
@@ -83,8 +87,6 @@ RootCollection Info Root collection opened, size = 3
 RootCollection::Metadata Debug  Using char buffer of size: 4100
 RootCollection::Metadata Debug  readKeys: found 3 metadata keys
 MetaDataSvc         DEBUG handle() BeginTagFile for SimpleRawCollection.root
-InputMetaDataStore   INFO Start InputMetaDataStore
-StoreGateSvc         INFO Start StoreGateSvc
 ApplicationMgr       INFO Application Manager Started successfully
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 2
@@ -93,46 +95,19 @@ EventSelector       DEBUG record AthenaAttribute, name = StreamRAW_ref = [DB=???
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001].
 EventSelector       DEBUG found AthenaAttribute, name = StreamRAW_ref = [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+PoolXMLFileCatalog Debug FileID ???? is not in the catalog
+XMLFileCatalog Debug empty physical filename found
+PoolXMLFileCatalog Debug PFname  is not in the xml file
 AthenaPoolAddre...  DEBUG The current Event contains: 1 objects
-MetaDataSvc         DEBUG handle() FirstInputFile for BSF:????
-MetaDataSvc         DEBUG initInputMetaDataStore: file name BSF:????
-MetaDataSvc         DEBUG MetaDataSvc called for non ROOT file.
-MetaDataSvc         DEBUG Loaded input meta data store proxies
-ToolSvc.ByteStr...   INFO handle() FirstInputFile, filename = BSF:????
-MetaDataSvc         DEBUG handle() BeginInputFile for BSF:????
-ToolSvc.ByteStr...   INFO handle() BeginInputFile, filename = BSF:????
-EventPersistenc...   INFO Added successfully Conversion service:ByteStreamCnvSvc
-EventInfoByteSt...   INFO UserType : RawEvent
-EventInfoByteSt...   INFO IsSimulation : 0
-EventInfoByteSt...   INFO IsTestbeam : 0
-EventInfoByteSt...   INFO IsCalibration : 0
-AthenaEventLoopMgr   INFO   ===>>>  start of run 20720    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #14356, run #20720 0 events processed so far  <<<===
-ReadBs               INFO ByteStreamMetadata, run# = 20720, #events = 3
-ReadBs               INFO ByteStreamMetadataContainer, size =  1
-ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimpleRawCollection.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
-ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = 1458596366
-ReadData          WARNING Could not find EventStreamInfo
-ReadData             INFO EventInfo event: 14356 run: 20720
-ReadData             INFO Get Smart data ptr 1
-ReadData             INFO Could not find ExampleTrackContainer/MyTracks
-ReadData             INFO Could not find ExampleHitContainer/MyHits
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #14356, run #20720 1 events processed so far  <<<===
-RootCollection Info Closing open collection 'SimpleRawCollection.root'
-ToolSvc.ByteStr...   INFO handle() EndInputFile, filename = FID:????
-MetaDataSvc         DEBUG handle() EndInputFile for FID:????
-MetaDataSvc         DEBUG handle() EndTagFile for SimpleRawCollection.root
-AthenaEventLoopMgr   INFO No more events in event selection 
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
-InputMetaDataStore   INFO Stop InputMetaDataStore
+StoreGateSvc      WARNING retrieve(const): No valid proxy for object [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]  of type DataHeader(CLID 222376821)
+StoreGateSvc      WARNING retrieve(const): No valid proxy for object [DB=????][CNT=][CLID=!!!!][TECH=00001000][OID=00000000-0091678C]  of type DataHeader(CLID 222376821)
+StoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
+ of type EventInfo(CLID 2101)
+AthenaEventLoopMgr  ERROR Unable to retrieve Event root object
+AthenaEventLoopMgr  ERROR Terminating event processing loop due to errors
 ToolSvc.ByteStr...   INFO handle() LastInputFile, filename = end
 MetaDataSvc         DEBUG handle() LastInputFile for end
 MetaDataSvc         DEBUG Releasing MetaDataTools
-TagMetaDataStore     INFO Stop TagMetaDataStore
-MetaDataStore        INFO Stop MetaDataStore
 ApplicationMgr       INFO Application Manager Stopped successfully
 ReadBs               INFO in finalize()
 ReadData             INFO in finalize()
@@ -141,25 +116,19 @@ ReadData            DEBUG Calling destructor
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
-EventInfoByteSt...   INFO finalize 
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-31
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-31
-PoolSvc              INFO I/O finalization...
+RootCollection Info Closing open collection 'SimpleRawCollection.root'
 XMLFileCatalog Debug There were no updates in the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-31
+PoolSvc              INFO I/O finalization...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=   13 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot=0.93  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
-Athena               INFO leaving with code 0: "successful run"
+Athena               INFO leaving with code 65: "failure in an algorithm execute"
 CORAL/Services/ConnectionService Info Deleting the ConnectionPool

@@ -59,14 +59,18 @@ function( _add_test testName toExecute )
    if( ARG_EXTRA_PATTERNS )
       list( APPEND _options EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
    endif()
-   if( ARG_DEPENDS )
-      list( APPEND _options PROPERTIES DEPENDS ${ARG_DEPENDS} )
-   endif()
 
    # Set up the test:
    atlas_add_test( ${testName}
       SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
       ${_options} )
+
+   if( ARG_DEPENDS )
+      set_tests_properties( AthenaPoolExampleAlgorithms_${testName}_ctest
+                            PROPERTIES DEPENDS "${ARG_DEPENDS}" )
+   endif()
+   set_tests_properties( AthenaPoolExampleAlgorithms_${testName}_ctest
+                         PROPERTIES TIMEOUT 600 )
 
 endfunction( _add_test )
 
@@ -74,155 +78,133 @@ endfunction( _add_test )
 # Write 'Hits', with multistreamand TAGs
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-   POST_EXEC test/post_check.sh PRE_EXEC test/pre_check.sh )
-_add_test( AthenaPoolExample_Append
+   PRE_EXEC test/pre_check.sh )
 # Append to existing file
+_add_test( AthenaPoolExample_Append
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendJobOptions.py"
-   DEPENDS AthenaPoolExample_Write_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Write_ctest )
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-   DEPENDS AthenaPoolExample_Append_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Append_ctest )
 # Read all output
 _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWrite_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 # Read all output via TAGs
 _add_test( AthenaPoolExample_ReadTag
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadTagJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWrite_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 # Read all output including scoped BackNavigation
 _add_test( AthenaPoolExample_ReadBN
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBNJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWrite_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 # Read all output w/o BackNavigation
 _add_test( AthenaPoolExample_ReadNoBN
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadNoBNJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWrite_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 
 # Copy 'Hits' file without extending provenance
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
-   DEPENDS AthenaPoolExample_Read_test_ctest
-   DEPENDS AthenaPoolExample_ReadTag_test_ctest
-   DEPENDS AthenaPoolExample_ReadBN_test_ctest
-   DEPENDS AthenaPoolExample_ReadNoBN_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
+           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadTag_ctest
+           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBN_ctest
+           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadNoBN_ctest )
 # Read copied 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWriteAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
-   DEPENDS AthenaPoolExample_Copy_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Copy_ctest )
 _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWriteAgain_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest )
 # Read via TAGs and use query to filter events
 _add_test( AthenaPoolExample_Filter
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_FilterJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWriteNext_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest )
 _add_test( AthenaPoolExample_RFilter
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RFilterJobOptions.py"
-   DEPENDS AthenaPoolExample_Filter_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Filter_ctest )
 # Read all (including bad files, skipped for now expected failure)
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   DEPENDS AthenaPoolExample_RFilter_test_ctest
-   POST_EXEC test/post_check.sh )
+   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired"
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
 _add_test( AthenaPoolExample_Concat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
-   DEPENDS AthenaPoolExample_RFilter_test_ctest
-   POST_EXEC test/post_check.sh PRE_EXEC test/pre_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest
+           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
+   PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadConcat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   DEPENDS AthenaPoolExample_Concat_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Concat_ctest )
 
 # Read ByteStream and write to APR/POOL
 _add_test( AthenaPoolExample_RWBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWBsJobOptions.py"
-   DEPENDS AthenaPoolExample_ReadConcat_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest )
 _add_test( AthenaPoolExample_ReadBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
-   DEPENDS AthenaPoolExample_RWBs_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWBs_ctest )
 # Read ByteStream via TAGs
-_add_test( AthenaPoolExample_ReadBsTag
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
-   DEPENDS AthenaPoolExample_ReadBs_test_ctest
-   POST_EXEC test/post_check.sh PRE_EXEC test/pre_check.sh )
+#_add_test( AthenaPoolExample_ReadBsTag
+#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBs_ctest
+#   PRE_EXEC test/pre_check.sh )
 
 # Read compressed ByteStream and write to APR/POOL
 _add_test( AthenaPoolExample_RWcBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWcBsJobOptions.py"
-   DEPENDS AthenaPoolExample_ReadBsTag_test_ctest
-   POST_EXEC test/post_check.sh PRE_EXEC test/pre_check.sh )
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBsTag_ctest
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBs_ctest
+   PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadcBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
-   DEPENDS AthenaPoolExample_RWcBs_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWcBs_ctest )
 # Read compressed ByteStream via TAGs
 #_add_test( AthenaPoolExample_ReadcBsTag
 #   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
-#   DEPENDS AthenaPoolExample_ReadcBs_test_ctest
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest
 #   POST_EXEC test/post_check.sh )
 
 # Testing 'Conditions' I/O
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
-   DEPENDS AthenaPoolExample_ReadcBs_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest )
 _add_test( AthenaPoolExample_ACond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ACondJobOptions.py"
-   DEPENDS AthenaPoolExample_WCond_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
-   DEPENDS AthenaPoolExample_ACond_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ACond_ctest )
 
 # Testing 'Metadata' I/O
 _add_test( AthenaPoolExample_WMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
-   DEPENDS AthenaPoolExample_RCond_test_ctest
-   POST_EXEC test/post_check.sh PRE_EXEC test/pre_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RCond_ctest
+   PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_AMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_AMetaJobOptions.py"
-   DEPENDS AthenaPoolExample_WMeta_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-   DEPENDS AthenaPoolExample_AMeta_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest )
 
 # Testing APR/POOL 'fast' merge
 _add_test( AthenaPoolExample_WriteFast
    "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteFastJobOptions.py"
-   DEPENDS AthenaPoolExample_RMeta_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RMeta_ctest )
 _add_test( AthenaPoolExample_AppendFast
    "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
-   DEPENDS AthenaPoolExample_WriteFast_test_ctest
-   POST_EXEC test/post_check.sh )
-_add_test( AthenaPoolExample_ReWriteFast
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-   DEPENDS AthenaPoolExample_AppendFast_test_ctest
-   POST_EXEC test/post_check.sh )
-_add_test( AthenaPoolExample_ReadFast
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   DEPENDS AthenaPoolExample_ReWriteFast_test_ctest
-   POST_EXEC test/post_check.sh )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WriteFast_ctest )
+#_add_test( AthenaPoolExample_ReWriteFast
+#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AppendFast_ctest )
+#_add_test( AthenaPoolExample_ReadFast
+#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteFast_ctest )
 #_add_test( AthenaPoolExample_ReWriteTagFast
 #   "athena.py ./AthenaPoolExample_ReWriteTagFast.py"
 #   POST_EXEC test/post_check.sh )
