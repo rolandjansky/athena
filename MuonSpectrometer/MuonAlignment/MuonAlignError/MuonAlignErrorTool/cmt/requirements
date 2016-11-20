@@ -26,5 +26,5 @@ apply_tag ROOTMathLibs
 
 public
 apply_pattern component_library
-apply_pattern declare_runtime files="AlignmentUncertaintiesStart2015.txt"
+apply_pattern declare_runtime files="../data/alignment_error_blob_2015.txt ../data/alignment_error_blob_2016.txt ../data/alignment_error_blob_2017_start.txt"
 library MuonAlignErrorTool *.cxx -s=components *.cxx
