@@ -1,0 +1,55 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef QUICK_ANA__OUTPUT_TOOL_ICC
+#define QUICK_ANA__OUTPUT_TOOL_ICC
+
+// Local includes
+#include <QuickAna/MessageCheck.h>
+
+namespace ana
+{
+
+  template<class ContainerType, class AuxType>
+  OutputTool<ContainerType, AuxType>::
+  OutputTool(const std::string& name, const std::string& contBaseName)
+    : asg::AsgTool(name), m_contBaseName(contBaseName)
+  {
+    declareProperty("ContainerBaseName", m_contBaseName);
+  }
+
+
+  template<class ContainerType, class AuxType>
+  StatusCode OutputTool<ContainerType, AuxType>::initialize()
+  {
+    ATH_MSG_WARNING("This tool is deprecated. Please move to the new " <<
+                    "OutputToolXAOD and MasterOutputToolXAOD.");
+    return StatusCode::SUCCESS;
+  }
+
+
+  template<class ContainerType, class AuxType>
+  StatusCode OutputTool<ContainerType, AuxType>::
+  write(xAOD::TEvent* outputStore, const std::string& postfix)
+  {
+    // Container names
+    std::string containerName = m_contBaseName + "_" + postfix;
+    std::string auxContName = containerName + "Aux.";
+
+    // Retrieve the containers from the transient store
+    ContainerType* container = 0;
+    AuxType* auxCont = 0;
+    ATH_CHECK( evtStore()->retrieve(container, containerName) );
+    ATH_CHECK( evtStore()->retrieve(auxCont, auxContName) );
+
+    // Record the containers in the persistent store
+    ANA_CHECK( outputStore->record(container, containerName) );
+    ANA_CHECK( outputStore->record(auxCont, auxContName) );
+
+    return StatusCode::SUCCESS;
+  }
+
+} // namespace ana
+
+#endif

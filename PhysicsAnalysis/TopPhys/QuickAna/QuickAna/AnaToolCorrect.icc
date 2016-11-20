@@ -1,0 +1,90 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <QuickAna/IEventObjects.h>
+
+namespace ana
+{
+  template<class XAODContainer> AnaToolCorrect<XAODContainer> ::
+  AnaToolCorrect (const std::string& name)
+    : AsgTool (name), AnaTool (name),
+      m_type (ObjectTypeInfo::fromXAOD<XAODContainer>::base)
+  {}
+
+
+
+  template<class XAODContainer> StatusCode AnaToolCorrect<XAODContainer> ::
+  setObjectType (ObjectType type, const std::string& workingPoint)
+  {
+    if ((ObjectTypeInfo::fromXAOD<XAODContainer>::support & (1 << type)) == 0)
+    {
+      ATH_MSG_ERROR ("unsupported object type");
+      return StatusCode::FAILURE;
+    }
+    if (!workingPoint.empty())
+    {
+      ATH_MSG_ERROR ("can't have working point in correct step");
+      return StatusCode::FAILURE;
+    }
+    m_type = type;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> AnalysisStep AnaToolCorrect<XAODContainer> ::
+  step () const
+  {
+    return STEP_CORRECT;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolCorrect<XAODContainer> ::
+  inputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolCorrect<XAODContainer> ::
+  outputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> StatusCode AnaToolCorrect<XAODContainer> ::
+  useConfiguration (const InternalConfiguration& configuration)
+  {
+    ATH_CHECK (AnaTool::useConfiguration (configuration));
+    ATH_CHECK (m_selection.initialize (configuration, ""));
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> StatusCode AnaToolCorrect<XAODContainer> ::
+  execute (IEventObjects& objects)
+  {
+    for (auto object : *objects.get<ContainerType>(m_type))
+    {
+      ATH_CHECK (m_selection.prepare (object));
+      ATH_CHECK (this->correctObject (*object));
+      m_selection.apply ();
+    }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> void AnaToolCorrect<XAODContainer> ::
+  registerCut (SelectionStep step, const std::string& name,
+	       SelectionCut& cut)
+  {
+    m_selection.registerCut (step, name, cut);
+  }
+}

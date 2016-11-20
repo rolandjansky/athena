@@ -1,0 +1,86 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <QuickAna/IEventObjects.h>
+
+namespace ana
+{
+  template<class XAODContainer> AnaToolWeight<XAODContainer> ::
+  AnaToolWeight (const std::string& name)
+    : AsgTool (name), AnaTool (name),
+      m_type (ObjectTypeInfo::fromXAOD<XAODContainer>::base),
+      m_select ("ana_select"), m_weight ("ana_weight")
+  {}
+
+
+
+  template<class XAODContainer> StatusCode AnaToolWeight<XAODContainer> ::
+  setObjectType (ObjectType type, const std::string& workingPoint)
+  {
+    if ((ObjectTypeInfo::fromXAOD<XAODContainer>::support & (1 << type)) == 0)
+    {
+      ATH_MSG_ERROR ("unsupported object type");
+      return StatusCode::FAILURE;
+    }
+    m_type = type;
+    if (!workingPoint.empty())
+    {
+      m_select = "ana_select_" + workingPoint;
+      m_weight = "ana_weight_" + workingPoint;
+    }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> AnalysisStep AnaToolWeight<XAODContainer> ::
+  step () const
+  {
+    return STEP_WEIGHT;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolWeight<XAODContainer> ::
+  inputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolWeight<XAODContainer> ::
+  outputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> StatusCode AnaToolWeight<XAODContainer> ::
+  execute (IEventObjects& objects)
+  {
+    for (auto object : *objects.get<ContainerType>(m_type))
+    {
+      float weight = 1;
+      if (m_select (*object))
+      {
+	ATH_CHECK (this->objectWeight (*object, weight));
+	if (!(weight > 0))
+	{
+	  ATH_MSG_WARNING ("object weight of " << weight <<
+                         " is not allowed: pt=" << object->pt() <<
+                         " eta=" << object->eta() <<
+                         " phi=" << object->phi());
+	  //return StatusCode::FAILURE;
+	}
+      } else
+      {
+      	weight = 1;
+      }
+      m_weight (*object) = weight;
+    }
+    return StatusCode::SUCCESS;
+  }
+}

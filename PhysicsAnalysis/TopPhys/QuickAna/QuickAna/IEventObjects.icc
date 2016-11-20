@@ -1,0 +1,96 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <QuickAna/ObjectTypeInfo.h>
+#include <RootCoreUtils/ThrowMsg.h>
+
+namespace ana
+{
+  template<class T> T *IEventObjects ::
+  get (ObjectType type) const
+  {
+    if (!(ObjectTypeInfo::fromXAOD<T>::support & (1 << type)))
+      RCU_THROW_MSG ("unsupported xAOD type for object type");
+    return static_cast<T*> (getVoid (type));
+  }
+
+
+
+  inline xAOD::EventInfo *IEventObjects ::
+  eventinfo () const
+  {
+    return get<xAOD::EventInfo> (OBJECT_EVENTINFO);
+  }
+
+
+
+  inline EventSelectType *IEventObjects ::
+  eventSelect () const
+  {
+    return get<xAOD::EventInfo> (OBJECT_EVENT_SELECT);
+  }
+
+
+  inline xAOD::MuonContainer *IEventObjects ::
+  muons () const
+  {
+    return get<xAOD::MuonContainer> (OBJECT_MUON);
+  }
+
+
+
+  inline xAOD::TauJetContainer *IEventObjects ::
+  taus () const
+  {
+    return get<xAOD::TauJetContainer> (OBJECT_TAU);
+  }
+
+
+
+  inline xAOD::ElectronContainer *IEventObjects ::
+  electrons () const
+  {
+    return get<xAOD::ElectronContainer> (OBJECT_ELECTRON);
+  }
+
+
+
+  inline xAOD::PhotonContainer *IEventObjects ::
+  photons () const
+  {
+    return get<xAOD::PhotonContainer> (OBJECT_PHOTON);
+  }
+
+
+
+  inline xAOD::JetContainer *IEventObjects ::
+  jets () const
+  {
+    return get<xAOD::JetContainer> (OBJECT_JET);
+  }
+
+
+
+  inline xAOD::JetContainer *IEventObjects ::
+  fat_jets () const
+  {
+    return get<xAOD::JetContainer> (OBJECT_FAT_JET);
+  }
+
+
+
+  inline xAOD::MissingETContainer *IEventObjects ::
+  met () const
+  {
+    return get<xAOD::MissingETContainer> (OBJECT_MET);
+  }
+
+
+
+  inline xAOD::MissingETContainer *IEventObjects ::
+  met2 () const
+  {
+    return get<xAOD::MissingETContainer> (OBJECT_MET2);
+  }
+}
