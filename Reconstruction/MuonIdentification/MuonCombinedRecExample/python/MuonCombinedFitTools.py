@@ -24,6 +24,7 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.SystemOfUnits import meter
 
+from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
@@ -261,23 +262,19 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
     # configure tools for data reprocessing 
     if muonRecFlags.enableErrorTuning():
-       # enable error scaling for Muid/MuGirl
-       kwargs.setdefault("MuonScaledErrorOptimizer", getPublicToolClone("MuidScaledErrorOptimisationTool",
+       # use alignment effects on track for all algorithms
+
+       useAlignErrs = True
+       if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
+            useAlignErrs = False
+
+       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("MuidErrorOptimisationTool",
                                                                   "MuonErrorOptimisationTool",
                                                                   PrepareForFit              = False,
                                                                   RecreateStartingParameters = False,
-                                                                  RefitTool = getPublicToolClone("MuidScaledRefitTool",
+                                                                  RefitTool = getPublicToolClone("MuidRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = False,
-                                                                                                 Fitter = getPublicTool("iPatFitter"))))
-       # use alignment effects on track in the fitter
-       kwargs.setdefault("MuonAlignmentErrorOptimizer", getPublicToolClone("MuidAlignmentErrorOptimisationTool",
-                                                                  "MuonErrorOptimisationTool",
-                                                                  PrepareForFit              = False,
-                                                                  RecreateStartingParameters = False,
-                                                                  RefitTool = getPublicToolClone("MuidAlignmentRefitTool",
-                                                                                                 "MuonRefitTool",
-                                                                  				 AlignmentErrors = True,
+                                                                  				 AlignmentErrors = useAlignErrs,
                                                                                                  Fitter = getPublicTool("iPatFitter"))))
 
 
@@ -336,7 +333,7 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
     kwargs.setdefault("MuonHoleRecovery"     , getPublicTool("OutwardsSegmentRegionRecoveryTool") )
     kwargs.setdefault("AllowCleanerVeto"     , False)
     if muonRecFlags.enableErrorTuning():
-       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsScaledErrorOptimisationTool", "MuidScaledErrorOptimisationTool",
+       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
                                                                   PrepareForFit=False,RecreateStartingParameters=False,
                                                                   RefitTool = getPublicToolClone("OutwardsRefitTool",
                                                                                                  "MuonRefitTool",

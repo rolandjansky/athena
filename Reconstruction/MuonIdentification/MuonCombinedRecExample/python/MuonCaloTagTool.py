@@ -13,19 +13,6 @@ from AthenaCommon.Logging import log
 ###############################################################################
 # Finds the root file @rootFileName and creates a one-item list for THistSvc.Input
 ###############################################################################
-def defineCaloLhrPdf(rootFileName, streamName=""):
-   import os
-   from AthenaCommon.Utils.unixtools import FindFile
-   rootFile = FindFile(filename=rootFileName, pathlist=os.environ['DATAPATH'].split(os.pathsep), access=os.R_OK)
-   if streamName=="":
-       pos1 = rootFileName.find("CaloMuonLikelihood.PDF.")
-       pos2 = rootFileName.find(".root")
-       if pos1!=-1 and pos2!=-1:
-         streamName = rootFileName.replace(".", "_")
-         streamName = streamName[0:pos2]
-       else:
-           raise ValueError("in CaloTrkMuIdTools_jobOptions.py: defineCaloLhrPdf(...): rootFileName: " + rootFileName + " is not an expected value (should be CaloMuonLikelihood.PDF.xx.root).")
-   return [streamName + " DATAFILE='" + str(rootFile) + "' TYP='ROOT' OPT='READ'"]
 
 ### Track Selector for CaloTrkMuIdAlg
 def CaloTrkMuIdAlgTrackSelectorTool( name='CaloTrkMuIdAlgTrackSelectorTool', **kwargs ):
@@ -59,22 +46,6 @@ def CaloMuonTag( name='CaloMuonTag', **kwargs ):
     return CfgMgr.CaloMuonTag(name,**kwargs)
 
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
-
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline == False:
-       from AthenaCommon.AppMgr import ServiceMgr
-       if not hasattr(ServiceMgr, 'THistSvc'):
-          ServiceMgr += CfgMgr.THistSvc()
-
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A0.root");            ### PDFs for barrel region low pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A1.root");            ### PDFs for barrel region medium pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A2.root");            ### PDFs for barrel region high pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B0.root");            ### PDFs for transition region low pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B1.root");            ### PDFs for transition region medium pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B2.root");            ### PDFs for transition region high pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C0.root");            ### PDFs for endcap region low pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C1.root");            ### PDFs for endcap region medium pT
-       ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C2.root");            ### PDFs for endcap region high pT
     kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
