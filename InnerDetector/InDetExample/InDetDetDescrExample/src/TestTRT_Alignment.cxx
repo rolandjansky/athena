@@ -61,40 +61,40 @@ TestTRT_Alignment::TestTRT_Alignment(const std::string& name, ISvcLocator* pSvcL
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TestTRT_Alignment::initialize(){
-  msg(MSG::INFO) << "initialize()" << endreq;
-  msg(MSG::INFO) << "Algorithm Properties" << endreq;
-  msg(MSG::INFO) << " ManagerName:      " << m_managerName << endreq;  
-  msg(MSG::INFO) << " LongPrintOut:     " << (m_longPrintOut ? "true" : "false") << endreq;  
-  msg(MSG::INFO) << " TestAllElements:  " << (m_testAllElements ? "true" : "false") << endreq;  
-  msg(MSG::INFO) << " TestAllStraws:    " << (m_testAllStraws ? "true" : "false") << endreq;  
-  msg(MSG::INFO) << " ErrorRotation:    " << m_errRot << endreq;  
-  msg(MSG::INFO) << " ErrorTranslation: " << m_errTrans << endreq;  
-  msg(MSG::INFO) << " Precision:        " << m_precision << endreq;  
+  msg(MSG::INFO) << "initialize()" << endmsg;
+  msg(MSG::INFO) << "Algorithm Properties" << endmsg;
+  msg(MSG::INFO) << " ManagerName:      " << m_managerName << endmsg;  
+  msg(MSG::INFO) << " LongPrintOut:     " << (m_longPrintOut ? "true" : "false") << endmsg;  
+  msg(MSG::INFO) << " TestAllElements:  " << (m_testAllElements ? "true" : "false") << endmsg;  
+  msg(MSG::INFO) << " TestAllStraws:    " << (m_testAllStraws ? "true" : "false") << endmsg;  
+  msg(MSG::INFO) << " ErrorRotation:    " << m_errRot << endmsg;  
+  msg(MSG::INFO) << " ErrorTranslation: " << m_errTrans << endmsg;  
+  msg(MSG::INFO) << " Precision:        " << m_precision << endmsg;  
   if (!m_testAllElements) {
-    msg(MSG::INFO) << endreq;
-    msg(MSG::INFO) << " Modules only - the 4 corner straws of each module will be printed. " << endreq;  
+    msg(MSG::INFO) << endmsg;
+    msg(MSG::INFO) << " Modules only - the 4 corner straws of each module will be printed. " << endmsg;  
     if (m_testAllStraws) {
-      msg(MSG::INFO) << " NB. TestAllStraws flag is ignored" << endreq;
+      msg(MSG::INFO) << " NB. TestAllStraws flag is ignored" << endmsg;
     }
   }
    // GeoModelSvc
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   StatusCode sc;
   if(m_geoModelSvc->geoInitialized()) {
-    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endreq;
+    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endmsg;
     sc = geoInitialize();
 
   } else {
-    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endreq;
+    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endmsg;
     // Register callback to check when TagInfo has changed
     sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc, &TestTRT_Alignment::geoInitCallback, this);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endreq;
+      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endmsg;
     } else {
-      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endreq;
+      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endmsg;
     }
   }
   return sc;
@@ -102,7 +102,7 @@ StatusCode TestTRT_Alignment::initialize(){
  
  
 StatusCode TestTRT_Alignment::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  msg(MSG::INFO) <<"geoInitCallback is called" << endreq; 
+  msg(MSG::INFO) <<"geoInitCallback is called" << endmsg; 
   return geoInitialize();
 }
 
@@ -118,14 +118,14 @@ StatusCode TestTRT_Alignment::geoInitialize() {
   // const SiDetectorManager * manager;
   StatusCode sc = detStore()->retrieve(m_manager, m_managerName);
   if (sc.isFailure() || !m_manager) {
-    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endreq;
+    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::DEBUG) << "Manager found" << endreq;
+    msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
     // Get ID helper
   if (detStore()->retrieve(m_idHelper, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_hardwiredShifts) {
@@ -187,7 +187,7 @@ TestTRT_Alignment::addShift(int level, const Identifier & id, const Amg::Transfo
 
 StatusCode TestTRT_Alignment::execute() {
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "execute()" << endreq;
+  msg(MSG::INFO) << "execute()" << endmsg;
   printAlignmentShifts();
   return StatusCode::SUCCESS;
 }
@@ -196,7 +196,7 @@ StatusCode TestTRT_Alignment::execute() {
 
 StatusCode TestTRT_Alignment::finalize() {
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }  
 
