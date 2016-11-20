@@ -8,7 +8,9 @@
 #include <fstream>
 #include <string>
 
+const int nmax(200); // protection for loop bound
 // use namespace PixelOfflineCalib;
+
 
 namespace PixelCalib{
 
@@ -416,7 +418,6 @@ void PixelClusterOnTrackErrorData::Print(std::string file) const {
 
 // Load costants from file
 void PixelClusterOnTrackErrorData::Load(std::string file){
-  int nmax(100); // protection for loop bound
   std::ifstream infile(file.c_str()); 
 
   // number of bins of parametrization

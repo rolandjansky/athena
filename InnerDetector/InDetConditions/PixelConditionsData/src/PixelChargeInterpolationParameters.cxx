@@ -11,6 +11,8 @@
 #include <fstream>
 #include <cmath>
 
+const int nmax(200); // set protection of variables read from file, not too big
+
 namespace PixelCalib{
 
   // constructor. Setting defaults for everything. Hopefully constants 
@@ -511,7 +513,6 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
 
   // Load costants from file
   void PixelChargeInterpolationParameters::Load(std::string file){
-     int nmax(200); // set protection of variables read from file, not too big
      std::ifstream infile(file.c_str());
      int version;
      int nxbins;
@@ -551,11 +552,7 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
          infile >> value; 
          m_deltay.push_back(value); 
        }
-
-       return;
-
      }
-     
      else {    
        m_version = version;
        if(version<-1){ // IBL version 
@@ -647,8 +644,7 @@ PixelChargeInterpolationParameters::PixelChargeInterpolationParameters(){
 	 infile >> value >> error; 
 	 m_deltay.push_back(value); 
 	 m_errdeltay.push_back(error); 
-       }       
-       return;     
+       }
      } // and of check if version number is the first thing on file
   } // end of Load method
 
