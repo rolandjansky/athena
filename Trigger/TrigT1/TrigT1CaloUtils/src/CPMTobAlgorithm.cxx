@@ -240,12 +240,18 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   unsigned int clusMask    = ( (1<<m_emLUT_ClusterNBits)-1 )<<m_emLUT_ClusterFirstBit;
   unsigned int emIsolMask  = ( (1<<m_emLUT_EMIsolNBits) -1 )<<m_emLUT_EMIsolFirstBit;
   unsigned int hadIsolMask = ( (1<<m_emLUT_HadVetoNBits)-1 )<<m_emLUT_HadVetoFirstBit;
+
+  // If cluster overflows, set all threshold bits
+  if (m_EMClus >= clusMask) {
+    m_EMIsolWord = 0x1F;
+    return;
+  }
   
   // For consistency with LUT filling and menu parameters, convert ET sums to 100 MeV units
   int clus    = (( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask ) * 10)/scale;
   int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
   int hadVeto = (( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask ) * 10)/scale;
-  
+ 
   /** Disable isolation by default, then set cut if defined and in range.
     * Expect parameters to be on 100 MeV scale whatever the digit scale, so need to rescale if
       digit scale differs.
@@ -323,7 +329,13 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   // Define cluster and isolation values with appropriate scales and range for isolation LUT
   unsigned int clusMask    = ( (1<<m_tauLUT_ClusterNBits)-1 )<<m_tauLUT_ClusterFirstBit;
   unsigned int emIsolMask  = ( (1<<m_tauLUT_EMIsolNBits) -1 )<<m_tauLUT_EMIsolFirstBit;
-  
+
+  // If cluster overflows, set all threshold bits
+  if (m_TauClus >= clusMask) {
+     m_TauIsolWord = 0x1F;
+     return;
+  }
+                 
   // Convert to 100 MeV units to match parameters
   int clus    = (( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask ) * 10)/scale;
   int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
