@@ -81,9 +81,6 @@ namespace MuonAlign {
         Amg::Vector3D sumU;
         Amg::Vector3D sumV;
         double sumW2;
-
-	enum AliType {UNDEF, BE, SL, IDMS, CH};
-	AliType type;
       };
 
       bool m_read_local_file;

@@ -38,8 +38,8 @@ AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& 
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
   declareProperty("IdHelper", m_idHelper );
-  declareProperty("read_local_file", m_read_local_file=true);
-  declareProperty("local_input_filename", m_local_input_filename="AlignmentUncertaintiesData2016.txt");
+  declareProperty("read_local_file", m_read_local_file=false);
+  declareProperty("local_input_filename", m_local_input_filename="");
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
@@ -49,7 +49,7 @@ AlignmentErrorTool::~AlignmentErrorTool() {
 
 
 AlignmentErrorTool::deviationSummary_t::deviationSummary_t()
-: traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.), type(AliType::UNDEF) { 
+: traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.) { 
 	//i_instance++;
 } //
 AlignmentErrorTool::deviationSummary_t::~deviationSummary_t() {
@@ -79,10 +79,7 @@ StatusCode AlignmentErrorTool::initialize() {
   } else {
   // from DB
 
-    StatusCode sc = m_pMuonAlignmentErrorDbSvc.retrieve();
-    if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endmsg;
-    }
+    ATH_CHECK( m_pMuonAlignmentErrorDbSvc.retrieve() );
 
     // FIRST INITIALIZATION TO ENFORCE TOOL CORRECTLY CONFIGURED
     int I=0;
@@ -138,58 +135,8 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   typedef DataVector< const Trk::TrackStateOnSurface > tsosc_t;
   const tsosc_t* tsosc = track.trackStateOnSurfaces();
 
-  bool isEndcap = false;
-  bool isBarrel = false;
-  bool isSmallChamber = false;
-  bool isLargeChamber = false;
-
-  // LOOP ON HITS ON TRACK TO IDENTIFY BARREL/ENDCAP, SMALL/LARGE OVERLAPS//
-  for (tsosc_t::const_iterator it=tsosc->begin(), end=tsosc->end(); it!=end; it++) {
-
-    const Trk::TrackStateOnSurface* tsos = *it;
-
-    if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
-
-      const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
-      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*> (meas);
-
-      if (!rot) {
-	const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (meas);
-	if (crot) {
-	  unsigned int index = crot->indexOfMaxAssignProb();
-	  rot = &(crot->rioOnTrack(index));
-	}
-      }
-      if (!rot) continue;
-
-      ::Identifier channelId = rot->identify();
-
-      if(m_idHelper->isCsc(channelId) ) {
-	isEndcap = true;
-	if(m_idHelper->cscIdHelper().sector(channelId) % 2 == 0)
-	  isSmallChamber=true;
-	else
-	  isLargeChamber=true;	  
-	continue;
-      }
-
-      if(!m_idHelper->isMdt(channelId) )
-	continue;
-      
-      if(m_idHelper->isEndcap(channelId)) {
-	isEndcap = true;
-      } else {
-	isBarrel = true;
-      }
-      if(m_idHelper->isSmallChamber(channelId)) {
-	isSmallChamber = true;
-      } else {
-	isLargeChamber = true;
-      }
-    }
-  }
-
   // LOOP ON HITS ON TRACK //
+  unsigned int nPrecisionHits = 0;
   for (tsosc_t::const_iterator it=tsosc->begin(), end=tsosc->end(); it!=end; it++) {
 
     const Trk::TrackStateOnSurface* tsos = *it;
@@ -223,6 +170,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if ( calibId.is_mdt() || ( calibId.is_csc() && calibId.cscMeasuresPhi() == 0 ) ) { 
 
         ATH_MSG_DEBUG("Hit is in station " << completename << " multilayer " << multilayer_sstring);
+	++nPrecisionHits;
  
         // FOR CROSS-CHECK
         bool is_matched = false;
@@ -240,14 +188,6 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
                  continue;
               }
 
-	      // Barrel/end-cap misalignment
-	      if( m_deviationsVec[iDev]->type==deviationSummary_t::AliType::BE && !(isBarrel && isEndcap) )  
-		continue;
-	      
-	      // Small/large chamber misalignment
-	      if( m_deviationsVec[iDev]->type==deviationSummary_t::AliType::SL && !(isSmallChamber && isLargeChamber) )
-		continue;
-              
               // ASSOCIATE EACH NUISANCE TO A LIST OF HITS
               m_deviationsVec[iDev]->hits.push_back(rot);
               
@@ -270,14 +210,6 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
               // ARTIFICIALLY ORIENTATE EVERYTHING TOWARDS THE SAME DIRECTION
               m_deviationsVec[iDev]->sumV += sign * w2 * sur.transform().rotation().col(2);
 
-              // !
-              //if ( check_sign == 0 ) 
-              //   check_sign = sign;
-              //else {
-              //   if ( (check_sign * sign) < 0 )
-              //      ATH_MSG_ERROR("The wire of the station " << completename << " is not oriented as expected");
-              //}
-
               // FOR CROSS-CHECK
               is_matched = true;
           
@@ -294,6 +226,14 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
   } //LOOP ON TSOS
 
+  // Nuisance parameters covering the complete track are not wanted. (MS/ID
+  // error treated differently for now). Removing the deviations covering the
+  // full track in further processing.
+  for (deviationSummary_t* dev : m_deviationsVec) {
+    if (dev->hits.size() == nPrecisionHits)
+      dev->hits.clear();
+  }
+
   // CHECK HIT LISTS OVERLAP
   // FIRST CREATE AN INDEPENDENT COPY OF THE STRUCT VECTOR
   std::vector<deviationSummary_t*> new_deviationsVec;
@@ -309,7 +249,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
         continue;
 
      std::vector<const Trk::RIO_OnTrack*> v1 = m_deviationsVec[iDev]->hits;
-     if ( v1.size() < 1 )
+     if ( v1.empty() )
         continue;
 
      std::stable_sort(v1.begin(), v1.end());
@@ -471,12 +411,6 @@ void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata
 
       // TEMPORARY PER STATION DEVIATION STRUCT //
       deviationSummary_t* tmp = new deviationSummary_t;
-
-      if(name_sstring == "^B.*") tmp->type=deviationSummary_t::AliType::BE;
-      else if(name_sstring == "^B.[SFG].*") tmp->type=deviationSummary_t::AliType::SL;
-      else if(name_sstring == "^[EC].S.*") tmp->type=deviationSummary_t::AliType::SL;
-      else if(name_sstring == ".*") tmp->type=deviationSummary_t::AliType::IDMS;
-      else tmp->type=deviationSummary_t::AliType::CH;
 
       // SAVING A REGULAR EXPRESSION WITH THE STATION NAME //
       const boost::regex name_regexp(name_sstring);
