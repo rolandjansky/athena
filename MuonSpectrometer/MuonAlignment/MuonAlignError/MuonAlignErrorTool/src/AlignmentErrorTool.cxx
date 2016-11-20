@@ -18,6 +18,8 @@
 #include "PathResolver/PathResolver.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 // For the call-back
 #include "MuonCondInterface/IMuonAlignmentErrorDbTool.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -30,12 +32,14 @@ using namespace MuonAlign;
 AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_idTool("MuonCalib::IdToFixedIdTool"),
+  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_pMuonAlignmentErrorDbSvc("MuonAlignmentErrorDbSvc", "MuonAlignmentErrorDbSvc")
 {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
-  declareProperty("read_local_file", m_read_local_file=true);
-  declareProperty("local_input_filename", m_local_input_filename="AlignmentUncertaintiesStart2015.txt");
+  declareProperty("IdHelper", m_idHelper );
+  declareProperty("read_local_file", m_read_local_file=false);
+  declareProperty("local_input_filename", m_local_input_filename="");
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
@@ -57,6 +61,8 @@ StatusCode AlignmentErrorTool::initialize() {
   ATH_MSG_INFO("*****************************************");
   ATH_MSG_INFO("AlignmentErrorTool::initialize()");
 
+  ATH_CHECK( m_idHelper.retrieve() );
+
   // MAP DEVIATION INITIALIZATION
   // from local file
   if ( m_read_local_file ) {
@@ -64,7 +70,8 @@ StatusCode AlignmentErrorTool::initialize() {
      std::string full_input_filename = PathResolver::find_file( m_local_input_filename, "DATAPATH");
      std::ifstream indata(full_input_filename.c_str());
      initializeAlignmentDeviationsList( indata );
-     
+     ATH_MSG_INFO("filename " << m_local_input_filename );
+     ATH_MSG_INFO("*****************************************");     
      //ATH_MSG_DEBUG("###########################################");
      //ATH_MSG_DEBUG("List of deviations updated");
      //ATH_MSG_DEBUG(data.str());
@@ -72,10 +79,7 @@ StatusCode AlignmentErrorTool::initialize() {
   } else {
   // from DB
 
-    StatusCode sc = m_pMuonAlignmentErrorDbSvc.retrieve();
-    if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endreq;
-    }
+    ATH_CHECK( m_pMuonAlignmentErrorDbSvc.retrieve() );
 
     // FIRST INITIALIZATION TO ENFORCE TOOL CORRECTLY CONFIGURED
     int I=0;
@@ -132,6 +136,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   const tsosc_t* tsosc = track.trackStateOnSurfaces();
 
   // LOOP ON HITS ON TRACK //
+  unsigned int nPrecisionHits = 0;
   for (tsosc_t::const_iterator it=tsosc->begin(), end=tsosc->end(); it!=end; it++) {
 
     const Trk::TrackStateOnSurface* tsos = *it;
@@ -165,6 +170,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if ( calibId.is_mdt() || ( calibId.is_csc() && calibId.cscMeasuresPhi() == 0 ) ) { 
 
         ATH_MSG_DEBUG("Hit is in station " << completename << " multilayer " << multilayer_sstring);
+	++nPrecisionHits;
  
         // FOR CROSS-CHECK
         bool is_matched = false;
@@ -181,7 +187,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
                  //ATH_MSG_DEBUG("Hit in multilayer " << multilayer_sstring << " couldn't match to " << (m_deviationsVec[iDev]->multilayer).str());
                  continue;
               }
-              
+
               // ASSOCIATE EACH NUISANCE TO A LIST OF HITS
               m_deviationsVec[iDev]->hits.push_back(rot);
               
@@ -204,14 +210,6 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
               // ARTIFICIALLY ORIENTATE EVERYTHING TOWARDS THE SAME DIRECTION
               m_deviationsVec[iDev]->sumV += sign * w2 * sur.transform().rotation().col(2);
 
-              // !
-              //if ( check_sign == 0 ) 
-              //   check_sign = sign;
-              //else {
-              //   if ( (check_sign * sign) < 0 )
-              //      ATH_MSG_ERROR("The wire of the station " << completename << " is not oriented as expected");
-              //}
-
               // FOR CROSS-CHECK
               is_matched = true;
           
@@ -228,6 +226,14 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
   } //LOOP ON TSOS
 
+  // Nuisance parameters covering the complete track are not wanted. (MS/ID
+  // error treated differently for now). Removing the deviations covering the
+  // full track in further processing.
+  for (deviationSummary_t* dev : m_deviationsVec) {
+    if (dev->hits.size() == nPrecisionHits)
+      dev->hits.clear();
+  }
+
   // CHECK HIT LISTS OVERLAP
   // FIRST CREATE AN INDEPENDENT COPY OF THE STRUCT VECTOR
   std::vector<deviationSummary_t*> new_deviationsVec;
@@ -243,7 +249,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
         continue;
 
      std::vector<const Trk::RIO_OnTrack*> v1 = m_deviationsVec[iDev]->hits;
-     if ( v1.size() < 1 )
+     if ( v1.empty() )
         continue;
 
      std::stable_sort(v1.begin(), v1.end());
@@ -315,13 +321,13 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
      sumU *= (1./sumW2);
      sumV *= (1./sumW2);
 
-     if ( traslation > 0.001*Gaudi::Units::mm ) { 
+     if ( traslation >= 0.001*Gaudi::Units::mm ) { 
 
         deviations.push_back(new AlignmentTranslationDeviation(sumU.cross(sumV), traslation*Gaudi::Units::mm, new_deviationsVec[iDev]->hits));
 
         ATH_MSG_DEBUG("A translation along (" << sumU.x() << ", " << sumU.y() << ", " << sumU.z() << ") with sigma=" << traslation*Gaudi::Units::mm << " mm was applied to " << new_deviationsVec[iDev]->hits.size() << " hits matching the station: " << new_deviationsVec[iDev]->stationName.str() << " and the multilayer " << new_deviationsVec[iDev]->multilayer.str());
 
-     } if ( rotation > 0.000001*Gaudi::Units::rad ) {
+     } if ( rotation >= 0.000001*Gaudi::Units::rad ) {
 
         deviations.push_back(new AlignmentRotationDeviation(sumP, sumV, rotation*Gaudi::Units::rad, new_deviationsVec[iDev]->hits));
 

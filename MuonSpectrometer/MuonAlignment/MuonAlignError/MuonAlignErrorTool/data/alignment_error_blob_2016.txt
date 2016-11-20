@@ -1,0 +1,51 @@
+# Candidate alignment error configuration for the 2016 observed performance
+# Source for these numbers documented in
+# http://atlas-muon-align.web.cern.ch/atlas-muon-align/Resolution/alignment_uncertainties_2016.pdf
+
+version 0.1
+
+# error_by_regexp <station_selection_regexp> <multilayer_selection_regexp> <translation_NP> <rotation_NP>
+#      Constructs nuisance parameters for a selection of hits, driven by regular expressions
+#      Selection rules are merged, depending on the hits on tracks, to minimize the number of nuisance parameters
+#      This regexp-based selection rule provides approximately the granularity we need. Finer granularity may be implemented later.
+
+# error_by_regexp .*             .*   1.      0.000200   # MS/ID misalignment (not wanted by muon SW)
+error_by_regexp ^B[^E].*         .*   0.500   0.000100   # Barrel/end-cap misalignment
+error_by_regexp ^B.[SFG].*       .*   0.300   0.000060   # S/L misalignment in the barrel
+error_by_regexp ^[EC].S.*|^BEE.* .*   0.100   0.000010   # S/L misalignment in the end-cap
+error_by_regexp ^BML.*           .*   0.030   0.000050   # Sagitta and angle error
+error_by_regexp ^BMS.*           .*   0.070   0.000060   # Sagitta and angle error
+error_by_regexp ^BMF.*           .*   0.120   0.000060   # Sagitta and angle error
+error_by_regexp ^EEL.*           .*   0.050   0.000120   # Sagitta and angle error
+error_by_regexp ^EES.*           .*   0.060   0.000160   # Sagitta and angle error
+error_by_regexp ^EML.*           .*   0.040   0.000060   # Sagitta and angle error
+error_by_regexp ^EMS.*           .*   0.060   0.000100   # Sagitta and angle error
+error_by_regexp ^BI[LRM].*       .*   0.010   0.000080   # Angle error
+error_by_regexp ^BIS.*           .*   0.010   0.000160   # Angle error
+error_by_regexp ^BOL.*           .*   0.010   0.000035   # Angle error
+error_by_regexp ^BO[SFG].*       .*   0.010   0.000070   # Angle error
+error_by_regexp ^EIS.*           .*   0.010   0.000050   # Angle error
+error_by_regexp ^EIL.*           .*   0.010   0.000260   # Angle error
+error_by_regexp ^CSS.*           .*   0.010   0.001000   # Angle error
+error_by_regexp ^CSL.*           .*   0.010   0.000820   # Angle error
+error_by_regexp ^EOS.*           .*   0.010   0.000090   # Angle error
+error_by_regexp ^EOL.*           .*   0.010   0.000060   # Angle error
+error_by_regexp ^BIS8.*          .*   1.000   0.001000   # BIS8 misalignment
+error_by_regexp ^BEE.*           .*   0.080   0.000270   # BEE misalignment
+error_by_regexp ^CSS1A16         .*   0.300   0.000001   # CSS1A16
+error_by_regexp ^CSL1A15         .*   0.300   0.000001   # CSL1A15
+error_by_regexp ^BOE.*           .*   1.000   0.000001   # BOE
+error_by_regexp ^BME.*           .*   0.300   0.000001   # BME
+
+# A few chambers with observed large segment angle bias
+error_by_regexp ^BOF5A14         .*   0.010   0.000380   # BOF5A14
+error_by_regexp ^BOF5C14         .*   0.010   0.000390   # BOF5C14
+error_by_regexp ^BOG4A14         .*   0.010   0.000370   # BOG4A14
+error_by_regexp ^BOS1C06         .*   0.010   0.000330   # BOS1C06
+error_by_regexp ^EES2A06         .*   0.010   0.000690   # EES2A06
+error_by_regexp ^EIL3A05         .*   0.010   0.000590   # EIL3A05
+error_by_regexp ^EIL5C01         .*   0.010   0.001700   # EIL5C01
+error_by_regexp ^EIL5C09         .*   0.010   0.001200   # EIL5C09
+error_by_regexp ^EMS4C02         .*   0.010   0.000570   # EMS4C02
+error_by_regexp ^EOS5A12         .*   0.010   0.000740   # EOS5A12
+

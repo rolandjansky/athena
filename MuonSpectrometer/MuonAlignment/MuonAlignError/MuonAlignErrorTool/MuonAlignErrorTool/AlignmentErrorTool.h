@@ -22,6 +22,10 @@ namespace Trk {
   class RIO_OnTrack;
 }
 
+namespace Muon {
+  class MuonIdHelperTool;
+}
+
 namespace MuonAlign {
 
   /**
@@ -55,6 +59,7 @@ namespace MuonAlign {
 
     private:
       ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;
+      ToolHandle<Muon::MuonIdHelperTool>  m_idHelper; //<! muon id helper
       ServiceHandle<IMuonAlignmentErrorDbSvc> m_pMuonAlignmentErrorDbSvc;
 
       // Struct for per-Station Deviations Information //

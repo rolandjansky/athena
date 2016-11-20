@@ -37,5 +37,5 @@ atlas_add_component( MuonAlignErrorTool
 
 # Install files from the package:
 atlas_install_headers( MuonAlignErrorTool )
-atlas_install_runtime( share/AlignmentUncertaintiesStart2015.txt )
+atlas_install_runtime( data/alignment_error_blob_2015.txt data/alignment_error_blob_2016.txt data/alignment_error_blob_2017_start.txt )
 
