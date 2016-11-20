@@ -21,6 +21,12 @@ if muonCombinedRecFlags.doxAOD():
                                          DoTruth = rec.doTruth(),
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
                                          IsCombined = True )
+  topSequence += MuonTrackPerformanceAlg("MSOnlyExtrapolatedMuonPerformanceAlg",
+                                         TrackInputLocation = "MSOnlyExtrapolatedMuonTracks",
+                                         DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
+                                         DoTruth = rec.doTruth(),
+                                         DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                         IsCombined = False )
 
   from MuonTrackPerformance.MuonTrackPerformanceConf import MuonSegmentPerformanceAlg
   topSequence += MuonSegmentPerformanceAlg(name="MuonSegmentPerformanceAlg")
