@@ -12,14 +12,14 @@
 
 TRT_BSIdErrContainer_PERS* 
 TRT_BSIdErrContainerCnv::createPersistent(TRT_BSIdErrContainer* transCont) {
-  MsgStream log(messageService(), "TRT_BSIdErrContainerCnv" );
+  MsgStream log(msgSvc(), "TRT_BSIdErrContainerCnv" );
   TRT_BSIdErrContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
   return persObj; 
 }
 
 TRT_BSIdErrContainer* 
 TRT_BSIdErrContainerCnv::createTransient() {
-  MsgStream log(messageService(), "TRT_BSIdErrContainerCnv" );
+  MsgStream log(msgSvc(), "TRT_BSIdErrContainerCnv" );
   static pool::Guid   p1_guid("26F44F1E-D1F5-43B3-93E9-09376AB37491");
   if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object

@@ -12,14 +12,14 @@
 
 InDetBSErrContainer_PERS* 
 InDetBSErrContainerCnv::createPersistent(InDetBSErrContainer* transCont) {
-  MsgStream log(messageService(), "InDetBSErrContainerCnv" );
+  MsgStream log(msgSvc(), "InDetBSErrContainerCnv" );
   InDetBSErrContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
   return persObj; 
 }
 
 InDetBSErrContainer* 
 InDetBSErrContainerCnv::createTransient() {
-  MsgStream log(messageService(), "InDetBSErrContainerCnv" );
+  MsgStream log(msgSvc(), "InDetBSErrContainerCnv" );
   static pool::Guid   p1_guid("FA64DC17-D07E-4305-9B21-18C64F1B4C47");
   if( compareClassGuid(p1_guid) ) {
     /** using auto_ptr ensures deletion of the persistent object */
