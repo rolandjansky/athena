@@ -530,6 +530,7 @@ def setupMenu():
         ['j10_320eta490_L1MBTS_2',                  'L1_MBTS_2',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['2j10_deta20_L1MBTS_2',                  'L1_MBTS_2',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['2j10_deta20_L1J12',                  'L1_J12',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2j10_deta20_L1J12_test4',                  'L1_J12',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
 
         ### ATR-14353: L1Topo jet chains:

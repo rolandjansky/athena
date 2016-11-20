@@ -36,10 +36,10 @@ def setupMenu():
     
     TriggerFlags.MuonSlice.signatures = [
 	#ID tracking performance
-    ['mu4_idperf',          'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+    ['mu4_idperf',          'L1_MU4', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6_idperf',          'L1_MU4', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu8_idperf',          'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1], #no configuration
-	['mu10_idperf',         'L1_MU10', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu8_idperf',          'L1_MU6', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1], #no configuration
+	['mu10_idperf',         'L1_MU10', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#RoI muons
 	['mu4',                 'L1_MU4', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
@@ -269,11 +269,11 @@ def setupMenu():
 	['j35_200eta320_ion_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_200eta320_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_200eta320_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_200eta320_ion',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_200eta320_ion',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_200eta320_ion',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_200eta320_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_200eta320_ion',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320_ion',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_200eta320_ion',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_200eta320_ion',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_200eta320_ion',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_200eta320_ion',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	['j10_200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j10_200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -289,11 +289,11 @@ def setupMenu():
 	['j35_200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_200eta320',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_200eta320',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_200eta320',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_200eta320',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_200eta320',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	#semi-forward jets in negative direction 
 	['j10_ion_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -310,11 +310,11 @@ def setupMenu():
 	['j35_ion_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_ion_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_ion_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_ion_n200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_ion_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_ion_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_ion_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_ion_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_n200eta320',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_ion_n200eta320',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_ion_n200eta320',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_ion_n200eta320',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_n200eta320',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	['j10_n200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j10_n200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -330,11 +330,11 @@ def setupMenu():
 	['j35_n200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_n200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_n200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_n200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_n200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_n200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_n200eta320',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_n200eta320',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_n200eta320',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_n200eta320',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_n200eta320',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	#semi-forward jets in positive direction 
 	['j10_ion_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -351,11 +351,11 @@ def setupMenu():
 	['j35_ion_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_ion_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_ion_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_ion_p200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_ion_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_ion_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_ion_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_ion_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_ion_p200eta320',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_ion_p200eta320',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_ion_p200eta320',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_ion_p200eta320',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ion_p200eta320',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	['j10_p200eta320_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j10_p200eta320_L1TE5',         'L1_TE5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -371,11 +371,11 @@ def setupMenu():
 	['j35_p200eta320_L1TE10',         'L1_TE10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_p200eta320_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j35_p200eta320_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_p200eta320',         'L1_J10.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_p200eta320',         'L1_J15.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j65_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_p200eta320',         'L1_J20.31ETA49',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_p200eta320',         'L1_J5',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_p200eta320',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_p200eta320',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j65_p200eta320',         'L1_J15',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_p200eta320',         'L1_J20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
 	#forward jets ATR-12623
 	['j10_320eta490_ion_L1MBTS_1_1',         'L1_MBTS_1_1',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -566,6 +566,8 @@ def setupMenu():
 	['j75_ion_4j20_ion_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j75_ion_4j30_ion_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	
+	['j85_ion_3j30_ion_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	
 	['j60_ion_2j20_ion_0eta490_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j60_ion_2j30_ion_0eta490_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j60_ion_3j20_ion_0eta490_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
@@ -599,6 +601,8 @@ def setupMenu():
 	['j75_3j30_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j75_4j20_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j75_4j30_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	
+	['j85_3j30_0eta490_L1J20',         'L1_J20',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	
 	['j60_2j20_0eta490_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 	['j60_2j30_0eta490_L1J15',         'L1_J15',[], [HardProbesStream], ['RATE:MultiJet', 'BW:Jet'], -1],
@@ -676,8 +680,8 @@ def setupMenu():
 	
 	['j40_boffperf_split', 'L1_J10', [], [HardProbesStream, 'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
 	['j50_boffperf_split', 'L1_J15', [], [HardProbesStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-	['j60_boffperf_split', 'L1_J20', [], [HardProbesStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-	['j75_boffperf_split', 'L1_J20', [], [HardProbesStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+	['j60_boffperf_split', 'L1_J20', [], [HardProbesStream, 'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
+	['j75_boffperf_split', 'L1_J20', [], [HardProbesStream, 'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
 	['j85_boffperf_split', 'L1_J20', [], [HardProbesStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 	['j100_boffperf_split', 'L1_J20', [], [HardProbesStream, 'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
     
@@ -927,7 +931,7 @@ def setupMenu():
 	['2mu6_bBmumux_BpmumuKp',                    'L1_2MU6', [], [HardProbesStream], ['RATE:Bphysics','BW:Bphys'], -1],
 	    
     ['mu4_mu4_idperf_bJpsimumu_noid',  'L1_2MU4', [], [HardProbesStream], ['RATE:IDMonitoring','BW:Bphys', 'BW:ID'], -1],
-    ['mu13_mu13_idperf_Zmumu',     'L1_2MU6', [], [HardProbesStream], ['RATE:IDMonitoring','BW:Bphys', 'BW:ID'], -1],
+    ['mu13_mu13_idperf_Zmumu',     'L1_2MU6', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring','BW:Bphys', 'BW:ID'], -1],
         
     ['2mu4_bDimu_novtx_noos',         'L1_2MU4', [], [HardProbesStream], ['RATE:Bphysics','BW:Bphys'], -1],
     ['2mu4_bDimu_noinvm_novtx_ss',         'L1_2MU4', [], [HardProbesStream], ['RATE:Bphysics','BW:Bphys'], -1],
@@ -1075,7 +1079,7 @@ def setupMenu():
         ['mu4_mb_sp2400_trk120_hmt_L1MU4_TE15.0ETA24', 'L1_MU4_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_trk120_hmt'],False]],
         ['mu4_mb_sp2800_trk140_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_trk140_hmt'],False]],
         ['mu4_mb_sp3100_trk160_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_trk160_hmt'],False]],
-        ['mu4_mb_sp3500_trk180_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_trk180_hmt'],False]],
+#        ['mu4_mb_sp3500_trk180_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_trk180_hmt'],False]],
         ['mu4_mb_sp4100_trk200_hmt_L1MU4_TE90', 'L1_MU4_TE90',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4100_trk200_hmt'],False]],
 		['mu4_mb_sp4500_trk220_hmt_L1MU4_TE30.0ETA24', 'L1_MU4_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4500_trk220_hmt'],False]],
         ['mu4_mb_sp4800_trk240_hmt_L1MU4_TE120', 'L1_MU4_TE120',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4800_trk240_hmt'],False]],
@@ -1084,7 +1088,7 @@ def setupMenu():
 		['mu4_mb_sp1600_trk80_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk80_hmt'],False]],        
 		['mu4_mb_sp2100_trk100_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_trk100_hmt'],False]],
         ['mu4_mb_sp2400_trk120_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_trk120_hmt'],False]],
-        ['mu4_mb_sp2800_trk140_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_trk140_hmt'],False]],
+#        ['mu4_mb_sp2800_trk140_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_trk140_hmt'],False]],
         ['mu4_mb_sp3100_trk160_hmt_L1MU4_TE25.0ETA24', 'L1_MU4_TE25.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_trk160_hmt'],False]],
         ['mu4_mb_sp3500_trk180_hmt_L1MU4_TE90', 'L1_MU4_TE90',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_trk180_hmt'],False]],
         ['mu4_mb_sp4100_trk200_hmt_L1MU4_TE120', 'L1_MU4_TE120',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4100_trk200_hmt'],False]],
@@ -1109,7 +1113,7 @@ def setupMenu():
         ['mu4_mb_sp2400_pusup500_trk120_hmt_L1MU4_TE15.0ETA24', 'L1_MU4_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_pusup500_trk120_hmt'],False]],
         ['mu4_mb_sp2800_pusup600_trk140_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_pusup600_trk140_hmt'],False]],
         ['mu4_mb_sp3100_pusup700_trk160_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_pusup700_trk160_hmt'],False]],
-        ['mu4_mb_sp3500_pusup800_trk180_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_pusup800_trk180_hmt'],False]],
+#        ['mu4_mb_sp3500_pusup800_trk180_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_pusup800_trk180_hmt'],False]],
         ['mu4_mb_sp4100_pusup900_trk200_hmt_L1MU4_TE90', 'L1_MU4_TE90',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4100_pusup900_trk200_hmt'],False]],
 		['mu4_mb_sp4500_pusup1000_trk220_hmt_L1MU4_TE30.0ETA24', 'L1_MU4_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4500_pusup1000_trk220_hmt'],False]],
         ['mu4_mb_sp4800_pusup1100_trk240_hmt_L1MU4_TE120', 'L1_MU4_TE120',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4800_pusup1100_trk240_hmt'],False]],
@@ -1118,13 +1122,14 @@ def setupMenu():
 		['mu4_mb_sp1600_pusup300_trk80_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup300_trk80_hmt'],False]],        
 		['mu4_mb_sp2100_pusup400_trk100_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_pusup400_trk100_hmt'],False]],
         ['mu4_mb_sp2400_pusup500_trk120_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_pusup500_trk120_hmt'],False]],
-        ['mu4_mb_sp2800_pusup600_trk140_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_pusup600_trk140_hmt'],False]],
+#        ['mu4_mb_sp2800_pusup600_trk140_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2800_pusup600_trk140_hmt'],False]],
         ['mu4_mb_sp3100_pusup700_trk160_hmt_L1MU4_TE25.0ETA24', 'L1_MU4_TE25.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_pusup700_trk160_hmt'],False]],
         ['mu4_mb_sp3500_pusup800_trk180_hmt_L1MU4_TE90', 'L1_MU4_TE90',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_pusup800_trk180_hmt'],False]],
         ['mu4_mb_sp4100_pusup900_trk200_hmt_L1MU4_TE120', 'L1_MU4_TE120',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4100_pusup900_trk200_hmt'],False]],
 		['mu4_mb_sp4500_pusup1000_trk220_hmt_L1MU4_TE35.0ETA24', 'L1_MU4_TE35.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4500_pusup1000_trk220_hmt'],False]],
         ['mu4_mb_sp4800_pusup1100_trk240_hmt_L1MU4_TE160', 'L1_MU4_TE160',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4800_pusup1100_trk240_hmt'],False]],
 
+     
 		['mu4_mb_sp1200_pusup200_trk60_hmt_L1MU4_TE20.0ETA24', 'L1_MU4_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup200_trk60_hmt'],False]],
 		['mu4_mb_sp1600_pusup300_trk80_hmt_L1MU4_TE25.0ETA24', 'L1_MU4_TE25.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup300_trk80_hmt'],False]],        
 		['mu4_mb_sp2100_pusup400_trk100_hmt_L1MU4_TE25.0ETA24', 'L1_MU4_TE25.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_pusup400_trk100_hmt'],False]],
@@ -1134,6 +1139,28 @@ def setupMenu():
         ['mu4_mb_sp3500_pusup800_trk180_hmt_L1MU4_TE120', 'L1_MU4_TE120',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3500_pusup800_trk180_hmt'],False]],
         ['mu4_mb_sp4100_pusup900_trk200_hmt_L1MU4_TE160', 'L1_MU4_TE160',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4100_pusup900_trk200_hmt'],False]],
 		['mu4_mb_sp4500_pusup1000_trk220_hmt_L1MU4_TE40.0ETA24', 'L1_MU4_TE40.0ETA24',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp4500_pusup1000_trk220_hmt'],False]],
+        
+        #ATR-15487
+        ['mu4_mb_sp1200_trk60_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk60_hmt_L1MU4'],False]],
+        ['mu4_mb_sp1200_pusup200_trk60_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup200_trk60_hmt_L1MU4'],False]],
+        
+        ['mu4_mb_sp1600_trk80_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk80_hmt_L1MU4'],False]],
+        ['mu4_mb_sp1600_pusup300_trk80_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup300_trk80_hmt_L1MU4'],False]],
+        
+        ['mu4_mb_sp2100_trk100_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_trk100_hmt_L1MU4'],False]],
+        ['mu4_mb_sp2100_pusup400_trk100_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_pusup400_trk100_hmt_L1MU4'],False]],
+        ['mu4_mb_sp2100_trk100_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_trk100_hmt'],False]],
+        ['mu4_mb_sp2100_pusup400_trk100_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2100_pusup400_trk100_hmt'],False]],
+
+        ['mu4_mb_sp2400_trk120_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_trk120_hmt_L1MU4'],False]],
+        ['mu4_mb_sp2400_pusup500_trk120_hmt_L1MU4', 'L1_MU4',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_pusup500_trk120_hmt_L1MU4'],False]],
+        ['mu4_mb_sp2400_trk120_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_trk120_hmt'],False]],
+        ['mu4_mb_sp2400_pusup500_trk120_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp2400_pusup500_trk120_hmt'],False]],
+
+        ['mu4_mb_sp3100_trk160_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_trk160_hmt'],False]],
+        ['mu4_mb_sp3100_pusup700_trk160_hmt_L1MU4_TE50', 'L1_MU4_TE50',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_pusup700_trk160_hmt'],False]],
+#        ['mu4_mb_sp3100_trk160_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_trk160_hmt'],False]],
+#        ['mu4_mb_sp3100_pusup700_trk160_hmt_L1MU4_TE70', 'L1_MU4_TE70',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp3100_pusup700_trk160_hmt'],False]],
         
         # HMT + jets + pileup suppresion, j30 
         ['j30_mb_sp1200_trk60_hmt', 'L1_J5',  ['', ''], [MinBiasStream],["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['j30', 'mb_sp1200_trk60_hmt'],False]],
@@ -1234,9 +1261,11 @@ def setupMenu():
 
 		
         # EventShape + HMT
+       
+
         ['hi_v2A_th05p_mb_sp2100_trk100_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_trk100_hmt_L1TE50'],False]],
-        ['hi_v2A_th05p_mb_sp2100_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_trk100_hmt_L1TE70'],False]],
-        ['hi_v2A_th05p_mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_trk140_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp2100_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_trk100_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_trk140_hmt_L1TE70'],False]],
         ['hi_v2A_th05p_mb_sp2400_trk120_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_trk120_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp3100_trk160_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_trk160_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp3100_trk160_hmt_L1TE120', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_trk160_hmt_L1TE120'],False]],
@@ -1247,8 +1276,8 @@ def setupMenu():
         ['hi_v2A_th05p_mb_sp2400_trk120_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_trk120_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp3100_trk160_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_trk160_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp2100_trk100_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_trk100_hmt_L1TE50'],False]],
-        ['hi_v2C_th05p_mb_sp2100_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_trk100_hmt_L1TE70'],False]],
-        ['hi_v2C_th05p_mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_trk140_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp2100_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_trk100_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_trk140_hmt_L1TE70'],False]],
         ['hi_v2C_th05p_mb_sp2400_trk120_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_trk120_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp3100_trk160_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_trk160_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp3100_trk160_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_trk160_hmt_L1TE120'],False]],
@@ -1259,7 +1288,7 @@ def setupMenu():
         ['hi_v2C_th05p_mb_sp2400_trk120_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_trk120_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp3100_trk160_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_trk160_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp2800_trk140_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_trk140_hmt_L1TE50'],False]],
-        ['hi_v2A_th05p_mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_trk180_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_trk180_hmt_L1TE70'],False]],
         ['hi_v2A_th05p_mb_sp4100_trk200_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_trk200_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp4800_trk240_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4800_trk240_hmt_L1TE120'],False]],
         ['hi_v2A_th05p_mb_sp5000_trk260_hmt_L1TE160', 'L1_TE160',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp5000_trk260_hmt_L1TE160'],False]],
@@ -1267,7 +1296,7 @@ def setupMenu():
         ['hi_v2A_th05p_mb_sp3100_trk160_hmt_L1TE20.0ETA24', 'L1_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_trk160_hmt_L1TE20.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp4500_trk220_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4500_trk220_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp2800_trk140_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_trk140_hmt_L1TE50'],False]],
-        ['hi_v2C_th05p_mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_trk180_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_trk180_hmt_L1TE70'],False]],
         ['hi_v2C_th05p_mb_sp4100_trk200_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_trk200_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp4800_trk240_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4800_trk240_hmt_L1TE120'],False]],
         ['hi_v2C_th05p_mb_sp5000_trk260_hmt_L1TE160', 'L1_TE160',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp5000_trk260_hmt_L1TE160'],False]],
@@ -1276,9 +1305,17 @@ def setupMenu():
         ['hi_v2C_th05p_mb_sp4500_trk220_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4500_trk220_hmt_L1TE30.0ETA24'],False]],
 
         # with pileup suppression
+        ['hi_v2A_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE200'],False]],
+        ['hi_v2C_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE200'],False]],
+        ['hi_v2A_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4500_pusup1000_trk220_hmt_L1TE200'],False]],
+        ['hi_v2C_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4500_pusup1000_trk220_hmt_L1TE200'],False]],
+        ['hi_v2A_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4800_pusup1100_trk240_hmt_L1TE200'],False]],
+        ['hi_v2C_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE200','L1_TE200',['',''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4800_pusup1100_trk240_hmt_L1TE200'],False]],
+
+
         ['hi_v2A_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE50'],False]],
-        ['hi_v2A_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE70'],False]],
-        ['hi_v2A_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE70'],False]],
         ['hi_v2A_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE120'],False]],
@@ -1289,8 +1326,8 @@ def setupMenu():
         ['hi_v2A_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE50'],False]],
-        ['hi_v2C_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE70'],False]],
-        ['hi_v2C_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp2100_pusup400_trk100_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2100_pusup400_trk100_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE70'],False]],
         ['hi_v2C_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE120'],False]],
@@ -1301,7 +1338,7 @@ def setupMenu():
         ['hi_v2C_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE50'],False]],
-        ['hi_v2A_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE70'],False]],
+#        ['hi_v2A_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE70'],False]],
         ['hi_v2A_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE90'],False]],
         ['hi_v2A_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4800_pusup1100_trk240_hmt_L1TE120'],False]],
         ['hi_v2A_th05p_mb_sp5000_pusup1200_trk260_hmt_L1TE160', 'L1_TE160',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp5000_pusup1200_trk260_hmt_L1TE160'],False]],
@@ -1309,7 +1346,7 @@ def setupMenu():
         ['hi_v2A_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE20.0ETA24', 'L1_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE20.0ETA24'],False]],
         ['hi_v2A_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4500_pusup1000_trk220_hmt_L1TE30.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE50', 'L1_TE50',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE50'],False]],
-        ['hi_v2C_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE70'],False]],
+#        ['hi_v2C_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE70'],False]],
         ['hi_v2C_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE90', 'L1_TE90',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE90'],False]],
         ['hi_v2C_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE120', 'L1_TE120',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4800_pusup1100_trk240_hmt_L1TE120'],False]],
         ['hi_v2C_th05p_mb_sp5000_pusup1200_trk260_hmt_L1TE160', 'L1_TE160',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp5000_pusup1200_trk260_hmt_L1TE160'],False]],
@@ -1317,6 +1354,33 @@ def setupMenu():
         ['hi_v2C_th05p_mb_sp3100_pusup700_trk160_hmt_L1TE20.0ETA24', 'L1_TE20.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3100_pusup700_trk160_hmt_L1TE20.0ETA24'],False]],
         ['hi_v2C_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE30.0ETA24', 'L1_TE30.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4500_pusup1000_trk220_hmt_L1TE30.0ETA24'],False]],
         
+        #ATR-15487
+		['hi_v2C_th05p_mb_sp2400_trk120_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_trk120_hmt_L1TE20'],False]],
+		['hi_v2C_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE20'],False]],
+		['hi_v2C_th05p_mb_sp2800_trk140_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_trk140_hmt_L1TE20'],False]],
+		['hi_v2C_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE20'],False]],
+
+		['hi_v2C_th05p_mb_sp3500_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_trk180_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2C_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2C_th05p_mb_sp4100_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_trk200_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2C_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE10.0ETA24'],False]],
+
+		['hi_v2C_th05p_mb_sp4100_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_trk200_hmt_L1TE15.0ETA24'],False]],
+		['hi_v2C_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2C_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE15.0ETA24'],False]],
+		
+		['hi_v2A_th05p_mb_sp2400_trk120_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_trk120_hmt_L1TE20'],False]],
+		['hi_v2A_th05p_mb_sp2400_pusup500_trk120_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2400_pusup500_trk120_hmt_L1TE20'],False]],
+		['hi_v2A_th05p_mb_sp2800_trk140_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_trk140_hmt_L1TE20'],False]],
+		['hi_v2A_th05p_mb_sp2800_pusup600_trk140_hmt_L1TE20', 'L1_TE20',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp2800_pusup600_trk140_hmt_L1TE20'],False]],
+
+		['hi_v2A_th05p_mb_sp3500_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_trk180_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2A_th05p_mb_sp3500_pusup800_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp3500_pusup800_trk180_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2A_th05p_mb_sp4100_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_trk200_hmt_L1TE10.0ETA24'],False]],
+		['hi_v2A_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE10.0ETA24'],False]],
+
+		['hi_v2A_th05p_mb_sp4100_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_trk200_hmt_L1TE15.0ETA24'],False]],
+		['hi_v2A_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24',  ['', ''], [MinBiasStream],["BW:EventShape", "RATE:HMT"], 1, ['serial', -1, ['hi_v2A_th05p', 'mb_sp4100_pusup900_trk200_hmt_L1TE15.0ETA24'],False]],
+		
 
 
         # mu +jet
@@ -1517,16 +1581,39 @@ def setupMenu():
 		['mb_sp3100_pusup700_trk160_hmt_L1TE50', 'L1_TE50', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp3500_trk180_hmt_L1TE50', 'L1_TE50', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp3500_pusup800_trk180_hmt_L1TE50', 'L1_TE50', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp3100_trk160_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp3100_pusup700_trk160_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp4100_trk200_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp4100_pusup900_trk200_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp4500_trk220_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-		['mb_sp4500_pusup1000_trk220_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+
+        ['mb_sp4800_pusup1100_trk240_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5000_pusup1100_trk240_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5200_pusup1200_trk260_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5400_pusup1200_trk260_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5600_pusup1300_trk260_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5600_pusup1300_trk280_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp5800_pusup1300_trk280_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6000_pusup1400_trk280_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6000_pusup1400_trk300_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6200_pusup1400_trk300_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6400_pusup1500_trk300_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6200_pusup1500_trk320_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sp6400_pusup1500_trk320_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        
+        # ['hi_v2A_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        # ['hi_v2C_th05p_mb_sp4100_pusup900_trk200_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        # ['hi_v2A_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        # ['hi_v2C_th05p_mb_sp4500_pusup1000_trk220_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        # ['hi_v2A_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        # ['hi_v2C_th05p_mb_sp4800_pusup1100_trk240_hmt_L1TE200','L1_TE200',[], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+#		['mb_sp2800_trk140_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp2800_pusup600_trk140_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp3100_trk160_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp3100_pusup700_trk160_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp3500_trk180_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp3500_pusup800_trk180_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp4100_trk200_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp4100_pusup900_trk200_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp4500_trk220_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+#		['mb_sp4500_pusup1000_trk220_hmt_L1TE70', 'L1_TE70', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp3100_trk160_hmt_L1TE90', 'L1_TE90', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp3100_pusup700_trk160_hmt_L1TE90', 'L1_TE90', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp3500_trk180_hmt_L1TE90', 'L1_TE90', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
@@ -1631,6 +1718,20 @@ def setupMenu():
 		['mb_sp5200_trk280_hmt_L1TE45.0ETA24', 'L1_TE45.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 		['mb_sp5200_pusup1300_trk280_hmt_L1TE45.0ETA24', 'L1_TE45.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         
+        #ATR-15487
+		['mb_sp2400_trk120_hmt_L1TE20', 'L1_TE20', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp2400_pusup500_trk120_hmt_L1TE20', 'L1_TE20', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp2800_trk140_hmt_L1TE20', 'L1_TE20', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp2800_pusup600_trk140_hmt_L1TE20', 'L1_TE20', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+		['mb_sp3500_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp3500_pusup800_trk180_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp4100_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp4100_pusup900_trk200_hmt_L1TE10.0ETA24', 'L1_TE10.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+		['mb_sp4100_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		['mb_sp4100_pusup900_trk200_hmt_L1TE15.0ETA24', 'L1_TE15.0ETA24', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+		
 		
         #performance
         
@@ -1799,7 +1900,7 @@ def setupMenu():
 	['noalg_mb_L1TE10',      'L1_TE10', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE20',      'L1_TE20', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     ['noalg_mb_L1TE50',      'L1_TE50', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-    ['noalg_mb_L1TE70',      'L1_TE70', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
+#    ['noalg_mb_L1TE70',      'L1_TE70', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
     ['noalg_mb_L1TE90',      'L1_TE90', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     ['noalg_mb_L1TE120',      'L1_TE120', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
     ['noalg_mb_L1TE160',      'L1_TE160', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
@@ -1843,7 +1944,10 @@ def setupMenu():
         ['zdcpeb_L1ZDC_C_UNPAIRED_ISO','L1_ZDC_C_UNPAIRED_ISO', [], ['zdcCalib'], ["BW:MinBias", "RATE:MinBias"], 1],
         ['zdcpeb_L1ZDC_A_UNPAIRED_NONISO','L1_ZDC_A_UNPAIRED_NONISO', [], ['zdcCalib'], ["BW:MinBias", "RATE:MinBias"], 1],
         ['zdcpeb_L1ZDC_C_UNPAIRED_NONISO','L1_ZDC_C_UNPAIRED_NONISO', [], ['zdcCalib'], ["BW:MinBias", "RATE:MinBias"], 1],
+	['zdcpeb_laser',   'L1_CALREQ2', [], ['zdcCalib'], ["BW:Detector", "RATE:Calibration"], -1],
+    ['zdcpeb_L1LHCF',       'L1_LHCF',       [], ['zdcCalib'], ["RATE:Calibration", "BW:Detector"], -1],    
 
+	
 	['noalg_mb_L1RD0_FILLED',      'L1_RD0_FILLED', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1RD0_EMPTY',       'L1_RD0_EMPTY', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1RD0_UNPAIRED_ISO','L1_RD0_UNPAIRED_ISO', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
@@ -2212,6 +2316,10 @@ def setupMenu():
         ['beamspot_activeTE_trkfast_peb_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         ['beamspot_allTE_trkfast_peb_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
         ['beamspot_trkFS_trkfast_L1J15', 'L1_J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        
+        ['beamspot_activeTE_trkfast_peb_L12J15', 'L1_2J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_peb_L12J15', 'L1_2J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_trkFS_trkfast_L12J15', 'L1_2J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
 
 	]
 

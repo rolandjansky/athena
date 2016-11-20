@@ -327,9 +327,9 @@ class ChainConfigMaker(object):
                      # requires corresponding change to generateJetChainDefs.py
                      ('j', 'test4', False, True): 'HLThypo', 
                      ('j', '', False, True): 'HLThypo2_dimass_deta',
-                     ('ht','test4', False, False): 'ht',
+                     ('ht','', False, False): 'ht',
+                     ('ht', 'test4', False, False):'HLThypo2_ht',
                      ('j', 'test4', True, False): 'tla',
-                     ('ht', '', False, False):'HLThypo2_ht',
                      ('j', '', True, False): 'HLThypo2_tla',}.get(
                          (part['trigType'],
                           self.test_flag,

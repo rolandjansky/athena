@@ -17,7 +17,7 @@ except ImportError:
     GeV = 1000.
 
 
-from eta_string_conversions import eta_string_to_strings
+from eta_string_conversions import eta_string_to_floats
 
 
 class Alg(object):
@@ -253,101 +253,6 @@ class AlgFactory(object):
 
         return [Alg(factory, (), kwds)]        
 
-    # def jr_hypo_single(self):
-    #    """
-    #    Skype discussion RC/P Sherwood
-    #    [21/01/15, 18:44:50] Ricardo Goncalo:
-    #    hypo parameters: ET, eta min, eta max
-
-    #     recoAlg:   'a4', 'a10', 'a10r'
-    #    dataType:  'TT', 'tc', 'cc'
-    #    calib:     'had', 'lcw', 'em'
-    #    jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
-    #    scan:      'FS','PS'
-
-    #    j65_btight_split_3j65_L13J25.0ETA22 ->
-    #                    EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
-    #    """
-        
-    #    assert len(self.hypo_params.jet_attributes) == 1
-    #    ja = self.hypo_params.jet_attributes[0]
-
-    #    # the hypo instance name is constructed from the
-    #    # last jet fex run.
-    #    name_extension = '_'.join([str(e) for  e in
-    #                               (int(ja.threshold * GeV),
-    #                                ja.eta_range,
-    #                                self.last_fex_params.fex_alg_name,
-    #                                self.last_fex_params.data_type,
-    #                                self.cluster_params.cluster_calib,
-    #                                self.last_fex_params.jet_calib,
-    #                                self.menu_data.scan_type)])
-        
-    #    name = '"EFJetHypo_j%s"' % name_extension
-
-    #    etaMin = str(ja.eta_min)
-    #    etaMax = str(ja.eta_max)
-    #    kargs = {}
-    
-    #    args = [name, str(GeV * ja.threshold), etaMin, etaMax]
-    
-    #    return [Alg('EFJetHypo', args, kargs)]
-
-    # jr_hypo removed 4/10/2016
-    # def jr_hypo(self):
-    # """
-    # Skype discussion R Goncalo/P Sherwood
-    # [21/01/15, 18:44:50] Ricardo Goncalo:
-    # hypo parameters: ET, eta min, eta max
-    # 
-    # recoAlg:   'a4', 'a10', 'a10r'
-    # dataType:  'TT', 'tc', 'cc', 'ion'
-    # calib:     'had', 'lcw', 'em'
-    # jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
-    # scan:      'FS','PS'
-    # 
-    # j65_btight_split_3j65_L13J25.0ETA22 ->
-    # EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
-    # """
-    # 
-    # 
-    # # assert len(self.hypo_params.jet_attributes) > 1
-    # 
-    # ja = self.hypo_params.attributes_toString()
-    # 
-    # # the hypo instance name is constructed from the
-    # # last jet fex run.
-    # name_extension = '_'.join([str(e) for  e in
-    # (ja,
-    # self.last_fex_params.fex_alg_name,
-    # self.last_fex_params.data_type,
-    # self.fex_params.cluster_calib,
-    # self.last_fex_params.jet_calib,
-    # self.menu_data.scan_type)])
-    # 
-    # # name = '"EFCentFullScanMultiJetHypo_%s"' % name_extension
-    # name = '"EFCentFullScanMultiJetHypo_%s"' % self.chain_name_esc
-    # hypo = self.menu_data.hypo_params
-    # 
-    # etaMin = hypo.jet_attributes[0].eta_min
-    # etaMax = hypo.jet_attributes[0].eta_max
-    # 
-    # kargs = {'multiplicity': len(hypo.jet_attributes),
-    # 'ef_thrs': [j.threshold * GeV for j in hypo.jet_attributes],
-    # 'etaMin': etaMin,
-    # 'etaMax': etaMax,
-    # }
-    # 
-    # # the class name EFCentFullScanMultiJetHypo is a misnomer:
-    # # it sets up a C++ algorithm that is neither necessarily
-    # # central, not multi-jet.
-    # # It will now be used for single and multjets, and where
-    # # any eta range can be set.
-    # return [Alg(
-    # 'EFCentFullScanMultiJetHypo',
-    # (name,),
-    # kargs)]
-    # 
 
     def etaet_kargs(self, algType, strategy):
 
@@ -392,34 +297,6 @@ class AlgFactory(object):
         }
 
         return kargs
-
-    def hlthypo_EtaEt(self):
-        """ method to replace jr_hypo
-
-        Skype discussion R Goncalo/P Sherwood
-        [21/01/15, 18:44:50] Ricardo Goncalo:
-        hypo parameters: ET, eta min, eta max
-
-        recoAlg:   'a4', 'a10', 'a10r'
-        dataType:  'TT', 'tc', 'cc'
-        calib:     'had', 'lcw', 'em'
-        jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
-        scan:      'FS','PS'
-
-        j65_btight_split_3j65_L13J25.0ETA22 ->
-                        EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
-        """
-
-        
-        # assert len(self.hypo_params.jet_attributes) > 1
-        algType = 'TrigHLTJetHypo'
-        kargs = self.etaet_kargs(algType, 'etaet')
-
-        matchingAlg = self.hypo_params.matcher
-        kargs['matchingAlg'] = '"%s"' % matchingAlg
-
-        return [Alg(algType, (), kargs)]
-
 
     def hlthypo2_EtaEt(self):
         """ run TrigHLTJetHypo2 with hypoStrategy EtaEt """
@@ -468,12 +345,6 @@ class AlgFactory(object):
         return kargs
 
 
-    def hlthypo_tla(self):
-        algType = 'TrigHLTJetHypo'
-        kargs = self.tla_kargs(algType)
-        return [Alg(algType,(), kargs)]
-
-
     def hlthypo2_tla(self):
 
         algType = 'TrigHLTJetHypo2'
@@ -508,21 +379,6 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
-    # def hlt_hypo_test1(self):
-    #    return self._hlt_hypo(cleaningAlg='noCleaning',
-    #                          matchingAlg='orderedCollections')
-    #
-    #
-    # def hlt_hypo_test2(self):
-    #     return self._hlt_hypo(cleaningAlg='noCleaning',
-    #                          matchingAlg='maximumBipartite')
-    #
-    # 
-    # def hlt_hypo_test3(self):
-    #    return self._hlt_hypo(cleaningAlg='basicCleaning',
-    #                          matchingAlg='orderedCollections')
-
-
     def ht_kargs(self, algType):
         """set up a HT hypo"""
     
@@ -535,36 +391,28 @@ class AlgFactory(object):
             self.last_fex_params.jet_calib,
             self.menu_data.scan_type)])
 
-        # name = '"EFHTHypo_%s"' % name_extension
         name = '"%s_ht_%s"' % (algType, name_extension)
-        # name = '"%s_%s"' % (algType, self.chain_name_esc)
 
-        eta_min, eta_max = eta_string_to_strings(eta_range)
+        eta_min, eta_max = eta_string_to_floats(eta_range)
+
+        # eta_max = 100.*eta_max # WRONG!! TEMPORARY, tracking down a bug ONLY
         kargs = {'name': name,
                  'chain_name':  "'%s'" % self.chain_config.chain_name,
-                 'eta_min': eta_min,
-                 'eta_max': eta_max,
-                 'HT_cut': self.hypo_params.ht_threshold * GeV,
-                 'Et_cut': self.hypo_params.jet_et_threshold * GeV
+                 'eta_mins': [eta_min],
+                 'eta_maxs': [eta_max],
+                 'htMin': self.hypo_params.ht_threshold * GeV,
+                 'EtThresholds': [self.hypo_params.jet_et_threshold * GeV],
+                 'hypoStrategy': '"HT"',
                  }
                  
         return kargs
 
 
-    def ht_hypo(self):
-        """set up an HT hypo"""
-
-        algType = 'EFHLTHT'
-        kargs = self.ht_kargs(algType)
-        return [Alg(algType, (), kargs)]
-
-
     def hlthypo2_ht(self):
         """set up an HT hypo"""
 
-        algType = 'HLTHypo2_ht'
+        algType = 'TrigHLTJetHypo2'
         kargs = self.ht_kargs(algType)
-        kargs['hypoStrategy'] = '"HT"'
         return [Alg(algType, (), kargs)]
 
 
@@ -824,23 +672,3 @@ class AlgFactory(object):
     def getDataScoutingAlgs2(self):
         return self.getDataScoutingAlgs()
 
-
-# old code....
-# NEEDS UPDATING FOR ETA RANGE HANDLING
-# def jr_hypo_testCleaning(params):
-# 
-#     assert len(params.hypo_data) == 1
-#     hd = params.hypo_data[0]
-# 
-#     if hd.eta_region == 'j':
-#         factory = 'EFJetHypo_doBasicCleaning'
-#         arg0 = '"EFJetHypo_doBasicCleaning_%s"' % hd.sig
-#     elif hd.eta_region == 'fj':
-#         factory = 'EFFwdJetHypo_doBasicCleaning'
-#         arg0 = '"EFFwdJetHypo_doBasicCleaning_%s"' % hd.sig
-#     else:
-#         assert False
-# 
-#     return Alg(factory, (arg0, str(GeV * hd.threshold)), {})
-# 
-#

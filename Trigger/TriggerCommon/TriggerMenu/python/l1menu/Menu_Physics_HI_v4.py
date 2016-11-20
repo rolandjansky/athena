@@ -78,7 +78,9 @@ def defineMenu():
         # 24 x 1-bit thresholds
         
         # 8 x TE
-        'TE5', 'TE10', 'TE20', 'TE50', 'TE70', 'TE90', 'TE120', 'TE160',
+        'TE5', 'TE10', 'TE20', 'TE50', 
+#'TE70', 
+        'TE90', 'TE120', 'TE160', 'TE200',
         
         # 8 x XE
         'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
@@ -395,10 +397,11 @@ def defineMenu():
                        'L1_TE10',
                        'L1_TE20',
                        'L1_TE50',
-                       'L1_TE70',
+#                       'L1_TE70',
                        'L1_TE90',
                        'L1_TE120',
                        'L1_TE160', 
+                       'L1_TE200', 
                        'L1_TE5_NZ',
 		       #'L1_TE5_VTE200',
 		       # restricted TE
@@ -523,7 +526,7 @@ def defineMenu():
                        'L1_2MU4_VTE10',
 
                        'L1_MU4_TE50',
-                       'L1_MU4_TE70',
+#                       'L1_MU4_TE70',
                        'L1_MU4_TE90',
                        'L1_MU4_TE120',
                        'L1_MU4_TE160',
@@ -882,7 +885,7 @@ def defineMenu():
         #'L1_MU4_VTE50' : 38,
         #'L1_MU4_MV_VTE50' : 39,
         'L1_ZDC_A_C_OVERLAY' : 40,
-        'L1_MU4_TE70' : 41,
+#        'L1_MU4_TE70' : 41,
         #'L1_ZDC_A_C_TE50' : 42,
         'L1_MU4_TE50' : 43,
         'L1_MU4_TE90' : 44,
@@ -972,7 +975,8 @@ def defineMenu():
         'L1_TE5' : 132,
         'L1_TE10' : 133,
         'L1_TE20' : 134,
-        'L1_TE70' : 138,
+        #'L1_TE70' : 138,
+        'L1_TE200' : 138,
         'L1_TE50' : 136,
         'L1_TE160' : 135,
         'L1_MBTSA3' : 137,

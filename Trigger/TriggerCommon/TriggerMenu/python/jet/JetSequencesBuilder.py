@@ -380,19 +380,7 @@ class JetSequencesBuilder(object):
         # alias = alias_base  # copy
         alias = 'noCleaning%s_%s' % (hypo.hypo_type, self.chain_name_esc)
                          
-        function_map  = {
-            'HLThypo': self.alg_factory.hlthypo_EtaEt,  # maxbipartitite matcher
-            'HLTSRhypo': self.alg_factory.hlthypo_EtaEt,  # 1 EtaRegion matcher
-            # 'run1hypo': self.alg_factory.jr_hypo,
-            'HLThypo2_etaet': self.alg_factory.hlthypo2_EtaEt,
-            }
-
-        f = function_map.get(hypo.hypo_type, None)
-
-        if f is None:
-            msg = '%s._make_jh: unknown hypo_type: %s' % (
-                self.__class__.__name__, str(hypo.hypo_type))
-            raise RuntimeError(msg)
+        f = self.alg_factory.hlthypo2_EtaEt
 
         return AlgList(f(), alias)
 
@@ -400,26 +388,14 @@ class JetSequencesBuilder(object):
     def make_jh_ht(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
 
-        function_map  = {
-            'HT': self.alg_factory.ht_hypo, 
-            'HLThypo2_ht': self.alg_factory.hlthypo2_ht,  
-        }
-
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        f = function_map.get(hypo.hypo_type, None)
+        f = self.alg_factory.hlthypo2_ht
 
-        if f is None:
-            msg = '%s._make_jh: unknown hypo_type: %s' % (
-                self.__class__.__name__, str(hypo.hypo_type))
-            raise RuntimeError(msg)
-
-        
         hypo = menu_data.hypo_params
-        # alias = 'hthypo_%s' % str(hypo.attributes_toString())
         alias = 'hthypo_%s' % self.chain_name_esc
 
-        return AlgList(self.alg_factory.ht_hypo(), alias)
+        return AlgList(f(), alias)
 
 
     def make_jh_dimass_deta(self):
@@ -441,19 +417,9 @@ class JetSequencesBuilder(object):
     def make_jh_tla(self):
         """Create an alg_list for the TLA hypo"""
 
-        function_map  = {
-            'tla': self.alg_factory.hlthypo_tla, 
-            'HLThypo2_tla': self.alg_factory.hlthypo2_tla,  
-            }
-
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        f = function_map.get(hypo.hypo_type, None)
-
-        if f is None:
-            msg = '%s._make_jh: unknown hypo_type: %s' % (
-                self.__class__.__name__, str(hypo.hypo_type))
-            raise RuntimeError(msg)
+        f = self.alg_factory.hlthypo2_tla
 
         hypo = menu_data.hypo_params
         # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
