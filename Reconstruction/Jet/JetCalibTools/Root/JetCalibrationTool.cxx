@@ -17,27 +17,9 @@
 // Constructors
 ////////////////
 
-//Default constructor -- likely to be used by Athena based analyses
-JetCalibrationTool::JetCalibrationTool()
-  : asg::AsgTool( "JetCalibrationTool::JetCalibrationTool" ),  JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_mass(false), m_rhoKey(""), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
-{ 
-
-  declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
-  declareProperty( "RhoKey", m_rhoKey = "auto" );
-  declareProperty( "ConfigFile", m_config = "" );
-  declareProperty( "CalibSequence", m_calibSeq = "JetArea_Residual_AbsoluteEtaJES_Insitu" );
-  declareProperty( "IsData", m_isData = true );
-  declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
-  declareProperty( "EventInfoName", m_eInfoName = "EventInfo" );
-
-}
-
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : asg::AsgTool( name ),  JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_mass(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_devMode(false), m_isData(true), m_mass(false), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), 
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
 { 
@@ -49,16 +31,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "IsData", m_isData = true );
   declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
-
-}
-
-//Contructor for Root based analyses
-JetCalibrationTool::JetCalibrationTool(const std::string& name, TString jetAlgo, TString config, TString calibSeq, bool isData, bool mass, TString rhoKey, TString dir, TString eInfoName)
-  : asg::AsgTool( name ),
-    m_jetAlgo(jetAlgo), m_config(config), m_calibSeq(calibSeq), m_calibAreaTag(""), m_devMode(false), m_isData(isData), m_mass(mass), m_rhoKey(rhoKey), m_dir(dir), m_eInfoName(eInfoName), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), 
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL)
-{ 
+  declareProperty( "DoSetDetectorEta", m_doSetDetectorEta=true);
 
 }
 
@@ -110,7 +83,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-71/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-73/"); // Hard-coding the CalibArea tag
   if(calibSeq.Contains("DEV")){
     m_devMode = true;
     ATH_MSG_WARNING("Dev Mode is ON!!! \n\n");
@@ -141,15 +114,24 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   //Set the default units to MeV, user can override by calling setUnitsGeV(true)
   setUnitsGeV(false);
 
+  // Origin-corrected clusters? (true for rel21 and/or 2.5.X)
+  m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
+
   //Make sure the residual correction is turned on if requested, protect against applying it without the jet area subtraction                    
   if ( !calibSeq.Contains("JetArea") && !calibSeq.Contains("Residual") ) {
     m_doJetArea = false;
     m_doResidual = false;
   } else if ( calibSeq.Contains("JetArea") ) {
     if ( m_rhoKey.compare("auto") == 0 ) {
-      if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoEventShape";
-      else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoEventShape";
-      else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
+      if(!m_originCorrectedClusters){
+        if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoEventShape";
+        else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoEventShape";
+        else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
+      } else{
+        if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoOriginEventShape";
+        else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoOriginEventShape";
+        else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
+      }
     }
     if ( !calibSeq.Contains("Residual") ) m_doResidual = false;
   } else if ( !calibSeq.Contains("JetArea") && calibSeq.Contains("Residual") ) {
@@ -165,6 +147,30 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   if ( calibSeq.Contains("Insitu") && !m_isData ) {
     ATH_MSG_FATAL("JetCalibrationTool::initializeTool : calibSeq string contains Insitu with isData set to false. Can't apply in-situ correction to MC!!");
     return StatusCode::FAILURE;
+  }
+
+  // Time-Dependent Insitu Calibration
+  m_timeDependentCalib = m_globalConfig->GetValue("TimeDependentInsituCalibration",false);
+  if(m_timeDependentCalib){ // Read Insitu Configs
+    m_timeDependentInsituConfigs = JetCalibUtils::Vectorize( m_globalConfig->GetValue("InsituTimeDependentConfigs","") );
+    if(m_timeDependentInsituConfigs.size()==0) ATH_MSG_ERROR("Please check there are at least two insitu configs");
+    m_runBins = JetCalibUtils::VectorizeD( m_globalConfig->GetValue("InsituRunBins","") );
+    if(m_runBins.size()!=m_timeDependentInsituConfigs.size()+1) ATH_MSG_ERROR("Please check the insitu run bins");
+    for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
+      //InsituDataCorrection *insituTemp = NULL;
+      //m_insituTimeDependentCorr.push_back(insituTemp);
+
+      std::string configPath_insitu = dir+m_timeDependentInsituConfigs.at(i).Data(); // Full path
+      TString fn_insitu =  PathResolverFindCalibFile(configPath_insitu);
+
+      ATH_MSG_INFO("Reading time-dependent insitu settings from: " << m_timeDependentInsituConfigs.at(i));
+      ATH_MSG_INFO("resolved in: " << fn_insitu);
+  
+      TEnv *m_globalConfig_insitu = new TEnv();
+      int status = m_globalConfig_insitu->ReadFile(fn_insitu ,EEnvLevel(0));
+      if (status!=0) { ATH_MSG_FATAL("Cannot read config file " << fn_insitu ); return StatusCode::FAILURE; }
+      m_globalTimeDependentConfigs.push_back(m_globalConfig_insitu);
+    }
   }
 
   //Loop over the request calib sequence
@@ -253,16 +259,33 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       return StatusCode::SUCCESS;
     }
   } else if ( calibration.EqualTo("Insitu") ) {
-    ATH_MSG_INFO("Initializing Insitu correction.");
-    suffix="_Insitu";
-    if(m_devMode) suffix+="_DEV";
-    m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
-    m_insituDataCorr->msg().setLevel( this->msg().level() );
-    if ( m_insituDataCorr->initializeTool(name+suffix).isFailure() ) {
-      ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
-      return StatusCode::FAILURE; 
-    } else { 
-      m_calibClasses.push_back(m_insituDataCorr); 
+    if(!m_timeDependentCalib){
+      ATH_MSG_INFO("Initializing Insitu correction.");
+      suffix="_Insitu";
+      if(m_devMode) suffix+="_DEV";
+      m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
+      m_insituDataCorr->msg().setLevel( this->msg().level() );
+      if ( m_insituDataCorr->initializeTool(name+suffix).isFailure() ) {
+        ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
+        return StatusCode::FAILURE; 
+      } else { 
+        m_calibClasses.push_back(m_insituDataCorr); 
+        return StatusCode::SUCCESS; 
+      }
+    } else{
+      ATH_MSG_INFO("Initializing Time-Dependent Insitu Corrections");
+      for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
+        suffix="_Insitu"; suffix += "_"; suffix += std::to_string(i);
+        if(m_devMode) suffix+="_DEV";
+        InsituDataCorrection *m_insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibAreaTag,m_devMode);
+        m_insituTimeDependentCorr_Tmp->msg().setLevel( this->msg().level() );
+        if ( m_insituTimeDependentCorr_Tmp->initializeTool(name+suffix).isFailure() ) {
+          ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
+          return StatusCode::FAILURE; 
+        } else {     		
+          m_insituTimeDependentCorr.push_back(m_insituTimeDependentCorr_Tmp); 
+        }
+      }
       return StatusCode::SUCCESS; 
     }
   }
@@ -494,9 +517,24 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
     jet.setAttribute<int>("PileupCorrected",false);
 
   ATH_MSG_VERBOSE("Calibrating jet " << jet.index());
-  xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
-  jet.setAttribute<float>("DetectorEta",jetconstitP4.eta()); //saving constituent scale eta for later use
+  if(m_doSetDetectorEta) {
+    xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
+    jet.setAttribute<float>("DetectorEta",jetconstitP4.eta()); //saving constituent scale eta for later use
+  }
   for (unsigned int i=0; i<m_calibClasses.size(); ++i) //Loop over requested calibations
     ATH_CHECK ( m_calibClasses[i]->calibrateImpl(jet,jetEventInfo) );
+  TString CalibSeq = m_calibSeq;
+  if(CalibSeq.Contains("Insitu") && m_timeDependentCalib){ // Insitu Time-Dependent Correction
+    for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
+      // Retrive EventInfo container
+      const xAOD::EventInfo* eventInfo(nullptr);
+      if( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
+          ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
+      }
+      // Run Number Dependent Correction
+      double runNumber = eventInfo->runNumber();
+      if(runNumber>m_runBins.at(i) && runNumber<=m_runBins.at(i+1)){ ATH_CHECK ( m_insituTimeDependentCorr.at(i)->calibrateImpl(jet,jetEventInfo) );}
+    }
+  }
   return StatusCode::SUCCESS; 
 }

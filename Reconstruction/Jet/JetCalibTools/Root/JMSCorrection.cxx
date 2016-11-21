@@ -93,6 +93,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 
   // Shoulb be applied the mass combination?
   m_combination = m_config->GetValue("Combination",false); // true: turn on combination of calo mass with track-assisted mass
+  m_useCorrelatedWeights = m_config->GetValue("UseCorrelatedWeights",false); // true: turn on combination of calo mass with track-assisted mass
 
   // Track-Assisted Jet Mass correction
   m_trackAssistedJetMassCorr = m_config->GetValue("TrackAssistedJetMassCorr",false);
@@ -428,11 +429,13 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       calibP4_ta.SetPxPyPzE( TLVjet_ta.Px(), TLVjet_ta.Py(), TLVjet_ta.Pz(), TLVjet_ta.E() );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",calibP4_ta);
 
-      float m_comb = m_calo;
+      float  m_comb  = m_calo;  // combined mass
       double pT_comb = pT_calo;
 
       // if one of the mass is null, use the other one
-      if( (m_comb==0) || (mass_corr==0) ) { m_comb = mass_corr+m_comb; }
+      if( (m_comb==0) || (mass_corr==0) ) { 
+        m_comb = mass_corr+m_comb;
+      }
       else {
         // Determine mass combination eta bin to use
         int etabin=-99;
@@ -455,17 +458,20 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 	  }
 	  const double relCalo = getRelCalo( pT_calo/m_GeV, m_calo/pT_calo, etabin );
 	  const double relTA   = getRelTA( pT_calo/m_GeV, m_ta/pT_calo, etabin );
-	  const double rho     = getRho( pT_calo/m_GeV, m_calo/pT_calo, etabin);
+	  const double rho     = ( m_useCorrelatedWeights ? getRho( pT_calo/m_GeV, m_calo/pT_calo, etabin ) : 0);
           // Watch for division by zero
-          if (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0){
-            ATH_MSG_FATAL("Encountered division by zero when calculating mass combination weight");
+          if(m_useCorrelatedWeights && (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0)){
+            ATH_MSG_ERROR("Encountered division by zero when calculating mass combination weight using correlated weights");
             return StatusCode::FAILURE;
           }
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
-  	  m_comb  =  ( m_calo * Weight ) + ( m_ta * ( 1 - Weight) );
-          if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-m_comb*m_comb)/cosh( jetStartP4.eta() );
+  	  m_comb =  ( m_calo * Weight ) + ( m_ta * ( 1 - Weight) );
+	  // Protection
+	  if(m_comb>jetStartP4.e()) m_comb = m_calo;
+	  else if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-m_comb*m_comb)/cosh( jetStartP4.eta() );
         }
       }
+
 
       TLorentzVector TLVjet;
       TLVjet.SetPtEtaPhiM( pT_comb, jetStartP4.eta(), jetStartP4.phi(), m_comb );
