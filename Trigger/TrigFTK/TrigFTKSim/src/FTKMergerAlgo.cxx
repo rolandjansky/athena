@@ -1070,9 +1070,14 @@ StatusCode FTKMergerAlgo::mergeSGContent()
     // compose the track container name
     ostringstream track_contname;
     track_contname << "FTKTracks" << ibank << ends;
-    const char *Ccontname = track_contname.str().c_str();
 
-    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname)) {
+    //    const char *Ccontname = track_contname.str().c_str();
+    //    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname)) {
+
+    const std::string Ccontname=track_contname.str();
+    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname.c_str())) {
+
+
       const DataHandle<FTKAthTrackContainer> ftktracks_cont;
       StatusCode sc = m_StoreGate->retrieve(ftktracks_cont,Ccontname);
       if (!sc.isSuccess()) {

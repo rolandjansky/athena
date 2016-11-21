@@ -992,7 +992,7 @@ void averageCluster(cluster &clu) {
 		etaRow = qRowMax/float(qRowMin+qRowMax);
 	      if(qColMin+qColMax > 0) 
 		etaCol = qColMax/float(qColMin+qColMax);
-	      double test = 0; 
+	      ///	      double test = 0; 
 	      int etaRow32 = 0; 
 	      int etaCol32 =0; 
 	      etaRow32 = lround(etaRow*32); 
@@ -1004,7 +1004,7 @@ void averageCluster(cluster &clu) {
 		
 		if ( (etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) > 0){
 		  if ( sensorThickness*((etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * moduleActiveLength / radius)>etaPitch) {
-		    test = etaPitch; 
+		    ///		    test = etaPitch; 
 		    eta_average+= pixYScaleFactor*(etaCol-0.5);
 		    eta_average = lround(eta_average); 
 		  } 
@@ -1013,7 +1013,7 @@ void averageCluster(cluster &clu) {
 		}
 		else{ 
 		  if ( sensorThickness*(-1*(etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * moduleActiveLength / radius)>etaPitch) {
-		    test = etaPitch; 
+		    ///		    test = etaPitch; 
 		    eta_average+= pixYScaleFactor*(etaCol-0.5);
 		    eta_average = lround(eta_average); 
 		  }

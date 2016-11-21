@@ -8,9 +8,14 @@
 #include <iostream>
 #include "TChain.h"
 #include "TBranch.h"
+#include "TH2D.h"
 
 #define MAXTOWER 64
 #define MAXL 8
+
+#define HIST_MAXBINS 100
+
+#define TTREE_NAME "ftkdata"
 
 using namespace std;
 
@@ -27,6 +32,7 @@ FTKTrackStream *trackstream[MAXTOWER];
 
 // events to run over
 Int_t events;
+
 unsigned int nloop;
 double divide;
 
@@ -36,16 +42,24 @@ std::string output;
 // output location in tex
 std::string outputTeX;
 
+// output location in root
+std::string outputRoot;
+TFile *outputRootFile;
+TH2D *outputHistAvg,*outputHistMin,*outputHistMax;
+
 std::string description;
 
 // number of towers
 Int_t ntower;
+std::vector<bool> activeTower;
 
 // List of input files
 std::vector<std::string> files;
 
 // Input files
 TChain *ch;
+std::vector<std::pair<size_t,std::vector<bool> > > towersPerFile;
+
 
 void Init();
 void Process(unsigned int ientry);

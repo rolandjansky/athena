@@ -621,7 +621,8 @@ void TrackFitter711::processor(const FTKRoad &road) {
 
     processor_Incomplete(road,road_tracks);
 
-    processor_ResolutionMode(road,road_tracks);
+    // JAAA not used anymore
+    //    processor_ResolutionMode(road,road_tracks);
   }
   else {     // performe the fits of the incomplete set of constants
     list<FTKTrack> road_tracks; // list 7L tracks for this road
@@ -2316,6 +2317,14 @@ TrackFitter711::compute_truth_incomplete(const unsigned int& /*ibank*/,const FTK
     - 7L fit parameters
     - Using the 7L fit parameters the resolution in the extrapolation
 */
+
+// void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
+//                                               list<FTKTrack> &road_tracks) {
+//   return;
+// }
+
+/* JAA has commented this out since it has bugs and isn't used anymore. We should remove it in the future! */
+/*
 void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
                                               list<FTKTrack> &road_tracks)
 {
@@ -2418,7 +2427,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       int cix = m_CImap_eff[ix];
       newtrk.setCoord(cix,curtrackI.getCoord(ix));
 
-      /* the real mask has 1 only in layers with hits */
+//       the real mask has 1 only in layers with hits 
       cbitmask_real |= ((curtrackI.getBitmask()&(1<<ix))>>ix)<<cix;
     }
 
@@ -2578,8 +2587,8 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       bounds[ip] = new int[2];
       //bounds[ip] = new int[2*ndim];
 
-      /* use the module id to extract the phi id and the eta id,
-         in particular for modules the ID is phiid*1000+etaid */
+      //       use the module id to extract the phi id and the eta id,
+      // in particular for modules the ID is phiid*1000+etaid 
       const int &moduleID = m_FC_relations[region][subreg]->getSimilarStereoIDs(sector,best_connection)[ip];
       float phiwindow = m_ssmap_complete->getMap(m_idplanes_eff[ip], missing_section[ip], 0).m_phiwidth - 0.001;
       float etawindow = m_ssmap_complete->getMap(m_idplanes_eff[ip], missing_section[ip], 0).m_etawidth - 0.001;
@@ -2689,14 +2698,18 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
           const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode())+ss_shiftEta;
 
           // skip SS out of the current module boundaries
-          if (/*(ndim==1)&&*/(tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
+          //if ((ndim==1)&&(tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
+          //  continue;
+
+	  if ((tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
             continue;
+            
           //else if ((ndim==2)&&(tmpSS<bounds[ip][2]||tmpSS>bounds[ip][3])) // TODO: implement proper eta window check
           //  continue;
 
-          /* refers to the unused layers with the general relation
-             used in the barrel, doesn't take into account the possible
-             inversion in some endcap layer */
+          // refers to the unused layers with the general relation
+          //    used in the barrel, doesn't take into account the possible
+          //    inversion in some endcap layer 
           const FTKSS &ss = m_roadinput->getUnusedSS(road.getRegion(), m_idplanes[ip], tmpSS);
 
           if (isDebugSuperExp())
@@ -2777,10 +2790,10 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     //  continue;
 
     if (nmissing_more<=m_max_missing_extraplanes) {
-      /*
-       * Do additional fits using the hits in the SCT layers not used
-       * in the first step
-       */
+      // 
+      //  * Do additional fits using the hits in the SCT layers not used
+      //  * in the first step
+      //  
 
       // the number of missing points depends only by the last step,
       // the MJ hits in the first step are used as real hits
@@ -2903,7 +2916,8 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
   delete [] missing_section;
 
 }
-
+// END COMMENT OUT DEPRECATED FUNCTION BY JAA
+*/
 
 void TrackFitter711::printBinary(int number, int total) {
   int count = 0;

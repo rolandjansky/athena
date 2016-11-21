@@ -36,8 +36,6 @@ private:
   
   int m_ntracksI; // number of stored tracks in the intermediate step
 
-  int m_nconn;
-  int m_nextrapolatedTracks;
   TClonesArray *m_tracksI; //-> list of stored tracks in the intermedieate step
 
 
@@ -53,6 +51,8 @@ private:
   int m_nfits_rejI;
   int m_nfits_badmajI;
   int m_nfits_rejmajI;
+  int m_nconn;
+  int m_nextrapolatedTracks;
 
   std::map< std::pair<int,int>, int > m_trackIdMap; //! Not saved on disk.  
   // Used to optimize the findTrack function. 
