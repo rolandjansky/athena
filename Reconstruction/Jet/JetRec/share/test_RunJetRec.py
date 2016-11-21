@@ -45,7 +45,9 @@ if 0:
   infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_0_2_1._lb0186._SFO-1._0001.pool.root.1"
 else:
   # rdotoesd result from Dec05 devval rel_6
-  infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
+  #infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
+  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.20_7_.039772.pool.root.1"
+
 
 # Flag to show messges while running.
 #   0 - no messages
@@ -108,11 +110,11 @@ if len(vertexCollectionName):
   jtm.tvassoc.VertexContainer = vertexCollectionName
   jtm.tvassoc.lock()
 
-if 0:
+if 1:
   print myname + "Setting output level to VERBOSE for all jetrecs"
   for jetrec in jtm.jetrecs:
     jtm.setOutputLevel(jetrec, VERBOSE)
-elif 0:
+elif 1:
   print myname + "Setting output level to DEBUG for all jetrecs"
   for jetrec in jtm.jetrecs:
     jtm.setOutputLevel(jetrec, DEBUG)
@@ -240,7 +242,7 @@ for name in names:
   jdmp.MaxObject = 20
   jdmp.IntMoments = ["AlgorithmType", "InputType"]
   jdmp.IntMoments += ["ConstituentScale"]
-  if isTopo:
+  if isTopo and isAntiKt4:
     jdmp.IntMoments += ["OriginCorrected"]
     jdmp.IntMoments += ["PileupCorrected"]
   if jetFlags.useMuonSegments() and isTopo:
@@ -265,14 +267,14 @@ for name in names:
     jdmp.IntMoments += ["GhostTrackCount"]
     jdmp.FloatMoments += ["GhostTrackPt"]
     jdmp.FloatMoments += ["Charge"]
-    jdmp.FloatMoments += ["ShowerDeconstructionW"]
-    jdmp.FloatMoments += ["ShowerDeconstructionTop"]
+    #jdmp.FloatMoments += ["ShowerDeconstructionW"]
+    #jdmp.FloatMoments += ["ShowerDeconstructionTop"]
     if isTrackJetTagged:
       jdmp.IntMoments += ["GhostAntiKt2TrackJetCount"]
-      jdmp.IntMoments += ["GhostAntiKt3TrackJetCount"]
+      #jdmp.IntMoments += ["GhostAntiKt3TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt4TrackJetCount"]
       jdmp.FloatMoments += ["GhostAntiKt2TrackJetPt"]
-      jdmp.FloatMoments += ["GhostAntiKt3TrackJetPt"]
+      #jdmp.FloatMoments += ["GhostAntiKt3TrackJetPt"]
       jdmp.FloatMoments += ["GhostAntiKt4TrackJetPt"]
     if isTopo and isAntiKt4:
       jdmp.FloatMoments += ["GhostTrackAssociationFraction"]
@@ -293,34 +295,34 @@ for name in names:
       jdmp.FloatMoments += ["OotFracClusters5", "OotFracClusters10", "FracSamplingMax"]
     jdmp.FloatMoments += ["BchCorrCell"]
     #jdmp.FloatMoments += ["BchCorrDotxc", "BchCorrJet", "BchCorrJetForCell"]
-    jdmp.FloatMoments += ["PullMag", "PullPhi"]
-    jdmp.FloatMoments += ["Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
-  jdmp.FloatMoments += ["IsoDelta2SumPt"]
-  jdmp.FloatMoments += ["IsoDelta3SumPt"]
+    #jdmp.FloatMoments += ["PullMag", "PullPhi"]
+    #jdmp.FloatMoments += ["Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
+  #jdmp.FloatMoments += ["IsoDelta2SumPt"]
+  #jdmp.FloatMoments += ["IsoDelta3SumPt"]
   jdmp.FloatMoments += ["Width"]
-  jdmp.FloatMoments += ["KtDR"]
+  #jdmp.FloatMoments += ["KtDR"]
   if useLArHVCorr:
     jdmp.FloatMoments += ["LArBadHVEnergyFrac", "LArBadHVNCellFrac"]
-  jdmp.FloatMoments += ["Tau1", "Tau2", "Tau3"]
-  jdmp.FloatMoments += ["Split12", "Split23", "Split34", "ZCut12", "ZCut23", "ZCut34"]
-  jdmp.FloatMoments += ["Angularity"]
-  jdmp.FloatMoments += ["Dip12", "Dip13", "Dip23", "DipExcl12"]
-  jdmp.FloatMoments += ["PlanarFlow"]
-  jdmp.FloatMoments += ["Mu12"]
-  jdmp.FloatMoments += ["ECF1", "ECF2", "ECF3"]
+  #jdmp.FloatMoments += ["Tau1", "Tau2", "Tau3"]
+  #jdmp.FloatMoments += ["Split12", "Split23", "Split34", "ZCut12", "ZCut23", "ZCut34"]
+  #jdmp.FloatMoments += ["Angularity"]
+  #jdmp.FloatMoments += ["Dip12", "Dip13", "Dip23", "DipExcl12"]
+  #jdmp.FloatMoments += ["PlanarFlow"]
+  #jdmp.FloatMoments += ["Mu12"]
+  #jdmp.FloatMoments += ["ECF1", "ECF2", "ECF3"]
   if isTopo and jetFlags.useTracks():
     jdmp.FloatMoments += ["Jvt"]
     jdmp.FloatMoments += ["JvtRpt"]
     jdmp.FloatMoments += ["JvtJvfcorr"]
-  if not "comshapes" in jetFlags.skipTools():
-    jdmp.FloatMoments += ["ThrustMin", "ThrustMaj"]
-    jdmp.FloatMoments += ["FoxWolfram0","FoxWolfram1", "FoxWolfram2", "FoxWolfram3", "FoxWolfram4"]
-    jdmp.FloatMoments += ["Sphericity", "Aplanarity"]
+  #if not "comshapes" in jetFlags.skipTools():
+    #jdmp.FloatMoments += ["ThrustMin", "ThrustMaj"]
+    #jdmp.FloatMoments += ["FoxWolfram0","FoxWolfram1", "FoxWolfram2", "FoxWolfram3", "FoxWolfram4"]
+    #jdmp.FloatMoments += ["Sphericity", "Aplanarity"]
   jdmp.FourVectorMoments = []
   jdmp.FourVectorMoments += ["jetP4()"]
   jdmp.FourVectorMoments += ["JetConstitScaleMomentum"]
   if isTopo:
-    jdmp.FourVectorMoments += ["JetOriginConstitScaleMomentum"]
+    #jdmp.FourVectorMoments += ["JetOriginConstitScaleMomentum"]
     jdmp.FourVectorMoments += ["JetEMScaleMomentum"]
   if hasActiveArea:
     jdmp.FourVectorMoments += ["ActiveArea4vec"]

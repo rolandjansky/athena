@@ -41,7 +41,7 @@ namespace fastjet {
 
 
 class JetFinder
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IJetFinder {
 ASG_TOOL_CLASS(JetFinder, IJetFinder)
 
@@ -82,7 +82,7 @@ private:  //data
   // Data
   fastjet::JetAlgorithm m_fjalg;
   bool m_isVariableR;
-  
+
 };
 
 #endif

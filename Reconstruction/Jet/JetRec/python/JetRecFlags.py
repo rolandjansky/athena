@@ -111,7 +111,7 @@ class usePFlow(JobProperty):
 
 class eventShapeTools(JobProperty):
   """ List of event shape tools that should be called to calculate rho.
-      Allowed values are "emtopo", "lctopo", "empflow", "emcpflow", "lcpflow".
+      Allowed values are "emtopo", "lctopo", "emorig", "lcorig", "empflow", "emcpflow", "lcpflow".
   """
   statusOn     = True     
   allowedTypes = ['None', 'list']  # type

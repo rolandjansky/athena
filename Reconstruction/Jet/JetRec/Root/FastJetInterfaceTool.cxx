@@ -266,7 +266,7 @@ StatusCode FastJetInterfaceTool::initialize()
       msg(MSG::ERROR) << "FastJet configuration error: "
 		      << "Unknown jet algorithm \042"
 		      << m_jetAlgorithmType << "\042 requested"
-		      << endreq;
+		      << endmsg;
       return StatusCode::FAILURE;
     }
   // check requested recombination scheme
@@ -276,7 +276,7 @@ StatusCode FastJetInterfaceTool::initialize()
       msg(MSG::ERROR) << "FastJet configuration error: "
 		      << "Unknown recombination scheme \042"
 		      << m_recombinationScheme << "\042 requested"
-		      << endreq;
+		      << endmsg;
       return StatusCode::FAILURE;
     }
   // check requested strategy
@@ -285,7 +285,7 @@ StatusCode FastJetInterfaceTool::initialize()
     {
       msg(MSG::ERROR) << "FastJet configuration error: " 
 		      << "Unknown clustering strategy \042"
-		      << m_clusterStrategyType << "\042 requested" << endreq;
+		      << m_clusterStrategyType << "\042 requested" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -304,7 +304,7 @@ StatusCode FastJetInterfaceTool::initialize()
   {
     msg(MSG::ERROR) << "FastJet configuration error: "
                     << "Unknown jet algorithm plugin \042"
-                    << m_jetAlgorithmType << "\042 requested" << endreq;
+                    << m_jetAlgorithmType << "\042 requested" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -354,7 +354,7 @@ StatusCode FastJetInterfaceTool::initialize()
 	  msg(MSG::ERROR) << "FastJet configuration error: "
 			  << "Clustering with areas requested but area type"
 			  << "\042" << m_jetAreaDefinitionType 
-			  << "\042 is not known" << endreq;
+			  << "\042 is not known" << endmsg;
 	  return StatusCode::FAILURE;
 	}
       m_processor = &FastJetInterfaceTool::f_processWithArea;
@@ -391,7 +391,7 @@ StatusCode FastJetInterfaceTool::initialize()
 			      << ") or ExclusiveNjets("
 			      << m_exclusiveNjets
 			      << ") properties should be >= 0."
-			      << endreq;
+			      << endmsg;
 	      return StatusCode::FAILURE;
 	    } // invalid configuration of exclusive jet finder
 	} // exclusive jet finder using Njet cut
@@ -399,38 +399,38 @@ StatusCode FastJetInterfaceTool::initialize()
 
   // print configuration
   msg(MSG::INFO) << "JetAlgorithm ................ \042" 
-		 << m_jetAlgorithmType << "\042" << endreq;
-  msg(MSG::INFO) << "Radius ...................... " << m_radius << endreq;
+		 << m_jetAlgorithmType << "\042" << endmsg;
+  msg(MSG::INFO) << "Radius ...................... " << m_radius << endmsg;
   if (jetAlgType == Kt_type)
   {
     msg(MSG::INFO) << "Recombination scheme ........ \042"
-		   << m_recombinationSchemeType << "\042" << endreq;
+		   << m_recombinationSchemeType << "\042" << endmsg;
     msg(MSG::INFO) << "Strategy .................... \042"
-		   << m_clusterStrategyType << "\042" << endreq;
+		   << m_clusterStrategyType << "\042" << endmsg;
   }
   else if (jetAlgType == CMS_type)
     msg(MSG::INFO) << "CMS seed threshold .......... "
-                   << m_CMS_seedThreshold << endreq;
+                   << m_CMS_seedThreshold << endmsg;
   else if (jetAlgType == SIS_type)
   {
     msg(MSG::INFO) << "SIS overlap threshold ....... "
-                   << m_SIS_overlapThreshold << endreq;
+                   << m_SIS_overlapThreshold << endmsg;
     msg(MSG::INFO) << "SIS max num pass ............ "
-                   << m_SIS_nPass << endreq;
+                   << m_SIS_nPass << endmsg;
     msg(MSG::INFO) << "SIS protojet Pt min ......... "
-                   << m_SIS_protojetPtMin << endreq;
+                   << m_SIS_protojetPtMin << endmsg;
     msg(MSG::INFO) << "SIS do caching .............. "
-                   << (m_SIS_doCaching ? std::string("yes") : std::string("no")) << endreq;
+                   << (m_SIS_doCaching ? std::string("yes") : std::string("no")) << endmsg;
     msg(MSG::INFO) << "SIS split/merge scale ....... \042"
-                   << m_SIS_splitMergeScale_STRING << "\042" << endreq;
+                   << m_SIS_splitMergeScale_STRING << "\042" << endmsg;
     msg(MSG::INFO) << "SIS split/merge stop scale .. "
-                   << m_SIS_splitMergeStopScale << endreq;
+                   << m_SIS_splitMergeStopScale << endmsg;
   }
   if ( m_doJetArea )
     {
-      msg(MSG::INFO) << "Calculate jet areas ......... yes" << endreq;
+      msg(MSG::INFO) << "Calculate jet areas ......... yes" << endmsg;
       msg(MSG::INFO) << "Area type ................... \042" 
-		     << m_jetAreaDefinitionType << "\042" << endreq;
+		     << m_jetAreaDefinitionType << "\042" << endmsg;
     }
 
 
@@ -462,7 +462,7 @@ StatusCode FastJetInterfaceTool::execute(const fjetlist_t& inJets,
 	  msg(MSG::WARNING) << "Cannot allocate new fastjet::ClusterSequence,"
 			    << " no jets found (message " 
 			    << m_failedExecCtr << " of "
-			    << m_failedExecCtrMax << ")" << endreq;
+			    << m_failedExecCtrMax << ")" << endmsg;
 	}
       else if ( m_failedExecCtr == m_failedExecCtrMax )
 	{
@@ -470,7 +470,7 @@ StatusCode FastJetInterfaceTool::execute(const fjetlist_t& inJets,
 			    << " no jets found (message " 
 			    << m_failedExecCtr << " of "
 			    << m_failedExecCtrMax << ") [last message]" 
-			    << endreq;
+			    << endmsg;
 	}
       outJets.clear();
     }

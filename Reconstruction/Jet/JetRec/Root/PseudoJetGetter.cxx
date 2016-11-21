@@ -29,7 +29,7 @@ PseudoJetGetter::PseudoJetGetter(const std::string& name)
 
 StatusCode PseudoJetGetter::initialize() {
   ATH_MSG_DEBUG("Initializing...");
-  if ( m_label.substr(0,2) == "EM" ) m_emtopo = true;
+  if ( m_label == "EMTopo") m_emtopo = true;
   PseudoJetGetterRegistry::add(this);
   print();
   return StatusCode::SUCCESS;
@@ -137,6 +137,7 @@ void PseudoJetGetter::print() const {
   ATH_MSG_INFO("   Input container: " << m_incoll);
   ATH_MSG_INFO("  Output container: " << m_outcoll);
   ATH_MSG_INFO("   Skip negative E: " << sskip);
+  ATH_MSG_INFO("         Is EMTopo: " << m_emtopo);
   ATH_MSG_INFO(" Treat negative E as ghost: " << m_negEnergyAsGhosts);
 }
 

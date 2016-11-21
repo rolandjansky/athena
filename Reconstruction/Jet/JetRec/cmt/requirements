@@ -15,6 +15,7 @@ public
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-* 	External
 use AtlasROOT           AtlasROOT-*             External
+use AtlasReflex		AtlasReflex-*		External
 use AthLinks            AthLinks-*              Control
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
@@ -32,3 +33,6 @@ apply_pattern cmake_add_command command="find_package(FastJet COMPONENTS fastjet
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="JetRec_jobOptions.py myjets.py"
+apply_pattern lcgdict dict=JetRec \
+                   selectionfile=selection.xml \
+                   headerfiles="../JetRec/JetRecDict.h"

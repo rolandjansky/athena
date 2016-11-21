@@ -32,6 +32,9 @@
 # The member "ghostArea" specifies the area to use for the ghosts
 # generated for jet finding.
 
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRec_jobOptions')
+
 # import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 
@@ -57,15 +60,13 @@ class JetToolManager:
   gettersMap = {}
   # Map of modifier lists
   modifiersMap = {}
-  # Timer for JetRecTool
-  timer = jetFlags.timeJetRecTool()
 
   vertexContainer = "PrimaryVertices"
   trackContainer = "InDetTrackParticles"
 
   # Print a message to the log.
   def msg(self, lvl, mymsg):
-    if lvl <= self.debug: print self.prefix + str(mymsg)
+    if lvl <= self.debug: jetlog.debug( self.prefix + str(mymsg) )
 
   # Add a tool.
   def add(self, mytool):
@@ -75,7 +76,7 @@ class JetToolManager:
       self.msg(0, "Tool " + myname + " is already registered")
       raise LookupError
     else:
-      print type(mytool)
+      jetlog.info( type(mytool) )
       self.tools[myname] = mytool
       from AthenaCommon.AppMgr import ToolSvc 
       ToolSvc += mytool
@@ -136,7 +137,7 @@ class JetToolManager:
     inmods = self.getModifiers(modifiersin, altname)
     ncalib = 0
     for mod in inmods:
-      print self.prefix + "Adding modifier " + str(mod)
+      jetlog.info( self.prefix + "Adding modifier " + str(mod) )
       mod0 = ""
       # Split mod = a:b:c... into mod0="a" and modarr = [a, b, c, ...]
       if type(mod) == str:
@@ -166,16 +167,16 @@ class JetToolManager:
           if type(copt)==str and len(copt):
             calargs = copt.split(":")
           else:
-            print self.prefix + 'ERROR: If the modifier "calib" is used, then calibOpt or jetFlags.CalibOpt must be a non-blank string.'
-            print self.prefix + 'ERROR: Another alternative is to use the modifier string format "calib:<OPT>", e.g. "calib:a"'
+            jetlog.info( self.prefix + 'ERROR: If the modifier "calib" is used, then calibOpt or jetFlags.CalibOpt must be a non-blank string.' )
+            jetlog.info( self.prefix + 'ERROR: Another alternative is to use the modifier string format "calib:<OPT>", e.g. "calib:a"' )
             raise Exception
         if len(calargs) == 0 or calargs[0]=="":
-          print self.prefix + "ERROR: Calibration requested without option."
-          print self.prefix + "       Add calibOpt to tool string, jet build command or to jetFlags.defaultCalibOpt"
+          jetlog.info( self.prefix + "ERROR: Calibration requested without option." )
+          jetlog.info( self.prefix + "       Add calibOpt to tool string, jet build command or to jetFlags.defaultCalibOpt" )
           raise Exception
         seq = calargs[0]
         if seq == "none":
-          print self.prefix + "Skipping calibration."
+          jetlog.info( self.prefix + "Skipping calibration." )
           continue
         config = ""
         evsprefix = "Kt4"
@@ -188,37 +189,39 @@ class JetToolManager:
         self.msg(0, "  Event shape prefix: " + evsprefix)
         from JetRec.JetRecCalibrationFinder import jrcf
         calmod = jrcf.find(alg, rad, inp, seq, config, evsprefix)
-        print self.prefix + "Adding calib modifier " + str(calmod)
+        jetlog.info( self.prefix + "Adding calib modifier " + str(calmod) )
         outmods += [calmod]
-      # truthassoc - Does truth jet association replacing the input anme with "Truth"
+      # truthassoc - Does truth jet association replacing the input name with "Truth"
       elif mod == "truthassoc":
-        sinp = getters[0].Label
+        sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Truth").replace("EMTopo", "Truth") # attempt replacing "EMTopo" just in case.
+        cname = output.replace(sinp, "Truth")
         if cname == output:
+            jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
-          print self.prefix + "Truth association skipped because container is missing: " + cname
-          print self.prefix + "Add to jetcons if input stream is expected to have this."
+          jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
+          jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         tname = mod + "_" + salg + srad
         if not tname in self.tools:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
           self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
         outmods += [self.tools[tname]]
-      # trackassoc - Does truth jet association replacing the input name with "Track"
+      # trackassoc - Does track jet association replacing the input name with "Track"
       elif mod == "trackassoc":
-        sinp = getters[0].Label
+        sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Track").replace("EMTopo", "Track") # attempt replacing "EMTopo" just in case.
+        cname = output.replace(sinp, "PV0Track")
         if cname == output:
+            jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
-          print self.prefix + "Track association skipped because container is missing: " + cname
-          print self.prefix + "Add to jetcons if input stream is expected to have this."
+          jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
+          jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
           tname = mod + "_" + salg + srad
           if not tname in self.tools:
@@ -228,7 +231,7 @@ class JetToolManager:
       # jetfilter - Filter to remove jets with pT < self.ptminFilter
       elif mod == "jetfilter":
         if self.ptminFilter <= 0:
-          print self.prefix + "Jet filter requested without a threshold."
+          jetlog.info( self.prefix + "Jet filter requested without a threshold." )
           raise Exception
         tname = "jetpt" + str(self.ptminFilter)
         if not tname in self.tools:
@@ -244,19 +247,21 @@ class JetToolManager:
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
         bspec = salg + srad + sinp
-        print self.prefix + "Scheduling btagging for " + bspec
+        jetlog.info( self.prefix + "Scheduling btagging for " + bspec )
         btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, bspec)
-        print btagger
+        jetlog.info( btagger )
         self.add(btagger)
         outmods += [btagger]
+      elif mod == "largeR":
+        outmods += jtm.modifiersMap["largeR"]
       else:
         raise TypeError
     # Check calibration.
     if calibOpt != "":
       if ncalib==0:
-        print self.prefix + "Calibration option (" + calibOpt + ") provided without any calibration modifiers."
+        jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided without any calibration modifiers." )
       elif ncalib > 1:
-        print self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers."
+        jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers." )
         raise Exception
 
         
@@ -381,7 +386,7 @@ class JetToolManager:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     jetrec.WarnIfDuplicate = warnIfDuplicate
     jetrec.Overwrite = overwrite
 
@@ -421,7 +426,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -455,12 +460,12 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     if pseudojetRetriever in self.tools:
       jetrec.JetPseudojetRetriever = self.tools[pseudojetRetriever]
     else:
-      print "Requested jet pseudojet retriever is not a registered tool: " \
-            + pseudojetRetriever
+      jetlog.info( "Requested jet pseudojet retriever is not a registered tool: " \
+            + pseudojetRetriever )
       raise KeyError
     self += jetrec
     if isTrigger:
@@ -494,7 +499,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -554,7 +559,7 @@ class JetToolManager:
     if consumers != None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -584,7 +589,7 @@ class JetToolManager:
     jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     jetrec.ShallowCopy = shallow
     self += jetrec
     self.jetrecs += [jetrec]

@@ -1,10 +1,16 @@
-# $Id: CMakeLists.txt 740775 2016-04-16 13:07:43Z krasznaa $
+# $Id: CMakeLists.txt 778359 2016-10-13 19:24:10Z krasznaa $
 ################################################################################
 # Package: JetRec
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( JetRec )
+
+# Extra dependencies, based on the environment:
+set( extra_deps )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -14,21 +20,20 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
   Event/xAOD/xAODMuon
-  GaudiKernel
   Reconstruction/EventShapes/EventShapeInterface
   Reconstruction/Jet/JetEDM
   Reconstruction/Jet/JetInterface
   PRIVATE
-  Control/AthenaBaseComps
   Event/xAOD/xAODBase
   Event/xAOD/xAODCore
   Event/xAOD/xAODEventInfo
-  Event/xAOD/xAODTracking )
+  Event/xAOD/xAODTracking
+  ${extra_deps} )
 
 # External dependencies:
 find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
   siscone_spherical )
-find_package( FastJetContrib COMPONENTS VariableR )
+find_package( FastJetContrib COMPONENTS VariableR RecursiveTools )
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
@@ -43,9 +48,16 @@ atlas_add_library( JetRecLib
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
-atlas_add_component( JetRec
-  src/*.h src/*.cxx src/components/*.cxx
-  LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( JetRec
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib )
+endif()
+
+atlas_add_dictionary( JetRecDict
+   JetRec/JetRecDict.h
+   JetRec/selection.xml
+   LINK_LIBRARIES JetRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

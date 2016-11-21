@@ -28,6 +28,9 @@
 # To add to the confid dictionary:
 #   jrcf.configDict["myname"] = "someConfigFile.config"
 
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRec_jobOptions')
+
 class JetRecCalibrationFinder:
     
   # Dictionary of calibrations steps.
@@ -36,16 +39,19 @@ class JetRecCalibrationFinder:
     "r":"Residual",
     "o":"Origin",
     "j":"AbsoluteEtaJES",
+    "m":"JMS",
     "g":"GSC",
     "i":"Insitu"
   }
     
   # Dictionary for calibration configurations.
   configDict = {
-    "reco"            : "JES_Full2012dataset_Preliminary_Jan13.config",
+    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
-    "pflow"           : "PFlowJES_September2014.config"
+    "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
+    "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
+    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016.config"
   }
 
   def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
@@ -60,38 +66,44 @@ class JetRecCalibrationFinder:
     else:
       configfile = configkey
     # Assign name for tool
-    jetdefn = alg + str(int(10*rad+0.1)) + inp
+    jetdefn = alg + str(int(10*rad+0.1)) + inp.split("Origin")[0]
     tname = "calib_" + jetdefn + "_" + configkey.replace(".","_") + "_" + seq
     # Display configuration.
     myname = "JetRecCalibrationFinder:find: "
-    print myname + "Building jet calibration tool."
-    print myname + "  Arguments:"
-    print myname + "    alg: " + str(alg)
-    print myname + "    rad: " + str(rad)
-    print myname + "    inp: " + str(inp)
-    print myname + "    seq: " + str(seq)
-    print myname + "  Jet definition: " + jetdefn
-    print myname + "  Configuration file: " + configfile
+    jetlog.info( myname + "Building jet calibration tool." )
+    jetlog.info( myname + "  Arguments:" )
+    jetlog.info( myname + "    alg: " + str(alg) )
+    jetlog.info( myname + "    rad: " + str(rad) )
+    jetlog.info( myname + "    inp: " + str(inp) )
+    jetlog.info( myname + "    seq: " + str(seq) )
+    jetlog.info( myname + "  Jet definition: " + jetdefn )
+    jetlog.info( myname + "  Configuration file: " + configfile )
 
     if tname in jtm.tools:
-      print myname + "  Skipping previously-defined tool: " + tname
+      jetlog.info( myname + "  Skipping previously-defined tool: " + tname )
     else:
       # build calib tool
-      print myname + "  Creating " + tname
+      jetlog.info( myname + "  Creating " + tname )
       # ...define calbration sequence
       try:
         fullseq = [self.calibStep[l] for l in seq] # translate letters
       except KeyError as err:
-        print myname + "  ERROR Invalid sequence: " + seq
-        print myname + "  ERROR Unknown sequence key: " + err.message
+        jetlog.info( myname + "  ERROR Invalid sequence: " + seq )
+        jetlog.info( myname + "  ERROR Unknown sequence key: " + err.message )
         raise err
       fullseq = '_'.join(fullseq)  # join seq names with a '_'
-      print myname + "  Calibration sequence: " + fullseq
+      jetlog.info( myname + "  Calibration sequence: " + fullseq )
       # ...define the key for the event shape container
       if   inpin == "EMTopo":
         evssuf="EMTopoEventShape"
       elif inpin == "LCTopo":
         evssuf="LCTopoEventShape"
+      elif inpin.startswith("LCTopoTrimmed"):
+        evssuf="LCTopoEventShape"
+      elif inpin == "EMTopoOrigin":
+        evssuf="EMTopoOriginEventShape"
+      elif inpin == "LCTopoOrigin":
+        evssuf="LCTopoOriginEventShape"
       elif inpin == "EMPFlow":
         evssuf="EMPFlowEventShape"
       elif inpin == "EMCPFlow":
@@ -100,12 +112,14 @@ class JetRecCalibrationFinder:
         evssuf="LCPFlowEventShape"
       else:
         evssuf="INVALID"
-        print myname + "  ERROR: Invalid input specifier: " + inp
+        jetlog.info( myname + "  ERROR: Invalid input specifier: " + inp )
         raise KeyError
       evskey = evsprefix + evssuf
-      print myname + "  Event shape key: " + evskey
+      jetlog.info( myname + "  Event shape key: " + evskey )
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
+      setDetEtaPhi = (configkey != "reco") # Temporary setting to avoid clash with modifiers that set detector eta
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
+                                DoSetDetectorEta=setDetEtaPhi)
 
     return jtm.tools[tname]
 
