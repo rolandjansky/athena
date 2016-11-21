@@ -41,8 +41,12 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
 	SetDefaultConfiguration();
 
-	m_isData  = true;
-	m_gasTypeInStraw = kUnset;
+	m_isData      		= true;
+	m_gasTypeInStraw 	= kUnset;
+	m_L 							= 0.;
+	m_timingProfile		= 0;
+	m_trtId						= 0;
+	m_trtman					= 0;
 }
 
 
@@ -264,8 +268,6 @@ StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/)
 		ATH_MSG_ERROR ("Problem reading condDB object. -");
 		return StatusCode::FAILURE;
 	}
-
-	return StatusCode::SUCCESS;
 }
 
 
@@ -691,15 +693,20 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr) const
   if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
   if (distance2 > error2) return false; // Select precision hit only
 
-  L = 0;
   if (std::abs(HitPart)==1) { //Barrel
-    L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
+    m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
   }
+  else
   if (std::abs(HitPart)==2) { //EndCap
-    L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+    m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
   }
+  else {
+  	ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
+    throw std::exception();
+  }
+
   if(m_divideByL)
-    if ( L < 1.7 ) return false; // Length in the straw
+    if ( m_L < 1.7 ) return false; // Length in the straw
   if(!m_useHThits){
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
@@ -1177,7 +1184,7 @@ int TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircl
   
   // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
   // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
-  int GasType=0; // Xenon is default
+  int GasType=kUnset; // kUnset is default
   if (!m_TRTStrawSummarySvc.empty()) {
     int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
     if       ( stat==2 || stat==3 ) { GasType = kXenon; } // Xe
@@ -1189,7 +1196,6 @@ int TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircl
            throw std::exception();
          }
   }
-  if(GasType > kKrypton || GasType < kXenon) return kUnset; 
 
   return GasType;
 }
@@ -1209,8 +1215,6 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 
 	ATH_MSG_FATAL("getToT():: No ToT estimator case for m_whichToTEstimatorAlgo"<<m_whichToTEstimatorAlgo<<"");
 	throw std::exception();
-
-	return 0;
 }
 
 
@@ -1292,7 +1296,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr)
 	  }  
   }
  
-  if(m_divideByL) ToT = ToT/L;
+  if(m_divideByL) ToT = ToT/m_L;
   if(!m_corrected) return ToT;
   /* else correct */
 	   
@@ -1370,7 +1374,7 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
 	  }  
   }
 
-  ToT = ToT/L;
+  ToT = ToT/m_L;
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
