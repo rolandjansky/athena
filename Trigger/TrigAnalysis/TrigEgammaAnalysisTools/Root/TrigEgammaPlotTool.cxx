@@ -681,6 +681,13 @@ void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string directory){
     addHistogram(new TH1F("res_d0", "resolution d0; (d0(on)-d0(off)) ; Count", 100, -0.5, 0.5));
     addHistogram(new TH1F("res_d0sig", "resolution d0sig; (d0sig(on)-d0sig(off)) ; Count", 50, -10, 10));
     addHistogram(new TH1F("res_eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1));
+    // TRT
+    addHistogram(new TH2F("res_eprobhtVsPt", "eProbHT resolution as function of p_{T}; p_{T} [GeV]; (eprobHT(on)-eprobHT(off)); Count",
+                50, 0., 100.,
+                50, -1., 1.));
+    addHistogram(new TH2F("res_eprobht_onVsOff", "online eprobHT vs offline eprobHT; offline ; online ; Count",
+                50, 0., 1.,
+                50, 0., 1.));
     addHistogram(new TH1F("res_nscthits","resolution nSCTHit; (nSCTHits(on)-nSCTHits(off); Count",20, -10, 10));
     addHistogram(new TH1F("res_npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -5, 5));
     addHistogram(new TH1F("res_ptcone20", "resolution ptcone20; ptcone20 (on-off); Count", 200, -20, 20));
@@ -727,6 +734,13 @@ void TrigEgammaPlotTool::bookElectronResolutionHistos(const std::string director
     addHistogram(new TH1F("res_eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1));
     addHistogram(new TH1F("res_nscthits","resolution nSCTHit; (nSCTHits(on)-nSCTHits(off); Count",20, -10, 10));
     addHistogram(new TH1F("res_npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -5, 5));
+    // TRT
+    addHistogram(new TH2F("res_eprobhtVsPt", "eProbHT resolution as function of p_{T}; p_{T} [GeV]; (eprobHT(on)-eprobHT(off)); Count",
+                50, 0., 100.,
+                50, -1., 1.));
+    addHistogram(new TH2F("res_eprobht_onVsOff", "online eprobHT vs offline eprobHT; offline ; online ; Count",
+                50, 0., 1.,
+                50, 0., 1.));
 }
 
 void TrigEgammaPlotTool::bookElectronIsoResolutionHistos(const std::string directory){
@@ -1173,22 +1187,6 @@ void TrigEgammaPlotTool::bookL1Histos(TrigInfo trigInfo){
 
 void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     
-    // Labels
-    std::vector<std::string> label_isem {"ClusterEtaRange","ConversionMatch",
-        "ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth",
-        "f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c",
-        "empty14","ClusterStripsDEmaxs1",
-        "TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron",
-        "TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation",
-        "No Track","No Cluster","No Object","Total"};
-
-    std::vector<std::string> label_islh {"Kinematic","NSi","NPix","NBlayer","Conversion","LH","A0","dEta","dPhiRes","WstotHighET","EoverPHighEt",
-        "No Track","No Cluster","No Object","Total"};
-
-    std::vector<std::string> label_isem2 {"ShowerShape","TrkClus","Track","TRT","Track + TRT","TrkClus+Trk+TRT","Isolation","IsEM||Iso",
-        "Track+Cluster","Track Only","Cluster","Photon+Cluster","No Object","Some Object","Unknown","Total"};
-
-
     const std::string basePath=m_baseDir+"/Expert/"+trigInfo.trigName;
     std::string dirname;
     std::vector <std::string> dirnames;
@@ -1223,26 +1221,55 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
       if(trigInfo.trigType=="electron"){
           addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",11,0,11));
           addHistogram(new TProfile("eff_hltreco","eff_hltreco",12,0,12));
-          addHistogram(new TH1F("IsEmFailLoose","IsEmFailLoose",36,0,36));
-          addHistogram(new TH1F("IsEmFailMedium","IsEmFailMedium",36,0,36));
-          addHistogram(new TH1F("IsEmFailTight","IsEmFailTight",36,0,36));
-          addHistogram(new TProfile("IneffIsEmLoose","IsEmLoose",16,0,16));
-          addHistogram(new TProfile("IneffIsEmMedium","IsEmMedium",16,0,16));
-          addHistogram(new TProfile("IneffIsEmTight","IsEmTight",16,0,16));
           setLabels(hist1("eff_triggerstep"),m_label_trigstep);
           setLabels(hist1("eff_hltreco"),m_label_hltobj);
-          setLabels(hist1("IsEmFailLoose"),label_isem);
-          setLabels(hist1("IsEmFailMedium"),label_isem);
-          setLabels(hist1("IsEmFailTight"),label_isem);
-          setLabels(hist1("IneffIsEmLoose"),label_isem2);
-          setLabels(hist1("IneffIsEmMedium"),label_isem2);
-          setLabels(hist1("IneffIsEmTight"),label_isem2);
-          addHistogram(new TH1F("IsEmLHFailLoose","IsEmLHFailLoose",15,0,15));
-          addHistogram(new TH1F("IsEmLHFailMedium","IsEmLHFailMedium",15,0,15));
-          addHistogram(new TH1F("IsEmLHFailTight","IsEmLHFailTight",15,0,15));
-          setLabels(hist1("IsEmLHFailLoose"),label_islh);
-          setLabels(hist1("IsEmLHFailMedium"),label_islh);
-          setLabels(hist1("IsEmLHFailTight"),label_islh);
+
+          // Labels
+          std::vector<std::string> label_failisem {"ClusterEtaRange","ConversionMatch",
+              "ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth",
+              "f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c",
+              "empty14","ClusterStripsDEmaxs1",
+              "TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron",
+              "TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation",
+              "No Track","No Cluster","No Object","Total"};
+
+          std::vector<std::string> label_failisemlh {"Kinematic","NSi","NPix","NBlayer","Conversion","LH","A0","dEta","dPhiRes","WstotHighET","EoverPHighEt",
+              "No Track","No Cluster","No Object","Total"};
+
+          std::vector<std::string> label_ineffisem {"L2Calo", "L2", "EFCalo",/* "EFTrack",*/ "Shower shape", "TrkClus", "Track", "TRT", "Track & TRT", "TrkClus & Trk & TRT", "IsEM", "Isolation", "isEMLH and Iso", "Track & Cluster", "No cluster", "No track", "No object", "Some object", "Unknown w/o electron", "Unknown w/ electron", "Sum", "Total"};
+
+          std::vector<std::string> label_ineffisemlh {"L2Calo", "L2", "EFCalo",/* "EFTrack",*/ "Kinematic", "NSi", "NPix", "NBlayer", "Conversion", "LH", "A0", "dEta", "dPhiRes", "WstotHighET", "EoverPHighEt", "isEMLH", "Isolation", "isEMLH & Iso", "Track & Cluster", "No cluster", "No track", "No object", "Some object", "Unknown w/o electron", "Unknown w/ electron", "Sum", "Total"};
+
+          std::vector<std::string> label_isem_trk {"TrackBlayer_Electron","TrackPixel_Electron","TrackSi_Electron","TrackA0Tight_Electron","Total"};
+          std::vector<std::string> label_isem_trkclus {"#eta match","#phi match","E/p match","TrackMatchEtaTight_Electron","Total"};
+          std::vector<std::string> label_isem_trt {"TrackTRTeProbabilityHT_Electron","TrackTRThits_Electron","TrackTRTratio_Electron","TrackTRTratio90_Electron","TrackA0Tight_Electron","Total"};
+
+          std::string pid = trigInfo.trigPidDecorator.substr(2);
+          const std::string fail = "FailisEM" + pid;
+          const std::string ineffisEM = "IneffisEM" + pid;
+
+          if (boost::contains(pid, "LH")) {
+              addHistogram(new TH1F(fail.c_str(), fail.c_str(), 15, 0, 15));
+              addHistogram(new TProfile(ineffisEM.c_str(), ineffisEM.c_str(), 26, 0, 26));
+              setLabels(hist1(fail), label_failisemlh);
+              setLabels(hist1(ineffisEM), label_ineffisemlh);
+          }
+          else {
+              addHistogram(new TH1F(fail.c_str(), fail.c_str(), 36, 0, 36));
+              addHistogram(new TProfile(ineffisEM.c_str(), ineffisEM.c_str(), 22, 0, 22));
+              setLabels(hist1(fail), label_ineffisem);
+              setLabels(hist1(ineffisEM), label_failisem);
+
+              const std::string ineffTrk = ineffisEM + "Trk";
+              const std::string ineffTrkClus = ineffisEM + "TrkClus";
+              const std::string ineffTRT = ineffisEM + "TRT";
+              addHistogram(new TProfile(ineffTrk.c_str(), ineffTrk.c_str(), 6, 0, 6));
+              addHistogram(new TProfile(ineffTrkClus.c_str(), ineffTrkClus.c_str(), 5, 0, 5));
+              addHistogram(new TProfile(ineffTRT.c_str(), ineffTRT.c_str(), 5, 0, 5));
+              setLabels(hist1(ineffTrk), label_isem_trk);
+              setLabels(hist1(ineffTrkClus), label_isem_trkclus);
+              setLabels(hist1(ineffTRT), label_isem_trt);
+          }
       }
 
       if ( m_detailedHists ) {

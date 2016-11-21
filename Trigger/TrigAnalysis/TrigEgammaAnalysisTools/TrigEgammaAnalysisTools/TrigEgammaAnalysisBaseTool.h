@@ -55,6 +55,8 @@ public:
   StatusCode book();
   StatusCode execute();
   StatusCode finalize();
+  template<class T, class B> std::unique_ptr<xAOD::TrigPassBits> createBits(const T* CONT, const B* BITS);
+  template<class T> std::unique_ptr<xAOD::TrigPassBits> getBits(const HLT::TriggerElement* te,const T* CONT);
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
   template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
@@ -334,9 +336,54 @@ protected:
  * templates the TE to get a feature
  * or find the passing TE
  * **********************/
+
+// Attempt to create a unique_ptr from existing xAOD::TrigPassBits
+// crashes at container_clid and AuxVectorData line 424(359) 
+// when retrieving the cached auxid variable from store
+// Assuming my attempt to utilise smart pointers breaks the caching of aux data in ESDtoAOD.
+//
+// Instead template the conversion and always create transient passBit
+template<class CONT, class BITS> 
+std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::createBits(const CONT* container, const BITS* passbits){
+    ATH_MSG_DEBUG("Converting "<< ClassID_traits< BITS >::ID() );
+    std::unique_ptr<xAOD::TrigPassBits> xbits(new xAOD::TrigPassBits());
+    xbits->makePrivateStore();
+    xbits->reset(container);
+    xbits->setSize(passbits->size());
+    if(passbits->size()==0){
+        xbits->setPassBits( std::vector< uint32_t >() );
+    }
+    else {
+        xbits->setPassBits( std::vector< uint32_t >( ( ( passbits->size() - 1 ) / 32 ) + 1 ) );
+    }
+    for ( size_t b = 0, bmax = passbits->size(); b < bmax; ++b ) {
+        xbits->markPassing(b, passbits->isPassing(b));
+    }
+    return xbits;
+
+}
+
+template<class CONT> 
+std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::getBits(const HLT::TriggerElement* te,const CONT* container){
+    // For conversion of 2015/2016 data
+    const TrigPassBits *bits = getFeature<TrigPassBits>(te);
+    if(bits){
+        ATH_MSG_DEBUG("Run1 conversion");
+        ATH_MSG_DEBUG("create bits AOD to xAOD");
+        return createBits<CONT,TrigPassBits>(container,bits);
+    }
+    // Workaround, see above
+    const xAOD::TrigPassBits *xbits=getFeature<xAOD::TrigPassBits>(te);
+    if(xbits){
+        ATH_MSG_DEBUG("create bits xAOD to xAOD");
+        return createBits<CONT,xAOD::TrigPassBits>(container,xbits); 
+    }
+    else
+        return nullptr;
+}
+
 template<class T>
-const T*
-TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::string key){
+const T* TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::string key){
     if ( te == nullptr ) return nullptr;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return nullptr;
@@ -344,8 +391,7 @@ TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::
 }
 
 template<class T>
-bool
-TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
+bool TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
     if ( te == nullptr ) return false;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return false;
@@ -353,24 +399,22 @@ TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const s
 }
 
 template <class T1, class T2>
-const T1*
-TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,const HLT::TriggerElement *> pairObj, float &dRmax,bool usePassbits,const std::string key){
+const T1* TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,const HLT::TriggerElement *> pairObj, float &dRmax,bool usePassbits,const std::string key){
     float eta = pairObj.first->eta();
     float phi = pairObj.first->phi();
     // Reset to resonable start value
     if(dRmax < 0.15) dRmax = 0.15;
     const auto *cont=getFeature<T2>(pairObj.second,key);
     if(cont==nullptr) return nullptr;
-    const TrigPassBits *bits = nullptr;
+    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<T2>(pairObj.second,cont);
+    
     if(usePassbits){ 
-        bits=getFeature<TrigPassBits>(pairObj.second);
         if(bits==nullptr) return nullptr;
     }
     const T1 *cl = nullptr;
     float dr=0.; 
     for(const auto& obj : *cont){
-        if( usePassbits && !HLT::isPassing(bits,obj,cont) ) continue;
-        //if( usePassbits && bits->isPassing(obj,cont) ) continue; 
+        if( usePassbits && !bits->isPassing(obj,cont) ) continue; 
         if(obj==nullptr) continue;
         dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){
