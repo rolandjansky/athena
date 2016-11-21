@@ -42,7 +42,7 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
 
 KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi"])
 
-KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip"])
+KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip","data16_hip","data16_hip5TeV","data16_hip8TeV"])
 
 KnownTestProjects=frozenset(["data_test"])
 
@@ -439,9 +439,14 @@ def ConfigureBeamEnergy():
                 if 'GeV' in projectName:
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('GeV','',1))/2 * 1000.
                 elif 'TeV' in projectName:
-                    beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
-                    if '5TeV' in projectName:
-                        beamEnergy=2510000.
+                    if 'hip5TeV' in projectName:
+                        beamEnergy = 1577000.
+                    elif 'hip8TeV' in projectName:
+                        beamEnergy = 2510000.
+                    else:
+                        beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
+                        if '5TeV' in projectName:
+                            beamEnergy=2510000.
                 elif projectName.endswith("_hi") or projectName.endswith("_hip"):
                     #beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
@@ -476,7 +481,46 @@ def ConfigureBeamBunchSpacing():
             logAutoConfiguration.info("Auto configured bunchSpacing: %s ", jobproperties.Beam.bunchSpacing())
         except:
             logAutoConfiguration.warning("bunchSpacing could not be auto configured, no info available using default value: %s ",jobproperties.Beam.bunchSpacing() )
-                        
+    else: 
+        #real data
+        if not jobproperties.Beam.beamType.is_locked():
+            ConfigureBeamType()
+        if jobproperties.Beam.beamType() == 'collisions':
+            runnumber = GetRunNumber()
+            if runnumber is None:
+                  logAutoConfiguration.info("Couldn't get run number. Aborting.")
+                  return
+            if (runnumber<236107): # run-1
+                  logAutoConfiguration.info("Run-1 data, set to 50ns.")
+                  jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
+                  # could have just left default, but at least this is explicit.
+                  return
+            #Real data collision run, try to get bunch spacing from database
+            from CoolConvUtilities.BunchSpacingUtils import bunchSpacingOfRun
+            
+            lb=GetLBNumber()
+            if lb is None:
+                logAutoConfiguration.info("No LB nubmer, autoconfigure to 25 ns")
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                return
+
+            bc=bunchSpacingOfRun(runnumber,lb)
+            if bc is None:
+                logAutoConfiguration.info("No data, autoconfigure to 25 ns")
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                return
+
+            if bc==1: 
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                logAutoConfiguration.info("Autoconfigure bunch-spacing to 25 ns")
+            else:
+                logAutoConfiguration.info("larger bunch spacing, leave default value of %i ns" % jobproperties.Beam.bunchSpacing())
+                pass
+            pass
+        else:
+            logAutoConfiguration.info("Not a collisions run, bunch spacing not autoconfigured")
+            pass
+        pass
     return
  
 
