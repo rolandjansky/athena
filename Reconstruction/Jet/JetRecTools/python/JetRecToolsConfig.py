@@ -3,7 +3,7 @@
 import os
 from AthenaCommon import Logging
 #from JetRec.JetToolSupport import jtm
-import JetRec.JetRecStandardTools
+#import JetRec.JetRecStandardTools
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, TrackPseudoJetGetter #MissingCellListTool, 
 
 
