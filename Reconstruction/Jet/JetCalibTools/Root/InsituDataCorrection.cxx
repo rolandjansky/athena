@@ -107,7 +107,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
   //insitu_file->Close();
   ATH_MSG_INFO("Tool configured to calibrate data");
-  ATH_MSG_INFO("In-situ correction to be applied: " << insitu_desc << "\n");
+  ATH_MSG_INFO("In-situ correction to be applied: " << insitu_desc);
   return StatusCode::SUCCESS;
 
 }

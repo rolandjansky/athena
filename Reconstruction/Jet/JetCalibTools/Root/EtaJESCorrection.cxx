@@ -51,7 +51,7 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   m_config->ReadFile(calibFile, kEnvLocal);
   ATH_MSG_INFO("Reading absolute calibration factors from: " << calibFile);
   m_jesDesc = m_config->GetValue("AbsoluteJES.Description","");
-  ATH_MSG_INFO("Description: " << m_jesDesc << "\n");
+  ATH_MSG_INFO("Description: " << m_jesDesc);
 
   // minPt_JES (always in GeV) determines at which point we stop using the correction curve and switch to an extrapolated value
   m_minPt_JES = m_config->GetValue(m_jetAlgo+".MinPtForETAJES",10);
@@ -84,7 +84,7 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   m_applyMassCorrection = m_config->GetValue("ApplyMassCorrection",false);
 
   if(m_mass){ // Only for the calibration sequence: EtaMassJES
-    if(m_applyMassCorrection) ATH_MSG_INFO("Jet mass correction will be applied.\n");
+    if(m_applyMassCorrection) ATH_MSG_INFO("Jet mass correction will be applied.");
     else { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!"); return StatusCode::FAILURE; }
   }
 

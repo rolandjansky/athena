@@ -166,7 +166,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
   }
   else{
     if ( (m_depth & ApplyChargedFraction) && m_respFactorsChargedFraction.size() < 3 ) {
@@ -185,7 +185,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
   }
   return StatusCode::SUCCESS;
 
@@ -365,23 +365,28 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   std::vector<float> samplingFrac = jet.getAttribute<std::vector<float> >("EnergyPerSampling");
   //vector<int> that holds the number of tracks with pT > 1 GeV for different primary vertices
   std::vector<int> nTrk;
-  if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000",nTrk) ) {
-    ATH_MSG_ERROR("Failed to retrieve NumTrkPt1000!");
-    return StatusCode::FAILURE;
+  if(m_depth & ApplynTrk){
+    if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000",nTrk) ) {
+      ATH_MSG_ERROR("Failed to retrieve NumTrkPt1000!");
+      return StatusCode::FAILURE;
+    }
   }
   //vector<float> that holds the trackWIDTH variable calculated with tracks of pT > 1 GeV for different primary vertices
   std::vector<float> trackWIDTH;
-  if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000",trackWIDTH) ) {
-    ATH_MSG_ERROR("Failed to retrieve TrackWidthPt1000!");
-    return StatusCode::FAILURE;
+  if(m_depth & ApplytrackWIDTH){
+    if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000",trackWIDTH) ) {
+      ATH_MSG_ERROR("Failed to retrieve TrackWidthPt1000!");
+      return StatusCode::FAILURE;
+    }
   }
   //Nsegments number of ghost associated muon segments behind each jet
-  int Nsegments;
-  if( jet.isAvailable< int >( "GhostMuonSegmentCount" ) ) {
-    Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
-  } else {
-    Nsegments = 0;
-    ATH_MSG_WARNING("GhostMuonSegmentCount is not available, Nsegments=0 will be used, so NO PunchThrough Correction will be applied!");
+  int Nsegments = 0;
+  if(m_depth & ApplyPunchThrough){
+    if( jet.isAvailable< int >( "GhostMuonSegmentCount" ) ) {
+      Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
+    } else {
+      ATH_MSG_WARNING("GhostMuonSegmentCount is not available, Nsegments=0 will be used, so NO PunchThrough Correction will be applied!");
+    }
   }
 
   xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
@@ -399,8 +404,8 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   //other entries are for other primary vertices in the event
   //Check what index the user wants just in case (99% of the time they want PV0)
   int PVindex = jetEventInfo.PVIndex();
-  int nTrkPV0 = nTrk[PVindex];
-  float trackWIDTHPV0 = trackWIDTH[PVindex];
+  int nTrkPV0 = (m_depth & ApplynTrk) ? nTrk[PVindex] : 0;
+  float trackWIDTHPV0 = (m_depth & ApplytrackWIDTH) ? trackWIDTH[PVindex] : 0;
   //EM3 and Tile0 fraction calculations
   //EM3 = (EMB3+EME3)/energy, Tile0 = (TileBar0+TileExt0)/energy
   //Check the map above to make sure the correct entries of samplingFrac are being used

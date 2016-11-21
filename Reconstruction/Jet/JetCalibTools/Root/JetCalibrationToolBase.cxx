@@ -134,29 +134,28 @@ TString JetCalibrationToolBase::FindFile(TString filename) {
       m_basePath = TestAreaDir+"/Reconstruction/Jet/JetCalibTools/data/";
       return m_basePath+fn;
     }
-  }			 
-  
+  }
+
   // getting a bit desperate here... check if its one level up
   TString path="JetCalibTools/data/";
   if ( gSystem->AccessPathName(path+fn)==false ) { m_basePath=path; return m_basePath+fn; }
   
   // if needed, can here add a loop over the gSystem->GetIncludePath() list of directories
   
-  ATH_MSG_INFO("Cannot find file " << filename << "\n");
-  ATH_MSG_INFO("Searched in:\n  ./" << filename << "\n");
-  ATH_MSG_INFO("  " << lastpath+filename << "\n");
+  ATH_MSG_INFO("Cannot find file " << filename);
+  ATH_MSG_INFO("Searched in:\n  ./" << filename);
+  ATH_MSG_INFO("  " << lastpath+filename);
   if (RootCoreDir!="") {
-    ATH_MSG_INFO("  " << RootCoreDir << "/data/JetCalibTools/" << fn << "\n");
-    ATH_MSG_INFO("  " << RootCoreDir << "/../JetCalibTools/data/" << fn << "\n");
+    ATH_MSG_INFO("  " << RootCoreDir << "/data/JetCalibTools/" << fn);
+    ATH_MSG_INFO("  " << RootCoreDir << "/../JetCalibTools/data/" << fn);
   }
   if (TestAreaDir!="") {
-    ATH_MSG_INFO( "  " << TestAreaDir << "/InstallArea/XML/JetCalibTools/CalibrationConfigs/" << gSystem->BaseName(fn) << "\n" );
-    ATH_MSG_INFO( "  " << TestAreaDir << "/InstallArea/XML/JetCalibTools/" << fn << "\n" );
-    ATH_MSG_INFO( "  " << TestAreaDir << "/Reconstruction/Jet/JetCalibTools/data/CalibrationConfigs/" << gSystem->BaseName(fn) << "\n" );
-    ATH_MSG_INFO( "  " << TestAreaDir << "/Reconstruction/Jet/JetCalibTools/data/" << fn << "\n" );
+    ATH_MSG_INFO( "  " << TestAreaDir << "/InstallArea/XML/JetCalibTools/CalibrationConfigs/" << gSystem->BaseName(fn));
+    ATH_MSG_INFO( "  " << TestAreaDir << "/InstallArea/XML/JetCalibTools/" << fn);
+    ATH_MSG_INFO( "  " << TestAreaDir << "/Reconstruction/Jet/JetCalibTools/data/CalibrationConfigs/" << gSystem->BaseName(fn));
+    ATH_MSG_INFO( "  " << TestAreaDir << "/Reconstruction/Jet/JetCalibTools/data/" << fn);
   }
-  ATH_MSG_INFO( "  ./JetCalibTools/data/" << filename << "\n" );
+  ATH_MSG_INFO( "  ./JetCalibTools/data/" << filename);
   ATH_MSG_ERROR("Cannot find file " << filename );
   return "";
 }
-

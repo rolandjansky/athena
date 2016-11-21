@@ -52,17 +52,6 @@ public:
   /// Constructor with parameters: 
   JetCalibrationTool(const std::string& name);
 
-  JetCalibrationTool(const std::string& name,
-                     TString jetAlgo, 
-                     TString config = "", 
-                     TString calibSeq = "JetArea_Offset_AbsoluteEtaJES_Insitu",
-                     bool isData = true,
-		     bool mass = false,
-                     TString rhoKey = "auto",
-                     TString dir = "JetCalibTools/CalibrationConfigs/",
-                     TString eInfoName = "EventInfo");
-
-
   /// Destructor: 
   virtual ~JetCalibrationTool(); 
 
@@ -106,12 +95,18 @@ private:
   bool m_devMode;
   bool m_isData;
   bool m_mass;
+  bool m_timeDependentCalib;
+  bool m_originCorrectedClusters;
   std::string m_rhoKey;
   std::string m_dir;
   std::string m_eInfoName;
+  std::vector<TString> m_timeDependentInsituConfigs;
+  std::vector<double>  m_runBins;
+  bool m_doSetDetectorEta;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
+  std::vector<TEnv*> m_globalTimeDependentConfigs;
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;
@@ -126,6 +121,7 @@ private:
   EtaJESCorrection * m_etaJESCorr;
   GlobalSequentialCorrection * m_globalSequentialCorr;
   InsituDataCorrection * m_insituDataCorr;
+  std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
 
 }; 

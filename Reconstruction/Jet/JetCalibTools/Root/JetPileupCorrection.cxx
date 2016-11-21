@@ -39,8 +39,8 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   }
 
   m_useFull4vectorArea = m_config->GetValue("ApplyFullJetArea4MomentumCorrection", false);
-  ATH_MSG_INFO("Jet area pile up correction will be applied.\n");
-  if ( m_useFull4vectorArea ) ATH_MSG_INFO("  Full 4-vector jet area correction is activated.\n"); 
+  ATH_MSG_INFO("Jet area pile up correction will be applied.");
+  if ( m_useFull4vectorArea ) ATH_MSG_INFO("  Full 4-vector jet area correction is activated."); 
   //ATH_MSG_INFO(" \n");
 
   if ( m_doResidual ) { 
