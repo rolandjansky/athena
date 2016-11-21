@@ -110,11 +110,11 @@ if len(vertexCollectionName):
   jtm.tvassoc.VertexContainer = vertexCollectionName
   jtm.tvassoc.lock()
 
-if 0:
+if 1:
   print myname + "Setting output level to VERBOSE for all jetrecs"
   for jetrec in jtm.jetrecs:
     jtm.setOutputLevel(jetrec, VERBOSE)
-elif 0:
+elif 1:
   print myname + "Setting output level to DEBUG for all jetrecs"
   for jetrec in jtm.jetrecs:
     jtm.setOutputLevel(jetrec, DEBUG)
@@ -242,7 +242,7 @@ for name in names:
   jdmp.MaxObject = 20
   jdmp.IntMoments = ["AlgorithmType", "InputType"]
   jdmp.IntMoments += ["ConstituentScale"]
-  if isTopo:
+  if isTopo and isAntiKt4:
     jdmp.IntMoments += ["OriginCorrected"]
     jdmp.IntMoments += ["PileupCorrected"]
   if jetFlags.useMuonSegments() and isTopo:

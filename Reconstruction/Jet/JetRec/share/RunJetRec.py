@@ -33,11 +33,11 @@ useDRTruthFlavor = jetFlags.useTruth
 #--------------------------------------------------------------
 
 # Update the modifier lists.
-if useLArHVCorr:
-  jtm.modifiersMap["calib"] += [jtm.larhvcorr]
-jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"]
-if jtm.haveShowerDeconstructionTool:
-  jtm.modifiersMap["mycalib"]
+# if useLArHVCorr:
+#   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
+# jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"]
+# if jtm.haveShowerDeconstructionTool:
+#   jtm.modifiersMap["mycalib"]
 
 # Finders.
 # Calibration for topo jets: calibOpt =
@@ -62,10 +62,11 @@ if jetFlags.useTracks:
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ghostArea=gatrack, ptmin= 2000)
-jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "mycalib", ptmin=2000, ptminFilter= 5000, ghostArea=gatopo, calibOpt="ar")
-jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="ar")
-jtm.addJetFinder(  "Run2AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
-jtm.addJetFinder(  "Run2CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
+jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "emtopo_ungroomed", ptmin=2000, ptminFilter= 5000, ghostArea=gatopo, calibOpt="ar")
+jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "lctopo_ungroomed", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="ar")
+jtm.addJetFinder(  "Run2AntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow_ungroomed",  ptmin=2000, ptminFilter= 5000, ghostArea=gatopo, calibOpt="ar:pflow")
+jtm.addJetFinder(  "Run2AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "lctopo_ungroomed", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="none")
+jtm.addJetFinder(  "Run2CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "lctopo_ungroomed", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="none")
 
 # Groomers.
 if runJetGrooming:

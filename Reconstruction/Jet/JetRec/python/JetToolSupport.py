@@ -191,7 +191,7 @@ class JetToolManager:
         calmod = jrcf.find(alg, rad, inp, seq, config, evsprefix)
         jetlog.info( self.prefix + "Adding calib modifier " + str(calmod) )
         outmods += [calmod]
-      # truthassoc - Does truth jet association replacing the input anme with "Truth"
+      # truthassoc - Does truth jet association replacing the input name with "Truth"
       elif mod == "truthassoc":
         sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
