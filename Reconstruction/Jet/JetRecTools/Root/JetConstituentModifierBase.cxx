@@ -45,7 +45,7 @@ StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer*) const 
 
 int JetConstituentModifierBase::execute() const {
 
-  std::cout << "JetConstituentModifierBase::execute () Test " << std::endl;
+  ATH_MSG_INFO("Executing JetConstituentModifierBase");
   return 0;
 
 }
