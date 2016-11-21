@@ -119,6 +119,12 @@ public:
                         int hwmodeid_TSP=-1,int hwmodeid_DC=-1,
                         char const *name="FTK_CompressedAMBank");
 
+   // set parameters for TSP import
+   void setNDCmax(int ndc);
+   void setNDCmaxPlane(size_t plane,int ndc);
+   inline int getNDCmax(void) const { return m_nDCmax; }
+   inline int getNDCmaxPlane(size_t plane) const { return m_nDCmaxPlane[plane]; }
+
    // check hwmodeid settings
    int getHWModeSS_dc(void) const;
    int getHWModeSS_tsp(void) const;
@@ -334,7 +340,7 @@ protected:
  private:
   //
   // method to insert TSP patterns from one sector
-  typedef MAP<FTKHitPattern,uint64_t,FTKHitPatternCompare>
+  typedef std::multimap<FTKHitPattern,uint64_t,FTKHitPatternCompare>
      HitPatternMap_t;
   void insertPatterns(int sector,FTKPatternOneSector const *patterns,
                       int maxpatts,VECTOR< HitPatternMap_t > &dcPatterns,
@@ -357,13 +363,16 @@ protected:
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
   //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
   //    m_dcMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
-  //    m_hbMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
+  //    m_hbMaskLookup[layer][dcHBbits]  returns the HB bits for this layer
   // here, dcHBbits is extracted from bits inside m_Bank.m_PatternBitData[]
   VECTOR<VECTOR<int> > m_subSSmask;
   VECTOR<VECTOR<int> > m_dcMaskLookup;
   VECTOR<VECTOR<int> > m_hbMaskLookup;
   // lookup-tables to get encoded (DC,HB) bits given the subindex of TSP wrt DC
   VECTOR<VECTOR<uint64_t> > m_dcBitsLookup1;
+  // lookup-table to get number of active DC bits given the
+  //   encoded (DC,HB) bits
+  VECTOR<VECTOR<uint8_t> > m_ndcBitsLookup;
   // lookup table to calculate the encoded merged (DC,HB) bits
   //   given two pairs of encoded (DC,HB) bits
   VECTOR<VECTOR<uint64_t> > m_dcBitsLookup2;
@@ -392,6 +401,11 @@ protected:
   //   m_moduleIdHW0[plane][sector] : module identifier for HWMODEID=0
   //   m_moduleIdHW2[plane][sector] : module identifier for HWMODEID=2
   VECTOR<VECTOR<int> > m_moduleIdHW0,m_moduleIdHW2;
+
+  // steering for importing patterns
+  VECTOR<int32_t> m_nDCmaxPlane;
+  int32_t m_nDCmax;
+
   //
   // identifier for wildcard SS
   static int const m_WCID;

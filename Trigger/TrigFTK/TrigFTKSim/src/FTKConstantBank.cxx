@@ -746,7 +746,7 @@ unsigned int FTKConstantBank::floatToReg27(float f) {
 
 Eigen::MatrixXd FTKConstantBank::get_A_matrix(
 					      int secid,
-					      std::vector<int> real_idx,
+					      ///					      std::vector<int> real_idx,
 					      std::vector<int> miss_idx,
 					      std::vector<double> hw_scale
 					      )
@@ -779,7 +779,7 @@ Eigen::MatrixXd FTKConstantBank::get_A_matrix(
 Eigen::MatrixXd FTKConstantBank::get_B_matrix(
 					      int secid,
 					      std::vector<int> real_idx,
-					      std::vector<int> miss_idx,
+					      //					      std::vector<int> miss_idx,
 					      std::vector<double> hw_scale
 					      )
 {
@@ -995,8 +995,10 @@ void FTKConstantBank::printExtrapolationConstant(int secid, vector<int> moduleid
   real_idx.push_back(13);
   real_idx.push_back(14);
 
-  Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx,hw_scale);
-  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd A = get_A_matrix(secid,miss_idx,hw_scale);
+  //  Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,hw_scale);
+//  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,miss_idx,hw_scale);
   Eigen::MatrixXd C = get_C_matrix(A);
   Eigen::MatrixXd D = get_D_matrix(A,B);
   Eigen::VectorXd h = get_h_vector(secid,real_idx);
@@ -1217,7 +1219,8 @@ void FTKConstantBank::printTFConstant(int secid, std::ofstream& myfile){
     }
 
 
-    Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx1,hw_scale);//11 (column)x16 (row) 
+    Eigen::MatrixXd A = get_A_matrix(secid,miss_idx1,hw_scale);//11 (column)x16 (row) 
+    //    Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx1,hw_scale);//11 (column)x16 (row) 
     Eigen::MatrixXd C = get_C_matrix(A);
     Eigen::MatrixXd Cinverse_temp(C.rows(),C.cols());
     Cinverse_temp = C.inverse();

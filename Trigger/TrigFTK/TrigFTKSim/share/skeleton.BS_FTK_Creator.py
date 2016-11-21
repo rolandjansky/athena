@@ -73,10 +73,18 @@ jobproperties.LArRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 
-StreamBSFileOutput.ItemList += ["FTK_RawTrackContainer#*"]
+StreamBSFileOutput.ItemList = ["FTK_RawTrackContainer#*"]
 
+# Merge with original bytestream
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMergeOutputSvc
+svcMgr += ByteStreamMergeOutputSvc(ByteStreamOutputSvc='ByteStreamEventStorageOutputSvc',
+          ByteStreamInputSvc='ByteStreamInputSvc',
+          overWriteHeader=True)
+svcMgr.ByteStreamCnvSvc.ByteStreamOutputSvcList=['ByteStreamMergeOutputSvc']
+StreamBSFileOutput.OutputFile = "ByteStreamMergeOutputSvc"
 
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+###from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
 pmjp.PerfMonFlags.OutputFile = 'ntuple_BSFTKCreator.pmon.gz'
 

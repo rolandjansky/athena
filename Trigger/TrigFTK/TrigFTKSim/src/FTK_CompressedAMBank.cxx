@@ -105,7 +105,8 @@ FTK_CompressedAMBank::FTK_CompressedAMBank
      m_MAX_MISSING_PLANES(0),
      m_SSmapTSP(ssMapTSP),
      m_hwmodeIDtsp(hwmodeid_TSP),
-     m_hwmodeIDdc(hwmodeid_DC) {
+     m_hwmodeIDdc(hwmodeid_DC),
+     m_nDCmax(-1) {
    setSSMap(ssMap);
    if(getSSMap()&& getSSMapTSP()) {
       m_TSPmap = new TSPMap(getSSMap(),getSSMapTSP()); // TSPLevel
@@ -115,6 +116,18 @@ FTK_CompressedAMBank::FTK_CompressedAMBank
    Info("CompressedAMBank")
       <<"hwmodeIDtsp="<<m_hwmodeIDtsp
       <<" hwmodeIDdc="<<m_hwmodeIDdc<<"\n";
+}
+
+void FTK_CompressedAMBank::setNDCmax(int ndc) {
+   m_nDCmax=ndc;
+   Info("setNDCmax")<<"maximum number of DC bits set to "<<getNDCmax()<<"\n";   
+}
+
+void FTK_CompressedAMBank::setNDCmaxPlane(size_t plane,int ndc) {
+   if(plane>=m_nDCmaxPlane.size()) m_nDCmaxPlane.resize(plane+1);
+   m_nDCmaxPlane[plane]=ndc;
+   Info("setNDCmax")<<"maximum number of DC bits for plane "<<plane
+                    <<" set to "<<getNDCmaxPlane(plane)<<"\n";
 }
 
 void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
@@ -130,6 +143,17 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
                             <<" SSMapTSP="<<getSSMapTSP()<<"\n";
       }
    }
+
+   // lookup-table to determine number of bits in a word
+   m_nHit16.resize(0x10000);
+   for(int hitmask=0;hitmask<0x10000;hitmask++) {
+      int n=0;
+      for(int k=0;k<getNPlanes();k++) {
+         if(hitmask & (1<<k)) n++;
+      }
+      m_nHit16[hitmask]=n;
+   }
+
    //
    // lookup-tables to convert TSP <-> DC
    m_TSPtoDC.resize(0);
@@ -181,6 +205,7 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
    // set up lookup-tables to merge pairs of encoded (DC,HB) bits
    m_dcBitsLookup1.resize(getNPlanes());
    m_dcBitsLookup2.resize(getNPlanes());
+   m_ndcBitsLookup.resize(getNPlanes());
    for(int layer=0;layer<getNPlanes();layer++) {
       int nBitsX=m_TSPmap->getNBits(layer,0);
       int nBitsY=0;
@@ -192,7 +217,7 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
       int hbBitsLayer=nBitsX+nBitsY;
       int dcHbBitsLayer=2*hbBitsLayer;
       //
-      // fill:   dcBitsLookup1[xy]
+      // fill:   dcBitsLookup1[layer][xy]
       //
       //   given the xy coordinates in the TSP map relative to the DC map
       //   this returns the encoded HB bits for this layer
@@ -213,6 +238,19 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
          }
       }
       //
+      // fill:   m_ndcBitsLookup[layer][xy]
+      //
+      //   given the encoded DCHB bits for this layer
+      //   this returns the number of DC bits
+      VECTOR<uint8_t> &ndcBitsLookup=m_ndcBitsLookup[layer];
+      ndcBitsLookup.resize(1<<dcHbBitsLayer);
+      for(xy1=0;xy1<ndcBitsLookup.size();xy1++) {
+         unsigned dcx,dcy;
+         dcx=(xy1>>nBitsX) & (nPosX-1);
+         dcy=(xy1>>(2*nBitsX+nBitsY)) & (nPosY-1);
+         ndcBitsLookup[xy1]=nBitsX+nBitsY-m_nHit16[dcx]-m_nHit16[dcy];
+      }
+      //
       //
       // fill:        dcBitsLookup2[][]
       //
@@ -222,18 +260,19 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
       //   two encoded DCHB patterns
       //     dchbNew = dcBitsLookup2[dchb1][dchb2]
       VECTOR<uint64_t> &dcBitsLookup2=m_dcBitsLookup2[layer];
-      dcBitsLookup2.resize(1<<(4*dcHbBitsLayer));
+      dcBitsLookup2.resize(1<<(2* dcHbBitsLayer)); // was 4*  STS 25.10.2016
       for(unsigned xy1xy2=0;xy1xy2<dcBitsLookup2.size();xy1xy2++) {
          unsigned xy[2],hbx[2],hby[2],dcx[2],dcy[2];
          for(int i=0;i<2;i++) {
-            xy[i]=(xy1xy2>>(2*i*hbBitsLayer)) &
-               ((1<<(2*hbBitsLayer))-1);
+            xy[i]=(xy1xy2>>(i*dcHbBitsLayer)) &
+               ((1<<(dcHbBitsLayer))-1);
             hbx[i]=xy[i] & (nPosX-1);
             dcx[i]=(xy[i]>>nBitsX) & (nPosX-1);
             hby[i]=(xy[i]>>(2*nBitsX)) & (nPosY-1);
             dcy[i]=(xy[i]>>(2*nBitsX+nBitsY)) & (nPosY-1);
-            if(nBitsX) hbx[i]=m_TSPmap->IEEE2GC(nBitsX,hbx[i]);
-            if(nBitsY) hby[i]=m_TSPmap->IEEE2GC(nBitsY,hby[i]);
+            // not for lookup table 2, because indices are already encoded
+            //if(nBitsX) hbx[i]=m_TSPmap->IEEE2GC(nBitsX,hbx[i]);
+            //if(nBitsY) hby[i]=m_TSPmap->IEEE2GC(nBitsY,hby[i]);
          }
          if(!xy[0]) {
             // xy[0]=0 means that xy[1] is the first pattern entered 
@@ -257,16 +296,6 @@ void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
                (((((notDcY<<nBitsY)|hbY)<<nBitsX)|notDcX)<<nBitsX)|hbX;
          }
       }
-   }
-
-   // lookup-table to determine number of bits in a word
-   m_nHit16.resize(0x10000);
-   for(int hitmask=0;hitmask<0x10000;hitmask++) {
-      int n=0;
-      for(int k=0;k<getNPlanes();k++) {
-         if(hitmask & (1<<k)) n++;
-      }
-      m_nHit16[hitmask]=n;
    }
 }
 
@@ -409,7 +438,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
    if(!flatFormat) {
       curpatt->setCoverage(-1);
    }
-   // patternID counter, requred for writing special patterns
+   // patternID counter, required for writing special patterns
    int patternID=0;
    // loop over sectors
    int isub=getSubID();
@@ -1910,8 +1939,8 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
       patternTSPcountTotal+= patternTSPcount[i];
 
    Info(where)
-      <<"number of distinct (layer,SSIDs)="<<ssidCountTotal
-      <<" number of sectors="<<sectorCountTotal
+      <<"number of distinct (layer,SSID)="<<ssidCountTotal
+      <<" number of distinct (layer,SSID,sector)="<<sectorCountTotal
       <<" number of patterns="<<m_npatterns
       <<" (0x"<<std::setbase(16)<<m_npatterns<<std::setbase(10)<<")\n";
    Info(where)
@@ -2689,11 +2718,10 @@ void FTK_CompressedAMBank::insertPatterns
 (int sector,FTKPatternOneSector const *patterns,
  int maxpatts,VECTOR<HitPatternMap_t> &dcPatterns,
  int &nDC,int &nTSP) {
-   /*Info("insertPatterns") << "inserting patterns " << patterns
-                       << " with Npatt=" << patterns->GetNumberOfPatterns()
-                       << ", sector " << sector << " (" << patterns->GetSector() << ")"
-                       << std::endl;
-   */
+   /* Info("insertPatterns") << "inserting patterns " << patterns
+                          << " with Npatt=" << patterns->GetNumberOfPatterns()
+                          << ", sector " << sector << " (" << patterns->GetSector() << ")"
+                          << std::endl; */
    HitPatternMap_t &dcList=dcPatterns[sector];
    FTKPatternOneSectorOrdered *tspList=
       patterns->OrderPatterns(FTKPatternOrderByCoverage(0));
@@ -2705,7 +2733,7 @@ void FTK_CompressedAMBank::insertPatterns
       // original pattern in TSP space
       FTKHitPattern const &tsp(tspList->GetHitPattern(itsp));
       // this variables stores DC/HB bits of all layers
-      uint64_t dchb=0;
+      uint64_t dchb0=0;
       //std::cout<<"Pattern\n";
       for(int ilayer=nLayer-1;ilayer>=0;ilayer--) {
          std::pair<int,int> const &dcSSID=
@@ -2716,20 +2744,19 @@ void FTK_CompressedAMBank::insertPatterns
                   <<" DC="<<dcSSID.first<<":"<<dcSSID.second
                   <<" bits*2="<<nDCHBbits
                   <<"\n"; */
-         dchb = (dchb<<nDCHBbits) | m_dcBitsLookup1[ilayer][dcSSID.second];
+         dchb0 = (dchb0<<nDCHBbits) | m_dcBitsLookup1[ilayer][dcSSID.second];
          dc.SetHit(ilayer,dcSSID.first);
       }
       // std::cout<<"dchb=0x"<<std::setbase(16)<<dchb<<std::setbase(10)<<"\n";
-      HitPatternMap_t::iterator idc=dcList.find(dc);
-      if(idc==dcList.end()) {
-         if((maxpatts>0)&&(nDC>=maxpatts)) break;
-         dcList[dc]=dchb; // insert DC pattern with DCHB bits
-         nDC++;
-      } else {
-         // update DCHB bits
-         uint64_t dchb2=(*idc).second; // present DCHB bits
+      std::pair<HitPatternMap_t::iterator,HitPatternMap_t::iterator> idc=
+         dcList.equal_range(dc);
+      HitPatternMap_t::iterator iPatt;
+      for(iPatt=idc.first;iPatt!=idc.second;iPatt++) {
+         uint64_t dchb1=dchb0; // this pattern's DCHB bits
+         uint64_t dchb2=(*iPatt).second; // present DCHB bits
          uint64_t dchbMerged=0; // new DCHB bits
          int shift=0; // location of DCHB bits
+         VECTOR<int> nDClayer(nLayer);
          for(unsigned ilayer=0;ilayer<nLayer;ilayer++) {
             int nDCbits=m_TSPmap->getNBits(ilayer);
             int nDCHBbits=nDCbits<<1;
@@ -2737,17 +2764,68 @@ void FTK_CompressedAMBank::insertPatterns
             int mask=(1<<nDCHBbits)-1;
             // xy1xy2 index to calculate OR of two DCHB values 
             //  in a given layer
-            int xy1xy2=((dchb & mask)<<nDCHBbits)+(dchb2 & mask);
-            dchbMerged |= m_dcBitsLookup2[ilayer][xy1xy2]<<shift;
+            int xy1xy2=((dchb1 & mask)<<nDCHBbits)+(dchb2 & mask);
+            uint64_t xyMerged=m_dcBitsLookup2[ilayer][xy1xy2];
+            nDClayer[ilayer]+=m_ndcBitsLookup[ilayer][xyMerged];
+            dchbMerged |= xyMerged<<shift;
             // shift to store merged DCHB bits of next layer
             shift += nDCHBbits;
             // remove data of this layer
-            dchb>>=nDCHBbits;
+            dchb1>>=nDCHBbits;
             dchb2>>=nDCHBbits;
          }
-         (*idc).second=dchbMerged;
+         bool accept=true;
+         int nDCbits=0;
+         for(unsigned ilayer=0;ilayer<nLayer;ilayer++) {
+            nDCbits+=nDClayer[ilayer];
+            if((ilayer<m_nDCmaxPlane.size())&&
+               (m_nDCmaxPlane[ilayer]>=0)&&
+               (nDClayer[ilayer]>m_nDCmaxPlane[ilayer])) {
+               accept=false;
+            }
+         }
+         if((m_nDCmax>=0)&&(nDCbits>m_nDCmax)) accept=false;
+         /* static int print=1000;
+         if(print) {
+            std::cout<<" "<<std::setbase(16)<<dchbMerged<<" :";
+            for(unsigned ilayer=0;ilayer<nLayer;ilayer++) {
+               std::cout<<" "<<nDClayer[ilayer];
+            }
+            std::cout<<" sum "<<nDCbits
+                     <<" accept="<<accept
+                     <<std::setbase(10)<<"\n";
+            print--;
+            } */
+         if(accept) {
+            // store this pattern with the existing DC pattern
+            /* std::cout<<"Merging pattern: ";
+            for(size_t iLayer=0;iLayer<nLayer;iLayer++) {
+               std::cout<<" "<<dc.GetHit(iLayer);
+            }
+            std::cout<<" DCHB "<<std::setbase(16)<<(*iPatt).second
+                     <<" + "<<dchb0
+                     <<" -> "<<dchbMerged
+                     <<std::setbase(10)<<"\n"; */
+            (*iPatt).second=dchbMerged;
+            break;
+         }
+      }
+      if(iPatt==idc.second) {
+         // pattern has not been stored., try to add new DC pattern
+         if((maxpatts>0)&&(nDC>=maxpatts)) break;
+         dcList.insert(std::make_pair(dc,dchb0)); // insert DC pattern with DCHB bits
+         /* std::cout<<"Insert pattern: ";
+         for(size_t iLayer=0;iLayer<nLayer;iLayer++) {
+            std::cout<<" "<<dc.GetHit(iLayer);
+         }
+         std::cout<<" DCHB "<<std::setbase(16)<<dchb0<<std::setbase(10)<<"\n"; */
+         nDC++;
       }
       nTSP++;
+      /* if(nTSP!=nDC) {
+         std::cout<<"inconsistency nDC="<<nDC<<" nTSP="<<nTSP<<"\n";
+         exit(0);
+         } */
    }
    delete tspList;
 }

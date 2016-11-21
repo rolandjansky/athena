@@ -8,6 +8,11 @@
 #include "TrigFTKSim/FTKSplitEncoder.h"
 #include "TrigFTKSim/ftkdefs.h"
 
+// #define TRACEBACK_ON_BOUNDARY_VIOLATION
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+#include <execinfo.h>
+#endif
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -1635,8 +1640,12 @@ FTKSSMap::compressed_ssid_word_pixel
   int phi_ss_width = m_ssm[plane][section][0].m_phiss;
   int eta_ss_width = m_ssm[plane][section][0].m_etass;
 
-  if((x<0.)||(x>m_ssm[plane][section][0].m_phiwidth)||
-     (y<0.)||(y>m_ssm[plane][section][0].m_etawidth)) {
+  if((x<0.)||(x>=m_ssm[plane][section][0].m_phiwidth)||
+     (y<0.)||(y>=m_ssm[plane][section][0].m_etawidth)) {
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+     void *buffer[100];int nptrs = backtrace(buffer, 100);
+     backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO);
+#endif
      cout<<"Error FTKSSMap::compressed_ssid_word_pixel bad coordinates plane="<<plane
          <<" localmodule="<<local_module_id
           <<" x="<<x<<" range [0;"<<m_ssm[plane][section][0].m_phiwidth<<"]"
@@ -1745,7 +1754,11 @@ FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
   // full-precision representation of coordinate / ss size (11-1=10 bits / size)
   int x = (int)localX;
 
-  if((x<0.)||(x>m_ssm[plane][section][0].m_phiwidth)) {
+  if((x<0.)||(x>=m_ssm[plane][section][0].m_phiwidth)) {
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+     void *buffer[100];int nptrs = backtrace(buffer, 100);
+     backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO);
+#endif
      cout<<"Error FTKSSMap::compressed_ssid_word_strip bad coordinates plane="<<plane
          <<" localmodule="<<localID
          <<" x="<<x<<" range [0;"<<m_ssm[plane][section][0].m_phiwidth<<"]\n";

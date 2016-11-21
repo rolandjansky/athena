@@ -384,9 +384,9 @@ void Process(Long64_t ientry) {
 	const std::vector<FTKHit>& hits = road->getHits(i);
 	std::vector<FTKHit>::const_iterator match_hit=hits.end();
 	for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
-	  const FTKHit& hit = *ihit;
+	  //	  const FTKHit& hit = *ihit;
 	  // printf("plane = %d\n", hit.getPlane());
-	  assert( hit.getDim()>=1 );
+	  assert( ihit->getDim()>=1 );
 	  MultiTruth this_mt(ihit->getTruth());
 	  this_mt.assign_equal_normalization();
 	  mtv.push_back( this_mt );

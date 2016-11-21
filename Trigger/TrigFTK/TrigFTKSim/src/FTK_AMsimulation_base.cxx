@@ -165,6 +165,7 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
   // clear the memory used to store the SS results
   m_usedssmap_ignored.clear();
 
+  int error=0;
   std::vector<FTKHit>::const_iterator ihit = hitlist.begin();
   for (;ihit!=hitlist.end();++ihit) { // hit loop
     // reference to the current hit
@@ -182,10 +183,14 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     // reference the map for this plane
     std::map<int,FTKSS> &ssmap= (*issmap).second;
     // identify the SS on the given plane
-    int ssid = FTKSetup::getFTKSetup().getHWModeSS()==0 ?
-       getSSMapUnused()->getSSGlobal(tmphit) :
-       getSSMapUnused()->getSSTower(tmphit,getBankID());
-    
+    int ssid=-1;
+    try {
+       ssid= FTKSetup::getFTKSetup().getHWModeSS()==0 ?
+          getSSMapUnused()->getSSGlobal(tmphit) :
+          getSSMapUnused()->getSSTower(tmphit,getBankID());
+    } catch(FTKException &e) {
+       error++;
+    }
     if (ssid<0) {
       // This means that hits had a recoverable issue and has to be skipped
       continue;
@@ -201,6 +206,9 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     FTKSS &ss = (*issitem).second;
     ss.addHit(tmphit);
   } // end hit loop
+  if(error) {
+     FTKSetup::PrintMessageFmt(ftk::warn,"FTK_AMsimulation_base::passHitsUnused number or errors=%d\n",error );
+  }
   return res;
 }
 
