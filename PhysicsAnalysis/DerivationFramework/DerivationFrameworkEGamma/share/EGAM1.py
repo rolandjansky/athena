@@ -284,9 +284,9 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Ker
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
 #=======================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-DerivationFrameworkJob += Config.DecoratePromptLepton("Electrons", "AntiKt4PV0TrackJets") 
-DerivationFrameworkJob += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
-
+#DerivationFrameworkJob += Config.DecoratePromptLepton("Electrons", "AntiKt4PV0TrackJets") 
+#DerivationFrameworkJob += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
+DerivationFrameworkJob += Config.GetDecoratePromptLeptonAlgs()
 
 #========================================================================
 
@@ -336,8 +336,11 @@ EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
+# the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
+# EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+
 if globalflags.DataSource()!='geant4':
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
@@ -347,6 +350,8 @@ if globalflags.DataSource()=='geant4':
 
 for tool in EGAM1_ClusterEnergyPerLayerDecorators:
     EGAM1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
@@ -358,3 +363,5 @@ EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 # Add Derived Egamma CellContainer
 from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
 CellCommonThinning(EGAM1Stream)
+
+

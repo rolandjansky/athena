@@ -98,9 +98,20 @@ print "EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool
 # trigger-based selection
 #====================================================================
 triggers=['HLT_e5_lhtight_e4_etcut_Jpsiee']
-triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 triggers+=['HLT_e5_lhtight_e4_etcut']
-triggers+=['HLT_e9_lhtight_e4_etcut']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut']
+
+triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_Jpsiee']
+
+triggers+=['HLT_e14_etcut_e5_lhtight_Jpsiee']
+triggers+=['HLT_e14_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e14_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee']
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
@@ -189,8 +200,8 @@ EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+# if globalflags.DataSource()!='geant4':
+#     EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth

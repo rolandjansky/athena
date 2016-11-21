@@ -221,8 +221,7 @@ svcMgr += createThinningSvc( svcName="EGAM7ThinningSvc", outStreams=[evtStream] 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM7SlimmingHelper = SlimmingHelper("EGAM7SlimmingHelper")
 
-# same content as EGAM1
-from DerivationFrameworkEGamma.EGAM1ExtraContent import *
+from DerivationFrameworkEGamma.EGAM7ExtraContent import *
 EGAM7SlimmingHelper.SmartCollections = [
 				        "Electrons",
 					"Photons",
@@ -242,8 +241,8 @@ EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+#if globalflags.DataSource()!='geant4':
+#    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth

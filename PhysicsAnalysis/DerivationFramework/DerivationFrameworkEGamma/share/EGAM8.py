@@ -51,9 +51,32 @@ ToolSvc += EGAM8_ZEEMassTool
 print EGAM8_ZEEMassTool
 
 
+#====================================================================
+# Z->mue selection based on single muon trigger, for ID SF(central+fwd) background studies
+# 1 medium muon, central, pT>25 GeV
+# 1 forward e, pT>20 GeV
+# OS+SS, mmue>50 GeV
+#====================================================================
+
+requirement_tag_muon = 'Muons.pt>24.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
+#requirement_probe = 'ForwardElectrons.pt > 19.5*GeV'
+EGAM8_ZMuEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZMuEMassTool",
+                                                               Object1Requirements = requirement_tag_muon,
+                                                               Object2Requirements = requirement_probe,
+                                                               StoreGateEntryName = "EGAM8_MuonElectronMass",
+                                                               Mass1Hypothesis = 105*MeV,
+                                                               Mass2Hypothesis = 0.511*MeV,
+                                                               Container1Name = "Muons",
+                                                               Container2Name = "ForwardElectrons",
+                                                               CheckCharge = False,
+                                                               DoTransverseMass = False,
+                                                               MinDeltaR = 0.0)
+ToolSvc += EGAM8_ZMuEMassTool
+print EGAM8_ZMuEMassTool
+
 
 # Skimming criteria
-expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1'
+expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1 || count(EGAM8_MuonElectronMass > 50.0*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM8SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8SkimmingTool",
                                                                    expression = expression)
@@ -182,7 +205,7 @@ print "EGAM8 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
-                                                                       AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool] + EGAM8_ClusterEnergyPerLayerDecorators,
+                                                                       AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_ZMuEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool] + EGAM8_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM8SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -233,6 +256,8 @@ EGAM8SlimmingHelper.SmartCollections = [
 
 # Add egamma trigger objects
 EGAM8SlimmingHelper.IncludeEGammaTriggerContent = True
+# Add muon trigger objects
+EGAM8SlimmingHelper.IncludeMuonTriggerContent = True
 
 # Extra variables
 EGAM8SlimmingHelper.ExtraVariables = ExtraContentAll

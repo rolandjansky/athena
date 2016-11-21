@@ -50,6 +50,10 @@ triggers += ['HLT_g20_loose'                       ]
 # additional BT for high pt HLT loose triggers
 triggers += ['HLT_g60_loose'                       ]
 
+# higher-pT triggers, to bootstrap g140_loose and g140_tight triggers
+triggers += ['HLT_g100_loose'                      ]
+triggers += ['HLT_g120_loose'                      ]
+
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression
 

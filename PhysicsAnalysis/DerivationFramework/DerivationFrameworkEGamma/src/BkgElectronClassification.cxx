@@ -85,10 +85,16 @@ namespace DerivationFramework {
 	 tPL.isAvailable(*el) && tPL(*el).isValid() &&
 	 tT(*el)==MCTruthPartClassifier::BkgElectron){      
 
+#ifdef MCTRUTHCLASSIFIER_CONST
+        IMCTruthClassifier::Info info;
+	auto res = m_mcTruthClassifier->checkOrigOfBkgElec(*tPL(*el), &info);
+	const xAOD::TruthParticle* truthParticle= info.bkgElecMother;
+#else
 	auto res = m_mcTruthClassifier->checkOrigOfBkgElec(*tPL(*el));
+	const xAOD::TruthParticle* truthParticle= m_mcTruthClassifier->getBkgElecMother();
+#endif
 	bkgTT(*el)= res.first;
 	bkgTO(*el)= res.second;
-	const xAOD::TruthParticle* truthParticle= m_mcTruthClassifier->getBkgElecMother();
 	if(truthParticle){
 	    ElementLink<xAOD::TruthParticleContainer> link(truthParticle, *truthContainer);
 	    bkgTPL(*el)=link;

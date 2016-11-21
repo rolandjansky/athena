@@ -1,6 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 #Content included in addition to the Smart Slimming Content
+
+ExtraContentElectrons=[]
 
 ExtraContentMuons=[
 #    "Muons.DFCommonGoodMuon",
@@ -14,7 +17,16 @@ ExtraContentMuons=[
     "Muons.etcone20",
     "Muons.etcone30",
     "Muons.etcone40"
-    ]
+#    "Muons.PromptLepton_TrackJetNTrack",
+#    "Muons.PromptLepton_sv1_ntkv",
+#    "Muons.PromptLepton_jf_ntrkv",
+#    "Muons.PromptLepton_ip2",
+#    "Muons.PromptLepton_ip2_cu",
+#    "Muons.PromptLepton_ip3",
+#    "Muons.PromptLepton_ip3_cu",
+#    "Muons.PromptLepton_EtTopoCone20Rel",
+#    "Muons.PromptLepton_TagWeight"
+]   
 
 ExtraMuonsTruth=[
     "MuonTruthParticles.e",
@@ -29,9 +41,7 @@ ExtraMuonsTruth=[
 
 ExtraContentPhotons=[
 	]
-
-ExtraContentElectrons=[]
-
+	
 ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
 
 ExtraPhotonsTruth=[
@@ -54,39 +64,34 @@ ExtraContentGSFConversionVertices=[
 	"GSFConversionVertices.trackParticleLinks"
 	]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#	ExtraContentPhotons.append("Photons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#	ExtraContentElectrons.append("Electrons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentElectrons.append("Electrons."+cell+layer)
+#ExtraContentHLTElectrons=[
+#        "HLT_xAOD__ElectronContainer_egamma_Electrons.e.pt.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1.fracs1.wtots1.weta1.DeltaE.Eratio.caloClusterLinks"
+#]
+
+ExtraContentTrackJets=["AntiKt4PV0TrackJets.pt.eta.phi.e.m.rapidity.btaggingLink.constituentLinks"]
+ExtraContentBtagging=["BTagging_AntiKt4Track.SV1_pb.SV1_pc.SV1_pu.IP2D_pb.IP2D_pc.IP2D_pu.IP3D_pb.IP3D_pc.IP3D_pu.JetFitter_pb.JetFitter_pc.JetFitter_pu.JetFitterCombNN_pb.JetFitterCombNN_pc.JetFitterCombNN_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant"]
+
+
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
 ExtraContentElectrons.extend( getGainDecorations(GainDecoratorTool) )
 
-ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices
+ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices+ExtraContentTrackJets+ExtraContentBtagging
 ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 
-
-ExtraContainersTruth=["TruthEvents",
+ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
                       "AntiKt4TruthJets",
 		      "egammaTruthParticles"
                       #,"BTagging_AntiKt4TruthWZ"
                       #,"AntiKt4TruthWZJets"
-                      ]
-ExtraContainersElectrons=["Electrons","GSFTrackParticles","egammaClusters"]
+		      ]
+
+ExtraContainersElectrons=["Electrons",
+                          "GSFTrackParticles",
+                          "egammaClusters"]
 
 # for trigger studies
 ExtraContainersTrigger = [
@@ -99,7 +104,3 @@ ExtraContainersTrigger = [
         "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
         # For trigger matching
         "HLT_xAOD__TrigPassBitsContainer_passbits"]
-
-
-# should probably slim electron/cluster collections and keep only relevant subset of variables..
-# no Jpsi with Fwd electrons so no ForwardElectrons, InDetTrackParticlesForwrd, ForwardElectronClusters
