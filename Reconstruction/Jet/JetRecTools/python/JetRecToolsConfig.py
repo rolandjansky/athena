@@ -3,7 +3,7 @@
 import os
 from AthenaCommon import Logging
 #from JetRec.JetToolSupport import jtm
-import JetRec.JetRecStandardTools
+#import JetRec.JetRecStandardTools
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, TrackPseudoJetGetter #MissingCellListTool, 
 
 
@@ -133,7 +133,7 @@ class ConstituentToolManager(object):
                 # translate into a real tool
                 tool = self.modifiersMap.get(t,None)
                 if tool is None:
-                    self.log.error( seqName+". Uknown shortcut for constit modifier list : "+modKey)
+                    self.log.error( seqName+". Uknown shortcut for constit modifier list : "+t)
                     return None
                 t = tool
             # append to the final list
@@ -160,7 +160,7 @@ ctm = ConstituentToolManager()
 from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, CaloClusterConstituentsOrigin, SoftKillerWeightTool
 
 
-ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.45) ,
+ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
          alias = 'softkiller' )
 
 ctm.add( CaloClusterConstituentsOrigin("JetConstit_LCOrigin") ,

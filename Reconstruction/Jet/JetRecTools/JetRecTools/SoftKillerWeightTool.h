@@ -24,16 +24,18 @@
 // Properties are as follows:
 //   OutputContainer: Name of the output cluster collection
 //   InputCollection: Name of the input cluster collection. 
-//   gridSpacing: The grid size that should be applied for the SK 
+//   GridSize: The grid size that should be applied for the SK 
 //   	 algorithm. Suggested values between 0.3 and 0.6
-//   SKRapMin: The minimum rapidity over which to calculate and apply SK
-//   SKRapMax: The maximum rapidity over which to calculate and apply SK
+//   SKRapMin: The minimum (absolute) rapidity over which to calculate SK
+//   SKRapMax: The maximum (absolute) rapidity over which to calculate SK
+//   SKRapMinApplied: The minimum (absolute) rapidity over which to apply SK
+//   SKRapMaxApplied: The maximum (absolute) rapidity over which to apply SK
 //   isCaloSplit: If false, SK is run the same on all clusters. If
 //   	 true, SK is run separately for clusters in the ECal and the
 //   	 HCal.
-//   eCalGrid: Only necessary if isCaloSplit == true. The SK grid spacing
+//   ECalGridSize: Only necessary if isCaloSplit == true. The SK grid spacing
 //   	 used for the ECal.
-//   hCalGrid: Only necessary if isCaloSplit == true. The SK grid spacing
+//   HCalGridSize: Only necessary if isCaloSplit == true. The SK grid spacing
 //     used for the HCal.
 //
 //
@@ -47,8 +49,6 @@
 
 
 #include <string>
-//#include "AsgTools/ToolHandle.h"
-//#include "AsgTools/AsgTool.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODBase/IParticleContainer.h"
 
@@ -95,6 +95,8 @@ private:
   float m_hCalGrid;
   float m_rapmin;
   float m_rapmax;
+  float m_rapminApplied;
+  float m_rapmaxApplied;
   mutable double m_minPt;
   mutable double m_minPtECal;
   mutable double m_minPtHCal;

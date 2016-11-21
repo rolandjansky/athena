@@ -28,7 +28,7 @@ namespace PFlowPJHelper{
 
     int fill(const xAOD::PFO* pfo, const TLorentzVector& p4) const {
       //This check MUST be on pfo, not p4 - p4 cannot return -ve energies, pfo can.
-      if((m_skipNegE) && (pfo->e()<=0) ) return 0;
+      if((m_skipNegE) && (pfo->e()<-1*FLT_MIN) ) return 0;
       if(std::isnan(p4.E()) ) return 0;
 
       fastjet::PseudoJet psj(p4);
@@ -53,11 +53,12 @@ namespace PFlowPJHelper{
 }
 
 PFlowPseudoJetGetter::PFlowPseudoJetGetter(const std::string &name)
-  : PseudoJetGetter(name), m_retrievePFOTool("RetrievePFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc")  {
+  : PseudoJetGetter(name), m_retrievePFOTool("RetrievePFOTool"), m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc")  {
   declareProperty("RetrievePFOTool", m_retrievePFOTool,  "Name of tool that builds the PFO collection.");
+  declareProperty("WeightPFOTool",   m_weightPFOTool,    "Name of tool that extracts the cPFO weights.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
   declareProperty("CalibratePFO",    m_calibrate =true,  "True if LC calibration should be applied to EM PFOs.");
-  declareProperty("UseNeutral",      m_useneutral =true, "True to use the nuetral component of PFlow.");
+  declareProperty("UseNeutral",      m_useneutral =true, "True to use the neutral component of PFlow.");
   declareProperty("UseCharged",      m_usecharged =true, "True if use the charged component of PFlow.");
   declareProperty("UseVertices", m_usevertices = true, "True if we make use of the primary vertex information.");
   declareProperty("UseChargedWeights",m_useChargedWeights = true, "True if we make use of weighting scheme for charged PFO");
@@ -131,6 +132,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
   // Get the charged pflow.
   if ( m_usecharged ) {
     const xAOD::PFOContainer* pcpfs = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
+    TLorentzVector cpfo_p4;
     for ( const xAOD::PFO* pcpf : *pcpfs ) {
       if ( pcpf == 0 ) {
         ATH_MSG_WARNING("Have NULL pointer to charged PFO");
@@ -141,6 +143,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
         ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
         continue;
       }
+      cpfo_p4.Clear();
 
       bool matchedToPrimaryVertex = false;
       if (true == m_useTrackToVertexTool && true == m_usevertices){
@@ -166,47 +169,15 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
       }
 
       if ( true == matchedToPrimaryVertex){
-	float weight = 0.0;
 	if (true == m_useChargedWeights) {
-	  if (ptrk){
-	    //This weight allows us to linearly de-weight higher pt tracks as we move towards the calo only regime
-	    if (ptrk->pt() < 30000) weight = 1.0;
-	    else if (ptrk->pt() >= 30000 && ptrk->pt() <= 60000) weight = (1.0 - (ptrk->pt()-30000)/30000);
-	    if (0.0 != weight){
-
-	      xAOD::PFODetails::PFOAttributes myAttribute_isInDenseEnvironment = xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment;
-	      
-	      int isInDenseEnvironment = false;
-	      bool gotVariable = pcpf->attribute(myAttribute_isInDenseEnvironment,isInDenseEnvironment);
-	      if (false == gotVariable) ATH_MSG_WARNING("This charged PFO did not have eflowRec_isInDenseEnvironment set");
-	      
-	      float expectedEnergy = 0.0;
-	      xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
-	      gotVariable = pcpf->attribute(myAttribute_tracksExpectedEnergyDeposit,expectedEnergy);
-	      
-	      if (false == gotVariable) {
-		ATH_MSG_WARNING("This charged PFO did not have eflowRec_tracksExpectedEnergyDeposit set");
-		weight = 1.0;
-		filler.fill(pcpf, pcpf->p4()*weight);
-	      }
-	      else{
-		if (true == isInDenseEnvironment) {
-		  TLorentzVector modifiedFourVector;//we cannot directly modify the xAOD::PFO because it is const	      
-		  modifiedFourVector.SetPtEtaPhiM((ptrk->e()-expectedEnergy)/cosh(pcpf->eta()),pcpf->eta(),pcpf->phi(),pcpf->m());
-		  filler.fill(pcpf, modifiedFourVector*weight );
-		}
-		else{
-		  float expectedPt = expectedEnergy/cosh(pcpf->eta());
-		  if (1.0 == weight) filler.fill(pcpf, pcpf->p4()*weight );
-		else{
-		  float secondWeight = (expectedPt + weight*(ptrk->pt()-expectedPt))/ptrk->pt();
-		  filler.fill(pcpf, pcpf->p4()*secondWeight );
-		}
-		}
-	      }
-	    }
-	  }
-	  else ATH_MSG_WARNING("This charged PFO has no track attached to it");
+	  float weight = 0.0;
+	  ATH_CHECK( m_weightPFOTool->fillWeight( *pcpf, weight ) );
+	  //if (weight>FLT_MIN){ // check against float precision
+	  ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << pcpf->pt()*weight);
+	  filler.fill(pcpf, pcpf->p4()*weight);
+	  //} else {
+	  //  ATH_MSG_VERBOSE("CPFO had a weight of 0, do not fill.");
+	  //} // received a weight
 	}//if should use charged PFO weighting scheme
 	else  filler.fill(pcpf, pcpf->p4());
       }

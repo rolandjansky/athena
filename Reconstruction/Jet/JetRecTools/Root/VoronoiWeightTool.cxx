@@ -4,6 +4,65 @@
 
 #include "JetRecTools/VoronoiWeightTool.h"
 
+namespace SortHelper {
+  //
+  // For Sorting
+  //
+  struct pt_sort
+  {
+
+    inline bool operator() (const TLorentzVector& lhs, const TLorentzVector& rhs)
+    {
+      return (lhs.Pt() > rhs.Pt());
+    }
+
+    inline bool operator() (const TLorentzVector* lhs, const TLorentzVector* rhs)
+    {
+      return (lhs->Pt() > rhs->Pt());
+    }
+
+    inline bool operator() (const xAOD::IParticle& lhs, const xAOD::IParticle& rhs)
+    {
+      return (lhs.pt() > rhs.pt());
+    }
+
+    inline bool operator() (const xAOD::IParticle* lhs, const xAOD::IParticle* rhs)
+    {
+      return (lhs->pt() > rhs->pt());
+    }
+  };
+
+
+  template<typename T>
+    T sort_container_pt(T* inCont) {
+    T sortedCont(SG::VIEW_ELEMENTS);
+    for(auto el : *inCont) sortedCont.push_back( el );
+    std::sort(sortedCont.begin(), sortedCont.end(), pt_sort());
+    return sortedCont;
+  }
+
+  template<typename T>
+    const T sort_container_pt(const T* inCont) {
+    ConstDataVector<T> sortedCont(SG::VIEW_ELEMENTS);
+
+    for(auto el : *inCont) sortedCont.push_back( el );
+    std::sort(sortedCont.begin(), sortedCont.end(), pt_sort());
+    return *sortedCont.asDataVector();
+  }
+
+  struct PJcomp {
+    bool operator() (const std::pair<fastjet::PseudoJet, std::vector<float> >& lhsp, const std::pair<fastjet::PseudoJet, std::vector<float> >& rhsp)
+    {
+      fastjet::PseudoJet lhs = lhsp.first;
+      fastjet::PseudoJet rhs = rhsp.first;
+      return lhs.pt()>rhs.pt();
+      //The comparator must be a strict weak ordering. 
+    }
+  };
+  
+  
+} // end SortHelper
+
 
 VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
   JetConstituentModifierBase(name)
@@ -21,21 +80,13 @@ VoronoiWeightTool::~VoronoiWeightTool() {}
 
 //Have to define custom comparator for PseudoJets in order to have a map from PJs to anything
 //Comparison is fuzzy to account for rounding errors
-struct VoronoiWeightTool :: PJcomp {
-  bool operator() (const std::pair<fastjet::PseudoJet, std::vector<float> >& lhsp, const std::pair<fastjet::PseudoJet, std::vector<float> >& rhsp)
-  {
-    fastjet::PseudoJet lhs = lhsp.first;
-    fastjet::PseudoJet rhs = rhsp.first;
-    return lhs.pt()>rhs.pt();
-    //The comparator must be a strict weak ordering. 
-  }
-};
 
 StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) const
 {
   const char* APP_NAME = "VoronoiWeightTool::process()";
 
-  clusters.clear();
+  //clusters.clear();
+  std::vector<fastjet::PseudoJet> clusters; clusters.reserve(in_clusters->size());
 
   CaloClusterChangeSignalStateList stateHelperList;
   for(auto clust: *in_clusters){
@@ -52,8 +103,8 @@ StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) c
   }
 
   std::vector< std::pair< fastjet::PseudoJet, std::vector<float> > > ptvec; //vector of pairs of PJs and their corrected pTs
-  if(MakeVoronoiClusters(ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR(APP_NAME << ": Error in MakeVoronoiClusters");
-  std::sort(ptvec.begin(), ptvec.end(), PJcomp());
+  if(makeVoronoiClusters(clusters, ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR(APP_NAME << ": Error in makeVoronoiClusters");
+  std::sort(ptvec.begin(), ptvec.end(), SortHelper::PJcomp());
 
   if(m_doSpread && m_nSigma > 0) ATH_MSG_ERROR(APP_NAME << ": Can't combine spreading with nSigma yet");
   int alg;
@@ -63,7 +114,7 @@ StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) c
 
   size_t i=0;
   SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
-  for(auto clust : sort_container_pt(in_clusters)){
+  for(auto clust : SortHelper::sort_container_pt(in_clusters)){
     float newE;
    //There should be the same number of positive E Clusters in the container as clusters in the ptvec
     bool endContainer = clust->e()<=0;
@@ -105,8 +156,8 @@ StatusCode VoronoiWeightTool::process(xAOD::IParticleContainer* cont) const {
     return StatusCode::FAILURE;
 }
 
-StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec) const{
-  std::vector<fastjet::PseudoJet> inputConst = clusters;
+StatusCode VoronoiWeightTool::makeVoronoiClusters(std::vector<fastjet::PseudoJet>& clusters,std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec) const{
+  std::vector<fastjet::PseudoJet> & inputConst = clusters;
   fastjet::Selector jselector = fastjet::SelectorAbsRapRange(0.0,2.1);
   fastjet::JetAlgorithm algo = fastjet::kt_algorithm;
   float jetR = 0.4;
@@ -149,12 +200,12 @@ StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastje
   } // end loop over jets
   //std::cout << "Size: " << correctedptmap.size() << std::endl;
 
-  if(m_doSpread) SpreadPt(correctedptvec);
+  if(m_doSpread) spreadPt(correctedptvec);
 
 return StatusCode::SUCCESS;
 }
 
-void VoronoiWeightTool::SpreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr, float alpha) const{
+void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr, float alpha) const{
   //default alpha = 2
   //Set up neighbors within spreadr:
   int clusters = correctedptvec.size();

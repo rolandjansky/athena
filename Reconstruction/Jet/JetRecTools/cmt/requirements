@@ -13,7 +13,7 @@ private
 
 use AtlasFastJet            AtlasFastJet-*              External
 use AtlasFastJetContrib     AtlasFastJetContrib-*       External
-macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller"
+macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller -lConstituentSubtractor"
 
 public
 
@@ -37,17 +37,17 @@ use JetRec              JetRec-*              Reconstruction/Jet
 use xAODCore                xAODCore-*                  Event/xAOD
 use xAODBase                xAODBase-*                  Event/xAOD
 use xAODCaloEvent           xAODCaloEvent-*             Event/xAOD
+use xAODEgamma          xAODEgamma-*			Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
-
 use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
-
 
 private
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
 # which creates a component library and cmake (correctly) does not propagate such dependencies
 use xAODTruth           xAODTruth-*             Event/xAOD
 use xAODPFlow           xAODPFlow-*             Event/xAOD
+use xAODJet             xAODJet-*               Event/xAOD
 end_private
 
 

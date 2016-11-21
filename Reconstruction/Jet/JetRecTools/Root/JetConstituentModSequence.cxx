@@ -26,13 +26,13 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
+	declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
 }
 
-#ifdef ASGTOOL_ATHENA
 StatusCode JetConstituentModSequence::initialize() {
-  CHECK( m_modifiers.retrieve() );
+  ATH_CHECK( m_modifiers.retrieve() );
   if( m_modifiers.empty() ) {
     ATH_MSG_ERROR(" empty container !!" );
     return StatusCode::FAILURE;
@@ -52,49 +52,56 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   const xAOD::IParticleContainer* cont = 0;
-  CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
 
   xAOD::IParticleContainer* modifiedCont = 0;
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
   case xAOD::Type::CaloCluster : { 
-    modifiedCont = copyAndRecord<xAOD::CaloClusterContainer>(cont);
+    modifiedCont = copyAndRecord<xAOD::CaloClusterContainer>(cont, !m_trigger);
     break; }
       
   case xAOD::Type::TruthParticle : {
-    modifiedCont = copyAndRecord<xAOD::TruthParticleContainer>(cont);
+    modifiedCont = copyAndRecord<xAOD::TruthParticleContainer>(cont, !m_trigger);
     break;}
         
   case xAOD::Type::TrackParticle : {
-    modifiedCont = copyAndRecord<xAOD::TrackParticleContainer>(cont);
+    modifiedCont = copyAndRecord<xAOD::TrackParticleContainer>(cont, !m_trigger);
     break;}
 
 
   case xAOD::Type::ParticleFlow : {
-    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont);
+    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger);
     break; }
 
   default: {
-    ATH_MSG_ERROR( "Unsupported input type " << m_inputType );
+    ATH_MSG_WARNING( "Unsupported input type " << m_inputType );
   }
     
 
   }
 
   if(modifiedCont==0) {
-    ATH_MSG_ERROR("Could not create a copy of "<< m_inputContainer);
-    return -1;
+    ATH_MSG_WARNING("Could not create a copy of "<< m_inputContainer);
+    return 1;
   }
 
   // Now pass the input container shallow copy through the modifiers 
 
   // Loop over the modifier tools:
   for (auto t : m_modifiers) { // Here t is a pointer to an IJetConstituentModifier
-    ATH_CHECK(t->process(modifiedCont));    
+    if(t->process(modifiedCont).isFailure()){
+      ATH_MSG_WARNING("Failure in modifying constituents " << m_outputContainer );
+      return 1;
+    }
   }
   
   return 0;
 }
-#endif
+
+void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
+	m_trigInputClusters = cont;
+}
+
 
