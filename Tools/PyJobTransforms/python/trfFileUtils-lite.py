@@ -360,7 +360,17 @@ def ROOTGetSize(filename):
     
     try:
         msg.debug('Calling TFile.Open for {0}'.format(filename))
-        fname = root.TFile.Open(filename + '?filetype=raw', 'READ')
+        extraparam = '?filetype=raw'
+        if filename.startswith("https"):
+            try:
+                pos = filename.find("?")
+                if pos>=0:
+                    extraparam = '&filetype=raw'
+                else:
+                    extraparam = '?filetype=raw'
+            except:
+                extraparam = '?filetype=raw'
+        fname = root.TFile.Open(filename + extraparam, 'READ')
         fsize = fname.GetSize()
         msg.debug('Got size {0} from TFile.GetSize'.format(fsize))
     except ReferenceError:

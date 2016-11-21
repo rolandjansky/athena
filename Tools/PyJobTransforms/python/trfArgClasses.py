@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 770743 2016-08-30 08:44:06Z uworlika $
+# @version $Id: trfArgClasses.py 780423 2016-10-26 08:02:47Z mavogel $
 
 import argparse
 import bz2
@@ -695,7 +695,7 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    if not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                    if str(filename).startswith("https") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
                         msg.debug('Seems that only one file was given: {0}'.format(filename))
                         newValue.extend(([filename]))
                     else:
