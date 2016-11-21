@@ -5,6 +5,7 @@
 #ifndef JETMOMENTTOOLS_JETMOMENTTOOLSDICT_H
 #define JETMOMENTTOOLS_JETMOMENTTOOLSDICT_H
 
+#include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetCaloQualityTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
 #include "JetMomentTools/JetConstitFourMomTool.h"
