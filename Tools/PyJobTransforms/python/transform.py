@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 772406 2016-09-09 12:10:12Z mavogel $
+# @version $Id: transform.py 785618 2016-11-21 22:03:04Z uworlika $
 # 
 
 __version__ = '$Revision'
@@ -28,7 +28,7 @@ from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArgumen
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
+from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr, isInteractiveEnv
 from PyJobTransforms.trfReports import trfJobReport, defaultFileReport
 from PyJobTransforms.trfExe import transformExecutor
 from PyJobTransforms.trfGraph import executorGraph
@@ -51,6 +51,9 @@ class transform(object):
         
         ## @brief Get starting timestamp as early as possible
         self._transformStart = os.times()
+        
+        ## @brief Get trf pre-data as early as possible
+        self._trfPredata = os.environ.get('TRF_PREDATA')
 
         ## Transform _name
         self._name = trfName        
@@ -136,6 +139,10 @@ class transform(object):
     @property
     def transformStart(self):
         return self._transformStart
+    
+    @property
+    def trfPredata(self):
+        return self._trfPredata
     
     @property
     def executors(self):
@@ -541,17 +548,21 @@ class transform(object):
             # (It causes spurious warnings for some grid jobs with background files (e.g., digitisation)
             if 'TZHOME' in os.environ:
                 reportType.append('gpickle')
-            
+
+            if not isInteractiveEnv():
+                reportType.append('text')
+
         if 'reportName' in self._argdict:
             baseName = classicName = self._argdict['reportName'].value
         else:
             baseName = 'jobReport'
             classicName = 'metadata'
-        
+
         try:
-            # Text
-            if reportType is None or 'text' in reportType: 
-                self._report.writeTxtReport(filename='{0}.txt'.format(baseName), fast=fast, fileReport=fileReport)
+            # Text: Writes environment variables and machine report in text format.
+            if reportType is None or 'text' in reportType:
+                envName = baseName if 'reportName' in self._argdict else 'env'  # Use fallback name 'env.txt' if it's not specified.
+                self._report.writeTxtReport(filename='{0}.txt'.format(envName), fast=fast, fileReport=fileReport)
             # JSON
             if reportType is None or 'json' in reportType:
                 self._report.writeJSONReport(filename='{0}.json'.format(baseName), fast=fast, fileReport=fileReport)

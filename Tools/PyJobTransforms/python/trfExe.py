@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 772406 2016-09-09 12:10:12Z mavogel $
+# @version $Id: trfExe.py 785618 2016-11-21 22:03:04Z uworlika $
 
 import copy
 import json
@@ -24,7 +24,8 @@ from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum, releaseIsOlderThan, ValgrindCommand
+from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -609,10 +610,7 @@ class scriptExecutor(transformExecutor):
             msg.info('TRF_NOECHO envvar is set - disabling command echoing to stdout')
             self._echoOutput = False
         # PS1 is for sh, bash; prompt is for tcsh and zsh
-        elif 'PS1' in os.environ or 'prompt' in os.environ: 
-            msg.info('Interactive environment detected (shell prompt) - enabling command echoing to stdout')
-            self._echoOutput = True
-        elif os.isatty(sys.stdout.fileno()) or os.isatty(sys.stdin.fileno()): 
+        elif isInteractiveEnv():
             msg.info('Interactive environment detected (stdio or stdout is a tty) - enabling command echoing to stdout')
             self._echoOutput = True
         elif 'TZHOME' in os.environ:
@@ -828,7 +826,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 772406 2016-09-09 12:10:12Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 785618 2016-11-21 22:03:04Z uworlika $')
         else:
             self._jobOptionsTemplate = None
 
@@ -1654,6 +1652,48 @@ class DQMergeExecutor(scriptExecutor):
         
         # Set the run_post_processing to False
         self._cmd.append('False')
+
+    def validate(self):
+        self.setValStart()
+        super(DQMergeExecutor, self).validate()
+
+        exitErrorMessage = ''
+        # Base class validation successful, Now scan the logfile for missed errors.
+        try:
+            logScan = trfValidation.scriptLogFileReport(self._logFileName)
+            worstError = logScan.worstError()
+
+            # In general we add the error message to the exit message, but if it's too long then don't do
+            # that and just say look in the jobReport
+            if worstError['firstError']:
+                if len(worstError['firstError']['message']) > logScan._msgLimit:
+                    exitErrorMessage = "Long {0} message at line {1}" \
+                                       " (see jobReport for further details)".format(worstError['level'],
+                                        worstError['firstError']['firstLine'])
+                else:
+                    exitErrorMessage = "Logfile error in {0}: \"{1}\"".format(self._logFileName,
+                                                                              worstError['firstError']['message'])
+        except (OSError, IOError) as e:
+            exitCode = trfExit.nameToCode('TRF_EXEC_LOGERROR')
+            raise trfExceptions.TransformValidationException(exitCode,
+                  'Exception raised while attempting to scan logfile {0}: {1}'.format(self._logFileName, e))
+
+        if worstError['nLevel'] == stdLogLevels['ERROR'] and (
+                'ignoreErrors' in self.conf.argdict and self.conf.argdict['ignoreErrors'].value is True):
+            msg.warning('Found ERRORs in the logfile, but ignoring this as ignoreErrors=True (see jobReport for details)')
+
+        elif worstError['nLevel'] >= stdLogLevels['ERROR']:
+            self._isValidated = False
+            msg.error('Fatal error in script logfile (level {0})'.format(worstError['level']))
+            exitCode = trfExit.nameToCode('TRF_EXEC_LOGERROR')
+            raise trfExceptions.TransformLogfileErrorException(exitCode, 'Fatal error in script logfile: "{0}"'.format(exitErrorMessage))
+
+        # Must be ok if we got here!
+        msg.info('Executor {0} has validated successfully'.format(self.name))
+        self._isValidated = True
+
+        self._valStop = os.times()
+        msg.debug('+++ valStop time is {0}'.format(self._valStop))
 
 
 ## @brief Specialist execution class for merging NTUPLE files

@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 764775 2016-07-27 18:09:38Z graemes $
+# @version $Id: trfUtils.py 785618 2016-11-21 22:03:04Z uworlika $
 
 import os
 import os.path as path
@@ -623,6 +623,18 @@ def units(
         return unitSingular
     else:
         return unitPlural
+
+
+# @brief returns if the current job is running in interactive environment.
+def isInteractiveEnv():
+    isInteractiveEnv = False
+    # PS1 is for sh, bash; prompt is for tcsh and zsh
+    if 'PS1' in os.environ or 'prompt' in os.environ:
+        isInteractiveEnv = True
+    elif os.isatty(sys.stdout.fileno()) or os.isatty(sys.stdin.fileno()):
+        isInteractiveEnv = True
+
+    return isInteractiveEnv
 
 
 ## @brief Job: a set of pieces of information relevant to a given work function

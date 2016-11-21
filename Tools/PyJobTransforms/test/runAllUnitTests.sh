@@ -2,7 +2,12 @@
 
 PJTUnitTests(){
     exitCode=0
-    for test in $(ls ${TestArea}/InstallArea/share/JobTransforms/test/test_transform.py $TestArea/InstallArea/share/JobTransforms/test/test_trf*.py); do
+    if [ -n "$WorkDir_DIR" ]; then
+        InstallArea="${WorkDir_DIR}"
+    else
+         InstallArea="${TestArea}/InstallArea"
+    fi    
+    for test in $(ls ${InstallArea}/share/JobTransforms/test/test_transform.py $InstallArea/share/JobTransforms/test/test_trf*.py); do
         name="$(basename ${test})"
         echo "Running test "${name}""
         ${test} &> ${name}.test

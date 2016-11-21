@@ -57,6 +57,8 @@ def addMyArgs(parser):
     parser.add_argument('--outputEVNT_MRGFile', '--outputEVNTFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', runarg=True, type='evnt'),
                         help='Output merged EVNT file', group='EVNTMerge_tf')
+    parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool), metavar = "BOOL",
+                        help='Switch AthenaMP to the Event Service configuration', group='EVNTMerge_tf')
     
     
 

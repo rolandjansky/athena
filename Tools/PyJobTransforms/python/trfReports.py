@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 769106 2016-08-22 12:48:19Z lerrenst $
+#  @version $Id: trfReports.py 784023 2016-11-14 14:01:07Z mavogel $
 #
 
-__version__ = '$Revision: 769106 $'
+__version__ = '$Revision: 784023 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.6'
+    _reportVersion = '2.0.7'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -210,7 +210,8 @@ class trfJobReport(trfReport):
                               'externalCpuTime': int(childCpuTime + 0.5),
                               'wallTime': int(wallTime + 0.5),}
         if self._trf.processedEvents:
-            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents
+            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents   
+        myDict['resource']['transform']['trfPredata'] = self._trf.trfPredata
         # check for devision by zero for fast jobs, unit tests
         if int(wallTime+0.5) > 0:
             myDict['resource']['transform']['cpuEfficiency'] = round(int(cpuTime + 0.5)*1.0/maxWorkers/int(wallTime+0.5), 4)
