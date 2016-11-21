@@ -51,7 +51,7 @@ namespace TrigConf {
       Muctpi*          m_muctpi;
 
       // Properties:
-      int m_masterID;
+      //int m_masterID;
       int m_prescaleSetID;
       int m_bunchgroupSetID;
       BooleanProperty m_dumpTTVmap;

@@ -113,7 +113,7 @@ TrigConf::JobOptionsCatalogue::printUnresolvedOptions(MsgStream& msgStream) {
           if ( s.length() > 0 && s[0] == '@' )    {
             msgStream << MSG::FATAL << "Found problematic option:" 
                       << (*iter)->algorithmName() << "." << p->name() 
-                      << " Value[" << i << "] = " << s << endreq;
+                      << " Value[" << i << "] = " << s << endmsg;
           }
         }
       }
@@ -124,7 +124,7 @@ TrigConf::JobOptionsCatalogue::printUnresolvedOptions(MsgStream& msgStream) {
           if ( s.length() > 0 && s[0] == '@' )
             msgStream << MSG::FATAL << "Found problematic option:" 
                       << (*iter)->algorithmName() << "." << p->name() 
-                      << " Value = " << s << endreq;
+                      << " Value = " << s << endmsg;
         }
       }
     }
@@ -181,10 +181,10 @@ TrigConf::JobOptionsCatalogue::resolveOptions(MsgStream& log) {
               }
             }
             else    {
-              log << endreq
+              log << endmsg
                   << MSG::FATAL << "Self references to options are not allowed!"
                   << (*iter)->algorithmName() << "." << p->name() 
-                  << " Value = " << s << endreq;
+                  << " Value = " << s << endmsg;
               return StatusCode::FAILURE;
             }
           }
@@ -223,7 +223,7 @@ TrigConf::JobOptionsCatalogue::resolveOptions(MsgStream& log) {
   if ( loops <= 0 || missing_syms > 0 )   {
     log << MSG::FATAL
         << "Job option symbols cannot be resolved. Bad symbols found."
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

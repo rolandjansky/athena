@@ -33,19 +33,19 @@ namespace TrigConf {
    bool Verifyer::verify( const Menu& menu, MsgStream& log ) {
 
       log << MSG::DEBUG << "---> Verifying the validity of the trigger menu..." 
-          << endreq;
+          << endmsg;
 
       if( verifyThCount( menu, log ) ) {
-         log << MSG::ERROR << "Verifyer::verifyThCount() failed" << endreq;
+         log << MSG::ERROR << "Verifyer::verifyThCount() failed" << endmsg;
          return true;
       }
 
       //if( verifyThLayout( menu, log ) ) {
-      //  log << MSG::ERROR << "Verifyer::verifyThLayout() failed" << endreq;
+      //  log << MSG::ERROR << "Verifyer::verifyThLayout() failed" << endmsg;
       //  return true;
       //}
 
-      log << MSG::DEBUG << "---> Trigger menu found to be valid" << endreq;
+      log << MSG::DEBUG << "---> Trigger menu found to be valid" << endmsg;
       return false;
 
    }
@@ -54,7 +54,7 @@ namespace TrigConf {
 
       L1DataDef def;
 
-      log << MSG::VERBOSE << "  ---> Checking trigger threshold counts" << endreq;
+      log << MSG::VERBOSE << "  ---> Checking trigger threshold counts" << endmsg;
 
       //
       // Count all the thresholds in the configuration:
@@ -148,138 +148,138 @@ namespace TrigConf {
       //
       if( muon_th_count > def.max_MUON_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many MUON thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many MUON thresholds defined in the configuration" << endmsg;
          return true;
 
       } else if( muon_th_count != def.max_MUON_Threshold_Number() ) {
 
-         log << MSG::WARNING << "    ---> Less than 6 MUON thresholds defined, TGC simulation will override!" << endreq;
+         log << MSG::WARNING << "    ---> Less than 6 MUON thresholds defined, TGC simulation will override!" << endmsg;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> MUON threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> MUON threshold count passed the check" << endmsg;
 
       }
 
       if( em_th_count > def.max_EM_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many EM thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many EM thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> EM threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> EM threshold count passed the check" << endmsg;
 
       }
 
       if( tau_th_count > def.max_TAU_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many TAU thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many TAU thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> TAU threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> TAU threshold count passed the check" << endmsg;
 
       }
 
       if( jet_th_count > def.max_JET_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many JET thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many JET thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> JET threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> JET threshold count passed the check" << endmsg;
 
       }
 
       if( jetenergy_th_count > def.max_JE_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many JE thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many JE thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> JE threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> JE threshold count passed the check" << endmsg;
 
       }
 
       if( jb_th_count > def.max_JB_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many JB thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many JB thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> JB threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> JB threshold count passed the check" << endmsg;
 
       }
 
       if( jf_th_count > def.max_JF_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many JF thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many JF thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> JF threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> JF threshold count passed the check" << endmsg;
 
       }
 
       if( energy_th_count > def.max_TE_Threshold_Number() ) {
 
-         log << MSG::ERROR << "Too many TE thresholds defined in the configuration" << endreq;
+         log << MSG::ERROR << "Too many TE thresholds defined in the configuration" << endmsg;
          return true;
 
       } else {
 
-         log << MSG::VERBOSE << "    ---> TE threshold count passed the check" << endreq;
+         log << MSG::VERBOSE << "    ---> TE threshold count passed the check" << endmsg;
 
       }
 
       if( missen_th_count > def.max_XE_Threshold_Number() ) {
          log << MSG::ERROR << 
-            "Too many XE thresholds defined in the configuration" << endreq;
+            "Too many XE thresholds defined in the configuration" << endmsg;
          return true;
       } else {
          log << MSG::VERBOSE << 
-            "    ---> XE threshold count passed the check" << endreq;
+            "    ---> XE threshold count passed the check" << endmsg;
       }
 
       if(rndm_th_count > def.max_RNDM_Threshold_Number()) {
          log << MSG::ERROR << 
-            "Too many RNDM thresholds defined in the configuration" << endreq;
+            "Too many RNDM thresholds defined in the configuration" << endmsg;
          return true;
       } else {
          log << MSG::VERBOSE << 
-            "    ---> RNDM threshold count passed the check" << endreq;
+            "    ---> RNDM threshold count passed the check" << endmsg;
       }
       if(pclk_th_count > def.max_PCLK_Threshold_Number()) {
          log << MSG::ERROR << 
-            "Too many PCLK thresholds defined in the configuration" << endreq;
+            "Too many PCLK thresholds defined in the configuration" << endmsg;
          return true;
       } else {
          log << MSG::VERBOSE << 
-            "    ---> PCLK threshold count passed the check" << endreq;
+            "    ---> PCLK threshold count passed the check" << endmsg;
       }
       if(bgrp_th_count > def.max_BGRP_Threshold_Number()) {
          log << MSG::ERROR << 
-            "Too many BGRP thresholds defined in the configuration" << endreq;
+            "Too many BGRP thresholds defined in the configuration" << endmsg;
          return true;
       } else {
          log << MSG::VERBOSE << 
-            "    ---> BGRP threshold count passed the check" << endreq;
+            "    ---> BGRP threshold count passed the check" << endmsg;
       }
 
 
       if( count[L1DataDef::TOPO] > L1DataDef::typeConfig( L1DataDef::TOPO ).max ) {
          log << MSG::ERROR << 
-            "Too many TOPO thresholds defined in the configuration" << endreq;
+            "Too many TOPO thresholds defined in the configuration" << endmsg;
          return true;
       } else {
          log << MSG::VERBOSE << 
-            "TOPO threshold count passed the check" << endreq;
+            "TOPO threshold count passed the check" << endmsg;
       }
 
 
@@ -293,21 +293,21 @@ namespace TrigConf {
       //     if (rndm_th_count != def.max_RNDM_Threshold_Number()) {
       //       log << MSG::WARNING << 
       // 	"Only " << rndm_th_count << " RNDM thresholds are defined! " <<
-      // 	" maximum allowed is " << def.max_RNDM_Threshold_Number() << endreq;
+      // 	" maximum allowed is " << def.max_RNDM_Threshold_Number() << endmsg;
       //     }
       //     if (pclk_th_count != def.max_PCLK_Threshold_Number()) {
       //       log << MSG::WARNING << 
       // 	"Only " << pclk_th_count << " PCLK thresholds are defined! " <<
-      // 	" maximum allowed is " << def.max_PCLK_Threshold_Number() << endreq;
+      // 	" maximum allowed is " << def.max_PCLK_Threshold_Number() << endmsg;
       //     }
       //     if (bgrp_th_count != def.max_BGRP_Threshold_Number()) {
       //       log << MSG::WARNING << 
       // 	"Only " << bgrp_th_count << " BGRP thresholds are defined! " <<
-      // 	" maximum allowed is " << def.max_BGRP_Threshold_Number() << endreq;
+      // 	" maximum allowed is " << def.max_BGRP_Threshold_Number() << endmsg;
       //     }
       //===========================================================================
 
-      log << MSG::VERBOSE << "  ---> Trigger threshold counts passed the tests" << endreq;
+      log << MSG::VERBOSE << "  ---> Trigger threshold counts passed the tests" << endmsg;
       return false;
 
    }
@@ -318,7 +318,7 @@ namespace TrigConf {
       //
       // Now check that the layout of the thresholds on the cables is possible or not:
       //
-      log << MSG::VERBOSE << "  ---> Checking layout of trigger thresholds onto cables" << endreq;
+      log << MSG::VERBOSE << "  ---> Checking layout of trigger thresholds onto cables" << endmsg;
 
       unsigned int muon_cable = !MUON_CABLE_MASK;
       unsigned int cp1_cable  = !CP1_CABLE_MASK;
@@ -339,96 +339,96 @@ namespace TrigConf {
          if( ( *it )->cableName() == "MU" ) {
 
             if( ( *it )->type() != def.muonType() ) {
-               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the MU cable!" << endreq;
+               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the MU cable!" << endmsg;
                return true;
             }
             if( muon_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable MU "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             muon_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable MU verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable MU verifyed" << endmsg;
 
 
          } else if( ( *it )->cableName() == "CP1" ) {
 
             if( ( *it )->type() != def.emType() ) {
-               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the CP1 cable!" << endreq;
+               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the CP1 cable!" << endmsg;
                return true;
             }
             if( cp1_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable CP1 "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             cp1_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable CP1 verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable CP1 verifyed" << endmsg;
 
 
          } else if( ( *it )->cableName() == "CP2" ) {
 
             if( ! ( ( ( *it )->type() == def.emType() ) || ( ( *it )->type() == def.tauType() ) ) ) {
-               log << MSG::ERROR << "  ---> A(n) " << ( *it )->type() << " threshold can't be put on the CP2 cable!" << endreq;
+               log << MSG::ERROR << "  ---> A(n) " << ( *it )->type() << " threshold can't be put on the CP2 cable!" << endmsg;
                return true;
             }
             if( cp2_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable CP2 "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             cp2_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable CP2 verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable CP2 verifyed" << endmsg;
 
          } else if( ( *it )->cableName() == "JEP1" ) {
 
             if( ! ( ( ( *it )->type() == def.jetType() ) || ( ( *it )->type() == def.jeType() ) ) ) {
-               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP1 cable!" << endreq;
+               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP1 cable!" << endmsg;
                return true;
             }
             if( jep1_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable JEP1 "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             jep1_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP1 verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP1 verifyed" << endmsg;
 
          } else if( ( *it )->cableName() == "JEP2" ) {
 
             if( ! ( ( *it )->type()==def.jbType() || (*it)->type()==def.jfType()) ) {
-               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP2 cable!" << endreq;
+               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP2 cable!" << endmsg;
                return true;
             }
             if( jep2_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable JEP2 "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             jep2_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP2 verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP2 verifyed" << endmsg;
 
          } else if( ( *it )->cableName() == "JEP3" ) {
 
             if( ! ( ( ( *it )->type() == def.teType() ) || ( ( *it )->type() == def.xeType() ) ) ) {
-               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP3 cable!" << endreq;
+               log << MSG::ERROR << "    ---> A(n) " << ( *it )->type() << " threshold can't be put on the JEP3 cable!" << endmsg;
                return true;
             }
 
 
             if( jep3_cable & createMask( ( *it )->cableStart(), ( *it )->cableEnd() ) ) {
                log << MSG::ERROR << "    ---> The bits from " << ( *it )->cableStart() << " to " << ( *it )->cableEnd() << " on cable JEP3 "
-                   << "are already partly or totally taken" << endreq;
-               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endreq;
+                   << "are already partly or totally taken" << endmsg;
+               log << MSG::ERROR << "         Threshold " << ( *it )->name() << " can't be placed" << endmsg;
                return true;
             }
             jep3_cable |= createMask( ( *it )->cableStart(), ( *it )->cableEnd() );
-            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP3 verifyed" << endreq;
+            log << MSG::VERBOSE << "    ---> Trigger threshold " << ( *it )->name() << " on cable JEP3 verifyed" << endmsg;
 
          } else if( ( *it )->cableName() == "NIM" ) {
 
@@ -441,24 +441,24 @@ namespace TrigConf {
                     (*it)->type()==def.bcmcmbType() || 
                     (*it)->type()==def.lucidType())) {
                log << MSG::ERROR << "    ---> A(n) " << (*it)->type() 
-                   << " threshold can't be put on the NIM cable!" << endreq; // This check seems tied to an outdated cabling...
+                   << " threshold can't be put on the NIM cable!" << endmsg; // This check seems tied to an outdated cabling...
                return true;
             }
             log << MSG::VERBOSE << "    ---> Trigger threshold " 
-                << ( *it )->name() << " on cable NIM verifyed" << endreq;
+                << ( *it )->name() << " on cable NIM verifyed" << endmsg;
 
          } else if( ( *it )->cableName() == "MBTS" ) {
          } else {
 	
-            log << MSG::ERROR << "     ---> There is no cable named: " << ( *it )->cableName() << endreq;
-            log << MSG::ERROR << "          Threshold " << ( *it )->name() << " can't be placed" << endreq;
+            log << MSG::ERROR << "     ---> There is no cable named: " << ( *it )->cableName() << endmsg;
+            log << MSG::ERROR << "          Threshold " << ( *it )->name() << " can't be placed" << endmsg;
             return true;
 
          }
 
       }
 
-      log << MSG::VERBOSE << "  ---> Trigger thresholds layout passed the tests" << endreq;
+      log << MSG::VERBOSE << "  ---> Trigger thresholds layout passed the tests" << endmsg;
       return false;
 
    }

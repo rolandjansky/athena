@@ -28,9 +28,10 @@ class TmpThr(threading.Thread):
         output = os.popen(self.syscmd).readlines()
         maxlevel = 0
         for line in output:
-            if ' warning ' in line.lower():
+            line = line.lower()
+            if ' warning ' in line:
                 maxlevel = max(1,maxlevel)
-            if ' error ' in line.lower():
+            if ' error ' in line and not 'connection refused' in line:
                 maxlevel = max(2,maxlevel)
             elif ' fatal ' in line.lower() or 'exception ' in line.lower():
                 maxlevel = max(3,maxlevel)
