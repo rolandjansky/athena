@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 770310 2016-08-26 12:34:42Z sutt $
+//   $Id: ConfAnalysis.cxx 772657 2016-09-12 07:11:42Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -169,10 +169,8 @@ void ConfAnalysis::initialiseInternal() {
   double*   ptbinlims = &ptbinlimsv[0];
   //  for ( int i=0 ; i<=ptnbins ; i++ ) {     ptbinlims[i] = std::pow(10, 2.0*i/ptnbins+2)/1000; }
   //  for ( int i=0 ; i<=ptnbins ; i++ ) {     ptbinlims[i] = std::pow(10, 2.3*i/ptnbins+2); }
-  //  ptbinlims[i] = std::pow(10, 2.5*i/ptnbins+2)/1000;  
-  for ( int i=0 ; i<=ptnbins ; i++ ) {
-    ptbinlims[i] = std::pow(10, pt_a*i/ptnbins+pt_b)/1000;  
-  }
+  for ( int i=0 ; i<=ptnbins ; i++ ) ptbinlims[i] = std::pow(10, pt_a*i/ptnbins+pt_b)/1000;  
+ 
 
   // ADDED BY JK - FOR SIGNED PT PLOTS
   //-----
@@ -269,10 +267,8 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rChi2_bad     = new Resplot( "Chi2_bad",     ptnbins, ptbinlims, 200, 0, 100 ) );
   mres.push_back(  rChi2dof_bad  = new Resplot( "Chi2dof_bad",  ptnbins, ptbinlims, 100, 0,  10 ) );
 
-
-
-  int Nptbins = 7;
-  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
+  //  int Nptbins = 7;
+  //  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
 
 
   //  addHistogram( hchi2=new TH1F("chi2", "chi2", 100, 0, 20) );

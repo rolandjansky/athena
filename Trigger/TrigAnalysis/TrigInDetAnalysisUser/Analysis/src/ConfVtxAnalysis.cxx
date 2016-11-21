@@ -22,6 +22,8 @@ ConfVtxAnalysis::ConfVtxAnalysis( const std::string& n ) :
 extern TIDA::Event* gevent;
 
 void ConfVtxAnalysis::initialise() { 
+  
+  //  std::cerr << "ConfVtxAnalysis::initialise() " << name() << std::endl;
 
   if ( m_initialised ) { 
     std::cerr << "ConfVtxAnalysis::initialise() " << name() << " already initialised" << std::endl;

@@ -20,7 +20,7 @@
 #include "TrigInDetAnalysis/TrackSelector.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
-#include "Filters.h"
+#include "TrigInDetAnalysisUtils/Filters.h"
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 #include "TrigInDetAnalysisUtils/Associator_TruthMatch.h"
@@ -482,9 +482,13 @@ int main(int argc, char** argv)
   std::vector<ChainString> chainConfig;
 
   for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
+    //    std::cout << "\nchain " << testChains[ic] << std::endl;
     chainConfig.push_back( ChainString( testChains[ic] ) );
-    testChains[ic] = ChainString::chop( testChains[ic], ":post" );  
+    testChains[ic] = ChainString::chop( testChains[ic], ":post" );
+    //    std::cout << "chain " << chainConfig << std::endl;
+    //    std::cout << "\nchain " << testChains[ic] << std::endl;
   }
+
 
   /// now any additional config parameters for the chain are available
   
@@ -564,6 +568,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
     goodrunslist.read( inputdata.GetString("GRL") ); 
+    //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
     /// else get the list from the dat file directly

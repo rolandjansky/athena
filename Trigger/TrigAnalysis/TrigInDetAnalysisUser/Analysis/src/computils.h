@@ -105,7 +105,8 @@ public:
     m_rangeset(false),
     m_lo(0),
     m_hi(0),
-    m_norm(false)
+    m_norm(false),
+    m_binwidth(false)
   { 
     //    std::cout << "AxisInfo::info" << m_info << std::endl;
 
@@ -120,19 +121,32 @@ public:
     
     for ( size_t i=1 ; i<keys.size() ; i++ ) { 
       
-      if       ( keys[i]=="lin" )   m_log = false;
-      else if  ( keys[i]=="log" )   m_log = true;
-      else if  ( keys[i]=="auto" )  m_autoset = true;
+      if       ( keys[i]=="lin" )   m_log       = false;
+      else if  ( keys[i]=="log" )   m_log       = true;
+      else if  ( keys[i]=="sym" )   m_symmetric = true; 
+      else if  ( keys[i]=="norm" )  m_norm      = true;
+      else if  ( keys[i]=="width" ) m_binwidth  = true;
+      else if  ( keys[i]=="auto" )  m_autoset   = true;
       else if  ( keys[i]=="auton" )  {
 	m_autoset = true;
 	m_norm    = true;
       }
-      else if  ( keys[i]=="norm" )  {
-	m_norm    = true;
+      else if  ( keys[i]=="autow" )  {
+	m_autoset  = true;
+	m_binwidth = true;
+      }
+      else if  ( keys[i]=="autown" || keys[i]=="autonw" ) {
+	m_autoset  = true;
+	m_norm     = true;
+	m_binwidth = true;
       }
       else if  ( keys[i]=="autosym" ) { 
 	m_autoset = true; 
 	m_symmetric = true; 
+      }
+      else if  ( keys[i]=="normw" ||  keys[i]=="widthn" )  {
+	m_norm     = true;
+	m_binwidth = true;
       }
       else if  ( !minset )  { 
 	m_lo = std::atof(keys[i].c_str());
@@ -175,6 +189,8 @@ public:
   double lo() const { return m_lo; } 
   double hi() const { return m_hi; } 
   
+  double binwidth() const { return m_binwidth; }
+
 public:
 
   static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
@@ -210,6 +226,8 @@ public:
   double m_hi;
 
   bool m_norm;
+  
+  bool m_binwidth;
   
 };
 
