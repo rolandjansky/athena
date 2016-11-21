@@ -122,22 +122,14 @@ ToolSvc += EGAM3SkimmingTool
 print "EGAM3 skimming tool:", EGAM3SkimmingTool
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM3_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM3_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM3_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM3_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM3_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 #================
 # THINNING
@@ -151,8 +143,7 @@ thinningTools=[]
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
-                                                                       #AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_CellDecoratorTool], 
-                                                                       AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool], 
+                                                                       AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool] + EGAM3_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM3SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -207,6 +198,9 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM3_ClusterEnergyPerLayerDecorators:
+    EGAM3SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)

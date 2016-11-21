@@ -153,29 +153,21 @@ EGAM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1Sk
 ToolSvc += EGAM1SkimmingTool
 print "EGAM1 skimming tool:", EGAM1SkimmingTool
 
+
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM1_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM1_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM1_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM1_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM1_GainDecoratorTool
 
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM1_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
-#====================================================================                                                                              
+#====================================================================
 # Max Cell sum decoration tool
-#====================================================================                                                        
-
+#====================================================================
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
 EGAM1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM1_MaxCellDecoratorTool",
                                                                     SGKey_electrons         = "Electrons",
@@ -283,12 +275,18 @@ print "EGAM1 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
-                                                                       AugmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool] + EGAM1_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM1SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
 
-
+#=======================================
+# ADD NON-PROMPT LEPTON VETO ALGORITHMS 
+#=======================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+#DerivationFrameworkJob += Config.DecoratePromptLepton("Electrons", "AntiKt4PV0TrackJets") 
+#DerivationFrameworkJob += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
+DerivationFrameworkJob += Config.GetDecoratePromptLeptonAlgs()
 
 #========================================================================
 
@@ -312,6 +310,7 @@ from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="EGAM1ThinningSvc", outStreams=[evtStream] )
+
 
 #====================================================================
 # CONTENT LIST
@@ -337,8 +336,11 @@ EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
+# the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
+# EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+
 if globalflags.DataSource()!='geant4':
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
@@ -346,6 +348,10 @@ if globalflags.DataSource()=='geant4':
     EGAM1SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTruth
 
+for tool in EGAM1_ClusterEnergyPerLayerDecorators:
+    EGAM1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
@@ -357,3 +363,5 @@ EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 # Add Derived Egamma CellContainer
 from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
 CellCommonThinning(EGAM1Stream)
+
+

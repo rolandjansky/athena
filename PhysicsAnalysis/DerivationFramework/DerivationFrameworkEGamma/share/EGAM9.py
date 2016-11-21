@@ -50,18 +50,30 @@ triggers += ['HLT_g20_loose'                       ]
 # additional BT for high pt HLT loose triggers
 triggers += ['HLT_g60_loose'                       ]
 
+# higher-pT triggers, to bootstrap g140_loose and g140_tight triggers
+triggers += ['HLT_g100_loose'                      ]
+triggers += ['HLT_g120_loose'                      ]
+
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression
 
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
-EGAM9_GainDecoratorTool = GainDecorator()
-ToolSvc += EGAM9_GainDecoratorTool
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM9SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM9SkimmingTool",
                                                                    expression = expression)
 ToolSvc += EGAM9SkimmingTool
 print "EGAM9 skimming tool:", EGAM9SkimmingTool
+
+
+#====================================================================
+# Gain and cluster energies per layer decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
+EGAM9_GainDecoratorTool = GainDecorator()
+ToolSvc += EGAM9_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM9_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 
@@ -115,8 +127,7 @@ print "EGAM9 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM9Kernel",
-                                                                       #AugmentationTools = [EGAM9_CellDecoratorTool, EGAM9_MaxCellDecoratorTool],
-                                                                       AugmentationTools = [EGAM9_GainDecoratorTool, EGAM9_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM9_GainDecoratorTool, EGAM9_MaxCellDecoratorTool] + EGAM9_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM9SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -181,6 +192,9 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM9SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM9SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM9_ClusterEnergyPerLayerDecorators:
+    EGAM9SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM9SlimmingHelper
 EGAM9SlimmingHelper.AppendContentToStream(EGAM9Stream)

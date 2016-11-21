@@ -98,9 +98,20 @@ print "EGAM2 offline skimming tool:", EGAM2_OfflineSkimmingTool
 # trigger-based selection
 #====================================================================
 triggers=['HLT_e5_lhtight_e4_etcut_Jpsiee']
-triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 triggers+=['HLT_e5_lhtight_e4_etcut']
-triggers+=['HLT_e9_lhtight_e4_etcut']
+triggers+=['HLT_e5_lhtight_nod0_e4_etcut']
+
+triggers+=['HLT_e9_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e9_etcut_e5_lhtight_Jpsiee']
+
+triggers+=['HLT_e14_etcut_e5_lhtight_Jpsiee']
+triggers+=['HLT_e14_etcut_e5_lhtight_nod0_Jpsiee']
+triggers+=['HLT_e14_lhtight_e4_etcut_Jpsiee']
+triggers+=['HLT_e14_lhtight_nod0_e4_etcut_Jpsiee']
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM2_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM2_TriggerSkimmingTool", TriggerListOR = triggers)
@@ -117,22 +128,15 @@ thinningTools=[]
 # TO BE ADDED
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM2_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM2_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM2_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM2_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM2_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -144,7 +148,7 @@ ToolSvc+=EGAM2_SkimmingTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
-                                                                       AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool],
+                                                                       AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool] + EGAM2_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM2_SkimmingTool]
                                                                        )
 
@@ -196,12 +200,15 @@ EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+# if globalflags.DataSource()!='geant4':
+#     EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM2SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM2_ClusterEnergyPerLayerDecorators:
+    EGAM2SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM2SlimmingHelper
 EGAM2SlimmingHelper.AppendContentToStream(EGAM2Stream)

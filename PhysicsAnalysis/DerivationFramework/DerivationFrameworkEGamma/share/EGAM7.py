@@ -119,22 +119,14 @@ ToolSvc += EGAM7SkimmingTool
 print "EGAM7 skimming tool:", EGAM7SkimmingTool
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM7_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM7_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM7_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM7_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM7_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM7_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 #====================================================================                                                                              
@@ -187,8 +179,7 @@ print "EGAM7 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
-                                                                       #AugmentationTools = [EGAM7_CellDecoratorTool, EGAM7_MaxCellDecoratorTool],
-                                                                       AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool] + EGAM7_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM7SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -230,8 +221,7 @@ svcMgr += createThinningSvc( svcName="EGAM7ThinningSvc", outStreams=[evtStream] 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM7SlimmingHelper = SlimmingHelper("EGAM7SlimmingHelper")
 
-# same content as EGAM1
-from DerivationFrameworkEGamma.EGAM1ExtraContent import *
+from DerivationFrameworkEGamma.EGAM7ExtraContent import *
 EGAM7SlimmingHelper.SmartCollections = [
 				        "Electrons",
 					"Photons",
@@ -251,12 +241,15 @@ EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+#if globalflags.DataSource()!='geant4':
+#    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM7SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM7_ClusterEnergyPerLayerDecorators:
+    EGAM7SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM7SlimmingHelper
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)

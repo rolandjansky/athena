@@ -150,22 +150,14 @@ ToolSvc += EGAM6SkimmingTool
 print "EGAM6 skimming tool:", EGAM6SkimmingTool
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM6_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM6_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM6_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM6_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM6_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM6_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 #====================================================================                                                                              
@@ -279,7 +271,7 @@ print "EGAM6 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
-                                                                       AugmentationTools = [EGAM6_ZEEMassTool1, EGAM6_ZEEMassTool2, EGAM6_ZEEMassTool3, EGAM6_ZEGMassTool, EGAM6_GainDecoratorTool, EGAM6_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM6_ZEEMassTool1, EGAM6_ZEEMassTool2, EGAM6_ZEEMassTool3, EGAM6_ZEGMassTool, EGAM6_GainDecoratorTool, EGAM6_MaxCellDecoratorTool] + EGAM6_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM6SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -340,6 +332,10 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM6SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM6SlimmingHelper.AllVariables += ExtraContainersTruth
+
+
+for tool in EGAM6_ClusterEnergyPerLayerDecorators:
+    EGAM6SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM6SlimmingHelper
 EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)

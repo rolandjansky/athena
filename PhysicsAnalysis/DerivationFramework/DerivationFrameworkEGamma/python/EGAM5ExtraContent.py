@@ -3,10 +3,11 @@
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentMuons=[
-    "Muons.DFCommonGoodMuon",
-    "Muons.DFCommonMuonsLoose",
-    "Muons.DFCommonMuonsMedium",
-    "Muons.DFCommonMuonsTight",
+#    "Muons.DFCommonGoodMuon",
+#    "Muons.DFCommonMuonsLoose",
+#    "Muons.DFCommonMuonsMedium",
+#    "Muons.DFCommonMuonsTight",
+    "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",

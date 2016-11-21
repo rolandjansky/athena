@@ -45,24 +45,65 @@ triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15' ]
 triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35' ]
 triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35' ]
 triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15' ]
+
 # others
-triggers +=  ['e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE']
-triggers +=  ['e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE']
-triggers +=  ['e5_etcut_L1W-05DPHI-JXE-0']
-triggers +=  ['e5_etcut_L1W-10DPHI-JXE-0']
-triggers +=  ['e5_etcut_L1W-15DPHI-JXE-0']
-triggers +=  ['e5_etcut_L1W-10DPHI-EMXE-0']
-triggers +=  ['e5_etcut_L1W-15DPHI-EMXE-0']
-triggers +=  ['e5_etcut_L1W-05DPHI-EMXE-1']
-triggers +=  ['e5_etcut_L1W-05RO-XEHT-0']
-triggers +=  ['e5_etcut_L1W-90RO2-XEHT-0']
-triggers +=  ['e5_etcut_L1W-250RO2-XEHT-0']
-triggers +=  ['e5_etcut_L1W-HT20-JJ15.ETA49']
-triggers +=  ['e13_etcut_L1W-NOMATCH']
-triggers +=  ['e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT']
-triggers +=  ['e13_etcut_L1EM10_W-MT25']
-triggers +=  ['e13_etcut_L1EM10_W-MT30']
-triggers +=  ['e18_etcut_L1EM15_W-MT35']
+triggers +=  ['HLT_e5_etcut_L1W-05DPHI-JXE-0']
+triggers +=  ['HLT_e5_etcut_L1W-10DPHI-JXE-0']
+triggers +=  ['HLT_e5_etcut_L1W-15DPHI-JXE-0']
+triggers +=  ['HLT_e5_etcut_L1W-10DPHI-EMXE-0']
+triggers +=  ['HLT_e5_etcut_L1W-15DPHI-EMXE-0']
+triggers +=  ['HLT_e5_etcut_L1W-05DPHI-EMXE-1']
+triggers +=  ['HLT_e5_etcut_L1W-05RO-XEHT-0']
+triggers +=  ['HLT_e5_etcut_L1W-90RO2-XEHT-0']
+triggers +=  ['HLT_e5_etcut_L1W-250RO2-XEHT-0']
+triggers +=  ['HLT_e5_etcut_L1W-HT20-JJ15.ETA49']
+
+triggers +=  ['HLT_e13_etcut_L1W-NOMATCH']
+triggers +=  ['HLT_e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT']
+triggers +=  ['HLT_e13_etcut_L1EM10_W-MT25']
+triggers +=  ['HLT_e13_etcut_L1EM10_W-MT30']
+triggers +=  ['HLT_e13_etcut_trkcut_L1EM12']
+triggers +=  ['HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE']
+triggers +=  ['HLT_e13_etcut_trkcut_xs15_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25']
+triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_xe30_mt35']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
+triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
+
+triggers +=  ['HLT_e18_etcut_L1EM15_W-MT35']
+triggers +=  ['HLT_e18_etcut_trkcut_L1EM15']
+triggers +=  ['HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE']
+triggers +=  ['HLT_e18_etcut_trkcut_xs20_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
+triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
+triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35']
+triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
+triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM5_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                   = "EGAM5_TriggerSkimmingTool",
@@ -103,7 +144,7 @@ print "EGAM5 offline skimming tool:", EGAM5_OfflineSkimmingTool
 #====================================================
 # Third selection: mix of offline and online criteria
 #====================================================
-expression = '(HLT_e60_lhloose_xe60noL1 || HLT_e120_lhloose || HLT_j80_xe80 || HLT_xe70) && count(Electrons.pt>14.5*GeV)>=1'
+expression = '(HLT_e60_lhloose_xe60noL1 || HLT_e120_lhloose || HLT_j80_xe80 || HLT_xe70 || HLT_xe80_tc_lcw_L1XE50  || HLT_xe90_mht_L1XE50 ||  HLT_xe90_tc_lcw_wEFMu_L1XE50 || HLT_xe90_mht_wEFMu_L1XE50) && count(Electrons.pt>14.5*GeV)>=1'
 EGAM5_ThirdSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM5_ThirdSkimmingTool",
                                                                        expression = expression)
 ToolSvc += EGAM5_ThirdSkimmingTool
@@ -111,22 +152,15 @@ print "EGAM5 offline skimming tool:", EGAM5_ThirdSkimmingTool
 
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM5_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM5_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM5_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM5_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM5_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM5_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
 
 #====================================================================                                                                                                    
 # Max Cell sum decoration tool                                                                                                                                                  
@@ -149,7 +183,7 @@ ToolSvc+=EGAM5SkimmingTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
-                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM5SkimmingTool]
                                                                        )
 
@@ -197,6 +231,9 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM5SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM5_ClusterEnergyPerLayerDecorators:
+    EGAM5SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)
