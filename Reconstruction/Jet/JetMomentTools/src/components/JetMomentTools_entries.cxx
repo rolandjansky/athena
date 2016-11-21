@@ -1,6 +1,7 @@
 // JetRec_entries.cxx
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
+#include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
 #include "JetMomentTools/JetCaloQualityTool.h"
 #include "JetMomentTools/JetWidthTool.h"

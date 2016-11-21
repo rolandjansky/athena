@@ -4,6 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #ifndef JETMOMENTTOOLS_JETBADCHANCORRTOOL_H
 #define JETMOMENTTOOLS_JETBADCHANCORRTOOL_H
 
@@ -142,6 +144,9 @@ protected:
 
 };
 #endif 
+
+#endif 
+
 // DoxygenDocumentation
 /*! @class JetBadChanCorrTool
  @brief JetBadChanCorrTool

@@ -13,6 +13,9 @@
 /// Tool to calculate the jet width.
 
 #include "JetRec/JetModifierBase.h"
+#include "AsgTools/ToolHandle.h"
+
+#include "PFlowUtils/IWeightPFOTool.h"
 
 class JetWidthTool : public JetModifierBase {
   ASG_TOOL_CLASS(JetWidthTool, IJetModifier)
@@ -30,6 +33,9 @@ public:
   //double width(const xAOD::Jet& jet) const;
   double width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const;
 
+private:
+  ToolHandle<CP::IWeightPFOTool> m_weightpfoEM;
+  ToolHandle<CP::IWeightPFOTool> m_weightpfoLC;
 };
 
 #endif

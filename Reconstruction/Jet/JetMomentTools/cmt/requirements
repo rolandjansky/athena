@@ -18,23 +18,33 @@ use AtlasROOT           AtlasROOT-*             External
 use AtlasBoost          AtlasBoost-*             External
 use GaudiInterface      GaudiInterface-*        External
 use AsgTools            AsgTools-*              Control/AthToolSupport
+use AtlasReflex         AtlasReflex-*        	External
 
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODMissingET       xAODMissingET-*         Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloIdentifier"
+#use CaloIdentifier      CaloIdentifier-*        Calorimeter
 
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetRec              JetRec-*                Reconstruction/Jet
 use JetUtils            JetUtils-*              Reconstruction/Jet
-use JetRecCalo          JetRecCalo-*            Reconstruction/Jet
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Reconstruction/Jet/JetRecCalo"
+#use JetRecCalo          JetRecCalo-*            Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
+
+use PFlowUtils		PFlowUtils-*		Reconstruction/PFlow
 
 library JetMomentTools *.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library
 
-apply_pattern declare_runtime files="*.root *.txt"
+apply_pattern declare_runtime files="*.root"
 apply_pattern declare_calib files="../share/*.root"
 apply_pattern declare_python_modules files="*.py"
+
+#apply_pattern lcgdict dict=JetMomentTools \
+#	                   selectionfile=../Root/selection.xml \
+#	                   headerfiles="../Root/JetMomentToolsDict.h"
+

@@ -75,12 +75,12 @@ StatusCode JetBadChanCorrTool::initialize()
     std::string fname = PathResolver::find_file(m_profileName, "DATAPATH");
 
     if(fname==""){
-      ATH_MSG(ERROR) << "Could not get file " << m_profileName << endreq;
+      ATH_MSG(ERROR) << "Could not get file " << m_profileName << endmsg;
       return StatusCode::FAILURE;
     }
     TFile tf(fname.c_str());
     if(tf.IsOpen()==false){
-      ATH_MSG( ERROR ) << "Could not open file " << fname << endreq;
+      ATH_MSG( ERROR ) << "Could not open file " << fname << endmsg;
       return StatusCode::FAILURE;
     }
     // already registered hists
@@ -101,7 +101,7 @@ StatusCode JetBadChanCorrTool::initialize()
         if(find(histsInSvc.begin(),histsInSvc.end(),location)==histsInSvc.end()){
           StatusCode sc = m_thistSvc->regHist(location);
           if(sc.isFailure()){
-            ATH_MSG( ERROR ) << "failed to read histo " << location << endreq;
+            ATH_MSG( ERROR ) << "failed to read histo " << location << endmsg;
             return StatusCode::FAILURE;
           }
         }
@@ -116,14 +116,14 @@ StatusCode JetBadChanCorrTool::initialize()
                          &sample,&ptMin,&ptMax,&etaMin,&etaMax,&phiMin,&phiMax);
 
         if(ret<1 || sample<0 || sample>=CaloCell_ID::Unknown) {
-          ATH_MSG( DEBUG ) << "Could not understand the name of hist " << obj->GetName() << endreq;
+          ATH_MSG( DEBUG ) << "Could not understand the name of hist " << obj->GetName() << endmsg;
           continue;
         }
 
         TH1* th=0;
         StatusCode sc = m_thistSvc->getHist(location,th);
         if(sc.isFailure()){
-          ATH_MSG( ERROR ) << "failed to get histo " << location << endreq;
+          ATH_MSG( ERROR ) << "failed to get histo " << location << endmsg;
           return StatusCode::FAILURE;
         }
         m_profileDatas[sample].push_back(ProfileData((TH1D*)th,sample,ptMin,ptMax,etaMin,etaMax,phiMin,phiMax));
@@ -131,21 +131,21 @@ StatusCode JetBadChanCorrTool::initialize()
                          << " tag=" << tag << " sample=" << sample 
                          << " ptMin=" << ptMin << " ptMax=" << ptMax 
                          << " etaMin=" << etaMin << " etaMax=" << etaMax
-                         << " phiMin=" << phiMin << " phiMax=" << phiMax << endreq;
+                         << " phiMin=" << phiMin << " phiMax=" << phiMax << endmsg;
       }
     }
 
     // if(m_useCalibScale){
     //   CHECK( m_calibTool.retrieve() ) ;
-    //   ATH_MSG( DEBUG ) << "use calibration " << m_calibTool << endreq;
+    //   ATH_MSG( DEBUG ) << "use calibration " << m_calibTool << endmsg;
     // } 
   
     if (  m_useCone) {
       // CHECK( detStore()->retrieve(m_caloDDM) );
       // m_calo_id = m_caloDDM->getCaloCell_ID();
-      // ATH_MSG( DEBUG ) << "perform bad cells in cone calculations "  << endreq;
+      // ATH_MSG( DEBUG ) << "perform bad cells in cone calculations "  << endmsg;
       // if(m_calo_id==0){
-      //   ATH_MSG( ERROR ) << "Could not get CaloCell_ID" << endreq;
+      //   ATH_MSG( ERROR ) << "Could not get CaloCell_ID" << endmsg;
       //   return StatusCode::FAILURE;
       // }
     }
@@ -369,7 +369,7 @@ int JetBadChanCorrTool::correctionFromCellsInJet( xAOD::Jet* jet, const jet::Cal
                    << " BCH_CORR_CELL=" << corr_cell
                    << " BCH_CORR_DOTX=" << corr_dotx
                    << " BCH_CORR_JET=" << corr_jet_associate
-                   << " BCH_CORR_JET_FORCELL=" << corr_jet_forcell << endreq;
+                   << " BCH_CORR_JET_FORCELL=" << corr_jet_forcell << endmsg;
 
   jet->setAttribute<float>("BchCorrCell",corr_cell);
   jet->setAttribute<float>("BchCorrDotx",corr_dotx);

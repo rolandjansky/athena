@@ -14,7 +14,7 @@ from JetMomentTools.JetMomentToolsConf import JetVoronoiMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetIsolationTool
 from JetMomentTools.JetMomentToolsConf import JetLArHVTool
 from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
-
+from JetMomentTools.JetMomentToolsConf import JetConstitFourMomTool
 
 def declareDefaultTools():
 
@@ -61,7 +61,7 @@ def declareDefaultTools():
     )
 
   # Jet width.
-  jtm += JetWidthTool("width")
+  jtm += JetWidthTool("width", WeightPFOToolEM=jtm.pflowweighter, WeightPFOToolLC=jtm.pflowweighterLC)
 
   # Calo layer energies.
   jtm += JetCaloEnergies("jetens")
@@ -128,7 +128,6 @@ def declareDefaultTools():
   # Bad LAr fractions.
   jtm += JetECPSFractionTool(
     "ecpsfrac",
-    ECPSFractionThreshold = 0.80
   )
 
   #--------------------------------------------------------------
@@ -165,13 +164,7 @@ def declareDefaultTools():
   #jtm += InDet__InDetDetailedTrackSelectionTool(
   jtm += InDet__InDetTrackSelectionTool(
     "trk_trackselloose",
-    minPt                = 400.0,
-    maxAbsEta            = 2.5,
-    minNSiHits           = 7,
-    maxNPixelSharedHits  = 1,
-    maxOneSharedModule   = True,
-    maxNSiHoles          = 2,
-    maxNPixelHoles       = 1,
+    CutLevel                = "Loose"
   )
 
   jtm += JetTrackSelectionTool(
@@ -327,3 +320,55 @@ def declareDefaultTools():
     VertexContainer = jtm.vertexContainer,
     OriginCorrectedName = "JetOriginConstitScaleMomentum"
   )
+
+  # Just set the PV without applying origin correction
+  jtm += JetOriginCorrectionTool(
+    "jetorigin_setpv",
+    VertexContainer = jtm.vertexContainer,
+    OriginCorrectedName = "",
+    OnlyAssignPV = True,
+  )
+
+  # Load the xAODCaloEvent dictionary for cluster scale enum
+  import cppyy
+  try: cppyy.loadDictionary('xAODCaloEventDict')
+  except: pass
+  from ROOT import xAOD
+  # Touch an unrelated class so the dictionary is loaded
+  # and therefore the CaloCluster version typedef is recognised
+  xAOD.CaloVertexedTopoCluster
+
+### Workaround for inability of Gaudi to parse single-element tuple
+import GaudiPython.Bindings as GPB
+_old_setattr = GPB.iProperty.__setattr__
+def _new_setattr(self, name, value):
+   if type(value) == tuple:
+       value = list(value)
+   return _old_setattr(self, name, value)
+GPB.iProperty.__setattr__ = _new_setattr
+###
+
+jtm += JetConstitFourMomTool(
+  "constitfourmom_lctopo",
+  JetScaleNames = ["DetectorEtaPhi"],
+  AltConstitColls = ["CaloCalTopoClusters"],
+  AltConstitScales = [xAOD.CaloCluster.CALIBRATED],
+  AltJetScales = [""]
+  )
+
+jtm += JetConstitFourMomTool(
+  "constitfourmom_emtopo",
+  JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
+  AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
+  AltConstitScales = [xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
+  AltJetScales = ["",""]
+  )
+
+jtm += JetConstitFourMomTool(
+  "constitfourmom_pflow",
+  JetScaleNames = ["DetectorEtaPhi"],
+  AltConstitColls = [""],
+  AltConstitScales = [0],
+  AltJetScales = ["JetConstitScaleMomentum"]
+  )
+
