@@ -38,7 +38,7 @@ namespace DerivationFramework {
     
     
     std::string m_TruthEventName;
-    ToolHandle<DerivationFramework::HadronOriginClassifier> m_Tool;
+    mutable ToolHandle<DerivationFramework::HadronOriginClassifier> m_Tool;
     
     
   }; /// class
