@@ -247,7 +247,11 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         
         // Absolute resolution on track summary ints/floats 
         val_off=getTrackSummaryFloat_eProbabilityHT(eloff);
-        if(val_off!=0.) hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off));
+        hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off));
+        hist2("res_eprobht_onVsOff")->Fill(val_off,
+                getTrackSummaryFloat_eProbabilityHT(elonl));
+        hist2("res_eprobhtVsPt")->Fill(getTrack_pt(elonl)/1e3,
+                (getTrackSummaryFloat_eProbabilityHT(elonl) - val_off));
         hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
         hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
 

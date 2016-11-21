@@ -120,7 +120,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
-                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::ElectronContainer>(feat.te(),cont);
                     if(cont==nullptr) continue; 
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
@@ -132,8 +132,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        //else if(!bits->isPassing(obj,cont)) continue;
-                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
+                        else if(!bits->isPassing(obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                     }
@@ -155,23 +154,22 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 if(boost::contains(info.trigName,"ringer") || info.trigEtcut || info.trigPerf)
                     fillRinger(dir+"L2Calo",obj); // Fill HLT shower shapes
             }
-            // Should monitor the selected objects
-            // Currently not implemented for EFCalo
             const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_clus){
                 if(feat.te()==nullptr) continue;
-                const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
-                const auto *bits = getFeature<TrigPassBits>(feat.te());
+                const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te(),"TrigEFCaloCalibFex");
+                ATH_MSG_DEBUG("Retreive clusters, bits");
+                std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::CaloClusterContainer>(feat.te(),cont);
                 if(cont==nullptr) continue;
+                ATH_MSG_DEBUG("check bits");
                 if(bits==nullptr) continue;
                 cd(dir+"HLT");
-                if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
+                if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te(),"TrigEFCaloCalibFex"))
                     hist1("rejection")->Fill("EFCalo",1);
+                ATH_MSG_DEBUG("analyze clusters");
                 for(const auto& clus : *cont){
                     if(clus==nullptr) continue;
-                    if(bits!=nullptr)
-                        if(!HLT::isPassing(bits,clus,cont) ) continue;
-                        //if(!bits->isPassing(clus,cont)) continue;
+                    if(!bits->isPassing(clus,cont)) continue;
                     fillEFCalo(dir+"EFCalo",clus);           
                 }
             }
@@ -183,7 +181,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_l2el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
-                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::TrigElectronContainer>(feat.te(),cont);
                     if(bits==nullptr) continue; 
                     if(cont==nullptr) continue;
                     cd(dir+"HLT");
@@ -192,8 +190,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     for(const auto& obj : *cont){
                         // Only consider passing objects
                         if(!obj) continue;
-                        if(!HLT::isPassing(bits,obj,cont) ) continue;
-                        //if(!bits->isPassing(obj,cont)) continue;
+                        if(!bits->isPassing(obj,cont)) continue;
                         fillL2Electron(dir+"L2Electron",obj); // Fill HLT shower shapes
                     }
                 }
@@ -201,7 +198,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
-                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::ElectronContainer>(feat.te(),cont);
                     if(cont==nullptr) continue; 
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
@@ -213,8 +210,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
-                        //else if(!bits->isPassing(obj,cont)) continue;
+                        else if(!bits->isPassing(obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                     }
@@ -225,7 +221,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_ph){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
-                    const auto *bits = getFeature<TrigPassBits>(feat.te());
+                    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<xAOD::PhotonContainer>(feat.te(),cont);
                     if(cont==nullptr) continue;
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
@@ -237,8 +233,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        //else if(!bits->isPassing(obj,cont)) continue;
-                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
+                        else if(!bits->isPassing(obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                     }
                 }
