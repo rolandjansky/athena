@@ -47,6 +47,26 @@ DFCommonTruthNeutrinoTool = DerivationFramework__TruthCollectionMaker(name      
                                                              ParticleSelectionString = neutrinoexpression)
 ToolSvc += DFCommonTruthNeutrinoTool
 
+TRUTH3TopTool = DerivationFramework__TruthCollectionMaker(name                   = "TRUTH3TopTool",
+                                                          NewCollectionName       = "TruthTop",
+                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 6)",
+                                                          Do_Compress = True,
+                                                          )
+ToolSvc += TRUTH3TopTool
+
+TRUTH3BosonTool = DerivationFramework__TruthCollectionMaker(name                   = "TRUTH3BosonTool",
+                                                            NewCollectionName       = "TruthBoson",
+                                                            ParticleSelectionString = "(abs(TruthParticles.pdgId) == 23 || abs(TruthParticles.pdgId) == 24 || abs(TruthParticles.pdgId) == 25)",
+                                                            Do_Compress = True,
+                                                            Do_Sherpa= True)
+ToolSvc += TRUTH3BosonTool
+
+TRUTH3BSMTool = DerivationFramework__TruthCollectionMaker(name                   = "TRUTH3BSMTool",
+                                                          NewCollectionName       = "TruthBSM",
+                                                          ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
+                                                          Do_Compress = True)
+ToolSvc += TRUTH3BSMTool
+
 #==============================================================================
 # Decoration tools
 #==============================================================================

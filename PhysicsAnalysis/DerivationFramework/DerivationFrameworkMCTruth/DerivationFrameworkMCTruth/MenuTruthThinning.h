@@ -34,24 +34,24 @@ namespace DerivationFramework {
         bool matchQuarkIncTau(const xAOD::TruthParticle* part) const;
         bool isOrphanIncTau(const xAOD::TruthParticle* part) const;
         bool matchGenParticle(const xAOD::TruthParticle* part,
-        std::vector<int> &targetIDs, std::vector<int> &intermediateIDs,
-        bool targetsAreRange) const;
+                              std::vector<int> &targetIDs, std::vector<int> &intermediateIDs,
+                              bool targetsAreRange) const;
         bool isLeptonFromTau(const xAOD::TruthParticle*) const;
         bool isFromTau(const xAOD::TruthParticle*) const;
         bool isBSM(const xAOD::TruthParticle*) const;
-	bool isttHFHadron(const xAOD::TruthParticle*) const;
+        bool isttHFHadron(const xAOD::TruthParticle*) const;
         bool isBoson(const xAOD::TruthParticle*) const;
         bool isFsrFromLepton(const xAOD::TruthParticle*) const;
-       
- 
+        
+        
     private:
         // THE MENU
         
         /// Names of the truth container?
         std::string m_particlesKey;
         std::string m_verticesKey;
-	std::string m_eventsKey;      
-
+        std::string m_eventsKey;
+        
         /// Parameter: Keep partons?
         bool m_writePartons;
         
@@ -76,6 +76,7 @@ namespace DerivationFramework {
         
         /// Parameter: Keep bosons?
         bool m_writeBosons;
+        float m_photonPtCut;
         
         /// Parameter: Write partons with Pt above this threshold.
         float m_partonPtThresh;
@@ -94,38 +95,41 @@ namespace DerivationFramework {
         
         /// Parameter: Write all leptons
         bool m_writeAllLeptons;
-
+        
         /// Parameter: Write all leptons
         bool m_writeLeptonsNotFromHadrons;
-       
-	//// Parameter: write all stable particles
-	bool m_writeAllStable;
- 
+        
+        //// Parameter: write all stable particles
+        bool m_writeAllStable;
+        
         /// Parameter: Write particles with status code 3
         bool m_writeStatus3;
-
-	/// Parameter: Write particles for tt+HF classification
+        
+        /// Parameter: Write particles for tt+HF classification
         bool m_writettHFHadrons;
         
         /// Parameter: First N particles to write
         int m_writeFirstN;
-
+        
         /// Parameter: preserve descendant/ancestor graph completeness
         bool m_preserveDescendants;
-        bool m_preserveGeneratorDescendants; 
+        bool m_preserveGeneratorDescendants;
         bool m_preserveAncestors;
-       
+        bool m_preserveImmediate; // parents, siblings, children only
+        bool m_preserveHadVtx; // hadronization vertices for above
+        
         /// for keeping trace of barcodes in order to detect loops
         mutable std::unordered_set<int> m_barcode_trace;
         
         // counters
         mutable unsigned int m_totpart;
         mutable unsigned int m_removedpart;
-	mutable int m_particleCountSoFar;	
-       
+        mutable int m_particleCountSoFar;
+        mutable int m_eventCount;
+        
         /// Parameter: simulation barcode offset
         int m_geantOffset;
- 
+        
         // handle to the thinning service
         ServiceHandle<IThinningSvc> m_thinningSvc;
     }; 

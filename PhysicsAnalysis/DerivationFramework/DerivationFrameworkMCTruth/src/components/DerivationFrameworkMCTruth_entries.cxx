@@ -6,7 +6,6 @@
 #include "DerivationFrameworkMCTruth/TruthCollectionMaker.h"
 #include "DerivationFrameworkMCTruth/TruthCollectionMakerTau.h"
 #include "DerivationFrameworkMCTruth/TruthClassificationDecorator.h"
-#include "DerivationFrameworkMCTruth/xAODtoHepMCCnvAlg.h"
 #include "DerivationFrameworkMCTruth/CompactHardTruth.h"
 #include "DerivationFrameworkMCTruth/HardTruthThinning.h"
 
@@ -22,7 +21,6 @@ DECLARE_TOOL_FACTORY( GenericTruthThinning )
 DECLARE_TOOL_FACTORY( TruthCollectionMaker )
 DECLARE_TOOL_FACTORY( TruthCollectionMakerTau )
 DECLARE_TOOL_FACTORY( TruthClassificationDecorator )
-DECLARE_ALGORITHM_FACTORY( xAODtoHepMCCnvAlg )
 DECLARE_ALGORITHM_FACTORY( CompactHardTruth )
 DECLARE_TOOL_FACTORY( HardTruthThinning )
 
@@ -38,7 +36,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthCollectionMaker )
    DECLARE_TOOL( TruthCollectionMakerTau )
    DECLARE_TOOL( TruthClassificationDecorator )
-   DECLARE_ALGORITHM( xAODtoHepMCCnvAlg )
    DECLARE_ALGORITHM( CompactHardTruth )
    DECLARE_TOOL( HardTruthThinning )
    DECLARE_TOOL( HadronOriginDecorator )
