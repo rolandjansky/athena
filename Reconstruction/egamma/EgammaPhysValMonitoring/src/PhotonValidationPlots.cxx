@@ -54,11 +54,12 @@ void PhotonValidationPlots::fill(const xAOD::Photon& photon, bool isPrompt){
   
   author->Fill(photon.author());
   m_oAllPlots.fill(photon, isPrompt);
-  
-  if (photon.author()&xAOD::EgammaParameters::AuthorPhoton) m_oPhotPlots.fill(photon, isPrompt); 
-  if (photon.author()&xAOD::EgammaParameters::AuthorCaloTopo35) m_oTopoPhotPlots.fill(photon, isPrompt);    
-  if (photon.author()&xAOD::EgammaParameters::AuthorAmbiguous) m_oAmbPhotPlots.fill(photon, isPrompt); 
+
+  double photon_pt = photon.pt()*0.001;
+  if (photon.author()&xAOD::EgammaParameters::AuthorPhoton&&photon_pt>7.) m_oPhotPlots.fill(photon, isPrompt); 
+  if (photon_pt<7.) m_oTopoPhotPlots.fill(photon, isPrompt);    
+  if (photon.author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon_pt>7.) m_oAmbPhotPlots.fill(photon, isPrompt); 
 
   //Select converted photons 
-  m_oConvPhotPlots.fill(photon,isPrompt);
+  if (photon_pt>7.)m_oConvPhotPlots.fill(photon,isPrompt);
 }

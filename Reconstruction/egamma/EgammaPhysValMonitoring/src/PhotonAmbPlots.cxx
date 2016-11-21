@@ -12,17 +12,17 @@ PhotonAmbPlots::PhotonAmbPlots(PlotBase* pParent, std::string sDir, std::string 
 											       m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											       m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
 											       m_sParticleType(sParticleType),
-											       nParticles(0)
+											       m_nParticles(0)
 {}	
 
 void PhotonAmbPlots::initializePlots(){
-  nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
+  m_nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
 }
 
 
 
-  void PhotonAmbPlots::fill(const xAOD::Photon& photon, bool isPrompt){
-  if(!isPrompt) return;
+  void PhotonAmbPlots::fill(const xAOD::Photon& photon, bool /*isPrompt*/){
+  //if(!isPrompt) ;//return;
   
   m_oKinAllPlots.fill(photon);
   m_oShowerShapesAllPlots.fill(photon);

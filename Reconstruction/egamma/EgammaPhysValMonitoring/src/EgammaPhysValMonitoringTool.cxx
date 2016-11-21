@@ -44,6 +44,8 @@ EgammaPhysValMonitoringTool::EgammaPhysValMonitoringTool( const std::string& typ
 			  const std::string& name, 
 			  const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent ),
+  m_eventCounter(0),
+  is_MC(false),
   m_truthParticleContainerName("TruthParticle"),
   m_egammaTruthContainerName("egammaTruthParticles"),
   m_oElectronValidationPlots(0, "Electron/"),
@@ -158,7 +160,8 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
         float y = tmp->decayVtx()->y();
         trueR = sqrt( x*x + y*y );
       }
-      truthEta = tmp->eta();
+      if (tmp)
+        truthEta = tmp->eta();
 
 //      if( trueR>=0 && trueR<800 ) isTrueConv = true;//rel19
       isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
@@ -245,7 +248,13 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
     if(type!=IsoPhoton) continue;
     if(truthallParticle->pt()*0.001>20. && fabs(truthallParticle->eta())<2.47){
       m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle);
+#ifdef MCTRUTHCLASSIFIER_CONST
+      IMCTruthClassifier::Info info;
+      m_truthClassifier->particleTruthClassifier (truthallParticle, &info);
+      ParticleOutCome photOutCome = info.particleOutCome;
+#else
       ParticleOutCome photOutCome = m_truthClassifier->getParticleOutCome();
+#endif
 
        float convTruthR = 9999.;
        if(truthallParticle->decayVtx()) convTruthR = truthallParticle->decayVtx()->perp();
@@ -384,6 +393,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms()
 
   for(auto photon : *Photons){
     bool isPhotPrompt=false;
+    if (photon->author()&xAOD::EgammaParameters::AuthorCaloTopo35) continue;//21.0.>7
     if(!(photon->isGoodOQ (xAOD::EgammaParameters::BADCLUSPHOTON))) continue;
       if(photon->isAvailable <int>("truthType")) {
       MCTruthPartClassifier::ParticleType type = (MCTruthPartClassifier::ParticleType) photon->auxdata<int>("truthType");
@@ -406,20 +416,19 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms()
        }
 
     } else if(is_MC){if(Match(photon,22)!=0 ) isPhotPrompt=true;}    
-    
-    m_oPhotonValidationPlots.fill(*photon, isPhotPrompt);
 
-    if(photon->author()&xAOD::EgammaParameters::AuthorPhoton)           numofPhot++;
-    else if(photon->author()&xAOD::EgammaParameters::AuthorCaloTopo35)  numofTopo++;  
-    else if(photon->author()&xAOD::EgammaParameters::AuthorAmbiguous)   numofAmb++; 
-    if(xAOD::EgammaHelpers::isConvertedPhoton(photon))                  numofCnv++;
+    m_oPhotonValidationPlots.fill(*photon, isPhotPrompt);
+    if(photon->author()&xAOD::EgammaParameters::AuthorPhoton&&photon->pt()*0.001>7.)           numofPhot++;
+    else if(photon->pt()*0.001<7.)  numofTopo++;  
+    else if(photon->author()&xAOD::EgammaParameters::AuthorAmbiguous&&photon->pt()*0.001>7.)   numofAmb++; 
+    if(xAOD::EgammaHelpers::isConvertedPhoton(photon)&&photon->pt()*0.001>7.)                  numofCnv++;
   }
   numPhotAll = numofPhot+numofTopo+numofAmb;
-  m_oPhotonValidationPlots.m_oAllPlots.nParticles->Fill(numPhotAll);
-  m_oPhotonValidationPlots.m_oPhotPlots.nParticles->Fill(numofPhot);
-  m_oPhotonValidationPlots.m_oTopoPhotPlots.nParticles->Fill(numofTopo);    
-  m_oPhotonValidationPlots.m_oAmbPhotPlots.nParticles->Fill(numofAmb);
-  m_oPhotonValidationPlots.m_oConvPhotPlots.nParticles->Fill(numofCnv);
+  m_oPhotonValidationPlots.m_oAllPlots.m_nParticles->Fill(numPhotAll);
+  m_oPhotonValidationPlots.m_oPhotPlots.m_nParticles->Fill(numofPhot);
+  m_oPhotonValidationPlots.m_oTopoPhotPlots.m_nParticles->Fill(numofTopo);    
+  m_oPhotonValidationPlots.m_oAmbPhotPlots.m_nParticles->Fill(numofAmb);
+  m_oPhotonValidationPlots.m_oConvPhotPlots.m_nParticles->Fill(numofCnv);
  
 
   return StatusCode::SUCCESS;
