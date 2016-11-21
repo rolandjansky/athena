@@ -74,6 +74,8 @@ macro_append TIDAlistroot_cppflags      " -I../Readcards/src "
 macro_append TIDAlistrootlinkopts       " -lReadcards "
 macro_append TIDAlistroot_dependencies  " Readcards " 
 
+application  TIDAruntool  "../Analysis/src/runtool.cxx"
+
 # macro_append TIDAlistrootlinkopts       " -lResplot  -lTIDA"
 # macro_append TIDAlistroot_dependencies  " Resplot TIDA "
 

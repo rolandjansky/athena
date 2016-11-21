@@ -11,7 +11,7 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-dumpflag = 1;
+dumpflag = 0;
 
 a0v = 10.5;
 z0v = 10.5;
@@ -176,7 +176,8 @@ testChains = {
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
     "HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID",
-    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:xPrimVx:post:rvtx=xPrimVx",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:EFHistoPrmVtx:post:rvtx=EFHistoPrmVtx",
 
     "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",

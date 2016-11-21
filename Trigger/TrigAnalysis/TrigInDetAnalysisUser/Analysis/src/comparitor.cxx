@@ -49,7 +49,9 @@
 #include "AtlasStyle.h"
 #include "AtlasLabels.h"
 
+
 bool fulldbg = false;
+
 
 int usage(const std::string& name, int status) { 
   std::ostream& s = std::cout;
@@ -79,6 +81,7 @@ int usage(const std::string& name, int status) {
   s << "    -rc, --refchains values ..\t allow different reference chains for comparison\n";
   s << "    -s,  --swap pattern regex \t swap \"pattern\" in the reference chains name by \"regex\"\n";
   s << "    -np, --noplots            \t do not actually make any plot\n";
+  s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
   s << "         --chi2               \t show the chi2 with respect to the reference\n";
   s << "    -C,  --Cfiles             \t write C files also\n"; 
   s << "    -nw, --nowatermark        \t do not plot the release watermark\n"; 
@@ -94,6 +97,14 @@ int usage(const std::string& name, int status) {
 }
 
 
+void binwidth( TH1F* h ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    double w = h->GetBinLowEdge(i+1) - h->GetBinLowEdge(i);
+    h->SetBinContent( i, h->GetBinContent(i)/w );
+    h->SetBinError( i, h->GetBinError(i)/w );
+  }
+}
+
 void ascale( TH1F* h, double s_ ) { 
   for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
     h->SetBinContent( i, h->GetBinContent(i)*s_ );
@@ -102,12 +113,12 @@ void ascale( TH1F* h, double s_ ) {
 }
 
 
+
 // replace from a string
 std::string fullreplace( std::string s, const std::string& s2, const std::string& s3) {
-  if ( s2!="" ) { 
-    std::string::size_type pos;
-    while ( (pos = s.find(s2))!=std::string::npos ) s.replace(pos, s2.size(), s3);
-  }
+  if ( s2=="" || s2==s3 ) return s;  /// cowardly, don't replace string by itself 
+  std::string::size_type pos;
+  while ( (pos=s.find(s2)) != std::string::npos )  s.replace(pos, s2.size(), s3);
   return s;
 } 
 
@@ -202,7 +213,8 @@ int main(int argc, char** argv) {
   bool notitle     = false;
   bool dochi2      = false;
   bool normref     = false;
-  
+  bool scalepix    = true;
+
   std::string atlaslabel = "for approval";
 
   double scale_eff     = -1;
@@ -268,6 +280,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--taglabels" ) { 
       addingtags = true;
+    }
+    else if ( arg=="--unscalepix" ) { 
+      scalepix = false;
     }
     else if ( arg=="-yrange" ) { 
       effset = true;
@@ -739,12 +754,19 @@ int main(int argc, char** argv) {
 
   for ( unsigned int j=0; j<chains.size(); j++)  {
 
+      if ( fulldbg )  std::cout << __LINE__ << std::endl; 
+
       std::string refchain = fullreplace( refchains[j], pattern, regex );
+
+      if ( fulldbg )  std::cout << __LINE__ << std::endl; 
+
+
 
       //      if ( chains[j]=="FTK_TrackParticle" ){
       { 
 	
 	for ( unsigned i=0 ; i<histos.size() ; i++ ) {
+
 	  
 	  if ( fulldbg )  std::cout << __LINE__ << std::endl;
 	  
@@ -972,6 +994,7 @@ int main(int argc, char** argv) {
     	    std::cout << "       refitting:  " << histos[i] << std::endl;
 
 	    Resplot::setoldrms95(false);
+	    Resplot::setscalerms95(true);
 
 	    std::string _tmp = histos[i];
 	    std::string base = chop( _tmp, "/sigma" );
@@ -1001,7 +1024,15 @@ int main(int argc, char** argv) {
 	    /// still get the reference histo
 
 	    //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
-	    href  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+	    TH1F* hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+
+	    if ( htest==0 || hreft==0 ) { 
+	      std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << hreft << std::endl; 
+	      continue;
+	    }
+
+	    href = (TH1F*)hreft->Clone();
+	    href->SetDirectory(0);
 
 	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
 
@@ -1022,7 +1053,21 @@ int main(int argc, char** argv) {
 
 	savedhistos.push_back( chains[j]+"/"+reghist );
 
-	href  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
+	TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
+
+
+	if ( htest==0 || hreft==0 ) { 
+	  if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+"/"+reghist) << " " << htest<< std::endl; 
+	  if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+"/"+reghist)  << " " << hreft << std::endl; 
+	  continue;
+	}
+	
+	if ( fulldbg ) std::cout << "htest: " << htest << std::endl; 
+	if ( fulldbg ) std::cout << "hreft: " << hreft << std::endl; 
+
+	href = (TH1F*)hreft->Clone();
+	href->SetDirectory(0);
+
 
 	std::cout << "\tget " << ( refchain+"/"+reghist) << "\thref  " << href << std::endl;
 	std::cout << "\tget " << (chains[j]+"/"+reghist) << "\thtest " << htest << std::endl;
@@ -1039,7 +1084,7 @@ int main(int argc, char** argv) {
 
         if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-	if ( std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
+	if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
@@ -1063,8 +1108,12 @@ int main(int argc, char** argv) {
 
 	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
 
-	    hrefnum  = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_n").c_str()) ;
-	    
+	    TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_n").c_str()) ;
+
+	    hrefnum = (TH1F*)hrefnumt->Clone();
+	    hrefnum->SetDirectory(0);
+
+
 	    //	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
 	    savedhistos.push_back( refchain+"/"+histos[i]+"_n" );
 	    
@@ -1377,6 +1426,11 @@ int main(int argc, char** argv) {
       if ( yinfo.normset() ) { 
 	Norm( htest );
 	if ( href ) Norm( href );
+      }
+
+      if ( yinfo.binwidth() ) { 
+	binwidth( htest );
+	if ( href ) binwidth( href );
       }
     
 
