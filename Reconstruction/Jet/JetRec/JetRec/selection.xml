@@ -17,6 +17,10 @@
 <class name="JetSplitter"/>
 <class name="JetToolRunner"/>
 <class name="JetTrimmer"/>
+<class name="JetSoftDrop"/>
+<class name="JetModifiedMassDrop"/>
+<enum name="JetModifiedMassDrop::SymmetryMeasure"/>
+<enum name="JetModifiedMassDrop::RecursionChoice"/>
 <class name="MuonSegmentPseudoJetGetter"/>
 <class name="PseudoJetGetter"/>
 <class name="PseudoJetGetterRegistry"/>

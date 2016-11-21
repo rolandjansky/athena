@@ -362,7 +362,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "LCPFlow",
   OutputContainer = "PseudoJetLCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter,
+  WeightPFOTool = jtm.pflowweighter_LC,
   InputIsEM = False,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
@@ -527,7 +527,7 @@ if jtm.haveJetCaloCellQualityTool:
   )
 
 # Jet width.
-jtm += JetWidthTool("width")
+jtm += JetWidthTool("width", WeightPFOToolEM=jtm.pflowweighter, WeightPFOToolLC=jtm.pflowweighter_LC)
 
 # Calo layer energies.
 jtm += JetCaloEnergies("jetens")
@@ -699,8 +699,47 @@ jtm += JetOriginCorrectionTool(
   OnlyAssignPV = True,
 )
 
+# Load the xAODCaloEvent dictionary for cluster scale enum
+import cppyy
+try: cppyy.loadDictionary('xAODCaloEventDict')
+except: pass
+from ROOT import xAOD
+# Touch an unrelated class so the dictionary is loaded
+# and therefore the CaloCluster version typedef is recognised
+xAOD.CaloVertexedTopoCluster
+
+### Workaround for inability of Gaudi to parse single-element tuple
+import GaudiPython.Bindings as GPB
+_old_setattr = GPB.iProperty.__setattr__
+def _new_setattr(self, name, value):
+   if type(value) == tuple:
+       value = list(value)
+   return _old_setattr(self, name, value)
+GPB.iProperty.__setattr__ = _new_setattr
+###
+
 jtm += JetConstitFourMomTool(
-  "constfourmom"
+  "constitfourmom_lctopo",
+  JetScaleNames = ["DetectorEtaPhi"],
+  AltConstitColls = ["CaloCalTopoClusters"],
+  AltConstitScales = [xAOD.CaloCluster.CALIBRATED],
+  AltJetScales = [""]
+  )
+
+jtm += JetConstitFourMomTool(
+  "constitfourmom_emtopo",
+  JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
+  AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
+  AltConstitScales = [xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
+  AltJetScales = ["",""]
+  )
+
+jtm += JetConstitFourMomTool(
+  "constitfourmom_pflow",
+  JetScaleNames = ["DetectorEtaPhi"],
+  AltConstitColls = [""],
+  AltConstitScales = [0],
+  AltJetScales = ["JetConstitScaleMomentum"]
   )
 
 #--------------------------------------------------------------

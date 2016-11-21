@@ -46,7 +46,7 @@ class JetRecCalibrationFinder:
     
   # Dictionary for calibration configurations.
   configDict = {
-    "reco"            : "JES_MC15cRecommendation_May2016.config",
+    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
@@ -117,7 +117,9 @@ class JetRecCalibrationFinder:
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
+      setDetEtaPhi = (configkey != "reco") # Temporary setting to avoid clash with modifiers that set detector eta
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
+                                DoSetDetectorEta=setDetEtaPhi)
 
     return jtm.tools[tname]
 
