@@ -248,7 +248,13 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
     if(type!=IsoPhoton) continue;
     if(truthallParticle->pt()*0.001>20. && fabs(truthallParticle->eta())<2.47){
       m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle);
+#ifdef MCTRUTHCLASSIFIER_CONST
+      IMCTruthClassifier::Info info;
+      m_truthClassifier->particleTruthClassifier (truthallParticle, &info);
+      ParticleOutCome photOutCome = info.particleOutCome;
+#else
       ParticleOutCome photOutCome = m_truthClassifier->getParticleOutCome();
+#endif
 
        float convTruthR = 9999.;
        if(truthallParticle->decayVtx()) convTruthR = truthallParticle->decayVtx()->perp();
