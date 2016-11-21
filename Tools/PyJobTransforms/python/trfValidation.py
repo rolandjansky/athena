@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 749614 2016-05-25 10:46:26Z lerrenst $
+# @version $Id: trfValidation.py 782012 2016-11-03 01:45:33Z uworlika $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -314,6 +314,11 @@ class athenaLogFileReport(logFileReport):
                     if 'SysError in <TFile::ReadBuffer>: error reading from file' in line:
                         self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
+
+                    if 'SysError in <TFile::WriteBuffer>' in line:
+                        self.rootSysErrorParser(myGen, line, lineCounter)
+                        continue
+
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
                     continue
@@ -417,7 +422,7 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        _eventCounter = _currentAlgorithm = _functionLine = _currentFunction = None
+        _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
@@ -426,6 +431,22 @@ class athenaLogFileReport(logFileReport):
                     coreDumpReport = 'Segmentation fault'
                 if 'Event counter' in line:
                     _eventCounter = line
+
+                #Lookup: 'EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [267599,7146597,1,1434123751:0,0,0x0,0x0,0x0]'
+                if 'EventID' in line:
+                    match = re.findall('\[.*?\]', line)
+                    if match and match.__len__() >= 2:      # Assuming the line contains at-least one key-value pair.
+                        brackets = "[]"
+                        commaDelimer = ','
+                        keys = (match[0].strip(brackets)).split(commaDelimer)
+                        values = (match[1].strip(brackets)).split(commaDelimer)
+
+                        if 'Run' in keys:
+                            _run = 'Run: ' + values[keys.index('Run')]
+
+                        if 'Evt' in keys:
+                            _event = 'Evt: ' + values[keys.index('Evt')]
+
                 if 'Current algorithm' in line:
                     _currentAlgorithm = line
                 if '<signal handler called>' in line:
@@ -440,9 +461,11 @@ class athenaLogFileReport(logFileReport):
                 # lineGenerator.pushback(line)
                 break
         _eventCounter = 'Event counter: unknown' if not _eventCounter else _eventCounter
+        _run = 'Run: unknown' if not _run else _run
+        _event = 'Evt: unknown' if not _event else _event
         _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
         _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
-        coreDumpReport = '{0}: {1}; {2}; {3}'.format(coreDumpReport, _eventCounter, _currentAlgorithm, _currentFunction)
+        coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
@@ -471,7 +494,6 @@ class athenaLogFileReport(logFileReport):
         else:
             self._levelCounter['FATAL'] += 1
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
-
 
     def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount, g4ExceptionLineDepth):
         g4Report = firstline
@@ -524,16 +546,77 @@ class athenaLogFileReport(logFileReport):
         self._levelCounter['CATASTROPHE'] += 1
         self._errorDetails['CATASTROPHE'].append({'message': badAllocExceptionReport, 'firstLine': firstLineCount, 'count': 1})
 
-
     def rootSysErrorParser(self, lineGenerator, firstline, firstLineCount):
-        msg.debug('Identified ROOT reading problem - adding to error detail report')
+        msg.debug('Identified ROOT IO problem - adding to error detail report')
         self._levelCounter['FATAL'] += 1
         self._errorDetails['FATAL'].append({'message': firstline, 'firstLine': firstLineCount, 'count': 1})
-
 
     def __str__(self):
         return str(self._levelCounter) + str(self._errorDetails)
 
+
+class scriptLogFileReport(logFileReport):
+    def __init__(self, logfile=None, msgLimit=200, msgDetailLevel=stdLogLevels['ERROR']):
+        self._levelCounter = {}
+        self._errorDetails = {}
+        self.resetReport()
+        super(scriptLogFileReport, self).__init__(logfile, msgLimit, msgDetailLevel)
+
+    def resetReport(self):
+        self._levelCounter.clear()
+        for level in stdLogLevels.keys() + ['UNKNOWN', 'IGNORED']:
+            self._levelCounter[level] = 0
+
+        self._errorDetails.clear()
+        for level in self._levelCounter.keys():  # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
+            self._errorDetails[level] = []
+
+    def scanLogFile(self, resetReport=False):
+        if resetReport:
+            self.resetReport()
+
+        for log in self._logfile:
+            msg.info('Scanning logfile {0}'.format(log))
+            try:
+                myGen = trfUtils.lineByLine(log)
+            except IOError, e:
+                msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
+                # Return this as a small report
+                self._levelCounter['ERROR'] = 1
+                self._errorDetails['ERROR'] = {'message': str(e), 'firstLine': 0, 'count': 1}
+                return
+
+            for line, lineCounter in myGen:
+                # TODO: This implementation currently only scans for Root SysErrors.
+                # General solution would be a have common error parser for all system level
+                # errors those all also handled by AthenaLogFileReport.
+                if line.__contains__('SysError in <TFile::ReadBuffer>') or \
+                   line.__contains__('SysError in <TFile::WriteBuffer>'):
+                    self.rootSysErrorParser(line, lineCounter)
+
+    # Return the worst error found in the logfile (first error of the most serious type)
+    def worstError(self):
+        worstlevelName = 'DEBUG'
+        worstLevel = stdLogLevels[worstlevelName]
+        for levelName, count in self._levelCounter.iteritems():
+            if count > 0 and stdLogLevels.get(levelName, 0) > worstLevel:
+                worstlevelName = levelName
+                worstLevel = stdLogLevels[levelName]
+
+        if len(self._errorDetails[worstlevelName]) > 0:
+            firstError = self._errorDetails[worstlevelName][0]
+        else:
+            firstError = None
+
+        return {'level': worstlevelName, 'nLevel': worstLevel, 'firstError': firstError}
+
+    def __str__(self):
+        return str(self._levelCounter) + str(self._errorDetails)
+
+    def rootSysErrorParser(self, line, lineCounter):
+        msg.debug('Identified ROOT IO problem - adding to error detail report')
+        self._levelCounter['FATAL'] += 1
+        self._errorDetails['FATAL'].append({'message': line, 'firstLine': lineCounter, 'count': 1})
 
 ## @brief return integrity of file using appropriate validation function
 #  @ detail This method returns the integrity of a specified file using a

@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 743527 2016-04-28 11:27:16Z graemes $
+# @version $Id: trfUtils.py 785618 2016-11-21 22:03:04Z uworlika $
 
 import os
 import os.path as path
@@ -522,6 +522,9 @@ def cvmfsDBReleaseCheck(dbrelease):
  
  
 ## @brief Dump a list of arguments to the pickle file given in the 'dumpPickle' argument
+#  @note  This is a copy of the JSONDump function, but should in fact be deprecated soon
+#         so no point in merging the common parts!
+#  TODO: Deprecate me!
 def pickledDump(argdict):
     if 'dumpPickle' not in argdict:
         return
@@ -532,7 +535,7 @@ def pickledDump(argdict):
         if k is 'dumpPickle':
             continue
         if isinstance(v, argument):
-            theArgumentDictionary[k] = v.value
+            theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
         else:
             theArgumentDictionary[k] = v
     with open(argdict['dumpPickle'], 'w') as pickleFile:
@@ -551,7 +554,7 @@ def JSONDump(argdict):
         if k is 'dumpJSON':
             continue
         if isinstance(v, argument):
-            theArgumentDictionary[k] = v.value
+            theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
         else:
             theArgumentDictionary[k] = v
     with open(argdict['dumpJSON'], 'w') as JSONFile:
@@ -620,6 +623,18 @@ def units(
         return unitSingular
     else:
         return unitPlural
+
+
+# @brief returns if the current job is running in interactive environment.
+def isInteractiveEnv():
+    isInteractiveEnv = False
+    # PS1 is for sh, bash; prompt is for tcsh and zsh
+    if 'PS1' in os.environ or 'prompt' in os.environ:
+        isInteractiveEnv = True
+    elif os.isatty(sys.stdout.fileno()) or os.isatty(sys.stdin.fileno()):
+        isInteractiveEnv = True
+
+    return isInteractiveEnv
 
 
 ## @brief Job: a set of pieces of information relevant to a given work function

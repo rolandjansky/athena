@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 747041 2016-05-13 14:29:48Z lerrenst $
+#  @version $Id: trfReports.py 784023 2016-11-14 14:01:07Z mavogel $
 #
 
-__version__ = '$Revision: 747041 $'
+__version__ = '$Revision: 784023 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.2'
+    _reportVersion = '2.0.7'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -178,18 +178,44 @@ class trfJobReport(trfReport):
         myCpuTime = reportTime[0] + reportTime[1]
         childCpuTime = reportTime[2] + reportTime[3]
         wallTime = reportTime[4] - self._trf.transformStart[4]
+        cpuTime = myCpuTime
+        cpuTimeTotal = 0
+        cpuTimePerWorker = myCpuTime
+        maxWorkers = 1
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
         # Reduce childCpuTime by times reported in the executors (broken for MP...?)
         for exeName, exeReport in myDict['resource']['executor'].iteritems():
+            if 'mpworkers' in exeReport:
+                if exeReport['mpworkers'] > maxWorkers : maxWorkers = exeReport['mpworkers']
             try:
                 msg.debug('Subtracting {0}s time for executor {1}'.format(exeReport['cpuTime'], exeName))
                 childCpuTime -= exeReport['cpuTime']
             except TypeError:
                 pass
+            try:
+                cpuTime += exeReport['cpuTime']
+                cpuTimeTotal += exeReport['total']['cpuTime']
+                if 'cpuTimePerWorker' in exeReport:
+                    msg.debug('Adding {0}s to cpuTimePerWorker'.format(exeReport['cpuTimePerWorker']))
+                    cpuTimePerWorker += exeReport['cpuTimePerWorker']
+                else:
+                    msg.debug('Adding nonMP cpuTime {0}s to cpuTimePerWorker'.format(exeReport['cpuTime']))
+                    cpuTimePerWorker += exeReport['cpuTime']
+            except TypeError:
+                pass
 
+        msg.debug('maxWorkers: {0}, cpuTimeTotal: {1}, cpuTimePerWorker: {2}'.format(maxWorkers, cpuTime, cpuTimePerWorker))
         myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
+                              'cpuTimeTotal': int(cpuTimeTotal + 0.5),
                               'externalCpuTime': int(childCpuTime + 0.5),
                               'wallTime': int(wallTime + 0.5),}
+        if self._trf.processedEvents:
+            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents   
+        myDict['resource']['transform']['trfPredata'] = self._trf.trfPredata
+        # check for devision by zero for fast jobs, unit tests
+        if int(wallTime+0.5) > 0:
+            myDict['resource']['transform']['cpuEfficiency'] = round(int(cpuTime + 0.5)*1.0/maxWorkers/int(wallTime+0.5), 4)
+            myDict['resource']['transform']['cpuPWEfficiency'] = round(int(cpuTimePerWorker + 0.5)*1.0/int(wallTime+0.5), 4)
         myDict['resource']['machine'] = machineReport().python(fast = fast)
 
         return myDict
@@ -568,13 +594,32 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
 
 def exeResourceReport(exe, report):
     exeResource = {'cpuTime': exe.cpuTime, 
-                   'wallTime': exe.wallTime,}
+                   'wallTime': exe.wallTime,
+                   'preExe': {
+                       'cpuTime': exe.preExeCpuTime,
+                       'wallTime': exe.preExeWallTime,
+                       },
+                   'postExe': {
+                       'cpuTime': exe.postExeCpuTime,
+                       'wallTime': exe.postExeWallTime,
+                       },
+                   'validation': {
+                       'cpuTime': exe.validationCpuTime,
+                       'wallTime': exe.validationWallTime,
+                       },
+                   'total': {
+                       'cpuTime': exe.cpuTimeTotal,
+                       'wallTime': exe.wallTimeTotal,
+                       },
+                   }
+
     if exe.memStats:
         exeResource['memory'] = exe.memStats
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:
         exeResource['mpworkers'] = exe.athenaMP
+        exeResource['cpuTimePerWorker'] = float(exe.cpuTime)/exe.athenaMP
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
         exeResource['dbTime'] = exe.dbMonitor['time']

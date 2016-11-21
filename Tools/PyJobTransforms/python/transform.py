@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 743343 2016-04-27 15:47:21Z graemes $
+# @version $Id: transform.py 785618 2016-11-21 22:03:04Z uworlika $
 # 
 
 __version__ = '$Revision'
@@ -28,7 +28,7 @@ from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArgumen
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
+from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr, isInteractiveEnv
 from PyJobTransforms.trfReports import trfJobReport, defaultFileReport
 from PyJobTransforms.trfExe import transformExecutor
 from PyJobTransforms.trfGraph import executorGraph
@@ -51,6 +51,9 @@ class transform(object):
         
         ## @brief Get starting timestamp as early as possible
         self._transformStart = os.times()
+        
+        ## @brief Get trf pre-data as early as possible
+        self._trfPredata = os.environ.get('TRF_PREDATA')
 
         ## Transform _name
         self._name = trfName        
@@ -91,6 +94,9 @@ class transform(object):
 
         ## Report object for this transform
         self._report = trfJobReport(parentTrf = self)
+        
+        ## Transform processed events
+        self._processedEvents = None
         
         # Setup standard signal handling if asked
         if standardSignalHandlers:
@@ -135,8 +141,24 @@ class transform(object):
         return self._transformStart
     
     @property
+    def trfPredata(self):
+        return self._trfPredata
+    
+    @property
     def executors(self):
         return self._executors
+    
+    @property
+    def processedEvents(self):
+        return self._processedEvents
+    
+    def getProcessedEvents(self):
+        nEvts = None
+        for executionStep in self._executorPath:
+            executor = self._executorDictionary[executionStep['name']]
+            if executor.conf.firstExecutor:
+                nEvts = executor.eventCount
+        return nEvts
 
     def appendToExecutorSet(self, executors):
         # Normalise to something iterable
@@ -215,8 +237,14 @@ class transform(object):
                 except Exception, e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when deserialising JSON file {0} ({1})'.format(self._argdict['argJSON'], e))
             
-            
-            
+            # Event Service
+            if 'eventService' in self._argdict and self._argdict['eventService'].value:
+                updateDict = {}
+                updateDict['athenaMPMergeTargetSize'] = '*:0'
+                updateDict['checkEventCount'] = False
+                updateDict['outputFileValidation'] = False
+                extraParameters.update(updateDict)
+                
             # Process anything we found
             for k,v in extraParameters.iteritems():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
@@ -282,7 +310,7 @@ class transform(object):
         
     ## @brief Execute transform
     # @detailed This function calls the actual transform execution class and
-    # sets \c self.exitCode and \c self.exitMsg transform data members.
+    # sets \c self.exitCode,  \c self.exitMsg and \c self.processedEvents transform data members.
     # TODO: This method should be timed - try a decorator function for that 
     # @return None.
     def execute(self):
@@ -352,17 +380,19 @@ class transform(object):
             for executor in self._executors:
                 executor.conf.setFromTransform(self)
 
-
             self.validateInFiles()
             
             for executionStep in self._executorPath:
                 msg.debug('Now preparing to execute {0}'.format(executionStep))
                 executor = self._executorDictionary[executionStep['name']]
                 executor.preExecute(input = executionStep['input'], output = executionStep['output'])
-                executor.execute()
-                executor.postExecute()
-                executor.validate()
-                
+                try:
+                    executor.execute()
+                    executor.postExecute()
+                finally:
+                    executor.validate()
+             
+            self._processedEvents = self.getProcessedEvents()
             self.validateOutFiles()
             
             msg.debug('Transform executor succeeded')
@@ -518,17 +548,21 @@ class transform(object):
             # (It causes spurious warnings for some grid jobs with background files (e.g., digitisation)
             if 'TZHOME' in os.environ:
                 reportType.append('gpickle')
-            
+
+            if not isInteractiveEnv():
+                reportType.append('text')
+
         if 'reportName' in self._argdict:
             baseName = classicName = self._argdict['reportName'].value
         else:
             baseName = 'jobReport'
             classicName = 'metadata'
-        
+
         try:
-            # Text
-            if reportType is None or 'text' in reportType: 
-                self._report.writeTxtReport(filename='{0}.txt'.format(baseName), fast=fast, fileReport=fileReport)
+            # Text: Writes environment variables and machine report in text format.
+            if reportType is None or 'text' in reportType:
+                envName = baseName if 'reportName' in self._argdict else 'env'  # Use fallback name 'env.txt' if it's not specified.
+                self._report.writeTxtReport(filename='{0}.txt'.format(envName), fast=fast, fileReport=fileReport)
             # JSON
             if reportType is None or 'json' in reportType:
                 self._report.writeJSONReport(filename='{0}.json'.format(baseName), fast=fast, fileReport=fileReport)

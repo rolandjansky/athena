@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 731518 2016-03-22 07:29:46Z graemes $
+# @version $Id: trfFileUtils.py 780653 2016-10-27 08:25:09Z mavogel $
 # @todo make functions timelimited
 
 import logging
@@ -220,14 +220,24 @@ def NTUPEntries(fileName, treeNames):
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 #  @param filename Filename to get size of
-#  @return fileSize or None of there was a problem
+#  @return fileSize or None if there was a problem
 @_decos.forking
 def ROOTGetSize(filename):
     root = import_root()
     
     try:
         msg.debug('Calling TFile.Open for {0}'.format(filename))
-        fname = root.TFile.Open(filename + '?filetype=raw', 'READ')
+        extraparam = '?filetype=raw'
+        if filename.startswith("https"):
+            try:
+                pos = filename.find("?")
+                if pos>=0:
+                    extraparam = '&filetype=raw'
+                else:
+                    extraparam = '?filetype=raw'
+            except:
+                extraparam = '?filetype=raw'
+        fname = root.TFile.Open(filename + extraparam, 'READ')
         fsize = fname.GetSize()
         msg.debug('Got size {0} from TFile.GetSize'.format(fsize))
     except ReferenceError:
@@ -252,5 +262,7 @@ def urlType(filename):
         return 'rfio'
     if filename.startswith('file:'):
         return 'posix'
+    if filename.startswith('https:'):
+        return 'root'
     return 'posix'
 

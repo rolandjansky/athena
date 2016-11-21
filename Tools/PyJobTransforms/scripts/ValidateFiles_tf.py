@@ -53,7 +53,7 @@ def addArgs(parser):
     parser.add_argument('--outputAODFile', type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', type='aod', multipleOK=True), nargs='+')
     parser.add_argument('--outputRDOFile', type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', type='rdo', multipleOK=True), nargs='+')
     parser.add_argument('--outputTAGFile', type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output', type='tag', multipleOK=True), nargs='+')
-    parser.add_argument('--outputEVNTFile', type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', type='evnt', multipleOK=True), nargs='+')
+    parser.add_argument('--outputEVNTFile', type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', type='evnt', multipleOK=True), nargs='+')
     parser.add_argument('--outputHISTFile', type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', type='hist', multipleOK=True), nargs='+')
     parser.add_argument('--outputTXT_FTKIPFile', type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, io='output', multipleOK=True), nargs='+')
     parser.add_argument('--outputNTUP_FTKSIMFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output', type='ntup_ftksim', treeNames = ['ftkdata'], multipleOK=True), nargs='+')

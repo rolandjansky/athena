@@ -52,11 +52,13 @@ def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('EVNTMerge_tf', 'EVNT merge job specific options')
     parser.add_argument('--inputEVNTFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='evnt'),
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='input', runarg=True, type='evnt'),
                         help='Input EVNT file', group='EVNTMerge_tf')
     parser.add_argument('--outputEVNT_MRGFile', '--outputEVNTFile', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', runarg=True, type='evnt'),
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', runarg=True, type='evnt'),
                         help='Output merged EVNT file', group='EVNTMerge_tf')
+    parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool), metavar = "BOOL",
+                        help='Switch AthenaMP to the Event Service configuration', group='EVNTMerge_tf')
     
     
 

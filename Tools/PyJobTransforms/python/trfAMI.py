@@ -99,7 +99,7 @@ class TrfConfig:
                     # athenaopts are special - space separated
                     if "athenaopts" in k:
                         string += " " + k + "=" + "'" + " ".join(v).replace("'", "\\'") + "'"
-                    elif "Exec" in k:
+                    elif "Exec" in k or "Include" in k:
                         # Special intermediate treatment for pre/postExec from prodsys
                         string += " " + k + " " + " ".join(["'"+element.replace("'", "\\'")+"'" for element in v])
                     else:

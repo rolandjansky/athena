@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 752574 2016-06-03 16:25:31Z mavogel $
+#  @version $Id: trfArgs.py 764176 2016-07-25 16:07:54Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -405,7 +405,7 @@ class dpdType(object):
 def getExtraDPDList(NTUPOnly = False):
     extraDPDs = []
     extraDPDs.append(dpdType('NTUP_SCT', substeps=['r2e']))
-    extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2e'], treeNames=['PatternNtupleMaker/Segments']))
+    extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2e','r2a'], treeNames=['PatternNtupleMaker/Segments']))
     extraDPDs.append(dpdType('NTUP_TRKVALID', substeps=['r2e']))
     extraDPDs.append(dpdType('NTUP_FASTMON', substeps=['a2t','a2d','e2a']))
     extraDPDs.append(dpdType('NTUP_LARNOISE', substeps=['e2d'], treeNames=['CollectionTree']))
@@ -422,6 +422,7 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_MCPScale', substeps=['a2d'], help="Ntuple file for MCP scale calibration"))
 
     extraDPDs.append(dpdType('NTUP_FastCaloSim', substeps=['e2d']))
+    extraDPDs.append(dpdType('NTUP_PILEUP', substeps=['a2da']))
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:

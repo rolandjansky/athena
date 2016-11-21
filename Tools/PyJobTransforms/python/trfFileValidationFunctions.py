@@ -10,7 +10,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-## @brief Integrity function for file class argPOOLFile, argHITSFile and argRDOFile
+## @brief Integrity function for file class argPOOLFile, argHITSFile, argRDOFile and argEVNTFile
 def returnIntegrityOfPOOLFile(fname):
     from PyJobTransforms.trfValidateRootFile import checkFile
     rc = checkFile(fileName = fname, type = 'event', requireTree = True)
