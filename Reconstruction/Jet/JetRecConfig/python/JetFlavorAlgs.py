@@ -5,10 +5,13 @@
 # David Adams
 # September 2014
 
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRec_jobOptions')
+
 # Import the jet reconstruction control flags.
 from JetRecFlags import jetFlags
 
-print str(jetFlags.truthFlavorTags())
+jetlog.info( str(jetFlags.truthFlavorTags()) )
 
 def scheduleCopyTruthParticles():
   myname = "scheduleCopyTruthParticles: "
@@ -23,10 +26,10 @@ def scheduleCopyTruthParticles():
   for ptype in jetFlags.truthFlavorTags():
     toolname = "CopyTruthTag" + ptype
     if toolname in jtm.tools:
-      print myname + "Skipping previously-defined tool: " + toolname
-      print jtm.tools[toolname]
+      jetlog.info( myname + "Skipping previously-defined tool: " + toolname )
+      jetlog.info( jtm.tools[toolname] )
     else:
-      print myname + "Scheduling " + toolname
+      jetlog.info( myname + "Scheduling " + toolname )
       ptmin = 5000
       if ptype == "Partons":
         ctp = CopyTruthPartons(toolname)
@@ -41,6 +44,6 @@ def scheduleCopyTruthParticles():
       ctp.PtMin = ptmin
       jtm += ctp
       #theJob += CopyTruthParticlesAlg(ctp, toolname + "Alg")
-      print ctp
+      jetlog.info( ctp )
       tools.append( ctp )
   return tools

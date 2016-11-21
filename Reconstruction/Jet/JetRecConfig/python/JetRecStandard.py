@@ -10,13 +10,16 @@
 # High-level RecExCommon scripts should use this in place or JetRecStandardToolManager.
 #
 # Call with
-#   from JetRecConfig.JetRecStandard import jtm
+#   from JetRec.JetRecStandard import jtm
 #
 # Jet flags should be set before making this call. Those for truth, clusters, tracks
 # and muon segments will be set here iff they are not already set.
 
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRec_jobOptions')
+
 myname = "JetRecStandard: "
-print myname + "Begin."
+jetlog.info( myname + "Begin.")
 
 from RecExConfig.RecFlags import rec 
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -29,71 +32,77 @@ def sflagstat(flag):
 # Import the jet reconstruction control flags.
 from JetRecFlags import jetFlags
 from RecExConfig.ObjKeyStore import cfgKeyStore
-from AthenaCommon import Logging
-jetlog = Logging.logging.getLogger('JetRec_jobOptions')
-
-# Disable usage of vertices in pflow jets, if we are using cosmic data.
-from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Beam.beamType == 'cosmics':
-  jetFlags.useVertices = False
 
 # Skip truth if rec says it is absent.
 # No action if someone has already set the flag.
-print myname + "Initial useTruth: " + sflagstat(jetFlags.useTruth)
-print myname + "     rec.doTruth: " + str(rec.doTruth())
+jetlog.info( myname + "Initial useTruth: " + sflagstat(jetFlags.useTruth))
+jetlog.info( myname + "     rec.doTruth: " + str(rec.doTruth()) )
 if not jetFlags.useTruth.statusOn:
   jetFlags.useTruth = rec.doTruth()
-print myname + "  Final useTruth: " + sflagstat(jetFlags.useTruth)
+jetlog.info( myname + "  Final useTruth: " + sflagstat(jetFlags.useTruth))
 
 # Skip use of topoclusters if not built
 # No action if someone has already set the flag.
-print myname + "Initial use topoclusters: " + str(jetFlags.useTopo())
+jetlog.info( myname + "Initial use topoclusters: " + str(jetFlags.useTopo()))
 if not jetFlags.useTopo.statusOn:
   jetFlags.useTopo = rec.doCalo()
-print myname + "  Final use topoclusters: " + str(jetFlags.useTopo())
+jetlog.info( myname + "  Final use topoclusters: " + str(jetFlags.useTopo()))
 
 # Skip tracks if tracks or vertices are not present in the job.
 # No action if someone has already set the flag.
 haveTracks = cfgKeyStore.isInTransient('xAOD::TrackParticleContainer','InDetTrackParticles')
 haveVertices = cfgKeyStore.isInTransient("xAOD::VertexContainer","PrimaryVertices")
 recTracks = rec.doInDet()
-recVertices = bool(InDetFlags.doVertexFinding)
-print myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks)
-print myname + "      rec doInDet: " + str(recTracks)
-print myname + "  doVertexFinding: " + str(recVertices)
-print myname + "      have tracks: " + str(haveTracks)
-print myname + "    have vertices: " + str(haveVertices)
+recVertices = bool(InDetFlags.doVertexFinding) and (recTracks or haveTracks)
+jetlog.info( myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks) )
+jetlog.info( myname + "      rec doInDet: " + str(recTracks) )
+jetlog.info( myname + "  doVertexFinding: " + str(recVertices) )
+jetlog.info( myname + "      have tracks: " + str(haveTracks) )
+jetlog.info( myname + "    have vertices: " + str(haveVertices) )
 if not jetFlags.useTracks.statusOn:
   jetFlags.useTracks = (recTracks or haveTracks) and (recVertices or haveVertices)
-print myname + "  Final useTracks: " + sflagstat(jetFlags.useTracks)
+jetlog.info( myname + "  Final useTracks: " + sflagstat(jetFlags.useTracks) )
+ 
+if not jetFlags.useVertices.statusOn:
+  jetFlags.useVertices = (recVertices or haveVertices)
+jetlog.info( myname + "   useVertices: " + sflagstat(jetFlags.useVertices) )
+
+# Disable usage of vertices in pflow jets, if we are using cosmic data.
+from AthenaCommon.BeamFlags import jobproperties
+if jobproperties.Beam.beamType == 'cosmics':
+  jetFlags.useVertices = False
 
 # Skip pflow if we are not using tracks.
-print myname + "Initial usePFlow: " + sflagstat(jetFlags.usePFlow)
+jetlog.info( myname + "Initial usePFlow: " + sflagstat(jetFlags.usePFlow) )
 if not jetFlags.usePFlow.statusOn:
   jetFlags.usePFlow = jetFlags.useTracks()
-print myname + "Final usePFlow: " + sflagstat(jetFlags.usePFlow)
+jetlog.info( myname + "Final usePFlow: " + sflagstat(jetFlags.usePFlow) )
 
 # Skip use of muon segments if not built.
 # No action if someone has already set the flag.
-print myname + "Initial use muon segments: " + sflagstat(jetFlags.useMuonSegments)
+jetlog.info( myname + "Initial use muon segments: " + sflagstat(jetFlags.useMuonSegments) )
 if not jetFlags.useMuonSegments.statusOn:
   jetFlags.useMuonSegments = rec.doMuon() and rec.doMuonCombined()
-print myname + "  Final use muon segments: " + sflagstat(jetFlags.useMuonSegments)
+jetlog.info( myname + "  Final use muon segments: " + sflagstat(jetFlags.useMuonSegments) )
 
 # Use rec flag to control BTagging.
 # No. Disable this unit we get support from Btagging to do this.
 # No action if someone has already set the flag.
-print myname + "Initial use Btagging: " + str(jetFlags.useBTagging)
-print myname + "     rec do BTagging: " + str(rec.doBTagging())
+jetlog.info( myname + "Initial use Btagging: " + str(jetFlags.useBTagging) )
+jetlog.info( myname + "     rec do BTagging: " + str(rec.doBTagging()) )
 if not jetFlags.useBTagging.statusOn:
   #jetFlags.useBTagging = rec.doBTagging()
   jetFlags.useBTagging = False
-print myname + "  Final use Btagging: " + str(jetFlags.useBTagging)
+jetlog.info( myname + "  Final use Btagging: " + str(jetFlags.useBTagging) )
 
 # The following can be used to exclude tools from reconstruction.
 if 0:
   jetFlags.skipTools = ["comshapes"]
 jetlog.info( "Skipped tools: %s", jetFlags.skipTools())
+
+from RecExConfig.RecAlgsFlags import recAlgs
+if not recAlgs.doEFlow():
+  jetFlags.usePFlow = False
 
 # Set the list of rho calculations.
 # If caller has set jetFlags.eventShapeTools(), then we use those values.
@@ -107,4 +116,4 @@ if jetFlags.eventShapeTools() == None:
 # Import the jet tool manager.
 from JetRecStandardToolManager import jtm
 
-print myname + "End."
+jetlog.info( myname + "End." )
