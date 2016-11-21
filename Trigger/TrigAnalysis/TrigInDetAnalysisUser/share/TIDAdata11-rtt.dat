@@ -199,7 +199,11 @@ testChains = {
 
     "HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID",
 
-    "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
+    "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
+
+    "HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF",
+    "HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK"
+
 }; 
 
 InitialiseFirstEvent = 1;

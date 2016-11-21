@@ -52,7 +52,7 @@ ifeq ($(CMTCONFIG),)
        TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
 #    endif
 
-    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
+    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC 	
 
 else 
 
@@ -85,6 +85,8 @@ VPATH += $(TIDE)/src
 VPATH += $(SRCDIR)
 
 
+LIBSO = lib
+
 ifeq ($(CMTCONFIG),)
     TIDLIB = -L$(LIBDIR) -lTIDA
 else
@@ -99,7 +101,7 @@ endif
 
 # Root variables
 ROOTCFLAGS   = $(shell root-config --cflags)
-ROOTLIBS     = $(shell root-config --libs)
+ROOTLIBS     = $(shell root-config --glibs)
 ROOTGLIBS    = $(shell root-config --glibs)
 
 CLHEPLIB    = $(shell clhep-config --libs)
@@ -134,7 +136,7 @@ ifdef DEBUG
 CXXFLAGS += -D$(DEBUG) -g
 endif
 
-GLIBS += $(ROOTGLIBS) $(ROOTLIBS)
+GLIBS +=  $(ROOTLIBS) $(ROOTGLIBS)
 
 LDFLAGS = $(shell root-config --ldflags)
 
@@ -172,8 +174,6 @@ LOBJECTS  = \
         $(OBJDIR)/ChainString.o \
         $(OBJDIR)/TrigInDetAnalysisDict.o
 
-LROBJECTS  = \
-	$(OBJDIR)/listroot.o \
 
 
 DICTHEADERS = \
@@ -202,56 +202,61 @@ RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/
 
 # build executable: link
 
-all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim
+all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot
 
 $(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
 $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
 
 rdict : $(EXEDIR)/rdict  
-$(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) lib 
+$(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) $(LIBSO) 
 	$(CXX) $(LDFLAGS) -o $@ $(ROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 wdict : $(EXEDIR)/wdict 
-$(EXEDIR)/wdict : dirs $(WOBJECTS) lib	
+$(EXEDIR)/wdict : dirs $(WOBJECTS) $(LIBSO)	
 	$(CXX) $(LDFLAGS) -o $@ $(WOBJECTS) $(LIBS) $(GLIBS)
 
 reader : $(EXEDIR)/reader 
-$(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  lib	
+$(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  $(LIBSO)	
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
 
 skim : dirs $(EXEDIR)/skim 
-$(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  lib	
+$(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  $(LIBSO)	
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/skim.o $(LIBS) $(GLIBS)
 
 fastadd : dirs $(EXEDIR)/fastadd 
-$(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  lib	
+$(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  $(LIBSO)	
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/fastadd.o $(LIBS) $(GLIBS)
 
 refit : dirs $(EXEDIR)/refit 
-$(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  lib	
+$(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)	
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
 
 comparitor : $(EXEDIR)/comparitor  
-$(EXEDIR)/comparitor : $(COBJECTS)  lib
+$(EXEDIR)/comparitor : $(COBJECTS)  $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 	cp $(EXEDIR)/{comparitor,TIDAcomparitor.exe}
 
 cpucost : $(EXEDIR)/cpucost  
-$(EXEDIR)/cpucost : $(CCOBJECTS)  lib
+$(EXEDIR)/cpucost : $(CCOBJECTS)  $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(CCOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 chains : $(EXEDIR)/chains  
-$(EXEDIR)/chains : $(CHOBJECTS)  lib
+$(EXEDIR)/chains : $(CHOBJECTS)  $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
-
-listroot : $(EXEDIR)/listroot  
-$(EXEDIR)/listroot : $(LROBJECTS)  lib
-	$(CXX) $(LDFLAGS) -o $@ $(LROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 
 makeSmallRefFile : $(EXEDIR)/makeSmallRefFile
 $(EXEDIR)/makeSmallRefFile : $(OBJDIR)/makeSmallRefFile.o
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/makeSmallRefFile.o  $(ROOTLIBS)
+
+listroot : $(EXEDIR)/listroot  
+$(EXEDIR)/listroot : $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
+
+runtool : dirs $(EXEDIR)/runtool
+$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(GLIBS)
+
 
 
 # compile
@@ -291,14 +296,14 @@ $(LIBDIR)/libTIDA.a : $(LOBJECTS)
 	$(AR) $(ARFLAGS)  $@ $(LOBJECTS)
 	$(RANLIB) $@
 
-solib: $(LIBDIR)/libTIDA.so 
+libso: $(LIBDIR)/libTIDA.so 
 $(LIBDIR)/libTIDA.so : $(LOBJECTS) 
 	$(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
-
+	
 else
 # if libraries are already build inside athena, do nothing 
 lib:
-solib:
+libso:
 
 endif
 
@@ -325,10 +330,13 @@ archive :
 
 install : all 
 	cp $(EXEDIR)/comparitor $(HOME)/bin
+	cp $(EXEDIR)/chains     $(HOME)/bin
 	cp $(EXEDIR)/reader     $(HOME)/bin
 	cp $(EXEDIR)/rdict      $(HOME)/bin
+	cp $(EXEDIR)/cpucost    $(HOME)/bin
 	cp $(EXEDIR)/skim       $(HOME)/bin
-	cp $(EXEDIR)/chains     $(HOME)/bin
+	cp $(EXEDIR)/listroot   $(HOME)/bin
+	cp $(EXEDIR)/runtool    $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

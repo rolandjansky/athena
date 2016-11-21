@@ -6,7 +6,7 @@
 //  
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: dataset.h 680951 2015-07-07 11:36:39Z sutt $
+//   $Id: dataset.h 760843 2016-07-09 23:56:54Z sutt $
 
 
 #ifndef __DATASET_H
@@ -47,7 +47,7 @@ public:
       while( !infile.fail() ) {
 	std::string file;
 	infile >>  file;
-	if ( !infile.fail() ) push_back( s+"/"+file );
+	if ( !infile.fail() && file.find(".root")!=std::string::npos ) push_back( s+"/"+file );
       }
 
       //      for ( unsigned i=size() ; i-- ; ) std::cout << at(i) << std::endl;

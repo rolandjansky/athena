@@ -111,6 +111,11 @@ atlas_add_executable( TIDAmakeSmallRefFile
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis TrigInDetAnalysisExampleLib TrigInDetAnalysisUtils Resplot Readcards TIDA TIDAcomputils )
 
+atlas_add_executable( TIDAruntool
+                      Analysis/src/runtool.cxx
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}  )
+
 # Install files from the package:
-atlas_install_runtime( share/TIDA*.dat share/Test_bin.dat )
+atlas_install_runtime( share/TIDA*.dat share/Test_bin.dat share/TIDA*.py )
 

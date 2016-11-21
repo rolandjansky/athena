@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 718206 2016-01-17 16:16:48Z sutt $
+//   $Id: ConfAnalysis.cxx 772657 2016-09-12 07:11:42Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -34,11 +34,11 @@ extern double a0;
 
 extern bool hipt;
 
-extern TIDA::Event* event;
+extern TIDA::Event* gevent;
 
 extern TIDARoiDescriptor* groi;
 
-
+extern TIDA::Event* gevent;
 
 /// these are all definied on rmain.cxx
 extern bool dumpflag;
@@ -169,10 +169,8 @@ void ConfAnalysis::initialiseInternal() {
   double*   ptbinlims = &ptbinlimsv[0];
   //  for ( int i=0 ; i<=ptnbins ; i++ ) {     ptbinlims[i] = std::pow(10, 2.0*i/ptnbins+2)/1000; }
   //  for ( int i=0 ; i<=ptnbins ; i++ ) {     ptbinlims[i] = std::pow(10, 2.3*i/ptnbins+2); }
-  //  ptbinlims[i] = std::pow(10, 2.5*i/ptnbins+2)/1000;  
-  for ( int i=0 ; i<=ptnbins ; i++ ) {
-    ptbinlims[i] = std::pow(10, pt_a*i/ptnbins+pt_b)/1000;  
-  }
+  for ( int i=0 ; i<=ptnbins ; i++ ) ptbinlims[i] = std::pow(10, pt_a*i/ptnbins+pt_b)/1000;  
+ 
 
   // ADDED BY JK - FOR SIGNED PT PLOTS
   //-----
@@ -229,6 +227,8 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back( rntrt_eta  = new Resplot( "ntrt_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
   mres.push_back( rnsihit_eta= new Resplot( "nsihit_eta",etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
 
+  mres.push_back( rnpix_lb  = new Resplot( "npix_lb", 250, 0, 2500,  22, -0.5, 21.5 ) );
+
   mres.push_back(  rnpix_phi  = new Resplot( "npix_phi",  etaBins, -M_PI, M_PI,  22, -0.5, 21.5 ) );
   mres.push_back(  rnsct_phi  = new Resplot( "nsct_phi",  etaBins, -M_PI, M_PI,  22, -0.5, 21.5 ) );
   mres.push_back(  rntrt_phi  = new Resplot( "ntrt_phi",  etaBins, -M_PI, M_PI, 100, -0.5, 99.5 ) );
@@ -267,24 +267,9 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rChi2_bad     = new Resplot( "Chi2_bad",     ptnbins, ptbinlims, 200, 0, 100 ) );
   mres.push_back(  rChi2dof_bad  = new Resplot( "Chi2dof_bad",  ptnbins, ptbinlims, 100, 0,  10 ) );
 
+  //  int Nptbins = 7;
+  //  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
 
-
-  int Nptbins = 7;
-  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
-
-  TH2F* effpt2d  = new TH2F("pteta2d", "pteta", Nptbins,   _ptlims,  40, -tmp_maxEta, tmp_maxEta ); 
-  TH2F* effeta2d = new TH2F("etapt2d", "pteta", ptnbins, ptbinlims,   6, -tmp_maxEta, tmp_maxEta ); 
-  TH2F* effetaphi2d = new TH2F("etaphi2d", "etaphi", 50, -tmp_maxEta, tmp_maxEta ,2*phiBins, -tmp_maxPhi, tmp_maxPhi); 
-
-  eff_pteta = new Efficiency2D( effpt2d,  "pteta" );
-  eff_etaphi = new Efficiency2D( effetaphi2d, "etaphi" );
-  eff_etapt = new Efficiency2D( effeta2d, "etapt" );
-
-  effpt2d->SetDirectory(0);
-  effeta2d->SetDirectory(0);
-
-  delete effpt2d;
-  delete effeta2d;
 
   //  addHistogram( hchi2=new TH1F("chi2", "chi2", 100, 0, 20) );
 
@@ -551,6 +536,14 @@ void ConfAnalysis::initialiseInternal() {
   rd0res.push_back(  new Resplot("rd0_vs_ntracks",  60, 0, 600,  factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
 
 
+  retares.push_back( new Resplot("reta_vs_phi", 128, -M_PI, M_PI, 2*etaResBins,       -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
+  rphires.push_back( new Resplot("rphi_vs_phi", 128, -M_PI, M_PI, 8*phiResBins,       -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
+  rzedres.push_back( new Resplot("rzed_vs_phi", 128, -M_PI, M_PI, 8*zfactor*zresBins, -2*zfactor*zresMax,     2*zfactor*zresMax       ) );
+  riptres.push_back( new Resplot("ript_vs_phi", 128, -M_PI, M_PI, 16*pTResBins,       -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
+  rptres.push_back(  new Resplot("rpt_vs_phi",  128, -M_PI, M_PI, 8*pTResBins,        -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
+  rd0res.push_back(  new Resplot("rd0_vs_phi",  128, -M_PI, M_PI, factor*8*a0resBins, -wfactor*a0resMax,      wfactor*a0resMax  ) );
+
+
   //ADDED BY JK
   //-----
   rzedres.push_back( new Resplot("rzed_vs_signed_pt", ptnbins2, ptbinlims2, 4*zfactor*zresBins,   -zfactor*zresMax,      zfactor*zresMax       ) );
@@ -618,6 +611,8 @@ void ConfAnalysis::initialiseInternal() {
   //rzedres.push_back( new Resplot("rzed_vs_ABS_pt", ptnbins, ptbinlims, 4*zfactor*zresBins,   -2*zwidthfactor*zresMax,      2*zwidthfactor*zresMax       ) );              
   rd0resPull.push_back( new Resplot("rd0Pull_vs_signed_pt", ptnbins2, ptbinlims2, factor*8*a0resBins,   -5,5));//-wfactor*a0resMax,  wfactor*a0resMax  ) );       
   rd0resPull.push_back( new Resplot("rd0Pull_vs_ABS_pt", ptnbins, ptbinlims, factor*8*a0resBins,   -5,5));//-wfactor*a0resMax,  wfactor*a0resMax  ) ); 
+
+  rzedreslb = new Resplot("rzed_vs_lb", 301, -0.5, 3009.5, 8*zfactor*zresBins, -2*zfactor*zresMax,     2*zfactor*zresMax  );
   
 
   rd0_vs_phi     = new Resplot( "d0_vs_phi",     20, -M_PI, M_PI, 200, -10, 10 ); 
@@ -655,8 +650,8 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram( new TH1F( "nstraw",     "nstraw",     NHits*4, -0.5, float(4*NHits-0.5) ) );
   addHistogram( new TH1F( "nstraw_rec", "nstraw_rec", NHits*4, -0.5, float(4*NHits-0.5) ) );
 
-  addHistogram( new TH1F( "ntracks",     "ntracks",     Ntracks, -0.5, float(Ntracks+0.5) ) );
-  addHistogram( new TH1F( "ntracks_rec", "ntracks_rec", Ntracks, -0.5, float(Ntracks+0.5) ) );
+  addHistogram( new TH1F( "ntracks",     "ntracks",     Ntracks+1, -0.5, float(Ntracks+0.5) ) );
+  addHistogram( new TH1F( "ntracks_rec", "ntracks_rec", Ntracks+1, -0.5, float(Ntracks+0.5) ) );
 
 
   // beam offset fitting histos
@@ -830,11 +825,11 @@ void fitSin( TH1D* h, const std::string& parent="" ) {
 
 void ConfAnalysis::finalise() {
 
+  //  std::cout << "\n\nConfAnalysis::finalise() " << name() << std::endl;
+
   //  gDirectory->pwd();
 
   if ( !m_initialised ) return;
-
-  //  std::cout << "ConfAnalysis::finalise() " << name() << " " << m_initialised << std::endl;
 
 
   std::cout << "ConfAnalysis::finalise() " << name();
@@ -842,6 +837,7 @@ void ConfAnalysis::finalise() {
   if ( name().size()<30 ) std::cout << "\t";
   if ( name().size()<41 ) std::cout << "\t";
   if ( name().size()<52 ) std::cout << "\t";
+
   std::cout << "\tNreco "    << Nreco  
 	    << "\tNref "     << Nref
 	    << "\tNmatched " << Nmatched;
@@ -885,17 +881,6 @@ void ConfAnalysis::finalise() {
   } // heff[i]->Hist()->Write(); } 
 
   //  std::cout << "DBG >" << purity_pt->Hist()->GetName() << "< DBG" << std::endl;
-
-  eff_pteta->finalise(); eff_pteta->Write("eta_efficiency_binned_pt", "x"); 
-  //  for ( int i=1 ; i<=eff_pteta->GetNbinsX() ; i++ ) {
-  //   TH1F* h = eff_pteta->SliceX(i);
-  // }
-
-  eff_etaphi->finalise(); eff_etaphi->Write("phi_efficiency_binned_eta", "y");
-  eff_etapt->finalise(); eff_etapt->Write("pt_efficiency_binned_eta", "y");
-  // for ( int i=1 ; i<=eff_etapt->GetNbinsY() ; i++ ) {
-  //  TH1F* h = eff_etapt->SliceY(i);
-  // }
 
 
   eff_vs_mult->finalise();
@@ -993,6 +978,7 @@ void ConfAnalysis::finalise() {
   for ( unsigned i=retares.size() ; i-- ; ) { 
 
 #if 1
+
     retares[i]->Finalise(Resplot::FitNull95);
     rphires[i]->Finalise(Resplot::FitNull95);
     riptres[i]->Finalise(Resplot::FitNull95);
@@ -1002,22 +988,17 @@ void ConfAnalysis::finalise() {
     rd0res[i]->Finalise(Resplot::FitNull95);
     //  rd0res[i]->Finalise(Resplot::FitCentralGaussian);
     //  rd0res_rms[i]->Finalise(Resplot::FitNull);
-    
-    retaresPull[i]->Finalise(Resplot::FitNull);
-    rphiresPull[i]->Finalise(Resplot::FitNull);
-    rptresPull[i]->Finalise(Resplot::FitNull);
-    rzedresPull[i]->Finalise(Resplot::FitNull);
-    rd0resPull[i]->Finalise(Resplot::FitNull);
 
 #else
+
     retares[i]->Finalise();
     rphires[i]->Finalise();
     rzedres[i]->Finalise();
     riptres[i]->Finalise();
     rptres[i]->Finalise();
     rd0res[i]->Finalise();
-#endif    
 
+#endif    
 
     retares[i]->Write();
     rphires[i]->Write();
@@ -1026,6 +1007,26 @@ void ConfAnalysis::finalise() {
     rptres[i]->Write();
     rd0res[i]->Write();
 
+    delete retares[i];
+    delete rphires[i];
+    delete rzedres[i];
+    delete riptres[i];
+    delete rptres[i];
+    delete rd0res[i];
+
+
+  }
+
+  rzedreslb->Finalise(Resplot::FitNull95);
+
+
+  for ( unsigned i=retares.size()-1 ; i-- ; ) { 
+
+    retaresPull[i]->Finalise(Resplot::FitNull);
+    rphiresPull[i]->Finalise(Resplot::FitNull);
+    rptresPull[i]->Finalise(Resplot::FitNull);
+    rzedresPull[i]->Finalise(Resplot::FitNull);
+    rd0resPull[i]->Finalise(Resplot::FitNull);
 
     retaresPull[i]->Write();
     rphiresPull[i]->Write();
@@ -1039,30 +1040,11 @@ void ConfAnalysis::finalise() {
     delete rzedresPull[i];
     delete rd0resPull[i];
 
-    //   rd0res_95[i]->Write();
-    //   rd0res_rms[i]->Write();
   }
 
 
-  //  TDirectory* td = gDirectory;
-
-  //  TFile fzed( (name()+"-fzed.root").c_str(), "recreate" );
-  //  fzed.cd();
-  //
-  //  for ( unsigned i=retares.size() ; i-- ; ) { 
-  //    rzedres[i]->Write();
-  //  }
-
-  //  fzed.Close();
-
-  for ( unsigned i=retares.size() ; i-- ; ) { 
-    delete retares[i];
-    delete rphires[i];
-    delete rzedres[i];
-    delete riptres[i];
-    delete rptres[i];
-    delete rd0res[i];
-  }
+  rzedreslb->Write();
+  delete rzedreslb;
 
   //  td->cd();
 
@@ -1102,7 +1084,7 @@ void ConfAnalysis::finalise() {
 
 }
 
-extern int Nvtx;
+extern int Nvtxtracks;
 extern int NvtxCount;
 
 
@@ -1119,7 +1101,6 @@ double wrapphi( double phi ) {
 void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 			   const std::vector<TIDA::Track*>& testtracks,
 			   TrackAssociator* matcher ) { 
-
 
   if ( !m_initialised ) initialiseInternal();
     
@@ -1194,8 +1175,6 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
     /// BUT we should still allow them to be corrected, but afetr setting with a flag instead
 
-    
-    
     double z0t  = reftracks[i]->z0();
     double d0t  = reftracks[i]->a0() - std::sin(phit)*m_xBeamReference + std::cos(phit)*m_yBeamReference;  
     double a0t  = reftracks[i]->a0();
@@ -1304,7 +1283,6 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     }  
 
 
-
     rnpix_eta->Fill( etat, npixt*0.5 );
     rnsct_eta->Fill( etat, nsctt*1.0 );
     rntrt_eta->Fill( etat, nstrawt*1.0 );
@@ -1318,12 +1296,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnsct_pt->Fill( std::fabs(pTt), nsctt*1.0 );
     rntrt_pt->Fill( std::fabs(pTt), nstrawt*1.0 );
     
-
     rnpixh_pt->Fill( std::fabs(pTt), npixht );
     rnscth_pt->Fill( std::fabs(pTt), nsctht );
 
-
-
+    rnpix_lb->Fill( gevent->lumi_block(), npixt*0.5 );
     
     if ( matchedreco )  {
 
@@ -1382,12 +1358,12 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       a0r  = matchedreco->a0();
       z0r  = matchedreco->z0();
 
-
       if ( m_xBeamTest!=0 && m_yBeamTest!=0 ) {
 	d0r  = matchedreco->a0(); 
 	a0r  = matchedreco->a0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
 	z0r  = matchedreco->z0()+((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));    
       }
+
 
       //      if ( m_lfirst ) { 
       //	std::cout << "\na0r " << a0r << "(shifted " << d0r << ")" << std::endl;
@@ -1432,102 +1408,105 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       std::cout << "z0r = " << z0r << " +/- " << dz0r << std::endl;
 #endif
 
-
       if ( h2m ) h2m->Fill( phit, d0t );
-
 
       rd0_vs_phi_rec->Fill( phir, a0r );
 
 
       /// fill them all the resplots from a loop ...
-      double resfiller[6] = { ipTt, pTt, etat, z0t, static_cast<double>(NvtxCount), static_cast<double>(Nvtx) };
-
-      for ( int irfill=0 ; irfill<6 ; irfill++ ) { 
+      double resfiller[7] = { ipTt, pTt, etat, z0t, double(NvtxCount), double(Nvtxtracks), phit };
+      
+      for ( int irfill=0 ; irfill<7 ; irfill++ ) { 
         rphires[irfill]->Fill( resfiller[irfill],  phir-phit );
         riptres[irfill]->Fill( resfiller[irfill],  1/pTr-1/pTt );
         retares[irfill]->Fill( resfiller[irfill],  etar-etat );
         rptres[irfill]->Fill(  resfiller[irfill],  pTr-pTt );
         rzedres[irfill]->Fill( resfiller[irfill],  z0r-z0t );
         rd0res[irfill]->Fill(  resfiller[irfill],  a0r-a0t );
+      }
+      
 
+      double lb = gevent->lumi_block();
+
+      rzedreslb->Fill( lb,  z0r-z0t );
+
+      for ( int irfill=0 ; irfill<6 ; irfill++ ) { 
         rphiresPull[irfill]->Fill( resfiller[irfill], (phir - phit) / sqrt( (dphit*dphit) + (dphir*dphir) ) );
         retaresPull[irfill]->Fill( resfiller[irfill], (etar - etat) / sqrt( (detat*detat) + (detar*detar) ) );
         rptresPull[irfill]->Fill(  resfiller[irfill], (pTr - pTt) / sqrt( (dpTt*dpTt) + (dpTr*dpTr) ) );
         rzedresPull[irfill]->Fill( resfiller[irfill], (z0r - z0t) / sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
         rd0resPull[irfill]->Fill(  resfiller[irfill], (a0r - a0t) / sqrt( (da0t*da0t) + (da0r*da0r) ) );	
       }
-	
-        
-
-	rDz0res[0]->Fill( std::fabs(pTt), dz0r-dz0t );  
-	rDz0res[1]->Fill( etat, dz0r-dz0t );  
-	rDz0res[2]->Fill( z0t, dz0r-dz0t );  
-	rDz0res[3]->Fill( phit, dz0r-dz0t );  
-
-	if ( dumpflag ) { 
-	  if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
-	    dump = true;
-	    std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
-	    //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;
-	  }  
-	}
-	
-	/// rDx0res[3] = { vs pt, vs eta, vs zed } 
-	rDd0res[0]->Fill( std::fabs(pTt), dd0r-dd0t );  
-	rDd0res[1]->Fill( etat, dd0r-dd0t );  
-	rDd0res[2]->Fill( z0t, dd0r-dd0t );  
-	rDd0res[3]->Fill( d0t, dd0r-dd0t );  
-	rDd0res[4]->Fill( phit, dd0r-dd0t );  
-
-
-
-
-	rDa0res[0]->Fill( std::fabs(pTt), da0r-da0t );  
-	rDa0res[1]->Fill( etat, da0r-da0t );  
-	rDa0res[2]->Fill( z0t, da0r-da0t );  
-	rDa0res[3]->Fill( da0t, da0r-da0t );  
-
-
-
-	double _Deltaphi = 2*M_PI/NMod;
-	
-
-	double phistart = 11.0819;
-	if ( NMod==22 ) phistart = 7.05803;
-
-	double _phit = phit - phistart*M_PI/180;
-
-	if ( _phit<-M_PI ) _phit += 2*M_PI;
-
-	double iphi = _phit - (_Deltaphi*int((_phit+M_PI)/_Deltaphi) - M_PI);
-
-	//	double iphi = phit - M_PI*int(7*(phit+M_PI)/M_PI)/7 - 11.0819*M_PI/180 + M_PI;
-	//	double iphi = phit - M_PI*int(7*phit/M_PI)/7.0 - 11.0819*M_PI/180;
-
-
-	rDa0res[4]->Fill( phit, da0r-da0t );  
-	rDa0res[5]->Fill( iphi, da0r-da0t );  
-
-	rDa0res[6]->Fill( iphi, da0t );  
-	rDa0res[7]->Fill( iphi, da0r );  
-
-
-	//ADDED BY JK
-	//-----
-	//	std::cout << "rphires.size() = " << rphires.size() << std::endl;
-	rzedres[rphires.size()]->Fill( resfiller[1], z0r-z0t );
-	rzedres[rphires.size()+1]->Fill( resfiller[1], z0r-z0t );
-	rd0res[rphires.size()]->Fill( resfiller[1], a0r-a0t );
-	rd0res[rphires.size()+1]->Fill( fabs(resfiller[1]), a0r-a0t ); //
       
-	rzedresPull[rphires.size()]->Fill(   resfiller[1],       (z0r - z0t) / std::sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
-	rzedresPull[rphires.size()+1]->Fill( fabs(resfiller[1]), (z0r - z0t) / std::sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
-	rd0resPull[rphires.size()]->Fill(    resfiller[1],       (a0r - a0t) / std::sqrt( (da0t*da0t) + (da0r*da0r) ) );
-	rd0resPull[rphires.size()+1]->Fill(  fabs(resfiller[1]), (a0r - a0t) / std::sqrt( (da0t*da0t) + (da0r*da0r) ) );
-
-	//-----
+        
+      
+      rDz0res[0]->Fill( std::fabs(pTt), dz0r-dz0t );  
+      rDz0res[1]->Fill( etat, dz0r-dz0t );  
+      rDz0res[2]->Fill( z0t, dz0r-dz0t );  
+      rDz0res[3]->Fill( phit, dz0r-dz0t );  
+      
+      
+      if ( dumpflag ) { 
+	if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
+	  dump = true;
+	  std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	  //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;
+	}  
+      }
+      
 	
+      /// rDx0res[3] = { vs pt, vs eta, vs zed } 
+      rDd0res[0]->Fill( std::fabs(pTt), dd0r-dd0t );  
+      rDd0res[1]->Fill( etat, dd0r-dd0t );  
+      rDd0res[2]->Fill( z0t, dd0r-dd0t );  
+      rDd0res[3]->Fill( d0t, dd0r-dd0t );  
+      rDd0res[4]->Fill( phit, dd0r-dd0t );  
+      
 
+
+      
+      rDa0res[0]->Fill( std::fabs(pTt), da0r-da0t );  
+      rDa0res[1]->Fill( etat, da0r-da0t );  
+      rDa0res[2]->Fill( z0t, da0r-da0t );  
+      rDa0res[3]->Fill( da0t, da0r-da0t );  
+      
+      
+      double _Deltaphi = 2*M_PI/NMod;
+	
+      
+      double phistart = 11.0819;
+      if ( NMod==22 ) phistart = 7.05803;
+
+      double _phit = phit - phistart*M_PI/180;
+      
+      if ( _phit<-M_PI ) _phit += 2*M_PI;
+      
+      double iphi = _phit - (_Deltaphi*int((_phit+M_PI)/_Deltaphi) - M_PI);
+      
+      //	double iphi = phit - M_PI*int(7*(phit+M_PI)/M_PI)/7 - 11.0819*M_PI/180 + M_PI;
+      //	double iphi = phit - M_PI*int(7*phit/M_PI)/7.0 - 11.0819*M_PI/180;
+      
+      rDa0res[4]->Fill( phit, da0r-da0t );  
+      rDa0res[5]->Fill( iphi, da0r-da0t );  
+      
+      rDa0res[6]->Fill( iphi, da0t );  
+      rDa0res[7]->Fill( iphi, da0r );  
+      
+      //ADDED BY JK
+      //-----
+      //	std::cout << "rphires.size() = " << rphires.size() << std::endl;
+      rzedres[rphires.size()]->Fill( resfiller[1], z0r-z0t );
+      rzedres[rphires.size()+1]->Fill( resfiller[1], z0r-z0t );
+      rd0res[rphires.size()]->Fill( resfiller[1], a0r-a0t );
+      rd0res[rphires.size()+1]->Fill( fabs(resfiller[1]), a0r-a0t ); //
+      
+      rzedresPull[rphires.size()-1]->Fill(   resfiller[1],       (z0r - z0t) / std::sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
+      rzedresPull[rphires.size()]->Fill( fabs(resfiller[1]), (z0r - z0t) / std::sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
+      rd0resPull[rphires.size()-1]->Fill(    resfiller[1],       (a0r - a0t) / std::sqrt( (da0t*da0t) + (da0r*da0r) ) );
+      rd0resPull[rphires.size()]->Fill(  fabs(resfiller[1]), (a0r - a0t) / std::sqrt( (da0t*da0t) + (da0r*da0r) ) );
+      
+      //-----
+	
       rnpix_eta_rec->Fill(  etat, npixr*0.5 );
       rnsct_eta_rec->Fill(  etat, nsctr*1.0 );
       rntrt_eta_rec->Fill(  etat, nstrawr*1.0 );
@@ -1541,19 +1520,19 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       rnsct_pt_rec->Fill( std::fabs(pTt), nsctr*1.0 );
       rntrt_pt_rec->Fill( std::fabs(pTt), nstrawr*1.0 );
 
+      eff_vs_ntracks->Fill( Nvtxtracks );
+      eff_vs_ntracks2->Fill( Nvtxtracks );
+      n_vtx_tracks->Fill( Nvtxtracks );
 
-      eff_vs_ntracks->Fill( static_cast<double>(Nvtx) );
-      eff_vs_ntracks2->Fill( static_cast<double>(Nvtx) );
-      n_vtx_tracks->Fill( static_cast<double>(Nvtx) );
-
-      eff_vs_nvtx->Fill( static_cast<double>(NvtxCount) );
-      n_vtx->Fill( static_cast<double>(NvtxCount) );
-      double mu_val = event->mu();
+      eff_vs_nvtx->Fill( NvtxCount );
+      n_vtx->Fill( NvtxCount );
+      double mu_val = gevent->mu();
       //std::cout << "<mu>\t" <<  mu_val << std::endl;
       eff_vs_mu->Fill( mu_val );
       mu->Fill( mu_val );
 
       //    hnpix_v_sct->Fill( nsctt*0.5, npixt*0.5 );
+
 
       double vres[6] = { 1.0/std::fabs(pTr)-1.0/std::fabs(pTt), etar-etat, phir-phit, z0r-z0t, d0r-d0t, a0r-a0t };
       for ( int it=0 ; it<6 ; it++ ) { 
@@ -1578,7 +1557,6 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
         //hptr->SetFillStyle("COLZ");                                                                                                                             
       }
     
-
       // raw matched test track errors                                                                                                                            
       if ( TH1F* hptr = find("dpT_rec") ) hptr->Fill(dpTr);
       if ( TH1F* hptr =find("deta_rec"))  hptr->Fill(detar);
@@ -1695,10 +1673,6 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       // in this loop over the reference tracks, could fill efficiency 
       // histograms
 
-      eff_pteta->Fill( pTt, etat ); 
-      eff_etapt->Fill( pTt, etat ); 
-      eff_etaphi->Fill( etat,phit ); 
-
       //       eff_vs_lb->Fill( rmap[r]+lb );
 
       if ( TH1F* hptr = find("nsi_matched"))  hptr->Fill(nsir);
@@ -1740,16 +1714,18 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       dump = false; 
 
-      eff_vs_ntracks->FillDenom( static_cast<double>(Nvtx) );
-      eff_vs_ntracks2->FillDenom( static_cast<double>(Nvtx) );
-      n_vtx_tracks->Fill( static_cast<double>(Nvtx) );
+      eff_vs_ntracks->FillDenom( Nvtxtracks );
+      eff_vs_ntracks2->FillDenom( Nvtxtracks );
+      n_vtx_tracks->Fill( Nvtxtracks );
 
 
-      eff_vs_nvtx->FillDenom( static_cast<double>(NvtxCount) );
-      n_vtx->Fill( static_cast<double>(NvtxCount) );
+      eff_vs_nvtx->FillDenom( NvtxCount );
+      n_vtx->Fill( NvtxCount );
 
-      double mu_val = event->mu();
-			eff_vs_mu->FillDenom(mu_val);
+      double mu_val = gevent->mu();
+
+      eff_vs_mu->FillDenom(mu_val);
+
       mu->Fill( mu_val );
 
 
@@ -1760,7 +1736,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
 	  hipt = true;
 	  std::cout << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
-		    << "\tlb " << lb << "\tNvtx " << NvtxCount << std::endl;
+		    << "\tlb " << lb << "\tN vertices " << NvtxCount << std::endl;
 	  std::cout << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
 	  std::cout << mname << "\tMISSING TRACK Track " << *reftracks[i];
 	  if ( std::fabs(pTt)>=30 ) std::cout << "\tvery high pt";
@@ -1776,11 +1752,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	  }
 	}
       }
-      eff_pteta->FillDenom( pTt, etat ); 
-      eff_etapt->FillDenom( pTt, etat );
-      eff_etaphi->FillDenom( etat, phit );
 
-      //eff_vs_lb->FillDenom( rmap[r]+lb );
+
       eff_vs_lb->FillDenom( ts );
 
     }
