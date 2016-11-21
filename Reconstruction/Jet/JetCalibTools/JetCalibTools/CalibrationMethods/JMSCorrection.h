@@ -75,6 +75,7 @@ class JMSCorrection
   bool m_pTfixed; // false: pT will be corrected (large-R), if true: the energy will be corrected and pT will be fixed (small-R)
 
   bool m_combination; // Mass Combination of calo mass with track-assisted mass
+  bool m_useCorrelatedWeights; 
 
   //Private members set during initialization
   VecTH2F m_respFactorsMass;
