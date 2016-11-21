@@ -34,7 +34,19 @@ public:
 
   lumiParser( const std::string& file ) { read( file ); }
 
-  void read( const std::string& file ) {
+  void read( const std::string& f ) {
+
+    ///  read GRL from web if required
+    std::string file = f;
+    size_t pos = file.find("http");
+    if ( pos!=std::string::npos ) { 
+      std::string cmd = "wget ";
+      cmd += file;
+      tail( file, "/" );
+      std::system( cmd.c_str() ); 
+    }
+
+    std::cout << "lumiParser file: " << file << std::endl;
 
     /// open the file
     std::ifstream input( file.c_str() );
@@ -101,6 +113,8 @@ public:
 	
       }
     }    
+
+    std::cout << "lumiParser: read " << size() << " runs" << std::endl;
   }
 
   virtual ~lumiParser() { } 
@@ -119,7 +133,14 @@ private:
     size_t pos = s.find( regex );
     if ( pos!=std::string::npos ) s.erase( 0, pos+regex.size() );  
   }
-  
+
+  void tail( std::string& s, const std::string& regex ) { 
+    size_t pos = s.find( regex );
+    while( pos!=std::string::npos ) { 
+      s.erase( 0, pos+regex.size() );
+      pos = s.find( regex );
+    }
+  }
   
   void clean( std::string& s, const std::string& regex ) { 
     size_t pos = s.find( regex );
@@ -128,7 +149,6 @@ private:
       pos = s.find( regex );
     }
   }
-  
   
   std::string toupper( const std::string& s ) { 
     std::string t = s;
@@ -149,7 +169,8 @@ private:
 
 
 inline std::ostream& operator<<( std::ostream& s, const lumiParser& _l ) { 
-  return s << *dynamic_cast<const lumiList*>(&_l);
+  // return s << *dynamic_cast<const lumiList*>(&_l);
+  return s << (const lumiList&)_l;
 }
 
 

@@ -20,7 +20,7 @@
 #include "TrigInDetAnalysis/TrackSelector.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
-#include "Filters.h"
+#include "TrigInDetAnalysisUtils/Filters.h"
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 #include "TrigInDetAnalysisUtils/Associator_TruthMatch.h"
@@ -568,6 +568,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
     goodrunslist.read( inputdata.GetString("GRL") ); 
+    //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
     /// else get the list from the dat file directly

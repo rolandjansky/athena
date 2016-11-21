@@ -253,6 +253,11 @@ listroot : $(EXEDIR)/listroot
 $(EXEDIR)/listroot : $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
 
+runtool : dirs $(EXEDIR)/runtool
+$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(GLIBS)
+
+
 
 # compile
 # $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 
@@ -331,6 +336,7 @@ install : all
 	cp $(EXEDIR)/cpucost    $(HOME)/bin
 	cp $(EXEDIR)/skim       $(HOME)/bin
 	cp $(EXEDIR)/listroot   $(HOME)/bin
+	cp $(EXEDIR)/runtool    $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 
