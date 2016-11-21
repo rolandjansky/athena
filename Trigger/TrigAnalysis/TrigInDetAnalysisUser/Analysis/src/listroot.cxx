@@ -2,7 +2,11 @@
 #include "simpletimer.h"
 
 #include <string>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 
 #include "TH1F.h"
 #include "TFile.h"

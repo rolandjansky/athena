@@ -20,7 +20,7 @@
 #include "TrigInDetAnalysis/TrackSelector.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
-#include "Filters.h"
+#include "TrigInDetAnalysisUtils/Filters.h"
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 #include "TrigInDetAnalysisUtils/Associator_TruthMatch.h"
@@ -33,6 +33,7 @@
 #include "ReadCards.h"
 #include "utils.h"
 
+#include "RoiFilter.h"
 
 #include "ConfAnalysis.h"
 #include "PurityAnalysis.h"
@@ -41,6 +42,7 @@
 
 
 #include "lumiList.h"
+#include "lumiParser.h"
 #include "dataset.h"
 
 #include "event_selector.h"
@@ -72,8 +74,8 @@ int atoi_check( const std::string& s ) {
   else return i;
 }
 
-int Nvtx = 0;
-int NvtxCount = 0;
+int Nvtxtracks = 0;
+int NvtxCount  = 0;
 
 bool hipt     = false;
 
@@ -119,20 +121,44 @@ int GetChainAuthor(std::string chainName) {
 }
 
 // Function to allow creation of an RoI for reference tracks, with custom widths, and which defaults to trigger roi values if none are specifed
-TIDARoiDescriptor makeCustomRefRoi(double etaHalfWidth=-999, double phiHalfWidth=-999, double zedHalfWidth=-999, const TIDARoiDescriptor& roi=TIDARoiDescriptor() ) {
-
+TIDARoiDescriptor makeCustomRefRoi( const TIDARoiDescriptor& roi, 
+				    double etaHalfWidth=-999, 
+				    double phiHalfWidth=-999, 
+				    double zedHalfWidth=-999 ) { 
+				    
   double roi_eta = roi.eta();
   double roi_phi = roi.phi();
   double roi_zed = roi.zed();
   
-  if ( etaHalfWidth == -999 ) etaHalfWidth = std::fabs( roi.etaPlus() - roi_eta);
-  if ( phiHalfWidth == -999 ) phiHalfWidth = std::fabs( roi.phiPlus() - roi_phi ); // !!! careful! will this always wrap correctly?
-  if ( zedHalfWidth == -999 ) zedHalfWidth = std::fabs( roi.zedPlus() - roi_zed);
- 
-  return TIDARoiDescriptor( roi_eta, (roi_eta - etaHalfWidth), (roi_eta + etaHalfWidth),
-			    roi_phi, (roi_phi - phiHalfWidth), (roi_phi + phiHalfWidth), // do wrap phi here (done within TIDARoiDescriptor already)			   
-			    roi_zed, (roi_zed - zedHalfWidth), (roi_zed + zedHalfWidth) );
+  double etaMinus = roi.etaMinus();
+  double etaPlus  = roi.etaPlus();
+
+  double zedMinus = roi.zedMinus();
+  double zedPlus  = roi.zedPlus();
+
+  double phiMinus = roi.phiMinus();
+  double phiPlus  = roi.phiPlus();
+
+  if ( etaHalfWidth != -999 ) { 
+    etaMinus = roi_eta - etaHalfWidth;
+    etaPlus  = roi_eta + etaHalfWidth;
+  }
+
+  if ( phiHalfWidth != -999 ) { 
+    phiMinus = roi_phi - phiHalfWidth; // !!! careful! will this always wrap correctly?
+    phiPlus  = roi_phi + phiHalfWidth; // !!! careful! will this always wrap correctly?
+  }
+   
+  if ( zedHalfWidth != -999 ) { 
+    zedMinus = roi_zed - zedHalfWidth;
+    zedPlus  = roi_zed + zedHalfWidth;
+  }
+
+  return TIDARoiDescriptor( roi_eta, etaMinus, etaPlus,
+			    roi_phi, phiMinus, phiPlus, // do wrap phi here (done within TIDARoiDescriptor already)			   
+			    roi_zed, zedMinus, zedPlus );
 }
+
 
 // Small function to be used in sorting tracks in track vectors
 bool trackPtGrtr( TIDA::Track* trackA, TIDA::Track* trackB) { return ( std::fabs(trackA->pT()) > std::fabs(trackB->pT()) ); }
@@ -185,7 +211,7 @@ struct event_list {
 };
 
 
-TIDA::Event* event = 0;
+TIDA::Event* gevent = 0;
 
 
 
@@ -386,15 +412,16 @@ int main(int argc, char** argv)
   //     User parameter is a vector of ref track vector indices
   //     e.g. specifyPtOrderedRefTracks = {0, 1, 5} will use the first leading, second leading, and sixth leading track
   std::vector<int> refPtOrd_indices;
-  bool use_specified_pt_ordered_ref = false;
+  bool use_pt_ordered_ref = false;
   
-  std::vector<double> refPtOrd_indices_asDoubles;
   if ( inputdata.isTagDefined("specifyPtOrderedRefTracks") ) {
-    use_specified_pt_ordered_ref = true;
-    refPtOrd_indices_asDoubles = ( inputdata.GetVector("specifyPtOrderedRefTracks") );
+    std::vector<double> refPtOrd_indices_tmp;
+
+    use_pt_ordered_ref = true;
+    refPtOrd_indices_tmp = ( inputdata.GetVector("specifyPtOrderedRefTracks") );
     
-    for (unsigned int i = 0; i < refPtOrd_indices_asDoubles.size(); ++i) {
-      refPtOrd_indices.push_back( refPtOrd_indices_asDoubles.at(i) );
+    for (unsigned int i = 0; i < refPtOrd_indices_tmp.size(); ++i) {
+      refPtOrd_indices.push_back( refPtOrd_indices_tmp.at(i) );
     }
   }
 
@@ -455,9 +482,13 @@ int main(int argc, char** argv)
   std::vector<ChainString> chainConfig;
 
   for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
+    //    std::cout << "\nchain " << testChains[ic] << std::endl;
     chainConfig.push_back( ChainString( testChains[ic] ) );
-    testChains[ic] = ChainString::chop( testChains[ic], ":post" );  
+    testChains[ic] = ChainString::chop( testChains[ic], ":post" );
+    //    std::cout << "chain " << chainConfig << std::endl;
+    //    std::cout << "\nchain " << testChains[ic] << std::endl;
   }
+
 
   /// now any additional config parameters for the chain are available
   
@@ -531,16 +562,23 @@ int main(int argc, char** argv)
   
 
   std::vector<double> _lumiblocks;
-  lumiList  goodrunslist;
+  lumiParser  goodrunslist;
 
-  if ( inputdata.isTagDefined("LumiBlocks") )  { 
+  
+  if ( inputdata.isTagDefined("GRL") )  { 
+    /// read the (xml?) GRL 
+    goodrunslist.read( inputdata.GetString("GRL") ); 
+    //    std::cout << goodrunslist << std::endl;
+  }
+  else if ( inputdata.isTagDefined("LumiBlocks") )  { 
+    /// else get the list from the dat file directly
     _lumiblocks = inputdata.GetVector("LumiBlocks");
-
+    
     for (unsigned int i=0 ; i<_lumiblocks.size()-2 ; i+=3 ){ 
       goodrunslist.addRange( _lumiblocks[i],  _lumiblocks[i+1],  _lumiblocks[i+2] );  
     }
   }
-
+  
 
   /// reference vertex selection 
   
@@ -687,6 +725,8 @@ int main(int argc, char** argv)
 
   bool monitorZBeam = false;
   if ( inputdata.isTagDefined("MonitorinZBeam") )  monitorZBeam = ( inputdata.GetValue("MonitorZBeam")==0 ? false : true );
+
+  std::cout << "dbg " << __LINE__ << std::endl;
 
   ReadCards* binningConfig = &inputdata;
 
@@ -855,7 +895,10 @@ int main(int argc, char** argv)
     std::string vtxTool = chainConfig[i].value("rvtx");
 
     if ( vtxTool!="" ) { 
+      ///  don't use the vertex name as the directory, since then we cannot 
+      ///  easily plot on the same plot  
       ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
+      // ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( "vertex" );
       analy_conf->store().insert( anal_confvtx, "rvtx" );
     }
 
@@ -875,7 +918,7 @@ int main(int argc, char** argv)
     if ( chainConfig[i].values().size()>0 ) { 
       //      std::cout << "chain:: " << chainname << "\t(" << chainConfig[i] << " " << chainConfig[i].values().size() << ")" << std::endl; 
       for ( unsigned ik=chainConfig[i].values().size() ; ik-- ; ) { 
-	std::cout << "\t" << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
+	std::cout << "\tchainconfig: " << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
       }
     }
   
@@ -908,7 +951,14 @@ int main(int argc, char** argv)
 
   /// track selectors for efficiencies
 
+  bool fullyContainTracks = true;
+
+  if ( inputdata.isTagDefined("FullyContainTracks") ) { 
+    fullyContainTracks = ( inputdata.GetValue("FullyContainTracks")==0 ? false : true ); 
+  }
+
   dynamic_cast<Filter_Combined*>(refFilter)->setDebug(debugPrintout);
+  dynamic_cast<Filter_Combined*>(refFilter)->containtracks(fullyContainTracks);
 
   NtupleTrackSelector  refTracks( refFilter );
   NtupleTrackSelector  offTracks( testFilter );
@@ -918,13 +968,32 @@ int main(int argc, char** argv)
 
   //  	NtupleTrackSelector  refTracks( &filter_passthrough );
   //  	NtupleTrackSelector  testTracks( refFilter );
+  //    NtupleTrackSelector  refTracks(  &filter_pdgtruth);
+  //    NtupleTrackSelector  testTracks( &filter_off );
+  //    NtupleTrackSelector testTracks(&filter_roi);
 
 
-  //NtupleTrackSelector  refTracks(  &filter_pdgtruth);
-  //NtupleTrackSelector  testTracks( &filter_off );
+  /// do we want to filter the RoIs ? 
 
+  bool filterRoi = false;
+
+  double roieta       = 0;
+  bool   roicomposite = false;
+  size_t roimult       = 1;
   
-  //NtupleTrackSelector testTracks(&filter_roi);
+  if ( inputdata.isTagDefined( "FilterRoi" ) ) { 
+
+    filterRoi = true;
+
+    std::vector<double> filter_values = inputdata.GetVector( "FilterRoi" );
+
+    if ( filter_values.size()>0 ) roieta       =   filter_values[0];
+    if ( filter_values.size()>1 ) roicomposite = ( filter_values[1]==0 ? false : true );
+    if ( filter_values.size()>2 ) roimult      = int(filter_values[2]+0.5);
+ 
+  }
+
+  RoiFilter roiFilter( roieta, roicomposite, roimult );
 
   /// Determine what sort of matching is required ...
 
@@ -1005,10 +1074,13 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("DataSets") ) {  
 
+    std::cout << "fetching dataset details" << std::endl;
     std::vector<std::string> datasets = inputdata.GetStringVector("DataSets");
-    for (unsigned int ids=0 ; ids<datasets.size() ; ids++ ) { 
+    for (unsigned int ids=0 ; ids<datasets.size() ; ids++ ) {
+      std::cout << "\tdataset " << datasets[ids] << std::endl; 
       dataset d( datasets[ids] );
       std::vector<std::string> _filenames = d.datafiles();
+      std::cout << "\tdataset contains " << _filenames.size() << " files" << std::endl; 
       filenames.insert(filenames.end(),_filenames.begin(),_filenames.end());
     }
   }
@@ -1032,12 +1104,14 @@ int main(int argc, char** argv)
 
   if ( show_release ){
 
-    for ( unsigned i=0 ; i<filenames.size() ; i++ ) {
+    bool first = true;
+
+    for ( unsigned i=0 ; first && i<filenames.size() ; i++ ) {
     
       TFile* finput = TFile::Open( filenames[i].c_str() );
 
 
-      if (!finput->IsOpen()) {
+      if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
 	std::cerr << "Error: could not open input file" << filenames[i] << std::endl;
 	exit(-1);
       }
@@ -1054,6 +1128,7 @@ int main(int argc, char** argv)
 	  if (  release_data_save != release_data.back() ) { 
 	    std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
 	  }
+	  first = false;
 	  release_data_save = release_data.back();
 	}
       }
@@ -1095,69 +1170,113 @@ int main(int argc, char** argv)
   //  exit(0);
 
 
-  TChain *data = new TChain("tree");
-
-  TIDA::Event* track_ev = new TIDA::Event();
-
-  data->SetBranchAddress("TIDA::Event",&track_ev);
-
-
 
   int addedfiles = 0;
 
-  event = track_ev;
-  for ( unsigned i=0 ; i<filenames.size() && ( nfiles==0 || i<nfiles ) ; i++ ) { 
-    addedfiles++;  
-    data->AddFile(filenames[i].c_str());
-  }
-
-  std::cout << "added " << addedfiles << " files" << std::endl;
-  //smh If no files can be opened, exit
-  if (addedfiles == 0) {
-    std::cout << "Cannot read any files, exiting" << std::endl;
-    return (-1);
-  }
 
 
+  unsigned _Nentries = 0;
 
-  /// so we can specify the number of entries 
-  /// we like, rather than run on all of them
-
-  unsigned Nentries = data->GetEntries();
   if ( inputdata.isTagDefined("Nentries") ) { 
-    unsigned _Nentries = unsigned(inputdata.GetValue("Nentries"));
-    if ( _Nentries<Nentries ) Nentries = _Nentries;
+    _Nentries = unsigned(inputdata.GetValue("Nentries"));
   }
 
-  std::cout << "file: " << argv[1] << "\tentries=" << data->GetEntries() << "\t( running over " << Nentries << " )" << std::endl;
 
-  std::cout << "starting event loop " << time_str() << std::endl;
+
+  unsigned Nentries = 0; //data->GetEntries();
 
   unsigned event_counter = 0;
+    
 
-
-  int maxtime = track_ev->time_stamp();
-  int mintime = track_ev->time_stamp();
-
-  //  int Nentries = data->GetEntries();
-  
   typedef std::pair<int,double> zpair; 
   std::vector<zpair>  refz;
   std::vector<zpair>  testz;
-
+  
   std::vector<double> beamline_ref;
   std::vector<double> beamline_test;
+  
+  int maxtime = 0;
+  int mintime = 0;
+
+  std::cout << "opening files" << std::endl;
+
+  bool run = true;
+
+  int  pregrl_events = 0;
+  int  grl_counter   = 0;
 
 
-  /// so we can specify the number of entries 
-  /// we like, rather than run on all of them
-  for (unsigned int i=0; i<Nentries ; i++ ) {
-    data->GetEntry(i);
-    //    if (i==0) {
-    //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
-    //    }
+  std::cout << "starting event loop " << time_str() << std::endl;
     
-    //    if ( r!=h->run_number() ) std::cout <<* h << std::endl;
+
+  for ( unsigned ifile=0 ; run && ifile<filenames.size() && ( nfiles==0 || ifile<nfiles ) ; ifile++ ) { 
+
+    bool newfile = true;
+
+    addedfiles++;  
+
+    TFile*  finput = TFile::Open( filenames[ifile].c_str() );
+
+    if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
+      std::cerr << "Error: could not open output file " << filenames[ifile] << std::endl;
+      continue;
+    }
+  
+    TTree* data = (TTree*)finput->Get("tree");
+
+    TIDA::Event* track_ev = new TIDA::Event();
+
+    gevent = track_ev;
+
+    data->SetBranchAddress("TIDA::Event",&track_ev);
+
+    /// TChain *data = new TChain("tree");
+    /// data->AddFile(filenames[ifile].c_str());
+    //  }
+
+    //    std::cout << "added " << addedfiles << " files" << std::endl;
+
+    //  if (addedfiles == 0) {
+    //  std::cout << "Cannot read any files, exiting" << std::endl;
+    //  return (-1);
+    // }
+
+
+
+    /// so we can specify the number of entries 
+    /// we like, rather than run on all of them
+    
+    //  unsigned Nentries = data->GetEntries();
+    //  if ( inputdata.isTagDefined("Nentries") ) { 
+    //   unsigned _Nentries = unsigned(inputdata.GetValue("Nentries"));
+    //    if ( _Nentries<Nentries ) Nentries = _Nentries;
+    //  }
+    
+    
+    maxtime = track_ev->time_stamp();
+    mintime = track_ev->time_stamp();
+    
+    unsigned cNentries = data->GetEntries();
+    
+    bool skip = true;
+    
+    /// so we can specify the number of entries 
+    /// we like, rather than run on all of them
+    for (unsigned int i=0; skip && run && i<cNentries ; i++ ) {
+
+      
+      //      if ( _Nentries<Nentries ) { 
+      //	run = false;
+      //	break;
+      //     }
+      //    Nentries++;
+
+     data->GetEntry(i);
+     //    if (i==0) {
+     //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
+     //    }
+     
+     //    if ( r!=h->run_number() ) std::cout <<* h << std::endl;
 
     r         = track_ev->run_number();
     ev        = track_ev->event_number();
@@ -1170,8 +1289,17 @@ int main(int argc, char** argv)
 
     hipt = false;
 
+
+    
+    bool ingrl = goodrunslist.inRange( r, lb );
+
+    pregrl_events++;
+
     /// check whether in good lumi block range
-    if ( !goodrunslist.inRange( r, lb ) ) continue;
+    if ( !ingrl ) continue;
+ 
+    grl_counter++;
+
 
     /// check whether it's in the event selector list
     if ( event_selector_flag && !es.in( event ) ) continue;
@@ -1179,26 +1307,61 @@ int main(int argc, char** argv)
     if ( mintime>ts ) mintime = ts;
     if ( maxtime<ts ) maxtime = ts;
 
+    if ( _Nentries>0 && event_counter>_Nentries ) { 
+      run = false;
+      std::cout << "breaking out " << run << std::endl;
+      break;
+    }
+
+    event_counter++;
+    Nentries++;
+
     //    if ( !elist.find(event) ) continue;
 
     //    std::cout << "run " << r << "\tevent " << event << "\tlb " << lb << std::endl;
 
     hevent->Fill( event );
 
-    if ( event_counter>Nentries ) break;
+ 
 
-    event_counter++;
+    if ( filenames.size()<2 ) { 
+      if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
+	std::cout << "run "      << track_ev->run_number() 
+		  << "\tevent "  << track_ev->event_number() 
+		  << "\tlb "     << track_ev->lumi_block() 
+		  << "\tchains " << track_ev->chains().size()
+		  << "\ttime "   << track_ev->time_stamp();
+	std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
+	//   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
+      }
+    }  
 
-    if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
+    if ( newfile ) { 
+
+      int pfiles = filenames.size();
+      if ( nfiles>0 ) pfiles = nfiles; 
+
+      std::cout << "file entries=" << data->GetEntries();
+
+      if ( data->GetEntries()<100 )   std::cout << " ";
+      if ( data->GetEntries()<1000 )  std::cout << " ";
+      if ( data->GetEntries()<10000 ) std::cout << " ";
+	
+      std::cout << "\t";
+
+
       std::cout << "run "      << track_ev->run_number() 
-                << "\tevent "  << track_ev->event_number() 
-                << "\tlb "     << track_ev->lumi_block() 
-                << "\tchains " << track_ev->chains().size()
-                << "\ttime "   << track_ev->time_stamp();
-      std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
-      //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
+		<< "\tevent "  << track_ev->event_number() 
+		<< "\tlb "     << track_ev->lumi_block() 
+		<< "\tchains " << track_ev->chains().size()
+		<< "\ttime "   << track_ev->time_stamp();
+      
+      std::cout << "\t : processed " << ifile << " files so far (" << int((1e3*ifile)/pfiles)*0.1 << "%)\t" << time_str() << std::endl;
+
+      newfile = false;
     }
-  
+
+
     //		if ( printflag )  std::cout << *track_ev << std::endl;   
     
     r = track_ev->run_number();
@@ -1212,7 +1375,7 @@ int main(int argc, char** argv)
     //    offlineTracks.clear();
 
     
-    Nvtx = 0;
+    Nvtxtracks = 0;
 
     const std::vector<TIDA::Chain>& chains = track_ev->chains();
 
@@ -1239,7 +1402,6 @@ int main(int argc, char** argv)
       }
     }
 
-
     
     /// select the reference offline vertices
     
@@ -1254,10 +1416,11 @@ int main(int argc, char** argv)
      
     if ( bestPTVtx || bestPT2Vtx )  {  
       for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+	if ( mv[iv].Ntracks()==0 ) continue;
 	double selection_ = 0.0;
 	for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
 	  TIDA::Track* tr = offTracks.tracks().at(itr);
-	  if( std::fabs(mv[iv].position()[2]-tr->z0()) < 1.5 ) { 
+	  if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
 	    if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
 	    else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
 	  }
@@ -1286,14 +1449,17 @@ int main(int argc, char** argv)
     for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
       int Ntracks = mv[iv].Ntracks();
       if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
-	Nvtx += Ntracks;
+	Nvtxtracks += Ntracks;
 	//	vertices.push_back( mv[iv] );
         NvtxCount++;
       }
     }
 
     //    filter_vertex.setVertex( vvtx ) ;
-    hcorr->Fill( vertices.size(), Nvtx ); 
+    hcorr->Fill( vertices.size(), Nvtxtracks ); 
+
+
+
 
     dynamic_cast<Filter_Combined*>(refFilter)->setRoi(0);
 
@@ -1306,22 +1472,11 @@ int main(int argc, char** argv)
 
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) { 
       if ( chains[ic].name()==refChain ) { 
-
 	refchain = &chains[ic];
-	
-	foundReference = true;
-	
-	//	if ( debugPrintout ) { 
-	//	  std::cout << "reference tracks:\n" << chains[ic].rois()[0].tracks() << std::endl;
-	//	}
-
-	//	std::cout << "using chain " << chains[ic].name() 
-	//	  << " with " << chains[ic].rois()[0].tracks().size() << " tracks" << std::endl;
+     	foundReference = true;
 	//Get tracks from within reference roi
 	refTracks.selectTracks( chains[ic].rois()[0].tracks() );
-
 	//	std::cout << "refTracks " << refTracks.size() << " tracks from " << chains[ic].rois()[0].tracks().size() << std::endl;
-
 	break;
       }
     }
@@ -1355,16 +1510,44 @@ int main(int argc, char** argv)
       }
 
 
+
+
+
+
+
+
+      
       for (unsigned int ir=0 ; ir<chain.size() ; ir++ ) { 
 	
+
+	/// get the rois and filter on them if required 
+
 	//	std::cout << "\troi " << ir << std::endl;
 
 	TIDA::Roi& troi = chain.rois()[ir]; 
         TIDARoiDescriptor roi( troi.roi() );
 
+	/// do we want to filter on the RoI properties? 
+	/// If so, if the RoI fails the cuts, then skip this roi
+
+
+	// 	std::cout << "\nfilterRoi: " << filterRoi << "\t" << chain.name() << std::endl;
+	// 	if ( filterRoi ) { 
+	// 	  bool keeproi = roiFilter.filter( roi );
+	// 	  std::cout << "\t\t" << roiFilter << std::endl;
+	// 	  std::cout << "\t\t" << roi << std::endl; 
+	// 	  std::cout << "\tkeep roi:\t" << keeproi << std::endl;
+	// 	  if ( !keeproi ) continue; 
+	// 	}
+
+	if ( filterRoi && !roiFilter.filter( roi ) ) continue; 
+	
 	
 	/// select the test sample (trigger) vertices
 	const std::vector<TIDA::Vertex>& mvt = troi.vertices();
+
+
+
 
 
 	std::vector<TIDA::Vertex> vertices_test;
@@ -1380,7 +1563,7 @@ int main(int argc, char** argv)
 	    double selection_ = 0.0;
 	    for (unsigned itr=0; itr<recTracks.size(); itr++){
 	      const TIDA::Track* tr = &recTracks[itr];
-	      if( std::fabs(mvt[iv].position()[2]-tr->z0()) < 1.5 ) { 
+	      if( std::fabs(mvt[iv].z()-tr->z0()) < 1.5 ) { 
 		if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
 		else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
 	      }
@@ -1452,7 +1635,9 @@ int main(int argc, char** argv)
 	TIDARoiDescriptor refRoi;
 	
 	if ( select_roi ) {
+
 	  bool customRefRoi_thisChain = false;
+
 	  if ( use_custom_ref_roi ) { // Ideally just want to say ( use_custom_ref_roi && (chain.name() in custRefRoi_chain]sist) )
 	    if ( customRoi_chains.size() ) { 
 	      if ( customRoi_chains.find( chain.name() )!=customRoi_chains.end() ) customRefRoi_thisChain = true;
@@ -1460,8 +1645,10 @@ int main(int argc, char** argv)
 	    else customRefRoi_thisChain = true;  // Apply custom ref roi to all chains
 	  }
 	  
-	  if ( use_custom_ref_roi && customRefRoi_thisChain ) { refRoi = makeCustomRefRoi(custRefRoi_params[0], custRefRoi_params[1], custRefRoi_params[2], roi ); }
-	  else { refRoi = roi; }
+	  if ( use_custom_ref_roi && customRefRoi_thisChain ) { 
+	    refRoi = makeCustomRefRoi( roi, custRefRoi_params[0], custRefRoi_params[1], custRefRoi_params[2] ); 
+	  }
+	  else refRoi = roi;
 
 	  dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&refRoi);
 	}
@@ -1475,34 +1662,34 @@ int main(int argc, char** argv)
 	// Now filterng ref tracks by refFilter, and performing any further filtering and selecting,
 	// before finally creating the const reference object refp
 
-	std::vector<TIDA::Track*>  refp_vecObject = refTracks.tracks( refFilter );
+	std::vector<TIDA::Track*>  refp_vec = refTracks.tracks( refFilter );
 	
 	// Selecting only truth matched reference tracks
 	if ( truthMatch ) { 	  
 	  /// get the truth particles ...
 	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
 	  const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
-	  const std::vector<TIDA::Track*>&  refp_vecObject_temp = refp_vecObject;
+	  const std::vector<TIDA::Track*>&  refp_tmp = refp_vec;
 
-	  /// dr match against current reference selection 
-	  truth_matcher->match( refp_vecObject_temp, truth );
+	  /// truth_matcher match against current reference selection 
+	  truth_matcher->match( refp_tmp, truth );
 
 	  std::vector<TIDA::Track*>  refp_matched;
 
 	  /// which truth tracks have a matching reference track ?
-	  for ( unsigned i=0 ; i<refp_vecObject.size() ; i++ ) { 
-	    if ( truth_matcher->matched( refp_vecObject[i] ) ) refp_matched.push_back( refp_vecObject[i] );
+	  for ( unsigned i=0 ; i<refp_vec.size() ; i++ ) { 
+	    if ( truth_matcher->matched( refp_vec[i] ) ) refp_matched.push_back( refp_vec[i] );
 	  }
 
-	  refp_vecObject.clear();
-	  refp_vecObject = refp_matched;
+	  refp_vec.clear();
+	  refp_vec = refp_matched;
 	}
 	
 	// Choose the pT ordered refp tracks that have been asked for by the user
-	if ( use_specified_pt_ordered_ref ) {
-	  std::sort(refp_vecObject.begin(), refp_vecObject.end(), trackPtGrtr); // Should this sorting be done to a temporary copied object, instead of the object itself?
+	if ( use_pt_ordered_ref ) {
+	  std::sort(refp_vec.begin(), refp_vec.end(), trackPtGrtr); // Should this sorting be done to a temporary copied object, instead of the object itself?
 	  
-	  int nRefTracks = refp_vecObject.size();
+	  int nRefTracks = refp_vec.size();
 
 	  std::vector<TIDA::Track*> refp_chosenPtOrd;
 
@@ -1516,19 +1703,19 @@ int main(int argc, char** argv)
 	  for (int trackIdx = 0; trackIdx < nRefTracks; ++trackIdx) {
 	    for (unsigned int indexIdx = 0; indexIdx < refPtOrd_indices.size(); ++indexIdx) {
 	      if ( trackIdx == refPtOrd_indices.at(indexIdx) ) {
-	        refp_chosenPtOrd.push_back(refp_vecObject.at(trackIdx));
+	        refp_chosenPtOrd.push_back(refp_vec.at(trackIdx));
 		break;
 	      }
 	    }
 	  }
 
-	  refp_vecObject.clear();
-	  refp_vecObject = refp_chosenPtOrd; // Note: not necessarily pT ordered.
+	  refp_vec.clear();
+	  refp_vec = refp_chosenPtOrd; // Note: not necessarily pT ordered.
 	                                     //       Ordered by order of indices the user has passed
 	                                     //       (which is ideally pT ordered e.g. 0, 1, 3)
 	}
 	
-	const std::vector<TIDA::Track*>&  refp  =  refp_vecObject;
+	const std::vector<TIDA::Track*>&  refp  =  refp_vec;
 	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
@@ -1539,6 +1726,54 @@ int main(int argc, char** argv)
 	//	std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
 	groi = &roi;
+
+
+
+
+	/// now found all the tracks within the RoI - *now* if required find the 
+	/// the count how many of these reference tracks are on each of the 
+	/// offline vertices
+
+
+	std::vector<TIDA::Vertex> vertices_roi;
+
+
+	if ( chain.name().find("SuperRoi") ) { 
+	  
+	  /// select the reference offline vertices
+	  
+	  vertices_roi.clear();
+	  
+	  const std::vector<TIDA::Vertex>& mv = vertices;
+	    
+	  //	  std::cout << "vertex filtering " << mv.size() << std::endl;  
+
+	  for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+
+	    const TIDA::Vertex& vx = mv[iv];
+
+	    //	    std::cout << "\t" << iv << "\t" << vx << std::endl;
+
+	    int trackcount = 0;
+
+	    for (unsigned itr=0; itr<refp.size(); itr++){
+	      TIDA::Track* tr = refp[itr];
+	      double theta_     = 2*std::atan(std::exp(-tr->eta())); 
+	      double dzsintheta = std::fabs(vx.z()-tr->z0()) * std::sin(theta_);
+	      if( dzsintheta < 1.5 ) trackcount++;
+	    }
+
+	    vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
+						  vx.dx(), vx.dy(), vx.dz(),
+						  trackcount, 
+						  vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
+
+	    //	    std::cout << "\t \t" << vertices_roi.back() << std::endl;
+
+	  }
+	  
+	}
+	else vertices_roi = vertices;
 
 
 	foutdir->cd();
@@ -1553,11 +1788,12 @@ int main(int argc, char** argv)
 	}
 	
 	_matcher->match( refp, testp);
-	analitr->second->execute( refp, testp, _matcher );
 	
+	analitr->second->execute( refp, testp, _matcher );
+
 	ConfVtxAnalysis* vtxanal = 0;
 	analitr->second->store().find( vtxanal, "rvtx" );
-	
+
 	if ( vtxanal ) {	  
 	  /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
 	  ///  we first need to copy the actual elements from the const vector, to a normal
@@ -1567,7 +1803,7 @@ int main(int argc, char** argv)
 	  ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
 	  ///  to get this nonsense to work
 	  
-	  std::vector<TIDA::Vertex> vtxcck = vertices;           
+	  std::vector<TIDA::Vertex> vtxcck = vertices_roi;           
 	  std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
 	  
 	  vtxp.reserve( vtxcck.size() );
@@ -1579,8 +1815,10 @@ int main(int argc, char** argv)
 	  vtxp_test.reserve( vtxcck_test.size() );
 	  for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
 	  
-	  vtxanal->execute( vtxp, vtxp_test );
-	  
+	  //	  std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
+
+	  vtxanal->execute( vtxp, vtxp_test, track_ev );
+
 	}
 
 	
@@ -1637,9 +1875,6 @@ int main(int argc, char** argv)
 
 	  analitrp->second->execute( refpp, testpp, _matcher );
 	  
-					
-
-
 
 	  static int ecounter = 0;
 	  ecounter++;
@@ -1649,7 +1884,17 @@ int main(int argc, char** argv)
     }
   }
 
-  std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
+  delete track_ev;
+  delete data;
+  delete finput;
+
+  //  std::cout << "run: " << run << std::endl;
+
+  }
+
+  std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events"
+	    << "\ttimes "  << mintime << " " << maxtime 
+	    << "\t( grl: " << grl_counter << " / " << pregrl_events << " )" << std::endl;
 
   if ( monitorZBeam ) zbeam _zbeam( refz, testz );
 

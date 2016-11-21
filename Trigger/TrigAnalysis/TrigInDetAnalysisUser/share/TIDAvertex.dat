@@ -1,0 +1,47 @@
+
+histos = { 
+  
+  ///  vertex raw distributions plots
+  "ntrax",        "Number of tracks",    "xaxis:lin:0:100",     "Number of offline vertex tracks",                "yaxis:log:auto",  ""  ,
+  "zed",          "Vertex z position",   "xaxis:lin:auto",     "Offline vertex z position [mm]",                 "yaxis:log:auto",  ""  ,
+  "mu",           "mu",                   "xaxis:lin:auto",     "#mu",                                            "yaxis:lin:auto",  ""  ,
+  "lb",           "lumi block",          "xaxis:lin:0:2500",     "lumi block",                                     "yaxis:lin:auto",  ""  ,
+  "nvtx_rec",     "Number of vertices",  "xaxis:lin:auto",     "Number of online vertices",                      "yaxis:log:auto",  ""  ,
+  "ntrax_rec",    "Number of tracks",    "xaxis:lin:auto",     "Number of online vertex tracks",                 "yaxis:log:auto",  ""  ,
+  "zed_rec",      "Vertex z position",   "xaxis:lin:auto",     "Oline vertex z position [mm]",                   "yaxis:log:auto",  ""  ,
+  
+  /// vertex efficiencies
+  "leadpt_eff",    "Efficiency Leading p_{T}",    "xaxis:log:auto",     "Leading offline track p_{T} [GeV]",      "yaxis:lin:auto:0.8:1.02", "Vertex finding Efficiency" ,
+  "sumpt2_eff",    "Efficiency #Sigma p_{T}^{2}", "xaxis:log:auto",     "Offline #Sigma p_{T}^{2} [GeV^{2}]",     "yaxis:lin:auto:0.8:1.02", "Vertex finding Efficiency" ,
+  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:0:30",     "Number of offline tracks",                "yaxis:lin:0.5:1.02",       "Vertex finding Efficiency" ,    
+  "nvtx_eff",      "Vertices efficiency",         "xaxis:lin:auto",     "Number of offline vertices",              "yaxis:lin:auto:0.8:1.02",  "Vertex finding Efficiency" ,       
+  "zed_eff",       "Efficiency z",                "xaxis:lin:-120:120", "Offline vertex z position [mm]",          "yaxis:lin:auto:0.80:1.02", "Vertex finding Efficiency" ,        
+  "mu_eff",        "Efficiency mu",              "xaxis:lin:auto",     "#mu",                                      "yaxis:lin:auto:0.8:1.02",  "Vertex finding Efficiency" ,        
+  "lb_eff",        "Efficiency lb",              "xaxis:lin:auto",     "lumi block",                               "yaxis:lin:auto:0.8:1.02",  "Vertex finding Efficiency" ,        
+
+  /// vertex residuals and offsets
+  "rdz_vs_zed/sigma",     "Residual z vs z",             "xaxis:lin:-120:120",  "Offline z [mm]",             "yaxis:log:0.01:3",    "z_{0} resolution [mm]" ,
+  "rdz_vs_zed/mean",      "offset z vs z",               "xaxis:lin:-120:120",  "Offline z [mm]",             "yaxis:log:-0.06:0.1",    "z_{0} offset [mm]" ,
+  "rdz_vs_ntrax/sigma",   "Resolution z vs N_{tracks}",  "xaxis:log:auto",     "Number of tracks",           "yaxis:log:0.01:3",   "z_{0} resolution [mm]" ,
+  "rdz_vs_ntrax/mean",    "Offset z vs N_{tracks}",      "xaxis:log:auto",     "Number of tracks",         "yaxis:log:-0.1:0.1",   "z_{0} residual [mm]" ,
+  "rdz_vs_nvtx/sigma",    "Residual z vs N_{vtx}",       "xaxis:log:auto",     "Number of online vertices",  "yaxis:log:0.01:3",    "z_{0} resolution [mm]" ,
+  "rdz_vs_zed/1d",        "Residual z",                   "xaxis:lin:-6:6",     "#Delta z [mm]",              "yaxis:log:auto",      "entries" ,
+
+  "rdz_vs_lb/mean",      "Offset z vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:-0.2:0.15",    "z_{0} offset [mm]" ,
+  "rdx_vs_lb/mean",      "Offset x vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:0:0.02",    "x_{0} offset [mm]" ,
+  "rdy_vs_lb/mean",      "Offset y vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:0:0.02",    "y_{0} offset [mm]" ,
+
+  "rdz_vs_lb/sigma",      "Residual z vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:0.03:5",    "z_{0} resolution [mm]" ,
+  "rdx_vs_lb/sigma",      "Residual x vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:0:0.02",      "x_{0} resolution [mm]" ,
+  "rdy_vs_lb/sigma",      "Residual y vs lb",             "xaxis:lin:auto",   "lumi block",                 "yaxis:log:0:0.02",      "y_{0} resolution [mm]" ,
+
+
+  //  "rdz_vs_leadpt/sigma",     "Residual z vs lead p_{T}",                   "xaxis:log:auto",     "Leading Track p_{T} [GeV]",  "yaxis:lin:auto", "z_{0} resolution [mm]" ,
+  //  "rdz_vs_sumpt2/sigma",     "Residual z vs #Sigma p_{T}^{2}",             "xaxis:log:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto", "z_{0} resolution [mm]" ,
+  //  "rleadpt_vs_sumpt2/sigma", "Residual Leading p_{T} vs #Sigma p_{T}^{2}", "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto", "Leading Track p_{T} [GeV]" ,
+  //  "rntrax_vs_sumpt2/sigma",  "Residual N tracks vs #Sigma p_{T}^{2}",      "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto", "N tracks" ,
+  //  "rleadpt_vs_sumpt2/2d",    "Residual lead p_{T} vs #Sigma p_{T}^{2}", "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto", "Leading Track p_{T} [GeV]" ,
+  //  "rntrax_vs_sumpt2/2d",     "Residual N tracks vs #Sigma p_{T}^{2}",   "xaxis:lin:auto",     "#Sigma p_{T}^{2} [GeV^{2}]", "yaxis:lin:auto", "N tracks" ,
+
+};
+

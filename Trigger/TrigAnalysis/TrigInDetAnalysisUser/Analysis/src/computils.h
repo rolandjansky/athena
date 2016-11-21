@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdio>
+#include <cstdlib>
 
 #include "label.h"
 #include "utils.h"
@@ -39,7 +41,9 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 std::string stime();
 static std::string release;
 
-void Norm( TH1* h);
+void Norm( TH1* h, double scale=1 );
+
+double Entries( TH1* h );
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
@@ -101,7 +105,8 @@ public:
     m_rangeset(false),
     m_lo(0),
     m_hi(0),
-    m_norm(false)
+    m_norm(false),
+    m_binwidth(false)
   { 
     //    std::cout << "AxisInfo::info" << m_info << std::endl;
 
@@ -116,16 +121,32 @@ public:
     
     for ( size_t i=1 ; i<keys.size() ; i++ ) { 
       
-      if       ( keys[i]=="lin" )   m_log = false;
-      else if  ( keys[i]=="log" )   m_log = true;
-      else if  ( keys[i]=="auto" )  m_autoset = true;
+      if       ( keys[i]=="lin" )   m_log       = false;
+      else if  ( keys[i]=="log" )   m_log       = true;
+      else if  ( keys[i]=="sym" )   m_symmetric = true; 
+      else if  ( keys[i]=="norm" )  m_norm      = true;
+      else if  ( keys[i]=="width" ) m_binwidth  = true;
+      else if  ( keys[i]=="auto" )  m_autoset   = true;
       else if  ( keys[i]=="auton" )  {
 	m_autoset = true;
 	m_norm    = true;
       }
+      else if  ( keys[i]=="autow" )  {
+	m_autoset  = true;
+	m_binwidth = true;
+      }
+      else if  ( keys[i]=="autown" || keys[i]=="autonw" ) {
+	m_autoset  = true;
+	m_norm     = true;
+	m_binwidth = true;
+      }
       else if  ( keys[i]=="autosym" ) { 
 	m_autoset = true; 
 	m_symmetric = true; 
+      }
+      else if  ( keys[i]=="normw" ||  keys[i]=="widthn" )  {
+	m_norm     = true;
+	m_binwidth = true;
       }
       else if  ( !minset )  { 
 	m_lo = std::atof(keys[i].c_str());
@@ -168,6 +189,8 @@ public:
   double lo() const { return m_lo; } 
   double hi() const { return m_hi; } 
   
+  double binwidth() const { return m_binwidth; }
+
 public:
 
   static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
@@ -203,6 +226,8 @@ public:
   double m_hi;
 
   bool m_norm;
+  
+  bool m_binwidth;
   
 };
 
@@ -320,6 +345,8 @@ public:
 
     Legend leg = _leg;
 
+    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
+
     if ( htest() ) {
       gStyle->SetOptStat(0);
       if ( href() ) { 
@@ -333,7 +360,7 @@ public:
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
 
-      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
+      //      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
@@ -354,7 +381,10 @@ public:
 	    // tgtest()->Draw("p1same");
 	    tgtest()->Draw("esame");
 	  }
-	  else htest()->Draw("ep");
+	  else { 
+	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    htest()->Draw("ep");
+	  }
 	}
       }
 
@@ -516,7 +546,8 @@ public:
   Plots(const std::string& s="") : 
     m_name(s), 
     m_logx(false), m_logy(false), 
-    m_maxset(false), m_minset(false), 
+    m_maxset(false), m_max(0),
+    m_minset(false), m_min(0),
     m_rangeset(false) 
   { }
 
@@ -559,7 +590,7 @@ public:
     if ( m_logy ) m_min = tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMaximum(scale*tmax);
+      if ( at(i).href() ) at(i).href()->SetMaximum(scale*tmax);
       at(i).htest()->SetMaximum(scale*tmax);
 
       //      if ( m_logy ) {
@@ -580,7 +611,7 @@ public:
 
     if ( scale==0 ) { 
       for ( unsigned i=0 ; i<size() ; i++ ) {
-	at(i).href()->SetMinimum(0);
+	if ( at(i).href() ) at(i).href()->SetMinimum(0);
 	at(i).htest()->SetMinimum(0);
       }  
       return;
@@ -595,7 +626,7 @@ public:
     m_min = scale*tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMinimum(scale*tmin);
+      if ( at(i).href() ) at(i).href()->SetMinimum(scale*tmin);
       at(i).htest()->SetMinimum(scale*tmin);
 
       //      if ( m_logy ) { 
@@ -614,10 +645,10 @@ public:
   void Min( double scale ) { 
     m_minset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMinimum(scale);
+      if ( at(i).href() ) at(i).href()->SetMinimum(scale);
       at(i).htest()->SetMinimum(scale);
       if ( m_logy ) { 
-	if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
+	if ( at(i).href() ) if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
 	if ( at(i).htest()->GetMinimum()<=0 ) at(i).htest()->GetMinimum(1e-4);
       }
       
@@ -632,7 +663,7 @@ public:
   void Max( double scale ) { 
     m_maxset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMaximum(scale);
+      if ( at(i).href() ) at(i).href()->SetMaximum(scale);
       at(i).htest()->SetMaximum(scale);
     }
   }
@@ -699,7 +730,7 @@ public:
   void xrange(bool symmetric=false) { 
     m_rangeset = false;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      ::xrange( at(i).href(), symmetric );
+      if ( at(i).href() ) ::xrange( at(i).href(), symmetric );
       ::xrange( at(i).htest(), symmetric );
       // ::xrange( at(i).htest(), symmetric );
     }
@@ -710,7 +741,7 @@ public:
     m_lo = lo;
     m_hi = hi;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
+      if ( at(i).href() ) at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
       at(i).htest()->GetXaxis()->SetRangeUser( m_lo, m_hi );
     }
   }
@@ -729,15 +760,17 @@ public:
   void Draw( Legend& leg, bool means=false ) {  
     //   Max();
 
-    /// plotting range options etc  
-    //    std::cout << "Plotter::Draw() " << m_name << "\txaxis: log: " << m_logx;
+    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
 
-    //    if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
+    ///  plotting range options etc  
+    //   std::cout << "Plotter::Draw() " << m_name << "\tsize " << size() << "\txaxis: log: " << m_logx;
 
-    //    std::cout << "\tyaxis: log:" << m_logy;
-    //    if ( m_minset )   std::cout << "\tymin: " << m_min;
-    //    if ( m_maxset )   std::cout << "\tymax: " << m_max;
-    //    std::cout << std::endl;
+    //   if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
+
+    //   std::cout << "\tyaxis: log:" << m_logy;
+    //   if ( m_minset )   std::cout << "\tymin: " << m_min;
+    //   if ( m_maxset )   std::cout << "\tymax: " << m_max;
+    //   std::cout << std::endl;
     
     bool first = true;
 
