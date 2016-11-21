@@ -41,8 +41,12 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
 	SetDefaultConfiguration();
 
-	m_isData  = true;
-	m_gasTypeInStraw = kUnset;
+	m_isData      		= true;
+	m_gasTypeInStraw 	= kUnset;
+	m_L 							= 0.;
+	m_timingProfile		= 0;
+	m_trtId						= 0;
+	m_trtman					= 0;
 }
 
 
@@ -52,12 +56,12 @@ void TRT_ToT_dEdx::SetDefaultConfiguration()
 	declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
 	declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
 	declareProperty("TRT_dEdx_corrected",m_corrected=true);
-	declareProperty("TRT_dEdx_whichToTEstimatorAlgo",m_whichToTEstimatorAlgo=kToTHighOccupancySmart);
+	declareProperty("TRT_dEdx_whichToTEstimatorAlgo",m_whichToTEstimatorAlgo=kToTLargerIsland);
 	declareProperty("TRT_dEdx_useTrackPartWithGasType",m_useTrackPartWithGasType=kUnset);
-	declareProperty("TRT_dEdx_toolScenario",m_toolScenario=kAlgScalingToXe);
-	declareProperty("TRT_dEdx_applyMimicToXeCorrection",m_applyMimicToXeCorrection=true);
-	declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.9);
-	declareProperty("TRT_dEdx_trackConfig_minRtrack",m_trackConfig_minRtrack=0.01);
+	declareProperty("TRT_dEdx_toolScenario",m_toolScenario=kAlgReweightTrunkOne);
+	declareProperty("TRT_dEdx_applyMimicToXeCorrection",m_applyMimicToXeCorrection=false);
+	declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.85);
+	declareProperty("TRT_dEdx_trackConfig_minRtrack",m_trackConfig_minRtrack=0.15);
 	declareProperty("TRT_dEdx_useZeroRHitCut",m_useZeroRHitCut=true);
 }
 
@@ -100,35 +104,34 @@ StatusCode TRT_ToT_dEdx::initialize()
   StoreGateSvc* detStore = 0;
   StatusCode sc = service( "DetectorStore", detStore );
   if (sc.isFailure()){
-    log << MSG::ERROR << "Could not get DetectorStore" << endreq;
+    ATH_MSG_ERROR ( "Could not get DetectorStore" );
     return sc;
   }
   
   sc = detStore->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
-    log << MSG::ERROR << "Could not get TRT_ID helper !" << endreq;
+    ATH_MSG_ERROR ( "Could not get TRT_ID helper !" );
     return StatusCode::FAILURE;
   }
 
   sc = detStore->retrieve(m_trtman, "TRT");
   if (sc.isFailure()){
-    log << MSG::ERROR << "Could not get TRT detector manager !" << endreq;
-
+    ATH_MSG_ERROR ( "Could not get TRT detector manager !" );
     return StatusCode::FAILURE;
   }
 
   m_timingProfile=0;
   sc = service("ChronoStatSvc", m_timingProfile);
   if ( sc.isFailure() || 0 == m_timingProfile) {
-    log<< MSG::DEBUG <<"Can not find ChronoStatSvc name="<<m_timingProfile << endreq;
+    ATH_MSG_DEBUG ("Can not find ChronoStatSvc name="<<m_timingProfile );
   }
  
   const DataHandle<CondAttrListVec> aptr;
   std::string folderName = {"/TRT/Calib/ToT/ToTVectors"};
   if (StatusCode::SUCCESS == detStore->regFcn(&TRT_ToT_dEdx::update,this,aptr,folderName)){
-   ATH_MSG_DEBUG ("Registered callback for ToT");
+    ATH_MSG_DEBUG ("Registered callback for ToT");
   }else{
-		ATH_MSG_ERROR ("Callback registration failed for /TRT/Calib/ToT/ToTVectors ");
+	ATH_MSG_ERROR ("Callback registration failed for /TRT/Calib/ToT/ToTVectors ");
   }
 
   const DataHandle<CondAttrListCollection> affectedRegionH;
@@ -146,11 +149,28 @@ StatusCode TRT_ToT_dEdx::initialize()
     ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     return sc;
   } else {
-    if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+    if ( !m_TRTStrawSummarySvc.empty() ) 
+      ATH_MSG_INFO ( "Retrieved tool " << m_TRTStrawSummarySvc );
   }
 
-  
-  log <<  MSG::INFO  << name() <<" initialize() successful" << endreq;    
+  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
+  ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
+  ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
+  ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
+  ATH_MSG_INFO("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
+  ATH_MSG_INFO("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
+  ATH_MSG_INFO("m_toolScenario                  ="<<m_toolScenario<<"");
+  ATH_MSG_INFO("m_applyMimicToXeCorrection      ="<<m_applyMimicToXeCorrection<<"");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
+  ATH_MSG_INFO("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
+  ATH_MSG_INFO("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
+
+  ATH_MSG_INFO ( name() << " initialize() successful" );    
   return StatusCode::SUCCESS;
 }
 
@@ -159,7 +179,7 @@ StatusCode TRT_ToT_dEdx::initialize()
 StatusCode TRT_ToT_dEdx::finalize() 
 {
   MsgStream log(msgSvc(), name());
-  log <<  MSG::VERBOSE  << "... in finalize() ..." << endreq ;
+  ATH_MSG_DEBUG ( "... in finalize() ..." );
   if(m_timingProfile)m_timingProfile->chronoPrint("TRT_ToT_dEdx"); //MJ
   return StatusCode::SUCCESS;
 }
@@ -248,8 +268,6 @@ StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/)
 		ATH_MSG_ERROR ("Problem reading condDB object. -");
 		return StatusCode::FAILURE;
 	}
-
-	return StatusCode::SUCCESS;
 }
 
 
@@ -662,9 +680,33 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr) const
   if(trkP==0)return false; 
   double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  
+  double Trt_HitTheta = trkP->parameters()[Trk::theta];
+  double Trt_HitPhi = trkP->parameters()[Trk::phi];
+  double error2 = 2*driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius);
+  double distance2 = (Trt_Rtrack - Trt_RHit)*(Trt_Rtrack - Trt_RHit);
+  Identifier DCId = driftcircle->identify();
+  int HitPart =  m_trtId->barrel_ec(DCId);
+  const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
+  double strawphi = element->center(DCId).phi();
+
   if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
   if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
+  if (distance2 > error2) return false; // Select precision hit only
+
+  if (std::abs(HitPart)==1) { //Barrel
+    m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
+  }
+  else
+  if (std::abs(HitPart)==2) { //EndCap
+    m_L = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+  }
+  else {
+  	ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
+    throw std::exception();
+  }
+
+  if(m_divideByL)
+    if ( m_L < 1.7 ) return false; // Length in the straw
   if(!m_useHThits){
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
@@ -721,7 +763,14 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
   }
   
   // 	Average interactions per crossing for the current BCID
-  nVtx = eventInfo->averageInteractionsPerCrossing();
+  double mu = -1.;
+  mu = eventInfo->averageInteractionsPerCrossing();
+  if(m_isData) {
+    nVtx = 1.3129 + 0.716194*mu + (-0.00475074)*mu*mu;
+  }
+  else
+    nVtx = 1.0897 + 0.748287*mu + (-0.00421788)*mu*mu;
+
 
   if (!track) {
     return 0;
@@ -1135,7 +1184,7 @@ int TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircl
   
   // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
   // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
-  int GasType=0; // Xenon is default
+  int GasType=kUnset; // kUnset is default
   if (!m_TRTStrawSummarySvc.empty()) {
     int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
     if       ( stat==2 || stat==3 ) { GasType = kXenon; } // Xe
@@ -1147,7 +1196,6 @@ int TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircl
            throw std::exception();
          }
   }
-  if(GasType > kKrypton || GasType < kXenon) return kUnset; 
 
   return GasType;
 }
@@ -1167,8 +1215,6 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 
 	ATH_MSG_FATAL("getToT():: No ToT estimator case for m_whichToTEstimatorAlgo"<<m_whichToTEstimatorAlgo<<"");
 	throw std::exception();
-
-	return 0;
 }
 
 
@@ -1211,12 +1257,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr)
   	ATH_MSG_WARNING("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: ToT="<<ToT<<". We must cut that hit in isGood_Hit() !");
   	return 0;
   }
-  double L = 0;
-  double Trt_HitPhi = trkP->parameters()[Trk::phi];
-	double Trt_HitTheta = trkP->parameters()[Trk::theta];
-	const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
-	double strawphi = element->center(DCId).phi();
-	int HitPart =  m_trtId->barrel_ec(DCId);
+  int HitPart =  m_trtId->barrel_ec(DCId);
   int StrawLayer = m_trtId->straw_layer(DCId);
   int Layer = m_trtId->layer_or_wheel(DCId);
   double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
@@ -1254,17 +1295,8 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr)
 			m_gasTypeInStraw=kXenon; // After mimic correction we work with that hit as Xenon hit.
 	  }  
   }
-
-	if (std::abs(HitPart)==1) { //Barrel
-		L = 2*sqrt(4-HitRtrack*HitRtrack)*1./fabs(sin(Trt_HitTheta));
-	}
-	if (std::abs(HitPart)==2) { //EndCap
-		double phiHit =  Trt_HitPhi;
-		double omega = strawphi;
-		L = 2*sqrt(4-HitRtrack*HitRtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(phiHit-omega)*cos(phiHit-omega));
-	}
  
-  if(m_divideByL) ToT = ToT/L;
+  if(m_divideByL) ToT = ToT/m_L;
   if(!m_corrected) return ToT;
   /* else correct */
 	   
@@ -1342,19 +1374,7 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
 	  }  
   }
 
-  double L = 0;
-  double Trt_HitTheta = trkP->parameters()[Trk::theta];
-  Identifier DCId = driftcircle->identify();
-  const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
-  if (std::abs(HitPart)==1) { //Barrel
-    L = 2*sqrt(4-HitRtrack*HitRtrack)*1./fabs(sin(Trt_HitTheta));
-  }
-  if (std::abs(HitPart)==2) { //EndCap
-    double phiHit =  trkP->parameters()[Trk::phi];
-    double omega = element->center(DCId).phi();
-    L = 2*sqrt(4-HitRtrack*HitRtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(phiHit-omega)*cos(phiHit-omega));
-  }
-  ToT = ToT/L;
+  ToT = ToT/m_L;
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
