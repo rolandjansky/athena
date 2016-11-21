@@ -26,6 +26,7 @@ class TrigEgammaPlotTool
           void setParent(IHLTMonTool *parent){ m_parent = parent;};
           void setDetail(bool doDetail){ m_detailedHists = doDetail; }
           void setTP(bool tp){ m_tp = tp; }
+          void setEmulation(bool doEmu){ m_doEmulation = doEmu;}
           void setAltBinning(bool doAltBins){ m_doJpsiee = doAltBins; }
           std::string getBasePath() { return m_baseDir; }
           std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
@@ -70,8 +71,10 @@ class TrigEgammaPlotTool
           int m_ndefaultEtabins; //2D
           int m_ncoarseEtbins; //2D
           int m_ncoarseEtabins; //2D
-          std::vector<float> m_etbins;
-          std::vector<float> m_etabins;
+          std::vector<float>  m_etbins;
+          std::vector<float>  m_etabins;
+          std::vector<float>  m_minBin_ringer;
+          std::vector<float>  m_maxBin_ringer;
           std::vector<double> m_defaultEtbins;
           std::vector<double> m_defaultEtabins;
           std::vector<double> m_coarseEtbins;
@@ -100,6 +103,7 @@ class TrigEgammaPlotTool
           bool m_doJpsiee;
           bool m_detailedHists;
           bool m_tp;
+          bool m_doEmulation;
           
           // Methods
           void setBinning();

@@ -29,14 +29,11 @@ from TrigEgammaAnalysisTools.TrigEgammaDataQuality import TrigEgammaPlotHolder
 # Mapping of triggers to make comparison plots (complist)
 dqlist = {'Efficiency':['eff_et','eff_eta','eff_phi','eff_mu']}
 dqlevel = ['HLT','L1Calo']
-complist={'L1_EM20VH':'L1_EM20VHI',
-        'L1_EM20VHI':'HLT_e24_lhtight_nod0_ivarloose',
-        'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
-        'HLT_e24_lhmedium_L1EM20VH':'HLT_e24_lhmedium_L1EM20VHI',
-        'HLT_e24_lhmedium_L1EM20VHI':'HLT_e24_lhmedium_ivarloose',
-        'HLT_e24_lhmedium_iloose':'HLT_e24_lhmedium_ivarloose',
-        'HLT_e24_lhmedium_ivarloose':'HLT_e24_lhmedium_nod0_ivarloose',
-        'HLT_e24_lhmedium_nod0_ivarloose':'HLT_e24_lhtight_nod0_ivarloose',
+complist={'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
+        'L1_EM24VHI':'HLT_e28_lhtight_nod0_ivarloose',
+        'HLT_e26_lhtight_nod0':'HLT_e26_lhtight_nod0_ivarloose',
+        'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_smooth_ivarloose',
+        'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_nod0_ringer_ivarloose',
         }
 
 #########################################################
@@ -256,12 +253,12 @@ def setLegend2(leg,histo1,histo2,trigName,trigName2):
     leg.Draw()
 
 # Main methods of program
-def montage(plotlist,name):
+def montage(plotlist,name,stream):
     print name
     plot_names_str = ' '.join(plotlist)
-    cmd = 'montage -tile 2x2 -geometry 800x800+3+3 {0} {1}'.format(plot_names_str, name + '.pdf')
+    cmd = 'montage -tile 2x2 -geometry 800x800+3+3 {0} {1}'.format(plot_names_str, name + stream + '.pdf')
     subprocess.call(cmd, shell=True)
-    cmd = 'tar -czf {0} *.eps --remove-files'.format(name + '.tar.gz')
+    cmd = 'tar -czf {0} *.eps --remove-files'.format(name + stream + '.tar.gz')
     subprocess.call(cmd, shell=True)
 
 def sortPlots(histos,path,holder):
@@ -393,12 +390,12 @@ def createReferencePlots(holder,rholder):
                     i+=1
     return slist
 
-def createPlots(holder):
+def createPlots(holder,stream):
     slist1 = createTriggerPlots(holder)
     slist2 = createTriggerComparisonPlots(holder)
     slist=slist1+slist2
     mname='TrigEgammaDQSummary_Run_'+holder.RunNumber
-    montage(slist,mname)
+    montage(slist,mname,stream)
 
 
 def process(infname, basepath, run="", rinfname="", rbasepath=""):
@@ -426,7 +423,13 @@ def process(infname, basepath, run="", rinfname="", rbasepath=""):
     #print holder.Efficiency
     print holder.RunNumber
     print holder.Triggers
-    createPlots(holder)
+    
+    stream = ""
+    if "express" in infname:
+      stream = "_express_express"
+    if "physics_Main" in infname:
+      stream = "_physics_Main"
+    createPlots(holder,stream)
 
     if rinfname:
         f2 = ROOT.TFile.Open(rinfname, 'READ')
@@ -444,7 +447,12 @@ def process(infname, basepath, run="", rinfname="", rbasepath=""):
         print rholder.Triggers
         slist=createReferencePlots(holder,rholder)
         mname='TrigEgammaDQSummary_Run_'+holder.RunNumber+'_refRun_'+rholder.RunNumber
-        montage(slist,mname)
+        stream = ""
+        if "express" in rinfname:
+          stream = "_express_express"
+        if "physics_Main" in rinfname:
+          stream = "_physics_Main"
+        montage(slist,mname,stream)
     
     if lbset:
         print "-------------------------------------------------------------------------"

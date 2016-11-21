@@ -53,13 +53,14 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     
     histname=m_anatype+"_trigger_counts";
     if(nTrigger>0) {
-        addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
+        addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 0, nTrigger));
         setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
     }
    
     for (const auto trigger: m_trigList)
             setTrigInfo(trigger);
 
+    plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()) {
         ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
         return StatusCode::FAILURE;
@@ -79,8 +80,6 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         return StatusCode::SUCCESS; //return nicely
     }
 
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
-
     // Check HLTResult
     if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
@@ -90,11 +89,9 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     for(const auto trigger : m_trigList){
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger 
                 << " " << getTrigInfo(trigger).trigName); 
-
         // Trigger counts
         cd(m_dir+"/Expert/Event");
-        if(tdt()->isPassed(trigger)) hist1(m_anatype+"_trigger_counts")->AddBinContent(ilist+1);
-        
+        if(tdt()->isPassed(trigger)) hist1(m_anatype+"_trigger_counts")->Fill(m_trigList.at(ilist).c_str(),1);
         std::string basePath = m_dir+"/"+trigger+"/Distributions/";
         const TrigInfo info = getTrigInfo(trigger);
         if ( TrigEgammaNavBaseTool::executeNavigation(info).isFailure() ){
@@ -106,6 +103,9 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             // Set detail level from analysis tool each time
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
+            tool->setEmulation(getEmulation());
+            tool->setPVertex(getNPVtx(), getNGoodVertex());
+            tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
             if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }

@@ -65,8 +65,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     addHistogram(new TH1I(histname.c_str(), "Event Selection; Cut ; Count", 6, 0., 6));
     if(nTrigger>0){
         histname=m_anatype+"_trigger_counts";
-        addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
-        setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
+        addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 0., nTrigger));
         histname=m_anatype+"_nProbes";
         addHistogram(new TH1F(histname.c_str(), "Number of Probes; Trigger ; Count", nTrigger, 0., nTrigger));
         histname=m_anatype+"_nProbesL1";
@@ -89,7 +88,8 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
         addHistogram(new TProfile(histname.c_str(), "Average EFCalo Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
         histname=m_anatype+"_EffHLT";
         addHistogram(new TProfile(histname.c_str(), "Average HLT Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
-
+        
+        setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
         setLabels(hist1(m_anatype+"_nProbes"),m_trigList);
         setLabels(hist1(m_anatype+"_nProbesL1"),m_trigList);
         setLabels(hist1(m_anatype+"_nProbesL2"),m_trigList);
@@ -107,7 +107,8 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     // Book the histograms per signature
     for (int i = 0; i < (int) m_trigList.size(); i++)
         setTrigInfo(m_trigList[i]);
-  
+ 
+    plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()){
         ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
         return StatusCode::FAILURE;
@@ -135,7 +136,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         ATH_MSG_DEBUG("Fails EventWise selection");
         return StatusCode::SUCCESS;
     }
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
     // Event Wise Selection (independent of the required signatures)
     hist1(m_anatype+"_CutCounter")->Fill("EventWise",1);
     // Select TP Pairs
@@ -153,7 +153,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         const char * cprobeTrigger = m_trigList.at(ilist).c_str();
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << probeTrigger);
         cd(m_dir+"/Expert/Event");
-        if(tdt()->isPassed(probeTrigger)) hist1(m_anatype+"_trigger_counts")->AddBinContent(ilist+1);  
+        if(tdt()->isPassed(probeTrigger))  hist1(m_anatype+"_trigger_counts")->Fill(cprobeTrigger,1);
         
         const TrigInfo info = getTrigInfo(probeTrigger);
         std::string trigName=probeTrigger;
@@ -166,6 +166,9 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         for( const auto& tool : m_tools) {
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
+            tool->setEmulation(getEmulation());
+            tool->setPVertex(getNPVtx(), getNGoodVertex());
+            tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
             if(tool->toolExecute(m_dir+"/Expert",info,m_pairObj).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }

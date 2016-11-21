@@ -5,13 +5,14 @@
 #ifndef TrigEgammaAnalysisBaseTool_H
 #define TrigEgammaAnalysisBaseTool_H
 
-
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
 #include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
+#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
@@ -26,12 +27,19 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-//#include "xAODCaloRings/RingSetContainer.h" 
-//#include "xAODCaloRings/CaloRingsContainer.h"
-//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
-//class MonGroup;
 
+/*
+ Ringer offline to be include for future
+/////////////////////////////////////////////////////////
+#include "xAODCaloRings/RingSet.h"                     //
+#include "xAODCaloRings/RingSetContainer.h"            //
+#include "xAODCaloRings/CaloRings.h"                   //
+#include "xAODCaloRings/CaloRingsContainer.h"          //
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h" //
+/////////////////////////////////////////////////////////
+*/
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -47,17 +55,24 @@ public:
   StatusCode book();
   StatusCode execute();
   StatusCode finalize();
+  template<class T, class B> std::unique_ptr<xAOD::TrigPassBits> createBits(const T* CONT, const B* BITS);
+  template<class T> std::unique_ptr<xAOD::TrigPassBits> getBits(const HLT::TriggerElement* te,const T* CONT);
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
-  template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, float &, bool usePassbits=true,const std::string key="");
+  template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
+                                                        float &, bool usePassbits=true,const std::string key="");
+  // Interface class methods needed to pass information to additional tools or to set common tools
   void setParent(IHLTMonTool *parent){ m_parent = parent;};
   void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
   void setDetail(bool detail){m_detailedHists=detail;}
   void setTP(bool tp){m_tp=tp;}
+  void setEmulation(bool doEmu){m_doEmulation=doEmu;}
+  void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool){m_emulationTool=tool;}
+  void setPVertex(const float onvertex, const float ngoodvertex){m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
+  void setAvgMu(const float onlmu, const float offmu){m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
 
   // Set current MonGroup
   void cd(const std::string &dir);
-
   // Accessor members
   void addDirectory(const std::string &s);
   void addHistogram(TH1 *h, const std::string &dir = "");
@@ -77,6 +92,7 @@ private:
   void updateDetail(Property& p);
   void updateAltBinning(Property& p);
   void updateTP(Property& p);
+  void updateEmulation(Property& p);
   void updateOutputLevel(Property& p);
 
   std::string m_msg;
@@ -89,10 +105,17 @@ private:
   /*! Helper strings for trigger level analysis */
   static const std::vector<std::string> m_trigLevel;
   static const std::map<std::string,std::string> m_trigLvlMap;
-  // Properties
   
+  /*! Cache pileup info */
+  float m_onlmu;
+  float m_offmu;
+  float m_nGoodVertex; 
+  float m_nPVertex;
+ 
+  // Properties  
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
+  ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
   ToolHandle<ITrigEgammaPlotTool> m_plot;
 
 protected:
@@ -117,7 +140,7 @@ protected:
   std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
  
   float dR(const float, const float, const float, const float);
-
+  
   /*! Helper functions now part of base class */
   float getEta2(const xAOD::Egamma* eg);
   float getEt(const xAOD::Electron* eg);
@@ -133,32 +156,44 @@ protected:
   float getEaccordion(const xAOD::Egamma *eg);
   float getE0Eaccordion(const xAOD::Egamma *eg);
   float getAvgMu();
-  
-  /* trig rings and offline rings helper method for feature extraction from xaod */
-  bool getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE );
-  bool getTrigCaloRings( const xAOD::TrigEMCluster *emCluster, std::vector<float> &ringsE );
-  void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
-  const xAOD::TruthParticle* matchTruth(const xAOD::TruthParticleContainer *truthCont, const xAOD::Egamma *eg,
-                                        bool &Zfound,bool &Wfound);
+
+  /*! Setters/Getters for caching Pileup info*/
+  float getAvgOnlineMu(){return m_onlmu;}
+  void setAvgOnlineMu();
+  float getAvgOfflineMu(){return m_offmu;}
+  void setAvgOfflineMu();
 
   /* calculate the number of primary vertex for each event*/
   void calculatePileupPrimaryVertex();
-  int m_nGoodVtx; 
-  int m_nPileupPrimaryVtx;
+  float getNPVtx(){return m_nPVertex;}
+  float getNGoodVertex(){return m_nGoodVertex;}
+ 
+  /* trig rings and offline rings helper method for feature extraction from xaod */
+  bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
+  bool getTrigCaloRings( const xAOD::TrigEMCluster *, std::vector<float> & );
+  void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
+
+  /* Helper function to write all trigger lint into a txt file */
+  bool write_trigger_list( const std::vector<std::string>  &);
+   // Monte carlo answer: Electron, Photon, EnhancedBias, Zee, Unknow
+  MonteCarlo::PDGID pdgid(const xAOD::Egamma *, const xAOD::TruthParticleContainer *,const xAOD::TruthParticle *&);
 
   /*! Retrieve ToolHandles */
   ITrigEgammaPlotTool *plot(){return &*m_plot;}
   Trig::TrigDecisionTool *tdt(){return &*m_trigdec;};
   Trig::ITrigEgammaMatchingTool *match(){return &*m_matchTool;}
+  Trig::ITrigEgammaEmulationTool *emulation(){return &*m_emulationTool;}
 
   // Retrieve Properties
   bool getDetail(){return m_detailedHists;}
   bool getTP(){return m_tp;}
+  bool getEmulation(){return m_doEmulation;}
 
   // TAccept
   Root::TAccept getAccept(){return m_accept;}
   void setAccept(Root::TAccept accept){m_accept=accept;}
   void setAccept(const HLT::TriggerElement *,const TrigInfo);
+  
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
@@ -167,9 +202,6 @@ protected:
 
   // ToolHandles
   ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;
-
-  /*! enable luminosity tool. If is false, we will use primary vertex calc */
-  bool m_useLumiTool;
   /*! Offline Lumi tool */
   ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
@@ -179,11 +211,10 @@ protected:
   bool m_doJpsiee;
   /*! TP Trigger Analysis */
   bool m_tp;
-
-  
+  /*! Emulation Analysis */
+  bool m_doEmulation;
   // Infra-structure members
   std::string m_file;
-  
   /*! String for offline container key */
   std::string m_offElContKey;
   /*! String for offline container key */
@@ -196,9 +227,7 @@ protected:
   std::vector<std::string> m_isemname;
   /*! LHResultNames for offline */
   std::vector<std::string> m_lhname;
-
   // Common data members
-  //
   /*! default probe pid for trigitems that don't have pid in their name */
   std::string m_defaultProbePid;
 
@@ -307,43 +336,86 @@ protected:
  * templates the TE to get a feature
  * or find the passing TE
  * **********************/
+
+// Attempt to create a unique_ptr from existing xAOD::TrigPassBits
+// crashes at container_clid and AuxVectorData line 424(359) 
+// when retrieving the cached auxid variable from store
+// Assuming my attempt to utilise smart pointers breaks the caching of aux data in ESDtoAOD.
+//
+// Instead template the conversion and always create transient passBit
+template<class CONT, class BITS> 
+std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::createBits(const CONT* container, const BITS* passbits){
+    ATH_MSG_DEBUG("Converting "<< ClassID_traits< BITS >::ID() );
+    std::unique_ptr<xAOD::TrigPassBits> xbits(new xAOD::TrigPassBits());
+    xbits->makePrivateStore();
+    xbits->reset(container);
+    xbits->setSize(passbits->size());
+    if(passbits->size()==0){
+        xbits->setPassBits( std::vector< uint32_t >() );
+    }
+    else {
+        xbits->setPassBits( std::vector< uint32_t >( ( ( passbits->size() - 1 ) / 32 ) + 1 ) );
+    }
+    for ( size_t b = 0, bmax = passbits->size(); b < bmax; ++b ) {
+        xbits->markPassing(b, passbits->isPassing(b));
+    }
+    return xbits;
+
+}
+
+template<class CONT> 
+std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::getBits(const HLT::TriggerElement* te,const CONT* container){
+    // For conversion of 2015/2016 data
+    const TrigPassBits *bits = getFeature<TrigPassBits>(te);
+    if(bits){
+        ATH_MSG_DEBUG("Run1 conversion");
+        ATH_MSG_DEBUG("create bits AOD to xAOD");
+        return createBits<CONT,TrigPassBits>(container,bits);
+    }
+    // Workaround, see above
+    const xAOD::TrigPassBits *xbits=getFeature<xAOD::TrigPassBits>(te);
+    if(xbits){
+        ATH_MSG_DEBUG("create bits xAOD to xAOD");
+        return createBits<CONT,xAOD::TrigPassBits>(container,xbits); 
+    }
+    else
+        return nullptr;
+}
+
 template<class T>
-const T*
-TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::string key){
-    if ( te == NULL ) return NULL;
-    if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
-        return NULL;
+const T* TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::string key){
+    if ( te == nullptr ) return nullptr;
+    if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
+        return nullptr;
     return ( (m_trigdec->ancestor<T>(te)).cptr() );
 }
 
 template<class T>
-bool
-TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
-    if ( te == NULL ) return false;
-    if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
+bool TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
+    if ( te == nullptr ) return false;
+    if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return false;
     return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
 }
 
 template <class T1, class T2>
-const T1*
-TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,const HLT::TriggerElement *> pairObj, float &dRmax,bool usePassbits,const std::string key){
+const T1* TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,const HLT::TriggerElement *> pairObj, float &dRmax,bool usePassbits,const std::string key){
     float eta = pairObj.first->eta();
     float phi = pairObj.first->phi();
     // Reset to resonable start value
     if(dRmax < 0.15) dRmax = 0.15;
     const auto *cont=getFeature<T2>(pairObj.second,key);
-    if(cont==NULL) return NULL;
-    const TrigPassBits *bits = NULL;
+    if(cont==nullptr) return nullptr;
+    std::unique_ptr<xAOD::TrigPassBits> bits = getBits<T2>(pairObj.second,cont);
+    
     if(usePassbits){ 
-        bits=getFeature<TrigPassBits>(pairObj.second);
-        if(bits==NULL) return NULL;
+        if(bits==nullptr) return nullptr;
     }
-    const T1 *cl = NULL;
+    const T1 *cl = nullptr;
     float dr=0.; 
     for(const auto& obj : *cont){
-        if( usePassbits && !HLT::isPassing(bits,obj,cont) ) continue; 
-        if(obj==NULL) continue;
+        if( usePassbits && !bits->isPassing(obj,cont) ) continue; 
+        if(obj==nullptr) continue;
         dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){
             dRmax=dr;
@@ -352,5 +424,6 @@ TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,c
     }
     return cl;
 }
+
 
 #endif
