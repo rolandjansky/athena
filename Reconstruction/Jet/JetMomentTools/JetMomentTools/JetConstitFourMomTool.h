@@ -13,7 +13,7 @@
 /// Tool to attach the LC constituent level 4-vector to EM Jets
 
 #include "JetRec/JetModifierBase.h"
-#include <TLorentzVector.h>
+#include <vector>
 
 class JetConstitFourMomTool : public JetModifierBase {
   ASG_TOOL_CLASS(JetConstitFourMomTool, IJetModifier)
@@ -23,17 +23,21 @@ class JetConstitFourMomTool : public JetModifierBase {
   // Constructor from tool name.
   JetConstitFourMomTool(std::string myname);
 
-  // Inherited method to modify a jet.
-  // calls calcConstitFourVec and saves into the jet
-  virtual int modifyJet(xAOD::Jet& jet) const;
+  StatusCode initialize();
 
-  // Local method to calculate and return the four-vector
-  void calcConstitFourVec(const xAOD::Jet& jet, xAOD::JetFourMom_t& constitFourVec) const;
+  // From IJetModifier base class
+  int modify(xAOD::JetContainer& jets) const;
+  int modifyJet(xAOD::Jet&) const {return 0;}
 
  private:
   
-  std::string m_jetScaleName;
   int m_constitScale;
+  std::vector<std::string> m_jetScaleNames;
+  std::vector<std::string> m_altColls;
+  std::vector<int>         m_altConstitScales;
+  std::vector<std::string> m_altJetScales;
+
+  std::vector<bool> m_isDetectorEtaPhi;
 
 };
 

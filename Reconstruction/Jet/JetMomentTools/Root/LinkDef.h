@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
 #include "JetMomentTools/JetConstitFourMomTool.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
