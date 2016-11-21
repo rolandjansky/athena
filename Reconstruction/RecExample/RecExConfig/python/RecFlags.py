@@ -982,6 +982,13 @@ class doPersistencyOptimization(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class doCaloRinger(JobProperty):
+    """ Enable ring-shaped calorimeter reconstruction
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 #
 # Defines a sub-container for the algorithm switches
 #class RecAlgs(JobPropertyContainer):
@@ -1012,7 +1019,7 @@ doWriteAOD, doWritexAOD, doWriteESD, doWriteBS, doWriteRDO, doWriteTAG, doWriteT
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing,doPersistencyOptimization]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec
