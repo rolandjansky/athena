@@ -1187,7 +1187,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing,
 
     const SiHitCollection* seHitColl(0);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      msg(MSG::ERROR) << "SubEvent Pixel SiHitCollection not found in StoreGate " << seStore.name() << endreq;
+      msg(MSG::ERROR) << "SubEvent Pixel SiHitCollection not found in StoreGate " << seStore.name() << endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");

@@ -15,11 +15,13 @@
 #include "TGraph.h"
 #include "TString.h"
 #include "TMath.h"
-#include "TRandom3.h"
 
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <cmath>
+
+#include "AtlasCLHEP_RandomGenerators/RandExpZiggurat.h"
+#include "CLHEP/Random/RandFlat.h"
 
 using namespace std;
 
@@ -28,13 +30,18 @@ const InterfaceID& BichselSimTool::interfaceID( ){ return IID_IBichselSimTool; }
 
 // Constructor with parameters:
 BichselSimTool::BichselSimTool(const std::string& type, const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent)
+  AthAlgTool(type,name,parent),
+  m_rndmSvc("AtDSFMTGenSvc",name),
+  m_rndmEngineName("PixelDigitization"),
+  m_rndmEngine(0)
 { 
 	declareInterface< BichselSimTool >( this );
 
   declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
   declareProperty("nCols", m_nCols = 1);
   declareProperty("LoopLimit", m_LoopLimit = 100000);
+  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in BichselSimTool");
+  declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 }
 
 // Destructor:
@@ -55,8 +62,23 @@ StatusCode BichselSimTool::initialize() {
   
   //** define your initialize below **//
 
-  // random seed
-  m_RandomGenerator = new TRandom3(0);
+  // random svc
+  if ( m_rndmSvc.retrieve().isFailure() ) {
+    ATH_MSG_ERROR ( " Can't get RndmSvc " );
+    return StatusCode::FAILURE;
+  } else { 
+    ATH_MSG_DEBUG ( "Retrieved RndmSvc" );
+  }
+
+  // get the random stream
+  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+  if (m_rndmEngine==0) {
+    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
+    return StatusCode::FAILURE;
+  } else { 
+    ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
+  }
 
   // clear data table
   m_BichselData.clear();
@@ -214,7 +236,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
 
     // sample hit position -- exponential distribution
     double HitPosition = 0.;
-    for(int iHit = 0; iHit < m_nCols; iHit++) HitPosition += m_RandomGenerator->Exp(lambda);
+    for(int iHit = 0; iHit < m_nCols; iHit++) HitPosition += CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
 
     // termination by hit position
     // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
@@ -225,7 +247,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     double TossEnergyLoss = -1.;
     // double TossIntX_record;
     while(TossEnergyLoss <= 0.){ // we have to do this because sometimes TossEnergyLoss will be negative due to too small TossIntX
-      double TossIntX = m_RandomGenerator->Uniform(0., IntXUpperBound);
+      double TossIntX = CLHEP::RandFlat::shoot(m_rndmEngine, 0., IntXUpperBound);
       TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
 
       // TossIntX_record = TossIntX;
