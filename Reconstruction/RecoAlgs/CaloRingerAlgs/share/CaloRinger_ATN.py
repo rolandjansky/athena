@@ -3,12 +3,11 @@
 
 ########################### RINGER CONF #################################
 #########################################################################
-from CaloRingerAlgs.CaloRingerFlags import jobproperties
-CaloRingerFlags = jobproperties.CaloRingerFlags
-CaloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
-CaloRingerFlags.doElectronIdentification.set_Value_and_Lock(True)
-CaloRingerFlags.doPhotonIdentification.set_Value_and_Lock(True)
-CaloRingerFlags.OutputLevel.set_Value_and_Lock(DEBUG)
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+caloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
+caloRingerFlags.doElectronIdentification.set_Value_and_Lock(True)
+caloRingerFlags.doPhotonIdentification.set_Value_and_Lock(True)
+caloRingerFlags.OutputLevel.set_Value_and_Lock(DEBUG)
 doCaloRinger = True
 #########################################################################
 
@@ -77,7 +76,7 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 ###########################  Ringer!!! ##################################
 #########################################################################
 if doCaloRinger:
-  include('CaloRingerAlgs/CaloRinger_reconstruction.py')
+  include('CaloRingerAlgs/CaloRinger_joboptions.py')
 #########################################################################
 
 ########################### POST-INCLUDE ################################
@@ -93,8 +92,5 @@ if doCaloRinger:
 
 ########################### POST-EXTRA ##################################
 #########################################################################
-if doDumpStoreGate:
-  StoreGateSvc = Service( "StoreGateSvc" )
-  StoreGateSvc.Dump = True  #true will dump data store contents
-  StoreGateSvc.OutputLevel = DEBUG
+# Insert extra post here
 #########################################################################
