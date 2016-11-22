@@ -40,9 +40,8 @@ private:
   float m_maxBarcode;
   bool m_requireCharged;
   bool m_requireStatus1;
-  bool m_requireDecayBeforePixel;
   // max decay radius for secondaries [mm];
-  // set to within (Run2) pixel by default
+  // set to within (Run2) pixel by default; set to <0 for no cut
   double m_maxProdVertRadius;
   int m_pdgId;
 };

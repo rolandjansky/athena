@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtml.xsl"?>
+<?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>
+<!DOCTYPE  hdef [
+<!ENTITY PI "3.1415926">
+<!ENTITY ETA "4.0">
+<!ENTITY ETAPixECMin "1.5">
+<!ENTITY ETASct "2.5">
+<!ENTITY ETASctECMin "1.0">
+<!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
+]>
+
+<hdef xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- Plots common to Run2 and ITK -->
+  &Common;
+  <!-- ITK-specific plots -->
+</hdef>
+

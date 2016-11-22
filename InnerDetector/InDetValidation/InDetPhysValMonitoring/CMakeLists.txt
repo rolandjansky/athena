@@ -2,6 +2,7 @@
 # Package: InDetPhysValMonitoring
 ################################################################################
 
+
 # Declare the package name:
 atlas_subdir( InDetPhysValMonitoring )
 
@@ -37,6 +38,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces )
+                          
 
 # External dependencies:
 find_package( Eigen )

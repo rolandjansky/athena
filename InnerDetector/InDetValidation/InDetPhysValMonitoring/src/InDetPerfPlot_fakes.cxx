@@ -8,7 +8,7 @@
  **/
 
 #include "InDetPerfPlot_fakes.h"
-// #include <cmath> //for M_PI
+#include <cmath> //for std::sqrt
 
 
 InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase *pParent, const std::string &sDir) :
@@ -227,7 +227,7 @@ InDetPerfPlot_fakes::finalizePlots() {
     ATH_MSG_INFO("InDetPerfPlot_fakes: some plots have null pointer, probably were not fully specified in the histogram definition xml file");
   }
   
-  int nPlot = 6;
+  static const int nPlot = 6;
   TH1* incTrkNum[nPlot] = {m_nTracks_vs_mu,m_nTracks_vs_mu2,m_nTracks_vs_mu3,m_incFakeNum_pt1,m_incFakeNum_pt2,m_incFakeNum_pt5};
   TH1* incTrkDenom[nPlot] = {m_nTruth_vs_mu,m_nTruth_vs_mu2,m_nTruth_vs_mu3,m_incFakeDenomEta_pt1,m_incFakeDenomEta_pt2,m_incFakeDenomEta_pt5};
   TH1* incTrk[nPlot] = {m_incTrkRate_vs_mu,m_incTrkRate_vs_mu2,m_incTrkRate_vs_mu3,m_incFakeEta_pt1,m_incFakeEta_pt2,m_incFakeEta_pt5};

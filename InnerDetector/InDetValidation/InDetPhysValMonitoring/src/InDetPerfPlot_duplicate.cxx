@@ -177,7 +177,7 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(const float prob1, const float pr
   float truthPt(tp.pt() / 1000);
   float eta1(trackParticle.eta());
   float eta2(particle.eta());
-  float truthEta(tp.eta());
+  float truthEta((truthPt>1e-7)? tp.eta(): std::nanf(""));
   float phi1(trackParticle.phi());
   float phi2(particle.phi());
   float truthPhi(tp.phi());

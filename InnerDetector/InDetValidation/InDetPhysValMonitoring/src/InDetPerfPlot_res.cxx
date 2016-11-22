@@ -11,10 +11,16 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include <vector>
 #include <utility>
+#include <cmath>
 #include "TH1D.h"
 #include "TH2D.h"
 
-using namespace TMath;
+namespace{
+  constexpr float twoPi = 2*M_PI;
+
+}
+
+//using namespace TMath;
 
 InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase *pParent, const std::string &sDir)  : InDetPlotBase(pParent, sDir),
   m_meanbasePlots(NPARAMS, nullptr),
@@ -238,9 +244,17 @@ InDetPerfPlot_res::initializePlots() {
 
 void
 InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
-  double truth_eta = truthprt.eta();  // eta of the truthParticle
-  double truth_pt = truthprt.pt();    // pt of the truthParticle
-  double log_trupt = Log10(truth_pt) - 3.0;
+  static const std::array<bool, NPARAMS> truthAvailable{
+    truthprt.isAvailable<float>("d0"),
+    truthprt.isAvailable<float>("z0"),
+    truthprt.isAvailable<float>("phi"),
+    truthprt.isAvailable<float>("theta"),
+    truthprt.isAvailable<float>("z0*sin(theta)"),
+    truthprt.isAvailable<float>("qOverP")}; //! Careful
+  //
+  const double truth_eta = truthprt.eta();  // eta of the truthParticle
+  const double truth_pt = truthprt.pt();    // pt of the truthParticle
+  const double log_trupt = std::log10(truth_pt) - 3.0;
 
   float truth_charge = 1;
 
@@ -250,69 +264,75 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
   trkParticleParams[Z0] = trkprt.z0();
   trkParticleParams[PHI] = trkprt.phi0();
   trkParticleParams[THETA] = trkprt.theta();
-  trkParticleParams[Z0SIN_THETA] = trkprt.z0() * std::sin(trkprt.theta());
+  const float trkSinTheta=std::sin(trkprt.theta()); //track sin(theta)
+  float truthSinTheta(NAN);
+  //static bool truthThetaAvailable(false), truthZ0SinTheta_OK(false), truthZ0SinThetaErr_OK(false);
+  const static bool truthThetaAvailable=truthAvailable[THETA];
+  const static bool truthZ0SinTheta_OK=(truthAvailable[Z0] and truthThetaAvailable);
+  const static bool truthZ0SinThetaErr_OK= (trkprt.isAvailable<float>("z0err") and trkprt.isAvailable<float>("thetaerr"));
+  
+  if (truthThetaAvailable){
+    truthSinTheta= std::sin(truthprt.auxdata< float >("theta"));
+  }
+  //
+  trkParticleParams[Z0SIN_THETA] = trkprt.z0() * trkSinTheta;
   // trkParticleParams[QOVERP] = trkprt.qOverP();
-  trkParticleParams[QOPT] = (trkprt.qOverP()) * 1000. / sin(trkprt.theta()); // This switches it to the "qOverPt" PRTT
+  
+  trkParticleParams[QOPT] = (trkprt.qOverP() * 1000. / trkSinTheta); // This switches it to the "qOverPt" PRTT
                                                                              // uses
 
   if (trkParticleParams[PHI] < 0) {
-    trkParticleParams[PHI] += 2 * CLHEP::pi;  // Add in the 2*pi correction for negative phi, as in PRTT
+    trkParticleParams[PHI] += twoPi;  // Add in the 2*pi correction for negative phi, as in PRTT
   }
   for (unsigned int var(0); var != NPARAMS; ++var) {
-    const std::string varName = m_paramNames.at(var);
+    const std::string varName = m_paramNames[var];
     const std::string errName = varName + std::string("err");
     float trackParameter = trkParticleParams[var];                      // needed for all of them
-    bool truthIsAvailable = truthprt.isAvailable<float>(varName);
-    if (varName == "qopt") {
-      truthIsAvailable = truthprt.isAvailable<float>("qOverP");                      // need to get q/pt to actually
-                                                                                     // fill
-    }
+    bool truthIsAvailable = truthAvailable[var];
     bool sigmaIsAvailable = trkprt.isAvailable<float>(errName);
     if (varName == "z0*sin(theta)") {
-      truthIsAvailable = (truthprt.isAvailable<float>("z0") and truthprt.isAvailable<float>("theta"));
-      sigmaIsAvailable = (trkprt.isAvailable<float>("z0err") and trkprt.isAvailable<float>("thetaerr"));
-      if (truthIsAvailable and sigmaIsAvailable){
-      //ATH_MSG_INFO("yeay! truth and sigma are available");
-      }
+      truthIsAvailable = truthZ0SinTheta_OK;
+      sigmaIsAvailable = truthZ0SinThetaErr_OK;
     }
     if (truthIsAvailable) {  // get the corresponding truth variable, only Fill if it exists
       float truthParameter = 0;
       float deviation(0);
       if (m_meanbasePlots[var]) {
         if (var == QOPT) {
-          truthParameter = (truthprt.auxdata< float >("qOverP")) * 1000. / sin(truthprt.auxdata< float >("theta"));
+          truthParameter = (truthprt.auxdata< float >("qOverP") * 1000. / truthSinTheta);
           if (truthParameter < 0) {
             truth_charge = -1;
           }
-          deviation = (trackParameter - truthParameter) * fabs(truth_pt / 1000.) * truth_charge;  // Used to match PRTT
+          deviation = (trackParameter - truthParameter) * fabs(truth_pt *0.001 ) * truth_charge;  // Used to match PRTT
                                                                                                   // version
         }else if (var == Z0SIN_THETA) {
-          truthParameter = truthprt.auxdata< float >("z0") * std::sin(truthprt.auxdata< float >("theta"));
+          truthParameter = truthprt.auxdata< float >("z0") * truthSinTheta;
           deviation = trackParameter - truthParameter;
         }else {
           truthParameter = (truthprt.auxdata< float >(varName));
           if ((var == PHI)and(truthParameter < 0)) {
-            truthParameter += 2 * CLHEP::pi; // add in 2*pi correction for negative phi, as in PRTT
+            truthParameter += twoPi; // add in 2*pi correction for negative phi, as in PRTT
           }
           deviation = trackParameter - truthParameter;
         }
         fillHisto(m_meanbasePlots[var],truth_eta, deviation);
 	      fillHisto(m_mean_vs_ptbasePlots[var],log_trupt, deviation);
-	      //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<deviation);
       }
       if (sigmaIsAvailable) {
-        //ATH_MSG_INFO("sigma exists for "<<varName);
         float sigma(0);
         if (var == Z0SIN_THETA) {
           float z0_sigma = (trkprt.auxdata< float >("z0err"));
           float theta_sigma = (trkprt.auxdata< float >("thetaerr"));
-          const float theta = trkprt.theta();
-          const float cosTheta = std::cos(theta);
-          const float sinTheta = std::sin(theta);
-          const float z0 = trkprt.z0();
-          const float sigmaSq = ((z0_sigma * sinTheta) * (z0_sigma * sinTheta)) +
-                                ((z0 * theta_sigma * cosTheta) * (z0 * theta_sigma * cosTheta));
-          sigma = std::sqrt(sigmaSq);
+          //const float theta = trkprt.theta();
+          const float cosTheta = std::cos(trkParticleParams[THETA]);
+          const float sinTheta = trkSinTheta;
+          const float z0 = trkParticleParams[Z0];
+          const float term1 = z0_sigma * sinTheta;
+          const float term2 = z0 * theta_sigma * cosTheta;
+          //const float sigmaSq = ((z0_sigma * sinTheta) * (z0_sigma * sinTheta)) +
+          //                      ((z0 * theta_sigma * cosTheta) * (z0 * theta_sigma * cosTheta));
+          //sigma = std::sqrt(sigmaSq);
+          sigma=std::sqrt( (term1 * term1) + (term2 * term2) );
         } else {
           sigma = (trkprt.auxdata< float >(errName));
         }
@@ -325,7 +345,6 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
           }
           fillHisto(m_pullPlots[var],pull);
           fillHisto(m_pullbasePlots[var],truth_eta, pull);
-          //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<pull);
         }
       }
     }// REAL END OF IF(TRUTHISAVAILABLE) STATEMENT
@@ -333,7 +352,7 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
 }
 
 void
-InDetPerfPlot_res::Refinement(TH1D *temp, std::string width, int var, int j, const std::vector<TH1 *> &tvec,
+InDetPerfPlot_res::Refinement(TH1D *temp, const std::string & width, int var, int j, const std::vector<TH1 *> &tvec,
                               const std::vector<TH1 *> &rvec) {
   if (temp->GetXaxis()->TestBit(TAxis::kAxisRange)) {
     // remove range if set previously

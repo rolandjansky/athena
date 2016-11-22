@@ -43,7 +43,7 @@
   <y title="Entries"/>
 </h>
 <h id="basicphi" type="TH1F" title="#phi of selected tracks">
-  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <x title="#phi" n="100" lo="-4;" hi="4"/>
   <y title="Entries"/>
 </h>
 <h id="basiceta" type="TH1F" title="#eta of selected tracks">
@@ -140,20 +140,20 @@
   <x title="z0" n="20" lo="-300" hi="300"/>
   <y title="Fake Rate" lo="0" hi="100"/>
 </h>
-<h id="fakeEtaTotal" type="TProfile" title="Fake Rate (primary & secondary)">
-  <x title="#eta" n="40" lo="-4" hi="4"/>
+<h id="fakeEtaTotal" type="TProfile" title="Fake Rate (primary and secondary)">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="1"/>
 </h>
 <h id="fakeetaPrimary" type="TProfile" title="Fake Rate (primary)">
-  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="1"/>
 </h> 
 <h id="fakeetaSecondary" type="TProfile" title="Fake Rate (secondary)">
-  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="1"/>
 </h>
 <h id="fakeetaUnlinkedFrac" type="TProfile" title="Fake Rate (unlinked)">
-  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0" hi="1"/>
 </h>
 

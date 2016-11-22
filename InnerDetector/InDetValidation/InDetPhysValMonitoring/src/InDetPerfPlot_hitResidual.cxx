@@ -142,7 +142,7 @@ InDetPerfPlot_hitResidual::initializePlots() {
 
 void
 InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
-  const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
+  const static bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
   static int warnCount(0);
   if (!hitDetailsAvailable) {
     if (warnCount++<10){
@@ -166,20 +166,21 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
       if (result_det.size() != result_residualLocX.size()) {
         ATH_MSG_WARNING("Vectors of results are not matched in size!");
       }
-      for (unsigned int idx = 0; idx < result_region.size(); ++idx) {
-        const int measureType = result_measureType.at(idx);
+      const auto resultSize = result_region.size();
+      for (unsigned int idx = 0; idx < resultSize; ++idx) {
+        const int measureType = result_measureType[idx];
         if (measureType != 4) {
           continue; // NP: Only use unbiased hits for the hit residuals ;)
         }
-        const int det = result_det.at(idx);
-        const int region = result_region.at(idx);
+        const int det = result_det[idx];
+        const int region = result_region[idx];
         // const int layer = result_iLayer.at(idx);
-        const int width = result_phiWidth.at(idx);
-        const int etaWidth = result_etaWidth.at(idx);
-        const float residualLocX = result_residualLocX.at(idx);
-        const float pullLocX = result_pullLocX.at(idx);
-        const float residualLocY = result_residualLocY.at(idx);
-        const float pullLocY = result_pullLocY.at(idx);
+        const int width = result_phiWidth[idx];
+        const int etaWidth = result_etaWidth[idx];
+        const float residualLocX = result_residualLocX[idx];
+        const float pullLocX = result_pullLocX[idx];
+        const float residualLocY = result_residualLocY[idx];
+        const float pullLocY = result_pullLocY[idx];
         if ((det == INVALID_DETECTOR) or(region == INVALID_REGION)) {
           continue;
         }

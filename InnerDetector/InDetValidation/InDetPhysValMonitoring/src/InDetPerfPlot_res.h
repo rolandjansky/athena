@@ -130,7 +130,7 @@ private:
   std::vector<std::string> m_paramNames;
 
   void initializePlots();
-  void Refinement(TH1D *temp, std::string width, int var, int j, const std::vector<TH1 *> &tvec,
+  void Refinement(TH1D *temp, const std::string & width, int var, int j, const std::vector<TH1 *> &tvec,
                   const std::vector<TH1 *> &rvec);
   void finalizePlots();
 };

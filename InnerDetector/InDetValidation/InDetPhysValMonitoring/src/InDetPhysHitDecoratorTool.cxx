@@ -201,11 +201,15 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         if (mesb && biasedTrackParameters) {
           ATH_MSG_DEBUG("mesb and biased track parameters are ok");
           // for outliers, the measurement is not part of the fit, so track parameters are already unbiased
+          std::unique_ptr<const Trk::TrackParameters> cleanup_trackparam;
           const Trk::TrackParameters *trackParameters =
             (!thisTrackState->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(
               biasedTrackParameters,
               mesb) :
             biasedTrackParameters;
+          if (trackParameters != biasedTrackParameters) {
+              cleanup_trackparam.reset(trackParameters);
+          }
           if (not trackParameters) {
             ATH_MSG_DEBUG("unbiased track parameters pointer is NULL");
           }
