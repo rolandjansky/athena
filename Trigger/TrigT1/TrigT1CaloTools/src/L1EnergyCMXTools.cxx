@@ -826,26 +826,63 @@ void L1EnergyCMXTools::etMapsToEtSums(
     xAOD::CMXEtSums *missEtRestricted = 0;
     xAOD::CMXEtSums *missEtSigRestricted = 0;
 
-    unsigned int nslices = systemVec.size() / 2;
-    std::vector<uint16_t> data(nslices);
-    std::vector<uint32_t> error(nslices);
+    int nslicesFull = 0;
+    int nslicesRestricted = 0;
+    
+    std::map<int, bool> isRestrictedMap;
+
+
     for (unsigned int i = 0; i < systemVec.size(); ++i)
     {
-        unsigned int slice = i % nslices;
+        bool isRestricted = (systemVec[i]->roiWord0() >> 26) & 1; 
+        isRestrictedMap[i] = isRestricted;
+        if (isRestricted) {
+            nslicesRestricted++;
+        }else{
+            nslicesFull++;
+        }
+        // ATH_MSG_INFO("isRestriced=" << isRestricted << " slice=" << (isRestricted? nslicesRestricted: nslicesFull) 
+        //  <<  " et=" << systemVec[i]->et() << " etSumHits=" << systemVec[i]->etSumHits());
+    }
+
+    std::vector<uint16_t> dataFull(nslicesFull);
+    std::vector<uint32_t> errorFull(nslicesFull);
+
+    std::vector<uint16_t> dataRestricted(nslicesRestricted);
+    std::vector<uint32_t> errorRestricted(nslicesRestricted);
+    
+    int iSliceFull = 0;
+    int iSliceRestricted = 0;
+    int *iSlice = 0;
+
+    for (unsigned int i = 0; i < systemVec.size(); ++i)
+    {
         SystemEnergy *energy = systemVec[i];
-        bool restricted = (energy->roiWord0() >> 26) & 1;
+        bool restricted = isRestrictedMap[i];
+
+        std::vector<uint16_t>* data;
+        std::vector<uint32_t>* error;
         if (restricted)
         {
             sumEt = &sumEtRestricted;
             missEt = &missEtRestricted;
             missEtSig = &missEtSigRestricted;
+            iSlice = &iSliceRestricted;
+            data = &dataRestricted;
+            error = &errorRestricted;
         }
         else
         {
             sumEt = &sumEtFull;
             missEt = &missEtFull;
             missEtSig = &missEtSigFull;
+            iSlice = &iSliceFull;
+            data = &dataFull;
+            error = &errorFull;
         }
+
+        unsigned int slice = *iSlice;
+
 
         unsigned int etSumHits = energy->etSumHits();
         if (etSumHits)
@@ -857,15 +894,17 @@ void L1EnergyCMXTools::etMapsToEtSums(
                 (*sumEt)->initialize(1, restricted
                                             ? CMXEtSums::SUM_ET_RESTRICTED
                                             : CMXEtSums::SUM_ET_STANDARD,
-                                     data, data, data, error, error, error, peak);
+                                     *data, *data, *data, *error, *error, *error, peak);
                 cmxEtSumsVec->push_back(*sumEt);
             }
             std::vector<uint16_t> etVec((*sumEt)->etVec());
             etVec[slice] = etSumHits;
 
-            (*sumEt)->addEx(etVec, error);
-            (*sumEt)->addEy(etVec, error);
-            (*sumEt)->addEt(etVec, error);
+            (*sumEt)->addEx(etVec, *error);
+            (*sumEt)->addEy(etVec, *error);
+            (*sumEt)->addEt(etVec, *error);
+
+            // ATH_MSG_INFO("slice=" << slice << " restricted=" << restricted << " etVec=" << (*sumEt)->etVec() << " etSumHits=" << etSumHits);
         }
         unsigned int etMissHits = energy->etMissHits();
         if (etMissHits)
@@ -877,14 +916,14 @@ void L1EnergyCMXTools::etMapsToEtSums(
                 (*missEt)->initialize(1, restricted
                                              ? CMXEtSums::MISSING_ET_RESTRICTED
                                              : CMXEtSums::MISSING_ET_STANDARD,
-                                      data, data, data, error, error, error, peak);
+                                      *data, *data, *data, *error, *error, *error, peak);
                 cmxEtSumsVec->push_back(*missEt);
             }
             std::vector<uint16_t> etVec((*missEt)->etVec());
             etVec[slice] = etMissHits;
-            (*missEt)->addEx(etVec, error);
-            (*missEt)->addEy(etVec, error);
-            (*missEt)->addEt(etVec, error);
+            (*missEt)->addEx(etVec, *error);
+            (*missEt)->addEy(etVec, *error);
+            (*missEt)->addEt(etVec, *error);
         }
         unsigned int etMissSigHits = energy->metSigHits();
         if (etMissSigHits)
@@ -893,15 +932,16 @@ void L1EnergyCMXTools::etMapsToEtSums(
             {
                 *missEtSig = new xAOD::CMXEtSums;
                 (*missEtSig)->makePrivateStore();
-                (*missEtSig)->initialize(1, CMXEtSums::MISSING_ET_SIG_STANDARD, data, data, data, error, error, error, peak);
+                (*missEtSig)->initialize(1, CMXEtSums::MISSING_ET_SIG_STANDARD, *data, *data, *data, *error, *error, *error, peak);
                 cmxEtSumsVec->push_back(*missEtSig);
             }
             std::vector<uint16_t> etVec((*missEtSig)->etVec());
             etVec[slice] = etMissSigHits;
-            (*missEtSig)->addEx(etVec, error);
-            (*missEtSig)->addEy(etVec, error);
-            (*missEtSig)->addEt(etVec, error);
+            (*missEtSig)->addEx(etVec, *error);
+            (*missEtSig)->addEy(etVec, *error);
+            (*missEtSig)->addEt(etVec, *error);
         }
+        (*iSlice)++;
     }
 }
 
