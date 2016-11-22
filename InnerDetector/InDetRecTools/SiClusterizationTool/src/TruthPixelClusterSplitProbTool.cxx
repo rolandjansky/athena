@@ -3,18 +3,18 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Name    : NnPixelClusterSplitProbTool.cxx
+/// Name    : TruthPixelClusterSplitProbTool.cxx
 /// Package : SiClusterizationTool 
-/// Author  : Giacinto Piacquadio (PH-ADE-ID)
-/// Created : January 2011
+/// Author  : Roland Jansky & Felix Cormier
+/// Created : April 2016
 ///
 /// DESCRIPTION: Compute cluster splitting probabilities 
 /// (for splitting a cluster into  2 .... N subclusters)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SiClusterizationTool/NnPixelClusterSplitProbTool.h"
+#include "SiClusterizationTool/TruthPixelClusterSplitProbTool.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
-#include "SiClusterizationTool/NnClusterizationFactory.h"
+#include "SiClusterizationTool/TruthClusterizationFactory.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "VxVertex/RecVertex.h"
@@ -26,9 +26,9 @@ namespace InDet
 {
   
 
-  NnPixelClusterSplitProbTool::NnPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
+  TruthPixelClusterSplitProbTool::TruthPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
           :AthAlgTool(t,n,p),
-           m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
+           m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this),
            m_iBeamCondSvc("BeamCondSvc",n),
            m_useBeamSpotInfo(true)
   {
@@ -40,7 +40,7 @@ namespace InDet
 
     declareInterface<IPixelClusterSplitProbTool>(this);
 
-    declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
+    declareProperty("NnClusterizationFactory",m_truthClusterizationFactory);
     declareProperty("BeamCondSv",m_iBeamCondSvc);
     declareProperty("PriorMultiplicityContent",m_priorMultiplicityContent);
     declareProperty("useBeamSpotInfo",m_useBeamSpotInfo);
@@ -49,13 +49,13 @@ namespace InDet
   }
   
 
-  StatusCode NnPixelClusterSplitProbTool::initialize()
+  StatusCode TruthPixelClusterSplitProbTool::initialize()
   {
     
  
-    if (m_NnClusterizationFactory.retrieve().isFailure())
+    if (m_truthClusterizationFactory.retrieve().isFailure())
     {
-      ATH_MSG_ERROR(" Unable to retrieve "<< m_NnClusterizationFactory );
+      ATH_MSG_ERROR(" Unable to retrieve "<< m_truthClusterizationFactory );
       return StatusCode::FAILURE;
     }
 
@@ -65,22 +65,14 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO(" Cluster split prob tool initialized successfully "<< m_NnClusterizationFactory );
+    ATH_MSG_INFO(" Cluster split prob tool initialized successfully "<< m_truthClusterizationFactory );
     return StatusCode::SUCCESS;
   }
 
   
-  InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster ) const
+  InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster ) const
   {
-    
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-    Amg::Vector3D beamSpotPosition(beamposition.position()[0],
-                                beamposition.position()[1],
-                                beamposition.position()[2]);
-
-    if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
-
-    std::vector<double> vectorOfProbs=m_NnClusterizationFactory->estimateNumberOfParticles(origCluster,beamSpotPosition);
+    std::vector<double> vectorOfProbs=m_truthClusterizationFactory->estimateNumberOfParticles(origCluster);
 
     ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );
 
@@ -103,17 +95,11 @@ namespace InDet
     return compileSplitProbability(vectorOfProbs); 
   }
 
-  InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const
+  InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const
   {
-    
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-    Amg::Vector3D beamSpotPosition(beamposition.position()[0],
-                                beamposition.position()[1],
-                                beamposition.position()[2]);
-
-    if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
-
-    std::vector<double> vectorOfProbs=m_NnClusterizationFactory->estimateNumberOfParticles(origCluster, trackParameters.associatedSurface(), trackParameters);
+    //ugly thing to stop unused variable warning
+    if(&trackParameters) {};  
+    std::vector<double> vectorOfProbs=m_truthClusterizationFactory->estimateNumberOfParticles(origCluster);
 
     ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );
 
@@ -138,7 +124,7 @@ namespace InDet
 
 
 
-  InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::compileSplitProbability(std::vector<double>& vectorOfProbs ) const
+  InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::compileSplitProbability(std::vector<double>& vectorOfProbs ) const
   {
 
 

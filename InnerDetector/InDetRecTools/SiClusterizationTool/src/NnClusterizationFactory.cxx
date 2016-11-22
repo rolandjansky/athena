@@ -63,7 +63,7 @@ namespace InDet {
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
           m_thresholdIndicator("_thresholds"),
-          m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool"),
+          m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool", this),
           m_calibSvc("PixelCalibSvc", name),
           m_useToT(true),
           m_addIBL(false),
@@ -1002,7 +1002,9 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       for ( ; rdosBegin!= rdosEnd &&  tot != totList.end(); ++tot, ++rdosBegin, ++totRecreated ){
            // recreate the charge: should be a method of the calibSvc
         int tot0 = *tot;
+
         float ch = m_calibSvc->getCharge(*rdosBegin,tot0);
+
         chListRecreated.push_back(ch);
         totListRecreated.push_back(tot0);
       }

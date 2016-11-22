@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 // forward declare not possible (typedef)
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -47,7 +46,7 @@ namespace InDet {
     class IPixelClusterSplitProbTool;
 
 
-    class MergedPixelsTool : public PixelClusteringToolBase, virtual public IIncidentListener 
+    class MergedPixelsTool : public PixelClusteringToolBase
     {
     public:
 
@@ -96,8 +95,6 @@ namespace InDet {
     ///Statistics output                
         StatusCode finalize();
 
-    /** handle for incident service */
-    void handle(const Incident& inc) ;
 
     private:
         typedef std::vector<Identifier> RDO_Vector;
@@ -132,8 +129,33 @@ namespace InDet {
             InDetDD::SiDetectorElement* element,
             const PixelID& pixelID) const;
 
+	// Functions for merging broken cluster segments (to be used for upgrade studies)
+	// ITk: This function checks if two barrel clusters are potentially a single cluster which is broken into two pieces  
+	bool mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
+				    const std::vector<Identifier>& group2,
+				    InDetDD::SiDetectorElement* element,
+				    const PixelID& pixelID) const;
+	// ITk: this function checks if two to-be-merged barrel proto-clusters have sizeZ consistent with cluster positions 
+	bool mergeTwoClusters(const std::vector<Identifier>& group1, 
+			      const std::vector<Identifier>& group2,
+			      InDetDD::SiDetectorElement* element,
+			      const PixelID& pixelID) const;
+
+	// ITk: checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
+	// checkSizeZ()=-1 if cluster is too small
+	// checkSizeZ()=0 if cluster sizeZ is within allowed range
+        // checkSizeZ()=1 if cluster is too large
+	// in the future, it may be changed to return deltaSizeZ 
+	int checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+	// this function returns expected sizeZ
+	int expectedSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+	// this function returns size of the maximum gap between two cluster fragments  
+	int maxGap(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+	//------- end of declaration of new functions
+
+
         ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
-       ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc;        
+	ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;        
         bool						                        m_emulateSplitter;      //!< don't split - only emulate the split    
         unsigned int                                        m_minSplitSize;         //!< minimum split size, regulates also the cluster splitting
         unsigned int                                        m_maxSplitSize;         //!< minimum split size, regulates also the cluster splitting
@@ -143,15 +165,22 @@ namespace InDet {
 	bool						    m_doIBLSplitting;
 	bool						    m_IBLAbsent;
 
-        mutable InDet::PixelGangedClusterAmbiguities*       m_splitClusterMap;      //!< the actual split map         
-        std::string                                         m_splitClusterMapName; //!< split cluster ambiguity map
+	bool                                                m_doMergeBrokenClusters; // ITk: switch to turn ON/OFF merging of broken clusters
+	bool                                                m_doRemoveClustersWithToTequalSize; // ITk: switch to remove clusters with ToT=size
+	bool                                                m_doCheckSizeBeforeMerging; // ITk: switch to check size of to-be-merged clusters
+	double                                              m_beam_spread; // ITK: size of the luminous region, need to check cluster size
+	double                                              m_lossThreshold; // maximum probability to loose N_mis consequitive pixels in a cluster 
+	double                                              m_pixelEff;      // pixel efficiency (it depends on cluster eta; use smaller pixel efficiency) 
+	
+        std::string                                         m_splitClusterMapName;//No longer used Remove later //!< split cluster ambiguity map
 
         mutable unsigned int                                m_processedClusters;    //!< statistics output
         mutable unsigned int                                m_modifiedOrigClusters; //!< statistics output
         mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
         mutable unsigned int                                m_splitProdClusters;    //!< statistics output
         mutable unsigned int                                m_largeClusters;        //!< statistics output
-        mutable int                                                 m_overflowIBLToT;                                                                                          
+        mutable int                                         m_overflowIBLToT;                                                                                          
+        std::vector<int>          			    m_minToT;               /**< ToT cut */
         ServiceHandle<IPixelOfflineCalibSvc>                m_pixofflinecalibSvc;
         //ServiceHandle< StoreGateSvc >                       m_detStore;
         //const PixelID*                                      m_idHelper;

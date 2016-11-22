@@ -67,18 +67,7 @@ StatusCode  ClusterMakerTool::initialize(){
   // Code entered here will be executed once at program start.
 
    ATH_MSG_INFO ( name() << " initialize()" );
-
-/*
-   if (m_IBLParameterSvc.retrieve().isFailure()) { 
-     ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
-   } 
-   else { 
-     m_offlineCalibSvc.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_offlineCalibSvc.typeAndName(),"PixelOfflineCalibSvc")); 
-     m_calibSvc.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_calibSvc.typeAndName(),"PixelCalibSvc")); 
-     m_IBLParameterSvc->setBoolParameters(m_calibrateCharge,"UsePixelCalibCondDB"); 
-   } 
-*/
-
+   
    // Protect from the situation in which the PixelOfflineCalibSvc is not 
    // configured: that should be the case if no PixelRDO are read in.
    // AA 01/10/2009
@@ -195,7 +184,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
+
       float charge = m_calibSvc->getCharge(pixid,ToT);
+
       chargeList.push_back(charge);
     }
   }
@@ -313,7 +304,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                          double splitProb2) const{
 	
  
-  if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endmsg;
   // Add protection in case m_offlineCalibSvc is not configured
   // but errorStrategy==2 is requested.
   // That should never happen, since the m_offlineCalibSvc should be switched 
@@ -350,13 +341,14 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   for (int i=0; i<nRDO; i++) {
      Identifier pixid=rdoList[i];
      int ToT=totList[i];
-
+     
      float charge = ToT;
      if (m_calibrateCharge){
+
        charge = m_calibSvc->getCharge(pixid,ToT);
+
        chargeList.push_back(charge);
      }
-
      //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
      int row = pixelID.phi_index(pixid);
      int col = pixelID.eta_index(pixid);
@@ -391,7 +383,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if(qRowMin+qRowMax > 0) omegax = qRowMax/float(qRowMin+qRowMax);
   if(qColMin+qColMax > 0) omegay = qColMax/float(qColMin+qColMax);   
     
-  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endmsg;
 
 // ask for Lorentz correction, get global position
   double shift = element->getLorentzCorrection();
@@ -558,7 +550,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	}
 
 	// rotation for endcap SCT
-	if(element->design().shape() == InDetDD::Trapezoid) {
+	if(element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus) {
           double sn      = element->sinStereoLocal(localPos); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
@@ -603,7 +595,7 @@ double ClusterMakerTool::getPixelCTBPhiError(int layer, int phi,
 
  // shouldn't really happen...
   if(msgLvl(MSG::WARNING)) msg() << "Unexpected layer and phi numbers: layer = "
-	   << layer << " and phi = " << phi << endreq;
+	   << layer << " and phi = " << phi << endmsg;
  return 14.6*micrometer;
 
 }

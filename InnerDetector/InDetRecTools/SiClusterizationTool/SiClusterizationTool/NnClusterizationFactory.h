@@ -215,6 +215,7 @@ namespace InDet {
     bool m_useRecenteringNNWithTracks;
     double m_correctLorShiftBarrelWithoutTracks;
     double m_correctLorShiftBarrelWithTracks;
+    
    };
    
  }//end InDet namespace

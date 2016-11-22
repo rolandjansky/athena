@@ -3,44 +3,35 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Name    : NnClusterizationFactory.cxx
+/// Name    : TruthPixelClusterSplitter.cxx
 /// Package : SiClusterizationTool 
-/// Author  : Andi Salzburger (CERN PH-ADP)
-///           Giacinto Piacquadio (PH-ADE-ID)
-/// Created : January 2011
+/// Author  : Roland Jansky & Felix Cormier
+/// Created : April 2016
 ///
-/// DESCRIPTION: Split cluster in sub-clusters,
-///              given a certain PixelClusterSplitProb
-///              If no PixelClusterSplitProb is given
-///              split cluster in 1,2 and 3 sub-clusters 
-///              and store all results.
+/// DESCRIPTION: Split cluster given the truth information
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-#include "SiClusterizationTool/NnPixelClusterSplitter.h"
+#include "SiClusterizationTool/TruthPixelClusterSplitter.h"
 #include "VxVertex/RecVertex.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "SiClusterizationTool/NnClusterizationFactory.h"
+#include "SiClusterizationTool/TruthClusterizationFactory.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-
-
-
-InDet::NnPixelClusterSplitter::NnPixelClusterSplitter(const std::string &type,
+InDet::TruthPixelClusterSplitter::TruthPixelClusterSplitter(const std::string &type,
         const std::string &name,
         const IInterface *parent) :
         AthAlgTool(type,name,parent),
-        m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
+        m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this),
         m_iBeamCondSvc("BeamCondSvc",name),
         m_useBeamSpotInfo(true)
 {
    declareInterface<IPixelClusterSplitter>(this);
 
-   declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
+   declareProperty("NnClusterizationFactory",m_truthClusterizationFactory);
    declareProperty("BeamCondSv",m_iBeamCondSvc);
    declareProperty("ThresholdSplittingIntoTwoClusters",m_thresholdSplittingIntoTwoClusters=0.95);
    declareProperty("ThresholdSplittingIntoThreeClusters",m_thresholdSplittingIntoThreeClusters=0.90);
@@ -49,14 +40,14 @@ InDet::NnPixelClusterSplitter::NnPixelClusterSplitter(const std::string &type,
    
 }
 
-InDet::NnPixelClusterSplitter::~NnPixelClusterSplitter()
+InDet::TruthPixelClusterSplitter::~TruthPixelClusterSplitter()
 {}
 
-StatusCode InDet::NnPixelClusterSplitter::initialize() {
+StatusCode InDet::TruthPixelClusterSplitter::initialize() {
     
-  if (m_NnClusterizationFactory.retrieve().isFailure())
+  if (m_truthClusterizationFactory.retrieve().isFailure())
   {
-    ATH_MSG_ERROR(" Unable to retrieve "<< m_NnClusterizationFactory );
+    ATH_MSG_ERROR(" Unable to retrieve "<< m_truthClusterizationFactory );
     return StatusCode::FAILURE;
   }
   
@@ -66,16 +57,16 @@ StatusCode InDet::NnPixelClusterSplitter::initialize() {
     return StatusCode::FAILURE;
   }
   
-  ATH_MSG_INFO(" Cluster splitter initialized successfully "<< m_NnClusterizationFactory );
+  ATH_MSG_INFO(" Cluster splitter initialized successfully "<< m_truthClusterizationFactory );
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDet::NnPixelClusterSplitter::finalize() {
+StatusCode InDet::TruthPixelClusterSplitter::finalize() {
     return StatusCode::SUCCESS;
 }
 
 /* default method which simply splits cluster into 2 */
-std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluster(const InDet::PixelCluster& origCluster ) const
+std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitCluster(const InDet::PixelCluster& origCluster ) const
 {
 
   //add treatment for b-layer only HERE
@@ -109,10 +100,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   
   if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
 
-  std::vector<Amg::Vector2D> localPosition=m_NnClusterizationFactory->estimatePositions(origCluster,
-                                                                                             beamSpotPosition,
-                                                                                             errorMatrix,
-                                                                                             2);
+  std::vector<Amg::Vector2D> localPosition=m_truthClusterizationFactory->estimatePositions(origCluster);
 
 
 
@@ -132,7 +120,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
 
 }
 
-std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluster(const InDet::PixelCluster& origCluster, 
+std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitCluster(const InDet::PixelCluster& origCluster, 
                                                                                   const InDet::PixelClusterSplitProb& splitProb) const
 {
 
@@ -211,7 +199,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
 
   ATH_MSG_VERBOSE( " Decided for n. particles: " << nParticles << "." );;
 
-  std::vector<Amg::Vector2D>     allLocalPositions;
+  std::vector<Amg::Vector2D>      allLocalPositions;
   std::vector<Amg::MatrixX>       allErrorMatrix;
 
  Amg::Vector3D beamSpotPosition=Amg::Vector3D(
@@ -226,10 +214,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   if (nParticles==1)
   {
     std::vector<Amg::MatrixX> errorMatrix;
-    std::vector<Amg::Vector2D> localPosition=m_NnClusterizationFactory->estimatePositions(origCluster,
-                                                                                               beamSpotPosition,
-                                                                                               errorMatrix,
-                                                                                               1);
+    std::vector<Amg::Vector2D> localPosition=m_truthClusterizationFactory->estimatePositions(origCluster);
 
     if (errorMatrix.size()!=1 || localPosition.size()!=1)
     {
@@ -242,10 +227,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   {
 
     std::vector<Amg::MatrixX> errorMatrix;
-    std::vector<Amg::Vector2D> localPosition=m_NnClusterizationFactory->estimatePositions(origCluster,
-                                                                                               beamSpotPosition,
-                                                                                               errorMatrix,
-                                                                                               2);
+    std::vector<Amg::Vector2D> localPosition=m_truthClusterizationFactory->estimatePositions(origCluster);
     
     if (errorMatrix.size()!=2 || localPosition.size()!=2)
     {
@@ -259,10 +241,7 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   {
 
     std::vector<Amg::MatrixX> errorMatrix;
-    std::vector<Amg::Vector2D> localPosition=m_NnClusterizationFactory->estimatePositions(origCluster,
-                                                                                               beamSpotPosition,
-                                                                                               errorMatrix,
-                                                                                               3);
+    std::vector<Amg::Vector2D> localPosition=m_truthClusterizationFactory->estimatePositions(origCluster);
     
     if (errorMatrix.size()!=3 || localPosition.size()!=3)
     {

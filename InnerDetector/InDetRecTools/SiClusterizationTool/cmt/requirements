@@ -22,8 +22,8 @@ use InDetReadoutGeometry 		InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
 use InDetConditionsSummaryService 	InDetConditionsSummaryService-* InnerDetector/InDetConditions
 
 use TrkParameters			TrkParameters-*			Tracking/TrkEvent
-use GeoPrimitives       GeoPrimitives-*              DetectorDescription
-use EventPrimitives       EventPrimitives-*              Event
+use GeoPrimitives       		GeoPrimitives-*              	DetectorDescription
+use EventPrimitives       		EventPrimitives-*              	Event
 
 private
 use TrkEventPrimitives   		TrkEventPrimitives-*    	Tracking/TrkEvent
@@ -39,6 +39,8 @@ use TrkNeuralNetworkUtils               TrkNeuralNetworkUtils-*         Tracking
 use VxVertex                            VxVertex-*                      Tracking/TrkEvent
 use TrkSurfaces                         TrkSurfaces-*                   Tracking/TrkDetDescr
 use PixelGeoModel                       PixelGeoModel-*                 InnerDetector/InDetDetDescr 
+use InDetSimData                        InDetSimData-*                  InnerDetector/InDetRawEvent
+use AtlasHepMC                          AtlasHepMC-*                    External
 
 public
 

@@ -20,7 +20,7 @@ namespace InDet
       const std::string &name,
       const IInterface *parent) :
       AthAlgTool(type,name,parent),
-      m_clusterMaker("InDet::ClusterMakerTool"),
+      m_clusterMaker("InDet::ClusterMakerTool", this),
       m_posStrategy(0),
       m_errorStrategy(1),
       m_acceptDiagonalClusters(1),
@@ -41,27 +41,27 @@ namespace InDet
 
   StatusCode PixelClusteringToolBase::initialize()
   {
-    msg(MSG::INFO) << "initialize()" << endreq;
+    msg(MSG::INFO) << "initialize()" << endmsg;
     if ( m_clusterMaker.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << m_clusterMaker.propertyName() << ": Failed to retrieve tool " << m_clusterMaker.type() << endreq;
+      msg(MSG::FATAL) << m_clusterMaker.propertyName() << ": Failed to retrieve tool " << m_clusterMaker.type() << endmsg;
       return StatusCode::FAILURE;
     }
     else
     {
-      msg(MSG::INFO) << m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type() << endreq;
+      msg(MSG::INFO) << m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type() << endmsg;
     }
 
    StatusCode sc = m_summarySvc.retrieve();
    if (sc.isFailure() || !m_summarySvc) {
-      msg(MSG::WARNING) <<  m_summarySvc.type() << " not found! "<< endreq;
+      msg(MSG::WARNING) <<  m_summarySvc.type() << " not found! "<< endmsg;
       if ( m_usePixelMap || m_useModuleMap ) {
-	msg(MSG::FATAL) << m_summarySvc.type() << " is compulsory with this tool configuration" << endreq;
+	msg(MSG::FATAL) << m_summarySvc.type() << " is compulsory with this tool configuration" << endmsg;
 	return StatusCode::FAILURE;
       }
    }
    else{
-      msg(MSG::INFO) << "Retrieved service " <<  m_summarySvc.type() << endreq;
+      msg(MSG::INFO) << "Retrieved service " <<  m_summarySvc.type() << endmsg;
    }
    
     return StatusCode::SUCCESS;

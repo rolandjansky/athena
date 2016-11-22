@@ -28,6 +28,10 @@ class SCT_ChannelStatusAlg;
 class StatusCode;
 class IInDetConditionsSvc;
 
+namespace InDetDD{
+  class SCT_ModuleSideDesign;
+}
+
 namespace InDet {
   /**  AlgTool for SCT_Clusterization.
    * Input is from RDOs, assumed to be sorted. They are then scanned 
@@ -64,7 +68,11 @@ namespace InDet {
     ToolHandle< ClusterMakerTool >            m_clusterMaker;
     typedef std::vector<Identifier>           IdVec_t;
     std::string                               m_timeBinStr;
-    int                                       m_timeBinBits[3];                                      
+    int                                       m_timeBinBits[3];     
+    bool                                      m_innermostBarrelX1X;
+    bool                                      m_innertwoBarrelX1X;
+    bool                                      m_majority01X;
+    bool                                      m_useRowInformation;
     
     ///Add strips to a cluster vector without checking for bad strips
     void  addStripsToCluster(const Identifier & firstStripId, const unsigned int nStrips,IdVec_t & clusterVector,const SCT_ID& idHelper) const;
@@ -72,6 +80,8 @@ namespace InDet {
     ///Add strips to a cluster vector checking for bad strips
     void addStripsToClusterWithChecks(const Identifier & firstStripId, const unsigned int nStrips, IdVec_t & clusterVector, 
 				      std::vector<IdVec_t > & idGroups, const SCT_ID& idHelper) const;
+
+    void addStripsToClusterInclRows(const Identifier & firstStripId, const unsigned int nStrips, IdVec_t & clusterVector,std::vector<IdVec_t > & idGroups, const SCT_ID& idHelper) const;
 
     /** Recluster the current vector, splitting on bad strips, and insert those new groups to the idGroups vector.
      * The cluster vector referenced will be changed by this, as well as the idGroups
@@ -87,7 +97,10 @@ namespace InDet {
     
     ///Calculate the cluster position and width given the first and last strip numbers for this element
     DimensionAndPosition clusterDimensions(const int firstStrip, const int lastStrip, const InDetDD::SiDetectorElement* element,
-					   const SCT_ID& idHelper) const;    
+					   const SCT_ID& idHelper) const;  
+
+    DimensionAndPosition clusterDimensionsInclRow(const int firstStrip, const int lastStrip, const int row, const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* design) const;
+  
     /// In-class facade on the 'isGood' method for a strip identifier
     bool isBad(const Identifier & stripId) const;   
 
@@ -97,6 +110,8 @@ namespace InDet {
     StatusCode decodeTimeBin(const char& timeBin, int& bit);    
     // Test the clusters time bin to see if matches pattern
     bool       testTimeBins(int timeBin) const;
+    bool       testTimeBins01X(int timeBin) const;
+    bool       testTimeBinsX1X(int timeBin) const;
 
   };//end of class  
 }//end of namespace

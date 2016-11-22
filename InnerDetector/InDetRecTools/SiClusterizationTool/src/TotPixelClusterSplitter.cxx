@@ -14,9 +14,7 @@
 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
-InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type,
-  const std::string & name,
-  const IInterface * parent) :
+InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type, const std::string & name, const IInterface * parent) :
   AthAlgTool(type, name, parent),
   m_calibSvc("PixelCalibSvc", name),
   m_minPixels(3),
@@ -30,22 +28,19 @@ InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type
 InDet::TotPixelClusterSplitter::~TotPixelClusterSplitter()
 {}
 
-StatusCode InDet::TotPixelClusterSplitter::initialize()
-{
+StatusCode InDet::TotPixelClusterSplitter::initialize() {
+
   CHECK(m_calibSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDet::TotPixelClusterSplitter::finalize()
-{
-//  ATH_MSG_INFO("finalize()");
+StatusCode InDet::TotPixelClusterSplitter::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitCluster(
-  const InDet::PixelCluster & OrigCluster) const
-{
+std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitCluster( const InDet::PixelCluster & OrigCluster) const {
+
   std::vector<InDet::PixelClusterParts> Parts;
 //  ATH_MSG_INFO("splitCluster() called!");
 
@@ -218,7 +213,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   if (!pixelIDp){
     ATH_MSG_ERROR("Could not get PixelID pointer");
   } 
-  const PixelID& pixelID = *pixelIDp;
+  //  const PixelID& pixelID = *pixelIDp;
 
   
   for (unsigned int i = 0; i < NumPixels; i++)
