@@ -35,7 +35,7 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::TrigVertexCountsContainer
      virtual StatusCode convert( const TrigVertexCountsCollection* aod,
-                                  xAOD::TrigVertexCountsContainer* xaod ) = 0;
+                                  xAOD::TrigVertexCountsContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

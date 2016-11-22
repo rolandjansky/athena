@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2MbtsBitsCnvTool.cxx 608072 2014-07-23 00:27:40Z azemla $
+// $Id: TrigT2MbtsBitsCnvTool.cxx 785778 2016-11-22 16:26:31Z ssnyder $
 
 // EDM include(s):
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
@@ -42,7 +42,7 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigT2MbtsBitsCnvTool::convert( const TrigT2MbtsBitsContainer* aod,
-					     xAOD::TrigT2MbtsBitsContainer* xaod ) {
+					     xAOD::TrigT2MbtsBitsContainer* xaod ) const {
     
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {

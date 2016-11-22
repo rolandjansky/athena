@@ -44,7 +44,7 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigTrackCountsCnvTool::convert( const TrigTrackCountsCollection* aod,
-					      xAOD::TrigTrackCountsContainer* xaod ) {
+					      xAOD::TrigTrackCountsContainer* xaod ) const {
     
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {

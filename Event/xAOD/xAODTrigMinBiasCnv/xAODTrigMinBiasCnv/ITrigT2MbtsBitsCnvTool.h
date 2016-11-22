@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigT2MbtsBitsCnvTool.h 608072 2014-07-23 00:27:40Z azemla $
+// $Id: ITrigT2MbtsBitsCnvTool.h 785778 2016-11-22 16:26:31Z ssnyder $
 #ifndef xAODTrigMinBiasCNV_ITrigT2MbtsBitsCNVTOOL_H
 #define xAODTrigMinBiasCNV_ITrigT2MbtsBitsCNVTOOL_H
 
@@ -35,7 +35,7 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::TrigT2MbtsBitsContainer
      virtual StatusCode convert( const TrigT2MbtsBitsContainer* aod,
-                                  xAOD::TrigT2MbtsBitsContainer* xaod ) = 0;
+                                  xAOD::TrigT2MbtsBitsContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {
