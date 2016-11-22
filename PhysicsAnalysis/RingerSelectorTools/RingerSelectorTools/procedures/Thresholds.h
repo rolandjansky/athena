@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Thresholds.h 694257 2015-09-10 22:45:27Z wsfreund $
+// $Id: Thresholds.h 783557 2016-11-10 21:00:43Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_THRESHOLDS_H
 #define RINGERSELECTORTOOLS_PROCEDURES_THRESHOLDS_H
 
@@ -52,6 +52,9 @@ class UniqueThreshold : virtual public IThreshold,
     /** Execute threshold */
     virtual void execute(const std::vector<float> &input,
         std::vector<bool> &output) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+
+    float threshold() const { return m_threshold; }
+    void setThreshold(float val) { m_threshold = val; }
 
     /** Ensure virtual dtor */
     virtual ~UniqueThreshold(){;}

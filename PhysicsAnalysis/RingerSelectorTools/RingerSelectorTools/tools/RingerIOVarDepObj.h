@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerIOVarDepObj.h 704615 2015-10-29 18:50:12Z wsfreund $
+// $Id: RingerIOVarDepObj.h 770805 2016-08-30 14:03:33Z ssnyder $
 #ifndef RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 #define RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 
@@ -77,8 +77,8 @@
  *   if ( this->level() > lvl ) {
  *     return;
  *   }
- *   msg() << lvl << this->name() << " configuration:" << endreq;
- *   msg() << lvl << "var:" << m_var << endreq;
+ *   msg() << lvl << this->name() << " configuration:" << endmsg;
+ *   msg() << lvl << "var:" << m_var << endmsg;
  * }
  *
  * } // namespace Ringer

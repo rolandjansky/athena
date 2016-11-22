@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerDiscriminatorWrapper.h 713528 2015-12-09 08:58:44Z wsfreund $
+// $Id: RingerDiscriminatorWrapper.h 713527 2015-12-09 08:58:16Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_H
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_H
 

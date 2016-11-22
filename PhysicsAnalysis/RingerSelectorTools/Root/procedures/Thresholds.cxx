@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Thresholds.cxx 667905 2015-05-18 19:07:55Z wsfreund $
+// $Id: Thresholds.cxx 770805 2016-08-30 14:03:33Z ssnyder $
 #include "RingerSelectorTools/procedures/Thresholds.icc"
 
 namespace Ringer {
@@ -19,7 +19,7 @@ void UniqueThreshold::print(MSG::Level lvl) const
   if ( this->level() > lvl ) {
     return;
   }
-  msg() << lvl << "Threshold: " << m_threshold << endreq;
+  msg() << lvl << "Threshold: " << m_threshold << endmsg;
 }
 
 // =============================================================================

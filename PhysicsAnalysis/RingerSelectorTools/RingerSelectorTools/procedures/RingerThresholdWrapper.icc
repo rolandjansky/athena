@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerThresholdWrapper.icc 704615 2015-10-29 18:50:12Z wsfreund $
+// $Id: RingerThresholdWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
 
@@ -238,7 +238,7 @@ void RingerProcedureWrapper<
       // Dont waste time printing nothing
       return;
     }
-    this->msg() << lvl << fullName() << " contents: "<<  endreq;
+    this->msg() << lvl << fullName() << " contents: "<<  endmsg;
     std::vector<unsigned> posVec(2);
     for ( unsigned etIdx = 0; etIdx < m_thresCol.size() ; ++etIdx){
       posVec[0] = etIdx;
@@ -246,7 +246,7 @@ void RingerProcedureWrapper<
       {
         posVec[1] = etaIdx;
         this->msg() << lvl << m_thresCol[etIdx][etaIdx]->name() << 
-          IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
+          IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endmsg;
         m_thresCol[etIdx][etaIdx]->print(lvl);
       }
     }
@@ -429,7 +429,7 @@ RingerProcedureWrapper<
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler
       // doesn't complain about type casting.
-      thisThres = reinterpret_cast<procedure_t*>( getThres(thresType, dirObj) );
+      thisThres = dynamic_cast<procedure_t*>( getThres(thresType, dirObj) );
       // FIXME New compiler version complains to use static_cast, but would it compile on
       // older versions?
     } else {
