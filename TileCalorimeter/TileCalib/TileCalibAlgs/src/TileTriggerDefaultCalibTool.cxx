@@ -227,7 +227,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 	continue;
 
       float amp = (*it)->amplitude();
-      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endreq;
+      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endmsg;
 
       m_meanTile[ros][drawer][chan] += amp;
       m_rmsTile[ros][drawer][chan]  += square(amp);
