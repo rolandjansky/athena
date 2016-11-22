@@ -1,4 +1,4 @@
-// $Id: xAODTriggerCnv_entries.cxx 683356 2015-07-16 09:20:14Z will $
+// $Id: xAODTriggerCnv_entries.cxx 757801 2016-06-27 10:02:38Z okuprash $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -23,6 +23,8 @@
 
 #include "../TrigNavigationCnvTool.h"
 #include "../TrigNavigationCnvAlg.h"
+
+#include "../TrigPassBitsCnvTool.h"
 #endif
 
 #include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
@@ -46,6 +48,8 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, BunchConfCnvAlg )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigNavigationCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigNavigationCnvAlg )
+
+DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigPassBitsCnvTool )
 #endif
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TriggerMenuMetaDataTool )
