@@ -79,7 +79,9 @@ XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransient()
   }
 
   if (c) {
-    c->setStore( DataLink< SG::IConstAuxStore > (m_key + "Aux." ) );
+    DataLink< SG::IConstAuxStore > dl;
+    dl.toTransient (m_key + "Aux.");
+    c->setStore( dl );
     return c;
   }
 

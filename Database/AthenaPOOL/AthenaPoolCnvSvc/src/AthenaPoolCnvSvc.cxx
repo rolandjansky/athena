@@ -29,8 +29,6 @@
 
 #include "StorageSvc/DbReflex.h"
 
-#include <set>
-
 //______________________________________________________________________________
 // Initialize the service.
 StatusCode AthenaPoolCnvSvc::initialize() {
@@ -174,7 +172,7 @@ StatusCode AthenaPoolCnvSvc::queryInterface(const InterfaceID& riid, void** ppvI
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) {
-#ifdef ATHENAHIVE  
+#ifdef ATHENAHIVE
   std::lock_guard<CallMutex> lock(m_i_mut);
 #endif
 
@@ -206,7 +204,7 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& refpAddress) {
-#ifdef ATHENAHIVE  
+#ifdef ATHENAHIVE
   std::lock_guard<CallMutex> lock(m_o_mut);
 #endif
    assert(pObject);
@@ -231,7 +229,7 @@ StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& ref
       }
    } else {
       // Forward to base class createRep
-      try { 
+      try {
          status = ::AthCnvSvc::createRep(pObject, refpAddress);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());
@@ -272,7 +270,7 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
          status = ::AthCnvSvc::fillRepRefs(pAddress, pObject);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());
-      } 
+      }
    }
    if (m_useDetailChronoStat.value() && m_doChronoStat) {
       std::string objName = m_className.back();
@@ -381,20 +379,29 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
                return(StatusCode::FAILURE);
             }
             // Deserialize object
-            Guid classId(std::string(strstr(placementStr, "[PCLID=")).substr(7, 36));
-            const void* obj = m_serializeSvc->deserialize(buffer, nbytes, classId);
+            std::string className = strstr(placementStr, "[PNAME=");
+            className = className.substr(7, className.find(']') - 7);
+            RootType classDesc = RootType::ByName(className);
+            void* obj = 0;
+            if (className == "Token") {
+               obj = buffer; static_cast<char*>(obj)[nbytes - 1] = 0; buffer = 0;
+            } else if (classDesc.IsFundamental()) {
+               obj = buffer; buffer = 0;
+            } else {
+               obj = m_serializeSvc->deserialize(buffer, nbytes, classDesc);
+            }
             // Write object
             Placement placement;
             placement.fromString(placementStr);
             delete placementStr; placementStr = 0;
-            const Token* token = this->registerForWrite(&placement, obj, pool::DbReflex::forGuid(classId));
+            const Token* token = this->registerForWrite(&placement, obj, classDesc);
             if (token == 0) {
-               ATH_MSG_ERROR("Failed to write Data for: " << classId.toString());
+               ATH_MSG_ERROR("Failed to write Data for: " << className);
                return(StatusCode::FAILURE);
             }
 
             // For DataHeaderForm, Token needs to be inserted to DataHeader Object
-            if (classId == "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
+            if (className == "DataHeaderForm_p5") {
                GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                if (!cnv->updateRepRefs(&address, (DataObject*)obj).isSuccess()) {
@@ -405,7 +412,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
 
             // Found DataHeader
-            if (classId == "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
+            if (className == "DataHeader_p5") {
                GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                if (!cnv->updateRep(&address, (DataObject*)obj).isSuccess()) {
@@ -536,9 +543,9 @@ std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
    if (typeName.substr(0, 13) == "AttributeList") {
       return(m_collContainerPrefix + "(" + key + ")");
    }
-   if (key.empty()) {  
-      return(m_containerPrefix + typeName);  
-   }  
+   if (key.empty()) {
+      return(m_containerPrefix + typeName);
+   }
    const std::string typeTok = "<type>", keyTok = "<key>";
    std::string ret = m_containerPrefix + m_containerNameHint;
    if (!m_branchNameHint.empty()) {
@@ -577,8 +584,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
       ATH_MSG_VERBOSE("Requesting write object for: " << placement->toString());
       // Lock object
-      Guid classID = pool::DbReflex::guid(classDesc);
-      std::string placementStr = placement->toString() + "[PCLID=" + classID.toString() + "]";
+      std::string placementStr = placement->toString() + "[PNAME=" + classDesc.Name() + "]";
       StatusCode sc = m_outputStreamingTool->lockObject(placementStr.c_str());
       while (sc.isRecoverable()) {
          usleep(100);
@@ -589,16 +595,22 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          return(0);
       }
       // Serialize object via ROOT
-      void* buffer = 0;
+      const void* buffer = 0;
       size_t nbytes = 0;
-      buffer = m_serializeSvc->serialize(obj, classID, nbytes);
+      if (classDesc.Name() == "Token") {
+         buffer = obj; nbytes = strlen(static_cast<const char*>(obj)) + 1;
+      } else if (classDesc.IsFundamental()) {
+         buffer = obj; nbytes = classDesc.SizeOf();
+      } else {
+         buffer = m_serializeSvc->serialize(obj, classDesc, nbytes);
+      }
       // Share object
       sc = m_outputStreamingTool->putObject(buffer, nbytes);
       while (sc.isRecoverable()) {
          usleep(100);
          sc = m_outputStreamingTool->putObject(buffer, nbytes);
       }
-      if (!sc.isSuccess()) {
+      if (!sc.isSuccess() || !m_outputStreamingTool->putObject(0, 0).isSuccess()) {
          ATH_MSG_ERROR("Failed to put Data for " << placementStr);
          return(0);
       }
@@ -813,15 +825,19 @@ StatusCode AthenaPoolCnvSvc::readData() const {
    if (token.classID() != Guid::null()) {
       this->setObjPtr(instance, &token);
       // Serialize object via ROOT
+      RootType cltype(pool::DbReflex::forGuid(token.classID()));
       void* buffer = 0;
       size_t nbytes = 0;
-      buffer = m_serializeSvc->serialize(instance, token.classID(), nbytes);
-      // Share object
-      sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
-      delete [] (char*)buffer; buffer = 0;
-      if (!sc.isSuccess()) {
-         ATH_MSG_ERROR("Could not share object for: " << token.toString());
-         return(StatusCode::FAILURE);
+      buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
+      cltype.Destruct(instance); instance = 0;
+      // Share object (if not store object)
+      if (buffer != 0) {
+         sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+         delete [] (char*)buffer; buffer = 0;
+         if (!sc.isSuccess() || !m_inputStreamingTool->putObject(0, 0, num).isSuccess()) {
+            ATH_MSG_ERROR("Could not share object for: " << token.toString());
+            return(StatusCode::FAILURE);
+         }
       }
    } else if (token.dbID() != Guid::null()) {
       std::string returnToken;
@@ -838,7 +854,7 @@ StatusCode AthenaPoolCnvSvc::readData() const {
          usleep(100);
          sc = m_inputStreamingTool->putObject(returnToken.c_str(), returnToken.size() + 1, num);
       }
-      if (!sc.isSuccess()) {
+      if (!sc.isSuccess() || !m_inputStreamingTool->putObject(0, 0, num).isSuccess()) {
          ATH_MSG_ERROR("Could not share token for: " << token.toString());
          return(StatusCode::FAILURE);
       }

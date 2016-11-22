@@ -90,6 +90,7 @@ bool TPCnvList<CNV, TRANS, TPCNVS...>::do_pers_to_trans::operator()
 }
 
 
+#ifndef __COVERITY__
 /**
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
@@ -109,8 +110,10 @@ TRANS* TPCnvList<CNV, TRANS, TPCNVS...>::createTransient (CNV& parent,
   return boost::fusion::accumulate
     (m_list, p, do_create_transient(parent, msg));
 }
+#endif
 
 
+#ifndef __COVERITY__
 /**
  * @brief Read the persistent object and convert it to transient.
  * @param parent The top-level pool converter object.
@@ -131,6 +134,7 @@ bool TPCnvList<CNV, TRANS, TPCNVS...>::persToTrans (CNV& parent,
   return boost::fusion::accumulate
     (m_list, false, do_pers_to_trans(parent, trans, msg));
 }
+#endif
 
 
 } // namespace AthenaPoolCnvSvc

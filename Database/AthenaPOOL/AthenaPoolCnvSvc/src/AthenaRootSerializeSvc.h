@@ -33,9 +33,11 @@ public:
 
    void* serialize(const void* object, const std::string& name, size_t& nbytes);
    void* serialize(const void* object, const Guid& id, size_t& nbytes);
+   void* serialize(const void* object, const RootType& cltype, size_t& nbytes);
 
-   void* deserialize(void* buffer, size_t nbytes, const std::string& name);
-   void* deserialize(void* buffer, size_t nbytes, const Guid& id);
+   void* deserialize(void* buffer, size_t& nbytes, const std::string& name);
+   void* deserialize(void* buffer, size_t& nbytes, const Guid& id);
+   void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype);
 };
 
 #endif
