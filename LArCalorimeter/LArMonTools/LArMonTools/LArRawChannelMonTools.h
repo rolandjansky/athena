@@ -134,8 +134,8 @@ namespace LArMonTools {
     void regions( const std::map<Detector, std::map<Sampling, std::deque<Region> > >& ); 
 
   protected:
-    std::map<Detector, std::map<Sampling, std::deque<Region> > >  _regions; //!< regions
-    std::map<Detector, std::map<Sampling, std::vector<double> > > _bins;
+    std::map<Detector, std::map<Sampling, std::deque<Region> > >  m_regions; //!< regions
+    std::map<Detector, std::map<Sampling, std::vector<double> > > m_bins;
 
     //! takes edges and bin sizes and creates bin vector.
     void generate();
@@ -176,22 +176,22 @@ namespace LArMonTools {
     class HistoProxy : public IHistoProxyBase {
 
     private:
-    HISTOGRAM * _h_ptr;
+    HISTOGRAM * m_h_ptr;
 
     public:
     HistoProxy( )
-      : _h_ptr( 0 ) {}
+      : m_h_ptr( 0 ) {}
 
     HistoProxy( HISTOGRAM * h_ptr )
-      : _h_ptr( h_ptr ) {}
+      : m_h_ptr( h_ptr ) {}
 
-    virtual void Fill( double x ) { _h_ptr->Fill( x ); }
-    virtual void Fill( double x, double y ) { _h_ptr->Fill( x, y ); }
-    virtual void Fill( double x, double y, double z ) { _h_ptr->Fill( x, y, z ); }
-    virtual void Fill( double x, double y, double z, double w ) { _h_ptr->Fill( x, y, z, w ); }
+    virtual void Fill( double x ) { m_h_ptr->Fill( x ); }
+    virtual void Fill( double x, double y ) { m_h_ptr->Fill( x, y ); }
+    virtual void Fill( double x, double y, double z ) { m_h_ptr->Fill( x, y, z ); }
+    virtual void Fill( double x, double y, double z, double w ) { m_h_ptr->Fill( x, y, z, w ); }
 
-    virtual void Scale( double s = 1. ) { _h_ptr->Scale( s ); }
-    virtual void Reset( ){ _h_ptr->Reset( ); }
+    virtual void Scale( double s = 1. ) { m_h_ptr->Scale( s ); }
+    virtual void Reset( ){ m_h_ptr->Reset( ); }
 
   };
 
@@ -199,55 +199,55 @@ namespace LArMonTools {
   //The LWHistoProxy implementations:
   class LWHistoProxy1D : public IHistoProxyBase {
     private:
-    LWHist1D * _h_ptr;
+    LWHist1D * m_h_ptr;
     public:
-    LWHistoProxy1D( ) : _h_ptr( 0 ) {}
-    LWHistoProxy1D( LWHist1D * h_ptr ) : _h_ptr( h_ptr ) {}
-    virtual void Fill( double x ) { _h_ptr->Fill( x );}
-    virtual void Fill( double x, double y ) { _h_ptr->Fill( x, y ); }
+    LWHistoProxy1D( ) : m_h_ptr( 0 ) {}
+    LWHistoProxy1D( LWHist1D * h_ptr ) : m_h_ptr( h_ptr ) {}
+    virtual void Fill( double x ) { m_h_ptr->Fill( x );}
+    virtual void Fill( double x, double y ) { m_h_ptr->Fill( x, y ); }
     virtual void Fill( double, double, double) {}
     virtual void Fill( double, double,  double, double ) {}
-    virtual void Scale( double s = 1. ) { _h_ptr->scaleContentsAndErrors( s ); }
-    virtual void Reset(){ _h_ptr->Reset(); }
+    virtual void Scale( double s = 1. ) { m_h_ptr->scaleContentsAndErrors( s ); }
+    virtual void Reset(){ m_h_ptr->Reset(); }
   };
   class LWHistoProxy2D : public IHistoProxyBase {
     private:
-    LWHist2D * _h_ptr;
+    LWHist2D * m_h_ptr;
     public:
-    LWHistoProxy2D( ) : _h_ptr( 0 ) {}
-    LWHistoProxy2D( LWHist2D * h_ptr ) : _h_ptr( h_ptr ) {}
+    LWHistoProxy2D( ) : m_h_ptr( 0 ) {}
+    LWHistoProxy2D( LWHist2D * h_ptr ) : m_h_ptr( h_ptr ) {}
     virtual void Fill( double ) {}
-    virtual void Fill( double x, double y ) { _h_ptr->Fill( x, y ); }
-    virtual void Fill( double x, double y, double z ) { _h_ptr->Fill( x, y, z ); }
+    virtual void Fill( double x, double y ) { m_h_ptr->Fill( x, y ); }
+    virtual void Fill( double x, double y, double z ) { m_h_ptr->Fill( x, y, z ); }
     virtual void Fill( double, double, double, double ) {  }
-    virtual void Scale( double s = 1.) { _h_ptr->scaleContentsAndErrors( s ); }
-    virtual void Reset(){ _h_ptr->Reset(); }
+    virtual void Scale( double s = 1.) { m_h_ptr->scaleContentsAndErrors( s ); }
+    virtual void Reset(){ m_h_ptr->Reset(); }
   };
   class LWHistoProxyProfile : public IHistoProxyBase {
     private:
-    TProfile_LW * _h_ptr;
+    TProfile_LW * m_h_ptr;
     public:
-    LWHistoProxyProfile( ) : _h_ptr( 0 ) {}
-    LWHistoProxyProfile( TProfile_LW* h_ptr ) : _h_ptr( h_ptr ) {}
+    LWHistoProxyProfile( ) : m_h_ptr( 0 ) {}
+    LWHistoProxyProfile( TProfile_LW* h_ptr ) : m_h_ptr( h_ptr ) {}
     virtual void Fill( double ) {}
-    virtual void Fill( double x, double y ) { _h_ptr->Fill( x, y ); }
-    virtual void Fill( double x, double y, double z ) { _h_ptr->Fill( x, y, z ); }
+    virtual void Fill( double x, double y ) { m_h_ptr->Fill( x, y ); }
+    virtual void Fill( double x, double y, double z ) { m_h_ptr->Fill( x, y, z ); }
     virtual void Fill( double, double, double, double ) {  }
     virtual void Scale( double) { }
-    virtual void Reset(){ _h_ptr->Reset(); }
+    virtual void Reset(){ m_h_ptr->Reset(); }
   };
   class LWHistoProxyProfile2D : public IHistoProxyBase {
     private:
-    TProfile2D_LW * _h_ptr;
+    TProfile2D_LW * m_h_ptr;
     public:
-    LWHistoProxyProfile2D( ) : _h_ptr( 0 ) {}
-    LWHistoProxyProfile2D( TProfile2D_LW* h_ptr ) : _h_ptr( h_ptr ) {}
+    LWHistoProxyProfile2D( ) : m_h_ptr( 0 ) {}
+    LWHistoProxyProfile2D( TProfile2D_LW* h_ptr ) : m_h_ptr( h_ptr ) {}
     virtual void Fill( double ) {}
     virtual void Fill( double, double ) { }
-    virtual void Fill( double x, double y, double z ) { _h_ptr->Fill( x, y, z ); }
-    virtual void Fill( double x, double y, double z, double w ) { _h_ptr->Fill( x, y,z,w ); }
+    virtual void Fill( double x, double y, double z ) { m_h_ptr->Fill( x, y, z ); }
+    virtual void Fill( double x, double y, double z, double w ) { m_h_ptr->Fill( x, y,z,w ); }
     virtual void Scale( double) { }
-    virtual void Reset(){ _h_ptr->Reset(); }
+    virtual void Reset(){ m_h_ptr->Reset(); }
   };
 
   class SelectionContext{
@@ -261,7 +261,7 @@ namespace LArMonTools {
     // Getters:
     int positive_noise() const;
     int negative_noise() const;
-    inline double quality() const { return _quality; }
+    inline double quality() const { return m_quality; }
     double energy() const;
 
 
@@ -274,11 +274,11 @@ namespace LArMonTools {
     void energy( const double& );
 
   private:
-    int _positive_noise;
-    int _negative_noise;
+    int m_positive_noise;
+    int m_negative_noise;
 
-    double _quality;
-    double _energy;
+    double m_quality;
+    double m_energy;
 
   };
 
@@ -295,9 +295,9 @@ namespace LArMonTools {
       @See SelectionContext
      */
     inline bool Select( const LArRawChannel& a ) {
-      return _pSelectionContext &&
+      return m_pSelectionContext &&
 	a.energy() > 0.1 * CLHEP::MeV &&
-	a.quality() > _pSelectionContext->quality();
+	a.quality() > m_pSelectionContext->quality();
     }
 
 
@@ -315,7 +315,7 @@ namespace LArMonTools {
   private:
 
     //! Context holds information to select channels. Must be set properly for each channel
-    const SelectionContext * _pSelectionContext;
+    const SelectionContext * m_pSelectionContext;
 
   };
 
@@ -332,9 +332,9 @@ namespace LArMonTools {
     void result( const double & );
 
   private:
-    double _moment0;
-    double _moment1;
-    double _mean;
+    double m_moment0;
+    double m_moment1;
+    double m_mean;
   };
 
 
@@ -349,8 +349,8 @@ namespace LArMonTools {
 
   private:
 
-    double _a;
-    double _b;
+    double m_a;
+    double m_b;
 
   };
 

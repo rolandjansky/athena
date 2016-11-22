@@ -92,7 +92,7 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   TH2F_LW** m_LArCollTime_vs_BCID_h;
   TH1F_LW** m_LArCollAvgTime_h; 
   TH2F_LW** m_LArCollAvgTime_vs_LB_h; 
-  TH2F_LW** m_LArCollAvgTime_vs_BCID_h; 
+  TH2F_LW** m_LArCollAvgTime_vs_BCID_h;             
 
   int m_distance; // distance from train front to fill second histos
   bool m_IsOnline;
@@ -103,7 +103,7 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   float m_timeCut;
   int m_minCells;
   bool m_eWeighted;
-  bool newrun;
+  bool m_newrun;
 
   //ToolHandle<IBunchGroupTool> m_bunchGroupTool;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchGroupTool;
@@ -112,6 +112,8 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
 
 
   std::string m_histPath, m_key;
+
+  void cleanup();
 };
 
 #endif

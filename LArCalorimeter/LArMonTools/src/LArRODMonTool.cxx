@@ -164,6 +164,9 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
 
   m_last_lb = -1;
   m_curr_lb = -1;
+
+  m_calo_description_mgr=nullptr;
+  m_hsize=0;
 }
 
 /*---------------------------------------------------------*/
@@ -287,7 +290,7 @@ LArRODMonTool::initialize() {
    return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Resetting history size: "<<m_hsize);
-  m_hdone=new bool[m_hsize];
+  m_hdone.assign(m_hsize,false);
   return StatusCode::SUCCESS;
 }
 
@@ -1203,7 +1206,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
         hg.m_hOut_E_FT_vs_SLOT_shadow[(m_curr_lb % m_history_size) / m_history_granularity ]->Fill(slot_fD,feedthrough_fD);
       }
       //adding dumper
-      if(ndump<max_dump) {
+      if(m_IsOnline && ndump<max_dump) {
          const int channel=m_LArOnlineIDHelper->channel(chid);
          const HWIdentifier febid=m_LArOnlineIDHelper->feb_Id(chid);
          msg(MSG::INFO) << "Channel: " << channel << " of FEB " << febid << endmsg;
@@ -1257,13 +1260,14 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
          msg(MSG::INFO) << "Noise for mu=20: "<<noise<<endmsg;
          msg(MSG::INFO) << "HVScaleCorr: "<<hvscale<<endmsg;
          double emon=0.;
-         for (unsigned k=0; k<samples.size(); ++k) emon += (samples.at(k)-ped)*this_OFC_a_test.at(k);
+	 const unsigned nOFCSamp=std::min(samples.size(),this_OFC_a_test.size());
+         for (unsigned k=0; k<nOFCSamp; ++k) emon += (samples.at(k)-ped)*this_OFC_a_test.at(k);
          emon *= escale;
          emon += ramp0;
          msg(MSG::INFO) << "intercept + Escale*Sum[(sample-ped)*OFCa] "<<emon<<endmsg;
        ++ndump;
-      }
-    }
+      } // DE cut
+    } // dumper
   }// end energy histograms
 
   if (keepT) { //Time histograms
