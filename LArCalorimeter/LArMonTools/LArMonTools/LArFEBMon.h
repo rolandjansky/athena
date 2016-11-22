@@ -48,15 +48,15 @@ public:
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode procHistograms();
-  
+
   void AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
   void AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
   bool nbOfFebOK(float nfeb,TH1I_LW* h);
   
 private:
   
-  float FEBmin,FEBmax;
-  int FEBnbins;
+  float m_FEBmin,m_FEBmax;
+  int m_FEBnbins;
   /* global params */
   int m_eventsCounter;
   bool m_ignoreMissingHeaderEMB;
@@ -193,6 +193,7 @@ private:
   
   TH1F_LW* m_febInError[1524];
   bool m_bfebIE[1524];
+  bool m_anyfebIE;
   
   TTree* m_CorruptTree;
   

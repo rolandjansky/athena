@@ -151,14 +151,14 @@ private:
   };
   
   /** Now define the 8 partitions of the LArCalorimeter*/
-  partition BarrelA;
-  partition BarrelC;
-  partition EmecA; 
-  partition EmecC;  
-  partition HecA;
-  partition HecC;  
-  partition FcalA;
-  partition FcalC;
+  partition m_BarrelA;
+  partition m_BarrelC;
+  partition m_EmecA; 
+  partition m_EmecC;  
+  partition m_HecA;
+  partition m_HecC;  
+  partition m_FcalA;
+  partition m_FcalC;
   
   
   /**declare identifier*/

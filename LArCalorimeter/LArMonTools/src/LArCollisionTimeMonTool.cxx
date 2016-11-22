@@ -49,7 +49,7 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
     m_timeCut(5.0),
     m_minCells(2),
     m_eWeighted(true),
-    newrun(true),
+    m_newrun(true),
     //m_bunchGroupTool("BunchGroupTool"),
     m_bunchGroupTool("BunchCrossingTool"),
     m_bcid_init(false)
@@ -66,19 +66,23 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   
   m_eventsCounter = 0;  
   
-  m_LArCollTime_h			= NULL; 
-  m_LArCollTime_lb_h			= NULL;
-  m_LArCollTime_lb_timeCut_h		= NULL;
-  m_LArCollTime_lb_singlebeam_timeCut_h = NULL;
-  m_LArCollTime_vs_LB_h			= NULL; 
-  m_LArCollTime_vs_BCID_h		= NULL;
-  m_LArCollAvgTime_h			= NULL; 
-  m_LArCollAvgTime_vs_LB_h		= NULL; 
+  m_LArCollTime_h			= nullptr; 
+  m_LArCollTime_lb_h			= nullptr;
+  m_LArCollTime_lb_timeCut_h		= nullptr;
+  m_LArCollTime_lb_singlebeam_timeCut_h = nullptr;
+  m_LArCollTime_vs_LB_h			= nullptr; 
+  m_LArCollTime_vs_BCID_h		= nullptr;
+  m_LArCollAvgTime_h			= nullptr; 
+  m_LArCollAvgTime_vs_LB_h		= nullptr; 
+  m_LArCollAvgTime_vs_BCID_h            = nullptr;
+
+  m_nhist=1;
 }
 
 /*---------------------------------------------------------*/
 LArCollisionTimeMonTool::~LArCollisionTimeMonTool()
 {
+  cleanup();
 }
 
 /*---------------------------------------------------------*/
@@ -95,6 +99,8 @@ LArCollisionTimeMonTool::initialize() {
 StatusCode 
 LArCollisionTimeMonTool::bookHistograms() {
   
+  cleanup(); //to be sure...
+
   if(m_IsOnline)  m_nhist=2; else m_nhist=1;
   // So far 2 histos, all bcid and inside the train
   m_LArCollTime_h=new TH1F_LW*[m_nhist];
@@ -115,7 +121,7 @@ LArCollisionTimeMonTool::bookHistograms() {
   MonGroup generalGroupShift( this, "/LAr/"+m_histPath+"/", run, ATTRIB_MANAGED);
   MonGroup generalGroupLB( this, "/LAr/"+m_histPath+"/", run, ATTRIB_X_VS_LB, "", "merge");
   //if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
-    newrun=true;
+    m_newrun=true;
     //
     // Create top folder for histos
     //
@@ -299,3 +305,28 @@ StatusCode LArCollisionTimeMonTool::procHistograms()
   msg(MSG::DEBUG) << "End of procHistograms " << endmsg;
   return StatusCode::SUCCESS;
 }
+
+
+void LArCollisionTimeMonTool::cleanup() {
+  //Delete the array of pointers to histograms
+  //The histograms themselves should be owned by THistSvc at this point
+  delete[] m_LArCollTime_h; 
+  m_LArCollTime_h=nullptr;
+  delete[] m_LArCollTime_lb_h;			    
+  m_LArCollTime_lb_h=nullptr;
+  delete[] m_LArCollTime_lb_timeCut_h;		    
+  m_LArCollTime_lb_timeCut_h=nullptr;
+  delete[] m_LArCollTime_lb_singlebeam_timeCut_h;  
+  m_LArCollTime_lb_singlebeam_timeCut_h=nullptr;
+  delete[] m_LArCollTime_vs_LB_h;
+  m_LArCollTime_vs_LB_h=nullptr;
+  delete[] m_LArCollTime_vs_BCID_h;
+  m_LArCollTime_vs_BCID_h=nullptr;
+  delete[] m_LArCollAvgTime_h; 	
+  m_LArCollAvgTime_h=nullptr;
+  delete[] m_LArCollAvgTime_vs_LB_h; 		    
+  m_LArCollAvgTime_vs_LB_h=nullptr;
+  delete[] m_LArCollAvgTime_vs_BCID_h;             
+  m_LArCollAvgTime_vs_BCID_h=nullptr;
+}
+

@@ -70,7 +70,8 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_hecASummary(),
     m_fcalCSummary(),
     m_fcalASummary(),
-    m_febInError() 
+    m_febInError(),
+    m_anyfebIE(false) 
 {
   declareProperty("IgnoreMissingHeaderEMB",m_ignoreMissingHeaderEMB = false);
   declareProperty("IgnoreMissingHeaderPS",m_ignoreMissingHeaderPS = false);
@@ -94,9 +95,9 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_bfebIE[i]     = false;
   }
   
-  FEBmin	= -20.5;
-  FEBmax	= 1599.5;
-  FEBnbins	= 1620;
+  m_FEBmin	= -20.5;
+  m_FEBmax	= 1599.5;
+  m_FEBnbins	= 1620;
   
   m_LArAllErrors_dE	= NULL;
   m_rejectedYield	= NULL;
@@ -271,7 +272,7 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && perPartitionDataGroup.regHist(m_nbOfEvts2D);
     
     // Global nb of readout FEB
-    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",FEBnbins,FEBmin,FEBmax);
+    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",m_FEBnbins,m_FEBmin,m_FEBmax);
     sc = sc && perPartitionDataGroup.regHist(m_nbOfFebBlocksTotal);
     
     // DSP threshold
@@ -569,6 +570,7 @@ StatusCode LArFEBMon::fillHistograms() {
   
   // Loop over all febs to plot the error from statusword
   // This is mandatory to also monitor the FEBs with missing headers
+  m_anyfebIE = false;
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); 
        allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
@@ -614,6 +616,7 @@ StatusCode LArFEBMon::fillHistograms() {
 	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
       }
     }  
+    if(m_currentFebStatus) m_anyfebIE = m_currentFebStatus;
   }
   // Check and reset the rejected histo per partition
   // Use the ENTRIES variable to store the LB and reset if needed!
@@ -711,6 +714,9 @@ StatusCode LArFEBMon::fillHistograms() {
     if (m_rejectedLBProfile->GetEntries() != lumi_block)
       m_rejectedLBProfile->Reset();
   }
+
+  if(m_anyfebIE) { m_CorruptTree->Fill(); }
+
   if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
     if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
 
@@ -722,7 +728,6 @@ StatusCode LArFEBMon::fillHistograms() {
     if (m_isOnline) {
        if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
     }
-    m_CorruptTree->Fill();
   } else{
     m_rejectedYieldLB->Fill(lumi_block,0);
     m_rejectedYieldLBout->Fill(lumi_block,0);
@@ -1349,5 +1354,6 @@ bool LArFEBMon::nbOfFebOK(float nfeb,TH1I_LW* h){
       ixmax=ix;
     }
   }
-  return (nfeb<((FEBmax-FEBmin)/FEBnbins)*((float)(ixmax-1))+FEBmin);
+  return (nfeb<((m_FEBmax-m_FEBmin)/m_FEBnbins)*((float)(ixmax-1))+m_FEBmin);
 }
+
