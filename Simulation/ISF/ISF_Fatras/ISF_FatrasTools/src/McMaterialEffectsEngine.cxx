@@ -325,7 +325,6 @@ void iFatras::McMaterialEffectsEngine::recordBremPhotonLay(const ISF::ISFParticl
 							   Trk::ParticleHypothesis particle,
 							   Trk::PropDirection dir,
 							   float matFraction ) const {
-
   ISF::ISFParticle *bremPhot = bremPhoton(parent,time,pElectron,gammaE,vertex,particleDir,particle);
 
   // process the photon on layer 
@@ -459,8 +458,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 							       Trk::ExCellCharged& eCell,
 							       Trk::PropDirection dir,
 							       float& mFraction) const
-{   
-
+{
+  
   const Trk::TrackParameters* parm = eCell.leadParameters;
     
   // path correction
@@ -631,7 +630,6 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	childs[ic]->setUserInformation(childInfo);
       }
       childInfo->setMaterialLimit(pLim.process,pLim.x0Max,0.); 
-      //std::cout <<"child info saved on isp:"<<childs[ic]<<","<<childs[ic]->getUserInformation()->materialLimit()<< std::endl;
 
       // configure child cell and loop back
       if (childs[ic]->charge()!=0) {
@@ -708,14 +706,14 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already 
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));    
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
       ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
       validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? eCell.materialL0 : eCell.materialX0);
       regisp->setUserInformation(validInfo);
-      //std::cout <<"collected material at layer exit:"<<regisp->getUserInformation()->materialLimit()->dCollected<<std::endl;
     }
     // validation mode
     if (m_validationMode) {
@@ -900,7 +898,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));    
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
@@ -932,7 +931,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 void iFatras::McMaterialEffectsEngine::radiate(const ISF::ISFParticle* parent, AmgVector(5)& parm ,
 					       Trk::ExCellCharged& eCell, float pathLim, float mFr,
 					       Trk::PropDirection dir, float refX) const {
- 
+  
   // sample energy loss and free path independently
   double path = 0.;
   double p = 1./ fabs(parm[Trk::qOverP]);
@@ -984,7 +983,6 @@ void iFatras::McMaterialEffectsEngine::radiate(const ISF::ISFParticle* parent, A
       p *=z ;
 
       EX_MSG_VERBOSE("", "radiate", "", "brem photon emitted " << deltaP<<":updated e momentum:"<< p   );
-      // std::cout <<"brem photon emitted, momentum update:"<< p<<","<<path<<","<<pathLim<<",mat.fraction:"<<mFr<<std::endl; 
     }    
   }
 
