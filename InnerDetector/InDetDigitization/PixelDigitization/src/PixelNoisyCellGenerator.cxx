@@ -86,13 +86,13 @@ StatusCode PixelNoisyCellGenerator::initialize() {
 
   std::string pixelHelperName("PixelID");
   if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixelID,pixelHelperName) ) {
-    msg(MSG::FATAL) << "Pixel ID helper not found" << endreq;
+    msg(MSG::FATAL) << "Pixel ID helper not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   std::string managerName("Pixel");
   if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixMgr,managerName) ) {
-    msg(MSG::FATAL) << "PixelDetectorManager not found" << endreq;
+    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
     return StatusCode::FAILURE;
   }
 

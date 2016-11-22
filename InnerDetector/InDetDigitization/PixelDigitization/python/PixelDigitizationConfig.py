@@ -54,6 +54,8 @@ def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.BichselSimTool(name, **kwargs)
 
 def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
@@ -286,6 +288,9 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    kwargs.setdefault("RDOCollName", overlayFlags.evtStore()+"/PixelRDOs")
+    kwargs.setdefault("RDOCollNameSPM", overlayFlags.evtStore()+"/PixelRDOs_SPM")
+    kwargs.setdefault("SDOCollName", overlayFlags.evtStore()+"/PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 

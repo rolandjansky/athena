@@ -20,11 +20,15 @@
 #ifndef PIXELDIGITIZATION_BichselSimTool_H
 #define PIXELDIGITIZATION_BichselSimTool_H
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // forward class declaration
-class TRandom3;
+namespace CLHEP{
+  class HepRandomEngine;
+}
 
 // internal data structure for storage purpose
 struct BichselData
@@ -67,10 +71,15 @@ private:
   // internal private members //
   double                   m_DeltaRayCut;      // Threshold to identify a delta ray. unit in keV
   std::vector<BichselData> m_BichselData;      // vector to store Bichsel Data. Each entry is for one particle type
-  TRandom3*                m_RandomGenerator;  // Random number generator
   int                      m_nCols;            // number of collisions to simulate each time. This is mainly to save CPU time if necessary
   int                      m_LoopLimit;        // upper limit on number of loops. The default value is optimized for current configuration. People can tune this number in case of ITK upgrade (very forward barrel) or other new situation.
 
+protected:
+  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
+  std::string                  m_rndmEngineName;
+  CLHEP::HepRandomEngine*      m_rndmEngine;
+
+private:
   // internal private functions //
   std::pair<int,int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table
   std::pair<int,int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
