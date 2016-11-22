@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-## @purpose Python module to hold common flags to configure the InDetPhysValMonitoring 
+## purpose Python module to hold common flags to configure the InDetPhysValMonitoring 
 ##
 
 """ InDetPhysValJobProperties

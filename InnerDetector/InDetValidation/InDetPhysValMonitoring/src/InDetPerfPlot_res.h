@@ -7,26 +7,26 @@
 /**
  * @file InDetPerfPlot_res.h
  * @author Max Baugh
-**/
+ **/
 
 
-//std includes
+// std includes
 #include <string>
 #include <vector>
 #include "TProfile.h"
 
-//local includes
+// local includes
 
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
 
 #include "InDetPlotBase.h"
 
-//could be fwd declared?
+// could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
-//fwd declaration
+// fwd declaration
 class IToolSvc;
 class IExtrapolator;
 class TH1;
@@ -34,54 +34,105 @@ class TH2;
 
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_res:public InDetPlotBase {
+class InDetPerfPlot_res: public InDetPlotBase {
 public:
-  enum Param{D0, Z0, PHI, THETA, Z0SIN_THETA, QOPT, NPARAMS};
-  InDetPerfPlot_res(InDetPlotBase * pParent, const std::string & dirName);
+  enum Param {
+    D0, Z0, PHI, THETA, Z0SIN_THETA, QOPT, NPARAMS
+  };
+  InDetPerfPlot_res(InDetPlotBase *pParent, const std::string &dirName);
 
-  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
-  virtual ~InDetPerfPlot_res(){/** nop **/}
+  void fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt);
+  virtual ~InDetPerfPlot_res() {/** nop **/
+  }
 
-  void SetEtaBinning(int trackEtaBins, float etaMin, float etaMax) { m_trackEtaBins = trackEtaBins; m_etaMin = etaMin; m_etaMax = etaMax; };
-	
 private:
-  unsigned int m_trackEtaBins;
-  float m_etaMin, m_etaMax;
-  //float m_truthEtaCut;
-  //int nBins, m_yBins;
-  unsigned int m_PtBins;
-  float m_PtMin, m_PtMax;
-  //double m_Pt_logmin, m_Pt_logmax;
+  std::vector<TH2 *> m_meanbasePlots;
+  TH2 * m_meanbase_vs_eta_d0;
+  TH2 * m_meanbase_vs_eta_z0;
+  TH2 * m_meanbase_vs_eta_phi;
+  TH2 * m_meanbase_vs_eta_theta;
+  TH2 * m_meanbase_vs_eta_z0_sin_theta;
+  TH2 * m_meanbase_vs_eta_qopt;
 
-  //double mean;
+  std::vector<TH1 *> m_meanPlots;
+  TH1 * m_resmean_vs_eta_d0;
+  TH1 * m_resmean_vs_eta_z0;
+  TH1 * m_resmean_vs_eta_phi;
+  TH1 * m_resmean_vs_eta_theta;
+  TH1 * m_resmean_vs_eta_z0_sin_theta;
+  TH1 * m_resmean_vs_eta_qopt;
 
-  TH1F* m_d0_vs_eta_bin0;
+  std::vector<TH1 *> m_resoPlots;
+  TH1 * m_reswidth_vs_eta_d0;
+  TH1 * m_reswidth_vs_eta_z0;
+  TH1 * m_reswidth_vs_eta_phi;
+  TH1 * m_reswidth_vs_eta_theta;
+  TH1 * m_reswidth_vs_eta_z0_sin_theta;
+  TH1 * m_reswidth_vs_eta_qopt;
 
-  std::string log_mode;
+  std::vector<TH2 *> m_mean_vs_ptbasePlots;
+  TH2 * m_base_vs_pt_d0;
+  TH2 * m_base_vs_pt_z0;
+  TH2 * m_base_vs_pt_phi;
+  TH2 * m_base_vs_pt_theta;
+  TH2 * m_base_vs_pt_z0_sin_theta;
+  TH2 * m_base_vs_pt_qopt;
 
-  std::vector<TH2*> m_meanbasePlots;
-  std::vector<TH1*> m_meanPlots;
+  std::vector<TH1 *> m_mean_vs_ptPlots;
+  TH1 * m_resmean_vs_pt_d0;
+  TH1 * m_resmean_vs_pt_z0;
+  TH1 * m_resmean_vs_pt_phi;
+  TH1 * m_resmean_vs_pt_theta;
+  TH1 * m_resmean_vs_pt_z0_sin_theta;
+  TH1 * m_resmean_vs_pt_qopt;
 
-  std::vector<TH2*> m_mean_vs_ptbasePlots;
-  std::vector<TH1*> m_mean_vs_ptPlots;
+  std::vector<TH1 *> m_resptPlots;
+  TH1 * m_reswidth_vs_pt_d0;
+  TH1 * m_reswidth_vs_pt_z0;
+  TH1 * m_reswidth_vs_pt_phi;
+  TH1 * m_reswidth_vs_pt_theta;
+  TH1 * m_reswidth_vs_pt_z0_sin_theta;
+  TH1 * m_reswidth_vs_pt_qopt;
 
-  std::vector<TH1*> m_resoPlots;
-  std::vector<TH1*> m_resptPlots;
+  std::vector<TH1 *> m_pullPlots;
+  TH1 * m_pull_d0;
+  TH1 * m_pull_z0;
+  TH1 * m_pull_phi;
+  TH1 * m_pull_theta;
+  TH1 * m_pull_z0_sin_theta;
+  TH1 * m_pull_qopt;
 
-  std::vector<TH1*> m_pullPlots;
-  std::vector<TH2*> m_pullbasePlots;
-  std::vector<TH1*> m_pullmeanPlots;
-  std::vector<TH1*> m_pullwidthPlots;
+  std::vector<TH2 *> m_pullbasePlots;
+  TH2 * m_pullbase_d0;
+  TH2 * m_pullbase_z0;
+  TH2 * m_pullbase_phi;
+  TH2 * m_pullbase_theta;
+  TH2 * m_pullbase_z0_sin_theta;
+  TH2 * m_pullbase_qopt;
 
-  std::vector<std::pair<std::string, std::pair<float, int> > > m_paramNames;
-  //In m_paramNames, the float sets the y-axis limits & the int sets the number of y-axis bins
+  std::vector<TH1 *> m_pullmeanPlots;
+  TH1 * m_pullmean_d0;
+  TH1 * m_pullmean_z0;
+  TH1 * m_pullmean_phi;
+  TH1 * m_pullmean_theta;
+  TH1 * m_pullmean_z0_sin_theta;
+  TH1 * m_pullmean_qopt;
+
+  std::vector<TH1 *> m_pullwidthPlots;
+  TH1 * m_pullwidth_d0;
+  TH1 * m_pullwidth_z0;
+  TH1 * m_pullwidth_phi;
+  TH1 * m_pullwidth_theta;
+  TH1 * m_pullwidth_z0_sin_theta;
+  TH1 * m_pullwidth_qopt;
+
+
+  std::vector<std::string> m_paramNames;
 
   void initializePlots();
-  void Refinement(TH1D *temp, std::string width, int var, int j, const std::vector<TH1*>& tvec, const std::vector<TH1*>& rvec);
+  void Refinement(TH1D *temp, const std::string & width, int var, int j, const std::vector<TH1 *> &tvec,
+                  const std::vector<TH1 *> &rvec);
   void finalizePlots();
-
-  std::string formName(const unsigned int p, std::string type, std::string dir = "") const;
-  std::string formTitle(const unsigned int parameter, std::string type) const;
 };
 
 

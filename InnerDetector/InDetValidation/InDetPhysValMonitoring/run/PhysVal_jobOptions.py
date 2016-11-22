@@ -1,24 +1,20 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 747937 2016-05-18 10:37:38Z sroe $
+# $Id: PhysVal_jobOptions.py 785412 2016-11-20 15:01:26Z sroe $
 
 # Set up the reading of the input xAOD:
-
-#"AOD.05522648._000044.pool.root.1" K-short dataset
-#"ESD.05108991._000060.pool.root.1" original ttbar dataset 
-#"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
 import getpass
 FNAME = "AOD.pool.root"
 if (getpass.getuser())=="mbaugh":
-  #FNAME = "../rootfile_storage/ESD.large.pool.root"
-  #FNAME = "../rootfile_storage/AOD.05522648._000044.pool.root.1"
-  FNAME = "../rootfile_storage/ESD.05297574._000081.pool.root.1"
-  print " Hello, Max"
-
-#FNAME = "ESD.05297574._000081.pool.root.1"
-#FNAME = "AOD.pool.root"
+  FNAME = "../command/target.pool.root"
+  '''
+  The following sets an environment variable to enable backtracking debug messages.
+  To use in C++:
+  const char * debugBacktracking = std::getenv("BACKTRACKDEBUG");
+  '''
+  os.environ["BACKTRACKDEBUG"] = "0"
+  #
 include( "AthenaPython/iread_file.py" )
-
 
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
@@ -27,13 +23,12 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/hdef.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPhysValMonitoringPlotDefinitions.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
 decorators = InDetPhysValDecoratorAlg()
 topSequence += decorators
-
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )
@@ -47,33 +42,67 @@ monMan.FileKey = "M_output"
 topSequence += monMan
 
 
+#this works:
+'''
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectorTool",
+                                                        CutLevel = InDetPrimaryVertexingCuts.TrackCutLevel(),
+                                                        minPt = InDetPrimaryVertexingCuts.minPT(),
+                                                        maxD0 = InDetPrimaryVertexingCuts.IPd0Max(),
+                                                        maxZ0 = InDetPrimaryVertexingCuts.z0Max(),
+                                                        maxZ0SinTheta = InDetPrimaryVertexingCuts.IPz0Max(),
+                                                        maxSigmaD0 = InDetPrimaryVertexingCuts.sigIPd0Max(),
+                                                        maxSigmaZ0SinTheta = InDetPrimaryVertexingCuts.sigIPz0Max(),
+                                                        # maxChiSqperNdf = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
+                                                        maxAbsEta = InDetPrimaryVertexingCuts.etaMax(),
+                                                        minNInnermostLayerHits = InDetPrimaryVertexingCuts.nHitInnermostLayer(),
+                                                        minNPixelHits = InDetPrimaryVertexingCuts.nHitPix(),
+                                                        maxNPixelHoles = InDetPrimaryVertexingCuts.nHolesPix(),
+                                                        minNSctHits = InDetPrimaryVertexingCuts.nHitSct(),
+                                                        minNTrtHits = InDetPrimaryVertexingCuts.nHitTrt(),
+                                                        minNSiHits = InDetPrimaryVertexingCuts.nHitSi(),
+                                                        TrackSummaryTool = InDetTrackSummaryTool,
+                                                        Extrapolator = InDetExtrapolator)
+
+
+ToolSvc += InDetTrackSelectorTool
+'''
+#This section should control TTST  7-12-16                                                        
+mode = "Fwd" #Set this to "Back" for backtracking
+from InDetPhysValMonitoring.InDetPhysValMonitoringConf import AthTruthSelectionTool
+AthTruthSelectionTool = AthTruthSelectionTool()
+
+if mode=="Back":
+  # max prod. vertex radius for secondaries [mm]
+  AthTruthSelectionTool.minPt = 5000
+  AthTruthSelectionTool.maxProdVertRadius = 4000 
+  AthTruthSelectionTool.maxBarcode = -1
+  AthTruthSelectionTool.hasNoGrandparent = True
+
+  os.environ["BACKTRACKDEBUG"] = "1"
+
+print AthTruthSelectionTool
+ToolSvc += AthTruthSelectionTool
+
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
-
-#tool1.useTrackSelection = True
-'''
-#tool1.useTrackSelection = True
-#tool1.onlyInsideOutTracks = True
-tool1.TrackSelectionTool.CutLevel         = "Loose"
-tool1.TrackSelectionTool.UseTrkTrackTools = True
-tool1.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-tool1.TrackSelectionTool.Extrapolator     = InDetExtrapolator
-'''
-
+tool1.TruthSelectionTool = AthTruthSelectionTool
+tool1.useTrackSelection = False
+#tool1.TrackSelectionTool=InDetTrackSelectorTool
+tool1.FillTrackInJetPlots = False
+print tool1
 ToolSvc += tool1
+
 monMan.AthenaMonTools += [tool1]
 
-
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True,useSCT= True, CountDeadModulesAfterLastHit = True)
+InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True, useSCT= True, CountDeadModulesAfterLastHit = True)
 ToolSvc += InDetHoleSearchTool
 print InDetHoleSearchTool
-
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 svcMgr.THistSvc.Output += ["M_output DATAFILE='M_output.root' OPT='RECREATE'"]
-
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
@@ -81,4 +110,4 @@ ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
 if (getpass.getuser())=="sroe":
-  theApp.EvtMax = 1
+  theApp.EvtMax = -1

@@ -1,30 +1,31 @@
-2015-10-07 Shaun Roe
+2015 - 10 - 07 Shaun Roe
 To Run Example
 'cd' to your Athena working directory
 
-cd MyAthena/physval
-asetup dev, rel_1,here
-cmt co InnerDetector/InDetValidation/InDetPhysValMonitoring
+cd MyAthena / physval
+asetup dev, rel_1, here
+cmt co InnerDetector / InDetValidation / InDetPhysValMonitoring
 
-cd  InnerDetector/InDetValidation/InDetPhysValMonitoring/cmt
+cd InnerDetector / InDetValidation / InDetPhysValMonitoring / cmt
 
 source setup.sh
 cmt broadcast gmake
 cmt broadcast cmt config
 
-cd ../run
-source getSomeData.sh
+cd../ run
+source getSomeData.
+ sh
 
-(enter your grid pwd when prompted)
+  (enter your grid pwd when prompted)
 
 athena PhysVal_jobOptions.py
 
 
-sometimes the 'getSomeData' needs two goes, not sure why....
+sometimes the 'getSomeData' needs two goes, not sure why ....
 
-***NOTE: EACH TIME you wish to change the dataset and run again, DELETE THE PoolCatalog
-XML file *** or you will get the 'problem running chappy' error.
+ ***NOTE: EACH TIME you wish to change the dataset and run again, DELETE THE PoolCatalog
+XML file * * *or you will get the 'problem running chappy' error.
 
 
-Check  the following TWiki for additional advice:
-https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PhysValMonitoring
+ Check the following TWiki for additional advice:
+ https:// twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PhysValMonitoring

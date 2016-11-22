@@ -91,6 +91,18 @@ TProfile trackeff_vs_d0 "Fraction of reco-matched truth track"	100 -25	 25 0 2	 
 TProfile trackeff_vs_z0 "Fraction of reco-matched truth track"  100 -250  250 0 2  "z0" "Efficiency" default
 TProfile trackeff_vs_R "Fraction of reco-matched truth track"  100 0  50 0 2  "R" "Efficiency" default
 TProfile trackeff_vs_Z "Fraction of reco-matched truth track"  100 -350  350 0 2  "Z" "Efficiency" default
+TProfile trackeff_vs_prodR "Track Efficiency vs Production Vertex Radius" 100 0 1500 0 2 "prod_R" "Efficiency" default
+TProfile trackeff_vs_prodZ "Track Efficiency vs Production Vertex Z" 100 0 2000 0 2 "prod_Z" "Efficiency" default
+TProfile low_Pt_lepton_frac "Fraction of Primary Leptons with Pt below 3 GeV" 100 0 1500 0 2 "prod_R" "Efficiency" default
+
+#layer-by-layer efficiencies
+TProfile eff_hit_vs_eta_ibl_barrel "Cluster Efficiency: Pixel Barrel IBL" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_pix_barrel "Cluster Efficiency: Pixel Barrel" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_pix_endcap "Cluster Efficiency: Pixel Endcap" 4 1.5 2.5 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_sct_barrel "Cluster Efficiency: SCT Barrel" 7 0 1.75 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_sct_endcap "Cluster Efficiency: SCT Endcap" 6 1 2.5 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_trt_barrel "Cluster Efficiency: TRT Barrel" 5 0 1.25 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_trt_endcap "Cluster Efficiency: TRT Endcap" 6 0.75 2.25 0 2 "#eta" "Cluster Efficiency" default
 
 #vertices
 TH1F vx_x "X position of vertex" 200  -1.0 1.0 "X (mm)" "Entries" default
@@ -113,11 +125,92 @@ TH1F vx_track_z0 "Tracks at vertex z_{0} - z_{0}^{vertex}" 100 -5.0 5.0 "z_{0}-z
 TH1F vx_track_err_z0 "Tracks at vertex z_{0} error" 50 0.0 5.0 "#sigma(z_{0}) (mm)" "Entries" default
 #
 # Bad Match Rate (BMR) plots
-TProfile BadMatchRate "Fraction of Tracks with < 80% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Bad Match Rate" default
-TProfile BadMatchRate_vs_logpt "Fraction of Tracks with < 80% TMP vs Log(Pt)" 10 -0.5 2 0 2 "x" "Bad Match Rate vs Log(Pt)" default
+TProfile BadMatchRate "Fraction of Tracks with < 50.1% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Bad Match Rate" default
+TProfile BadMatchRate_vs_logpt "Fraction of Tracks with < 50.1% TMP vs Log(Pt)" 10 -0.5 2 0 2 "x" "Bad Match Rate vs Log(Pt)" default
 
-TProfile ReallyFakeRate "Fraction of Tracks with < 20% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Really Fake Rate" default
+TProfile ReallyFakeRate "Fraction of Tracks with < 50.0% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Really Fake Rate" default
 #
+
+# Track Parameter Resolution Plots
+#Track Parameter TH2s vs eta
+TH2 res_d0_vs_eta "d_{0}: deviation vs #eta" 20 -2.5 2.5 2000 -1.0 1.0 "#eta" "d_{0}^{rec} - d_{0}^{tru}" default
+TH2 res_z0_vs_eta "z_{0}: deviation vs #eta" 20 -2.5 2.5 200 -1.5	1.5 "#eta" "z_{0}^{rec} - z_{0}^{tru}" default
+TH2 res_phi_vs_eta "#phi: deviation vs #eta" 20 -2.5 2.5 3000 -0.03	0.03 "#eta" "#phi^{rec} - #phi^{tru}" default
+TH2 res_theta_vs_eta "#theta: deviation vs #eta" 20 -2.5 2.5 2000 -0.1 0.1 "#eta" "#theta^{rec} - #theta^{tru}" default
+TH2 res_z0*sin(theta)_vs_eta "z_{0}*sin(#theta): deviation vs #eta" 20 -2.5 2.5 200 -1.5	1.5 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH2 res_qopt_vs_eta "qopt: deviation vs #eta" 20 -2.5 2.5 200 -0.4 0.4 "#eta" "(q/pt)^{rec} - (q/pt)^{tru}" default
+
+#Track Parameter Means vs eta
+TH1F resmean_d0_vs_eta "d_{0} Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "d_{0}^{rec} - d_{0}^{tru}" default
+TH1F resmean_z0_vs_eta "z_{0} Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "z_{0}^{rec} - z_{0}^{tru}" default
+TH1F resmean_phi_vs_eta "#phi Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "#phi^{rec} - #phi^{tru}" default
+TH1F resmean_theta_vs_eta "#theta Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "#theta^{rec} - #theta^{tru}" default
+TH1F resmean_z0*sin(theta)_vs_eta "z_{0}*sin(#theta) Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH1F resmean_qopt_vs_eta "q/pt Track Measurement Bias vs #eta" 20 -2.5 2.5 "#eta" "(q/pt)^{rec} - (q/pt)^{tru}" default
+
+#Track Parameter Resolutions vs eta
+TH1F reswidth_d0_vs_eta "d_{0} Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(d_{0}^{rec} - d_{0}^{tru})" default
+TH1F reswidth_z0_vs_eta "z_{0} Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(z_{0}^{rec} - z_{0}^{tru})" default
+TH1F reswidth_phi_vs_eta "#phi Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(#phi^{rec} - #phi^{tru})" default
+TH1F reswidth_theta_vs_eta "#theta Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(#theta^{rec} - #theta^{tru})" default
+TH1F reswidth_z0*sin(theta)_vs_eta "z_{0}*sin(#theta) Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})" default
+TH1F reswidth_qopt_vs_eta "q/pt Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma((q/pt)^{rec} - (q/pt)^{tru})" default
+
+#Track Parameter TH2s vs log(Pt)
+TH2 res_d0_vs_pt "d_{0}: deviation vs log(Pt)" 10 -0.5 2.0 2000 -1.0	1.0 "log(Pt) (GeV)" "d_{0}^{rec} - d_{0}^{tru}" default
+TH2 res_z0_vs_pt "z_{0}: deviation vs log(Pt)" 10 -0.5 2.0 200 -1.5       1.5 "log(Pt) (GeV)" "z_{0}^{rec} - z_{0}^{tru}" default
+TH2 res_phi_vs_pt "#phi: deviation vs log(Pt)" 10 -0.5 2.0 3000 -0.03     0.03 "log(Pt) (GeV)" "#phi^{rec} - #phi^{tru}" default
+TH2 res_theta_vs_pt "#theta: deviation vs log(Pt)" 10 -0.5 2.0 2000 -0.1 0.1 "log(Pt) (GeV)" "#theta^{rec} - #theta^{tru}" default
+TH2 res_z0*sin(theta)_vs_pt "z_{0}*sin(#theta): deviation vs log(Pt)" 10 -0.5 2.0 200 -1.5        1.5 "log(Pt) (GeV)" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH2 res_qopt_vs_pt "qopt: deviation vs log(Pt)" 10 -0.5 2.0 200 -0.4 0.4 "log(Pt) (GeV)" "(q/pt)^{rec} - (q/pt)^{tru}" default
+
+#Track Parameter Means vs log(Pt)
+TH1F resmean_d0_vs_pt "d_{0} Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "d_{0}^{rec} - d_{0}^{tru}" default
+TH1F resmean_z0_vs_pt "z_{0} Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "z_{0}^{rec} - z_{0}^{tru}" default
+TH1F resmean_phi_vs_pt "#phi Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#phi^{rec} - #phi^{tru}" default
+TH1F resmean_theta_vs_pt "#theta Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#theta^{rec} - #theta^{tru}" default
+TH1F resmean_z0*sin(theta)_vs_pt "z_{0}*sin(#theta) Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH1F resmean_qopt_vs_pt "q/pt Track Measurement Bias vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "(q/pt)^{rec} - (q/pt)^{tru}" default
+
+#Track Parameter Resolutions vs log(Pt)
+TH1F reswidth_d0_vs_pt "d_{0} Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma(d_{0}^{rec} - d_{0}^{tru})" default
+TH1F reswidth_z0_vs_pt "z_{0} Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma(z_{0}^{rec} - z_{0}^{tru})" default
+TH1F reswidth_phi_vs_pt "#phi Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma(#phi^{rec} - #phi^{tru})" default
+TH1F reswidth_theta_vs_pt "#theta Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma(#theta^{rec} - #theta^{tru})" default
+TH1F reswidth_z0*sin(theta)_vs_pt "z_{0}*sin(#theta) Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})" default
+TH1F reswidth_qopt_vs_pt "q/pt Track Resolution vs log(Pt)" 10 -0.5 2.0 "log(Pt) (GeV)" "#sigma((q/pt)^{rec} - (q/pt)^{tru})" default
+
+#Basic Track Pulls
+TH1F pull_d0 "Pull of d_{0}" 200 -5.0 5.0 "pull" "counts" default
+TH1F pull_z0 "Pull of z_{0}" 200 -5.0 5.0 "pull" "counts" default
+TH1F pull_phi "Pull of #phi" 200 -5.0 5.0 "pull" "counts" default
+TH1F pull_theta "Pull of #theta" 200 -5.0 5.0 "pull" "counts" default
+TH1F pull_z0*sin(theta) "Pull of z_{0}*sin(#theta)" 200 -5.0 5.0 "pull" "counts" default
+TH1F pull_qopt "Pull of (q/pt)" 200 -5.0 5.0 "pull" "counts" default
+
+#Track Pull TH2s vs eta
+TH2 pull_d0_vs_eta "d_{0}: Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "d_{0}^{rec} - d_{0}^{tru})/#sigma_d_0" default
+TH2 pull_z0_vs_eta "z_{0}: Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "z_{0}^{rec} - z_{0}^{tru})/#sigma_z_0" default
+TH2 pull_phi_vs_eta "#phi: Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "#phi^{rec} - #phi^{tru})/#sigma_#phi" default
+TH2 pull_theta_vs_eta "#theta: Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "#theta^{rec} - #theta^{tru})/#sigma_#theta" default
+TH2 pull_z0*sin(theta)_vs_eta "z_{0}*sin(#theta): Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})/#sigma_z_0*sin(#theta)" default
+TH2 pull_qopt_vs_eta "q/pt: Pull vs #eta" 20 -2.5 2.5 200 -5.0 5.0 "#eta" "(q/pt)^{rec} - (q/pt)^{tru})/#sigma_(q/pt)" default
+
+#Track Pull Means vs eta
+TH1F pullmean_d0_vs_eta "d_{0} Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "d_{0}^{rec} - d_{0}^{tru}" default
+TH1F pullmean_z0_vs_eta "z_{0} Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "z_{0}^{rec} - z_{0}^{tru}" default
+TH1F pullmean_phi_vs_eta "#phi Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "#phi^{rec} - #phi^{tru}" default
+TH1F pullmean_theta_vs_eta "#theta Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "#theta^{rec} - #theta^{tru}" default
+TH1F pullmean_z0*sin(theta)_vs_eta "z_{0}*sin(#theta) Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH1F pullmean_qopt_vs_eta "q/pt Track Pull Mean vs #eta" 20 -2.5 2.5 "#eta" "(q/pt)^{rec} - (q/pt)^{tru}" default
+
+#Track Pull Resolutions vs eta
+TH1F pullwidth_d0_vs_eta "d_{0} Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(d_{0}^{rec} - d_{0}^{tru})" default
+TH1F pullwidth_z0_vs_eta "z_{0} Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(z_{0}^{rec} - z_{0}^{tru})" default
+TH1F pullwidth_phi_vs_eta "#phi Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(#phi^{rec} - #phi^{tru})" default
+TH1F pullwidth_theta_vs_eta "#theta Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(#theta^{rec} - #theta^{tru})" default
+TH1F pullwidth_z0*sin(theta)_vs_eta "z_{0}*sin(#theta) Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})" default
+TH1F pullwidth_qopt_vs_eta "q/pt Track Pull Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma((q/pt)^{rec} - (q/pt)^{tru})" default
 
 #
 #hitResidual plots
@@ -265,8 +358,32 @@ TProfile HitContent_vs_eta_NPixelContribLayers "Number of contributed Pixel laye
 TProfile HitContent_vs_eta_NPixelSharedHits "Number of shared Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Shared Hits>" default
 TProfile HitContent_vs_eta_NPixelSplitHits "Number of split Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Split Hits>" default
 TProfile HitContent_vs_eta_NPixelGangedHits "Number of ganged Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Ganged Hits>" default
+TProfile HitContent_vs_eta_NPixelGangedHitsFlaggedFakes "Number of ganged flagged fake Pixel hits vs eta" 20 -2.5 2.5 0 2 "#eta" "Flagged Fakes in Pixel" default
 TProfile HitContent_vs_eta_NSCTOutliers "Number of SCT Outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Outliers>" default
 TProfile HitContent_vs_eta_NSCTDoubleHoles "Number of SCT double holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Double Holes>" default
 TProfile HitContent_vs_eta_NSCTSharedHits "Number of SCT Shared clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Shared Hits>" default
 TProfile HitContent_vs_eta_NTRTOutliers "Number of TRT outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Outliers>" default
 TProfile HitContent_vs_eta_NTRTHighThresholdOutliers "Number of TRT High Threshold outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT High Thresh Outliers>" default
+
+#trackinjet efficiencies
+TProfile trackinjeteff_vs_eta "Track in jets efficiency vs #eta" 20 -2.5 2.5 0 2.0 "#eta" "Efficiency" default
+TProfile trackinjeteff_vs_phi "Track in jets efficiency vs #phi" 24 180 180 0 2.0 "#phi" "Efficiency" default
+TProfile trackinjeteff_vs_pt "Track in jets efficiency vs p_{T} for |#eta| &lt; 2.5 (Det. Paper def.)" 25 0 50 0 2.0 "p_{T} (GeV/c)" "Efficiency" default
+TProfile trackinjeteff_vs_dr "Track in jets efficiency vs #DeltaR for |#eta| &lt; 2.5 (Det. Paper def.)" 10 0 0.4 0 2.0 "#DeltaR" "Efficiency" default
+TProfile trackinjeteff_vs_dr_lt_j50 "Track in jets efficiency vs #DeltaR for |#eta| &lt; 2.5 (E_{T}(jet) < 50 GeV)" 10 0 0.2 0 2.0 "#DeltaR" "Efficiency" default
+TProfile trackinjeteff_vs_dr_gr_j100 "Track in jets efficiency vs #DeltaR for |#eta| &lt; 2.5 (E_{T}(jet) > 100 GeV)" 10 0 0.2 0 2.0 "#DeltaR" "Efficiency" default
+TProfile trackinjeteff_vs_jetet "Track in jets efficiency vs jet E_{T} for |#eta| &lt; 2.5 " 10 0 250 0 2.0 "E_{jet} (GeV)" "Efficiency" default
+
+
+#trackinjet bad match rates
+TProfile trackinjet_badmatchrate_vs_dr_gr_j100 "Fraction of tracks with &lt; 80% truth matching probability in Jets with E_{T} &gt; 100 GeV" 10 0 0.2 0 2 "#DeltaR" "Bad Match Rate" default
+
+#stuff pilfered from the old Backtracking script
+TH1F eta_of_parent_particles "#eta of parent particles" 20 -2.5 2.5 "#eta" "Entries" default
+TProfile eff_vs_eta_of_daughters "Efficiency vs #eta of daughter particles" 20 -2.5 2.5 0 2.0 "#eta" "Efficiency" default
+TProfile eff_vs_theta_of_daughters "Efficiency vs #theta of daughter particles" 20 0 3.1415926 0 2.0 "#theta" "Efficiency" default
+TProfile eff_vs_theta_tan_of_daughters "Efficiency vs tan(#theta) of daughter particles" 32 -8 8 0 2.0 "tan(#theta)" "Efficiency" default
+TProfile eff_vs_theta_cotan_of_daughters "Efficiency vs cotan(#theta) of daughter particles" 32 -8 8 0 2.0 "cotan(#theta)" "Efficiency" default
+TProfile eff_vs_phi_of_daughters "Efficiency vs #phi of daughter particles" 16 -3.1415926 3.1415926 0 2.0 "#phi" "Efficiency" default
+TProfile eff_vs_phi_sin_of_daughters "Efficiency vs sin(#phi) of daughter particles" 14 -1.2 1.2 0 2.0 "sin(#phi)" "Efficiency" default
+TProfile eff_vs_phi_cos_of_daughters "Efficiency vs cos(#phi) of daughter particles" 14 -1.2 1.2 0 2.0 "cos(#phi)" "Efficiency" default

@@ -1,0 +1,13 @@
+<!-- 
+  NOTE: this is *NOT* well-formed xml, and is intended to be used only as an external
+  entity to be included in a parent file so that the parent file should be well-formed.
+  See note in 'entityMaster.xml'.
+-->
+  <h id="include" type="TH1F" title="Included using ENTITY!">
+    <x title="I have been included" n="100;" lo="0" hi="&ETAMAX;"/>
+    <y title="Num. entries"/>
+  </h>
+  <h id="include2" type="TH1F" title="Included using ENTITY!!">
+    <x title="I have also been included" n="100;" lo="0" hi="&ETAMAX;"/>
+    <y title="Num. entries"/>
+  </h>

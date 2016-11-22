@@ -2,6 +2,7 @@
 # Package: InDetPhysValMonitoring
 ################################################################################
 
+
 # Declare the package name:
 atlas_subdir( InDetPhysValMonitoring )
 
@@ -9,23 +10,25 @@ atlas_subdir( InDetPhysValMonitoring )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
+			  DetectorDescription/AtlasDetDescr
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           GaudiKernel
+			  InnerDetector/InDetDetDescr/InDetIdentifier
+			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           Tracking/TrkValidation/TrkValHistUtils
+			  DetectorDescription/AtlasDetDescr
                           PRIVATE
                           Control/AthToolSupport/AsgTools
                           Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODJet
                           InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           PhysicsAnalysis/MCTruthClassifier
@@ -35,6 +38,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces )
+                          
 
 # External dependencies:
 find_package( Eigen )
@@ -51,6 +55,6 @@ atlas_add_component( InDetPhysValMonitoring
 # Install files from the package:
 atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
-atlas_install_runtime( share/*.hdef )
+atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl} )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 

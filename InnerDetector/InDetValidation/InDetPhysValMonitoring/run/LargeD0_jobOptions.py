@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LargeD0_jobOptions.py 747079 2016-05-13 16:10:27Z sroe $
+# $Id: LargeD0_jobOptions.py 779296 2016-10-19 18:17:30Z sroe $
 
 # Set up the reading of the input xAOD:
 
@@ -9,7 +9,14 @@
 #"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
 
 import getpass
-FNAME = "AOD.pool.root.1"
+FNAME = "AOD.pool.root"
+'''
+FNAME = ["/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000001.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000002.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000003.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000004.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000005.pool.root"
+         ]'''
 
 # -- Glob, if necessary ('*' is FNAME)
 if '*' in FNAME:
@@ -28,7 +35,8 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/LargeD0PlotDefinitions.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
 decorators = InDetPhysValDecoratorAlg()
@@ -48,8 +56,9 @@ topSequence += monMan
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 truthSelection = TrackTruthSelectionTool()
-truthSelection.requireDecayBeforePixel = False
+#truthSelection.requireDecayBeforePixel = False
 truthSelection.minPt = 1000.
+truthSelection.maxBarcode = -1
 ToolSvc += truthSelection
 
 # @asogaard
@@ -70,7 +79,7 @@ print trackSelection
 #trackSelection.maxPixelOutliers  = -1
 #trackSelection.maxHoles       = -1
 #trackSelection.maxSCTHits       = -1
-#trackSelection.minSCTHits     = -1
+#trackSelection.minSCTHits     = 9
 #trackSelection.maxSctHoles    = -1
 #trackSelection.maxDoubleHoles = -1
 #trackSelection.maxTRTOutliers       = -1
@@ -85,7 +94,7 @@ tool2.TruthSelectionTool = truthSelection
 # Specify Long-lived particle for efficiency plot
 # Available options: Zprime, Wino, Gluino, or empty ("") for no selection 
 #tool2.LongLivedParticle = "" # @asogaard
-#tool2.SignalIds = "32"
+#tool2.SignalIds = [32]
 
 ToolSvc += tool2
 
@@ -102,7 +111,6 @@ print InDetHoleSearchTool
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 svcMgr.THistSvc.Output += ["output DATAFILE='output.root' OPT='RECREATE'"]
-
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp

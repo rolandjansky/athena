@@ -5,7 +5,7 @@
 /**
  * @file ParameterErrDecoratorTool.cxx
  * @author shaun roe
-**/
+ **/
 #include "ParameterErrDecoratorTool.h"
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -13,55 +13,58 @@
 
 
 
-ParameterErrDecoratorTool::ParameterErrDecoratorTool(const std::string& type,const std::string& name,const IInterface* parent):
-AthAlgTool(type,name,parent){
-	declareInterface<IInDetPhysValDecoratorTool>(this);
- 
+ParameterErrDecoratorTool::ParameterErrDecoratorTool(const std::string &type, const std::string &name,
+                                                     const IInterface *parent) :
+  AthAlgTool(type, name, parent) {
+  declareInterface<IInDetPhysValDecoratorTool>(this);
 }
 
-ParameterErrDecoratorTool::~ParameterErrDecoratorTool(){
-//nop
+ParameterErrDecoratorTool::~ParameterErrDecoratorTool() {
+// nop
 }
 
-StatusCode 
-ParameterErrDecoratorTool::initialize(){
-	if (AlgTool::initialize().isFailure()) return StatusCode::FAILURE;
+StatusCode
+ParameterErrDecoratorTool::initialize() {
+  if (AlgTool::initialize().isFailure()) {
+    return StatusCode::FAILURE;
+  }
 
-	//
-	
-	return StatusCode::SUCCESS;
+  //
+
+  return StatusCode::SUCCESS;
 }
 
-StatusCode 
-ParameterErrDecoratorTool::finalize  (){
-	return StatusCode::SUCCESS;
+StatusCode
+ParameterErrDecoratorTool::finalize() {
+  return StatusCode::SUCCESS;
 }
 
-bool 
-ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle,const std::string & prefix){
-	ATH_MSG_VERBOSE ("Decorate track with errors ");
-	bool success(true);
-	const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();
-	double mtheta = particle.theta();
-	double mqp = particle.qOverP();
-	Trk::JacobianThetaPToCotThetaPt TheJac(mtheta,mqp);
-	AmgSymMatrix(5) covVert;
-	covVert = errorMat.similarity(TheJac);
-	float trkd0err = Amg::error(covVert,0);
-  float trkz0err = Amg::error(covVert,1);
-  float trkphierr = Amg::error(covVert,2);
-  float trkthetaerr = Amg::error(errorMat,Trk::theta);
-  float trkqopterr = Amg::error(covVert,4)*1000.;
-	//
-  particle.auxdecor<float>(prefix+"d0err") = trkd0err;
-  particle.auxdecor<float>(prefix+"z0err") = trkz0err;
-  particle.auxdecor<float>(prefix+"phierr") = trkphierr;
-  particle.auxdecor<float>(prefix+"thetaerr") = trkthetaerr;
-  particle.auxdecor<float>(prefix+"qopterr") = trkqopterr;
-	return success;
+bool
+ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix) {
+  ATH_MSG_VERBOSE("Decorate track with errors ");
+  bool success(true);
+  const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();
+  double mtheta = particle.theta();
+  double mqp = particle.qOverP();
+  Trk::JacobianThetaPToCotThetaPt TheJac(mtheta, mqp);
+  AmgSymMatrix(5) covVert;
+  covVert = errorMat.similarity(TheJac);
+  float trkd0err = Amg::error(covVert, 0);
+  float trkz0err = Amg::error(covVert, 1);
+  float trkphierr = Amg::error(covVert, 2);
+  float trkthetaerr = Amg::error(errorMat, Trk::theta);
+  float trkqopterr = Amg::error(covVert, 4) * 1000.;
+  //
+  particle.auxdecor<float>(prefix + "d0err") = trkd0err;
+  particle.auxdecor<float>(prefix + "z0err") = trkz0err;
+  particle.auxdecor<float>(prefix + "phierr") = trkphierr;
+  particle.auxdecor<float>(prefix + "thetaerr") = trkthetaerr;
+  particle.auxdecor<float>(prefix + "qopterr") = trkqopterr;
+  return success;
 }
+
 /**
-AmgVector(5) perigeeParams = startPerigee->parameters();
+   AmgVector(5) perigeeParams = startPerigee->parameters();
       trkd0    = perigeeParams[Trk::d0];
       trkz0    = perigeeParams[Trk::z0];
       trkphi   = perigeeParams[Trk::phi0];
@@ -90,4 +93,4 @@ AmgVector(5) perigeeParams = startPerigee->parameters();
       //trkcoterr = Amg::error(covVert,3);
       trkqopterr = Amg::error(covVert,4)*1000.;
       trkthetaerr = Amg::error((*ErrorMat),Trk::theta);
-      **/
+ **/

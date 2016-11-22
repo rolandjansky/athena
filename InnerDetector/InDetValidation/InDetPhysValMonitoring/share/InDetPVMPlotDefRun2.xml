@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtml.xsl"?>
+<?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>
+<!DOCTYPE  hdef [
+<!ENTITY PI "3.1415926">
+<!ENTITY ETA "2.5">
+<!ENTITY ETAPixECMin "1.5">
+<!ENTITY ETASct "2.0">
+<!ENTITY ETASctECMin "1.0">
+<!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
+]>
+
+<hdef xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- Plots common to Run2 and ITK -->
+  &Common;
+  <!-- Run2-specific plots -->
+  <!--
+     =======================================================
+     hit residuals:
+     =======================================================
+    -->
+  <!-- x residuals -->
+  <!-- barrel-->
+  <h id="residualx_ibl_barrel" type="TH1F" title="Residual: IBL Barrel X">
+    <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X 1 hit">
+    <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X &gt;=2 hits">
+    <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_trt_barrel" type="TH1F" title="Residual: TRT Barrel X">
+    <x title="x residual(#mum)" n="200" lo="-500" hi="500"/> 
+    <y title="Entries"/>
+  </h>
+  <!-- endcap-->
+  <h id="residualx_blayer_endcap" type="TH1F" title="Residual: B-Layer Endcap X">
+    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_blayer_endcap_1hit" type="TH1F" title="Residual: B-Layer Endcap X 1 hit">
+    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_blayer_endcap_2ormorehits" type="TH1F" title="Residual: B-Layer Endcap X &gt;=2 hits">
+    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_trt_endcap" type="TH1F" title="Residual: TRT Endcap X">
+    <x title="x residual(#mum)" n="200" lo="-500" hi="500"/> 
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_dbm_neg" type="TH1F" title="Residual: DBM -side X">
+    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualx_dbm_pos" type="TH1F" title="Residual: DBM +side X">
+    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
+    <y title="Entries"/>
+  </h>
+  <!-- y residuals -->
+  <!-- barrel -->
+  <h id="residualy_ibl_barrel" type="TH1F" title="Residual: IBL Barrel Y">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y 1 hit">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y &gt;=2 hits">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_trt_barrel" type="TH1F" title="Residual: TRT Barrel Y">
+    <x title="y residual(#mum)" n="120" lo="0" hi="2500"/>
+    <y title="Entries"/>
+  </h>
+  <!-- endcaps -->
+  <h id="residualy_sct_endcap" type="TH1F" title="Residual: SCT Endcap Y">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_sct_endcap_1hit" type="TH1F" title="Residual: SCT Endcap Y 1 hit">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_sct_endcap_2ormorehits" type="TH1F" title="Residual: SCT Endcap Y &gt;=2 hits">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_blayer_endcap" type="TH1F" title="Residual: B-Layer Endcap Y">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_blayer_endcap_1hit" type="TH1F" title="Residual: B-Layer Endcap Y 1 hit">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_blayer_endcap_2ormorehits" type="TH1F" title="Residual: B-Layer Endcap Y &gt;=2 hits">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_trt_endcap" type="TH1F" title="Residual: TRT Endcap Y">
+    <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_dbm_neg" type="TH1F" title="Residual: DBM -side Y">
+    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualy_dbm_pos" type="TH1F" title="Residual: DBM +side Y">
+    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <!-- pulls -->
+  <!-- barrel, x -->
+  <h id="residualpullx_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpullx_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpullx_dbm_barrel" type="TH1F" title="Residualpull: DBM -side X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <!-- endcap, x -->
+  <h id="residualpullx_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpullx_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpullx_dbm_endcap" type="TH1F" title="Residualpull: DBM +side X">
+    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <!-- barrel, y -->
+  <h id="residualpully_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
+    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpully_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel Y">
+    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpully_dbm_barrel" type="TH1F" title="Residualpull: DBM -side Y">
+    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <!-- endcap,y -->
+  <h id="residualpully_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
+    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpully_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap Y">
+    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <h id="residualpully_dbm_endcap" type="TH1F" title="Residualpull: DBM +side Y">
+    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  <!--
+     =======================================================
+     end of hit residuals plots
+     ========================================================
+    -->
+  <!--
+     =======================================================
+     hit efficiency plots: 
+     ========================================================
+    -->
+  <h id="eff_hit_vs_eta_trt_barrel" type="TProfile" title="Cluster Efficiency: TRT Barrel">
+    <x title="#eta" n="5" lo="0" hi="1.25"/>
+    <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+  </h>
+  <h id="eff_hit_vs_eta_trt_endcap" type="TProfile" title="Cluster Efficiency: TRT Endcaps">
+    <x title="#eta" n="6" lo="0.75" hi="2.25"/>
+    <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+  </h>
+  <!--
+     =======================================================
+     end of hit efficiency plots
+     ======================================================
+    -->
+</hdef>
+

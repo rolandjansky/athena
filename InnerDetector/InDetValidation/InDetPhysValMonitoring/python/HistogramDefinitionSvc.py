@@ -26,4 +26,6 @@ class HistogramDefinitionSvc(object) :
                                            name = self.__class__.__name__))
 
           # special parameters of the default HistogramDefinitionSvc
-          self.DefinitionSource="inDetPhysValMonitoringPlotDefinitions.hdef"
+          self.DefinitionSource="InDetPhysValMonitoringPlotDefinitions.xml"
+          self.DefinitionFormat="text/xml"
+

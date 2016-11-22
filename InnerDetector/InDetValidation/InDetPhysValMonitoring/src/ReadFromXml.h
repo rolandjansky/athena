@@ -13,21 +13,20 @@
 #include "InDetPhysValMonitoring/SingleHistogramDefinition.h"
 
 
-class ReadFromXml:public IReadHistoDef{
+class ReadFromXml: public IReadHistoDef {
 public:
-    ReadFromXml();
-    ReadFromXml(const std::string & source);
-    std::string source() const final;
-    std::string format() const final;
-    bool histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>  & usersMap) const final;
-    bool insertDefinition(const SingleHistogramDefinition & oneDefinition);
-    bool initialize() final;
-    bool sourceExists() const final;
+  ReadFromXml();
+  ReadFromXml(const std::string &source);
+  std::string source() const final;
+  std::string format() const final;
+  bool histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersMap) const final;
+  bool insertDefinition(const SingleHistogramDefinition &oneDefinition);
+  bool initialize() final;
+  bool sourceExists() const final;
 private:
-    std::vector <SingleHistogramDefinition> m_vectorOfDefinitions;
-    SingleHistogramDefinition parseTextLine(const std::string & line);
-    std::string m_source;
-    const std::string m_format;
-
+  std::vector <SingleHistogramDefinition> m_vectorOfDefinitions;
+  SingleHistogramDefinition parseTextLine(const std::string &line);
+  std::string m_source;
+  const std::string m_format;
 };
 #endif /* ReadFromXml_h */

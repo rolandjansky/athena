@@ -22,12 +22,19 @@ def findAlg(alg_name) :
      if no algorithm of the given name is found the index just before the AhtenaOutputStream is returned.
      if all that fails None is returned.
   '''
+  if not isinstance(alg_name, (list, tuple)) :
+      print >> sys.stderr,'ERROR logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name))
+      import sys
+      sys.exit(1)
+
   from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
   topSequence = AlgSequence()
   count=0
   mon_man_index=None
   for child in topSequence.getChildren() :
+     # if child.getName() in alg_name :
      if child.getName() in alg_name :
+         # print 'DEBUG findAlg %s =?=  %s ' %(child.getName(),alg_name)
          mon_man_index = count
          if len(alg_name) == 1 :
            break
@@ -35,10 +42,10 @@ def findAlg(alg_name) :
 
   if mon_man_index == None :
      count=0
-     exclude_streams=['StreamBS']     
+     exclude_streams=['StreamBS']
      for child in topSequence.getChildren() :
          if child.getType() == 'AthenaOutputStream' and child.getName() not in exclude_streams:
-             print 'DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) )
+             # print 'DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) )
              mon_man_index = count
              break
          count += 1
@@ -235,9 +242,16 @@ def _addDecorators(decorator_alg_list, add_after=None) :
   which is generally not available at later stages. The decorations added by this
   algorithm are used by InDetPhysValMonitoring tool.
   '''
+
+  if add_after != None and not isinstance(add_after, (list, tuple)) :
+      print >> sys.stderr,'ERROR logic error findAlg called with a non list argument %s / %s' %(alg_name,type(alg_name))
+      import sys
+      sys.exit(1)
+
   # Access the algorithm sequence:
   from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
   topSequence = AlgSequence()
+  # print 'DEBUG add _addDecorators add after %s ' % (add_after)
 
   # if there is a monitoring manager add decorator before
   mon_man_index=findMonMan()
@@ -246,10 +260,11 @@ def _addDecorators(decorator_alg_list, add_after=None) :
       if alg_index != None :
           # add after the found algorithm
           mon_man_index =alg_index + 1
+  # print 'DEBUG _addDecorators after this %s ' % (mon_man_index)
 
   if mon_man_index == None :
      for decorator_alg in decorator_alg_list :
-        if findAlg(decorator_alg.getName()) != None :
+        if findAlg([decorator_alg.getName()]) != None :
             print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
             continue
         print 'DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName())
@@ -257,8 +272,8 @@ def _addDecorators(decorator_alg_list, add_after=None) :
 
   else :
       for decorator_alg in decorator_alg_list :
-         if findAlg(decorator_alg.getName()) != None :
-            print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
+         if findAlg([decorator_alg.getName()]) != None :
+            print 'DEBUG decorator %s already in sequence. Not inserting again.' % (decorator_alg.getFullName())
             continue
          print 'DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index)
          topSequence.insert(mon_man_index,decorator_alg)
@@ -274,6 +289,7 @@ def addGSFTrackDecoratorAlg() :
 
    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    if InDetPhysValFlags.doValidateGSFTracks() :
+      # print 'DEBUG add addGSFTrackDecoratorAlg'
       decorators=[InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlgGSF() ]
       # add the InDetPhysValDecoratorAlgGSF after the egamma algorithms ran
       # they build the GSF track particles.
@@ -287,7 +303,7 @@ def addGSFTrackDecoratorAlg() :
       # print ToolSvc
       # print 'DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder')
       if hasattr(ToolSvc,'EMBremCollectionBuilder') :
-          decor_index = findAlg(decorators[0].getName())
+          decor_index = findAlg([decorators[0].getName()])
           if decor_index != None :
               from TrkTrackSlimmer.TrkTrackSlimmerConf import Trk__TrackSlimmer as ConfigurableTrackSlimmer
               slimmer = ConfigurableTrackSlimmer(name                 = "RealGSFTrackSlimmer",

@@ -54,6 +54,7 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   // * @asogaard
   bool isSignal       (const xAOD::TruthParticle* p);
   bool isLargeD0Track (const xAOD::TrackParticle* p);
+  bool isPrimaryTrack (const xAOD::TruthParticle* p);
   bool MinTrackSelection (const xAOD::TrackParticle* p);
   // * Remove the following.
   bool isCameFromLLP(const xAOD::TruthParticle* p);

@@ -7,26 +7,26 @@
 /**
  *  @file InDetPerfPlot_nTracks.h
  *  @author shaun roe
-**/
+ **/
 
-//std includes
+// std includes
 #include <string>
 
-//local includes
+// local includes
 #include "InDetPlotBase.h"
 
 ///Class to hold various counters used in RTT code
-class InDetPerfPlot_nTracks:public InDetPlotBase{
+class InDetPerfPlot_nTracks: public InDetPlotBase {
 public:
-	InDetPerfPlot_nTracks(InDetPlotBase * pParent, const std::string & dirName);
-	enum CounterCategory {ALL, SELECTED, TRUTH, TRUTH_MATCHED, N_COUNTERS};
-	void fill(const unsigned int freq, const CounterCategory  counter);
-	
+  InDetPerfPlot_nTracks(InDetPlotBase *pParent, const std::string &dirName);
+  enum CounterCategory {
+    ALL, SELECTED, TRUTH, TRUTH_MATCHED, N_COUNTERS
+  };
+  void fill(const unsigned int freq, const CounterCategory counter);
 private:
-	TH1* m_counters[N_COUNTERS];
-	
-	void initializePlots();
-	
+  TH1 *m_counters[N_COUNTERS];
+
+  void initializePlots();
 };
 
 #endif
