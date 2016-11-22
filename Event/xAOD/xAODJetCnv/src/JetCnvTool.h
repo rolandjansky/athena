@@ -42,7 +42,7 @@ namespace xAODMaker {
     virtual StatusCode convert( const JetCollection* aodCont,
                                 xAOD::JetContainer* xaodCont,
                                 DataLink<xAOD::IParticleContainer> xaodConstitCont = DataLink<xAOD::IParticleContainer>(),
-                                bool constitSearch = false) override;
+                                bool constitSearch = false) const override;
     
   }; // class JetCnvTool
   
