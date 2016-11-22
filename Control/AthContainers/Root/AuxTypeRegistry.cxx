@@ -112,6 +112,33 @@ IAuxTypeVector* AuxTypeRegistry::makeVector (lock_t& lock,
 
 
 /**
+ * @brief Construct an @c IAuxTypeVector object from a vector.
+ * @param data The vector object.
+ * @param isPacked If true, @c data is a @c PackedContainer.
+ * @param ownFlag If true, the newly-created IAuxTypeVector object
+ *                will take ownership of @c data.
+ *
+ * If the element type is T, then @c data should be a pointer
+ * to a std::vector<T> object, which was obtained with @c new.
+ * But if @c isPacked is @c true, then @c data
+ * should instead point at an object of type @c SG::PackedContainer<T>.
+ *
+ * Returns a newly-allocated object.
+ * FIXME: Should return a unique_ptr.
+ */
+IAuxTypeVector* AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
+                                                     void* data,
+                                                     bool isPacked,
+                                                     bool ownMode) const
+{
+  const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
+  assert (factory != 0);
+  return factory->createFromData (data, isPacked, ownMode);
+}
+
+
+
+/**
  * @brief Return the name of an aux data item.
  * @param auxid The desired aux data item.
  */
@@ -565,7 +592,7 @@ void AuxTypeRegistry::addFactory (upgrading_lock_t& lock,
 {
   lock.upgrade();
 
-  ti_map_t::iterator it = m_factories.find (&ti);
+  ti_map_t::iterator it = m_factories.find (ti.name());
   if (it != m_factories.end()) {
     if (it->second->isDynamic() && !factory->isDynamic()) {
       // Replacing a dynamic factory with a non-dynamic one.
@@ -579,7 +606,7 @@ void AuxTypeRegistry::addFactory (upgrading_lock_t& lock,
       delete factory;
   }
   else
-    m_factories[&ti] = factory;
+    m_factories[ti.name()] = factory;
 }
 
 
@@ -723,7 +750,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
 const IAuxTypeVectorFactory*
 AuxTypeRegistry::getFactoryLocked (const std::type_info& ti) const
 {
-  ti_map_t::const_iterator it = m_factories.find (&ti);
+  ti_map_t::const_iterator it = m_factories.find (ti.name());
   if (it != m_factories.end())
     return it->second;
   return 0;

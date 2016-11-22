@@ -25,7 +25,6 @@
 #include "SGTools/IRegisterTransient.h"
 #include "SGTools/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/make_unique.h"
 #include <vector>
 #include <cassert>
 
@@ -181,15 +180,14 @@ void test1t()
     assert (A::log == exp21);
   }
 
-#if __cplusplus > 201100
   {
     A::log.clear();
-    std::unique_ptr<CONTA> pp = CxxUtils::make_unique<CONTA>();
+    std::unique_ptr<CONTA> pp = std::make_unique<CONTA>();
     pp->push_back (new A(11));
     typedef typename SG::DataBucketTrait<CONTA>::type BUCKET;
     {
       std::unique_ptr<BUCKET> buck3 =
-        CxxUtils::make_unique<BUCKET>(std::move(pp));
+        std::make_unique<BUCKET>(std::move(pp));
       assert (A::log.empty());
     }
     assert (A::log == std::vector<int>{11});
@@ -202,12 +200,11 @@ void test1t()
     typedef typename SG::DataBucketTrait<CONSTCONT>::type BUCKET;
     {
       std::unique_ptr<BUCKET> buck3 =
-        CxxUtils::make_unique<BUCKET>(std::move(pp));
+        std::make_unique<BUCKET>(std::move(pp));
       assert (A::log.empty());
     }
     assert (A::log == std::vector<int>{31});
   }
-#endif
 }
 
 
@@ -228,9 +225,9 @@ void test2()
 {
   Reg reg;
 
-  auto a1 = CxxUtils::make_unique<AView>();
+  auto a1 = std::make_unique<AView>();
   void* vp = a1.get();
-  auto buck = CxxUtils::make_unique<SG::DVLDataBucket<DataVector<A> > > (a1.release());
+  auto buck = std::make_unique<SG::DVLDataBucket<DataVector<A> > > (a1.release());
 
   assert (buck->clID() == 491783424);
   assert (buck->tinfo() == typeid(AView));
@@ -243,9 +240,9 @@ void test2()
   assert (buck->cast(typeid(DataVector<A>), &reg) == vp);
   assert (buck->cast(typeid(int), &reg) == nullptr);
 
-  a1 = CxxUtils::make_unique<AView>();
+  a1 = std::make_unique<AView>();
   vp = a1.get();
-  buck = CxxUtils::make_unique<SG::DVLDataBucket<DataVector<A> > > (std::move(a1));
+  buck = std::make_unique<SG::DVLDataBucket<DataVector<A> > > (std::move(a1));
 
   assert (buck->clID() == 491783424);
   assert (buck->tinfo() == typeid(AView));
@@ -258,15 +255,16 @@ void test2()
   assert (buck->cast(typeid(DataVector<A>), &reg) == vp);
   assert (buck->cast(typeid(int), &reg) == nullptr);
 
-  auto b1 = CxxUtils::make_unique<BView>();
+  auto b1 = std::make_unique<BView>();
   EXPECT_EXCEPTION (SG::ExcMissingViewVectorCLID,
-                    CxxUtils::make_unique<SG::DVLDataBucket<DataVector<B> > > (b1.release()));
+                    std::make_unique<SG::DVLDataBucket<DataVector<B> > > (b1.release()));
 }
 
 
 #else
 
 void test1() {}
+void test2() {}
 
 #endif // not XAOD_STANDALONE
 

@@ -36,18 +36,19 @@
     <field name="m_tsAuxids" transient="true"/>
   </class>
   <class name="SG::auxid_set_t"/>
-  <!--<class pattern="SG::hashtable<unsigned *,unsigned *,std::allocator<unsigned *>,CxxUtils_Internal::identity<unsigned *>,std::equal_to<unsigned *>,SG::hash<unsigned *>,CxxUtils_Internal::mod_range_hashing,CxxUtils_Internal::default_ranged_hash,CxxUtils_Internal::prime_rehash_policy,false,true,true>">
-    <field name="m_payload_allocator" transient="true"/>
-  </class>-->
-  <class pattern="SG::hashtable<unsigned *"/>
-  <!--<class pattern="SG::hashtable_const_iterator<unsigned *"/>-->
-  <!--<class pattern="SG::hashtable_iterator<unsigned *"/>-->
-  <!--<class pattern="std::pair<*hashtable<unsigned *"/>-->
-  <function proto_pattern="*operator!=*hashtable_iterator<unsigned *"/>
-  <function proto_pattern="*operator!=*hashtable_const_iterator<unsigned *"/>
-  <function proto_pattern="*operator==*hashtable_iterator<unsigned *"/>
-  <function proto_pattern="*operator==*hashtable_const_iterator<unsigned *"/>
-  <class name="CxxUtils_Internal::prime_rehash_policy"/>
+
+  <class name="SG::ViewVectorBase">
+    <field name="m_clearOnPersistent" transient="true"/>
+  </class>
+  <read sourceClass="SG::ViewVectorBase" version="[1-]"
+        targetClass="SG::ViewVectorBase" source=""
+        target=""
+        >
+    <![CDATA[
+       // Let the object prepare for being used:
+       if (newObj) newObj->toTransient();
+    ]]>
+  </read>
 
   <class name="SG::AuxElement::TypelessConstAccessor"/>
 

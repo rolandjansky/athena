@@ -10,6 +10,7 @@
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/AuxElement.h"
+#include "AthContainers/ViewVectorBase.h"
 #include "AthContainersInterfaces/IAuxElement.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
@@ -29,40 +30,6 @@ struct AthContainersInstan
   std::pair<SG::auxid_set_t::iterator, bool> p1;
   std::pair<SG::auxid_set_t::const_iterator, bool> p2;
 };
-
-
-inline bool
-operator!=(const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) != static_cast<const base&>(y);
-}
-
-inline bool
-operator!=(const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) != static_cast<const base&>(y);
-}
-
-
-inline bool
-operator==(const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) == static_cast<const base&>(y);
-}
-
-inline bool
-operator==(const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) == static_cast<const base&>(y);
-}
 
 
 namespace {
@@ -97,6 +64,10 @@ namespace {
     SG::PackedContainer<std::vector<std::vector<double> > >         pvvdouble;
   };
 }
+
+// Work around cling error.
+template class std::vector<std::pair<unsigned int, unsigned int> >;
+
 
 #define ARGS1 (const std::string&)
 #define ARGS2 (const std::string&, const std::string&)

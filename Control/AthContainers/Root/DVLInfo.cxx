@@ -22,15 +22,7 @@
 #include <typeinfo>
 #include <string>
 #include <memory>
-
-
-#if __cplusplus > 201100
-# include <unordered_map>
-namespace SG_STD_OR_SG = std;
-#else
-# include "CxxUtils/unordered_map.h"
-namespace SG_STD_OR_SG = SG;
-#endif
+#include <unordered_map>
 
 
 
@@ -40,7 +32,7 @@ namespace DataModel_detail {
 /// Maps from tinfo pointers and CLID to @c DVLInfo instances.
 /// Note that we don't rely on static initialization here,
 /// to avoid initialization ordering problems.
-typedef SG_STD_OR_SG::unordered_map<const std::type_info*, DVLInfoBase*>
+typedef std::unordered_map<const std::type_info*, DVLInfoBase*>
    dvl_tinfo_map_t;
 dvl_tinfo_map_t* s_dvl_tinfo_map = 0;
 

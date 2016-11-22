@@ -15,9 +15,10 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
+#include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/threading.h"
-#include "AthContainers/tools/foreach.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/make_unique.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
@@ -35,6 +36,7 @@ class AuxStoreInternalTest
 {
 public:
   using SG::AuxStoreInternal::addAuxID;
+  using SG::AuxStoreInternal::addVector;
 };
 
 
@@ -263,6 +265,41 @@ void test3()
 }
 
 
+// Test addVector
+void test4()
+{
+  std::cout << "test4\n";
+
+  AuxStoreInternalTest s;
+  SG::auxid_t ityp1 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
+  SG::auxid_t ityp2 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt2");
+  SG::auxid_t ityp3 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt3");
+
+  assert (s.size() == 0);
+  auto vec1 = CxxUtils::make_unique<SG::AuxTypeVector<int> > (10, 10);
+  SG::IAuxTypeVector* vec1ptr = vec1.get();
+  s.addVector (ityp1, std::move(vec1), false);
+  assert (s.size() == 10);
+  assert (s.getIOData(ityp1) == vec1ptr->toVector());
+  assert (s.getData(ityp1) == vec1ptr->toPtr());
+  assert (vec1ptr->size() == 10);
+
+  auto vec2 = CxxUtils::make_unique<SG::AuxTypeVector<int> > (5, 5);
+  SG::IAuxTypeVector* vec2ptr = vec2.get();
+  s.addVector (ityp2, std::move(vec2), true);
+  assert (s.size() == 10);
+  assert (vec2ptr->size() == 10);
+  assert (s.getIOData(ityp2) == vec2ptr->toVector());
+  assert (s.getData(ityp2) == vec2ptr->toPtr());
+
+  s.lock();
+  auto vec3 = CxxUtils::make_unique<SG::AuxTypeVector<int> > (5, 5);
+  EXPECT_EXCEPTION (SG::ExcStoreLocked, s.addVector (ityp3, std::move(vec3), false));
+  EXPECT_EXCEPTION (SG::ExcStoreLocked, s.getDecoration (ityp1, 10, 10));
+  s.getDecoration (ityp2, 10, 10);
+}
+
+
 class ThreadingTest
 {
 public:
@@ -313,7 +350,7 @@ ThreadingTest::ThreadingTest()
 
 void ThreadingTest::worker()
 {
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     int* data = reinterpret_cast<int*> (m_store.getData (id, m_nelt, m_nelt));
     assert (m_store.getData (id) == data);
     data[0] = id;
@@ -322,7 +359,7 @@ void ThreadingTest::worker()
 
   const SG::auxid_set_t& ids = m_store.getAuxIDs();
   assert (ids.size() == m_ids.size());
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     const int* data = reinterpret_cast<const int*> (m_store.getData (id));
     assert (data[0] == static_cast<int>(id));
     assert (ids.count (id) == 1);
@@ -368,6 +405,7 @@ int main()
   test1();
   test2();
   test3();
+  test4();
   test_threading();
   return 0;
 }

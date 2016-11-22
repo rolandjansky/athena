@@ -18,7 +18,6 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/PackedParameters.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthContainers/tools/error.h"
 
 
@@ -44,7 +43,7 @@ AuxStoreInternal::AuxStoreInternal (bool standalone /*= false*/)
  */
 AuxStoreInternal::~AuxStoreInternal()
 {
-  ATHCONTAINERS_FOREACH (IAuxTypeVector* p, m_vecs)
+  for (IAuxTypeVector* p : m_vecs)
     delete p;
 }
 
@@ -125,6 +124,44 @@ void* AuxStoreInternal::getData (auxid_t auxid, size_t size, size_t capacity)
 
 
 /**
+ * @brief Explicitly add a vector to the store.
+ * @param auxid The identifier of the aux data item being added.
+ * @param vec Vector data being added.
+ * @param isDecoration Should this variable be marked as a decoration?
+ *
+ * For internal use.  The @c auxid must not already exist in the store.
+ */
+void
+AuxStoreInternal::addVector (auxid_t auxid,
+                             std::unique_ptr<IAuxTypeVector> vec,
+                             bool isDecoration)
+{
+  guard_t guard (m_mutex);
+  if (m_locked)
+    throw ExcStoreLocked (auxid);
+
+  // Resize the vectors if needed.
+  if (m_vecs.size() <= auxid) {
+    m_vecs.resize (auxid+1);
+    m_isDecoration.resize (auxid+1);
+  }
+
+  // Give up if the variable is already present in the store.
+  if (m_vecs[auxid]) std::abort();
+
+  // Make sure the length is consistent with the rest of the store.
+  size_t sz = this->size_noLock();
+  if (vec->size() < sz)
+    vec->resize (sz);
+
+  // Add it to the store.
+  m_vecs[auxid] = vec.release();
+  m_isDecoration[auxid] = isDecoration;
+  addAuxID (auxid);
+}
+
+
+/**
  * @brief Return the data vector for one aux data decoration item.
  * @param auxid The identifier of the desired aux data item.
  * @param size The current size of the container (in case the data item
@@ -181,7 +218,7 @@ void AuxStoreInternal::resize (size_t sz)
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("resize");
-  ATHCONTAINERS_FOREACH (IAuxTypeVector* v, m_vecs) {
+  for (IAuxTypeVector* v : m_vecs) {
     if (v)
       v->resize (sz);
   }
@@ -201,7 +238,7 @@ void AuxStoreInternal::reserve (size_t sz)
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("reserve");
-  ATHCONTAINERS_FOREACH (IAuxTypeVector* v, m_vecs) {
+  for (IAuxTypeVector* v : m_vecs) {
     if (v)
       v->reserve (sz);
   }
@@ -235,7 +272,7 @@ void AuxStoreInternal::shift (size_t pos, ptrdiff_t offs)
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("shift");
-  ATHCONTAINERS_FOREACH (IAuxTypeVector* v, m_vecs) {
+  for (IAuxTypeVector* v : m_vecs) {
     if (v)
       v->shift (pos, offs);
   }
@@ -401,7 +438,18 @@ void AuxStoreInternal::clearDecorations()
 size_t AuxStoreInternal::size() const
 {
   guard_t guard (m_mutex);
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_auxids) {
+  return size_noLock();
+}
+
+
+/**
+ * @brief Return the number of elements in the store.  (No locking.)
+ *
+ * May return 0 for a store with no aux data.
+ */
+size_t AuxStoreInternal::size_noLock() const
+{
+  for (SG::auxid_t id : m_auxids) {
     if (id < m_vecs.size() && m_vecs[id] && m_vecs[id]->size() > 0)
       return m_vecs[id]->size();
   }
@@ -498,6 +546,15 @@ void* AuxStoreInternal::getDataInternal (auxid_t auxid,
       throw ExcStoreLocked (auxid);
     m_vecs[auxid] = AuxTypeRegistry::instance().makeVector (auxid, size, capacity);
     addAuxID (auxid);
+  }
+  else {
+    // Make sure the vector has at least the requested size.
+    // One way in which it could be short: setOption was called and created
+    // a variable in a store that had no other variables.
+    if (m_vecs[auxid]->size() < size) {
+      m_vecs[auxid]->resize (size);
+      m_vecs[auxid]->reserve (capacity);
+    }
   }
   return m_vecs[auxid]->toPtr();
 }

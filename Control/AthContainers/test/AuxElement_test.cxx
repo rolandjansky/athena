@@ -202,7 +202,6 @@ void test1()
   assert (ityp1(b3) == 1);
   assert (ftyp1(b3) == 1.5);
 
-#if __cplusplus > 201100
   ityp1(b) = 21;
   b3 = std::move(b);
   assert (b3.index() == 6);
@@ -213,7 +212,6 @@ void test1()
   SG::AuxElement b4 = std::move(b);
   assert (b4.index() == 0);
   assert (b4.container() == 0);
-#endif
 
   ityp1.set (b3, 22);
   assert (ityp1(b3) == 22);
@@ -339,7 +337,6 @@ void test2()
   assert (elt3.ityp1() == 31);
   assert (elt3.container() != elt.container());
 
-#if __cplusplus > 201100
   elt.ityp1() = 41;
   assert (elt3.ityp1() == 31);
   elt3 = std::move(elt);
@@ -352,7 +349,6 @@ void test2()
   assert (ityp2(elt4) == 2);
   assert (elt4.ftyp1() == 1.5);
   assert (elt4.container() != elt.container());
-#endif
 
   elt3.ityp1() = 41;
   elt.releasePrivateStore();

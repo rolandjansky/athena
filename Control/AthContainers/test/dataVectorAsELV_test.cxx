@@ -11,6 +11,9 @@
  */
 
 
+// Disable this test in standalone mode:
+#ifndef XAOD_STANDALONE
+
 #undef NDEBUG
 #include "AthContainers/dataVectorAsELV.h"
 #include "AthContainers/DataVector.h"
@@ -80,3 +83,11 @@ int main()
   test1();
   return 0;
 }
+
+#else
+
+int main() {
+   return 0;
+}
+
+#endif // not XAOD_STANDALONE
