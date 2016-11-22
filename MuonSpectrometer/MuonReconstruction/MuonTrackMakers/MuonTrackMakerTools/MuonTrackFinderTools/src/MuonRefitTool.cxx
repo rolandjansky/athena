@@ -418,6 +418,7 @@ namespace Muon {
    Trk::Track* updatedTrack = updateMdtErrors(*inputTrack,settings);
 
    Trk::Track* updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(*updatedTrack) : makeAEOTs(*updatedTrack);
+   if( updatedAEOTsTrack != updatedTrack ) delete updatedTrack;
 
    return updatedAEOTsTrack;
   }
@@ -567,7 +568,10 @@ namespace Muon {
           if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
          }
       }
-  
+
+      // clean-up of alignment deviations
+      for(auto it : align_deviations) delete it;
+      align_deviations.clear();
 
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
     if( !states ){
@@ -585,6 +589,8 @@ namespace Muon {
     std::vector <Trk::TrackStateOnSurface*> tsosAEOTs;
 
     ATH_MSG_DEBUG(" AlignmentMap size " << alignerrmap.size()); 
+
+    std::set<MuonStationIndex::ChIndex> stationIds;
  
     for(auto itAli : alignerrmap){
       unsigned int imiddle = (itAli.first.size())/2;
@@ -601,13 +607,15 @@ namespace Muon {
 //        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
         Identifier id = m_helper->getIdentifier(*meas);
 
+        if( m_idHelper->isMdt(id) ) stationIds.insert( m_idHelper->chamberIndex(id) );
+
 // make Alignment Effect using the surface of the TSOS 
 
         if(idMiddle==id) { 
           double deltaError = itAli.second.first;   
           double angleError = itAli.second.second; 
           if(deltaError<0.01) deltaError = 0.01;
-          if(angleError<0.00001) deltaError = 0.00001;
+          if(angleError<0.000001) angleError = 0.000001;
           Trk::AlignmentEffectsOnTrack* aEOT = new Trk::AlignmentEffectsOnTrack(0.,deltaError,0.,angleError,itAli.first,&((*tsit)->measurementOnTrack()->associatedSurface())); 
           Trk::TrackStateOnSurface* tsosAEOT = new Trk::TrackStateOnSurface(0,(*tsit)->trackParameters()->clone(),0,0,typePattern,aEOT); 
           indexAEOTs.push_back(index);
@@ -638,7 +646,7 @@ namespace Muon {
       trackStateOnSurfaces->push_back( (*tsit)->clone());
     }
 
-    if(indexAEOTs.size()==0) ATH_MSG_WARNING(" Track without AEOT ");
+    if(indexAEOTs.size()==0 && stationIds.size() > 1) ATH_MSG_WARNING(" Track without AEOT ");
 
     Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
 
@@ -1782,8 +1790,7 @@ namespace Muon {
 
     ATH_MSG_DEBUG(" removed hits: " << dcs.size() - segment.hitsOnTrack() );
 
-    float tubeRadius=14.6;
-    if(detEl->getStationType().compare("BME")==0) tubeRadius=7.1;
+    float tubeRadius = detEl->innerTubeRadius();
 
     TrkDriftCircleMath::MatchDCWithLine matchDC(segment.line(),3.,TrkDriftCircleMath::MatchDCWithLine::Pull,tubeRadius);
     const TrkDriftCircleMath::DCOnTrackVec& matchedDCs = matchDC.match(segment.dcs());
