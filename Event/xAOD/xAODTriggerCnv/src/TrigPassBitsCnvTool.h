@@ -36,11 +36,11 @@ namespace xAODMaker {
                        const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigPassBits
       virtual StatusCode convert( const TrigPassBitsCollection* aod,
-                                  xAOD::TrigPassBitsContainer* xaod );
+                                  xAOD::TrigPassBitsContainer* xaod ) const override;
 
    }; // class TrigPassBitsCnvTool
 

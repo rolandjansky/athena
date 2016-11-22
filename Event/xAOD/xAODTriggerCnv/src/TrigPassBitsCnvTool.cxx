@@ -41,8 +41,8 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigPassBitsCnvTool::convert( const TrigPassBitsCollection* aod,
-					   xAOD::TrigPassBitsContainer* xaod ) {
-    
+					   xAOD::TrigPassBitsContainer* xaod ) const
+  {
     ATH_MSG_VERBOSE( "in TrigPassBitsCnvTool::convert" );
     // If there is no TrigPassBits to convert:
     if( ! aod->size() ) {

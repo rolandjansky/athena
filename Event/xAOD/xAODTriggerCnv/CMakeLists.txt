@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744621 2016-05-03 18:38:44Z krasznaa $
+# $Id: CMakeLists.txt 782320 2016-11-04 10:28:41Z krasznaa $
 ################################################################################
 # Package: xAODTriggerCnv
 ################################################################################
@@ -9,6 +9,8 @@ atlas_subdir( xAODTriggerCnv )
 # Extra dependencies, based on the build environment:
 if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/xAODRootAccess )
+elseif( XAOD_ANALYSIS )
+   set( extra_deps GaudiKernel Database/AthenaPOOL/AthenaPoolKernel )
 else()
    set( extra_deps GaudiKernel
       PRIVATE
@@ -57,6 +59,13 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODTrigger
       xAODTriggerCnv )
+
+elseif( XAOD_ANALYSIS )
+
+   # The main library is a component one in this case:
+   atlas_add_component( xAODTriggerCnv
+      xAODTriggerCnv/*.h Root/*.cxx src/components/*.cxx
+      LINK_LIBRARIES AsgTools xAODTrigger GaudiKernel )
 
 else()
 

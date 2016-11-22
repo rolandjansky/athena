@@ -40,7 +40,7 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::TrigPassBitsContainer
       virtual StatusCode convert( const TrigPassBitsCollection* aod,
-                                  xAOD::TrigPassBitsContainer* xaod ) = 0;
+                                  xAOD::TrigPassBitsContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {
