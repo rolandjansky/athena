@@ -35,7 +35,7 @@ namespace xAODMaker {
     
     
     StatusCode CombinedMuonFeatureCnvTool::convert( const CombinedMuonFeature* aod,
-                                           xAOD::L2CombinedMuon* xaod ) {
+                                           xAOD::L2CombinedMuon* xaod ) const {
         
         xaod->setPt          (aod->pt());
         xaod->setEta         (aod->eta());

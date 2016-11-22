@@ -34,13 +34,13 @@ public:
     virtual StatusCode convertTrigMuonEFInfo(const TrigMuonEFInfo& efinfo,
                                                  xAOD::MuonContainer& muoncontainer,
                                                  xAOD::TrackParticleContainer* combParticleContainer,
-                                                 xAOD::TrackParticleContainer* extrapParticleContainer) = 0;
+                                                 xAOD::TrackParticleContainer* extrapParticleContainer) const = 0;
     
     /// Convert full TrigMuonEFInfoContainer into xAOD::MuonContainer
     virtual StatusCode convertTrigMuonEFInfoContainer(const TrigMuonEFInfoContainer& efinfocont,
                                                           xAOD::MuonContainer& muoncontainer,
                                                           xAOD::TrackParticleContainer* combParticleContainer,
-                                                          xAOD::TrackParticleContainer* extrapParticleContainer)=0;
+                                                          xAOD::TrackParticleContainer* extrapParticleContainer) const = 0;
 }; // end ITrigMuonEFInfoToMuonCnvTool class definition
 
 inline const InterfaceID& ITrigMuonEFInfoToMuonCnvTool::interfaceID() {

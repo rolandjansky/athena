@@ -38,11 +38,11 @@ namespace xAODMaker {
                            const IInterface* parent );
         
         /// Function initialising the tool
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
         
         /// Function that fills an existing xAOD::L2CombinedMuon
         virtual StatusCode convert( const CombinedMuonFeature * aod,
-                                   xAOD::L2CombinedMuon* xaod );
+                                   xAOD::L2CombinedMuon* xaod ) const override;
         
     }; // class TrigElectronCnvTool
     
