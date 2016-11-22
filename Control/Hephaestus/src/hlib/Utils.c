@@ -321,7 +321,7 @@ const char* hhh_addrToLine (void* addr_in, const char** symbol)
       line[0] = ' ';
       length = addr_readline (pf, line+1, sizeof(line)-1);
       if (length >= 0) ++length;
-      fclose (pf);
+      pclose (pf);
       if (length < 0 || line[1] == '?') {
         line[1] = '\0';
         length = 0;

@@ -19,6 +19,11 @@
 #include <assert.h>
 
 
+#ifdef __GNUC__
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+
 /*- data ------------------------------------------------------------------- */
 
 /* forward declarations */
