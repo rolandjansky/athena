@@ -56,7 +56,7 @@ namespace xAODMaker {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TauJetCnvTool::convert(const Analysis::TauJetContainer* inputTaus, xAOD::TauJetContainer* xaodTauJets)
+  StatusCode TauJetCnvTool::convert(const Analysis::TauJetContainer* inputTaus, xAOD::TauJetContainer* xaodTauJets) const
   {  
     Analysis::TauJetContainer::const_iterator it  = inputTaus->begin();
     Analysis::TauJetContainer::const_iterator itE = inputTaus->end();
@@ -279,12 +279,12 @@ namespace xAODMaker {
   
     for (unsigned int i = 0; i != aodtau.numTrack(); ++i) 
       {
-	ATH_MSG_DEBUG( "track number : " << i << " has pt: " << aodtau.track(i)->pt() );    
+	ATH_MSG_DEBUG( "track number : " << i << " has pt: " << (aodtau.track(i) ? aodtau.track(i)->pt() : -1111.) );    
       }
   
     //set track links
-    ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trackit  = aodtau.trackLinkVector().begin();
-    ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trackitE = aodtau.trackLinkVector().end();
+    //ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trackit  = aodtau.trackLinkVector().begin();
+    //ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trackitE = aodtau.trackLinkVector().end();
 
 
     // for( ; trackit!= trackitE; ++trackit)

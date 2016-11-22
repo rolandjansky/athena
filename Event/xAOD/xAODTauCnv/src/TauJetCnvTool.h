@@ -55,15 +55,15 @@ namespace xAODMaker {
 		   const IInterface* parent );
 
     /// Destructor: 
-    virtual ~TauJetCnvTool(); 
+    virtual ~TauJetCnvTool() override;
 
     // Assignment operator: 
     //TauJetCnvTool &operator=(const TauJetCnvTool &alg); 
 
     // initializationa nd execution
-    virtual StatusCode  initialize();
+    virtual StatusCode  initialize() override;
     virtual StatusCode  convert(const Analysis::TauJetContainer* inputTaus,
-				xAOD::TauJetContainer* xaodTauJets);
+				xAOD::TauJetContainer* xaodTauJets) const override;
     // virtual StatusCode  finalize();
 
     /////////////////////////////////////////////////////////////////// 
