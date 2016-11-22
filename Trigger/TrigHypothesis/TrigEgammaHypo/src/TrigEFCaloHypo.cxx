@@ -257,13 +257,13 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       if ( msgLvl() <= MSG::ERROR )
           msg() << MSG::ERROR
               << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
-              << endreq;
+              << endmsg;
       //return HLT::BAD_JOB_SETUP;
       return HLT::OK;
   }
 
   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-      << clusContainer->size() << " calo clusters in container" << endreq;
+      << clusContainer->size() << " calo clusters in container" << endmsg;
 
   if(clusContainer->size() < 1){
       return HLT::OK;

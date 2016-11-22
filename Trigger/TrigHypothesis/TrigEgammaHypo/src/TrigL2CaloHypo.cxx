@@ -72,68 +72,68 @@ TrigL2CaloHypo::~TrigL2CaloHypo()
 HLT::ErrorCode TrigL2CaloHypo::hltInitialize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization completed successfully"   << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully"   << endmsg;
     // default=True (for now...May06)
     msg() << MSG::DEBUG << "AcceptAll           = "
-	<< (m_acceptAll==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "EtaBins        = " << m_etabin      << endreq;
+	<< (m_acceptAll==true ? "True" : "False") << endmsg; 
+    msg() << MSG::DEBUG << "EtaBins        = " << m_etabin      << endmsg;
     msg() << MSG::DEBUG << "ETthr          = " 
-	<< m_eTthr    << "(lo)/" << m_eT2thr    << "(hi)" << endreq;  
+	<< m_eTthr    << "(lo)/" << m_eT2thr    << "(hi)" << endmsg;  
     msg() << MSG::DEBUG << "HADETthr       = " 
-	<< m_hadeTthr << "(lo)/" << m_hadeT2thr << "(hi)" << endreq;
-    msg() << MSG::DEBUG << "CARCOREthr     = " << m_carcorethr  << endreq;
-    msg() << MSG::DEBUG << "CAERATIOthr    = " << m_caeratiothr << endreq;
-    msg() << MSG::DEBUG << "dPHICLUSTERthr = " << m_dphicluster << endreq;
-    msg() << MSG::DEBUG << "dETACLUSTERthr = " << m_detacluster << endreq;
-    msg() << MSG::DEBUG << "WETA2thr     = "   << m_WETA2thr  << endreq;
-    msg() << MSG::DEBUG << "WSTOTthr     = "   << m_WSTOTthr  << endreq;
-    msg() << MSG::DEBUG << "F3thr     = "      << m_F3thr  << endreq;
+	<< m_hadeTthr << "(lo)/" << m_hadeT2thr << "(hi)" << endmsg;
+    msg() << MSG::DEBUG << "CARCOREthr     = " << m_carcorethr  << endmsg;
+    msg() << MSG::DEBUG << "CAERATIOthr    = " << m_caeratiothr << endmsg;
+    msg() << MSG::DEBUG << "dPHICLUSTERthr = " << m_dphicluster << endmsg;
+    msg() << MSG::DEBUG << "dETACLUSTERthr = " << m_detacluster << endmsg;
+    msg() << MSG::DEBUG << "WETA2thr     = "   << m_WETA2thr  << endmsg;
+    msg() << MSG::DEBUG << "WSTOTthr     = "   << m_WSTOTthr  << endmsg;
+    msg() << MSG::DEBUG << "F3thr     = "      << m_F3thr  << endmsg;
 
   }
 
   unsigned int nEtaBin=m_etabin.size();
   if ( m_eTthr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_eT2thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_hadeTthr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_hadeT2thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_carcorethr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_caeratiothr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_WETA2thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " Weta2 size is " <<  m_WETA2thr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " Weta2 size is " <<  m_WETA2thr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
    if ( m_WSTOTthr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
    if ( m_F3thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }  
  
@@ -143,7 +143,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltInitialize()
 HLT::ErrorCode TrigL2CaloHypo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "In TrigL2CaloHypo::finalize()" << endreq;
+    msg() << MSG::INFO << "In TrigL2CaloHypo::finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -213,7 +213,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   // should be only 1 cluster, normally!
   if (vectorOfClusters.size() != 1) {
     msg() << MSG::DEBUG << "Size of vector of TrigEMClusters is not 1!" 
-	<< endreq;
+	<< endmsg;
     return HLT::OK;
   }
   m_PassedCuts++; //Input
@@ -221,7 +221,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
 
   if ( !pClus ) {
-    msg() << MSG::WARNING << "No EM cluster in RoI" << endreq;
+    msg() << MSG::WARNING << "No EM cluster in RoI" << endmsg;
     return HLT::OK;
   }
 
@@ -278,7 +278,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG  << "TrigEMCluster: eta="  << pClus->eta()
 	  << " roi eta=" << etaRef << " DeltaEta=" << m_dEta
-	  << " cut: <"   << m_detacluster          << endreq;
+	  << " cut: <"   << m_detacluster          << endmsg;
   }
   if ( fabs(pClus->eta() - etaRef) > m_detacluster ) return HLT::OK;
   m_PassedCuts++; //Deta
@@ -287,34 +287,34 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << ": phi="  << pClus->phi()
 	  << " roi phi="<< phiRef    << " DeltaPhi="<< m_dPhi
-	  << " cut: <"  << m_dphicluster            << endreq;
+	  << " cut: <"  << m_dphicluster            << endmsg;
   }
   if( m_dPhi > m_dphicluster ) return HLT::OK;
   m_PassedCuts++; //DPhi
 
   // eta range
   if ( m_etaBin==-1 ) {  // VD
-    msg() << MSG::DEBUG << "Cluster eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] << endreq;
+    msg() << MSG::DEBUG << "Cluster eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] << endmsg;
     return HLT::OK;
   } else { 
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "eta bin used for cuts " << m_etaBin << endreq;
+      msg() << MSG::DEBUG << "eta bin used for cuts " << m_etaBin << endmsg;
   }
   m_PassedCuts++; // passed eta cut
   
   // Rcore
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: Rcore=" << m_rCore 
-	  << " cut: >"  << m_carcorethr[m_etaBin] << endreq;
+	  << " cut: >"  << m_carcorethr[m_etaBin] << endmsg;
   if ( m_rCore < m_carcorethr[m_etaBin] )  return HLT::OK;
   m_PassedCuts++; //Rcore
 
   // Eratio
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: Eratio=" << m_energyRatio
-	  << " cut: >"  << m_caeratiothr[m_etaBin] << endreq;   
+	  << " cut: >"  << m_caeratiothr[m_etaBin] << endmsg;   
   if ( inCrack || m_F1<m_F1thr[0] ) {
-    msg() << MSG::DEBUG << "TrigEMCluster: InCrack= " << inCrack << " F1=" << m_F1 << endreq;
+    msg() << MSG::DEBUG << "TrigEMCluster: InCrack= " << inCrack << " F1=" << m_F1 << endmsg;
   } else {
     if ( m_energyRatio < m_caeratiothr[m_etaBin] ) return HLT::OK;
   }
@@ -324,7 +324,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   // ET_em
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: ET_em=" << m_eT_T2Calo
-	<< " cut: >"  << m_eTthr[m_etaBin] << endreq;
+	<< " cut: >"  << m_eTthr[m_etaBin] << endmsg;
   if ( m_eT_T2Calo < m_eTthr[m_etaBin]) return HLT::OK;
   m_PassedCuts++; // ET_em
  
@@ -335,19 +335,19 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "ET_em>"     << m_eT2thr[m_etaBin]
-	  << ": use high ET_had cut: <" << hadET_cut << endreq;
+	  << ": use high ET_had cut: <" << hadET_cut << endmsg;
   } else {
     hadET_cut = m_hadeTthr[m_etaBin];
 
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "ET_em<"    << m_eT2thr[m_etaBin] 
-	  << ": use low ET_had cut: <" << hadET_cut << endreq;
+	  << ": use low ET_had cut: <" << hadET_cut << endmsg;
   }
   
   // ET_had
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: ET_had=" << m_hadET_T2Calo
-	<< " cut: <" << hadET_cut << endreq;
+	<< " cut: <" << hadET_cut << endmsg;
 
   if ( m_hadET_T2Calo > hadET_cut ) return HLT::OK;
   m_PassedCuts++; //ET_had
@@ -355,7 +355,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   // F1
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: F1=" << m_F1
-	  << " cut: >"  << m_F1thr[0] << endreq;
+	  << " cut: >"  << m_F1thr[0] << endmsg;
   // if ( m_F1 < m_F1thr[0]) return HLT::OK;  //(VD) not cutting on this variable, only used to select whether to cut or not on eRatio
   m_PassedCuts++; //F1
 
@@ -363,7 +363,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   //Weta2
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: Weta2=" << m_Weta2
-	  << " cut: <"  << m_WETA2thr[m_etaBin] << endreq; 
+	  << " cut: <"  << m_WETA2thr[m_etaBin] << endmsg; 
   if ( m_Weta2 > m_WETA2thr[m_etaBin]) return HLT::OK;
   m_PassedCuts++; //Weta2
 
@@ -371,14 +371,14 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   //Wstot
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: Wstot=" << m_Wstot
-	  << " cut: <"  << m_WSTOTthr[m_etaBin] << endreq; 
+	  << " cut: <"  << m_WSTOTthr[m_etaBin] << endmsg; 
   if ( m_Wstot >= m_WSTOTthr[m_etaBin]) return HLT::OK;
   m_PassedCuts++; //Wstot
 
   //F3
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: F3=" << m_F3
-	  << " cut: <"  << m_F3thr[m_etaBin] << endreq; 
+	  << " cut: <"  << m_F3thr[m_etaBin] << endmsg; 
   if ( m_F3 > m_F3thr[m_etaBin]) return HLT::OK;
   m_PassedCuts++; //F3
 
@@ -388,7 +388,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
   // Reach this point successfully  
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "pass = " << pass << endreq;
+    msg() << MSG::DEBUG << "pass = " << pass << endmsg;
 
   // (VD) this is quite obvious - it would be better to be able to arrive here eve if fails and see the line FAIL!
 

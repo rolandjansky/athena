@@ -49,6 +49,8 @@
 #include "PATCore/TResult.h"            // for TResult
 // to add TrigPassBits 
 #include "xAODTrigger/TrigPassBits.h"
+using std::string;
+
 namespace {
     template <class DEST,class SRC>
         inline DEST** my_pp_cast(SRC** ptr) {
@@ -156,7 +158,7 @@ TrigEFPhotonHypo::~TrigEFPhotonHypo()
 HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
 {
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in initialize()" << endreq;
+    msg() << MSG::DEBUG << "in initialize()" << endmsg;
   
   if (timerSvc())
     m_totalTimer = addTimer("TrigEFPhotonHypoTot");
@@ -173,18 +175,18 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
     m_egammaPhotonCutIDTool=ToolHandle<IAsgPhotonIsEMSelector>(m_egammaPhotonCutIDToolName);    
     if(m_egammaPhotonCutIDTool.retrieve().isFailure()) {
       msg() << MSG::ERROR << "Unable to retrieve " << m_egammaPhotonCutIDTool
-	    << " tool " << endreq;
+	    << " tool " << endmsg;
       return HLT::BAD_JOB_SETUP; 
     } 
     else {
-      msg()<<MSG::DEBUG<<"Tool " << m_egammaPhotonCutIDTool << " retrieved"<<endreq; 
+      msg()<<MSG::DEBUG<<"Tool " << m_egammaPhotonCutIDTool << " retrieved"<<endmsg; 
       //timing
       if (timerSvc()) m_timerPIDTool_Pho = addTimer("m_egammaPhotonCutIDToolName");
     }
   }
   
   //print summary info
-  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaPhotonCutIDToolName << endreq;
+  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaPhotonCutIDToolName << endmsg;
   //------------------------------------------------------------------------------
   
   //Check Isolation Cone Sizes
@@ -215,7 +217,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG
 	  << "Initialization of TrigEFPhotonHypo completed successfully"
-	  << endreq;
+	  << endmsg;
 
   return HLT::OK;
 }
@@ -231,7 +233,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltBeginRun() {
 HLT::ErrorCode TrigEFPhotonHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -269,19 +271,19 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if (stat != HLT::OK ) {
     msg() << MSG::WARNING 
 	  << " Failed to get xAOD::PhotonContainer's from the trigger element" 
-	  << endreq;
+	  << endmsg;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
 
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Got " << vectorEgammaContainers.size() 
-	  << " xAOD::PhotonContainers's associated to the TE " << endreq;
+	  << " xAOD::PhotonContainers's associated to the TE " << endmsg;
 
   if (vectorEgammaContainers.size() < 1) {
     msg() << MSG::DEBUG
 	  << " empty xAOD::PhotonContainer from the trigger element" 
-	  << endreq;
+	  << endmsg;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
@@ -292,7 +294,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if ( msgLvl() <= MSG::ERROR )
       msg() << MSG::ERROR
 	    << " REGTEST: Retrieval of xOAD::PhotonContainer from vector failed"
-	    << endreq;
+	    << endmsg;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
@@ -348,21 +350,21 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
           ATH_MSG_DEBUG(" Applying HIGH Lumi Cuts on Photons");
           // re-run the Offline isEM for Photons
           if (m_egammaPhotonCutIDTool == 0) {
-              msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
+              msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endmsg;
           }else{
               if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
               if ( m_egammaPhotonCutIDTool->accept(egIt) ) {
                   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                       << "passes PID egammaPhotonCutIDTool with TAccept"
-                          << endreq;
+                          << endmsg;
               } 
               // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()
-              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaPhotonCutIDTool->IsemValue()<< endreq;
+              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaPhotonCutIDTool->IsemValue()<< endmsg;
               isEMTrig = m_egammaPhotonCutIDTool->IsemValue();
               if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                   <<" isEMTrig = "
                       << std::hex << isEMTrig
-                      << endreq;
+                      << endmsg;
               if (timerSvc()) m_timerPIDTool_Pho->stop(); //timer
           }
           //-------------------------------------------------------------
@@ -374,7 +376,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
               if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST IsEM = " << std::hex << isEMTrig 
-                  << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits << endreq;
+                  << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits << endmsg;
               continue; 
           }
 
@@ -404,13 +406,13 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const xAOD::CaloCluster* clus = egIt->caloCluster();
     if(!clus) {
       if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endreq;
+        msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endmsg;
       continue;
     }
     Ncand[4]++;
     if( clus->et() < m_emEt) {
       if(msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt << endreq;
+	msg() << MSG::DEBUG << "REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt << endmsg;
       continue;
     }
     Ncand[5]++;
@@ -520,7 +522,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: Result = " <<(pass ? "passed" : "failed")<< endreq;
+    msg() << MSG::DEBUG << "REGTEST: Result = " <<(pass ? "passed" : "failed")<< endmsg;
   }
 
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)

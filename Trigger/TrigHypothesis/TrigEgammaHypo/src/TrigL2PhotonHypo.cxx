@@ -78,52 +78,52 @@ TrigL2PhotonHypo::~TrigL2PhotonHypo()
 HLT::ErrorCode TrigL2PhotonHypo::hltInitialize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization completed successfully"   << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully"   << endmsg;
     msg() << MSG::DEBUG << "AcceptAll           = "
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+	  << (m_acceptAll==true ? "True" : "False") << endmsg; 
     // msg() << MSG::DEBUG << "SaveTrigPhotons     = "
-    // 	<< (m_saveTrigPh==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "EtaBins        = " << m_etabin      << endreq;
+    // 	<< (m_saveTrigPh==true ? "True" : "False") << endmsg; 
+    msg() << MSG::DEBUG << "EtaBins        = " << m_etabin      << endmsg;
     msg() << MSG::DEBUG << "ETthr          = " 
-	  << m_eTthr    << "(lo)/" << m_eT2thr    << "(hi)" << endreq;  
+	  << m_eTthr    << "(lo)/" << m_eT2thr    << "(hi)" << endmsg;  
     msg() << MSG::DEBUG << "HADETthr       = " 
-	  << m_hadeTthr << "(lo)/" << m_hadeT2thr << "(hi)" << endreq;
-    msg() << MSG::DEBUG << "CARCOREthr     = " << m_carcorethr  << endreq;
-    msg() << MSG::DEBUG << "CAERATIOthr    = " << m_caeratiothr << endreq;
-    msg() << MSG::DEBUG << "dPHICLUSTERthr = " << m_dphicluster << endreq;
-    msg() << MSG::DEBUG << "dETACLUSTERthr = " << m_detacluster << endreq;
+	  << m_hadeTthr << "(lo)/" << m_hadeT2thr << "(hi)" << endmsg;
+    msg() << MSG::DEBUG << "CARCOREthr     = " << m_carcorethr  << endmsg;
+    msg() << MSG::DEBUG << "CAERATIOthr    = " << m_caeratiothr << endmsg;
+    msg() << MSG::DEBUG << "dPHICLUSTERthr = " << m_dphicluster << endmsg;
+    msg() << MSG::DEBUG << "dETACLUSTERthr = " << m_detacluster << endmsg;
 
   }
 
 
   unsigned int nEtaBin=m_etabin.size();
   if ( m_eTthr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_eT2thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_hadeTthr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_hadeT2thr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_carcorethr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_caeratiothr.size() != nEtaBin-1 ) {
-    msg() << MSG::ERROR << " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 << endreq;
+    msg() << MSG::ERROR << " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -134,7 +134,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltInitialize()
 HLT::ErrorCode TrigL2PhotonHypo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "In TrigL2PhotonHypo::finalize()" << endreq;
+    msg() << MSG::INFO << "In TrigL2PhotonHypo::finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -176,19 +176,19 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   if( status != HLT::OK  ) {
     if(msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigPhotonContainer from TE" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigPhotonContainer from TE" << endmsg;
     }
     return HLT::OK;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Retrieved vector with " << vecTrigPhotonCont.size() 
-	  << " TrigPhotonContainers from TE" << endreq;
+	  << " TrigPhotonContainers from TE" << endmsg;
   }
 
   if(vecTrigPhotonCont.size()!=1){
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Number of TrigPhotonContainers retrieved from TE is not 1, exiting" << endreq;
+      msg() << MSG::DEBUG << "Number of TrigPhotonContainers retrieved from TE is not 1, exiting" << endmsg;
     }
     return HLT::OK;
   }
@@ -201,14 +201,14 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   if ( m_PhotonContainer == 0 ) {
     if ( msgLvl() <= MSG::DEBUG ) { 
-      msg() << MSG::DEBUG << "TrigPhotonContainer is NULL, exiting" << endreq;
+      msg() << MSG::DEBUG << "TrigPhotonContainer is NULL, exiting" << endmsg;
     }
     return HLT::OK;
   } 
 
   if(m_PhotonContainer->size()!=1){
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Number of TrigPhotons in TrigPhotonContainer is not 1, exiting" << endreq;
+      msg() << MSG::DEBUG << "Number of TrigPhotons in TrigPhotonContainer is not 1, exiting" << endmsg;
     }
     return HLT::OK;
   }
@@ -217,7 +217,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   if ( photon == 0 ) {
     if ( msgLvl() <= MSG::DEBUG ) { 
-      msg() << MSG::DEBUG << "TrigPhoton is NULL, exiting" << endreq;
+      msg() << MSG::DEBUG << "TrigPhoton is NULL, exiting" << endmsg;
     }
     return HLT::OK;
   } 
@@ -228,7 +228,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 /*
   if ( !photon->isValid() ) {
     if ( msgLvl() <= MSG::DEBUG ) { 
-      msg() << MSG::DEBUG << "TrigPhoton has Valid flag = FALSE" << endreq;
+      msg() << MSG::DEBUG << "TrigPhoton has Valid flag = FALSE" << endmsg;
     }
     return HLT::OK;
   } 
@@ -255,7 +255,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     // ET_em
     if ( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << "EtCutOnly property is set: TrigPhoton: ET_em=" << EmET
-	    << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[0] << endreq;
+	    << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[0] << endmsg;
     }
     if ( EmET < m_eTthr[0]) return HLT::OK;
     pass = true;
@@ -268,7 +268,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // apply cuts: DeltaEta(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG  << "TrigPhoton dEta=" << dEta
-	  << " cut is dEta <= " << m_detacluster << endreq; 
+	  << " cut is dEta <= " << m_detacluster << endmsg; 
   } 
   if ( fabs(dEta) > m_detacluster ) return HLT::OK;
   m_PassedCuts++;
@@ -276,25 +276,25 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // DeltaPhi(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "TrigPhoton dPhi="  << dPhi
-	<< " cut is dPhi <= "  << m_dphicluster  << endreq;
+	<< " cut is dPhi <= "  << m_dphicluster  << endmsg;
   }
   if( fabs(dPhi) > m_dphicluster ) return HLT::OK;
   m_PassedCuts++;
 
   // eta range
   if ( etaBin==-1 ) {  
-    msg() << MSG::DEBUG << "Photon eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] << endreq;
+    msg() << MSG::DEBUG << "Photon eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] << endmsg;
     return HLT::OK;
   } else { 
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "eta bin used for cuts " << etaBin << endreq;
+      msg() << MSG::DEBUG << "eta bin used for cuts " << etaBin << endmsg;
   }
   m_PassedCuts++; // passed eta cut
 
   // Reta (was previously called Rcore)
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "TrigPhoton Reta=" << Reta 
-	  << " cut in etaBin " << etaBin << " is Reta >= "  << m_carcorethr[etaBin] << endreq;
+	  << " cut in etaBin " << etaBin << " is Reta >= "  << m_carcorethr[etaBin] << endmsg;
   }
   if ( Reta < m_carcorethr[etaBin] )  return HLT::OK;
   m_PassedCuts++;
@@ -302,12 +302,12 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // Eratio
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "TrigPhoton: Eratio=" << Eratio
-	  << " cut in etaBin " << etaBin << " is Eratio >= " << m_caeratiothr[etaBin] << endreq;   
+	  << " cut in etaBin " << etaBin << " is Eratio >= " << m_caeratiothr[etaBin] << endmsg;   
   }
   bool inCrack = ( absEta > 2.37 || ( absEta > 1.37 && absEta < 1.52) );
   if ( inCrack || f1<m_F1thr[0] ) {
     msg() << MSG::DEBUG << "TrigPhoton: InCrack= " << inCrack << " F1=" << f1 
-	  << " Eratio cut not being applied" << endreq;
+	  << " Eratio cut not being applied" << endmsg;
   } else {
     if ( Eratio < m_caeratiothr[etaBin] ) return HLT::OK;
   }
@@ -317,7 +317,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // ET_em
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "TrigPhoton: ET_em=" << EmET
-	  << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[etaBin] << endreq;
+	  << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[etaBin] << endmsg;
   }
   if ( EmET < m_eTthr[etaBin]) return HLT::OK;
   m_PassedCuts++;
@@ -331,18 +331,18 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "ET_em>"     << m_eT2thr[etaBin]
-	  << ": use high ET_had cut: <" << hadET_cut << endreq;
+	  << ": use high ET_had cut: <" << hadET_cut << endmsg;
   } else {
     hadET_cut = m_hadeTthr[etaBin];
 
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "ET_em<"    << m_eT2thr[etaBin] 
-	  << ": use low ET_had cut: <" << hadET_cut << endreq;
+	  << ": use low ET_had cut: <" << hadET_cut << endmsg;
   }
 
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "TrigPhoton: ET_had=" <<  HadEmRatio
-	  << " cut in etaBin " << etaBin << " is ET_had <=" << hadET_cut << endreq;
+	  << " cut in etaBin " << etaBin << " is ET_had <=" << hadET_cut << endmsg;
   }
   if ( HadEmRatio > hadET_cut ) return HLT::OK;
   m_PassedCuts++;
@@ -351,18 +351,18 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // F1
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "TrigPhoton: F1=" << f1
-	  << " cut: >"  << m_F1thr[0] << endreq;
+	  << " cut: >"  << m_F1thr[0] << endmsg;
   }
   // if ( f1 < m_F1thr[0]) return HLT::OK;  //(VD) not cutting on this (see comment on TrigL2CaloHypo)
   if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG << "F1 cut is NOT being applied" << endreq;
+    msg() << MSG::DEBUG << "F1 cut is NOT being applied" << endmsg;
   }
   m_PassedCuts++;
 
   pass = true;
 
   if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG << "pass = " << pass << endreq;
+    msg() << MSG::DEBUG << "pass = " << pass << endmsg;
   }
 
   return HLT::OK;
