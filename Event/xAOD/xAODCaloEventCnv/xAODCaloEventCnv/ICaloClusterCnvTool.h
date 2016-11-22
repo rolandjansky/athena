@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ICaloClusterCnvTool.h 746201 2016-05-11 13:14:27Z okuprash $
+// $Id: ICaloClusterCnvTool.h 785752 2016-11-22 15:06:34Z ssnyder $
 #ifndef XAODCALOEVENTCNV_ICALOCLUSTERCNVTOOL_H
 #define XAODCALOEVENTCNV_ICALOCLUSTERCNVTOOL_H
 
@@ -35,8 +35,8 @@ namespace xAODMaker {
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     * @author Walter Lampl <Walter.Lampl@cern.ch>
     *
-    * $Revision: 746201 $
-    * $Date: 2016-05-11 15:14:27 +0200 (Wed, 11 May 2016) $
+    * $Revision: 785752 $
+    * $Date: 2016-11-22 16:06:34 +0100 (Tue, 22 Nov 2016) $
     */
    class ICaloClusterCnvTool : public virtual IAlgTool {
 
@@ -44,10 +44,10 @@ namespace xAODMaker {
       /// Function doing the conversion
       virtual StatusCode convert( const CaloCluster* aod,
                                   xAOD::CaloCluster* xaod,
-                                  CaloClusterCellLinkContainer* ccclc = 0 ) = 0;
+                                  CaloClusterCellLinkContainer* ccclc = 0 ) const = 0;
      /// Converting function usable by TrigBStoxAODTool
       virtual StatusCode convert( const CaloClusterContainer* aod,
-                                  xAOD::CaloClusterContainer* xaod ) = 0;
+                                  xAOD::CaloClusterContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

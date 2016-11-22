@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.cxx 746201 2016-05-11 13:14:27Z okuprash $
+// $Id: CaloClusterCnvTool.cxx 785752 2016-11-22 15:06:34Z ssnyder $
 
 // EDM include(s):
 #include "CaloEvent/CaloCluster.h"
@@ -67,7 +67,8 @@ namespace xAODMaker {
    StatusCode CaloClusterCnvTool::
    convert( const CaloCluster* aod,
             xAOD::CaloCluster* xaod,
-            CaloClusterCellLinkContainer* ccclc ) {
+            CaloClusterCellLinkContainer* ccclc ) const
+   {
 
       //
       // Deal with the cell association:
@@ -187,7 +188,7 @@ namespace xAODMaker {
 
    StatusCode CaloClusterCnvTool::
    convert( const CaloClusterContainer* aod,
-            xAOD::CaloClusterContainer* xaod ) {
+            xAOD::CaloClusterContainer* xaod ) const {
      
      CaloClusterContainer::const_iterator it = aod->begin();
      CaloClusterContainer::const_iterator itE = aod->end();

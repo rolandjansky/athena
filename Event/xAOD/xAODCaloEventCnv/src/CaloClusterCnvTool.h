@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.h 746201 2016-05-11 13:14:27Z okuprash $
+// $Id: CaloClusterCnvTool.h 785752 2016-11-22 15:06:34Z ssnyder $
 #ifndef XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 #define XAODCALOEVENTCNV_CALOCLUSTERCNVTOOL_H
 
@@ -27,8 +27,8 @@ namespace xAODMaker {
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     * @author Walter Lampl <Walter.Lampl@cern.ch>
     *
-    * $Revision: 746201 $
-    * $Date: 2016-05-11 15:14:27 +0200 (Wed, 11 May 2016) $
+    * $Revision: 785752 $
+    * $Date: 2016-11-22 16:06:34 +0100 (Tue, 22 Nov 2016) $
     */
    class CaloClusterCnvTool : public AthAlgTool,
                               public virtual ICaloClusterCnvTool {
@@ -39,16 +39,16 @@ namespace xAODMaker {
                           const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fill an existing xAOD::CaloCluster object with info
       virtual StatusCode convert( const CaloCluster* aod,
                                   xAOD::CaloCluster* xaod,
-                                  CaloClusterCellLinkContainer* ccclc = 0 );
+                                  CaloClusterCellLinkContainer* ccclc = 0 ) const override;
 
       /// Function usable by TrigBStoxAODTool
       virtual StatusCode convert( const CaloClusterContainer* aod,
-                                  xAOD::CaloClusterContainer* xaod );
+                                  xAOD::CaloClusterContainer* xaod ) const override;
 
 
    }; // class CaloClusterCnvTool
