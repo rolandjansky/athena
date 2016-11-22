@@ -34,13 +34,14 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150712/"
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/rel21_20161021/"
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
     'loose':'AsgElectronIsEMLooseSelector',
     'medium':'AsgElectronIsEMMediumSelector',
     'tight':'AsgElectronIsEMTightSelector',
+    'mergedtight':'AsgElectronIsEMMergedTightSelector',
     'lhvloose':'AsgElectronLHVLooseSelector',
     'lhloose':'AsgElectronLHLooseSelector',
     'lhmedium':'AsgElectronLHMediumSelector',
@@ -50,6 +51,7 @@ ElectronCaloToolName = {'vloose':'AsgElectronIsEMVLooseCaloSelector',
     'loose':'AsgElectronIsEMLooseCaloSelector',
     'medium':'AsgElectronIsEMMediumCaloSelector',
     'tight':'AsgElectronIsEMTightCaloSelector',
+    'mergedtight':'AsgElectronIsEMMergedTightCaloSelector',
     'lhvloose':'AsgElectronLHVLooseCaloSelector',
     'lhloose':'AsgElectronLHLooseCaloSelector',
     'lhmedium':'AsgElectronLHMediumCaloSelector',
@@ -102,6 +104,7 @@ ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf',
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
     'medium':'ElectronIsEMMediumSelectorCutDefs.conf',
     'tight':'ElectronIsEMTightSelectorCutDefs.conf',
+    'mergedtight':'ElectronIsEMMergedTightSelectorCutDefs.conf',
     'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig2015.conf',
     'lhloose':'ElectronLikelihoodLooseTriggerConfig2015.conf',
     'lhmedium':'ElectronLikelihoodMediumTriggerConfig2015.conf',
@@ -111,6 +114,7 @@ ElectronCaloToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf',
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
     'medium':'ElectronIsEMMediumSelectorCutDefs.conf',
     'tight':'ElectronIsEMTightSelectorCutDefs.conf',
+    'mergedtight':'ElectronIsEMMergedTightSelectorCutDefs.conf',
     'lhvloose':'ElectronLikelihoodEFCaloOnlyVeryLooseConfig2015.conf',
     'lhloose':'ElectronLikelihoodEFCaloOnlyLooseConfig2015.conf',
     'lhmedium':'ElectronLikelihoodEFCaloOnlyMediumConfig2015.conf',
@@ -120,6 +124,7 @@ ElectronIsEMBits = {'vloose':SelectionDefElectron.ElectronLooseHLT,
     'loose':SelectionDefElectron.ElectronLooseHLT,
     'medium':SelectionDefElectron.ElectronMediumHLT,
     'tight':SelectionDefElectron.ElectronTightHLT,
+    'mergedtight':SelectionDefElectron.ElectronTightHLT, #Can define separate mask
     'lhvloose':SelectionDefElectron.ElectronLooseHLT,
     'lhloose':SelectionDefElectron.ElectronLooseHLT,
     'lhmedium':SelectionDefElectron.ElectronLooseHLT,
@@ -128,7 +133,9 @@ ElectronIsEMBits = {'vloose':SelectionDefElectron.ElectronLooseHLT,
 ElectronPidName = {'vloose':egammaPID.ElectronIDLooseHLT,
     'loose':egammaPID.ElectronIDLooseHLT,
     'medium':egammaPID.ElectronIDMediumHLT,
-    'tight':egammaPID.ElectronIDTightHLT,}
+    'tight':egammaPID.ElectronIDTightHLT,
+    'mergedtight':egammaPID.ElectronIDTightHLT,
+    }
 
 # Dictionaries for ToolNames
 PhotonToolName = {'loose':'AsgPhotonIsEMLooseSelector',

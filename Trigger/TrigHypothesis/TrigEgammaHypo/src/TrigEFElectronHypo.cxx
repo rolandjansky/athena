@@ -347,7 +347,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltBeginRun() {
 HLT::ErrorCode TrigEFElectronHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -454,7 +454,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
            
     Ncand[cutIndex++]++;
 
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[0]: " << Ncand[0] << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[0]: " << Ncand[0] << endmsg;
     if(m_acceptAll){
         xBits->markPassing(egIt,m_EgammaContainer,true);
         continue;
@@ -513,7 +513,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                 <<" isEMTrig = "
                     << std::hex << isEMTrig
-                    << endreq;
+                    << endmsg;
             unsigned int isEMbit=0;
             ATH_MSG_DEBUG("isEMVLoose " << egIt->selectionisEM(isEMbit,"isEMVLoose"));
             ATH_MSG_DEBUG("isEMVLoose " << std::hex << isEMbit);
@@ -592,7 +592,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     }
     else{
       
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Isolation"  << endreq;	
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Isolation"  << endmsg;	
 	
 	//--Declare vectors of isolation variables for different cone sizes
 	std::vector<float>  EtCone, PtCone;	
@@ -621,17 +621,17 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	
 	//printout
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Absolute Calo Isolation (vector size = " << EtCone.size() << ") :" << endreq;	  
+	  msg() << MSG::DEBUG << "Absolute Calo Isolation (vector size = " << EtCone.size() << ") :" << endmsg;	  
 	  for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapEtCone[iConeSize]
 		  << ", Cut = " << m_EtConeCut[iConeSize] 		  
-		  << ", Value = " << EtCone[iConeSize] << endreq;
+		  << ", Value = " << EtCone[iConeSize] << endmsg;
 	  }
-	  msg() << MSG::DEBUG << "Absolute Track Isolation (vector size = " << PtCone.size()<< ") :" << endreq;
+	  msg() << MSG::DEBUG << "Absolute Track Isolation (vector size = " << PtCone.size()<< ") :" << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < PtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapPtCone[iConeSize] 
 		  << ", Cut = " << m_PtConeCut[iConeSize] 
-		  << ", Value = " << PtCone[iConeSize] << endreq;
+		  << ", Value = " << PtCone[iConeSize] << endmsg;
 	  }
 	}
 	
@@ -704,11 +704,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	}
 	if(m_useClusETforTrackIso) {
 	  trkIso_ele_pt=ele_clus_pt;
-	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_clus_pt = " << trkIso_ele_pt << endreq;
+	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_clus_pt = " << trkIso_ele_pt << endmsg;
 	}
 	else {
 	  trkIso_ele_pt=ele_trk_pt;
-	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_trk_pt = " << trkIso_ele_pt << endreq;
+	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_trk_pt = " << trkIso_ele_pt << endmsg;
 	}
 
 	
@@ -729,17 +729,17 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	
 	//printout
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :"  << endreq;
+	  msg() << MSG::DEBUG << "Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :"  << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapRelEtCone[iConeSize] 
 		  << ", Cut = "   << m_RelEtConeCut[iConeSize]
-		  << ", Value = " << RelEtCone[iConeSize] << endreq;
+		  << ", Value = " << RelEtCone[iConeSize] << endmsg;
 	  }
-	  msg() << MSG::DEBUG << "Relative Track Isolation Cuts (vector size = " << RelPtCone.size()<< ") :"  << endreq;
+	  msg() << MSG::DEBUG << "Relative Track Isolation Cuts (vector size = " << RelPtCone.size()<< ") :"  << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < RelPtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapRelPtCone[iConeSize] 
 		  << ", Cut = "    << m_RelPtConeCut[iConeSize]
-		  << ", Value = "  << RelPtCone[iConeSize] << endreq;
+		  << ", Value = "  << RelPtCone[iConeSize] << endmsg;
 	  }
 	}
 	
@@ -826,7 +826,7 @@ double TrigEFElectronHypo::findImpact(const xAOD::TrackParticle* track) const
     m_trackToVertexTool->perigeeAtBeamspot(*track);
   
   if (perigee==0) {
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No perigee using beam spot; no d0 calculation"<<endreq;    
+    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No perigee using beam spot; no d0 calculation"<<endmsg;    
     perigee = m_trackToVertexTool->perigeeAtVertex(*track, m_primaryVertex);    
   }
 

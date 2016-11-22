@@ -223,7 +223,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 
   //if ( dEta > m_detacluster || dPhi > m_dphicluster ) {
   //  if ( msgLvl() <= MSG::DEBUG ) {
-  //    msg() << MSG::DEBUG << "Cluster doesn't match RoI! Leaving." << endreq;
+  //    msg() << MSG::DEBUG << "Cluster doesn't match RoI! Leaving." << endmsg;
   //  }
   //  return HLT::OK;
   //}

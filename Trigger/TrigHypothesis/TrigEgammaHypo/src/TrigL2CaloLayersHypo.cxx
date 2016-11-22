@@ -57,22 +57,22 @@ TrigL2CaloLayersHypo::~TrigL2CaloLayersHypo()
 HLT::ErrorCode TrigL2CaloLayersHypo::hltInitialize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization completed successfully"   << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully"   << endmsg;
     msg() << MSG::DEBUG << "AcceptAll           = "
-	<< (m_acceptAll==true ? "True" : "False") << endreq; 
+	<< (m_acceptAll==true ? "True" : "False") << endmsg; 
     msg() << MSG::DEBUG << "EnergyFractionCut per layer = " 
-	<< m_EnergyFracCut << endreq;  
+	<< m_EnergyFracCut << endmsg;  
     msg() << MSG::DEBUG << "AbsoluteEnergyCut per layer = " 
-	<< m_EnergyAbsCut << endreq;  
+	<< m_EnergyAbsCut << endmsg;  
   }
 
   if ( m_EnergyFracCut.size() != 4 ) {
-    msg() << MSG::ERROR << " EnergyFracCut size is " <<  m_EnergyFracCut.size() << " but needs 4" << endreq;
+    msg() << MSG::ERROR << " EnergyFracCut size is " <<  m_EnergyFracCut.size() << " but needs 4" << endmsg;
     return StatusCode::FAILURE;
   }
   
   if ( m_EnergyAbsCut.size() != 4 ) {
-    msg() << MSG::ERROR << " EnergyAbsCut size is " <<  m_EnergyAbsCut.size() << " but needs 4" << endreq;
+    msg() << MSG::ERROR << " EnergyAbsCut size is " <<  m_EnergyAbsCut.size() << " but needs 4" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -82,7 +82,7 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltInitialize()
 HLT::ErrorCode TrigL2CaloLayersHypo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "In TrigL2CaloLayersHypo::finalize()" << endreq;
+    msg() << MSG::INFO << "In TrigL2CaloLayersHypo::finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -96,13 +96,13 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
     pass = true;
     if ( msgLvl() <= MSG::DEBUG ) 
 	msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
+	    << endmsg;
     return HLT::OK;
   } else {
     pass = false;
     if ( msgLvl() <= MSG::DEBUG ) {
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	  << endreq;
+	  << endmsg;
     }
   }
 
@@ -134,20 +134,20 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
 
   if ( stat != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to get TrigEMClusters" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigEMClusters" << endmsg;
  
     return HLT::OK;
   }
 
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Found vector with " << vectorOfClusters.size() 
-	<< " TrigEMClusters" << endreq;
+	<< " TrigEMClusters" << endmsg;
   }
   
   // should be only 1 cluster, normally!
   if (vectorOfClusters.size() != 1) {
     msg() << MSG::DEBUG << "Size of vector of TrigEMClusters is not 1!" 
-	<< endreq;
+	<< endmsg;
     return HLT::OK;
   }
 
@@ -156,7 +156,7 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
   m_preSampFrac=m_preSamp=m_monEta=m_monPhi=m_Energy=-9999.0;
 
   if ( !pClus && (pClus->energy()>0.1) && (fabsf(pClus->eta())<2.1) ) {
-    msg() << MSG::WARNING << "No EM cluster in RoI" << endreq;
+    msg() << MSG::WARNING << "No EM cluster in RoI" << endmsg;
     return HLT::OK;
   }
   m_monEta = pClus->eta();
@@ -185,7 +185,7 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
 
   // Reach this point successfully  
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "pass = " << pass << endreq;
+    msg() << MSG::DEBUG << "pass = " << pass << endmsg;
 
   return HLT::OK;
 }
