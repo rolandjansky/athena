@@ -20,6 +20,11 @@
 #include <assert.h>
 
 
+#ifdef __GNUC__
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+
 /*- data ------------------------------------------------------------------- */
 
 /* holder to locate this shared library */
@@ -546,7 +551,7 @@ static void captureTrace( void *result, long size, int isrealloc ) {
 
          if ( gFlags & PROFILE ) {
             if ( ! gProfileStream ) {
-               remove( "hephaestus.prof" );
+               (void)remove( "hephaestus.prof" );
                gProfileStream = popen( "gzip -f >> hephaestus.prof", "w" );
             }
 
@@ -839,14 +844,14 @@ static void teardown() {
       if ( gFlags & PROFILE ) {
 
          if ( gSymbolFileName ) {
-            remove( gSymbolFileName );
+            (void)remove( gSymbolFileName );
             cmd = (char*)malloc( 16+strlen( gSymbolFileName )+1 );
             sprintf( cmd, "gzip -f >> %s.symb", gSymbolFileName );
             fsymbols = popen( cmd, "w" );
             free( cmd );
             free( gSymbolFileName ); gSymbolFileName = 0;
          } else {
-            remove( "hephaestus.symb" );
+            (void)remove( "hephaestus.symb" );
             fsymbols  = popen( "gzip -f >> hephaestus.symb", "w" );
          }
 
@@ -964,6 +969,8 @@ static PyObject* hep_outstream( PyObject* unused, PyObject* args ) {
       fclose( gReportStream );
 
    fd = dup( fileno( fp ) );
+   if (fd < 0)
+     return 0;
 
    gReportStream = fdopen( fd, "w" );
 
@@ -985,7 +992,7 @@ static PyObject* hep_profname( PyObject* unused, PyObject* args ) {
 // remove file if it already exists
    filename = (char*)malloc( 5+strlen(name)+1 );
    sprintf( filename, "%s.prof", name );
-   remove( filename );
+   (void)remove( filename );
    free( filename );
 
 // open a pipe to gzip onto the new file
