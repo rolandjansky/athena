@@ -35,14 +35,12 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0),
-  m_doITk(false),
   m_timingTune(2015)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
 	declareProperty("TimeSvc",m_TimeSvc);
-  declareProperty("doITk",m_doITk,"Phase-II upgrade ITk flag");
 	declareProperty("TimingTune",m_timingTune,"Version of the timing tune");	
 }
 
@@ -89,15 +87,10 @@ StatusCode PixelCellDiscriminator::finalize() {
 // process the collection of charged diodes
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
-  bool ComputeTW = true;
-  //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
-  //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
-  //   ... instead for ITk:
-  if (m_doITk) ComputeTW = false;
-
+  bool ComputeTW = false;
   const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.element()->design()));
-  if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI4) {
-    ComputeTW = false;
+  if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
+    ComputeTW = true;
   }
 
   const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());

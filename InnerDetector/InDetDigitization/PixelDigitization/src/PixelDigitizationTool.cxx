@@ -71,7 +71,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_rdoContainer("PixelRDOs"),
   m_rdoContainerSPM("PixelRDOs_SPM"),
   m_simDataColl("PixelSDO_Map"),
-  m_doITk(false),
   m_time_y_eq_zero(0.0),
   m_ComTime(nullptr),
   m_HardScatterSplittingMode(0),
@@ -135,7 +134,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("ToTMinCut",          m_minToT,               "Minimum ToT cut (online cut)");
   declareProperty("ApplyDupli",         m_applyDupli,           "Duplicate low ToT hits");
   declareProperty("LowTOTduplication",  m_maxToTForDupli,       "ToT value below which the hit is duplicated");
-  declareProperty("doITk",              m_doITk,                "Phase-II upgrade ITk flag");
 
   //
   // random number stream name
@@ -774,7 +772,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   PixelRDOColl->setIdentifier(collID );
 
   //
-  // Determine the Pixel Region (IBL, BL, L1, L2, EC or DBM), to be used for latency, ToT cut and duplication:
+  // Determine the Pixel Region (IBL, BL, L1, L2, EC, DBM, ITk 5th layer), to be used for latency, ToT cut and duplication:
   //
 
   const PixelID* pixelId = dynamic_cast<const PixelID *>(collection->element()->getIdHelper());
@@ -793,7 +791,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   std::vector<int> col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
-  std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
+  std::vector < std::vector < int > > FEI4Map ( maxRow+1, std::vector < int > ( maxCol+1) );
   ATH_MSG_DEBUG ( "layerIndex = " << layerIndex << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
 
   m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
@@ -890,7 +888,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
 
       int iirow = cellId.phiIndex();
       int iicol = cellId.etaIndex();
-      if (!m_doITk && p_design->getReadoutTechnology()==PixelModuleDesign::FEI4 && iicol>=maxCol) { iicol=iicol-maxCol; } // FEI4 copy mechanism works per FE.
+      if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI4 && iicol>=maxCol) { iicol=iicol-maxCol; } // FEI4 copy mechanism works per FE.
 
       //
       //if (correct_id_readout!=diodeID) {
@@ -898,7 +896,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       // }
       // Create hit only if bunch within the acceptance (not for IBL and DBM):
 
-      if (m_doITk || p_design->getReadoutTechnology()==PixelModuleDesign::FEI3 || layerIndex==5) {
+      if (p_design->getReadoutTechnology()!=PixelModuleDesign::FEI4) {
         if (bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
           Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
           PixelRDOColl->push_back(p_rdo);
@@ -925,7 +923,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
         }
       }
       // Duplication mechanism for FEI3 small hits :
-      if (!m_doITk && p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
+      if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
         if (m_applyDupli.at(layerIndex)) {
           if (nToT<=m_maxToTForDupli.at(layerIndex) && bunch>0 && bunch<=m_TimeSvc->getTimeBCN()) {
             Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch-1, 0, bunch-1 );
@@ -936,7 +934,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
     }
   }
   // Copy mechanism for IBL small hits:
-  if ( !m_doITk && p_design->getReadoutTechnology()==PixelModuleDesign::FEI4 && m_applyDupli.at(layerIndex) && nSmallHitsFEI4>0){
+  if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI4 && m_applyDupli.at(layerIndex) && nSmallHitsFEI4>0){
     bool recorded = false;
     //First case: Record small hits which are in the same Pixel Digital Region than a big hit:
 
@@ -1189,7 +1187,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing,
 
     const SiHitCollection* seHitColl(0);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      msg(MSG::ERROR) << "SubEvent Pixel SiHitCollection not found in StoreGate " << seStore.name() << endreq;
+      msg(MSG::ERROR) << "SubEvent Pixel SiHitCollection not found in StoreGate " << seStore.name() << endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");

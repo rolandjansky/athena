@@ -52,15 +52,19 @@ def DBMChargeTool(name="DBMChargeTool", **kwargs):
 
 def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("nCols", 5)
+    kwargs.setdefault("LoopLimit", 100000)
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.BichselSimTool(name, **kwargs)
 
 def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    # kwargs.setdefault("doBichsel", False)
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
@@ -70,8 +74,8 @@ def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    # kwargs.setdefault("doBichsel", False)
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.PixelECBichselChargeTool(name, **kwargs)
 
@@ -81,6 +85,7 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.IblPlanarBichselChargeTool(name, **kwargs)
 
@@ -90,6 +95,7 @@ def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.Ibl3DBichselChargeTool(name, **kwargs)
 
@@ -183,7 +189,6 @@ def TimeSvc(name="TimeSvc", **kwargs):
 def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
     return CfgMgr.PixelCellDiscriminator(name, **kwargs)
 
 def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **kwargs):
@@ -229,7 +234,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         kwargs.setdefault("UseComTime", True)
         kwargs.setdefault("PixelConditionsSummarySvc", "")
     if GeometryFlags.isSLHC():
-        kwargs.setdefault("doITk", True)
         LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
         ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
         ApplyDupli = [False, False, False, False, False, False, False]
@@ -243,8 +247,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         # The order is IBL, BL, L1, L2, EC, DBM
         # For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
         LVL1Latency = [16, 150, 255, 255, 255, 16]
-        ToTMinCut = [0, 4, 4, 4, 4, 0]
-        ApplyDupli = [True, True, True, True, True, True]
+        ToTMinCut = [0, 6, 6, 6, 6, 0]
+        ApplyDupli = [True, False, False, False, False, False]
         LowTOTduplication = [0, 7, 7, 7, 7, 0]
         kwargs.setdefault("LVL1Latency", LVL1Latency)
         kwargs.setdefault("ToTMinCut", ToTMinCut)
@@ -284,6 +288,9 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    kwargs.setdefault("RDOCollName", overlayFlags.evtStore()+"/PixelRDOs")
+    kwargs.setdefault("RDOCollNameSPM", overlayFlags.evtStore()+"/PixelRDOs_SPM")
+    kwargs.setdefault("SDOCollName", overlayFlags.evtStore()+"/PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 

@@ -21,6 +21,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include<fstream>
 #include<sstream>
@@ -46,6 +49,7 @@ PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const 
   m_rndmEngine(0),
   m_spmNoiseOccu(1e-5),
   m_rndNoiseProb(5e-8)
+  //m_pixMgr(0)
 {
   declareInterface< PixelNoisyCellGenerator >( this );
   declareProperty("NoiseShape",m_noiseShape,"Vector containing noise ToT shape");
@@ -80,11 +84,22 @@ StatusCode PixelNoisyCellGenerator::initialize() {
     ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
 
-  CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-  ATH_MSG_DEBUG("Pixel ID helper retrieved");
+  std::string pixelHelperName("PixelID");
+  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixelID,pixelHelperName) ) {
+    msg(MSG::FATAL) << "Pixel ID helper not found" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  std::string managerName("Pixel");
+  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixMgr,managerName) ) {
+    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
+
+
 }
 
 //----------------------------------------------------------------------
@@ -153,9 +168,8 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
 				      *p_design->rowsPerCircuit()     // =320
 				      *occupancy
                                       *static_cast<double>(bcn));
-
+  
   unsigned int imod = moduleHash;
-  ATH_MSG_DEBUG ( " Generating noisy pixels for module " << imod << "using map " << m_noisyPixel);
   std::map<unsigned int,std::vector<unsigned int> >::const_iterator mapit = m_noisyPixel->find(imod);
   std::vector<unsigned int> noisypixel;
   
@@ -187,22 +201,30 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
     }
     unsigned int noise_pixelID = noisypixel[irank];
     ATH_MSG_DEBUG ( " Noisy pixel = " << noise_pixelID);
-    ATH_MSG_DEBUG ( "********************** 0 ");
 #ifdef __PIXEL_DEBUG__
-    ATH_MSG_DEBUG ( "********************** 1 ");
+    ATH_MSG_DEBUG ( "**********************");
     ATH_MSG_DEBUG ( "Adding noisy pixel hit on: " 
 	  << std::hex << noise_pixelID << std::dec);
     ATH_MSG_DEBUG ( "********************** 1b ");
 #endif
-    ATH_MSG_DEBUG ( "********************** 2 ");
-    int chip = (noise_pixelID & 0xF);
+    ATH_MSG_DEBUG ( "**********************");
+    
+    const InDetDD::SiDetectorElement* element = m_pixMgr->getDetectorElement(moduleHash);
+    const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    
+    unsigned int FE_Type = 0;
+    if ( p_design->getReadoutTechnology()!=PixelModuleDesign::FEI3 ) FE_Type = 1; // FE_Type = 1 for FEI4. ITK ?
+
+    std::vector<unsigned int> ChipColRow = ModuleSpecialPixelMap::decodePixelID( noise_pixelID, FE_Type );
+    
+    int chip   = ChipColRow.at(0);
+    int column = ChipColRow.at(1);
+    int row    = ChipColRow.at(2);
+    
     ATH_MSG_DEBUG ( "chip = " << chip);
-    noise_pixelID >>=4;
-    int column = (noise_pixelID & 0x1F);
     ATH_MSG_DEBUG ( "column = " << column);
-    noise_pixelID >>=5;
-    int row = noise_pixelID;
     ATH_MSG_DEBUG ( "row = " << row);
+
     int circuit;
     if(chip>=p_design->numberOfCircuits()) {
       circuit=chip-p_design->numberOfCircuits();
@@ -267,7 +289,7 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
 #endif
     ATH_MSG_DEBUG ( "addCell 2 circuit = " << circuit << ", column = " << column << ", row = " << row);
 
-  if (row>159 && design->rowsPerCircuit() != 336) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
+  if ( row > 159 && design->getReadoutTechnology() == PixelModuleDesign::FEI3 ) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
     ATH_MSG_DEBUG ( "addCell 3 circuit = " << circuit << ", column = " << column << ", row = " << row);
     
   SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);

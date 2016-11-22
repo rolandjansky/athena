@@ -7,18 +7,17 @@ atlas_subdir( PixelDigitization )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
                           GaudiKernel
                           PRIVATE
                           Commission/CommissionEvent
+                          Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
                           DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/SiPropertiesSvc

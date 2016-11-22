@@ -23,11 +23,7 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "PixelBarrelChargeTool.h"
-#include "PixelECChargeTool.h"
-#include "IblPlanarChargeTool.h"
-#include "Ibl3DChargeTool.h"
-#include "DBMChargeTool.h"
+#include "SubChargesTool.h"
 
 using namespace InDetDD;
 
