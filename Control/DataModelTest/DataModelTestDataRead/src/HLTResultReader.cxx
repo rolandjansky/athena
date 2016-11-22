@@ -13,8 +13,13 @@
 
 #include "HLTResultReader.h"
 #include "DataModelTestDataCommon/CVec.h"
+#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
+#include "DataModelTestDataRead/HVec.h"
+#include "DataModelTestDataRead/HView.h"
+#include "DataModelTestDataRead/H.h"
+#include "DataModelTestDataRead/HAuxContainer.h"
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/Holder.icc"
 #include "TrigSteeringEvent/HLTResult.h"
@@ -22,6 +27,9 @@
 
 HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(DMTest::C, DMTest::CVec, DMTest::CVec, DMTest::CAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::C, DMTest::CView, DMTest::CView, DMTest::CAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::H, DMTest::HVec, DMTest::HVec, DMTest::HAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::H, DMTest::HView, DMTest::HView, DMTest::HAuxContainer) 
 HLT_END_TYPE_REGISTRATION(DataModelTest)
 
 
@@ -51,7 +59,7 @@ namespace DMTest {
  */
 HLTResultReader::HLTResultReader (const std::string &name,
                                   ISvcLocator *pSvcLocator)
-  : AthReentrantAlgorithm (name, pSvcLocator),
+  : AthAlgorithm (name, pSvcLocator),
     m_nav ("TestNav", this)
 {
   declareProperty ("ResultKey", m_resultKey = "HLTResult_HLT");
@@ -67,7 +75,11 @@ StatusCode HLTResultReader::initialize()
   ATH_CHECK( m_resultKey.initialize() );
   ATH_CHECK( m_nav.retrieve() );
   HLT::TypeMaps::registerFeatureContainer<DMTest::CVec,DMTest::CVec>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::CView,DMTest::CView>();
   HLT::TypeMaps::registerType<DMTest::CAuxContainer>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::HVec,DMTest::HVec>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::HView,DMTest::HView>();
+  HLT::TypeMaps::registerType<DMTest::HAuxContainer>();
   return StatusCode::SUCCESS;
 }
 
@@ -75,9 +87,9 @@ StatusCode HLTResultReader::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode HLTResultReader::execute_r (const EventContext& ctx) const
+StatusCode HLTResultReader::execute()
 {
-  SG::ReadHandle<HLT::HLTResult> result (m_resultKey, ctx);
+  SG::ReadHandle<HLT::HLTResult> result (m_resultKey);
   m_nav->prepare();
   if (!m_nav->deserialize (result->getNavigationResult()))
     return StatusCode::FAILURE;

@@ -32,6 +32,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <memory>
+#include <sstream>
 
 
 namespace DMTest {
@@ -63,70 +64,72 @@ StatusCode xAODTestTypelessRead::initialize()
 namespace {
 
 
-void dumpAuxItem (SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
+void dumpAuxItem (std::ostream& ost,
+                  SG::auxid_t auxid,
+                  const SG::AuxVectorData& c, size_t i)
 {
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   const std::type_info* ti = r.getType(auxid);
   std::string head = r.getName(auxid) + ": ";
   if (ti == &typeid(int))
-    std::cout << head << c.getData<int> (auxid, i) << "; ";
+    ost << head << c.getData<int> (auxid, i) << "; ";
   else if (ti == &typeid(unsigned int))
-    std::cout << head << c.getData<unsigned int> (auxid, i) << "; ";
+    ost << head << c.getData<unsigned int> (auxid, i) << "; ";
   else if (ti == &typeid(float))
-    std::cout << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
+    ost << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
   else if (ti == &typeid(ElementLink<DMTest::CVec>)) {
     const ElementLink<DMTest::CVec>& el =
       c.getData<ElementLink<DMTest::CVec> > (auxid, i);
-    std::cout << head << el.dataID() << "[" << el.index() << "]; ";
+    ost << head << el.dataID() << "[" << el.index() << "]; ";
   }
 #if 0
   else if (ti == &typeid(SG::PackedElement<unsigned int>))
-    std::cout << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
+    ost << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
   else if (ti == &typeid(SG::PackedElement<float>))
-    std::cout << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
+    ost << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
 #endif
   else if (ti == &typeid(std::vector<unsigned int>)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<std::vector<unsigned int> > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(std::vector<int>)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<std::vector<int> > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(std::vector<float>) ||
            strcmp (ti->name(), typeid(std::vector<float>).name()) == 0)
   {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<std::vector<float> > (auxid, i))
-      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-    std::cout << "]; ";
+      ost << CxxUtils::strformat ("%.3f", ii) << " ";
+    ost << "]; ";
   }
 #if 0
   else if (ti == &typeid(SG::PackedElement<std::vector<unsigned int> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<unsigned int> > > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(SG::PackedElement<std::vector<int> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<int> > > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(SG::PackedElement<std::vector<float> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<float> > > (auxid, i))
-      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-    std::cout << "]; ";
+      ost << CxxUtils::strformat ("%.3f", ii) << " ";
+    ost << "]; ";
   }
 #endif
   else
-    std::cout << head << "xxx " << ti->name() << "; ";
+    ost << head << "xxx " << ti->name() << "; ";
 }
 
 
@@ -149,38 +152,41 @@ std::map<std::string, SG::auxid_t> get_map (const SG::AuxElement* elt)
 }
 
 
-void dumpelt (const SG::AuxVectorData* cont,
+void dumpelt (std::ostream& ost,
+              const SG::AuxVectorData* cont,
               size_t index,
               const std::map<std::string, SG::auxid_t>& auxid_map)
 {
   for (const auto& m : auxid_map)
-    dumpAuxItem (m.second, *cont, index);
-  std::cout << "\n";
+    dumpAuxItem (ost, m.second, *cont, index);
+  ost << "\n";
 }
 
 
 template <class OBJ>
-void dumpobj (const OBJ* obj,
+void dumpobj (std::ostream& ost,
+              const OBJ* obj,
               const std::map<std::string, SG::auxid_t>& auxid_map)
 {
   for (size_t i = 0; i < obj->size(); i++) {
-    std::cout << "  ";
+    ost << "  ";
     if (!obj->hasStore()) {
       // Handle view container.
       const auto* elt = obj->at(i);
-      dumpelt (elt->container(), elt->index(), auxid_map);
+      dumpelt (ost, elt->container(), elt->index(), auxid_map);
     }
     else
-      dumpelt (obj, i, auxid_map);
+      dumpelt (ost, obj, i, auxid_map);
   }
 }
 
 
-void dumpobj (const DMTest::C* obj,
+void dumpobj (std::ostream& ost,
+              const DMTest::C* obj,
               const std::map<std::string, SG::auxid_t>& auxid_map)
 {
   const SG::AuxVectorData* cont = obj->container();
-  dumpelt (cont, 0, auxid_map);
+  dumpelt (ost, cont, 0, auxid_map);
 }
 
 
@@ -235,7 +241,9 @@ xAODTestTypelessRead::testit (const char* key)
               << System::typeinfoName (*r.getType(m.second)) << " ";
   std::cout << "\n";
 
-  dumpobj (obj, auxid_map);
+  std::ostringstream ost;
+  dumpobj (ost, obj, auxid_map);
+  std::cout << ost.str();
 
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.
@@ -263,7 +271,9 @@ xAODTestTypelessRead::testit_view (const char* key)
     return StatusCode::SUCCESS;
   std::map<std::string, SG::auxid_t> auxid_map = get_map (obj->front());
   std::cout << key << "\n";
-  dumpobj (obj, auxid_map);
+  std::ostringstream ost;
+  dumpobj (ost, obj, auxid_map);
+  std::cout << ost.str();
 
   if (!m_writePrefix.empty()) {
     CHECK (evtStore()->record (CxxUtils::make_unique<OBJ>(*obj),
