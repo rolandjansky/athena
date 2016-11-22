@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigMissingETCnvTool.h 592539 2014-04-11 10:17:29Z krasznaa $
+// $Id: ITrigMissingETCnvTool.h 785790 2016-11-22 16:48:26Z ssnyder $
 #ifndef xAODTrigMissingETCNV_ITrigMissingETCNVTOOL_H
 #define xAODTrigMissingETCNV_ITrigMissingETCNVTOOL_H
 
@@ -35,7 +35,7 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::TrigMissingETContainer
       virtual StatusCode convert( const TrigMissingETContainer* aod,
-                                  xAOD::TrigMissingETContainer* xaod ) = 0;
+                                  xAOD::TrigMissingETContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETCnvTool.cxx 625610 2014-11-02 04:39:31Z florianb $
+// $Id: TrigMissingETCnvTool.cxx 785790 2016-11-22 16:48:26Z ssnyder $
 
 // System include(s):
 #include <vector>
@@ -46,7 +46,7 @@ namespace xAODMaker {
    */
   StatusCode
   TrigMissingETCnvTool::convert( const TrigMissingETContainer* aod,
-                                 xAOD::TrigMissingETContainer* xaod ) {
+                                 xAOD::TrigMissingETContainer* xaod ) const {
 
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {
