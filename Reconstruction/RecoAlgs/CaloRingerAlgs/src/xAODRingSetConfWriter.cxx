@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 713521 2015-12-09 08:53:41Z wsfreund $
+// $Id: xAODRingSetConfWriter.cxx 785787 2016-11-22 16:43:17Z wsfreund $
 
 // STL include(s)
 #include <algorithm>
@@ -86,8 +86,8 @@ StatusCode xAODRingSetConfWriter::initialize() {
     }
     ATH_MSG_DEBUG( "CaloRingsBuilderTools = " << toolNames );
   }
-  ATH_MSG_VERBOSE( m_metaStore );
-  ATH_MSG_VERBOSE( "InputMetaDataStore = " << m_inputMetaStore );
+
+  ATH_MSG_VERBOSE( "inputMetaStore = " << m_inputMetaStore->dump() );
 
   // Retrieve the necessary service(s):
   CHECK( m_metaStore.retrieve() );
@@ -100,7 +100,22 @@ StatusCode xAODRingSetConfWriter::initialize() {
   CHECK( allocateContainers() );
   CHECK( fillConfigurations() );
 
+  // Print-out configurations:
+  for ( const auto* c : m_rsConfContVec ) {
+    if ( nullptr != c ) {
+      if ( msg().level() <= MSG::DEBUG ) {
+        for ( const auto& r : *c ){
+          r->print( msg(), MSG::DEBUG );
+        }
+      }
+    } else {
+      ATH_MSG_WARNING("Container " << c << "is empty!");
+    }
+  }
+
   ATH_MSG_DEBUG("Obtained configuration succesfully.");
+
+  ATH_MSG_VERBOSE( "outputMetaStore = " << m_metaStore->dump() );
 
   // Return gracefully:
   return StatusCode::SUCCESS;

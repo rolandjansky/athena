@@ -5,10 +5,9 @@ import CaloRingerAlgsConf
 from AthenaCommon.Resilience import treatException
 from RecExConfig.Configured import Configured
 from CaloRingerAlgs.CaloRingerKeys import *
-from CaloRingerAlgs.CaloRingerFlags import jobproperties 
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import removeFromTopSequence
 from egammaRec.Factories import AlgFactory, FcnWrapper
-CaloRingerFlags = jobproperties.CaloRingerFlags
 
 # We assume that someone tried to configure the crBuild propertly before...
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
@@ -81,7 +80,7 @@ class CaloRingerMetaDataBuilder ( Configured ):
     return self._confWriter
 
   def __init__( self, disable=False,
-      ignoreExistingDataObject=CaloRingerFlags.ignoreRingerExistingDataObject(), 
+      ignoreExistingDataObject=caloRingerFlags.ignoreRingerExistingDataObject(), 
       ignoreConfigError=False ):
     "Call Configured init, but with new default ignoreExistingDataObject"
     Configured.__init__(self,disable,ignoreExistingDataObject,ignoreConfigError)

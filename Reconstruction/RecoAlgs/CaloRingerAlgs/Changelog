@@ -1,3 +1,26 @@
+2016-11-22  Werner Freund <wsfreund@cern.ch>
+
+	*  Changed default flags to meet configuration presented in the Reco
+	meeting (https://indico.cern.ch/event/588122/).
+	*  Output item list now considers doWriteRingsToFile flag.
+	*  Added verbose messages for xAODRingSetConfWriter and reduced 
+	verbosity from CaloRingerAlgorithm.
+	*  Tagged as CaloRingerAlgs-00-00-19.
+
+2016-11-17  Werner Freund <wsfreund@cern.ch>
+
+	*  Package version to be added to the release.
+	*  Change _joboption to _jobOption in order to keep Athena standard
+	*  CaloRingerFlags has a shortcut for its jobproperties
+	*  "Redesigned" python files to better fit in the 21 release
+	*  Tagged as CaloRingerAlgs-00-00-18.
+
+2016-11-10  Werner Freund <wsfreund@cern.ch>
+
+	*  Flags to only build rings for electron/photon candidates above certain
+	energy threshold.
+	*  Tagged as CaloRingerAlgs-00-00-17.
+
 2016-06-03  Werner Freund <wsfreund@cern.ch>
 
 	*  Removal of CaloRingerLocker which should be replaced by a cpp equivalent

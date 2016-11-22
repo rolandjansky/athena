@@ -1,0 +1,73 @@
+__doc__ = "JobOption fragment to add CaloRinger algorithm to run."
+
+from AthenaCommon.Logging import logging
+
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
+
+mlog = logging.getLogger( 'CaloRinger_joboptions.py' )
+mlog.info('Entering')
+
+ringerOutputLevel = caloRingerFlags.OutputLevel()
+
+# To build CaloRings it is required to have doESD flag set to on.
+if not rec.doESD() and caloRingerFlags.buildCaloRingsOn():
+  caloRingerFlags.buildCaloRingsOn.set_Value( False )
+  caloRingerFlags.doIdentificationOn.set_Value( False )
+  if not caloRingerFlags.buildCaloRingsOn():
+    mlog.info('Job will not build CaloRings as we are doing ESD.')
+  if not caloRingerFlags.doIdentificationOn():
+    mlog.info('Job will not run Ringer selectors as we are doing ESD.')
+
+if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
+  # Add main algorithm builder
+  CRAlgBuilder = CaloRingerAlgorithmBuilder()
+
+  # TODO This code can be cleaned by using the flag on the Factories configuration
+
+  # Make sure all algoritms have the ringerOutputLevel
+  if CRAlgBuilder.usable():
+
+    # Get the main logger algorithm
+    mainAlg = CRAlgBuilder.getCaloRingerAlgHandle()
+
+    if mainAlg:
+      # Change the main algorithm output level
+      mlog.verbose('Changing %r output level to %s', mainAlg, ringerOutputLevel)
+      mainAlg.OutputLevel = ringerOutputLevel
+
+    # Get the builder handles
+    builderHandles = CRAlgBuilder.getCaloRingerBuilders()
+
+    for builder in builderHandles:
+      # Change builders output level
+      mlog.verbose('Changing %r output level to %s', builder, ringerOutputLevel)
+      builder.OutputLevel = ringerOutputLevel
+
+    # Get the selector handles
+    selectorHandles = CRAlgBuilder.getRingerSelectors()
+
+    for selector in selectorHandles:
+      # Change the builders output level
+      mlog.verbose('Changing %r output level to %s', selector, ringerOutputLevel)
+      selector.OutputLevel = ringerOutputLevel
+
+else:
+
+  # Otherwise we disable the main algorithm
+  CRAlgBuilder = CaloRingerAlgorithmBuilder( disable = True )
+
+# Add metadata builder/reader
+from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
+MetaDataBuilder = CaloRingerMetaDataBuilder()
+
+# Make sure all MetaData algoritms have the ringerOutputLevel
+if MetaDataBuilder.usable():
+  # Get the ringer configuration writter handle
+  configWriter = MetaDataBuilder.getConfigWriterHandle()
+
+  if configWriter:
+    # Change its output level
+    mlog.verbose('Changing %r output level to %s', configWriter, ringerOutputLevel)
+    configWriter.OutputLevel = ringerOutputLevel
+

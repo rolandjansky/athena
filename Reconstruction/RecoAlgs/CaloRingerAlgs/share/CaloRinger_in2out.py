@@ -6,9 +6,9 @@ from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'CaloRinger_in2out.py' )
 mlog.info('Entering')
 
-from CaloRingerAlgs.CaloRingerFlags import jobproperties
-jobproperties.CaloRingerFlags.Enabled = True
-jobproperties.CaloRingerFlags.doWriteRingsToFile.set_Value_and_Lock(True)
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+caloRingerFlags.Enabled = True
+caloRingerFlags.doWriteRingsToFile = True
 
 # Make sure we have the main algorithm disabled:
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
@@ -16,9 +16,17 @@ CRAlgBuilder = CaloRingerAlgorithmBuilder(disable = True)
 from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
 CRMetaBuilder = CaloRingerMetaDataBuilder()
 
+# Make sure all MetaData algoritms have the ringerOutputLevel
+if CRMetaBuilder.usable():
+  ringerOutputLevel = caloRingerFlags.OutputLevel()
+  # Get the ringer configuration writter handle
+  configWriter = CRMetaBuilder.getConfigWriterHandle()
+
+  if configWriter:
+    # Change its output level
+    mlog.verbose('Changing %r output level to %s', configWriter, ringerOutputLevel)
+    configWriter.OutputLevel = ringerOutputLevel
+
 # And then include the output item list joboption to check for 
 # available ringer containers:
-include('CaloRingerAlgs/CaloRingerOutputItemList_joboptions.py')
-
-# Change the output level for the Ringer algorithm/tools
-include('CaloRingerAlgs/CaloRinger_OutputLevel.py')
+include('CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py')
