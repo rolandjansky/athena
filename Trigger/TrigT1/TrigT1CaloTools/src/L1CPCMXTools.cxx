@@ -1,26 +1,26 @@
 
 #include <map>
-#include <numeric>
-#include <utility>  // Temporary
 #include <memory>
+#include <numeric>
+#include <utility> // Temporary
 
-#include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
-#include "TrigT1CaloUtils/CPAlgorithm.h"
-#include "TrigT1CaloUtils/DataError.h"
-#include "TrigT1CaloEvent/CPMTobRoI.h"
-#include "TrigT1CaloEvent/EmTauROI.h"
-#include "TrigT1Interfaces/CoordinateRange.h"
-#include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Interfaces/RecEmTauRoI.h"  //// for new getHits function
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/ClusterThresholdValue.h"
+#include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
+#include "TrigT1CaloEvent/CPMTobRoI.h"
+#include "TrigT1CaloEvent/EmTauROI.h"
 #include "TrigT1CaloTools/L1CPCMXTools.h"
+#include "TrigT1CaloUtils/CPAlgorithm.h"
+#include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
+#include "TrigT1CaloUtils/DataError.h"
+#include "TrigT1Interfaces/CPRoIDecoder.h"
+#include "TrigT1Interfaces/CoordinateRange.h"
+#include "TrigT1Interfaces/RecEmTauRoI.h" //// for new getHits function
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 namespace LVL1 {
 
@@ -29,12 +29,8 @@ namespace LVL1 {
 L1CPCMXTools::L1CPCMXTools(const std::string &type, const std::string &name,
                            const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-      m_crates(4),
-      m_modules(14),
-      m_maxTobs(5),
-      m_sysCrate(3),
-      m_debug(false) {
+      m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name), m_crates(4),
+      m_modules(14), m_maxTobs(5), m_sysCrate(3), m_debug(false) {
   declareInterface<IL1CPCMXTools>(this);
 
   declareProperty("TrigConfigSvc", m_configSvc, "Trigger Config Service");
@@ -81,8 +77,10 @@ void L1CPCMXTools::formCPMTobRoI(const DataVector<CPAlgorithm> *cpAlgorithmVec,
     // cpmRoiVec->push_back(roi);
     const EmTauROI *etRoi = (*pos)->produceExternal();
     const std::pair<uint32_t, uint32_t> words = roiWord(etRoi);
-    if (words.first) sorted.insert(words.first);
-    if (words.second) sorted.insert(words.second);
+    if (words.first)
+      sorted.insert(words.first);
+    if (words.second)
+      sorted.insert(words.second);
   }
   std::set<uint32_t>::const_iterator siter = sorted.begin();
   std::set<uint32_t>::const_iterator siterE = sorted.end();
@@ -103,8 +101,10 @@ void L1CPCMXTools::formCPMTobRoI(const DataVector<EmTauROI> *emTauRoiVec,
     // CPMTobRoI* roi = new CPMTobRoI((*pos)->roiWord());
     // cpmRoiVec->push_back(roi);
     const std::pair<uint32_t, uint32_t> words = roiWord(*pos);
-    if (words.first) sorted.insert(words.first);
-    if (words.second) sorted.insert(words.second);
+    if (words.first)
+      sorted.insert(words.first);
+    if (words.second)
+      sorted.insert(words.second);
   }
   std::set<uint32_t>::const_iterator siter = sorted.begin();
   std::set<uint32_t>::const_iterator siterE = sorted.end();
@@ -159,7 +159,8 @@ int L1CPCMXTools::isolationEm(unsigned int /*clusterEnergy*/,
                               unsigned int /*emIsol*/, unsigned int /*hadIsol*/,
                               unsigned int hadVeto) const {
   int isol = 0;
-  if (hadVeto > 1) isol = 1;
+  if (hadVeto > 1)
+    isol = 1;
   return isol;
 }
 
@@ -167,7 +168,8 @@ int L1CPCMXTools::isolationTau(unsigned int /*clusterEnergy*/,
                                unsigned int emIsol,
                                unsigned int /*hadIsol*/) const {
   int isol = 0;
-  if (emIsol > 4) isol = 1;
+  if (emIsol > 4)
+    isol = 1;
   return isol;
 }
 
@@ -209,7 +211,7 @@ void L1CPCMXTools::formCMXCPTob(
     std::vector<int> tobCount(2 * m_crates * m_modules);
     xAOD::CPMTobRoIContainer::const_iterator it = cpmRoiVec->begin();
     xAOD::CPMTobRoIContainer::const_iterator itE = cpmRoiVec->end();
-    for (; it != itE; ++it) {  // get sorted list
+    for (; it != itE; ++it) { // get sorted list
       const xAOD::CPMTobRoI *roi = *it;
       const int type = roi->type();
       const int crate = roi->crate();
@@ -218,7 +220,7 @@ void L1CPCMXTools::formCMXCPTob(
       const int presenceBit =
           (roi->chip() << 1) |
           ((roi->location() >> 2) &
-           0x1);  // <<== CHECK   THIS SHIFT LOOKS OK @@vkousk
+           0x1); // <<== CHECK   THIS SHIFT LOOKS OK @@vkousk
       presenceMaps[index] |= (1 << presenceBit);
       tobCount[index]++;
       uint32_t key = roi->roiWord();
@@ -232,7 +234,7 @@ void L1CPCMXTools::formCMXCPTob(
       const xAOD::CPMTobRoI *roi = mit->second;
       const int type = roi->type();
       const int crate = roi->crate();
-      const int cmx = 1 - type;  // <<== CHECK
+      const int cmx = 1 - type; // <<== CHECK
       const int cpm = roi->cpm();
       const int chip = (roi->chip() << 1) | ((roi->location() >> 2) & 0x1);
       const int loc = roi->location() & 0x3;
@@ -241,10 +243,12 @@ void L1CPCMXTools::formCMXCPTob(
       const int isolation = roi->isolation();
       const unsigned int presence = presenceMaps[index];
       int error = 0;
-      if (tobCount[index] > m_maxTobs) {  // overflow
+      if (tobCount[index] > m_maxTobs) { // overflow
         int count = 0;
-        for (int bit = 0; bit <= chip; ++bit) count += (presence >> bit) & 0x1;
-        if (count > m_maxTobs) continue;
+        for (int bit = 0; bit <= chip; ++bit)
+          count += (presence >> bit) & 0x1;
+        if (count > m_maxTobs)
+          continue;
         LVL1::DataError err;
         err.set(LVL1::DataError::Overflow);
         error = err.error();
@@ -255,7 +259,7 @@ void L1CPCMXTools::formCMXCPTob(
       std::map<int, xAOD::CMXCPTob *>::iterator xit = cmxTobMap.find(key);
       if (xit == cmxTobMap.end()) {
         tob = new xAOD::CMXCPTob();
-        tob->makePrivateStore();  // make temp store
+        tob->makePrivateStore(); // make temp store
         tob->initialize(crate, cmx, cpm, chip, loc);
         std::vector<uint8_t> vecI(timeslices);
         std::vector<uint32_t> vecU32(timeslices);
@@ -306,8 +310,8 @@ void L1CPCMXTools::formCMXCPHitsCrate(
     xAOD::CMXCPHitsContainer *cmxHitsCrate) const {
   uint8_t peakm = 0;
   std::vector<HitsVector> hitVec(4 * m_crates);
-  std::vector<ErrorVector> errVec(
-      4 * m_crates);  // Need overflow for neutral format
+  std::vector<ErrorVector> errVec(4 *
+                                  m_crates); // Need overflow for neutral format
   HitsVector hit0;
   HitsVector hit1;
   HitsVector hits;
@@ -328,7 +332,8 @@ void L1CPCMXTools::formCMXCPHitsCrate(
     addOverflow(errVec[index], error);
     addOverflow(errVec[index + 1], error);
     uint8_t peak = tob->peak();
-    if (peak > peakm) peakm = peak;
+    if (peak > peakm)
+      peakm = peak;
   }
   // Save non-zero crate totals
   for (uint8_t crate = 0; crate < m_crates; ++crate) {
@@ -337,7 +342,7 @@ void L1CPCMXTools::formCMXCPHitsCrate(
       saveCMXCPHits(cmxHitsCrate, hitVec[index], hitVec[index + 1],
                     errVec[index], errVec[index + 1], crate, cmx,
                     xAOD::CMXCPHits::LOCAL, peakm);
-      if (crate != m_sysCrate) {  // REMOTE totals
+      if (crate != m_sysCrate) { // REMOTE totals
         uint8_t source = crate;
         saveCMXCPHits(cmxHitsCrate, hitVec[index], hitVec[index + 1],
                       errVec[index], errVec[index + 1], m_sysCrate, cmx, source,
@@ -358,6 +363,7 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
   int cpm = tob->cpm();
   int chip = (tob->chip() >> 1) & 0x7;
   int loc = tob->location() | ((tob->chip() & 1) << 2);
+  auto err = LVL1::DataError(tob->error());
 
   const int type = 1 - cmx;
   const int timeslices = energy.size();
@@ -386,8 +392,14 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
   }
 
   for (int slice = 0; slice < timeslices; ++slice) {
-    if (energy[slice] == 0) continue;
+    if (energy[slice] == 0)
+      continue;
 
+    if (err.get(LVL1::DataError::Overflow)) {
+      hit0[slice] = 0xffffff;
+      hit1[slice] = 0xffffff;
+      continue;
+    }
     /* Form an RoI word from the information present
        Simplest way without duplication is to create a CPMTobRoI */
     int et = energy[slice];
@@ -445,7 +457,8 @@ void L1CPCMXTools::formCMXCPHitsSystem(
   DataVector<xAOD::CMXCPHits>::const_iterator pose = cmxHitsCrate->end();
   for (; pos != pose; ++pos) {
     const xAOD::CMXCPHits *hits = *pos;
-    if (hits->crate() != m_sysCrate) continue;
+    if (hits->crate() != m_sysCrate)
+      continue;
     uint8_t source = hits->sourceComponent();
     if (source != xAOD::CMXCPHits::LOCAL &&
         source != xAOD::CMXCPHits::REMOTE_0 &&
@@ -453,7 +466,8 @@ void L1CPCMXTools::formCMXCPHitsSystem(
         source != xAOD::CMXCPHits::REMOTE_2)
       continue;
     const uint8_t peak = hits->peak();
-    if (peak > peakm) peakm = peak;
+    if (peak > peakm)
+      peakm = peak;
     HitsVector hits0(hits->hitsVec0());
     HitsVector hits1(hits->hitsVec1());
     ErrorVector err0(hits->errorVec0());
@@ -472,8 +486,8 @@ void L1CPCMXTools::formCMXCPHitsSystem(
   }
 }
 
-/** form partial CMX-CP hits (topo) from CMX-CP TOBs */  // Temporary for
-                                                         // testing
+/** form partial CMX-CP hits (topo) from CMX-CP TOBs */ // Temporary for
+                                                        // testing
 
 void L1CPCMXTools::formCMXCPHitsTopo(
     const xAOD::CMXCPTobContainer *cmxTobVec,
@@ -504,7 +518,8 @@ void L1CPCMXTools::formCMXCPHitsTopo(
     countsLow.resize(timeslices);
     countsHigh.resize(timeslices);
     for (int slice = 0; slice < timeslices; ++slice) {
-      if (energy[slice] == 0) continue;
+      if (energy[slice] == 0)
+        continue;
       // checksum
       LVL1::DataError err(error[slice]);
       int overflow = err.get(LVL1::DataError::Overflow);
@@ -515,13 +530,14 @@ void L1CPCMXTools::formCMXCPHitsTopo(
       map[slice] |= (1 << (cpm - 1));
       // occupancy counts
       if (cpm <= 7) {
-        countsLow[slice] += (1 << (3 * (cpm - 1)));  // can't saturate
+        countsLow[slice] += (1 << (3 * (cpm - 1))); // can't saturate
       } else {
         countsHigh[slice] += (1 << (3 * (cpm - 8)));
       }
     }
     uint8_t peak = tob->peak();
-    if (peak > peakm) peakm = peak;
+    if (peak > peakm)
+      peakm = peak;
   }
   // Save non-zero crate totals
   HitsVector dummy(timeslices);
@@ -546,7 +562,8 @@ void L1CPCMXTools::addCMXCPHits(HitsVector &vec1,
                                 const HitsVector &vec2) const {
   int size1 = vec1.size();
   int size2 = vec2.size();
-  if (size1 < size2) vec1.resize(size2);
+  if (size1 < size2)
+    vec1.resize(size2);
   HitsVector::iterator pos1 = vec1.begin();
   HitsVector::iterator pose1 = vec1.end();
   HitsVector::const_iterator pos2 = vec2.begin();
@@ -626,4 +643,4 @@ void L1CPCMXTools::saveCMXCPHits(
   }
 }
 
-}  // end of namespace
+} // end of namespace
