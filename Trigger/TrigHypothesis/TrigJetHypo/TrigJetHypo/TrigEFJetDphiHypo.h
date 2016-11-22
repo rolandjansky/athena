@@ -50,7 +50,7 @@ class TrigEFJetDphiHypo : public HLT::HypoAlgo {
   double     m_EtCut2;
   double     m_etaMinCut;
   double     m_etaMaxCut;
-  int m_multiplicitycut;
+  //int m_multiplicitycut;
 
   int m_accepted;
   int m_rejected;
@@ -105,7 +105,7 @@ class TrigEFJetDphiHypo : public HLT::HypoAlgo {
   // Histogram Service:
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

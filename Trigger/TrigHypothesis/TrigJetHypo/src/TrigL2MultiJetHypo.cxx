@@ -69,12 +69,12 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
     m_log = new MsgStream(msgSvc(), name());
-    (*m_log) << MSG::INFO << "in initialize(): " << name() << endreq;
+    (*m_log) << MSG::INFO << "in initialize(): " << name() << endmsg;
     
     // Initialize timing service
     //------------------------------
     if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
     }
     if (m_timersvc) {    
         TrigTimer* tmp = m_timersvc->addItem("TrigL2MultiJetHypo.TrigL2MultiJetHypoTot");
@@ -93,7 +93,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
             
             (*m_log) << MSG::ERROR << name()
                 << ": mismatch between number of jets required and number of thresholds: " << m_multiplicitycut 
-                << " jets requested but only " << m_EtThresholdsInput.size() << " provided." << endreq;    
+                << " jets requested but only " << m_EtThresholdsInput.size() << " provided." << endmsg;    
             
             return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
         }
@@ -104,13 +104,13 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
             (*m_log) << MSG::WARNING << name()
                 << ": Threshold " << i << " (" << m_EtThresholds[i] 
                 << " GeV) greater that threshold " << i-1 << " (" << m_EtThresholds[i-1]
-                << " GeV), thresholds should be in DECREASING order, highest first;  ET1>=ET2>=..." << endreq;    
+                << " GeV), thresholds should be in DECREASING order, highest first;  ET1>=ET2>=..." << endmsg;    
             
             // return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
         }
         
         if  ( !sorted ) { 
-            (*m_log) << MSG::WARNING << name() << ": sorting thresholds into reverse order" << endreq; 
+            (*m_log) << MSG::WARNING << name() << ": sorting thresholds into reverse order" << endmsg; 
             std::sort( m_EtThresholds.begin(), m_EtThresholds.end() );
             std::reverse( m_EtThresholds.begin(), m_EtThresholds.end() );
         }
@@ -120,10 +120,10 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
         (*m_log) << MSG::INFO << name() 
             << "\t EtThreshold[" << i 
             << "]=" << m_EtThresholds[i] << " GeV" 
-            << endreq;
+            << endmsg;
     }
     
-    (*m_log) << MSG::INFO << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endreq; 
+    (*m_log) << MSG::INFO << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endmsg; 
     
     m_accepted_L2=0;
     m_rejected_L2=0;
@@ -134,7 +134,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
     m_eta.reserve(100);
     m_phi.reserve(100);
     m_nLeadingTowers.reserve(100);
-    accepted_jets.reserve(100);
+    m_accepted_jets.reserve(100);
 
 
   return HLT::OK;
@@ -144,14 +144,14 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltInitialize()
 HLT::ErrorCode TrigL2MultiJetHypo::hltFinalize(){
 // ----------------------------------------------------------------------
     
-    (*m_log) << MSG::INFO << "in finalize()" << endreq;
-    (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+    (*m_log) << MSG::INFO << "in finalize()" << endmsg;
+    (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
     m_e.clear();
     m_et.clear();
     m_eta.clear();
     m_phi.clear();
     m_nLeadingTowers.clear();
-    accepted_jets.clear();
+    m_accepted_jets.clear();
     m_timers.clear();
     delete m_log;
     return HLT::OK;
@@ -164,7 +164,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     // Time total TrigL2MultiJetHypo execution time.
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Executing TrigL2MultiJetHypo Hypo " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "================= Executing TrigL2MultiJetHypo Hypo " << name() << endmsg;
     }
 #endif
      
@@ -178,7 +178,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     m_eta.clear();
     m_phi.clear();
     m_nLeadingTowers.clear();
-    accepted_jets.clear();
+    m_accepted_jets.clear();
     
     
     pass=false;
@@ -187,7 +187,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "getting the vector of TrigT2Jet[s] from outputTE" << endreq;
+        (*m_log) << MSG::DEBUG << "getting the vector of TrigT2Jet[s] from outputTE" << endmsg;
     }
 #endif
     //
@@ -196,7 +196,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     HLT::ErrorCode ec = getFeatures(outputTE, vectorOfJets, m_jetInputKey);
     
     if(ec!=HLT::OK) {
-        (*m_log) << MSG::WARNING << " Failed to get the L2 Jets " << endreq;
+        (*m_log) << MSG::WARNING << " Failed to get the L2 Jets " << endmsg;
         if (m_timersvc) m_timers[0]->stop();
         return ec;
     }
@@ -209,9 +209,9 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "Got " << vectorOfJets.size() << " jet(s)" << endreq;
-        (*m_log) << MSG::DEBUG << "Now performing cuts" << endreq;
-        (*m_log) << MSG::DEBUG << "This hypo assumes jets are sorted by descending ET" << endreq;
+        (*m_log) << MSG::DEBUG << "Got " << vectorOfJets.size() << " jet(s)" << endmsg;
+        (*m_log) << MSG::DEBUG << "Now performing cuts" << endmsg;
+        (*m_log) << MSG::DEBUG << "This hypo assumes jets are sorted by descending ET" << endmsg;
      
     }
 #endif
@@ -233,22 +233,22 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
             if (m_acceptAll) {
-                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t accept all" << endreq;
-                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t accept all" << endreq;
+                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t accept all" << endmsg;
+                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t accept all" << endmsg;
             } else {
-                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t Et cut: " << m_EtThresholds[cut_multiplicity] << endreq;
-                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t eta min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endreq;            
+                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t Et cut: " << m_EtThresholds[cut_multiplicity] << endmsg;
+                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t eta min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endmsg;            
             }
         }
 #endif
         if ((m_acceptAll) || ((jet_et > m_EtThresholds[cut_multiplicity]) && ( (jet_eta >= m_etaMinCut) && (jet_eta < m_etaMaxCut) ))) {
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << "   accepted"<<endreq;
+                (*m_log) << MSG::DEBUG << "   accepted"<<endmsg;
             }
 #endif
             multiplicity++;
-            accepted_jets.push_back(jet_counter);
+            m_accepted_jets.push_back(jet_counter);
             // flag all jets as having passed or not for single jet chains
             if ( m_multiplicitycut!=1  ) cut_multiplicity++;
             // flag this jet as having passed
@@ -260,15 +260,15 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
         } else { 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << "   rejected"<<endreq; 
+                (*m_log) << MSG::DEBUG << "   rejected"<<endmsg; 
             }
 #endif
         }
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Current multiplicity accepted: "<<multiplicity << endreq;
-            for(unsigned int i=0;i<accepted_jets.size();i++){
-                (*m_log) << MSG::DEBUG << "   accepted jet: "<<accepted_jets[i]<< endreq;
+            (*m_log) << MSG::DEBUG << "Current multiplicity accepted: "<<multiplicity << endmsg;
+            for(unsigned int i=0;i<m_accepted_jets.size();i++){
+                (*m_log) << MSG::DEBUG << "   accepted jet: "<<m_accepted_jets[i]<< endmsg;
             }
           }
 #endif
@@ -283,16 +283,16 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     m_cutCounter=1;
     
     m_nJets = multiplicity;
-    for(unsigned int i=0;i<accepted_jets.size();i++){
-        m_e.push_back(vectorOfJets.at(accepted_jets[i])->e());
-        m_et.push_back(vectorOfJets.at(accepted_jets[i])->et());
-        m_eta.push_back(vectorOfJets.at(accepted_jets[i])->eta());
-        m_phi.push_back(vectorOfJets.at(accepted_jets[i])->phi());
-        m_nLeadingTowers.push_back(vectorOfJets.at(accepted_jets[i])->nLeadingCells());
+    for(unsigned int i=0;i<m_accepted_jets.size();i++){
+        m_e.push_back(vectorOfJets.at(m_accepted_jets[i])->e());
+        m_et.push_back(vectorOfJets.at(m_accepted_jets[i])->et());
+        m_eta.push_back(vectorOfJets.at(m_accepted_jets[i])->eta());
+        m_phi.push_back(vectorOfJets.at(m_accepted_jets[i])->phi());
+        m_nLeadingTowers.push_back(vectorOfJets.at(m_accepted_jets[i])->nLeadingCells());
     }
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << " Event accepted ! " << endreq;
+        (*m_log) << MSG::DEBUG << " Event accepted ! " << endmsg;
     }
 #endif
     } else {
@@ -300,7 +300,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
         m_cutCounter=0;
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << " Event rejected !" << endreq;
+            (*m_log) << MSG::DEBUG << " Event rejected !" << endmsg;
         }
 #endif
     }
@@ -310,7 +310,7 @@ HLT::ErrorCode TrigL2MultiJetHypo::hltExecute(const HLT::TriggerElement* outputT
     // -------------------------------------
     #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG) {
-        (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endmsg;
     }
     #endif
     if (m_timersvc) m_timers[0]->stop();

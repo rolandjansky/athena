@@ -114,13 +114,13 @@ TrigL2JetHypo::~TrigL2JetHypo()
 HLT::ErrorCode TrigL2JetHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	<< ": Unable to locate TrigTimer Service" << endreq;
+	<< ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -139,8 +139,8 @@ HLT::ErrorCode TrigL2JetHypo::hltInitialize()
 HLT::ErrorCode TrigL2JetHypo::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
   
   return HLT::OK;
 }
@@ -173,12 +173,12 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
     if ( getFeature(outputTE, roiDescriptor, "a_label")==HLT::OK ) {
       if ( roiDescriptor ) {
         msg() << MSG::DEBUG << "REGTEST: RoI id " << roiDescriptor->roiId()
-            << " located at   phi = " <<  roiDescriptor->phi() << ", eta = " << roiDescriptor->eta() << endreq;
+            << " located at   phi = " <<  roiDescriptor->phi() << ", eta = " << roiDescriptor->eta() << endmsg;
       } else {
-        msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+        msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
       }
     } else {
-      msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+      msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
     }
   }
 
@@ -187,7 +187,7 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   HLT::ErrorCode ec = getFeatures(outputTE, vectorOfJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endreq;
+    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endmsg;
     if (m_timersvc) m_timers[0]->stop();
     return ec;
   }
@@ -197,7 +197,7 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   // Check that there is only one JETROI.
   // We only expect ONE input RoI.
   if (vectorOfJets.size() != 1){
-    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endreq;
+    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endmsg;
     m_errors_L2++;
     if (m_acceptAll) m_cutCounter = 1;
     if (m_timersvc) m_timers[0]->stop();
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   // Get first (and only) RoI:
   const TrigT2Jet* pJet = vectorOfJets.back();
   if(!pJet){
-    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endreq;
+    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endmsg;
     m_errors_L2++;
     if (m_acceptAll) m_cutCounter = 1;
     if (m_timersvc) m_timers[0]->stop();
@@ -219,14 +219,14 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   /*if (!sc){
     log << MSG::ERROR
         << "Write of TrigT2Jet into outputTE failed"
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   } */ // Not used anymore.
 
   //double etjet = pJet->e();
   double etjet = pJet->et();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endmsg;
   
   // ---------------------------------------------------------
   // jet cleaning:
@@ -280,19 +280,19 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   {
   	if(pJet->nLeadingCells() < m_n90Threshold)
     {
-    	msg() << MSG::DEBUG << " L2 basic jet cleaning: n90 < " << m_n90Threshold << endreq;
+    	msg() << MSG::DEBUG << " L2 basic jet cleaning: n90 < " << m_n90Threshold << endmsg;
     	cleaningVeto = true;
     }
     
 /*    if(pJet->presamplerFraction() > m_presamplerThreshold)
 	{
-   		msg() << MSG::DEBUG << " L2 basic jet cleaning: presampler fraction > " << m_presamplerThreshold << endreq;
+   		msg() << MSG::DEBUG << " L2 basic jet cleaning: presampler fraction > " << m_presamplerThreshold << endmsg;
    		cleaningVeto = true;
     }
     
     if(pJet->?() < m_negativeEThreshold)
     {
-    	msg() << MSG::DEBUG << " EF jet cleaning: Negative energy < " << m_negativeEThreshold << endreq;
+    	msg() << MSG::DEBUG << " EF jet cleaning: Negative energy < " << m_negativeEThreshold << endmsg;
     	cleaningVeto = true;
     }*/
   }
@@ -318,10 +318,10 @@ HLT::ErrorCode TrigL2JetHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
       m_jetTimeCells = pJet-> jetTimeCells(); 
     }
     
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event accepted ! " << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event accepted ! " << endmsg;
   } else {
     m_rejected_L2++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endmsg;
   }
 
   //m_cutCounter>1 not yet implemented

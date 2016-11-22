@@ -36,7 +36,7 @@ class ISvcLocator;
 //
 TrigL2DEtaMjjAllTE::TrigL2DEtaMjjAllTE(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator),
-  m_storeGate(0),
+  //m_storeGate(0),
   m_timersvc(0),
   m_log(0)
 {
@@ -71,19 +71,19 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltInitialize()
 // ----------------------------------------------------------------------
 {
   m_log = new MsgStream(msgSvc(), name());
-  (*m_log) << MSG::INFO << "in initialize(): " << name() << endreq;
+  (*m_log) << MSG::INFO << "in initialize(): " << name() << endmsg;
     
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+    (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {    
     TrigTimer* tmp = m_timersvc->addItem("TrigL2DEtaMjjAllTE.TrigL2DEtaMjjAllTETot");
     m_timers.push_back(tmp);
   }
     
-  (*m_log) << MSG::INFO << "\t et: " << m_EtCut << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endreq; 
+  (*m_log) << MSG::INFO << "\t et: " << m_EtCut << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endmsg; 
     
   m_accepted_L2=0;
   m_rejected_L2=0;
@@ -101,8 +101,8 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltInitialize()
 HLT::ErrorCode TrigL2DEtaMjjAllTE::hltFinalize(){
   // ----------------------------------------------------------------------
     
-  (*m_log) << MSG::INFO << "in finalize()" << endreq;
-  (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+  (*m_log) << MSG::INFO << "in finalize()" << endmsg;
+  (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
   m_e.clear();
   m_et.clear();
   m_eta.clear();
@@ -128,7 +128,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
 
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "================= Executing TrigL2DEtaMjjAllTE Hypo " << name() << endreq;
+    (*m_log) << MSG::DEBUG << "================= Executing TrigL2DEtaMjjAllTE Hypo " << name() << endmsg;
   }
 #endif
   beforeExecMonitors().ignore();
@@ -149,7 +149,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
     
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endreq;        
+    (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endmsg;        
   }
 #endif
 
@@ -157,7 +157,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
     std::vector<HLT::TriggerElement*>& tes = tes_in.at(type);
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endreq;        
+      (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endmsg;        
     }
 #endif
         
@@ -165,12 +165,12 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
       HLT::ErrorCode ec = getFeatures(tes.at(teIdx), vectorOfJets, m_jetInputKey);
       //seednode = tes.at(teIdx);
       if(ec!=HLT::OK) {
-	(*m_log) << MSG::WARNING << "Failed to get the input particles" << endreq;
+	(*m_log) << MSG::WARNING << "Failed to get the input particles" << endmsg;
 	return ec;
       }          
 #ifndef NDEBUG
       if((*m_log).level() <= MSG::DEBUG){
-	(*m_log) << MSG::DEBUG  << "  - A total of " << vectorOfJets.size()  << " jets found in all TEs so far" << endreq;
+	(*m_log) << MSG::DEBUG  << "  - A total of " << vectorOfJets.size()  << " jets found in all TEs so far" << endmsg;
       }
 #endif
             
@@ -180,7 +180,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
   if( vectorOfJets.size() < 2 ){
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG  << "  - Event has " << vectorOfJets.size()  << " jets found in all TEs; < 2 Exiting" << endreq;
+      (*m_log) << MSG::DEBUG  << "  - Event has " << vectorOfJets.size()  << " jets found in all TEs; < 2 Exiting" << endmsg;
     }
 #endif
     m_rejected_L2++;
@@ -204,7 +204,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
   if( selectedVectorOfJets.size() < 2 ){
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG  << "  - Event has " << selectedVectorOfJets.size()  << " jets found in all TEs passing kinematic requirements; < 2 Exiting" << endreq;
+      (*m_log) << MSG::DEBUG  << "  - Event has " << selectedVectorOfJets.size()  << " jets found in all TEs passing kinematic requirements; < 2 Exiting" << endmsg;
     }
 #endif
     m_rejected_L2++;
@@ -220,7 +220,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
     for(std::vector<const TrigT2Jet*>::const_iterator itr = selectedVectorOfJets.begin(); itr != selectedVectorOfJets.end(); ++itr){
-      (*m_log) << MSG::DEBUG <<"jet et: "<< (*itr)->et() << " eta: "<< (*itr)->eta() << endreq;
+      (*m_log) << MSG::DEBUG <<"jet et: "<< (*itr)->et() << " eta: "<< (*itr)->eta() << endmsg;
     }
   }
 #endif
@@ -230,7 +230,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
 
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "Jet 1 Eta :    " << jet1->eta()  << "\t Jet 2 Eta : " << jet2->eta() << "\t dEta " << m_dEta << "\t Mjj " << m_Mjj << endreq;
+    (*m_log) << MSG::DEBUG << "Jet 1 Eta :    " << jet1->eta()  << "\t Jet 2 Eta : " << jet2->eta() << "\t dEta " << m_dEta << "\t Mjj " << m_Mjj << endmsg;
   }
 #endif
     
@@ -241,7 +241,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
     m_cutCounter=1;
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG << "   accepted"<<endreq;
+      (*m_log) << MSG::DEBUG << "   accepted"<<endmsg;
     }
 #endif
     // attach input TEs to output TE
@@ -264,7 +264,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
     m_cutCounter=0;
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG << " Event rejected !" << endreq;
+      (*m_log) << MSG::DEBUG << " Event rejected !" << endmsg;
     }
 #endif
   }
@@ -272,7 +272,7 @@ HLT::ErrorCode TrigL2DEtaMjjAllTE::hltExecute(std::vector<std::vector<HLT::Trigg
   // -------------------------------------
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endreq;
+    (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endmsg;
   }
 #endif
   if (m_timersvc) m_timers[0]->stop();

@@ -72,12 +72,12 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
 // ----------------------------------------------------------------------
 {
     m_log = new MsgStream(msgSvc(), name());
-    (*m_log) << MSG::INFO << "in initialize(): " << name() << endreq;
+    (*m_log) << MSG::INFO << "in initialize(): " << name() << endmsg;
     
     // Initialize timing service
     //------------------------------
     if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
     }
     if (m_timersvc) {    
         TrigTimer* tmp = m_timersvc->addItem("TrigL2MultiJetAllTE.TrigL2MultiJetAllTETot");
@@ -96,7 +96,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
             
             (*m_log) << MSG::ERROR << name()
                 << ": mismatch between number of jets required and number of thresholds: " << m_multiplicitycut 
-                << " jets requested but only " << m_EtThresholdsInput.size() << " provided." << endreq;    
+                << " jets requested but only " << m_EtThresholdsInput.size() << " provided." << endmsg;    
             
             return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
         }
@@ -107,13 +107,13 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
             (*m_log) << MSG::WARNING << name()
                 << ": Threshold " << i << " (" << m_EtThresholds[i] 
                 << " GeV) greater that threshold " << i-1 << " (" << m_EtThresholds[i-1]
-                << " GeV), thresholds should be in DECREASING order, highest first;  ET1>=ET2>=..." << endreq;    
+                << " GeV), thresholds should be in DECREASING order, highest first;  ET1>=ET2>=..." << endmsg;    
             
             // return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
         }
         
         if  ( !sorted ) { 
-            (*m_log) << MSG::WARNING << name() << ": sorting thresholds into reverse order" << endreq; 
+            (*m_log) << MSG::WARNING << name() << ": sorting thresholds into reverse order" << endmsg; 
             std::sort( m_EtThresholds.begin(), m_EtThresholds.end() );
             std::reverse( m_EtThresholds.begin(), m_EtThresholds.end() );
         }
@@ -123,11 +123,11 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
         (*m_log) << MSG::INFO << name() 
             << "\t EtThreshold[" << i 
             << "]=" << m_EtThresholds[i] << " GeV" 
-            << endreq;
+            << endmsg;
     }
     
-    (*m_log) << MSG::INFO << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endreq; 
-    (*m_log) << MSG::INFO << "\t n90 cut: " << m_n90Cut << endreq; 
+    (*m_log) << MSG::INFO << "\t eta cuts, min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endmsg; 
+    (*m_log) << MSG::INFO << "\t n90 cut: " << m_n90Cut << endmsg; 
     
     m_accepted_L2=0;
     m_rejected_L2=0;
@@ -138,7 +138,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
     m_eta.reserve(100);
     m_phi.reserve(100);
     m_nLeadingTowers.reserve(100);
-    accepted_jets.reserve(100);
+    m_accepted_jets.reserve(100);
 
 
   return HLT::OK;
@@ -148,14 +148,14 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltInitialize()
 HLT::ErrorCode TrigL2MultiJetAllTE::hltFinalize(){
 // ----------------------------------------------------------------------
     
-    (*m_log) << MSG::INFO << "in finalize()" << endreq;
-    (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+    (*m_log) << MSG::INFO << "in finalize()" << endmsg;
+    (*m_log) << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
     m_e.clear();
     m_et.clear();
     m_eta.clear();
     m_phi.clear();
     m_nLeadingTowers.clear();
-    accepted_jets.clear();
+    m_accepted_jets.clear();
     m_timers.clear();
     delete m_log;
     return HLT::OK;
@@ -168,7 +168,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Executing TrigL2MultiJetAllTE Hypo " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "================= Executing TrigL2MultiJetAllTE Hypo " << name() << endmsg;
     }
 #endif
     beforeExecMonitors().ignore();
@@ -181,7 +181,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
     m_eta.clear();
     m_phi.clear();
     m_nLeadingTowers.clear();
-    accepted_jets.clear();
+    m_accepted_jets.clear();
     
     //bool pass=false;
     
@@ -193,7 +193,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endreq;        
+        (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endmsg;        
     }
 #endif
 
@@ -201,7 +201,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
         std::vector<HLT::TriggerElement*>& tes = tes_in.at(type);
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endreq;        
+            (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endmsg;        
         }
 #endif
         
@@ -209,12 +209,12 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
             HLT::ErrorCode ec = getFeatures(tes.at(teIdx), vectorOfJets, m_jetInputKey);
             //seednode = tes.at(teIdx);
             if(ec!=HLT::OK) {
-                (*m_log) << MSG::WARNING << "Failed to get the input particles" << endreq;
+                (*m_log) << MSG::WARNING << "Failed to get the input particles" << endmsg;
                 return ec;
             }          
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "  - A total of " << vectorOfJets.size()  << " jets found in all TEs so far" << endreq;
+                (*m_log) << MSG::DEBUG  << "  - A total of " << vectorOfJets.size()  << " jets found in all TEs so far" << endmsg;
             }
 #endif
             
@@ -233,14 +233,14 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
             if (m_acceptAll) {
-                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t accept all" << endreq;
-                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t accept all" << endreq;
-                (*m_log) << MSG::DEBUG << "Jet n90: "   << jet_n90 << "\t accept all" << endreq;
+                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t accept all" << endmsg;
+                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t accept all" << endmsg;
+                (*m_log) << MSG::DEBUG << "Jet n90: "   << jet_n90 << "\t accept all" << endmsg;
                 
             } else {
-                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t Et cut: "  << m_EtThresholds[cut_multiplicity] << endreq;
-                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t eta min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endreq; 
-                (*m_log) << MSG::DEBUG << "Jet n90: "   << jet_n90 << "\t n90 cut: " << m_n90Cut << ", eta max n90 cut: " << m_etaMaxN90Cut << endreq;           
+                (*m_log) << MSG::DEBUG << "Jet Et:    " << jet_et  << "\t Et cut: "  << m_EtThresholds[cut_multiplicity] << endmsg;
+                (*m_log) << MSG::DEBUG << "Jet |eta|: " << jet_eta << "\t eta min: " << m_etaMinCut << ", max: " << m_etaMaxCut << endmsg; 
+                (*m_log) << MSG::DEBUG << "Jet n90: "   << jet_n90 << "\t n90 cut: " << m_n90Cut << ", eta max n90 cut: " << m_etaMaxN90Cut << endmsg;           
             }
         }
 #endif
@@ -249,11 +249,11 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
             if ( (m_n90Cut > 0) && (jet_n90 < m_n90Cut) && (jet_eta < m_etaMaxN90Cut) ) continue;
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << "   accepted"<<endreq;
+                (*m_log) << MSG::DEBUG << "   accepted"<<endmsg;
             }
 #endif
             multiplicity++;
-            accepted_jets.push_back(jet_counter);
+            m_accepted_jets.push_back(jet_counter);
             // flag all jets as having passed or not for single jet chains
             if ( m_multiplicitycut!=1  ) cut_multiplicity++;
             // flag this jet as having passed
@@ -265,15 +265,15 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
         } else { 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << "   rejected"<<endreq; 
+                (*m_log) << MSG::DEBUG << "   rejected"<<endmsg; 
             }
 #endif
         }
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Current multiplicity accepted: "<<multiplicity << endreq;
-            for(unsigned int i=0;i<accepted_jets.size();i++){
-                (*m_log) << MSG::DEBUG << "   accepted jet: "<<accepted_jets[i]<< endreq;
+            (*m_log) << MSG::DEBUG << "Current multiplicity accepted: "<<multiplicity << endmsg;
+            for(unsigned int i=0;i<m_accepted_jets.size();i++){
+                (*m_log) << MSG::DEBUG << "   accepted jet: "<<m_accepted_jets[i]<< endmsg;
             }
         }
 #endif
@@ -283,7 +283,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
     if( multiplicity >= m_multiplicitycut || m_acceptAll) {
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << " Event accepted ! " << endreq;
+            (*m_log) << MSG::DEBUG << " Event accepted ! " << endmsg;
         }
 #endif
         //pass = true;
@@ -300,12 +300,12 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
         // monitor
         m_cutCounter=1;     
         m_nJets = multiplicity;
-        for(unsigned int i=0;i<accepted_jets.size();i++){
-            m_e.push_back(vectorOfJets.at(accepted_jets[i])->e());
-            m_et.push_back(vectorOfJets.at(accepted_jets[i])->et());
-            m_eta.push_back(vectorOfJets.at(accepted_jets[i])->eta());
-            m_phi.push_back(vectorOfJets.at(accepted_jets[i])->phi());
-            m_nLeadingTowers.push_back(vectorOfJets.at(accepted_jets[i])->nLeadingCells());
+        for(unsigned int i=0;i<m_accepted_jets.size();i++){
+            m_e.push_back(vectorOfJets.at(m_accepted_jets[i])->e());
+            m_et.push_back(vectorOfJets.at(m_accepted_jets[i])->et());
+            m_eta.push_back(vectorOfJets.at(m_accepted_jets[i])->eta());
+            m_phi.push_back(vectorOfJets.at(m_accepted_jets[i])->phi());
+            m_nLeadingTowers.push_back(vectorOfJets.at(m_accepted_jets[i])->nLeadingCells());
         }
 
     } else {
@@ -313,7 +313,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
         m_cutCounter=0;
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << " Event rejected !" << endreq;
+            (*m_log) << MSG::DEBUG << " Event rejected !" << endmsg;
         }
 #endif
     } // end on check if passed
@@ -322,7 +322,7 @@ HLT::ErrorCode TrigL2MultiJetAllTE::hltExecute(std::vector<std::vector<HLT::Trig
     // -------------------------------------
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG) {
-        (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "================= Finished TrigT2CaloJet Hypo " << name() << endmsg;
     }
 #endif
     if (m_timersvc) m_timers[0]->stop();

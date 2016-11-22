@@ -27,7 +27,6 @@
 #include "JetEvent/JetCollection.h"
 #include "JetEvent/Jet.h"
 #include "FourMomUtils/P4DescendingSorters.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigPassBits.h"
 
@@ -36,6 +35,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
 #include "xAODJet/Jet.h"
+#include "AthenaKernel/Units.h"
+
+namespace Units = Athena::Units;
 
 class ISvcLocator;
 
@@ -92,13 +94,13 @@ TrigEFRazorAllTE::~TrigEFRazorAllTE()
 HLT::ErrorCode TrigEFRazorAllTE::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     TrigTimer* tmp = m_timersvc->addItem("TrigEFRazorAllTE.TrigEFRazorAllTETot");
@@ -106,8 +108,8 @@ HLT::ErrorCode TrigEFRazorAllTE::hltInitialize()
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
-    msg() << MSG::DEBUG	  << "RazorCut: " << m_RazorCut << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
+    msg() << MSG::DEBUG	  << "RazorCut: " << m_RazorCut << endmsg;
   }  
 
   m_accepted=0;
@@ -121,8 +123,8 @@ HLT::ErrorCode TrigEFRazorAllTE::hltInitialize()
 HLT::ErrorCode TrigEFRazorAllTE::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 }
 
@@ -140,29 +142,29 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
 
   bool pass=false;
 
-  msg() << MSG::DEBUG << "***  Executing this TrigJetHypo : " << name() << endreq;
+  msg() << MSG::DEBUG << "***  Executing this TrigJetHypo : " << name() << endmsg;
 
 
   // Let's get the collections from the input TEs //////////////////////////////////////
 
   // Check size of vector of TEs
   if (tes_in.size() < 1) {
-    msg() << MSG::WARNING << "No TriggerElements provided -> do nothing" << endreq;
+    msg() << MSG::WARNING << "No TriggerElements provided -> do nothing" << endmsg;
     return HLT::MISSING_FEATURE; // since no TE are found while there should be something (why would the chain start otherwise?)
   }
   else if (tes_in.size() < 2) {
-    msg() << MSG::WARNING << "Less than 2 TriggerElements provided -> do nothing" << endreq;
+    msg() << MSG::WARNING << "Less than 2 TriggerElements provided -> do nothing" << endmsg;
     return HLT::MISSING_FEATURE; // since no TE are found while there should be something (why would the chain start otherwise?)
   }
 
 
   // Check size of individual TEs
   if(tes_in[0].size() == 0) {
-    msg() << MSG::WARNING << "No MET TE found" << endreq;
+    msg() << MSG::WARNING << "No MET TE found" << endmsg;
     return HLT::MISSING_FEATURE; // put here not OK but something that is not aborting further execution
   }
   if(tes_in[1].size() == 0) {
-    msg() << MSG::WARNING << "No jet TE found" << endreq;
+    msg() << MSG::WARNING << "No jet TE found" << endmsg;
     return HLT::MISSING_FEATURE; // put here not OK but something that is not aborting further execution
   }
 
@@ -175,11 +177,11 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
   std::vector<const xAOD::TrigMissingET*> vectorMissingET;
   HLT::ErrorCode statMET = getFeatures(tes_in[0].front(), vectorMissingET );
   if(statMET != HLT::OK ) {
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
     return HLT::OK;
   }
   if(vectorMissingET.size()==0){
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
@@ -192,7 +194,7 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
   const xAOD::JetContainer* outJets(0);
   HLT::ErrorCode statJets = getFeature(tes_in[1].front(), outJets, "TrigHLTJetHemisphereRec");
   if( statJets!=HLT::OK || outJets==0 ){
-    msg() << MSG::WARNING << " Got no JetCollections associated to the TE! " << endreq;
+    msg() << MSG::WARNING << " Got no JetCollections associated to the TE! " << endmsg;
     m_errors++;
     return HLT::OK;
   }
@@ -210,21 +212,21 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
 
   //check size of JetCollection not empty
   if( theJets.size() == 0){
-    msg()<< MSG::WARNING << " Size of JetCollection is 0! " << endreq;
+    msg()<< MSG::WARNING << " Size of JetCollection is 0! " << endmsg;
     m_errors++;
     if (m_timersvc) m_timers[0]->stop();
     return HLT::OK;
   }
 
   if( theJets.size() != 2){
-    msg()<< MSG::WARNING << " Size of JetCollection is 2! - Razor variables require exactly two megajets" << endreq;
+    msg()<< MSG::WARNING << " Size of JetCollection is 2! - Razor variables require exactly two megajets" << endmsg;
     m_errors++;
     if (m_timersvc) m_timers[0]->stop();
     return HLT::OK;
   }
 
   if( theJets.at(0)->jetP4().E()==0. || theJets.at(1)->jetP4().E()==0.  ){
-    msg()<< MSG::WARNING << " Energy-less hemisphere. Something's wrong" << endreq;
+    msg()<< MSG::WARNING << " Energy-less hemisphere. Something's wrong" << endmsg;
     m_errors++;
     if (m_timersvc) m_timers[0]->stop();
     return HLT::OK;
@@ -263,26 +265,26 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
   // Boosting is done now by writing out the analytical result 
   // in terms of the original four vector components
 
-  m_jet[0][0] = theJets.at(0)->jetP4().Px()/1000.;
-  m_jet[0][1] = theJets.at(0)->jetP4().Py()/1000.;
-  m_jet[0][2] = theJets.at(0)->jetP4().Pz()/1000.;
-  m_jet[0][3] = theJets.at(0)->jetP4().E() /1000.;
-  m_jet[1][0] = theJets.at(1)->jetP4().Px()/1000.;
-  m_jet[1][1] = theJets.at(1)->jetP4().Py()/1000.;
-  m_jet[1][2] = theJets.at(1)->jetP4().Pz()/1000.;
-  m_jet[1][3] = theJets.at(1)->jetP4().E() /1000.;
+  m_jet[0][0] = theJets.at(0)->jetP4().Px()/Units::GeV;
+  m_jet[0][1] = theJets.at(0)->jetP4().Py()/Units::GeV;
+  m_jet[0][2] = theJets.at(0)->jetP4().Pz()/Units::GeV;
+  m_jet[0][3] = theJets.at(0)->jetP4().E() /Units::GeV;
+  m_jet[1][0] = theJets.at(1)->jetP4().Px()/Units::GeV;
+  m_jet[1][1] = theJets.at(1)->jetP4().Py()/Units::GeV;
+  m_jet[1][2] = theJets.at(1)->jetP4().Pz()/Units::GeV;
+  m_jet[1][3] = theJets.at(1)->jetP4().E() /Units::GeV;
 
-  m_met[0]    = efmet->ex()/1000.;
-  m_met[1]    = efmet->ey()/1000.;
+  m_met[0]    = efmet->ex()/Units::GeV;
+  m_met[1]    = efmet->ey()/Units::GeV;
 
   // Fill for monitoring
   m_passedJetCuts_jetphi_0 = theJets.at(0)->jetP4().Phi();
   m_passedJetCuts_jeteta_0 = theJets.at(0)->jetP4().Eta();
-  m_passedJetCuts_jetet_0  = theJets.at(0)->jetP4().Et()/1000.;
+  m_passedJetCuts_jetet_0  = theJets.at(0)->jetP4().Et()/Units::GeV;
 
   m_passedJetCuts_jetphi_1 = theJets.at(1)->jetP4().Phi();
   m_passedJetCuts_jeteta_1 = theJets.at(1)->jetP4().Eta();
-  m_passedJetCuts_jetet_1  = theJets.at(1)->jetP4().Et()/1000.;
+  m_passedJetCuts_jetet_1  = theJets.at(1)->jetP4().Et()/Units::GeV;
 
 
   // jet masses squared 
@@ -381,12 +383,12 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
 
     pass = true;
     m_accepted++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER PASSED <<<<<       Razor: " << m_Razor << " PASSED Razor cut of " << m_RazorCut << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER PASSED <<<<<       Razor: " << m_Razor << " PASSED Razor cut of " << m_RazorCut << endmsg;
     m_cutCounter = 2;
   }
   else {
     pass = false;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER FAILED <<<<<       Razor: " << m_Razor << " FAILED Razor cut of " << m_RazorCut << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER FAILED <<<<<       Razor: " << m_Razor << " FAILED Razor cut of " << m_RazorCut << endmsg;
   }
 
 

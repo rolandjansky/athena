@@ -83,13 +83,13 @@ TrigEFJetMassY::~TrigEFJetMassY()
 HLT::ErrorCode TrigEFJetMassY::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -108,8 +108,8 @@ HLT::ErrorCode TrigEFJetMassY::hltInitialize()
 HLT::ErrorCode TrigEFJetMassY::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }
@@ -139,14 +139,14 @@ HLT::ErrorCode TrigEFJetMassY::hltExecute(const HLT::TriggerElement* outputTE, b
   HLT::ErrorCode ec = getFeature(outputTE, outJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+    msg() << MSG::WARNING << " Failed to get JetCollections " << endmsg;
     return ec;
   }
 
 
   m_cutCounter = 0;
   if( outJets == 0 ){
-    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endmsg;
     m_errors++;
     if (m_acceptAll) m_cutCounter = 1;
     return HLT::OK;
@@ -157,7 +157,7 @@ HLT::ErrorCode TrigEFJetMassY::hltExecute(const HLT::TriggerElement* outputTE, b
 
  //check size of JetCollection
   if( theJets.size() == 0 ){
-    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
+    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endmsg;
     m_errors++;
     if (m_acceptAll) m_cutCounter = 1;
     return HLT::OK;
@@ -208,7 +208,7 @@ HLT::ErrorCode TrigEFJetMassY::hltExecute(const HLT::TriggerElement* outputTE, b
 
   // attach the bits
   if ( attachBits(outputTE, bits ) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endreq;
+    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
   }
 
 

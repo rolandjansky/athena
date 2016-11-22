@@ -92,13 +92,13 @@ HLT::ErrorCode TrigEFJetMassDEta::hltInitialize()
   // ----------------------------------------------------------------------
 {
 
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -122,8 +122,8 @@ HLT::ErrorCode TrigEFJetMassDEta::hltFinalize(){
   m_eta.clear();
   m_eta_cuted.clear();
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }
@@ -140,7 +140,7 @@ struct DescendingEta:std::binary_function<const xAOD::Jet*,
 HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   // ----------------------------------------------------------------------
 
-  msg() << MSG::DEBUG << "Hello from " << name() << endreq;
+  msg() << MSG::DEBUG << "Hello from " << name() << endmsg;
 
   m_pt.clear();
   m_pt_cuted.clear();
@@ -163,14 +163,14 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
   HLT::ErrorCode ec = getFeature(outputTE, outJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+    msg() << MSG::WARNING << " Failed to get JetCollections " << endmsg;
     return ec;
   }
 
 
   m_cutCounter = 0;
   if( outJets == 0 ){
-    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endmsg;
     m_errors++;
     if (m_acceptAll) m_cutCounter = 1;
     return HLT::OK;
@@ -181,7 +181,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
 
  //check size of JetCollection
   if( theJets.size() == 0 ){
-    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
+    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endmsg;
     m_errors++;
     if (m_acceptAll) m_cutCounter = 1;
     m_rejected++;
@@ -201,7 +201,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
 
  //check size of JetCollection
   if( theSelectedJets.size() < 2 ){
-    msg()<< MSG::DEBUG << " Size of Selected Jets JetCollection is < 2 " << endreq;
+    msg()<< MSG::DEBUG << " Size of Selected Jets JetCollection is < 2 " << endmsg;
     //    m_errors++;
     if (m_acceptAll) m_cutCounter = 1;
     m_rejected++;
@@ -265,7 +265,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
 
   // attach the bits
   if ( attachBits(outputTE, bits ) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endreq;
+    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
   }
 
 

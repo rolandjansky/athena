@@ -71,7 +71,7 @@ class TrigL2JetHypoNoise : public HLT::HypoAlgo {
   int m_nLeadingCells;
   float m_jetQuality;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

@@ -105,7 +105,7 @@ class TrigEFRazorAllTE : public HLT::AllTEAlgo {
 
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

@@ -74,7 +74,7 @@ class TrigL2DEtaMjjAllTE : public HLT::AllTEAlgo {
   // Histogram Service:
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

@@ -22,7 +22,7 @@ TrigDEtaHypoBase::~TrigDEtaHypoBase(){
 
 HLT::ErrorCode TrigDEtaHypoBase::hltInitialize(){
  
-  msg()<<MSG::DEBUG<<" from initialize()"<<endreq;
+  msg()<<MSG::DEBUG<<" from initialize()"<<endmsg;
   
   m_nJets = 2 * m_nGaps;
   
@@ -31,14 +31,14 @@ HLT::ErrorCode TrigDEtaHypoBase::hltInitialize(){
 
 HLT::ErrorCode TrigDEtaHypoBase::hltFinalize(){
   
-  msg()<<MSG::DEBUG<<" from finalize()"<<endreq;
+  msg()<<MSG::DEBUG<<" from finalize()"<<endmsg;
   
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigDEtaHypoBase::hltExecute(const HLT::TriggerElement* outputTE, bool& pass){
   
-  msg()<<MSG::DEBUG<<"Hello from TrigDEtaHypoBase::hltExecute"<<endreq;
+  msg()<<MSG::DEBUG<<"Hello from TrigDEtaHypoBase::hltExecute"<<endmsg;
   
   m_gapCounter = -1;
   m_gapSize=-999.;  
@@ -48,7 +48,7 @@ HLT::ErrorCode TrigDEtaHypoBase::hltExecute(const HLT::TriggerElement* outputTE,
   
   if(status != HLT::OK){
     
-    msg() << MSG::WARNING <<" Could not get the jets"<<endreq;
+    msg() << MSG::WARNING <<" Could not get the jets"<<endmsg;
     pass = false;
     return status;
   }
@@ -64,9 +64,9 @@ HLT::ErrorCode TrigDEtaHypoBase::hltExecute(const HLT::TriggerElement* outputTE,
     pass = true;
     if(nJets>1)m_gapSize=std::fabs(jets[0]->eta()-jets[1]->eta());
   }
-  msg()<<MSG::DEBUG<<"There are "<<nJets<<" jets!"<<endreq;
+  msg()<<MSG::DEBUG<<"There are "<<nJets<<" jets!"<<endmsg;
   
-  msg()<<MSG::DEBUG<< " Event pass = "<<pass<<endreq;
+  msg()<<MSG::DEBUG<< " Event pass = "<<pass<<endmsg;
   
   return HLT::OK;
 }

@@ -78,12 +78,12 @@ class TrigL2HTAllTE : public HLT::AllTEAlgo {
   std::vector<int>    m_nLeadingTowers; // number of leading towers
 
   
-  std::vector<int>    accepted_jets;    // a vector of the jets used to compute HT
+  std::vector<int>    m_accepted_jets;    // a vector of the jets used to compute HT
   
   // Histogram Service:
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

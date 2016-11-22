@@ -7,8 +7,8 @@
 
 #include "TrigJetHypo/TrigDEtaFexBase.h"
 #include "TrigCaloEvent/TrigT2Jet.h"
-using HLT::ErrorCode;
-using HLT::TEConstVec;
+//using HLT::ErrorCode;
+//using HLT::TEConstVec;
 
 class ITrigTimerSvc;
 

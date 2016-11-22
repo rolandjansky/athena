@@ -68,7 +68,7 @@ class TrigEFJetMassY : public HLT::HypoAlgo {
   double m_eta_cuted;
   
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

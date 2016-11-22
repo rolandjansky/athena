@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-using HLT::ErrorCode;
-using HLT::TEConstVec;
+//using HLT::ErrorCode;
+//using HLT::TEConstVec;
 
 class ITrigTimerSvc;
 class INavigable4Momentum;
@@ -23,11 +23,11 @@ public:
   TrigDEtaFexBase(const std::string & name, ISvcLocator* pSvcLocator);
   ~TrigDEtaFexBase(){};
   
-  ErrorCode hltInitialize();
-  ErrorCode hltFinalize();
+  HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltFinalize();
   
-  ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> > &inputTEs,
-                       unsigned int outType);
+  HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> > &inputTEs,
+                            unsigned int outType);
   
   
 private:

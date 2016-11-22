@@ -62,15 +62,15 @@ HLT::AllTEAlgo(name, pSvcLocator){
 }
 
 
-ErrorCode TrigDEtaFexBase::hltInitialize(){
+HLT::ErrorCode TrigDEtaFexBase::hltInitialize(){
   
-  msg()<<MSG::DEBUG<<"Hello from TrigDEtaFex algorithm"<<endreq;
+  msg()<<MSG::DEBUG<<"Hello from TrigDEtaFex algorithm"<<endmsg;
   
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-    << ": Unable to locate TrigTimer Service" << endreq;
+    << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     
@@ -81,13 +81,13 @@ ErrorCode TrigDEtaFexBase::hltInitialize(){
   return HLT::OK;
 }
 
-ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElement*> > &inputTEs,
-                                      unsigned int outType){
+HLT::ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElement*> > &inputTEs,
+                                           unsigned int outType){
 
   m_nJets = 0;
   m_nJetsSelected = 0;
   
-  msg()<<MSG::DEBUG<<"Hello from TrigDEtaFex::hltExecute"<<endreq;
+  msg()<<MSG::DEBUG<<"Hello from TrigDEtaFex::hltExecute"<<endmsg;
   
   m_gapSize = -1.0;
   
@@ -135,7 +135,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
   int nJets = allJets.size();
   if(m_checkMostForwardBackwardPair) nJets = allJets_eta.size();
 
-  msg()<<MSG::DEBUG<<" There are "<<nJets<<" jets selected from "<<m_nJets<<" jets"<<endreq;
+  msg()<<MSG::DEBUG<<" There are "<<nJets<<" jets selected from "<<m_nJets<<" jets"<<endmsg;
   
   std::set<HLT::TriggerElement*> dEtaTEs;
   std::vector<const INavigable4Momentum*> dEtaJets;
@@ -143,7 +143,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
   // If there are fewer than two jets then stop here
   if(nJets< 2){
     
-    msg()<<MSG::DEBUG<<" not enough jets above ET threshold!"<<endreq;
+    msg()<<MSG::DEBUG<<" not enough jets above ET threshold!"<<endmsg;
     
     return HLT::OK;
   }
@@ -156,7 +156,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
   }
 
   for(; highJet != end; ++highJet){
-    msg()<<MSG::DEBUG<<"jet et: "<< highJet->first->et() << " eta: "<< highJet->first->eta() << endreq;
+    msg()<<MSG::DEBUG<<"jet et: "<< highJet->first->et() << " eta: "<< highJet->first->eta() << endmsg;
   }
 
   highJet = allJets.begin(); 
@@ -169,7 +169,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
     lowJet--;
   }
 
-  msg()<<MSG::DEBUG<< "jet1 et: "<< lowJet->first->et() << " eta: "<< lowJet->first->eta() << " jet2 et: " << highJet->first->et() << " eta: "<< highJet->first->eta() <<  endreq;
+  msg()<<MSG::DEBUG<< "jet1 et: "<< lowJet->first->et() << " eta: "<< lowJet->first->eta() << " jet2 et: " << highJet->first->et() << " eta: "<< highJet->first->eta() <<  endmsg;
 
   //absolute value??
   double deta = fabs(highJet->first->eta() - lowJet->first->eta());
@@ -177,7 +177,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
 
   if(deta > m_dEtaCut && mjj > m_MjjCut){
     
-    msg()<<MSG::DEBUG<<"found gap of size "<<deta<<endreq;
+    msg()<<MSG::DEBUG<<"found gap of size "<<deta<<endmsg;
     
     //monitor only the largest gap size in the event
     if(deta > m_gapSize) m_gapSize = deta;
@@ -200,14 +200,14 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
 //     //only consider leading jet pair
 //     if(counter>0)break;
 
-//     msg()<<MSG::DEBUG<< "jet1 et: "<< lowJet->first->et() << " eta: "<< lowJet->first->eta() << " jet2 et: " << highJet->first->et() << " eta: "<< highJet->first->eta() <<  endreq;
+//     msg()<<MSG::DEBUG<< "jet1 et: "<< lowJet->first->et() << " eta: "<< lowJet->first->eta() << " jet2 et: " << highJet->first->et() << " eta: "<< highJet->first->eta() <<  endmsg;
 
 //     //absolute value??
 //     double deta = fabs(highJet->first->eta() - lowJet->first->eta());
     
 //     if(deta > m_dEtaCut){
       
-//       msg()<<MSG::DEBUG<<"found gap of size "<<deta<<endreq;
+//       msg()<<MSG::DEBUG<<"found gap of size "<<deta<<endmsg;
       
 //       //monitor only the largest gap size in the event
 //       if(deta > m_gapSize) m_gapSize = deta;
@@ -227,14 +227,14 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
   
   // If no gap is found then stop here
   if(dEtaTEs.size() == 0){
-    msg()<<MSG::DEBUG<<" no gap found!"<<endreq;
+    msg()<<MSG::DEBUG<<" no gap found!"<<endmsg;
     return HLT::OK;
   }
 
 
   // If more than one jet pair considered return WARNING
   if(counter > 1){
-    msg()<<MSG::WARNING<<" More than one jet pair considered! Only two leading jets should be used"<<endreq;
+    msg()<<MSG::WARNING<<" More than one jet pair considered! Only two leading jets should be used"<<endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN);  
   }
   
@@ -243,7 +243,7 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
   
   HLT::ErrorCode status = saveJets(output, dEtaJets, m_label);
   if(status != HLT::OK){
-    msg()<<MSG::ERROR<<"Could not write jet for delta eta into output TE"<<endreq;
+    msg()<<MSG::ERROR<<"Could not write jet for delta eta into output TE"<<endmsg;
     return status;
   }
   
@@ -253,16 +253,16 @@ ErrorCode TrigDEtaFexBase::hltExecute(std::vector<std::vector<HLT::TriggerElemen
     //HLT::ErrorCode status = reAttachFeature(output, dynamic_cast<const TrigT2Jet*>(*jet), m_label);
     HLT::ErrorCode status = reAttachFeature(output, *jet, m_label);
     if(status != HLT::OK){
-      msg()<<MSG::ERROR<<"Could not write jet for delta eta into output TE"<<endreq;
+      msg()<<MSG::ERROR<<"Could not write jet for delta eta into output TE"<<endmsg;
       return status;
     }
   }
   */
-  msg()<<MSG::DEBUG<<" found gap: " << m_gapSize <<" and finished!"<<endreq;
+  msg()<<MSG::DEBUG<<" found gap: " << m_gapSize <<" and finished!"<<endmsg;
   
   return HLT::OK;
 }
 
-ErrorCode TrigDEtaFexBase::hltFinalize(){
+HLT::ErrorCode TrigDEtaFexBase::hltFinalize(){
   return HLT::OK;
 }

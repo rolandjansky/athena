@@ -105,7 +105,7 @@ class TrigL2JetHypo : public HLT::HypoAlgo {
   // Histogram Service:
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
+  //StoreGateSvc*                           m_storeGate;
 
   // Timing:
 

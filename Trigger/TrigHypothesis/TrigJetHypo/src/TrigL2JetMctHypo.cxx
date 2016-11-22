@@ -21,10 +21,12 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigCaloEvent/TrigT2Jet.h"
+#include "AthenaKernel/Units.h"
 
 #include <math.h>
 
 class ISvcLocator;
+namespace Units = Athena::Units;
 
 TrigL2JetMctHypo::TrigL2JetMctHypo(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::HypoAlgo(name, pSvcLocator),
@@ -36,9 +38,9 @@ TrigL2JetMctHypo::TrigL2JetMctHypo(const std::string & name, ISvcLocator* pSvcLo
     m_vjetphi2(0)
 {
 
-  declareProperty("JetMctCut", m_JetMctCut = 150*CLHEP::GeV, "Mct cut on the L2 jets ");
-  declareProperty("ptHardJetCut", m_ptHardJetCut = 90*CLHEP::GeV, "Pt threshold for the hardest L2 jet");
-  declareProperty("ptSoftJetCut", m_ptSoftJetCut =  90*CLHEP::GeV, "Pt threshold for the 2nd hardest L2 jet");
+  declareProperty("JetMctCut", m_JetMctCut = 150*Units::GeV, "Mct cut on the L2 jets ");
+  declareProperty("ptHardJetCut", m_ptHardJetCut = 90*Units::GeV, "Pt threshold for the hardest L2 jet");
+  declareProperty("ptSoftJetCut", m_ptSoftJetCut =  90*Units::GeV, "Pt threshold for the 2nd hardest L2 jet");
 
   //Monitor
   declareProperty("doMonitoring_L2", m_doMonitoring = true, "switch on/off monitoring" );
@@ -65,7 +67,7 @@ HLT::ErrorCode TrigL2JetMctHypo::hltInitialize()
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     
@@ -75,10 +77,10 @@ HLT::ErrorCode TrigL2JetMctHypo::hltInitialize()
   */
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
     msg() << MSG::DEBUG << "REGTEST Cut values: JetMctCut: " << m_JetMctCut 
 	  << ", ptHardJetCut: " << m_ptHardJetCut 
-	  << ", ptSoftJetCut: " << m_ptSoftJetCut << endreq;
+	  << ", ptSoftJetCut: " << m_ptSoftJetCut << endmsg;
   }
 
   return HLT::OK;
@@ -112,13 +114,13 @@ HLT::ErrorCode TrigL2JetMctHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_dphi = -999.9;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Executing this TrigL2JetMctHypo: " << name() << endreq;
+    msg() << MSG::DEBUG << "Executing this TrigL2JetMctHypo: " << name() << endmsg;
   }
   
   // this are 2 TEs which we eventually will combine
   m_nTeMctHypoCounter = HLT::Navigation::getDirectPredecessors(outputTE).size();
   if ( m_nTeMctHypoCounter != 2 ) {
-    msg() << MSG::WARNING << "Got diferent than 2 number of input TEs: " << m_nTeMctHypoCounter  << " job badly configured" << endreq;
+    msg() << MSG::WARNING << "Got diferent than 2 number of input TEs: " << m_nTeMctHypoCounter  << " job badly configured" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);  
   }
   
@@ -133,7 +135,7 @@ HLT::ErrorCode TrigL2JetMctHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if ( getFeatures(te1, vectorOfJets1)  != HLT::OK || getFeatures(te2,vectorOfJets2) != HLT::OK ||
        vectorOfJets1.at(0) == 0 || vectorOfJets2.at(0)  == 0 ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigT2Jet vector" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigT2Jet vector" << endmsg;
     }
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
   }
@@ -142,19 +144,19 @@ HLT::ErrorCode TrigL2JetMctHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_nJetsTe2 = vectorOfJets2.size();
   
   if (msgLvl()<=MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Got " << m_nJetsTe1 << " Jets from TE1" << endreq;
-    msg() << MSG::DEBUG << " Got " << m_nJetsTe2 << " Jets from TE2" << endreq;
+    msg() << MSG::DEBUG << " Got " << m_nJetsTe1 << " Jets from TE1" << endmsg;
+    msg() << MSG::DEBUG << " Got " << m_nJetsTe2 << " Jets from TE2" << endmsg;
   }
   
 
   //Not sure sanity check
   /*
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(te1,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 1! " << endreq;
-  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE1" << endreq;
+  if (getFeature(te1,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 1! " << endmsg;
+  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE1" << endmsg;
   roiDescriptor = 0;
-  if (getFeature(te2,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 2! " << endreq;
-  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE2" << endreq;
+  if (getFeature(te2,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 2! " << endmsg;
+  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE2" << endmsg;
   */
   
   //Not sure ... If there's only 1 jet per TE do we really need to do the ordering (below)? Leave it in for now..  
@@ -229,64 +231,64 @@ HLT::ErrorCode TrigL2JetMctHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_dphi = m_vjetphi1.at(0) - m_vjetphi2.at(0);
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "REGTEST Phi1: " << m_vjetphi1.at(0) 
-          << " Phi2: " << m_vjetphi2.at(0) << " Dphi: " << m_dphi << endreq;
-    //msg() << MSG::DEBUG << "REGTEST Et1: " << m_vjetet1.at(0) << " Et2: " << m_vjetet2.at(0) << endreq;
+          << " Phi2: " << m_vjetphi2.at(0) << " Dphi: " << m_dphi << endmsg;
+    //msg() << MSG::DEBUG << "REGTEST Et1: " << m_vjetet1.at(0) << " Et2: " << m_vjetet2.at(0) << endmsg;
   }
   
   //check that you are computing dphi 'properly'
   
   if (fabs(m_dphi) > M_PI ) m_dphi = 2*M_PI - fabs(m_dphi);
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "After correction (to get equivalent angle below PI) Dphi: " << m_dphi << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "After correction (to get equivalent angle below PI) Dphi: " << m_dphi << endmsg;
   m_dphi = fabs(m_dphi);
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Absolute value of Dphi: " << m_dphi << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Absolute value of Dphi: " << m_dphi << endmsg;
 
-  m_mct = sqrt(2*m_vjetet1.at(0)*m_vjetet2.at(0)*(1+cos(m_dphi))) / CLHEP::GeV;
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Value of Mct: " << m_mct*CLHEP::GeV << endreq;
+  m_mct = sqrt(2*m_vjetet1.at(0)*m_vjetet2.at(0)*(1+cos(m_dphi))) / Units::GeV;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Value of Mct: " << m_mct*Units::GeV << endmsg;
   
   // Perform selection
   if (m_vjetet1.at(0) >= m_vjetet2.at(0) ) {
     //Monitoring
-    m_ptLeadingJet = m_vjetet1.at(0)/CLHEP::GeV;
+    m_ptLeadingJet = m_vjetet1.at(0)/Units::GeV;
     m_etaLeadingJet = m_vjeteta1.at(0);
     m_phiLeadingJet = m_vjetphi1.at(0);
-    m_ptNextLeadingJet = m_vjetet2.at(0)/CLHEP::GeV;
+    m_ptNextLeadingJet = m_vjetet2.at(0)/Units::GeV;
     m_etaNextLeadingJet = m_vjeteta2.at(0);
     m_phiNextLeadingJet = m_vjetphi2.at(0);
     
   } else {
     
     //Monitoring
-    m_ptLeadingJet = m_vjetet2.at(0)/CLHEP::GeV;
+    m_ptLeadingJet = m_vjetet2.at(0)/Units::GeV;
     m_etaLeadingJet = m_vjeteta2.at(0);
     m_phiLeadingJet = m_vjetphi2.at(0);
-    m_ptNextLeadingJet = m_vjetet1.at(0)/CLHEP::GeV;
+    m_ptNextLeadingJet = m_vjetet1.at(0)/Units::GeV;
     m_etaNextLeadingJet = m_vjeteta1.at(0);
     m_phiNextLeadingJet = m_vjetphi1.at(0); 
   }
   
   // Et cut on hardest jet
-  if (m_ptLeadingJet*CLHEP::GeV < m_ptHardJetCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Hardest L2 Jet: " << m_ptLeadingJet*CLHEP::GeV << " failed Et cut: " << m_ptHardJetCut << endreq;
+  if (m_ptLeadingJet*Units::GeV < m_ptHardJetCut) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Hardest L2 Jet: " << m_ptLeadingJet*Units::GeV << " failed Et cut: " << m_ptHardJetCut << endmsg;
     return HLT::OK;
   }
   // Et cut on second hardest jet
-  if (m_ptNextLeadingJet*CLHEP::GeV < m_ptSoftJetCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Second hardest L2 Jet: " << m_ptNextLeadingJet*CLHEP::GeV << " failed Et cut: " << m_ptSoftJetCut << endreq;
+  if (m_ptNextLeadingJet*Units::GeV < m_ptSoftJetCut) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Second hardest L2 Jet: " << m_ptNextLeadingJet*Units::GeV << " failed Et cut: " << m_ptSoftJetCut << endmsg;
     return HLT::OK;
   }
   // Mct cut
-  if (m_mct*CLHEP::GeV < m_JetMctCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Mct: " << m_mct*CLHEP::GeV << " failed Mct cut: " << m_JetMctCut << endreq;
+  if (m_mct*Units::GeV < m_JetMctCut) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Mct: " << m_mct*Units::GeV << " failed Mct cut: " << m_JetMctCut << endmsg;
     return HLT::OK;
   }
   // trigger satisfied, let the steering know
   pass = true;
   m_MctHypoResult = 1;
   m_Passed_mct = m_mct;
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST pass = " << pass << " Mct: " << m_mct*CLHEP::GeV 
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST pass = " << pass << " Mct: " << m_mct*Units::GeV 
                                    << " Phi1: " << m_phiLeadingJet << " Phi2: " << m_phiNextLeadingJet
-                                   << " Et hardest jet: " << m_ptLeadingJet*CLHEP::GeV << " Et 2nd hardest jet: " << m_ptNextLeadingJet*CLHEP::GeV  
-                                   << endreq;
+                                   << " Et hardest jet: " << m_ptLeadingJet*Units::GeV << " Et 2nd hardest jet: " << m_ptNextLeadingJet*Units::GeV  
+                                   << endmsg;
   
   return HLT::OK;
 }
@@ -295,7 +297,7 @@ HLT::ErrorCode TrigL2JetMctHypo::hltExecute(const HLT::TriggerElement* outputTE,
 HLT::ErrorCode TrigL2JetMctHypo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

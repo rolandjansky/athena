@@ -86,7 +86,7 @@ TrigEFDPhiMetJetAllTE::TrigEFDPhiMetJetAllTE(const std::string & name, ISvcLocat
 HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltInitialize()
 {
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Initialization. The correct configuration of this algorithm "
-     << "requires jets ordered in increasing energy" << endreq;
+     << "requires jets ordered in increasing energy" << endmsg;
 
 
   m_acceptedEvts = 0;
@@ -113,24 +113,24 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   //  if (m_executedEvent_EFDPhiMetJet) {
   //     if (msgLvl() <= MSG::DEBUG) {
-  //           msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endreq;
+  //           msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endmsg;
   //     }
   //     return HLT::OK;
   //  }
 
   if (msgLvl() <= MSG::DEBUG) {
-     msg() << MSG::DEBUG << "***  Executing this TrigJetHypo : " << name() << endreq;
+     msg() << MSG::DEBUG << "***  Executing this TrigJetHypo : " << name() << endmsg;
   }
 
   if (tes_in.size() < 1) {
-    msg() << MSG::WARNING << "No TriggerElements provided -> do nothing" << endreq;
+    msg() << MSG::WARNING << "No TriggerElements provided -> do nothing" << endmsg;
     //    m_executedEvent_EFDPhiMetJet = true;
     m_errorEvts+=1;
     m_rejectedEvts+=1;
     return HLT::MISSING_FEATURE; // since no TE are found while there should be something (why would the chain start otherwise?)
   }
   else if (tes_in.size() < 2) {
-    msg() << MSG::WARNING << "Less than 2 TriggerElements provided -> do nothing" << endreq;
+    msg() << MSG::WARNING << "Less than 2 TriggerElements provided -> do nothing" << endmsg;
     //    m_executedEvent_EFDPhiMetJet = true;
     m_errorEvts+=1;
     m_rejectedEvts+=1;
@@ -138,11 +138,11 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   }
 
   if(tes_in[0].size() == 0) {
-    msg() << MSG::WARNING << "No MET TE found" << endreq;
+    msg() << MSG::WARNING << "No MET TE found" << endmsg;
     return HLT::MISSING_FEATURE; // put here not OK but something that is not aborting further execution
   }
   if(tes_in[1].size() == 0) {
-    msg() << MSG::WARNING << "No jet TE found" << endreq;
+    msg() << MSG::WARNING << "No jet TE found" << endmsg;
     return HLT::MISSING_FEATURE; // put here not OK but something that is not aborting further execution
   }
 
@@ -155,11 +155,11 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   std::vector<const xAOD::TrigMissingET*> vectorMissingET;
   HLT::ErrorCode statMET = getFeatures(tes_in[0].front(), vectorMissingET );
   if(statMET != HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
     return HLT::OK;
   }
   if(vectorMissingET.size()==0){
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
     return HLT::MISSING_FEATURE;
   }
   if ( (tes_in.size()>0) && (tes_in[0].size()>0) ) allTEs.push_back( tes_in[0][0] );
@@ -179,12 +179,12 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
 
   if(statJets!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+    msg() << MSG::WARNING << " Failed to get JetCollections " << endmsg;
     return HLT::OK;
   }
 
   if( outJets == 0 ){
-    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endmsg;
     m_errorEvts++;
     return HLT::MISSING_FEATURE;
   }
@@ -195,7 +195,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   //check size of JetCollection
   if( theJets.size() == 0 ){
-    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
+    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endmsg;
     m_errorEvts++;
     //    if (m_timersvc) m_timers[0]->stop();
     return HLT::OK;
@@ -258,7 +258,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
       else { // some monitoring -->
 
 	
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy and phi: " << m_jetet  << m_jetphi << " phi cut: " << m_MinDPhiCut << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet energy and phi: " << m_jetet  << m_jetphi << " phi cut: " << m_MinDPhiCut << endmsg;
  	if (jet_counter==0) {
 	  m_jet_met_phi1_Pass = delta_phi;
 	  m_jet1et_Pass  = m_jetet;
@@ -306,7 +306,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   if ( msgLvl() <= MSG::DEBUG ) {
     int nJet=0;
     for (const xAOD::Jet* testJet : theJets) {
-      msg() << MSG::DEBUG << " Jet "<< (nJet+1) << " | TrigPassBit: " << HLT::isPassing( bits, testJet, outJets ) << " Et: "<< testJet->p4().Et() << " Eta: "<< testJet->eta() << endreq;
+      msg() << MSG::DEBUG << " Jet "<< (nJet+1) << " | TrigPassBit: " << HLT::isPassing( bits, testJet, outJets ) << " Et: "<< testJet->p4().Et() << " Eta: "<< testJet->eta() << endmsg;
       nJet++;
     }
   }
@@ -315,7 +315,7 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   // attach the bits
   if ( attachFeature(out_te, bits, "passbits") != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endreq;
+    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
   }
 
   
@@ -329,8 +329,8 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO ) {
-    msg() << MSG::INFO << "in finalize()" << endreq;
-    msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endreq; 
+    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endmsg; 
   }
   return HLT::OK;
 }

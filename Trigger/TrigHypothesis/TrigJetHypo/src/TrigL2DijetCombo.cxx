@@ -44,7 +44,7 @@ HLT::ErrorCode TrigL2DijetCombo::hltInitialize()
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-        << ": Unable to locate TrigTimer Service" << endreq;
+        << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -69,12 +69,12 @@ HLT::ErrorCode TrigL2DijetCombo::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 
   // sanity check there has to be exactly 2 TEs as input
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigL2DijetCombo::acceptInputs, got: " << inputTE.size() << " TE as input" << endreq;
+    msg() << MSG::DEBUG << "Running TrigL2DijetCombo::acceptInputs, got: " << inputTE.size() << " TE as input" << endmsg;
 
   m_nTe2jCounter = inputTE.size(); // Monitoring variable
 
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::WARNING << "Got different than 2 number of input TEs" << endreq;
+    msg() << MSG::WARNING << "Got different than 2 number of input TEs" << endmsg;
     //if (m_timersvc) m_timers[0]->stop();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); 
   }
@@ -88,7 +88,7 @@ HLT::ErrorCode TrigL2DijetCombo::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 HLT::ErrorCode TrigL2DijetCombo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* /*outputTE*/){
 
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigL2DijetCombo::hltExecute" << endreq;
+    msg() << MSG::DEBUG << "Running TrigL2DijetCombo::hltExecute" << endmsg;
 
   return HLT::OK;
 }
@@ -96,7 +96,7 @@ HLT::ErrorCode TrigL2DijetCombo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::T
 HLT::ErrorCode TrigL2DijetCombo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

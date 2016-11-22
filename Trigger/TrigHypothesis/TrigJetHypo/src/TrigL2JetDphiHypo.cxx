@@ -21,10 +21,12 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigCaloEvent/TrigT2Jet.h"
+#include "AthenaKernel/Units.h"
 
 #include <math.h>
 
 class ISvcLocator;
+namespace Units = Athena::Units;
 
 TrigL2JetDphiHypo::TrigL2JetDphiHypo(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::HypoAlgo(name, pSvcLocator),
@@ -38,8 +40,8 @@ TrigL2JetDphiHypo::TrigL2JetDphiHypo(const std::string & name, ISvcLocator* pSvc
 
   declareProperty("JetDphiMaxCut", m_JetDphiMaxCut = M_PI - 0.4, "Max Delta Phi cut between L2 jets ");
   declareProperty("JetDphiMinCut", m_JetDphiMinCut = 0.4, "Min Delta Phi cut between L2 jets ");
-  declareProperty("ptHardJetCut", m_ptHardJetCut = 150*CLHEP::GeV, "Pt threshold for the hardest L2 jet");
-  declareProperty("ptSoftJetCut", m_ptSoftJetCut =  35*CLHEP::GeV, "Pt threshold for the 2nd hardest L2 jet");
+  declareProperty("ptHardJetCut", m_ptHardJetCut = 150*Units::GeV, "Pt threshold for the hardest L2 jet");
+  declareProperty("ptSoftJetCut", m_ptSoftJetCut =  35*Units::GeV, "Pt threshold for the 2nd hardest L2 jet");
 
   //Monitor
   declareProperty("doMonitoring_L2", m_doMonitoring = true, "switch on/off monitoring" );
@@ -65,7 +67,7 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltInitialize()
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     
@@ -75,11 +77,11 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltInitialize()
   */
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
     msg() << MSG::DEBUG << "REGTEST Cut values: JetDphiMinCut: " << m_JetDphiMinCut 
           << ", JetDphiMaxCut: " << m_JetDphiMaxCut 
 	  << ", ptHardJetCut: " << m_ptHardJetCut 
-	  << ", ptSoftJetCut: " << m_ptSoftJetCut << endreq;
+	  << ", ptSoftJetCut: " << m_ptSoftJetCut << endmsg;
   }
 
   return HLT::OK;
@@ -113,13 +115,13 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_Passed_dphi = -999.9;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Executing this TrigL2JetDphiHypo: " << name() << endreq;
+    msg() << MSG::DEBUG << "Executing this TrigL2JetDphiHypo: " << name() << endmsg;
   }
   
   // this are 2 TEs which we eventually will combine
   m_nTeDphiHypoCounter = HLT::Navigation::getDirectPredecessors(outputTE).size();
   if ( m_nTeDphiHypoCounter != 2 ) {
-    msg() << MSG::WARNING << "Got diferent than 2 number of input TEs: " << m_nTeDphiHypoCounter  << " job badly configured" << endreq;
+    msg() << MSG::WARNING << "Got diferent than 2 number of input TEs: " << m_nTeDphiHypoCounter  << " job badly configured" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);  
   }
   
@@ -134,7 +136,7 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
   if ( getFeatures(te1, vectorOfJets1)  != HLT::OK || getFeatures(te2,vectorOfJets2) != HLT::OK ||
        vectorOfJets1.at(0) == 0 || vectorOfJets2.at(0)  == 0 ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigT2Jet vector" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigT2Jet vector" << endmsg;
     }
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
   }
@@ -143,19 +145,19 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_nJetsTe2 = vectorOfJets2.size();
   
   if (msgLvl()<=MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Got " << m_nJetsTe1 << " Jets from TE1" << endreq;
-    msg() << MSG::DEBUG << " Got " << m_nJetsTe2 << " Jets from TE2" << endreq;
+    msg() << MSG::DEBUG << " Got " << m_nJetsTe1 << " Jets from TE1" << endmsg;
+    msg() << MSG::DEBUG << " Got " << m_nJetsTe2 << " Jets from TE2" << endmsg;
   }
   
 
   //Not sure sanity check
   /*
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(te1,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 1! " << endreq;
-  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE1" << endreq;
+  if (getFeature(te1,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 1! " << endmsg;
+  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE1" << endmsg;
   roiDescriptor = 0;
-  if (getFeature(te2,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 2! " << endreq;
-  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE2" << endreq;
+  if (getFeature(te2,roiDescriptor) != HLT::OK)   msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Element 2! " << endmsg;
+  else if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG  << "Looking at ROI descriptors for TE2" << endmsg;
   */
   
   //Not sure ... If there's only 1 jet per TE do we really need to do the ordering (below)? Leave it in for now..  
@@ -230,55 +232,55 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_dphi = m_vjetphi1.at(0) - m_vjetphi2.at(0);
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "REGTEST Phi1: " << m_vjetphi1.at(0) 
-          << " Phi2: " << m_vjetphi2.at(0) << " Dphi: " << m_dphi << endreq;
-    //msg() << MSG::DEBUG << "REGTEST Et1: " << m_vjetet1.at(0) << " Et2: " << m_vjetet2.at(0) << endreq;
+          << " Phi2: " << m_vjetphi2.at(0) << " Dphi: " << m_dphi << endmsg;
+    //msg() << MSG::DEBUG << "REGTEST Et1: " << m_vjetet1.at(0) << " Et2: " << m_vjetet2.at(0) << endmsg;
   }
   
   //check that you are computing dphi 'properly'
   
   if (fabs(m_dphi) > M_PI ) m_dphi = 2*M_PI - fabs(m_dphi);
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "After correction (to get equivalent angle below PI) Dphi: " << m_dphi << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "After correction (to get equivalent angle below PI) Dphi: " << m_dphi << endmsg;
   m_dphi = fabs(m_dphi);
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Absolute value of Dphi: " << m_dphi << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Absolute value of Dphi: " << m_dphi << endmsg;
   
   // Perform selection
   if (m_vjetet1.at(0) >= m_vjetet2.at(0) ) {
     //Monitoring
-    m_ptLeadingJet = m_vjetet1.at(0)/CLHEP::GeV;
+    m_ptLeadingJet = m_vjetet1.at(0)/Units::GeV;
     m_etaLeadingJet = m_vjeteta1.at(0);
     m_phiLeadingJet = m_vjetphi1.at(0);
-    m_ptNextLeadingJet = m_vjetet2.at(0)/CLHEP::GeV;
+    m_ptNextLeadingJet = m_vjetet2.at(0)/Units::GeV;
     m_etaNextLeadingJet = m_vjeteta2.at(0);
     m_phiNextLeadingJet = m_vjetphi2.at(0);
     
   } else {
     //Monitoring
-    m_ptLeadingJet = m_vjetet2.at(0)/CLHEP::GeV;
+    m_ptLeadingJet = m_vjetet2.at(0)/Units::GeV;
     m_etaLeadingJet = m_vjeteta2.at(0);
     m_phiLeadingJet = m_vjetphi2.at(0);
-    m_ptNextLeadingJet = m_vjetet1.at(0)/CLHEP::GeV;
+    m_ptNextLeadingJet = m_vjetet1.at(0)/Units::GeV;
     m_etaNextLeadingJet = m_vjeteta1.at(0);
     m_phiNextLeadingJet = m_vjetphi1.at(0); 
   }
   
   // Et cut on hardest jet
-  if (m_ptLeadingJet*CLHEP::GeV < m_ptHardJetCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Hardest Jet (L2): " << m_ptLeadingJet*CLHEP::GeV << " failed Et cut: " << m_ptHardJetCut << endreq;
+  if (m_ptLeadingJet*Units::GeV < m_ptHardJetCut) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Hardest Jet (L2): " << m_ptLeadingJet*Units::GeV << " failed Et cut: " << m_ptHardJetCut << endmsg;
     return HLT::OK;
   }
   // Et cut on second hardest jet
-  if (m_ptNextLeadingJet*CLHEP::GeV < m_ptSoftJetCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Second hardest Jet (L2): " << m_ptNextLeadingJet*CLHEP::GeV << " failed Et cut: " << m_ptSoftJetCut << endreq;
+  if (m_ptNextLeadingJet*Units::GeV < m_ptSoftJetCut) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Second hardest Jet (L2): " << m_ptNextLeadingJet*Units::GeV << " failed Et cut: " << m_ptSoftJetCut << endmsg;
     return HLT::OK;
   }
   // Dphimax cut
   if (m_dphi > m_JetDphiMaxCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Dphi: " << m_dphi << " failed DphiMax cut: " << m_JetDphiMaxCut << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Dphi: " << m_dphi << " failed DphiMax cut: " << m_JetDphiMaxCut << endmsg;
     return HLT::OK;
   }
   //Dphimin cut
   if (m_dphi < m_JetDphiMinCut) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Dphi: " << m_dphi << " failed DphiMin cut: " << m_JetDphiMinCut << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Dphi: " << m_dphi << " failed DphiMin cut: " << m_JetDphiMinCut << endmsg;
     return HLT::OK;
   }
   
@@ -290,8 +292,8 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST pass = " << pass << " Dphi: " << m_dphi
                                    << "Phi1: " << m_phiLeadingJet << " Phi2: " << m_phiNextLeadingJet
-                                   << " Et hardest jet: " << m_ptLeadingJet*CLHEP::GeV << " Et 2nd hardest jet: " << m_ptNextLeadingJet*CLHEP::GeV
-                                   << endreq;
+                                   << " Et hardest jet: " << m_ptLeadingJet*Units::GeV << " Et 2nd hardest jet: " << m_ptNextLeadingJet*Units::GeV
+                                   << endmsg;
   return HLT::OK;
 }
 
@@ -299,7 +301,7 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltExecute(const HLT::TriggerElement* outputTE
 HLT::ErrorCode TrigL2JetDphiHypo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

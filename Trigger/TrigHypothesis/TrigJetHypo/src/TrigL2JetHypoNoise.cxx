@@ -68,13 +68,13 @@ TrigL2JetHypoNoise::~TrigL2JetHypoNoise()
 HLT::ErrorCode TrigL2JetHypoNoise::hltInitialize()
 // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	<< ": Unable to locate TrigTimer Service" << endreq;
+	<< ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -93,8 +93,8 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltInitialize()
 HLT::ErrorCode TrigL2JetHypoNoise::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events (Lvl2) accepted/rejected/errors:  "<< m_accepted_L2 <<" / "<<m_rejected_L2<< " / "<< m_errors_L2<< endmsg;
   
   return HLT::OK;
 }
@@ -123,7 +123,7 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   HLT::ErrorCode ec = getFeatures(outputTE, vectorOfJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endreq;
+    msg() << MSG::WARNING << " Failed to get the L2 Jets " << endmsg;
     if (m_timersvc) m_timers[0]->stop();
     return ec;
   }
@@ -133,7 +133,7 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   // Check that there is only one JETROI.
   // We only expect ONE input RoI.
   if (vectorOfJets.size() != 1){
-    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endreq;
+    msg() << MSG::ERROR << "The number of Jets attached to the TE is not 1" << endmsg;
     m_errors_L2++;
     if (m_acceptAll) m_cutCounter = 1;
     if (m_timersvc) m_timers[0]->stop();
@@ -143,7 +143,7 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   // Get first (and only) RoI:
   const TrigT2Jet* pJet = vectorOfJets.back();
   if(!pJet){
-    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endreq;
+    msg() << MSG::ERROR << "Retrieval of RoI from vector failed"  << endmsg;
     m_errors_L2++;
     if (m_acceptAll) m_cutCounter = 1;
     if (m_timersvc) m_timers[0]->stop();
@@ -154,9 +154,9 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   double etjet = pJet->et();
 
   if(msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endreq;
-	msg() << MSG::DEBUG << "Jet Leading Cells (L2): " << pJet->nLeadingCells() << endreq;
-	msg() << MSG::DEBUG << "Jet Quality (L2): " << pJet->jetQuality() << endreq;
+	msg() << MSG::DEBUG << "Jet energy (L2): " << etjet << endmsg;
+	msg() << MSG::DEBUG << "Jet Leading Cells (L2): " << pJet->nLeadingCells() << endmsg;
+	msg() << MSG::DEBUG << "Jet Quality (L2): " << pJet->jetQuality() << endmsg;
   }
   
   // ---------------------------------------------------------
@@ -196,10 +196,10 @@ HLT::ErrorCode TrigL2JetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
       m_jetQuality = pJet-> jetQuality();
     }
     
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Noise Event accepted ! " << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Noise Event accepted ! " << endmsg;
   } else {
     m_rejected_L2++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Event rejected !" << endmsg;
   }
 
   //m_cutCounter>1 not yet implemented

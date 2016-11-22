@@ -42,6 +42,7 @@ macro_append TrigJetHypo_linkopts " $(tdaqc_linkopts) -lhltinterface"
 
 private
 use     AtlasCLHEP              AtlasCLHEP-*            External
+use     AthenaKernel            AthenaKernel-*          Control
 use     EventKernel             EventKernel-*           Event
 use     FourMomUtils            FourMomUtils-*          Event
 use     TrigNavigation          TrigNavigation-*        Trigger/TrigEvent

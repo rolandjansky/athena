@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloGeoHelpers
                           Event/EventKernel
                           Event/FourMomUtils

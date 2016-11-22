@@ -92,13 +92,13 @@ TrigEFJetHypo::~TrigEFJetHypo()
 HLT::ErrorCode TrigEFJetHypo::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
 
   if (m_timersvc) {
@@ -129,7 +129,7 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
             << " jets requested but only "
             << m_EtThresholdsInput.size()
             << " provided."
-            << endreq;    
+            << endmsg;    
   
       return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
     }
@@ -149,7 +149,7 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
               << " (" 
               << m_EtThresholds[i-1]
               << " MeV), thresholds should be in DECREASING order "
-              << endreq;    
+              << endmsg;    
       }
     }
 
@@ -157,7 +157,7 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
       msg() << MSG::WARNING 
             << name() 
             << ": sorting thresholds into reverse order" 
-            << endreq; 
+            << endmsg; 
       std::sort( m_EtThresholds.begin(), m_EtThresholds.end() );
       std::reverse( m_EtThresholds.begin(), m_EtThresholds.end() );
     }
@@ -171,7 +171,7 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
           << "]=" 
           << m_EtThresholds[i] 
           << " MeV" 
-          << endreq;
+          << endmsg;
   }
   
   return HLT::OK;
@@ -182,8 +182,8 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
 HLT::ErrorCode TrigEFJetHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }

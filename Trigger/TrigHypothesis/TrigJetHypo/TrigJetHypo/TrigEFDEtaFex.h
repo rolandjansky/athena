@@ -9,8 +9,8 @@
 #include "JetEvent/JetCollection.h"
 #include "JetEvent/Jet.h"
 
-using HLT::ErrorCode;
-using HLT::TEConstVec;
+//using HLT::ErrorCode;
+//using HLT::TEConstVec;
 
 class TrigEFDEtaFex : public TrigDEtaFexBase{
   

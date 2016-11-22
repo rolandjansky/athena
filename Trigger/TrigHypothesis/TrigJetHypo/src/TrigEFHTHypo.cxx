@@ -37,11 +37,12 @@
 #include "xAODJet/Jet.h"
 
 #include "FourMomUtils/P4DescendingSorters.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "TrigSteeringEvent/TrigPassBits.h"
 
 class ISvcLocator;
+namespace Units = Athena::Units;
 
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
@@ -56,8 +57,8 @@ TrigEFHTHypo::TrigEFHTHypo(const std::string& name, ISvcLocator* pSvcLocator):
   m_rejected=0;
   m_errors=0;
 
-  declareProperty("Etcut",        m_EtCut        = 30*CLHEP::GeV  );   // Default: 30 GeV
-  declareProperty("HTcut",        m_HTCut        = 350*CLHEP::GeV );   // Default: 350 GeV
+  declareProperty("Etcut",        m_EtCut        = 30*Units::GeV  );   // Default: 30 GeV
+  declareProperty("HTcut",        m_HTCut        = 350*Units::GeV );   // Default: 350 GeV
   declareProperty("etaMincut",    m_etaMinCut    = 0.     );   // Default: 0
   declareProperty("etaMaxcut",    m_etaMaxCut    = 3.2    ); // Default: 3.2 - central jets
   declareProperty("doMonitoring", m_doMonitoring = false  );
@@ -109,13 +110,13 @@ TrigEFHTHypo::~TrigEFHTHypo()
 HLT::ErrorCode TrigEFHTHypo::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -124,8 +125,8 @@ HLT::ErrorCode TrigEFHTHypo::hltInitialize()
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
-    msg() << MSG::DEBUG	  << "ptJetCut: " << m_EtCut << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
+    msg() << MSG::DEBUG	  << "ptJetCut: " << m_EtCut << endmsg;
   }  
 
   return HLT::OK;
@@ -135,8 +136,8 @@ HLT::ErrorCode TrigEFHTHypo::hltInitialize()
 HLT::ErrorCode TrigEFHTHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 }
 
@@ -160,7 +161,7 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(msgLvl() <= MSG::DEBUG) {
     //    std::string label;
     //    TrigConf::HLTTriggerElement::getLabel (TEout->getId(), label );
-    //    msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in hltExecute() on: " << label << endreq;
+    //    msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in hltExecute() on: " << label << endmsg;
   }
   m_cutCounter = -1;
 
@@ -241,7 +242,7 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
     jeteta = aJet->eta();
     
     //for monitoring
-    m_jetet.push_back(jetet/CLHEP::GeV);  
+    m_jetet.push_back(jetet/Units::GeV);
     m_jetphi.push_back(jetphi); 
     m_jeteta.push_back(jeteta); 
     
@@ -251,7 +252,7 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       HLT::markPassing( bits, aJet, outJets ); 
       
       //for monitoring
-      m_passedJetCuts_jetet.push_back(jetet/CLHEP::GeV);  
+      m_passedJetCuts_jetet.push_back(jetet/Units::GeV);
       m_passedJetCuts_jetphi.push_back(jetphi); 
       m_passedJetCuts_jeteta.push_back(jeteta); 
       
@@ -296,8 +297,8 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
     }
   }
 
-  m_HT=m_HT/CLHEP::GeV;
-  m_HT_passedHT=m_HT_passedHT/CLHEP::GeV;
+  m_HT=m_HT/Units::GeV;
+  m_HT_passedHT=m_HT_passedHT/Units::GeV;
 
   if(msgLvl() <= MSG::DEBUG){
     int nJet=0;
@@ -318,7 +319,7 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // attach the bits
   if ( attachBits(outputTE, bits ) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endreq;
+    msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
   }
 
 
