@@ -132,7 +132,7 @@ int MissingCellListTool::execute() const {
   const std::vector<Identifier> & tiledisconnected = m_tileCabling->disconnectedCells();
   badandmissingCells.insert(tiledisconnected.begin(), tiledisconnected.end());
 
-  // ATH_MSG( DEBUG ) << " tile disconnected "<< tiledisconnected.size() << "  "<< missingCells.size() << endreq; 
+  // ATH_MSG( DEBUG ) << " tile disconnected "<< tiledisconnected.size() << "  "<< missingCells.size() << endmsg; 
   
   // // fill bad and missing cell list. ------------
   // badandmissingCells.insert( missingCells.begin(), missingCells.end());
@@ -165,7 +165,7 @@ int MissingCellListTool::execute() const {
 
   if(m_addCellFromTool){
     const CaloCell_ID*  calo_id = m_caloDDM->getCaloCell_ID();    
-    TileBadChanTool* tileTool = dynamic_cast<TileBadChanTool*>(m_tileTool.operator->()); 
+    const TileBadChanTool* tileTool = dynamic_cast<const TileBadChanTool*>(m_tileTool.operator->()); 
     std::vector<Identifier>::const_iterator idItr = calo_id->cell_begin();
     std::vector<Identifier>::const_iterator idItrE = calo_id->cell_end();
     for(; idItr!=idItrE; idItr++){
@@ -197,7 +197,7 @@ int MissingCellListTool::execute() const {
   // ---------------------------
 
 
-  ATH_MSG( DEBUG ) << " total bad and missing "<< badandmissingCells.size() << "  "<< badandmissingCellsGeomMap->size() << endreq; 
+  ATH_MSG( DEBUG ) << " total bad and missing "<< badandmissingCells.size() << "  "<< badandmissingCellsGeomMap->size() << endmsg; 
   
 
   CHECK( evtStore()->record(badandmissingCellsGeomMap, m_missingCellMapName) );
@@ -213,9 +213,9 @@ int MissingCellListTool::execute() const {
 //  {
 //    ATH_MSG_DEBUG ("handle " << name() << "..."<< inc.type());
 //    if (inc.type()=="BeginEvent") {
-//      ATH_MSG(DEBUG) << " got begining event" << endreq;
+//      ATH_MSG(DEBUG) << " got begining event" << endmsg;
 //      m_needSetup = true;
-//      //if(prepareCellList().isFailure()) ATH_MSG(ERROR)<< " Couldń t build missing cell list !!"<<endreq;
+//      //if(prepareCellList().isFailure()) ATH_MSG(ERROR)<< " Couldń t build missing cell list !!"<<endmsg;
 //    }
    
 //  }
