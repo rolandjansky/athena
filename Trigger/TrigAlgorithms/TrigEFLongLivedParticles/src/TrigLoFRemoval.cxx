@@ -32,6 +32,7 @@
 
 #include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigTimeAlgs/TrigTimer.h"
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/Timeout.h"
 
 #define PI 3.14159265
@@ -77,7 +78,7 @@ TrigLoFRemoval::~TrigLoFRemoval() {}
 
 HLT::ErrorCode TrigLoFRemoval::hltInitialize() {
 
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   return HLT::OK;
 }
@@ -87,7 +88,7 @@ HLT::ErrorCode TrigLoFRemoval::hltInitialize() {
 
 HLT::ErrorCode TrigLoFRemoval::hltFinalize() {
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -99,7 +100,7 @@ HLT::ErrorCode TrigLoFRemoval::hltFinalize() {
 HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   // Monitoring, we set-up default :
   m_et = -99000.;
@@ -109,26 +110,26 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
 
   // Some debug output:
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
-    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
+    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
+    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
   }
 
   const xAOD::JetContainer* vectorOfJets = 0;
   HLT::ErrorCode status = getFeature(outputTE, vectorOfJets);
 
   if(status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endreq;
+    msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endmsg;
     return HLT::ERROR;
   } else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Got the xAOD jet container" << endreq;
+    msg() << MSG::DEBUG << "Got the xAOD jet container" << endmsg;
   
   if(vectorOfJets->size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "The xAOD jet container is empty" << endreq;
+      msg() << MSG::DEBUG << "The xAOD jet container is empty" << endmsg;
     return HLT::OK;
   } else {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << vectorOfJets->size() << " jets are found" << endreq;
+      msg() << MSG::DEBUG << vectorOfJets->size() << " jets are found" << endmsg;
   }
 
   std::vector<const xAOD::Jet*> theJets(vectorOfJets->begin(), vectorOfJets->end());
@@ -143,7 +144,7 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
   for (const xAOD::Jet* aJet : theJets) {
     count++;
     if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Jet Et: " << aJet->p4().Et() << endreq;
+      msg() << MSG::DEBUG << "Jet Et: " << aJet->p4().Et() << endmsg;
     if(count==1) {
       etLjet = aJet->p4().Et();
       etaLjet = aJet->eta();
@@ -152,9 +153,9 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
   }
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Highest Et Jet Et= "   << etLjet << endreq;
-    msg() << MSG::DEBUG << " Highest Et Jet eta = " << etaLjet << endreq;
-    msg() << MSG::DEBUG << " Highest Et Jet phi = " << phiLjet << endreq;
+    msg() << MSG::DEBUG << " Highest Et Jet Et= "   << etLjet << endmsg;
+    msg() << MSG::DEBUG << " Highest Et Jet eta = " << etaLjet << endmsg;
+    msg() << MSG::DEBUG << " Highest Et Jet phi = " << phiLjet << endmsg;
   }
 
   // monitoring
@@ -168,15 +169,15 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
   std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
   if(getFeatures(outputTE, vectorOfCellContainers, "") != HLT::OK) {
-    msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;   
+    msg() << MSG::WARNING << "Failed to get TrigCells" << endmsg;   
     return HLT::OK;
   }
  
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endmsg;
  
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
+    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endmsg;
     return HLT::OK;
   }
 
@@ -184,11 +185,11 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
   const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
+    msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
   }
 
-  CaloCellContainer* theCellContLoF = 0;
-  theCellContLoF = new CaloCellContainer(SG::VIEW_ELEMENTS);
+  ConstDataVector<CaloCellContainer>* theCellContLoF =
+    new ConstDataVector<CaloCellContainer>(SG::VIEW_ELEMENTS);
   for(CaloCellContainer::const_iterator iter = theCellCont->begin(); iter != theCellCont->end(); ++iter){
     //LoF cell selection:
     //-tile
@@ -221,24 +222,24 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
   //now save the cell container
   std::string persKey = "TrigCaloCellLoF";
   std::string cellCollKey;
-  HLT::ErrorCode sc = getUniqueKey( theCellContLoF, cellCollKey, persKey );
+  HLT::ErrorCode sc = getUniqueKey( theCellContLoF->asDataVector(), cellCollKey, persKey );
   if (sc != HLT::OK) {
-    msg() << MSG::DEBUG << "Could not retrieve the cell collection key" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve the cell collection key" << endmsg;
     return sc;
   }     
   if ( store()->record(theCellContLoF, cellCollKey).isFailure() ) {
-    msg() << MSG::ERROR << "Could not record a cell container with key " << cellCollKey << endreq;
+    msg() << MSG::ERROR << "Could not record a cell container with key " << cellCollKey << endmsg;
   }
 
   sc = reAttachFeature(outputTE, theCellContLoF, cellCollKey, persKey );
   if (sc != HLT::OK) {
-    msg() << MSG::WARNING << "Could not record a cell container with key " << cellCollKey << " " << name() << endreq;
+    msg() << MSG::WARNING << "Could not record a cell container with key " << cellCollKey << " " << name() << endmsg;
   } else {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Recorded the cell container " << endreq;
+      msg() << MSG::DEBUG << "Recorded the cell container " << endmsg;
   }
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Produced a Cell Container of Size= " << theCellContLoF->size() << endreq;
+    msg() << MSG::DEBUG << "Produced a Cell Container of Size= " << theCellContLoF->size() << endmsg;
 
   //monitoring
   m_CellContainerSize = (float)theCellContLoF->size();
