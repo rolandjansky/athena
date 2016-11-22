@@ -140,7 +140,7 @@ namespace xAODReader {
       bool foundsigD0  = ( *btag_itr)->taggerInfo(IP3D_sigD0wrtPVofTracks, xAOD::IP3D_sigD0wrtPVofTracks);
       bool foundvalZ0  = ( *btag_itr)->taggerInfo(IP3D_valZ0wrtPVofTracks, xAOD::IP3D_valZ0wrtPVofTracks);
       bool foundsigZ0  = ( *btag_itr)->taggerInfo(IP3D_sigZ0wrtPVofTracks, xAOD::IP3D_sigZ0wrtPVofTracks);
-      for (unsigned int t = 0; t < IP3D_ntrk; ++t) {
+      for (unsigned int t = 0; t < static_cast<unsigned int>(IP3D_ntrk); ++t) {
 	std::ostringstream s; s << " track[" << t << "]: grade = " << setw(6);
 	if (foundGrades && t < IP3D_gradeOfTracks.size()) s << IP3D_gradeOfTracks[t];
 	else s << setfill('-') << " ";
