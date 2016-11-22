@@ -39,10 +39,8 @@
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
-#include "PixelGeoModel/IBLParameterSvc.h" 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -65,7 +63,7 @@ namespace InDet {
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
           m_thresholdIndicator("_thresholds"),
-          m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool"),
+          m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool", this),
           m_calibSvc("PixelCalibSvc", name),
           m_useToT(true),
           m_addIBL(false),
@@ -73,10 +71,7 @@ namespace InDet {
           m_useRecenteringNNWithouTracks(false),
           m_useRecenteringNNWithTracks(false),
           m_correctLorShiftBarrelWithoutTracks(0.),
-          m_correctLorShiftBarrelWithTracks(0.),
-          m_IBLParameterSvc("IBLParameterSvc",n),
-          m_overflowIBLToT(0),
-          m_offlineCalibSvc("PixelOfflineCalibSvc", n)
+          m_correctLorShiftBarrelWithTracks(0.)
   {
     // histogram loading from COOL
     declareProperty("CoolFolder",                   m_coolFolder);
@@ -175,23 +170,6 @@ namespace InDet {
         return StatusCode::FAILURE;
     }
     
-    if ( !m_offlineCalibSvc.empty() ) {
-      StatusCode sc = m_offlineCalibSvc.retrieve();
-      if (sc.isFailure() || !m_offlineCalibSvc ) {
-        ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
-        return StatusCode::RECOVERABLE;
-      }
-      else{
-        ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
-      }
-    }
-
-    if (m_IBLParameterSvc.retrieve().isFailure()) { 
-        ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
-        return StatusCode::FAILURE; 
-    } else  
-        ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
-
     return StatusCode::SUCCESS;
   }
   
@@ -1017,7 +995,6 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   std::vector<int>  totListRecreated;
   std::vector<int>::const_iterator totRecreated = totListRecreated.begin();    
 
-  if( m_IBLParameterSvc->containsIBL()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
   //if (!chList.size() && totList.size()){
   //
   // Recreate both charge list and ToT list to correct for the IBL ToT overflow (and later for small hits):
@@ -1025,19 +1002,11 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       for ( ; rdosBegin!= rdosEnd &&  tot != totList.end(); ++tot, ++rdosBegin, ++totRecreated ){
            // recreate the charge: should be a method of the calibSvc
         int tot0 = *tot;
-        if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(*rdosBegin) == 0 && pixelID.layer_disk(*rdosBegin) == 0 ) {
-	  if ( tot0 >= m_overflowIBLToT ) tot0 = m_overflowIBLToT;
-          msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(*rdosBegin) << " layer_disque = " <<  pixelID.layer_disk(*rdosBegin) << " ToT = " << *tot << " Real ToT = " << tot0 << endreq;
-        }
-           float ch = 0;
-           float A = m_calibSvc->getQ2TotA(*rdosBegin);
-           if ( A>0. && (tot0/A)<1. ) {
-             float E = m_calibSvc->getQ2TotE(*rdosBegin);
-             float C = m_calibSvc->getQ2TotC(*rdosBegin);
-             ch = (C*(tot0)/A-E)/(1-(tot0)/A);
-           } else ch=0.;
-             chListRecreated.push_back(ch);
-             totListRecreated.push_back(tot0);
+
+        float ch = m_calibSvc->getCharge(*rdosBegin,tot0);
+
+        chListRecreated.push_back(ch);
+        totListRecreated.push_back(tot0);
       }
       // reset the rdo iterator
       rdosBegin = rdos.begin();

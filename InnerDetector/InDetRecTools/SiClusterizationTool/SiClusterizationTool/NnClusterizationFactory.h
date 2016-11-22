@@ -40,8 +40,6 @@
  class TH1;
  class ICoolHistSvc;
  class IPixelCalibSvc;
- class IPixelOfflineCalibSvc;
- class IBLParameterSvc;
 
 namespace Trk {
   class NeuralNetworkToHistoTool;
@@ -217,9 +215,6 @@ namespace InDet {
     bool m_useRecenteringNNWithTracks;
     double m_correctLorShiftBarrelWithoutTracks;
     double m_correctLorShiftBarrelWithTracks;
-    ServiceHandle<IBLParameterSvc>       m_IBLParameterSvc;
-    mutable int                                  m_overflowIBLToT;                                                                                          
-    ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
     
    };
    

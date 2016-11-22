@@ -26,7 +26,6 @@
 
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "PixelGeoModel/IBLParameterSvc.h" 
 
 #include "EventPrimitives/EventPrimitives.h"
 
@@ -50,9 +49,7 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
                                    const std::string& n,
                                    const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_IBLParameterSvc("IBLParameterSvc",n), 
   m_calibSvc("PixelCalibSvc", n),
-  m_overflowIBLToT(0),
   m_offlineCalibSvc("PixelOfflineCalibSvc", n)
 { 
   declareInterface<ClusterMakerTool>(this);
@@ -71,15 +68,6 @@ StatusCode  ClusterMakerTool::initialize(){
 
    ATH_MSG_INFO ( name() << " initialize()" );
    
-   if (m_IBLParameterSvc.retrieve().isFailure()) { 
-     ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
-   } 
-   else { 
-     m_offlineCalibSvc.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_offlineCalibSvc.typeAndName(),"PixelOfflineCalibSvc")); 
-     m_calibSvc.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_calibSvc.typeAndName(),"PixelCalibSvc")); 
-     m_IBLParameterSvc->setBoolParameters(m_calibrateCharge,"UsePixelCalibCondDB"); 
-   } 
-
    // Protect from the situation in which the PixelOfflineCalibSvc is not 
    // configured: that should be the case if no PixelRDO are read in.
    // AA 01/10/2009
@@ -180,8 +168,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     issueError=false;
   }
   
-  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
-
   const AtlasDetectorID* aid = element->getIdHelper();
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if (not pid){
@@ -198,17 +184,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
-      float charge;
-      if( m_IBLParameterSvc->containsIBL() && pid->barrel_ec(pixid) == 0 && pid->layer_disk(pixid) == 0 ) {
-	      if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-	      msg(MSG::DEBUG) << "barrel_ec = " << pid->barrel_ec(pixid) << " layer_disque = " <<  pid->layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
-      }
-      float A = m_calibSvc->getQ2TotA(pixid);
-      if ( A>0. && (ToT/A)<1. ) {
-				float E = m_calibSvc->getQ2TotE(pixid);
-				float C = m_calibSvc->getQ2TotC(pixid);
-				charge = (C*ToT/A-E)/(1-ToT/A);
-      } else charge=0.;
+
+      float charge = m_calibSvc->getCharge(pixid,ToT);
+
       chargeList.push_back(charge);
     }
   }
@@ -326,7 +304,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                          double splitProb2) const{
 	
  
-  if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "ClusterMakerTool called, number " << endmsg;
   // Add protection in case m_offlineCalibSvc is not configured
   // but errorStrategy==2 is requested.
   // That should never happen, since the m_offlineCalibSvc should be switched 
@@ -344,8 +322,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     issueError=false;
   }
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
-
-  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
 
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
@@ -365,19 +341,12 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   for (int i=0; i<nRDO; i++) {
      Identifier pixid=rdoList[i];
      int ToT=totList[i];
-     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
-       if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-       msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
-     }
      
      float charge = ToT;
      if (m_calibrateCharge){
-       float A = m_calibSvc->getQ2TotA(pixid);
-       if ( A>0. && (ToT/A)<1. ) {
-	       float E = m_calibSvc->getQ2TotE(pixid);
-	       float C = m_calibSvc->getQ2TotC(pixid);
-	       charge = (C*ToT/A-E)/(1-ToT/A);
-       } else charge=0.;
+
+       charge = m_calibSvc->getCharge(pixid,ToT);
+
        chargeList.push_back(charge);
      }
      //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
@@ -414,7 +383,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if(qRowMin+qRowMax > 0) omegax = qRowMax/float(qRowMin+qRowMax);
   if(qColMin+qColMax > 0) omegay = qColMax/float(qColMin+qColMax);   
     
-  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endmsg;
 
 // ask for Lorentz correction, get global position
   double shift = element->getLorentzCorrection();
@@ -581,7 +550,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	}
 
 	// rotation for endcap SCT
-	if(element->design().shape() == InDetDD::Trapezoid) {
+	if(element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus) {
           double sn      = element->sinStereoLocal(localPos); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
@@ -626,7 +595,7 @@ double ClusterMakerTool::getPixelCTBPhiError(int layer, int phi,
 
  // shouldn't really happen...
   if(msgLvl(MSG::WARNING)) msg() << "Unexpected layer and phi numbers: layer = "
-	   << layer << " and phi = " << phi << endreq;
+	   << layer << " and phi = " << phi << endmsg;
  return 14.6*micrometer;
 
 }
