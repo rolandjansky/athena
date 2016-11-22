@@ -36,7 +36,7 @@ namespace xAODMaker {
 		public:
 			/// Function that fills an existing xAOD::TrigBphysContainer
         virtual StatusCode convert(const TrigL2BphysContainer* aod,
-                                   xAOD::TrigBphysContainer* xaod ) = 0;
+                                   xAOD::TrigBphysContainer* xaod ) const = 0;
 
 			/// Gaudi interface definition
 			static const InterfaceID& interfaceID() {

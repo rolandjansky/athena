@@ -35,7 +35,7 @@ namespace xAODMaker {
 
     
     StatusCode TrigEFBphysCnvTool::convert( const TrigEFBphys* aod,
-                                            xAOD::TrigBphys* xaod ) {
+                                            xAOD::TrigBphys* xaod ) const {
         
         xaod->setEta         (aod->eta());
         xaod->setPhi         (aod->phi());
