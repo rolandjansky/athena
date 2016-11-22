@@ -34,11 +34,11 @@ namespace xAODMaker {
                       const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigVertexCountsContainer
       virtual StatusCode convert( const TrigVertexCountsCollection* aod,
-                                  xAOD::TrigVertexCountsContainer* xaod );
+                                  xAOD::TrigVertexCountsContainer* xaod ) const override;
 
    }; // class TrigVertexCountsCnvTool
 

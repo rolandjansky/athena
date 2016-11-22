@@ -41,7 +41,7 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigSpacePointCountsCnvTool::convert( const TrigSpacePointCountsCollection* aod,
-						   xAOD::TrigSpacePointCountsContainer* xaod ) {
+						   xAOD::TrigSpacePointCountsContainer* xaod ) const {
     
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {
