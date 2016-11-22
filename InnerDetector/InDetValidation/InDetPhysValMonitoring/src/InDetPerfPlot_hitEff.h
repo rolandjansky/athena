@@ -43,7 +43,7 @@ private:
   void initializePlots();
 
   TProfile *m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
-  bool hit_DEBUG;
+  bool m_debug;
 };
 
 

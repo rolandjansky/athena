@@ -13,6 +13,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <algorithm>
+#include <numeric>
 
 
 InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase *pParent, std::string sDir) :

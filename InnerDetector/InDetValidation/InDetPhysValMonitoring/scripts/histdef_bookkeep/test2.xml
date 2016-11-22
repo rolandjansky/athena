@@ -1,0 +1,20 @@
+<!--  -->
+<!-- basic plots -->
+<h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
+  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
+  <y title="Entries"/>
+</h>
+<!--
+long comment
+-->
+<h id="basicz0" type="TH1F" title="z_{0} of selected tracks (in mm)">
+  <x title="z_{0}(mm)" n="1200" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<!--
+long 2 comment
+-->
+<h id="basicz20" type="TH1F" title="z_{0} of selected tracks (in mm)">
+  <x title="z_{0}(mm)" n="2000" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>

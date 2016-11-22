@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef IDPVM_safeDecorator_h
+#define IDPVM_safeDecorator_h
 /**
  * @file safeDecorator.h
  * header file for function of same name
@@ -9,8 +11,7 @@
  * @date 20 July 2016
  */
 
-#ifndef IDPVM_safeDecorator_h
-#define IDPVM_safeDecorator_h
+
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"

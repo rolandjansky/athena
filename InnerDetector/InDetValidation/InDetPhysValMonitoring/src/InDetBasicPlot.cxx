@@ -46,11 +46,20 @@ InDetBasicPlot::initializePlots() {
 
 void
 InDetBasicPlot::fill(const xAOD::TruthParticle &particle) {
+  static const std::array<bool,NPARAMS> available{
+    particle.isAvailable<float>("d0"),
+    particle.isAvailable<float>("z0"),
+    particle.isAvailable<float>("phi"),
+    particle.isAvailable<float>("theta"),
+    particle.isAvailable<float>("eta"),
+    particle.isAvailable<float>("qOverP")
+  };
   unsigned int i(0);
 
   ++m_numCallsToFillTruth;
+  unsigned int idx(0);
   for (const auto &p:m_paramNames) {
-    if (particle.isAvailable<float>(p)) {
+    if (available[idx++]) {
       const auto thisParameterValue = particle.auxdata< float >(p);
       if ((i == 0) and thisParameterValue == 0.) {
         ++m_d0IsExactlyZeroInTruthCounter;
@@ -90,10 +99,10 @@ InDetBasicPlot::fill(const xAOD::TrackParticle &particle) {
 
 void
 InDetBasicPlot::finalizePlots() {
-  ATH_MSG_INFO(
+  ATH_MSG_DEBUG(
     "Number of exact zero values for d0 in tracks: " << m_d0IsExactlyZeroInTrackCounter << " out of " <<
     m_numCallsToFillTrack);
-  ATH_MSG_INFO(
+  ATH_MSG_DEBUG(
     "Number of exact zero values for d0 in truth: " << m_d0IsExactlyZeroInTruthCounter << " out of " <<
     m_numCallsToFillTruth);
 }

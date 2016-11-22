@@ -132,8 +132,6 @@ InDetPerfPlot_spectrum::InDetPerfPlot_spectrum(InDetPlotBase *pParent, const std
 
 void
 InDetPerfPlot_spectrum::initializePlots() {
-  //
-  const bool prependDirectory(false);
 
   book(m_nSCTHits, "nSCTHits");
   book(m_nPixHits, "nPixHits");
@@ -173,11 +171,9 @@ InDetPerfPlot_spectrum::initializePlots() {
   book(m_TruthVtxR, "TVRspectrum");
 
 
-  m_TVR_vs_Z = Book2D("TVR_vs_Z", "Truth Vtx Rad vs. Z", 200, -4000, 4000, 200, 0., 1000, prependDirectory);
-  m_recod0_vs_z0_good = Book2D("recod0_vs_z0_good", "reco d0 vs. z0 - good TruthVert", 200, -4000., 4000, 200, -1000.,
-                               1000., prependDirectory);
-  m_recod0_vs_z0_crazy = Book2D("recod0_vs_z0_crazy", "reco d0 vs. z0 - crazy TruthVert", 200, -4000., 4000, 200,
-                                -1000., 1000., prependDirectory);
+  book(m_TVR_vs_Z,"TVR_vs_Z");
+  book(m_recod0_vs_z0_good,"recod0_vs_z0_good");
+  book(m_recod0_vs_z0_crazy,"recod0_vs_z0_crazy");
 
   book(m_recod0_PrimVtxR, "recod0PVRSpectrum");
   book(m_recoz0_PrimVtxZ, "recoz0PVZSpectrum");
@@ -188,7 +184,7 @@ InDetPerfPlot_spectrum::initializePlots() {
   book(m_PrimVtxZ, "PVZspectrum");
   book(m_PrimVtxR, "PVRspectrum");
 
-  m_PVR_vs_Z = Book2D("PVR_vs_Z", "Prim Vtx Rad vs. Z", 200, -4000, 4000, 100, 0., 0.5, prependDirectory);
+  book(m_PVR_vs_Z,"PVR_vs_Z");
   book(m_ptvsEtaUnlinked, "ptvsEtaUnlinked_postSelect");
   book(m_probvsSCTUnlinked, "probvsSCTUnlinked_postSelect");
   book(m_probvsPixUnlinked, "probvsPixUnlinked_postSelect");
@@ -236,10 +232,10 @@ InDetPerfPlot_spectrum::initializePlots() {
 
 void
 InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, Float_t prob) {
-  double pt = trkprt.pt() / 1000.;
+  double pt = trkprt.pt() *0.001;
   double eta = 0.0;
 
-  if (trkprt.pt() > 1e-7) {
+  if (trkprt.pt() > 0.1) {
     eta = trkprt.eta();
   }
   double phi(trkprt.phi());
@@ -294,7 +290,7 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TruthParticle &particle) {
   // double eta = particle.eta();
   double eta = 0.0;
 
-  if (particle.pt() > 1e-7) {
+  if (particle.pt() > 0.1) {
     eta = particle.eta();
   }
 
@@ -345,13 +341,13 @@ void
 InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Vertex &vertex, bool fill) {
   double d0(trkprt.d0());
   double z0(trkprt.z0());
-  double sinth = sin(trkprt.theta());
+  double sinth = std::sin(trkprt.theta());
   //
   double vtxX = vertex.x();
   double vtxY = vertex.y();
   double vtxZ = vertex.z();
 
-  double vtxR = sqrt(vtxX * vtxX + vtxY * vtxY);
+  double vtxR = std::hypot(vtxX,vtxY);
 
   fillHisto(m_recod0_PrimVtxR,d0 - vtxR);
   fillHisto(m_recoz0_PrimVtxZ,z0 - vtxZ);
@@ -381,8 +377,9 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xA
 void
 InDetPerfPlot_spectrum::fillSpectrumUnlinked2(const xAOD::TrackParticle &trkprt, double prob) {
   // unused constexpr double degreesPerRadian(180./M_PI);
-  double pt = trkprt.pt() / 1000.;
-  double eta(trkprt.eta());
+  double pt = trkprt.pt() *0.001;
+  double eta(0);
+  if (trkprt.pt()>0.1) eta = trkprt.eta();
   // unused double phi(trkprt.phi());
 
   uint8_t iPixOutliers, iSCTOutliers, iPixHoles, iSCTHoles, iPixHits, iSCTHits, iPixSharedHits, iSCTSharedHits;
@@ -441,7 +438,7 @@ void
 InDetPerfPlot_spectrum::fillSpectrumLinked(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle & /* particle*/,
                                            double prob) {
   // unused constexpr double degreesPerRadian(180./M_PI);
-  double pt = trkprt.pt() / 1000.;
+  double pt = trkprt.pt() *0.001;
   double eta(trkprt.eta());
   // unused double phi(trkprt.phi());
 
