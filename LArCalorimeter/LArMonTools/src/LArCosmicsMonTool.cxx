@@ -106,19 +106,19 @@ LArCosmicsMonTool::~LArCosmicsMonTool()
 StatusCode 
 LArCosmicsMonTool::initialize()
 {
-  msg(MSG::INFO) << "Initialize LArCosmicsMonTool" << endreq;
+  msg(MSG::INFO) << "Initialize LArCosmicsMonTool" << endmsg;
   StatusCode sc;
   
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endreq;
+    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
     return sc;
   }
   
   // Retrieve ID helpers
   sc =  detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endreq;
+    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endmsg;
     return sc;
   }
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
@@ -128,7 +128,7 @@ LArCosmicsMonTool::initialize()
   // CaloDetDescrMgr gives "detector description", including real positions of cells
   sc = detStore()->retrieve(m_CaloDetDescrMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endreq;
+    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endmsg;
     return sc;
   }
   
@@ -136,19 +136,19 @@ LArCosmicsMonTool::initialize()
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
   // initialize monitoring bookkeeping info
   sc = this->initMonInfo();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not initialize monitoring bookkeeping info" << endreq;
+    msg(MSG::ERROR) << "Could not initialize monitoring bookkeeping info" << endmsg;
   }
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
-  msg(MSG::DEBUG) << "Successful Initialize LArCosmicsMonTool " << endreq;
+  msg(MSG::DEBUG) << "Successful Initialize LArCosmicsMonTool " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -156,7 +156,7 @@ LArCosmicsMonTool::initialize()
 StatusCode 
 LArCosmicsMonTool::bookHistograms() {
 
-  msg(MSG::DEBUG) << "in bookHists()" << endreq;
+  msg(MSG::DEBUG) << "in bookHists()" << endmsg;
   
   //  if(isNewRun ){// Commented by B.Trocme to comply with new ManagedMonitorToolBase
     m_newrun=true;
@@ -248,14 +248,12 @@ LArCosmicsMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 StatusCode 
 LArCosmicsMonTool::fillHistograms() {
-  msg(MSG::DEBUG) << "in fillHists()" << endreq;
+  msg(MSG::DEBUG) << "in fillHists()" << endmsg;
   StatusCode sc;
   
   // Increment event counter
   m_eventsCounter++;
   
-  // to fix HEC phi range
-  static CaloPhiRange m_phiHelper;
   
   
   
@@ -268,7 +266,7 @@ LArCosmicsMonTool::fillHistograms() {
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endreq;
+		      << m_LArDigitContainerKey << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -276,7 +274,7 @@ LArCosmicsMonTool::fillHistograms() {
   if(m_newrun) {
     sc=detStore()->retrieve(m_larPedestal,m_larPedestalKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot retrieve pedestal(s) from Conditions Store!" << endreq;
+      msg(MSG::ERROR) << "Cannot retrieve pedestal(s) from Conditions Store!" << endmsg;
     }  
     m_newrun=false;
   }
@@ -297,12 +295,12 @@ LArCosmicsMonTool::fillHistograms() {
     float eta = 0; float phi = 0;
     sc = returnEtaPhiCoord(offlineID, eta, phi);
     if(sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates" << endreq;
+      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates" << endmsg;
       continue;
     } 
     
     // Fix phi range in HEC
-    if (m_LArOnlineIDHelper->isHECchannel(id)) phi = m_phiHelper.fix(phi);
+    if (m_LArOnlineIDHelper->isHECchannel(id)) phi = CaloPhiRange::fix(phi);
     
     // Retrieve pedestals 
     CaloGain::CaloGain gain = pLArDigit->gain();
@@ -428,20 +426,20 @@ LArCosmicsMonTool::fillHistograms() {
 StatusCode LArCosmicsMonTool::procHistograms()
 {
     
-  msg(MSG::DEBUG) << "End of procHistograms " << endreq;
+  msg(MSG::DEBUG) << "End of procHistograms " << endmsg;
   return StatusCode::SUCCESS;
 }
 /*---------------------------------------------------------*/
 StatusCode LArCosmicsMonTool::initMonInfo()  
 {
-  msg(MSG::DEBUG) << "in initMonInfo()" << endreq;
+  msg(MSG::DEBUG) << "in initMonInfo()" << endmsg;
   
   std::vector<CaloGain::CaloGain> gains;
   gains.push_back(CaloGain::LARHIGHGAIN);
   gains.push_back(CaloGain::LARMEDIUMGAIN);
   gains.push_back(CaloGain::LARLOWGAIN); 
   
-  msg(MSG::DEBUG) << "Init Monitoring ended successfully " << endreq;
+  msg(MSG::DEBUG) << "Init Monitoring ended successfully " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -449,13 +447,13 @@ StatusCode LArCosmicsMonTool::initMonInfo()
 StatusCode LArCosmicsMonTool::returnEtaPhiCoord(Identifier offlineID,float& eta,float& phi)
 {
   // Get Calo detector description element to retrieve true eta/phi
-  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+  const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
   
-  if(m_CaloDetElement == 0 ){
+  if(caloDetElement == 0 ){
     return StatusCode::FAILURE;
   }else{
-    eta = m_CaloDetElement->eta_raw();
-    phi = m_CaloDetElement->phi_raw();
+    eta = caloDetElement->eta_raw();
+    phi = caloDetElement->phi_raw();
     return StatusCode::SUCCESS;
   }
 }

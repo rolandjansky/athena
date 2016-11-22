@@ -17,7 +17,10 @@
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
+#include "CaloInterface/ICaloNoiseTool.h"
+#include "LArTools/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -41,6 +44,8 @@ class TH1F;
 class TH2F;
 class TProfile2D;
 class LArDigit;
+
+class CaloDetDescrManager;
 
 using namespace std;
 
@@ -115,6 +120,7 @@ private:
     HistGroup(): 
       m_hDE(NULL),m_hDT(NULL), m_hDQ(NULL),		
       m_hOut_E_FT_vs_SLOT(NULL), m_hOut_T_FT_vs_SLOT(NULL),m_hOut_Q_FT_vs_SLOT(NULL),	
+      m_hOut_E_FT_vs_SLOT_shadow(NULL), m_hOut_T_FT_vs_SLOT_shadow(NULL),m_hOut_Q_FT_vs_SLOT_shadow(NULL),	
       m_hEon_VS_Eoff(NULL),m_hTon_VS_Toff(NULL),	
       m_hQon_VS_Qoff(NULL),m_Sweet(NULL),
       m_hDE_ranges(0),
@@ -127,6 +133,9 @@ private:
     TH2F* m_hOut_E_FT_vs_SLOT;	
     TH2F* m_hOut_T_FT_vs_SLOT;	
     TH2F* m_hOut_Q_FT_vs_SLOT;	
+    TH2F** m_hOut_E_FT_vs_SLOT_shadow;	
+    TH2F** m_hOut_T_FT_vs_SLOT_shadow;	
+    TH2F** m_hOut_Q_FT_vs_SLOT_shadow;	
     TH2F* m_hEon_VS_Eoff;	
     TH2F* m_hTon_VS_Toff;	
     TH2F* m_hQon_VS_Qoff;	
@@ -192,10 +201,17 @@ private:
   std::string m_keyShape ;
   const DataHandle<ILArOFC>    m_dd_ofc;
   const DataHandle<ILArShape>    m_dd_shape;
+  const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 
   ToolHandle<ILArADC2MeVTool>   m_adc2mevtool;
 
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+
+  ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
+
+  ToolHandle<LArCablingService>    m_cable_service_tool;
+
+  const CaloDetDescrManager *m_calo_description_mgr;
 
   const DataHandle<ILArPedestal> m_larpedestal;
   std::string m_larpedestalkey;
@@ -254,6 +270,12 @@ private:
   int m_precision_Q_3;
   int m_precision_Q_max;
 
+  int m_history_size;
+  int m_history_granularity;
+  int m_hsize;
+  //bool *m_hdone;
+  std::vector<bool> m_hdone;
+
   bool m_skipKnownProblematicChannels;
   bool m_skipNullPed;
   bool m_skipNullQT;
@@ -268,6 +290,8 @@ private:
   float m_BC; // value of 1 bunch-crossing = 25ns
 
   bool m_IsOnline;
+  int m_last_lb;
+  int m_curr_lb;
 
   std::vector<std::string> m_streams;
 

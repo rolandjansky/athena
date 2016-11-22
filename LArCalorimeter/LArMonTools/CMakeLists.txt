@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODEventInfo
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           LArCalorimeter/LArCOOLConditions
                           LArCalorimeter/LArRawConditions
                           LArCalorimeter/LArRecEvent )

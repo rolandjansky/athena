@@ -20,15 +20,16 @@
 #include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "LWHists/TH1I_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile2D_LW.h"
-#include "LWHists/TProfile_LW.h"
+//#include "LWHists/TH1I_LW.h"
+//#include "LWHists/TH2I_LW.h"
+//#include "LWHists/TH1F_LW.h"
+//#include "LWHists/TH2F_LW.h"
+//#include "LWHists/TProfile2D_LW.h"
+//#include "LWHists/TProfile_LW.h"
 
 class TH1I_LW;
 class TH1F_LW;
+class TH2F_LW;
 class TH2I_LW;
 class TProfile2D_LW;
 class TProfile_LW;
@@ -47,22 +48,22 @@ public:
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode procHistograms();
-  
+
   void AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
   void AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
   bool nbOfFebOK(float nfeb,TH1I_LW* h);
   
 private:
   
-  float FEBmin,FEBmax;
-  int FEBnbins;
+  float m_FEBmin,m_FEBmax;
+  int m_FEBnbins;
   /* global params */
   int m_eventsCounter;
   bool m_ignoreMissingHeaderEMB;
   bool m_ignoreMissingHeaderPS;
   std::string m_keyDSPThresholds;
   bool m_isOnline;
-  
+  unsigned int m_lumi_blocks; 
   bool m_eventRejected;
   std::bitset<13> m_rejectionBits;
   bool m_currentFebStatus;
@@ -192,11 +193,12 @@ private:
   
   TH1F_LW* m_febInError[1524];
   bool m_bfebIE[1524];
+  bool m_anyfebIE;
   
   TTree* m_CorruptTree;
   
   StatusCode bookNewPartitionSumm(summaryPartition& summ,std::string summName);
-  void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0 );
+  void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
   void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);

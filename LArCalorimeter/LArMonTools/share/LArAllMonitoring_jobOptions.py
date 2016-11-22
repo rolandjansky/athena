@@ -63,7 +63,8 @@ if jobproperties.Beam.beamType() == 'cosmics':
             if jobproperties.Global.DataSource.get_Value() == 'data':
                 if LArMonFlags.doLArFEBMon():
                     include ("LArMonTools/LArFEBMon_jobOptions.py" )
-                include ("LArMonTools/LArRODMonTool_jobOptions.py")
+                if LArMonFlags.doLArRODMonTool():
+                    include ("LArMonTools/LArRODMonTool_jobOptions.py")
                 if not athenaCommonFlags.isOnline():
                     if LArMonFlags.doLArHVCorrectionMonTool():
                         include ("LArMonTools/LArHVCorrectionMonTool_jobOptions.py" )

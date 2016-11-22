@@ -90,15 +90,19 @@ private:
   partition():
     m_NullDigit(0),
       m_SatDigit(0),
+      m_SatDigitLow(0),
       m_OutDigit(0),
       m_NullDigitChan(0),
       m_SatDigitChan(0),
+      m_SatDigitChanLow(0),
       m_OutDigitChan(0),
       m_Temp_NullDigitChan(0),
       m_Temp_SatDigitChan(0),
+      m_Temp_SatDigitChanLow(0),
       m_Temp_OutDigitChan(0),
       m_PNullDigit(0),
       m_PSatDigit(0),
+      m_PSatDigitLow(0),
       m_POutDigit(0),
       m_AverDig(0),
       m_AverTempPos_PerStream(0),
@@ -112,20 +116,24 @@ private:
 
     TH2I_LW* m_NullDigit;
     TH2I_LW* m_SatDigit;
+    TH2I_LW* m_SatDigitLow;
     TH2I_LW* m_OutDigit;
     
     //define histograms at channel levels
     TH2F_LW* m_NullDigitChan;
     TH2F_LW* m_SatDigitChan;
+    TH2F_LW* m_SatDigitChanLow;
     TH2F_LW* m_OutDigitChan;
     
     //Declare temporary histograms to be used online...
     TH2I_LW* m_Temp_NullDigitChan;
     TH2I_LW* m_Temp_SatDigitChan;
+    TH2I_LW* m_Temp_SatDigitChanLow;
     TH2I_LW* m_Temp_OutDigitChan;
     
     TProfile2D_LW* m_PNullDigit;
     TProfile2D_LW* m_PSatDigit;
+    TProfile2D_LW* m_PSatDigitLow;
     TProfile2D_LW* m_POutDigit;
     TProfile2D_LW* m_AverDig;
     
@@ -143,14 +151,14 @@ private:
   };
   
   /** Now define the 8 partitions of the LArCalorimeter*/
-  partition BarrelA;
-  partition BarrelC;
-  partition EmecA; 
-  partition EmecC;  
-  partition HecA;
-  partition HecC;  
-  partition FcalA;
-  partition FcalC;
+  partition m_BarrelA;
+  partition m_BarrelC;
+  partition m_EmecA; 
+  partition m_EmecC;  
+  partition m_HecA;
+  partition m_HecC;  
+  partition m_FcalA;
+  partition m_FcalC;
   
   
   /**declare identifier*/
@@ -196,6 +204,7 @@ private:
   void HistTitle(TProfile2D_LW* hist,partition& sub);
   void HistTitleSum(LWHist2D* hist);
   void FillSaturation(partition& sub);
+  void FillSaturationLow(partition& sub);
   void FillOutOfRange(partition& sub);
   void FillAverMaxDig(partition& sub, int& i, float nrj, unsigned int& m_l1Trig,unsigned int& lumiblock);
   void FillSumary(partition& sub);

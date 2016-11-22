@@ -126,15 +126,15 @@ LArDigitMon::~LArDigitMon()
 StatusCode 
 LArDigitMon::finalize()
 {
-  msg(MSG::INFO)<<"Finalize LArDigitMon" << endreq;
-  DeleteHist(BarrelA);
-  DeleteHist(BarrelC);
-  DeleteHist(EmecA);
-  DeleteHist(EmecC);
-  DeleteHist(HecA);
-  DeleteHist(HecC);
-  DeleteHist(FcalA);
-  DeleteHist(FcalC);
+  msg(MSG::INFO)<<"Finalize LArDigitMon" << endmsg;
+  DeleteHist(m_BarrelA);
+  DeleteHist(m_BarrelC);
+  DeleteHist(m_EmecA);
+  DeleteHist(m_EmecC);
+  DeleteHist(m_HecA);
+  DeleteHist(m_HecC);
+  DeleteHist(m_FcalA);
+  DeleteHist(m_FcalC);
   
   return StatusCode::SUCCESS;
  
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  msg(MSG::INFO)<<"Initialize LArDigitMon" << endreq;
+  msg(MSG::INFO)<<"Initialize LArDigitMon" << endmsg;
   
   StatusCode sc;
   
@@ -156,7 +156,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endreq;
+    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
     return StatusCode::FAILURE;
     
   }
@@ -169,7 +169,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endreq;
+    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endmsg;
     return StatusCode::FAILURE;
     
   }
@@ -178,7 +178,7 @@ LArDigitMon::initialize()
   /** Get LAr Calbling Service*/
   sc=m_LArCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -186,7 +186,7 @@ LArDigitMon::initialize()
   if (m_ignoreKnownBadChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endreq;
+      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -194,7 +194,7 @@ LArDigitMon::initialize()
   /** Retrieve pedestals container*/
   sc =  detStore()->regHandle(m_larPedestal,m_larPedestalKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "could not register handle for pedestal " << endreq;
+    msg(MSG::ERROR) << "could not register handle for pedestal " << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -221,32 +221,32 @@ LArDigitMon::bookHistograms()
     MonGroup GroupBarrelExpert( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
     MonGroup GroupBarrelExpertEff( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED ,"","weightedEff");
     
-    LArDigitMon::BookPartitions(BarrelA,"BarrelA",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
-    LArDigitMon::BookPartitions(BarrelC,"BarrelC",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
+    LArDigitMon::BookPartitions(m_BarrelA,"BarrelA",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
+    LArDigitMon::BookPartitions(m_BarrelC,"BarrelC",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
     
     /**Book Histogram of EMEC*/
     MonGroup GroupEMECShift( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
     MonGroup GroupEMECExpert( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
     MonGroup GroupEMECExpertEff( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(EmecA,"EmecA",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
-    LArDigitMon::BookPartitions(EmecC,"EmecC",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
+    LArDigitMon::BookPartitions(m_EmecA,"EmecA",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
+    LArDigitMon::BookPartitions(m_EmecC,"EmecC",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
     
     /**Book Histogram of HEC*/
     MonGroup GroupHECShift( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
     MonGroup GroupHECExpert( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
     MonGroup GroupHECExpertEff( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(HecA,"HecA",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
-    LArDigitMon::BookPartitions(HecC,"HecC",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
+    LArDigitMon::BookPartitions(m_HecA,"HecA",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
+    LArDigitMon::BookPartitions(m_HecC,"HecC",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
     
     /**Book Histogram of FCAL.*/
     MonGroup GroupFCALShift( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
     MonGroup GroupFCALExpert( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
     MonGroup GroupFCALExpertEff( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED,"","weightedEff");
     
-    LArDigitMon::BookPartitions(FcalA,"FcalA",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
-    LArDigitMon::BookPartitions(FcalC,"FcalC",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
+    LArDigitMon::BookPartitions(m_FcalA,"FcalA",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
+    LArDigitMon::BookPartitions(m_FcalC,"FcalC",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
     
     
     /**Book summary histo*/
@@ -299,7 +299,7 @@ LArDigitMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endreq;
+    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
     return StatusCode::SUCCESS;
   }
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
@@ -313,7 +313,7 @@ LArDigitMon::fillHistograms()
   //  unsigned long run=0;
   const xAOD::EventInfo* thisEvent;
   if (evtStore()->retrieve(thisEvent).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -330,7 +330,7 @@ LArDigitMon::fillHistograms()
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endreq;
+		      << m_LArDigitContainerKey << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -426,14 +426,14 @@ LArDigitMon::fillHistograms()
     
     /** Now set histos titles, in order that it contains the range*/
     LArDigitMon::HistTitleSum(m_summary);    
-    LArDigitMon::OutHistTitle(BarrelA);
-    LArDigitMon::OutHistTitle(BarrelC); 
-    LArDigitMon::OutHistTitle(EmecA);
-    LArDigitMon::OutHistTitle(EmecC);
-    LArDigitMon::OutHistTitle(HecA);
-    LArDigitMon::OutHistTitle(HecC);    
-    LArDigitMon::OutHistTitle(FcalA);
-    LArDigitMon::OutHistTitle(FcalC);
+    LArDigitMon::OutHistTitle(m_BarrelA);
+    LArDigitMon::OutHistTitle(m_BarrelC); 
+    LArDigitMon::OutHistTitle(m_EmecA);
+    LArDigitMon::OutHistTitle(m_EmecC);
+    LArDigitMon::OutHistTitle(m_HecA);
+    LArDigitMon::OutHistTitle(m_HecC);    
+    LArDigitMon::OutHistTitle(m_FcalA);
+    LArDigitMon::OutHistTitle(m_FcalC);
   }//Range and sample max are known now....
   
   
@@ -503,7 +503,7 @@ LArDigitMon::fillHistograms()
     }
     
     /**Second monitoring of the saturating cells.*/
-    if ((*maxSam)>=m_ADCsatureCut)FillSaturation(ThisPartition);
+    if ((*maxSam)>=m_ADCsatureCut && (gain==0 || gain==1))FillSaturation(ThisPartition);
     
     /**Third monitoring cells containing one sample==0.*/
     if((*minSam)==0)FillNullHisto(ThisPartition);
@@ -512,14 +512,14 @@ LArDigitMon::fillHistograms()
   }/** End of loop on LArDigit*/
   
   // Loop on all partition histograms to renormalise by the number of channels
-  ScalePartition(BarrelA);
-  ScalePartition(BarrelC);
-  ScalePartition(EmecA);
-  ScalePartition(EmecC);
-  ScalePartition(HecA);
-  ScalePartition(HecC);
-  ScalePartition(FcalA);
-  ScalePartition(FcalC);
+  ScalePartition(m_BarrelA);
+  ScalePartition(m_BarrelC);
+  ScalePartition(m_EmecA);
+  ScalePartition(m_EmecC);
+  ScalePartition(m_HecA);
+  ScalePartition(m_HecC);
+  ScalePartition(m_FcalA);
+  ScalePartition(m_FcalC);
   
   return StatusCode::SUCCESS;
 }
@@ -529,26 +529,26 @@ StatusCode LArDigitMon::procHistograms()
 {
   /** Don't do anything*/
   
-  if(endOfRun || endOfEventsBlock)
+  if(endOfRunFlag() || endOfEventsBlockFlag() )
   {
-    FillSumary(BarrelA);
-    FillSumary(BarrelC);
-    FillSumary(EmecA);
-    FillSumary(EmecC);
-    FillSumary(HecA);
-    FillSumary(HecC);
-    FillSumary(FcalA);
-    FillSumary(FcalC);
+    FillSumary(m_BarrelA);
+    FillSumary(m_BarrelC);
+    FillSumary(m_EmecA);
+    FillSumary(m_EmecC);
+    FillSumary(m_HecA);
+    FillSumary(m_HecC);
+    FillSumary(m_FcalA);
+    FillSumary(m_FcalC);
     /** Properly Delete the LW hists*/
-    if(endOfRun){
-      EndOfRun(BarrelA);
-      EndOfRun(BarrelC);
-      EndOfRun(EmecA);
-      EndOfRun(EmecC);
-      EndOfRun(HecA);
-      EndOfRun(HecC);
-      EndOfRun(FcalA);
-      EndOfRun(FcalC);
+    if(endOfRunFlag()){
+      EndOfRun(m_BarrelA);
+      EndOfRun(m_BarrelC);
+      EndOfRun(m_EmecA);
+      EndOfRun(m_EmecC);
+      EndOfRun(m_HecA);
+      EndOfRun(m_HecC);
+      EndOfRun(m_FcalA);
+      EndOfRun(m_FcalC);
     }
     
     return StatusCode::SUCCESS;
@@ -619,14 +619,24 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
 
   std::string  hName = "tSaturation_";
   hName =hName+PartitionName;
-  std::string hTitle=titlesat+PartitionName; 
+  std::string hTitle=titlesat+" Med/High Gain - "+PartitionName; 
   sub.m_SatDigit = TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  hName = "tSaturationLow_";
+  hName =hName+PartitionName;
+  hTitle=titlesat+" Low Gain - "+PartitionName; 
+  sub.m_SatDigitLow = TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   hName = "Saturation_";
   hName =hName+PartitionName;
   hTitle=titlesat+PartitionName; 
   sub.m_PSatDigit = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   ExpertGroup.regHist(sub.m_PSatDigit).ignore();
   m_strHelper->definePartitionSummProp(sub.m_PSatDigit).ignore();
+  hName = "SaturationLow_";
+  hName =hName+PartitionName;
+  hTitle=titlesat+PartitionName; 
+  sub.m_PSatDigitLow = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  ExpertGroup.regHist(sub.m_PSatDigitLow).ignore();
+  m_strHelper->definePartitionSummProp(sub.m_PSatDigitLow).ignore();
   
   hName = "tNullDigit_";
   hName =hName+PartitionName;
@@ -652,10 +662,16 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   
   hName = "SaturationChan_";
   hName =hName+PartitionName;
-  hTitle=titlesatchan+PartitionName+" - All Gain - All Stream";
+  hTitle=titlesatchan+PartitionName+" - Med/High Gain - All Stream";
   sub.m_SatDigitChan = TH2F_LW::create(hName.c_str(), hTitle.c_str(),crates,crates_low,crates_up,chan,chan_low,chan_up);
   ExpertGroupEff.regHist(sub.m_SatDigitChan).ignore();
   m_strHelper->definePartitionSummProp2(sub.m_SatDigitChan).ignore();  
+  hName = "SaturationChanLow_";
+  hName =hName+PartitionName;
+  hTitle=titlesatchan+PartitionName+" - Low Gain - All Stream";
+  sub.m_SatDigitChanLow = TH2F_LW::create(hName.c_str(), hTitle.c_str(),crates,crates_low,crates_up,chan,chan_low,chan_up);
+  ExpertGroupEff.regHist(sub.m_SatDigitChanLow).ignore();
+  m_strHelper->definePartitionSummProp2(sub.m_SatDigitChanLow).ignore();  
   
   hName = "NullDigitChan_";
   hName =hName+PartitionName;
@@ -711,7 +727,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   hName = "MaxVsTime_";
   hName =hName+PartitionName;
   hTitle="Average Max Sample vs LumiBlock - "+PartitionName+expectedSamp;
-  sub.m_MaxVsTime  = TProfile_LW::create(hName.c_str(),hTitle.c_str(), 2000, 0.5, 2000.5);
+  sub.m_MaxVsTime  = TProfile_LW::create(hName.c_str(),hTitle.c_str(), 3000, 0.5, 3000.5);
   sub.m_MaxVsTime->GetXaxis()->SetTitle("Luminosity Block");
   sub.m_MaxVsTime->GetYaxis()->SetTitle("Average Max Sample");
   ShiftGroup.regHist(sub.m_MaxVsTime).ignore(); 
@@ -735,6 +751,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   {
     sub.m_Temp_NullDigitChan=TH2I_LW::create(("temp_NullDigit_"+PartitionName).c_str(), "",crates,crates_low,crates_up,chan,chan_low,chan_up);
     sub.m_Temp_SatDigitChan=TH2I_LW::create(("temp_SatDigitChan_"+PartitionName).c_str(), "",crates,crates_low,crates_up,chan,chan_low,chan_up);
+    sub.m_Temp_SatDigitChanLow=TH2I_LW::create(("temp_SatDigitChanLow_"+PartitionName).c_str(), "",crates,crates_low,crates_up,chan,chan_low,chan_up);
     sub.m_Temp_OutDigitChan=TH2I_LW::create(("temp_OutDigitChan_"+PartitionName).c_str(), "",crates,crates_low,crates_up,chan,chan_low,chan_up);
   }
   
@@ -805,29 +822,29 @@ LArDigitMon::partition& LArDigitMon::WhatPartition(HWIdentifier id)
   /** return EM Barrel*/
   if (m_LArOnlineIDHelper->isEmBarrelOnline(id)) 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return BarrelC;
-    else return BarrelA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_BarrelC;
+    else return m_BarrelA;
   }
   
   /** return EM Endcap*/
   else if (m_LArOnlineIDHelper-> isEMECchannel(id))
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return EmecC;
-    else return EmecA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_EmecC;
+    else return m_EmecA;
   }
   
   /** return HEC*/
   else if (m_LArOnlineIDHelper->isHECchannel(id)) 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return HecC;
-    else return HecA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_HecC;
+    else return m_HecA;
   }
   
   /**  return FCAL*/
   else 
   {
-    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return FcalC;
-    else return FcalA;
+    if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_FcalC;
+    else return m_FcalA;
   }
   
 }
@@ -879,6 +896,15 @@ void LArDigitMon::FillSaturation(partition& sub)
   else sub.m_SatDigitChan->Fill(m_slot+(numb*m_feedthrough),m_channel); 
 }
 /*---------------------------------------------------------*/
+void LArDigitMon::FillSaturationLow(partition& sub)
+{
+  sub.m_SatDigitLow->Fill(m_slot,m_feedthrough);
+  int numb=15;
+  if(sub.sumpos==0||sub.sumpos==1) numb=14;
+  if(m_IsOnline) sub.m_Temp_SatDigitChanLow->Fill(m_slot+(numb*m_feedthrough),m_channel);
+  else sub.m_SatDigitChanLow->Fill(m_slot+(numb*m_feedthrough),m_channel); 
+}
+/*---------------------------------------------------------*/
 void LArDigitMon::FillNullHisto(partition& sub)
 {
   sub.m_NullDigit->Fill(m_slot,m_feedthrough);
@@ -909,12 +935,14 @@ void LArDigitMon::ScalePartition(partition& sub)
   if(m_IsOnline){
     DumpOnlineHisto(sub.m_Temp_NullDigitChan,sub.m_NullDigitChan);
     DumpOnlineHisto(sub.m_Temp_SatDigitChan,sub.m_SatDigitChan);
+    DumpOnlineHisto(sub.m_Temp_SatDigitChanLow,sub.m_SatDigitChanLow);
     DumpOnlineHisto(sub.m_Temp_OutDigitChan,sub.m_OutDigitChan);
   }
   // BT on 10/4/2015 : originally the DumpHisto was 4 lines before (see comments above).
   // I have the feeling that the online normalisation was wrong.
   DumpHisto(sub.m_NullDigit,sub.m_PNullDigit);
   DumpHisto(sub.m_SatDigit,sub.m_PSatDigit);
+  DumpHisto(sub.m_SatDigitLow,sub.m_PSatDigitLow);
   DumpHisto(sub.m_OutDigit,sub.m_POutDigit);
 
   ATH_MSG_DEBUG("End of Scale Histograms " );
@@ -1026,6 +1054,10 @@ void LArDigitMon::EndOfRun(partition& sub)
     sub.m_SatDigit->Reset() ;
   }  
   
+  if(sub.m_SatDigitLow){
+    sub.m_SatDigitLow->Reset() ;
+  }  
+  
   if(m_IsOnline)
   {
     if(sub.m_Temp_NullDigitChan){
@@ -1036,6 +1068,10 @@ void LArDigitMon::EndOfRun(partition& sub)
       sub.m_Temp_SatDigitChan->Reset();
     } 
     
+    if(sub.m_Temp_SatDigitChanLow){
+      sub.m_Temp_SatDigitChanLow->Reset();
+    } 
+
     if(sub.m_Temp_OutDigitChan){
       sub.m_Temp_OutDigitChan->Reset();
     } 
@@ -1043,6 +1079,7 @@ void LArDigitMon::EndOfRun(partition& sub)
   else{
     ScaleHisto(sub.m_NullDigitChan,m_eventsCounter);
     ScaleHisto(sub.m_SatDigitChan,m_eventsCounter);
+    ScaleHisto(sub.m_SatDigitChanLow,m_eventsCounter);
     ScaleHisto(sub.m_OutDigitChan,m_eventsCounter);
   }
 }
@@ -1066,6 +1103,11 @@ void LArDigitMon::DeleteHist(partition& sub)
     sub.m_SatDigit=0;
   }  
   
+  if(sub.m_SatDigitLow){
+    LWHist::safeDelete(sub.m_SatDigitLow);
+    sub.m_SatDigitLow=0;
+  }  
+  
   if(m_IsOnline)
   {
     if(sub.m_Temp_NullDigitChan){
@@ -1078,6 +1120,11 @@ void LArDigitMon::DeleteHist(partition& sub)
       sub.m_Temp_SatDigitChan=0;
     } 
     
+    if(sub.m_Temp_SatDigitChanLow){
+      LWHist::safeDelete(sub.m_Temp_SatDigitChanLow);
+      sub.m_Temp_SatDigitChanLow=0;
+    } 
+
     if(sub.m_Temp_OutDigitChan){
       LWHist::safeDelete(sub.m_Temp_OutDigitChan);
       sub.m_Temp_OutDigitChan=0;

@@ -13,25 +13,31 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
+//#include "CoolLumiUtilities/IBunchGroupTool.h"
+
 #include <map>
 #include <string>
 #include <bitset>
 #include <vector>
-#include "TH1.h"
-#include "TH2I.h"
-#include "TH2F.h"
+//#include "TH1.h"
+//#include "TH2I.h"
+//#include "TH2F.h"
 #include "TMath.h"
-#include "TProfile2D.h"
 #include "TTree.h"
 
 class StoreGateSvc;
 class ITHistSvc;
 
-class TH1I;
-class TH2I;
-class TH2F;
-class TProfile2D;
+//class TH1F;
+//class TH2F;
 class TTree;
+class TH1F_LW;
+class TH2F_LW;
+
+
+namespace Trig {
+class IBunchCrossingTool;
+}
 
 class LArCollisionTimeMonTool: public ManagedMonitorToolBase
 {
@@ -57,6 +63,9 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
    *  Overwrite dummy method from MonitorToolBase */
   StatusCode procHistograms();
 
+  // hack to use this function to update the bcid numbers cache
+  StatusCode updateBCID(IOVSVC_CALLBACK_ARGS);
+
  protected:
 
   // services
@@ -74,15 +83,19 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   float m_ECTimeDiff;
   float m_ECTimeAvg;
 
+  unsigned m_nhist;
+  TH1F_LW** m_LArCollTime_h; 
+  TH1F_LW** m_LArCollTime_lb_h;
+  TH1F_LW** m_LArCollTime_lb_timeCut_h;
+  TH1F_LW** m_LArCollTime_lb_singlebeam_timeCut_h;
+  TH2F_LW** m_LArCollTime_vs_LB_h; 
+  TH2F_LW** m_LArCollTime_vs_BCID_h;
+  TH1F_LW** m_LArCollAvgTime_h; 
+  TH2F_LW** m_LArCollAvgTime_vs_LB_h; 
+  TH2F_LW** m_LArCollAvgTime_vs_BCID_h;             
 
-  TH1F* m_LArCollTime_h; 
-  TH1F* m_LArCollTime_lb_h;
-  TH1F* m_LArCollTime_lb_timeCut_h;
-  TH1F* m_LArCollTime_lb_singlebeam_timeCut_h;
-  TH2F* m_LArCollTime_vs_LB_h; 
-  TH2F* m_LArCollTime_vs_BCID_h;
-  TH1F* m_LArCollAvgTime_h; 
-  TH2F* m_LArCollAvgTime_vs_LB_h; 
+  int m_distance; // distance from train front to fill second histos
+  bool m_IsOnline;
 
   // Counters
   int m_eventsCounter;
@@ -90,10 +103,17 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   float m_timeCut;
   int m_minCells;
   bool m_eWeighted;
-  bool newrun;
+  bool m_newrun;
+
+  //ToolHandle<IBunchGroupTool> m_bunchGroupTool;
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchGroupTool;
+  std::vector<unsigned int> m_bcid_allowed;
+  bool m_bcid_init;
 
 
   std::string m_histPath, m_key;
+
+  void cleanup();
 };
 
 #endif
