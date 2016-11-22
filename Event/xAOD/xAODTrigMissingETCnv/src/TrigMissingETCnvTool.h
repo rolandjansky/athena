@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETCnvTool.h 592539 2014-04-11 10:17:29Z krasznaa $
+// $Id: TrigMissingETCnvTool.h 785790 2016-11-22 16:48:26Z ssnyder $
 #ifndef xAODTrigMissingETCNV_TrigMissingETCNVTOOL_H
 #define xAODTrigMissingETCNV_TrigMissingETCNVTOOL_H
 
@@ -25,8 +25,8 @@ namespace xAODMaker {
     * @author Gordon Watts <Gordon.Watts@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 592539 $
-    * $Date: 2014-04-11 12:17:29 +0200 (Fri, 11 Apr 2014) $
+    * $Revision: 785790 $
+    * $Date: 2016-11-22 17:48:26 +0100 (Tue, 22 Nov 2016) $
     */
    class TrigMissingETCnvTool : public AthAlgTool,
                                 public virtual ITrigMissingETCnvTool {
@@ -37,11 +37,11 @@ namespace xAODMaker {
                       const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigMissingETContainer
       virtual StatusCode convert( const TrigMissingETContainer* aod,
-                                  xAOD::TrigMissingETContainer* xaod );
+                                  xAOD::TrigMissingETContainer* xaod ) const override;
 
    }; // class TrigMissingETCnvTool
 
