@@ -16,8 +16,12 @@ ROOTCORE_REDIRECT_BASE=MoreFilesForYou-RootCore-
 #fi
 
 # Change our Makefile to add dependent information:
+if ! test -f $VERSIONFILE; then
+  echo "$(git branch -a | grep --color=never "remotes/tags/RingerSelectorTools-.*" | tail -n 1)" >> $VERSIONFILE
+fi
+
 $ROOTCOREDIR/scripts/set_field.sh $MAKEFILE \
-  PACKAGE_CXXFLAGS "-DASGTOOL_STANDALONE -DPACKAGE_VERSION=\\\\\"`cat $VERSIONFILE`\\\\\""
+    PACKAGE_CXXFLAGS "-DASGTOOL_STANDALONE -DPACKAGE_VERSION=\\\\\"`cat $VERSIONFILE`\\\\\""
 
 # Create RootCore file redirection for sources (done only to keep multifolder
 # architeture)

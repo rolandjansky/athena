@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testRead.cxx 693573 2015-09-07 19:15:49Z wsfreund $
+// $Id: testRead.cxx 770805 2016-08-30 14:03:33Z ssnyder $
 /**
  * In this executable we want to test if wrappers can be sucessfully read.
  *
@@ -70,10 +70,10 @@ int main(){
   // Change message level and greet user
   msg.setLevel(MSG::DEBUG);
 
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
   msg << MSG::INFO << "Reading discriminator using interface "
-    "without using normalization." << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+    "without using normalization." << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read simple discriminator using interface (without using normalization)
@@ -86,7 +86,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicWrapper)>::type
   >( basicWrapper, "basicWrapper.root" );
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read as "basicEtaDepWrapper" using correct template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -96,7 +96,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaDepWrapper)>::type
   >( basicEtaDepWrapper, "basicEtaDepWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtDepWrapper" using correct template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -106,7 +106,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtDepWrapper)>::type
   >( basicEtDepWrapper, "basicEtDepWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaEtDepWrapper.root" using correct template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -120,9 +120,9 @@ int main(){
 
   msg.setLevel(MSG::ERROR);
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading discriminator with wrong types!" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading discriminator with wrong types!" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
   // ----------------------------------------------------------------------------
   // Read simple discriminator using interface with WRONG types
   // ----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicWrapperWrong)>::type
   >( basicWrapperWrong, "basicWrapper.root" );
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read as "basicEtaDepWrapperWrong" using wrong template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -143,7 +143,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaDepWrapperWrong)>::type
   >( basicEtaDepWrapperWrong, "basicEtaDepWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtDepWrapperWrong" using wrong template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -153,7 +153,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtDepWrapperWrong)>::type
   >( basicEtDepWrapperWrong, "basicEtDepWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaEtDepWrapperWrong.root" using wrong template
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -166,9 +166,9 @@ int main(){
   // -------------------------- END --- END --- END -----------------------------
   msg.setLevel(MSG::DEBUG);
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading pre-processings!" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading pre-processings!" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
   // ----------------------------------------------------------------------------
   // Start testing pre-processings
   // ----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicPPWrapper)>::type
   >( basicPPWrapper, "basicPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -190,7 +190,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaDepPPWrapper)>::type
   >( basicEtaDepPPWrapper, "basicEtaDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -200,7 +200,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtDepPPWrapper)>::type
   >( basicEtDepPPWrapper, "basicEtDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtEtaDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -210,7 +210,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtEtaDepPPWrapper)>::type
   >( basicEtEtaDepPPWrapper, "basicEtEtaDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtEtaTrackCalDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -220,7 +220,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtEtaTrackCalDepPPWrapper)>::type
   >( basicEtEtaTrackCalDepPPWrapper, "basicEtEtaTrackCalDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtEtaTrackCalPatTypeDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -230,7 +230,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtEtaTrackCalPatTypeDepPPWrapper)>::type
   >( basicEtEtaTrackCalPatTypeDepPPWrapper, "basicEtEtaTrackCalPatTypeDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaEtSectionDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -240,7 +240,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaEtSectionDepPPWrapper)>::type
   >( basicEtaEtSectionDepPPWrapper, "basicEtaEtSectionDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaEtLayerDepPPWrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -250,7 +250,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaEtLayerDepPPWrapper)>::type
   >( basicEtaEtLayerDepPPWrapper, "basicEtaEtLayerDepPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicNorm1Wrapper.root"
   RingerProcedureWrapper<PreProcessing::IPreProcessorVarDep,
@@ -260,7 +260,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicNorm1Wrapper)>::type
   >( basicNorm1Wrapper, "basicNorm1Wrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicNorm1Wrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::Norm1VarDep,
@@ -270,7 +270,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicLayerDepNorm1Wrapper)>::type
   >( basicLayerDepNorm1Wrapper, "basicLayerDepNorm1Wrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicNorm2Wrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::Norm2VarDep,
@@ -280,7 +280,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicNorm2Wrapper)>::type
   >( basicNorm2Wrapper, "basicNorm2Wrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicSqrtWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::SqrtVarDep,
@@ -290,7 +290,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicSqrtWrapper)>::type
   >( basicSqrtWrapper, "basicSqrtWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicConstantValueWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::ConstantValueVarDep,
@@ -300,7 +300,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicConstantValueWrapper)>::type
   >( basicConstantValueWrapper, "basicConstantValueWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicMevToGevWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::MevToGevVarDep,
@@ -310,7 +310,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicMevToGevWrapper)>::type
   >( basicMevToGevWrapper, "basicMevToGevWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicSequentialWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::SequentialVarDep,
@@ -320,7 +320,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicSequentialWrapper)>::type
   >( basicSequentialWrapper, "basicSequentialWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicSpherizationWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::SpherizationVarDep,
@@ -330,7 +330,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicSpherizationWrapper)>::type
   >( basicSpherizationWrapper, "basicSpherizationWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicMinMaxWrapper.root"
   RingerProcedureWrapper<PreProcessing::Norm::MinMaxVarDep,
@@ -340,12 +340,12 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicMinMaxWrapper)>::type
   >( basicMinMaxWrapper, "basicMinMaxWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading discriminators with pre-processings!" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading discriminators with pre-processings!" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
   
   // ----------------------------------------------------------------------------
   // Read discriminators with pre-processings
@@ -358,7 +358,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(randomNorm1PPDiscrWrapper)>::type
   >( randomNorm1PPDiscrWrapper, "randomNorm1PPDiscrWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "randomNorm1PPDiscrWrapper.root"
   RingerProcedureWrapper<Discrimination::IDiscriminatorVarDep,
@@ -368,12 +368,12 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(randomDepPPrandomDepPPDiscrWrapper)>::type
   >( randomDepPPrandomDepPPDiscrWrapper, "randomDepPPrandomDepPPDiscrWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
   // ----------------------------------------------------------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading segmented discriminator PP wrappers:" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading segmented discriminator PP wrappers:" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read segmented discriminators with pre-processings
@@ -388,9 +388,9 @@ int main(){
   >( randomDepPPrandomDepPPDiscrSegmentedWrapper, "randomDepPPrandomDepPPDiscrSegmentedWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading specialized discriminator:" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading specialized discriminator:" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read specialized discriminator wrapper with no pre-processings
@@ -403,7 +403,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(NNWrapper)>::type
   >( NNWrapper, "NNWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "NNWrapper.root"
   RingerProcedureWrapper<Discrimination::NNFeedForwardVarDep,
@@ -415,9 +415,9 @@ int main(){
   >( FullDepNNWrapper, "FullDepNNWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading specialized discriminator with PP wrappers:" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading specialized discriminator with PP wrappers:" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read specialized discriminator wrapper with specialized pre-processings
@@ -430,7 +430,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(Norm1NNWrapper)>::type
   >( Norm1NNWrapper, "Norm1NNWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "Norm1Norm1FullDepNNWrapper.root"
   RingerProcedureWrapper<Discrimination::NNFeedForwardVarDep,
@@ -442,9 +442,9 @@ int main(){
   >( Norm1Norm1FullDepNNWrapper, "Norm1Norm1FullDepNNWrapper.root");
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading threshold wrappers:" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading threshold wrappers:" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read thresholds
@@ -456,7 +456,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicThres)>::type
   >( basicThres, "basicThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaDepThres.root"
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
@@ -465,7 +465,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtaDepThres)>::type
   >( basicEtaDepThres, "basicEtaDepThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtDepThres.root"
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
@@ -474,7 +474,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(basicEtDepThres)>::type
   >( basicEtDepThres, "basicEtDepThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "basicEtaEtDepThres.root"
   RingerProcedureWrapper<Discrimination::IThresholdVarDep,
@@ -485,9 +485,9 @@ int main(){
   >( basicEtaEtDepThres, "basicEtaEtDepThres.root");
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Reading specialized threshold wrappers:" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Reading specialized threshold wrappers:" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Read speaclized thresholds
@@ -499,7 +499,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(uniqueThres)>::type
   >( uniqueThres, "uniqueThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "uniqueEtaDepThres.root"
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
@@ -508,7 +508,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(uniqueEtaDepThres)>::type
   >( uniqueEtaDepThres, "uniqueEtaDepThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "uniqueEtDepThres.root"
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
@@ -517,7 +517,7 @@ int main(){
   readWrapperFromFile< 
     typename Ringer::remove_pointer<decltype(uniqueEtDepThres)>::type
   >( uniqueEtDepThres, "uniqueEtDepThres.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // Read "uniqueEtaEtDepThres.root"
   RingerProcedureWrapper<Discrimination::UniqueThresholdVarDep,
@@ -529,23 +529,23 @@ int main(){
   // -------------------------- END --- END --- END -----------------------------
   
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Special reading" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Special reading" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   // ----------------------------------------------------------------------------
   // Test reading multiple wrappers
   // ----------------------------------------------------------------------------
   readCollectionFromFile<IDiscrWrapper>("Norm1NNWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
   readCollectionFromFile<IDiscrWrapper>("Norm1Norm1FullDepNNWrapper.root");
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
   readCollectionFromFile<IThresWrapper>("uniqueEtaEtDepThres.root");
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endreq;
-  msg << MSG::INFO << "Finished!" << endreq;
-  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << "Finished!" << endmsg;
+  msg << MSG::INFO << BREAKER << endmsg;
 
   return 0;
 }
@@ -556,7 +556,7 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
 {
 
   msg << MSG::INFO << "Reading wrapper: " << wrapper_t::staticFullName() 
-    << ", at file named: " << fileName << endreq;
+    << ", at file named: " << fileName << endmsg;
 
   // Read file and bring everything to memory:
   TFile wrapperFile(fileName, "READ");
@@ -570,7 +570,7 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
 
   msg << MSG::INFO << "Number(s) of folder(s) within this TFile is " 
     << wrapperDirList->GetSize()
-    << endreq;
+    << endmsg;
 
   try {
 
@@ -585,7 +585,7 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
               IOHelperFcns::makeIdxStr(0) ) )
       {
         msg << MSG::INFO << "Found directory named " 
-          << wrapperDir->GetName() << endreq;
+          << wrapperDir->GetName() << endmsg;
         foundDir = true;
         break;
       }
@@ -604,14 +604,14 @@ void readWrapperFromFile(wrapper_t *&wrapper, const char* fileName)
     // Use dummy message stream:
     wrapper->setMsgStream(&msg);
 
-    msg << MSG::INFO << "Printing wrapper " << endreq;
+    msg << MSG::INFO << "Printing wrapper " << endmsg;
 
     // to print wrapper information:
     wrapper->print();
 
   } catch ( const std::runtime_error &e){
     msg << MSG::ERROR << "Couldn't read due to error: " 
-      << e.what() << endreq;
+      << e.what() << endmsg;
   }
 
   // Close file
@@ -623,7 +623,7 @@ template<typename wrapperBase_t>
 void readCollectionFromFile(const char* fileName)
 {
 
-  msg << MSG::INFO << "Reading file: " << fileName << endreq;
+  msg << MSG::INFO << "Reading file: " << fileName << endmsg;
 
   // Get wrapper collection and read it:
   typename wrapperBase_t::WrapperCollection col;
@@ -633,14 +633,14 @@ void readCollectionFromFile(const char* fileName)
   for ( auto *wrapper : col ) {
     if (wrapper){ 
       msg << MSG::INFO << "Printing wrapper " << wrapper->fullName() 
-        << " at position " << IOHelperFcns::makeIdxStr(counter++) << endreq;
+        << " at position " << IOHelperFcns::makeIdxStr(counter++) << endmsg;
       wrapper->setMsgStream(&msg);wrapper->print();
     } else {
-      msg << MSG::ERROR << "Couldn't print wrapper on file " << fileName << endreq;
+      msg << MSG::ERROR << "Couldn't print wrapper on file " << fileName << endmsg;
     }
   }
 
-  msg << MSG::INFO << "File configuration: " << endreq;
+  msg << MSG::INFO << "File configuration: " << endmsg;
   AsgElectronRingerSelector::IOConfStruct ioConf;
   AsgElectronRingerSelector::retrieveFileConf( fileName, ioConf );
   AsgElectronRingerSelector::printConf(ioConf, &msg);
@@ -651,13 +651,13 @@ template<>
 void readCollectionFromFile<IThresWrapper>(const char* fileName)
 {
   
-  msg << MSG::INFO << "Reading file: " << fileName << endreq;
+  msg << MSG::INFO << "Reading file: " << fileName << endmsg;
 
   // Get wrapper collection and read it:
   IThresWrapper *wrapper;
   IThresWrapper::read( wrapper, fileName );
   if (wrapper) {wrapper->setMsgStream(&msg);  wrapper->print();}
-  else msg << MSG::ERROR << "Couldn't print wrapper on file " << fileName << endreq;
+  else msg << MSG::ERROR << "Couldn't print wrapper on file " << fileName << endmsg;
 }
 
 

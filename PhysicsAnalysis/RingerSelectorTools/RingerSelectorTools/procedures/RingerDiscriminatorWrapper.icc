@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerDiscriminatorWrapper.icc 713528 2015-12-09 08:58:44Z wsfreund $
+// $Id: RingerDiscriminatorWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_ICC
 
@@ -532,16 +532,16 @@ void RingerProcedureWrapper<
       return;
     }
     this->msg() << lvl << " -------- Printing PreProcesorWrappers -------- " 
-      << endreq;
+      << endmsg;
     // Print pre-processing collection:
     for ( size_t ppWrapIdx = 0; ppWrapIdx < m_ppWrapperCol.size(); ++ppWrapIdx )
     {
       this->msg() << lvl << "PreProcessingWrapper" 
-        << IOHelperFcns::makeIdxStr(ppWrapIdx) << endreq;
+        << IOHelperFcns::makeIdxStr(ppWrapIdx) << endmsg;
       m_ppWrapperCol[ppWrapIdx]->print( lvl );
     }
     this->msg() << lvl << " --- Finished printing PreProcessorWrappers --- " 
-      << endreq;
+      << endmsg;
     // Print discriminators
     std::vector<unsigned> posVec(3);
     for ( size_t segIdx = 0; segIdx < m_discrCol.size() ; ++segIdx){
@@ -553,7 +553,7 @@ void RingerProcedureWrapper<
         {
           posVec[2] = etaIdx;
           this->msg() << lvl << m_discrCol[segIdx][etIdx][etaIdx]->name() <<
-            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
+            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endmsg;
           m_discrCol[segIdx][etIdx][etaIdx]->print(lvl);
         }
       }
@@ -792,7 +792,7 @@ RingerProcedureWrapper<
       // If the procedure_t is not the Discriminator interface, code will
       // never get here. We only use the interpret cast so that the compiler
       // doesn't complain about type casting.
-      thisDiscr = reinterpret_cast<procedure_t*>( getDiscr(discrType, dirObj) );
+      thisDiscr = dynamic_cast<procedure_t*>( getDiscr(discrType, dirObj) );
     } else {
       // Here it's easier, we already know the type that is written in the file,
       // so all we need to do is loop over it and retrieve the discriminator.

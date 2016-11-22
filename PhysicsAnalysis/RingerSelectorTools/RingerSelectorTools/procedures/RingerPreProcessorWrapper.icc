@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerPreProcessorWrapper.icc 704615 2015-10-29 18:50:12Z wsfreund $
+// $Id: RingerPreProcessorWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 
@@ -470,7 +470,7 @@ void RingerProcedureWrapper<
       return;
     }
     std::vector<unsigned> posVec(3);
-    this->msg() << lvl << fullName() << " contents: "<<  endreq;
+    this->msg() << lvl << fullName() << " contents: "<<  endmsg;
     for ( size_t segIdx = 0; segIdx < m_ppCol.size() ; ++segIdx){
       posVec[0] = segIdx;
       for ( size_t etIdx = 0; etIdx < m_ppCol[segIdx].size() ; ++etIdx){
@@ -480,7 +480,7 @@ void RingerProcedureWrapper<
         {
           posVec[2] = etaIdx;
           this->msg() << lvl << m_ppCol[segIdx][etIdx][etaIdx]->name() <<
-            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
+            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endmsg;
           m_ppCol[segIdx][etIdx][etaIdx]->print(lvl);
         }
       }
@@ -683,7 +683,7 @@ RingerProcedureWrapper<
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler
       // doesn't complain about type casting.
-      thisPP = reinterpret_cast<procedure_t*>( getPP(ppType, dirObj) );
+      thisPP = dynamic_cast<procedure_t*>( getPP(ppType, dirObj) );
     } else {
       // Here it's easier, we already know the type that is written in the file,
       // so all we need to do is loop over it and retrieve the discriminator.

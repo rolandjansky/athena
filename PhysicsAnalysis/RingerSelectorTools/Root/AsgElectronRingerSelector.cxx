@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.cxx 713528 2015-12-09 08:58:44Z wsfreund $
+// $Id: AsgElectronRingerSelector.cxx 785801 2016-11-22 17:06:49Z wsfreund $
 // STL includes:
 #include <string>
 #include <stdexcept>
@@ -540,6 +540,8 @@ void AsgElectronRingerSelector::fillTAccept() const
 //==============================================================================
 StatusCode AsgElectronRingerSelector::beginInputFile()
 {
+  ATH_MSG_VERBOSE( "inputMetaStore: \n " << inputMetaStore()->dump() );
+  ATH_MSG_VERBOSE( "outputMetaStore: \n " << outputMetaStore()->dump() );
 
   // Tell the user what's happening:
   ATH_MSG_DEBUG( "Entered new file, checking if it is needed to " 
@@ -648,40 +650,42 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
     for ( auto &discrWrapper : m_discrWrapperCol ) {
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
+
     xAOD::RingSetConf::print( m_rawConfCol, msg() );
     m_metaDataCached = true;
+
   } else {
     // Flag that meta is on outputMeta rather than the input 
     if ( failedToRetrieveInInput ){
       m_metaIsOnOutput = true;
       ATH_MSG_DEBUG("Retrieved meta from outputMetaStore.");
     }
+    // A little sanity check:
+    if( !m_rsConfCont || m_rsConfCont->empty() ) {
+       ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
+       return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Successfully retrieved store, "
+        "trying to get RawConfiguration Collection.");
+
+    // Retrieve the raw configuration:
+    xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
+
+    // Sign that it can be cached, if we want to cache it for the whole run:
+    m_metaDataCached = true;
+
+    // Pass its pointer into each wrapper in the discrimination chain:
+    for ( auto &discrWrapper : m_discrWrapperCol ) {
+      discrWrapper->setRawConfCol( &m_rawConfCol );
+    }
+    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+
+    ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
   }
-
-  ATH_MSG_DEBUG("Successfully retrieved store, "
-      "trying to get RawConfiguration Collection.");
-
-  // A little sanity check:
-  if( !m_rsConfCont || m_rsConfCont->empty() ) {
-     ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
-     return StatusCode::FAILURE;
-  }
-
-  // Retrieve the raw configuration:
-  xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
-
-  // Sign that it can be cached, if we want to cache it for the whole run:
-  m_metaDataCached = true;
-
-  // Pass its pointer into each wrapper in the discrimination chain:
-  for ( auto &discrWrapper : m_discrWrapperCol ) {
-    discrWrapper->setRawConfCol( &m_rawConfCol );
-  }
-  xAOD::RingSetConf::print( m_rawConfCol, msg() );
-
-  ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
 
   return StatusCode::SUCCESS;
+
 }
 
 //==============================================================================
@@ -813,7 +817,7 @@ void AsgElectronRingerSelector::printConf( IOConfStruct &fileConf,
 {
   if ( msg && msg->level() <= lvl ){
     auto flags = static_cast<std::ios_base::fmtflags>(msg->flags());
-    (*msg) << lvl << "File configuration is: " << endreq;
+    (*msg) << lvl << "File configuration is: " << endmsg;
     (*msg) << lvl << std::boolalpha << "useTrackPat: " << fileConf.useTrackPat 
       << " | useRawTrackPat: " << fileConf.useRawTrackPat 
       << " | useCaloCommittee: " << fileConf.useCaloCommittee
@@ -822,7 +826,7 @@ void AsgElectronRingerSelector::printConf( IOConfStruct &fileConf,
       << " | useSCTOutliers: " << fileConf.useSCTOutliers
       << " | useTRTOutliers: " << fileConf.useTRTOutliers
       << " | useTRTXenonHits: " << fileConf.useTRTXenonHits 
-      << endreq;
+      << endmsg;
     // reset previous cout flags
     msg->flags(flags);
   }
