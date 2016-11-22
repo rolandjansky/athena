@@ -18,9 +18,11 @@
 // Change assertions failures to exceptions, so we can catch them.
 //
 
+#include "CxxUtils/make_unique.h"
 #include <string>
 #include <stdexcept>
 #include <sstream>
+#include <memory>
 
 class test_err
   : public std::exception
@@ -63,15 +65,12 @@ void throw_test_err (const char* file, int line, const char* what)
 
 #include "AthContainers/tools/ElementProxy.h"
 #include "AthContainers/exceptions.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/expect_exception.h"
 #include <vector>
 #include <cassert>
 
 
-#if __cplusplus > 201100
 using CxxUtils::make_unique;
-#endif
 
 
 std::vector<int> dtor_log;
@@ -133,7 +132,6 @@ struct Cont
     *pos = newElem;
   }
 
-#if __cplusplus > 201100
   void assignElement (BaseContainer::iterator pos,
                       std::unique_ptr<base_value_type> newElem)
   {
@@ -143,7 +141,6 @@ struct Cont
     delete old;
     *pos = newElem.release();
   }
-#endif
 
   void assignBaseElement (BaseContainer::iterator pos,
                           BaseContainer::value_type newElem)
@@ -253,7 +250,6 @@ void test2()
   assert (ep1->x == 3);
   check_dtor(2);
 
-#if __cplusplus > 201100
   ep1 = make_unique<B> (4);
   assert (ep1->x == 4);
   check_dtor(3);
@@ -261,7 +257,6 @@ void test2()
   EXPECT_EXCEPTION (test_err,
                     ep3b = make_unique<B> (10));
   check_dtor(10);
-#endif
 }
 
 

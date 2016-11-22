@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ConstDataVector.h 717853 2016-01-14 21:41:19Z ssnyder $
+// $Id: ConstDataVector.h 777302 2016-10-08 21:24:41Z ssnyder $
 /**
  * @file AthContainers/ConstDataVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -116,6 +116,8 @@ public:
   /// yield an @c ElementProxy, not a @c reference.
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
+
+  typedef boost::true_type isSequence;
 
   /// Expose methods from the base that don't allow getting back
   /// non-const pointers.

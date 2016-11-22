@@ -10,6 +10,9 @@
  * @brief Tests for ViewVector.
  */
 
+// Disable this test in standalone mode:
+#ifndef XAOD_STANDALONE
+
 
 #undef NDEBUG
 #include <boost/preprocessor/stringize.hpp>
@@ -17,6 +20,8 @@
 #include "AthContainers/ConstDataVector.h"
 #include "AthContainers/DataVector.h"
 #include "SGTools/BaseInfo.h"
+#include "SGTools/TestStore.h"
+#include "SGTools/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
 #include <iostream>
 #include <cassert>
@@ -25,6 +30,17 @@
 class C {};
 typedef DataVector<C> DV;
 typedef ViewVector<DV> VV;
+
+
+class X
+  : public SG::AuxElement
+{
+public:
+  X(int x) : m_x(x) {}
+  int m_x;
+};
+static const CLID x_clid = 8324723;
+CLASS_DEF (DataVector<X>, x_clid, 1)
 
 
 void checkit (const VV& vv, const DV& dv, int n = -1)
@@ -143,17 +159,69 @@ void test3()
 }
 
 
+// toPersistent/toTransient
+void test4()
+{
+  std::cout << "test4\n";
+  DataVector<X> *dv = new DataVector<X>;
+  for (int i=0; i < 10; i++)
+    dv->push_back (new X(i));
+  SGTest::store.record (dv, "dv");
+
+  ViewVector<DataVector<X> > vv;
+  for (int i=0; i < 10; i++)
+    vv.push_back ((*dv)[9-i]);
+
+  vv.toPersistent();
+  assert (vv.size() == 10);
+  vv.clear();
+  assert (vv.size() == 0);
+  vv.toTransient();
+  assert (vv.size() == 10);
+  for (int i=0; i < 10; i++)
+    assert (vv[i] == (*dv)[9-i]);
+
+  vv.clearPersistent();
+  assert (vv.size() == 10);
+  for (int i=0; i < 10; i++)
+    assert (vv[i] == (*dv)[9-i]);
+
+  vv.toTransient();
+  assert (vv.size() == 0);
+
+  for (int i=0; i < 10; i++)
+    vv.push_back ((*dv)[9-i]);
+  vv.setClearOnPersistent();
+  vv.toPersistent();
+  assert (vv.size() == 0);
+  vv.toTransient();
+  assert (vv.size() == 10);
+  for (int i=0; i < 10; i++)
+    assert (vv[i] == (*dv)[9-i]);
+}
+
+
 int main()
 {
+  SGTest::initTestStore();
   test1();
   test2();
   test3();
+  test4();
   return 0;
 }
 
 
-class X {};
-template class DataVector<X>;
-template class ViewVector<DataVector<X> >;
-template class ConstDataVector<ViewVector<DataVector<X> > >;
-template class ViewVector<ConstDataVector<DataVector<X> > >;
+class Z {};
+template class DataVector<Z>;
+template class ViewVector<DataVector<Z> >;
+template class ConstDataVector<ViewVector<DataVector<Z> > >;
+template class ViewVector<ConstDataVector<DataVector<Z> > >;
+
+#else
+
+int main() {
+   return 0;
+}
+
+#endif // not XAOD_STANDALONE

@@ -52,13 +52,13 @@ StatusCode UserDataStore::recordAny(const IAthenaBarCode& obj, const std::string
   const AthenaBarCode_t& barcode=obj.getAthenaBarCode();
   
   if (barcode==IAthenaBarCode::UNDEFINEDBARCODE) {
-    m_msg << MSG::ERROR << "Attempt to record UserData for an object with undefined AthenaBarCode. Label=" << label << endreq;
+    m_msg << MSG::ERROR << "Attempt to record UserData for an object with undefined AthenaBarCode. Label=" << label << endmsg;
     return StatusCode::FAILURE;
   }
 
   const index_t idx=m_labelTable.addLabel(label);
   if (idx==UDSLabelHashTable::INVALID) {
-    m_msg << MSG::ERROR << "Failed to convert label '" << label << "' into a hash value" << endreq;
+    m_msg << MSG::ERROR << "Failed to convert label '" << label << "' into a hash value" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
@@ -80,9 +80,9 @@ StatusCode UserDataStore::retrieveAny(const IAthenaBarCode& obj, const std::stri
   const_iterator it=this->find(barcode,label);
   if (it==m_notFoundIt) {
     if (m_whyNotFound==BARCODE) 
-      m_msg << MSG::ERROR << "No user data found for bar code " << barcode << endreq;
+      m_msg << MSG::ERROR << "No user data found for bar code " << barcode << endmsg;
     if (m_whyNotFound==LABEL) 
-      m_msg << MSG::ERROR << "No user data with label '" << label << "' found for this barcode" << endreq;
+      m_msg << MSG::ERROR << "No user data with label '" << label << "' found for this barcode" << endmsg;
     return StatusCode::FAILURE;
   }
   else {

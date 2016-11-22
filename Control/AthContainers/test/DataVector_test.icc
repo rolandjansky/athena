@@ -74,7 +74,6 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 #include "AthContainers/ConstDataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "CxxUtils/unused.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/random.h"
 
 
@@ -399,7 +398,6 @@ void check_index_clear (const void*,
 }
 
 
-#if __cplusplus > 201100
 template <class T>
 void check_index_clear (const std::unique_ptr<T>& p,
                         const char* file,
@@ -408,7 +406,6 @@ void check_index_clear (const std::unique_ptr<T>& p,
 {
   check_index_clear (p.get(), file, line, static_cast<T*>(nullptr));
 }
-#endif
 
 
 #define CHECK_INDEX_CLEAR(P) do { \
@@ -519,14 +516,12 @@ T* make_comp (int x, bool setaux=true)
 }
 
 
-#if __cplusplus > 201100
 template <class T>
 std::unique_ptr<T> make_comp_unique (int x, bool setaux=true)
 {
   typedef T* ptr;
   return std::unique_ptr<T> (make_comp1<T> (x, setaux, ptr()));
 }
-#endif
 
 
 template <class T>
@@ -752,7 +747,6 @@ void test2_insertion_ctor1()
   }
   check_dtor_log (1, 2);
 
-#if __cplusplus > 201100
   {
     std::vector<typename DV::value_type> tt;
     tt.push_back (new T(1));
@@ -769,7 +763,6 @@ void test2_insertion_ctor1()
     CHECK_INDICES(v2);
   }
   check_dtor_log (1, 2);
-#endif
 }
 template <class DV>
 void test2_insertion_ctor2()
@@ -777,7 +770,7 @@ void test2_insertion_ctor2()
   test2_insertion_ctor1<DV>();
 
   typedef typename DV::base_value_type T;
-  bool auxdata = typename SG::AuxStore_traits<T>::flag();
+  const bool auxdata = typename SG::AuxStore_traits<T>::flag();
   clear_dtor_log();
   {
     std::vector<typename DV::value_type> tt;
@@ -1022,7 +1015,6 @@ void test2_push_back()
   }
   assert (caught || !auxdata_b);
 
-#if __cplusplus > 201100
   {
     clear_dtor_log();
     DataVector<B> vb_u;
@@ -1036,7 +1028,7 @@ void test2_push_back()
 
     DataVector<B> vb2_u (SG::VIEW_ELEMENTS);
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vb2_u.push_back (CxxUtils::make_unique<B>(22)));
+                      vb2_u.push_back (std::make_unique<B>(22)));
   }
   check_dtor_log(22, 20, 21);
 
@@ -1053,14 +1045,13 @@ void test2_push_back()
 
     DataVector<B>& vd4_u = vd_u;
     EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass,
-                      vd4_u.push_back (CxxUtils::make_unique<D>(26)));
+                      vd4_u.push_back (std::make_unique<D>(26)));
 
     DataVector<B> vd2_u (SG::VIEW_ELEMENTS);
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vd2_u.push_back (CxxUtils::make_unique<D>(25)));
+                      vd2_u.push_back (std::make_unique<D>(25)));
   }
   check_dtor_log(26, 25, 23, 24);
-#endif
 }
 
  
@@ -1199,11 +1190,9 @@ void test2_reserve_capacity1()
   vb.reserve (10);
   myassert (vb.capacity() == 10);
 
-#if __cplusplus > 201100
   vb.resize (5);
   vb.shrink_to_fit();
   myassert (vb.capacity() == 5);
-#endif
 }
 template <class B, class D>
 void test2_reserve_capacity()
@@ -1475,24 +1464,22 @@ void test2_elementproxy()
     checkauxZero (&*vb1[0]);
     checkaux (&*vd1[0]);
 
-#if __cplusplus > 201100
     // Test assignment from unique_ptr.
-    vb1[0] = CxxUtils::make_unique<B>(21);
+    vb1[0] = std::make_unique<B>(21);
     check_dtor_log (9);
-    vb1[0] = CxxUtils::make_unique<B>(9);
+    vb1[0] = std::make_unique<B>(9);
     check_dtor_log (21);
 
-    vd1[0] = CxxUtils::make_unique<D>(22);
+    vd1[0] = std::make_unique<D>(22);
     check_dtor_log (12);
-    vd1[0] = CxxUtils::make_unique<D>(12);
+    vd1[0] = std::make_unique<D>(12);
     check_dtor_log (22);
 
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vb2[0] = CxxUtils::make_unique<B>(50));
+                      vb2[0] = std::make_unique<B>(50));
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vd2[0] = CxxUtils::make_unique<D>(51));
+                      vd2[0] = std::make_unique<D>(51));
     check_dtor_log(50, 51);
-#endif
 
     DataVector<D> vd3  (SG::VIEW_ELEMENTS, SG::ALWAYS_TRACK_INDICES);
     D* d1 = make_comp<D>(11);
@@ -1919,13 +1906,12 @@ void test2_swapelement()
 template <class B, class D>
 void test2_swapelement_unique()
 {
-#if __cplusplus > 201100
   clear_dtor_log();
   {
     DataVector<B> vb;
     SG::AuxStoreInternal store_b;
-    vb.push_back (CxxUtils::make_unique<B>(1));
-    vb.push_back (CxxUtils::make_unique<B>(2));
+    vb.push_back (std::make_unique<B>(1));
+    vb.push_back (std::make_unique<B>(2));
     setaux (vb, store_b);
 
     {
@@ -1941,8 +1927,8 @@ void test2_swapelement_unique()
 
     DataVector<D> vd;
     SG::AuxStoreInternal store_d;
-    vd.push_back (CxxUtils::make_unique<D>(4));
-    vd.push_back (CxxUtils::make_unique<D>(5));
+    vd.push_back (std::make_unique<D>(4));
+    vd.push_back (std::make_unique<D>(5));
     setaux (vd, store_d);
 
     {
@@ -1961,17 +1947,17 @@ void test2_swapelement_unique()
     {
       std::unique_ptr<B> bold;
       EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass,
-                        vd_b.swapElement (1, CxxUtils::make_unique<B>(10), bold));
+                        vd_b.swapElement (1, std::make_unique<B>(10), bold));
     }
 
     clear_dtor_log();
     ConstDataVector<DataVector<D> > cvd;
-    cvd.push_back (CxxUtils::make_unique<D>(7));
-    cvd.push_back (CxxUtils::make_unique<D>(8));
+    cvd.push_back (std::make_unique<D>(7));
+    cvd.push_back (std::make_unique<D>(8));
 
     {
       std::unique_ptr<const D> cdold;
-      cvd.swapElement (1, CxxUtils::make_unique<const D>(9), cdold);
+      cvd.swapElement (1, std::make_unique<const D>(9), cdold);
       myassert (cvd[1]->x == 9);
       myassert (cdold->x == 8);
     }
@@ -1982,12 +1968,12 @@ void test2_swapelement_unique()
     {
       typedef typename test2_maybeconst<D>::type Dconst;
       ConstDataVector<DataVector<Dconst> > vcd;
-      vcd.push_back (CxxUtils::make_unique<D>(7));
-      vcd.push_back (CxxUtils::make_unique<D>(8));
+      vcd.push_back (std::make_unique<D>(7));
+      vcd.push_back (std::make_unique<D>(8));
 
       {
         std::unique_ptr<const D> cdold;
-        vcd.swapElement (1, CxxUtils::make_unique<const D>(9), cdold);
+        vcd.swapElement (1, std::make_unique<const D>(9), cdold);
         myassert (vcd[1]->x == 9);
         myassert (cdold->x == 8);
       }
@@ -2003,7 +1989,7 @@ void test2_swapelement_unique()
   {
     DataVector<B> vb;
     SG::AuxStoreInternal store_b;
-    vb.push_back (CxxUtils::make_unique<B>(1));
+    vb.push_back (std::make_unique<B>(1));
     setaux (vb, store_b);
     vb.setStore (vb.getConstStore());
     std::unique_ptr<B> bold;
@@ -2018,7 +2004,7 @@ void test2_swapelement_unique()
 
     DataVector<D> vd;
     SG::AuxStoreInternal store_d;
-    vd.push_back (CxxUtils::make_unique<D>(1));
+    vd.push_back (std::make_unique<D>(1));
     setaux (vd, store_d);
     vd.setStore (vd.getConstStore());
     std::unique_ptr<D> dold;
@@ -2034,28 +2020,27 @@ void test2_swapelement_unique()
 
   {
     DataVector<B> vb1;
-    vb1.push_back (CxxUtils::make_unique<B>(1));
-    vb1.push_back (CxxUtils::make_unique<B>(2));
+    vb1.push_back (std::make_unique<B>(1));
+    vb1.push_back (std::make_unique<B>(2));
     CHECK_INDICES(vb1);
     std::unique_ptr<B> bold;
-    vb1.swapElement (0, CxxUtils::make_unique<B>(3), bold);
+    vb1.swapElement (0, std::make_unique<B>(3), bold);
     CHECK_INDICES(vb1);
     DataVector<B> vb2 = vb1;
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vb2.swapElement (0, CxxUtils::make_unique<B>(4), bold));
+                      vb2.swapElement (0, std::make_unique<B>(4), bold));
     
     DataVector<D> vd1;
-    vd1.push_back (CxxUtils::make_unique<D>(1));
-    vd1.push_back (CxxUtils::make_unique<D>(2));
+    vd1.push_back (std::make_unique<D>(1));
+    vd1.push_back (std::make_unique<D>(2));
     CHECK_INDICES(vd1);
     std::unique_ptr<D> dold;
-    vd1.swapElement (0, CxxUtils::make_unique<D>(3), dold);
+    vd1.swapElement (0, std::make_unique<D>(3), dold);
     CHECK_INDICES(vd1);
     DataVector<D> vd2 = vd1;
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vd2.swapElement (0, CxxUtils::make_unique<D>(4), dold));
+                      vd2.swapElement (0, std::make_unique<D>(4), dold));
   }
-#endif
 }
 
 
@@ -2209,13 +2194,12 @@ void test2_swapelement_iter()
 template <class B, class D>
 void test2_swapelement_iter_unique()
 {
-#if __cplusplus > 201100
   clear_dtor_log();
   {
     DataVector<B> vb;
     SG::AuxStoreInternal store_b;
-    vb.push_back (CxxUtils::make_unique<B>(1));
-    vb.push_back (CxxUtils::make_unique<B>(2));
+    vb.push_back (std::make_unique<B>(1));
+    vb.push_back (std::make_unique<B>(2));
     setaux (vb, store_b);
 
     {
@@ -2232,8 +2216,8 @@ void test2_swapelement_iter_unique()
 
     DataVector<D> vd;
     SG::AuxStoreInternal store_d;
-    vd.push_back (CxxUtils::make_unique<D>(4));
-    vd.push_back (CxxUtils::make_unique<D>(5));
+    vd.push_back (std::make_unique<D>(4));
+    vd.push_back (std::make_unique<D>(5));
     setaux (vd, store_d);
 
     {
@@ -2253,17 +2237,17 @@ void test2_swapelement_iter_unique()
       std::unique_ptr<B> bold;
       EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass,
                         vd_b.swapElement (vd_b.begin()+1,
-                                          CxxUtils::make_unique<B>(10), bold));
+                                          std::make_unique<B>(10), bold));
     }
     check_dtor_log (10);
 
     ConstDataVector<DataVector<D> > cvd;
-    cvd.push_back (CxxUtils::make_unique<D>(7));
-    cvd.push_back (CxxUtils::make_unique<D>(8));
+    cvd.push_back (std::make_unique<D>(7));
+    cvd.push_back (std::make_unique<D>(8));
 
     {
       std::unique_ptr<const D> cdold;
-      cvd.swapElement (cvd.begin()+1, CxxUtils::make_unique<const D>(9), cdold);
+      cvd.swapElement (cvd.begin()+1, std::make_unique<const D>(9), cdold);
       myassert (cvd[1]->x == 9);
       myassert (cdold->x == 8);
     }
@@ -2273,12 +2257,12 @@ void test2_swapelement_iter_unique()
     {
       typedef typename test2_maybeconst<D>::type Dconst;
       ConstDataVector<DataVector<Dconst> > vcd;
-      vcd.push_back (CxxUtils::make_unique<D>(7));
-      vcd.push_back (CxxUtils::make_unique<D>(8));
+      vcd.push_back (std::make_unique<D>(7));
+      vcd.push_back (std::make_unique<D>(8));
 
       {
         std::unique_ptr<const D> cdold;
-        vcd.swapElement (vcd.begin()+1, CxxUtils::make_unique<const D>(9), cdold);
+        vcd.swapElement (vcd.begin()+1, std::make_unique<const D>(9), cdold);
         myassert (vcd[1]->x == 9);
         myassert (cdold->x == 8);
       }
@@ -2293,7 +2277,7 @@ void test2_swapelement_iter_unique()
   {
     DataVector<B> vb;
     SG::AuxStoreInternal store_b;
-    vb.push_back (CxxUtils::make_unique<B>(1));
+    vb.push_back (std::make_unique<B>(1));
     setaux (vb, store_b);
     vb.setStore (vb.getConstStore());
     std::unique_ptr<B> bold;
@@ -2308,7 +2292,7 @@ void test2_swapelement_iter_unique()
 
     DataVector<D> vd;
     SG::AuxStoreInternal store_d;
-    vd.push_back (CxxUtils::make_unique<D>(1));
+    vd.push_back (std::make_unique<D>(1));
     setaux (vd, store_d);
     vd.setStore (vd.getConstStore());
     std::unique_ptr<D> dold;
@@ -2324,28 +2308,27 @@ void test2_swapelement_iter_unique()
 
   {
     DataVector<B> vb1;
-    vb1.push_back (CxxUtils::make_unique<B>(1));
-    vb1.push_back (CxxUtils::make_unique<B>(2));
+    vb1.push_back (std::make_unique<B>(1));
+    vb1.push_back (std::make_unique<B>(2));
     CHECK_INDICES(vb1);
     std::unique_ptr<B> bold;
-    vb1.swapElement (vb1.begin(), CxxUtils::make_unique<B>(3), bold);
+    vb1.swapElement (vb1.begin(), std::make_unique<B>(3), bold);
     CHECK_INDICES(vb1);
     DataVector<B> vb2 = vb1;
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vb2.swapElement (vb2.begin(), CxxUtils::make_unique<B>(4), bold));
+                      vb2.swapElement (vb2.begin(), std::make_unique<B>(4), bold));
     
     DataVector<D> vd1;
-    vd1.push_back (CxxUtils::make_unique<D>(1));
-    vd1.push_back (CxxUtils::make_unique<D>(2));
+    vd1.push_back (std::make_unique<D>(1));
+    vd1.push_back (std::make_unique<D>(2));
     CHECK_INDICES(vd1);
     std::unique_ptr<D> dold;
-    vd1.swapElement (vd1.begin(), CxxUtils::make_unique<D>(3), dold);
+    vd1.swapElement (vd1.begin(), std::make_unique<D>(3), dold);
     CHECK_INDICES(vd1);
     DataVector<D> vd2 = vd1;
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      vd2.swapElement (vd2.begin(), CxxUtils::make_unique<D>(4), dold));
+                      vd2.swapElement (vd2.begin(), std::make_unique<D>(4), dold));
   }
-#endif
 }
 
 
@@ -3239,12 +3222,11 @@ void test2_insert_value1()
   }
   check_dtor_log (1, 3, 2);
 
-#if __cplusplus > 201100
   {
     DV v3;
-    v3.push_back (CxxUtils::make_unique<T>(11));
-    v3.push_back (CxxUtils::make_unique<T>(12));
-    typename DV::iterator i3 = v3.insert (v3.begin()+1, CxxUtils::make_unique<T>(13));
+    v3.push_back (std::make_unique<T>(11));
+    v3.push_back (std::make_unique<T>(12));
+    typename DV::iterator i3 = v3.insert (v3.begin()+1, std::make_unique<T>(13));
     myassert (v3.size() == 3);
     myassert ((*i3)->x == 13);
     myassert (v3[0]->x == 11);
@@ -3259,10 +3241,9 @@ void test2_insert_value1()
     v4.push_back (new T(21));
     v4.push_back (new T(22));
     EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                      v4.insert (v4.begin()+1, CxxUtils::make_unique<T>(23)));
+                      v4.insert (v4.begin()+1, std::make_unique<T>(23)));
   }
   check_dtor_log (23);
-#endif
 }
 template <class DV>
 void test2_insert_value2()
@@ -3298,12 +3279,11 @@ void test2_insert_value2()
   }
   myassert (caught || !typename SG::AuxStore_traits<T>::flag());
 
-#if __cplusplus > 201100
   {
     DV v3;
     SG::AuxStoreInternal store3;
-    v3.push_back (CxxUtils::make_unique<T>(41));
-    v3.push_back (CxxUtils::make_unique<T>(42));
+    v3.push_back (std::make_unique<T>(41));
+    v3.push_back (std::make_unique<T>(42));
     setaux (v3, store3);
     CHECK_INDICES(v3);
     checkaux(v3);
@@ -3313,7 +3293,6 @@ void test2_insert_value2()
     CHECK_INDICES(v3);
     checkaux(v3);
   }
-#endif
 }
 template <class B, class D>
 void test2_insert_value()
@@ -3327,10 +3306,8 @@ void test2_insert_value()
   DataVector<B>& vb = vd;
   EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass, 
                     vb.insert (vb.begin(), new D(1)));
-#if __cplusplus > 201100
   EXPECT_EXCEPTION (SG::ExcInsertionInBaseClass, 
-                    vb.insert (vb.begin(), CxxUtils::make_unique<D>(1)));
-#endif
+                    vb.insert (vb.begin(), std::make_unique<D>(1)));
   vd.insert (vd.begin(), new D(1));
 }
 
@@ -3363,7 +3340,6 @@ void test2_insert_range1()
   }
   check_dtor_log ();
 
-#if __cplusplus > 201100
   {
     DV v;
     v.insert (v.begin(), {new T(1), new T(2)});
@@ -3373,7 +3349,6 @@ void test2_insert_range1()
     CHECK_INDICES(v);
   }
   check_dtor_log (1, 2);
-#endif
 }
 template <class B, class D>
 void test2_insert_range()
@@ -3643,7 +3618,6 @@ void test2_assign1()
     CHECK_INDICES(v);
   }
 
-#if __cplusplus > 201100
   {
     DV v;
     v.push_back (new T(0));
@@ -3667,7 +3641,6 @@ void test2_assign1()
     CHECK_INDICES(v);
   }
   check_dtor_log(11, 12);
-#endif
 
   check_dtor_log();
 }
@@ -5428,7 +5401,6 @@ void test2_random_shuffle()
               !v.trackIndices());
   }
 
-#if __cplusplus > 201100
   {
     int exp1[N] = {1,2,3,4,0};
     int exp2[N] = {0,2,1,3,4};
@@ -5438,7 +5410,7 @@ void test2_random_shuffle()
     DV v;
     SG::AuxStoreInternal store;
     for (int i=0; i<N; i++)
-      v.push_back (CxxUtils::make_unique<T>(i));
+      v.push_back (std::make_unique<T>(i));
     setaux(v, store);
     DV v2(v);
     std::shuffle (v2.begin(), v2.end(), stlurand2); // Check that this doesn't affect v's auxdata.
@@ -5460,7 +5432,7 @@ void test2_random_shuffle()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (CxxUtils::make_unique<T>(i));
+      v3.push_back (std::make_unique<T>(i));
     std::shuffle (v3.begin(), v3.end(), stlurand);
     CHECK_INDICES(v3);
     std::shuffle (v3.rbegin(), v3.rend(), stlurand);
@@ -5478,7 +5450,6 @@ void test2_random_shuffle()
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
   }
-#endif
 }
 template <class B, class D>
 void test2_random_shuffle()
@@ -5648,8 +5619,7 @@ void test2_assignelement1()
   v.assignElement ((v.begin()+1).base(), new T(4));
   check_dtor_log (3);
   CHECK_INDICES(v);
-#if __cplusplus > 201100
-  v.assignElement ((v.begin()+1).base(), CxxUtils::make_unique<T>(5));
+  v.assignElement ((v.begin()+1).base(), std::make_unique<T>(5));
   check_dtor_log (4);
   CHECK_INDICES(v);
 
@@ -5657,8 +5627,7 @@ void test2_assignelement1()
   v2.push_back (new T(11));
   v2.push_back (new T(12));
   EXPECT_EXCEPTION (SG::ExcNonowningContainer,
-                    v2.assignElement ((v2.begin()+1).base(), CxxUtils::make_unique<T>(15)));
-#endif
+                    v2.assignElement ((v2.begin()+1).base(), std::make_unique<T>(15)));
 }
 template <class DV>
 void test2_assignelement2()
@@ -5862,16 +5831,15 @@ void test2_resortaux()
 template <class DV>
 void test2_move1()
 {
-#if __cplusplus > 201100
   typedef typename DV::base_value_type T;
 
   clear_dtor_log();
   {
     DV v1;
     SG::AuxStoreInternal store1;
-    v1.push_back (CxxUtils::make_unique<T>(1));
-    v1.push_back (CxxUtils::make_unique<T>(2));
-    v1.push_back (CxxUtils::make_unique<T>(3));
+    v1.push_back (std::make_unique<T>(1));
+    v1.push_back (std::make_unique<T>(2));
+    v1.push_back (std::make_unique<T>(3));
     setaux (v1, store1);
     checkaux (v1);
     CHECK_INDICES (v1);
@@ -5903,7 +5871,6 @@ void test2_move1()
     check_dtor_log();
   }
   clear_dtor_log();
-#endif
 }
 template <class B, class D>
 void test2_move()
@@ -5936,10 +5903,10 @@ void test2_elconversions1()
 {
   DataVector<D> v1;
   for (int i=0; i<5; i++)
-    v1.push_back (CxxUtils::make_unique<D>(i));
+    v1.push_back (std::make_unique<D>(i));
   DataVector<D> v2;
   for (int i=5; i<10; i++)
-    v2.push_back (CxxUtils::make_unique<D>(i));
+    v2.push_back (std::make_unique<D>(i));
 
   SGTest::TestStore store;
   SG::CurrentEventStore::setStore (&store);

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 741471 2016-04-19 20:58:27Z ssnyder $
+// $Id: DataVector.h 783592 2016-11-11 04:35:43Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -237,6 +237,28 @@
  *
  * Using @c DATAVECTOR_BASE will also set up the corresponding @c SG::BaseInfo
  * definitions, both for the vectors themselves and for the contained objects.
+ *
+ * Forward declaration of inheritance
+ * ==================================
+ *
+ * Sometimes it is necessary to reference a specialization @c DataVector<T>
+ * where @c isn't completely defined  (this can happen for example if a class
+ * has an @c ElementLink its own container type).  The @c DATAVECTOR_BASE
+ * macro needs to come before the first reference to the specialization,
+ * but it also needs to have a complete declaration for @c T.
+ *
+ * There is a way to get around this, but it requires splitting up
+ * the @c DATAVECTOR_BASE declaration.  Before the first reference
+ * to the @c DataVector<T> specialization, use
+ *
+ *@code
+ *  DATAVECTOR_BASE_FWD(T, B);
+ @endcode
+ *
+ * where here @c does not need to be completely defined.  Then, where
+ * you would normally have @c DATAVECTOR_BASE, write instead
+ * @c DATAVECTOR_BASE_FIN.
+ *
  *
  * Auxiliary data
  * ==============
@@ -520,8 +542,8 @@
 #include "AthContainers/tools/IsMostDerivedFlag.h"
 #include "AthLinks/tools/selection_ns.h"
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
+#include <type_traits>
 #include <vector>
 #include <typeinfo>
 #include <functional>
@@ -529,9 +551,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iterator>
-#if __cplusplus > 201100
 #include <initializer_list>
-#endif
 
 
 
@@ -706,6 +726,17 @@ SG_BASES3(DataVector<T>, SG_VIRTUAL(DataVector<B1>),        \
                          SG_VIRTUAL(DataVector<B3>))
 
 
+
+/**
+ * @brief Used to finish up a forward declaration.
+ *
+ * The @c B parameter is not actually used, but is retained for
+ * consistency and documentation.
+ */
+#define DATAVECTOR_BASE_FIN(T, B) \
+template struct DataVector_detail::DVLEltBaseInit<T>
+
+
 template <class DV> class ConstDataVector;
 template <class DV> void test2_assignelement1();
 template <class DV> void test2_assignelement2();
@@ -776,6 +807,8 @@ public:
   /// yield an @c ElementProxy, not a @c reference.
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
+
+  typedef DataVector base_data_vector;
 
 
   //========================================================================
@@ -1931,7 +1964,7 @@ public:
   typedef DataModel_detail::NoBase DVL_BASE;
 
   /// Mark as a sequence, for DataLink / ElementLink.
-  typedef boost::true_type isSequence;
+  typedef std::true_type isSequence;
 
   /// This is the type of the underlying @c std::vector
   /// (what @c stdcont returns).
@@ -1985,6 +2018,7 @@ public:
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
 
+  typedef DataVector base_data_vector;
 
   //========================================================================
   /** @name Constructors, destructors, assignment. */

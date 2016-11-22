@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreInternal.h 628020 2014-11-12 21:32:04Z ssnyder $
+// $Id: AuxStoreInternal.h 785199 2016-11-18 18:41:18Z ssnyder $
 /**
  * @file AthContainers/AuxStoreInternal.h
  * @author scott snyder <snyder@bnl.gov>
@@ -22,6 +22,7 @@
 #include "AthContainers/tools/threading.h"
 #include "CxxUtils/override.h"
 #include <vector>
+#include <memory>
 
 
 namespace SG {
@@ -65,6 +66,10 @@ public:
    */
   AuxStoreInternal (const AuxStoreInternal& orig);
 
+
+  /// Don't allow assignment.
+  AuxStoreInternal& operator= (const AuxStoreInternal&) = delete;
+  
 
   /**
    * @brief Return the standalone flag.
@@ -316,7 +321,23 @@ protected:
                                  bool no_lock_check);
 
 
+  /**
+   * @brief Explicitly add a vector to the store.
+   * @param auxid The identifier of the aux data item being added.
+   * @param vec Vector data being added.
+   * @param isDecoration Should this variable be marked as a decoration?
+   *
+   * For internal use.  The @c auxid must not already exist in the store.
+   */
+  void addVector (SG::auxid_t auxid,
+                  std::unique_ptr<IAuxTypeVector> vec,
+                  bool isDecoration);
+
+
 private:
+  /// Return the number of elements in the store; no locking.
+  size_t size_noLock() const;
+
   /// Are we being written in standalone mode?
   bool m_standalone;
 
@@ -354,11 +375,6 @@ private:
       : m_tick (tick), m_set (set) {}
   };
   mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
-
-
-private:
-  // Don't allow assignment.
-  AuxStoreInternal& operator= (const AuxStoreInternal&);
 };
 
 

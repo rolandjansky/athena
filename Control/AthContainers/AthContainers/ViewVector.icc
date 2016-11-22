@@ -216,6 +216,28 @@ void ViewVector<DV>::clear (SG::OwnershipPolicy ownPolicy)
 
 
 /**
+ * @brief Convert the vector to persistent form.
+ */
+template <class DV>
+inline
+void ViewVector<DV>::toPersistent()
+{
+  doToPersistent (*static_cast<DV*>(this));
+}
+
+
+/**
+ * @brief Convert the vector to transient form.
+ */
+template <class DV>
+inline
+void ViewVector<DV>::toTransient()
+{
+  doToTransient (*static_cast<DV*>(this));
+}
+
+
+/**
  * @fn void clear
  * @brief Erase all the elements in the collection.
  * @param ownPolicy The new ownership policy of the container.

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxElementComplete.h 581165 2014-02-03 10:42:54Z krasznaa $
+// $Id: AuxElementComplete.h 770199 2016-08-25 21:16:39Z ssnyder $
 /**
  * @file AthContainers/AuxElementComplete.h
  * @author scott snyder <snyder@bnl.gov>
@@ -70,6 +70,10 @@ public:
    * A private store is created for this object.
    */
   AuxElementComplete (const AuxElementComplete& other);
+
+
+  // Declare default assignment explicitly to prevent coverity warning.
+  AuxElementComplete& operator= (const AuxElementComplete& other) = default;
 };
 
 

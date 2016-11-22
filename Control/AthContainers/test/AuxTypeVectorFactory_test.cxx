@@ -60,6 +60,37 @@ void test_vector()
   fac.clear (ptr2, 0);
   assert (ptr2[0] == makeT());
   assert (ptr2[1] == makeT(11));
+
+  typedef typename SG::AuxTypeVectorHolder<T>::vector_type vector_type;
+  vector_type* vec3 = new vector_type;
+  vec3->push_back (makeT(3));
+  vec3->push_back (makeT(2));
+  vec3->push_back (makeT(1));
+  SG::IAuxTypeVector* v3 = fac.createFromData (vec3, false, true);
+  assert (v3->size() == 3);
+  T* ptr3 = reinterpret_cast<T*> (v3->toPtr());
+  assert (ptr3[0] == makeT(3));
+  assert (ptr3[1] == makeT(2));
+  assert (ptr3[2] == makeT(1));
+}
+
+
+template <class T>
+void test_vector2()
+{
+  SG::AuxTypeVectorFactory<T> fac;
+  SG::PackedContainer<T>* vec4 = new SG::PackedContainer<T>;
+  vec4->push_back (makeT(4));
+  vec4->push_back (makeT(3));
+  vec4->push_back (makeT(2));
+  vec4->push_back (makeT(1));
+  SG::IAuxTypeVector* v4 = fac.createFromData (vec4, true, true);
+  assert (v4->size() == 4);
+  T* ptr4 = reinterpret_cast<T*> (v4->toPtr());
+  assert (ptr4[0] == makeT(4));
+  assert (ptr4[1] == makeT(3));
+  assert (ptr4[2] == makeT(2));
+  assert (ptr4[3] == makeT(1));
 }
 
 
@@ -67,8 +98,10 @@ void test1()
 {
   std::cout << "test1\n";
   test_vector<int>();
+  test_vector2<int>();
   test_vector<bool>();
   test_vector<float>();
+  test_vector2<float>();
 }
 
 

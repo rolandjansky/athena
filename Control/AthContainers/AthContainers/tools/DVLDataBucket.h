@@ -55,7 +55,10 @@ public:
   /**
    * @brief Default constructor.
    */
-  DVLDataBucket() {}
+  DVLDataBucket() :
+    m_ti (nullptr),
+    m_clid (CLID_NULL)
+  {}
 
 
   /**

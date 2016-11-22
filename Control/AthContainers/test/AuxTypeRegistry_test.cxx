@@ -30,6 +30,7 @@ using namespace SGTest;
 struct Payload
 {
   Payload (int x = 0) : m_x (x) {}
+  Payload& operator= (const Payload&) = default;
   int m_x;
   bool operator== (const Payload& other)
   { return m_x == other.m_x; }
@@ -213,6 +214,40 @@ void test_type_extlock(const std::string& typname,
 }
 
 
+template <class T>
+void test_makeVector (const std::string& name)
+{
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t auxid = r.getAuxID<T> (name);
+
+  typedef typename SG::AuxTypeVectorHolder<T>::vector_type vector_type;
+  vector_type* vec1 = new vector_type;
+  vec1->push_back (makeT(1));
+  vec1->push_back (makeT(2));
+  vec1->push_back (makeT(3));
+  SG::IAuxTypeVector* v1 = r.makeVectorFromData (auxid, vec1, false, true);
+  assert (v1->size() == 3);
+  T* ptr1 = reinterpret_cast<T*> (v1->toPtr());
+  assert (ptr1[0] == makeT(1));
+  assert (ptr1[1] == makeT(2));
+  assert (ptr1[2] == makeT(3));
+
+  SG::PackedContainer<T>* vec2 = new SG::PackedContainer<T>;
+  vec2->push_back (makeT(3));
+  vec2->push_back (makeT(2));
+  vec2->push_back (makeT(1));
+  SG::IAuxTypeVector* v2 = r.makeVectorFromData (auxid, vec2, true, true);
+  assert (v2->size() == 3);
+  T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
+  assert (ptr2[0] == makeT(3));
+  assert (ptr2[1] == makeT(2));
+  assert (ptr2[2] == makeT(1));
+
+  delete v1;
+  delete v2;
+}
+
+
 void test2()
 {
   std::cout << "test2\n";
@@ -221,6 +256,7 @@ void test2()
   test_type<double> ("double", "aFloat", "xclass");
   test_type<bool> ("bool", "aBool");
   test_type<Payload> ("Payload", "aPayload");
+  test_makeVector<int> ("anInt");
 
   test_type_extlock<int> ("int", "anInt");
 }

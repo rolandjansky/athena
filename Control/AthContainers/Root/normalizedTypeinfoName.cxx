@@ -16,23 +16,14 @@
 #include "AthContainers/tools/threading.h"
 #include "AthContainers/tools/error.h"
 #include "CxxUtils/ClassName.h"
-
-
-#if __cplusplus < 201100
-# include "CxxUtils/unordered_map.h"
-namespace SG_STD_OR_SG = SG;
-#else
-# include <unordered_map>
-# include <functional>
-namespace SG_STD_OR_SG = std;
-#endif
+#include <unordered_map>
+#include <functional>
 
 
 namespace {
 
 
-typedef SG_STD_OR_SG::unordered_map<const std::type_info*, std::string>
-  typemap_t;
+typedef std::unordered_map<const std::type_info*, std::string> typemap_t;
 
 typedef AthContainers_detail::upgrade_mutex mutex_t;
 typedef AthContainers_detail::strict_shared_lock<mutex_t> lock_t;

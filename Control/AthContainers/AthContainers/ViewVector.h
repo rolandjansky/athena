@@ -20,6 +20,7 @@
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/IndexTrackingPolicy.h"
 #include "AthContainers/exceptions.h"
+#include "AthContainers/ViewVectorBase.h"
 #include "AthLinks/ElementLink.h"
 #include "CxxUtils/unused.h"
 #include "boost/preprocessor/stringize.hpp"
@@ -29,9 +30,10 @@
  * @brief Identify view containers to be made persistent.
  *
  * This is a variant of @c DataVector that can only be constructed as a
- * view vector.  The purpose of this is to be able to select a different
- * way of making these objects persistent: they get saved as a
- * @c std::vector<ElementLink<DV> >.
+ * view vector.  This class also holds the persistent representation
+ * of the view vector, which is logically equivalent to a 
+ * @c std::vector<ElementLink<DV> > (but stored as vector of pairs
+ * of integers).
  *
  * The template parameter @c DV is the @c DataVector on which the view
  * is based. @c ViewVector<DV> acts just like @c DV except that it will
@@ -50,23 +52,22 @@
  *    (Currently, this will only work directly if the argument to the
  *    @c ViewVector class is a @c DataVector directly, rather than
  *    an intermediate class.)
- *  - Generate a dictionary for std::vector<ElementLink<DV> > along with
- *    a guid.  (You can use the @c Pers_t typedef in @c ViewVector
- *    to help with this.)
  *  - In the AthenaPool package, declare the class in the requirements file,
  *    but do not implement it.  The default generated converter will get
  *    specialized appropriately for the ViewVector.
- *
- * In Athena, these objects will be transparently saved as the std::vector
- * and then read back as a ViewVector.  In root, you'll still see them
- * as std::vector directly.  Note that a @c ConstDataVector may
- * be initialized directly from a vector of @c ElementLink, and a 
- * vector of @c ElementLink may be made from a @c DataVector by
- * @c dataVectorAsELV.
+ *  - Previous versions of @c ViewVector were saved directly
+ *    as @c std::vector<ElementLink<DV> >.  If you need to  continue to read
+ *    such data, then generate a dictionary for
+ *    @c std::vector<ElementLink<DV> > along with a guid.
+ *    (You can use the @c Pers_t typedef in @c ViewVector
+ *    to help with this.)
+ *  - In a standalone root application, you must explicitly call
+ *    @c toPersistent() on the @c ViewVector object prior to calling
+ *    @c Fill() on the tree.
  */
 template <class DV>
 class ViewVector
-  : public DV
+  : public DV, public SG::ViewVectorBase
 {
 public:
   /// Basic types, forwarded from the base.
@@ -85,7 +86,7 @@ public:
   typedef typename DV::pointer                  pointer;
   typedef typename DV::const_pointer            const_pointer;
 
-  /// The persistent form of this class.
+  /// The old persistent form of this class.
   typedef std::vector<ElementLink<DV> > Pers_t;
 
 
@@ -236,6 +237,18 @@ public:
               SG::IndexTrackingPolicy trackIndices);
 
 
+  /**
+   * @brief Convert the vector to persistent form.
+   */
+  virtual void toPersistent() override;
+
+
+  /**
+   * @brief Convert the vector to transient form.
+   */
+  virtual void toTransient() override;
+
+
 private:
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
@@ -264,6 +277,7 @@ struct Bases<ViewVector<DV> > {
 #include "AthContainers/ViewVector.icc"
 
 
+#ifndef XAOD_STANDALONE
 /**
  * @brief ClassID_traits specialization for @c ViewVector.
  *
@@ -284,9 +298,9 @@ struct Bases<ViewVector<DV> > {
 template <class DV>
 struct ClassID_traits< ViewVector<DV> >
 {
-  BOOST_STATIC_CONSTANT(bool, s_isDataObject = false);
-  typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;
-  typedef type_tools::true_tag has_classID_tag;
+  static const bool s_isDataObject = false;
+  typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag;
+  typedef std::true_type has_classID_tag;
 
   static const CLID& ID() {
     if (s_clid == CLID_NULL)
@@ -308,8 +322,8 @@ struct ClassID_traits< ViewVector<DV> >
     static Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  );
     return pi;
   }
-  typedef type_tools::false_tag has_version_tag;
-  BOOST_STATIC_CONSTANT(bool, s_isConst = false);
+  typedef std::false_type has_version_tag;
+  static const bool s_isConst = false;
 
   static bool init (CLID clid, const char* name)
   {
@@ -328,11 +342,12 @@ template <class DV>
 CLID ClassID_traits< ViewVector<DV> >::s_clid = CLID_NULL;
 template <class DV>
 const char* ClassID_traits< ViewVector<DV> >::s_name = nullptr;
+#endif // not XAOD_STANDALONE
 
 
 #ifdef XAOD_STANDALONE
 
-// FIXME: xAOD has its own, incompatible CLASS_DEF, but we don't want to use it
+// FIXME: xAOD has its own, incompatible, CLASS_DEF, but we don't want to use it
 //        due to dependency issues.  Probably need to move things around
 //        a bit to resolve this.
 #define VIEWVECTOR_CLASS_DEF(NAME, CID)

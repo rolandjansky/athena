@@ -26,16 +26,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
-
-
-#if __cplusplus > 201100
-# include <type_traits>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/type_traits/is_base_of.hpp"
-# include "boost/type_traits/is_arithmetic.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
+#include <type_traits>
 
 
 namespace SG {
@@ -52,9 +43,13 @@ class AuxDataOption;
  * types in these vectors.  Thus, we define this abstract interface
  * to operate on the vectors.  This template class provides the
  * concrete implementations of this interface.
+ *
+ * This class is initialized with a pointer to the actual vector.
+ * For a version that holds the vector internally, see the derived
+ * class @c AuxTypeVector.
  */
 template <class T, class CONT = typename AuxDataTraits<T>::vector_type>
-class AuxTypeVector
+class AuxTypeVectorHolder
   : public IAuxTypeVector
 {
 public:
@@ -66,8 +61,9 @@ public:
 
   /// Vector element type.
   typedef typename vector_type::value_type vector_value_type;
+
   
-private:
+protected:
   /// 1 for the usual case of @c V being @c vector<T>.
   /// If @c V is @c vector<char>, then this is @c sizeof(T).
   static const int SCALE = sizeof(element_type) / sizeof(vector_value_type);
@@ -75,11 +71,44 @@ private:
 
 public:
   /**
-   * @brief Constructor.  Makes a new vector.
-   * @param size Initial size of the new vector.
-   * @param capacity Initial capacity of the new vector.
+   * @brief Constructor.
+   * @param vecPtr Pointer to the object (of type @c CONT).
+   * @param ownFlag If true, take ownership of the object.
    */
-  AuxTypeVector (size_t size, size_t capacity);
+  AuxTypeVectorHolder (vector_type* vecPtr, bool ownFlag);
+
+
+  /**
+   * @brief Destructor.
+   * If @c ownFlag was true, then delete the vector object.
+   */
+  ~AuxTypeVectorHolder();
+
+
+  /**
+   * @brief Copy constructor.
+   * @param other Object to copy.
+   */
+  AuxTypeVectorHolder (const AuxTypeVectorHolder& other);
+    
+
+  /**
+   * @brief Move constructor.
+   * @param other Object to move.
+   */
+  AuxTypeVectorHolder (AuxTypeVectorHolder&& other);
+
+
+  /**
+   * @brief Assignment.
+   */
+  AuxTypeVectorHolder& operator= (const AuxTypeVectorHolder& other);
+    
+
+  /**
+   * @brief Move assignment.
+   */
+  AuxTypeVectorHolder& operator= (AuxTypeVectorHolder&& other);
     
 
   /**
@@ -91,19 +120,19 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const ATH_OVERRIDE;
+  virtual IAuxTypeVector* clone() const override;
 
 
   /**
    * @brief Return a pointer to the start of the vector's data.
    */
-  virtual void* toPtr() ATH_OVERRIDE;
+  virtual void* toPtr() override;
 
 
   /**
    * @brief Return a pointer to the STL vector itself.
    */
-  virtual void* toVector() ATH_OVERRIDE;
+  virtual void* toVector() override;
 
 
   /**
@@ -112,27 +141,27 @@ public:
    * May be different from what we get from the registry; if packing
    * is used, for example.
    */
-  virtual const std::type_info* objType() const ATH_OVERRIDE;
+  virtual const std::type_info* objType() const override;
 
 
   /**
    * @brief Return the size of the vector.
    */
-  virtual size_t size() const ATH_OVERRIDE;
+  virtual size_t size() const override;
 
 
   /**
    * @brief Change the size of the vector.
    * @param sz The new vector size.
    */
-  virtual void resize (size_t sz) ATH_OVERRIDE;
+  virtual void resize (size_t sz) override;
 
 
   /**
    * @brief Change the capacity of the vector.
    * @param sz The new vector capacity.
    */
-  virtual void reserve (size_t sz) ATH_OVERRIDE;
+  virtual void reserve (size_t sz) override;
 
 
   /**
@@ -143,7 +172,7 @@ public:
    *
    * Returns true if the option setting was successful; false otherwise.
    */
-  virtual bool setOption (const AuxDataOption& option) ATH_OVERRIDE;
+  virtual bool setOption (const AuxDataOption& option) override;
 
 
   /**
@@ -168,7 +197,7 @@ public:
    * The container should then be shrunk by @c -offs elements
    * (running destructors as appropriate).
    */
-  virtual void shift (size_t pos, ptrdiff_t offs) ATH_OVERRIDE;
+  virtual void shift (size_t pos, ptrdiff_t offs) override;
 
 
   /**
@@ -180,7 +209,7 @@ public:
    *
    * Returns null on failure.
    */
-  virtual IAuxTypeVector* toPacked() ATH_OVERRIDE;
+  virtual IAuxTypeVector* toPacked() override;
 
 
   /**
@@ -217,6 +246,73 @@ public:
   static void clear (void* dst, size_t dst_index);
 
 
+private:
+  /// The contained vector.
+  vector_type* m_vecPtr;
+
+  /// True if we need to delete the object.
+  bool m_ownFlag;
+};
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Implementation of @c IAuxTypeVector holding a vector instance.
+ *
+ * This is a derived class of @c AuxTypeVectorHolder that holds the vector
+ * instance as a member variable (and thus manages memory internally).
+ */
+template <class T, class CONT = typename AuxDataTraits<T>::vector_type>
+class AuxTypeVector
+  : public AuxTypeVectorHolder<T, CONT>
+{
+public:
+  typedef AuxTypeVectorHolder<T, CONT> Base;
+  typedef typename Base::vector_type vector_type;
+  typedef typename Base::element_type element_type;
+  typedef typename Base::vector_value_type vector_value_type;
+
+  /**
+   * @brief Constructor.  Makes a new vector.
+   * @param size Initial size of the new vector.
+   * @param capacity Initial capacity of the new vector.
+   */
+  AuxTypeVector (size_t size, size_t capacity);
+
+
+
+  /**
+   * @brief Copy constructor.
+   */
+  AuxTypeVector (const AuxTypeVector& other);
+
+
+  /**
+   * @brief Move constructor.
+   */
+  AuxTypeVector (AuxTypeVector&& other);
+
+
+  /**
+   * @brief Assignment.
+   */
+  AuxTypeVector& operator= (const AuxTypeVector& other);
+
+
+  /**
+   * @brief Move assignment.
+   */
+  AuxTypeVector& operator= (AuxTypeVector&& other);
+
+
+  /**
+   * @brief Make a copy of this vector.
+   */
+  virtual IAuxTypeVector* clone() const override;
+
+  
 private:
   /// The contained vector.
   vector_type m_vec;

@@ -17,6 +17,7 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include <iostream>
 #include <cassert>
+#include <memory>
 
 
 template <class T>
@@ -26,7 +27,7 @@ bool makeT(int x=0) { return (x&1) != 0; }
 
 
 template <class T>
-void test_vector()
+void test_vector1()
 {
   SG::AuxTypeVector<T>* vconcrete = new SG::AuxTypeVector<T> (10, 20);
   SG::IAuxTypeVector* v = vconcrete;
@@ -98,6 +99,114 @@ void test_vector()
 }
 
 
+template <class T>
+void test_vector2()
+{
+  SG::AuxTypeVector<T> v1 (10, 10);
+  T* ptr1 = reinterpret_cast<T*> (v1.toPtr());
+  ptr1[0] = makeT(1);
+  ptr1[1] = makeT(2);
+
+  SG::AuxTypeVector<T> v2 (v1);
+  T* ptr2 = reinterpret_cast<T*> (v2.toPtr());
+  assert (v1.size() == 10);
+  assert (v2.size() == 10);
+  assert (ptr1[0] == makeT(1));
+  assert (ptr1[1] == makeT(2));
+  assert (ptr2[0] == makeT(1));
+  assert (ptr2[1] == makeT(2));
+
+  SG::AuxTypeVector<T> v3 (0, 0);
+  v3 = v1;
+  T* ptr3 = reinterpret_cast<T*> (v3.toPtr());
+  assert (v1.size() == 10);
+  assert (v3.size() == 10);
+  assert (ptr1[0] == makeT(1));
+  assert (ptr1[1] == makeT(2));
+  assert (ptr3[0] == makeT(1));
+  assert (ptr3[1] == makeT(2));
+
+  v3.resize (3);
+  ptr3[0] = makeT(3);
+  ptr3[1] = makeT(2);
+  ptr3[2] = makeT(1);
+
+  SG::AuxTypeVector<T> v4 (std::move (v3));
+  T* ptr4 = reinterpret_cast<T*> (v4.toPtr());
+  assert (v4.size() == 3);
+  assert (v3.size() == 0);
+  assert (ptr4[0] == makeT(3));
+  assert (ptr4[1] == makeT(2));
+  assert (ptr4[2] == makeT(1));
+
+  v3 = std::move(v4);
+  assert (v3.size() == 3);
+  assert (v4.size() == 0);
+  assert (ptr3[0] == makeT(3));
+  assert (ptr3[1] == makeT(2));
+  assert (ptr3[2] == makeT(1));
+}
+
+
+template <class T>
+void test_vector3()
+{
+  typedef typename SG::AuxTypeVectorHolder<T>::vector_type vector_type;
+
+  vector_type* vptr1 = new vector_type;
+  vptr1->push_back (makeT(1));
+  vptr1->push_back (makeT(2));
+  vptr1->push_back (makeT(3));
+
+  SG::AuxTypeVectorHolder<T> v1 (vptr1, true);
+  assert (v1.size() == 3);
+  T* ptr1 = reinterpret_cast<T*> (v1.toPtr());
+  assert (ptr1[0] == makeT(1));
+  assert (ptr1[1] == makeT(2));
+  assert (ptr1[2] == makeT(3));
+
+  SG::AuxTypeVectorHolder<T> v2 (v1);
+  assert (v1.size() == 3);
+  assert (v2.size() == 3);
+  T* ptr2 = reinterpret_cast<T*> (v2.toPtr());
+  assert (ptr2[0] == makeT(1));
+  assert (ptr2[1] == makeT(2));
+  assert (ptr2[2] == makeT(3));
+
+  v2.resize(2);
+  ptr2[0] = makeT(2);
+  ptr2[1] = makeT(1);
+  v1 = v2;
+  assert (v1.size() == 2);
+  assert (v2.size() == 2);
+  assert (ptr2[0] == makeT(2));
+  assert (ptr2[1] == makeT(1));
+
+  SG::AuxTypeVectorHolder<T> v3 (std::move(v2));
+  assert (v2.size() == 2);
+  assert (v3.size() == 2);
+  T* ptr3 = reinterpret_cast<T*> (v3.toPtr());
+  assert (ptr3[0] == makeT(2));
+  assert (ptr3[1] == makeT(1));
+
+  v1 = std::move(v3);
+  ptr1 = reinterpret_cast<T*> (v1.toPtr());
+  assert (v1.size() == 2);
+  assert (v3.size() == 2);
+  assert (ptr1[0] == makeT(2));
+  assert (ptr1[1] == makeT(1));
+}
+
+
+template <class T>
+void test_vector()
+{
+  test_vector1<T>();
+  test_vector2<T>();
+  test_vector3<T>();
+}
+
+
 void test1()
 {
   std::cout << "test1\n";
@@ -126,12 +235,11 @@ void test2()
 {
   std::cout << "test2\n";
 
-  SG::AuxTypeVector<int>* v1 = new SG::AuxTypeVector<int> (10, 20);
-  assert (!v1->setOption (SG::AuxDataOption ("opt", 1)));
+  SG::AuxTypeVector<int> v1 (10, 20);
+  assert (!v1.setOption (SG::AuxDataOption ("opt", 1)));
 
-  SG::AuxTypeVector<int, TestContainer>* v2 =
-    new SG::AuxTypeVector<int, TestContainer> (10, 20);
-  assert (v2->setOption (SG::AuxDataOption ("opt", 1)));
+  SG::AuxTypeVector<int, TestContainer> v2 (10, 20);
+  assert (v2.setOption (SG::AuxDataOption ("opt", 1)));
   assert (TestContainer::lastopt.name() == "opt");
   assert (TestContainer::lastopt.intVal() == 1);
 }
@@ -141,38 +249,38 @@ void test2()
 void test3()
 {
   std::cout << "test3\n";
-  SG::AuxTypeVector<int>* v1 = new SG::AuxTypeVector<int> (0, 0);
-  v1->vec().push_back(1);
-  v1->vec().push_back(2);
+  SG::AuxTypeVector<int> v1 (0, 0);
+  v1.vec().push_back(1);
+  v1.vec().push_back(2);
 
-  assert (v1->objType() == &typeid(std::vector<int>));
+  assert (v1.objType() == &typeid(std::vector<int>));
 
-  void* ptr = v1->toPtr();
+  void* ptr = v1.toPtr();
   int* iptr = reinterpret_cast<int*>(ptr);
-  assert (v1->size() == 2);
+  assert (v1.size() == 2);
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
 
-  SG::IAuxTypeVector* v2 = v1->toPacked();
+  SG::IAuxTypeVector* v2 = v1.toPacked();
   assert (v2 != 0);
   assert (ptr == v2->toPtr());
   assert (v2->size() == 2);
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
-  assert (v1->size() == 0);
-  assert (v1->toPtr() == 0);
+  assert (v1.size() == 0);
+  assert (v1.toPtr() == 0);
 
   assert (v2->objType() == &typeid(SG::PackedContainer<int>));
   SG::PackedContainer<int>* pptr =
     reinterpret_cast<SG::PackedContainer<int>*> (v2->toVector());
   assert (typeid(*pptr) == typeid(SG::PackedContainer<int>));
 
-  SG::AuxTypeVector<std::string>* v3 = new SG::AuxTypeVector<std::string> (0, 0);
-  v3->vec().push_back("1");
-  v3->vec().push_back("2");
+  SG::AuxTypeVector<std::string> v3 (0, 0);
+  v3.vec().push_back("1");
+  v3.vec().push_back("2");
 
-  assert (v3->toPacked() == 0);
-  assert (v3->size() == 2);
+  assert (v3.toPacked() == 0);
+  assert (v3.size() == 2);
 }
 
 

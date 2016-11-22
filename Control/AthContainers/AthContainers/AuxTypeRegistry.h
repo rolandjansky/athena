@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxTypeRegistry.h 637169 2014-12-19 23:10:51Z ssnyder $
+// $Id: AuxTypeRegistry.h 784452 2016-11-15 21:40:41Z ssnyder $
 /**
  * @file AthContainers/AuxTypeRegistry.h
  * @author scott snyder <snyder@bnl.gov>
@@ -26,16 +26,8 @@
 #include <cstddef>
 #include <typeinfo>
 #include <vector>
-
-
-#if __cplusplus < 201100
-# include "CxxUtils/unordered_map.h"
-namespace SG_STD_OR_SG = SG;
-#else
-# include <unordered_map>
-# include <functional>
-namespace SG_STD_OR_SG = std;
-#endif
+#include <unordered_map>
+#include <functional>
 
 
 namespace SG {
@@ -135,6 +127,9 @@ public:
    * @param auxid The desired aux data item.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   IAuxTypeVector* makeVector (SG::auxid_t auxid,
                               size_t size,
@@ -147,11 +142,35 @@ public:
    * @param auxid The desired aux data item.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   IAuxTypeVector* makeVector (lock_t& lock,
                               SG::auxid_t auxid,
                               size_t size,
                               size_t capacity) const;
+
+
+  /**
+   * @brief Construct an @c IAuxTypeVector object from a vector.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, the newly-created IAuxTypeVector object
+   *                will take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   * But if @c isPacked is @c true, then @c data
+   * should instead point at an object of type @c SG::PackedContainer<T>.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
+   */
+  IAuxTypeVector* makeVectorFromData (SG::auxid_t auxid,
+                                      void* data,
+                                      bool isPacked,
+                                      bool ownFlag) const;
 
 
   /**
@@ -635,26 +654,19 @@ private:
     {
       return shash (key.first) + shash (key.second);
     }
-    SG_STD_OR_SG::hash<std::string> shash;
+    std::hash<std::string> shash;
   };
 
 
-#ifndef __REFLEX__
-  // As of gcc 4.8.3, the compiler will choke on an unordered_map decl
-  // if the hash object does not define operator().  However, that happens
-  // with reflex's shadow class generation.  Easiest fix for now is just
-  // to hide this from reflex.
-
   /// Map from name -> auxid.
-  typedef SG_STD_OR_SG::unordered_map<key_t, SG::auxid_t, stringpair_hash>
+  typedef std::unordered_map<key_t, SG::auxid_t, stringpair_hash>
     id_map_t;
   id_map_t m_auxids;
 
-  /// Map from type_info -> IAuxTypeVectorFactory.
-  typedef SG_STD_OR_SG::unordered_map<const std::type_info*,
-                                      const IAuxTypeVectorFactory*> ti_map_t;
+  /// Map from type_info name -> IAuxTypeVectorFactory.
+  typedef std::unordered_map<std::string,
+                             const IAuxTypeVectorFactory*> ti_map_t;
   ti_map_t m_factories;
-#endif
 
   /// Hold additional factory instances we need to delete.
   std::vector<const IAuxTypeVectorFactory*> m_oldFactories;
