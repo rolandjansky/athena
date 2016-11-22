@@ -42,7 +42,7 @@ namespace xAODMaker {
       virtual StatusCode convert( const JetCollection* aodCont,
                                   xAOD::JetContainer* xaodCont,
                                   DataLink<xAOD::IParticleContainer> xaodConstitCont = DataLink<xAOD::IParticleContainer>(),
-                                  bool constitSearch = false) = 0;
+                                  bool constitSearch = false) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {
