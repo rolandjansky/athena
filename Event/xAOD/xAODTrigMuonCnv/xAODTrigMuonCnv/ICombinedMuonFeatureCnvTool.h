@@ -34,7 +34,7 @@ namespace xAODMaker {
     public:
       /// Function that fills an existing xAOD::L2CombinedMuon
         virtual StatusCode convert( const CombinedMuonFeature* aod,
-                                   xAOD::L2CombinedMuon* xaod ) = 0;
+                                   xAOD::L2CombinedMuon* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

@@ -33,27 +33,27 @@ public:
     virtual ~TrigMuonEFInfoToMuonCnvTool();
     
     /// initialize the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /// finalize the tool
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /// Convert a single TrigMuonEFInfo object into (maybe multiple) xAOD::Muon objects.
     virtual StatusCode convertTrigMuonEFInfo(const TrigMuonEFInfo& efinfo,
                                                  xAOD::MuonContainer& muoncontainer,
                                                  xAOD::TrackParticleContainer* combParticleContainer,
-                                                 xAOD::TrackParticleContainer* extrapParticleContainer);
+                                                 xAOD::TrackParticleContainer* extrapParticleContainer) const override;
     
     /// Convert full TrigMuonEFInfoContainer into xAOD::MuonContainer
     virtual StatusCode convertTrigMuonEFInfoContainer(const TrigMuonEFInfoContainer& efinfocont,
                                                           xAOD::MuonContainer& muoncontainer,
                                                           xAOD::TrackParticleContainer* combParticleContainer,
-                                                          xAOD::TrackParticleContainer* extrapParticleContainer);
+                                                          xAOD::TrackParticleContainer* extrapParticleContainer) const override;
     
 protected:
     
     /// Convert TrigMuonEFTrack into a xAOD::TrackParticle
-    StatusCode convertTrigMuonEFTrack(const TrigMuonEFTrack& eftrack, xAOD::TrackParticle& trackpart);
+    StatusCode convertTrigMuonEFTrack(const TrigMuonEFTrack& eftrack, xAOD::TrackParticle& trackpart) const;
     
 private:
     

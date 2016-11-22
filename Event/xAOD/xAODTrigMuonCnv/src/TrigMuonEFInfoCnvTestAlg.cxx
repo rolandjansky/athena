@@ -203,10 +203,10 @@ StatusCode TrigMuonEFInfoCnvTestAlg::comparePrimaryTracks(const TrigMuonEFInfoTr
 StatusCode TrigMuonEFInfoCnvTestAlg::compareTracks(const TrigMuonEFTrack* eftrack, const xAOD::TrackParticle* xaodtrack) {
 
   if(msgLvl(MSG::VERBOSE)) {
-    msg() << MSG::VERBOSE << "Compare Track:" << endreq;
-    msg() << MSG::VERBOSE << "old track pt  = " << eftrack->pt()  << ", new track pt  = " << xaodtrack->pt() << endreq;
-    msg() << MSG::VERBOSE << "old track eta = " << eftrack->eta() << ", new track eta = " << xaodtrack->eta() << endreq;
-    msg() << MSG::VERBOSE << "old track phi = " << eftrack->phi() << ", new track phi = " << xaodtrack->phi() << endreq;
+    msg() << MSG::VERBOSE << "Compare Track:" << endmsg;
+    msg() << MSG::VERBOSE << "old track pt  = " << eftrack->pt()  << ", new track pt  = " << xaodtrack->pt() << endmsg;
+    msg() << MSG::VERBOSE << "old track eta = " << eftrack->eta() << ", new track eta = " << xaodtrack->eta() << endmsg;
+    msg() << MSG::VERBOSE << "old track phi = " << eftrack->phi() << ", new track phi = " << xaodtrack->phi() << endmsg;
   }
   const double dpt = std::abs(eftrack->pt() - xaodtrack->pt());
   if( dpt > ptcheckthres*eftrack->pt() ) { // pT check is relative - we accept 0.1% changes
