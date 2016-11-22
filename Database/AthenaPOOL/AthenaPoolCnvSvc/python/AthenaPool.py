@@ -27,19 +27,23 @@ def _loadBasicAthenaPool():
     msg.debug( "Loading basic services for AthenaPool..." )
 
     svcMgr += CfgMgr.PoolSvc()
+    svcMgr.PoolSvc.MaxFilesOpen = 3
     #if in AthAnalysisBase, we will set the outputlevel of PoolSvc to ERROR, to silence warnings about missing reflex types
     #detect AthAnalysisBase by looking at the CMTEXTRATAGS env var, if it contains 'ManaCore' then we are in AthAnalysisBase
     import os
     from AthenaCommon.Constants import ERROR
     if "ManaCore" in os.environ.get('CMTEXTRATAGS',""): svcMgr.PoolSvc.OutputLevel=ERROR
+
     svcMgr += CfgMgr.AthenaPoolCnvSvc()
 
+    """
     from AthenaCommon.AppMgr import theApp
     theApp.Dlls += [
         ## FIXME
         # needed: why isn't this guy being picked up through genmap ??
         "DBDataModelAthenaPoolPoolCnv", 
         ]
+    """
 
     if not hasattr (svcMgr, 'EventPersistencySvc'):
         svcMgr += CfgMgr.EvtPersistencySvc( "EventPersistencySvc" )
@@ -47,6 +51,7 @@ def _loadBasicAthenaPool():
     if not hasattr (svcMgr, 'ProxyProviderSvc'):
         svcMgr += CfgMgr.ProxyProviderSvc()
 
+    """
     #
     # Make sure AthenaSealSvc is loaded for dict check
     svcMgr += CfgMgr.AthenaSealSvc()
@@ -57,6 +62,7 @@ def _loadBasicAthenaPool():
 
     # Load streamer allowing conversion of old CLHEP classes
     import AtlasSealCLHEP.OldCLHEPStreamers
+    """
 
     # Add in MetaDataSvc
     svcMgr += CfgMgr.MetaDataSvc( "MetaDataSvc" )

@@ -73,6 +73,7 @@ struct Y_v2
   : public SG::AuxElement
 {
   Y_v2(int a) : m_a(a) {}
+  ~Y_v2() {}
   int m_a;
 };
 
@@ -104,8 +105,8 @@ CLASS_DEF(AthenaPoolCnvSvcTest::XCont, 524263046, 1)
 namespace AthenaPoolCnvSvcTest {
 
 
-typedef std::vector<ElementLink<DataVector<Y_v1> > > YCont_v1_pers;
-typedef std::vector<ElementLink<DataVector<Y_v2> > > YCont_v2_pers;
+typedef std::vector<ElementLink<DataVector<Y_v1> > > YCont_v1_pers2;
+typedef std::vector<ElementLink<DataVector<Y_v2> > > YCont_v2_pers2;
 
 
 

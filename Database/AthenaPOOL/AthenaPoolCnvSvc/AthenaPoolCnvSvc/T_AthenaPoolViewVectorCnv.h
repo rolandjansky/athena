@@ -34,19 +34,27 @@
 /**
  * @brief Athena pool converter for a ViewVector class.
  *
- * This pool converter converts between a transient ViewVector<DV> type
- * and a persistent std::vector<ElementLink<DV> > type, where DV is
- * a DataVector.
+ * This pool converter prepares a @c ViewVector class for writing, and
+ * cleans up after it has been read:
+ *  - For writing, we make a copy and call @c toPersistent on it, clearing
+ *    the transient contents  in the process.
+ *  - For writing, we need to call @c toTransient if there was schema
+ *    evolution.  We also can remove the persistent data.
+ *
+ * It can also handle reading from a persistent type  of
+ * @c std::vector<ElementLink<DV> >.
  */
 template <class DV>
 class T_AthenaPoolViewVectorCnv
-  : public T_AthenaPoolCustomCnv<ViewVector<DV>,
-                                 std::vector<ElementLink<DV> > >
+  : public T_AthenaPoolCustomCnv<ViewVector<DV>, ViewVector<DV> >
 {
 public:
   /// The transient and persistent types.
   typedef ViewVector<DV> trans_t;
-  typedef std::vector<ElementLink<DV> > pers_t;
+  typedef trans_t pers_t;
+
+  /// Alternate persistent type; raw vector of EL.
+  typedef std::vector<ElementLink<DV> > pers2_t;
 
   /// Base class.
   typedef T_AthenaPoolCustomCnv<trans_t, pers_t> Base;
@@ -82,8 +90,21 @@ public:
    */
   virtual trans_t* createTransient() override;
 
+  
 private:
+  /**
+   * @brief Return the set of GUIDs for persistent type @c ti.
+   * 
+   * The first entry will be the guid for @c ti itself, followed
+   * by entries for any earlier persistent versions.
+   */
+  std::vector<pool::Guid> initGuids (const std::type_info& ti) const;
+
+  /// List of guids for @c ViewVector classes.
   std::vector<pool::Guid> m_guids;
+
+  /// List of guids for @c std::vector<ElementLink<DV> > classes.
+  std::vector<pool::Guid> m_guids2;
 };
 
 

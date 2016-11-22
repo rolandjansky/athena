@@ -193,8 +193,8 @@ private: // data
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc;
-   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
-   ToolHandle<IAthenaIPCTool>    m_outputStreamingTool;
+   mutable ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
+   mutable ToolHandle<IAthenaIPCTool>    m_outputStreamingTool;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:

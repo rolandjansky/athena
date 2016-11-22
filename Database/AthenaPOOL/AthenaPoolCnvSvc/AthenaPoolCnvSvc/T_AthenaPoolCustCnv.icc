@@ -99,19 +99,46 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
 template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    const std::string className = ClassName<TRANS>::name();
+   bool skipDHE = false;
    TRANS* obj = 0;
    PERS* persObj = 0;
    SG::fromStorable(pObj, obj);
    if (obj == 0) {
-      ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
-      return(StatusCode::FAILURE);
+      if (pObj->clID() == 1) { 
+         if (pObj->registry() != 0 && pObj->registry()->address() != 0) { 
+            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers"); 
+            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) { 
+               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy"); 
+               return(StatusCode::FAILURE); 
+            } 
+            if (!poolToObject<PERS>(this->m_i_poolToken, persObj).isSuccess()) { 
+               ATH_MSG_ERROR("Failed to read persistent DataType"); 
+               return(StatusCode::FAILURE); 
+            } 
+         } else { 
+            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, using empty default"); 
+            skipDHE = true; 
+            persObj = new PERS(); 
+         } 
+      } else { 
+         ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
+         return(StatusCode::FAILURE);
+      } 
    } else {
       if (!transToPers(obj, persObj).isSuccess()) {
          ATH_MSG_ERROR("Failed to convert to persistent DataType for class (type/key) " << className << "/" << pObj->name());
          return(StatusCode::FAILURE);
       }
    }
-   return(objectToPool<PERS>(persObj, this->m_o_poolToken, key));
+   const Token* token = 0; 
+   StatusCode status = objectToPool<PERS>(persObj, token, key); 
+   if (skipDHE) { 
+      delete token; token = 0; 
+      this->setToken("\n"); 
+   } else { 
+      this->m_o_poolToken = token; token = 0; 
+   } 
+   return(status); 
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
@@ -138,8 +165,12 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
 template <class TRANS, class PERS>
 inline void T_AthenaPoolCustCnv<TRANS, PERS>::setToken(const std::string& token_str) {
    if (this->m_i_poolToken == 0) this->m_i_poolToken = new Token;
-   const_cast<Token*>(this->m_i_poolToken)->fromString(token_str);
-   m_classID = this->m_i_poolToken != 0 ? this->m_i_poolToken->classID() : Guid::null();
+   if (this->m_i_poolToken != 0) {
+      const_cast<Token*>(this->m_i_poolToken)->fromString(token_str);
+      m_classID = this->m_i_poolToken->classID();
+   } else {
+      m_classID = Guid::null();
+   }
 }
 //__________________________________________________________________________
 // Compare POOL class GUID with the one from object being read

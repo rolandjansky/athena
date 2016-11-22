@@ -41,8 +41,8 @@ def _configureWriteAthenaPool():
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 
     # Turn off auto_flush for DataHeader container to avoid basket optimization
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainer'; TREE_AUTO_FLUSH = '0'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '256000'" ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'" ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'" ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'" ]
 
     svcMgr.AthenaPoolCnvSvc.PoolContainerPrefix = "CollectionTree"

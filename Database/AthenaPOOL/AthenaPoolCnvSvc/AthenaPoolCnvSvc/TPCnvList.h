@@ -73,6 +73,8 @@ class TPCnvList
 
 
 public:
+  // Coverity fails to compile this correctly.
+#ifndef __COVERITY__
   // Convert the list of TP converters <T1, T2, ...> to a boost fusion vector
   // of converters wrapped by TPCnvElt:
   //   boost::fusion::vector<TPCnvElt<T1>, TPCnvElt<T2>, ...>
@@ -81,6 +83,7 @@ public:
   typedef boost::mpl::vector<TPCNVS...> vec_t;
   typedef typename boost::mpl::transform<vec_t, wrap_tpcnv<boost::mpl::_1> >::type list_mpl_t;
   typedef typename boost::fusion::result_of::as_vector<list_mpl_t>::type list_t;
+#endif
 
 
   /**
@@ -111,8 +114,10 @@ public:
   
 
 private:
+#ifndef __COVERITY__
   /// List of TP converter instances, wrapped by @c TPCnvElt.
   list_t m_list;
+#endif
 };
 
 

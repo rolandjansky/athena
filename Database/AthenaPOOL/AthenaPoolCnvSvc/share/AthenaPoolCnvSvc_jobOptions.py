@@ -64,10 +64,6 @@ svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "ContainerName = '<treeName>'; 
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '<fileName>'; ContainerName = '<type>/<key>'; <attributeName> = '<dataType>'" ]
 
 svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ ]
-# Number of events to process with commitAndHold, before doing a full commit.
-# -1 -> only do full commit at end of job
-#  0 -> always do a full commit
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 0
 
 ## backward compat
 AthenaPoolCnvSvc = svcMgr.AthenaPoolCnvSvc

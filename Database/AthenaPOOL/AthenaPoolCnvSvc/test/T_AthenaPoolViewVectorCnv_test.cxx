@@ -33,8 +33,62 @@
 using namespace AthenaPoolCnvSvcTest;
 
 
-std::string YCont_v1_guid = "7E1826B9-3666-42B3-A2E7-C916BD10A5B8";
-std::string YCont_v2_guid = "80C19103-FE9B-4227-8E48-8C0DB468F892";
+std::string YCont_v1_guid2 = "7E1826B9-3666-42B3-A2E7-C916BD10A5B8";
+std::string YCont_v2_guid2 = "80C19103-FE9B-4227-8E48-8C0DB468F892";
+std::string YCont_v1_guid = "C5454482-92F6-4EE5-BBAB-44B36D571942";
+std::string YCont_v2_guid = "CA993B46-C358-4F5E-9EE2-3693A8F3CDAF";
+
+
+class ViewVectorBaseTest
+{
+public:
+  static void check (const SG::ViewVectorBase& vvb, SG::sgkey_t sgkey);
+  static void checkPersThinned (const SG::ViewVectorBase& vvb, SG::sgkey_t sgkey);
+  static void checkPersEmpty (const SG::ViewVectorBase& vvb);
+};
+
+
+void ViewVectorBaseTest::check (const SG::ViewVectorBase& vvb,
+                                SG::sgkey_t sgkey)
+{
+  assert (vvb.m_persKey.size() == 10);
+  assert (vvb.m_persIndex.size() == 10);
+  for (unsigned int i = 0; i < 10; i++) {
+    assert  (vvb.m_persKey[i] == sgkey);
+    assert  (vvb.m_persIndex[i] == 9-i);
+  }
+}
+
+
+void ViewVectorBaseTest::checkPersThinned (const SG::ViewVectorBase& vvb,
+                                           SG::sgkey_t sgkey)
+{
+  size_t sz = 10;
+  assert (vvb.m_persKey.size() == sz);
+  assert (vvb.m_persIndex.size() == sz);
+  for (size_t i = 0; i < sz; i++) {
+    SG::sgkey_t pkey = vvb.m_persKey[i];
+    size_t pindex = vvb.m_persIndex[i];
+    if (i == 5) {
+      assert (pkey == 0);
+      assert (pindex == 0);
+    }
+    else {
+      assert (pkey == sgkey);
+      if (i < 5)
+        assert (pindex == i);
+      else
+        assert (pindex == i-1);
+    }
+  }
+}
+
+
+void ViewVectorBaseTest::checkPersEmpty (const SG::ViewVectorBase& vvb)
+{
+  assert (vvb.m_persKey.empty());
+  assert (vvb.m_persIndex.empty());
+}
 
 
 class TestCnvSvc
@@ -43,23 +97,34 @@ class TestCnvSvc
 public:
   TestCnvSvc (const std::string& name, ISvcLocator* svcloc)
     : TestCnvSvcBase (name, svcloc),
-      m_pers (nullptr)
+      m_pers (nullptr),
+      m_pers_old (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* /*token*/) const override
+  virtual void setObjPtr(void*& obj, const Token* token) const override
   {
-    obj = new YCont_v2_pers (*m_pers);
+    if (m_pers) {
+      auto vvb = new ViewVector<DataVector<Y_v2> > (*m_pers);
+      if (token->classID() == Guid(YCont_v2_guid))
+        vvb->toTransient();
+      obj = vvb;
+    }
+    else if (m_pers_old) {
+      obj = new YCont_v2_pers2 (*m_pers_old);
+    }
   }
 
   std::string m_name;
-  YCont_v2_pers* m_pers;
+  ViewVector<DataVector<Y_v2> >* m_pers;
+  YCont_v2_pers2* m_pers_old;
 };
 
 
 void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 {
   std::cout << "test1\n";
-
+  SG::sgkey_t sgkey =
+    SGTest::store.stringToKey ("vec", ClassID_traits<DataVector<Y_v2> >::ID());
   T_AthenaPoolCnv<ViewVector<DataVector<Y_v2> > > cnv (svcloc);
   assert (cnv.initialize().isSuccess());
 
@@ -68,12 +133,10 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
   for (size_t i = 0; i < sz; i++)
     view.push_back (vec[sz-i-1]);
 
-  YCont_v2_pers* pers = cnv.createPersistent (&view);
-  assert (pers->size() == sz);
-  for (size_t i = 0; i < sz; i++) {
-    assert ((*pers)[i].dataID() == "vec");
-    assert ((*pers)[i].index() == sz-i-1);
-  }
+  ViewVector<DataVector<Y_v2> >* pers = cnv.createPersistent (&view);
+  pers->toPersistent();
+  ViewVectorBaseTest::check (*pers,  sgkey);
+  assert (pers->size() == 0);
 
   testsvc.m_pers = pers;
   Token* token = new Token;
@@ -86,17 +149,20 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
   assert (trans1->size() == 10);
   for (size_t i = 0; i < sz; i++)
     assert ((*trans1)[i] == view[i]);
+  ViewVectorBaseTest::checkPersEmpty (*trans1);
   delete pObj;
   pObj = nullptr;
   delete pers;
   testsvc.m_pers = nullptr;
 
-  YCont_v2_pers pers1;
+  ViewVector<DataVector<Y_v2> > pers1;
   size_t ii = 0;
   for (size_t i = 0; i < sz; i++, ii+=2) {
     if (ii >= sz) ii = 1;
-    pers1.emplace_back ("vec", ii);
+    pers1.push_back (vec[ii]);
   }
+  pers1.setClearOnPersistent();
+  pers1.toPersistent();
   testsvc.m_pers = &pers1;
   token->setClassID (Guid (YCont_v1_guid));
   assert (cnv.createObj (&taddr, pObj).isSuccess());
@@ -107,6 +173,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
     if (ii >= sz) ii = 1;
     assert ((*trans2)[i] == vec[ii]);
   }
+  ViewVectorBaseTest::checkPersEmpty (*trans2);
   delete trans2;
 
   token->setClassID (Guid ("79E2478D-C17F-45E9-848D-278240C2FED3"));
@@ -114,11 +181,64 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 }
 
 
-// Test with thinning.
-void test2 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/, DataVector<Y_v2>& vec)
+// Test reading std::vector<EL>
+void test2 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 {
   std::cout << "test2\n";
+  T_AthenaPoolCnv<ViewVector<DataVector<Y_v2> > > cnv (svcloc);
+  assert (cnv.initialize().isSuccess());
   size_t sz = vec.size();
+
+  std::vector<ElementLink<DataVector<Y_v2> > > pers2;
+  size_t ii = 0;
+  for (size_t i = 0; i < sz; i++, ii+=2) {
+    if (ii >= sz) ii = 1;
+    pers2.emplace_back ("vec", ii);
+  }
+
+  testsvc.m_pers = nullptr;
+  testsvc.m_pers_old = &pers2;
+  Token* token = new Token;
+  token->setClassID (Guid (YCont_v2_guid2));
+  TokenAddress taddr (0, 0, "", "", 0, token);
+
+  DataObject* pObj;
+  assert (cnv.createObj (&taddr, pObj).isSuccess());
+  auto* trans2 = SG::Storable_cast<ViewVector<DataVector<Y_v2> > > (pObj);
+  assert (trans2->size() == 10);
+  ii = 0;
+  for (size_t i = 0; i < sz; i++, ii+=2) {
+    if (ii >= sz) ii = 1;
+    assert ((*trans2)[i] == vec[ii]);
+  }
+  ViewVectorBaseTest::checkPersEmpty (*trans2);
+  delete pObj;
+  pObj = nullptr;
+
+  std::vector<ElementLink<DataVector<Y_v2> > > pers1;
+  for (size_t i = 0; i < sz; i++)
+    pers1.emplace_back ("vec", i);
+  testsvc.m_pers_old = &pers1;
+  token->setClassID (Guid (YCont_v1_guid2));
+  assert (cnv.createObj (&taddr, pObj).isSuccess());
+  auto* trans1 = SG::Storable_cast<ViewVector<DataVector<Y_v2> > > (pObj);
+  assert (trans1->size() == 10);
+  for (size_t i = 0; i < sz; i++)
+    assert ((*trans1)[i] == vec[i]);
+  ViewVectorBaseTest::checkPersEmpty (*trans1);
+  delete pObj;
+  pObj = nullptr;
+  testsvc.m_pers_old = nullptr;
+}
+
+
+// Test with thinning.
+void test3 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/, DataVector<Y_v2>& vec)
+{
+  std::cout << "test3\n";
+  size_t sz = vec.size();
+  SG::sgkey_t sgkey =
+    SGTest::store.stringToKey ("vec", ClassID_traits<DataVector<Y_v2> >::ID());
 
   TestThinningSvc thinsvc;
   TestThinningSvc::instance (&thinsvc, true);
@@ -133,22 +253,9 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/, DataVector<Y_v2>& vec)
   for (size_t i = 0; i < sz; i++)
     view.push_back (vec[i]);
 
-  YCont_v2_pers* pers = cnv.createPersistent (&view);
-  assert (pers->size() == sz);
-  for (size_t i = 0; i < sz; i++) {
-    const ElementLink<DataVector<Y_v2> >& l = (*pers)[i];
-    if (i == 5) {
-      assert (l.key() == 0);
-      assert (l.index() == 0);
-    }
-    else {
-      assert (l.dataID() == "vec");
-      if (i < 5)
-        assert (l.index() == i);
-      else
-        assert (l.index() == i-1);
-    }
-  }
+  ViewVector<DataVector<Y_v2> >* pers = cnv.createPersistent (&view);
+  pers->toPersistent();
+  ViewVectorBaseTest::checkPersThinned (*pers, sgkey);
   delete pers;
 }
 
@@ -175,6 +282,7 @@ int main()
 
   TestCnvSvc* svc = new TestCnvSvc ("AthenaPoolCnvSvc", pSvcLoc);
   ISvcManager* mgr = dynamic_cast<ISvcManager*> (pSvcLoc);
+  if (!mgr) std::abort();
   if (mgr->addService (svc).isFailure())
     std::abort();
   
@@ -182,5 +290,6 @@ int main()
   DataVector<Y_v2>& vec = makeVecs();
   test1 (pSvcLoc, *svc, vec);
   test2 (pSvcLoc, *svc, vec);
+  test3 (pSvcLoc, *svc, vec);
 }
 
