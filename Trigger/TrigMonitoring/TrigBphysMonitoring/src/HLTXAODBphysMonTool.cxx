@@ -1514,6 +1514,7 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
     bool isPassedEF(cgEF->isPassed(TrigDefs::Physics));
     
     ATH_MSG_DEBUG("Trigger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName << " group: " << groupName);
+    if (!isPassed) return StatusCode::SUCCESS; // only HLT passed chains
     
     // get HLT items
     const auto& fc       = getTDT()->features(chainName);
@@ -1616,11 +1617,11 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
       addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
     addHistogram( new TH1F(Form("%s_%s_eta",pref,name) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",pref,detTitle) ,     30, m_eta_min,m_eta_max) );
     addHistogram( new TH1F(Form("%s_%s_dR",pref,name) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_dr_min,m_dr_max) );
-    
+    addHistogram( new TH1F(Form("%s_%s_pTmu1",pref,name) ,    Form("%s_%s_pTmu1;p_{T}(#mu_{1})[GeV];Candidates",pref,detTitle) ,    nptmus,ptmus) );
+    addHistogram( new TH1F(Form("%s_%s_pTmu2",pref,name) ,    Form("%s_%s_pTmu2;p_{T}(#mu_{2})[GeV];Candidates",pref,detTitle) ,    nptmus,ptmus) );
+        
     if(fullSetOfHists) {
         addHistogram( new TH1F(Form("%s_%s_phi",pref,name) ,      Form("%s_%s_phi;#phi(#mu#mu);Candidates",pref,detTitle) ,     32, -M_PI,M_PI) );
-        addHistogram( new TH1F(Form("%s_%s_pTmu1",pref,name) ,    Form("%s_%s_pTmu1;p_{T}(#mu_{1})[GeV];Candidates",pref,detTitle) ,    nptmus,ptmus) );
-        addHistogram( new TH1F(Form("%s_%s_pTmu2",pref,name) ,    Form("%s_%s_pTmu2;p_{T}(#mu_{2})[GeV];Candidates",pref,detTitle) ,    nptmus,ptmus) );
         addHistogram( new TH1F(Form("%s_%s_z0mu1",pref,name) ,    Form("%s_%s_z0mu1;z_{0}(#mu_{1})[mm];Candidates",pref,detTitle) ,    150, m_z0_min,m_z0_max) );
         addHistogram( new TH1F(Form("%s_%s_z0mu2",pref,name) ,    Form("%s_%s_z0mu2;z_{0}(#mu_{1})[mm];Candidates",pref,detTitle) ,    150, m_z0_min,m_z0_max) );
         addHistogram( new TH1F(Form("%s_%s_d0mu1",pref,name) ,    Form("%s_%s_d0mu1;d_{0}(#mu_{1})[mm];Candidates",pref,detTitle) ,    220, m_d0_min,m_d0_max) );
@@ -1643,10 +1644,11 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
     }
 
     //************ EXPERT ************* //
+    addMonGroup(new MonGroup(this,m_base_path_expert+"/"+path,run));
+    addHistogram( new TH1F(Form("%s_%s_phiStar",pref,name) ,  Form("%s_%s_phiStar;#phi*;Candidates",pref,detTitle) ,     50, -TMath::Pi(), TMath::Pi()) );
+    addHistogram( new TH1F(Form("%s_%s_cosThetaStar",pref,name) , Form("%s_%s_cosThetaStar;cos#theta*;Candidates",pref,detTitle) ,     50, -1., 1.) );
+        
     if(fullSetOfHists) {
-        addMonGroup(new MonGroup(this,m_base_path_expert+"/"+path,run));
-        addHistogram( new TH1F(Form("%s_%s_phiStar",pref,name) ,  Form("%s_%s_phiStar;#phi*;Candidates",pref,detTitle) ,     50, -TMath::Pi(), TMath::Pi()) );
-        addHistogram( new TH1F(Form("%s_%s_cosThetaStar",pref,name) , Form("%s_%s_cosThetaStar;cos#theta*;Candidates",pref,detTitle) ,     50, -1., 1.) );
         addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu1",pref,name) ,      Form("%s_%s_numBLayerHitsmu1;B Layer Hits(#mu_{1});Candidates",pref,detTitle) ,  11, -1.,10.) );
         addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu2",pref,name) ,      Form("%s_%s_numBLayerHitsmu2;B Layer Hits(#mu_{2});Candidates",pref,detTitle) ,  11, -1.,10.) );
         addHistogram( new TH1F(Form("%s_%s_numSCTHitsmu1",pref,name) ,      Form("%s_%s_numSCTHitsmu1;SCT Hits(#mu_{1});Candidates",pref,detTitle) ,            21, -1.,20.) );
@@ -1726,7 +1728,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         }
         const xAOD::TrackParticle * ptl1 = **trkIt1;
         if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
             continue;
         }
 
@@ -1744,10 +1746,10 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
         
         if( chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
-          // first fill ID track histograms
-          hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
-          hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
-          hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
+          // // first fill ID track histograms
+          // hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
+          // hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
+          // hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
           continue; // not consider ID tracks which appear in Bmumux-like chains
         }
         
@@ -1769,7 +1771,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
             
             const xAOD::TrackParticle * ptl2 = **trkIt2;
             if (!ptl2) {
-                msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+                msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
             }
 
             if (ptl2) {
@@ -1816,9 +1818,9 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                 //************ SHIFTER ************* //
                 setCurrentMonGroup(m_base_path_shifter+"/"+path);
                 hist(Form("%s_%s_dR",pref,name))->Fill(dR);
+                hist(Form("%s_%s_pTmu1",pref,name))->Fill(ptTrk1/1000.);
+                hist(Form("%s_%s_pTmu2",pref,name))->Fill(ptTrk2/1000.);    
                 if(fullSetOfHists) {
-                    hist(Form("%s_%s_pTmu1",pref,name))->Fill(ptTrk1/1000.);
-                    hist(Form("%s_%s_pTmu2",pref,name))->Fill(ptTrk2/1000.);
                     hist(Form("%s_%s_d0mu1",pref,name))->Fill(d0Trk1);
                     hist(Form("%s_%s_d0mu2",pref,name))->Fill(d0Trk2);
                     hist(Form("%s_%s_z0mu1",pref,name))->Fill(z0Trk1);
@@ -1830,11 +1832,10 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                 
                 
                 //************ EXPERT ************* //
-                if(fullSetOfHists) {
-                  setCurrentMonGroup(m_base_path_expert+"/"+path);
-                  hist(Form("%s_%s_phiStar",pref,name))->Fill(phiStar);
-                  hist(Form("%s_%s_cosThetaStar",pref,name))->Fill(cosThetaStar);
-                  
+                setCurrentMonGroup(m_base_path_expert+"/"+path);
+                hist(Form("%s_%s_phiStar",pref,name))->Fill(phiStar);
+                hist(Form("%s_%s_cosThetaStar",pref,name))->Fill(cosThetaStar);
+                if(fullSetOfHists) {           
                   hist(Form("%s_%s_numBLayerHitsmu1",pref,name))->Fill(bLayerHitsTrk1);
                   hist(Form("%s_%s_numBLayerHitsmu2",pref,name))->Fill(bLayerHitsTrk2);
                   hist(Form("%s_%s_numSCTHitsmu1",pref,name))->Fill(sctHitsTrk1);
