@@ -41,7 +41,7 @@ namespace xAODMaker {
 
     
     StatusCode TrigEFBphysContainerCnvTool::convert( const TrigEFBphysContainer* aod,
-                                            xAOD::TrigBphysContainer* xaod ) {
+                                            xAOD::TrigBphysContainer* xaod ) const {
         
         if (!aod) {
             ATH_MSG_ERROR( "Null pointer for input containter" );
