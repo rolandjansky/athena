@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ClusterDumper.cxx 592171 2014-04-09 14:47:05Z wlampl $
+// $Id: ClusterDumper.cxx 767574 2016-08-11 13:52:47Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -33,7 +33,7 @@ StatusCode ClusterDumper::initialize() {
       ATH_MSG_INFO("Writing to file " << m_fileName);
     }
     else {
-      msg(MSG::ERROR) << "Failed to open file " << m_fileName << endreq;
+      msg(MSG::ERROR) << "Failed to open file " << m_fileName << endmsg;
       return StatusCode::FAILURE;
     }
   }
