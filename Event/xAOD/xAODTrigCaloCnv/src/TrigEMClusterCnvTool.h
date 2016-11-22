@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigEMClusterCnvTool.h 592334 2014-04-10 11:01:56Z krasznaa $
+// $Id: TrigEMClusterCnvTool.h 785764 2016-11-22 15:40:18Z ssnyder $
 #ifndef XAODTRIGCALOCNV_TRIGEMCLUSTERCNVTOOL_H
 #define XAODTRIGCALOCNV_TRIGEMCLUSTERCNVTOOL_H
 
@@ -24,8 +24,8 @@ namespace xAODMaker {
     *
     * @author Arantxa Ruiz Martinez <aranzazu.ruiz.martinez@cern.ch>
     *
-    * $Revision: 592334 $
-    * $Date: 2014-04-10 13:01:56 +0200 (Thu, 10 Apr 2014) $
+    * $Revision: 785764 $
+    * $Date: 2016-11-22 16:40:18 +0100 (Tue, 22 Nov 2016) $
     */
    class TrigEMClusterCnvTool : public AthAlgTool,
 				public virtual ITrigEMClusterCnvTool {
@@ -36,11 +36,11 @@ namespace xAODMaker {
 			      const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Function that fills an existing xAOD::TrigEMCluster
       virtual StatusCode convert( const TrigEMClusterContainer* aod,
-                                  xAOD::TrigEMClusterContainer* xaod );
+                                  xAOD::TrigEMClusterContainer* xaod ) const override;
 
    }; // class TrigEMClusterCnvTool
 

@@ -40,7 +40,7 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::TrigEMClusterContainer
       virtual StatusCode convert( const TrigEMClusterContainer* aod,
-				  xAOD::TrigEMClusterContainer* xaod ) = 0;
+				  xAOD::TrigEMClusterContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

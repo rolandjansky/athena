@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloClusterCnvTool.cxx 592334 2014-04-10 11:01:56Z krasznaa $
+// $Id: TrigCaloClusterCnvTool.cxx 785764 2016-11-22 15:40:18Z ssnyder $
 
 // EDM include(s):
 #include "TrigCaloEvent/TrigCaloCluster.h"
@@ -44,7 +44,7 @@ namespace xAODMaker {
     */
    StatusCode
    TrigCaloClusterCnvTool::convert( const TrigCaloClusterContainer* aod,
-                                    xAOD::TrigCaloClusterContainer* xaod ) {
+                                    xAOD::TrigCaloClusterContainer* xaod ) const {
 
       ATH_MSG_DEBUG( "Size of the xAOD container before loop: "
                      << xaod->size() );
