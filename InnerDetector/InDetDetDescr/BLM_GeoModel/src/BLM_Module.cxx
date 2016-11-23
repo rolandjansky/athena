@@ -46,7 +46,7 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   if(peek == NULL)
   {     
   	if(msg)
-  		(*msg) << "BLM _ PEEK _ MISSING." << endreq;
+  		(*msg) << "BLM _ PEEK _ MISSING." << endmsg;
 	GeoMaterial* peektmp = new GeoMaterial("PEEK", 1.3*CLHEP::gram/CLHEP::cm3);
 	GeoElement* hydrogen = new GeoElement("Hydrogen", "H", 1.0, 1.010);
 	GeoElement* oxygen = new GeoElement("Oxygen", "O", 8.0, 16.000);
