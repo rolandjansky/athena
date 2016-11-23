@@ -114,6 +114,9 @@ atlas_build_trigger_menu( MC_pp_v6_loose_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v6_tight_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v6_tightperf_mc_prescale )
 
+atlas_build_trigger_menu( Physics_pp_v7 )
+atlas_build_trigger_menu( MC_pp_v7 )
+
 atlas_build_trigger_menu( Physics_HI_v3 )
 atlas_build_trigger_menu( MC_HI_v3 )
 atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )

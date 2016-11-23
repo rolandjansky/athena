@@ -66,7 +66,7 @@ if [ -n "${AtlasTrigger_PLATFORM}" ]; then   # CMAKE
 else  # CMT
     platform=${CMTCONFIG}
 fi
-echo "XMLDumperFromAthena: *** Building menu: ${menu} for ${release} ***"
+echo "XMLDumperFromAthena: Building menu: ${menu} for ${release}"
 logfiletopo=topo${menu}.log
 logfile=${menu}.log
 cd $rundir
@@ -77,7 +77,7 @@ cp L1Topoconfig_*.xml ${dest}
 
 # L1 + HLT config file
 if [ -z "$TMXML_BUILD_TEST" ]; then
-    athena.py -l DEBUG -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
+    athena.py -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
     athena_exit=$?
 else
     # Set the above env var to fake the output files (for fast build system test)
@@ -89,9 +89,9 @@ fi
 
 cp $logfile $logfiletopo ${dest}
 if [ $athena_exit -eq 0 ]; then
-    echo "XMLDumperFromAthena: *** $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile ***"
+    echo "XMLDumperFromAthena: $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile"
 else
-    echo "XMLDumperFromAthena: *** $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile ***"
+    echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
 fi
 
 
