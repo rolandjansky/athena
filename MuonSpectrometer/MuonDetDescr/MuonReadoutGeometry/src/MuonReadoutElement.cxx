@@ -204,7 +204,7 @@ namespace MuonGM {
 #ifndef NDEBUG
     else
       {
-        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endreq;
+        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endmsg;
       }
 #endif
     return Amg::CLHEPTransformToEigen(par_to_child);

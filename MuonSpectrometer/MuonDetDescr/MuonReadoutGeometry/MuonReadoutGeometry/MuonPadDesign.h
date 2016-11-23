@@ -65,6 +65,11 @@ namespace MuonGM {
     int    nPadColumns;
     double PadPhiShift;
     int etasign;
+    int isLargeSector;
+    double sectorOpeningAngle;
+
+    const double largeSectorOpeningAngle = 28.0;
+    const double smallSectorOpeningAngle = 17.0;
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;

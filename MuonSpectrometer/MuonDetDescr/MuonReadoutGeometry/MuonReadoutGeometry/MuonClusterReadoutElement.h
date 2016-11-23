@@ -168,12 +168,12 @@ namespace MuonGM {
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface(int hash) const {   
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting surface but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting surface but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerSurfaces.size() ){
-      reLog()<<MSG::WARNING<<this << " surface hash out of range: " << hash << " elements " << m_surfaceData->m_layerSurfaces.size() << endreq;
+      reLog()<<MSG::WARNING<<this << " surface hash out of range: " << hash << " elements " << m_surfaceData->m_layerSurfaces.size() << endmsg;
       return *m_surfaceData->m_layerSurfaces.front(); 
     }
     return *m_surfaceData->m_layerSurfaces[hash]; 
@@ -182,12 +182,12 @@ namespace MuonGM {
 
   inline const Amg::Transform3D& MuonClusterReadoutElement::transform(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting transform but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting transform but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerTransforms.size() ){
-      reLog()<<MSG::WARNING<< this << "transform hash out of range: " << hash << " elements " << m_surfaceData->m_layerTransforms.size() << endreq;
+      reLog()<<MSG::WARNING<< this << "transform hash out of range: " << hash << " elements " << m_surfaceData->m_layerTransforms.size() << endmsg;
       return m_surfaceData->m_layerTransforms.front(); 
     }
     return m_surfaceData->m_layerTransforms[hash]; 
@@ -195,12 +195,12 @@ namespace MuonGM {
 
   inline const Amg::Vector3D&  MuonClusterReadoutElement::center(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting center but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting center but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerCenters.size() ){
-      reLog()<<MSG::WARNING<<"center hash out of range: " << hash << " elements " << m_surfaceData->m_layerCenters.size() << endreq;
+      reLog()<<MSG::WARNING<<"center hash out of range: " << hash << " elements " << m_surfaceData->m_layerCenters.size() << endmsg;
       return m_surfaceData->m_layerCenters.front(); 
     }
     return m_surfaceData->m_layerCenters[hash];
@@ -208,12 +208,12 @@ namespace MuonGM {
 
   inline const Amg::Vector3D& MuonClusterReadoutElement::normal(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting normal but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting normal but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerNormals.size() ){
-      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_layerNormals.size() << endreq;
+      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_layerNormals.size() << endmsg;
       return m_surfaceData->m_layerNormals.front(); 
     }
     return m_surfaceData->m_layerNormals[hash];
@@ -221,12 +221,12 @@ namespace MuonGM {
   
   inline const Trk::SurfaceBounds&   MuonClusterReadoutElement::bounds(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting bounds but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting bounds but cache is empty" << endmsg;
       throw;
       //fillCache();
     }    
     if( hash == -1 || hash >= (int)m_surfaceData->m_surfBounds.size() ){
-      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_surfBounds.size() << endreq;
+      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_surfBounds.size() << endmsg;
       return *m_surfaceData->m_surfBounds.front(); 
     }
     return *m_surfaceData->m_surfBounds[hash]; 
