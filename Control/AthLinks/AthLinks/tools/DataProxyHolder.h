@@ -18,10 +18,11 @@
 
 
 #include "SGTools/CurrentEventStore.h"
-#include "AthenaKernel/IStringPool.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/IProxyDictWithPool.h"  // TEMPORARY
+#include "AthenaKernel/IStringPool.h"
+#include "AthenaKernel/RCUObject.h"
 #include <string>
+#include <unordered_map>
 
 
 namespace SG {
@@ -69,6 +70,9 @@ public:
   /// Function casting from a @c SG::DataProxy to a pointer.
   typedef void* castfn_t (SG::DataProxy*);
 
+  /// Input renaming map.
+  typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
+  typedef Athena::RCUObject<InputRenameMap_t> InputRenameRCU_t;
 
 
   /**
@@ -91,6 +95,10 @@ public:
    */
   template <class FROM_STORABLE, class TO_STORABLE>
   DataProxyHolder (const DataProxyHolder& other, FROM_STORABLE*, TO_STORABLE*);
+
+
+  // Try to avoid coverity warning.
+  DataProxyHolder& operator= (const DataProxyHolder&) = default;
 
 
   /**
@@ -232,6 +240,24 @@ public:
 
 
   /**
+   * @brief Finish initialization after link has been read.
+   * @param dataID Key of the object.
+   * @param link_clid CLID of the link being set.
+   * @param sg Associated store.
+   * @returns The hashed SG key for this object.
+   *
+   * This should be called after a link has been read by root
+   * in order to set the proxy pointer.  It calls @c toIdentifiedObject
+   * with the provided hashed key.
+   *
+   * If @c sg is 0, then we use the global default store.
+   */
+  sgkey_t toTransient (const ID_type& dataID,
+                       CLID link_clid,
+                       IProxyDict* sg = 0);
+
+
+  /**
    * @brief Prepare this link for writing.
    * @param sgkey Reference to the hashed SG key.
    *
@@ -343,6 +369,13 @@ public:
    * This will fill in parameters for the exception message from the proxy.
    */
   void throwInvalidLink (sgkey_t sgkey) const;
+
+
+  /**
+   * @brief Set map used for performing input renaming in toTransient.
+   * @param map The new map, or nullptr for no renmaing.
+   */
+  static void setInputRenameMap (const InputRenameRCU_t* map);
 
 
 private:

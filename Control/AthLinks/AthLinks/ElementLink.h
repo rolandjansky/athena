@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLink.h 714258 2015-12-12 04:18:16Z ssnyder $
+// $Id: ElementLink.h 785879 2016-11-22 22:17:10Z ssnyder $
 /**
  * @file AthLinks/ElementLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,6 +20,7 @@
 #include "AthLinks/tools/ElementLinkTraits.h"
 #include "AthLinks/DataLink.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "GaudiKernel/EventContext.h"
 #include <utility>
 
 
@@ -185,6 +186,16 @@ public:
 
 
   /**
+   * @brief Construct a link from a string storable key and an index.  O(1)
+   * @param dataID Key of the object.
+   * @param elemID The index of the element within the container.
+   * @param ctx Event context for this link.
+   */
+  ElementLink(const ID_type& dataID, index_type elemID,
+              const EventContext& ctx);
+
+
+  /**
    * @brief Construct a link from a hashed storable key and an index.  O(1)
    * @param key Hashed key of the object.
    * @param elemID The index of the element within the container.
@@ -193,6 +204,15 @@ public:
    * If @c sg is 0, we take the global default.
    */
   ElementLink(sgkey_t key, index_type elemID, IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Construct a link from a hashed storable key and an index.  O(1)
+   * @param key Hashed key of the object.
+   * @param elemID The index of the element within the container.
+   * @param ctx Event context for this link.
+   */
+  ElementLink(sgkey_t key, index_type elemID, const EventContext& ctx);
 
 
   /**
@@ -213,6 +233,21 @@ public:
 
 
   /**
+   * @brief Construct from a string storable key, index, AND pointer to element.  O(1)
+   * @param dataID Key of the object.
+   * @param elemID The index of the element within the container.
+   * @param pEl Pointer to the element.
+   * @param ctx Event context for this link.
+   * 
+   * USE CAREFULLY: no coherency checks, we just trust you!
+   */
+  ElementLink(const ID_type& dataID,
+              index_type elemID,
+              ElementType pEl,
+              const EventContext& ctx);
+
+
+  /**
    * @brief Construct from a hashed storable key, index, AND pointer to element.  O(1)
    * @param key Hashed key of the object.
    * @param elemID The index of the element within the container.
@@ -230,6 +265,21 @@ public:
 
 
   /**
+   * @brief Construct from a hashed storable key, index, AND pointer to element.  O(1)
+   * @param key Hashed key of the object.
+   * @param elemID The index of the element within the container.
+   * @param pEl Pointer to the element.
+   * @param ctx Event context for this link.
+   * 
+   * USE CAREFULLY: no coherency checks, we just trust you!
+   */
+  ElementLink (sgkey_t key,
+               index_type elemID,
+               ElementType pEl,
+               const EventContext& ctx);
+
+
+  /**
    * @brief Construct a link from an index and reference to the container. O(1)
    * @param data Reference to the container (storable).
    * @param elemID The index of the element within the container.
@@ -240,6 +290,17 @@ public:
   ElementLink (BaseConstReference data,
                index_type elemID, 
                IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Construct a link from an index and reference to the container. O(1)
+   * @param data Reference to the container (storable).
+   * @param elemID The index of the element within the container.
+   * @param ctx Event context for this link.
+   */
+  ElementLink (BaseConstReference data,
+               index_type elemID, 
+               const EventContext& ctx);
 
 
   /**
@@ -263,6 +324,36 @@ public:
                IProxyDict* sg = 0);
 
 
+  /**
+   * @brief Construct from an element and reference to the container. O(N)
+   * @param element The element to reference.
+   * @param data Reference to the container (storable).
+   * @param ctx Event context for this link.
+   *
+   * Does the same thing as the default ctor followed by @c toContainedElement.
+   * Note the reversed parameter order compared to the previous
+   * constructor.  This is to prevent ambiguities in the case that
+   * the contained type is convertable to an int.
+   *
+   * Will throw @c SG::ExcElementNotFound if the element is not
+   * in the container.
+   */
+  ElementLink (const ElementType& element, 
+               BaseConstReference data,
+               const EventContext& ctx);
+
+
+  /**
+   * @brief Construct a link from another link, changing the index.
+   * @param other The source link.
+   * @param elemID The index for the new link.
+   *
+   * The index being constructed will reference the same container
+   * as @c other, but it will refer to element @c elemID.
+   */
+  ElementLink (const ElementLink& other, index_type elemID);
+
+
   // Use default copy ctor.
 
 
@@ -271,6 +362,10 @@ public:
    */
   template <class U>
   ElementLink (const ElementLink<U>& other);
+
+
+  // Default assignment --- declare explicitly to prevent warning from coverity.
+  ElementLink& operator= (const ElementLink&) = default;
 
 
   //@)
@@ -392,6 +487,20 @@ public:
 
 
   /**
+   * @brief Set the link to an element given by index and pointer to container.
+   * @param data Reference to the container (storable).
+   * @param elemID The index of the element within the container.
+   * @param ctx The event context.
+   * @returns True if the link was changed.
+   *
+   * If the link is already set, this will return false and leave the
+   * link unchanged.
+   */
+  bool toIndexedElement(BaseConstReference data, index_type elemID,
+                        const EventContext& ctx);
+
+
+  /**
    * @brief Set from element pointer and a reference to the container (storable)
    * @param data Reference to the container (storable).
    * @param element The element.
@@ -410,6 +519,23 @@ public:
   bool toContainedElement(BaseConstReference data,
                           ElementType element,
                           IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Set from element pointer and a reference to the container (storable)
+   * @param data Reference to the container (storable).
+   * @param element The element.
+   * @param ctx The event context.
+   * @returns True if the link was changed.
+   *
+   * O(N) for sequences!
+   *
+   * If the link is already set, this will return false and leave the
+   * link unchanged.
+   */
+  bool toContainedElement(BaseConstReference data,
+                          ElementType element,
+                          const EventContext& ctx);
 
 
   /**
@@ -448,6 +574,23 @@ public:
 
 
   /**
+   * @brief Set link to point to a new container (storable).
+   * @param data Reference to the container (storable).
+   * @param replace True if we can change an existing link.
+   * @param ctx The event context.
+   * @returns True if the link was changed.
+   *
+   * If the link is already set, this will return false and leave the
+   * link unchanged unless @c replace is set.  The @c replace argument
+   * should be set if the element is now in a new storable container;
+   * e.g. element ptr has been put in a new view container.
+   */
+  bool setStorableObject(BaseConstReference data,
+                         bool replace,
+                         const EventContext& ctx);
+
+
+  /**
    * @brief Set the link to an element given by string key and index.
    * @param dataID Key of the object.
    * @param elemID The index of the element within the container.
@@ -463,6 +606,16 @@ public:
 
   /**
    * @brief Set the link to an element given by string key and index.
+   * @param dataID Key of the object.
+   * @param elemID The index of the element within the container.
+   * @param ctx The event context.
+   */
+  void resetWithKeyAndIndex(const ID_type& dataID, index_type elemID, 
+                            const EventContext& ctx);
+
+
+  /**
+   * @brief Set the link to an element given by string key and index.
    * @param key Hashed key of the object.
    * @param elemID The index of the element within the container.
    * @param sg Associated store.
@@ -473,6 +626,16 @@ public:
    */
   void resetWithKeyAndIndex(sgkey_t key, index_type elemID, 
                             IProxyDict* sg=0);
+
+
+  /**
+   * @brief Set the link to an element given by string key and index.
+   * @param key Hashed key of the object.
+   * @param elemID The index of the element within the container.
+   * @param ctx The event context.
+   */
+  void resetWithKeyAndIndex(sgkey_t key, index_type elemID, 
+                            const EventContext& ctx);
 
 
   //@}

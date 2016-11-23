@@ -94,7 +94,7 @@ void test1()
   assert (dl3->x == 10);
   assert ((*dl3).x == 10);
   const Foo* foo2a = dl3;
-  assert (foo2a = foo2);
+  assert (foo2a == foo2);
   assert (foo2 == dl3.getDataPtr());
   assert (foo2 == dl3.getDataNonConstPtr());
   assert (dl3.source() == &store);
@@ -153,15 +153,26 @@ void test1()
   Foo* foo3 = new Foo(20);
   store2.record (foo3, "foo2");
 
+  EventContext ctx;
+  ctx.setProxy (&store2);
   DataLink<Foo> dl8 (foo3, &store2);
   assert (dl8.cptr() == foo3);
+  DataLink<Foo> dl8a (foo3, ctx);
+  assert (dl8a.cptr() == foo3);
   DataLink<Foo> dl9 (*foo3, &store2);
   assert (dl9.cptr() == foo3);
+  DataLink<Foo> dl9a (*foo3, ctx);
+  assert (dl9a.cptr() == foo3);
   DataLink<Foo> dl10 ("foo2", &store2);
   assert (dl10.cptr() == foo3);
+  DataLink<Foo> dl10a ("foo2", ctx);
+  assert (dl10a.cptr() == foo3);
   DataLink<Foo> dl11 (sgkey, &store2);
   assert (dl11.cptr() == foo3);
   assert (dl11.source() == &store2);
+  DataLink<Foo> dl11a (sgkey, ctx);
+  assert (dl11a.cptr() == foo3);
+  assert (dl11a.source() == &store2);
 
   Foo* foo4 = new Foo(40);
 
@@ -235,13 +246,24 @@ void test2()
   std::cout << "test2\n";
 
   TestStore::sgkey_t sgkey = store.stringToKey ("foo5", fooclid);
+  TestStore::sgkey_t sgkeyz = store.stringToKey ("fooz", fooclid);
 
   Foo* foo5 = new Foo(50);
   store.record (foo5, "foo5");
+  Foo* fooz = new Foo(999);
+  store.record (fooz, "fooz");
   DataLink<Foo> dl;
   DataLinkBase_test::setLink (dl, sgkey);
   dl.toTransient();
   assert (dl.cptr() == foo5);
+
+  dl.clear();
+  assert (dl.toTransient ("fooz"));
+  assert (dl.dataID() == "fooz");
+  assert (dl.key() == sgkeyz);
+  assert (dl.proxy()->name() == "fooz");
+  assert (dl.source() == &store);
+  
 
   DataLink<Foo> dl2;
   dl2.toPersistent();

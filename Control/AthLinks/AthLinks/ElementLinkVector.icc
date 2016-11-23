@@ -238,7 +238,7 @@ ElementLinkVector<DOBJ>::moveHostDObjs
     MsgStream log(Athena::getMessageSvc(), "ElementLink");
     log << MSG::ERROR
         << "ElementLinkVector::moveHostDObjs called on non-empty vector."
-	  << endreq;
+	  << endmsg;
     throw std::runtime_error("ElementLinkVector::moveHistDObjs : vector not empty");
   }
   m_hostDObjs.swap (dobjs);

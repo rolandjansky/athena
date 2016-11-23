@@ -13,6 +13,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 #include <set>
 #include <iostream>
@@ -72,7 +73,7 @@ struct Bar
 struct BarCont
   : public XXX, public FooCont
 {
-  typedef boost::true_type isSequence;
+  typedef std::true_type isSequence;
   typedef Bar* value_type;
   struct const_iterator
     : public FooCont::const_iterator
@@ -551,6 +552,18 @@ void testit (const std::string& key,
   assert (el12.key() == sgkey);
   assert (el12.source() == &store);
 
+  Link el13 (el12, index1);
+  assert (!el13.isDefault());
+  assert (el13.index() == index1);
+  assert (el13.isValid());
+  assert (!!el13);
+  assert (*el13.cptr() == doindex(cont, index1));
+  assert (el13.getDataPtr() == cont);
+  assert (el13.getDataNonConstPtr() == cont);
+  assert (el13.dataID() == key);
+  assert (el13.key() == sgkey);
+  assert (el13.source() == &store);
+
   el12.reset();
   assert (el12.isDefault());
   assert (el12.index() == null_index);
@@ -708,8 +721,13 @@ void test4()
     foocont4->push_back (new Foo(i+400));
   store2.record (foocont4, "foocont4");
 
+  EventContext ctx;
+  ctx.setProxy (&store2);
+
   ElementLink<FooCont> el1 ("foocont4", 2, &store2);
   assert (*el1.cptr() == (*foocont4)[2]);
+  ElementLink<FooCont> el1a ("foocont4", 2, ctx);
+  assert (*el1a.cptr() == (*foocont4)[2]);
 
   ElementLink<FooCont> el2 ("foocont4", 2);
   assert (el2.cptr() == 0);

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLink.icc 714258 2015-12-12 04:18:16Z ssnyder $
+// $Id: DataLink.icc 783590 2016-11-11 00:38:09Z ssnyder $
 /**
  * @file AthLinks/DataLink.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -51,6 +51,19 @@ DataLink<STORABLE>::DataLink(const_reference data, IProxyDict* sg/*=0*/)
 
 
 /**
+ * @brief Constructor --- link to a STORABLE using a transient ref to it.
+ * @param data The object to which to link.
+ * @param ctx Event context for this link.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const_reference data, const EventContext& ctx)
+  : DataLinkBase (&data, classID(), ctx.proxy())
+{
+}
+
+
+/**
  * @brief Constructor --- link to a STORABLE using a transient pointer to it.
  * @param data The object to which to link.
  * @param sg Associated store; if 0, use the global default.
@@ -59,6 +72,19 @@ template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDict* sg/*=0*/)
   : DataLinkBase (pdata, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a transient pointer to it.
+ * @param data The object to which to link.
+ * @param ctx Event context for this link.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const_pointer pdata, const EventContext& ctx)
+  : DataLinkBase (pdata, classID(), ctx.proxy())
 {
 }
 
@@ -78,6 +104,20 @@ DataLink<STORABLE>::DataLink(const ID_type& dataID,
 
 
 /**
+ * @brief Constructor --- link to a STORABLE using a string ID.
+ * @param dataID Key of the object.
+ * @param ctx Event context for this link.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const ID_type& dataID,
+                             const EventContext& ctx)
+  : DataLinkBase (dataID, classID(), ctx.proxy())
+{
+}
+
+
+/**
  * @brief Constructor --- link to a STORABLE using a hashed ID.
  * @param key Hashed key of the object.
  * @param sg Associated store; if 0, use the global default.
@@ -88,6 +128,21 @@ template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDict* sg /*=0*/)
   : DataLinkBase (key, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a hashed ID.
+ * @param key Hashed key of the object.
+ * @param ctx Event context for this link.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(sgkey_t key, const EventContext& ctx)
+  : DataLinkBase (key, classID(), ctx.proxy())
 {
 }
 
@@ -125,6 +180,20 @@ void DataLink<STORABLE>::toStorableObject(const_reference data,
 
 
 /**
+ * @brief Set the link to an object given by a reference.
+ * @param data The object to which to link.
+ * @param ctx Event context for this link.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toStorableObject(const_reference data,
+                                          const EventContext& ctx)
+{
+  DataLinkBase::toStorableObject (&data, classID(), ctx.proxy());
+}
+
+
+/**
  * @brief Set the link to an object given by a string key.
  * @param dataID Key of the object.
  * @param sg Associated store.
@@ -139,6 +208,20 @@ void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
                                             IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toIdentifiedObject (dataID, classID(), sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a string key.
+ * @param dataID Key of the object.
+ * @param ctx Event context for this link.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
+                                            const EventContext& ctx)
+{
+  DataLinkBase::toIdentifiedObject (dataID, classID(), ctx.proxy());
 }
 
 
@@ -163,6 +246,22 @@ void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
 
 
 /**
+ * @brief Set the link to an object given by a hashed key.
+ * @param key Hashed key of the object.
+ * @param ctx Event context for this link.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
+                                            const EventContext& ctx)
+{
+  DataLinkBase::toIdentifiedObject (key, classID(), ctx.proxy());
+}
+
+
+/**
  * @brief Set the link to the default object of this type.
  * @param sg Associated store.
  *
@@ -181,6 +280,96 @@ inline
 void DataLink<STORABLE>::toDefaultObject (IProxyDict* sg /*= 0*/)
 {
   DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), sg);
+}
+
+
+/**
+ * @brief Set the link to the default object of this type.
+ * @param ctx Event context for this link.
+ *
+ * Note that this is _not_ the same as clearing the link
+ * (use @c clear for that).  This produces a link that will resolve
+ * to any object in SG of the given type, provided that there is only
+ * one of them.  (An attempt to dereference an ambiguous default link
+ * will give an error.)
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toDefaultObject (const EventContext& ctx)
+{
+  DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), ctx.proxy());
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param sg Associated store.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+template <typename STORABLE>
+inline
+bool DataLink<STORABLE>::toTransient (IProxyDict* sg /*= 0*/)
+{
+  return DataLinkBase::toTransient (sg);
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param ctx Event context for this link.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true.
+ */
+template <typename STORABLE>
+inline
+bool DataLink<STORABLE>::toTransient (const EventContext& ctx)
+{
+  return DataLinkBase::toTransient (ctx.proxy());
+}
+
+
+/**
+ * @brief Finish initialization like the link as just been read from root,
+ *        but with a specified key.
+ * @param dataID Key of the object.
+ * @param sg Associated store.
+ *
+ * The link should be clear before this is called.
+ * Returns true.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+template <typename STORABLE>
+inline
+bool DataLink<STORABLE>::toTransient (const ID_type& dataID,
+                                      IProxyDict* sg /*= 0*/)
+{
+  return DataLinkBase::toTransient (dataID, classID(), sg);
+}
+
+
+/**
+ * @brief Finish initialization like the link as just been read from root,
+ *        but with a specified key.
+ * @param dataID Key of the object.
+ * @param ctx Event context for this link.
+ *
+ * The link should be clear before this is called.
+ * Returns true.
+ */
+template <typename STORABLE>
+inline
+bool DataLink<STORABLE>::toTransient (const ID_type& dataID,
+                                      const EventContext& ctx)
+{
+  return DataLinkBase::toTransient (dataID, classID(), ctx.proxy());
 }
 
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLinkBase.h 714258 2015-12-12 04:18:16Z ssnyder $
+// $Id: DataLinkBase.h 783590 2016-11-11 00:38:09Z ssnyder $
 /**
  * @file AthLinks/DataLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +18,8 @@
 
 
 #include "AthLinks/tools/DataProxyHolder.h"
+#include "AthLinks/exceptions.h"
+#include "GaudiKernel/EventContext.h"
 
 
 namespace SG {
@@ -109,6 +111,46 @@ public:
    * If @c sg is 0, then we use the global default store.
    */
   bool toTransient (IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Finish initialization after link has been read.
+   * @param ctx Event context for this link.
+   *
+   * This should be called after a link has been read by root
+   * in order to set the proxy pointer.
+   * Returns true.
+   */
+  bool toTransient (const EventContext& ctx);
+
+
+  /**
+   * @brief Finish initialization like the link as just been read from root,
+   *        but with a specified key.
+   * @param dataID Key of the object.
+   * @param link_clid CLID of the link being set.
+   * @param sg Associated store.
+   *
+   * The link should be clear before this is called.
+   * Returns true.
+   *
+   * If @c sg is 0, then we use the global default store.
+   */
+  bool toTransient (const ID_type& dataID, CLID link_clid, IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Finish initialization like the link as just been read from root,
+   *        but with a specified key.
+   * @param dataID Key of the object.
+   * @param link_clid CLID of the link being set.
+   * @param ctx Event context for this link.
+   *
+   * The link should be clear before this is called.
+   * Returns true.
+   */
+  bool toTransient (const ID_type& dataID, CLID link_clid,
+                    const EventContext& ctx);
 
 
   /**

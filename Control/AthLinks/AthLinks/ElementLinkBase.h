@@ -79,6 +79,9 @@ public:
   typedef void* castfn_t (SG::DataProxy*);
 
 
+  // Try to avoid coverity warning.
+  ElementLinkBase& operator= (const ElementLinkBase&) = default;
+
 
   /**
    * @brief Test the index validity.
@@ -291,6 +294,17 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    IProxyDict* sg);
+
+
+  /**
+   * @brief Construct a link from another link, changing the index.
+   * @param other The source link.
+   * @param elemID The index for the new link.
+   *
+   * The index being constructed will reference the same container
+   * as @c other, but it will refer to element @c elemID.
+   */
+  ElementLinkBase (const ElementLinkBase& other, index_type elemID);
 
 
   /**

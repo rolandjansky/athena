@@ -36,7 +36,7 @@ class IndexHolder
 {
 public:
   /// Constructor.
-  IndexHolder() : m_valid(false) {}
+  IndexHolder() : m_index(), m_valid(false) {}
   
   /// Copy constructor.
   IndexHolder (const T& t) : m_index(t), m_valid(true) {}
