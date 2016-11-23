@@ -29,7 +29,8 @@ public:
   
   // specifics of ITrigNavigationThinningSvc
 
-  StatusCode doSlimming( std::vector<uint32_t>& slimmed_and_serialzied ) { return m_slimmingTool->doSlimming(slimmed_and_serialzied);  }
+  StatusCode doSlimming( std::vector<uint32_t>& slimmed_and_serialized ) override
+ { return m_slimmingTool->doSlimming(slimmed_and_serialized);  }
   
   // forwards of ThinningSvc
   virtual bool thinningOccurred() const override;
