@@ -21,7 +21,8 @@ VertexFinder::VertexFinder(const std::string& type,
     DiTauToolBase(type, name, parent),
     m_primVtxContainerName("PrimaryVertices"),
     m_assocTracksName("GhostTrack"),
-    m_trackVertexAssocName("JetTrackVtxAssoc_forDiTaus")
+    m_trackVertexAssocName("JetTrackVtxAssoc_forDiTaus"),
+    m_maxJVF(-100)
 {
     declareInterface<DiTauToolBase > (this);
     declareProperty("PrimVtxContainerName", m_primVtxContainerName);

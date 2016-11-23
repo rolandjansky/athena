@@ -8,18 +8,10 @@ from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.Configured import Configured
 
 # global tauRec config keys
-_outputType = "xAOD::DiTauJetContainer"
 _outputKey = "DiTauJets"
 _outputAuxType = "xAOD::DiTauJetAuxContainer"
 _outputAuxKey = "DiTauJetsAux."
 _jet_container = "AntiKt10LCTopoJets"
-_R_jet = 1.0                # seed jet radius  ... TODO check correct implementation in tools
-_R_subjet = 0.2             # subjet radius  ... TODO check correct implementation in tools
-_R_core = 0.1               # subjet core radius  ... TODO check correct implementation in tools
-_do_cell_finding = True     # enable cell finder
-_write_jet_cells = True     # write seed jet cell information in xAOD
-_write_subjet_cells = True  # write subjet cell information in xAOD
-_use_cells = True           # use cells in ID variable calculations
 
 
 class DiTauBuilder(Configured):
@@ -55,6 +47,8 @@ class DiTauBuilder(Configured):
         # DiTauRec Tools
         # ---------------------------------------------------------------
         import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
+        from DiTauRec.DiTauRecFlags import diTauFlags
+        from DiTauRec.DiTauRecConf import DiTauBuilder
 
         tools = []
         tools.append(DiTauAlgs.getSeedJetBuilder(_jet_container))
@@ -62,20 +56,21 @@ class DiTauBuilder(Configured):
         tools.append(DiTauAlgs.getSubjetBuilder())
         from InDetRecExample.InDetJobProperties import InDetFlags
         from JetRec.JetRecFlags import jetFlags
-        if InDetFlags.doVertexFinding() and jetFlags.useTracks():
+        if (InDetFlags.doVertexFinding() and jetFlags.useTracks()) or diTauFlags.doVtxFinding:
             tools.append(DiTauAlgs.getVertexFinder())
             pass
         tools.append(DiTauAlgs.getDiTauTrackFinder())
-        if _do_cell_finding:
-            tools.append(DiTauAlgs.getCellFinder(_write_jet_cells, _write_subjet_cells))
+        if diTauFlags.doCellFinding:
+            tools.append(DiTauAlgs.getCellFinder(self.write_jet_cells, self.write_subjet_cells))
             pass
-        tools.append(DiTauAlgs.getIDVarCalculator(_use_cells))
+
+        if not diTauFlags.doCellFinding:
+            self.use_cells = False
+        tools.append(DiTauAlgs.getIDVarCalculator(self.use_cells))
 
         # ---------------------------------------------------------------
         # add DiTauBuilder to Algorithm Sequence
         # ---------------------------------------------------------------
-        from DiTauRec.DiTauRecFlags import diTauFlags
-        from DiTauRec.DiTauRecConf import DiTauBuilder
         DiTauBuilder = DiTauBuilder(
             name=self.name,
             DiTauContainer=_outputKey,
@@ -85,9 +80,9 @@ class DiTauBuilder(Configured):
             minPt=diTauFlags.diTauRecJetSeedPt(),
             maxEta=2.5,
             OutputLevel=3,
-            Rjet=_R_jet,
-            Rsubjet=_R_subjet,
-            Rcore=_R_core)
+            Rjet=self.R_jet,
+            Rsubjet=self.R_subjet,
+            Rcore=self.R_core)
 
         topSequence += DiTauBuilder
         #print topSequence
