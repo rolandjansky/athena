@@ -9,21 +9,45 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 
 
-def getJetSplitterInstance( ):
-    return JetSplitter( name="JetSplitter" )
+def getJetSplitterInstance( instance, logratio, pufixlogratio ):
+
+    name=instance+"_"+str(int(pufixlogratio*10))
+
+    return JetSplitter( name=name,
+                        logratio=logratio,
+                        pufixlogratio=pufixlogratio
+                        )
+
+def getJetSplitterInstance_LowLogRatio( ):
+    return JetSplitter_LowLogRatio( name="JetSplitter_LowLogRatio" )
 
 
 class JetSplitter (TrigJetSplitter):
     __slots__ = []
     
-    def __init__(self, name):
+    def __init__(self, name, logratio, pufixlogratio):
         super( JetSplitter, self ).__init__( name )
         
         self.JetInputKey  = "TrigJetRec"
         self.JetOutputKey = "SplitJet"
         self.EtaHalfWidth = 0.4
         self.PhiHalfWidth = 0.4
-        self.JetLogRatio     = 1.2
+        self.JetLogRatio     = logratio
+        self.JetPUFixLogRatio     = pufixlogratio
+
+class JetSplitter_LowLogRatio (TrigJetSplitter):
+    __slots__ = []
+    
+    def __init__(self, name):
+        super( JetSplitter_LowLogRatio, self ).__init__( name )
+        
+        self.JetInputKey  = "TrigJetRec"
+        self.JetOutputKey = "SplitJet_LowLogRatio"
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4
+        self.JetLogRatio  = -1.7
+        self.Reversed     = True
+
 
 def getBHremovalInstance( ):
     return BHremoval ( name="BHremoval" )

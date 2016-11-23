@@ -32,28 +32,28 @@
 using namespace std;
 
 MuonCluster::MuonCluster(const std::string& name, ISvcLocator* svc) 
-  : HLT::AllTEAlgo(name, svc), m_useCachedResult(false),m_old_feature(0), m_clu_feature(0), m_cachedTE(0),
-    mStoreGate("StoreGateSvc", this->name()) {
+  : HLT::AllTEAlgo(name, svc), m_useCachedResult(false),m_old_feature(0), m_clu_feature(0), m_cachedTE(0)
+{
 
-  mCluEta = 0.;
-  mCluPhi = 0.;
-  mCluNum = 0;
-  mNumJet = -1;
-  mNumTrk = -1;
+  m_CluEta = 0.;
+  m_CluPhi = 0.;
+  m_CluNum = 0;
+  m_NumJet = -1;
+  m_NumTrk = -1;
 
-  declareProperty("DeltaR",       mDeltaR=0.4,                    "radius of the muon cluster");
-  declareProperty("DeltaRJet",    mDeltaRJet=0.7,                 "distance between jet and muon cluster");
-  declareProperty("DeltaRTrk",    mDeltaRTrk=0.4,                 "distance between track and muon cluster");
+  declareProperty("DeltaR",       m_DeltaR=0.4,                    "radius of the muon cluster");
+  declareProperty("DeltaRJet",    m_DeltaRJet=0.7,                 "distance between jet and muon cluster");
+  declareProperty("DeltaRTrk",    m_DeltaRTrk=0.4,                 "distance between track and muon cluster");
   declareProperty("MuonCluLabel", m_featureLabel = "MuonRoICluster", "label for the MuonCluster feature in the HLT Navigation, for the xAOD::TrigCompositeContainer");
   declareProperty("MuonCluLabel_old", m_featureLabelOld = "MuonCluster", "label for the MuonCluster feature in the HLT Navigation, for the TrigMuonClusterFeature container");
   declareProperty("MinJetEt",     m_minJetEt = 30000.0,             "minimum Et (MeV) to consider a jet for isolation");
   declareProperty("PtMinID",      m_PtMinID = 5000.0,             "minimum Pt (MeV) for ID track");
 
-  declareMonitoredVariable("RoIEta", mCluEta);
-  declareMonitoredVariable("RoIPhi", mCluPhi);
-  declareMonitoredVariable("NumClu", mCluNum);
-  declareMonitoredVariable("NumJet", mNumJet);
-  declareMonitoredVariable("NumTrk", mNumTrk);
+  declareMonitoredVariable("RoIEta", m_CluEta);
+  declareMonitoredVariable("RoIPhi", m_CluPhi);
+  declareMonitoredVariable("NumClu", m_CluNum);
+  declareMonitoredVariable("NumJet", m_NumJet);
+  declareMonitoredVariable("NumTrk", m_NumTrk);
   declareMonitoredStdContainer("RoiEta",m_RoiEta);
   declareMonitoredStdContainer("RoiPhi",m_RoiPhi);
 
@@ -64,69 +64,64 @@ MuonCluster::~MuonCluster() {
 
 HLT::ErrorCode MuonCluster::hltInitialize() {
 
-  msg() << MSG::INFO << "initialize()" << endreq;
+  msg() << MSG::INFO << "initialize()" << endmsg;
 
-  msg() << MSG::INFO << "Parameters for MuonCluster:" << name() << endreq;
-  msg() << MSG::INFO << "DeltaR : " << mDeltaR << endreq;
-  msg() << MSG::INFO << "DeltaRJet : " << mDeltaRJet << endreq;
-  msg() << MSG::INFO << "DeltaRTrk : " << mDeltaRTrk << endreq;
-  msg() << MSG::INFO << "MuonCluLabel : " << m_featureLabel << endreq;
+  msg() << MSG::INFO << "Parameters for MuonCluster:" << name() << endmsg;
+  msg() << MSG::INFO << "DeltaR : " << m_DeltaR << endmsg;
+  msg() << MSG::INFO << "DeltaRJet : " << m_DeltaRJet << endmsg;
+  msg() << MSG::INFO << "DeltaRTrk : " << m_DeltaRTrk << endmsg;
+  msg() << MSG::INFO << "MuonCluLabel : " << m_featureLabel << endmsg;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Retrieve service StoreGateSvc" << endreq;
-  }
-
-  if (mStoreGate.retrieve().isFailure()) {
-    msg() << MSG::ERROR << "Cannot retrieve service StoreGateSvc" << endreq;
-    return HLT::BAD_JOB_SETUP;
+    msg() << MSG::DEBUG << "Retrieve service StoreGateSvc" << endmsg;
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Timers are initializated here" << endreq;
+    msg() << MSG::DEBUG << "Timers are initializated here" << endmsg;
   }
 
-  mTimers.push_back(addTimer("ClusterMuon_Initialization"));
-  mTimers.push_back(addTimer("ClusterMuon_ClusterFinding"));
-  mTimers.push_back(addTimer("ClusterMuon_JetsFinding"));
-  mTimers.push_back(addTimer("ClusterMuon_tracksFinding"));
-  mTimers.push_back(addTimer("ClusterMuon_Finalization"));
+  m_Timers.push_back(addTimer("ClusterMuon_Initialization"));
+  m_Timers.push_back(addTimer("ClusterMuon_ClusterFinding"));
+  m_Timers.push_back(addTimer("ClusterMuon_JetsFinding"));
+  m_Timers.push_back(addTimer("ClusterMuon_tracksFinding"));
+  m_Timers.push_back(addTimer("ClusterMuon_Finalization"));
 
   declareMonitoredObject("Initialization", 
-			 *(mTimers[ITIMER_INIT]), 
+			 *(m_Timers[ITIMER_INIT]), 
 			 &TrigTimer::elapsed);
-  declareMonitoredObject("ClusterFinder", *(mTimers[ITIMER_CLUSTER]), 
+  declareMonitoredObject("ClusterFinder", *(m_Timers[ITIMER_CLUSTER]), 
 			 &TrigTimer::elapsed);
-  declareMonitoredObject("JetsFinder", *(mTimers[ITIMER_JETS]), 
+  declareMonitoredObject("JetsFinder", *(m_Timers[ITIMER_JETS]), 
 			 &TrigTimer::elapsed);
-  declareMonitoredObject("tracksFinder", *(mTimers[ITIMER_TRACKS]), 
+  declareMonitoredObject("tracksFinder", *(m_Timers[ITIMER_TRACKS]), 
 			 &TrigTimer::elapsed);
-  declareMonitoredObject("Finalization", *(mTimers[ITIMER_FINAL]), 
+  declareMonitoredObject("Finalization", *(m_Timers[ITIMER_FINAL]), 
 			 &TrigTimer::elapsed);
    
-  msg() << MSG::INFO << "initialize() success" << endreq;
+  msg() << MSG::INFO << "initialize() success" << endmsg;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode MuonCluster::hltBeginRun() {
-  msg() << MSG::INFO << "hltBeginRun"<<  endreq;
+  msg() << MSG::INFO << "hltBeginRun"<<  endmsg;
   return HLT::OK;
 }
 
 HLT::ErrorCode MuonCluster::hltEndRun() {
-  msg() << MSG::INFO << "hltEndRun"<<  endreq;
+  msg() << MSG::INFO << "hltEndRun"<<  endmsg;
   return HLT::OK;
 }
 
 HLT::ErrorCode MuonCluster::hltFinalize() {
-  msg() << MSG::INFO << "hltFinalize()" << endreq;
+  msg() << MSG::INFO << "hltFinalize()" << endmsg;
   return HLT::OK;
 }
 
 HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in, unsigned int type_out)
 { 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "execute()" << endreq;
+    msg() << MSG::DEBUG << "execute()" << endmsg;
   }
   
   clearEvent();
@@ -138,7 +133,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   // i.e. chains seeded by 2MU6 or 2MU10 
   if (m_useCachedResult) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Executing this " << name() << " in cached mode" << endreq;
+      msg() << MSG::DEBUG << "Executing this " << name() << " in cached mode" << endmsg;
     }
 
     // Only count mu as an input TE (for seeding relation of navigation structure)
@@ -160,10 +155,10 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
   } // end of caching
 
-  if (timerSvc()) mTimers[ITIMER_INIT]->stop();
+  if (timerSvc()) m_Timers[ITIMER_INIT]->stop();
 
   if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "execHLTAlgorithm called" << endreq;
+    msg() << MSG::DEBUG << "execHLTAlgorithm called" << endmsg;
  
   //Setup the composite container we will put the MuonRoICluster in
   m_clu_feature = new xAOD::TrigCompositeContainer();
@@ -176,7 +171,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   //check to make sure we have all the input trigger elements!  
   if ( (tes_in.size() < 2) ){
 	     msg() << MSG::ERROR << "input trigger element vector isn't the correct size! Aborting chain."
-	           << endreq;
+	           << endmsg;
 	     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
   }
   
@@ -188,21 +183,21 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   vector<double> VEta,VPhi;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "begin loop on TE and get muon RoIs" << endreq;
+    msg() << MSG::DEBUG << "begin loop on TE and get muon RoIs" << endmsg;
   }
 
   if(tes_in[0].size()==0) {
-    msg() << MSG::WARNING << "Can't get any TE " << endreq;
+    msg() << MSG::WARNING << "Can't get any TE " << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
   } else {
     for (HLT::TEVec::const_iterator it = tes_in[0].begin();it != tes_in[0].end(); ++it) {
       const TrigRoiDescriptor* roi;
       if ( HLT::OK != getFeature(*it, roi) ) {
-        msg() << MSG::WARNING << "Can't get RoI for TE " << (*it)->getId()<< endreq;
+        msg() << MSG::WARNING << "Can't get RoI for TE " << (*it)->getId()<< endmsg;
         return HLT::NAV_ERROR;
       }
       if(i_cl>= kMAX_ROI) {
-        msg() << MSG::WARNING << "Too many Muon RoIs: bailing out" << endreq;
+        msg() << MSG::WARNING << "Too many Muon RoIs: bailing out" << endmsg;
         break;
       }
 
@@ -223,19 +218,19 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   }
 
   if (msgLvl() <= MSG::DEBUG) { 
-    msg() << MSG::DEBUG << "Accumulated " << i_cl << " ROI Directions: " << endreq;
+    msg() << MSG::DEBUG << "Accumulated " << i_cl << " ROI Directions: " << endmsg;
     for (int unsigned i=0;i<VEta.size();i++) {
-      msg() << MSG::DEBUG << "[" << VEta[i] << "," << VPhi[i] << "]" << endreq;
+      msg() << MSG::DEBUG << "[" << VEta[i] << "," << VPhi[i] << "]" << endmsg;
     }
   }
    
   int n_cl = i_cl;
  
-  if (timerSvc()) mTimers[ITIMER_INIT]->stop();
-  if (timerSvc()) mTimers[ITIMER_CLUSTER]->start();
+  if (timerSvc()) m_Timers[ITIMER_INIT]->stop();
+  if (timerSvc()) m_Timers[ITIMER_CLUSTER]->start();
   // start the clustering
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Start the Muon RoI clustering" << endreq;
+    msg() << MSG::DEBUG << "Start the Muon RoI clustering" << endmsg;
   }
   for(int i_cl=0; i_cl<n_cl; ++i_cl) { // loop on cluster
     bool improvement = true;
@@ -248,7 +243,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       int n_in_clu = 0;
       for (int j_cl=0; j_cl<n_cl; ++j_cl) { // loop on cluster
           float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
-          if(deltaR<mDeltaR){
+          if(deltaR<m_DeltaR){
               ++n_in_clu;
               if(n_itr==1){
                   muonClu[i_cl].eta = muonClu[i_cl].eta + (muonClu0[j_cl].eta-muonClu[i_cl].eta)/n_in_clu;
@@ -273,12 +268,12 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       Int_t n_in_clu2=0;
       for (int j_cl=0; j_cl<n_cl; ++j_cl) { // loop on cluster
           float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
-          if(deltaR<mDeltaR){
+          if(deltaR<m_DeltaR){
               ++n_in_clu2;
           }
       }
       if (msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Finding the number of Muon RoIs in the new Cluster....   " << n_in_clu2 << endreq;
+        msg() << MSG::DEBUG << "Finding the number of Muon RoIs in the new Cluster....   " << n_in_clu2 << endmsg;
       } 
       if(n_in_clu2>muonClu[i_cl].nroi){
           muonClu[i_cl].nroi=n_in_clu2;
@@ -286,23 +281,23 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       } else  improvement = false;
     }//end while
   }
-  if (timerSvc()) mTimers[ITIMER_CLUSTER]->stop();
+  if (timerSvc()) m_Timers[ITIMER_CLUSTER]->stop();
   // find the cluster with max number of rois
   int ncl_max = 0;
   for(int i_cl=0; i_cl<n_cl; ++i_cl) { // loop on cluster
     if(muonClu[i_cl].nroi>ncl_max){
-      mCluEta = muonClu[i_cl].eta;
-      mCluPhi = muonClu[i_cl].phi;
-      mCluNum = muonClu[i_cl].nroi;
+      m_CluEta = muonClu[i_cl].eta;
+      m_CluPhi = muonClu[i_cl].phi;
+      m_CluNum = muonClu[i_cl].nroi;
       ncl_max = muonClu[i_cl].nroi;
     }
   }
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Finding the Cluster with the maximum number of RoIs....   " << ncl_max << endreq;
+    msg() << MSG::DEBUG << "Finding the Cluster with the maximum number of RoIs....   " << ncl_max << endmsg;
   }
   
 
-  if (timerSvc()) mTimers[ITIMER_JETS]->start();
+  if (timerSvc()) m_Timers[ITIMER_JETS]->start();
 
   int njets = 0;
 
@@ -312,18 +307,18 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   HLT::ErrorCode ec = getFeature(inputTE.front(), vectorOfJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get the Jets " << endreq;
+    msg() << MSG::WARNING << " Failed to get the Jets " << endmsg;
     return ec;
   }
 
   if(vectorOfJets==0) {
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Missing feature." << endreq;
+      msg() << MSG::WARNING << "Missing feature." << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
   if (msgLvl() <= MSG::DEBUG) { 
-    msg() << MSG::DEBUG << "The number of Jets attached to the TE is " << vectorOfJets->size() << endreq;
+    msg() << MSG::DEBUG << "The number of Jets attached to the TE is " << vectorOfJets->size() << endmsg;
   }
 
   for (xAOD::JetContainer::const_iterator jet = vectorOfJets->begin(); jet != vectorOfJets->end(); jet++) {
@@ -336,15 +331,15 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     double jetPhi = (*jet)->phi();
     double erat = -99999999.;
     
-    double delta_eta = mCluEta - jetEta;
-    double delta_phi = HLT::wrapPhi(mCluPhi - jetPhi);
+    double delta_eta = m_CluEta - jetEta;
+    double delta_phi = HLT::wrapPhi(m_CluPhi - jetPhi);
 
     double dR = sqrt( (delta_eta*delta_eta) + (delta_phi*delta_phi) );
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "HLT jet /eta=" << jetEta << " /phi= " << jetPhi << "/Et= " << etjet << "/DR= " << dR << endreq;
+      msg() << MSG::DEBUG << "HLT jet /eta=" << jetEta << " /phi= " << jetPhi << "/Et= " << etjet << "/DR= " << dR << endmsg;
 
-    if (dR<mDeltaRJet) {
+    if (dR<m_DeltaRJet) {
       double zero = 0.;
       double one = 1.;
       if (CxxUtils::fpcompare::greater(jetEMF,zero)){
@@ -354,7 +349,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         erat = 999; 
       }   
       if (msgLvl() <= MSG::DEBUG) 
-	    msg() << MSG::DEBUG << "Jet log10 of had/em energy ratio: " << erat << endreq;
+	    msg() << MSG::DEBUG << "Jet log10 of had/em energy ratio: " << erat << endmsg;
       
       if (erat<=0.5) {
         njets++;
@@ -362,17 +357,17 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     }
   } 
 
-  mNumJet = njets;
+  m_NumJet = njets;
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << mNumJet << " Jets with Log(H/E)<1.0" << endreq;
+    msg() << MSG::DEBUG << "Found " << m_NumJet << " Jets with Log(H/E)<1.0" << endmsg;
 
-  if (timerSvc()) mTimers[ITIMER_JETS]->stop();
+  if (timerSvc()) m_Timers[ITIMER_JETS]->stop();
 
-  if (timerSvc()) mTimers[ITIMER_TRACKS]->start();
+  if (timerSvc()) m_Timers[ITIMER_TRACKS]->start();
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Accessing the ID track collection" << endreq;
+    msg() << MSG::DEBUG << "Accessing the ID track collection" << endmsg;
 
   int ntrk = 0;
   
@@ -386,17 +381,17 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   for (HLT::TEVec::const_iterator it = tes_in[0].begin();it != tes_in[0].end(); ++it) {
 	
 	nTEs++;
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "trigger element: " << nTEs  << " of tes_in[0] "<< endreq;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "trigger element: " << nTEs  << " of tes_in[0] "<< endmsg;
 		
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
     HLT::ErrorCode ect = getFeatures(*it,vectorOfTrackCollections, "InDetTrigTrackingxAODCnv_Muon_IDTrig");
     
     if( ect!=HLT::OK ) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Failed to get tracks" << endreq;
+	msg() << MSG::DEBUG << " Failed to get tracks" << endmsg;
     } else {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " collections of tracks " << endreq;
+	msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " collections of tracks " << endmsg;
 
       std::vector<const xAOD::TrackParticleContainer*>::iterator
 	theTrackColl = vectorOfTrackCollections.begin(),
@@ -420,13 +415,13 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 	  double eta  = (*track)->eta();
 
 	  if(msgLvl() <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
+	    msg() << MSG::DEBUG << "track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endmsg;
 
-	  double delta_etat = mCluEta - eta;
-	  double delta_phit = HLT::wrapPhi(mCluPhi - phi);
+	  double delta_etat = m_CluEta - eta;
+	  double delta_phit = HLT::wrapPhi(m_CluPhi - phi);
 
 	  double dRt = sqrt( (delta_etat*delta_etat) + (delta_phit*delta_phit) );
-	  if (dRt<mDeltaRTrk) {
+	  if (dRt<m_DeltaRTrk) {
 	    ntrk++;
 	  }
 	}
@@ -435,31 +430,31 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   }
 
   //monitored variable
-  mNumTrk = ntrk;
+  m_NumTrk = ntrk;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Found " << mNumTrk << " tracks around the Muon Cluster direction (inaccurate, often duplicate tracks in container)" << endreq;
+    msg() << MSG::DEBUG << "Found " << m_NumTrk << " tracks around the Muon Cluster direction (inaccurate, often duplicate tracks in container)" << endmsg;
   }
   
-  if (timerSvc()) mTimers[ITIMER_TRACKS]->stop();
+  if (timerSvc()) m_Timers[ITIMER_TRACKS]->stop();
 
-  if (timerSvc()) mTimers[ITIMER_FINAL]->start();
+  if (timerSvc()) m_Timers[ITIMER_FINAL]->start();
 
   //WRITE FEATURE 
-  m_old_feature = new TrigMuonClusterFeature(mCluEta,mCluPhi, mCluNum, mNumJet, mNumTrk);
+  m_old_feature = new TrigMuonClusterFeature(m_CluEta,m_CluPhi, m_CluNum, m_NumJet, m_NumTrk);
     
   // finished now debugging
   if (msgLvl() <= MSG::DEBUG) {  
-    msg() << MSG::DEBUG << "Create an output TE seeded by the input" << endreq;
+    msg() << MSG::DEBUG << "Create an output TE seeded by the input" << endmsg;
   }
   xAOD::TrigComposite *compClu = new xAOD::TrigComposite();
   m_clu_feature->push_back(compClu); //add jets to the composite container
   compClu->setName("Cluster");
-  compClu->setDetail( "nTrks", mNumTrk);
-  compClu->setDetail( "nJets", mNumJet);
-  compClu->setDetail( "ClusterEta", mCluEta);
-  compClu->setDetail( "ClusterPhi", mCluPhi);
-  compClu->setDetail( "nRoIs", mCluNum);
+  compClu->setDetail( "nTrks", m_NumTrk);
+  compClu->setDetail( "nJets", m_NumJet);
+  compClu->setDetail( "ClusterEta", m_CluEta);
+  compClu->setDetail( "ClusterPhi", m_CluPhi);
+  compClu->setDetail( "nRoIs", m_CluNum);
   
   
   if ( (tes_in.size()>1) && (tes_in.at(0).size()>0) ){
@@ -469,7 +464,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 	  if( tes_in.at(1).size() > 0){ allTEs.push_back(tes_in.at(1).front());}
   } else {
 	     msg() << MSG::ERROR << "input trigger element vector isn't the correct size! Aborting chain."
-	           << endreq;
+	           << endmsg;
 	     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
   }
   
@@ -484,16 +479,16 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
   if ( hltStatus != HLT::OK ) {
      msg() << MSG::ERROR << "Write of MuonRoICluster TrigCompositeContainer feature into outputTE failed"
-           << endreq;
+           << endmsg;
      return hltStatus;
   }
   if (hltStatusOld != HLT::OK ) {
      msg() << MSG::ERROR << "Write of MuonCluster TrigMuonCluster feature into outputTE failed"
-           << endreq;
+           << endmsg;
      return hltStatusOld;
   }  
 
-  if (timerSvc()) mTimers[ITIMER_FINAL]->stop();
+  if (timerSvc()) m_Timers[ITIMER_FINAL]->stop();
 
   // CACHING
   // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
@@ -512,10 +507,10 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   //----------------------------------------------------------------
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << " REGTEST \t Cluster with : " 
-	  << mCluNum << " LVL1-Roi"  << endreq;
-    msg() << MSG::DEBUG << " REGTEST \t Cluster Eta " <<  mCluEta << "  Cluster Phi " << mCluPhi << endreq;
-    msg() << MSG::DEBUG << " REGTEST \t with " <<  mNumJet << " jets in the cluster cone " << endreq;
-    msg() << MSG::DEBUG << " REGTEST \t and with " <<  mNumTrk << " tracks around the cluster direction " << endreq;
+	  << m_CluNum << " LVL1-Roi"  << endmsg;
+    msg() << MSG::DEBUG << " REGTEST \t Cluster Eta " <<  m_CluEta << "  Cluster Phi " << m_CluPhi << endmsg;
+    msg() << MSG::DEBUG << " REGTEST \t with " <<  m_NumJet << " jets in the cluster cone " << endmsg;
+    msg() << MSG::DEBUG << " REGTEST \t and with " <<  m_NumTrk << " tracks around the cluster direction " << endmsg;
   }
   //----------------------------------------------------------------
   
@@ -526,11 +521,11 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
 
 void MuonCluster::clearEvent() {
-  mCluEta = 0.;
-  mCluPhi = 0.;
-  mCluNum = 0;
-  mNumJet = -1;
-  mNumTrk = -1;
+  m_CluEta = 0.;
+  m_CluPhi = 0.;
+  m_CluNum = 0;
+  m_NumJet = -1;
+  m_NumTrk = -1;
 }
 
 
