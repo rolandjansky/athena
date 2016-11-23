@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTruth
                           GaudiKernel
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
                           PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
                           PhysicsAnalysis/MCTruthClassifier
@@ -36,7 +36,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( egammaD3PDAnalysis
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloClusterCorrectionLib CaloEvent CaloGeoHelpers CaloRecLib AthContainers AthenaBaseComps AthenaKernel CxxUtils EventInfo EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel LArToolsLib D3PDMakerUtils MCTruthClassifierLib RecoToolInterfaces egammaEvent TrkCaloExtension VxVertex )
+                     LINK_LIBRARIES CaloClusterCorrectionLib CaloEvent CaloGeoHelpers CaloRecLib AthContainers AthenaBaseComps AthenaKernel CxxUtils EventInfo EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel LArCablingLib D3PDMakerUtils MCTruthClassifierLib RecoToolInterfaces egammaEvent TrkCaloExtension VxVertex )
 
 # Install files from the package:
 atlas_install_headers( egammaD3PDAnalysis )

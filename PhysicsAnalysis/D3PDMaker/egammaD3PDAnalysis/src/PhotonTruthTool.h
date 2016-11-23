@@ -68,7 +68,7 @@ public:
    * @return The matching @c TruthParticle, or null.
    */
   const xAOD::TruthParticle*
-  toTruthParticle (const xAOD::Photon& g) const;
+  toTruthParticle (const xAOD::Photon& g) /*const*/;
 
 
   /**
