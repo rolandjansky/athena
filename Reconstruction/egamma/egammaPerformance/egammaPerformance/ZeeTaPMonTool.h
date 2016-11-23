@@ -38,6 +38,7 @@ class ZeeTaPMonTool : public egammaMonToolBase
   float m_ElectronEtCut;
   float m_MassLowerCut;
   float m_MassUpperCut;
+  int m_PhiBinning;
 
   // Number of Z candidates vs leading electron eta
 

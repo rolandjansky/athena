@@ -30,13 +30,25 @@ using CLHEP::GeV;
 ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   :  egammaMonToolBase(type,name,parent),
      m_hNZcandidates(nullptr),
+     m_electronGroup(nullptr),
+     m_electronTrkGroup(nullptr),
+     m_electronIdGroup(nullptr),
+     m_electronIsoGroup(nullptr),
+     m_electronLBGroup(nullptr),
+     m_electronEffGroup(nullptr),
      m_hMass(nullptr),
      m_hIDEt(nullptr),
      m_hIDEta(nullptr),
      m_hIDPhi(nullptr),
+     m_effhIDEt(nullptr),
+     m_effhIDEta(nullptr),
+     m_effhIDPhi(nullptr),
      m_hISOEt(nullptr),
      m_hISOEta(nullptr),
      m_hISOPhi(nullptr),
+     m_effhISOEt(nullptr),
+     m_effhISOEta(nullptr),
+     m_effhISOPhi(nullptr),
      m_hN(nullptr),
      m_hEt(nullptr),
      m_hEta(nullptr),
@@ -50,8 +62,8 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
   declareProperty("electronEtCut",m_ElectronEtCut = 15*GeV, "Et cut for electrons");
   declareProperty("massLowerCut", m_MassLowerCut = 70*GeV,"Lower mass cut");
   declareProperty("massUpperCut", m_MassUpperCut = 110*GeV,"Upper mass cut");
+  declareProperty("PhiBinning", m_PhiBinning = 64,"Number of bins for phi");
 
-  m_lumiBlockNumber=-1;
   m_lumiBlockNumber = 0;
   m_nZCandidatesInCurrentLB = 0;
   m_nZCandidates = 0; 
@@ -87,24 +99,24 @@ StatusCode ZeeTaPMonTool::bookHistograms()
   // EFFICIENCIES IN MAIN PANEL
   bookTH1F(m_hIDEt,  *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEtOld",   "LHTight electron ID efficiency vs Et [MeV]",100, -1000.0, 250000.0);
   bookTH1F(m_hIDEta, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsEtaOld",  "LHTight electron ID efficiency vs #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hIDPhi, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsPhiOld",  "LHTight electron ID efficiency vs #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hIDPhi, *m_electronEffGroup,"EfficiencyTagAndProbeElectronIDvsPhiOld",  "LHTight electron ID efficiency vs #phi", m_PhiBinning, -3.2, 3.2);
   bookTH1F(m_hISOEt, *m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEtOld",  "LHTight electron ISO efficiency vs Et [MeV]",100, -1000.0, 250000.0);
   bookTH1F(m_hISOEta,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsEtaOld", "LHTight electron ISO efficiency vs #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hISOPhi,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsPhiOld", "LHTight electron ISO efficiency vs #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hISOPhi,*m_electronEffGroup,"EfficiencyTagAndProbeElectronISOvsPhiOld", "LHTight electron ISO efficiency vs #phi", m_PhiBinning, -3.2, 3.2);
 
   bookTProfile(m_effhIDEt,  *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsEt",   "LHTight electron ID efficiency vs Et [MeV]",100, -1000.0, 250000.0, 0.,1.1);
   bookTProfile(m_effhIDEta, *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsEta",  "LHTight electron ID efficiency vs #eta", 64, -3.2, 3.2, 0.,1.1);
-  bookTProfile(m_effhIDPhi, *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsPhi",  "LHTight electron ID efficiency vs #phi", 64, -3.2, 3.2, 0.,1.1);
+  bookTProfile(m_effhIDPhi, *m_electronGroup,"EfficiencyTagAndProbeElectronIDvsPhi",  "LHTight electron ID efficiency vs #phi", m_PhiBinning, -3.2, 3.2, 0.,1.1);
   bookTProfile(m_effhISOEt, *m_electronGroup,"EfficiencyTagAndProbeElectronISOvsEt",  "LHTight electron ISO efficiency vs Et [MeV]",100, -1000.0, 250000.0, 0.,1.1);
   bookTProfile(m_effhISOEta,*m_electronGroup,"EfficiencyTagAndProbeElectronISOvsEta", "LHTight electron ISO efficiency vs #eta", 64, -3.2, 3.2, 0., 1.1);
-  bookTProfile(m_effhISOPhi,*m_electronGroup,"EfficiencyTagAndProbeElectronISOvsPhi", "LHTight electron ISO efficiency vs #phi", 64, -3.2, 3.2, 0., 1.1);
+  bookTProfile(m_effhISOPhi,*m_electronGroup,"EfficiencyTagAndProbeElectronISOvsPhi", "LHTight electron ISO efficiency vs #phi", m_PhiBinning, -3.2, 3.2, 0., 1.1);
 
   // COMPLEMENTARY HISTOGRAMS FOR EXPERT PANEL
   bookTH1F(m_hN,          *m_electronGroup,"electronTagAndProbeN",          "Number of Probe electrons",40, 0.0, 40.0);
   bookTH1F(m_hEt,         *m_electronGroup,"electronTagAndProbeEt",         "Probe electron Et [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi,     *m_electronGroup,"electronTagAndProbeEtaPhi",     "Probe electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH2F(m_hEtaPhi,     *m_electronGroup,"electronTagAndProbeEtaPhi",     "Probe electron #eta,#phi map", 64, -3.2, 3.2, m_PhiBinning, -3.2, 3.2);
   bookTH1F(m_hEta,        *m_electronGroup,"electronTagAndProbeEta",        "Probe electron #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,        *m_electronGroup,"electronTagAndProbePhi",        "Probe electron #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hPhi,        *m_electronGroup,"electronTagAndProbePhi",        "Probe electron #phi", m_PhiBinning, -3.2, 3.2);
 
   // TRACK PANEL
   bookTH1FperRegion(m_hvDeltaEta1     , *m_electronTrkGroup,"electronTagAndProbeDeltaEta1",     "PROBE electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);

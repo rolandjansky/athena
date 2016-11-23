@@ -36,7 +36,7 @@ class forwardElectronMonTool : public egammaMonToolBase
   TH1 * m_hEta;     // Histogram for electron eta
   TH1 * m_hPhi;     // Histogram for electron phi
   TH2 * m_hEtaPhi;  // Histogram for electron eta,phi for candidates with more than 10 GeV energy
-  TH1 * m_hTopoEtCone40; // Histogram for calo based isolation energy
+  //TH1 * m_hTopoEtCone40; // Histogram for calo based isolation energy
   TH1 * m_hTime;         // Histogram for forward cluster time
 
   // Loose electrons per region histograms
@@ -44,7 +44,7 @@ class forwardElectronMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvEt;  // Histograms for electron transverse energies
   std::vector<TH1*> m_hvEta; // Histograms for electron transverse eta
   std::vector<TH1*> m_hvPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
+  //std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
   std::vector<TH1*> m_hvTime;  // Histograms for electron times
 
   // Loose electron ID per region histograms
@@ -62,7 +62,7 @@ class forwardElectronMonTool : public egammaMonToolBase
   TH1 * m_hTightEta;          // Histogram for electron eta
   TH1 * m_hTightPhi;          // Histogram for electron phi
   TH2 * m_hTightEtaPhi;       // Histogram for electron eta,phi
-  TH1 * m_hTightTopoEtCone40; // Histogram for calo based isolation energy
+  //TH1 * m_hTightTopoEtCone40; // Histogram for calo based isolation energy
   TH1 * m_hTightTime;         // Histogram for forward cluster time
 
   // Tight electrons per region histograms
@@ -70,7 +70,7 @@ class forwardElectronMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvTightEt;  // Histograms for electron transverse energies
   std::vector<TH1*> m_hvTightEta; // Histograms for electron transverse eta
   std::vector<TH1*> m_hvTightPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvTightTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
+  //std::vector<TH1*> m_hvTightTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
   std::vector<TH1*> m_hvTightTime;  // Histograms for electron times
 
   // Loose electron ID per region histograms

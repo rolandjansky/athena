@@ -82,7 +82,13 @@
 #include "TH2F.h"
 
 photonMonTool::photonMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  :  egammaMonToolBase(type,name,parent)
+  :  egammaMonToolBase(type,name,parent),
+     m_photonGroup(nullptr),
+     m_photonConvGroup(nullptr),
+     m_photonUnconvGroup(nullptr),
+     m_photonIdGroup(nullptr),
+     m_photonRegionGroup(nullptr),
+     m_photonLBGroup(nullptr)
 {
   // Name of the photon collection
   declareProperty("PhotonContainer", m_PhotonContainer = "PhotonCollection", "Name of the photon collection");
@@ -128,7 +134,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   std::string hname = std::string("photonN") + myHist.m_nameOfPhotonType;
   std::string hlongname =  std::string("Number of photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hN, *m_photonGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hN, *m_photonGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEt") + myHist.m_nameOfPhotonType;
@@ -187,7 +193,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonN") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon number ; Nel ; Nevents") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1FperRegion(myHist.m_hvN, *m_photonRegionGroup, hname, hlongname ,40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(myHist.m_hvN, *m_photonRegionGroup, hname, hlongname ,20, 0.0, 20.0,start,end);
 
   // Eta
   hname = std::string("photonEta") + myHist.m_nameOfPhotonType;
@@ -244,7 +250,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonNUnconv") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Number of Unconverted photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hNUnconv, *m_photonUnconvGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hNUnconv, *m_photonUnconvGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEtUnconv") + myHist.m_nameOfPhotonType;
@@ -283,7 +289,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonNConv") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Number of Converted photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hNConv, *m_photonConvGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hNConv, *m_photonConvGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEtConv") + myHist.m_nameOfPhotonType;
@@ -390,7 +396,7 @@ StatusCode photonMonTool::bookHistograms()
   m_photonConvGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/Conv",      run); // to be re-booked every new run
   m_photonIdGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/ID",          run); // to be re-booked every new run
   m_photonRegionGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/Region",  run); // to be re-booked every new run
-  m_photonLBGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/LBMon",       run); // to be re-booked every new run
+  m_photonLBGroup = new MonGroup(this,"egamma/photons"+m_GroupExtension+"/LBMon",run, ATTRIB_X_VS_LB, "", "merge"); // to be re-booked every new run
 
   StatusCode sc;
   sc = bookHistogramsForOnePhotonType(*m_CbLoosePhotons);
@@ -635,7 +641,7 @@ StatusCode photonMonTool::fillHistograms() {
   //deal with the change of LB
   if (m_currentLB>previousLB) {
     // update the by LB variables
-    
+
     m_CbLoosePhotons->m_nPhotonsPerLumiBlock.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLB);
     m_CbLoosePhotons->m_nPhotonsPerLumiBlockUnconv.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLBUnconv);
     m_CbLoosePhotons->m_nPhotonsPerLumiBlockConv.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLBConv);
@@ -643,6 +649,25 @@ StatusCode photonMonTool::fillHistograms() {
     m_CbTightPhotons->m_nPhotonsPerLumiBlock.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLB);
     m_CbTightPhotons->m_nPhotonsPerLumiBlockUnconv.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLBUnconv);
     m_CbTightPhotons->m_nPhotonsPerLumiBlockConv.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLBConv);
+
+    // update content for the last lumi block
+    
+    // update the by LB variables
+ 
+    double NConvPhotons = m_CbLoosePhotons->m_nPhotonsInCurrentLBConv;
+    double NPhotons =  m_CbLoosePhotons->m_nPhotonsInCurrentLB;
+    double fractionConv = 0.;
+    if (NPhotons>0) fractionConv = NConvPhotons/NPhotons;
+
+    //ATH_MSG_WARNING( "CommentBL fractionConv= " << fractionConv );
+    
+    m_CbLoosePhotons->m_hLB_fConv->Fill(m_currentLB, fractionConv);
+
+    NConvPhotons = m_CbTightPhotons->m_nPhotonsInCurrentLBConv;
+    NPhotons =  m_CbTightPhotons->m_nPhotonsInCurrentLB;
+    fractionConv = 0.;
+    if (NPhotons>0) fractionConv = NConvPhotons/NPhotons;
+    m_CbTightPhotons->m_hLB_fConv->Fill(m_currentLB, fractionConv);
 
     // Reset counters
     m_CbLoosePhotons->m_nPhotonsInCurrentLB=0;
@@ -745,29 +770,5 @@ StatusCode photonMonTool::fillHistograms() {
 
 StatusCode photonMonTool::procHistograms()
 {
-
-  // update content for the last lumi block
-
-  // update the by LB variables
-  m_CbLoosePhotons->m_nPhotonsPerLumiBlock.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLB);
-  m_CbLoosePhotons->m_nPhotonsPerLumiBlockUnconv.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLBUnconv);
-  m_CbLoosePhotons->m_nPhotonsPerLumiBlockConv.push_back(m_CbLoosePhotons->m_nPhotonsInCurrentLBConv);
-
-  m_CbTightPhotons->m_nPhotonsPerLumiBlock.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLB);
-  m_CbTightPhotons->m_nPhotonsPerLumiBlockUnconv.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLBUnconv);
-  m_CbTightPhotons->m_nPhotonsPerLumiBlockConv.push_back(m_CbTightPhotons->m_nPhotonsInCurrentLBConv);
- 
-  double NConvPhotons =  m_CbLoosePhotons->m_hLB_NConv->GetBinContent(m_currentLB);
-  double NPhotons =  m_CbLoosePhotons->m_hLB_N->GetBinContent(m_currentLB);
-  double fractionConv = 0.;
-  if (NPhotons>0) fractionConv = NConvPhotons/NPhotons;
-  m_CbLoosePhotons->m_hLB_fConv->Fill(m_currentLB, fractionConv);
-
-  NConvPhotons =  m_CbTightPhotons->m_hLB_NConv->GetBinContent(m_currentLB);
-  NPhotons =  m_CbTightPhotons->m_hLB_N->GetBinContent(m_currentLB);
-  fractionConv = 0.;
-  if (NPhotons>0) fractionConv = NConvPhotons/NPhotons;
-  m_CbTightPhotons->m_hLB_fConv->Fill(m_currentLB, fractionConv);
-  
   return StatusCode::SUCCESS;
 }
