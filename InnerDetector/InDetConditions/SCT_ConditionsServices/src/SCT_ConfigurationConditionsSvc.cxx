@@ -37,7 +37,7 @@ static const std::string coolMurFolderName2("/SCT/DAQ/Config/MUR");
 
 
 // Static value to represent all 128 channels being good (signed int)
-static const int noMask(-1);
+//static const int noMask(-1);
 // in case the chip number cannot be retrieved, this is the invalid value
 static const int invalidChipNumber(-1);
 // Constructor
@@ -54,7 +54,7 @@ SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc( const std::strin
   m_IOVDbSvc("IOVDbSvc", name),
   m_pHelper(0),
   m_cablingSvc("SCT_CablingSvc", name),
-  m_readoutTool("SCT_ReadoutTool"),
+  m_readoutTool("SCT_ReadoutTool", this),
   m_pManager(0),
   m_checkStripsInsideModules(true) 
 { 
@@ -86,7 +86,7 @@ StatusCode SCT_ConfigurationConditionsSvc::initialize(){
   if (m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData,this, m_dataChannel,channelFolderName).isFailure() or
       m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData, this, m_dataModule, moduleFolderName).isFailure() or
       m_detStore->regFcn(&SCT_ConfigurationConditionsSvc::fillData, this, m_dataMur, murFolderName).isFailure())
-    return msg(MSG:: ERROR)<< "Failed to register callback" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -169,6 +169,9 @@ StatusCode SCT_ConfigurationConditionsSvc::fillData(int& /*i*/ , std::list<std::
 
 // Fill bad strip, chip and link info
 StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
+  unsigned int nDisabledChips(0);
+  unsigned int nDisabledChipsExclusive(0);
+  unsigned int nDisabledStripsExclusive(0);
   const std::string channelFolderName=determineFolder(coolChannelFolderName,coolChannelFolderName2);
   const bool run1=(channelFolderName==coolChannelFolderName);
   //
@@ -203,7 +206,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   if (fillLinkStatus().isFailure()) return StatusCode::FAILURE;
   // Get Chip folder
   if (retrieveFolder(m_dataChannel, channelFolderName).isFailure()) {
-    return msg(MSG:: ERROR)<< "Could not fill channel configuration data" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Could not fill channel configuration data" << endmsg, StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO( "fillChannelData: IOV callback resulted in a Chip CondAttrListVec of size " << m_dataChannel->size());
   }
@@ -219,6 +222,13 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
     if (not hash.is_valid()) continue;
     const Identifier  waferId(m_pHelper->wafer_id(hash));
     const Identifier  moduleId(m_pHelper->module_id(waferId));
+
+    IdentifierHash oppWaferHash;
+    m_pHelper->get_other_side(hash, oppWaferHash);
+    const Identifier oppWaferId(m_pHelper->wafer_id(oppWaferHash));
+
+    bool isBadModule(m_badModuleIds->find(moduleId) != m_badModuleIds->end()); 
+
     // Don't need to bother checking chips if the module is already bad
     // Commented out until fully tested
     //if (m_badModuleIds->find(moduleId) == m_badModuleIds->end()) continue;
@@ -235,6 +245,9 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
     const CondAttrListVec::const_iterator channelEnd(modItr + nChips);
     std::vector<SCT_Chip*> chipsInMod;
     chipsInMod.reserve(12);
+
+    bool isBadSide0 = true;
+    bool isBadSide1 = true;
     
     for(; channelItr != channelEnd; ++channelItr){
       // Get chip id, config and masks and store as SCT_Chip object
@@ -246,7 +259,14 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       const int mask2     = run1?(channelItr->second[mask2Index].data<int>()):(channelItr->second[mask2Index].data<uint>());  // (=noMask, declared as static int at top of this file)
       const int mask3     = run1?(channelItr->second[mask3Index].data<int>()):(channelItr->second[mask3Index].data<uint>());
       chipsInMod.push_back(new SCT_Chip(id, config, mask0, mask1, mask2, mask3));
+
+      if(id>=0 and id< 6 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide0 = false;
+      if(id>=6 and id<12 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide1 = false;
     }
+
+    if(isBadSide0) m_badWaferIds->insert(waferId);
+    if(isBadSide1) m_badWaferIds->insert(oppWaferId);
+    
     // Check the module readout to look for bypassed chips, disabled links etc
     if (m_readoutTool->determineReadout(moduleId, chipsInMod, link0ok, link1ok).isFailure()) return StatusCode::FAILURE; 
     // Loop over chips again now know whether they're in the readout
@@ -267,7 +287,14 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       }
       // Bad chips (= all strips bad) bitpacked
       // Should only do this for modules with at least one chip bad?
-      if (thisChip->numberOfMaskedChannels() == stripsPerChip) chipStatusWord |= (1<<thisChip->id());
+      if (thisChip->numberOfMaskedChannels() == stripsPerChip) {
+	chipStatusWord |= (1<<thisChip->id());
+	nDisabledChips++; // A bad chip
+	if(!isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
+      } else { // Good chip
+	if(!isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
+      }
+
     }
     // Store chip status if not all good (==0)
     if (chipStatusWord != 0) (*m_badChips)[moduleId] = chipStatusWord;
@@ -281,7 +308,10 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   m_IOVDbSvc->dropObject(channelFolderName,true); 
 
   const unsigned int totalBad(m_badChannelIds->size());
-  msg(MSG:: INFO)<< "Total number of bad strip identifiers is " << totalBad << endreq;
+  msg(MSG:: INFO)<< "Total number of bad chips is " << nDisabledChips << endmsg;
+  msg(MSG:: INFO)<< "Total number of bad chips not in bad modules is " << nDisabledChipsExclusive << endmsg;
+  msg(MSG:: INFO)<< "Total number of bad strip identifiers is " << totalBad << endmsg;
+  msg(MSG:: INFO)<< "Total number of bad strip identifiers not in bad modules nor bad chips is " << nDisabledStripsExclusive << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -298,7 +328,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillModuleData(){
 
   // Get Module folder
   if (retrieveFolder(m_dataModule, moduleFolderName).isFailure()) {
-    return msg(MSG:: ERROR)<< "Could not fill module configuration data" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Could not fill module configuration data" << endmsg, StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO( "fillModuleData: IOV callback resulted in a CondAttrListVec of size " << m_dataModule->size() );
   }
@@ -348,10 +378,10 @@ bool SCT_ConfigurationConditionsSvc::filled() const{
 
 // Get a DB folder
 StatusCode SCT_ConfigurationConditionsSvc::retrieveFolder(const DataHandle<CondAttrListVec> &pDataVec, const std::string & folderName){
-  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endreq), StatusCode::FAILURE;
+  if (not m_detStore) return (msg(MSG:: FATAL) << "The detector store pointer is NULL" << endmsg), StatusCode::FAILURE;
   if (m_detStore->retrieve(pDataVec, folderName).isFailure()) 
-    return (msg(MSG:: FATAL) << "Could not retrieve AttrListVec for " << folderName << endreq), StatusCode::FAILURE;
-  if (0==pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endreq), StatusCode::FAILURE;
+    return (msg(MSG:: FATAL) << "Could not retrieve AttrListVec for " << folderName << endmsg), StatusCode::FAILURE;
+  if (0==pDataVec->size()) return (msg(MSG:: FATAL) << "This folder's data set appears to be empty: " << folderName << endmsg), StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -363,7 +393,7 @@ SCT_ConfigurationConditionsSvc::getStripId(const unsigned int truncatedSerialNum
   unsigned int   strip(0);
   IdentifierHash waferHash;
   if (not m_cablingSvc) {
-    msg(MSG:: FATAL)<< "The cabling tool pointer is zero." << endreq;
+    msg(MSG:: FATAL)<< "The cabling tool pointer is zero." << endmsg;
     return invalidIdentifier;
   }
   // If the chip is 0-5 we are in side 0, otherwise in side 1. 'getHash' only 
@@ -383,7 +413,7 @@ SCT_ConfigurationConditionsSvc::getStripId(const unsigned int truncatedSerialNum
 
   const InDetDD::SiDetectorElement* pElement = (m_pManager->getDetectorElement(waferHash));
   if (! pElement) {
-    msg(MSG:: FATAL)<< "Element pointer is NULL in 'getStripId' method" << endreq;
+    msg(MSG:: FATAL)<< "Element pointer is NULL in 'getStripId' method" << endmsg;
     return invalidIdentifier;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? lastStrip - strip: strip;
@@ -399,7 +429,7 @@ StatusCode SCT_ConfigurationConditionsSvc::fillLinkStatus() {
 
   // Get MUR folders for link info 
   if (retrieveFolder(m_dataMur, murFolderName).isFailure()) {
-    return msg(MSG:: ERROR)<< "Could not fill MUR configuration data" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Could not fill MUR configuration data" << endmsg, StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO( "fillLinkStatus: IOV callback resulted in a MUR CondAttrListColl of size " << m_dataMur->size() );
   }
@@ -462,7 +492,7 @@ int SCT_ConfigurationConditionsSvc::getChip(const Identifier & stripId) {
   const IdentifierHash waferHash = m_pHelper->wafer_hash(m_pHelper->wafer_id(stripId));
   const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
   if (! pElement){
-     msg(MSG:: FATAL)<< "Element pointer is NULL in 'badStrips' method" << endreq;
+     msg(MSG:: FATAL)<< "Element pointer is NULL in 'badStrips' method" << endmsg;
      return invalidChipNumber;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? lastStrip - strip: strip;

@@ -23,11 +23,11 @@ SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc( const std::string& name, ISvcL
 
 // Initialize
 StatusCode SCT_FlaggedConditionSvc::initialize(){
-  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::initialize()" << endreq;
+  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::initialize()" << endmsg;
 
   // Retrieve detector store
   if (m_detStore.retrieve().isFailure()) 
-    return msg(MSG:: FATAL) << "Detector service  not found !" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: FATAL) << "Detector service  not found !" << endmsg, StatusCode::FAILURE;
 
   // Retrieve incident service and add 'BeginEvent' listener
   IIncidentSvc* incsvc;
@@ -41,7 +41,7 @@ StatusCode SCT_FlaggedConditionSvc::initialize(){
 
   // Retrieve SCT helper
   if (m_detStore->retrieve(m_sctID,"SCT_ID").isFailure()) 
-    return  msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endreq, StatusCode::FAILURE;
+    return  msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endmsg, StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -49,7 +49,7 @@ StatusCode SCT_FlaggedConditionSvc::initialize(){
 // Finalize
 StatusCode SCT_FlaggedConditionSvc::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::finalize()" << endreq;
+  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::finalize()" << endmsg;
   delete m_badIds;
   return sc;
 }

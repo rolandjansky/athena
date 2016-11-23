@@ -27,6 +27,13 @@
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
 
+//StoreGate Includes
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
+
+
 template <class T> 
 static std::vector<T> 
 string2Vector(const std::string & s){
@@ -42,10 +49,15 @@ string2Vector(const std::string & s){
 SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
   m_cabling("SCT_CablingSvc",name),
-  m_filled(false), 
+  m_badRODElements("BadRODIdentifiers"),
+  m_wFilled("isFilled"), 
+  m_rFilled("isFilled"),
   m_pHelper(0),
-  m_detStore("DetectorStore", name){
-  declareProperty("BadRODIdentifiers",m_badRODElements);
+  m_detStore("DetectorStore", name)
+{
+  declareProperty("BadRODIdentifiers",m_badRODElements );
+  declareProperty("w_isFilled", m_wFilled );
+  declareProperty("r_isFilled", m_rFilled );
 }
 
 //Initialize
@@ -54,6 +66,10 @@ SCT_RODVetoSvc::initialize(){
   ATH_CHECK(m_detStore.retrieve());
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
   ATH_CHECK(m_cabling.retrieve());
+  ATH_CHECK(m_badRODElements.initialize());
+  ATH_CHECK(m_wFilled.initialize());
+  ATH_CHECK(m_rFilled.initialize());
+ 
   return  StatusCode::SUCCESS;
 }
 
@@ -107,17 +123,29 @@ SCT_RODVetoSvc::isGood(const IdentifierHash & hashId){
 
 StatusCode 
 SCT_RODVetoSvc::fillData(){
-  if (m_badRODElements.value().empty()){
+  
+  SG::ReadHandle<  std::vector<unsigned int> > badRODElements (m_badRODElements);
+  if (!badRODElements.isValid()){
+    ATH_MSG_ERROR("Can't find BadRODIdentifiers in StoreGate");
+    return StatusCode::FAILURE;
+  } else
+  if ((*badRODElements).empty()){
     ATH_MSG_INFO("No bad RODs in job options.");
     return StatusCode::SUCCESS;
-  }
-  ATH_MSG_INFO(m_badRODElements.value().size() <<" RODs were declared bad");
+  } else
+  if (filled() ) {
+    ATH_MSG_INFO("RodVetoSvc has already been successfully filled.");
+    return StatusCode::SUCCESS;
+  }   
+
+ 
+  ATH_MSG_INFO((*badRODElements).size() <<" RODs were declared bad");
   bool success(true);
   
   std::vector<unsigned int> allRods;
   m_cabling->getAllRods(allRods);
   
-  for(unsigned int thisRod: m_badRODElements.value()){
+  for(unsigned int thisRod: (*badRODElements) ){
     //check whether rod exists
     if (std::find(allRods.begin(),allRods.end(),thisRod)==allRods.end()){
     	ATH_MSG_WARNING("Your vetoed selection "<<std::hex<<"0x"<<thisRod<<" does not exist."<<std::dec);
@@ -143,9 +171,28 @@ SCT_RODVetoSvc::fillData(){
       success &= thisInsertionOk;
     }
   }
-  m_filled=success;
-  if (m_filled) ATH_MSG_INFO("Structure successfully filled with "<<m_badIds.size()<<" modules.");
+
+
+  //At this point, as WriteHandles only work once and we cannot update them
+  //we will only set isFilled if it is true. If false it will not be set
+  if ( success ){
+    SG::WriteHandle<bool> wFilled (m_wFilled);
+    ATH_CHECK( wFilled.record( CxxUtils::make_unique<bool> (success))); 
+
+
+    if ( !wFilled.isValid() ){
+      ATH_MSG_INFO("isFilled not set yet");
+      
+    } 
+
+    std::cout << "Recorded WH with key: " << wFilled.key() << " and value: " << *wFilled.cptr() << std::endl;   //wFilled->val() << std::endl; 
+    //Need to add a checck if this succeeded
+    if (*wFilled) ATH_MSG_INFO("Structure successfully filled with "<<m_badIds.size()<<" modules.");
+  }
+
+
   return success?(StatusCode::SUCCESS):(StatusCode::FAILURE);
+
 }
 
 StatusCode 
@@ -161,6 +208,10 @@ SCT_RODVetoSvc::canFillDuringInitialize(){
 bool
 SCT_RODVetoSvc::filled() const{
   //code
-  return m_filled;
+  SG::ReadHandle<bool> rFilled (m_rFilled);
+  if (!rFilled.isValid()){
+    ATH_MSG_INFO("No value found for isFilled in SG, assuming false");
+    return false;
+  }else return *rFilled;
 }
 

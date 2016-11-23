@@ -38,11 +38,11 @@ SCT_DCSConditionsTestAlg::~SCT_DCSConditionsTestAlg(){ }
 //----------------------------------------------------------------------
 StatusCode SCT_DCSConditionsTestAlg::initialize(){  
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in initialize()" << endreq;
+  msg(MSG::INFO) << "in initialize()" << endmsg;
   //
   StatusCode sc(StatusCode::SUCCESS);
   sc = m_DCSConditionsSvc.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the DCS conditions service" << endreq), sc;
+  if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the DCS conditions service" << endmsg), sc;
   
   return sc;
 } // SCT_DCSConditionsTestAlg::execute()
@@ -51,19 +51,19 @@ StatusCode SCT_DCSConditionsTestAlg::initialize(){
 StatusCode SCT_DCSConditionsTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endmsg;
   //
   StatusCode sc(StatusCode::SUCCESS);
   
   // Get the current event
   sc = evtStore()->retrieve(m_currentEvent);
-  if ( sc.isFailure() ) return (msg(MSG::ERROR) << "Could not get event info" << endreq), sc;
+  if ( sc.isFailure() ) return (msg(MSG::ERROR) << "Could not get event info" << endmsg), sc;
   //
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
   << "[" << m_currentEvent->event_ID()->run_number()
   << "." << m_currentEvent->event_ID()->event_number()
   << "," << m_currentEvent->event_ID()->time_stamp()
-  << "]" << endreq;
+  << "]" << endmsg;
   
   bool DCSfilled(false);
   bool isgoodworks(false);
@@ -71,12 +71,12 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
   float gettempworks=0.0;
 //  bool side(false);
 //  bool strip(false);
-  msg(MSG::INFO) << m_DCSConditionsSvc << endreq;
+  msg(MSG::INFO) << m_DCSConditionsSvc << endmsg;
   
   try{
       DCSfilled =(m_DCSConditionsSvc->filled());
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to determine whether the data object was filled" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to determine whether the data object was filled" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -86,12 +86,12 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
      //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
      //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to the gettemp method" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to the gettemp method" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< (gettempworks?"successful":"failed") << endreq;	
-  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< gettempworks << endreq;	
+  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< (gettempworks?"successful":"failed") << endmsg;	
+  msg(MSG::INFO) << "gettemp(141015041,Strip) "<< gettempworks << endmsg;	
  
 
   try{
@@ -100,12 +100,12 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
      //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
      //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to the modHV method" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to the modHV method" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (gethvworks?"successful":"failed") << endreq;	
-  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)) << endreq;	
+  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (gethvworks?"successful":"failed") << endmsg;	
+  msg(MSG::INFO) << "gethv(141015041,Strip) "<< (m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)) << endmsg;	
 
   try{
      isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(141015041),InDetConditions::SCT_STRIP));
@@ -113,22 +113,22 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
      //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
      //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to the isGood method" << endreq;
+    msg(MSG::FATAL) << "Exception caught while trying to the isGood method" << endmsg;
     return StatusCode::FAILURE;
   }
   
-  msg(MSG::INFO) << "fillData "<< (DCSfilled?"successful":"failed") << endreq;	
-  msg(MSG::INFO) << "isGood(141015041,Strip) "<< (isgoodworks?"successful":"failed") << endreq;	
+  msg(MSG::INFO) << "fillData "<< (DCSfilled?"successful":"failed") << endmsg;	
+  msg(MSG::INFO) << "isGood(141015041,Strip) "<< (isgoodworks?"successful":"failed") << endmsg;	
 
-  //msg(MSG::INFO) << "canReportAbout(Module) "<< (module?"successful":"failed") << endreq;	
-  //msg(MSG::INFO) << "canReportAbout(Strip) "<< (strip?"successful":"failed") << endreq;	
+  //msg(MSG::INFO) << "canReportAbout(Module) "<< (module?"successful":"failed") << endmsg;	
+  //msg(MSG::INFO) << "canReportAbout(Strip) "<< (strip?"successful":"failed") << endmsg;	
   return sc;
 } // SCT_DCSConditionsTestAlg::execute()
 
 //----------------------------------------------------------------------
 StatusCode SCT_DCSConditionsTestAlg::finalize(){
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in finalize()" << endreq;
+  msg(MSG::INFO) << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 } // SCT_DCSConditionsTestAlg::finalize()
 

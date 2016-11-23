@@ -115,7 +115,7 @@ private:
     const int defectEndChannel) const;
 
   StatusCode createCondObjects( const Identifier& wafer_id,
-    const SCT_ID* m_sctId,
+    const SCT_ID* sctId,
     const int samplesize,
     const std::string& defectType,
     const float threshold,
@@ -123,17 +123,17 @@ private:
     
   StatusCode setBasicListValues(coral::AttributeList & attrList,
     const Identifier & module_id,
-    const SCT_ID* m_sctId,
+    const SCT_ID* sctId,
     const int samplesize,
     const bool camelCasedBec) const;
 
   StatusCode createListEff( const Identifier& wafer_id,
-    const SCT_ID* m_sctId,
+    const SCT_ID* sctId,
     const int samplesize,
     const float eff ) const;
 
   StatusCode createListNO( const Identifier& wafer_id,
-    const SCT_ID* m_sctId,
+    const SCT_ID* sctId,
     const int samplesize,
     const float noise_occ ) const;
 

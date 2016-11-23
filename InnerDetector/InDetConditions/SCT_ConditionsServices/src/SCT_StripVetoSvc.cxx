@@ -31,13 +31,13 @@ StatusCode
 SCT_StripVetoSvc::initialize(){
   static const StatusCode fail(StatusCode::FAILURE);
   StatusCode sc(StatusCode::SUCCESS);
-  if (fillData().isFailure()) return msg(MSG:: ERROR)<<"Failed to fill data"<<endreq, fail;
+  if (fillData().isFailure()) return msg(MSG:: ERROR)<<"Failed to fill data"<<endmsg, fail;
   //
-  msg(MSG::INFO)<<"Initialized veto service with data, "<<m_badElements.value().size()<<" elements declared bad."<<endreq;
+  msg(MSG::INFO)<<"Initialized veto service with data, "<<m_badElements.value().size()<<" elements declared bad."<<endmsg;
   //
   ServiceHandle<StoreGateSvc>    detStore("DetectorStore",name());
-  if (detStore.retrieve().isFailure()) return (msg(MSG:: FATAL) << "Detector service not found !" << endreq), fail;
-  if (detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG:: ERROR)<<"SCT helper failed to retrieve"<<endreq, fail;
+  if (detStore.retrieve().isFailure()) return (msg(MSG:: FATAL) << "Detector service not found !" << endmsg), fail;
+  if (detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG:: ERROR)<<"SCT helper failed to retrieve"<<endmsg, fail;
   return sc;
 }
 
@@ -87,12 +87,12 @@ SCT_StripVetoSvc::isGood(const IdentifierHash & /*hashId*/){//comment out unused
 StatusCode 
 SCT_StripVetoSvc::fillData(){
   StatusCode sc(StatusCode::SUCCESS);
-  if (m_badElements.value().empty()) msg(MSG::INFO)<<"No bad strips."<<endreq;
+  if (m_badElements.value().empty()) msg(MSG::INFO)<<"No bad strips."<<endmsg;
   std::vector<std::string>::const_iterator pId=m_badElements.value().begin();
   std::vector<std::string>::const_iterator last=m_badElements.value().end();
   bool success(true);
   for(;pId not_eq last;++pId){
-    success &= m_badIds.insert(Identifier(atoi(pId->c_str()))).second;
+    success &= m_badIds.insert(Identifier(static_cast<Identifier::value_type>(atoll(pId->c_str())))).second;
   }
   m_filled=true;
   return success?sc:(StatusCode::FAILURE);

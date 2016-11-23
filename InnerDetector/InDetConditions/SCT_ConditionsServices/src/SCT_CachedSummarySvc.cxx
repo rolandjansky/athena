@@ -41,7 +41,7 @@ SCT_CachedSummarySvc::initialize(){
   m_noReports = m_reportingServices.value().empty();
   if (m_noReports){
     sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the SCT summary"<<endreq;
+    msg(MSG::INFO)<<"No services were selected for the SCT summary"<<endmsg;
   } else {
     vector<string>::const_iterator pSvcName= m_reportingServices.value().begin();
     vector<string>::const_iterator pLastName= m_reportingServices.value().end();
@@ -50,10 +50,10 @@ SCT_CachedSummarySvc::initialize(){
       ServiceHandle<ISCT_ConditionsSvc> thisSvc(*pSvcName,name());
       sc=thisSvc.retrieve();
       if (sc.isSuccess()){
-        msg(MSG::INFO)<<"Using "<<*pSvcName<<endreq;
+        msg(MSG::INFO)<<"Using "<<*pSvcName<<endmsg;
         m_svcHandles.push_back(thisSvc);
       } else {
-        msg(MSG::ERROR)<<"The service "<<*pSvcName<<" is not available."<<endreq;
+        msg(MSG::ERROR)<<"The service "<<*pSvcName<<" is not available."<<endmsg;
         successfulRetrieve=false;
       }
     }
@@ -62,7 +62,7 @@ SCT_CachedSummarySvc::initialize(){
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc",name());
   sc = incidentSvc.retrieve();
   if (sc.isFailure() ) {
-    msg(MSG::ERROR)<<"Failed to retrieve the IncidentSvc"<<endreq;
+    msg(MSG::ERROR)<<"Failed to retrieve the IncidentSvc"<<endmsg;
     return StatusCode::FAILURE;
   } else {
     incidentSvc->addListener( this , IncidentType::BeginEvent);
@@ -73,7 +73,7 @@ SCT_CachedSummarySvc::initialize(){
 //Finalize
 StatusCode
 SCT_CachedSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the SCT_CachedSummarySvc, version "<<PACKAGE_VERSION<<endreq;
+  msg(MSG::INFO)<<"Thank-you for using the SCT_CachedSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
   //Code
   return StatusCode::SUCCESS;
 }
@@ -160,6 +160,6 @@ SCT_CachedSummarySvc::isGood(const IdentifierHash & /*elementHash*/, const Ident
 double 
 SCT_CachedSummarySvc::goodFraction(const IdentifierHash & /*elementHash*/, const Identifier & /*idStart*/, const Identifier & /*idEnd*/){
   double result(1.0);
-  msg(MSG::WARNING)<<"goodFraction is a deprecated function always returning 1.0 "<<endreq;
+  msg(MSG::WARNING)<<"goodFraction is a deprecated function always returning 1.0 "<<endmsg;
   return result;
 }

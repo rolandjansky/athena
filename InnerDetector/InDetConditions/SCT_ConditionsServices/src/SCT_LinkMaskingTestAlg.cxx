@@ -33,17 +33,17 @@ SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLoca
 
 SCT_LinkMaskingTestAlg::~SCT_LinkMaskingTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode SCT_LinkMaskingTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endreq;
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   
   // Retrieve link masking service
   if (m_linkMaskingSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR)<<"Could not retrieve the link masking service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the link masking service"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -53,8 +53,8 @@ StatusCode SCT_LinkMaskingTestAlg::initialize(){
 //Execute
 StatusCode SCT_LinkMaskingTestAlg::execute(){
 
-  msg(MSG::INFO) << "Wafer 167786496 is " << (m_linkMaskingSvc->isGood(Identifier(167786496)) ? "not masked":"masked") << endreq;
-  msg(MSG::INFO) << "Wafer 167787520 is " << (m_linkMaskingSvc->isGood(Identifier(167787520)) ? "not masked":"masked") << endreq;
+  msg(MSG::INFO) << "Wafer 167786496 is " << (m_linkMaskingSvc->isGood(Identifier(167786496)) ? "not masked":"masked") << endmsg;
+  msg(MSG::INFO) << "Wafer 167787520 is " << (m_linkMaskingSvc->isGood(Identifier(167787520)) ? "not masked":"masked") << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -63,6 +63,6 @@ StatusCode SCT_LinkMaskingTestAlg::execute(){
 //Finalize
 StatusCode SCT_LinkMaskingTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endreq;
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
   return sc;
 }

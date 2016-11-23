@@ -31,17 +31,17 @@ SCT_MajorityConditionsTestAlg::SCT_MajorityConditionsTestAlg(const std::string& 
 
 SCT_MajorityConditionsTestAlg::~SCT_MajorityConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
 StatusCode SCT_MajorityConditionsTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endreq;
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   
   // Retrieve link masking service
   if (m_majoritySvc.retrieve().isFailure()) {
-    msg(MSG::ERROR)<<"Could not retrieve the link masking service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the link masking service"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -50,12 +50,12 @@ StatusCode SCT_MajorityConditionsTestAlg::initialize(){
 
 //Execute
 StatusCode SCT_MajorityConditionsTestAlg::execute(){
-  msg(MSG::INFO)<< "Calling execute" << endreq;
+  msg(MSG::INFO)<< "Calling execute" << endmsg;
 
-  msg(MSG::INFO)<< "Detector is " << (m_majoritySvc->isGood()   ? "GOOD" : "BAD") << endreq;
-  msg(MSG::INFO)<< "ECC is      " << (m_majoritySvc->isGood(-2) ? "GOOD" : "BAD") << endreq;
-  msg(MSG::INFO)<< "Barrel is   " << (m_majoritySvc->isGood(0)  ? "GOOD" : "BAD") << endreq;
-  msg(MSG::INFO)<< "ECA is      " << (m_majoritySvc->isGood(2)  ? "GOOD" : "BAD") << endreq;
+  msg(MSG::INFO)<< "Detector is " << (m_majoritySvc->isGood()   ? "GOOD" : "BAD") << endmsg;
+  msg(MSG::INFO)<< "ECC is      " << (m_majoritySvc->isGood(-2) ? "GOOD" : "BAD") << endmsg;
+  msg(MSG::INFO)<< "Barrel is   " << (m_majoritySvc->isGood(0)  ? "GOOD" : "BAD") << endmsg;
+  msg(MSG::INFO)<< "ECA is      " << (m_majoritySvc->isGood(2)  ? "GOOD" : "BAD") << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -64,6 +64,6 @@ StatusCode SCT_MajorityConditionsTestAlg::execute(){
 //Finalize
 StatusCode SCT_MajorityConditionsTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endreq;
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
   return sc;
 }

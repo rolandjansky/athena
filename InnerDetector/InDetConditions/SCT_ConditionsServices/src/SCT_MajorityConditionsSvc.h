@@ -17,7 +17,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 // Athena includes

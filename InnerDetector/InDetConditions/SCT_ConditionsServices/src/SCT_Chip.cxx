@@ -12,14 +12,14 @@ typedef unsigned int uint;
 // Default constructor: chip has id 0, config = 0 and all strips good.
 SCT_Chip::SCT_Chip():
   m_id(0),
-  m_config(0),m_in(0),m_out(0),m_end(false),m_master(false),m_numMasked(0){
+  m_config(0),m_in(0),m_out(0),m_end(false),m_master(false) {
   m_mask.set();
 }
 
 // Construct a chip from the id, config and masks
 SCT_Chip::SCT_Chip(short id, short config, uint32_t mask0, uint32_t mask1, uint32_t mask2, uint32_t mask3):
   m_id(id),
-  m_config(config), m_numMasked(0){
+  m_config(config) {
   m_in     = m_config.test(IN_BIT) ? 1 : 0;
   m_out    = m_config.test(OUT_BIT) ? 1 : 0;
   m_end    = m_config.test(END_BIT);

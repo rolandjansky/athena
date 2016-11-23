@@ -64,42 +64,42 @@ SCT_ReadCalibDataTestAlg::~SCT_ReadCalibDataTestAlg()
 StatusCode SCT_ReadCalibDataTestAlg::initialize()
 {
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in initialize()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in initialize()" << endmsg;
   
   // Get SCT ID helper
   m_sc = detStore()->retrieve(m_id_sct, "SCT_ID");
   if (m_sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Failed to get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found SCT detector manager" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found SCT detector manager" << endmsg;
   }
   
   // Process jobOption properties
   m_sc = processProperties();
   if (m_sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to process jobOpt properties" << endreq;
+    msg(MSG::ERROR) << "Failed to process jobOpt properties" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Processed jobOpt properties" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Processed jobOpt properties" << endmsg;
   }
 
   // Get the SCT_ReadCaliDataSvc
   m_sc = m_ReadCalibDataSvc.retrieve();
   if (m_sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot locate CalibData service" << endreq;
+    msg(MSG::FATAL) << "Cannot locate CalibData service" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalibData Service located " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CalibData Service located " << endmsg;
   }
 
   // Retrieve SCT Cabling service
   m_sc = m_cabling.retrieve();
   if (m_sc.isFailure()) {  
-    msg(MSG:: ERROR)<< "Failed to retrieve SCT cabling service" << endreq;
+    msg(MSG:: ERROR)<< "Failed to retrieve SCT cabling service" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -110,7 +110,7 @@ StatusCode SCT_ReadCalibDataTestAlg::initialize()
 StatusCode SCT_ReadCalibDataTestAlg::processProperties()
 {
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in processProperties()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in processProperties()" << endmsg;
   
   // Get module position from jobOpt property
   std::vector<int>::const_iterator itLoop = m_moduleOfflinePosition.value().begin();
@@ -121,14 +121,14 @@ StatusCode SCT_ReadCalibDataTestAlg::processProperties()
   int offlineSide      = (*itLoop); ++itLoop;
   int offlineStrip     = (*itLoop); ++itLoop;
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module positions from jobOpt property:" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module positions from jobOpt property:" << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "B-EC/layer-disk/eta/phi: "
       << offlineBarrelEC  << "/"
       << offlineLayerDisk << "/"
       << offlineEta       << "/"
       << offlinePhi       << "/"
       << offlineSide      << "/"
-      << offlineStrip     << endreq;
+      << offlineStrip     << endmsg;
   
   // Create offline Identifier for this module position, wafer,chip and strip
   m_moduleId = m_id_sct->module_id(offlineBarrelEC, offlineLayerDisk, offlinePhi, offlineEta);
@@ -136,11 +136,11 @@ StatusCode SCT_ReadCalibDataTestAlg::processProperties()
   m_stripId = m_id_sct->strip_id(offlineBarrelEC, offlineLayerDisk, offlinePhi, offlineEta, offlineSide, offlineStrip);
 
   // Debug output
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getString : " << m_moduleId.getString() << endreq;   // hex format
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getCompact: " << m_moduleId.get_compact() << endreq; // dec format
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getCompact2: " << m_stripId.get_compact() << endreq; // dec format
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module Id: " << m_id_sct->print_to_string(m_moduleId) << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip Id: " << m_id_sct->print_to_string(m_stripId) << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getString : " << m_moduleId.getString() << endmsg;   // hex format
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getCompact: " << m_moduleId.get_compact() << endmsg; // dec format
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "id-getCompact2: " << m_stripId.get_compact() << endmsg; // dec format
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module Id: " << m_id_sct->print_to_string(m_moduleId) << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip Id: " << m_id_sct->print_to_string(m_stripId) << endmsg;
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTestAlg::processProperties()
@@ -152,19 +152,19 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   // so the INFO level messages have no impact on performance of these services when used by clients
   
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endmsg;
   
   // Get the current event
   m_sc = evtStore()->retrieve(m_currentEvent);
   if ( m_sc.isFailure() ) {
-    msg(MSG::ERROR) << "Could not get event info" << endreq;
+    msg(MSG::ERROR) << "Could not get event info" << endmsg;
     return StatusCode::FAILURE;
   }
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
       << "[" << m_currentEvent->event_ID()->run_number()
       << "." << m_currentEvent->event_ID()->event_number()
       << "," << m_currentEvent->event_ID()->time_stamp()
-      << "]" << endreq;
+      << "]" << endmsg;
   
   //Make sure data was filled
   bool CalibDataFilled = m_ReadCalibDataSvc->filled();  
@@ -176,7 +176,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
       Identifier IdM = m_moduleId;
       Identifier IdS = m_stripId;
       bool Sok = m_ReadCalibDataSvc->isGood(IdS, InDetConditions::SCT_STRIP);
-      msg(MSG::INFO) << "Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad") << endreq;
+      msg(MSG::INFO) << "Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad") << endmsg;
     }
   }
 
@@ -222,7 +222,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
 StatusCode SCT_ReadCalibDataTestAlg::finalize()
 {
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in finalize()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in finalize()" << endmsg;
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTestAlg::finalize()

@@ -34,7 +34,7 @@ m_pSummarySvc("SCT_ConditionsSummarySvc", name){
 
 SCT_ConditionsSummaryTestAlg::~SCT_ConditionsSummaryTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
@@ -42,10 +42,10 @@ StatusCode
 SCT_ConditionsSummaryTestAlg::initialize(){
   
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endreq;
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   sc = m_pSummarySvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endmsg;
   }
   return sc;
 }
@@ -56,13 +56,13 @@ SCT_ConditionsSummaryTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling execute" << endreq;
-  msg(MSG::INFO)<<"Dummy call to module id 0: module is "<<endreq;
+  msg(MSG::INFO)<< "Calling execute" << endmsg;
+  msg(MSG::INFO)<<"Dummy call to module id 0: module is "<<endmsg;
   bool result=m_pSummarySvc->isGood(Identifier(0));
-  msg(MSG::INFO)<< (result?"good":"bad") << endreq;
-  msg(MSG::INFO)<<"Dummy call to module id 1: module is "<<endreq;
+  msg(MSG::INFO)<< (result?"good":"bad") << endmsg;
+  msg(MSG::INFO)<<"Dummy call to module id 1: module is "<<endmsg;
   result=m_pSummarySvc->isGood(Identifier(1));
-  msg(MSG::INFO)<< (result?"good":"bad") << endreq;
+  msg(MSG::INFO)<< (result?"good":"bad") << endmsg;
   /** some bad strips
   SCT_ConfigurationConditionsSvc             INFO 216808130
   SCT_ConfigurationConditionsSvc             INFO 216808744
@@ -76,9 +76,9 @@ SCT_ConditionsSummaryTestAlg::execute(){
   SCT_ConfigurationConditionsSvc             INFO 217299649
   **/
   result=m_pSummarySvc->isGood(Identifier(216808130), InDetConditions::SCT_STRIP);
-   msg(MSG::INFO)<<"Strip  216808130 "<<(result?"good":"bad") << endreq;
+   msg(MSG::INFO)<<"Strip  216808130 "<<(result?"good":"bad") << endmsg;
    result=m_pSummarySvc->isGood(Identifier(216808743), InDetConditions::SCT_STRIP);
-    msg(MSG::INFO)<<"Strip  216808743 "<<(result?"good":"bad") << endreq;
+    msg(MSG::INFO)<<"Strip  216808743 "<<(result?"good":"bad") << endmsg;
   return sc;
 }
 
@@ -87,6 +87,6 @@ SCT_ConditionsSummaryTestAlg::execute(){
 StatusCode
 SCT_ConditionsSummaryTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endreq;
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
   return sc;
 }

@@ -17,9 +17,10 @@ use AtlasBoost            	  AtlasBoost-*             		External
 private
 use AthenaBaseComps       	  AthenaBaseComps-*      		Control
 use StoreGate             	  StoreGate-*            		Control
+use CxxUtils                  CxxUtils-*                Control
+use SGTools                   SGTools-*                 Control
 
 use SCT_Cabling           	  SCT_Cabling-*            		InnerDetector/InDetDetDescr
-use PixelGeoModel          	  PixelGeoModel-*            		InnerDetector/InDetDetDescr
 use AthenaPoolUtilities	  	  AthenaPoolUtilities-*  		Database/AthenaPOOL
 
 use AtlasCORAL            	  AtlasCORAL-*             		External
@@ -49,4 +50,7 @@ macro DOXYGEN_IMAGE_PATH "../doc/images"
 #apply_pattern component_library
 #apply_pattern dual_use_library files="*.cxx"
 
+
 #apply_pattern declare_python_modules files="*.py"
+
+

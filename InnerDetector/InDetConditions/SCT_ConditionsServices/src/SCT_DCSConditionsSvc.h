@@ -12,11 +12,7 @@
  *
  * @author A. R-Veronneau 26/02/07, Shaun Roe 4/4/2008
  **/
-//STL
-#include <vector>
-#include <list>
-#include <string>
-#include <map>
+
 //
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -27,6 +23,11 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaKernel/IOVSvcDefs.h" 
 #include "AthenaKernel/IIOVDbSvc.h" 
+//STL
+#include <vector>
+#include <list>
+#include <string>
+#include <map>
 
 class IIOVSvc;
 template <class TYPE> class SvcFactory;
@@ -86,13 +87,13 @@ private:
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<IIOVDbSvc> m_IOVDbSvc; //!< Handle on the IOVDb service
   // list folders to be read as CondAttrListCollection*
-  StringArrayProperty par_atrcollist;
+  StringArrayProperty m_par_atrcollist;
   bool m_dataFilled;
-  int status;
+  int m_status;
   //DataHandle for callback
-  const DataHandle<CondAttrListCollection> DCSData_HV;
-  const DataHandle<CondAttrListCollection> DCSData_MT;
-  const DataHandle<CondAttrListCollection> DCSData_CS;
+  const DataHandle<CondAttrListCollection> m_DCSData_HV;
+  const DataHandle<CondAttrListCollection> m_DCSData_MT;
+  const DataHandle<CondAttrListCollection> m_DCSData_CS;
   //Key for DataHandle
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;

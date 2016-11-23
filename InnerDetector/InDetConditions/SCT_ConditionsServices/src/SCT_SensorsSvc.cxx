@@ -27,11 +27,11 @@ StatusCode SCT_SensorsSvc::initialize(){
   std::cout <<" hi there "<<std::endl;
   m_sensorsManufacturer = new std::map<CondAttrListCollection::ChanNum, std::string >;
   // Retrieve detector store
-  if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endreq, StatusCode::FAILURE;
+  if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endmsg, StatusCode::FAILURE;
   // Register callback function
   if (m_detStore->regFcn(&SCT_SensorsSvc::fillSensorsData, this, 
 			 m_sensorsData,sensorsFolderName).isFailure()) {
-    return msg(MSG::FATAL) << "Failed to register callback function for sensors" << endreq, StatusCode::FAILURE;
+    return msg(MSG::FATAL) << "Failed to register callback function for sensors" << endmsg, StatusCode::FAILURE;
      }
   
   return StatusCode::SUCCESS;
@@ -70,13 +70,13 @@ std::string SCT_SensorsSvc::getManufacturer(unsigned int i){
 }
 
 StatusCode SCT_SensorsSvc::fillSensorsData(int& /* i */ , std::list<std::string>& /*keys*/){
-   if (m_detStore->retrieve(m_sensorsData,sensorsFolderName).isFailure())  return msg(MSG:: ERROR)<< "Could not fill sensors data" << endreq, StatusCode::FAILURE;
+   if (m_detStore->retrieve(m_sensorsData,sensorsFolderName).isFailure())  return msg(MSG:: ERROR)<< "Could not fill sensors data" << endmsg, StatusCode::FAILURE;
 
-  CondAttrListCollection::const_iterator m_sensorsData_itr;
-  for(m_sensorsData_itr = m_sensorsData->begin(); m_sensorsData_itr!= m_sensorsData->end(); ++m_sensorsData_itr)
+  CondAttrListCollection::const_iterator sensorsData_itr;
+  for(sensorsData_itr = m_sensorsData->begin(); sensorsData_itr!= m_sensorsData->end(); ++sensorsData_itr)
     {
-      CondAttrListCollection::ChanNum  channelNumber=m_sensorsData_itr->first;
-      m_sensorsManufacturer->insert(std::make_pair(channelNumber, m_sensorsData_itr->second[0].data<std::string>()));
+      CondAttrListCollection::ChanNum  channelNumber=sensorsData_itr->first;
+      m_sensorsManufacturer->insert(std::make_pair(channelNumber, sensorsData_itr->second[0].data<std::string>()));
     }
 
   return StatusCode::SUCCESS;

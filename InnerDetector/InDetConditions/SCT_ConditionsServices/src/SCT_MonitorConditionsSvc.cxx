@@ -131,13 +131,13 @@ SCT_MonitorConditionsSvc::~SCT_MonitorConditionsSvc()
 
 StatusCode SCT_MonitorConditionsSvc::initialize(){
   if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
-    msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endreq;
+    msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve IOVDb service
   if (m_IOVDbSvc.retrieve().isFailure())
-    return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endmsg, StatusCode::FAILURE;
 
   // ------------------------------------------------------------
   // The following is requried for writing out something to COOL
@@ -151,24 +151,24 @@ StatusCode SCT_MonitorConditionsSvc::initialize(){
   if (m_writeCondObjs) {
     IToolSvc* toolSvc = 0;// Pointer to Tool Service
     StatusCode sc = service("ToolSvc", toolSvc);
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endreq, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endmsg, StatusCode::FAILURE;
     //different versions have different names for the tool?
     const std::string outputToolName=(m_version==0)?("AthenaOutputStreamTool"):("AthenaPoolOutputStreamTool");
     sc = toolSvc->retrieveTool(outputToolName,m_streamName, m_streamer);
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find "<<outputToolName << endreq, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find "<<outputToolName << endmsg, StatusCode::FAILURE;
   }
     
   // Get the IOVRegistrationSvc when needed
   if (m_regIOV) {
     StatusCode sc = service("IOVRegistrationSvc", m_regSvc);
     if (sc.isFailure()){
-       msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endreq;
+       msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endmsg;
        return StatusCode::FAILURE;
     }  
   }
   
   if (m_detStore->regFcn(&SCT_MonitorConditionsSvc::getAttrListCollection, this, m_DefectData, s_defectFolderName).isFailure())
-    return msg(MSG:: ERROR)<< "Failed to register callback" << endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
   // This should not be here and causes a SG WARNING (CBG)
   //  m_IOVDbSvc->dropObject(s_defectFolderName,false);
   
@@ -294,13 +294,13 @@ SCT_MonitorConditionsSvc::createDefectString(const int defectBeginChannel,const 
 StatusCode 
 SCT_MonitorConditionsSvc::setBasicListValues(coral::AttributeList & attrList0,
     const Identifier & module_id,
-    const SCT_ID* m_sctId,
+    const SCT_ID* sctId,
     const int samplesize,
     const bool camelCasedBec) const{
-  const int eta = m_sctId->eta_module(module_id);
-  const int phi = m_sctId->phi_module(module_id);
-  const int barrel_ec = m_sctId->barrel_ec(module_id);
-  const int layer = m_sctId->layer_disk(module_id);
+  const int eta = sctId->eta_module(module_id);
+  const int phi = sctId->phi_module(module_id);
+  const int barrel_ec = sctId->barrel_ec(module_id);
+  const int layer = sctId->layer_disk(module_id);
   const std::string becString=(camelCasedBec)?("BarrelEndcap"):("barrel_endcap");
   //coral::AttributeList & attrList0(*pattrList);
   attrList0["SampleSize"].setValue(static_cast<int>(samplesize));
@@ -315,7 +315,7 @@ SCT_MonitorConditionsSvc::setBasicListValues(coral::AttributeList & attrList0,
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_id,
-                   const SCT_ID* m_sctId,
+                   const SCT_ID* sctId,
                    const int samplesize,
                    const std::string & defectType,
                    const float threshold,
@@ -328,11 +328,11 @@ StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_
   attrSpec->extend("Threshold","float");
   attrSpec->extend("DefectList","string");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq, StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg, StatusCode::FAILURE;
 
   // Add attr list values
   coral::AttributeList  attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
   attrList0["Threshold"].setValue(static_cast<float>(threshold));
   attrList0["DefectList"].setValue(static_cast<std::string>(defectList));
@@ -346,18 +346,18 @@ StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,const SCT_ID* m_sctId,const int samplesize, const float eff) const {
+StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,const SCT_ID* sctId,const int samplesize, const float eff) const {
   if(!m_writeCondObjs) {return StatusCode::SUCCESS;}
 
   const bool camelCasedBec=false;
   coral::AttributeListSpecification* attrSpec =basicAttrList(camelCasedBec);
   attrSpec->extend("Efficiency", "float");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq,StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg,StatusCode::FAILURE;
 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["Efficiency"].setValue(static_cast<float>(eff));
   
   std::ostringstream attrStr2;
@@ -369,17 +369,17 @@ StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,c
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCT_MonitorConditionsSvc::createListNO(const Identifier& module_id,const SCT_ID* m_sctId,const int samplesize,const float noise_occ) const {
+StatusCode SCT_MonitorConditionsSvc::createListNO(const Identifier& module_id,const SCT_ID* sctId,const int samplesize,const float noise_occ) const {
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   const bool camelCasedBec=false;
   coral::AttributeListSpecification* attrSpec =basicAttrList(camelCasedBec);
   attrSpec->extend("NoiseOccupancy", "float");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq,StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg,StatusCode::FAILURE;
 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["NoiseOccupancy"].setValue(static_cast<float>(noise_occ));
   
   std::ostringstream attrStr2;
@@ -397,7 +397,7 @@ SCT_MonitorConditionsSvc::getList(const Identifier& imodule) const{
   //static const unsigned int defectlistIndex(7); //slightly faster, but less transparent than using the string name
   //to be completely robust, could use iter->index("DefectList") below (before the loop)
   if (not m_attrListCollection) {
-    msg(MSG::ERROR) << "In getList - no attrListCollection" << endreq;
+    msg(MSG::ERROR) << "In getList - no attrListCollection" << endmsg;
     return errorstring;
   }
   m_currentDefectList = "";
@@ -419,7 +419,7 @@ SCT_MonitorConditionsSvc::getAttrListCollectionByFolder(const string& foldername
     if (m_attrListCollectionMap.count(foldername) == 0) {
         StatusCode sc = m_detStore->retrieve(attrListCollection, foldername);
         if (sc.isFailure()) {
-            msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endreq;
+            msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endmsg;
             return 0;
         }
         m_attrListCollectionMap.insert(make_pair(foldername, attrListCollection));
@@ -440,7 +440,7 @@ SCT_MonitorConditionsSvc::getAttrListCollection(int& /*i*/ , std::list<std::stri
 
   StatusCode sc = m_detStore->retrieve(m_attrListCollection, s_defectFolderName);
   if (sc.isFailure()) {
-    msg(MSG:: ERROR)<< "Could not retrieve " << s_defectFolderName << endreq;
+    msg(MSG:: ERROR)<< "Could not retrieve " << s_defectFolderName << endmsg;
     // Using COOL, is failure
     return StatusCode::FAILURE;
   }
@@ -480,7 +480,7 @@ SCT_MonitorConditionsSvc::getDeadThingList(const Identifier & imodule, const boo
         try {m_currentDefectList = (*iter).second[defectlistString].data<std::string>();}
         catch (const std::exception& e) {
           // Do Nothing
-        // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getDeadStripList catch : " << e.what()<< endreq;
+        // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getDeadStripList catch : " << e.what()<< endmsg;
         }
       }
       return m_currentDefectList;
@@ -688,16 +688,16 @@ StatusCode SCT_MonitorConditionsSvc::genericWrapUp(const CondAttrListCollection*
   if (m_writeCondObjs) {
     sc = m_detStore->record(theCollection,theFolderName);
     m_defectRecorded = true;
-    if (sc.isFailure()) return msg(MSG:: ERROR) << "Could not record "<<theFolderName << endreq, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) << "Could not record "<<theFolderName << endmsg, StatusCode::FAILURE;
  
     // Stream out and register objects here
     sc = streamOutCondObjects(theFolderName);
-    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not stream out "<<theFolderName <<endreq, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not stream out "<<theFolderName <<endmsg, StatusCode::FAILURE;
   }
 
   if (m_regIOV) {
     sc = registerCondObjects(theFolderName, theTag);
-    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not register "<<theFolderName <<endreq, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not register "<<theFolderName <<endmsg, StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
   
@@ -746,7 +746,7 @@ StatusCode
 SCT_MonitorConditionsSvc::streamOutCondObjects(const std::string& foldername) const{
   StatusCode sc = m_streamer->connectOutput();
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endreq;
+    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endmsg;
     return( StatusCode::FAILURE);
   }
     
@@ -758,12 +758,12 @@ SCT_MonitorConditionsSvc::streamOutCondObjects(const std::string& foldername) co
     
   sc = m_streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endreq;
+    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endmsg;
     return StatusCode::FAILURE;
   }
   sc = m_streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) << "Could not commit output stream" << endreq;
+    msg(MSG:: ERROR) << "Could not commit output stream" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -786,12 +786,12 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
         StoreGateSvc* pStoreGate;
         sc = service("StoreGateSvc",pStoreGate);
         if (sc.isFailure()) {
-          msg(MSG:: FATAL) << "StoreGate service not found !" << endreq;
+          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
           return StatusCode::FAILURE;
         }
         sc = pStoreGate->retrieve(m_evt);
         if (sc.isFailure()) {
-          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endreq;
+          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
           return sc;
         }
         beginRun = m_evt->event_ID()->run_number();
@@ -808,7 +808,7 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
         sc = m_regSvc->registerIOV("CondAttrListCollection",foldername,"",beginRun, endRun,beginLB, endLB);
       }
       if (sc.isFailure()) {
-        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endreq;
+        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -898,7 +898,7 @@ SCT_MonitorConditionsSvc::badStrips(const Identifier & moduleId, std::set<Identi
                m_pHelper->phi_module(moduleId), m_pHelper->eta_module(moduleId),
                side, stripNum);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad Strip: Strip number in DB = " << *defectItr<< ", side/offline strip number = " << side << "/" << stripNum<< ", Identifier = " << stripId << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad Strip: Strip number in DB = " << *defectItr<< ", side/offline strip number = " << side << "/" << stripNum<< ", Identifier = " << stripId << endmsg;
 
     strips.insert(stripId);
   }

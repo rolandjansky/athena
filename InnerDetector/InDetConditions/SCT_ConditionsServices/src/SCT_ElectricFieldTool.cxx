@@ -26,7 +26,7 @@ SCT_ElectricFieldTool::initialize(){
 /**
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endreq;
+    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endmsg;
     return sc;
   }**/
   return StatusCode::SUCCESS;
