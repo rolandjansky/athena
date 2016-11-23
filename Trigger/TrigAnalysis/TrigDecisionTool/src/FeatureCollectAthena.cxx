@@ -106,7 +106,7 @@ namespace Trig{
       if (!navigation || navigation->getAccessProxy()->retrieve(cont,sgkey).isFailure()) {
 	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endmsg;
 
-	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << navigation->getAccessProxy()->dump() << endmsg;      
+	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << (navigation ? navigation->getAccessProxy()->dump() : "") << endmsg;      
       
 
 	return;
