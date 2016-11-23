@@ -24,6 +24,7 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
 
 from AthenaCommon.ConfiguredFactory import getProperty
+from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 
@@ -338,6 +339,8 @@ def MuonRefitTool(name,**kwargs):
     # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
     # kwargs.setdefault("DeweightBEE", False)
     # kwargs.setdefault("DeweightEE", False)
+    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
+        kwargs["AlignmentErrorTool"] = None
     return CfgMgr.Muon__MuonRefitTool(name,**kwargs)
 
 

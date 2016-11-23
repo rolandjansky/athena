@@ -16,6 +16,7 @@ from ConfiguredMuonRec import ConfiguredMuonRec
 from MuonRecUtils import logMuon,ExtraFlags
 
 from RecExConfig.RecFlags import rec
+from AthenaCommon.DetFlags import DetFlags
 
 from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTool
 import sys
@@ -118,7 +119,9 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseRPC = muonRecFlags.doRPCs(),
                                                      UseTGC = muonRecFlags.doTGCs(),
                                                      UseTGCPriorBC = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
-                                                     UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC() ))
+                                                     UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
+                                                     doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
+                                                     doRPCClust = muonRecFlags.doRPCClusterSegmentFinding() ))
 
 
 
@@ -141,7 +144,9 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseRPC = False,
                                                      UseTGC = False,
                                                      UseTGCPriorBC = False,
-                                                     UseTGCNextBC  = False ) )
+                                                     UseTGCNextBC  = False,
+                                                     doTGCClust = False,
+                                                     doRPCClust = False) )
 
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
@@ -159,7 +164,7 @@ class MuonStandalone(ConfiguredMuonRec):
         self.registerInputKey ("MuonSegments", self.MuPatTrackBuilder, "MuonSegmentCollection"   )
 
         
-        if muonStandaloneFlags.createTrackParticles():
+        if muonStandaloneFlags.createTrackParticles() and DetFlags.ID_on():
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
             xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
                                                                       TrackParticleCreator = getPublicTool("MuonParticleCreatorTool"),
