@@ -19,9 +19,9 @@ namespace Analysis {
     BTagJetPtScaling(const std::string&,const std::string&,const IInterface*);
     virtual ~BTagJetPtScaling();
 
-    StatusCode initialize();
-    StatusCode finalize();
-    StatusCode BTagJetPtScaling_exec(xAOD::JetContainer& jets);
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    StatusCode BTagJetPtScaling_exec(xAOD::JetContainer& jets) const override;
 
   private:
     float m_PtScalingConstPar;
