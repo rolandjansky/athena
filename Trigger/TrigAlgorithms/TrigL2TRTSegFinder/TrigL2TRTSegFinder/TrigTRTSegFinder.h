@@ -84,9 +84,9 @@ class TrigTRTSegFinder :  public HLT::FexAlgo {
   void ConvertTRT( const Trk::SegmentCollection&);
 
  //tracking quantities to be monitored
-  float nStraw_TRT; 
-  float nTR_TRT;
-  float Chi2;  
+  //float nStraw_TRT; 
+  //float nTR_TRT;
+  //float Chi2;  
   int m_ntracks;
   std::vector<int> m_dataErrors;
   std::vector<int> m_trtDataErrors;
