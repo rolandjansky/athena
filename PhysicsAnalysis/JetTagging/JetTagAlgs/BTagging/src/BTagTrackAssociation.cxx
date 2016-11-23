@@ -119,7 +119,7 @@ namespace Analysis {
       return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks) {
+  StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks) const {
 
       /* ----------------------------------------------------------------------------------- */
       /*               Particle to Jet Associations                                          */
@@ -155,10 +155,10 @@ namespace Analysis {
       StatusCode sc;
       // ----- associate tracks
       const xAOD::TrackParticleContainer * tpContainer( 0 );
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator tAssocIter = m_TrackToJetAssociatorList.begin();
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator tAssocEnd  = m_TrackToJetAssociatorList.end();
-      std::vector< std::string >::iterator tNameIter = m_TrackContainerNameList.begin();
-      std::vector< std::string >::iterator tAssocNameIter = m_TrackToJetAssocNameList.begin();
+      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator tAssocIter = m_TrackToJetAssociatorList.begin();
+      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator tAssocEnd  = m_TrackToJetAssociatorList.end();
+      std::vector< std::string >::const_iterator tNameIter = m_TrackContainerNameList.begin();
+      std::vector< std::string >::const_iterator tAssocNameIter = m_TrackToJetAssocNameList.begin();
 
       //if (MyjetBasis == "Cells" || (MyjetBasis == "Tracks" && m_BTagAssociation) ) {
       for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
@@ -217,10 +217,10 @@ namespace Analysis {
 
       // // ----- associate muons
       const xAOD::MuonContainer * muonContainer( 0 );
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muAssocIter = m_MuonToJetAssociatorList.begin();
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muAssocEnd  = m_MuonToJetAssociatorList.end();
-      std::vector< std::string >::iterator muNameIter = m_MuonContainerNameList.begin();
-      std::vector< std::string >::iterator muAssocNameIter = m_MuonToJetAssocNameList.begin();
+      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator muAssocIter = m_MuonToJetAssociatorList.begin();
+      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator muAssocEnd  = m_MuonToJetAssociatorList.end();
+      std::vector< std::string >::const_iterator muNameIter = m_MuonContainerNameList.begin();
+      std::vector< std::string >::const_iterator muAssocNameIter = m_MuonToJetAssocNameList.begin();
 
       for (; muAssocIter!=muAssocEnd; ++muAssocIter) {
           sc = evtStore()->retrieve( muonContainer, *muNameIter );

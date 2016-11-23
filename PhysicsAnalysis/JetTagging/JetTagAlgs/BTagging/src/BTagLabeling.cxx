@@ -88,16 +88,14 @@ namespace Analysis {
 
     if (!m_jetTruthMatchTool.empty() && doTruthInfo) {
       //TruthInfo* truthInfo = new TruthInfo("TruthInfo");
-      jetIsMatched = m_jetTruthMatchTool->matchJet( jetToTag );
-      JetQuarkLabel* jql = dynamic_cast<JetQuarkLabel*>(&(*m_jetTruthMatchTool)); // & gets the pointer out of the ToolHandle to cast it!
-      if(jql) {
-	jetToTag.setAttribute("TruthLabelDeltaR_B",jql->deltaRMinTo("B"));
-	jetToTag.setAttribute("TruthLabelDeltaR_C",jql->deltaRMinTo("C"));
-	jetToTag.setAttribute("TruthLabelDeltaR_T",jql->deltaRMinTo("T"));
-      }
+      Analysis::IJetTruthMatching::MatchInfo info;
+      jetIsMatched = m_jetTruthMatchTool->matchJet( jetToTag, &info );
+      jetToTag.setAttribute("TruthLabelDeltaR_B",info.deltaRMinTo("B"));
+      jetToTag.setAttribute("TruthLabelDeltaR_C",info.deltaRMinTo("C"));
+      jetToTag.setAttribute("TruthLabelDeltaR_T",info.deltaRMinTo("T"));
       //
       if ( jetIsMatched ) {
-        thisJetTruthLabel = m_jetTruthMatchTool->jetLabel();
+        thisJetTruthLabel = info.jetLabel;
         //if(thisJetTruthLabel=="B") {
           //jetToTag.set_pdgId(PDG::b);// AA - need jet input
 	  //if (jql) {

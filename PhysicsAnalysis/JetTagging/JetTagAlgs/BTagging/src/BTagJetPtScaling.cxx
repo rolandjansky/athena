@@ -29,7 +29,7 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagJetPtScaling::BTagJetPtScaling_exec(xAOD::JetContainer& jets) {
+  StatusCode BTagJetPtScaling::BTagJetPtScaling_exec(xAOD::JetContainer& jets) const {
 
     /* ----------------------------------------------------------------------------------- */
     /*               Rescale jet pt values                                                 */

@@ -24,9 +24,9 @@ namespace Analysis
           BTagTrackAssociation(const std::string&,const std::string&,const IInterface*); //NameType& name);
           virtual ~BTagTrackAssociation();
 
-          StatusCode initialize();
-          StatusCode finalize();
-	  StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0);
+          virtual StatusCode initialize() override;
+          virtual StatusCode finalize() override;
+	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const override;
 
       private:
           bool m_BTagAssociation;
