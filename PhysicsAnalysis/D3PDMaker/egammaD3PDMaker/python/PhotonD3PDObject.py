@@ -230,8 +230,8 @@ PhotonD3PDObject.defineBlock (
             ])
 PhotonD3PDObject.defineBlock (1, 'Conversion',
                               egammaD3PDMaker.egammaConversionFillerTool)
-#PhotonD3PDObject.defineBlock (1, 'Retaphi',
-#                              egammaD3PDMaker.egammaRetaphiFillerTool)
+PhotonD3PDObject.defineBlock (1, 'Retaphi',
+                              egammaD3PDMaker.egammaRetaphiFillerTool)
                                            
 
 
