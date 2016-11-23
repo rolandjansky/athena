@@ -291,6 +291,21 @@ def getKernel_MC12G4_IDCalo(name="ISF_Kernel_MC12G4_IDCalo", **kwargs):
     # Legacy only
     return getKernel_FullG4_IDCalo(name, **kwargs)
 
+############## Simulator: G4FastCalo ###############
+def getKernel_G4FastCalo(name="ISF_Kernel_G4FastCalo", **kwargs):
+    kwargs.setdefault("ParticleBroker"             , 'ISF_AFIIParticleBrokerSvc')
+
+    kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultAFIIGeant4Selector' ]            )
+    kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_DefaultAFIIGeant4Selector' ]            )
+    kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonAFIIGeant4Selector',
+                                                       'ISF_EtaGreater5ParticleKillerSimSelector',
+                                                       'ISF_DefaultFastCaloSimV2Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultAFIIGeant4Selector' ]            )
+    kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]        )
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo"
+    return getKernel_GenericSimulator(name, **kwargs)
+
 ############## Simulator: ATLFASTII ###############
 def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
     kwargs.setdefault("ParticleBroker"             , 'ISF_AFIIParticleBrokerSvc'                    )
@@ -355,7 +370,7 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
                                                        #'ISF_FatrasPileupSelector_noHits',
                                                        'ISF_FatrasPileupSelector',
-                                                       'ISF_DefaultFatrasSelector' ]            )
+                                                       'ISF_DefaultFatrasNewExtrapolationSelector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasSelector',
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
                                                        'ISF_FastCaloSimPileupSelector',
