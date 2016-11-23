@@ -6,7 +6,6 @@
 #include "BLM_GeoModel/BLM_GeometryManager.h"
 #include "BLM_GeoModel/BLM_Module.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
@@ -122,16 +121,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
   StatusCode sc;
   if(m_BDparameters)
     {
-      IGeoModelSvc *geoModel;
-      sc = service ("GeoModelSvc",geoModel);
-      if (sc.isFailure())
-	{
-	  ATH_MSG_FATAL("Could not locate GeoModelSvc");
-	  delete manager;
-	  return StatusCode::FAILURE;
-	}
-
-      DecodeVersionKey versionKey(geoModel, "InnerDetector");
+      DecodeVersionKey versionKey("InnerDetector");
 
       // Issue error if AUTO.
       if (versionKey.tag() == "AUTO")
