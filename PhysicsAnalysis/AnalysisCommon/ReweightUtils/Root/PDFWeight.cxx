@@ -31,9 +31,10 @@ StatusCode PDFWeight::initialize() {
   }
   try {
     LHAPDF::pathsPrepend("/cvmfs/atlas.cern.ch/repo/sw/Generators/lhapdfsets/current"); // hack!
-    m_pdf.reset(mkPDF(m_pdfName, m_index));
+    if(m_pdf) delete m_pdf;
+    m_pdf = mkPDF(m_pdfName, m_index);
   } catch (...) {
-    m_pdf.reset(0);
+    m_pdf = 0;
   }
   return StatusCode::SUCCESS;
 }
