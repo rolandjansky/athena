@@ -46,8 +46,6 @@ private:
   float m_muMinPt;
   float m_muMaxEta;
   int m_muQual;
-  // ToolHandle<CP::IMuonSelectionTool> m_muSelectionTool;
-  CP::MuonSelectionTool m_muSelectionTool;
 
 };
 

@@ -30,7 +30,6 @@ ElMuFinder::ElMuFinder(const std::string& type,
     m_muMinPt(7000),
     m_muMaxEta(2.47),
     m_muQual(2)
-    // m_muSelectionTool("")
 {
     declareInterface<DiTauToolBase > (this);
     declareProperty("ElectronContainer", m_elContName);
@@ -40,7 +39,6 @@ ElMuFinder::ElMuFinder(const std::string& type,
     declareProperty("MuonMinPt", m_muMinPt);
     declareProperty("MuonMaxEta", m_muMaxEta);
     declareProperty("MuonQuality", m_muQual);
-    // declareProperty("MuonSelectionTool", m_muSelectionTool);
 }
 
 //-------------------------------------------------------------------------
@@ -55,13 +53,6 @@ ElMuFinder::~ElMuFinder() {
 //-------------------------------------------------------------------------
 
 StatusCode ElMuFinder::initialize() {
-  CP::MuonSelectionTool m_muSelectionTool("MuonSelection_forDiTau");
-    m_muSelectionTool.setProperty("MaxEta", 2.7);
-    m_muSelectionTool.setProperty("MuQuality", 2);
-    if (m_muSelectionTool.initialize().isFailure()) {
-        ATH_MSG_FATAL("could not retrieve MuonSelectionTool");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -119,7 +110,7 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
             continue;    
         ATH_MSG_DEBUG("Electron passes author selection.");
 
-        if (el->pt() < m_elMinPt || fabs(el->eta() > m_elMaxEta))
+        if (el->pt() < m_elMinPt || fabs(el->eta()) > m_elMaxEta)
             continue;
         ATH_MSG_DEBUG("Electron passes basic kinematic selection");
 
@@ -136,11 +127,8 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
     data->muons.clear();
     for (const auto& mu : *pMuCont) {
         ATH_MSG_DEBUG("muon pt:" << mu->pt() << " eta:" << mu->eta() << " ");
-        // if (m_muSelectionTool.accept(*mu))
-	xAOD::Muon::Quality muonQuality = mu->quality();
-	if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
-        //if (m_muSelectionTool->getQuality(*mu) >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta)
-	//continue;
+	    xAOD::Muon::Quality muonQuality = mu->quality();
+	    if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
 
         // electron inside seed jet area?
         dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), mu->eta(), mu->phi());
@@ -149,10 +137,6 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
         data->muons.push_back(mu);
     }
     ATH_MSG_DEBUG("Number of good muons found: " << data->muons.size() );
-
-
-
-
 
     return StatusCode::SUCCESS;
 }

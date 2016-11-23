@@ -83,7 +83,7 @@ def getElMuFinder():
                             ElectronMinPt=7000,
                             ElectronMaxEta=2.47,
                             MuonMinPt=7000,
-                            MuonMaxEta=1,  # default: 2.7
+                            MuonMaxEta=2.7, 
                             MuonQuality=3)   # Tight,Medium,Loose,VeryLoose: 0,1,2,3
 
     cached_instances[_name] = ElMuFinder

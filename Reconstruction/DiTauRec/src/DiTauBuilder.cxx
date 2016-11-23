@@ -162,7 +162,7 @@ StatusCode DiTauBuilder::execute() {
         rDiTauData.xAODDiTauContainer->push_back(rDiTauData.xAODDiTau);
 
         // handle di-tau candidate
-        for (const auto tool: m_tools) {
+        for (auto tool: m_tools) {
             sc = tool->execute(&rDiTauData);
 
             if (sc.isFailure()) break;
@@ -182,7 +182,7 @@ StatusCode DiTauBuilder::execute() {
 
     ATH_MSG_DEBUG("execute tool finializers");
     rDiTauData.xAODDiTau = 0;
-    for (const auto tool: m_tools) {
+    for (auto tool: m_tools) {
         sc = tool->eventFinalize(&rDiTauData);
         if (!sc.isSuccess())
             return StatusCode::FAILURE;
