@@ -174,7 +174,7 @@ int TgcReadoutParams::nGangs(int gasGap) const
     if (gasGap<1 || gasGap>MaxNGaps)
     {
 	reLog()<<MSG::WARNING<<"TgcReadoutParams::nGangs("
-                 <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endreq;
+                 <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -188,7 +188,7 @@ int TgcReadoutParams::totalWires(int gasGap) const
     if (gasGap<1 || gasGap>MaxNGaps)
     {
         reLog()<<MSG::WARNING<<"TgcReadoutParams::totalWires("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endreq;
+	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -204,7 +204,7 @@ int TgcReadoutParams::nWires(int gasGap, int gang) const
     if (gasGap<1 || gasGap>MaxNGaps  || gang<1 || gang>MaxNGangs)
     {
         reLog()<<MSG::WARNING<<"TgcReadoutParams::nWires gasGap "
-	       <<gasGap<<" or gang "<<gang<<" out of allowed range"<<endreq;
+	       <<gasGap<<" or gang "<<gang<<" out of allowed range"<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap or wire gang index are incorrect");
 #endif
@@ -218,7 +218,7 @@ int TgcReadoutParams::gangOffset(int gasGap) const
     if (gasGap<1 || gasGap>MaxNGaps)
     {
         reLog()<<MSG::WARNING<<"TgcReadoutParams::gangOffset("
-               <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endreq;
+               <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -239,7 +239,7 @@ int TgcReadoutParams::nStrips(int gasGap) const
     if (gasGap<1 || gasGap>MaxNGaps)
     {
         reLog()<<MSG::WARNING<<"TgcReadoutParams::nStrips("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endreq;
+	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -253,7 +253,7 @@ float TgcReadoutParams::stripOffset(int gasGap) const
     if (gasGap<1 || gasGap>MaxNGaps)
     {
         reLog()<<MSG::WARNING<<"TgcReadoutParams::stripOffset("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endreq;
+	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -277,7 +277,7 @@ float TgcReadoutParams::stripPositionOnLargeBase(int istrip) const
 	       <<"Input strip n. "<<istrip
 	       <<" out of range in TgcReadoutParams::stripPositionOnLargeBase for TgcReadoutParams of name/type "
 	       <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "
-	       <<MaxNStrips<<endreq;
+	       <<MaxNStrips<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input strip index >= m_nStrips[0]+1 (remember that positions on short/large bases are given for 33 elements [begin of each strip + end of last one])");
 #endif
@@ -293,7 +293,7 @@ float TgcReadoutParams::stripPositionOnShortBase(int istrip) const
     {
         reLog()<<MSG::WARNING
 	       <<"Input strip n. "<<istrip<<" out of range in TgcReadoutParams::stripPositionOnShortBase for TgcReadoutParams of name/type "
-                 <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "<<MaxNStrips<<endreq;
+                 <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "<<MaxNStrips<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input strip index >= m_nStrips[0]+1 (remember that positions on short/large bases are given for 33 elements [begin of each strip + end of last one])");
 #endif  

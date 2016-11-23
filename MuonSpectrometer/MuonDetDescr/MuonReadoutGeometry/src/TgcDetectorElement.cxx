@@ -39,7 +39,7 @@ const Trk::SurfaceBounds& TgcDetectorElement::bounds() const
 
 const Amg::Vector3D& TgcDetectorElement::center() const
 {
-    //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endreq;
+    //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endmsg;
     
 return m_tgcre->center();}
 
@@ -68,5 +68,9 @@ TgcDetectorElement::center(const Identifier& id) const
 const Amg::Vector3D& 
 TgcDetectorElement::normal(const Identifier& id) const
   {return m_tgcre->normal(id);}
+
+const std::vector<const Trk::Surface*>& 
+TgcDetectorElement::surfaces() const
+{return m_tgcre->surfaces();}
 
 }

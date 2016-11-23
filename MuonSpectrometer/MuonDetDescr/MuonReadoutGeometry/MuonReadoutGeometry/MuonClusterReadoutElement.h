@@ -118,6 +118,9 @@ namespace MuonGM {
     const Amg::Vector3D& normal(int layHash) const;
     const Amg::Transform3D& transform(int surfHash) const;
 
+    /** returns all the surfaces contained in this detector element */
+    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
     virtual int  layerHash(const Identifier& id)   const = 0; 
 
@@ -137,6 +140,9 @@ namespace MuonGM {
 
     mutable SurfaceData* m_surfaceData;
     mutable SurfaceData* m_surfaceDataBackup;
+
+    /** these are all surfaces represented by this detector element : it's for visualization without casting */
+    mutable std::vector<const Trk::Surface*>  m_elementSurfaces;
   };
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface()   const { return surface(0); }
@@ -162,12 +168,12 @@ namespace MuonGM {
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface(int hash) const {   
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting surface but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting surface but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerSurfaces.size() ){
-      reLog()<<MSG::WARNING<<this << " surface hash out of range: " << hash << " elements " << m_surfaceData->m_layerSurfaces.size() << endreq;
+      reLog()<<MSG::WARNING<<this << " surface hash out of range: " << hash << " elements " << m_surfaceData->m_layerSurfaces.size() << endmsg;
       return *m_surfaceData->m_layerSurfaces.front(); 
     }
     return *m_surfaceData->m_layerSurfaces[hash]; 
@@ -176,12 +182,12 @@ namespace MuonGM {
 
   inline const Amg::Transform3D& MuonClusterReadoutElement::transform(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting transform but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting transform but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerTransforms.size() ){
-      reLog()<<MSG::WARNING<< this << "transform hash out of range: " << hash << " elements " << m_surfaceData->m_layerTransforms.size() << endreq;
+      reLog()<<MSG::WARNING<< this << "transform hash out of range: " << hash << " elements " << m_surfaceData->m_layerTransforms.size() << endmsg;
       return m_surfaceData->m_layerTransforms.front(); 
     }
     return m_surfaceData->m_layerTransforms[hash]; 
@@ -189,12 +195,12 @@ namespace MuonGM {
 
   inline const Amg::Vector3D&  MuonClusterReadoutElement::center(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting center but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting center but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerCenters.size() ){
-      reLog()<<MSG::WARNING<<"center hash out of range: " << hash << " elements " << m_surfaceData->m_layerCenters.size() << endreq;
+      reLog()<<MSG::WARNING<<"center hash out of range: " << hash << " elements " << m_surfaceData->m_layerCenters.size() << endmsg;
       return m_surfaceData->m_layerCenters.front(); 
     }
     return m_surfaceData->m_layerCenters[hash];
@@ -202,12 +208,12 @@ namespace MuonGM {
 
   inline const Amg::Vector3D& MuonClusterReadoutElement::normal(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting normal but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting normal but cache is empty" << endmsg;
       throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerNormals.size() ){
-      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_layerNormals.size() << endreq;
+      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_layerNormals.size() << endmsg;
       return m_surfaceData->m_layerNormals.front(); 
     }
     return m_surfaceData->m_layerNormals[hash];
@@ -215,16 +221,24 @@ namespace MuonGM {
   
   inline const Trk::SurfaceBounds&   MuonClusterReadoutElement::bounds(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::ERROR<<"requesting bounds but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting bounds but cache is empty" << endmsg;
       throw;
       //fillCache();
     }    
     if( hash == -1 || hash >= (int)m_surfaceData->m_surfBounds.size() ){
-      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_surfBounds.size() << endreq;
+      reLog()<<MSG::WARNING<<"normal hash out of range: " << hash << " elements " << m_surfaceData->m_surfBounds.size() << endmsg;
       return *m_surfaceData->m_surfBounds.front(); 
     }
     return *m_surfaceData->m_surfBounds[hash]; 
   }  
+
+  inline const std::vector<const Trk::Surface*>& MuonClusterReadoutElement::surfaces() const {
+      // create when first time requested and when possible
+      if (!m_elementSurfaces.size() && m_surfaceData)
+          m_elementSurfaces.insert(m_elementSurfaces.begin(), m_surfaceData->m_layerSurfaces.begin(), m_surfaceData->m_layerSurfaces.end());
+      // return the element surfaces      
+      return m_elementSurfaces;
+  }
 
 }
 #endif // MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H
