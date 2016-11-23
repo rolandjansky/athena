@@ -86,3 +86,8 @@ if muonAlignFlags.UseAsBuilt:
         #MuonAlignmentDbTool.AsBuiltFile = "clob_asbuilt_nominal.txt"
         conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS')
         MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
+
+# nuisance parameter used during track fit to account for alignment uncertainty
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+    conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS")
