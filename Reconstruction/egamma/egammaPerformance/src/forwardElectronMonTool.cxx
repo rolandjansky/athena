@@ -223,7 +223,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
     //ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
   
     // Isolation Energy 
-    float topoetcone40 = -999.;
+    //float topoetcone40 = -999.;
     // Shower shape variable details
     double firstENGdens=-999.;
     double lateral=-999.;
