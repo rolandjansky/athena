@@ -5,13 +5,13 @@
 	This script reads the rulebook and swaps items between Physics and MC if they are disabled or not.
 	TrigMenuRulebook needs to be checked out and installed.
 	Currently it needs to be run from the script folder.
-	One argument can be supplied specifying which "tag" to use, default is pp_v6 
+	One argument can be supplied specifying which "tag" to use, default is pp_v7 
 """
 
 import importlib
 import sys, re, os
 
-tag = "pp_v6"
+tag = "pp_v7"
 if len(sys.argv) > 1:
 	tag = sys.argv[1]
 

@@ -20,7 +20,7 @@ from exc2string import exc2string2
 from TriggerMenu.menu.ChainDef import ErrorChainDef
 import os, inspect
 
-TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
+# TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
 
 
 from  __builtin__ import any as b_any
@@ -50,16 +50,7 @@ def generateChainDefs(chainDict):
     # now use new jet algorthm TrigHLTJetHypo2 as standard,
     # and have the test chains use th run 1 hypo for comaprison PS 04/10/2016
 
-    # if b_any(('invm' or 'deta' in x) for x in topoAlgs):
-    #     logJet.info("Adding topo to jet chain from invm or deta")
-    #     theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
-    #     # if 'test' in chainName:
-    #     # if not 'test' in chainName:
-    #     #    return theChainDef
-
-    if ('muvtx' in topoAlgs) or \
-            ('llp' in topoAlgs) or \
-            (b_any(('invm' in x or 'deta' in x) for x in topoAlgs)): 
+    if ('muvtx' in topoAlgs) or ('llp' in topoAlgs):
 
         logJet.info("Adding topo to jet chain")
         try:

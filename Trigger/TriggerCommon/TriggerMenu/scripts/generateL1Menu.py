@@ -85,7 +85,7 @@ def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v6','MC_pp_v6']
+    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -142,6 +142,8 @@ def findFreeCTPIDs(menu):
     
 def main():
     if len(sys.argv)==1:
+        generateL1Menu(menu="Physics_pp_v7")
+        generateL1Menu(menu="MC_pp_v7")
         generateL1Menu(menu="Physics_pp_v6")
         generateL1Menu(menu="MC_pp_v6")
 #        generateL1Menu(menu="LS1_v1" )

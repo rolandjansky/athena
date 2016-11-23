@@ -45,10 +45,8 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
-from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo,
-                                                 TrigHLTJetHypo2)
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2
 
-from TrigHLTJetHypo.TrigEFHLTHTHypoConfig import EFHLTHT
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 
 from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
@@ -93,7 +91,7 @@ class Instantiator(object):
             try:
                 alg = a.alg
             except:
-                m += '\nAttempt to retreve pre instanatiated Algorithm failes'
+                m += '\nAttempt to retrieve pre-instantiated Algorithm failed'
 
                 raise RuntimeError(m)
 
