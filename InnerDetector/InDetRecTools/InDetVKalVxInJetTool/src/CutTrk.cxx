@@ -183,7 +183,7 @@ namespace InDet{
 
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
+	  if ( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
           double trkP=1./fabs(VectPerig[4]);         
           if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;

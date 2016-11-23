@@ -52,6 +52,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_AntiFake2trVrtCut(0.5),
     m_JetPtFractionCut(0.01),
     m_TrackInJetNumberLimit(25),
+    m_pseudoSigCut(3.),
     m_FillHist(false),
     m_existIBL(true),
     m_RobustFit(5),
@@ -67,7 +68,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_RlayerB   (0.),  // in jobO or initialize()
     m_Rlayer1   (0.),
     m_Rlayer2   (0.),
-    m_SVResolutionR(5.),
+    m_SVResolutionR(0.),
     m_useMaterialRejection(true),
     m_useVertexCleaning(true),
     m_MassType (1),
@@ -81,6 +82,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
     m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
     m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool")
+//    m_materialMap ("InDet::InDetMaterialRejTool", this)
 //    m_fitSvc("Trk::TrkVKalVrtFitter/VKalVrtFitter",this)
    {
 //
@@ -116,6 +118,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("AntiFake2trVrtCut",   m_AntiFake2trVrtCut, "Cut to reduce fake 2-track vertices contribution.Single Vertex Finder only"  );
     declareProperty("JetPtFractionCut",    m_JetPtFractionCut,  "Reduce high Pt fakes. Jet HLV input is mandatory, direction is not enough. Multi and single vertex versions are affected"  );
     declareProperty("TrackInJetNumberLimit", m_TrackInJetNumberLimit, " Use only limited number of highest pT tracks in jet for vertex search"  );
+    declareProperty("PseudoSigCut",        m_pseudoSigCut, " Cut on track impact significance for pseudo-vertex search"  );
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
@@ -149,9 +152,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("VertexMergeCut",	  m_VertexMergeCut, "To allow vertex merging for MultiVertex Finder" );
     declareProperty("TrackDetachCut",	  m_TrackDetachCut, "To allow track from vertex detachment for MultiVertex Finder" );
 
-    declareProperty("VertexFitterTool", m_fitterSvc);
+    declareProperty("VertexFitterTool",  m_fitterSvc);
     declareProperty("TrackToVertexTool", m_trackToVertexIP);
     declareProperty("TrackParticleCreator", m_trkPartCreator);
+//    declareProperty("MaterialMap", m_materialMap);
 //    declareProperty("TrkVKalVrtFitter", m_fitSvc);
 //
     m_iflag=0;
@@ -203,6 +207,12 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
+     //if (m_materialMap.retrieve().isFailure()) {
+     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find InDetMaterialRejTool."
+     //                                      << "Use radial rejection"<< endreq;
+     //} else {
+     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endreq;
+     //}
 //------
 //     if ( m_trackToVertexIP.retrieve().isFailure() ) {
 //        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endmsg;
