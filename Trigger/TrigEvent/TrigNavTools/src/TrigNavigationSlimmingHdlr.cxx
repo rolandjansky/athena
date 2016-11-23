@@ -31,16 +31,16 @@ HLT::TrigNavigationSlimmingHdlr::~TrigNavigationSlimmingHdlr() {
 
 void HLT::TrigNavigationSlimmingHdlr::commit() {
   
-  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endreq;
+  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endmsg;
   // do slimming and serialized to the m_result
   if( m_slimmer->doSlimming( m_result->getNavigationResult() ).isFailure() ) {
     Athena::MsgStreamMember mlog(Athena::Options::Eager, m_name);
     MsgStream log = mlog.get();    
-    log << MSG::WARNING << "StreamTrigNavSlimming failed execute().  Unable to proceed... bailing out" << endreq;
+    log << MSG::WARNING << "StreamTrigNavSlimming failed execute().  Unable to proceed... bailing out" << endmsg;
     return;
   } 
   
-  //log << MSG::DEBUG << "Performed actual slimming" << endreq;
+  //log << MSG::DEBUG << "Performed actual slimming" << endmsg;
 }
 
 void HLT::TrigNavigationSlimmingHdlr::rollback() {
@@ -58,7 +58,7 @@ void HLT::TrigNavigationSlimmingHdlr::rollback() {
   navData.insert(navData.begin(), m_unslimmedNavData.begin(), m_unslimmedNavData.end());
   cuts.clear();
   cuts.insert(cuts.begin(), m_unslimmedCuts.begin(), m_unslimmedCuts.end());
-  //  log << MSG::DEBUG << "Rolled back the slimming" << endreq;
+  //  log << MSG::DEBUG << "Rolled back the slimming" << endmsg;
 }
 
 void *HLT::TrigNavigationSlimmingHdlr::object() {
