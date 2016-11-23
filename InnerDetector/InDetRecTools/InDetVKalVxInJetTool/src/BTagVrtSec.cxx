@@ -299,53 +299,84 @@ namespace InDet{
     long int              tChrg=0;
     double                Chi2=0.;
     std::vector<const xAOD::TrackParticle*> tTrkForFit(2,0);
-    std::vector<float> tmpCov(15,0.); tmpCov[0]=2.5e-3; tmpCov[2]=1.e-2; tmpCov[5]=2.5e-5; tmpCov[9]=2.5e-5; tmpCov[14]=1.e-12; 
+    std::vector<float> tmpCov(15,0.); tmpCov[0]=1e-4; tmpCov[2]=4.e-4; tmpCov[5]=1.e-4; tmpCov[9]=1.e-4; tmpCov[14]=1.e-12; 
     StatusCode scode; scode.setChecked();  
     std::vector<const xAOD::TrackParticle*> reducedTrkSet(SelectedTracks.begin(),SelectedTracks.begin()+nTrkLead);
-    double maxImp=RemoveNegImpact(reducedTrkSet,PrimVrt,JetDir,3.);
+    double maxImp=RemoveNegImpact(reducedTrkSet,PrimVrt,JetDir,m_pseudoSigCut);
+    if(reducedTrkSet.size()==0) return 0; 
+    if(reducedTrkSet.size()==1 && maxImp<m_pseudoSigCut+1.)return 0;
+    if(m_FillHist)m_hb_rawVrtN->Fill(reducedTrkSet.size(),1.);
+//
+//------ 
+    int sel1T=-1; double selDST=0.;
     if(reducedTrkSet.size()>0){ 
-       if(maxImp<4. && reducedTrkSet.size()==1)return 0;
        m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); 
        xAOD::TrackParticle *tmpBTP=new xAOD::TrackParticle(); tmpBTP->makePrivateStore();
        tmpBTP->setDefiningParameters(0., 0., JetDir.Phi(), JetDir.Theta(), sin(JetDir.Theta())/2.e5);   // Pt=200GeV track
        tmpBTP->setParametersOrigin(PrimVrt.x(),PrimVrt.y(),PrimVrt.z());
        tmpBTP->setDefiningParametersCovMatrixVec(tmpCov);
-       tTrkForFit[1]=tmpBTP;
+       tTrkForFit[1]=tmpBTP; 
        TLorentzVector sumB(0.,0.,0.,0.);
-       int selIT=-1; double selDST=0.;
+       int nvFitted=0;
        for(int it=0; it<(int)reducedTrkSet.size(); it++){
           tTrkForFit[0]=reducedTrkSet[it];
-	  scode=VKalVrtFitBase( tTrkForFit, FitVertex, Momentum, tChrg, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+	  if(tTrkForFit[0]->pt()<2000.)continue;
+	  scode=VKalVrtFitBase( tTrkForFit, FitVertex, Momentum, tChrg, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);  nvFitted++;
 	  if(scode.isFailure() || Chi2>6.)continue;
           if(FitVertex.perp()>reducedTrkSet[it]->radiusOfFirstHit())continue; 
-          double dSVPV=ProjPosT(FitVertex-PrimVrt.position(),JetDir);
-   	  if(m_FillHist)m_hb_DST_JetTrkSV->Fill(dSVPV,1.);
-          if(dSVPV<3.)continue;
+          //double dSVPV=ProjPosT(FitVertex-PrimVrt.position(),JetDir);
+	  double Signif3D; VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
+          if(FitVertex.perp()>m_Rbeampipe && Signif3D<2.)  continue;  // Cleaning of material interactions
+   	  if(m_FillHist)m_hb_DST_JetTrkSV->Fill(Signif3D,1.);
+          if(tTrkForFit[0]->pt()<5.e4){
+            if(!Check2TrVertexInPixel(tTrkForFit[0],tTrkForFit[0],FitVertex,Signif3D)) continue;
+	  }
           sumSelTrk += MomAtVrt(TrkAtVrt[0]) ; sumB += MomAtVrt(TrkAtVrt[1]) ;
-	  if(dSVPV>selDST){ selIT=it; selDST=dSVPV;}
+	  if(Signif3D>selDST){ sel1T=it; selDST=Signif3D;} 
        }
-       if(sumSelTrk.Pt()>0. && selIT>=0 ){
+       if(sumSelTrk.Pt()>0. && sel1T>=0 ){
 	  Results.resize(4);
 	  double pt1=sumSelTrk.Pt(sumB.Vect()); double E1=sqrt(pt1*pt1+sumSelTrk.M2()); 
           Results[0]=pt1+E1;                      //Invariant mass
           Results[1]=sumSelTrk.Pt()/TrkJet.Pt();  //Ratio
           Results[2]=0.;                          //Should be
           Results[3]=reducedTrkSet.size();        //Found leading tracks with high positive impact
-	  if(m_FillHist){ m_hb_massJetTrkSV ->Fill(Results[0],1.);
-	                  m_hb_ratioJetTrkSV->Fill(Results[1],1.); 
-			  m_hb_NImpJetTrkSV->Fill(Results[3],1.); }
-          tTrkForFit[0]=reducedTrkSet[selIT]; //------------------------- Refit selected vertex for xAOD::Vertex
-	  scode=VKalVrtFitBase( tTrkForFit, FitVertex, Momentum, tChrg, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
-	  if(scode.isFailure()){sumSelTrk.SetXYZT(0.,0.,0.,0.); Results.clear();}
+          tTrkForFit[0]=reducedTrkSet[sel1T]; //------------------------- Refit selected vertex for xAOD::Vertex
+          if(nvFitted>1){  //If only one fit attempt made - don't need to refit
+	    scode=VKalVrtFitBase( tTrkForFit, FitVertex, Momentum, tChrg, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+	    if(scode.isFailure()){sumSelTrk.SetXYZT(0.,0.,0.,0.); Results.clear();}
+          }
        }
        delete tmpBTP;
      }
+// 
+//------ Plane-Plane crossing doesn't provide good vertices for the moment
+//     int sel2TI=-1,sel2TJ=-1;
+//     if(reducedTrkSet.size()>1 && sel1T<0){ 
+//       int nPRT=reducedTrkSet.size();
+//       for(int it=0; it<nPRT-1; it++){  for(int jt=it+1; jt<nPRT; jt++){
+//          TLorentzVector  pseudoB=GetBDir( reducedTrkSet[it],reducedTrkSet[jt],PrimVrt);
+//          if(pseudoB.DeltaR(JetDir)>0.3)continue;
+//	  sel2TI=it; sel2TJ=jt;
+//       } }
+//       if(sel1T<0 && sel2TI>=0){
+//          tTrkForFit[0]=reducedTrkSet[sel2TI]; tTrkForFit[1]=reducedTrkSet[sel2TJ];
+//	  scode=VKalVrtFitBase( tTrkForFit, FitVertex, Momentum, tChrg, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+//	  if(scode.isSuccess() && ProjPosT(FitVertex-PrimVrt.position(),JetDir) > 0 ){
+//            sumSelTrk += MomAtVrt(TrkAtVrt[0]) ; sumSelTrk += MomAtVrt(TrkAtVrt[1]) ;
+//	    Results.resize(4);
+//            Results[0]=sumSelTrk.M();               //Invariant mass
+//            Results[1]=sumSelTrk.Pt()/TrkJet.Pt();  //Ratio
+//            Results[2]=0.;                          //Should be
+//            Results[3]=nPRT;        //Found leading tracks with high positive impact
+//       } }
+//     }
 //
 //------ 
      if(sumSelTrk.Pt()==0)return 0;    //---------- Nothing found. Damn it! Else - return xAOD::Vertex
      Results.resize(7);
      Results[4]=0.; Results[5]=0.;
-     Results[6]=TrkJet.Pt();
+     Results[6]=TrkJet.E();
      xAOD::Vertex * tmpVertex=new xAOD::Vertex();
      tmpVertex->makePrivateStore();
      tmpVertex->setPosition(FitVertex);
@@ -362,6 +393,9 @@ namespace InDet{
        const xAOD::TrackParticleContainer* cont = (const xAOD::TrackParticleContainer* ) (tTrkForFit[0]->container() );
        TEL.setStorableObject(*cont);
        tmpVertex->addTrackAtVertex(TEL,1.);
+     if(m_FillHist){m_hb_massJetTrkSV ->Fill(Results[0],1.);
+                    m_hb_ratioJetTrkSV->Fill(Results[1],1.); 
+                    m_hb_NImpJetTrkSV ->Fill(Results[3],1.);}
      return tmpVertex;
   }
 
@@ -409,7 +443,7 @@ namespace InDet{
       std::vector< std::vector<double> > TrkAtVrt; 
       TLorentzVector    Momentum;
       double Signif3D=0., Chi2=0.;
-      const int nTrkLead=6;
+      const int nTrkLead=5;
 
 
       std::vector<const xAOD::TrackParticle*>  TracksForFit;
@@ -428,6 +462,8 @@ namespace InDet{
       Vrt2TrackNumber = (double) ListSecondTracks.size()/2.;
       std::vector<const xAOD::TrackParticle*> saveSecondTracks(ListSecondTracks);
       RemoveDoubleEntries(ListSecondTracks);
+      for(auto iv0 : TrkFromV0){ auto itf=std::find(SelectedTracks.begin(),SelectedTracks.end(),iv0);
+                                 if(itf!=SelectedTracks.end())  SelectedTracks.erase(itf);}
 //---
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks in pairs="<< ListSecondTracks.size()<<endmsg;
       if(ListSecondTracks.size() < 2 ) return tryPseudoVertex( SelectedTracks, PrimVrt, JetDir, MomentumJet, nTrkLead, Results);
@@ -566,6 +602,8 @@ namespace InDet{
  
       VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
       if(JetVrtDir < 0) Signif3D = -Signif3D;
+
+      if(FitVertex.perp()>m_Rbeampipe && Signif3D<20.)  return 0;  // Final cleaning of material interactions
 
       Amg::Vector3D DirForPt( FitVertex.x()-PrimVrt.x(),
                               FitVertex.y()-PrimVrt.y(),
@@ -1013,6 +1051,10 @@ namespace InDet{
 	     float xvt=FitVertex.x(); float yvt=FitVertex.y();
              if(m_FillHist){m_hb_r2d->Fill( Dist2D, m_w_1);}
              if(m_useMaterialRejection){
+              //if(m_materialMap){
+              //  if(m_materialMap->inMaterial(FitVertex)) BadTracks=4;
+              //  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" MaterialMap test="<< BadTracks<<endreq;
+	      //}else{   
                float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
                float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
                float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
@@ -1028,7 +1070,7 @@ namespace InDet{
                  if( fabs(Dist2DBL-m_RlayerB)  < 3.5)  BadTracks = 4;
                  if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)  BadTracks = 4;
                  if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  BadTracks = 4;
-               }
+               }  //}
              }
 //
 //  Creation of tracks from V0 list
@@ -1063,7 +1105,7 @@ namespace InDet{
 //
 //-- Post-selection cleaning 
 //
-      if(ListSecondTracks.size()==1 && closeVrtSig[0]<9.){    //Turned off for the moment
+      if(ListSecondTracks.size()==1 && closeVrtSig[0]<9.){    //Turned off for the moment (ListSecondTracks.size() can't be 1!)
         auto it0=std::find(SelectedTracks.begin(),SelectedTracks.end(),ListSecondTracks[0]);
         auto it1=std::find(SelectedTracks.begin(),SelectedTracks.end(),ListSecondTracks[1]);
 	int eGood=1; double cutNTrkDep=cutNDepNorm(m_NRefTrk,0.05);                        // NTrk dependence
@@ -1124,7 +1166,7 @@ namespace InDet{
 	int nLays[2]={0,0}; 
         getPixelLayers( p1, blTrk[0] , l1Trk[0], l2Trk[0], nLays[0] );
         getPixelLayers( p2, blTrk[1] , l1Trk[1], l2Trk[1], nLays[1] );    // Very close to PV. Both b-layer hits are mandatory.
-        if( Signif3D<15. ){
+        if( Signif3D<15. && FitVertex.perp()<15. ){
 	   if( blTrk[0]<1  && l1Trk[0]<1  )  return false;
 	   if( blTrk[1]<1  && l1Trk[1]<1  )  return false;
 	   if( blTrk[0]==0 && blTrk[1]==0 )  return false;
@@ -1151,6 +1193,7 @@ namespace InDet{
 	     if( l1Trk[0]==0 && l1Trk[1]==0 )     return false;  // No L1 hits at all
              if( l1Trk[0]<1  && l2Trk[0]<1  )     return false;  // Less than 1 hits on track 0
              if( l1Trk[1]<1  && l2Trk[1]<1  )     return false;  // Less than 1 hits on track 1
+             return true;
           }else if(Dist2DL1 > m_Rlayer1+m_SVResolutionR) {  //------------------------------------------- Outside 1st-layer
 	     if( l1Trk[0]>0 || l1Trk[1]>0 )       return false;  //  L1 hits are present
           }
@@ -1158,7 +1201,7 @@ namespace InDet{
           if      (Dist2DL2 < m_Rlayer2-m_SVResolutionR) {  //------------------------------------------- Inside 2nd-layer
 	     if( (l2Trk[0]+l2Trk[1])==0 )  return false;           // At least one L2 hit must be present
           }else if(Dist2DL2 > m_Rlayer2+m_SVResolutionR) {  
-	     if( (l2Trk[0]+l2Trk[1])>0  )  return false;           // L2 hits are present
+	  //   if( (l2Trk[0]+l2Trk[1])>0  )  return false;           // L2 hits are present
 	  }           
         } else {
 	  int d0Trk[2]={0,0}; 
@@ -1195,13 +1238,18 @@ namespace InDet{
       std::vector<double> ImpR(NTracks);
       std::vector<double> Impact,ImpactError;
       AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
-      double maxImp=-1.e-10;
+      double maxImp=-1.e10;
       for (i=0; i<NTracks; i++) {
          m_fitSvc->VKalGetImpact(inTracks[i], PrimVrt.position(), 1, Impact, ImpactError);
          tmpPerigee = GetPerigee(inTracks[i])->parameters(); 
          if( sin(tmpPerigee[2]-JetDir.Phi())*Impact[0] < 0 ){ Impact[0] = -fabs(Impact[0]);}
 	                                                else{ Impact[0] =  fabs(Impact[0]);}
-	 ImpR[i] = Impact[0] / sqrt(ImpactError[0]);
+         if(  (tmpPerigee[3]-JetDir.Theta())*Impact[1] < 0 ){ Impact[1] = -fabs(Impact[1]);}
+	                                                else{ Impact[1] =  fabs(Impact[1]);}
+	 double SignifR = Impact[0]/ sqrt(ImpactError[0]); ImpR[i]=SignifR;
+         if(fabs(SignifR)   < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices  
+           if( fabs(Impact[1])/sqrt(ImpactError[2]) > m_AntiPileupSigZCut ) ImpR[i]=-9999.;  
+         }
 	 if(ImpR[i]>maxImp)maxImp=ImpR[i];
       }
       if(maxImp<Limit){  inTracks.clear(); return maxImp;}

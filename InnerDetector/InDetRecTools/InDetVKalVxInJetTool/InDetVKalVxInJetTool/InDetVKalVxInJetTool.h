@@ -57,6 +57,7 @@
 #include "TProfile.h"
 
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
+//#include "InDetMaterialRejTool/InDetMaterialRejTool.h"
 
 
 
@@ -213,6 +214,7 @@ namespace InDet {
       double m_AntiFake2trVrtCut;
       double m_JetPtFractionCut;
       int    m_TrackInJetNumberLimit;
+      double m_pseudoSigCut;
 
       bool m_FillHist;
 
@@ -252,6 +254,7 @@ namespace InDet {
 //      ToolHandle < Trk::ITrkVKalVrtFitter >   m_fitSvc;
       ToolHandle < Trk::ITrackToVertexIPEstimator > m_trackToVertexIP;
       ToolHandle< Trk::ITrackParticleCreatorTool > m_trkPartCreator;
+//      ToolHandle< IInDetMaterialRejection > m_materialMap;
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  
 

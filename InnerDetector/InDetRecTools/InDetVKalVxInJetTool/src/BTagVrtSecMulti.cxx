@@ -24,8 +24,7 @@
 //   4) Number of selected for vertexing tracks in jet 
 //   5) Number of track in secondary vertex
 //   6) 0. 
-//   7) Maximal track Pt with respect to jet axis
-//   8) Jet energy used in (2) calculation 
+//   7) Jet energy used in (2) calculation 
 //---------------------------------------------------------------------------------------- 
 
 namespace Trk {
@@ -199,6 +198,7 @@ namespace InDet{
 //  std::cout << "Res="<<newvrt.Chi2<<", "<<NPTR<<", "<<newvrt.SelTrk[0]<<", "<<newvrt.SelTrk[1]<<'\n'; 
           if( sc.isFailure() )           continue;   /* Bad fit - goto next solution */
           if(NPTR==2 && newvrt.Chi2>10.) continue;   /* Bad 2track vertex */
+          if(newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
           newvrt.Good         = true;
           newvrt.nCloseVrt    = 0;
           newvrt.dCloseVrt    = 1000000.;
@@ -263,7 +263,7 @@ namespace InDet{
        if(!(*WrkVrtSet)[iv].Good )           continue;
        for(int jv=iv+1; jv<(int)(*WrkVrtSet).size(); jv++){
          if(!(*WrkVrtSet)[jv].Good )           continue;
-         if(!nTrkCommon( WrkVrtSet, iv, jv))   continue;
+         if(nTrkCommon( WrkVrtSet, iv, jv)<2)  continue;
          if( VrtVrtDist((*WrkVrtSet)[iv].vertex,(*WrkVrtSet)[iv].vertexCov,
                         (*WrkVrtSet)[jv].vertex,(*WrkVrtSet)[jv].vertexCov) < m_VertexMergeCut) {
 	    double probV=0.;
@@ -344,7 +344,8 @@ namespace InDet{
          if(foundMaxT<m_TrackDetachCut) foundMinVrtDst = minVrtVrtDist( WrkVrtSet, foundV1, foundV2);
 
 //Choice of action
-          if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut){
+          if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut && nTrkCommon( WrkVrtSet, foundV1, foundV2)){
+          //if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut){
              bool vrtMerged=false;   //to check whether something is really merged
              while(foundMinVrtDst<m_VertexMergeCut){
                if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;} /*Always drop vertex with smallest number*/
@@ -808,9 +809,8 @@ namespace InDet{
       else if(RECwork) Results.push_back((double)RECwork->listSecondTracks.size());   //5th
 //      Dist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
 //      Results.push_back(Signif3D);
-      Results.push_back(0.);                                //6th  -  not clear what to use here -> return 0.
-      Results.push_back(trackPtMax);                        //7th
-      Results.push_back(MomentumJet.E());                   //8th
+      Results.push_back(0.);                                        //6th  -  not clear what to use here -> return 0.
+      Results.push_back(MomentumJet.E());                 //7th
 
       if(m_FillHist){m_hb_ratio->Fill( Results[1], m_w_1); }
       if(m_FillHist){m_hb_totmass->Fill( Results[0], m_w_1); }
@@ -888,6 +888,7 @@ namespace InDet{
 			               newvrt.Chi2);   
            if( sc.isFailure() )  continue;  
            if( newvrt.Chi2>10.)  continue;  // Too bad 2-track vertex fit
+           newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
            newvrt.nCloseVrt    = 0;
            newvrt.dCloseVrt    = 1000000.;
            if((int)WrkVrtSet->size()==NVrtCur) { WrkVrtSet->push_back(newvrt); continue;}  // just the first added vertex
@@ -1182,6 +1183,7 @@ namespace InDet{
 			               newvrt.Chi2);   
       if( sc.isFailure() )             return 0.;  
       if( newvrt.Chi2>500. )           return 0.;  //VK protection
+      if( newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
       return TMath::Prob( newvrt.Chi2, 2*newvrt.SelTrk.size()-3);
    }
 
@@ -1247,6 +1249,9 @@ namespace InDet{
 				(*WrkVrtSet)[SelectedVertex].TrkAtVrt,
 				(*WrkVrtSet)[SelectedVertex].Chi2); 
       if(SC.isSuccess())(*WrkVrtSet)[SelectedVertex].Good = true;
+      if((*WrkVrtSet)[SelectedVertex].Chi2PerTrk.size()==2) 
+         (*WrkVrtSet)[SelectedVertex].Chi2PerTrk[0]=
+	 (*WrkVrtSet)[SelectedVertex].Chi2PerTrk[1]=(*WrkVrtSet)[SelectedVertex].Chi2/2.;
       return SC;
    }
 
@@ -1282,6 +1287,7 @@ namespace InDet{
 				newvrt.Chi2); 
       m_fitSvc->setCnstType(0);     //reset constraints
       if(SC.isFailure())return 0.;
+      if(newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
       return TMath::Prob( newvrt.Chi2, 2*nth);
    }
 
