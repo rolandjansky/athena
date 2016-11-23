@@ -16,4 +16,6 @@
 <class name="Trig::TrigDecisionTool" />
 <class name="Trig::TrigDecisionToolCore" />
 
+<class name="ToolHandle<Trig::TrigDecisionTool>" />
+
 </lcgdict>

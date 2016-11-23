@@ -104,9 +104,9 @@ namespace Trig{
       //get all EmTau RoIs
       const ROICONTAINER* cont;
       if (!navigation || navigation->getAccessProxy()->retrieve(cont,sgkey).isFailure()) {
-	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endreq;
+	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endmsg;
 
-	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << navigation->getAccessProxy()->dump() << endreq;      
+	REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << (navigation ? navigation->getAccessProxy()->dump() : "") << endmsg;      
       
 
 	return;

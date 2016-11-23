@@ -39,7 +39,7 @@ void Trig::ChainGroupFunctions::ChainGroupInitialize() {
   getChainGroup("HLT_.*");
 }
 
-const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vector< std::string >& triggerNames) {
+const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vector< std::string >& triggerNames) const {
   //  std::cout  << " getting chain group  " << std::endl;
   std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator searchRes = cgm()->getChainGroups().find(triggerNames);
 
@@ -51,7 +51,7 @@ const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vect
   }
 }
 
-const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::string& triggerNames) {
+const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::string& triggerNames) const {
    return getChainGroup(Trig::convertStringToVector(triggerNames));
 }
 

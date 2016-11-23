@@ -32,7 +32,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 
 #include "TrigSteeringEvent/Chain.h"
-
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
@@ -117,6 +117,8 @@ namespace Trig {
     std::map<std::string, std::vector<std::string> > getStreams() {return m_streams;};
     std::map<std::string, std::vector<std::string> > getStreams() const {return m_streams;};
 
+    const xAOD::TrigCompositeContainer* expressStreamContainer() const;
+
     /**
      * @brief cheks if new event arrived with the decision
      * Need tu use before any call to CacheGlobalMemory.
@@ -195,7 +197,7 @@ namespace Trig {
     
     const TrigConf::ItemContainer* m_confItems;             //!< items configuration
     const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
-  
+    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
 
     struct eqstr
     {

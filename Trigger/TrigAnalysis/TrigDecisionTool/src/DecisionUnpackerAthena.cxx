@@ -139,6 +139,7 @@ namespace Trig {
     if (nav) {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
+      // cppcheck-suppress oppositeInnerCondition
       if(!fullNav){
 	ATH_MSG_WARNING("downcast failed");
       }
@@ -156,10 +157,10 @@ namespace Trig {
 	  msg() << MSG::DEBUG << "EF/HLT Navigation unpacking failed";
 	if (!dec->getL2Result().getNavigationResult().empty()){
 	  msg() << ", falling back to L2 Navigation of size: "
-		<< dec->getL2Result().getNavigationResult().size() << endreq;      
+		<< dec->getL2Result().getNavigationResult().size() << endmsg;      
 	  unpacking_status = nav->deserialize(dec->getL2Result().getNavigationResult());
 	}
-	else msg() << endreq;	
+	else msg() << endmsg;	
       }
       if ( ! unpacking_status ) {
 	ATH_MSG_DEBUG("Full (L2 & EF) Navigation unpacking failed");
