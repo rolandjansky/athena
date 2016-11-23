@@ -75,7 +75,9 @@ namespace xAOD {
       if(inited) return;
       // name in the atlas convention
       nameToTypemap["LCTopo"] =        LCTopo;            
-      nameToTypemap["TopoEM"] =        TopoEM;            
+      nameToTypemap["EMTopo"] =        EMTopo;
+      nameToTypemap["LCTopoOrigin"] =  LCTopoOrigin;
+      nameToTypemap["EMTopoOrigin"] =  EMTopoOrigin;
       nameToTypemap["TopoTower"] =     TopoTower;         
       nameToTypemap["Tower"] =         Tower;             
       nameToTypemap["Truth"] =         Truth;             
