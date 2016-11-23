@@ -13,7 +13,6 @@
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -114,16 +113,7 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
 
   if(m_BDparameters)
     {
-      IGeoModelSvc *geoModel;
-      sc = service ("GeoModelSvc",geoModel);
-      if (sc.isFailure())
-	{
-	  ATH_MSG_FATAL("Could not locate GeoModelSvc");
-	  delete manager;
-	  return StatusCode::FAILURE; 
-	}  
-      
-      DecodeVersionKey versionKey(geoModel, "InnerDetector");
+      DecodeVersionKey versionKey("InnerDetector");
       
       // Issue error if AUTO.
       if (versionKey.tag() == "AUTO")
