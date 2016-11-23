@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __MuonCluster_h__
-#define __MuonCluster_h__
+#ifndef TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
+#define TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
 /*
   MuonCluster Algorithm:  Trigger/TrigAlgorithm/TrigMuonCluster
 
@@ -85,18 +85,18 @@ protected:
 protected:
   // JobOption properties
   /** A property which specifies the radius of the cluster */
-  float mDeltaR;
+  float m_DeltaR;
   /** A property which specifies the matching of the jet and of the cluster */
-  float mDeltaRJet;
+  float m_DeltaRJet;
 
   /** Eta of the Center RoI cluster, for monitoring purpose */
-  float mCluEta;
+  float m_CluEta;
   /** Phi of the Center RoI cluster, for monitoring purpose */
-  float mCluPhi;
+  float m_CluPhi;
   /** Numbers of Roi in cluster */
-  int mCluNum;
+  int m_CluNum;
   /** Number of Jet with Log(h/e)<0.5 **/
-  int mNumJet;
+  int m_NumJet;
 
   /** Minimum Et for jets in calorimeter based isolation. */
   double m_minJetEt;  
@@ -104,9 +104,9 @@ protected:
   /** Minimum Pt for tracks in ID based isolation. */
   double m_PtMinID;
   /** A property which specifies the matching of the track and of the cluster */
-  float mDeltaRTrk;
+  float m_DeltaRTrk;
   /** Cut on Tracks */
-  int mNumTrk;
+  int m_NumTrk;
 
   /** calculcate the deltaR between two Rois */
   float DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator, lvl1_muclu_roi );
@@ -121,10 +121,8 @@ protected:
   HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
   // Services
-  /** A service handle to StoreGate */
-  ServiceHandle<StoreGateSvc> mStoreGate;
   /** Timers */
-  std::vector<TrigTimer*> mTimers;
+  std::vector<TrigTimer*> m_Timers;
 };
 
-#endif // __MuonCluster_h__
+#endif // TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
