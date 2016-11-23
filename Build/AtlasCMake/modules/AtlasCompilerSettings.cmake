@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasCompilerSettings.cmake 776624 2016-10-05 12:49:54Z krasznaa $
+# $Id: AtlasCompilerSettings.cmake 782946 2016-11-08 12:41:46Z alibrari $
 #
 # This file collects settings fine-tuning all the compiler and linker options
 # used in an ATLAS build in one place. It is included by default when using
@@ -100,6 +100,7 @@ if( CMAKE_COMPILER_IS_GNUCXX )
       _add_flag( CMAKE_CXX_FLAGS_${mode} "-Wextra" )
       _add_flag( CMAKE_CXX_FLAGS_${mode} "-Werror=return-type" )
    endforeach()
+   _add_flag( CMAKE_CXX_FLAGS_DEBUG "-fsanitize=undefined" )
 endif()
 foreach( mode RELEASE RELWITHDEBINFO DEBUG )
    _add_flag( CMAKE_CXX_FLAGS_${mode} "-pedantic" )

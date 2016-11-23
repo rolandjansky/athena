@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findtdaq.cmake 778186 2016-10-13 08:35:27Z alibrari $
+# $Id: Findtdaq.cmake 785934 2016-11-23 09:25:16Z elmsheus $
 #
 # Try to find TDAQ
 # Defines:
@@ -59,8 +59,13 @@ remove_definitions( -DHAVE_BOOL -DHAVE_DYNAMIC_CAST -DHAVE_NAMESPACES )
 # Add the RPM dependencies:
 if( TDAQ_FOUND )
    # Set up a dependency on the main tdaq RPM package:
-   set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
-      "tdaq-${TDAQ_VERSION}_${ATLAS_PLATFORM}" )
+   if ( TDAQ_PROJECT_NAME )
+      set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
+                   "${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}_${ATLAS_PLATFORM}" )
+   else()
+      set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
+      		    "tdaq-${TDAQ_VERSION}_${ATLAS_PLATFORM}" )
+   endif()
 
 #   foreach( comp ${tdaq_FIND_COMPONENTS} )
 #      if( TDAQ_${comp}_FOUND )
