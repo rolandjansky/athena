@@ -78,20 +78,21 @@ StatusCode egammaGenParticleAssociationTool::book ()
 const xAOD::TruthParticle*
 egammaGenParticleAssociationTool::get (const xAOD::Egamma& p)
 {
+  IMCTruthClassifier::Info info;
   if (const xAOD::Electron* q =
       dynamic_cast<const xAOD::Electron*> (&p))
   {
-    m_classifier->particleTruthClassifier (q);
+    m_classifier->particleTruthClassifier (q, &info);
   }
   else if (const xAOD::Photon* q =
            dynamic_cast<const xAOD::Photon*> (&p))
   {
-    m_classifier->particleTruthClassifier (q);
+    m_classifier->particleTruthClassifier (q, &info);
   }
   else
     std::abort();
 
-  const xAOD::TruthParticle* out = m_classifier->getGenPart();
+  const xAOD::TruthParticle* out = info.genPart;
 
   if (!m_drvar.empty()) {
     if (out)
