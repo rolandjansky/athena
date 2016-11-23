@@ -213,7 +213,7 @@ StatusCode TrigTimeHistTool::bookHists()
 
 StatusCode TrigTimeHistTool::fillHists()
 {
-  for (const struct TimerHist* t : m_entries) {
+  for (const TimerHist* t : m_entries) {
     if ( !t->m_timer->running() && t->m_timer->wasRun() ) {
       t->m_timerHist->Fill(t->m_timer->elapsed());
       if (t->m_timerPerObjHist != 0 && t->m_timer->propVal() != 0) {
