@@ -227,7 +227,7 @@ void PixelDetectorFactoryFastGeo::create(GeoPhysVol *world)
     m_detectorManager->numerology().setMaxNumPhiCells(m_detectorManager->getPixelDesign(iDesign)->rows());
     m_detectorManager->numerology().setMaxNumEtaCells(m_detectorManager->getPixelDesign(iDesign)->columns());
   }
-  
+
   // Register the callbacks and keys and the level corresponding to the key.
   if (m_geometryManager->Alignable()) {
     m_detectorManager->addFolder("/Indet/Align");
@@ -237,12 +237,15 @@ void PixelDetectorFactoryFastGeo::create(GeoPhysVol *world)
     m_detectorManager->addChannel("/Indet/Align/PIXB2",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXB3",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXB4",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/PIXB5",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA1", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA2", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA3", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/PIXEA4", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEC1", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEC2", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/PIXEC4", 0, InDetDD::local);
   }
 
   // Check that there are no missing elements.
