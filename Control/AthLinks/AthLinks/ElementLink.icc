@@ -53,6 +53,21 @@ ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID,
 
 
 /**
+ * @brief Construct a link from a string storable key and an index.  O(1)
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param ctx Event context for this link.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID, 
+                                   const EventContext& ctx)
+  : Base (dataID, classID(), elemID, ctx.proxy())
+{
+}
+
+
+/**
  * @brief Construct a link from a hashed storable key and an index.  O(1)
  * @param key Hashed key of the object.
  * @param elemID The index of the element within the container.
@@ -65,6 +80,21 @@ inline
 ElementLink<STORABLE>::ElementLink(sgkey_t key, index_type elemID, 
                                    IProxyDict* sg /*= 0*/)
   : Base (key, classID(), elemID, sg)
+{
+}
+
+
+/**
+ * @brief Construct a link from a hashed storable key and an index.  O(1)
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param ctx Event context for this link.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(sgkey_t key, index_type elemID, 
+                                   const EventContext& ctx)
+  : Base (key, classID(), elemID, ctx.proxy())
 {
 }
 
@@ -92,6 +122,26 @@ ElementLink<STORABLE>::ElementLink(const ID_type& dataID,
 
 
 /**
+ * @brief Construct from a string storable key, index, AND pointer to element.  O(1)
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param pEl Pointer to the element.
+ * @param ctx Event context for this link.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(const ID_type& dataID,
+                                   index_type elemID,
+                                   ElementType pEl,
+                                   const EventContext& ctx)
+  : Base (dataID, classID(), elemID, pEl, ctx.proxy())
+{
+}
+
+
+/**
  * @brief Construct from a hashed storable key, index, AND pointer to element.  O(1)
  * @param key Hashed key of the object.
  * @param elemID The index of the element within the container.
@@ -114,6 +164,26 @@ ElementLink<STORABLE>::ElementLink (sgkey_t key,
 
 
 /**
+ * @brief Construct from a hashed storable key, index, AND pointer to element.  O(1)
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param pEl Pointer to the element.
+ * @param ctx Event context for this link.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (sgkey_t key,
+                                    index_type elemID,
+                                    ElementType pEl,
+                                    const EventContext& ctx)
+  : Base (key, classID(), elemID, pEl, ctx.proxy())
+{
+}
+
+
+/**
  * @brief Construct a link from an index and reference to the container. O(1)
  * @param data Reference to the container (storable).
  * @param elemID The index of the element within the container.
@@ -127,6 +197,22 @@ ElementLink<STORABLE>::ElementLink (BaseConstReference data,
                                     index_type elemID, 
                                     IProxyDict* sg /* = 0*/)
   : Base (&data, classID(), elemID, sg)
+{
+}
+
+
+/**
+ * @brief Construct a link from an index and reference to the container. O(1)
+ * @param data Reference to the container (storable).
+ * @param elemID The index of the element within the container.
+ * @param ctx Event context for this link.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (BaseConstReference data,
+                                    index_type elemID, 
+                                    const EventContext& ctx)
+  : Base (&data, classID(), elemID, ctx.proxy())
 {
 }
 
@@ -154,6 +240,47 @@ ElementLink<STORABLE>::ElementLink (const ElementType& element,
                                     IProxyDict* sg /*= 0*/)
 {
   toContainedElement (data, element, sg);
+}
+
+
+/**
+ * @brief Construct from an element and reference to the container. O(N)
+ * @param element The element to reference.
+ * @param data Reference to the container (storable).
+ * @param ctx Event context for this link.
+ *
+ * Does the same thing as the default ctor followed by @c toContainedElement.
+ * Note the reversed parameter order compared to the previous
+ * constructor.  This is to prevent ambiguities in the case that
+ * the contained type is convertable to an int.
+ *
+ * Will throw @c SG::ExcElementNotFound if the element is not
+ * in the container.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (const ElementType& element, 
+                                    BaseConstReference data,
+                                    const EventContext& ctx)
+{
+  toContainedElement (data, element, ctx);
+}
+
+
+/**
+ * @brief Construct a link from another link, changing the index.
+ * @param other The source link.
+ * @param elemID The index for the new link.
+ *
+ * The index being constructed will reference the same container
+ * as @c other, but it will refer to element @c elemID.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (const ElementLink& other,
+                                    index_type elemID)
+  : Base (other, elemID)
+{
 }
 
 
@@ -372,6 +499,27 @@ ElementLink<STORABLE>::toIndexedElement(BaseConstReference data,
 
 
 /**
+ * @brief Set the link to an element given by index and pointer to container.
+ * @param data Reference to the container (storable).
+ * @param elemID The index of the element within the container.
+ * @param ctx The event context.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ */
+template <class STORABLE>
+inline
+bool
+ElementLink<STORABLE>::toIndexedElement(BaseConstReference data,
+                                        index_type elemID,
+                                        const EventContext& ctx)
+{
+  return Base::toIndexedElement (&data, classID(), elemID, ctx.proxy());
+}
+
+
+/**
  * @brief Set from element pointer and a reference to the container (storable)
  * @param data Reference to the container (storable).
  * @param element The element.
@@ -396,6 +544,33 @@ bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
   index_type index = this->index();
   IndexingPolicy::reverseLookup (data, element, index);
   bool ret = Base::toIndexedElement (&data, classID(), index, sg);
+  if (ret)
+    this->setCachedElement (element);
+  return ret;
+}
+
+
+/**
+ * @brief Set from element pointer and a reference to the container (storable)
+ * @param data Reference to the container (storable).
+ * @param element The element.
+ * @param ctx The event context.
+ * @returns True if the link was changed.
+ *
+ * O(N) for sequences!
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
+                                               ElementType element,
+                                               const EventContext& ctx)
+{
+  index_type index = this->index();
+  IndexingPolicy::reverseLookup (data, element, index);
+  bool ret = Base::toIndexedElement (&data, classID(), index, ctx.proxy());
   if (ret)
     this->setCachedElement (element);
   return ret;
@@ -467,6 +642,38 @@ bool ElementLink<STORABLE>::setStorableObject(BaseConstReference data,
 
 
 /**
+ * @brief Set link to point to a new container (storable).
+ * @param data Reference to the container (storable).
+ * @param replace True if we can change an existing link.
+ * @param ctx The event context.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged unless @c replace is set.  The @c replace argument
+ * should be set if the element is now in a new storable container;
+ * e.g. element ptr has been put in a new view container.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::setStorableObject(BaseConstReference data,
+                                              bool replace,
+                                              const EventContext& ctx)
+{
+  bool ret = Base::setStorableObject (&data, classID(), replace, ctx.proxy());
+  if (ret) {
+    ElementConstPointer elt = 0;
+    if (this->isDefaultIndex() && this->getCachedElement (elt)) {
+      index_type index = this->index();
+      IndexingPolicy::reverseLookup (data, *elt, index);
+      this->setIndex (index);
+      return true;
+    }
+  }
+  return ret;
+}
+
+
+/**
  * @brief Set the link to an element given by string key and index.
  * @param dataID Key of the object.
  * @param elemID The index of the element within the container.
@@ -488,6 +695,22 @@ void ElementLink<STORABLE>::resetWithKeyAndIndex(const ID_type& dataID,
 
 /**
  * @brief Set the link to an element given by string key and index.
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param ctx The event context.
+ */
+template <class STORABLE>
+inline
+void ElementLink<STORABLE>::resetWithKeyAndIndex(const ID_type& dataID,
+                                                 index_type elemID,
+                                                 const EventContext& ctx)
+{
+  Base::resetWithKeyAndIndex (dataID, classID(), elemID, ctx.proxy());
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
  * @param key Hashed key of the object.
  * @param elemID The index of the element within the container.
  * @param sg Associated store.
@@ -503,6 +726,22 @@ void ElementLink<STORABLE>::resetWithKeyAndIndex(sgkey_t key,
                                                  IProxyDict* sg /*= 0*/)
 {
   Base::resetWithKeyAndIndex (key, classID(), elemID, sg);
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param ctx The event context.
+ */
+template <class STORABLE>
+inline
+void ElementLink<STORABLE>::resetWithKeyAndIndex(sgkey_t key,
+                                                 index_type elemID, 
+                                                 const EventContext& ctx)
+{
+  Base::resetWithKeyAndIndex (key, classID(), elemID, ctx.proxy());
 }
 
 

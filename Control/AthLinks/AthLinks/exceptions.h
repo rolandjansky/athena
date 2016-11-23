@@ -237,6 +237,28 @@ public:
 ATH_NORETURN(void throwExcIncomparableEL());
 
 
+/**
+ * @brief Exception --- bad toTransient
+ *
+ * toTransient was called on an already-initialized link.
+ */
+class ExcBadToTransient
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcBadToTransient();
+};
+
+
+/**
+ * @brief Throw a SG::ExcBadToTransient exception.
+ */
+ATH_NORETURN(void throwExcBadToTransient());
+
+
 } // namespace SG
 
 

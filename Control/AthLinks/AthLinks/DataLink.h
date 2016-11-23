@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLink.h 714258 2015-12-12 04:18:16Z ssnyder $
+// $Id: DataLink.h 783590 2016-11-11 00:38:09Z ssnyder $
 /**
  * @file DataLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,6 +20,7 @@
 #include "AthLinks/DataLinkBase.h"
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/DefaultKey.h"
+#include "GaudiKernel/EventContext.h"
 class IProxyDict;
 
 
@@ -133,11 +134,27 @@ public:
 
 
   /**
+   * @brief Constructor --- link to a STORABLE using a transient ref to it.
+   * @param data The object to which to link.
+   * @param ctx Event context for this link.
+   */
+  DataLink(const_reference data, const EventContext& ctx);
+
+
+  /**
    * @brief Constructor --- link to a STORABLE using a transient pointer to it.
    * @param data The object to which to link.
    * @param sg Associated store; if 0, use the global default.
    */
   DataLink(const_pointer pdata, IProxyDict* sg=0);
+
+
+  /**
+   * @brief Constructor --- link to a STORABLE using a transient pointer to it.
+   * @param data The object to which to link.
+   * @param ctx Event context for this link.
+   */
+  DataLink(const_pointer pdata, const EventContext& ctx);
 
 
   /**
@@ -149,6 +166,14 @@ public:
 
 
   /**
+   * @brief Constructor --- link to a STORABLE using a string ID.
+   * @param dataID Key of the object.
+   * @param ctx Event context for this link.
+   */
+  DataLink(const ID_type& dataID, const EventContext& ctx);
+
+
+  /**
    * @brief Constructor --- link to a STORABLE using a hashed ID.
    * @param key Hashed key of the object.
    * @param sg Associated store; if 0, use the global default.
@@ -156,6 +181,16 @@ public:
    * May throw @c ExcCLIDMismatch.
    */
   DataLink(sgkey_t key, IProxyDict* sg=0);
+
+
+  /**
+   * @brief Constructor --- link to a STORABLE using a hashed ID.
+   * @param key Hashed key of the object.
+   * @param ctx Event context for this link.
+   *
+   * May throw @c ExcCLIDMismatch.
+   */
+  DataLink(sgkey_t key, const EventContext& ctx);
 
 
   /**
@@ -186,6 +221,14 @@ public:
 
 
   /**
+   * @brief Set the link to an object given by a reference.
+   * @param data The object to which to link.
+   * @param ctx Event context for this link.
+   */
+  void toStorableObject(const_reference data, const EventContext& ctx);
+
+
+  /**
    * @brief Set the link to an object given by a string key.
    * @param dataID Key of the object.
    * @param sg Associated store.
@@ -195,6 +238,14 @@ public:
    * default.
    */
   void toIdentifiedObject(const ID_type& dataID, IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Set the link to an object given by a string key.
+   * @param dataID Key of the object.
+   * @param ctx Event context for this link.
+   */
+  void toIdentifiedObject(const ID_type& dataID, const EventContext& ctx);
 
 
   /**
@@ -212,6 +263,16 @@ public:
 
 
   /**
+   * @brief Set the link to an object given by a hashed key.
+   * @param key Hashed key of the object.
+   * @param ctx Event context for this link.
+   *
+   * May throw @c ExcCLIDMismatch.
+   */
+  void toIdentifiedObject(sgkey_t key, const EventContext& ctx);
+
+
+  /**
    * @brief Set the link to the default object of this type.
    * @param sg Associated store.
    *
@@ -226,6 +287,70 @@ public:
    * will give an error.)
    */
   void toDefaultObject (IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Set the link to the default object of this type.
+   * @param ctx Event context for this link.
+   *
+   * Note that this is _not_ the same as clearing the link
+   * (use @c clear for that).  This produces a link that will resolve
+   * to any object in SG of the given type, provided that there is only
+   * one of them.  (An attempt to dereference an ambiguous default link
+   * will give an error.)
+   */
+  void toDefaultObject (const EventContext& ctx);
+
+
+  /**
+   * @brief Finish initialization after link has been read.
+   * @param sg Associated store.
+   *
+   * This should be called after a link has been read by root
+   * in order to set the proxy pointer.
+   * Returns true.
+   *
+   * If @c sg is 0, then we use the global default store.
+   */
+  bool toTransient (IProxyDict* sg = 0);
+
+
+  /**
+   * @brief Finish initialization after link has been read.
+   * @param ctx Event context for this link.
+   *
+   * This should be called after a link has been read by root
+   * in order to set the proxy pointer.
+   * Returns true.
+   */
+  bool toTransient (const EventContext& ctx);
+
+
+  /**
+   * @brief Finish initialization like the link as just been read from root,
+   *        but with a specified key.
+   * @param dataID Key of the object.
+   * @param sg Associated store.
+   *
+   * The link should be clear before this is called.
+   * Returns true.
+   *
+   * If @c sg is 0, then we use the global default store.
+   */
+  bool toTransient (const ID_type& dataID, IProxyDict* sg = 0);
+  
+
+  /**
+   * @brief Finish initialization like the link as just been read from root,
+   *        but with a specified key.
+   * @param dataID Key of the object.
+   * @param ctx Event context for this link.
+   *
+   * The link should be clear before this is called.
+   * Returns true.
+   */
+  bool toTransient (const ID_type& dataID, const EventContext& ctx);
+  
 
 
   //@}
@@ -293,7 +418,6 @@ public:
   //   void clear();
   //   SG::DataProxy* proxy (bool nothrow = false) const;
   //   IProxyDict* source() const;
-  //   bool toTransient (IProxyDict* sg = 0);
   //   bool toPersistent();
   //   bool toPersistentNoRemap();
   //   bool operator== (const DataLinkBase& other) const;

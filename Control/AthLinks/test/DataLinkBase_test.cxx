@@ -16,6 +16,7 @@
 #include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/EventContext.h"
 #include <iostream>
 #include <cassert>
 
@@ -206,7 +207,13 @@ void test2()
 
   Foo* foo4 = new Foo(4);
   store.record (foo4, "foo4");
+  Foo* fooz = new Foo(999);
+  store.record (fooz, "fooz");
   TestStore::sgkey_t sgkey4 = store.stringToKey ("foo4", fooclid);
+  TestStore::sgkey_t sgkeyz = store.stringToKey ("fooz", fooclid);
+
+  EventContext ctx;
+  ctx.setProxy (&store);
 
   DataLinkBase_test l1 (sgkey4, fooclid);
   l1.toTransient();
@@ -216,6 +223,7 @@ void test2()
   assert (l1.storableBase (foocast, fooclid) == foo4);
   assert (l1.proxy()->name() == "foo4");
   assert (l1.source() == &store);
+  l1.toTransient(ctx);
 
   l1.clear();
   assert (l1.toPersistentNoRemap() == true);
@@ -242,6 +250,18 @@ void test2()
   assert (l1.toPersistent() == true);
   assert (l1.dataID() == "foo4a");
   assert (l1.key() == store.stringToKey ("foo4a", fooclid));
+
+  l1.clear();
+  assert (l1.toTransient ("fooz", fooclid));
+  assert (!l1.isDefault());
+  assert (l1.dataID() == "fooz");
+  assert (l1.key() == sgkeyz);
+  assert (l1.storableBase (foocast, fooclid) == fooz);
+  assert (l1.proxy()->name() == "fooz");
+  assert (l1.source() == &store);
+
+  EXPECT_EXCEPTION (SG::ExcBadToTransient,
+                    l1.toTransient ("foozz", fooclid, ctx));
 }
 
 

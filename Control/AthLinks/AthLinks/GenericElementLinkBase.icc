@@ -327,6 +327,28 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
 
 
 /**
+ * @brief Construct a link from another link, changing the index.
+ * @param other The source link.
+ * @param elemID The index for the new link.
+ *
+ * The index being constructed will reference the same container
+ * as @c other, but it will refer to element @c elemID.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+  (const GenericElementLinkBase& other,
+   const index_type& elemID)
+    : m_key (other.m_key),
+      m_index (elemID),
+      m_proxy (other.m_proxy),
+      m_cacheValid (false),
+      m_element()
+{
+}
+
+
+/**
  * @brief Constructor from a link referencing a different type.
  * @param other The object from which to copy.
  *

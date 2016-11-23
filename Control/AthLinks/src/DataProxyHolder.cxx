@@ -21,6 +21,16 @@
 #include "AthenaKernel/errorcheck.h"
 
 
+namespace {
+
+
+/// Current input renaming map.
+const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap = nullptr;
+
+
+}
+
+
 namespace SG {
 
 
@@ -68,8 +78,18 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
       // is consistent with the link type.
       SG::TransientAddress* tad = m_proxy->transientAddress();
       key = tad->sgkey();
-      if (link_clid != m_proxy->clID() && !tad->transientID (link_clid))
-        throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
+      if (link_clid != tad->clID() && !tad->transientID (link_clid)) {
+        if (tad->clID() != CLID_NULL)
+          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
+
+        // Transient clid was null.
+        // This can happen when reading a view vector with xAODRootAccess
+        // in an athena build, where the TAD may not get a CLID set.
+        // Check based on key.
+        sgkey_t link_sgkey = sg->stringToKey (tad->name(), link_clid);
+        if (link_sgkey != tad->sgkey())
+          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
+      }
     }
   }
   return key;
@@ -112,7 +132,7 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
     // Didn't find a proxy; make a dummy.
     SG::TransientAddress* tad = new SG::TransientAddress (link_clid, dataID);
     tad->setSGKey (sg->stringToKey (dataID, link_clid));
-    m_proxy = new SG::DataProxy (tad, (IConversionSvc*)0);
+    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
     if (sg->addToStore (link_clid, m_proxy).isFailure())
       std::abort();
   }
@@ -178,7 +198,7 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
     else
       tad = new SG::TransientAddress();
     tad->setSGKey (sgkey);
-    m_proxy = new SG::DataProxy (tad, (IConversionSvc*)0);
+    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
     if (sg->addToStore (clid, m_proxy).isFailure())
       std::abort();
   }
@@ -284,8 +304,53 @@ void
 DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDict* sg /*= 0*/)
 {
   m_proxy = 0;
+
+  // Find the store to use.
+  if (sg == 0)
+    sg = this->source1();
+  if (sg == 0)
+    sg = SG::CurrentEventStore::store();
+
+  // Do input renaming.
+  if (s_inputRenameMap) {
+    Athena::RCURead<InputRenameMap_t> r (*s_inputRenameMap);
+    auto it = r->find (sgkey);
+    if (it != r->end())
+      sgkey = it->second;
+  }
+
   if (sgkey)
     toIdentifiedObject (sgkey, CLID_NULL, sg);
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ * @returns The hashed SG key for this object.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.  It calls @c toIdentifiedObject
+ * with the provided hashed key.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+DataProxyHolder::sgkey_t
+DataProxyHolder::toTransient (const ID_type& dataID,
+                              CLID link_clid,
+                              IProxyDict* sg /*= 0*/)
+{
+  // Find the store to use.
+  if (sg == 0)
+    sg = this->source1();
+  if (sg == 0)
+    sg = SG::CurrentEventStore::store();
+
+  sgkey_t sgkey = sg->stringToKey (dataID, link_clid);
+  toTransient (sgkey, sg);
+  return sgkey;
 }
 
 
@@ -391,7 +456,8 @@ bool DataProxyHolder::tryRemap (sgkey_t& sgkey, size_t& index)
     // Check for remapping.
     sgkey_t sgkey_out;
     size_t index_out = 0;
-    if (this->source()->tryELRemap (sgkey, index, sgkey_out, index_out)) {
+    IProxyDict* sg = this->source();
+    if (sg && sg->tryELRemap (sgkey, index, sgkey_out, index_out)) {
       this->toIdentifiedObject (sgkey_out, CLID_NULL, this->source());
       sgkey = sgkey_out;
       index = index_out;
@@ -536,6 +602,16 @@ bool DataProxyHolder::operator== (const DataProxyHolder& other) const
     return true;
 
   return false;
+}
+
+
+/**
+ * @brief Set map used for performing input renaming in toTransient.
+ * @param map The new map, or nullptr for no renmaing.
+ */
+void DataProxyHolder::setInputRenameMap (const InputRenameRCU_t* map)
+{
+  s_inputRenameMap = map;
 }
 
 

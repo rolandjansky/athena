@@ -103,6 +103,66 @@ bool DataLinkBase::toTransient (IProxyDict* sg /*= 0*/)
 
 
 /**
+ * @brief Finish initialization after link has been read.
+ * @param ctx Event context for this link.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true on success.
+ */
+inline
+bool DataLinkBase::toTransient (const EventContext& ctx)
+{
+  m_proxy.toTransient (m_persKey, ctx.proxy());
+  return true;
+}
+
+
+/**
+ * @brief Finish initialization like the link as just been read from root,
+ *        but with a specified key.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ *
+ * The link should be clear before this is called.
+ * Returns true.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+inline
+bool DataLinkBase::toTransient (const ID_type& dataID,
+                                CLID link_clid,
+                                IProxyDict* sg /*= 0*/)
+{
+  if (!isDefault()) SG::throwExcBadToTransient();
+  m_persKey = m_proxy.toTransient (dataID, link_clid, sg);
+  return true;
+}
+
+
+/**
+ * @brief Finish initialization like the link as just been read from root,
+ *        but with a specified key.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param ctx Event context for this link.
+ *
+ * The link should be clear before this is called.
+ * Returns true.
+ */
+inline
+bool DataLinkBase::toTransient (const ID_type& dataID,
+                                CLID link_clid,
+                                const EventContext& ctx)
+{
+  if (!isDefault()) SG::throwExcBadToTransient();
+  m_persKey = m_proxy.toTransient (dataID, link_clid, ctx.proxy());
+  return true;
+}
+
+
+/**
  * @brief Prepare this link for writing.
  *
  * One of the @c toPersistent methods should be called before

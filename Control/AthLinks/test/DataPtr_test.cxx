@@ -20,6 +20,7 @@ struct Fluff {
   string m_string;
   Fluff() : m_int(1), m_float(-379.456f), 
             m_string("this is the Fluff struct") {}
+  Fluff& operator= (const Fluff&) = default;
 };
 
 struct DerivedFluff : public Fluff {
@@ -27,6 +28,7 @@ struct DerivedFluff : public Fluff {
   string m_anotherString;
   DerivedFluff() : 
     Fluff(), m_anotherString("this is the DerivedFluff struct") {}
+  DerivedFluff& operator= (const DerivedFluff&) = default;
 };
 
 int main () {

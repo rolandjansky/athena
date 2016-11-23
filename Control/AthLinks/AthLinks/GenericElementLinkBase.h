@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenericElementLinkBase.h 714258 2015-12-12 04:18:16Z ssnyder $
+// $Id: GenericElementLinkBase.h 785879 2016-11-22 22:17:10Z ssnyder $
 /**
  * @file AthLinks/GenericElementLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -279,6 +279,18 @@ protected:
 
 
   /**
+   * @brief Construct a link from another link, changing the index.
+   * @param other The source link.
+   * @param elemID The index for the new link.
+   *
+   * The index being constructed will reference the same container
+   * as @c other, but it will refer to element @c elemID.
+   */
+  GenericElementLinkBase (const GenericElementLinkBase& other,
+                          const index_type& elemID);
+
+
+  /**
    * @brief Constructor from a link referencing a different type.
    * @param other The object from which to copy.
    *
@@ -291,6 +303,10 @@ protected:
   template <class OTHER_INDEXING_POLICY, class FROM_TRAITS, class TO_TRAITS>
   GenericElementLinkBase (const GenericElementLinkBase<OTHER_INDEXING_POLICY>& other,
                           FROM_TRAITS*, TO_TRAITS*);
+
+
+  // Default assignment --- here just to keep coverity happy.
+  GenericElementLinkBase& operator= (const GenericElementLinkBase&) = default;
 
 
   /**

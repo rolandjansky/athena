@@ -336,6 +336,25 @@ ElementLinkBase::ElementLinkBase (const_pointer_t obj,
 
 
 /**
+ * @brief Construct a link from another link, changing the index.
+ * @param other The source link.
+ * @param elemID The index for the new link.
+ *
+ * The index being constructed will reference the same container
+ * as @c other, but it will refer to element @c elemID.
+ */
+inline
+ElementLinkBase::ElementLinkBase (const ElementLinkBase& other,
+                                  index_type elemID)
+  : m_persKey (other.m_persKey),
+    m_persIndex (elemID),
+    m_proxy (other.m_proxy),
+    m_element()
+{
+}
+
+
+/**
  * @brief Constructor from a link referencing a different type.
  * @param other The object from which to copy.
  *
