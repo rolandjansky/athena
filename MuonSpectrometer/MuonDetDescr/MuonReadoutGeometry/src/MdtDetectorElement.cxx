@@ -29,7 +29,7 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
   //  m_debug = m_MsgStream->level() <= MSG::DEBUG;
   //  m_verbose = m_MsgStream->level() <= MSG::VERBOSE;
   //  if (m_debug) reLog() << MSG::DEBUG << "A new MdtDetectorElement was born: idhash = "
-  //                      << (int)idHash << endreq;
+  //                      << (int)idHash << endmsg;
 
   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
     m_mdtRE[i] = 0;
@@ -43,10 +43,10 @@ MdtDetectorElement::addMdtReadoutElement (const MdtReadoutElement* x, int ml)
 {
 //   if (m_verbose) reLog() << MSG::VERBOSE << "Adding RE for multilayer " << ml
 //                          << " to MdtDetectorElement with idhash = " << (int)m_idhash
-//                          << endreq;
+//                          << endmsg;
   if( msgLevel(MSG::VERBOSE) ) msg( MSG::VERBOSE ) << "Adding RE for multilayer " << ml
 						   << " to MdtDetectorElement with idhash = " << (int)m_idhash
-						   << endreq;
+						   << endmsg;
   //std::cout<<" adding mdtRE with ml = "<<ml<<" to MdtDE with id hash "<< (int)m_idhash<<std::endl;
  
   m_mdtRE[ml-1] = x;
@@ -66,7 +66,7 @@ MdtDetectorElement::getMdtReadoutElement(Identifier id) const
 	    <<"getMdtReadoutElement("<<idh->show_to_string(id)
 	    <<"): multilayer out of range 1-"
 	    <<nReadoutElements()
-	    <<" for MdtDetectorElement "<<idh->show_to_string(identify())<<endreq;
+	    <<" for MdtDetectorElement "<<idh->show_to_string(identify())<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("multiLayer, in input Id, out or range");
 #endif
@@ -85,7 +85,7 @@ MdtDetectorElement::getMdtReadoutElement(int ml) const
 		       << "): multilayer out of range 1-"
 		       << nReadoutElements() << " for MdtDetectorElement "
 		       << (manager()->mdtIdHelper())->show_to_string(identify()) 
-		       << endreq;
+		       << endmsg;
 #ifndef NDEBUG
     throw std::out_of_range("input multiLayer out or range");
 #endif
