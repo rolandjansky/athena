@@ -28,8 +28,12 @@ JetMetExAlg::JetMetExAlg( const std::string& name, ISvcLocator *pSvcLocator )
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_matchTool( "Trig::MatchingTool/MatchingTool",this),
     m_tah( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
-    m_histSvc( "THistSvc", name ) {
-
+    m_histSvc( "THistSvc", name ),
+    m_h_triggerAccepts( nullptr ),
+    m_h_triggerAcceptsRaw( nullptr ),
+    m_h_triggerPrescaled( nullptr ),
+    m_h_emulationAccepts( nullptr )
+{
         // job option configurable properties
         declareProperty( "L1TriggerList", m_l1chainList);
         declareProperty( "HLTTriggerList", m_hltchainList);
@@ -52,50 +56,50 @@ StatusCode JetMetExAlg::initialize() {
    
    //Setup histograms for trigger decision and prescale
    const int nTrigger = (int) m_hltchainList.size();
-   h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
-   h_emulationAccepts = new TH1F( "EmulationAccepts", "EmulationAccepts", nTrigger, 0,  nTrigger);
-   h_triggerAcceptsRaw = new TH1F( "TriggerAcceptsRaw", "TriggerAcceptsRaw", nTrigger, 0, nTrigger );
-   h_triggerPrescaled = new TH1F( "TriggerPrescaled", "TriggerPrescaled", nTrigger, 0, nTrigger );
+   m_h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
+   m_h_emulationAccepts = new TH1F( "EmulationAccepts", "EmulationAccepts", nTrigger, 0,  nTrigger);
+   m_h_triggerAcceptsRaw = new TH1F( "TriggerAcceptsRaw", "TriggerAcceptsRaw", nTrigger, 0, nTrigger );
+   m_h_triggerPrescaled = new TH1F( "TriggerPrescaled", "TriggerPrescaled", nTrigger, 0, nTrigger );
    if ( ! m_hltchainList.empty() ){
-       for ( int i = 0; i < std::min( (int)m_hltchainList.size(), (int)h_triggerAccepts->GetNbinsX() ); ++i ) {
+       for ( int i = 0; i < std::min( (int)m_hltchainList.size(), (int)m_h_triggerAccepts->GetNbinsX() ); ++i ) {
            int bin = i+1;
-           h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_emulationAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_triggerAcceptsRaw->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_triggerPrescaled->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_emulationAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerAcceptsRaw->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerPrescaled->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
            ATH_MSG_INFO("setting label X" <<  m_hltchainList[i] << " for bin " << bin);
        }
    }
-   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerAccepts", h_triggerAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/JetMet/EmulationAccepts", h_emulationAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerAcceptsRaw", h_triggerAcceptsRaw ) );
-   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerPrescaled", h_triggerPrescaled ) );
+   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerAccepts", m_h_triggerAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/JetMet/EmulationAccepts", m_h_emulationAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
+   CHECK( m_histSvc->regHist( "/Trigger/JetMet/TriggerPrescaled", m_h_triggerPrescaled ) );
    for(const std::string chain:m_hltchainList){
        ATH_MSG_INFO( chain );
        m_numSelectedEvents[chain]=0;
        m_numL1PassedEvents[chain]=0;
        m_numHLTPassedEvents[chain]=0;
        std::string histName="Eff_et_"+chain;
-       h_eff_et[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, 0., 100. );
-       CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, h_eff_et[chain] ) );
+       m_h_eff_et[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, 0., 100. );
+       CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, m_h_eff_et[chain] ) );
        histName="Eff_eta_"+chain;
-       h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
-       CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, h_eff_eta[chain] ) );
+       m_h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
+       CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, m_h_eff_eta[chain] ) );
    }
    ATH_MSG_INFO( "JB: " << m_hltmetList.size() << " met triggers");
    for (const std::string& chain : m_hltmetList) {
      ATH_MSG_INFO( "JB: " << chain );
      // Create TEfficiency objects
      std::string histName = "Eff_xe_"+chain;
-     h_eff_xe[chain] = new TProfile(histName.c_str(), ";E_{T}^{miss} (offline reference) [GeV]", 400, 0, 400);
-     CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, h_eff_xe[chain]  ) );
+     m_h_eff_xe[chain] = new TProfile(histName.c_str(), ";E_{T}^{miss} (offline reference) [GeV]", 400, 0, 400);
+     CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, m_h_eff_xe[chain]  ) );
    }
    ATH_MSG_INFO( "JB: " << m_hltjetList.size() << " jet triggers" );
    for (const std::string& chain : m_hltjetList) {
      ATH_MSG_INFO( "JB: " << chain );
      std::string histName = "Eff_jpt_"+chain;
-     h_eff_jpt[chain] = new TProfile(histName.c_str(), ";Leading jet p_{T} (offline uncalibrated) [GeV]", 400, 0, 400);
-     CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, h_eff_jpt[chain]  ) );
+     m_h_eff_jpt[chain] = new TProfile(histName.c_str(), ";Leading jet p_{T} (offline uncalibrated) [GeV]", 400, 0, 400);
+     CHECK( m_histSvc->regHist( "/Trigger/JetMet/"+histName, m_h_eff_jpt[chain]  ) );
    }
 
 
@@ -155,7 +159,7 @@ StatusCode JetMetExAlg::finalize() {
    // the y-value is the efficiency *in* this bin - i.e. the trigger efficiency for an analysis cut of met == cutValue
    // Of course all analyses will use a cut of the form met > cutValue - to get the turn on curve to reflect this you 
    // need a cumulative numerator and denominator
-   for (const auto& effPair : h_eff_jpt) {
+   for (const auto& effPair : m_h_eff_jpt) {
      std::string histName = "Eff_jpt_cumulative_"+effPair.first;
      TH1* numerator = effPair.second->GetPassedHistogram()->GetCumulative();
      TH1* denominator = effPair.second->GetTotalHistogram()->GetCumulative();
@@ -164,7 +168,7 @@ StatusCode JetMetExAlg::finalize() {
      TEfficiency* eff_cumulative = new TEfficiency(*numerator, *denominator);
      CHECK( m_histSvc->regGraph( "/Trigger/JetMet/"+histName, reinterpret_cast<TGraph*>(eff_cumulative) ) );
    }
-   for (const auto& effPair : h_eff_xe) {
+   for (const auto& effPair : m_h_eff_xe) {
      std::string histName = "Eff_xe_cumulative_"+effPair.first;
      TH1* numerator = effPair.second->GetPassedHistogram()->GetCumulative();
      TH1* denominator = effPair.second->GetTotalHistogram()->GetCumulative();
@@ -199,11 +203,11 @@ StatusCode JetMetExAlg::collectTriggerStatistics() {
         bool prescale=efprescale || l1prescale;
 
         if( m_trigDec->isPassed( chain ) )
-            h_triggerAccepts->Fill( chain.c_str(), 1 );
+            m_h_triggerAccepts->Fill( chain.c_str(), 1 );
         if(prescale)
-            h_triggerPrescaled->Fill( chain.c_str(), 1 );
+            m_h_triggerPrescaled->Fill( chain.c_str(), 1 );
         if(passedRaw)
-            h_triggerAcceptsRaw->Fill( chain.c_str(), 1);
+            m_h_triggerAcceptsRaw->Fill( chain.c_str(), 1);
     }
 
    return StatusCode::SUCCESS;
@@ -231,13 +235,13 @@ StatusCode JetMetExAlg::TriggerAnalysis (const xAOD::IParticleContainer *cont){
             ATH_MSG_INFO("Matching to chain " << chain);
             m_numSelectedEvents[chain]+=1;
             if(!passHLT(*obj,chain)){
-                h_eff_et[chain]->Fill(probeEt,0);
-                h_eff_eta[chain]->Fill(probeEta,0);
+                m_h_eff_et[chain]->Fill(probeEt,0);
+                m_h_eff_eta[chain]->Fill(probeEta,0);
             } 
             else {
                 m_numHLTPassedEvents[chain]+=1;
-                h_eff_et[chain]->Fill(probeEt,1);
-                h_eff_eta[chain]->Fill(probeEta,1);
+                m_h_eff_et[chain]->Fill(probeEt,1);
+                m_h_eff_eta[chain]->Fill(probeEta,1);
             } // Finish trigger analysis
         } // Complete chain analysis
     } // Loop over probes
@@ -384,7 +388,7 @@ StatusCode JetMetExAlg::FillEfficiency() {
     ATH_CHECK( evtStore()->retrieve(offlineJets, "AntiKt4EMTopoJets") );
     if (offlineJets->size() > 0) {// Ensure that the event has at least 1 jet
       float leadingJetPt = offlineJets->at(0)->pt() * 0.001; // Convert MeV -> GeV
-      for (auto& effPair : h_eff_jpt) { //auto -> std::pair<std::string, TEfficiency*>
+      for (auto& effPair : m_h_eff_jpt) { //auto -> std::pair<std::string, TEfficiency*>
         ATH_MSG_INFO(effPair.first);
         if(m_trigDec->isPassed(effPair.first))
             effPair.second->Fill(leadingJetPt,1); 
@@ -402,7 +406,7 @@ StatusCode JetMetExAlg::FillEfficiency() {
       return StatusCode::SUCCESS;
     }
     float metValue = (*metItr)->met() * 0.001;
-    for (auto& effPair : h_eff_xe) { //auto -> std::pair<std::string, TEfficiency*>
+    for (auto& effPair : m_h_eff_xe) { //auto -> std::pair<std::string, TEfficiency*>
       ATH_MSG_INFO(effPair.first);
       //effPair.second->Fill(m_trigDec->isPassed(effPair.first), metValue); // TEfficiency::Fill(bool isPassed, Double_t x)
       if(m_trigDec->isPassed(effPair.first))

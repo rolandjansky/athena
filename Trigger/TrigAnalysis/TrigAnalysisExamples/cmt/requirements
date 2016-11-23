@@ -50,6 +50,9 @@ use TrigConfHLTData             TrigConfHLTData-*       Trigger/TrigConfiguratio
 # for application
 use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
 
+use AthAnalysisBaseComps        AthAnalysisBaseComps-*  Control
+use TrigT1Interfaces            TrigT1Interfaces-*      Trigger/TrigT1
+
 public
 
 # library	

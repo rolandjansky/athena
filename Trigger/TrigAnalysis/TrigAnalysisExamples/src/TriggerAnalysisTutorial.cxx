@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 780366 2016-10-25 19:13:58Z rwhite $
+// $Id: TriggerAnalysisTutorial.cxx 786167 2016-11-23 21:52:33Z ssnyder $
 
 // System include(s):
 #include <iomanip>
@@ -60,14 +60,14 @@ StatusCode TriggerAnalysisTutorial::initialize() {
    // done
    //
    const int nTrigger = (int) m_chain_names.size();
-   h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
+   m_h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
    if ( ! m_chain_names.empty() ){
-       for ( int i = 0; i < std::min( (int)m_chain_names.size(), (int)h_triggerAccepts->GetNbinsX() ); ++i ) {
+       for ( int i = 0; i < std::min( (int)m_chain_names.size(), (int)m_h_triggerAccepts->GetNbinsX() ); ++i ) {
            int bin = i+1;
-           h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_chain_names[i].c_str());
+           m_h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_chain_names[i].c_str());
        }
    }
-   CHECK( m_histSvc->regHist( "/Trigger/TriggerAccepts", h_triggerAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TriggerAccepts", m_h_triggerAccepts ) );
    ATH_MSG_INFO( "Initialization successful" );
 
    return StatusCode::SUCCESS;
@@ -100,7 +100,7 @@ StatusCode TriggerAnalysisTutorial::execute() {
    }
    for(const auto chain : m_cfg_chains){
        if( m_trigDec->isPassed( chain ) )
-           h_triggerAccepts->Fill( chain.c_str(), 1 );
+           m_h_triggerAccepts->Fill( chain.c_str(), 1 );
    }
 
    return StatusCode::SUCCESS;

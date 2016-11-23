@@ -74,7 +74,7 @@ private:
    
    // private data
    std::map<std::string,int> m_numSelectedEvents; // events passing selection requirements
-   int m_numTaggedEvents;   // events passing tag requirements
+  //int m_numTaggedEvents;   // events passing tag requirements
    std::map<std::string,int> m_numL1PassedEvents; // events with a probe muon passing L1
    std::map<std::string,int> m_numHLTPassedEvents; // events with a probe muon passing EF
 
@@ -82,22 +82,22 @@ private:
    // Histograms common for each analysis
 
    // Trigger Decision
-   TH1* h_triggerAccepts;
-   TH1* h_triggerAcceptsRaw;
-   TH1* h_triggerPrescaled;
-   TH1* h_emulationAccepts;
+   TH1* m_h_triggerAccepts;
+   TH1* m_h_triggerAcceptsRaw;
+   TH1* m_h_triggerPrescaled;
+   TH1* m_h_emulationAccepts;
    
    // Kinematic plots
    // Efficiency TProfiles
-   std::map<std::string,TProfile*> h_eff_et;
-   std::map<std::string,TProfile*> h_eff_eta;
+   std::map<std::string,TProfile*> m_h_eff_et;
+   std::map<std::string,TProfile*> m_h_eff_eta;
 
-   std::map<std::string, TProfile*> h_eff_xe;
-   std::map<std::string, TProfile*> h_eff_jpt;
-   //std::map<std::string, TH1*> h_eff_xe_pass;
-   //std::map<std::string, TH1*> h_eff_jpt_pass;
-   //std::map<std::string, TH1*> h_eff_xe_total;
-   //std::map<std::string, TH1*> h_eff_jpt_total;
+   std::map<std::string, TProfile*> m_h_eff_xe;
+   std::map<std::string, TProfile*> m_h_eff_jpt;
+   //std::map<std::string, TH1*> m_h_eff_xe_pass;
+   //std::map<std::string, TH1*> m_h_eff_jpt_pass;
+   //std::map<std::string, TH1*> m_h_eff_xe_total;
+   //std::map<std::string, TH1*> m_h_eff_jpt_total;
    
    // private functions
    bool passL1(const xAOD::IParticle &recoObj, const std::string &chain); // did the object match L1

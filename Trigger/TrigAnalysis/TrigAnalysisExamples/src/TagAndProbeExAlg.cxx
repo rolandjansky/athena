@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 780366 2016-10-25 19:13:58Z rwhite $
+// $Id: TagAndProbeExAlg.cxx 785295 2016-11-19 03:18:52Z ssnyder $
 // Updated to xAOD for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -27,8 +27,14 @@ TagAndProbeExAlg::TagAndProbeExAlg( const std::string& name, ISvcLocator *pSvcLo
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_matchTool( "Trig::MatchingTool/MatchingTool",this),
     m_tah( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
-    m_histSvc( "THistSvc", name ) {
-
+    m_histSvc( "THistSvc", name ),
+    m_numTaggedEvents( 0 ),
+    m_h_triggerAccepts( nullptr ),
+    m_h_triggerAcceptsRaw( nullptr ),
+    m_h_triggerPrescaled( nullptr ),
+    m_h_emulationAccepts( nullptr ),
+    m_h_zMass( nullptr )
+{
         // job option configurable properties
         declareProperty("Flavor",m_flavor);
         declareProperty( "L1TriggerList", m_l1chainList);

@@ -27,8 +27,12 @@ TrigEmulatorExAlg::TrigEmulatorExAlg( const std::string& name, ISvcLocator *pSvc
     m_triggerDecisionTool( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_triggerMatchingTool( "Trig::MatchingTool/MatchingTool",this),
     m_triggerAnalysisHelper( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
-    m_histSvc( "THistSvc", name ) {
-
+    m_histSvc( "THistSvc", name ),
+    m_h_L1TriggerAccepts (nullptr),
+    m_h_L1EmulationAccepts (nullptr),
+    m_h_HLTTriggerAccepts (nullptr),
+    m_h_HLTEmulationAccepts (nullptr)
+{
     // job option configurable properties
     declareProperty( "L1TriggerList", m_l1chainList);
     declareProperty( "HLTTriggerList", m_hltchainList);
