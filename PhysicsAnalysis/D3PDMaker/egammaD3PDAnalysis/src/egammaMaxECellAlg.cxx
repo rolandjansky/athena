@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: egammaMaxECellAlg.cxx 605541 2014-07-09 04:46:56Z ssnyder $
+// $Id: egammaMaxECellAlg.cxx 775884 2016-09-29 15:57:53Z ssnyder $
 /**
  * @file SUSYD3PDMAker/src/egammaMaxECellAlg.cxx
  * @author Nikiforos K. Nikiforou <nikiforo@cern.ch> adapted from various tools by Scott Snyder and others
@@ -15,7 +15,7 @@
 #include "D3PDMakerInterfaces/ICollectionGetterTool.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -42,7 +42,7 @@ egammaMaxECellAlg::egammaMaxECellAlg (const std::string& name,
  */
 StatusCode egammaMaxECellAlg::initialize()
 {
-  msg() << MSG::INFO <<" Starting egammaMaxECellAlg" << endreq;
+  ATH_MSG_INFO(" Starting egammaMaxECellAlg"  );
     
   CHECK( AthAlgorithm::initialize() );
   CHECK( m_getter.retrieve() );

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: egammaTimeCorrAlg.cxx 605541 2014-07-09 04:46:56Z ssnyder $
+// $Id: egammaTimeCorrAlg.cxx 775880 2016-09-29 15:35:25Z ssnyder $
 /**
 * @file egammaD3PDAnalysis/src/egammaTimeCorrAlg.cxx
 * @author Nikiforos K. Nikiforou <nikiforo@cern.ch> adapted from various tools by Scott Snyder
@@ -42,8 +42,6 @@ egammaTimeCorrAlg::egammaTimeCorrAlg (const std::string& name,
 */
 StatusCode egammaTimeCorrAlg::initialize()
 {
-    msg() << MSG::INFO <<" Starting egammaTimeCorrAlg" << endreq;
-    
     CHECK( AthAlgorithm::initialize() );
     CHECK( m_caloClusterTimeTool.retrieve() );
     CHECK( m_getter.retrieve() );
@@ -64,7 +62,7 @@ StatusCode egammaTimeCorrAlg::execute()
   const VxContainer* vertexCont(0);
   sc = evtStore()->retrieve(vertexCont,m_vertexContainerName);
   if (sc.isFailure() || !vertexCont || vertexCont->size()<1) {
-    msg() << MSG::ERROR <<" Can't retrieve VertexContainer!" << endreq;
+    ATH_MSG_ERROR(" Can't retrieve VertexContainer!"  );
     return sc;
   }
     

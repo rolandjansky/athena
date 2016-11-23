@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: egammaNbCellsGainAlg.cxx 605541 2014-07-09 04:46:56Z ssnyder $
+// $Id: egammaNbCellsGainAlg.cxx 775880 2016-09-29 15:35:25Z ssnyder $
 /**
  * @file egammaD3PDAnalysis/src/egammaNbCellsGainAlg.cxx
  * @date Aug. 2013
@@ -40,7 +40,7 @@ egammaNbCellsGainAlg::egammaNbCellsGainAlg (const std::string& name,
  */
 StatusCode egammaNbCellsGainAlg::initialize()
 {
-  msg() << MSG::INFO <<" Starting egammaNbCellsGainAlg" << endreq;
+  ATH_MSG_INFO(" Starting egammaNbCellsGainAlg"  );
   
   CHECK( AthAlgorithm::initialize() );
   CHECK( m_getter.retrieve() );
@@ -56,7 +56,7 @@ StatusCode egammaNbCellsGainAlg::execute()
 {
   StatusCode sc = StatusCode::SUCCESS;
 
-  msg()<<MSG::DEBUG << " In execute: Getting egamma Objects  " << endreq;
+  ATH_MSG_DEBUG( " In execute: Getting egamma Objects  "  );
   
 #define DECOR(TYPE,N) xAOD::Egamma::Decorator<TYPE> N (m_auxPrefix + #N)
   DECOR(int, nbCells_s0LowGain);
@@ -90,7 +90,7 @@ StatusCode egammaNbCellsGainAlg::execute()
       cell_nbcells_gainhgh[i]=0;
     }
 
-    msg()<<MSG::DEBUG <<" Checking Cluster  " << endreq;
+    ATH_MSG_DEBUG(" Checking Cluster  "  );
     
     if(cluster){
       if(cluster->getCellLinks()){

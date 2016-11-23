@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: egammaSumCellsGainAlg.cxx 605541 2014-07-09 04:46:56Z ssnyder $
+// $Id: egammaSumCellsGainAlg.cxx 775880 2016-09-29 15:35:25Z ssnyder $
 /**
  * @file egammaD3PDAnalysis/src/egammaMaxECellAlg.cxx
  * @author Mike Hance
@@ -40,8 +40,6 @@ egammaSumCellsGainAlg::egammaSumCellsGainAlg (const std::string& name,
  */
 StatusCode egammaSumCellsGainAlg::initialize()
 {
-  msg() << MSG::INFO <<" Starting egammaSumCellsGainAlg" << endreq;
-  
   CHECK( AthAlgorithm::initialize() );
   CHECK( m_getter.retrieve() );
   CHECK( m_getter->configureD3PD<xAOD::Egamma>() ); 
@@ -56,7 +54,7 @@ StatusCode egammaSumCellsGainAlg::execute()
 {
   StatusCode sc = StatusCode::SUCCESS;
 
-  msg()<<MSG::DEBUG << " In execute: Getting egamma Objects  " << endreq;
+  ATH_MSG_DEBUG( " In execute: Getting egamma Objects  "  );
   
 #define DECOR(TYPE,N) xAOD::Egamma::Decorator<TYPE> N (m_auxPrefix + #N)
   DECOR (float, Es0LowGain);
@@ -89,7 +87,7 @@ StatusCode egammaSumCellsGainAlg::execute()
       cell_sum_energy_gainhgh[i]=0;
     }
     
-    msg()<<MSG::DEBUG <<" Checking Cluster  " << endreq;
+    ATH_MSG_DEBUG(" Checking Cluster  "  );
     
     if(cluster) {
       if(cluster->getCellLinks()) {

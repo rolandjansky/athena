@@ -17,7 +17,7 @@ use CaloEvent                  CaloEvent-*             Calorimeter
 use CaloClusterCorrection      CaloClusterCorrection-* Calorimeter
 use CaloRec                    CaloRec-*               Calorimeter
 use CaloInterface              CaloInterface-*         Calorimeter
-use LArTools                   LArTools-*              LArCalorimeter
+use LArCabling                 LArCabling-*            LArCalorimeter
 use EventKernel                EventKernel-*           Event
 use EventInfo                  EventInfo*              Event
 use VxVertex                   VxVertex-*              Tracking/TrkEvent
