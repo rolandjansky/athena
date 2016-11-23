@@ -24,7 +24,7 @@ class TopoAlgoDef:
         usev6 = False
         doPhysics = False
 
-        if '_v6' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
             usev6 = True
         if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
             doPhysics = True
@@ -88,6 +88,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax) 
+        alg.addvariable('DoIsoCut', 1)
+        alg.addvariable('DoEtaCut', 1)
         tm.registerAlgo(alg) 
         
         alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -97,6 +99,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 3) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addvariable('DoIsoCut', 1)
+        alg.addvariable('DoEtaCut', 1)
         tm.registerAlgo(alg)
                 
         alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -106,6 +110,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addvariable('DoIsoCut', 1)
+        alg.addvariable('DoEtaCut', 1)
         tm.registerAlgo(alg)
         
         alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall', algoId = currentAlgoId ) ; currentAlgoId += 1
@@ -214,10 +220,11 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 10)
         tm.registerAlgo(alg)
 
-        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
+        #alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
+        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'MuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
 
         alg.addgeneric('InputWidth', HW.InputWidthMU)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
+        #alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
         alg.addgeneric('nDelayedMuons', 1)
         alg.addvariable('MinEta', 0)
@@ -532,9 +539,11 @@ class TopoAlgoDef:
 
 
             alg.addgeneric('InputWidth1', inputwidth)
-            alg.addgeneric('InputWidth2', HW.InputWidthEM)
+            #alg.addgeneric('InputWidth2', HW.InputWidthEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
             alg.addgeneric('MaxTob1', nleading)
-            alg.addgeneric('MaxTob2', HW.InputWidthEM)
+            #alg.addgeneric('MaxTob2', HW.InputWidthEM)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSortEM)
             alg.addgeneric('NumResultBits', len(toponames))
 
             for bitid, ocut in enumerate(ocutlist):
@@ -1246,7 +1255,8 @@ class TopoAlgoDef:
                 
         # LATE MUON
         for x in [     
-            {"otype" : "LATEMU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
+            #{"otype" : "LATE-MU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
+            {"otype" : "LATE-MU", "ocut" : 10, "inputwidth": HW.NumberOfDelayedMuons},
             ]:
 
             for k in x:
@@ -1305,7 +1315,8 @@ class TopoAlgoDef:
 
                 log.info("Define %s" % toponame)
                 inputList = [otype1 + olist1, otype2 + olist2]               
-                alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+                #alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+                alg = AlgConf.DisambiguationInvmIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
 
                 alg.addgeneric('InputWidth1', inputwidth1)
                 alg.addgeneric('InputWidth2', inputwidth2)

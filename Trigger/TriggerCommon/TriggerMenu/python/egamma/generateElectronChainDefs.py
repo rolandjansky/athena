@@ -87,33 +87,34 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
         #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
         #theChainDef.addSignatureL2([L2ChainName])
 
-        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
+        #theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topoStartFrom)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
     elif "Zeg" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zeg, TrigL2DielectronMassHypo_Zeg
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zeg, TrigL2DielectronMassHypo_Zeg
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zeg, TrigEFDielectronMassHypo_Zeg
 
-        L2Fex = TrigL2DielectronMassFex_Zeg()
-        L2Hypo = TrigL2DielectronMassHypo_Zeg()        
+        #L2Fex = TrigL2DielectronMassFex_Zeg()
+        #L2Hypo = TrigL2DielectronMassHypo_Zeg()        
 
         EFFex = TrigEFDielectronMassFex_Zeg()
         EFHypo = TrigEFDielectronMassHypo_Zeg()
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        #theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     elif "Zee" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight, TrigL2DielectronMassHypo_Zee
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight, TrigL2DielectronMassHypo_Zee
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight, TrigEFDielectronMassHypo_Zee
 
-        L2Fex = TrigL2DielectronMassFex_Zee()
-        L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
+        #L2Fex = TrigL2DielectronMassFex_Zee()
+        #L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
 
         if 'etcut' in chainDict['chainName']:
             from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFexElectronCluster_Zee, TrigEFDielectronMassHypoElectronCluster_Zee
@@ -124,8 +125,8 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
             EFHypo = TrigEFDielectronMassHypo_ZeeTight()
             
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        #theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])

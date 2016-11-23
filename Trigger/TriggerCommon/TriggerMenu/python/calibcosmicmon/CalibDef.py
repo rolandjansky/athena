@@ -56,9 +56,13 @@ def getInputTEfromL1Item(item):
   if item in L1Map:
     return L1Map[item]
   else: 
-    TE = item.replace("L1_","")
+    TE = item.split(",")[0]
+    TE = TE.replace("L1_","")
     TE = TE.split("_")[0]
+#    print "and now I have TE:"
+#    print TE
     TE = TE[1:] if TE[0].isdigit() else TE
+#    print "returning: " + TE
     return TE
 
 
@@ -214,6 +218,9 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          'idcalib_trk9_fwd_L1J10_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
          'idcalib_trk9_central_L1J10_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
          'idcalib_trk9_fwd_L1J10_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
+         'idcalib_trk9_central_bs'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_bs'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+
          }
       for name, alg in trkAlgDict.items():
          if self.AlgoName == name:

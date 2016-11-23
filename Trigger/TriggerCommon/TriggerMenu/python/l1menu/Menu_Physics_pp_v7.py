@@ -6,10 +6,10 @@ def defineMenu():
     MC and Physics menu are identical
     """
     
-    import Menu_MC_pp_v6
+    import Menu_MC_pp_v7
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 
-    Menu_MC_pp_v6.defineMenu()
+    Menu_MC_pp_v7.defineMenu()
 
     Lvl1Flags.thresholds += [
         ]

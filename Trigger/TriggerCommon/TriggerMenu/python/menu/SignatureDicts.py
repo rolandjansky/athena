@@ -87,7 +87,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm800',
                     'invm1000']
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
-AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
+AllowedTopos_comb = ['taumass', 'dr05', 'dz02', 'dz00']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 
@@ -105,8 +105,9 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
-    'gscThreshold' : ['gsc400','gsc380','gsc360','gsc110'],
+    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490',
+                      '280eta320', '320eta490', 'n320eta490', 'p320eta490'],
+    'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3', 'test4',
                       'test5', 'test6', 'delayed','AND'],
@@ -138,7 +139,6 @@ JetChainParts_Default = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : '0eta320',
-    'gscThreshold' : '',
     'trigType'     :'j',
     'extra'        : '',
     'cleaning'     : 'noCleaning',
@@ -297,7 +297,7 @@ METChainParts = {
     'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : [],
+    'addInfo'      : ['FStracks'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -355,7 +355,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
-    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose'],
+    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight'],
     'isoInfo'        : [ 'iloose','ivarloose'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
@@ -683,7 +683,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun',''],
+    'extra'          : ['rerun','bs',''],
     }
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----

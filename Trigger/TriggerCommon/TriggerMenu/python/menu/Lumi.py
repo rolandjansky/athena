@@ -22,7 +22,51 @@ def lumi(triggerPythonConfig):
     log.info( 'Menu name: '+ menu_name)
 
 
-    if menu_name.startswith('Physics_pp_v6') :
+    if menu_name.startswith('Physics_pp_v7') :
+        log.info('In physics pp v7 menu setup')
+        from TriggerMenu.menu.Physics_pp_v7 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_physics_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_physics_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
+
+
+    elif  menu_name.startswith('MC_pp_v7'):
+        from TriggerMenu.menu.MC_pp_v7 import setupMenu, Prescales
+        setupMenu()
+        if 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'tightperf_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tightperf_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tightperf_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'loose_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_loose_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_loose_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'special_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_special_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_special_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'no_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_no_prescale
+            HLTPrescales = Prescales.HLTPrescales_no_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'upgrade_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_upgrade_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_upgrade_mc_prescale            
+            log.info(" HLTPrescales %s" %  HLTPrescales)
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
+    elif menu_name.startswith('Physics_pp_v6') :
         log.info('In physics pp v6 menu setup')
         from TriggerMenu.menu.Physics_pp_v6 import setupMenu, Prescales
         setupMenu()

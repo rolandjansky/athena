@@ -145,7 +145,7 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     if JetThr==-1:
         log.error("No JET chain part found in DPhiMetJet Topo cut")
 
-    from TrigJetHypo.TrigEFDPhiMetJetAllTEConfig import EFDPhiMetJet_Generic
+    from TrigHLTJetHypo.TrigEFDPhiMetJetAllTEConfig import EFDPhiMetJet_Generic
 
     DPhiMetJet_Hypo = EFDPhiMetJet_Generic("EFDPhiMetJet_J"+str(JetThr).replace(".","")+"_"+str(maxJets)+"DPhi"+str(DPhiCut).replace(".",""),
                                            dPhiCut=DPhiCut, minJetEt=JetThr*1000,maxDPhiJets=maxJets)
@@ -275,7 +275,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
     if JetThr==-1:
         log.error("No JET chain part found in Razor cut")
 
-    from TrigJetHypo.TrigEFRazorAllTEConfig import EFRazor
+    from TrigHLTJetHypo.TrigEFRazorAllTEConfig import EFRazor
 
     Razor_Hypo = EFRazor("EFRazor_J"+str(JetThr).replace(".","")+"_Razor"+str(RazorCut).replace(".",""),
                                            Razor_cut=RazorCut)

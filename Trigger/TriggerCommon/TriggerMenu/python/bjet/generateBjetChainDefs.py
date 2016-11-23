@@ -51,6 +51,8 @@ pp = pprint.PrettyPrinter(indent=4, depth=8)
 ###########################################################################
 ###########################################################################
 def generateChainDefs(chainDict):
+    #log.setLevel(0)
+    log.debug("In generateChainDefs")
 
     chainDict_orig = deepcopy(chainDict)
     # PrettyPrinter is rather expensive so make sure we don't invoke it unless in DEBUG
@@ -90,6 +92,7 @@ def generateChainDefs(chainDict):
 
     #----------------------------------------------------------------------------
     # --- build the jet chain, then pass JetChainDef and bjetchainDictionaries to build bjet chains ---
+    log.debug("getting the Jet Chain Defs")
     theAllJetChainDef =  genJetChainDefs(jetchainDict)
     log.debug("Jet ChainDef for b-jet chain: \n %s", theAllJetChainDef)
     #----------------------------------------------------------------------------
@@ -161,13 +164,13 @@ def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1)
 ###################################################################################
 
 def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
-    log.debug("In buildBjetChains")    
+    log.debug("In myBjetConfig_split")    
 
     EFChainName = "EF_bjet_" + chainDict['chainName']
 
     chainParts = chainDict['chainParts']
     btagthresh = chainParts['threshold']
-    gscthresh  = chainParts['gscThreshold']
+    gscthresh  = chainParts['gscThreshold'] if ('gscThreshold' in chainParts) else ''
     btagmult = chainParts['multiplicity']
     btagcut = chainParts['bTag']
     btagcut = btagcut[1:]
@@ -246,7 +249,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 
     #--------------------
     # GSC
-    if chainParts['gscThreshold']:
+    if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
         theGSCFex      = getGSCFexSplitInstance(algoInstance,"2012","EFID")
         #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
         theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", gscthresh.replace("gsc","")+"GeV" )
@@ -322,7 +325,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
 
-    gsc_jetTrackTEPreCut  = "HLT_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
+    gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
     gsc_jetTrackTE        = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
 
 
@@ -399,7 +402,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
 
     #GSC
-    if chainParts['gscThreshold']:
+    if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
         log.debug("Doing GSC Calculation:"+chainParts["gscThreshold"])
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
         theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )

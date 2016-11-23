@@ -39,6 +39,8 @@ from TrigMissingETMuon.TrigMissingETMuonConfig import (EFTrigMissingETMuon_Fex,
                                                        L2CaloTrigMissingETMuon_Fex,
                                                        L2TrigMissingETMuon_Fex)
 
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+
 from TriggerMenu.jet.JetDef import generateHLTChainDef
 from TriggerMenu.menu import DictFromChainName
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
@@ -104,6 +106,7 @@ class L2EFChain_met(L2EFChainDef):
         EFrecoAlg   = self.chainPart['EFrecoAlg']        
         L2muon      = self.chainPart['L2muonCorr']
         EFmuon      = self.chainPart['EFmuonCorr']
+        addInfo     = self.chainPart["addInfo"]
 
         #--------------------------------------
         #obtaining the muon sequences & signature:
@@ -281,6 +284,13 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
             self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
+            if "FStracks" in addInfo:
+                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", "FTF").getSequence()
+                print "XXXXXXXXXXXXXXXXXX"
+                print trk_algs[0]
+                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
 
         #cell based MET
         elif EFrecoAlg=='cell':
@@ -298,7 +308,9 @@ class L2EFChain_met(L2EFChainDef):
 
         self.EFsignatureList += [ [['EF_xe_step1']] ]
         self.EFsignatureList += [ [['EF_xe_step2']] ]
-
+        if "FStracks" in addInfo:
+            self.EFsignatureList += [ [['EF_xe_step3']] ]
+        
 
         ########### TE renaming ###########
         self.TErenamingDict = {}
@@ -310,5 +322,10 @@ class L2EFChain_met(L2EFChainDef):
 #            self.TErenamingDict['L2_xe_step4']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step4')
             
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
-        self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult)
-            
+        if "FStracks" in addInfo:
+            self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step2")
+            self.TErenamingDict['EF_xe_step3']= mergeRemovingOverlap('EF_', self.sig_id_noMult)
+        else:
+            self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult)
+
+        
