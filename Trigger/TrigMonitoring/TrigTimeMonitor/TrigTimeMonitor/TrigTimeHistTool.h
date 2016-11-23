@@ -13,10 +13,12 @@
 #include <string>
 
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
+#include "TrigMonitorBase/TrigLBNHist.h"
+#include "boost/regex.hpp"
+#include "TProfile.h"
 
 class TH1F;
 class TH2F;
-class ITrigTimerSvc;
 class TrigTimer; 
 
 
@@ -53,31 +55,30 @@ public:
   StatusCode initialize();
   StatusCode bookHists();
   StatusCode fillHists();
-  // does noting
   StatusCode finalHists();
     
 private:
-  bool selected(const std::string& name);      //!< true if key entry selected by the timer (all is empty)
+  bool selected(const std::string& name, const boost::regex& regex);    //!< true if key entry selected by the timer (all is empty)
   struct TimerHist {                           //! internal structure to keep associations
-    TH1F *m_timerHist;                         //!< between the timing histogram
-    TH1F *m_timerPerObjHist;                   //!< the timing per object histogram
-    TrigTimer *m_timer;                        //!< and the timer 
+    TH1F *m_timerHist{0};                         //!< between the timing histogram
+    TH1F *m_timerPerObjHist{0};                   //!< the timing per object histogram
+    TrigTimer *m_timer{0};                        //!< and the timer 
   };
   std::vector< struct TimerHist* > m_entries;  //!< collection of associations
   struct TimerGroupHist {
-    TH2F *m_timerHist;
+    TH2F *m_timerHist{0};
+    TrigLBNHist<TProfile> *m_timerProf{0};        //!< per-LB profile histogram if requested
     std::vector<TrigTimer *> m_timers;
   };
   std::map<const std::string, TimerGroupHist *> m_groupHists; //!< mapping for group histograms
 
-  ITrigTimerSvc* m_timerSvc;                   //!< the service used to get the timers
-
   // configuration
-  std::vector<std::string> m_key;              //!< list of requested timers 
+  std::string m_key;                           //!< list of requested timers 
   std::string m_path;                          //!< booking path of histograms
   int m_bins;                                  //!< number of bins (for all histograms)
   std::vector<double> m_timerHistLimits;       //!< timing histogram limits
-  bool m_doPerObjHist;                         //!< flag - if true do per obj histogram 
+  bool m_doPerObjHist;                         //!< flag - if true do per obj histogram
+  bool m_doPerLBGroups;                        //!< enable per LB group histograms
   std::vector<double> m_timerPerObjHistLimits; //!< limits for per object timing histogram
   std::string m_parentName;                    //!< name of parent algorithm (used to find which timers to record)
   std::map<std::string, std::string> m_regexGroups; //!< map of regular expressions to grouped histograms
