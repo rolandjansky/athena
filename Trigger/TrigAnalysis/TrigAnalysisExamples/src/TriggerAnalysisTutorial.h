@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.h 659256 2015-04-07 14:42:43Z ssnyder $
+// $Id: TriggerAnalysisTutorial.h 786167 2016-11-23 21:52:33Z ssnyder $
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 #define TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 
@@ -21,7 +21,9 @@
 
 // Trigger include(s):
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigObjectMatching/TrigMatchTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerAnalysisHelper.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 // Forward declaration(s):
 class TTree;
@@ -34,6 +36,10 @@ class TH1;
  * @author Joerg Stelzer <stelzer@cern.ch> - DESY
  * @author Ricardo Goncalo <goncalo@cern.ch> - University 
  *
+ * Updated August 2016 for ATLAS Trigger for Physics Workshop
+ * Some basic trigger analysis code -- see other examples
+ * Can we make one common algorithm to put everything together?
+ * @author Ryan White <rwhite@cern.ch> - UTFSM
  */
 class TriggerAnalysisTutorial : public AthAlgorithm {
 
@@ -51,64 +57,24 @@ public:
    virtual StatusCode execute();
 
 private:
-   // private functions for structuring the tutorial
-   StatusCode printTriggerChainsAllLevels();
-   StatusCode printPrescales();
-   StatusCode printSimplePassInfo();
-   StatusCode collectTriggerStatistics();
-   StatusCode jetTriggerStudy(const std::string& chain);
-   StatusCode zeeTriggerAnalysis(const std::string& chain);
-
-   // private data
-
-   // job properties
-   std::string m_jetTriggerChain;   
-   float m_zeeMaxMatchDistance;
-   std::string m_zeeTriggerChain;
-
-   // event info
-   unsigned int m_eventNr;
-   unsigned int m_eventsPrinted;
-   //unsigned int m_runNr;
-   //unsigned int m_lbNr;
-
-   // histogram
-   TH1* m_triggerAccepts;
-
-   // tree and variables to fill
-   TTree* m_tree;
-
-   // variables for trigger jet study
-   //float m_efJet_et;
-   //float m_efJet_eta;
-   //float m_efJet_phi;
-   float m_l2Jet_et;
-   float m_l2Jet_eta;
-   float m_l2Jet_phi;
-   float m_l1Jet_et88;
-   float m_l1Jet_eta;
-   float m_l1Jet_phi;
-   float m_l1roi_eta;
-   float m_l1roi_phi;
-
-   // variables for Z->ee study
-   std::vector<float>* m_MZ;
-   std::vector<float>* m_pE1;
-   std::vector<float>* m_pE2;
-   std::vector<float>* m_matchDistance;
-   std::vector<float>* m_pEOther;
-   std::vector<int>*   m_matchOther;
-
-   std::vector<std::string> m_chain_names;
-   std::vector<std::string> m_triggerChains;
-   std::map<std::string,int> m_triggersPassed;
-
+   int m_eventNr;
+   //int m_eventsPrinted;
+   
+   std::vector< std::string > m_chain_names;
+   std::vector< std::string > m_cfg_chains;
+   
+   // histograms
+   TH1 *m_h_triggerAccepts;
    // TrigDecisionTool
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
    // TrigMatchTool handle
-   ToolHandle< TrigMatchTool > m_matchTool;
+   ToolHandle< Trig::IMatchingTool > m_matchTool;
 
+   //! Helper class for tutorial, provides an additional layer to illustrate TDT functionality
+   ToolHandle< Trig::TriggerAnalysisHelper > m_tah; 
+   
+   ToolHandle< Trig::IBunchCrossingTool > m_bcTool; ///< Handle to the tool
    // The THistSvc
    ServiceHandle< ITHistSvc > m_histSvc;
 

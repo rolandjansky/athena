@@ -11,8 +11,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from glob import glob
 
 if not "InputFiles" in dir():
-    #InputFiles = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/attila.AOD.pool.root" ]
-    ServiceMgr.EventSelector.InputCollections = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/21.0.X/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root"]
+    ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/user/r/rwhite/workspace/public/tutorial/data16_13TeV.00309640.physics_EnhancedBias.merge.AOD.r8611_r8612_p2777_tid09632341_00/AOD.09632341._000587.pool.root.1"]
 if not "AthenaCommon.AppMgr.EvtMax" in dir():
     theApp.EvtMax=100
 
@@ -22,6 +21,7 @@ ServiceMgr.MessageSvc.errorLimit = 10
 
 # TrigDecisionTool configuration
 from TrigAnalysisExamples import TDTAthAnalysisConfig
+
 #########################################################################
 #                                                                       #
 #                      Now set up the example job                       #
@@ -30,23 +30,35 @@ from TrigAnalysisExamples import TDTAthAnalysisConfig
 # Define sets of triggers to use
 
 electronHLTList=["HLT_e26_lhtight_nod0_ivarloose","HLT_e26_lhtight_nod0_iloose","HLT_e17_lhloose_nod0"] 
-L1List=["L1_EM15VH","L1_EM22VHI"]
+tauHLTList=[]
+muonHLTList=[]
+jetHLTList=["HLT_j300","HLT_3j20"]
+combinedList=[]
+L1List=["L1_TAU12","L1_TAU12IM","L1_TAU60"]
+mergedList=electronHLTList + tauHLTList + muonHLTList + jetHLTList
 
+# Add the additional tools required for running the example algorithms
+
+# Helper tool, provides some simple template methods to dump Navigation of chains
+ToolSvc += CfgMgr.Trig__TriggerAnalysisHelper("TriggerAnalysisHelper")
+
+#
 # Trigger Analysis Examples
 #
-from TrigAnalysisExamples.TrigAnalysisExamplesConf import TagAndProbeExAlg
+from TrigAnalysisExamples.TrigAnalysisExamplesConf import JetMetExAlg
+from TrigAnalysisExamples.TrigAnalysisExamplesConf import TrigEmulatorExAlg
 
-tp_electron=TagAndProbeExAlg( "TagAndProbeExAlg", Flavor="Electron",
-        HLTTriggerList=electronHLTList,
-        L1TriggerList=L1List)
+jetmet = JetMetExAlg("JetMetExAlg",HLTTriggerList=jetHLTList)
+emulator = TrigEmulatorExAlg(HLTTriggerList=electronHLTList,L1TriggerList=L1List)
 
 # Histogram routing
 ServiceMgr += CfgMgr.THistSvc()
-ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TagAndProbe.root' TYP='ROOT' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TriggerAnalysisTutorial.root' TYP='ROOT' OPT='RECREATE'"]
 ServiceMgr.THistSvc.OutputLevel = ERROR
 
 # Add the examples to the top algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-topSequence += tp_electron
+topSequence += jetmet
+topSequence += emulator
