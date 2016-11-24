@@ -70,8 +70,7 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_d0eff;
   TProfile* h_z0eff;
   TProfile* h_nVtxeff;
-
-  TProfile* h_vtxlbeff;
+  TProfile* h_lbeff;
 
   TProfile* h_pTres;
   TProfile* h_ipTres;
@@ -118,6 +117,8 @@ class Analysis_Tier0 : public TrackAnalysis {
 
   TH1F* h_chain;
 
+  TH1F* h_ntrk;
+
   TH1F* h_trkpT;
   TH1F* h_trketa;
   TH1F* h_trkphi;
@@ -133,6 +134,9 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1F* h_nsct;
   TH1F* h_nsihits;
   TH1F* h_ntrt;
+
+  TH1F* h_ntrk_rec;
+
 
   TH1F* h_trkpT_rec;
   TH1F* h_trketa_rec;
