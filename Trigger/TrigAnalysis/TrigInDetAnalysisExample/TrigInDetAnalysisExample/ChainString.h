@@ -45,7 +45,8 @@ public:
 
   const bool&        passed()  const { return mpassed; }
 
-
+  const std::string& raw() const { return mraw; }
+  
   std::string value( const std::string& key ) { 
     int i=find(key);
     if ( i>=0 ) return mvalues[i];
@@ -54,7 +55,6 @@ public:
 
   const std::vector<std::string> values() const { return mvalues; }
   const std::vector<std::string>   keys() const { return   mkeys; }
-
 
 public:   
 
@@ -72,7 +72,7 @@ public:
     }
     return s3;
   } 
-  
+
 protected:
 
   // chomp tokens off the end of a string
@@ -135,6 +135,7 @@ private:
   std::vector<std::string> mkeys;
   std::vector<std::string> mvalues;
 
+  std::string mraw;
 };
 
 

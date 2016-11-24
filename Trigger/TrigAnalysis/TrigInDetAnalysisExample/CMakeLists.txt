@@ -8,6 +8,7 @@ atlas_subdir( TrigInDetAnalysisExample )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
+			  Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
