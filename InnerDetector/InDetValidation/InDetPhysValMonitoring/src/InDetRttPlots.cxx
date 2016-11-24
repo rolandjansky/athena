@@ -189,6 +189,11 @@ InDetRttPlots::pro_fill(const xAOD::TruthParticle &truth, float weight) {
 }
 
 void
+InDetRttPlots::lepton_fill(const xAOD::TruthParticle &truth, float weight){
+  m_effPlots.lepton_fill(truth, weight);
+}
+
+void
 InDetRttPlots::BT_fill(const xAOD::TruthParticle &truth, float weight) {
   m_effPlots.BT_fill(truth, weight);
 }

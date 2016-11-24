@@ -73,9 +73,11 @@ public:
   void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle &trackParticle,
                              const xAOD::TrackParticle &particle, const xAOD::TruthParticle &tp);
   ///fill for things needing all truth - not just the ones from the reco tracks
-  void BT_fill(const xAOD::TruthParticle &truth, float weight);
-
   void pro_fill(const xAOD::TruthParticle &truth, float weight);
+
+  void lepton_fill(const xAOD::TruthParticle &truth, float weight);
+
+  void BT_fill(const xAOD::TruthParticle &truth, float weight);
 
   // fill the fake and bad match rate plots
   void fillBMR(const xAOD::TrackParticle &track, float weight);

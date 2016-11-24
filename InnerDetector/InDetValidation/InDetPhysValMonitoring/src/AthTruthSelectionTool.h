@@ -38,16 +38,18 @@ public:
 private:
   CutFlow<xAOD::TruthParticle> m_cutFlow;
   // Cut values;
-  float m_maxEta;
-  float m_maxPt;
-  float m_minPt;
-  float m_maxBarcode;
-  bool m_requireCharged;
-  bool m_requireStatus1;
-  /// max decay radius for secondaries [mm];
-  /// set to within (Run2) pixel by default; set to <0 for no cut
+  float  m_maxEta;
+  float  m_maxPt;
+  float  m_minPt;
+  int    m_maxBarcode;
+  bool   m_requireCharged;
+  bool   m_requireStatus1;
+  // max decay radius for secondaries [mm];
+  // set to within (Run2) pixel by default
   double m_maxProdVertRadius;
-  int m_pdgId;
+  int    m_pdgId;
+  bool   m_grandparent;
+  bool   m_poselectronfromgamma;
   std::vector<unsigned int> m_counters;
 };
 

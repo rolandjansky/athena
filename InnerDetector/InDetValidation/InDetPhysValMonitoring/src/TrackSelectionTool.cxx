@@ -4,6 +4,7 @@
 
 // InDetPhysValMonitoring includes
 #include "TrackSelectionTool.h"
+#include <cmath> //std::fabs
 
 TrackSelectionTool::TrackSelectionTool(const std::string &name) :
   asg::AsgTool(name),
@@ -291,22 +292,22 @@ TrackSelectionTool::accept(const xAOD::TrackParticle *p) const {
     m_accept.setCutResult("minPt", p->pt() > m_minPt);
   }
   if (m_maxEta > -1) {
-    m_accept.setCutResult("maxEta", p->pt() > 1E-07 ? fabs(p->eta() < m_maxEta) : false);
+    m_accept.setCutResult("maxEta", p->pt() > 1E-07 ? std::fabs(p->eta()) < m_maxEta : false);
   }
   if (m_minEta > -1) {
-    m_accept.setCutResult("minEta", p->pt() > 1E-07 ? fabs(p->eta()) > m_minEta : false);
+    m_accept.setCutResult("minEta", p->pt() > 1E-07 ? std::fabs(p->eta()) > m_minEta : false);
   }
   if (m_maxPrimaryImpact > -1) {
-    m_accept.setCutResult("maxPrimaryImpact", fabs(p->d0()) < m_maxPrimaryImpact);
+    m_accept.setCutResult("maxPrimaryImpact", std::fabs(p->d0()) < m_maxPrimaryImpact);
   }
   if (m_maxZImpact > -1) {
-    m_accept.setCutResult("maxZImpact", fabs(p->z0()) < m_maxZImpact);
+    m_accept.setCutResult("maxZImpact", std::fabs(p->z0()) < m_maxZImpact);
   }
   if (m_minPrimaryImpact > -1) {
-    m_accept.setCutResult("minPrimaryImpact", fabs(p->d0()) > m_minPrimaryImpact);
+    m_accept.setCutResult("minPrimaryImpact", std::fabs(p->d0()) > m_minPrimaryImpact);
   }
   if (m_minZImpact > -1) {
-    m_accept.setCutResult("minZImpact", fabs(p->z0()) > m_minZImpact);
+    m_accept.setCutResult("minZImpact", std::fabs(p->z0()) > m_minZImpact);
   }
   if (m_maxSecondaryImpact > -1) {
     m_accept.setCutResult("maxSecondaryImpact", true /* nop */);

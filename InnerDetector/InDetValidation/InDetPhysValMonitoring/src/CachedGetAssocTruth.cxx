@@ -29,10 +29,11 @@ namespace IDPVM{
   }
   
   const xAOD::TruthParticle * 
-  CachedGetAssocTruth::operator()(const xAOD::TrackParticle * trackParticle){
+  CachedGetAssocTruth::getTruth(const xAOD::TrackParticle * trackParticle){
     #ifndef NDEBUG
       m_nCalls++;
     #endif
+    if (not trackParticle) return nullptr;
     auto pCache = m_cache.find(trackParticle);
     if (pCache!=m_cache.end()){
       #ifndef NDEBUG
@@ -52,6 +53,11 @@ namespace IDPVM{
     }
     m_cache[trackParticle]=result;
     return result;
+  }
+  
+  const xAOD::TruthParticle * 
+  CachedGetAssocTruth::operator()(const xAOD::TrackParticle * trackParticle){
+    return getTruth(trackParticle);
   }
   
   std::string

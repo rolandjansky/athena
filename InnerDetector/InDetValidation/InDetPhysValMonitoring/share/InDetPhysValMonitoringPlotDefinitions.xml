@@ -160,6 +160,10 @@
 <!--  -->
 
 <!-- More fake plots -->
+<h id="fakeEtaTotal" type="TProfile" title="Fraction of Linked Primary or Secondary tracks with &lt;50% truth match probability vs Eta">
+  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
+  <y title="Fraction" lo="0.0" hi="2.0"/>
+</h>
 <h id="fakePtPrimary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs Pt">
   <x title="Pt (GeV)" n="400" lo="0" hi="200" />
   <y title="Fake Rate" lo="0" hi="2.0"/>
@@ -272,10 +276,13 @@
   <x title="prod_Z" n="100" lo="0" hi="2000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-
+<h id="low_Pt_lepton_frac" type="TProfile" title="Fraction of Primary Leptons with Pt below 3 GeV">
+  <x title="prod_R" n="100" lo="0" hi="1500"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 
 <!-- Layer-by-Layer Efficiencies -->
-<h id="eff_hit_vs_eta_ibl_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
   <x title="#eta" n="10" lo="0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
@@ -687,15 +694,15 @@
   <x title="x residual(#mum)" n="120" lo="-70" hi="70"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel" type="TH1F" title="Residual: IBL Barrel X">
+<h id="residualx_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel X">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
+<h id="residualx_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
+<h id="residualx_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -777,15 +784,15 @@
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel" type="TH1F" title="Residual: IBL Barrel Y">
+<h id="residualy_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel Y">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
+<h id="residualy_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
+<h id="residualy_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -844,7 +851,7 @@
 </h>
 <!-- pulls -->
 <!-- barrel, x -->
-<h id="residualpullx_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
+<h id="residualpullx_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -865,7 +872,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap, x -->
-<h id="residualpullx_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
+<h id="residualpullx_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -886,7 +893,7 @@
   <y title="Entries"/>
 </h>
 <!-- barrel, y -->
-<h id="residualpully_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
+<h id="residualpully_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -907,7 +914,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap,y -->
-<h id="residualpully_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
+<h id="residualpully_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -1445,6 +1452,19 @@
   <x title="TrVtxZ" n="500" lo="-250." hi="250."/>
   <y title="Entries"/>
 </h>
+<h id="TVR_vs_Z" type="TH2F" title="Truth Vtx R vs Z">
+  <x title="TrVtxR" n="500" lo="0.0" hi="0.5"/>
+  <y title="TrVtxZ" n="500" lo="-250." hi="250."/>
+</h>
+<h id="recod0_vs_z0_good" type="TH2F" title="Reco d0 vs z0 good">
+  <x title="Reco d0" n="200" lo="-10." hi="10."/>
+  <y title="Reco z0" n="200" lo="-10." hi="10."/>
+</h>
+<h id="recod0_vs_z0_crazy" type="TH2F" title="Reco d0 vs z0 crazy">
+  <x title="Reco d0" n="200" lo="-10." hi="10."/>
+  <y title="Reco z0" n="200" lo="-10." hi="10."/>
+</h>
+
 <h id="recod0PVRSpectrum" type="TH1F" title="reco d0-PrimVtxR spectrum">
   <x title="d0-PrVtR" n="200" lo="-10." hi="10."/>
   <y title="Entries"/>
@@ -1472,6 +1492,10 @@
 <h id="PVZspectrum" type="TH1F" title="PrimVtxZ spectrum">
   <x title="PrVtxZ" n="500" lo="-250." hi="250."/>
   <y title="Entries"/>
+</h>
+<h id="PVR_vs_Z" type="TH2F" title="PrimVtx R vs Z">
+  <x title="PrVtxZ" n="500" lo="-250." hi="250."/>
+  <y title="PrVtxR" n="100" lo="0.0" hi="0.25"/>
 </h>
 <!-- -->
 

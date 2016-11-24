@@ -293,9 +293,6 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
     if (varName == "z0*sin(theta)") {
       truthIsAvailable = truthZ0SinTheta_OK;
       sigmaIsAvailable = truthZ0SinThetaErr_OK;
-      //if (truthIsAvailable and sigmaIsAvailable){
-      //ATH_MSG_INFO("yeay! truth and sigma are available");
-      //}
     }
     if (truthIsAvailable) {  // get the corresponding truth variable, only Fill if it exists
       float truthParameter = 0;
@@ -320,10 +317,8 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
         }
         fillHisto(m_meanbasePlots[var],truth_eta, deviation);
 	      fillHisto(m_mean_vs_ptbasePlots[var],log_trupt, deviation);
-	      //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<deviation);
       }
       if (sigmaIsAvailable) {
-        //ATH_MSG_INFO("sigma exists for "<<varName);
         float sigma(0);
         if (var == Z0SIN_THETA) {
           float z0_sigma = (trkprt.auxdata< float >("z0err"));
@@ -350,7 +345,6 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthPart
           }
           fillHisto(m_pullPlots[var],pull);
           fillHisto(m_pullbasePlots[var],truth_eta, pull);
-          //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<pull);
         }
       }
     }// REAL END OF IF(TRUTHISAVAILABLE) STATEMENT

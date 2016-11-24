@@ -23,118 +23,298 @@
 </h>
 <!--  -->
 <!-- testing TRT extensions -->
+
+<h id="mu" type="TH1F" title="#mu">
+  <x title="#mu" n="60" lo="0" hi="60"/>
+  <y title="Entries"/>
+</h>
+<h id="nPV" type="TH1F" title="number of primary vertices">
+  <x title="nPV" n="60" lo="0" hi="60"/>
+  <y title="Entries"/>
+</h>
 <h id="matchProb" type="TH1F" title="Matching Probability">
-  <x title="Matching Probability" n="50" lo="0" hi="1"/>
+  <x title="Matching Probability" n="51" lo="0" hi="1.02"/>
+  <y title="Tracks"/>
+</h>
+<h id="trtTubeFrac" type="TH1F" title="TRT tube hit fraction">
+  <x title="TRT tube hit fraction" n="50" lo="0" hi="1"/>
   <y title="Tracks"/>
 </h>
 <h id="trackCategories" type="TH1F" title="Different track categories">
   <x title="   " n="15" lo="1" hi="16"/>
   <y title="Entries"/>
 </h>
-<h id="ld0TrackCategories" type="TH1F" title="Different track categories">
+<h id="slimTrackCategories" type="TH1F" title="Different track categories">
   <x title="   " n="4" lo="1" hi="5"/>
   <y title="Entries"/>
 </h>
-<h id="pt_lrt" type="TH1F" title="p_{T} of large d0 tracks (in GeV)">
+<h id="pt" type="TH1F" title="p_{T} (in GeV)">
   <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
-<h id="pt_lrtExt" type="TH1F" title="p_{T} of large d0, extended tracks (in GeV)">
+<h id="pt_ext" type="TH1F" title="p_{T} of extended tracks (in GeV)">
   <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
-<h id="pt_lrtTrtHit" type="TH1F" title="p_{T} of large d0 tracks with TRT hits (in GeV)">
+<h id="pt_trtHit" type="TH1F" title="p_{T} of tracks with TRT hits (in GeV)">
   <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
-<h id="pt_lrtTrtOutlier" type="TH1F" title="p_{T} of large d0 tracks with TRT outliers (in GeV)">
+<h id="pt_trtHitNoOut" type="TH1F" title="p_{T} of tracks with TRT hits and no outliers (in GeV)">
   <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
-<h id="pt_lrtTrtHitOut" type="TH1F" title="p_{T} of large d0 tracks with TRT hits and outliers (in GeV)">
+<h id="pt_trtOutlier" type="TH1F" title="p_{T} of tracks with TRT outliers and no hits (in GeV)">
   <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
-<h id="eta_lrt" type="TH1F" title="#eta of large d0 tracks">
+<h id="pt_trtHitOut" type="TH1F" title="p_{T} of tracks with TRT hits and outliers (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="pt_noTrt" type="TH1F" title="p_{T} of tracks with neither TRT hits nor outliers (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="eta" type="TH1F" title="#eta">
   <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
-<h id="eta_lrtExt" type="TH1F" title="#eta of large d0, extended tracks">
+<h id="eta_ext" type="TH1F" title="#eta of extended tracks">
   <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
-<h id="eta_lrtTrtHit" type="TH1F" title="#eta of large d0 tracks with TRT hits">
+<h id="eta_trtHit" type="TH1F" title="#eta of tracks with TRT hits">
   <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
-<h id="eta_lrtTrtOutlier" type="TH1F" title="#eta of large d0 tracks with TRT outliers">
+<h id="eta_trtHitNoOut" type="TH1F" title="#eta of tracks with TRT hits and no outliers">
   <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
-<h id="eta_lrtTrtHitOut" type="TH1F" title="#eta of large d0 tracks with TRT hits and outliers">
+<h id="eta_trtOutlier" type="TH1F" title="#eta of tracks with TRT outliers and no hits">
   <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
-<h id="phi_lrt" type="TH1F" title="#phi of large d0 tracks">
+<h id="eta_trtHitOut" type="TH1F" title="#eta of tracks with TRT hits and outliers">
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
+  <y title="Entries"/>
+</h>
+<h id="eta_noTrt" type="TH1F" title="#eta of tracks with neither TRT hits nor outliers">
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
+  <y title="Entries"/>
+</h>
+<h id="phi" type="TH1F" title="#phi">
   <x title="#phi" n="100" lo="-4" hi="4"/>
   <y title="Entries"/>
 </h>
-<h id="phi_lrtExt" type="TH1F" title="#phi of large d0, extended tracks">
+<h id="phi_ext" type="TH1F" title="#phi of extended tracks">
   <x title="#phi" n="100" lo="-4" hi="4"/>
   <y title="Entries"/>
 </h>
-<h id="phi_lrtTrtHit" type="TH1F" title="#phi of large d0 tracks with TRT hits">
+<h id="phi_trtHit" type="TH1F" title="#phi of tracks with TRT hits">
   <x title="#phi" n="100" lo="-4" hi="4"/>
   <y title="Entries"/>
 </h>
-<h id="phi_lrtTrtOutlier" type="TH1F" title="#phi of large d0 tracks with TRT outliers">
+<h id="phi_trtHitNoOut" type="TH1F" title="#phi of tracks with TRT hits and no outliers">
   <x title="#phi" n="100" lo="-4" hi="4"/>
   <y title="Entries"/>
 </h>
-<h id="phi_lrtTrtHitOut" type="TH1F" title="#phi of large d0 tracks with TRT hits and outliers">
+<h id="phi_trtOutlier" type="TH1F" title="#phi of tracks with TRT outliers and no hits">
   <x title="#phi" n="100" lo="-4" hi="4"/>
   <y title="Entries"/>
 </h>
-<h id="d0_lrt" type="TH1F" title="d_{0} of large d0 tracks (in mm)">
+<h id="phi_trtHitOut" type="TH1F" title="#phi of tracks with TRT hits and outliers">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="phi_noTrt" type="TH1F" title="#phi of tracks with neither TRT hits nor outliers">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="Entries"/>
+</h>
+<h id="d0" type="TH1F" title="d_{0} (in mm)">
   <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<h id="d0_lrtExt" type="TH1F" title="d_{0} of large d0, extended tracks (in mm)">
+<h id="d0_ext" type="TH1F" title="d_{0} of extended tracks (in mm)">
   <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<h id="d0_lrtTrtHit" type="TH1F" title="d_{0} of large d0 tracks with TRT hits (in mm)">
+<h id="d0_trtHit" type="TH1F" title="d_{0} of tracks with TRT hits (in mm)">
   <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<h id="d0_lrtTrtOutlier" type="TH1F" title="d_{0} of large d0 tracks with TRT outliers (in mm)">
+<h id="d0_trtHitNoOut" type="TH1F" title="d_{0} of tracks with TRT hits and no outliers (in mm)">
   <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<h id="d0_lrtTrtHitOut" type="TH1F" title="d_{0} of large d0 tracks with TRT hits and outliers (in mm)">
+<h id="d0_trtOutlier" type="TH1F" title="d_{0} of tracks with TRT outliers and no hits (in mm)">
   <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
   <y title="Entries"/>
 </h>
-<h id="z0_lrt" type="TH1F" title="z_{0} of large d0 tracks (in mm)">
+<h id="d0_trtHitOut" type="TH1F" title="d_{0} of tracks with TRT hits and outliers (in mm)">
+  <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="d0_noTrt" type="TH1F" title="d_{0} of tracks with neither TRT hits nor outliers (in mm)">
+  <x title="d_{0} (mm)" n="300" lo="-300" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="z0" type="TH1F" title="z_{0} (in mm)">
   <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
   <y title="Entries"/>
 </h>
-<h id="z0_lrtExt" type="TH1F" title="z_{0} of large d0, extended tracks (in mm)">
+<h id="z0_ext" type="TH1F" title="z_{0} of extended tracks (in mm)">
   <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
   <y title="Entries"/>
 </h>
-<h id="z0_lrtTrtHit" type="TH1F" title="z_{0} of large d0 tracks with TRT hits (in mm)">
+<h id="z0_trtHit" type="TH1F" title="z_{0} of tracks with TRT hits (in mm)">
   <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
   <y title="Entries"/>
 </h>
-<h id="z0_lrtTrtOutlier" type="TH1F" title="z_{0} of large d0 tracks with TRT outliers (in mm)">
+<h id="z0_trtHitNoOut" type="TH1F" title="z_{0} of tracks with TRT hits and no outliers (in mm)">
   <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
   <y title="Entries"/>
 </h>
-<h id="z0_lrtTrtHitOut" type="TH1F" title="z_{0} of large d0 tracks with TRT hits and outliers (in mm)">
+<h id="z0_trtOutlier" type="TH1F" title="z_{0} of tracks with TRT outliers and no hits (in mm)">
   <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
   <y title="Entries"/>
 </h>
+<h id="z0_trtHitOut" type="TH1F" title="z_{0} of tracks with TRT hits and outliers (in mm)">
+  <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="z0_noTrt" type="TH1F" title="z_{0} of §tracks with neither TRT hits nor outliers (in mm)">
+  <x title="z_{0} (mm)" n="500" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="tube" type="TH1F" title="nTRTTubeHits">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_ext" type="TH1F" title="nTRTTubeHits of extended tracks">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_trtHit" type="TH1F" title="nTRTTubeHits of tracks with TRT hits">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_trtHitNoOut" type="TH1F" title="nTRTTubeHits of tracks with TRT hits and no outliers">
+  <x title="nTRTTubeHts" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_trtOutlier" type="TH1F" title="nTRTTubeHits of tracks with TRT outliers and no hits">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_trtHitOut" type="TH1F" title="nTRTTubeHits of tracks with TRT hits and outliers">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<h id="tube_noTrt" type="TH1F" title="nTRTTubeHits of tracks with neither TRT hits nor outliers">
+  <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+
+<!-- TRT testing TH2s -->
+<h id="pt_vs_nTrtTubeHits" type="TH2" title="pT vs nTrtTubeHits">
+  <x title="pT" n="200" lo="0" hi="200"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="eta_vs_nTrtTubeHits" type="TH2" title="#eta vs nTrtTubeHits">
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="phi_vs_nTrtTubeHits" type="TH2" title="#phi vs nTrtTubeHits">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="d0_vs_nTrtTubeHits" type="TH2" title="d_{0} vs nTrtTubeHits (mm)">
+  <x title="d_{0} (mm)" n="100" lo="-300" hi="300"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="z0_vs_nTrtTubeHits" type="TH2" title="z_{0} vs nTrtTubeHits (mm)">
+  <x title="z_{0} (mm)" n="200" lo="-500" hi="500"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="mu_vs_nTrtTubeHits" type="TH2" title="#mu vs nTrtTubeHits">
+  <x title="#mu" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="nPV_vs_nTrtTubeHits" type="TH2" title="nPV vs nTrtTubeHits">
+  <x title="nPV" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="pt_vs_nTrtHits" type="TH2" title="pT vs nTrtHits">
+  <x title="pT" n="200" lo="0" hi="200"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="eta_vs_nTrtHits" type="TH2" title="#eta vs nTrtHits">
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="phi_vs_nTrtHits" type="TH2" title="#phi vs nTrtHits">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="d0_vs_nTrtHits" type="TH2" title="d_{0} vs nTrtHits (mm)">
+  <x title="d_{0} (mm)" n="100" lo="-300" hi="300"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="z0_vs_nTrtHits" type="TH2" title="z_{0} vs nTrtHits (mm)">
+  <x title="z_{0} (mm)" n="200" lo="-500" hi="500"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="mu_vs_nTrtHits" type="TH2" title="#mu vs nTrtHits">
+  <x title="#mu" n="60" lo="0" hi="60"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="nPV_vs_nTrtHits" type="TH2" title="nPV vs nTrtHits">
+  <x title="nPV" n="60" lo="0" hi="60"/>
+  <y title="nTrtHits" n="50" lo="0" hi="50"/>
+</h>
+<h id="pt_vs_tubeHitFraction" type="TH2" title="pT vs TRT tube hit fraction">
+  <x title="pT" n="200" lo="0" hi="200"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="eta_vs_tubeHitFraction" type="TH2" title="#eta vs TRT tube hit fraction">
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="phi_vs_tubeHitFraction" type="TH2" title="#phi vs TRT tube hit fraction">
+  <x title="#phi" n="100" lo="-4" hi="4"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="d0_vs_tubeHitFraction" type="TH2" title="d_{0} vs TRT tube hit fraction (mm)">
+  <x title="d_{0} (mm)" n="100" lo="-300" hi="300"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="z0_vs_tubeHitFraction" type="TH2" title="z_{0} vs TRT tube hit fraction (mm)">
+  <x title="z_{0} (mm)" n="200" lo="-500" hi="500"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="mu_vs_tubeHitFraction" type="TH2" title="#mu vs TRT tube hit fraction">
+  <x title="#mu" n="60" lo="0" hi="60"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="nPV_vs_tubeHitFraction" type="TH2" title="nPV vs TRT tube hit fraction">
+  <x title="nPV" n="60" lo="0" hi="60"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="nTrtHit_vs_nTrtTubeHit" type="TH2" title="nTrtHits vs nTrtTubeHits">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="nTrtHit_vs_trtTubeFrac" type="TH2" title="nTrtHits vs TRT tube hit fraction">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
+</h>
+<h id="d0_vs_eta" type="TH2" title="d_{0}(mm) vs #eta">
+  <x title="d_{0} (mm)" n="100" lo="-300" hi="300"/>
+  <y title="eta" n="50" lo="-2.5" hi="2.5"/>
+</h>
+
 
 <!--  -->
 <!-- testing -->
@@ -237,7 +417,7 @@
   <y title="Entries"/>
 </h>
 <h id="fakeeta" type="TH1F" title="#eta of selected fake tracks">
-  <x title="#eta" n="100" lo="-5" hi="5"/>
+  <x title="#eta" n="50" lo="-2.5" hi="2.5"/>
   <y title="Entries"/>
 </h>
 <h id="faked0" type="TH1F" title="d_{0} of selected fake tracks (in mm)">
@@ -394,7 +574,7 @@
 </h>
 
 <!-- Layer-by-Layer Efficiencies -->
-<h id="eff_hit_vs_eta_ibl_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
   <x title="#eta" n="10" lo="0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0.95" hi="1.02"/>
 </h>
@@ -626,15 +806,15 @@
   <x title="x residual(#mum)" n="120" lo="-70" hi="70"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel" type="TH1F" title="Residual: IBL Barrel X">
+<h id="residualx_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel X">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
+<h id="residualx_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
+<h id="residualx_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -716,15 +896,15 @@
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel" type="TH1F" title="Residual: IBL Barrel Y">
+<h id="residualy_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel Y">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
+<h id="residualy_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
+<h id="residualy_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -783,7 +963,7 @@
 </h>
 <!-- pulls -->
 <!-- barrel, x -->
-<h id="residualpullx_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
+<h id="residualpullx_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -804,7 +984,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap, x -->
-<h id="residualpullx_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
+<h id="residualpullx_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -825,7 +1005,7 @@
   <y title="Entries"/>
 </h>
 <!-- barrel, y -->
-<h id="residualpully_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
+<h id="residualpully_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -846,7 +1026,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap,y -->
-<h id="residualpully_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
+<h id="residualpully_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>

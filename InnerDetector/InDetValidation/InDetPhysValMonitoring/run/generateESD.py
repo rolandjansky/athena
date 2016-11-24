@@ -16,7 +16,10 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.FilesInput = ["../rootfile_storage/mc15_13TeV.422016.ParticleGun_single_K0s_PtFlat1_10.recon.RDO.e4459_s2726_r7059/RDO.07275539._000001.pool.root.1"]
 
 #new photon conversion sample (8-18-16)
-athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch///eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/54/d2/RDO.06634780._000001.pool.root.1"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch///eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/54/d2/RDO.06634780._000001.pool.root.1"]
+
+#better photon conversion sample (10-3-16)
+athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/e6/ca/RDO.07275499._000001.pool.root.1"]
 
 #Control the number of events, -1 means "ALL"
 athenaCommonFlags.EvtMax = -1
@@ -30,9 +33,9 @@ rec.doTrigger=False
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doSlimming.set_Value_and_Lock(False)          #7-21-16: normally False, set to True for testing
-InDetFlags.doBackTracking.statusOn = False
-InDetFlags.doTrtSegments.statusOn = False                 #8-8-16: new line added to enable backtracking
-InDetFlags.doTRTStandalone.set_Value_and_Lock(False)
+InDetFlags.doBackTracking.statusOn = True
+InDetFlags.doTrtSegments.statusOn = True                 #8-8-16: new line added to enable backtracking
+InDetFlags.doTRTStandalone.set_Value_and_Lock(False)      #10-3-16: Was False, now True
 #from JetRec.JetRecFlags import jetFlags
 #jetFlags.applyCalibration = False 
 

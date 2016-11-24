@@ -201,11 +201,15 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         if (mesb && biasedTrackParameters) {
           ATH_MSG_DEBUG("mesb and biased track parameters are ok");
           // for outliers, the measurement is not part of the fit, so track parameters are already unbiased
+          std::unique_ptr<const Trk::TrackParameters> cleanup_trackparam;
           const Trk::TrackParameters *trackParameters =
             (!thisTrackState->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(
               biasedTrackParameters,
               mesb) :
             biasedTrackParameters;
+          if (trackParameters != biasedTrackParameters) {
+              cleanup_trackparam.reset(trackParameters);
+          }
           if (not trackParameters) {
             ATH_MSG_DEBUG("unbiased track parameters pointer is NULL");
           }
@@ -233,7 +237,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           // copy-paste from original
           if (hit && m_isUnbiased) {
             // Cluster width determination
-            if ((det == IBL)or(det == PIXEL) or(det == SCT)) {
+            if ((det == L0PIXBARR)or(det == PIXEL) or(det == SCT)) {
               const InDet::SiCluster *pCluster = dynamic_cast <const InDet::SiCluster *>(hit->prepRawData());
               if (pCluster) {
                 InDet::SiWidth width = pCluster->width();
@@ -348,16 +352,10 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier &id, Subdetecto
     bec = abs(m_pixelID->barrel_ec(id));
     r = (bec == normalBarrel) ? (BARREL) : (ENDCAP);
     layer = m_pixelID->layer_disk(id);
-    if (layer == 0) {
-      det = IBL;
+    if (BARREL == r and layer == 0) {
+      det = L0PIXBARR;
     }
   }
-  /** cf. Miriam's code
-     if (det==PIXEL) {
-     r= (bec==normalBarrel)?(BARREL):(ENDCAP);
-     if (m_pixelID->layer_disk(id) == 0) det=BLAYER;
-     }
-   **/
   if (det == DBM) {
     r = (bec < 0) ? (BARREL) : (ENDCAP);
   }

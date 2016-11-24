@@ -3,7 +3,7 @@
 */
 
 #include "InDetPerfPlot_Eff.h"
-#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+//#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 
@@ -20,6 +20,7 @@ InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase *pParent, const std::string &
   m_trackeff_vs_Z{},
   m_trackeff_vs_prodR{},
   m_trackeff_vs_prodZ{},
+  m_low_Pt_lepton_frac{},
   m_eff_vs_eta_of_daughters{},
   m_eff_vs_theta_of_daughters{},
   m_eff_vs_theta_tan_of_daughters{},
@@ -49,6 +50,8 @@ InDetPerfPlot_Eff::initializePlots() {
 
   book(m_trackeff_vs_prodR, "trackeff_vs_prodR");
   book(m_trackeff_vs_prodZ, "trackeff_vs_prodZ");
+
+  book(m_low_Pt_lepton_frac, "low_Pt_lepton_frac");
 
   book(m_eff_vs_eta_of_daughters, "eff_vs_eta_of_daughters");
   book(m_eff_vs_theta_of_daughters, "eff_vs_theta_of_daughters");
@@ -92,6 +95,12 @@ InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle &truth, float weight) {
     fillHisto(m_trackeff_vs_prodR,prod_rad, weight);
     fillHisto(m_trackeff_vs_prodZ,prod_z, weight);
   }
+}
+
+void
+InDetPerfPlot_Eff::lepton_fill(const xAOD::TruthParticle &truth, float weight){
+  double R = truth.auxdata<float>("prodR");
+  fillHisto(m_low_Pt_lepton_frac, R, weight);
 }
 
 void
