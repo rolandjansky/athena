@@ -112,7 +112,6 @@ void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, Rpc
             }
         }
     }
-
     log << MSG::DEBUG  << " ***  Reading RpcPadContainer" << endmsg;
 }
 
