@@ -87,7 +87,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
   GeoBox*  Module_Box      = new GeoBox ( 9.0*CLHEP::cm/2.0 ,18.0*CLHEP::cm/2.0  , 13.4*CLHEP::cm/2.0);
   GeoBox*  Steel_Plate_Box = new GeoBox ( 9.0*CLHEP::cm/2.0 ,18.0*CLHEP::cm/2.0  ,  1.0*CLHEP::cm/2.0); 
   GeoTube* Pixel_Tube      = new GeoTube( 0.0*CLHEP::mm     , 1.0*CLHEP::mm/2.0  , 13.4*CLHEP::cm/2.0);
-  GeoTube* Strip_Tube      = new GeoTube( 0.0*CLHEP::mm     , 1.5*CLHEP::mm/2.0  ,  9.0*CLHEP::cm/2.0);
+  GeoTube* Strip_Tube      = new GeoTube( 0.0*CLHEP::mm     , 1.5*CLHEP::mm/2.0  , 18.0*CLHEP::cm/2.0);
 
   GeoLogVol* Envelope_Logical    = new GeoLogVol("Envelope_Logical"   ,Envelope_Box    ,air);
   GeoLogVol* Steel_Plate_Logical = new GeoLogVol("Steel_Plate_Logical",Steel_Plate_Box ,Steel);
@@ -313,7 +313,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
 					    << Envelope_Physical[0]->getAbsoluteName() 
-					    << endreq;
+					    << endmsg;
   
   tag = new GeoNameTag("ZDC_C");
   
@@ -328,7 +328,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
 					    << Envelope_Physical[1]->getAbsoluteName() 
-					    << endreq;
+					    << endmsg;
 }
 
 const ZDC_DetManager* ZDC_DetFactory::getDetectorManager() const { return detectorManager; }
