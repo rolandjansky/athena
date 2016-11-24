@@ -93,7 +93,7 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
   
   if ( printout ) { 
     TruthParticle t(p);
-    std::cout << "particle " << *p << "  " << t.pdgId() << "\tparent " << p << std::endl;
+    // std::cout << "particle " << *p << "  " << t.pdgId() << "\tparent " << p << std::endl;
   }
 
   HepMC::GenVertex::particles_in_const_iterator in  = vertex->particles_in_const_begin();
@@ -101,9 +101,9 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
   while ( in!=end ) {
     const HepMC::GenParticle* parent = fromParent( pdg_id, *in, printout );
     TruthParticle t(*in);
-    if ( printout ) std::cout << "\tvalue for particle " << *in << "  " << t.pdgId() << "\tparent " << parent << std::endl;
+    // if ( printout ) std::cout << "\tvalue for particle " << *in << "  " << t.pdgId() << "\tparent " << parent << std::endl;
     if ( parent && std::abs(parent->pdg_id())==pdg_id) { 
-      if ( printout ) std::cout << "found tau! - in parents" << std::endl; 
+      //if ( printout ) std::cout << "found tau! - in parents" << std::endl; 
       return parent;
     }   /// recursive stopping conditions
     in++;
@@ -119,7 +119,8 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
 
 void AnalysisConfig_Ntuple::loop() {
 
-  m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endreq;
+  m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
+			     << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endreq;
 
 	// get (offline) beam position
 	double xbeam = 0;
@@ -207,7 +208,6 @@ void AnalysisConfig_Ntuple::loop() {
 
 		//		std::cout << "input chains" << std::endl;
 		//		for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "chains " << ic << "\t" << m_chainNames[ic] << std::endl;
-
 
 		std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
 
@@ -399,7 +399,87 @@ void AnalysisConfig_Ntuple::loop() {
 	unsigned _decisiontype = TrigDefs::Physics;
 	
 	if ( requireDecision() ) _decisiontype = TrigDefs::requireDecision;
-      
+
+
+#if 0
+	/// stupid TDT debug
+	{
+	  std::cout << "SUTT status of all chains " << std::endl;
+	  std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
+	  
+	  m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
+
+	  int npassed = 0;
+
+	  std::vector<std::string> passed;
+
+
+
+	  for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
+
+	    std::string chainName = configuredChains[i];
+
+	    std::cout << "[91;1m" << "Chain " << configuredChains[i]
+		      << "\tpassed:     " <<   (*m_tdt)->isPassed(configuredChains[i], _decisiontype)  << " ( type " << _decisiontype << ") : "  
+		      << "\trequiredec: " <<   (*m_tdt)->isPassed(configuredChains[i], TrigDefs::requireDecision)  << "   (ACN)[m" << std::endl;
+	    if ( (*m_tdt)->isPassed(configuredChains[i], _decisiontype) ) { 
+	      npassed++;
+	      passed.push_back(configuredChains[i]);
+	    }	  
+	  
+	    
+	    
+	    if ( chainName.find("_split")!=std::string::npos ) { 
+	  
+	      //	      Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::alsoDeactivateTEs);
+	      Trig::FeatureContainer f = (*m_tdt)->features( chainName );
+	      Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
+	      Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
+	      
+	      while ( comb!=combEnd ) { 
+		
+		std::string vnames[2] = { "xPrimVx", "EFHistoPrmVtx" };
+		
+		for ( unsigned iv=0 ; iv<2 ; iv++ ) { 
+		  std::vector< Trig::Feature<xAOD::VertexContainer> > fvtx = comb->get<xAOD::VertexContainer>( vnames[iv] );
+		  
+		  std::cout << "SUTT " << chainName << "\t" << iv << "\txAOD::VertexContainer " << vnames[iv] << "\tsize: " << fvtx.size() << std::endl;
+
+		  for ( unsigned ivt=0 ; ivt<fvtx.size() ; ivt++ ) { 
+		    
+		    const xAOD::VertexContainer* vert = fvtx[ivt].cptr();
+		      
+		    xAOD::VertexContainer::const_iterator vit = vert->begin();
+		    
+		    for ( ; vit != vert->end(); ++vit ) {
+		      std::cout << "\t" << vnames[iv] 
+				<< "\tx " << (*vit)->x() << "\ty " << (*vit)->y() << "\tz " << (*vit)->z() 
+				<< "\tntracks " <<  (*vit)->nTrackParticles()
+				<< std::endl;
+		    }
+		  }
+		}		
+		
+		comb++;
+	      }
+	    }	
+	  }
+	  
+	  
+	  std::cout << "[91;1m" << "SUTT npassed triggers = " << npassed << std::endl;
+	  for ( unsigned i=0 ; i<passed.size() ; i++ ) { 
+	    std::cout << "\tSUTT passed chain " << passed[i] << "\t(event " << event_number << ")" << std::endl;
+	  }
+
+	  std::cout << "[m" << std::endl;
+	}
+#endif
+
+
+
+	/// bomb out if no chains passed and not told to keep all events  
+
+
 
 	int passed_chains = 0;
 
@@ -453,6 +533,7 @@ void AnalysisConfig_Ntuple::loop() {
 		}
 
 	}/// finished loop over chains
+
 
 
 	/// bomb out if no chains passed and not told to keep all events  
@@ -663,14 +744,15 @@ void AnalysisConfig_Ntuple::loop() {
 
 	selectorRef.clear();
 
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+	if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>("InDetTrackParticles")) {
+	  selectTracks<xAOD::TrackParticleContainer>( &selectorRef, "InDetTrackParticles" );
+	}
+	else
+#endif
 	if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>("TrackParticleCandidate")) {
 	  selectTracks<Rec::TrackParticleContainer>( &selectorRef, "TrackParticleCandidate" );
         }
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-	else if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>("InDetTrackParticles")) {
-	  selectTracks<xAOD::TrackParticleContainer>( &selectorRef, "InDetTrackParticles" );
-	}
-#endif
 	else { 
 	  m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
 	}
@@ -733,19 +815,23 @@ void AnalysisConfig_Ntuple::loop() {
 
 	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
 	  for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
-	    if ( (*vtxitr)->nTrackParticles()>0 ) {
-	      vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-					       (*vtxitr)->y(),
-					       (*vtxitr)->z(),
-					       /// variances
-					       (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-					       (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-					       (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-					       (*vtxitr)->nTrackParticles(),
-					       /// quality
-					       (*vtxitr)->chiSquared(),
-					       (*vtxitr)->numberDoF() ) );
-	    }
+
+	    //	    std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() << "\tvtxtype " << (*vtxitr)->vertexType() << "\tntrax " << (*vtxitr)->nTrackParticles() << std::endl; 
+
+	    if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
+              vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+						(*vtxitr)->y(),
+						(*vtxitr)->z(),
+						/// variances                                                                                          
+						(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+						(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+						(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+						(*vtxitr)->nTrackParticles(),
+						/// quality                                                                                            
+						(*vtxitr)->chiSquared(),
+						(*vtxitr)->numberDoF() ) );
+            }
+
 	  }
 	}
 
@@ -765,6 +851,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 	/// now add the vertices
+
+	//	std::cout << "SUTT Nvertices " << vertices.size() << "\ttype 101 " << vertices_full.size() << std::endl;
 
 	for ( unsigned i=0 ; i<vertices.size() ; i++ )  { 
 	  m_provider->msg(MSG::INFO) << "vertex " << i << " " << vertices[i] << endreq;
@@ -914,6 +1002,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  }
 	}	  
 
+	//	std::cout << "SUTT doMuons " << m_doMuons << std::endl;
 
 	/// get muons 
 	if ( m_doMuons ) { 
@@ -942,6 +1031,28 @@ void AnalysisConfig_Ntuple::loop() {
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
 	
+
+
+
+	/// get muons 
+	if ( m_doMuonsSP ) { 
+	  
+	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endreq; 
+
+	  Nmu   = processMuons( selectorRef );
+
+	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endreq; 
+
+	  m_event->addChain("MuonsSP");
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
+	  m_event->back().back().addTracks(selectorRef.tracks());
+
+	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
+	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
+	}
+	
+
+
 	/// get one prong taus
 	std::string TauRef_1Prong[4] =  { 
 	  "Taus_1Prong", 
@@ -1061,7 +1172,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 #if 0
 		{
-		  std::cout << "SUTT DecisionType check" << std::endl;
+		  //		  std::cout << "SUTT DecisionType check" << std::endl;
 
 		  Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::alsoDeactivateTEs);
 		  //  Trig::FeatureContainer f = (*m_tdt)->features( chainName );
@@ -1074,11 +1185,11 @@ void AnalysisConfig_Ntuple::loop() {
 		  Trig::FeatureContainer::combination_const_iterator combp(fp.getCombinations().begin()); 
 		  Trig::FeatureContainer::combination_const_iterator combEndp(fp.getCombinations().end());
 		  
-
-		  std::cout << "SUTT Chain " << chainName 
-			    << "\tNumber of conmbinations DTE: " << (combEnd-comb) << "\tPhysics: " << (combEndp-combp) << std::endl; 
+		  
+		  //  std::cout << "SUTT Chain " << chainName 
+		  //	        << "\tNumber of conmbinations DTE: " << (combEnd-comb) << "\tPhysics: " << (combEndp-combp) << std::endl; 
 		}
-		std::cout << "decidion type " << decisiontype << std::endl;
+		//		std::cout << "decidion type " << decisiontype << std::endl;
 #endif
 
 
@@ -1189,7 +1300,7 @@ void AnalysisConfig_Ntuple::loop() {
 			}
 			else { 
 			  if ( iroiptr == _rois[0].cptr() ) { 
-			    std::cout << "found RoI before " << *_rois[0].cptr() << std::endl;
+			    // std::cout << "found RoI before " << *_rois[0].cptr() << std::endl;
 			    continue;
 			  }
 			}
@@ -1350,7 +1461,7 @@ void AnalysisConfig_Ntuple::loop() {
 			      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 			  
 			      for ( ; vtxitr != vert->end(); ++vtxitr) {
-				if ( (*vtxitr)->nTrackParticles()>0 ) {
+				if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
 				  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 								       (*vtxitr)->y(),
 								       (*vtxitr)->z(),

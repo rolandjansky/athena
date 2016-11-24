@@ -12,6 +12,7 @@
 #include "TrigInDetAnalysisExample/ChainString.h"
 
 
+
 ChainString::ChainString(const std::string& s) : 
   std::string(s), mpassed(true) {
   parse(); 
@@ -25,7 +26,8 @@ ChainString::ChainString(const ChainString& s) :
   mvtx(s.mvtx),
   mpassed(s.mpassed),
   mkeys(s.mkeys),
-  mvalues(s.mvalues) {  
+  mvalues(s.mvalues),
+  mraw(s.mraw) {  
 
 }
 
@@ -64,24 +66,54 @@ void ChainString::parse() {
     
     mhead = fields[0]; 
 
-    std::string tags[5]   = { "collection=", "index=", "te=", "roi=", "vtx=" };
+    std::string tags[5]   = { "collection=", "index=", "roi=", "vtx=", "te=" };
     std::string alt[5]    = { "key=",        "ind=",   "",    "",     ""     };
     bool        tagged[5] = {  false,         false,    false, false, false  };    
  
-    std::string* _values[5] = { &mtail, &mextra, &melement, &mroi, &mvtx };
+    std::string* _values[5] = { &mtail, &mextra, &mroi, &mvtx, &melement };
+
+    
+    /// get collection, index and roi if not tagged with a label
+
+    unsigned first_tag = 1;
+    for ( unsigned i=1 ; i<fields.size() && i<4 ; i++ ) {
+      if ( fields[i].find("=")==std::string::npos ) {
+	*_values[i-1] = fields[i];
+	first_tag = i+1;
+	tagged[i-1] = true;
+      }
+      else { 
+	usetags = true;
+	break;
+      } 
+    }
+
+    /// now test whether any tags have been used at all
 
     for ( unsigned i=1 ; i<fields.size() ; i++ ) {
+      if ( fields[i].find("=")!=std::string::npos ) usetags = true;
+    }
+    
+    //    std::cout << "usetags " << usetags << std::endl;
+
+    for ( unsigned i=first_tag ; i<fields.size() ; i++ ) {
       for ( unsigned itag=0 ; itag<5 ; itag++ ) { 
-	if ( tagged[itag] ) continue;
-	//	std::cout << itag << " " << i << " " << fields[i] << " " << toupper(fields[i]).find(toupper(tags[itag])) << std::endl; 
 
 	std::string lowfield = tolower(fields[i]);
+
+	if ( tagged[itag] ) { 
+	  if ( lowfield.find(tags[itag])==0 || ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) ) { 
+	    std::cerr << "tag already allocated : " << fields[i] << " with value " << *_values[itag] << std::endl;
+	  }
+	  continue;
+	}
+	//	std::cout << itag << " " << i << " " << fields[i] << " " << toupper(fields[i]).find(toupper(tags[itag])) << std::endl; 
 
 	if ( lowfield.find(tags[itag])==0 ) { 
 	  tagged[itag] = true;
 	  fields[i].erase( 0, tags[itag].size() );
 	  *_values[itag] = fields[i];
-	  if ( itag!=3 ) usetags   = true;
+	  //	  if ( itag<2 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
 	}
@@ -89,7 +121,7 @@ void ChainString::parse() {
 	  tagged[itag] = true;
 	  fields[i].erase( 0, alt[itag].size() );
 	  *_values[itag] = fields[i];
-	  if ( itag!=3 ) usetags   = true;
+	  //  if ( itag<2 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
 	}
@@ -97,35 +129,40 @@ void ChainString::parse() {
       }
     }
     
-    //    std::cout << "use tags " << usetags << std::endl; 
-
-    /// if any tags have been used (except for the Roi tag) - then 
-    /// *all* tags should be used   
+    ///    std::cout << "use tags " << usetags << std::endl; 
+    /// always enforce tags for the roi, vtx and te, optional for the 
+    /// chain, collection and index
+    /// grrrr, 
     if ( !usetags ) { 
       //      std::cout << "fields.size() " << fields.size() << std::endl;
-      for ( unsigned i=0 ; i<5 ; i++ ) {
-	if ( fields.size()>i+1 ) *_values[i] = fields[i+1];
+      for ( unsigned i=first_tag ; i<5 ; i++ ) {
+	if ( (i+1)<fields.size() ) *_values[i] = fields[i+1];
       }
     }      
 
 #if 0
-    std::cout << "head :      " << mhead    << std::endl;
-    std::cout << "collection: " << mtail    << std::endl;
-    std::cout << "index :     " << mextra   << std::endl;
-    std::cout << "te :        " << melement << std::endl;
-    std::cout << "roi :       " << mroi     << std::endl;
-    std::cout << "vtx :       " << mvtx     << std::endl;
-    std::cout << "pass :      " << mpassed  << std::endl;
+    std::cout << "head:  " << mhead    << std::endl;
+    std::cout << "key:   " << mtail    << std::endl;
+    std::cout << "ind:   " << mextra   << std::endl;
+    std::cout << "te:    " << melement << std::endl;
+    std::cout << "roi:   " << mroi     << std::endl;
+    std::cout << "vtx:   " << mvtx     << std::endl;
+    std::cout << "pass:  " << mpassed  << std::endl;
 #endif   
     
-    /// replace the string by a raw "basic" string that can be converted
-    /// to a root directory etc
-
+    /// replace the string by a parsed basic string that can be converted
+    /// to a root directory name etc
+    
     std::string raw = mhead;
     for ( int i=0 ; i<5 ; i++ ) if ( *_values[i]!="" ) raw += ":" + *_values[i];
     if ( !mpassed ) raw += ";DTE";
-    *(std::string*)(this) = raw;
+  
+    /// save the original string
+    mraw = *this;
 
+    /// overwrite with the parsed string 
+    *(std::string*)(this) = raw;
+  
     //    std::cout << "raw: " << *this << std::endl;
-  }
+}
 

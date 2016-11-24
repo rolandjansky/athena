@@ -150,6 +150,19 @@ public:
   {
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
+    
+#if 0
+    ChainString& chain = m_chainNames.back(); 
+
+    std::cout << "\nT_AnalysisConfig_Tier0::name:                " << name() << "\t" << this << std::endl;
+    std::cout <<  "T_AnalysisConfig_Tier0::chain specification: " << testChainName << " -> " << chain << "\t" << chain.raw() << std::endl;
+    std::cout << "\tchain: " << chain.head()    << std::endl;
+    std::cout << "\tkey:   " << chain.tail()    << std::endl;
+    std::cout << "\troi:   " << chain.roi()     << std::endl;
+    std::cout << "\tvtx:   " << chain.vtx()     << std::endl;
+    std::cout << "\tte:    " << chain.element() << std::endl;
+#endif
+    
     m_testType = testType;
   }
 
@@ -213,24 +226,24 @@ protected:
 
     static bool first = true;
 
-
-
     if ( first ) {
 
       m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endreq;
 
-
-      std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
-
-      if(m_provider->msg().level() <= MSG::INFO) {
+      if(m_provider->msg().level() <= MSG::VERBOSE) {
+	
+	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
+	
         for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
 	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endreq;
         }
-      }
 
+      }
+      
     
       // std::vector<std::string> chains;
       // chains.reserve( m_chainNames.size() );
+
 
       std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
 
@@ -242,9 +255,9 @@ protected:
       while ( chainitr!=m_chainNames.end() ) {
 
         /// get chain
-        ChainString chainName = (*chainitr);
+        ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endreq;
+        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endreq;
 
         /// check for wildcard ...
         // if ( chainName.head().find("*")!=std::string::npos ) {
@@ -260,7 +273,7 @@ protected:
         // std::cout << "selected chains " << selectChains.size() << std::endl;
 
         // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endreq;
-
+	
         for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
           if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
@@ -270,11 +283,21 @@ protected:
           if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
           if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
+#if 0
+	  std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
+	  std::cout << "\tchain: " << chainName.head()    << std::endl;
+	  std::cout << "\tkey:   " << chainName.tail()    << std::endl;
+	  std::cout << "\tind:   " << chainName.extra()   << std::endl;
+	  std::cout << "\troi:   " << chainName.roi()     << std::endl;
+	  std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
+	  std::cout << "\tte:    " << chainName.element() << std::endl;
+#endif
+
           /// replace wildcard with actual matching chains ...
           chains.push_back( ChainString(selectChains[iselected]) );
 
           if(m_provider->msg().level() <= MSG::VERBOSE) {
-            m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endreq;
+            m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endreq;
 	  }
         }
         // else {
@@ -317,6 +340,7 @@ protected:
     m_selectorRef = &selectorRef;
     TrigTrackSelector selectorTest( &filterTest );
     m_selectorTest = &selectorTest;
+
 
     m_selectorRef->setBeamline(  xbeam, ybeam );
   
@@ -405,11 +429,18 @@ protected:
                                     << "\tpass " << (*m_tdt)->isPassed(chainname)
                                     << "\tpres " << (*m_tdt)->getPrescale(chainname) << endreq;
       }
+
+      //      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
+      //		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
+
       
       if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
       
     }
     
+
+    //    std::cout << "here " << __LINE__ << std::endl;
+
     first = false;
 
     if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
@@ -453,6 +484,10 @@ protected:
 
     std::vector<TIDA::Vertex> vertices;
     std::vector<TIDA::Vertex> vertices_rec;
+
+    std::vector<double> refbeamspot;
+    std::vector<double> testbeamspot;
+
 
 
 #ifndef XAODTRACKING_TRACKPARTICLE_H
@@ -500,7 +535,7 @@ protected:
 
       xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
       for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
-	if ( (*vtxitr)->nTrackParticles()>0 ) {
+	if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
 	  vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 					    (*vtxitr)->y(),
 					    (*vtxitr)->z(),
@@ -520,7 +555,7 @@ protected:
 #endif
 
 
-    // std::cout << "here " << __LINE__ << std::endl;
+    //    std::cout << "here " << __LINE__ << std::endl;
 
     /// add the truth particles if needed
 
@@ -557,11 +592,10 @@ protected:
     ref_tracks.clear();
     test_tracks.clear();
 
-  
     /// now loop over all relevant chains to get the trigger tracks...
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
 
-      // std::cout << "\tchain " << m_chainNames[ichain] << std::endl;
+      //      std::cout << "\tchain " << m_chainNames[ichain] << std::endl;
 
       test_tracks.clear();
 
@@ -571,7 +605,10 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
+      const std::string&  roi_name = m_chainNames[ichain].roi();
+      const std::string&   te_name = m_chainNames[ichain].element();
 
+      //      std::cout << "\tchain " << m_chainNames[ichain] << "\tchainname " << chainname << "\tvtx " << vtx_name << "\troi " << roi_name << std::endl;
 
       unsigned _decisiontype = TrigDefs::Physics;
       unsigned  decisiontype;
@@ -582,7 +619,8 @@ protected:
       if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
       else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
 
-      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\n\nSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
+      //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
+      //      if ( decisiontype==TrigDefs::Physics )         std::cout << "\tSUTT TrigDefs::Physics "         << decisiontype << std::endl;;
 
 
       /// and the index of the collection (if any)
@@ -598,14 +636,22 @@ protected:
         m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endreq;
       }
 
-      if(m_provider->msg().level() <= MSG::VERBOSE){
-        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
+      if(m_provider->msg().level() <= MSG::INFO){
+        m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
       }
+
+      //      std::cout << "\tstatus for chain " << chainname
+      //		<< "\tpass "           << (*m_tdt)->isPassed( chainname )
+      //		<< "\tpassdt "         << (*m_tdt)->isPassed( chainname, decisiontype )
+      //		<< "\tprescale "       << (*m_tdt)->getPrescale( chainname ) << std::endl;
+	
 
       //      m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endreq;
 
 
       if ( !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
+
+      //      std::cout << "\tprocessing " << std::endl; 
 
       /// Get chain combinations and loop on them
       /// - loop made on chain selected as the one steering RoI creation
@@ -616,7 +662,6 @@ protected:
       Trig::FeatureContainer f = (*m_tdt)->features( chainname, decisiontype );
       Trig::FeatureContainer::combination_const_iterator c(f.getCombinations().begin());
       Trig::FeatureContainer::combination_const_iterator cEnd(f.getCombinations().end());
-
 
 
       if ( c==cEnd ) {
@@ -630,13 +675,20 @@ protected:
 	m_provider->msg(MSG::VERBOSE) << "combinations for chain " << chainname << " " << (cEnd-c) << endreq;
       }
 
-      std::string chainName = m_chainNames[ichain];
+      ChainString& chainConfig = m_chainNames[ichain];
 
-      m_event->addChain( chainName );
+      std::string chainName = chainConfig.head();
+
+
+      m_event->addChain( chainConfig );
 
       TIDA::Chain& chain = m_event->back();
     
+      unsigned icomb = 0;
+
       for( ; c!=cEnd ; ++c ) {
+
+	icomb++;
 
         //   now add rois to this ntuple chain
 
@@ -648,6 +700,8 @@ protected:
 	
         std::string roi_key = m_chainNames[ichain].roi();
 
+	if ( roi_key=="SuperRoi" && icomb>1 ) continue;
+	
 	if ( roi_key!="" ) { 
 	  initRois = c->get<TrigRoiDescriptor>(roi_key, decisiontype );
 	}
@@ -657,10 +711,17 @@ protected:
 	  if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("initialRoI", decisiontype );
 	}
 
+	//	std::cout << "initRois.size() " << initRois.size() << std::endl;
+
 	if ( initRois.empty() ) continue;
 
+
+	//	for ( unsigned ir=0 ; ir<initRois.size() ; ir++ ) { 
+	//	  std::cout << "\t" << ir << "\t" << *initRois[ir].cptr() << std::endl;
+	//	}
+	
         // Skip chains seeded by multiple RoIs: not yet implemented
-        if(initRois.size()>1) {
+        if(initRois.size()>1 && roi_key!="SuperRoi" ) {
           if(m_provider->msg().level() <= MSG::VERBOSE)
             m_provider->msg(MSG::VERBOSE) << " More than one initial RoI found for seeded chain " << chainname << ": not yet supported" << endreq;
           continue;
@@ -702,6 +763,7 @@ protected:
         m_selectorTest->clear();
 
         m_provider->msg(MSG::VERBOSE) << "Searching for collection " << key << endreq;
+	// std::cout << "Searching for collection " << key << std::endl;
 
         /// HLT and EF-like EDM
         if ( key.find("InDetTrigParticleCreation")!=std::string::npos ||
@@ -710,7 +772,7 @@ protected:
              chainName.find("EF_")!=std::string::npos ||
              chainName.find("HLT_")!=std::string::npos ) {
 #         ifdef XAODTRACKING_TRACKPARTICLE_H
-          if      ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) );
+          if      ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
 	  else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
 #         else
 	  if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
@@ -728,7 +790,7 @@ protected:
             else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
             else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
 #           ifdef XAODTRACKING_TRACKPARTICLE_H
-            else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) );
+            else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
 #           endif
             else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;
           }
@@ -738,6 +800,9 @@ protected:
         const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
 
         m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq;
+	// std::cout << "test tracks.size() " << testtracks.size() << std::endl;
+
+	//	std::cout  << "\ttest tracks.size() " << testtracks.size() << std::endl;
 
         if(m_provider->msg().level() <= MSG::VERBOSE){
           m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq;
@@ -757,14 +822,16 @@ protected:
 
 	/// now also add xAOD vertices
 
+	//	std::cout << "vertex " << vtx_name << "\tchain " << chainName << "\tconfig " << chainConfig << std::endl;
+
 	if ( vtx_name!="" ) { 
 
-	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainName << " with key " << vtx_name << endreq;
+	  m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endreq;
 
 	  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
 	  
 	  if ( xaodtrigvertices.empty() ) { 
-	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainName << " for key " << vtx_name << endreq;
+	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endreq;
 	  }
 	  else {
 	    
@@ -774,12 +841,12 @@ protected:
 	      
 	      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
 	      
-	      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainName << " " << vert << " key " << vtx_name << endreq;
+	      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endreq;
 	      
 	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 	      
 	      for ( ; vtxitr != vert->end(); ++vtxitr) {
-		if ( (*vtxitr)->nTrackParticles()>0 ) {
+		if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
 		  // vertices_rec.push_back( TIDA::Vertex( (*vtxitr)->x(),
 		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
 							(*vtxitr)->y(),
@@ -792,6 +859,8 @@ protected:
 							/// quality
 							(*vtxitr)->chiSquared(),
 							(*vtxitr)->numberDoF() ) );
+	
+		  
 		}
 	      }
 	    }
@@ -807,11 +876,13 @@ protected:
       }
 
 
-      /// now loop pver the rois (again) 
+      /// now loop over the rois (again) 
 
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
 
         m_selectorRef->clear();
+
+	//	std::cout << "SUTT: filterOnRoi() " << this->filterOnRoi() << " " << chain.rois().at(iroi).roi() << std::endl;
 
 	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	else                       filterRef.setRoi( 0 );
@@ -994,12 +1065,17 @@ protected:
         // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endreq;
 
         if ( m_doOffline ) {
-          if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
+#         ifdef XAODTRACKING_TRACKPARTICLE_H
+          if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
+            this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
+	    refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( "InDetTrackParticles" );
+          }
+          else if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
             this->template selectTracks<Rec::TrackParticleContainer>( m_selectorRef, "TrackParticleCandidate" );
           }
-#         ifdef XAODTRACKING_TRACKPARTICLE_H
-          else if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
-            this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
+#         else
+          if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
+            this->template selectTracks<Rec::TrackParticleContainer>( m_selectorRef, "TrackParticleCandidate" );
           }
 #         endif
           else if ( m_provider->msg().level() <= MSG::WARNING ) {
@@ -1011,6 +1087,8 @@ protected:
 	  
 	  //Noff = m_selectorRef->tracks().size();
           ref_tracks = m_selectorRef->tracks();
+
+	  //	  std::cout << "SUTT ref_tracks" << ref_tracks.size() << std::endl;  
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endreq;
@@ -1035,7 +1113,10 @@ protected:
 	//	std::cout << "sutt track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
         _analysis->setvertices( vertices.size() );  /// what is this for ???
-	
+
+	if ( refbeamspot.size()>0 )  _analysis->setBeamRef(   refbeamspot ); 
+	if ( testbeamspot.size()>0 ) _analysis->setBeamTest( testbeamspot ); 
+
 	if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
 	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endreq;
 	}
@@ -1069,9 +1150,13 @@ protected:
 	  
 	  /// match test and reference tracks
 	  m_associator->match( ref_tracks, test_tracks );
-	  
+	 
+	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
+ 
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
+	  //	  std::cout << "chain " << m_chainNames[ichain]  << " " << "\tvtx name " << vtx_name << std::endl;
+
 	  if ( vtx_name!="" ) { 
 	    /// get vertices for this roi - have to copy to a vector<Vertex*>
 	    std::vector<TIDA::Vertex> vr = chain.rois().at(iroi).vertices();
@@ -1079,9 +1164,14 @@ protected:
 	    for ( unsigned iv=0 ; iv<vr.size() ; iv++ ) vtx_rec.push_back( &vr[iv] );
 
 	    std::vector<TIDA::Vertex*> vtx;
-	    for ( unsigned iv=0 ; iv<vertices.size() ; iv++ ) vtx.push_back( &vertices[iv] );
+	    if ( this->getVtxIndex()<0 ) { 
+	      for ( unsigned iv=0 ; iv<vertices.size() ; iv++ ) vtx.push_back( &vertices[iv] );
+	    }
+	    else { 
+	      if ( vertices.size()>unsigned(this->getVtxIndex()) ) vtx.push_back( &vertices[this->getVtxIndex()] );
+	    }
 
-	    _analysis->execute_vtx( vtx, vtx_rec );
+	    _analysis->execute_vtx( vtx, vtx_rec, m_event );
 	  }
 
 	}
@@ -1155,7 +1245,7 @@ protected:
     while ( chainitr!=m_chainNames.end() ) {
 
       /// get chain
-      ChainString chainName = (*chainitr);
+      ChainString& chainName = (*chainitr);
 
       // m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endreq;
 
@@ -1177,18 +1267,19 @@ protected:
 
       for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
-        if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
-        if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-        if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
-        if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
-        if ( chainName.vtx()!="" )     selectChains[iselected] += ":"+chainName.vtx();
+        if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+        if ( chainName.extra()!="" )   selectChains[iselected] += ":ind="+chainName.extra();
+        if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+        if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+        if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
         /// replace wildcard with actual matching chains ...
         chains.push_back( selectChains[iselected] );
 
-        if(m_provider->msg().level() <= MSG::VERBOSE)
+        if(m_provider->msg().level() <= MSG::VERBOSE) {
           m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endreq;
+	}
       }
       // else {
       //   chains.push_back( *chainitr );
@@ -1218,8 +1309,8 @@ protected:
       
       std::string folder_name = "";
       
-      if ( name()!="" )  folder_name = name() + "/";
-      else               folder_name = "HLT/TRIDT/IDMon/";
+      if ( name()!="" )  folder_name = name(); 
+      else               folder_name = "HLT/TRIDT/IDMon";  
       
       // unsigned decisiontype;
       // if ( m_chainNames.at(0).passed() ) decisiontype = TrigDefs::Physics;
@@ -1240,12 +1331,21 @@ protected:
 		  m_chainNames.at(ic).tail().find("_EFID") != std::string::npos )             mongroup = folder_name + "/EFID";
 	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
+	else if ( m_chainNames.at(ic).tail().find("_FTKRefit") != std::string::npos )         mongroup = folder_name + "/FTKRefit";
+	else if ( m_chainNames.at(ic).tail().find("_FTK")      != std::string::npos )         mongroup = folder_name + "/FTK";
 	else                                                                                  mongroup = folder_name + "/Unknown";
+
+	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
+
+	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
+
      }
       else { 
 	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
-	mongroup = folder_name += m_chainNames[ic].head();
+	//	std::cout << "\tSUTT folder name " << folder_name << "\thead " << m_chainNames[ic].head() << "\tmongroup " << mongroup << std::endl;
+
+	mongroup = folder_name + "/" + m_chainNames[ic].head();
 
 	std::string track_collection = ""; 
 
@@ -1256,7 +1356,12 @@ protected:
 
 	if ( m_chainNames.at(ic).roi()!="" ) { 
 	  if ( track_collection!="" ) track_collection += "_" + m_chainNames[ic].roi();
-	  else                        track_collection  = "/" + m_chainNames[ic].roi();
+	  else                        track_collection = "/" + m_chainNames[ic].roi();
+	}
+
+	if ( m_chainNames.at(ic).vtx()!="" ) { 
+	  if ( track_collection!="" ) track_collection += "_" + m_chainNames[ic].vtx();
+	  else                        track_collection  = "/" + m_chainNames[ic].vtx();
 	}
 
 	/// add trigger element and roi descriptor names
@@ -1265,16 +1370,17 @@ protected:
 	  else                        track_collection  = "/" + m_chainNames[ic].element();
 	}
 	
-	if ( track_collection!="" )  mongroup += "/" + track_collection;
+	if ( track_collection!="" )  mongroup += track_collection;
 
 	if ( !m_chainNames.at(ic).passed() )      mongroup += "/DTE";
-	
+
+	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
 	
       }
 
+      //      std::cout << "SUTT chain " << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
       
-      
-      m_provider->msg(MSG::VERBOSE) << " booking mongroup " << mongroup << endreq;
+      m_provider->msg(MSG::INFO) << " book mongroup " << mongroup << endreq;
       
 #     ifdef ManagedMonitorToolBase_Uses_API_201401
       m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );
@@ -1284,9 +1390,13 @@ protected:
 								     ManagedMonitorToolBase::run ) );
 #   endif
       
+
       m_analysis->initialise();
       
       _analysis = dynamic_cast<Analysis_Tier0*>(m_analysis);
+
+      _analysis->setevent( m_event ); 
+
       
       std::map<std::string, TH1*>::const_iterator hitr = _analysis->THbegin();
       std::map<std::string, TH1*>::const_iterator hend = _analysis->THend();
@@ -1343,7 +1453,7 @@ protected:
   TFile*    mFile;
   TTree*    mTree;
 
-  std::vector<ChainString> m_chainNames;
+  std::vector<ChainString>     m_chainNames;
   std::vector<Analysis_Tier0*> m_analyses;
   std::string m_testType;
 

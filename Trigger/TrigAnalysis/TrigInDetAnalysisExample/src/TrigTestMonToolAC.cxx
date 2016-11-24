@@ -154,9 +154,11 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
   msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endreq;
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
   bool newEventsBlock = newEventsBlockFlag();
   bool newLumiBlock   = newLumiBlockFlag();
   bool newRun         = newRunFlag();
+#endif
 #endif
 
   msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
@@ -330,7 +332,9 @@ StatusCode TrigTestMonToolAC::proc(bool /* endOfEventsBlock*/, bool /* endOfLumi
 #endif
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
   bool endOfRun       = endOfRunFlag();
+#endif
 #endif
 
   msg(MSG::DEBUG) << " ----- enter proc() ----- " << endreq;
