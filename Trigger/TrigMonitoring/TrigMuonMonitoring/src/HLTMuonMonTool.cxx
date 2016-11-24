@@ -144,7 +144,6 @@ StatusCode HLTMuonMonTool::init()
   //(*m_log).setLevel(MSG::DEBUG); // YY: not yet used
   // this->msg().setLevel(MSG::DEBUG);  // YY tried this, worked fine
   ATH_MSG_DEBUG("init being called");
-
   // some switches and flags
   m_requestESchains = true;
   
@@ -236,7 +235,12 @@ StatusCode HLTMuonMonTool::init()
   // v5 primary
   //m_histChainEFFS.push_back("muChainEFFS");
   //m_chainsEFFS.push_back("mu18_mu8noL1");
-  m_FS_pre_trigger = "HLT_mu18";
+  if(!m_HI_pp_mode){
+    m_FS_pre_trigger = "HLT_mu4";
+    m_FS_pre_trigger = "HLT_mu10";
+  }else{
+    m_FS_pre_trigger = "HLT_mu18";
+  }
   m_FS_pre_trigger_second = "HLT_mu24_imedium";
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
@@ -486,7 +490,13 @@ StatusCode HLTMuonMonTool::init()
   m_vectkwd.push_back("_all");
 
   // YY: pt range.
-  m_iSTDL = 91;  // 40 GeV
+  if(!m_HI_pp_mode){
+    m_iSTDL = 45;  // 40 GeV
+    m_iSTDH = 75; // 100 GeV
+    m_iMSL = 54;  // 60 GeV
+    m_iMSH = 75;  // 100 GeV  
+  }else{
+    m_iSTDL = 91;  // 40 GeV
   m_iSTDH = 120; // 100 GeV
   m_iMSL = 105;  // 60 GeV
   m_iMSH = 120;  // 100 GeV
@@ -494,7 +504,7 @@ StatusCode HLTMuonMonTool::init()
   m_iSTDH = 100;  // 50 GeV
   m_iMSL = 91;  // 40 GeV
   m_iMSH = 112;  // 80 GeV */
-
+  }
   // New MSonly_triggered chains: YY added 26.06.2011
   m_MSchainName = "_MSb";  // meaning MSonly_barrel
   // m_MSchain.push_back("EF_mu40_MSonly_barrel");
@@ -738,7 +748,7 @@ StatusCode HLTMuonMonTool::fill()
     ATH_MSG_VERBOSE("fillCommon failed");
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
-  if(m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(1);
+  if(!m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(0);
 
   /*
   auto chainGroup = getTDT()->getChainGroup("HLT_mu.*");
@@ -749,17 +759,18 @@ StatusCode HLTMuonMonTool::fill()
   }*/
   std::vector<std::string>::const_iterator it;
   int itr;
-  for(it=m_chainsEFiso.begin(), itr=0; it != m_chainsEFiso.end() ; it++, itr++ ){
-    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
+  std::vector<std::string> mchainlist;
+  mchainlist.clear();
+  for(it=m_chainsEFiso.begin(), itr=0; it != m_chainsEFiso.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
+  for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
+  for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
+  for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++, itr++ )mchainlist.push_back((*it).c_str());
+  for(int i=0; i<(int)mchainlist.size(); i++){
+    TString s=mchainlist[i];
+    hist("Monitoring_Chain",m_histdir)->GetXaxis()->SetBinLabel(i+1,s);
   }
-  for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ){
-    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);     
-  }
-  for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ){
-    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
-  }
-  for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++, itr++ ){
-    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
+  for(int i=0; i<(int)mchainlist.size(); i++){
+    if(getTDT()->isPassed(mchainlist[i]))hist("Monitoring_Chain",m_histdir)->Fill(i);
   }
 
   // chain
