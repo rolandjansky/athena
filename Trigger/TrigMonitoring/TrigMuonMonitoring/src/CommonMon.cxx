@@ -335,17 +335,33 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     // 0.50 for < 25GeV : 16bins
     // 1.00 for >=25GeV : 25bins
     // 2.50 for >=50GeV : 20bins
-    const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
-    float lopt_bins[lopt_nbins+1];
+    // const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
+    int tmp_bin = 0;
+    if(!m_HI_pp_mode){
+     tmp_bin = 32 + 27 + 16;
+    }else{
+     tmp_bin = 32 + 27 + 16 + 25 + 20;
+    }
+    const int lopt_nbins = tmp_bin;
+    float lopt_bins[150];
+    //float lopt_bins[lopt_nbins+1];
     lopt_bins[0]=0.;
     float boundary=0.;
+
     for( int bin = 1; bin <= lopt_nbins ; bin ++) {
-      if( bin <= 32 )               boundary += 0.25;
-      else if( bin <= 32+27 )       boundary += 1./3.;
-      else if( bin <= 32+27+16 )    boundary += 0.5;
-      else if( bin <= 32+27+16+25 ) boundary += 1.0;
-      else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
-      lopt_bins[bin] = boundary;
+      if( !m_HI_pp_mode){
+	if( bin <= 32)      boundary += 0.25;
+	if( bin <= 32 + 27) boundary += 1./3.;
+	if( bin <= 32 + 27 +16 ) boundary += 0.5;
+	lopt_bins[bin] = boundary;
+      }else{
+	if( bin <= 32 )               boundary += 0.25;
+	else if( bin <= 32+27 )       boundary += 1./3.;
+	else if( bin <= 32+27+16 )    boundary += 0.5;
+	else if( bin <= 32+27+16+25 ) boundary += 1.0;
+	else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
+	lopt_bins[bin] = boundary;
+      }
     }
 
     float *pt_bins;
@@ -602,7 +618,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 
     for (std::vector<std::string>::const_iterator itr = m_vectkwd.begin(); itr < m_vectkwd.end(); itr++) {
       name = chainName + "_highpt_effsummary_by" + *itr;
-      nameaxis = name + "; Algorithm ; Efficiency 60-100GeV"; 
+      if( !m_HI_pp_mode) {
+	nameaxis = name + "; Algorithm ; Efficiency 15-25GeV";
+      }else{
+	nameaxis = name + "; Algorithm ; Efficiency 60-100GeV";
+      } 
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 0.5+m_fEFSA), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
@@ -614,9 +634,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     nameaxis = name + "; pt bins; efficiency";
     addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
     TH1 *h = hist(name, m_histdireff);
-    h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
-
+    if(!m_HI_pp_mode){ 
+      h->GetXaxis()->SetBinLabel(1, "12-20 GeV Z T&P");
+      h->GetXaxis()->SetBinLabel(2, "20-25 GeV Z T&P");
+    }else{ 
+      h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+      h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
+    }
     ATH_MSG_DEBUG("end bookChainDQA_MSonly for chain=" << chainName );
 
   } else if(newLumiBlock ){
@@ -641,20 +665,36 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     // 0.50 for < 25GeV : 16bins
     // 1.00 for >=25GeV : 25bins
     // 2.50 for >=50GeV : 20bins
-    const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
-    float lopt_bins[lopt_nbins+1];
+    //const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
+    int tmp_bin = 32 + 27 + 16 + 25 + 20;
+    if( !m_HI_pp_mode ){
+      tmp_bin = 32 + 27 + 16 ;
+    }else{
+      tmp_bin = 32 + 27 + 16 + 25 + 20;
+    }
+    const int lopt_nbins = tmp_bin;
+    float lopt_bins[150];
+    //float lopt_bins[lopt_nbins+1];
     lopt_bins[0]=0.;
     float boundary=0.;
     for( int bin = 1; bin <= lopt_nbins ; bin ++) {
-      if( bin <= 32 )               boundary += 0.25;
-      else if( bin <= 32+27 )       boundary += 1./3.;
-      else if( bin <= 32+27+16 )    boundary += 0.5;
-      else if( bin <= 32+27+16+25 ) boundary += 1.0;
-      else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
-      lopt_bins[bin] = boundary;
+      if( !m_HI_pp_mode ){
+	if( bin <= 32 )               boundary += 0.25;
+	else if( bin <= 32+27 )       boundary += 1./3.;
+	else if( bin <= 32+27+16 )    boundary += 0.5;
+	lopt_bins[bin] = boundary;
+      }else{
+	if( bin <= 32 )               boundary += 0.25;
+	else if( bin <= 32+27 )       boundary += 1./3.;
+	else if( bin <= 32+27+16 )    boundary += 0.5;
+	else if( bin <= 32+27+16+25 ) boundary += 1.0;
+	else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
+	lopt_bins[bin] = boundary;
+      }
     }
 
-    float pt_bins[lopt_nbins+1];
+    float pt_bins[150];
+    //float pt_bins[lopt_nbins+1];
 
     // initialising pt_bins[] 
     std::string chainName = cName;  // YY modified 26.06.2011
@@ -768,9 +808,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
       nameaxis = name + "; region; efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       h = hist(name, m_histdireff);
+      if(!m_HI_pp_mode){
+      h->GetXaxis()->SetBinLabel(1, "Barrel 4-25 GeV");
+      h->GetXaxis()->SetBinLabel(2, "Endcap 4-25 GeV");
+      }else{
       h->GetXaxis()->SetBinLabel(1, "Barrel 10-100 GeV");
       h->GetXaxis()->SetBinLabel(2, "Endcap 10-100 GeV");
-
+      }
       // not requiring one muon match with the pre_trigger ROI, only check the efficiency vs subleading pT muon
       name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
       nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -855,22 +899,37 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     // 0.50 for < 25GeV : 16bins
     // 1.00 for >=25GeV : 25bins
     // 2.50 for >=50GeV : 20bins
-    const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
-    float lopt_bins[lopt_nbins+1];
+    //const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
+    int tmp_bin = 0;
+    if(!m_HI_pp_mode){
+      tmp_bin = 32 + 27 + 16;
+    }else{
+      tmp_bin = 32 + 27 + 16 + 25 + 20; 
+    }
+    const int lopt_nbins = tmp_bin;
+    float lopt_bins[150];
+    //float lopt_bins[lopt_nbins+1];
     lopt_bins[0]=0.;
     float boundary=0.;
     for( int bin = 1; bin <= lopt_nbins ; bin ++) {
-      if( bin <= 32 )               boundary += 0.25;
-      else if( bin <= 32+27 )       boundary += 1./3.;
-      else if( bin <= 32+27+16 )    boundary += 0.5;
-      else if( bin <= 32+27+16+25 ) boundary += 1.0;
-      else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
-      lopt_bins[bin] = boundary;
-      //std:: cout << " bin " << bin << " " <<  lopt_bins[bin] << std::endl;
+      if(!m_HI_pp_mode){
+	if( bin <= 32 )               boundary += 0.25;
+	else if( bin <= 32+27 )       boundary += 1./3.;
+	else if( bin <= 32+27+16 )    boundary += 0.5;
+	lopt_bins[bin] = boundary;
+      }else{
+	if( bin <= 32 )               boundary += 0.25;
+	else if( bin <= 32+27 )       boundary += 1./3.;
+	else if( bin <= 32+27+16 )    boundary += 0.5;
+	else if( bin <= 32+27+16+25 ) boundary += 1.0;
+	else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
+	lopt_bins[bin] = boundary;
+      }
+	//std:: cout << " bin " << bin << " " <<  lopt_bins[bin] << std::endl;
     }
 
-    float pt_bins[lopt_nbins+1];
-
+    float pt_bins[150];
+    //float pt_bins[lopt_nbins+1];
     // initialising pt_bins[] 
     std::string chainName = cName;  // YY modified 26.06.2011
     int pt_nbins = lopt_nbins;
@@ -1203,7 +1262,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     for (int ies = 0; ies <= m_maxESbr; ies++) {
       if(!m_CB_mon_ESbr[ies])continue; 
       name = chainName + "_highpt_effsummary_by" + m_triggerES[ies]; // for generic: make summary for all histograms
-      nameaxis = name + "; Algorithm ; Express efficiency 40-100GeV"; 
+      if( !m_HI_pp_mode ){
+	nameaxis = name + "; Algorithm ; Express efficiency 15-25GeV"; 
+      }else{
+	nameaxis = name + "; Algorithm ; Express efficiency 40-100GeV"; 
+      }
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 0.5+m_fEFCB), m_histdireff); // for generic
       TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
@@ -1218,15 +1281,25 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       nameaxis = name + "; pt bins; efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
-      h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
-      h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
+      if(!m_HI_pp_mode){
+	h->GetXaxis()->SetBinLabel(1, "12-20 GeV Jpsi T&P");
+	h->GetXaxis()->SetBinLabel(2, "20-25 GeV Jpsi T&P");
+      }else{
+	h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+	h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
+      }
     } else {
       name = chainName + "_highpt3bins_effwrtL1";
       nameaxis = name + "; pt bins; efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
-      h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-      h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
+      if( !m_HI_pp_mode ){
+	h->GetXaxis()->SetBinLabel(1, "12-20 GeV Jpsi T&P");
+	h->GetXaxis()->SetBinLabel(2, "20-25 GeV Jpsi T&P");
+      }else{
+	h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
+	h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
+      }
     }      
 
     // High-pt L1 plateau summary (Barrel and Endcap): for generic chain
@@ -1234,9 +1307,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     nameaxis = name + "; region; efficiency";
     addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
     TH1 *h = hist(name, m_histdireff);
+    if( !m_HI_pp_mode ){
+    h->GetXaxis()->SetBinLabel(1, "Barrel 12-20 GeV Jpsi T&P");
+    h->GetXaxis()->SetBinLabel(2, "Endcap 12-20 GeV Jpsi T&P");
+    }else{
     h->GetXaxis()->SetBinLabel(1, "Barrel 30-100 GeV Z T&P");
     h->GetXaxis()->SetBinLabel(2, "Endcap 30-100 GeV Z T&P");
-
+    }
     ATH_MSG_DEBUG("end bookChainDQA_standard for chain=" << chainName );
 
   } else if( newLumiBlock ){
@@ -1332,8 +1409,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       //Express stream trigger bits: YY 21.01.11
       // updated for real config: 15.02.11
       std::vector<std::string> vs_ESstd;
-      vs_ESstd.push_back("HLT_mu18"); // for release
-      vs_ESstd.push_back("HLT_mu24_imedium"); // increasing stat for muZTP, which requests now ES bits
+      if( !m_HI_pp_mode ){
+	vs_ESstd.push_back("HLT_noalg_L1MU4"); 
+	vs_ESstd.push_back("HLT_noalg_L1MU6"); 
+	vs_ESstd.push_back("HLT_noalg_L1MU10"); 
+	//vs_ESstd.push_back("HLT_noalg_L1MU11"); 
+      }else{
+	vs_ESstd.push_back("HLT_mu18"); // for release
+	vs_ESstd.push_back("HLT_mu24_imedium"); // increasing stat for muZTP, which requests now ES bits
+      }
       // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
       // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
@@ -1941,7 +2025,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    }
 
 	    //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
-	    if( dr_min_ef < DR_CUT ) {  // 20.11.11: now it also means that the ROI is not found, which is indicated as dr being negative
+	    if( dr_min_ef < DR_CUT && id_min_ef>=0 ) {  // 20.11.11: now it also means that the ROI is not found, which is indicated as dr being negative
 	      // but this condition is not fulfilled if EF feature does not exist in this event
 	      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef); 
 
@@ -2061,6 +2145,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 		for(int iEF=0; iEF<(int)combsHLT.size(); iEF++) {
 		  ATH_MSG_DEBUG("...comb active=" << ef_active ); //i
+		  if (id_min_ef < 0) continue;
 		  std::vector< Feature<xAOD::MuonContainer> > ef = combsHLT[id_min_ef].get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
 		  ATH_MSG_DEBUG("...ef size=" << ef.size() ); //i
 		  if( ef.size() == 1 ) {
@@ -2272,7 +2357,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    if(RecMuonCB_pt_index.size()<=1) return StatusCode::SUCCESS;
 
 	    std::sort(RecMuonCB_pt_index.begin(),RecMuonCB_pt_index.end(),my_sort<std::pair<float, int> >());  // sorted the muon pt
-	    if(RecMuonCB_pt_index[0].first < 18 || RecMuonCB_pt_index[1].first < 3) return StatusCode::SUCCESS;
+	    if(!m_HI_pp_mode){
+	      if(RecMuonCB_pt_index[0].first < 4 || RecMuonCB_pt_index[1].first < 1) return StatusCode::SUCCESS;
+	    }else{
+	      if(RecMuonCB_pt_index[0].first < 18 || RecMuonCB_pt_index[1].first < 3) return StatusCode::SUCCESS;
+	    }
 	    int mu1_index = RecMuonCB_pt_index[0].second;
 	    int mu2_index = RecMuonCB_pt_index[1].second;
 
@@ -2445,7 +2534,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  }
 		}
 	      }
-	      if(my_dr_min_ef < DR_CUT){
+	      if(my_dr_min_ef < DR_CUT && my_id_min_ef >= 0){
 		match_EF_RoI[n_mu] = 1;
 		bool ef_active       = (my_combsHLT_mu24_imedium[my_id_min_ef]).active();
 		//if(!ef_active) return StatusCode::SUCCESS;
@@ -2978,7 +3067,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		}
 	      }
 	    }
-	    if( dr_min_ef < DR_CUT ) {
+	    if( dr_min_ef < DR_CUT && id_min_ef >= 0) {
 	      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
 
 	      if (EF_lower_passed) {
@@ -3332,9 +3421,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  }
 		  int ibin_holx = -1;
 		  if (0 == alg) {
-		    ibin_holx = iMuFast;
+		    int tmp_idx =  iMuFast;
+		    ibin_holx   =  tmp_idx;
 		  } else if (2 == alg) {
-		    ibin_holx = iEFSA;
+		    int tmp_idx = iEFSA;
+		    ibin_holx   = tmp_idx;
 		  }
 
 		  if (ibin_holx >= 0) {
@@ -3393,8 +3484,16 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string denom;
 	  std::string numer;
 	  std::string effi;
+	  
 	  int iSTDL = 39;
 	  int iSTDH = 120;
+	  if(!m_HI_pp_mode){
+	    iSTDL = 17;
+	    iSTDH = 75;
+	  }else{
+	    iSTDL = 39;
+	    iSTDH = 120;
+	  }
 
 	  if( endOfRun ){
 
@@ -3806,8 +3905,16 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  sumhist = chainName + "_highptL1plateau_wrtOffline";
 
 		  double sumeff, sumerr;
-		  double sumn = hist(histZtpNumB, hdirztp)->Integral(7, 10); // 30-50 GeV
-		  double sumd = hist(histZtpDenB, hdirztp)->Integral(7, 10);
+		  double sumn = 0;
+		  double sumd = 0;
+		  if( !m_HI_pp_mode){
+		  sumn = hist(histZtpNumB, hdirztp)->Integral(13, 25); // 30-50 GeV
+		  sumd = hist(histZtpDenB, hdirztp)->Integral(13, 25);
+		  
+		  }else{
+		  sumn = hist(histZtpNumB, hdirztp)->Integral(7, 10); // 30-50 GeV
+		  sumd = hist(histZtpDenB, hdirztp)->Integral(7, 10);
+		  }
 		  if (sumd == 0.) {
 		    sumeff = 0.;
 		    sumerr = 0.;
@@ -3818,8 +3925,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  hist(sumhist, m_histdireff)->SetBinContent(1, sumeff);
 		  hist(sumhist, m_histdireff)->SetBinError(1, sumerr);
 
-		  sumn = hist(histZtpNumE, hdirztp)->Integral(7, 10);
-		  sumd = hist(histZtpDenE, hdirztp)->Integral(7, 10);
+		  if( !m_HI_pp_mode){
+		    sumn = hist(histZtpNumB, hdirztp)->Integral(13, 25); // 12-25 GeV
+		    //sumn = hist(histZtpNumB, hdirztp)->Integral(16, 25); // 15-25 GeV
+		    sumn = hist(histZtpDenB, hdirztp)->Integral(13, 25);
+		    //sumn = hist(histZtpDenB, hdirztp)->Integral(16, 25);
+		  }else{
+		    sumn = hist(histZtpNumE, hdirztp)->Integral(7, 10);
+		    sumd = hist(histZtpDenE, hdirztp)->Integral(7, 10);
+		  }
 		  if (sumd == 0.) {
 		    sumeff = 0.;
 		    sumerr = 0.;
@@ -4215,7 +4329,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //
 	    // Print EventInfo and stream tags
 	    //
-	    TriggerInfo *trig = event_handle->trigger_info();
+	    const TriggerInfo *trig = event_handle->trigger_info();
 	    if(!trig) {
 	      if (errcnt < 1) {
 		ATH_MSG_DEBUG("Failed to get TriggerInfo");
