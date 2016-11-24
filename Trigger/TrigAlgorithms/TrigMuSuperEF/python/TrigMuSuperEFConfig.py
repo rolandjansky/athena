@@ -14,7 +14,6 @@ from AthenaCommon.CfgGetter import getPublicTool
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm
 
-
 #
 # Default config: RoI based, Combined, TrigMuonEF only
 # Old default:  RoI based, Combined, TrigMuonEF first, TrigMuGirl is TrigMuonEF fails. Should be put back once TrigMuGirl is back in release
@@ -232,7 +231,9 @@ def TrigMuSuperEF_CTonly(name="TrigMuSuperEF_CTonly", **kwargs):
     kwargs.setdefault("fullScan", False)
     kwargs.setdefault("doInsideOut", True)
     kwargs.setdefault("doOutsideIn", False)
-    kwargs.setdefault("IdTrackParticles", "")
+    kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_IDTrig")
+    kwargs.setdefault("deltaEtaRoI", 0.1)
+    kwargs.setdefault("deltaPhiRoI", 3.1415)
 
     return TrigMuSuperEFConfig(name, **kwargs)
 
@@ -274,9 +275,9 @@ def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCal
 def TrigMuSuperEF_CaloTrkSelectorTool( name = 'TrigMuSuperEF_CaloTrkSelectorTool', **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
 
-    kwargs.setdefault("pTMin", 3000.)
-    kwargs.setdefault("IPd0Max", 14)
-    kwargs.setdefault("IPz0Max", 200)     # 130 (tuned on Z)
+    kwargs.setdefault("pTMin", 5000.)
+    kwargs.setdefault("IPd0Max", 7)
+    kwargs.setdefault("IPz0Max", 130)     # 130 (tuned on Z)
     kwargs.setdefault("nHitBLayer", 0)
     kwargs.setdefault("nHitPix", 1)
     kwargs.setdefault("nHitSct", 5)
