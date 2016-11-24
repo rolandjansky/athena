@@ -82,7 +82,7 @@ class TrigInDetFTKSequence(TrigInDetSequence):
         algos += dataprep
 
       ptsuffix = suffix+"_IDTrig"
-      algos += [("TrigAmbiguitySolver",""),
+      algos += [("TrigAmbiguitySolver","TrigAmbiguitySolver_"+suffix),
                 ("TRTDriftCircleMaker",""),
                 ("InDetTrigPRD_MultiTruthMaker",""), 
                 ("TRTTrackExtAlg",""),
