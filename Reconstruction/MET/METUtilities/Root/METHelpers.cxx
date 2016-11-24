@@ -40,12 +40,12 @@ namespace met {
 	    // check if this is ghost associated to a jet
 	    //make sure the jet is close first
 	    if(xAOD::P4Helpers::deltaR2(*jet,*muon)>0.36) continue;
-	    std::cout << "METHelpers::addGhostMuonsToJets -- Muon/jet deltaR^2 = " << xAOD::P4Helpers::deltaR2(*jet,*muon) << std::endl;
+	    // std::cout << "METHelpers::addGhostMuonsToJets -- Muon/jet deltaR^2 = " << xAOD::P4Helpers::deltaR2(*jet,*muon) << std::endl;
 
 	    for(unsigned jtrk=0; jtrk<jet_tracks.size(); ++jtrk) {
 	      if(jet_tracks.at(jtrk)==idtrack) {
 		//check if the track pointers match
-		std::cout << "METHelpers::addGhostMuonsToJets -- Muon/jet tracks match!" << std::endl;
+		// std::cout << "METHelpers::addGhostMuonsToJets -- Muon/jet tracks match!" << std::endl;
 		muons_in_jet.push_back(muon);
 		break; 
 	      }
@@ -55,7 +55,7 @@ namespace met {
 	} // loop over muons
 
       } // jet has associated tracks
-      std::cout << "METHelpers::addGhostMuonsToJets -- Jet has = " << muons_in_jet.size() << " ghost muons" << std::endl;
+       // std::cout << "METHelpers::addGhostMuonsToJets -- Jet has = " << muons_in_jet.size() << " ghost muons" << std::endl;
       jet->setAssociatedObjects( "GhostMuon", muons_in_jet) ;
     } // loop over jets
 

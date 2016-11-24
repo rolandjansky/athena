@@ -12,7 +12,7 @@
 #define METUTILITIES_MET_METHELPERS_H 1
 
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/JetContainer.h"
+#include "xAODJet/JetContainer.h"
 
 namespace met {
 
