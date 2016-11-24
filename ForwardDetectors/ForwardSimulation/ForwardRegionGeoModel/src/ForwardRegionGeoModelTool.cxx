@@ -70,7 +70,7 @@ ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != sc) {
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+	<< endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -85,7 +85,7 @@ ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theFactory.create(world);
     } catch (std::bad_alloc) {
-      log << MSG::FATAL << "Could not create new DetectorNode!" << endreq;
+      log << MSG::FATAL << "Could not create new DetectorNode!" << endmsg;
       return StatusCode::FAILURE; 
     }
     // Register the DetectorNode instance with the Transient Detector Store
@@ -94,7 +94,7 @@ ForwardRegionGeoModelTool::create( StoreGateSvc* detStore )
     if (StatusCode::SUCCESS != sc) {
       log << MSG::ERROR
           << "Could not register DetectorNode"
-          << endreq;
+          << endmsg;
       return (StatusCode::FAILURE);
     }
     return StatusCode::SUCCESS;

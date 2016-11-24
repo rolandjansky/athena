@@ -83,7 +83,7 @@ ForwardRegionGeoModelFactory::ForwardRegionGeoModelFactory(StoreGateSvc *detStor
     m_Config = *pConfig;
 
     if(m_properties.retrieve().isFailure()){
-        LogStream << MSG::ERROR << ": Failed to load magnet properties" << endreq;
+        LogStream << MSG::ERROR << ": Failed to load magnet properties" << endmsg;
         return;
     }
 
@@ -388,7 +388,7 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
 
   MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionGeoModel::create()");
 
-  LogStream << MSG::INFO << "Constructing forward region model" << endreq;
+  LogStream << MSG::INFO << "Constructing forward region model" << endmsg;
 
   DefineMaterials();
 
@@ -442,7 +442,7 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
   constructElements(fwrPhys,loadedDataFileR,1);
   constructElements(fwrPhys,loadedDataFileL,2);
 
-  LogStream << MSG::INFO << "Forward region model succesfully constructed." << endreq;
+  LogStream << MSG::INFO << "Forward region model succesfully constructed." << endmsg;
 }
 
 const ForwardRegionGeoModelManager * ForwardRegionGeoModelFactory::getDetectorManager() const
@@ -460,12 +460,12 @@ std::vector<std::vector<std::string> > ForwardRegionGeoModelFactory::loadDataFil
     std::ifstream file (fileName);
     if(!file){
         std::string datapath = PathResolver::find_file(fileName,"DATAPATH", PathResolver::RecursiveSearch);
-        LogStream << MSG::DEBUG << "File " << fileName << " not found in run directory, trying to load it from DATAPATH" << endreq;
+        LogStream << MSG::DEBUG << "File " << fileName << " not found in run directory, trying to load it from DATAPATH" << endmsg;
         file.open(datapath.c_str());
     }
 
     if(!file)
-        LogStream << MSG::FATAL << "Unable to load " << fileName << endreq;
+        LogStream << MSG::FATAL << "Unable to load " << fileName << endmsg;
 
     if(file.is_open())
     {
@@ -487,7 +487,7 @@ std::vector<std::vector<std::string> > ForwardRegionGeoModelFactory::loadDataFil
             else
               file.ignore(1024, '\n'); // discard commented lines
         }
-        LogStream << MSG::INFO << "File " << fileName << " succesfully loaded." << endreq;
+        LogStream << MSG::INFO << "File " << fileName << " succesfully loaded." << endmsg;
         file.close();
     }
     return loadedData;
