@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 monitoring_muonNonIso = ['HLT_mu50']
-monitoring_muonNonIso_HI = ['HLT_mu10','HLT_mu14']
+monitoring_muonNonIso_HI = ['HLT_mu15_L1MU10','HLT_mu14']#8TeV
+#monitoring_muonNonIso_HI = ['HLT_mu10','HLT_mu14']
 monitoring_muonNonIso_pp = ['HLT_mu50']
 
 monitoring_muonIso = ['HLT_mu26_ivarmedium','HLT_mu26_imedium']
