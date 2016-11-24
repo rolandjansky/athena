@@ -20,11 +20,14 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 //InDet
 // no forward declare (typedef?)
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetRawData/TRT_RDO_Container.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "IRegionSelector/IRegSelSvc.h"
 //fwd declarations
 class StatusCode;
 class ISvcLocator;
@@ -60,14 +63,17 @@ namespace InDet{
     TRT_RIO_Maker &operator=(const TRT_RIO_Maker&) = delete;
   
     const TRT_ID* pTRTHelper;
-    SG::ReadHandle<TRT_RDO_Container> m_rdo_container;
-//    std::string                    m_trt_rdo_location   ;
-//    std::string                    m_trt_rio_location   ;
+    SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey;
+    ToolHandle< ITRT_DriftCircleTool > m_driftcircle_tool;
+    SG::WriteHandleKey<InDet::TRT_DriftCircleContainer> m_rioContainerKey;
     std::string                    m_trt_mgr_location   ; //REMOVE LATER
-    ToolHandle< ITRT_DriftCircleTool > m_driftcircle_tool   ;
-    SG::WriteHandle<InDet::TRT_DriftCircleContainer> m_riocontainer       ;
     int                            m_mode_rio_production;
     bool                           m_trtBadChannels;
+
+    bool m_roiSeeded;                                //!< detector manager name in StoreGate
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+    ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+
   };
 }//end of namespace
 #endif // TRT_RIO_Maker_H

@@ -19,6 +19,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 //InDet
 //can't fwd declare this, needed for typedef to Pixel_RDO_Container
@@ -27,7 +29,8 @@
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/PixelRDO_Container.h"
-//
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "IRegionSelector/IRegSelSvc.h"
 
 
 
@@ -78,15 +81,14 @@ private:
   ToolHandle< IPixelClusteringTool > m_clusteringTool;
   /// class to find out which clusters shares ganged pixels
   ToolHandle< PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder; 
-  SG::ReadHandle<PixelRDO_Container> m_rdoContainer;
-//  std::string m_dataObjectName;	           //!< RDO container name in StoreGate
-//  std::string m_elementsObjectName;        //!< element collection name in StoreGate
+  SG::ReadHandleKey<PixelRDO_Container> m_rdoContainerKey;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
   std::string m_managerName; 		           //!< detector manager name in StoreGate
-//  std::string m_clustersName; //REMOVE LATER
-//  int m_page; 			//REMOVE LATER	                     //!< page number for hash function
+  bool m_roiSeeded; 		                   //!< detector manager name in StoreGate
   const PixelID* m_idHelper;
-  SG::WriteHandle<PixelClusterContainer> m_clusterContainer;
-  SG::WriteHandle<PixelGangedClusterAmbiguities> m_ambiguitiesMap;
+  SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;
+  SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
   const SiDetectorManager* m_manager;
 };
 
