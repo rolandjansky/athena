@@ -7,15 +7,18 @@ atlas_subdir( FTK_DataProviderSvc )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          AtlasPolicy
+                          AtlasReconstructionRunTime
                           Control/AthenaBaseComps
                           Control/StoreGate
                           Event/xAOD/xAODTracking
+#                          Event/xAOD/xAODViews
                           GaudiKernel
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tools/PyJobTransforms
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
+#                          Tracking/TrkEvent/TrkViews
                           Trigger/TrigFTK/FTK_DataProviderInterfaces
                           Trigger/TrigFTK/TrigFTK_RawData
                           PRIVATE
@@ -52,13 +55,13 @@ atlas_add_library( FTK_DataProviderSvcLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkTrack FTK_DataProviderInterfaces TrigFTK_RawData StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AtlasDetDescr GeoPrimitives IRegionSelector RoiDescriptor EventInfo GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces )
 
 atlas_add_component( FTK_DataProviderSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODTracking GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkTrack VxVertex FTK_DataProviderInterfaces TrigFTK_RawData AtlasDetDescr GeoPrimitives IRegionSelector RoiDescriptor EventInfo GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces FTK_DataProviderSvcLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODTracking GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkTrack FTK_DataProviderInterfaces TrigFTK_RawData AtlasDetDescr GeoPrimitives IRegionSelector RoiDescriptor EventInfo GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces FTK_DataProviderSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
