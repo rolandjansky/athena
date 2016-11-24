@@ -644,6 +644,8 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
     // extrapolation to set FittedTrajectory
     double qOverP					= parameters.qOverP();
     double previousDistance				= -m_orderingTolerance;
+    double previousDistanceR				= -m_orderingTolerance;
+    double previousDistanceZ				= -m_orderingTolerance;
     bool reorder					= false;
     Amg::Vector3D startDirection			= parameters.direction();
     Amg::Vector3D startPosition				= parameters.position();
@@ -673,12 +675,12 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
                                                       m_stepField,
                                                       Trk::muon);
             if(newIntersectionSTEP) {
-              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
-              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl; 
-              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl; 
+//              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
+//              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl; 
+//              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl; 
               delete newIntersectionSTEP;
-            } else {
-              std::cout << " iPat 1 ALARM STEP did not intersect! " << std::endl;
+//            } else {
+//              std::cout << " iPat 1 ALARM STEP did not intersect! " << std::endl;
             }
         }
 	if (newIntersection)
@@ -689,8 +691,17 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
 	    if (! reorder)
 	    {
 		double distance  = startDirection.dot(intersection->position() - startPosition);
-		if (distance < previousDistance) reorder = true;
+                Amg::Vector3D positionMst = (**m).globalPosition();
+                double distanceR          = sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
+                double distanceZ          = (positionMst.z() - startPosition.z());
+                if(startDirection.z()<0) distanceZ = -distanceZ;
+		if (distance < previousDistance&&distanceR < previousDistanceR&&distanceZ < previousDistanceZ) {
+                  reorder = true;
+                  ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance << " R distance " << distanceR - previousDistanceR << " Z distance " <<  distanceZ - previousDistanceZ ); 
+                }
 		previousDistance = distance - m_orderingTolerance;
+		previousDistanceR = distanceR - m_orderingTolerance;
+		previousDistanceZ = distanceZ - m_orderingTolerance;
 	    }
 	}
 	else
@@ -754,6 +765,8 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
     bool haveMeasurement				= false;
     int hit						= measurements.size();
     double previousDistance				= -m_orderingTolerance;
+    double previousDistanceR				= -m_orderingTolerance;
+    double previousDistanceZ				= -m_orderingTolerance;
     bool reorder					= false;
     bool skipVertexMeasurement				= measurements.size();
     Amg::Vector3D startDirection			= parameters.direction();
@@ -960,12 +973,12 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
                                                  m_stepField,
                                                  Trk::muon);
               if(newIntersectionSTEP) {
-                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
-                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl; 
-                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist << std::endl; 
+//                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
+//                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl; 
+//                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist << std::endl; 
                 delete newIntersectionSTEP;
-              } else {
-                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
+//              } else {
+//                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
               }
             }
 
@@ -1014,8 +1027,19 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	if (! reorder)
 	{
 	    double distance  = startDirection.dot(intersection->position() - startPosition);
-	    if (distance < previousDistance) reorder = true;
-	    previousDistance = distance - m_orderingTolerance;
+            Amg::Vector3D positionMst = startPosition;
+            if((**s).measurementOnTrack())  positionMst = (**s).measurementOnTrack()->globalPosition();
+            if((**s).materialEffectsOnTrack())  positionMst = (**s).materialEffectsOnTrack()->associatedSurface().center();
+            double distanceR          = sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
+            double distanceZ          = (positionMst.z() - startPosition.z());
+            if(startDirection.z()<0) distanceZ = -distanceZ;
+	    if(distance < previousDistance&&distanceR < previousDistanceR&&distanceZ < previousDistanceZ) {
+              reorder = true;
+              ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance << " R distance " << distanceR - previousDistanceR << " Z distance " <<  distanceZ - previousDistanceZ ); 
+            }
+	    previousDistance  = distance - m_orderingTolerance;
+	    previousDistanceR = distanceR - m_orderingTolerance;
+            previousDistanceZ = distanceZ - m_orderingTolerance;
 	}
 	
 	// insert measurement(s) in list
@@ -1115,25 +1139,8 @@ iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
 // 						  perigeeQuality);
 // 	}
 
-       bool haveLeadingMaterial            = false;
-       bool firstMSHit                     = false;
-       std::list<Trk::FitMeasurement*>::iterator m = measurements->begin();
-       for ( ; m != measurements->end(); ++m) {
-         Amg::Vector3D position = (*m)->hasIntersection(FittedTrajectory) ? (*m)->intersection(FittedTrajectory).position(): (*m)->surface()->center() ;
-         Amg::Vector3D positionSurf = (*m)->surface()->center();
-         if (!m_calorimeterVolume->inside(position) || !m_calorimeterVolume->inside(positionSurf)) {
-           if ((*m)->measurementBase()&&!firstMSHit) {
-             firstMSHit = true;
-           }
-           if ((*m)->isScatterer()&&!firstMSHit)         haveLeadingMaterial = true;
-         }
-       }
-       if(! haveLeadingMaterial && firstMSHit) {
 	// include leading material
-         unsigned int nmeas = measurements->size();
-  	 m_materialAllocator->addLeadingMaterial(*measurements,particleHypothesis,*parameters);
-         msg(MSG::DEBUG) << " addLeadingMaterial in Muon Spectrometer  nr meas before " << nmeas << " after " << measurements->size() << endmsg;
-       } 
+	m_materialAllocator->addLeadingMaterial(*measurements,particleHypothesis,*parameters);
 
 
 	// construct the fitted track

@@ -205,12 +205,13 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
     // nothing to do if starting with vertex measurement
     if (measurements.front()->isVertex())
     {
-	if (msgLvl(MSG::DEBUG))
-	{
-	    ATH_MSG_VERBOSE(" addLeadingMaterial: " );
-	    printMeasurements(measurements);
-	}
 	return;
+    }
+
+    if (msgLvl(MSG::DEBUG))
+    {
+      ATH_MSG_DEBUG(" start of addLeadingMaterial: " );
+      printMeasurements(measurements);
     }
 
     // fitted momentum at perigee - ignoring leading material effects
@@ -508,12 +509,12 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 							intersection,
 							qOverP);
                       if(newIntersectionSTEP&&intersection) {
-                       double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-                       std::cout << " iMat 1 distance STEP and Intersector " << dist << std::endl;
-                       if(dist>10.) std::cout << " iMat 1 ALARM distance STEP and Intersector " << dist << std::endl;
+//                       double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+//                       std::cout << " iMat 1 distance STEP and Intersector " << dist << std::endl;
+//                       if(dist>10.) std::cout << " iMat 1 ALARM distance STEP and Intersector " << dist << std::endl;
                        delete newIntersectionSTEP;
                       } else {
-                        if(intersection) std::cout << " iMat 1 ALARM STEP did not intersect! " << std::endl;
+//                        if(intersection) std::cout << " iMat 1 ALARM STEP did not intersect! " << std::endl;
                       }
                     } else {
 		      intersection	= m_useStepPropagator>=1?
@@ -581,6 +582,9 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 			}
 		    }
 		}
+
+	        ATH_MSG_DEBUG(" push_front(leadingMeas) ");
+
 		measurements.push_front(leadingMeas);
 		
 		// update momentum for energy loss
@@ -612,12 +616,12 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 								  intersection,
 								  qOverP);
               if(newIntersectionSTEP&&intersection) {
-                double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-                std::cout << " iMat 2 distance STEP and Intersector " << dist << std::endl;
-                if(dist>10.) std::cout << " iMat 2 ALARM distance STEP and Intersector " << dist << std::endl;
+//                double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+//                std::cout << " iMat 2 distance STEP and Intersector " << dist << std::endl;
+//                if(dist>10.) std::cout << " iMat 2 ALARM distance STEP and Intersector " << dist << std::endl;
                 delete newIntersectionSTEP;
               } else {
-                if(intersection) std::cout << " iMat 2 ALARM STEP did not intersect! " << std::endl;
+//                if(intersection) std::cout << " iMat 2 ALARM STEP did not intersect! " << std::endl;
               }
             } else {
 		 intersection	= m_useStepPropagator>=1?
@@ -1354,12 +1358,12 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 									  intersection,
 									  qOverP);
                   if(newIntersectionSTEP&&intersection) {
-                    double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-                    std::cout << " iMat 3 distance STEP and Intersector " << dist << std::endl;
-                    if(dist>10.) std::cout << " iMat 3 ALARM distance STEP and Intersector " << dist << std::endl;
+//                    double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+//                    std::cout << " iMat 3 distance STEP and Intersector " << dist << std::endl;
+//                    if(dist>10.) std::cout << " iMat 3 ALARM distance STEP and Intersector " << dist << std::endl;
                     delete newIntersectionSTEP;
                   } else  {
-                    if(intersection) std::cout << " iMat 3 ALARM STEP did not intersect! " << std::endl;
+//                    if(intersection) std::cout << " iMat 3 ALARM STEP did not intersect! " << std::endl;
                   }
                 } else {
 		  intersection	= m_useStepPropagator>=1?
@@ -2458,36 +2462,75 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     bool reorderMS			= false;
     bool reorderID			= false;
     bool firstMSHit			= false;
-    double previousDistance		= -m_orderingTolerance;
+    double previousDistance		= 0.;
+    double previousDistanceR		= 0.;
+    double previousDistanceZ		= 0.;
+    double minDistanceID		= 0.;
+    double minDistanceMS		= 0.;
+    double minRDistanceMS		= 0.;
+    double minZDistanceMS		= 0.;
     std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     for ( ; m != measurements.end(); ++m)
     {
 	Amg::Vector3D position			= (**m).intersection(FittedTrajectory).position();
 	Amg::Vector3D positionSurf		= (**m).surface()->center();
+	Amg::Vector3D positionMst		= startPosition;
+        if((**m).measurementBase()) positionMst = (**m).measurementBase()->globalPosition();
 	double distance				= startDirection.dot(position - startPosition);
+	double distanceR			= sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
+	double distanceZ			= (positionMst.z() - startPosition.z());
+        if(startDirection.z()<0) distanceZ = -distanceZ; 
 	if (!m_calorimeterVolume->inside(position) || !m_calorimeterVolume->inside(positionSurf)) {	
-	  if (distance < previousDistance)		reorderMS = true;
+	  if (distance - previousDistance < -m_orderingTolerance) {
+      	    reorderMS = true;
+            if(distance - previousDistance<minDistanceMS) {
+              minDistanceMS = distance-previousDistance ;
+              minRDistanceMS = distanceR-previousDistanceR;
+              minZDistanceMS = distanceZ-previousDistanceZ;
+            }
+          }
 	  if ((**m).isScatterer())			haveMaterial = true;
           if ((**m).measurementBase()&&!firstMSHit) {
              firstMSHit = true;
           }
  	  if ((**m).isScatterer()&&!firstMSHit)		haveLeadingMaterial = true;
         } else {
-	  if (distance < previousDistance)	reorderID = true;
+	  if (distance - previousDistance < -m_orderingTolerance) {
+      	    reorderID = true;
+            if(distance - previousDistance<minDistanceID) minDistanceID = distance-previousDistance ;
+          }
         }
-	previousDistance			= distance - m_orderingTolerance;
+        previousDistance                        = distance;
+        previousDistanceZ                       = distanceZ;
+        previousDistanceR                       = distanceR;
     }
 
-    if (reorderMS) ATH_MSG_WARNING( " reorder MS part of track ");
-    if (reorderID) ATH_MSG_WARNING( " reorder ID part of track ");
+    if(reorderMS&&(minRDistanceMS>-m_orderingTolerance||minZDistanceMS>-m_orderingTolerance)) {
+
+//    3D distance of the intersection is problematic but the R or Z distance of the measurementBase is fine 
+//    we should not reorder 
+
+      reorderMS = false;
+    }
+
+//    if(!m_allowReordering) {
+      if (reorderMS&&fabs(minDistanceMS)>-2.) ATH_MSG_WARNING( " reorder MS part of track with minimum distance " << minDistanceMS << " minRDistanceMS " << minRDistanceMS << " minZDistanceMS " << minZDistanceMS);
+      if (reorderID&&fabs(minDistanceID)>-2.) ATH_MSG_WARNING( " reorder ID part of track with minimum distance " << minDistanceID);
+//    }
+
+    if(reorderMS||reorderID) {
+     if (msgLvl(MSG::DEBUG)) printMeasurements(measurements); 
+    }
+
     if (!haveLeadingMaterial&&haveMaterial) {
       ATH_MSG_WARNING( " MS part of track has no leading material in front of first MS hit ");
     }  
 
     if (reorderMS)    	orderMeasurements(measurements,startDirection,startPosition);
+
     // nothing to do if spectrometer material already exists
     if (haveMaterial)	return;
-    ATH_MSG_WARNING( " spectrometerMaterial: ALARM no material found on track ");
+    ATH_MSG_DEBUG( " spectrometerMaterial: ALARM no material found on track can happen for MuGirl");
 
     // material has to be added: need inner and outer TrackParameters
     FitMeasurement* innerMeasurement	= 0;
