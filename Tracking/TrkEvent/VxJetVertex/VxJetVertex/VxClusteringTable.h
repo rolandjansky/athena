@@ -10,9 +10,13 @@
               Christian Weiser (University of Freiburg)
     e-mails:  giacinto.piacquadio@physik.uni-freiburg.de)
               christian.weiser@cern.ch
-    changes: new!
 
    (c) Atlas Collaboration 2007
+
+   (1) November 6, 2016
+       adding support for differentiating between pair of probabilities with PV or without      
+       Giacinto Piacquadio (Stony Brook University)
+       giacinto.piacquadio@stonybrook.edu
 
    This class stores the information about the compatiblity of the vertices fitted 
    on the Jet Axis among themselves and with the Primary Vertex.
@@ -33,6 +37,7 @@
 #include "VxJetVertex/PairOfVxVertexOnJetAxis.h"
 #include <map>
  
+
 namespace Trk {
 
   class VxVertexOnJetAxis;
@@ -71,7 +76,13 @@ namespace Trk {
     const std::map<float,PairOfVxVertexOnJetAxis> & 
       getCompatibilityPairOfVertices(void) const;
     
-
+  /**
+   * Get pair of vertices with highest compatibility, removing cases with primary
+   */
+ 
+    PairOfVxVertexOnJetAxis getMostCompatibleVerticesExcludingPrimary(float & probability) const;
+    
+ 
 
   /** 
    * Output Method for MsgStream, to be overloaded by child classes 
