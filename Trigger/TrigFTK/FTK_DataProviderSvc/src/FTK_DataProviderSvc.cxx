@@ -32,6 +32,7 @@
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
@@ -100,6 +101,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_particleCreatorTool("Trk::ParticleCreatorTool"),
   m_VertexFinderTool("InDet::InDetIterativePriVxFinderTool"),
   m_RawVertexFinderTool("FTK_VertexFinderTool"),
+  m_ROTcreator("Trk::IRIO_OnTrackCreator/FTK_ROTcreatorTool"),
   m_trainingBeamspotX(0.),
   m_trainingBeamspotY(0.),
   m_trainingBeamspotZ(0.),
@@ -122,6 +124,10 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_got_fast_vertex_refit(false),
   m_got_fast_vertex_conv(false),
   m_got_fast_vertex_raw(false),
+  m_correctPixelClusters(true),
+  m_correctSCTClusters(true),
+  m_broadPixelErrors(true),
+  m_broadSCT_Errors(true),
   m_conv_track_map(0),
   m_refit_track_map(0),
   m_conv_tp_map(0),
@@ -163,6 +169,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("TrackSummaryTool", m_trackSumTool);
   declareProperty("TrackParticleCreatorTool", m_particleCreatorTool);
   declareProperty("VertexFinderTool",m_VertexFinderTool);
+  declareProperty("ROTcreatorTool",m_ROTcreator);
   declareProperty("RawVertexFinderTool",m_RawVertexFinderTool);
   declareProperty("doTruth",m_doTruth);
   declareProperty("PixelTruthName",m_ftkPixelTruthName);
@@ -183,6 +190,11 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("PixelBarrelEtaOffsets", m_pixelBarrelEtaOffsets," Pixel Barrel Eta Offsets in mm" );
   declareProperty("PixelEndCapPhiOffsets", m_pixelEndCapPhiOffsets," Pixel EndCap Phi Offsets in mm" );
   declareProperty("PixelEndCapEtaOffsets", m_pixelEndCapEtaOffsets," Pixel EndCap Eta Offsets in mm" );
+  declareProperty("CorrectPixelClusters",m_correctPixelClusters);
+  declareProperty("CorrectSCTClusters",m_correctSCTClusters);
+  declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
+  declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
+
 
 
 }
@@ -230,6 +242,8 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_VertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting FTK_RawTrackVertexFinderTool tool with name " << m_RawVertexFinderTool.name());
   ATH_CHECK(m_RawVertexFinderTool.retrieve());
+  ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
+  ATH_CHECK(m_ROTcreator.retrieve());
 
   // Register incident handler
   ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
@@ -250,6 +264,21 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
   ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
   ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
+
+
+  if (m_correctPixelClusters) {
+    ATH_MSG_INFO( " applying all corrections (lorentz, angle,  sag) to Pixel Clusters on converted tracks using RotCreatorTool");
+  } else {
+    ATH_MSG_INFO( " only applying Lorentz all correction to Pixel Clusters on converted tracks");
+    if (m_broadPixelErrors) ATH_MSG_INFO( "Creating PixelClusterOnTrack with broad errors");
+  }
+  if (m_correctSCTClusters) {
+    ATH_MSG_INFO( " applying all corrections to SCT Clusters on converted tracks using RotCreatorTool");
+  } else { 
+    ATH_MSG_INFO( " only applying Lorentz correction to SCT Clusters on converted tracks");
+    if (m_broadSCT_Errors) ATH_MSG_INFO( "Creating SCT_ClusterOnTrack with broad errors");
+  } 
+
 
   return StatusCode::SUCCESS;
 
@@ -1157,7 +1186,9 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 
   DataVector<const Trk::TrackStateOnSurface>* trkTSoSVec = new DataVector<const Trk::TrackStateOnSurface>;
 
-  std::vector<InDet::SiClusterOnTrack*> clusters;
+
+
+
 
   // Create Pixel Clusters
   bool hasIBL=false;
@@ -1165,8 +1196,80 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   //float pixelPhi=0;
   //float pixelEta=0;
 
+  // Find if the track includes IBL - needed for the error calculaton 
+  for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
+    if ( !track.isMissingPixelLayer(cluster_number)) {
+      Identifier wafer_id = m_pixelId->wafer_id(track.getPixelClusters()[cluster_number].getModuleID());
+      if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) {
+	hasIBL=true;
+	break;
+      }
+    }
+  }
+
+
+  //
+  // Create track perigee parameters
+  // ******************************************
+
+  AmgSymMatrix(5) *trkTrackCovm = new AmgSymMatrix(5);
+  trkTrackCovm->setZero();
+  (*trkTrackCovm)(0,0)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,  FTKTrackParam::d0,     FTKTrackParam::d0);
+  (*trkTrackCovm)(1,1)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::z0,     FTKTrackParam::z0);
+  (*trkTrackCovm)(2,2)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::phi,    FTKTrackParam::phi);
+  (*trkTrackCovm)(3,3)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::theta,  FTKTrackParam::theta);
+  (*trkTrackCovm)(4,4)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::qOp,    FTKTrackParam::qOp);
+
+
+  ATH_MSG_VERBOSE( " trkTrackCovm: (d0,z0,phi,theta,q/p)= " <<  (*trkTrackCovm)(0,0) << ", "<< (*trkTrackCovm)(1,1)<< ", " <<
+      (*trkTrackCovm)(2,2)<< ", "<<(*trkTrackCovm)(3,3)<< ", "<<  (*trkTrackCovm)(4,4));
+
+  //
+  // Construct the measured Perigee Parameters
+  //
+
+  double trkQOverP = sin(trkTheta)*track.getInvPt()/m_pTscaleFactor;
+  Trk::PerigeeSurface periSurf;
+
+  double dx = m_trainingBeamspotX + m_trainingBeamspotTiltX*track.getZ0();//correction for tilt
+  double dy = m_trainingBeamspotY + m_trainingBeamspotTiltY*track.getZ0();//correction for tilt
+
+  double d0 = track.getD0()-dx*sin( track.getPhi())+dy*cos( track.getPhi());
+  double z0 = track.getZ0() - ((cos( track.getPhi()) *dx + sin( track.getPhi())*dy)/tan(trkTheta));
+
+  const Trk::TrackParameters* trkPerigee = new Trk::Perigee( d0,
+      z0,
+      track.getPhi(),
+      trkTheta,
+      trkQOverP,
+      periSurf,
+      trkTrackCovm);
+
+  ATH_MSG_VERBOSE( "   ConvertTrack: Track perigee created  d0 " <<  d0 << " z0 " <<
+      z0<< " phi0 " << track.getPhi() << " theta " << trkTheta << " q/P " << trkQOverP);
+  //
+  // Build the TSOS
+  //
+  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
+
+  //
+  // Build the TrackInfo
+  //
+  Trk::TrackInfo trkTrackInfo = Trk::TrackInfo(Trk::TrackInfo::Unknown, Trk::pion);
+
+  //
+  // Build the FitQuality
+  //
+  int ndof =  track.getPixelClusters().size()*2. + track.getSCTClusters().size()  - 5;
+
+  const Trk::FitQuality* trkFitQuality = new Trk::FitQuality(track.getChi2(), ndof);
+
+
+  std::vector<const Trk::RIO_OnTrack*> clusters;
+
   ATH_MSG_VERBOSE( "   ConvertTrack: PixelClusterLoop: Pixel Clusters size = " << track.getPixelClusters().size());
   for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
+
 
     FTK_RawPixelCluster raw_pixel_cluster = track.getPixelCluster(cluster_number);
     if ( track.isMissingPixelLayer(cluster_number)) {
@@ -1178,43 +1281,19 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " Layer " << cluster_number << " getWordA() "
           << raw_pixel_cluster.getWordA() << " getWordB() " << raw_pixel_cluster.getWordB() );
     }
-    InDet::PixelCluster* pixel_cluster = createPixelCluster(raw_pixel_cluster,trkEta);
-    if(pixel_cluster != nullptr) {
-      Identifier wafer_id = m_pixelId->wafer_id(pixel_cluster->identify());
-      if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) hasIBL=true;
-      const IdentifierHash idHash = m_pixelId->wafer_hash(m_pixelId->wafer_id(pixel_cluster->identify()));
-      //ATH_MSG_VERBOSE( "   ConvertTrack: PixelClusterLoop: InDet::PixelCluster Created ");
-      InDet::PixelClusterCollection* pColl = getPixelClusterCollection(idHash);
-      if(pColl!=NULL) {
-        pixel_cluster->setHashAndIndex(pColl->identifyHash(), pColl->size());
-        pColl->push_back(pixel_cluster);
+    const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee);
+    if (pixel_cluster_on_track==nullptr){
+      ATH_MSG_WARNING(" PixelClusterOnTrack failed to create cluster " << cluster_number);
+    } else {
 
+      clusters.push_back(pixel_cluster_on_track);
 
-        InDet::PixelClusterOnTrack* pixel_cluster_on_track = new InDet::PixelClusterOnTrack(pixel_cluster,
-            pixel_cluster->localPosition(),
-            pixel_cluster->localCovariance(),
-            idHash,
-            pixel_cluster->globalPosition(),
-            pixel_cluster->gangedPixel());
-
-        ATH_MSG_VERBOSE( " Pixel Cluster "  << cluster_number << ": r= " << std::sqrt(std::pow(pixel_cluster_on_track->globalPosition().x(),2)+pow(pixel_cluster_on_track->globalPosition().y(),2))<<
-            "  z= " << pixel_cluster_on_track->globalPosition().z() << " phi " << pixel_cluster_on_track->globalPosition().phi() << " eta " << pixel_cluster_on_track->globalPosition().eta());
-
-        if(m_doTruth && m_collectionsReady) {
-          ATH_MSG_VERBOSE("Pixel cluster MC barcode = "<< (int) raw_pixel_cluster.getBarcode() );
-          createPixelTruth(pixel_cluster->identify(), raw_pixel_cluster.getBarcode() );
-        }
-
-
-        clusters.push_back(pixel_cluster_on_track);
-        //	pixelPhi =  pixel_cluster_on_track->globalPosition().phi();
-        //      pixelEta =  pixel_cluster_on_track->globalPosition().eta();
-      }
-
-    } else{
-      ATH_MSG_DEBUG( "   ConvertTrack: PixelClusterLoop: Failed to create pixel hit "<< cluster_number << " skipped ");
+      ATH_MSG_VERBOSE(cluster_number << ": r= " << std::sqrt(std::pow(pixel_cluster_on_track->globalPosition().x(),2)+pow(pixel_cluster_on_track->globalPosition().y(),2))
+		      << " z= " << pixel_cluster_on_track->globalPosition().z() << " phi " << pixel_cluster_on_track->globalPosition().phi() 
+		      << " eta= " << pixel_cluster_on_track->globalPosition().eta());
     }
-  }
+      
+  }	
 
 
   //
@@ -1223,7 +1302,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 
 
 
-  std::vector<InDet::SCT_ClusterOnTrack*> SCT_Clusters;
+  std::vector<const Trk::RIO_OnTrack*> SCT_Clusters;
 
   ATH_MSG_VERBOSE( "   ConvertTrack: SCTClusterLoop: SCT Clusters size = " << track.getSCTClusters().size());
   for( unsigned int cluster_number = 0; cluster_number < track.getSCTClusters().size(); ++cluster_number){
@@ -1233,41 +1312,20 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       ATH_MSG_VERBOSE( "  No SCT Hit for layer "  << cluster_number);
       continue;
     }
-    InDet::SCT_Cluster* sct_cluster = createSCT_Cluster(raw_cluster.getModuleID(), raw_cluster.getHitCoord(), raw_cluster.getHitWidth());
-    if(sct_cluster != nullptr) {
+    const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
 
-      //      ATH_MSG_VERBOSE( "   ConvertTrack: SCTClusterLoop: Created SCT_Cluster SUCCESS ");
-      const IdentifierHash idHash = m_sctId->wafer_hash(m_sctId->wafer_id(sct_cluster->identify()));
-
-      InDet::SCT_ClusterCollection* pColl = getSCT_ClusterCollection(idHash);
-      if(pColl!=NULL) {
-        sct_cluster->setHashAndIndex(pColl->identifyHash(), pColl->size());
-        pColl->push_back(sct_cluster);
-
-
-
-        InDet::SCT_ClusterOnTrack* sct_cluster_on_track = new InDet::SCT_ClusterOnTrack(sct_cluster,
-            sct_cluster->localPosition(),
-            sct_cluster->localCovariance(),
-            idHash,
-            sct_cluster->globalPosition());
-        ATH_MSG_VERBOSE( cluster_number << ": r= " << std::sqrt(std::pow(sct_cluster_on_track->globalPosition().x(),2)+pow(sct_cluster_on_track->globalPosition().y(),2))<<
-            "  z= " << sct_cluster_on_track->globalPosition().z());
-
-        if(m_doTruth && m_collectionsReady) {
-          ATH_MSG_VERBOSE("SCT cluster MC barcode = "<< (int) raw_cluster.getBarcode() );
-          createSCT_Truth(sct_cluster->identify(), raw_cluster.getBarcode() );
-        }
-
-
-
-        clusters.push_back(sct_cluster_on_track);
-      }
+	
+    if (sct_cluster_on_track==nullptr){
+      ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
     } else {
-      ATH_MSG_DEBUG( "   ConvertTrack: SCTClusterLoop: Created SCT_Cluster FAILED ");
+      
+      ATH_MSG_VERBOSE( cluster_number << ": r= " << std::sqrt(std::pow(sct_cluster_on_track->globalPosition().x(),2)+std::pow(sct_cluster_on_track->globalPosition().y(),2))
+		       << " z= " << sct_cluster_on_track->globalPosition().z());
+	  
+      clusters.push_back(sct_cluster_on_track);
     }
   }
-
+  
   std::sort(clusters.begin(), clusters.end(), compareFTK_Clusters);
 
   if (m_rejectBadTracks) {
@@ -1337,6 +1395,9 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   ATH_MSG_VERBOSE(" Creating TrackStateOnSurface:");
   int itr=0;
   for (auto pClus=clusters.begin(); pClus!=clusters.end(); pClus++, itr++) {
+      ATH_MSG_VERBOSE( itr << ": " << " r= " << std::sqrt(std::pow((*pClus)->globalPosition().x(),2)+pow((*pClus)->globalPosition().y(),2))<<
+          "  z= " << (*pClus)->globalPosition().z() << "  mag= " << (*pClus)->globalPosition().mag() << " phi= " << (*pClus)->globalPosition().phi()<< " eta = " << (*pClus)->globalPosition().eta()<<
+          "  " << m_id_helper->print_to_string((*pClus)->identify()) );
 
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
@@ -1347,61 +1408,6 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   }
 
 
-  //
-  // Create track perigee parameters
-  // ******************************************
-
-  AmgSymMatrix(5) *trkTrackCovm = new AmgSymMatrix(5);
-  trkTrackCovm->setZero();
-  (*trkTrackCovm)(0,0)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,  FTKTrackParam::d0,     FTKTrackParam::d0);
-  (*trkTrackCovm)(1,1)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::z0,     FTKTrackParam::z0);
-  (*trkTrackCovm)(2,2)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::phi,    FTKTrackParam::phi);
-  (*trkTrackCovm)(3,3)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::theta,  FTKTrackParam::theta);
-  (*trkTrackCovm)(4,4)= m_uncertaintyTool->getParamCovMtx(track,  hasIBL,    FTKTrackParam::qOp,    FTKTrackParam::qOp);
-
-
-  ATH_MSG_VERBOSE( " trkTrackCovm: (d0,z0,phi,theta,q/p)= " <<  (*trkTrackCovm)(0,0) << ", "<< (*trkTrackCovm)(1,1)<< ", " <<
-      (*trkTrackCovm)(2,2)<< ", "<<(*trkTrackCovm)(3,3)<< ", "<<  (*trkTrackCovm)(4,4));
-
-  //
-  // Construct the measured Perigee Parameters
-  //
-
-  double trkQOverP = sin(trkTheta)*track.getInvPt()/m_pTscaleFactor;
-  Trk::PerigeeSurface periSurf;
-
-  double dx = m_trainingBeamspotX + m_trainingBeamspotTiltX*track.getZ0();//correction for tilt
-  double dy = m_trainingBeamspotY + m_trainingBeamspotTiltY*track.getZ0();//correction for tilt
-
-  double d0 = track.getD0()-dx*sin( track.getPhi())+dy*cos( track.getPhi());
-  double z0 = track.getZ0() - ((cos( track.getPhi()) *dx + sin( track.getPhi())*dy)/tan(trkTheta));
-
-  const Trk::Perigee* trkPerigee = new Trk::Perigee( d0,
-      z0,
-      track.getPhi(),
-      trkTheta,
-      trkQOverP,
-      periSurf,
-      trkTrackCovm);
-
-  ATH_MSG_VERBOSE( "   ConvertTrack: Track perigee created  d0 " <<  d0 << " z0 " <<
-      z0<< " phi0 " << track.getPhi() << " theta " << trkTheta << " q/P " << trkQOverP);
-  //
-  // Build the TSOS
-  //
-  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
-
-  //
-  // Build the TrackInfo
-  //
-  Trk::TrackInfo trkTrackInfo = Trk::TrackInfo(Trk::TrackInfo::Unknown, Trk::pion);
-
-  //
-  // Build the FitQuality
-  //
-  int ndof =  track.getPixelClusters().size()*2. + track.getSCTClusters().size()  - 5;
-
-  const Trk::FitQuality* trkFitQuality = new Trk::FitQuality(track.getChi2(), ndof);
 
   //
   // And finally the Trk::Track
@@ -1415,7 +1421,12 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 }
 
 
-InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash hash, const int rawStripCoord, const int clusterWidth) {
+const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_Cluster& raw_cluster, const Trk::TrackParameters& trkPerigee) {
+
+
+  const IdentifierHash hash=raw_cluster.getModuleID();
+  const int rawStripCoord= raw_cluster.getHitCoord();
+  const int clusterWidth=raw_cluster.getHitWidth();
 
   // clusterWidth is 0 for a 1-strip cluster, 1 for 2-strips, etc.
 
@@ -1477,16 +1488,18 @@ InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash 
   ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth+1 << " width " << width << " stripLength " << stripLength);
   InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth+1,1), Amg::Vector2D(width,stripLength) );
 
-  double shift = pDE->getLorentzCorrection();
+  //  double shift = pDE->getLorentzCorrection();
 
-  double derivedPos = localPos[Trk::locX]+shift;
-  double rawPos = (strip-0.5*design->cells())*pDE->phiPitch();
+  //  double derivedPos = localPos[Trk::locX]+shift;
+  //double derivedPos = localPos[Trk::locX];
+  //double rawPos = (strip-0.5*design->cells())*pDE->phiPitch();
 
-  if(fabs(derivedPos-rawPos)>0.5*pDE->phiPitch()) {
-    derivedPos = rawPos+shift;
-  }
+  //  if(fabs(derivedPos-rawPos)>0.5*pDE->phiPitch()) {
+  //  derivedPos = rawPos+shift;
+  // }
+  //  Amg::Vector2D position(derivedPos, localPos[Trk::locY]);
 
-  Amg::Vector2D position(derivedPos, localPos[Trk::locY]);
+  Amg::Vector2D position(localPos[Trk::locX], localPos[Trk::locY]);
 
   Amg::MatrixX* cov = new Amg::MatrixX(2,2);
   cov->setZero();
@@ -1516,7 +1529,44 @@ InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash 
   ATH_MSG_VERBOSE("covariance " << (*cov)(0,0) << ", " << (*cov)(0,1));
   ATH_MSG_VERBOSE("           " << (*cov)(1,0) << ", " << (*cov)(1,1)) ;
 
-  return pCL;
+
+  //      ATH_MSG_VERBOSE( "   ConvertTrack: SCTClusterLoop: Created SCT_Cluster SUCCESS ");
+  const IdentifierHash idHash = m_sctId->wafer_hash(m_sctId->wafer_id(pCL->identify()));
+
+  const Trk::RIO_OnTrack* sct_cluster_on_track=nullptr;
+  InDet::SCT_ClusterCollection* pColl = getSCT_ClusterCollection(idHash);
+  if(pColl!=NULL) {
+    pCL->setHashAndIndex(pColl->identifyHash(), pColl->size());
+    pColl->push_back(pCL);
+
+    if (m_correctSCTClusters) {
+      //	  const Trk::PrepRawData* cluster = sct_cluster;
+      sct_cluster_on_track= m_ROTcreator->correct(*pCL,trkPerigee);
+    }
+
+     if (!m_correctSCTClusters || sct_cluster_on_track == nullptr) {
+      double shift = pDE->getLorentzCorrection();
+
+      Amg::Vector2D locPos(pCL->localPosition()[Trk::locX]+shift,pCL->localPosition()[Trk::locY]);
+      ATH_MSG_VERBOSE("locX "<< pCL->localPosition()[Trk::locX] << " locY " << pCL->localPosition()[Trk::locY] << " lorentz shift " << shift);
+
+      sct_cluster_on_track = new InDet::SCT_ClusterOnTrack (pCL,
+							    locPos,
+							    pCL->localCovariance(),
+							    idHash,
+							    pCL->globalPosition(),m_broadSCT_Errors); // last parameter: isbroad=true
+    }
+
+    if(sct_cluster_on_track!=nullptr && m_doTruth && m_collectionsReady) {
+      ATH_MSG_VERBOSE("SCT cluster MC barcode = "<< (int) raw_cluster.getBarcode() );
+      createSCT_Truth(pCL->identify(), raw_cluster.getBarcode() );
+    }
+  } else {
+    ATH_MSG_VERBOSE("Failed to get SCT cluster collection, cluster not created");
+    
+  }
+
+  return sct_cluster_on_track;
 }
 
 
@@ -1542,7 +1592,7 @@ float FTK_DataProviderSvc::dphi(const float p1, const float p2) const {
 
 
 
-InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster, float eta) {
+const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee) {
   IdentifierHash hash = raw_pixel_cluster.getModuleID();
   Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
   const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
@@ -1597,7 +1647,7 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
   }
 
 
-  double shift = pixelDetectorElement->getLorentzCorrection();
+  //  double shift = pixelDetectorElement->getLorentzCorrection();
 
   ATH_MSG_VERBOSE( "Cluster position phiPos, etaPos "<<  phiPos << ", " << etaPos);
 
@@ -1646,9 +1696,11 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
 
   InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW));
 
-  Amg::Vector2D position(phiPos+shift,etaPos);
+  //  Amg::Vector2D position(phiPos+shift,etaPos);
+  Amg::Vector2D position(phiPos,etaPos);
 
-  ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos+shift << ", " << etaPos << " includes Lorentz shift " << shift);
+  //  ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos+shift << ", " << etaPos << " includes Lorentz shift " << shift);
+  ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos << ", " << etaPos);
   ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
   // bool blayer = pixelDetectorElement->isBlayer();
@@ -1676,6 +1728,9 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
 
+    double eta = -std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.));
+
+
     if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
       if(pixelDetectorElement->isBarrel()){
         // Barrel corrections //
@@ -1698,7 +1753,41 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
       pixelDetectorElement, cov);
   ATH_MSG_VERBOSE("covariance " << (*cov)(0,0) << ", " << (*cov)(0,1));
   ATH_MSG_VERBOSE("           " << (*cov)(1,0) << ", " <<   (*cov)(1,1)) ;
-  return pixel_cluster;
+
+
+
+  const IdentifierHash idHash = m_pixelId->wafer_hash(m_pixelId->wafer_id(pixel_cluster->identify()));
+  ATH_MSG_VERBOSE(" hash " << hash << " wafer hash " << idHash);
+
+  const Trk::RIO_OnTrack* pixel_cluster_on_track = nullptr;
+
+  InDet::PixelClusterCollection* pColl = getPixelClusterCollection(idHash);
+  if(pColl!=NULL) {
+    pixel_cluster->setHashAndIndex(pColl->identifyHash(), pColl->size());
+    pColl->push_back(pixel_cluster);
+    
+    if (m_correctPixelClusters) {
+      pixel_cluster_on_track = m_ROTcreator->correct(*pixel_cluster,trkPerigee);
+    } 
+    if (!m_correctPixelClusters || pixel_cluster_on_track==nullptr) {
+      double shift = pixelDetectorElement->getLorentzCorrection();
+       Amg::Vector2D locPos(pixel_cluster->localPosition()[Trk::locX]+shift,pixel_cluster->localPosition()[Trk::locY]);
+      ATH_MSG_VERBOSE("locX "<< pixel_cluster->localPosition()[Trk::locX] << " locY " << pixel_cluster->localPosition()[Trk::locY] << " lorentz shift " << shift);
+      pixel_cluster_on_track=new InDet::PixelClusterOnTrack (pixel_cluster,
+							     locPos,
+							     pixel_cluster->localCovariance(),
+							     idHash,
+							     pixel_cluster->globalPosition(),
+							     pixel_cluster->gangedPixel(),m_broadPixelErrors);  // last parameter: isbroad=true
+    }
+
+    if(pixel_cluster_on_track!=nullptr && m_doTruth && m_collectionsReady) {
+      ATH_MSG_VERBOSE("Pixel cluster MC barcode = "<< (int) raw_pixel_cluster.getBarcode() );
+      createPixelTruth(pixel_cluster->identify(),raw_pixel_cluster.getBarcode() );
+    }
+  }
+
+  return pixel_cluster_on_track;
 }
 
 
