@@ -106,7 +106,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapXStaggering["AFP00"]=m_vecAFP00XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -115,7 +115,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapYStaggering["AFP00"]=m_vecAFP00YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP00YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP00YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -125,7 +125,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapXStaggering["AFP01"]=m_vecAFP01XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -134,7 +134,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapYStaggering["AFP01"]=m_vecAFP01YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -144,7 +144,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapXStaggering["AFP02"]=m_vecAFP02XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -153,7 +153,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapYStaggering["AFP02"]=m_vecAFP02YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -163,7 +163,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapXStaggering["AFP03"]=m_vecAFP03XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -172,7 +172,7 @@ StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
                         m_CfgParams.sidcfg.mapYStaggering["AFP03"]=m_vecAFP03YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -192,7 +192,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
     StatusCode sc = detStore->retrieve( theExpt, "ATLAS" );
     if (StatusCode::SUCCESS != sc)
     {
-        log << MSG::ERROR<< "Could not find GeoModelExperiment ATLAS"<< endreq;
+        log << MSG::ERROR<< "Could not find GeoModelExperiment ATLAS"<< endmsg;
         return (StatusCode::FAILURE);
     }
 
@@ -214,7 +214,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
             m_pAFPDetectorFactory->create(world);
             //theFactory.create(world);
         } catch (std::bad_alloc) {
-            log << MSG::FATAL << "Could not create new DetectorNode!" << endreq;
+            log << MSG::FATAL << "Could not create new DetectorNode!" << endmsg;
             return StatusCode::FAILURE;
         }
 
@@ -224,7 +224,7 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
         //theExpt->addManager(theFactory.getDetectorManager());
         //sc = detStore->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
         if (StatusCode::SUCCESS != sc) {
-            log << MSG::ERROR << "Could not register DetectorNode" << endreq;
+            log << MSG::ERROR << "Could not register DetectorNode" << endmsg;
             return (StatusCode::FAILURE);
         }
 
@@ -244,10 +244,10 @@ StatusCode AFP_GeoModelTool::registerCallback(StoreGateSvc* )
 	const DataHandle<CondAttrListCollection> DataPtr;
 	sc=detStore->regFcn(&IGeoModelTool::align,dynamic_cast<IGeoModelTool*>(this), DataPtr, COOLFOLDER_BPM, true);
 	if(sc!=StatusCode::SUCCESS){
-		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<< COOLFOLDER_BPM <<"'" << endreq;
+		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<< COOLFOLDER_BPM <<"'" << endmsg;
 	}
 	else{
-		msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_BPM <<" registered "<<endreq;
+		msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_BPM <<" registered "<<endmsg;
 	}
 
 	return sc;
@@ -282,7 +282,7 @@ StatusCode AFP_GeoModelTool::align(IOVSVC_CALLBACK_ARGS)
 		m_pAFPDetectorFactory->UpdatePositions(&BpmParams);
 	}
 	else{
-		msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endreq;
+		msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endmsg;
 		sc=StatusCode::FAILURE;
 	}
 

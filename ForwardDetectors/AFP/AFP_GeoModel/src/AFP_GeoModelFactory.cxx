@@ -318,7 +318,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 
     //add Long Hamburg Pipe (station C)
     PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP03",ESE_RPOT);
-    AddRomanPot( pPhysLongEnv1,"AFP01",PosElementInEnv);
+	AddRomanPot( pPhysLongEnv1,"AFP03",PosElementInEnv);
 
     //add Timing detector - Q1
     //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fLongHBFloorXPos, m_CfgParams.fLongHBYPos+m_CfgParams.fQuarticYPosInTube[0], -m_CfgParams.fQuarticZPosInTube[0])*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
