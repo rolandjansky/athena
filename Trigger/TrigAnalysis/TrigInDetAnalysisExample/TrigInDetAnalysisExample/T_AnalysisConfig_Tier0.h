@@ -876,11 +876,13 @@ protected:
       }
 
 
-      /// now loop pver the rois (again) 
+      /// now loop over the rois (again) 
 
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
 
         m_selectorRef->clear();
+
+	//	std::cout << "SUTT: filterOnRoi() " << this->filterOnRoi() << " " << chain.rois().at(iroi).roi() << std::endl;
 
 	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	else                       filterRef.setRoi( 0 );
@@ -1086,6 +1088,8 @@ protected:
 	  //Noff = m_selectorRef->tracks().size();
           ref_tracks = m_selectorRef->tracks();
 
+	  //	  std::cout << "SUTT ref_tracks" << ref_tracks.size() << std::endl;  
+
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endreq;
             for ( int ii=m_selectorRef->tracks().size() ; ii-- ; )
@@ -1146,7 +1150,9 @@ protected:
 	  
 	  /// match test and reference tracks
 	  m_associator->match( ref_tracks, test_tracks );
-	  
+	 
+	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
+ 
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
 	  //	  std::cout << "chain " << m_chainNames[ichain]  << " " << "\tvtx name " << vtx_name << std::endl;
@@ -1325,6 +1331,8 @@ protected:
 		  m_chainNames.at(ic).tail().find("_EFID") != std::string::npos )             mongroup = folder_name + "/EFID";
 	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
+	else if ( m_chainNames.at(ic).tail().find("_FTKRefit") != std::string::npos )         mongroup = folder_name + "/FTKRefit";
+	else if ( m_chainNames.at(ic).tail().find("_FTK")      != std::string::npos )         mongroup = folder_name + "/FTK";
 	else                                                                                  mongroup = folder_name + "/Unknown";
 
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();

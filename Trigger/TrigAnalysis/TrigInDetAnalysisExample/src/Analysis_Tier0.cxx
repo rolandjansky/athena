@@ -36,6 +36,38 @@ void Analysis_Tier0::initialise() {
 
   addHistogram(h_chain);
 
+  /// variable width bins for track occupancy
+  
+  double vnbins[81] = {
+   -0.5,
+    0.5,	1.5,	2.5,	3.5,	4.5,	5.5,	6.5,	7.5,	8.5,	9.5,
+    10.5,	11.5,	12.5,	13.5,	14.5,	15.5,	16.5,	17.5,	18.5,	19.5,
+    20.5,	21.5,	22.5,	23.5,	24.5,	25.5,	26.5,	27.5,	28.5,	29.5,
+    31.5,	32.5,	33.5,	34.5,	36.5,	37.5,	39.5,
+    40.5,	42.5,	43.5,	45.5,	47.5,	49.5,
+    50.5,	52.5,	54.5,	57.5,	59.5,
+    61.5,	63.5,	66.5,	69.5,
+    71.5,	74.5,	77.5,
+    80.5,	83.5,	86.5,
+    90.5,	93.5,	97.5,
+    100.5,	104.5,	108.5,
+    113.5,	117.5,
+    122.5,	126.5,
+    131.5,	136.5,
+    142.5,	147.5,
+    153.5,	159.5,
+    165.5,
+    171.5,	178.5,
+    185.5,
+    192.5,
+    200.5 };
+
+
+
+  h_ntrk = new TH1F( "reftrk_N", "Reference tracks", 80, vnbins );
+
+  addHistogram(h_ntrk);
+
   /// reference track distributions
 
   //  double pt_bins[25] = { 0, 1, 2, 3, 4, 8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100 }; 
@@ -75,6 +107,10 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trkd0sig);
 
   /// test track distributions
+
+  h_ntrk_rec = new TH1F( "testtrk_N", "Test tracks", 80, vnbins );
+
+  addHistogram(h_ntrk_rec);
 
   //  h_trkpT_rec  = new TH1F("testtrk_pT" , "Test track pT",  25,    0.,   100.);
   h_trkpT_rec  = new TH1F("testtrk_pT" , "Test track pT",  25,   &ptbins[0]   );
@@ -121,9 +157,9 @@ void Analysis_Tier0::initialise() {
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
   h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   41,   -0.5,  40.5  );
 
-  h_vtxlbeff = new TProfile( "Eff_lb", "efficinecy vs lumiblock", 301, -0.5, 3009.5 );
+  h_lbeff = new TProfile( "Eff_lb", "efficinecy vs lumiblock", 301, -0.5, 3009.5 );
 
-  addHistogram( h_vtxlbeff );
+  addHistogram( h_lbeff );
 
   h_trkvtx_x_lb = new TProfile( "trkvtx_x_vs_lb", "track vertex x vs lumiblock", 301, -0.5, 3009.5 );
   h_trkvtx_y_lb = new TProfile( "trkvtx_y_vs_lb", "track vertex y vs lumiblock", 301, -0.5, 3009.5 );
@@ -315,7 +351,7 @@ void Analysis_Tier0::initialise() {
 
 
 void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
-			     const std::vector<TIDA::Track*>& /*testTracks*/,
+			     const std::vector<TIDA::Track*>& testTracks,
 			     TrackAssociator* associator) {
   
   /// Loop over reference tracks
@@ -325,6 +361,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
   /// fill number of times this analysis was called - presumably the number 
   /// of passed events for this chain 
   h_chain->Fill( 0.5 ) ;
+
+  h_ntrk->Fill( referenceTracks.size() );
+  h_ntrk_rec->Fill( testTracks.size() );
 
   for( ; reference!=referenceEnd ; reference++ ) {
     
@@ -352,6 +391,8 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_etaeff->Fill( referenceEta, eff_weight );
     h_phieff->Fill( referencePhi, eff_weight );
     h_nVtxeff->Fill( m_nVtx, eff_weight );
+
+    h_lbeff->Fill( event()->lumi_block(), eff_weight );
 
     h_trkpT->Fill( std::fabs(referencePT)*0.001 );
     h_trketa->Fill( referenceEta );
