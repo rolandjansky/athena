@@ -31,6 +31,8 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 //tool/service handle template parameters
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "IRegionSelector/IRegSelSvc.h"
 
 
 class SCT_ID;
@@ -79,18 +81,17 @@ private:
   //@}
 
   ToolHandle< ISCT_ClusteringTool >        m_clusteringTool;       //!< Clustering algorithm
-//  std::string                              m_dataObjectName;       //!< RDO container name in StoreGate
   std::string                              m_managerName;   //REMOVE LATER       //!< Detector manager name in StoreGate
-//  std::string                              m_clustersName; //REMOVE LATER	          
-//  int                                      m_page; //REMOVE LATER	           //!< Page number for hash function
   const SCT_ID*                            m_idHelper;
-//  typedef std::map<Identifier, int>        IdMap_t;//REMOVE LATER
-//  IdMap_t                                  m_status;//REMOVE LATER
-//  IdentifierHash                           m_maxKey;//REMOVE LATER
 
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
 
-  SG::ReadHandle<SCT_RDO_Container> m_rdoContainer; //(m_dataObjectName);
-  SG::WriteHandle<SCT_ClusterContainer>    m_clusterContainer;
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
+  bool m_roiSeeded;                                //!< detector manager name in StoreGate
+  
+  
+  SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
