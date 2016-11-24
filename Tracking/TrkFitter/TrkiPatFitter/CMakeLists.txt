@@ -12,13 +12,13 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkFitter/TrkiPatFitterUtils
                           PRIVATE
                           Event/EventPrimitives
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
                           DetectorDescription/Identifier
                           Tracking/TrkEvent/TrkMaterialOnTrack
