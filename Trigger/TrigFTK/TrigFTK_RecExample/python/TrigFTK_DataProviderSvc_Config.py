@@ -10,43 +10,23 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         FTK_DataProviderSvc.__init__(self, name) 
         # Track Fitter
         from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator, InDetTrigNavigator, InDetTrigPropagator, InDetTrigRefitRotCreator,InDetTrigBroadInDetRotCreator, \
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator, InDetTrigNavigator, InDetTrigPropagator, \
+             InDetTrigRefitRotCreator,InDetTrigBroadInDetRotCreator, InDetTrigBroadSCT_ClusterOnTrackTool, \
              InDetTrigUpdator, InDetTrigMaterialUpdator, InDetTrigUpdator, InDetTrigMaterialUpdator
         from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
-        from TrkDistributedKalmanFilter.DistributedKalmanFilter_Config import ConfiguredDistributedKalmanFilter
-        TrigFTK_TrackFitter = ConfiguredDistributedKalmanFilter("TrigFTK_TrackFitter",
-            ExtrapTool=InDetTrigExtrapolator,
-            ROTCreator=InDetTrigBroadInDetRotCreator,
-            )
-
-        #TrigFTK_TrackFitter = Trk__GlobalChi2Fitter(name = "TrigFTK_TrackFitter",
-            #                                        ExtrapolationTool     = InDetTrigExtrapolator,
-         #                                           NavigatorTool         = InDetTrigNavigator,
-          #                                          PropagatorTool        = InDetTrigPropagator,     
-           #                                                                         RotCreatorTool        = InDetTrigRefitRotCreator,
-             #                                       BroadRotCreatorTool   = InDetTrigBroadInDetRotCreator,
-              #                                      MeasurementUpdateTool = InDetTrigUpdator,
-               #                                     TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
-                #                                    MaterialUpdateTool    = InDetTrigMaterialUpdator,
-                 #                                   StraightLine          = False,
-                  #                                  OutlierCut            = 4,
-                   #                                 SignedDriftRadius     = True,
-                    #                                RecalibrateSilicon    = True,
-                     #                               RecalibrateTRT        = True,
-                      #                              ReintegrateOutliers   = True,
-                       #                             TrackChi2PerNDFCut    = 7,
-                        #                            TRTExtensionCuts      = False, 
-                         ##                           MaxIterations         = 40,
-                           #                         Acceleration          = True,
-                            #                                    Momentum=1000.,
-                             #                       )
+        from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from AthenaCommon.AppMgr import ToolSvc
 
-        print "printing TrigFTK_TrackFitter configured with DKF"
-        print TrigFTK_TrackFitter
-        ToolSvc += TrigFTK_TrackFitter
-        print "added TrigFTK_TrackFitter to ToolSvc"
+
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK
+
+
+        #from TrkDistributedKalmanFilter.DistributedKalmanFilter_Config import ConfiguredDistributedKalmanFilter
+        #TrigFTK_TrackFitter = ConfiguredDistributedKalmanFilter("TrigFTK_TrackFitter",
+        #    ExtrapTool=InDetTrigExtrapolator,
+        #    ROTCreator=InDetTrigBroadInDetRotCreator,
+        #    )
 
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool,InDetTrigHoleSearchTool
@@ -160,7 +140,8 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         ToolSvc+=theTrigFTK_UncertaintyTool
 
         from FTK_RecTools.FTK_RecToolsConf import FTK_VertexFinderTool
-        TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="TrigFTK_RawVertexFinderTool")
+        TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="TrigFTK_RawVertexFinderTool",
+                                                           VertexInternalEdmFactory=InDetTrigVxEdmCnv)
         ToolSvc+=TrigFTK_RawVertexFinderTool
 
 
@@ -172,24 +153,29 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.SctTruthName="TrigFTK_PRD_MultiTruthSCT"
         self.PixelClusterContainerName= "TrigFTK_PixelClusterContainer"
         self.SCT_ClusterContainerName= "TrigFTK_SCT_ClusterContainer"
-
-
-        self.TrackFitter = TrigFTK_TrackFitter
+        self.CorrectPixelClusters=True
+        self.CorrectSCTClusters=True
+        
+        
+        self.TrackFitter = InDetTrigTrackFitterFTK
         self.UncertaintyTool=theTrigFTK_UncertaintyTool
         self.TrackSummaryTool=TrigFTK_TrackSummaryTool
         self.TrackParticleCreatorTool=TrigFTK_TrackParticleCreatorTool
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
         self.VertexFinderTool=TrigFTK_PriVxFinderTool
+        self.ROTcreatorTool= InDetTrigRotCreatorFTK 
+
+
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
-        self.TrainingBeamspotX= -0.0497705
-        self.TrainingBeamspotY=1.06299
+        self.TrainingBeamspotX= 0.0
+        self.TrainingBeamspotY= 0.0
         self.TrainingBeamspotZ = 0.0
-        self.TrainingBeamspotTiltX= -1.51489e-05 
-        self.TrainingBeamspotTiltY= -4.83891e-05
+        self.TrainingBeamspotTiltX= 0.0
+        self.TrainingBeamspotTiltY= 0.0
         self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
         self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
-        self. PixelEndCapPhiOffsets=[-0.005,0.,0.]
+        self. PixelEndCapPhiOffsets=[0,0.,0.]
         self. PixelEndCapEtaOffsets=[0.,0.,0.]
 
         
