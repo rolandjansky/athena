@@ -20,13 +20,13 @@
 
 //#include "TrkFitterInterfaces/ITrackFitter.h"
 //#include "TrkFitterUtils/FitterTypes.h"
-#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+//#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+//#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
@@ -50,6 +50,8 @@ namespace Trk {
   class ITrackFitter;
   class ITrackSummaryTool;
   class ITrackParticleCreatorTool;
+  class IRIO_OnTrackCreator;
+  //  class RIO_OnTrack;
   //  class VxCandidate;
   //class IVxCandidateXAODVertex;
 }
@@ -64,7 +66,6 @@ namespace InDet {
   class PixelClusterOnTrack;
   class SCT_Cluster;
   class IVertexFinder;
-
 }
 
 class IFTK_VertexFinderTool;
@@ -120,8 +121,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  protected:
 
- InDet::PixelCluster* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster, float eta);
- InDet::SCT_Cluster*  createSCT_Cluster( const IdentifierHash hash, const int strip, const int w);
+ 
+ const Trk::RIO_OnTrack* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
+ const Trk::RIO_OnTrack* createSCT_Cluster( const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
  
  StatusCode getTruthCollections();
  void createSCT_Truth(Identifier id, int barCode);
@@ -154,6 +156,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
+  ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
@@ -194,8 +197,11 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_got_fast_vertex_refit;
   bool m_got_fast_vertex_conv;
   bool m_got_fast_vertex_raw;
-
   
+  bool m_correctPixelClusters;
+  bool m_correctSCTClusters;
+  bool m_broadPixelErrors;
+  bool m_broadSCT_Errors;
 
   // maps from FTK track index to converted/refitted object index
   std::vector< int> m_conv_track_map;
@@ -237,7 +243,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
 };
 
-inline bool compareFTK_Clusters (InDet::SiClusterOnTrack* cl1, InDet::SiClusterOnTrack* cl2) {
+inline bool compareFTK_Clusters (const Trk::RIO_OnTrack* cl1, const Trk::RIO_OnTrack* cl2) {
    
   //  double r1 = cl1->globalPosition().x()*cl1->globalPosition().x() + cl1->globalPosition().y()*cl1->globalPosition().y();
   //double r2 = cl2->globalPosition().x()*cl2->globalPosition().x() + cl2->globalPosition().y()*cl2->globalPosition().y();
