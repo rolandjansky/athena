@@ -5,12 +5,7 @@
 #include "GeoModelEnvelopes/ForDetEnvelopeTool.h"
 #include "GeoModelEnvelopes/ForDetEnvelopeFactory.h" 
 #include "GeoModelEnvelopes/ForDetEnvelopeManager.h" 
-
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "GaudiKernel/IService.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -32,22 +27,11 @@ ForDetEnvelopeTool::~ForDetEnvelopeTool()
 
 StatusCode ForDetEnvelopeTool::create(StoreGateSvc* detStore)
 { 
-  MsgStream log(msgSvc(), name()); 
-
-  log << MSG::INFO << "Building Forward Detectors Envelope" << endreq;
-
-  IGeoModelSvc *geoModel;
-  StatusCode sc = service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not locate GeoModelSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_INFO("Building Forward Detectors Envelope");
 
   GeoModelExperiment* theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve(theExpt,"ATLAS")) { 
-    log << MSG::ERROR 
-	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+    ATH_MSG_ERROR("Could not find GeoModelExperiment ATLAS");
     return StatusCode::FAILURE; 
   } 
 
@@ -59,12 +43,12 @@ StatusCode ForDetEnvelopeTool::create(StoreGateSvc* detStore)
 
     m_manager = theFactory.getDetectorManager();
     theExpt->addManager(m_manager);
-    sc = detStore->record(m_manager,
+    StatusCode sc = detStore->record(m_manager,
 			  m_manager->getName());
     
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not register ForDetEnvelope detector manager" << endreq;
-      return (StatusCode::FAILURE); 
+      ATH_MSG_ERROR("Could not register ForDetEnvelope detector manager");
+      return StatusCode::FAILURE; 
     }
     return StatusCode::SUCCESS;
   }
