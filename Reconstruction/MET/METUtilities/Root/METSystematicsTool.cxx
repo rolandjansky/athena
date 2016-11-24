@@ -18,12 +18,17 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
-#include "xAODJet/JetContainer.h"
-
+#include "xAODJet/Jet.h"
 
 namespace met {
 
   using namespace xAOD;
+
+  typedef ElementLink<xAOD::IParticleContainer> iplink_t;
+  static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > acc_constitObjLinks("ConstitObjectLinks");
+  static const SG::AuxElement::ConstAccessor< iplink_t  > acc_originalObject("originalObjectLink");
+
+  //  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
   METSystematicsTool::METSystematicsTool(const std::string& name) : asg::AsgTool::AsgTool(name),
   m_appliedSystEnum(NONE),
@@ -34,13 +39,11 @@ namespace met {
   m_h_calosyst_scale(nullptr),
   m_h_calosyst_reso (nullptr),
   m_rand(0),
-  m_objLinkAcc("originalObjectLink"),
   m_units(-1)
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "JetColl",           m_jetColl           = "AntiKt4LCTopoJets"                         );
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data15_13TeV/Dec15v2");
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data16_13TeV/rec_July16v1"    );
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
@@ -50,6 +53,7 @@ namespace met {
     declareProperty( "TruthObj",          m_truthObj          = "NonInt"                                    );
     declareProperty( "VertexContainer",   m_vertexCont        = "PrimaryVertices"                           );
     declareProperty( "EventInfo",         m_eventInfo         = "EventInfo"                                 );
+    declareProperty( "UseDevArea",        m_useDevArea        = false                                       );
 
     applySystematicVariation(CP::SystematicSet()).ignore();
   }
@@ -266,8 +270,7 @@ namespace met {
   }
 
   CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet,
-							 const xAOD::MissingETAssociationMap * map,
-							 const xAOD::JetContainer * jetCont) const{
+							 const xAOD::MissingETAssociationMap * map) const{
 
     //if asking for jet track systematics, the user needs to give a met association map as well
     //if using a different jetContainer, you can give it as an option to applyCorrection
@@ -289,14 +292,8 @@ namespace met {
 	ATH_MSG_WARNING("MissingET object not owned by a container. Returning without applying correction" );
 	return CP::CorrectionCode::Error;
       }
-      if(jetCont == nullptr  &&
-	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()
-	 ){
-        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
-        return CP::CorrectionCode::Error;
-      }
 
-      return internalSoftTermApplyCorrection(inputMet, METcont, *getDefaultEventInfo(), jetCont);
+      return internalSoftTermApplyCorrection(inputMet, METcont, *getDefaultEventInfo());
     }
 
   //  if( MissingETBase::Source::isTrackTerm(inputMet.source()) &&
@@ -307,14 +304,7 @@ namespace met {
 	return CP::CorrectionCode::Error;
       }
 
-      if(jetCont == nullptr  && //if we get a JetContainer, we will use that one
-	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()
-	 ){
-        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
-        return CP::CorrectionCode::Error;
-      }
-
-      return getCorrectedJetTrackMET(inputMet, map, jetCont);
+      return getCorrectedJetTrackMET(inputMet, map);
     }
 
     ATH_MSG_WARNING("METSystematicsTool received a MissingET object it can't correct.  You should only pass soft MET terms or jet track MET terms.");
@@ -323,8 +313,7 @@ namespace met {
 
 
   CP::CorrectionCode METSystematicsTool::correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-						       const xAOD::MissingETAssociationMap * map,
-						       const xAOD::JetContainer * jetCont) const
+						       const xAOD::MissingETAssociationMap * map) const
   { ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
     xAOD::MissingET * copy = nullptr;
 
@@ -353,15 +342,9 @@ namespace met {
 	outputmet = nullptr;
 	return CP::CorrectionCode::Error;
       }
-      if(jetCont == nullptr &&
-	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
-        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
-	outputmet = nullptr;
-        return CP::CorrectionCode::Error;
-      }
       copy = new xAOD::MissingET(met);
 
-      if(internalSoftTermApplyCorrection(*copy, METcont,  *getDefaultEventInfo(), jetCont) != CP::CorrectionCode::Ok ){
+      if(internalSoftTermApplyCorrection(*copy, METcont,  *getDefaultEventInfo()) != CP::CorrectionCode::Ok ){
 	outputmet = nullptr; delete copy;
 	return CP::CorrectionCode::Error;
       }
@@ -375,14 +358,8 @@ namespace met {
 	return CP::CorrectionCode::Error;
       }
 
-      if(jetCont == nullptr &&
-	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
-        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
-	outputmet = nullptr;
-        return CP::CorrectionCode::Error;
-      }
       copy = new xAOD::MissingET(met);
-      if(getCorrectedJetTrackMET(*copy, map, jetCont) != CP::CorrectionCode::Ok){
+      if(getCorrectedJetTrackMET(*copy, map) != CP::CorrectionCode::Ok){
 	outputmet = nullptr; delete copy;
 	return CP::CorrectionCode::Error;
       }
@@ -394,8 +371,7 @@ namespace met {
 
   CP::CorrectionCode METSystematicsTool::internalSoftTermApplyCorrection(xAOD::MissingET                & softMet,
 									 xAOD::MissingETContainer const * METcont,
-									 xAOD::EventInfo          const & eInfo  ,
-									 xAOD::JetContainer       const * jetCont
+									 xAOD::EventInfo          const & eInfo
 									 ) const{ //this is equivalent of "getSoftTerms"
 
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
@@ -403,11 +379,6 @@ namespace met {
 
     if( ! MissingETBase::Source::isSoftTerm(softMet.source()) ){
       ATH_MSG_ERROR("not soft met, cannot apply soft term correction to this MET");
-      return CP::CorrectionCode::Error;
-    }
-
-    if(jetCont == nullptr) {
-      ATH_MSG_WARNING("No jet container, cannot apply soft term correction");
       return CP::CorrectionCode::Error;
     }
 
@@ -446,17 +417,18 @@ namespace met {
       double const ptHardMet = TMath::Sqrt( ptHard.mpx * ptHard.mpx +
 					    ptHard.mpy * ptHard.mpy )  ;
 
+      xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
+      size_t njet = (jetterm==nullptr) ? 0 : acc_constitObjLinks(*jetterm ).size();
 
       int          phbin                                     = m_shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
       if(phbin>m_shiftpara_pthard_njet_mu->GetNbinsX())  phbin = m_shiftpara_pthard_njet_mu->GetNbinsX();
-      int    const jetbin                                    = m_shiftpara_pthard_njet_mu->GetYaxis()->FindBin(jetCont->size());
+      int    const jetbin                                    = m_shiftpara_pthard_njet_mu->GetYaxis()->FindBin(njet);
       int    const mubin                                     = m_shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
       double const ptHardShift                               = m_shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
 
       double const randGaus = m_rand.Gaus(0.,1.);
 
       ATH_MSG_DEBUG("About to apply systematic " << appliedSystematicsString() );
-
 
       //now we need to know what soft term systematics we are doing
       //m_appliedSystEnum was cached by the applySystematicVariation method
@@ -531,42 +503,42 @@ namespace met {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
       return CP::CorrectionCode::Error;
     }
-    xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(map,jet);
-    MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
-    //    MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
 
-    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
-    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
+    if(m_appliedSystEnum==MET_JETTRK_SCALEUP || m_appliedSystEnum==MET_JETTRK_SCALEDOWN) {
+      xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(map,jet);
+      MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
 
-    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
-    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
+      int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+      if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-    double uncert = 0.;
-    switch( m_appliedSystEnum ){
+      int etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+      if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 
-    case MET_JETTRK_SCALEUP : {
-      uncert  = m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
-      break;
-    }
-    case MET_JETTRK_SCALEDOWN : {
-      uncert  = -1.*m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
-      break;
-    }
-    default:{
-      ATH_MSG_DEBUG("No jet track systematic applied");
-      break;
-    }
-    }
+      double uncert = 0.;
+      switch( m_appliedSystEnum ){
+      case MET_JETTRK_SCALEUP : {
+	uncert  = m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
+	break;
+      }
+      case MET_JETTRK_SCALEDOWN : {
+	uncert  = -1.*m_jet_systRpt_pt_eta->GetBinContent(phbin,etabin);
+	break;
+      }
+      default:
+	break;
+      }
 
-    jettrkmet.setMpx  ( jettrkmet.mpx() - trkvec.cpx() * uncert);
-    jettrkmet.setMpy  ( jettrkmet.mpy() - trkvec.cpy() * uncert);
+      ATH_MSG_VERBOSE("Uncertainty on this jet is " << uncert);
+
+      jettrkmet.setMpx  ( jettrkmet.mpx() - trkvec.cpx() * uncert);
+      jettrkmet.setMpy  ( jettrkmet.mpy() - trkvec.cpy() * uncert);
+    } else { ATH_MSG_VERBOSE("No jet track systematics applied"); }
 
     return CP::CorrectionCode::Ok;
   }
 
   CP::CorrectionCode METSystematicsTool::calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationMap* map,
- 								 const xAOD::JetContainer* jetCont) const
+  								 const xAOD::MissingETAssociationMap* map) const
 
   {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
@@ -575,78 +547,75 @@ namespace met {
       ATH_MSG_ERROR("jet track systematics histogram not initialized properly.") ;
       return CP::CorrectionCode::Error;
     }
-    //    MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
 
-    double uncert = 0.;
-    int jetCount=0;
+    if(m_appliedSystEnum==MET_JETTRK_SCALEUP || m_appliedSystEnum==MET_JETTRK_SCALEDOWN) {
+      double uncert = 0.;
+      int jetCount=0;
 
-    bool originalInputs = jetCont->empty() ? false : !jetCont->front()->isAvailable<ElementLink<IParticleContainer> >("originalObjectLink");
-    for(const xAOD::Jet *jet : *jetCont)
-    {
-      if(jet->auxdata<char>("usedByMET"))
-      {
-        const MissingETAssociation* assoc = 0;
-        if(originalInputs) {
-          assoc = MissingETComposition::getAssociation(map,jet);
-        } else {
-          const IParticle* orig = *m_objLinkAcc(*jet);
-          assoc = MissingETComposition::getAssociation(map,static_cast<const xAOD::Jet*>(orig));
-        }
-
-//        xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(map,jet);
-        MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
-        if(fabs(jet->eta())<=2.5)
-        {
-          jetCount++;
-          int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
-          if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
-
-          int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
-          if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
-          float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
-
-          ATH_MSG_VERBOSE("Sumpt: "<< trkvec.sumpt());
-          ATH_MSG_VERBOSE("jet uncert: "<< m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
-
-          uncert=sqrt(uncert*uncert+uncert_frac*uncert_frac);
-        }
+      std::vector<const xAOD::Jet*> jets;
+      for(iplink_t jetlink : acc_constitObjLinks(jettrkmet)) {
+	if((*jetlink)->type()!=xAOD::Type::Jet) {
+	  ATH_MSG_ERROR("Invalid object of type " << (*jetlink)->type() << " in jet term");
+	  return CP::CorrectionCode::Error;
+	}
+	jets.push_back(static_cast<const xAOD::Jet*>(*jetlink));
       }
-    }
+      bool originalInputs = jets.empty() ? false : !acc_originalObject.isAvailable(*jets.front());
+      for(const xAOD::Jet *jet : jets) {
+	const MissingETAssociation* assoc = 0;
+	if(originalInputs) {
+	  assoc = MissingETComposition::getAssociation(map,jet);
+	} else {
+	  const IParticle* orig = *acc_originalObject(*jet);
+	  assoc = MissingETComposition::getAssociation(map,static_cast<const xAOD::Jet*>(orig));
+	}
 
-    ATH_MSG_VERBOSE("Uncertainty: "<< uncert);
-    ATH_MSG_VERBOSE("Jet Counting: "<< jetCount);
+	MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
+	if(fabs(jet->eta())<=2.5)
+	  {
+	    jetCount++;
+	    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+	    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-    switch( m_appliedSystEnum )
-    {
+	    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+	    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
+	    float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
+	    ATH_MSG_VERBOSE("Sumpt: "<< trkvec.sumpt());
+	    ATH_MSG_VERBOSE("jet uncert: "<< m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
+	    uncert=sqrt(uncert*uncert+uncert_frac*uncert_frac);
+	  }
+      }
+
+      ATH_MSG_VERBOSE("Uncertainty: "<< uncert);
+      ATH_MSG_VERBOSE("Jet Counting: "<< jetCount);
+
+      switch( m_appliedSystEnum ) {
       case MET_JETTRK_SCALEUP :
-        {
-          uncert  = uncert;
-          break;
-        }
+	{
+	  uncert  = uncert;
+	  break;
+	}
       case MET_JETTRK_SCALEDOWN :
-        {
-          uncert  = -1.*uncert;
-          break;
-        }
+	{
+	  uncert  = -1.*uncert;
+	  break;
+	}
       default:
-        {
-          ATH_MSG_DEBUG("No jet track systematic applied");
-          break;
-        }
-    }
+	break;
+	}
 
-    jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
-    jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
-    jettrkmet.setSumet( jettrkmet.sumet() + uncert);
+      jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
+      jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      jettrkmet.setSumet( jettrkmet.sumet() + uncert);
+    }
 
     return CP::CorrectionCode::Ok;
   }
 
 
   CP::CorrectionCode METSystematicsTool::getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet,
-  								 const xAOD::MissingETAssociationMap* map,
-  								 const xAOD::JetContainer * jetCont
+  								 const xAOD::MissingETAssociationMap* map
   								 ) const
    {
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
@@ -654,17 +623,8 @@ namespace met {
       ATH_MSG_ERROR("MissingETAssociationMap null, error calculating jet track systematics.");
       return CP::CorrectionCode::Error;
     }
-    if(!jetCont) {
-      ATH_MSG_ERROR("JetContainer null, error calculating jet track systematics.");
-      return CP::CorrectionCode::Error;
-    }
 
-//    for(xAOD::JetContainer::const_iterator iJet=jetCont->begin(); iJet!=jetCont->end(); ++iJet ){
-//      if(calcJetTrackMETWithSyst(jettrkmet, map , *iJet) != CP::CorrectionCode::Ok){
-//	ATH_MSG_ERROR("Failed to calculate jet track systematics.  There was a problem with the " << iJet - jetCont->begin() << "th jet in your container.");
-//	return CP::CorrectionCode::Error;
-//      }
-    if(calcJetTrackMETWithSyst(jettrkmet, map , jetCont) != CP::CorrectionCode::Ok){
+    if(calcJetTrackMETWithSyst(jettrkmet, map) != CP::CorrectionCode::Ok){
       ATH_MSG_ERROR("Failed to calculate jet track systematics.");
       return CP::CorrectionCode::Error;
     }
@@ -748,25 +708,24 @@ namespace met {
       return missingEt();
     }
 
-    xAOD::MissingET const * truthptr = (*truthCont)[MissingETBase::Source::truthNonInt()];
-    if(truthptr == nullptr){
+    xAOD::MissingETContainer::const_iterator truthiter = truthCont->find(MissingETBase::Source::truthNonInt());
+    if(truthiter == truthCont->end()){
       ATH_MSG_ERROR( m_truthObj << " is not in " << m_truthCont << ". calcPtHard returing zero." );
       return missingEt();
     }
+    const xAOD::MissingET& truthmet = **truthiter;
 
     missingEt ptHard;
-    ptHard.mpx     = truthptr->mpx();
-    ptHard.mpy     = truthptr->mpy();
-    ptHard.sumet   = truthptr->sumet();
-    ptHard.name    = truthptr->name();
-    ptHard.source  = truthptr->source();
-    //    ptHard  += (*truthptr);
+    ptHard.mpx     = truthmet.mpx();
+    ptHard.mpy     = truthmet.mpy();
+    ptHard.sumet   = truthmet.sumet();
+    ptHard.name    = truthmet.name();
+    ptHard.source  = truthmet.source();
 
     //loop over all non soft or total terms
     for(xAOD::MissingETContainer::const_iterator iMET=cont->begin();iMET!=cont->end(); ++iMET  ) {
       if( !( MissingETBase::Source::isSoftTerm( (*iMET)->source() ) ||
 	     MissingETBase::Source::isTotalTerm( (*iMET)->source() ) ) ) {
-	//        ptHard -= **iMET;
         ptHard.mpx   -= (*iMET)->mpx();
         ptHard.mpy   -= (*iMET)->mpy();
         ptHard.sumet += (*iMET)->sumet();
@@ -778,14 +737,9 @@ namespace met {
       return missingEt();
     }
 
-    // ptHard.mpx  *= 1./1000. ;
-    // ptHard.mpy  *= 1./1000. ;
-    // ptHard.sumet*= 1./1000. ;
     ptHard.mpx  *= 1./(double(m_units)) ;
     ptHard.mpy  *= 1./(double(m_units)) ;
     ptHard.sumet*= 1./(double(m_units)) ;
-
-    //    Ath_MSG_DEBUG("PtHard value is " << std::to_string(ptHard.met) );
 
     return ptHard;
   }
@@ -802,15 +756,16 @@ namespace met {
 
     std::string configpath = "";
     std::string configfile = "";
+    if(m_useDevArea) { configpath += "dev/"; }
 
     switch(type){
-    case SOFTCALO   :  configfile = m_configSoftCaloFile;
+    case SOFTCALO   :  configfile += m_configSoftCaloFile;
       configpath  = PathResolverFindCalibFile(m_configPrefix+m_configSoftCaloFile);//, "CALIBPATH", PathResolver::RecursiveSearch) ;
         break;
-    case SOFTTRK    :  configfile = m_configSoftTrkFile;
+    case SOFTTRK    :  configfile += m_configSoftTrkFile;
       configpath  = PathResolverFindCalibFile(m_configPrefix+m_configSoftTrkFile);//, "CALIBPATH", PathResolver::RecursiveSearch) ;
         break;
-    case JETTRK :   configfile = m_configJetTrkFile;
+    case JETTRK :   configfile += m_configJetTrkFile;
       configpath = PathResolverFindCalibFile(m_configPrefix+m_configJetTrkFile);//, "CALIBPATH", PathResolver::RecursiveSearch) ;
       break;
     default     :  configpath = "";
@@ -824,9 +779,6 @@ namespace met {
       ATH_MSG_ERROR( "Path Resolver couldn't find config file");
       return StatusCode::FAILURE;
     }
-
-    //    boost::filesystem::path configpathBf(configpath);
-    //    configdir = configpathBf.parent_path().string();
 
     if( reader.ReadFile(configpath.c_str(),EEnvLevel(0)) < 0) {
       ATH_MSG_ERROR( "Couldn't read the track config file!" );
@@ -849,12 +801,11 @@ namespace met {
       case JETTRK :
 	histfile = reader.GetValue( "JetTrkSyst.InputFile" , "");
 	histfile = m_configPrefix + histfile;
-	//histfile = m_configPrefix + reader.GetValue( "JetTrkSyst.InputFile" , "");
-	// histfile = m_configPrefix + "JetTrackSyst.root";
 	systpath  = "/";
 	break;
       default     :  break;
     }
+    if(m_useDevArea) histfile = "dev/"+histfile;
 
     std::string const units_string = reader.GetValue( "Units", "" );
 
@@ -939,7 +890,7 @@ namespace met {
     return NPV;
   }
 
-  void METSystematicsTool::setRandomSeed(int seed){
+  void METSystematicsTool::setRandomSeed(int seed) const {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
     m_rand.SetSeed(seed);
   }
