@@ -1811,7 +1811,38 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
 	}
       }
       // end of if m_fullScan
-    } else {
+    } else if(m_caloTagOnly){
+      hltStatus = getFeature(inputTE, trigRoI, "forID1");  // RoI based
+      if (hltStatus != HLT::OK) {
+	ATH_MSG_DEBUG("Failure in getFeature(TrigRoIDescriptor,\"forID1\") due to internal navigation error");
+	m_roi = 0;
+	return 0;
+      } else if (trigRoI) { // Found it!
+	ATH_MSG_VERBOSE("Found RoIDescriptor \"forID1\"");
+      } else { // did not find it
+	ATH_MSG_DEBUG("Could not find RoIDescriptor \"forID1\", trying to recover the L1 one (with \"\")");
+	hltStatus = getFeature(inputTE, trigRoI, "");
+	if (hltStatus != HLT::OK) {
+	  ATH_MSG_DEBUG("Failure in getFeature(TrigRoIDescriptor) due to internal navigation error");
+	  m_roi = 0;
+	  return 0;
+	} else if (trigRoI) { // found it!
+	  ATH_MSG_VERBOSE("Found (L1) RoIDescriptor \"\"");
+	} else { // did not find it
+	  ATH_MSG_DEBUG("Could not find (L1) RoIDescriptor \"\"");
+	  m_roi = 0;
+	  return 0;
+	}
+      }
+      
+      if (trigRoI) {
+	newTrigRoI = createSingleTrigRoiDescriptor( trigRoI->eta(), trigRoI->phi(), m_dEtaRoI, m_dPhiRoI, trigRoI->roiId() );
+	m_Roi_StillToBeAttached = newTrigRoI;
+	m_roi = newTrigRoI;
+      } // if trigRoI
+
+    }
+    else {
       // RoI mode
       hltStatus = getFeature(inputTE, trigRoI, "forMS");  // RoI based
       if (hltStatus != HLT::OK) {
