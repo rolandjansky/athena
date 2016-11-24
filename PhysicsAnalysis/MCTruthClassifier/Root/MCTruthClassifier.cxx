@@ -755,10 +755,15 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
 	theGenPartTmp=0;
 	for(unsigned int ipOut=0; ipOut<EndVrtx->nOutgoingParticles();ipOut++){
 	  const xAOD::TruthParticle* theDaugt=EndVrtx->outgoingParticle(ipOut);
-	  if(!theDaugt) continue;
-	  if(theDaugt->pdgId()==theGenParticle->pdgId()) theGenPartTmp=theDaugt;
-	  if(theDaugt->pdgId()!=theGenParticle->pdgId()&&theDaugt->pdgId()!=22)
+	  if(!theDaugt) {
+	    continue;
+	  }
+	  if(theDaugt->pdgId()==theGenParticle->pdgId()) {
+	    theGenPartTmp=theDaugt;
+	  }
+	  if(theDaugt->pdgId()!=theGenParticle->pdgId()&&theDaugt->pdgId()!=22){
 	    theGenPartTmp=0;
+	  }
 	}
 
 	itr++;
@@ -771,12 +776,11 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
 	} 
 	else  {
 	  EndVrtx = 0;
-	  continue;
 	}
-      } while (theGenPartTmp->pdgId()==theGenParticle->pdgId()&&theGenPartTmp->status()==2&&
-		EndVrtx!=0);
+      } while (theGenPartTmp && theGenPartTmp->pdgId()==theGenParticle->pdgId()
+	       &&theGenPartTmp->status()==2&&EndVrtx!=0);
       
-      if(theGenPartTmp!=0 && theGenPartTmp->pdgId()==theGenParticle->pdgId()) {
+      if(theGenPartTmp && theGenPartTmp->pdgId()==theGenParticle->pdgId()) {
 	theGenParticle=theGenPartTmp;
       }	   
     }
@@ -849,7 +853,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
     ATH_MSG_DEBUG( "DefOrigOfElectron:: electron  has more than one mother " );
 
   m_Mother      = getMother(thePriPart);
-  if(!m_Mother) return NonDefined;
+  if(!m_Mother) {
+    return NonDefined;
+  }
   m_MotherPDG     = m_Mother->pdgId();
   m_MotherBarcode = m_Mother->barcode();
   m_MothOriVert   =  m_Mother->hasProdVtx() ? m_Mother->prodVtx() : 0 ;
@@ -877,7 +883,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
       if(theP!=0){
 	thePriPart = theP;
 	m_Mother        = getMother(thePriPart);
-	if(!m_Mother)   return NonDefined;
+	if(!m_Mother)   {
+	  return NonDefined;
+	}
 	m_MotherPDG     = m_Mother->pdgId();
 	m_MotherBarcode = m_Mother->barcode();
 	m_MothOriVert   = m_Mother->hasProdVtx() ? m_Mother->prodVtx() : 0 ;
@@ -1261,39 +1269,39 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
     long pPDG(0);
     const xAOD::TruthParticle*  MotherParent(0);
     do { 
+      //
       pPDG=0;
+      //
       const xAOD::TruthVertex*  mother_prdVtx(0);
       const xAOD::TruthVertex*  mother_endVtx(0);
-
-      if(m_Mother) {
-	MotherParent=getMother(m_Mother); 
-	//to prevent Sherpa loop
-	mother_prdVtx=m_Mother->hasProdVtx() ? m_Mother->prodVtx():0;
-	mother_endVtx=m_Mother->decayVtx();
-      }
-
+      MotherParent=getMother(m_Mother); 
+      //to prevent Sherpa loop
+      mother_prdVtx=m_Mother->hasProdVtx() ? m_Mother->prodVtx():0;
+      mother_endVtx=m_Mother->decayVtx();
+      //
       const xAOD::TruthVertex*  parent_prdVtx(0);	
       const xAOD::TruthVertex*  parent_endVtx(0);
       if(MotherParent){
 	parent_prdVtx=MotherParent->hasProdVtx() ? MotherParent->prodVtx():0;
 	parent_endVtx=MotherParent->decayVtx();
       }
-
+      //
       if(mother_endVtx==parent_prdVtx&&mother_prdVtx==parent_endVtx){ 
 	MotherParent=m_Mother; 
 	break;
       }
       //
       //to prevent Sherpa loop
-      if(m_Mother == MotherParent) {break;} 
+      if(m_Mother == MotherParent) {
+	break;
+      } 
 
       if(MotherParent) {
-	pPDG = MotherParent->pdgId();
+	pPDG = MotherParent->pdgId();      
+	if(abs(pPDG)==13 || abs(pPDG)==15 || abs(pPDG)==24)  {
+	  m_Mother = MotherParent;
+	} 
       }
-      
-      if(abs(pPDG)==13 || abs(pPDG)==15 || abs(pPDG)==24)  {
-	m_Mother = MotherParent;
-      } 
     }  while ((abs(pPDG)==13 || abs(pPDG)==15 || abs(pPDG)==24) );
 
 
@@ -1441,7 +1449,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
 
  
   //--New Sherpa Z->mumu
-  if(partOriVert==m_MothOriVert&&partOriVert!=0){
+  if(partOriVert==m_MothOriVert){
     int NumOfMuLoop=0;
     int NumOfMuNeuLoop=0;
     int NumOfLepLoop=0;
@@ -1807,7 +1815,8 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
   m_NumOfDaug     = partOriVert->nOutgoingParticles();
 
   int  NumOfNucFr(0),NumOfEl(0),NumOfPos(0),NumOfMu(0),NumOfTau(0), NumOfPht(0),NumOfLQ(0);
-  long DaugBarcode(0),DaugType(0), NumOfLep(0), NumOfNeut(0);
+  long DaugBarcode(0),DaugType(0), NumOfLep(0), NumOfNeut(0), NumOfPartons(0);
+
   for(unsigned int ipOut=0;ipOut<partOriVert->nOutgoingParticles();ipOut++){
     if(!partOriVert->outgoingParticle(ipOut)) continue;
     DaugType = partOriVert->outgoingParticle(ipOut)->pdgId();
@@ -1821,6 +1830,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
     if(abs(DaugType) == 42) NumOfLQ++;
     if(abs(DaugType) == 11||abs(DaugType) == 13||abs(DaugType) == 15) NumOfLep++;
     if(abs(DaugType) == 12||abs(DaugType) == 14||abs(DaugType) == 16) NumOfNeut++;
+    if(abs(DaugType)<11 || (abs(DaugType)>16&&abs(DaugType)<43&&abs(DaugType)!=22)) NumOfPartons++;
 
     if(DaugType == m_MotherPDG ) DaugBarcode = partOriVert->outgoingParticle(ipOut)->barcode() ;
   } // cycle itrDaug
@@ -2082,13 +2092,17 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
       abs(m_MotherPDG)==33||
       abs(m_MotherPDG)==34||      
       abs(m_MotherPDG)==5100039 // KK graviton
-      )                                       return HeavyBoson; 
+      )                                    return HeavyBoson; 
 
   if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)             return SUSY; 
+      abs(m_MotherPDG)>1000001)            return SUSY; 
  
+  // Pythia8 gamma+jet samples
+  if ((m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22) &&
+      thePriPart->status()==1 && NumOfPht==1 && m_NumOfDaug==(NumOfPht+NumOfPartons) ){
+    return UndrPhot;
+  }
  
-
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart ) 
       && m_MothOriVert!=0&&isHardScatVrtx(m_MothOriVert))  m_isPrompt=true;
@@ -2123,7 +2137,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
     ATH_MSG_DEBUG( "DefOrigOfNeutrino:: neutrino  has more than one mother " );
 
   m_Mother      = getMother(thePriPart);
-  if(!m_Mother) return NonDefined;
+  if(!m_Mother) {
+    return NonDefined;
+  }
   m_MotherPDG     = m_Mother->pdgId();
   m_MotherBarcode = m_Mother->barcode();
   m_MothOriVert   = m_Mother->hasProdVtx() ? m_Mother->prodVtx() : 0;
@@ -2151,13 +2167,21 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
 	parent_prdVtx=MotherParent->hasProdVtx() ? MotherParent->prodVtx():0;
 	parent_endVtx=MotherParent->decayVtx();
       }
-      if(mother_endVtx==parent_prdVtx&&mother_prdVtx==parent_endVtx){ MotherParent=m_Mother; break;}
+      if(mother_endVtx==parent_prdVtx&&mother_prdVtx==parent_endVtx){ 
+	MotherParent=m_Mother; 
+	break;
+      }
       //
-      if(MotherParent) pPDG = MotherParent->pdgId();
+      if(MotherParent) {
+	pPDG = MotherParent->pdgId();
+      }
       //to prevent Sherpa loop
-      if(m_Mother == MotherParent) break; 
-
-      if(abs(pPDG)==nuFlav || abs(pPDG)==15 || abs(pPDG)==24)  m_Mother = MotherParent;
+      if(m_Mother == MotherParent) {
+	break; 
+      }
+      if(abs(pPDG)==nuFlav || abs(pPDG)==15 || abs(pPDG)==24)  {
+	m_Mother = MotherParent;
+      }
  
     }  while ((abs(pPDG)==nuFlav || abs(pPDG)==15 || abs(pPDG)==24) );
 
