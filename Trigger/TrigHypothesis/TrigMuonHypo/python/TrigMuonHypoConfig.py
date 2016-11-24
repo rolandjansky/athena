@@ -1521,7 +1521,7 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
 
     self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
     self.UseLH = False
-    self.TightCaloTag = False
+    self.TightCaloTag = True
     self.MaxMissingCells = 3
 
 
