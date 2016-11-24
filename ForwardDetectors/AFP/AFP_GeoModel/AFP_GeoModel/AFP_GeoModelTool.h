@@ -27,10 +27,10 @@ private:
 	AFP_Geometry* m_pGeometry;
 	AFP_GeoModelFactory* m_pAFPDetectorFactory;
 	ServiceHandle< IIOVDbSvc > m_iovSvc;
-	std::vector<double> arrAFP00XStaggering, arrAFP00YStaggering;
-	std::vector<double> arrAFP01XStaggering, arrAFP01YStaggering;
-	std::vector<double> arrAFP02XStaggering, arrAFP02YStaggering;
-	std::vector<double> arrAFP03XStaggering, arrAFP03YStaggering;
+        std::vector<double> m_vecAFP00XStaggering, m_vecAFP00YStaggering;
+        std::vector<double> m_vecAFP01XStaggering, m_vecAFP01YStaggering;
+        std::vector<double> m_vecAFP02XStaggering, m_vecAFP02YStaggering;
+        std::vector<double> m_vecAFP03XStaggering, m_vecAFP03YStaggering;
 
 private:
 	StatusCode CheckPropertiesSettings();

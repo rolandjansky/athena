@@ -39,23 +39,21 @@ void AFP_GeoModelFactory::AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* 
 	char szLabel[32];
 
 	//add both supports
-	sprintf(szLabel,"%s_LogSIDSupport",pszStationName);
-	GeoShape* pSolidSidSupport=CreateSolidSIDSupport();
-	GeoLogVol* pLogSIDSupport=new GeoLogVol(szLabel,pSolidSidSupport,m_MapMaterials[std::string("Steel")]);
-	GeoFullPhysVol* pPhysSIDSupport1=new GeoFullPhysVol(pLogSIDSupport);
-	GeoFullPhysVol* pPhysSIDSupport2=new GeoFullPhysVol(pLogSIDSupport);
+//	sprintf(szLabel,"%s_LogSIDSupport",pszStationName);
+//	GeoShape* pSolidSidSupport=CreateSolidSIDSupport();
+//	GeoLogVol* pLogSIDSupport=new GeoLogVol(szLabel,pSolidSidSupport,m_MapMaterials[std::string("Steel")]);
+//	GeoFullPhysVol* pPhysSIDSupport1=new GeoFullPhysVol(pLogSIDSupport);
+//	GeoFullPhysVol* pPhysSIDSupport2=new GeoFullPhysVol(pLogSIDSupport);
 
-	sprintf(szLabel,"%s_SIDSupport[01]",pszStationName);
-	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	//pPhysMotherVol->add(new GeoTransform(TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm,-fSpacing/cos(falpha))*HepGeom::RotateY3D(falpha)));
-	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_SUPPORT,pszStationName,1)));
-	pPhysMotherVol->add(pPhysSIDSupport1);
+//	sprintf(szLabel,"%s_SIDSupport[01]",pszStationName);
+//	pPhysMotherVol->add(new GeoNameTag(szLabel));
+//	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_SUPPORT,pszStationName,1)));
+//	pPhysMotherVol->add(pPhysSIDSupport1);
 
-	sprintf(szLabel,"%s_SIDSupport[02]",pszStationName);
-	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	//pPhysMotherVol->add(new GeoTransform(TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm,nSidCnt*fSpacing/cos(falpha))*HepGeom::RotateY3D(falpha)));
-	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_SUPPORT,pszStationName,2)));
-	pPhysMotherVol->add(pPhysSIDSupport2);
+//	sprintf(szLabel,"%s_SIDSupport[02]",pszStationName);
+//	pPhysMotherVol->add(new GeoNameTag(szLabel));
+//	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_SUPPORT,pszStationName,2)));
+//	pPhysMotherVol->add(pPhysSIDSupport2);
 	
 	//create cooling channel
 	//GeoShape* pSolidSIDCooling=CreateSolidSIDCooling();
@@ -76,14 +74,14 @@ void AFP_GeoModelFactory::AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* 
 	pPhysMotherVol->add(pPhysSIDVacuumSensor);
 
 	//add global vacuum sensitive volume (ID=11)
-	nSpecVacSensorID=SID_GLOBALVACUUMSENSORID;
-	sprintf(szLabel,"%s_LogSIDVacuumSensor[%i]",pszStationName,nSpecVacSensorID);
-	pLogSIDVacuumSensor=new GeoLogVol(szLabel,pSolidSIDVacuumSensor,m_MapMaterials[std::string("std::Vacuum")]);
-	pPhysSIDVacuumSensor=new GeoFullPhysVol(pLogSIDVacuumSensor);
-	sprintf(szLabel,"%s_SIDVacuumSensor[%i]",pszStationName,nSpecVacSensorID);
-	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_VACUUMSENSOR,pszStationName,nSpecVacSensorID)));
-	pPhysMotherVol->add(pPhysSIDVacuumSensor);
+//	nSpecVacSensorID=SID_GLOBALVACUUMSENSORID;
+//	sprintf(szLabel,"%s_LogSIDVacuumSensor[%i]",pszStationName,nSpecVacSensorID);
+//	pLogSIDVacuumSensor=new GeoLogVol(szLabel,pSolidSIDVacuumSensor,m_MapMaterials[std::string("std::Vacuum")]);
+//	pPhysSIDVacuumSensor=new GeoFullPhysVol(pLogSIDVacuumSensor);
+//	sprintf(szLabel,"%s_SIDVacuumSensor[%i]",pszStationName,nSpecVacSensorID);
+//	pPhysMotherVol->add(new GeoNameTag(szLabel));
+//	pPhysMotherVol->add(new GeoTransform(m_pGeometry->GetSIDTransform(ESTT_VACUUMSENSOR,pszStationName,nSpecVacSensorID)));
+//	pPhysMotherVol->add(pPhysSIDVacuumSensor);
 
 	for(int i=0;i<m_pGeometry->GetSIDPlatesCnt();i++)
 	{
@@ -167,10 +165,11 @@ GeoShape* AFP_GeoModelFactory::CreateSolidSIDPlate()
 
     double fSensorHolderWidth=0.3*CLHEP::mm;
     double fSensorHolderPlateWidth=0.0*CLHEP::mm;//0.3*CLHEP::mm; //thin plate under sensor
+	double fPlateThickness=m_CfgParams.sidcfg.fSupportThickness;
 
 	//main plate including cover + edge
-	GeoBox* pMainPlate=new GeoBox(0.5*SID_MAINPLATEXDIM, 0.5*SID_MAINPLATEYDIM, 0.5*SID_PLATETHICKNESS);
-	GeoBox* pEdge=new GeoBox(0.5*(94*CLHEP::mm-SID_MAINPLATEXDIM),0.5*108*CLHEP::mm, 0.5*SID_PLATETHICKNESS);
+	GeoBox* pMainPlate=new GeoBox(0.5*SID_MAINPLATEXDIM, 0.5*SID_MAINPLATEYDIM, 0.5*fPlateThickness);
+	GeoBox* pEdge=new GeoBox(0.5*(94*CLHEP::mm-SID_MAINPLATEXDIM),0.5*108*CLHEP::mm, 0.5*fPlateThickness);
     HepGeom::Transform3D TransEdge=HepGeom::Translate3D(DETXSIDE*(pMainPlate->getXHalfLength()+pEdge->getXHalfLength()),0.0*CLHEP::mm, 0.0*CLHEP::mm);
 	GeoShapeShift* pMoveEdge=new GeoShapeShift(pEdge, TransEdge);
 	GeoShapeUnion* pDetPlate1=new GeoShapeUnion(pMainPlate,pMoveEdge);
