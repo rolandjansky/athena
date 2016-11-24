@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
-def getMETMakerAlg(suffix,jetPtCut=0,jetColl=""):
+def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
     from AthenaCommon import CfgMgr
 
     print "Generate METMaker and METMakerAlg for METAssoc_"+suffix
@@ -14,26 +14,24 @@ def getMETMakerAlg(suffix,jetPtCut=0,jetColl=""):
     metMaker = CfgMgr.met__METMaker('METMaker_'+suffix,
                                     DoPFlow=doPFlow,
                                     DoSoftTruth=doTruth,
-                                    JetSelection='Tier0',
+                                    JetSelection=jetSelection,
                                     );
     ToolSvc += metMaker
 
-    muonSel = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool",
+    muonSel = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool_METMakerAlg",
                                            MuQuality=1, # Medium
                                            MaxEta=2.4)
     ToolSvc += muonSel
 
-    elecSelLH = CfgMgr.AsgElectronLikelihoodTool("EleSelLikelihood",
-                                                 ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodMediumOfflineConfig2015.conf")
+    elecSelLH = CfgMgr.AsgElectronLikelihoodTool("EleSelLikelihood_METMakerAlg",
+                                                 WorkingPoint="MediumLHElectron")
     ToolSvc += elecSelLH
 
-    from ROOT import egammaPID
-    photonSelIsEM = CfgMgr.AsgPhotonIsEMSelector("PhotonSelIsEM",
-                                                 isEMMask=egammaPID.PhotonTight,
-                                                 ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/PhotonIsEMTightSelectorCutDefs.conf")
+    photonSelIsEM = CfgMgr.AsgPhotonIsEMSelector("PhotonSelIsEM_METMakerAlg",
+                                                 WorkingPoint="TightPhoton")
     ToolSvc += photonSelIsEM
 
-    tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
+    tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool_METMakerAlg")
     ToolSvc += tauSel
 
     if jetColl=="":

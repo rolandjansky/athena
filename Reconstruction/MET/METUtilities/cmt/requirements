@@ -58,14 +58,25 @@ apply_pattern declare_calib files="../data/*.config ../data/*.root"
 apply_pattern dual_use_library files="../src/*.cxx ../Root/*.cxx"
 
 private
+
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
+
+# Compile examples but only fully in the analysis releases
+use_if tag=AthAnalysisBase pkg=JetCalibTools ver=JetCalibTools-* root=Reconstruction/Jet
+use_if tag=AthAnalysisBase pkg=xAODBase ver=xAODBase-* root=Event/xAOD
+use_if tag=AthAnalysisBase pkg=POOLRootAccess ver=POOLRootAccess-* root=PhysicsAnalysis
+use_if tag=AthAnalysisBase pkg=StoreGate ver=StoreGate-* root=Control
+
+application example_METMaker_METSystematicsTool ../util/example_METMaker_METSystematicsTool.cxx
+application example_METMaker_advanced ../util/example_METMaker_advanced.cxx
+application example_METMaker_rebuildTrackMET ../util/example_rebuildTrackMET.cxx
+
+macro_append example_METMaker_METSystematicsTool METUtilitiesLib
+macro_append example_METMaker_advanced METUtilitiesLib
+macro_append example_METMaker_rebuildTrackMET METUtilitiesLib
+
+end_private
+
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
-
-#end_private
-
-#macro_append METUtilities_dependencies " METUtilitiesLib"
-
-#private
-#use AtlasReflex AtlasReflex-* External -no-auto-imports
-#apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
-

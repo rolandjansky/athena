@@ -28,6 +28,9 @@ using namespace xAOD;
 
 namespace met {
 
+  typedef ElementLink<xAOD::IParticleContainer> iplink_t;
+  static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > acc_constitObjLinks("ConstitObjectLinks");
+
   //**********************************************************************
 
   METMakerAlg::METMakerAlg(const std::string& name,
@@ -189,14 +192,12 @@ namespace met {
       ATH_MSG_DEBUG("Successfully retrieved muon collection");
     }
 
-    std::vector<const xAOD::IParticle*> uniques;
     // Select and flag objects for final MET building ***************************
 
     MissingETBase::UsageHandler::Policy objScale = MissingETBase::UsageHandler::PhysicsObject;
     if(m_doTruthLep) objScale = MissingETBase::UsageHandler::TruthParticle;
     // Electrons
     if(!m_eleColl.empty()) {
-      uniques.clear();
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
       for(const auto& el : *elCont) {
     	if(accept(el)) {
@@ -205,16 +206,15 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
     				 metElectrons.asDataVector(),
-    				 metMap, uniques, objScale).isFailure() ) {
+    				 metMap, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
-    		    << uniques.size() << " are non-overlapping.");
+    		    << acc_constitObjLinks(*(*newMet)["RefEle"]).size() << " are non-overlapping.");
     }
 
     // Photons
     if(!m_gammaColl.empty()) {
-      uniques.clear();
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
       for(const auto& ph : *phCont) {
     	if(accept(ph)) {
@@ -223,16 +223,15 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
     				 metPhotons.asDataVector(),
-    				 metMap, uniques, objScale).isFailure() ) {
+    				 metMap, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
-    		    << uniques.size() << " are non-overlapping.");
+    		    << acc_constitObjLinks(*(*newMet)["RefGamma"]).size() << " are non-overlapping.");
     }
 
     // Taus
     if(!m_tauColl.empty()) {
-      uniques.clear();
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
       for(const auto& tau : *tauCont) {
     	if(accept(tau)) {
@@ -241,16 +240,15 @@ namespace met {
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
     				 metTaus.asDataVector(),
-    				 metMap, uniques, objScale).isFailure() ){
+    				 metMap, objScale).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
-    		    << uniques.size() << " are non-overlapping.");
+    		    << acc_constitObjLinks(*(*newMet)["RefTau"]).size() << " are non-overlapping.");
     }
 
     // Muons
     if(!m_muonColl.empty()) {
-      uniques.clear();
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
       for(const auto& mu : *muonCont) {
     	if(accept(mu)) {
@@ -261,19 +259,20 @@ namespace met {
       if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),
-    				 metMap, uniques, objScale).isFailure() ) {
+    				 metMap, objScale).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
-    		    << uniques.size() << " are non-overlapping.");
+    		    << acc_constitObjLinks(*(*newMet)["Muons"]).size() << " are non-overlapping.");
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  jetCont, coreMet, metMap, false, uniques ).isFailure() ) {
+				  jetCont, coreMet, metMap, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
-		  << uniques.size() << " are non-overlapping.");
+		  << acc_constitObjLinks(*(*newMet)["RefJet"]).size() << " are non-overlapping, "
+		  << acc_constitObjLinks(*(*newMet)[m_softtrkname]).size() << " are soft");
 
     MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
     if((*newMet)[m_softtrkname]) trksource = (*newMet)[m_softtrkname]->source();

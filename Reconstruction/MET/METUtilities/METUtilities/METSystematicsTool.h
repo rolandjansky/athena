@@ -25,8 +25,6 @@ class TH1D;
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 
-#include "xAODJet/Jet.h"
-
 namespace met {
 
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
@@ -100,11 +98,9 @@ namespace met {
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
     CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet,
-				       const xAOD::MissingETAssociationMap * map = nullptr,
-				       const xAOD::JetContainer *        jetCont = nullptr ) const;
+				       const xAOD::MissingETAssociationMap * map = nullptr ) const;
     CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-				     const xAOD::MissingETAssociationMap * map = nullptr,
-				     const xAOD::JetContainer * jetCont        = nullptr) const;
+				     const xAOD::MissingETAssociationMap * map = nullptr) const;
     //We don't want these for MET since we only apply systematics to the soft term, and this may be unclear
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
@@ -116,7 +112,7 @@ namespace met {
     CP::SystematicCode applySystematicVariation(const CP::SystematicSet& set){		  return CP::SystematicsTool::applySystematicVariation(set) ;}
     CP::SystematicCode sysApplySystematicVariation(const CP::SystematicSet&); //when inheriting from SystematicsTool, we should only have to implement this one
 
-    void setRandomSeed(int seed);
+    void setRandomSeed(int seed) const;
 
   private:
 
@@ -129,15 +125,13 @@ namespace met {
     //these are the internal computation functions
     CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet,
 						       xAOD::MissingETContainer const * METcont,
-						       xAOD::EventInfo          const & eInfo,
-						       xAOD::JetContainer       const * jetCont
+						       xAOD::EventInfo          const & eInfo
 						       ) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map) const;
     CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::Jet* jet) const;
-    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* jetCont) const;
-    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* jetCont) const;
+    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map) const;
 
     //declared properties
-    std::string m_jetColl;
     std::string m_configPrefix;
     std::string m_configSoftTrkFile;
     std::string m_configJetTrkFile;
@@ -147,6 +141,7 @@ namespace met {
     std::string m_vertexCont;
     std::string m_eventInfo;
     int         m_randSeed ;
+    bool        m_useDevArea;
 
     TH3D* m_shiftpara_pthard_njet_mu;
     TH3D* m_resopara_pthard_njet_mu;
@@ -156,8 +151,6 @@ namespace met {
     TH1D* m_h_calosyst_reso;
 
     mutable TRandom3 m_rand;//so that we can call this from applyCorrection
-
-    SG::AuxElement::ConstAccessor<obj_link_t>  m_objLinkAcc;
 
     //internal property
     int m_units;//by default = -1, not set.  Set to 1 (MeV) if not value found in config file
