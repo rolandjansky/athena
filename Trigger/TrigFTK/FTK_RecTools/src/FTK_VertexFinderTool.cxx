@@ -32,16 +32,15 @@
 #include "VxVertex/Vertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/Track.h"
 
-//#include "CLHEP/Matrix/SymMatrix.h"
-//#include "CLHEP/Matrix/Vector.h"
-//#include "TrkTrack/Track.h"
-//#include "TrkEventPrimitives/FitQuality.h"
-//#include "TrkTrackSummary/TrackSummary.h"
-//#include "TrkParameters/TrackParameters.h"
-//#include "TrkParticleBase/TrackParticleBase.h"
-//#include "TrkEventPrimitives/ParamDefs.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 #include "VxVertex/VxCandidate.h"
+#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 #include <map>
 #include <vector>
 #include <utility>
@@ -51,7 +50,6 @@ using std::map; using std::string;
 using std::cout; using std::endl;
 using std::vector; using std::iterator;
 using Trk::RecVertex;using Trk::VxTrackAtVertex;
-
 
 FTK_VertexFinderTool::FTK_VertexFinderTool(const std::string& t,
                                                const std::string& n,
@@ -63,7 +61,9 @@ FTK_VertexFinderTool::FTK_VertexFinderTool(const std::string& t,
   m_chi2cut(5.),
   m_constTrkPt(1.),
   m_constTrkEta(1.1),
-  m_uncertaintyTool("FTK_UncertaintyTool",this)
+  m_z0errfactor(1.0),
+  m_uncertaintyTool("FTK_UncertaintyTool",this),
+  m_VertexEdmFactory("VertexInternalEdmFactory",this)
 {
   declareInterface< IFTK_VertexFinderTool >( this );
   declareProperty( "HasIBL",  m_hasIBL);
@@ -73,6 +73,8 @@ FTK_VertexFinderTool::FTK_VertexFinderTool(const std::string& t,
   declareProperty( "ConstTrkPt",  m_constTrkPt);
   declareProperty( "ConstTrkEta",  m_constTrkEta);
   declareProperty("UncertaintyTool",m_uncertaintyTool);
+  declareProperty("VertexInternalEdmFactory",m_VertexEdmFactory);
+  declareProperty( "z0ErrFactor", m_z0errfactor);
 }
 
 StatusCode FTK_VertexFinderTool::initialize() {
@@ -80,7 +82,12 @@ StatusCode FTK_VertexFinderTool::initialize() {
   StatusCode sc = AlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool initialized "<< endreq;
+  if ( m_VertexEdmFactory.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrievel tool " << m_VertexEdmFactory);
+    return StatusCode::FAILURE;
+  }
+
+  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool initialized "<< endmsg;
   return sc;
 }
 
@@ -89,14 +96,14 @@ StatusCode FTK_VertexFinderTool::finalize() {
   return sc;
 }
 
-VxContainer* FTK_VertexFinderTool::findVertex(const FTK_RawTrackContainer* trks)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderTool::findVertex(const FTK_RawTrackContainer* trks)
 {
   vector<MyTrack> mytrk;
   mytrk=getTracks(trks);
   return findVertex(mytrk);
 }
 
-VxContainer* FTK_VertexFinderTool::findVertex(const TrackCollection* trks)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderTool::findVertex(const TrackCollection* trks)
 {
   vector<MyTrack> mytrk;
   mytrk=getTracks(trks);
@@ -105,25 +112,27 @@ VxContainer* FTK_VertexFinderTool::findVertex(const TrackCollection* trks)
 //
 // Covariance Matrix if there is a BLayer Hit
 //
-VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
 {
 
   MsgStream athenaLog(msgSvc(), name());
   double mGkx=0.0001;
   double mGky=0.0001;
   double mGkz=16.;
-  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: barrel " << m_barrelOnly<< endreq;
-  VxContainer* myVtx = new VxContainer;
+  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: barrel " << m_barrelOnly<< endmsg;
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+  xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+  theVertexContainer->setStore( theVertexAuxContainer );
   vector<MyTrack>::iterator trkbegin;
   vector<MyTrack>::iterator trkend;
   vector<MyTrack> trkatvtx;
 
-  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: total " << mytrk.size()<< " tracks "<< endreq;
+  athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: total " << mytrk.size()<< " tracks "<< endmsg;
   sort(mytrk.begin(),mytrk.end());//sorting mytrk by pt(Track7.h)
 
   int numdo=0;
   do{
-    athenaLog << MSG::DEBUG << "findVertex: finding vertex "<< endreq;
+    athenaLog << MSG::DEBUG << "findVertex: finding vertex "<< endmsg;
     //////////////////////
     //clustering
     //////////////////////
@@ -167,11 +176,11 @@ VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
     trkbegin=vxtrk.begin();
     trkend=vxtrk.end();
     int trknumber=0;
-    athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: fit VTX, using "<<vxtrk.size()<<" trks."<< endreq;
+    athenaLog << MSG::DEBUG << "FTK_VertexFinderTool:: fit VTX, using "<<vxtrk.size()<<" trks."<< endmsg;
     for(  vector<MyTrack>::iterator i=trkbegin ; i<trkend ;){
             trknumber++;
-            
-            athenaLog << MSG::VERBOSE << "getTracks: "<<trknumber<<", pt "<<(*i).m_pt<<", eta "<<(*i).m_theta<<", phi "<<(*i).m_phi<<", d0 "<<(*i).m_d0<<", z0 "<<(*i).m_z0<<", pt err "<<(*i).m_pterr<<", theta err "<<(*i).m_thetaerr<<", phi err "<< (*i).m_phierr<<", d0 err"<< (*i).m_d0err<<", z0 err "<<(*i).m_z0err<< endreq;
+            double tmpchi2 = chi2;
+            athenaLog << MSG::VERBOSE << "getTracks: "<<trknumber<<", pt "<<(*i).m_pt<<", eta "<<(*i).m_theta<<", phi "<<(*i).m_phi<<", d0 "<<(*i).m_d0<<", z0 "<<(*i).m_z0<<", pt err "<<(*i).m_pterr<<", theta err "<<(*i).m_thetaerr<<", phi err "<< (*i).m_phierr<<", d0 err"<< (*i).m_d0err<<", z0 err "<<(*i).m_z0err<< endmsg;
             //track parameter reading
             double xv,yv,zv,P0,phi0,theta0;
             TVector3 trk;
@@ -186,7 +195,7 @@ VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
 
             double cosPhi0,sinPhi0,sinPsi,cosPsi;
             double psi,ctt,sint;
-            double alpha=0.02997*20.84/1000.0;
+            double alpha=0.02997*20.84;///1000.0;
 
             cosPhi0=cos(phi0);sinPhi0=sin(phi0);
             sinPsi=-alpha*(xv*cosPhi0+yv*sinPhi0)/P0;
@@ -264,6 +273,7 @@ VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
             chi2=m_V[0][0]*m_resid[0]*m_resid[0]+m_V[1][1]*m_resid[1]*m_resid[1]+2.0*m_V[0][1]*m_resid[1]*m_resid[0];
             if(chi2>m_chi2cut || chi2<0){
               i=vxtrk.erase(i);
+              chi2 = tmpchi2;
             }
             else{
               trkatvtx.push_back(*i);
@@ -295,13 +305,17 @@ VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
             C22_mat(2,0)=m_Gk[2][0];C22_mat(2,1)=m_Gk[2][1];C22_mat(2,2)=m_Gk[2][2];
     }//track loop end
     if (vxtrk.size()==0)continue;
-    athenaLog << MSG::DEBUG << "findVertex: find vertex at "<< oldx<<";"<<oldy<<";"<<oldz<< endreq;
+    athenaLog << MSG::DEBUG << "findVertex: find vertex at "<< oldx<<";"<<oldy<<";"<<oldz<< endmsg;
     Amg::Vector3D frameOrigin(oldx,oldy,oldz);
-    Trk::RecVertex * fittedVertex;
     int ndf = 2*vxtrk.size()-3;
-    fittedVertex = new RecVertex( frameOrigin, C22_mat, ndf, chi2 );
-    std::vector<VxTrackAtVertex*> * tracksAtVertex;
-    tracksAtVertex = new std::vector<VxTrackAtVertex*>();
+    xAOD::Vertex* vx = new xAOD::Vertex;
+    vx->makePrivateStore();
+    vx->setPosition (frameOrigin);
+    vx->setCovariancePosition (C22_mat);
+    vx->setFitQuality(chi2,static_cast<float>(ndf));
+    vx->setVertexType(xAOD::VxType::PriVtx);
+
+    std::vector<VxTrackAtVertex> & tracksAtVertex = vx->vxTrackAtVertex(); tracksAtVertex.clear();
     // Store the tracks at vertex
     Amg::Vector3D Vertex(frameOrigin[0],frameOrigin[1],frameOrigin[2]);
     const Trk::PerigeeSurface Surface(Vertex);
@@ -320,30 +334,45 @@ VxContainer* FTK_VertexFinderTool::findVertex(vector<MyTrack> mytrk)
       (*CovMtxP)(0,0)=qoverperr*qoverperr;
       double qoverp = 2/(*i).m_pt/cosh(eta);
       refittedPerigee = new Trk::Perigee ((*i).m_d0,(*i).m_z0,(*i).m_phi,(*i).m_theta,qoverp, Surface, CovMtxP);
-      VxTrackAtVertex* trkV = new VxTrackAtVertex(0, refittedPerigee);
-      tracksAtVertex->push_back(trkV);
+      tracksAtVertex.emplace_back(-1, refittedPerigee);
     }
-
+/*
     Trk::VxCandidate *  fittedVxCandidate = new Trk::VxCandidate(*fittedVertex, *tracksAtVertex);
-    athenaLog << MSG::VERBOSE << "debug line _31_ "<<fittedVxCandidate->recVertex().fitQuality().doubleNumberDoF()<<"; number of tracks is"<<fittedVxCandidate->vxTrackAtVertex()->size()<< endreq;
+    athenaLog << MSG::VERBOSE << "debug line _31_ "<<fittedVxCandidate->recVertex().fitQuality().doubleNumberDoF()<<"; number of tracks is"<<fittedVxCandidate->vxTrackAtVertex()->size()<< endmsg;
     myVtx->push_back(fittedVxCandidate);
     trkatvtx.clear();
     delete fittedVertex;
     //delete fittedVxCandidate; JTB mustn't delete object in container
     delete tracksAtVertex;
   }while(mytrk.size()>0);//vertex loop end
-  athenaLog << MSG::VERBOSE << "debug line _326_ "<< myVtx->size()<< endreq;
-  return myVtx;
+  athenaLog << MSG::VERBOSE << "debug line _326_ "<< myVtx->size()<< endmsg;
+  xAOD::VertexContainer *xAODContainer(0);
+  xAOD::VertexAuxContainer *xAODAuxContainer(0);
+  if (m_VertexEdmFactory->createXAODVertexContainer(*myVtx, xAODContainer, xAODAuxContainer) != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("Cannot convert output vertex container to xAOD. Returning null pointer.");
+  }
+*/
+    theVertexContainer->push_back(vx);
+
+    trkatvtx.clear();
+    //delete vx;
+  }while(mytrk.size()>0);//vertex loop end
+
+  for (auto pv = theVertexContainer->begin(); pv != theVertexContainer->end(); ++pv) {
+    athenaLog << MSG::DEBUG << "vertex x = " <<(*pv)->position().x()<< endmsg;
+  }
+  return std::make_pair(theVertexContainer, theVertexAuxContainer);
+  //return theVertexContainer;
 
 }
+
 
 vector<FTK_VertexFinderTool::MyTrack> FTK_VertexFinderTool::getTracks(const FTK_RawTrackContainer* trks){
 
   MsgStream athenaLog(msgSvc(), name());
   vector<MyTrack> mytrk;
-  athenaLog << MSG::DEBUG << "getTracks: find "<< trks->size()<< " tracks "<< endreq;
+  athenaLog << MSG::DEBUG << "getRawTracks: find "<< trks->size()<< " tracks "<< endmsg;
   for (unsigned int ftk_track_index = 0; ftk_track_index != trks->size(); ++ftk_track_index){
-    athenaLog << MSG::DEBUG << "getTracks: get "<< ftk_track_index << " track "<< endreq;
     const FTK_RawTrack* ftk_track= trks->at(ftk_track_index);
     float trk_theta = std::atan2(1.0,ftk_track->getCotTh());
     double invpt= ftk_track->getInvPt();
@@ -351,7 +380,7 @@ vector<FTK_VertexFinderTool::MyTrack> FTK_VertexFinderTool::getTracks(const FTK_
     float trk_phi = ftk_track->getPhi();
     float trk_d0 = ftk_track->getD0();
     float trk_z0 = ftk_track->getZ0();
-    float trk_pt = fabs(1/invpt/1000);
+    float trk_pt = 1/invpt;
 /*    double trk_phierr=sqrt(3.446e-7+29.24*invpt*invpt);
     double trk_thetaerr=sqrt(7.093e-6+38.4*invpt*invpt);
     double trk_pterr=1;
@@ -359,50 +388,59 @@ vector<FTK_VertexFinderTool::MyTrack> FTK_VertexFinderTool::getTracks(const FTK_
     double trk_z0err=sqrt(6.472e-2+1.587e5*invpt*invpt);
 */
     double trk_d0err= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,  FTKTrackParam::d0,     FTKTrackParam::d0));
-    double trk_z0err= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,    FTKTrackParam::z0,     FTKTrackParam::z0));
+    double trk_z0err= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,    FTKTrackParam::z0,     FTKTrackParam::z0))*m_z0errfactor;
     double trk_phierr= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,    FTKTrackParam::phi,    FTKTrackParam::phi));
     double trk_thetaerr= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,    FTKTrackParam::theta,  FTKTrackParam::theta));
     double trk_pterr= sqrt(m_uncertaintyTool->getParamCovMtx(*ftk_track,  m_hasIBL,    FTKTrackParam::pt,    FTKTrackParam::pt));
 
     if(fabs(trk_pt)<m_constTrkPt)continue;
     if(m_barrelOnly&&fabs(trk_eta)>m_constTrkEta)continue;
+    if(ftk_track_index<10)athenaLog << MSG::DEBUG << "getRawTracks: get pt "<< trk_pt<<"+/-"<<trk_pterr << ", eta "<<trk_eta<<"+/-"<<trk_thetaerr<<", phi"<<trk_phi<<"+/-"<<trk_phierr<<", d0"<<trk_d0<<"+/-"<<trk_d0err<<", z0"<<trk_z0<<"+/-"<<trk_z0err <<endmsg;
     MyTrack Trk(ftk_track_index,trk_pt,trk_theta,trk_phi,trk_d0,trk_z0,trk_pterr,trk_thetaerr,trk_phierr,trk_d0err,trk_z0err);
     mytrk.push_back(Trk);
   }
-  athenaLog << MSG::DEBUG << "getTracks: total "<< mytrk.size() << " track "<< endreq;
+  athenaLog << MSG::DEBUG << "getRawTracks: total "<< mytrk.size() << " track "<< endmsg;
   return mytrk;
 }
 
 vector<FTK_VertexFinderTool::MyTrack> FTK_VertexFinderTool::getTracks(const TrackCollection* trks){
   MsgStream athenaLog(msgSvc(), name());
   vector<MyTrack> mytrk;
-  athenaLog << MSG::DEBUG << "getTracks: find "<< trks->size()<< " tracks "<< endreq;
+  athenaLog << MSG::DEBUG << "getRefitTracks: find "<< trks->size()<< " tracks "<< endmsg;
   TrackCollection::const_iterator track_it   = trks->begin();
   TrackCollection::const_iterator last_track = trks->end();
    for (int iTrack = 0 ; track_it!= last_track; track_it++, iTrack++) {
 //    double invpt= sin(trk_Theta)*ftk_track->getCurv()/2.;
-    double qOverp= (*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+    double trk_qOverp= (*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
     float trk_theta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
-    float trk_eta = ctheta2eta(trk_theta);
+    float trk_eta = (*track_it)->perigeeParameters()->eta();//ctheta2eta(trk_theta);
     float trk_phi = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
     float trk_d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
     float trk_z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
-    float trk_pt = fabs(1/qOverp/1000/sin(trk_theta));
-    float invpt = 1/2/(trk_pt*1000);
+    float trk_pt = 1/(trk_qOverp/sin(trk_theta));
+/*    
+    float invpt = 1/(trk_pt);
     double trk_phierr=sqrt(3.446e-7+29.24*invpt*invpt);
     double trk_thetaerr=sqrt(7.093e-6+38.4*invpt*invpt);
     double trk_pterr=1;
     double trk_d0err=sqrt(1.662e-3+6.947e4*invpt*invpt);
-    double trk_z0err=sqrt(6.472e-2+1.587e5*invpt*invpt);
-
-/*    double trk_d0err=(*track_it)->measuredPerigee()->localErrorMatrix().error(Trk::d0);
-    double trk_z0err=(*track_it)->measuredPerigee()->localErrorMatrix().error(Trk::z0);
-    double trk_phi0err=(*track_it)->measuredPerigee()->localErrorMatrix().error(Trk::phi0);
-    double trk_thetaerr=(*track_it)->measuredPerigee()->localErrorMatrix().error(Trk::theta);
-    double trk_qOverperr=(*track_it)->measuredPerigee()->localErrorMatrix().error(Trk::qOverP);
-    double trk_pterr=fabs(trk_qOverperr/trk_qOverp)+cot(trk_theta)*trk_thetaerr)/(sin(trk_theta)*trk_qOverp*1000)
-*/    if(fabs(trk_pt)<m_constTrkPt)continue;
+    double trk_z0err=sqrt(6.472e-2+1.587e5*invpt*invpt)*m_z0errfactor;
+*/
+    const AmgSymMatrix(5) *cov=(*track_it)->perigeeParameters()->covariance();
+    double trk_d0err=sqrt((*cov)(0,0));
+    double trk_z0err=sqrt((*cov)(1,1));
+    double trk_phierr=sqrt((*cov)(2,2));
+    double trk_thetaerr=sqrt((*cov)(3,3));
+    double trk_qOverperr=sqrt((*cov)(4,4));
+/*    double trk_d0err=(*track_it)->measurementsOnTrack()->localCovariance().error(Trk::d0);
+    double trk_z0err=(*track_it)->measurementsOnTrack()->localErrorMatrix().error(Trk::z0);
+    double trk_phi0err=(*track_it)->measurementsOnTrack()->localErrorMatrix().error(Trk::phi0);
+    double trk_thetaerr=(*track_it)->measurementsOnTrack()->localErrorMatrix().error(Trk::theta);
+    double trk_qOverperr=(*track_it)->measurementsOnTrack()->localErrorMatrix().error(Trk::qOverP);
+*/    double trk_pterr=-sin(trk_theta)*trk_qOverperr/trk_qOverp/trk_qOverp+cos(trk_theta)*trk_thetaerr/trk_qOverp;
+    if(fabs(trk_pt)<m_constTrkPt)continue;
     if(m_barrelOnly&&fabs(trk_eta)>m_constTrkEta)continue;
+    if(iTrack<10)athenaLog << MSG::DEBUG << "getRefitTracks: get pt "<< trk_pt<<"+/-"<<trk_qOverperr << ", eta "<<trk_eta<<"+/-"<<trk_thetaerr<<", phi"<<trk_phi<<"+/-"<<trk_phierr<<", d0"<<trk_d0<<"+/-"<<trk_d0err<<", z0"<<trk_z0<<"+/-"<<trk_z0err <<endmsg;
     mytrk.push_back(MyTrack(iTrack,trk_pt,trk_theta,trk_phi,trk_d0,trk_z0,trk_pterr,trk_thetaerr,trk_phierr,trk_d0err,trk_z0err));
   }
   return mytrk;

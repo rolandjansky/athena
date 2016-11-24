@@ -27,13 +27,28 @@
 
 #include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
+#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "VxVertex/VxContainer.h"
+#include "VxVertex/VxContainer.h"	
+//#include "xAODTracking/Vertex.h"
+//#include "xAODTracking/TrackParticle.h"
+//#include "xAODTracking/VertexContainer.h"
+//#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexFwd.h"
+//#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexAuxContainer.h"
+//#include "xAODTracking/TrackParticleContainerFwd.h"
+//#include "Tracking/TrkVertexFitter/TrkVxEdmCnv/TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 class VxContainer;
 using std::vector;
+namespace Trk {
+  class Track;
+//  class Trk::IVxCandidateXAODVertex;
+}
 class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinderTool
 {
   //struct to hold track parameters
@@ -84,9 +99,10 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
   //
   //  Get the element of the covariance matrix for id0th and id1th track parameter
   //
-   VxContainer* findVertex(const FTK_RawTrackContainer* trks);
-   VxContainer* findVertex(const TrackCollection* trks);
-
+//   VxContainer* findVertex(const FTK_RawTrackContainer* trks);
+//   VxContainer* findVertex(const TrackCollection* trks);
+ 	 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const FTK_RawTrackContainer* trks);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trks);
  private:
 
     bool m_barrelOnly;
@@ -95,15 +111,17 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
     double m_chi2cut;
     double m_constTrkPt;
     double m_constTrkEta;
+    double m_z0errfactor;
   //
   //  Helper functions with the uncerianties
   //
-  VxContainer* findVertex(vector<MyTrack> trks);
+	std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(vector<MyTrack> trks);
   double ctheta2eta(double cot);
   vector<MyTrack> getTracks(const FTK_RawTrackContainer* trks);
   vector<MyTrack> getTracks(const TrackCollection* trks);
   //tool handel
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
+  ToolHandle<Trk::IVxCandidateXAODVertex> m_VertexEdmFactory;
 };
 
 

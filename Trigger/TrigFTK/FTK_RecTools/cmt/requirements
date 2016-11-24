@@ -10,19 +10,21 @@ use AtlasROOT		AtlasROOT-*		External
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use PyJobTransforms 	PyJobTransforms-* 	Tools
 use FTK_RecToolInterfaces FTK_RecToolInterfaces-* Trigger/TrigFTK
-use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
-use AtlasPolicy                AtlasPolicy-*
+#use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+#use AtlasPolicy                AtlasPolicy-*
 use GaudiInterface             GaudiInterface-*           External
-use TrigFTK_RawData	       TrigFTK_RawData-*          Trigger/TrigFTK
+use TrigFTK_RawData	           TrigFTK_RawData-*          Trigger/TrigFTK
 use FTK_DataProviderInterfaces FTK_DataProviderInterfaces-* Trigger/TrigFTK
 ########use FTK_DataProviderSvc FTK_DataProviderSvc-* Trigger/TrigFTK
 
 #TrkTrack and VxVertec need to be public for Collection typedef 
-use TrkTrack		       TrkTrack-*		  Tracking/TrkEvent
-use VxVertex            VxVertex-*       Tracking/TrkEvent
+use TrkTrack		               TrkTrack-*		  Tracking/TrkEvent
+use VxVertex                   VxVertex-*       Tracking/TrkEvent
+use xAODTracking               xAODTracking-*             Event/xAOD 
+use TrkVxEdmCnv                TrkVxEdmCnv-*              Tracking/TrkVertexFitter
 
 private
-
+use TrkParameters    TrkParameters-*   Tracking/TrkEvent
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
