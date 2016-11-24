@@ -6,7 +6,7 @@
 #include "BeamPipeGeoModel/BeamPipeDetectorFactory.h" 
 #include "BeamPipeGeoModel/BeamPipeDetectorManager.h" 
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -35,17 +35,17 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
 { 
   MsgStream log(msgSvc(), name()); 
 
-  log << MSG::INFO << "Building Beam Pipe" << endreq;
+  log << MSG::INFO << "Building Beam Pipe" << endmsg;
 
-  IGeoModelSvc *geoModel;
-  StatusCode sc = service ("GeoModelSvc",geoModel);
+  IGeoDbTagSvc *geoDbTag;
+  StatusCode sc = service ("GeoDbTagSvc",geoDbTag);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not locate GeoModelSvc" << endreq;
+    log << MSG::FATAL << "Could not locate GeoDbTagSvc" << endmsg;
     return StatusCode::FAILURE;
   }
     
 
-  std::string atlasVersion = geoModel->atlasVersion();
+  std::string atlasVersion = geoDbTag->atlasVersion();
   if(atlasVersion == "AUTO")
     atlasVersion = "ATLAS-00";
   std::string versionNode = "ATLAS";
@@ -54,7 +54,7 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+	<< endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -65,7 +65,7 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
     IRDBAccessSvc* raccess = 0;
     sc = service("RDBAccessSvc",raccess);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not locate RDBAccessSvc" << endreq;
+      log << MSG::FATAL << "Could not locate RDBAccessSvc" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -73,11 +73,11 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
     // Print the  version tag:
     std::string beampipeVersionTag;
     beampipeVersionTag = raccess->getChildTag("BeamPipe", atlasVersion,versionNode, false);
-    log << MSG::DEBUG << "Beampipe Version: " << beampipeVersionTag << endreq;
+    log << MSG::DEBUG << "Beampipe Version: " << beampipeVersionTag << endmsg;
 
 
     if (beampipeVersionTag.empty()) { 
-      log << MSG::INFO << "No BeamPipe Version. Beam pipe will not be built." << endreq;
+      log << MSG::INFO << "No BeamPipe Version. Beam pipe will not be built." << endmsg;
       
     } else {
       
@@ -92,7 +92,7 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
     
 
       if (sc.isFailure()) {
-	log << MSG::ERROR << "Could not register BeamPipe detector manager" << endreq;
+	log << MSG::ERROR << "Could not register BeamPipe detector manager" << endmsg;
 	return (StatusCode::FAILURE); 
       }
     }
