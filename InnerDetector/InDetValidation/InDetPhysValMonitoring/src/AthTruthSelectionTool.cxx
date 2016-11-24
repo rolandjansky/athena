@@ -27,36 +27,39 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string &type, const std:
     declareProperty("maxEta", m_maxEta = 2.5);
     declareProperty("minPt", m_minPt = 400); 
     declareProperty("maxPt", m_maxPt = -1);
-    declareProperty("maxBarcode", m_maxBarcode = 200e3); 
+    declareProperty("maxBarcode", m_maxBarcode = 200e3);  
     declareProperty("requireCharged", m_requireCharged = true); 
     declareProperty("requireStatus1", m_requireStatus1 = true); 
-    declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
+    declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.); 
     declareProperty("pdgId", m_pdgId = -1);
-    //can already set cut properties now
-    typedef xAOD::TruthParticle  P_t;
-    typedef Accept<P_t> Accept_t;
-    typedef Accept_t::func_type F_t;
-    //
-
-    const std::vector<Accept_t> filters={ 
-     // if p.pt=0, TVector3 generates an error when querying p.eta(); a limit of 1e-7 was not found to be enough to prevent this
-     // the following also vetoes the case where the p.pt()=NaN, as any inequality with NaN evaluates to false
-     Accept_t([this](const P_t &p)->bool{ return ( (p.pt() > 0.1)? (std::abs(p.eta()) < m_maxEta):false );}, std::string("eta")),
-     Accept_t([this](const P_t &p)->bool{ return (p.pt() > m_minPt);}, std::string("min_pt")),
-     Accept_t([this](const P_t &p)->bool{ return ((not (p.hasProdVtx())) or (p.prodVtx()->perp() < m_maxProdVertRadius));},"decay_before_pixel")
-    };
-    //
-    m_cutFlow=CutFlow<P_t>(filters);
-    if (m_maxPt!=-1) m_cutFlow.add(Accept_t([this](const P_t &p){ return (p.pt() < m_maxPt);}, "max_pt"));
-    if (m_maxBarcode > -1) m_cutFlow.add(Accept_t([this](const P_t &p){ return (p.barcode() < m_maxBarcode);}, "barcode"));
-    if (m_requireCharged) m_cutFlow.add(Accept_t([this](const P_t &p){ return(not (p.isNeutral()) );},"charged"));
-    if (m_requireStatus1) m_cutFlow.add(Accept_t([this](const P_t &p){ return(p.status()==1);},"status1"));
-    if (m_pdgId!=-1) m_cutFlow.add(Accept_t([this](const P_t &p){ return (std::abs(p.pdgId())==m_pdgId);},"pdgId"));
-    m_counters=std::vector<unsigned int>(m_cutFlow.size(),0);
+    declareProperty("hasNoGrandparent", m_grandparent = false); 
+    declareProperty("poselectronfromgamma", m_poselectronfromgamma = false);
 } 
 
 StatusCode
 AthTruthSelectionTool::initialize(){
+  //can set cut properties now
+  typedef xAOD::TruthParticle  P_t;
+  typedef Accept<P_t> Accept_t;
+  typedef Accept_t::func_type F_t;
+  //
+  const std::vector<Accept_t> filters={ 
+   // if p.pt=0, TVector3 generates an error when querying p.eta(); a limit of 1e-7 was not found to be enough to prevent this
+   // the following also vetoes the case where the p.pt()=NaN, as any inequality with NaN evaluates to false
+   Accept_t([this](const P_t &p)->bool{ return ( (p.pt() > 0.1)? (std::abs(p.eta()) < m_maxEta):false );}, std::string("eta")),
+   Accept_t([this](const P_t &p)->bool{ return (p.pt() > m_minPt);}, std::string("min_pt")),
+   Accept_t([this](const P_t &p)->bool{ return ((not (p.hasProdVtx())) or (p.prodVtx()->perp() < m_maxProdVertRadius));},"decay_before_"+std::to_string(m_maxProdVertRadius))
+  };
+  //
+  m_cutFlow=CutFlow<P_t>(filters);
+  if (m_maxPt > 0) m_cutFlow.add(Accept_t([this](const P_t &p){ return (p.pt() < m_maxPt);}, "max_pt"));
+  if (m_maxBarcode > -1) m_cutFlow.add(Accept_t([this](const P_t &p){ return (p.barcode() < m_maxBarcode);}, "barcode < "+std::to_string(m_maxBarcode) ));
+  if (m_requireCharged) m_cutFlow.add(Accept_t([](const P_t &p){ return(not (p.isNeutral()) );},"charged"));
+  if (m_requireStatus1) m_cutFlow.add(Accept_t([](const P_t &p){ return(p.status()==1);},"status1"));
+  if (m_pdgId > 0) m_cutFlow.add(Accept_t([this](const P_t &p){ return (std::abs(p.pdgId())==m_pdgId);},"pdgId"));
+  if (m_grandparent) m_cutFlow.add(Accept_t([](const P_t &p){ return ((p.nParents() == 0) || ( (p.nParents() == 1) and ((p.parent(0))->nParents() == 0)) ); }, "hasNoGrandparent"));
+  if (m_poselectronfromgamma) m_cutFlow.add(Accept_t([](const P_t &p){ return ((p.absPdgId() == 11) and (p.nParents() >= 1) and (p.parent(0)->pdgId() == 22)); }, "poselectronfromgamma"));
+  m_counters=std::vector<unsigned int>(m_cutFlow.size(),0);
   std::string msg=std::to_string(m_cutFlow.size())+" truth acceptance cuts are used:\n";
   for (const auto & i:m_cutFlow.names()){
     msg+=i+"\n";

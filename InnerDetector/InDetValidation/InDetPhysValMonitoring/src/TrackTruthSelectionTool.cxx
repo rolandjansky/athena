@@ -5,6 +5,7 @@
 // InDetPhysValMonitoring includes
 #include "TrackTruthSelectionTool.h"
 #include "xAODTruth/TruthVertex.h"
+#include <cmath> //std::fabs
 
 
 TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string &name) :
@@ -115,7 +116,7 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle *p) const {
 
   // Check cuts
   if (m_maxEta > -1) {
-    m_accept.setCutResult("eta", (p->pt() > 1e-7 ? (fabs(p->eta()) < m_maxEta) : false));
+    m_accept.setCutResult("eta", (p->pt() > 1e-7 ? (std::fabs(p->eta()) < m_maxEta) : false));
   }
   if (m_minPt > -1) {
     m_accept.setCutResult("min_pt", (p->pt() > m_minPt));
@@ -137,7 +138,7 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle *p) const {
     m_accept.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < m_maxProdVertRadius));
   }
   if (m_pdgId > -1) {
-    m_accept.setCutResult("pdgId", (fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
+    m_accept.setCutResult("pdgId", (std::fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
   }
   // Book keep cuts
   for (const auto &cut : m_cuts) {

@@ -29,6 +29,7 @@ namespace IDPVM{
     void clear();
     ///Get the associated truth particle, given a track particle
     const xAOD::TruthParticle * operator()(const xAOD::TrackParticle * trackParticle);
+    const xAOD::TruthParticle * getTruth(const xAOD::TrackParticle * const trackParticle);
     ///Report statistics
     std::string report() const;
     

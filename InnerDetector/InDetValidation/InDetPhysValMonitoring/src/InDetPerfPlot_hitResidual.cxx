@@ -30,9 +30,9 @@ void
 InDetPerfPlot_hitResidual::initializePlots() {
   // const bool prependDirectory(false);
   // x residuals
-  book(m_residualx[IBL][BARREL], "residualx_ibl_barrel");
-  book(m_residualx_1hit[IBL][BARREL], "residualx_ibl_barrel_1hit");
-  book(m_residualx_2ormorehits[IBL][BARREL], "residualx_ibl_barrel_2ormorehits");
+  book(m_residualx[L0PIXBARR][BARREL], "residualx_l0pix_barrel");
+  book(m_residualx_1hit[L0PIXBARR][BARREL], "residualx_l0pix_barrel_1hit");
+  book(m_residualx_2ormorehits[L0PIXBARR][BARREL], "residualx_l0pix_barrel_2ormorehits");
   //
   book(m_residualx[PIXEL][BARREL], "residualx_pixel_barrel");
   book(m_residualx_1hit[PIXEL][BARREL], "residualx_pixel_barrel_1hit");
@@ -51,10 +51,6 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_residualx[SCT][ENDCAP], "residualx_sct_endcap");
   book(m_residualx_1hit[SCT][ENDCAP], "residualx_sct_endcap_1hit");
   book(m_residualx_2ormorehits[SCT][ENDCAP], "residualx_sct_endcap_2ormorehits");
-  // No IBL for ENDCAP (Can be added if need residuals / pulls for the first disk?)
-  // book(m_residualx[IBL][ENDCAP],"residualx_blayer_endcap");
-  // book(m_residualx_1hit[IBL][ENDCAP],"residualx_blayer_endcap_1hit");
-  // book(m_residualx_2ormorehits[IBL][ENDCAP],"residualx_blayer_endcap_2ormorehits");
   //
   book(m_residualx[TRT][ENDCAP], "residualx_trt_endcap");
   // DBM
@@ -63,9 +59,9 @@ InDetPerfPlot_hitResidual::initializePlots() {
   //
 
   // y residuals
-  book(m_residualy[IBL][BARREL], "residualy_ibl_barrel");
-  book(m_residualy_1hit[IBL][BARREL], "residualy_ibl_barrel_1hit");
-  book(m_residualy_2ormorehits[IBL][BARREL], "residualy_ibl_barrel_2ormorehits");
+  book(m_residualy[L0PIXBARR][BARREL], "residualy_l0pix_barrel");
+  book(m_residualy_1hit[L0PIXBARR][BARREL], "residualy_l0pix_barrel_1hit");
+  book(m_residualy_2ormorehits[L0PIXBARR][BARREL], "residualy_l0pix_barrel_2ormorehits");
   //
   book(m_residualy[PIXEL][BARREL], "residualy_pixel_barrel");
   book(m_residualy_1hit[PIXEL][BARREL], "residualy_pixel_barrel_1hit");
@@ -86,12 +82,6 @@ InDetPerfPlot_hitResidual::initializePlots() {
   // book(m_residualy[SCT][ENDCAP],"residualy_sct_endcap");
   // book(m_residualy_1hit[SCT][ENDCAP],"residualy_sct_endcap_1hit");
   // book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
-  //
-  // No IBL for ENDCAP (Can be added if need residuals / pulls for the first disk?)
-  // book(m_residualy[IBL][ENDCAP],"residualy_blayer_endcap");
-  // book(m_residualy_1hit[IBL][ENDCAP],"residualy_blayer_endcap_1hit");
-  // book(m_residualy_2ormorehits[IBL][ENDCAP],"residualy_blayer_endcap_2ormorehits");
-  //
   // SCT and TRT do not have y-residuals/pulls
   // book(m_residualy[TRT][ENDCAP],"residualy_trt_endcap");
   // DBM
@@ -99,29 +89,25 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_residualy[DBM][1], "residualy_dbm_pos");
   // pulls
   // barrel
-  book(m_residualpullx[IBL][BARREL], "residualpullx_ibl_barrel");
+  book(m_residualpullx[L0PIXBARR][BARREL], "residualpullx_l0pix_barrel");
   book(m_residualpullx[PIXEL][BARREL], "residualpullx_pixel_barrel");
   book(m_residualpullx[SCT][BARREL], "residualpullx_sct_barrel");
   book(m_residualpullx[TRT][BARREL], "residualpullx_trt_barrel");
   book(m_residualpullx[DBM][0], "residualpullx_dbm_barrel");
   //
-  // No IBL for ENDCAPS
-  // book(m_residualpullx[IBL][ENDCAP],"residualpullx_ibl_endcap");
   book(m_residualpullx[PIXEL][ENDCAP], "residualpullx_pixel_endcap");
   book(m_residualpullx[SCT][ENDCAP], "residualpullx_sct_endcap");
   book(m_residualpullx[TRT][ENDCAP], "residualpullx_trt_endcap");
   book(m_residualpullx[DBM][1], "residualpullx_dbm_endcap");
   //
   // barrel
-  book(m_residualpully[IBL][BARREL], "residualpully_ibl_barrel");
+  book(m_residualpully[L0PIXBARR][BARREL], "residualpully_l0pix_barrel");
   book(m_residualpully[PIXEL][BARREL], "residualpully_pixel_barrel");
   //
   // SCT and TRT do not have y-residuals/pulls
   // book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
   // book(m_residualpully[TRT][BARREL],"residualpully_trt_barrel");
   book(m_residualpully[DBM][0], "residualpully_dbm_barrel");
-  // No IBL for ENDCAPS
-  // book(m_residualpully[IBL][ENDCAP],"residualpully_ibl_endcap");
   book(m_residualpully[PIXEL][ENDCAP], "residualpully_pixel_endcap");
   //
   ////SCT and TRT do not have y-residuals/pulls
@@ -183,9 +169,6 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
         const float pullLocY = result_pullLocY[idx];
         if ((det == INVALID_DETECTOR) or(region == INVALID_REGION)) {
           continue;
-        }
-        if ((region == ENDCAP)and(det == IBL)) {
-          continue; // Endcap does not have ibl
         }
         if (width > 0) {
           //introduce cluster width histograms

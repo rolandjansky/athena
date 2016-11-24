@@ -8,13 +8,97 @@
  **/
 
 #include "InDetPerfPlot_resITk.h"
-#include <iostream>
+//#include <iostream>
 #include <map>
 
-InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string &sDir)  : PlotBase(pParent, sDir) {
-  m_primTrk = false;
-  m_secdTrk = false;
-  m_allTrk = false;
+InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string &sDir)  : PlotBase(pParent, sDir),
+  m_primTrk (false),
+  m_secdTrk(false),
+  m_allTrk (false),
+  m_trkP{},
+  m_truetrkP{},
+  m_trkErrP{},
+
+  m_resP{},
+  m_pullP{},
+  m_sigP{},
+  m_resITk_pull{},
+  m_resITk_res{},
+  m_resITk_reco{},
+  m_resITk_true{},
+  m_resITk_sigma{},
+
+  m_resITk_chargeID{},
+  m_resITk_chargeID_vs_eta{},
+  m_resITk_chargeID_vs_pt{},
+  m_resITk_chargeID_vs_phi{},
+
+  m_resITk_momTail{},
+  m_resITk_momTail_vs_eta{},
+  m_resITk_momTail_vs_pt{},
+  m_resITk_momTail_vs_phi{},
+  m_resITk_momTail_Frac{},
+  m_resITk_chargeID_chgvschg{},
+
+  m_resITk_resHelpereta{},
+  m_resITk_Resolution_vs_eta{},
+  m_resITk_ResProjections_vs_eta{},
+
+  m_resITk_resHelpereta_pos{},
+  m_resITk_Resolution_vs_eta_pos{},
+  m_resITk_resHelpereta_neg{},
+  m_resITk_Resolution_vs_eta_neg{},
+
+  m_resITk_resHelperpt{},
+  m_resITk_Resolution_vs_pt{},
+  m_resITk_ResProjections_vs_pt{},
+
+  m_resITk_resHelperpt_pos{},
+  m_resITk_Resolution_vs_pt_pos{},
+  m_resITk_resHelperpt_neg{},
+  m_resITk_Resolution_vs_pt_neg{},
+
+  m_resITk_resHelperetapt{},
+  m_resITk_pullHelperpt{}, 
+  m_resITk_pullHelpereta{},
+
+  m_resITk_pullResolution_vs_pt{},
+  m_resITk_pullResolution_vs_eta{},
+
+  m_resITk_pullProjections_vs_pt{},
+  m_resITk_pullProjections_vs_eta{},
+
+  m_resITk_Resolution_vs_pt_EtaBin{},
+  m_resITk_Resolution_vs_eta_PtBin{},
+  m_resITk_meanProfeta{},
+  m_resITk_meanProfpt{},
+  m_resITk_sigmaVsEta{},
+  m_DEBUG_D0dep{},
+  m_DEBUG_FirstHitR_d0{},
+  m_DEBUG_NOBREM_d0{},
+  m_DEBUG_BREM_d0{},
+
+  m_trk_chi2ndof{},
+  m_trk_chi2ndof_vs_eta{},
+  m_trk_chi2ndof_vs_totHits{},
+  m_trk_chi2ndof_vs_totHits_prob{},
+
+  m_trk_chi2{},
+  m_trk_ndof{},
+
+  m_significance_d0{},
+  m_significance_z0{},
+
+  m_significance_d0_vs_eta{},
+  m_significance_z0_vs_eta{},
+
+  m_fix_qoverpt_res{},
+  m_fix_qoverptresolutionRMS_vs_eta{},
+  m_fix_d0_res{},
+  m_fix_d0resolutionRMS_vs_eta{},
+  m_fix_z0_res{},
+  m_fix_z0resolutionRMS_vs_eta{}
+ {
   TString tsDir = (TString) sDir;
   if (tsDir.Contains("Primary")) {
     m_primTrk = true; // control if sec/prim from init
@@ -29,142 +113,142 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
     m_EtaBins[ieta] = -4.0 + (8.0 / m_nEtaBins) * ieta;
   }
   // Parameter definitions
-  paramProp[D0].paraName = std::string("d0");
-  paramProp[D0].paraLabel = std::string("d_{0}");
-  paramProp[D0].paraUnit = std::string("[mm]");
-  paramProp[D0].nBinsRes = 1000;
-  paramProp[D0].limRes = {
+  m_paramProp[D0].paraName = std::string("d0");
+  m_paramProp[D0].paraLabel = std::string("d_{0}");
+  m_paramProp[D0].paraUnit = std::string("[mm]");
+  m_paramProp[D0].nBinsRes = 1000;
+  m_paramProp[D0].limRes = {
     -1.5, 1.5
   };
-  paramProp[D0].nBinsPrp = 200;
-  paramProp[D0].limPrp = {
+  m_paramProp[D0].nBinsPrp = 200;
+  m_paramProp[D0].limPrp = {
     -0.4, 0.4
   };
-  paramProp[D0].nBinsSig = 200;
-  paramProp[D0].limSig = {
+  m_paramProp[D0].nBinsSig = 200;
+  m_paramProp[D0].limSig = {
     0.005, 0.04
   };
-  paramProp[D0].resUnit = std::string("[#mum]");
+  m_paramProp[D0].resUnit = std::string("[#mum]");
 
-  paramProp[Z0].paraName = std::string("z0");
-  paramProp[Z0].paraLabel = std::string("z_{0}");
-  paramProp[Z0].paraUnit = std::string("[mm]");
-  paramProp[Z0].nBinsRes = 2000;
-  paramProp[Z0].limRes = {
+  m_paramProp[Z0].paraName = std::string("z0");
+  m_paramProp[Z0].paraLabel = std::string("z_{0}");
+  m_paramProp[Z0].paraUnit = std::string("[mm]");
+  m_paramProp[Z0].nBinsRes = 2000;
+  m_paramProp[Z0].limRes = {
     -10.0, 10.0
   };
-  paramProp[Z0].nBinsPrp = 200;
-  paramProp[Z0].limPrp = {
+  m_paramProp[Z0].nBinsPrp = 200;
+  m_paramProp[Z0].limPrp = {
     -150.0, 150.0
   };
-  paramProp[Z0].nBinsSig = 200;
-  paramProp[Z0].limSig = {
+  m_paramProp[Z0].nBinsSig = 200;
+  m_paramProp[Z0].limSig = {
     0.005, 0.04
   };
-  paramProp[Z0].resUnit = std::string("[#mum]");
+  m_paramProp[Z0].resUnit = std::string("[#mum]");
 
-  paramProp[Z0SIN].paraName = std::string("z0sin");
-  paramProp[Z0SIN].paraLabel = std::string("z_{0}#times sin(#theta)");
-  paramProp[Z0SIN].paraUnit = std::string("[mm]");
-  paramProp[Z0SIN].nBinsRes = 1000;
-  paramProp[Z0SIN].limRes = {
+  m_paramProp[Z0SIN].paraName = std::string("z0sin");
+  m_paramProp[Z0SIN].paraLabel = std::string("z_{0}#times sin(#theta)");
+  m_paramProp[Z0SIN].paraUnit = std::string("[mm]");
+  m_paramProp[Z0SIN].nBinsRes = 1000;
+  m_paramProp[Z0SIN].limRes = {
     -0.2, 0.2
   };
-  paramProp[Z0SIN].nBinsPrp = 200;
-  paramProp[Z0SIN].limPrp = {
+  m_paramProp[Z0SIN].nBinsPrp = 200;
+  m_paramProp[Z0SIN].limPrp = {
     -150.0, 150.0
   };
-  paramProp[Z0SIN].nBinsSig = 200;
-  paramProp[Z0SIN].limSig = {
+  m_paramProp[Z0SIN].nBinsSig = 200;
+  m_paramProp[Z0SIN].limSig = {
     0.005, 0.04
   };
-  paramProp[Z0SIN].resUnit = std::string("[#mum]");
+  m_paramProp[Z0SIN].resUnit = std::string("[#mum]");
 
 
-  paramProp[QOVERP].paraName = std::string("qoverp");
-  paramProp[QOVERP].paraLabel = std::string("(q/p)");
-  paramProp[QOVERP].paraUnit = std::string("[MeV^{-1}]");
-  paramProp[QOVERP].nBinsRes = 2000;
-  paramProp[QOVERP].limRes = {
+  m_paramProp[QOVERP].paraName = std::string("qoverp");
+  m_paramProp[QOVERP].paraLabel = std::string("(q/p)");
+  m_paramProp[QOVERP].paraUnit = std::string("[MeV^{-1}]");
+  m_paramProp[QOVERP].nBinsRes = 2000;
+  m_paramProp[QOVERP].limRes = {
     -2.5e-5, 2.5e-5
   };
-  paramProp[QOVERP].nBinsPrp = 200;
-  paramProp[QOVERP].limPrp = {
+  m_paramProp[QOVERP].nBinsPrp = 200;
+  m_paramProp[QOVERP].limPrp = {
     -2.5e-5, 2.5e-5
   };
-  paramProp[QOVERP].nBinsSig = 100;
-  paramProp[QOVERP].limSig = {
+  m_paramProp[QOVERP].nBinsSig = 100;
+  m_paramProp[QOVERP].limSig = {
     0.0, 1.0e-6
   };
-  paramProp[QOVERP].resUnit = std::string("[MeV^{-1}]");
+  m_paramProp[QOVERP].resUnit = std::string("[MeV^{-1}]");
 
-  paramProp[QOVERPT].paraName = std::string("qoverpt");
-  paramProp[QOVERPT].paraLabel = std::string("(1/p_{T})");
-  paramProp[QOVERPT].paraUnit = std::string("[MeV^{-1}]");
-  paramProp[QOVERPT].nBinsRes = 2000;
-  paramProp[QOVERPT].limRes = {
+  m_paramProp[QOVERPT].paraName = std::string("qoverpt");
+  m_paramProp[QOVERPT].paraLabel = std::string("(1/p_{T})");
+  m_paramProp[QOVERPT].paraUnit = std::string("[MeV^{-1}]");
+  m_paramProp[QOVERPT].nBinsRes = 2000;
+  m_paramProp[QOVERPT].limRes = {
     -15.0, 15.0
   };
-  paramProp[QOVERPT].nBinsPrp = 200;
-  paramProp[QOVERPT].limPrp = {
+  m_paramProp[QOVERPT].nBinsPrp = 200;
+  m_paramProp[QOVERPT].limPrp = {
     -1e-2, 1e-2
   };
-  paramProp[QOVERPT].nBinsSig = 100;
-  paramProp[QOVERPT].limSig = {
+  m_paramProp[QOVERPT].nBinsSig = 100;
+  m_paramProp[QOVERPT].limSig = {
     0.0, 1.0e-6
   };
-  paramProp[QOVERPT].resUnit = std::string("[MeV^{-1}]");
+  m_paramProp[QOVERPT].resUnit = std::string("[MeV^{-1}]");
 
-  paramProp[THETA].paraName = std::string("theta");
-  paramProp[THETA].paraLabel = std::string("#theta");
-  paramProp[THETA].paraUnit = std::string("[rad]");
-  paramProp[THETA].nBinsRes = 1000;
-  paramProp[THETA].limRes = {
+  m_paramProp[THETA].paraName = std::string("theta");
+  m_paramProp[THETA].paraLabel = std::string("#theta");
+  m_paramProp[THETA].paraUnit = std::string("[rad]");
+  m_paramProp[THETA].nBinsRes = 1000;
+  m_paramProp[THETA].limRes = {
     -0.01, 0.01
   };
-  paramProp[THETA].nBinsPrp = 200;
-  paramProp[THETA].limPrp = {
+  m_paramProp[THETA].nBinsPrp = 200;
+  m_paramProp[THETA].limPrp = {
     0.0, 3.14
   };
-  paramProp[THETA].nBinsSig = 150;
-  paramProp[THETA].limSig = {
+  m_paramProp[THETA].nBinsSig = 150;
+  m_paramProp[THETA].limSig = {
     0.0, 0.0005
   };
-  paramProp[THETA].resUnit = std::string("[mrad]");
+  m_paramProp[THETA].resUnit = std::string("[mrad]");
 
-  paramProp[PHI].paraName = std::string("phi");
-  paramProp[PHI].paraLabel = std::string("#phi");
-  paramProp[PHI].paraUnit = std::string("[rad]");
-  paramProp[PHI].nBinsRes = 1000;
-  paramProp[PHI].limRes = {
+  m_paramProp[PHI].paraName = std::string("phi");
+  m_paramProp[PHI].paraLabel = std::string("#phi");
+  m_paramProp[PHI].paraUnit = std::string("[rad]");
+  m_paramProp[PHI].nBinsRes = 1000;
+  m_paramProp[PHI].limRes = {
     -0.01, 0.01
   };
-  paramProp[PHI].nBinsPrp = 60;
-  paramProp[PHI].limPrp = {
+  m_paramProp[PHI].nBinsPrp = 60;
+  m_paramProp[PHI].limPrp = {
     -3.14, 3.14
   };
-  paramProp[PHI].nBinsSig = 200;
-  paramProp[PHI].limSig = {
+  m_paramProp[PHI].nBinsSig = 200;
+  m_paramProp[PHI].limSig = {
     0.0, 0.0005
   };
-  paramProp[PHI].resUnit = std::string("[mrad]");
+  m_paramProp[PHI].resUnit = std::string("[mrad]");
 
-  paramProp[PT].paraName = std::string("pt");
-  paramProp[PT].paraLabel = std::string("p_{T}");
-  paramProp[PT].paraUnit = std::string("[GeV]");
-  paramProp[PT].nBinsRes = 1000;
-  paramProp[PT].limRes = {
+  m_paramProp[PT].paraName = std::string("pt");
+  m_paramProp[PT].paraLabel = std::string("p_{T}");
+  m_paramProp[PT].paraUnit = std::string("[GeV]");
+  m_paramProp[PT].nBinsRes = 1000;
+  m_paramProp[PT].limRes = {
     -100.0, 100.0
   };
-  paramProp[PT].nBinsPrp = 200;
-  paramProp[PT].limPrp = {
+  m_paramProp[PT].nBinsPrp = 200;
+  m_paramProp[PT].limPrp = {
     0.0, 110.0
   };
-  paramProp[PT].nBinsSig = 200;
-  paramProp[PT].limSig = {
+  m_paramProp[PT].nBinsSig = 200;
+  m_paramProp[PT].limSig = {
     0.0, 0.1
   };
-  paramProp[PT].resUnit = std::string("[GeV]");
+  m_paramProp[PT].resUnit = std::string("[GeV]");
 }
 
 void
@@ -180,44 +264,44 @@ InDetPerfPlot_resITk::initializePlots() {
 
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     ///pull
-    std::string tmpName = "pull_" + paramProp[iparam].paraName;
-    std::string tmpTitle = tmpName + "; (" + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel +
-                           "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+    std::string tmpName = "pull_" + m_paramProp[iparam].paraName;
+    std::string tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
+                           "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
     m_resITk_pull[iparam] = Book1D(tmpName, tmpTitle, 200, -5.0, 5.0, false);
     // res
-    tmpName = "res_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} / " + paramProp[iparam].paraLabel + "^{true}";
+    tmpName = "res_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; " + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel + "^{true} / " + m_paramProp[iparam].paraLabel + "^{true}";
         //       paramProp[iparam].paraUnit;
-    m_resITk_res[iparam] = Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-                                    0), paramProp[iparam].limRes.at(1), false);
+    m_resITk_res[iparam] = Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
+                                    0), m_paramProp[iparam].limRes.at(1), false);
     // reco
-    tmpName = "reco_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco} " + paramProp[iparam].paraUnit;
-    m_resITk_reco[iparam] = Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsPrp, paramProp[iparam].limPrp.at(
-                                     0), paramProp[iparam].limPrp.at(1), false);
+    tmpName = "reco_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; " + m_paramProp[iparam].paraLabel + "^{reco} " + m_paramProp[iparam].paraUnit;
+    m_resITk_reco[iparam] = Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsPrp, m_paramProp[iparam].limPrp.at(
+                                     0), m_paramProp[iparam].limPrp.at(1), false);
     // true
-    tmpName = "true_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
-    m_resITk_true[iparam] = Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsPrp, paramProp[iparam].limPrp.at(
-                                     0), paramProp[iparam].limPrp.at(1), false);
+    tmpName = "true_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; " + m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
+    m_resITk_true[iparam] = Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsPrp, m_paramProp[iparam].limPrp.at(
+                                     0), m_paramProp[iparam].limPrp.at(1), false);
     // sigma
-    tmpName = "sigma_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; #sigma_{" + paramProp[iparam].paraLabel + "} " + paramProp[iparam].paraUnit;
-    m_resITk_sigma[iparam] = Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsSig, paramProp[iparam].limSig.at(
-                                      0), paramProp[iparam].limSig.at(1), false);
+    tmpName = "sigma_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; #sigma_{" + m_paramProp[iparam].paraLabel + "} " + m_paramProp[iparam].paraUnit;
+    m_resITk_sigma[iparam] = Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsSig, m_paramProp[iparam].limSig.at(
+                                      0), m_paramProp[iparam].limSig.at(1), false);
     // res versus eta
-    tmpName = "resHelpereta_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelpereta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelpereta[iparam] =
-      Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0), paramProp[iparam].limRes.at(1),false);
+      Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0), m_paramProp[iparam].limRes.at(1),false);
     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
-      tmpName = "EtaProjections_resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
-      tmpTitle = "resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1) + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
-                 paramProp[iparam].paraUnit;
+      tmpName = "EtaProjections_resProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = "resProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1) + "; " + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel + "^{true} " +
+                 m_paramProp[iparam].paraUnit;
       m_resITk_ResProjections_vs_eta[iparam][ibins] =
-        Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-               paramProp[iparam].limRes.at(1), false);
+        Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
+               m_paramProp[iparam].limRes.at(1), false);
     }
     std::string ytitle[4] = {
       " resolution ", " mean ", " resolution ", " mean "
@@ -227,172 +311,172 @@ InDetPerfPlot_resITk::initializePlots() {
     };
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta";
-      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta";
+      tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
 
     
-    tmpName = "resHelpereta_pos" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelpereta_pos" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelpereta_pos[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta,
-                                               paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-                                               paramProp[iparam].limRes.at(1),false);
+                                               m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
+                                               m_paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_pos";
-      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_pos";
+      tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta_pos[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
-    tmpName = "resHelpereta_neg" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelpereta_neg" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelpereta_neg[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta,
-                                               paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-                                               paramProp[iparam].limRes.at(1),false);
+                                               m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
+                                               m_paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_neg";
-      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_neg";
+      tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta_neg[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
 
     // res versus pt
-    tmpName = "resHelperpt_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelperpt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelperpt[iparam] =
-      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1),false);
-    tmpName = "pullHelperpt_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T} [GeV]; (" + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
+               0), m_paramProp[iparam].limRes.at(1),false);
+    tmpName = "pullHelperpt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV]; (" + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
     m_resITk_pullHelperpt[iparam] = Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, 200, -10.0, 10.0,false);
 
-    tmpName = "pullHelpereta_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; (" + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+    tmpName = "pullHelpereta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; (" + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
     m_resITk_pullHelpereta[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, 200, -10.0, 10.0,false);
 
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_pt";
-      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitlePull[ires];
+      tmpName = m_paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_pt";
+      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitlePull[ires];
       m_resITk_pullResolution_vs_pt[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
       m_resITk_pullResolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
     }
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_eta";
-      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitlePull[ires];
+      tmpName = m_paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_eta";
+      tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitlePull[ires];
       m_resITk_pullResolution_vs_eta[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, 0., 50.0, false);
       m_resITk_pullResolution_vs_eta[iparam][ires]->GetXaxis()->Set(m_nEtaBins, m_EtaBins);
     }
 
 
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
-      tmpName = "PtPullProjections/pullProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
-      tmpTitle = tmpName + "; (" + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel +
-                 "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+      tmpName = "PtPullProjections/pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
+                 "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
       m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
     }
 
     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
-      tmpName = "EtaPullProjections/pullProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
-      tmpTitle = tmpName + "; (" + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel +
-                 "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+      tmpName = "EtaPullProjections/pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
+                 "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
       m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
     }
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
-      tmpName = "PtProjections/resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
-      tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
-                 paramProp[iparam].paraUnit;
+      tmpName = "PtProjections/resProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = tmpName + "; " + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel + "^{true} " +
+                 m_paramProp[iparam].paraUnit;
       m_resITk_ResProjections_vs_pt[iparam][ibins] =
-        Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-               paramProp[iparam].limRes.at(1), false);
+        Book1D(tmpName, tmpTitle, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
+               m_paramProp[iparam].limRes.at(1), false);
     }
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt";
-      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt";
+      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
       m_resITk_Resolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
     }
-    tmpName = "resHelperpt_pos" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelperpt_pos" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelperpt_pos[iparam] =
-      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1),false);
+      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
+               0), m_paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_pos";
-      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_pos";
+      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt_pos[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
       m_resITk_Resolution_vs_pt_pos[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
     }
-    tmpName = "resHelperpt_neg" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelperpt_neg" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelperpt_neg[iparam] =
-      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1),false);
+      Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
+               0), m_paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
-      tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_neg";
-      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                 paramProp[iparam].resUnit;
+      tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_neg";
+      tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                 m_paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_pt_neg[iparam][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
       m_resITk_Resolution_vs_pt_neg[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
     }
     // res versus eta pt
-    tmpName = "resHelperetapt_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T}; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
-               paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
+    tmpName = "resHelperetapt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T}; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
+               m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
     m_resITk_resHelperetapt[iparam] = Book3D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, nBinsEta, nMinEta, nMaxEta,
-                                             paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-                                             paramProp[iparam].limRes.at(1), false);
+                                             m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
+                                             m_paramProp[iparam].limRes.at(1), false);
 
     for (unsigned int ires = 0; ires < 2; ires++) {
       for (int ibin = 0; ibin < 4; ibin++) {
         int tmpInt = ibin + 1;
-        tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_EtaBin" + std::to_string(tmpInt);
-        tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                   paramProp[iparam].resUnit;
+        tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_EtaBin" + std::to_string(tmpInt);
+        tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                   m_paramProp[iparam].resUnit;
         m_resITk_Resolution_vs_pt_EtaBin[iparam][ibin][ires] = Book1D(tmpName, tmpTitle, m_nPtBins, 0., 50.0, false);
         m_resITk_Resolution_vs_pt_EtaBin[iparam][ibin][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
       }
       for (int iPtBin = 0; iPtBin < 4; iPtBin++) {
-        tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_PtBin" + std::to_string(iPtBin + 1);
-        tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
-                   paramProp[iparam].resUnit;
+        tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_PtBin" + std::to_string(iPtBin + 1);
+        tmpTitle = tmpName + "; true track #eta; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
+                   m_paramProp[iparam].resUnit;
         m_resITk_Resolution_vs_eta_PtBin[iparam][iPtBin][ires] =
           Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
       }
     }
 
-    tmpName = "meanProfeta_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; #sigma_{" + paramProp[iparam].paraLabel + "} " +
-               paramProp[iparam].paraUnit;
+    tmpName = "meanProfeta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; #sigma_{" + m_paramProp[iparam].paraLabel + "} " +
+               m_paramProp[iparam].paraUnit;
     m_resITk_meanProfeta[iparam] = BookTProfile(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, -1.0, 1.0, false);
 
-    tmpName = "SigmaVsEta_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track #eta; #sigma_{" + paramProp[iparam].paraLabel + "} " +
-               paramProp[iparam].paraUnit;
-    m_resITk_sigmaVsEta[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, paramProp[iparam].nBinsSig,
+    tmpName = "SigmaVsEta_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; #sigma_{" + m_paramProp[iparam].paraLabel + "} " +
+               m_paramProp[iparam].paraUnit;
+    m_resITk_sigmaVsEta[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, m_paramProp[iparam].nBinsSig,
                                          -1.0, 1.0, false);
 
-    tmpName = "meanProfpt_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; true track p_{T}; #sigma_{" + paramProp[iparam].paraLabel + "} " +
-               paramProp[iparam].paraUnit;
+    tmpName = "meanProfpt_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track p_{T}; #sigma_{" + m_paramProp[iparam].paraLabel + "} " +
+               m_paramProp[iparam].paraUnit;
     m_resITk_meanProfpt[iparam] = BookTProfile(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, -1.0, 1.0, false);
     m_resITk_meanProfpt[iparam]->GetXaxis()->Set(m_nPtBins, m_PtBins);
 
-    tmpName = "DEBUG_D0dep_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco} " + paramProp[iparam].paraUnit + "; d_{0} [mm]";
-    m_DEBUG_D0dep[iparam] = BookTProfile(tmpName, tmpTitle, paramProp[iparam].nBinsPrp, paramProp[iparam].limPrp.at(
-                                           0), paramProp[iparam].limPrp.at(1), -0.1, 0.1, false);
+    tmpName = "DEBUG_D0dep_" + m_paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; " + m_paramProp[iparam].paraLabel + "^{reco} " + m_paramProp[iparam].paraUnit + "; d_{0} [mm]";
+    m_DEBUG_D0dep[iparam] = BookTProfile(tmpName, tmpTitle, m_paramProp[iparam].nBinsPrp, m_paramProp[iparam].limPrp.at(
+                                           0), m_paramProp[iparam].limPrp.at(1), -0.1, 0.1, false);
   }
 
   m_resITk_chargeID = Book1D("chargeID", "chargeID", 2, 0., 2., false);
@@ -422,10 +506,10 @@ InDetPerfPlot_resITk::initializePlots() {
   m_resITk_momTail_Frac = Book1D("momTail_Frac", "momTail_Frac; (p^{reco}_{T}-p^{true}_{T})/p^{true}_{T}", 100, 0.,
                                  100., false);
 
-  m_DEBUG_BREM_d0 = Book1D("DEBUG_BREM_d0", "DEBUG_BREM_d0; d_{0} [mm]", paramProp[D0].nBinsPrp, paramProp[D0].limPrp.at(
-                             0), paramProp[D0].limPrp.at(1), false);
-  m_DEBUG_NOBREM_d0 = Book1D("DEBUG_NOBREM_d0", "DEBUG_NOBREM_d0; d_{0} [mm]", paramProp[D0].nBinsPrp, paramProp[D0].limPrp.at(
-                               0), paramProp[D0].limPrp.at(1), false);
+  m_DEBUG_BREM_d0 = Book1D("DEBUG_BREM_d0", "DEBUG_BREM_d0; d_{0} [mm]", m_paramProp[D0].nBinsPrp, m_paramProp[D0].limPrp.at(
+                             0), m_paramProp[D0].limPrp.at(1), false);
+  m_DEBUG_NOBREM_d0 = Book1D("DEBUG_NOBREM_d0", "DEBUG_NOBREM_d0; d_{0} [mm]", m_paramProp[D0].nBinsPrp, m_paramProp[D0].limPrp.at(
+                               0), m_paramProp[D0].limPrp.at(1), false);
 
   m_DEBUG_FirstHitR_d0 =
     BookTProfile("DEBUG_FirstHitR_d0", "DEBUG_FirstHitR_d0; R [mm]", 150, 0., 10., -1.0, 1.0, false);
@@ -560,85 +644,85 @@ InDetPerfPlot_resITk::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthP
 
 void
 InDetPerfPlot_resITk::getPlots() {
-  float eta = -TMath::Log(TMath::Tan(truetrkP[THETA] / 2));
+  float eta = -TMath::Log(TMath::Tan(m_truetrkP[THETA] / 2));
 
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
-    m_resITk_pull[iparam]->Fill(pullP[iparam]);
-    m_resITk_res[iparam]->Fill(resP[iparam]);
-    m_resITk_reco[iparam]->Fill(trkP[iparam]);
-    m_resITk_true[iparam]->Fill(truetrkP[iparam]);
-    m_resITk_sigma[iparam]->Fill(sigP[iparam]);
+    m_resITk_pull[iparam]->Fill(m_pullP[iparam]);
+    m_resITk_res[iparam]->Fill(m_resP[iparam]);
+    m_resITk_reco[iparam]->Fill(m_trkP[iparam]);
+    m_resITk_true[iparam]->Fill(m_truetrkP[iparam]);
+    m_resITk_sigma[iparam]->Fill(m_sigP[iparam]);
 
-    m_resITk_meanProfeta[iparam]->Fill(eta, sigP[iparam]);
-    m_resITk_sigmaVsEta[iparam]->Fill(eta, sigP[iparam]);
+    m_resITk_meanProfeta[iparam]->Fill(eta, m_sigP[iparam]);
+    m_resITk_sigmaVsEta[iparam]->Fill(eta, m_sigP[iparam]);
 
-    m_resITk_meanProfpt[iparam]->Fill(truetrkP[PT], sigP[iparam]);
-    m_resITk_resHelpereta[iparam]->Fill(eta, resP[iparam]);
-    m_resITk_resHelperpt[iparam]->Fill(truetrkP[PT], resP[iparam]);
-    m_resITk_resHelperetapt[iparam]->Fill(truetrkP[PT], eta, resP[iparam]);
+    m_resITk_meanProfpt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam]);
+    m_resITk_resHelpereta[iparam]->Fill(eta, m_resP[iparam]);
+    m_resITk_resHelperpt[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
+    m_resITk_resHelperetapt[iparam]->Fill(m_truetrkP[PT], eta, m_resP[iparam]);
 
-    m_resITk_pullHelperpt[iparam]->Fill(truetrkP[PT], pullP[iparam]);
-    m_resITk_pullHelpereta[iparam]->Fill(eta, pullP[iparam]);
+    m_resITk_pullHelperpt[iparam]->Fill(m_truetrkP[PT], m_pullP[iparam]);
+    m_resITk_pullHelpereta[iparam]->Fill(eta, m_pullP[iparam]);
 
-    if (trkP[QOVERP] >= 0.) {
-      m_resITk_resHelpereta_pos[iparam]->Fill(eta, resP[iparam]);
-      m_resITk_resHelperpt_pos[iparam]->Fill(truetrkP[PT], resP[iparam]);
+    if (m_trkP[QOVERP] >= 0.) {
+      m_resITk_resHelpereta_pos[iparam]->Fill(eta, m_resP[iparam]);
+      m_resITk_resHelperpt_pos[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
     }
-    if (trkP[QOVERP] < 0.) {
-      m_resITk_resHelpereta_neg[iparam]->Fill(eta, resP[iparam]);
-      m_resITk_resHelperpt_neg[iparam]->Fill(truetrkP[PT], resP[iparam]);
+    if (m_trkP[QOVERP] < 0.) {
+      m_resITk_resHelpereta_neg[iparam]->Fill(eta, m_resP[iparam]);
+      m_resITk_resHelperpt_neg[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
     }
 
     if (iparam == QOVERP) {
-      if (trkP[QOVERP] / truetrkP[QOVERP] > 0.) {
+      if (m_trkP[QOVERP] / m_truetrkP[QOVERP] > 0.) {
         m_resITk_chargeID->Fill(0.);
       }
-      if (trkP[QOVERP] / truetrkP[QOVERP] < 0.) {
+      if (m_trkP[QOVERP] / m_truetrkP[QOVERP] < 0.) {
         m_resITk_chargeID->Fill(1.);
         m_resITk_chargeID_vs_eta->Fill(eta);
-        m_resITk_chargeID_vs_pt->Fill(truetrkP[PT]);
+        m_resITk_chargeID_vs_pt->Fill(m_truetrkP[PT]);
 
-        m_resITk_chargeID_chgvschg->Fill(trkP[QOVERP] / fabs(trkP[QOVERP]), truetrkP[QOVERP] / fabs(truetrkP[QOVERP]));
+        m_resITk_chargeID_chgvschg->Fill(m_trkP[QOVERP] / fabs(m_trkP[QOVERP]), m_truetrkP[QOVERP] / fabs(m_truetrkP[QOVERP]));
       }
     }
     // Look at PT tails
     if (iparam == PT) {
-      m_resITk_momTail_Frac->Fill((trkP[PT] - truetrkP[PT]) / truetrkP[PT]);
-      if ((trkP[PT] - truetrkP[PT]) / truetrkP[PT] > 0.5 && truetrkP[PT] > 0.0) {
+      m_resITk_momTail_Frac->Fill((m_trkP[PT] - m_truetrkP[PT]) / m_truetrkP[PT]);
+      if ((m_trkP[PT] - m_truetrkP[PT]) / m_truetrkP[PT] > 0.5 && m_truetrkP[PT] > 0.0) {
         m_resITk_momTail->Fill(1.);
-        m_resITk_momTail_vs_phi->Fill(truetrkP[PHI]);
+        m_resITk_momTail_vs_phi->Fill(m_truetrkP[PHI]);
         m_resITk_momTail_vs_eta->Fill(eta);
-        m_resITk_momTail_vs_pt->Fill(truetrkP[PT]);
+        m_resITk_momTail_vs_pt->Fill(m_truetrkP[PT]);
       }else {
         m_resITk_momTail->Fill(0.);
       }
     }
 
-    m_DEBUG_D0dep[iparam]->Fill(trkP[iparam], trkP[D0]);
+    m_DEBUG_D0dep[iparam]->Fill(m_trkP[iparam], m_trkP[D0]);
   }
   for(int ieta = 0; ieta < m_nEtaBins; ieta++){
     //std::cout << eta << " " << m_EtaBins[ieta+1] << " " << m_EtaBins[ieta] << std::endl;
     if( eta < m_EtaBins[ieta+1] && eta > m_EtaBins[ieta]) {
-      m_fix_qoverpt_res[ieta]->Fill(resP[QOVERPT]);
-      m_fix_d0_res[ieta]->Fill(resP[D0]);
-      m_fix_z0_res[ieta]->Fill(resP[Z0]);
+      m_fix_qoverpt_res[ieta]->Fill(m_resP[QOVERPT]);
+      m_fix_d0_res[ieta]->Fill(m_resP[D0]);
+      m_fix_z0_res[ieta]->Fill(m_resP[Z0]);
       //std::cout << ieta << std::endl;
     }
   }
-  m_significance_d0->Fill(eta,trkP[D0]);
-  m_significance_z0->Fill(eta,trkP[Z0]);
+  m_significance_d0->Fill(eta,m_trkP[D0]);
+  m_significance_z0->Fill(eta,m_trkP[Z0]);
 }
 
 void
 InDetPerfPlot_resITk::getPlotParameters() {
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
-    resP[iparam] = trkP[iparam] - truetrkP[iparam];
-    //if(iparam == PT) resP[iparam] = (trkP[iparam] - truetrkP[iparam]);
-    sigP[iparam] = trkErrP[iparam];
-    (sigP[iparam] != 0) ? pullP[iparam] = resP[iparam] / sigP[iparam] : pullP[iparam] = -9999.;
+    m_resP[iparam] = m_trkP[iparam] - m_truetrkP[iparam];
+    //if(iparam == PT) m_resP[iparam] = (trkP[iparam] - m_truetrkP[iparam]);
+    m_sigP[iparam] = m_trkErrP[iparam];
+    (m_sigP[iparam] != 0) ? m_pullP[iparam] = m_resP[iparam] / m_sigP[iparam] : m_pullP[iparam] = -9999.;
   }
-  resP[QOVERPT] = (trkP[QOVERPT] - truetrkP[QOVERPT]) * (1/truetrkP[QOVERPT]);
-//  std::cout << resP[QOVERPT] << std::endl;
+  m_resP[QOVERPT] = (m_trkP[QOVERPT] - m_truetrkP[QOVERPT]) * (1/m_truetrkP[QOVERPT]);
+//  std::cout << m_resP[QOVERPT] << std::endl;
 }
 
 void
@@ -656,35 +740,35 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle &trkprt) {
   // std::cout << trkprt.track()->info().trackProperties(Trk::TrackInfo::BremFit) << std::endl;
   // std::cout << trkprt.trackProperties(xAOD::BremFit) << std::endl;
 
-  trkP[D0] = trkprt.d0();
-  trkP[Z0] = trkprt.z0();
-  trkP[QOVERP] = trkprt.qOverP();
-  trkP[QOVERPT] = trkprt.qOverP() * (1 / TMath::Sin(trkprt.theta()));
-  trkP[THETA] = trkprt.theta();
-  trkP[PHI] = trkprt.phi0();
-  trkP[PT] = trkprt.pt() / 1000.;
-  trkP[Z0SIN] = trkprt.z0() * TMath::Sin(trkprt.theta());
+  m_trkP[D0] = trkprt.d0();
+  m_trkP[Z0] = trkprt.z0();
+  m_trkP[QOVERP] = trkprt.qOverP();
+  m_trkP[QOVERPT] = trkprt.qOverP() * (1 / TMath::Sin(trkprt.theta()));
+  m_trkP[THETA] = trkprt.theta();
+  m_trkP[PHI] = trkprt.phi0();
+  m_trkP[PT] = trkprt.pt() / 1000.;
+  m_trkP[Z0SIN] = trkprt.z0() * TMath::Sin(trkprt.theta());
 
 
-  m_DEBUG_FirstHitR_d0->Fill(trkprt.radiusOfFirstHit(), trkP[D0]);
+  m_DEBUG_FirstHitR_d0->Fill(trkprt.radiusOfFirstHit(), m_trkP[D0]);
   if (trkprt.track()) {
     if (trkprt.track()->info().trackProperties(Trk::TrackInfo::BremFit) &&
         trkprt.track()->info().trackProperties(Trk::TrackInfo::BremFitSuccessful)) {
-      m_DEBUG_BREM_d0->Fill(trkP[D0]);
+      m_DEBUG_BREM_d0->Fill(m_trkP[D0]);
     }else {
-      m_DEBUG_NOBREM_d0->Fill(trkP[D0]);
+      m_DEBUG_NOBREM_d0->Fill(m_trkP[D0]);
     }
   }
   // Track fit errors
-  trkErrP[D0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(0, 0));
-  trkErrP[Z0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(1, 1));
-  trkErrP[PHI] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(2, 2));
-  trkErrP[THETA] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(3, 3));
-  trkErrP[QOVERP] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(4, 4));
-  trkErrP[QOVERPT] = trkErrP[QOVERP] * (1 / TMath::Sin(trkprt.theta()));
-  trkErrP[Z0SIN] =
-    TMath::Sqrt(pow(trkErrP[THETA] * TMath::Sin(trkP[THETA]),
-                    2) + pow(trkP[Z0] * trkErrP[THETA] * TMath::Cos(trkP[THETA]), 2));
+  m_trkErrP[D0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(0, 0));
+  m_trkErrP[Z0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(1, 1));
+  m_trkErrP[PHI] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(2, 2));
+  m_trkErrP[THETA] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(3, 3));
+  m_trkErrP[QOVERP] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(4, 4));
+  m_trkErrP[QOVERPT] = m_trkErrP[QOVERP] * (1 / TMath::Sin(trkprt.theta()));
+  m_trkErrP[Z0SIN] =
+    TMath::Sqrt(pow(m_trkErrP[THETA] * TMath::Sin(m_trkP[THETA]),
+                    2) + pow(m_trkP[Z0] * m_trkErrP[THETA] * TMath::Cos(m_trkP[THETA]), 2));
 
   // Get error on pT, taken from xAOD::TrackingHelpers.pTErr() but this function only works on a pointer input...
   if (trkprt.definingParametersCovMatrixVec().size() < 15) {
@@ -692,7 +776,7 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle &trkprt) {
             "TrackParticle without covariance matrix for defining parameters or the covariance matrix is wrong dimensionality.");
   }
   if (std::abs(trkprt.qOverP()) < 0) {
-    trkErrP[PT] = 0.0;
+    m_trkErrP[PT] = 0.0;
     throw std::runtime_error("q/p is zero");
   }else {
     double pt = trkprt.pt();
@@ -700,7 +784,7 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle &trkprt) {
     double diff_theta = pt / tan(trkprt.theta());
     const std::vector<float> &cov = trkprt.definingParametersCovMatrixVec();
     double pt_err2 = diff_qp * (diff_qp * cov[14] + diff_theta * cov[13]) + diff_theta * diff_theta * cov[9];
-    trkErrP[PT] = sqrt(pt_err2) / 1000.;
+    m_trkErrP[PT] = sqrt(pt_err2) / 1000.;
   }
 }
 
@@ -711,30 +795,30 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TruthParticle &truthprt) {
   int nParams = 6;
 
   for (int iParams = 0; iParams < nParams; iParams++) {
-    truetrkP[iParams] = -9999.;
-    if (truthprt.isAvailable<float>(paramProp[iParams].paraName)) {
-      truetrkP[iParams] = (truthprt.auxdata<float>(paramProp[iParams].paraName));
+    m_truetrkP[iParams] = -9999.;
+    if (truthprt.isAvailable<float>(m_paramProp[iParams].paraName)) {
+      m_truetrkP[iParams] = (truthprt.auxdata<float>(m_paramProp[iParams].paraName));
     }
   }
 
-  (truthprt.isAvailable<float>("d0")) ? truetrkP[D0] = truthprt.auxdata<float>("d0") : truetrkP[D0] = -9999.;
-  (truthprt.isAvailable<float>("z0")) ? truetrkP[Z0] = truthprt.auxdata<float>("z0") : truetrkP[Z0] = -9999.;
-  (truthprt.isAvailable<float>("qOverP")) ? truetrkP[QOVERP] = truthprt.auxdata<float>("qOverP") : truetrkP[QOVERP] =
+  (truthprt.isAvailable<float>("d0")) ? m_truetrkP[D0] = truthprt.auxdata<float>("d0") : m_truetrkP[D0] = -9999.;
+  (truthprt.isAvailable<float>("z0")) ? m_truetrkP[Z0] = truthprt.auxdata<float>("z0") : m_truetrkP[Z0] = -9999.;
+  (truthprt.isAvailable<float>("qOverP")) ? m_truetrkP[QOVERP] = truthprt.auxdata<float>("qOverP") : m_truetrkP[QOVERP] =
                                                                  -9999.;
-  (truthprt.isAvailable<float>("theta")) ? truetrkP[THETA] = truthprt.auxdata<float>("theta") : truetrkP[THETA] =
+  (truthprt.isAvailable<float>("theta")) ? m_truetrkP[THETA] = truthprt.auxdata<float>("theta") : m_truetrkP[THETA] =
                                                                -9999.;
-  (truthprt.isAvailable<float>("phi")) ? truetrkP[PHI] = truthprt.auxdata<float>("phi") : truetrkP[PHI] = -9999.;
+  (truthprt.isAvailable<float>("phi")) ? m_truetrkP[PHI] = truthprt.auxdata<float>("phi") : m_truetrkP[PHI] = -9999.;
   (truthprt.isAvailable<float>("theta") &&
-   truthprt.isAvailable<float>("qOverP")) ? truetrkP[QOVERPT] = truthprt.auxdata<float>("qOverP") *
+   truthprt.isAvailable<float>("qOverP")) ? m_truetrkP[QOVERPT] = truthprt.auxdata<float>("qOverP") *
                                                                 (1 /
                                                                  TMath::Sin(truthprt.auxdata<float>("theta"))) :
-                                                                truetrkP[QOVERPT] = -9999.;
+                                                                m_truetrkP[QOVERPT] = -9999.;
 
 
-  truetrkP[PT] = truthprt.pt() / 1000.;
+  m_truetrkP[PT] = truthprt.pt() / 1000.;
   (truthprt.isAvailable<float>("z0") &&
-   truthprt.isAvailable<float>("theta")) ? truetrkP[Z0SIN] = truetrkP[Z0] *
-                                                             TMath::Sin(truetrkP[THETA]) : truetrkP[Z0SIN] = -9999.;
+   truthprt.isAvailable<float>("theta")) ? m_truetrkP[Z0SIN] = m_truetrkP[Z0] *
+                                                             TMath::Sin(m_truetrkP[THETA]) : m_truetrkP[Z0SIN] = -9999.;
 }
 
 void

@@ -34,6 +34,7 @@ public:
   InDetPerfPlot_Eff(InDetPlotBase *pParent, const std::string &dirName);
 
   void pro_fill(const xAOD::TruthParticle &truth, float weight);
+  void lepton_fill(const xAOD::TruthParticle &truth, float weight);
   void BT_fill(const xAOD::TruthParticle &truth, float weight);
   void jet_fill(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight);
 private:
@@ -47,6 +48,8 @@ private:
 
   TProfile *m_trackeff_vs_prodR;
   TProfile *m_trackeff_vs_prodZ;
+
+  TProfile *m_low_Pt_lepton_frac;
 
   TProfile *m_eff_vs_eta_of_daughters;
   TProfile *m_eff_vs_theta_of_daughters;

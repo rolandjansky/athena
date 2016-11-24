@@ -42,7 +42,11 @@ xmlTags = [ ["ATLAS-P2-ITK-05","ExtBrl_32",""],
             ["ATLAS-P2-ITK-08","InclBrl_4",""],
             ["ATLAS-P2-SFCAL-01-08-01","InclBrl_4","GMX"],
             ["ATLAS-P2-ITK-10-00-00","InclBrl_4","GMX"],
-            ["ATLAS-P2-ITK-09-00-00","ExtBrl_4","GMX"],]
+            ["ATLAS-P2-ITK-09-00-00","ExtBrl_4","GMX"],
+            ["ATLAS-P2-ITK-10-00-01","InclBrl_4","GMX"],
+            ["ATLAS-P2-ITK-09-00-01","ExtBrl_4","GMX"],
+            ["ATLAS-P2-ITK-11-00-01","ExtBrl_4_33mm","GMX"],
+            ["ATLAS-P2-ITK-12-00-01","IExtBrl_4","GMX"],]
 
 for geoTag, layoutDescr, gmx in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
@@ -93,7 +97,6 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-# new master/daughter xml-s common to Run2 and ITK: under testing
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefITK.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
@@ -139,12 +142,11 @@ TrackTruthSelectionTool = AthTruthSelectionTool()
 TrackTruthSelectionTool.maxEta     = 4.0
 TrackTruthSelectionTool.maxPt      = -1
 TrackTruthSelectionTool.minPt      = 900 # default 400 MeV
-TrackTruthSelectionTool.maxBarcode = 200e3
+TrackTruthSelectionTool.maxBarcode = int(200e3)
 TrackTruthSelectionTool.pdgId      = -1
 TrackTruthSelectionTool.requireCharged = True
 TrackTruthSelectionTool.requireStatus1 = True
 TrackTruthSelectionTool.maxProdVertRadius = 260. #max prod. vertex radius of secondaries [mm]
-#TrackTruthSelectionTool.requireDecayBeforePixel = True
 TrackTruthSelectionTool.OutputLevel = INFO
 ToolSvc += TrackTruthSelectionTool
 
@@ -153,7 +155,6 @@ ToolSvc += TrackTruthSelectionTool
 #-------------------------------------------------------------
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 InDetPhysValMonitoringTool = InDetPhysValMonitoringTool("InDetPhysValMonitoringTool")
-##rdh InDetPhysValMonitoringTool.DirName = "InDetPhysValMon_inclusive/"
 InDetPhysValMonitoringTool.useTrackSelection = True
 InDetPhysValMonitoringTool.TrackSelectionTool = InDetTrackSelectorTool
 #InDetPhysValMonitoringTool.TruthSelectionTool = TrackTruthSelectionTool
@@ -175,7 +176,7 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 
 # max. number of events to process
-theApp.EvtMax = 10
+theApp.EvtMax = -1
 
 # dump configuration
 from AthenaCommon.ConfigurationShelve import saveToAscii

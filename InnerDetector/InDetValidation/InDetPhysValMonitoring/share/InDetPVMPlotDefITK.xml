@@ -3,7 +3,17 @@
 <?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>
 <!DOCTYPE  hdef [
 <!ENTITY PI "3.1415926">
+<!-- eta coverage of the tracker -->
 <!ENTITY ETA "4.0">
+<!-- min eta covered by pix. endcaps -->
+<!ENTITY ETAPixECMin "1.5">
+<!-- eta coverage of sct -->
+<!ENTITY ETASct "2.5">
+<!-- min eta covered by sct endcaps -->
+<!ENTITY ETASctECMin "1.0">
+<!-- term used for innermost pixel barrel layer in histogram text -->
+<!ENTITY L0PixBarr "Pix. Barr. layer0">
+<!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
 

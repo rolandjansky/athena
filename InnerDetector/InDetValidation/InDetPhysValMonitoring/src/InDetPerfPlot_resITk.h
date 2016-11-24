@@ -10,15 +10,13 @@
  **/
 
 
-// std includes
-#include <string>
-#include <vector>
-#include "TProfile.h"
+
+
 
 // local includes
 
 #include "TrkValHistUtils/PlotBase.h"
-
+#include "TProfile.h"
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
@@ -28,7 +26,9 @@
 
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
-
+// std includes
+#include <string>
+#include <vector>
 #include <map>
 
 // fwd declaration
@@ -95,15 +95,15 @@ private:
   void cloneHistogram(TH1D *h, TH1 *hcopy);
   std::vector<float> getResolution(TH1 *h, std::string s);
 
-  float trkP[NPARAMS];
-  float truetrkP[NPARAMS];
-  float trkErrP[NPARAMS];
+  float m_trkP[NPARAMS];
+  float m_truetrkP[NPARAMS];
+  float m_trkErrP[NPARAMS];
 
-  float resP[NPARAMS];
-  float pullP[NPARAMS];
-  float sigP[NPARAMS];
+  float m_resP[NPARAMS];
+  float m_pullP[NPARAMS];
+  float m_sigP[NPARAMS];
 
-  pCfg paramProp[NPARAMS];
+  pCfg m_paramProp[NPARAMS];
 
   TH1 *m_resITk_pull[NPARAMS];
   TH1 *m_resITk_res[NPARAMS];
@@ -159,36 +159,36 @@ private:
 
   TProfile *m_resITk_meanProfeta[NPARAMS];
   TProfile *m_resITk_meanProfpt[NPARAMS];
-  TH2 *m_resITk_sigmaVsEta[NPARAMS];
+  TH2      *m_resITk_sigmaVsEta[NPARAMS];
   TProfile *m_DEBUG_D0dep[NPARAMS];
   TProfile *m_DEBUG_FirstHitR_d0;
-  TH1 *m_DEBUG_NOBREM_d0;
-  TH1 *m_DEBUG_BREM_d0;
+  TH1      *m_DEBUG_NOBREM_d0;
+  TH1      *m_DEBUG_BREM_d0;
 
-  TH1 *m_trk_chi2ndof;
+  TH1      *m_trk_chi2ndof;
   TProfile *m_trk_chi2ndof_vs_eta;
   TProfile *m_trk_chi2ndof_vs_totHits;
   TProfile *m_trk_chi2ndof_vs_totHits_prob;
 
-  TH1 *m_trk_chi2;
-  TH1 *m_trk_ndof;
+  TH1      *m_trk_chi2;
+  TH1      *m_trk_ndof;
 
-  TH2 *m_significance_d0;
-  TH2 *m_significance_z0;
+  TH2      *m_significance_d0;
+  TH2      *m_significance_z0;
 
-  TH1 *m_significance_d0_vs_eta;
-  TH1 *m_significance_z0_vs_eta;
+  TH1      *m_significance_d0_vs_eta;
+  TH1      *m_significance_z0_vs_eta;
 
-  TH1 *m_fix_qoverpt_res[16];
+  TH1      *m_fix_qoverpt_res[16];
 
-  TH1 *m_fix_qoverptresolutionRMS_vs_eta;
+  TH1      *m_fix_qoverptresolutionRMS_vs_eta;
 
 
-  TH1 *m_fix_d0_res[16];
-  TH1 *m_fix_d0resolutionRMS_vs_eta;
+  TH1      *m_fix_d0_res[16];
+  TH1      *m_fix_d0resolutionRMS_vs_eta;
 
-  TH1 *m_fix_z0_res[16];
-  TH1 *m_fix_z0resolutionRMS_vs_eta;
+  TH1      *m_fix_z0_res[16];
+  TH1      *m_fix_z0resolutionRMS_vs_eta;
 
 };
 
