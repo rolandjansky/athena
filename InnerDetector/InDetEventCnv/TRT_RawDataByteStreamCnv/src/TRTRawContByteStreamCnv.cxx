@@ -35,23 +35,23 @@ TRTRawContByteStreamCnv::initialize()
    if(StatusCode::SUCCESS!=sc) return sc; 
 
    MsgStream log(messageService(), "TRTRawContByteStreamCnv");
-   log << MSG::DEBUG<< " initialize " <<endreq; 
+   log << MSG::DEBUG<< " initialize " <<endmsg; 
 
    // Retrieve ByteStreamCnvSvc
    if (m_byteStreamEventAccess.retrieve().isFailure()) {
-     log << MSG::FATAL << "Failed to retrieve service " << m_byteStreamEventAccess << endreq;
+     log << MSG::FATAL << "Failed to retrieve service " << m_byteStreamEventAccess << endmsg;
      return StatusCode::FAILURE;
    } else 
-     log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endreq;
+     log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endmsg;
 
    // Retrieve byte stream tool
    if (m_tool.retrieve().isFailure()) {
-     log << MSG::FATAL << "Failed to retrieve tool " << m_tool << endreq;
+     log << MSG::FATAL << "Failed to retrieve tool " << m_tool << endmsg;
      return StatusCode::FAILURE;
    } else 
-     log << MSG::INFO << "Retrieved tool " << m_tool << endreq;
+     log << MSG::INFO << "Retrieved tool " << m_tool << endmsg;
 
-   log << MSG::INFO << "Leaving TRTRawContByteStreamCnv::initialize()" << endreq;
+   log << MSG::INFO << "Leaving TRTRawContByteStreamCnv::initialize()" << endmsg;
    return StatusCode::SUCCESS; 
 
 }
@@ -72,7 +72,7 @@ TRTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   TRT_RDO_Container* cont=0; 
   StoreGateSvc::fromStorable(pObj, cont); 
   if(!cont){
-    log << MSG::ERROR << " Can not cast to TRTRawContainer " << endreq ; 
+    log << MSG::ERROR << " Can not cast to TRTRawContainer " << endmsg ; 
     return StatusCode::FAILURE;    
   } 
   
@@ -84,7 +84,7 @@ TRTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   StatusCode sc = m_tool->convert(cont, re );
   if(sc.isFailure()){
     log << MSG::ERROR
-	<< " Could not convert rdo with TRTRawContByteStreamTool " << endreq;
+	<< " Could not convert rdo with TRTRawContByteStreamTool " << endmsg;
     return StatusCode::FAILURE;
   }
 
