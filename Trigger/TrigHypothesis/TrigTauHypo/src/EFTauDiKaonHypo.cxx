@@ -100,37 +100,37 @@ HLT::ErrorCode EFTauDiKaonHypo::hltInitialize()
   // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
-  msg() << MSG::INFO << " REGTEST: EFTauDiKaonHypo will cut on "<<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysMin " << m_massTrkSysMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysMax " << m_massTrkSysMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMin " << m_massTrkSysKaonMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMax " << m_massTrkSysKaonMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMin " << m_massTrkSysKaonPiMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMax " << m_massTrkSysKaonPiMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param targetMassTrkSysKaonPi " << m_targetMassTrkSysKaonPi <<endreq;
-  msg() << MSG::INFO << " REGTEST: param leadTrkPtMin " << m_leadTrkPtMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param EtCalibMin " << m_EtCalibMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param nTrackMin (included) " << m_nTrackMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param nTrackMax (included) " << m_nTrackMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param nWideTrackMax (included) " << m_nWideTrackMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param EMPOverTrkSysPMax " << m_EMPOverTrkSysPMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param dRmaxMax " << m_dRmaxMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMin " << m_etOverPtLeadTrkMin <<endreq;
-  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMax " << m_etOverPtLeadTrkMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: EFTauDiKaonHypo will cut on "<<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysMin " << m_massTrkSysMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysMax " << m_massTrkSysMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMin " << m_massTrkSysKaonMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonMax " << m_massTrkSysKaonMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMin " << m_massTrkSysKaonPiMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param massTrkSysKaonPiMax " << m_massTrkSysKaonPiMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param targetMassTrkSysKaonPi " << m_targetMassTrkSysKaonPi <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param leadTrkPtMin " << m_leadTrkPtMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param EtCalibMin " << m_EtCalibMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param nTrackMin (included) " << m_nTrackMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param nTrackMax (included) " << m_nTrackMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param nWideTrackMax (included) " << m_nWideTrackMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param EMPOverTrkSysPMax " << m_EMPOverTrkSysPMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param dRmaxMax " << m_dRmaxMax <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMin " << m_etOverPtLeadTrkMin <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMax " << m_etOverPtLeadTrkMax <<endmsg;
 
-  msg() << MSG::INFO << " REGTEST: ------ "<<endreq;
+  msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
   if( ( m_massTrkSysKaonPiMin >  m_massTrkSysKaonPiMax ) ||  ( m_massTrkSysKaonMin >  m_massTrkSysKaonMax ) || ( m_massTrkSysMin >  m_massTrkSysMax ) || ( m_nTrackMin > m_nTrackMax )  || (m_etOverPtLeadTrkMin > m_etOverPtLeadTrkMax) )
     {
-      msg() << MSG::ERROR << "EFTauDiKaonHypo is uninitialized! " << endreq;
+      msg() << MSG::ERROR << "EFTauDiKaonHypo is uninitialized! " << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   
   msg() << MSG::INFO
 	<< "Initialization of EFTauDiKaonHypo completed successfully"
-	<< endreq;
+	<< endmsg;
   
   return HLT::OK;
 }
@@ -139,7 +139,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltInitialize()
 HLT::ErrorCode EFTauDiKaonHypo::hltFinalize(){
   // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -150,7 +150,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   
   // Get the messaging service, print where you are
   
-  if( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in execute()" << endreq;
+  if( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in execute()" << endmsg;
   
   // general reset
   pass=false;
@@ -189,12 +189,12 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
       if( msgLvl() <= MSG::DEBUG ) 
 	msg() << MSG::DEBUG << "REGTEST: RoI id " << roiDescriptor->roiId()
 	      << " located at   phi = " <<  roiDescriptor->phi()
-	      << ", eta = " << roiDescriptor->eta() << endreq;
+	      << ", eta = " << roiDescriptor->eta() << endmsg;
     } 
   else 
     {
       if( msgLvl() <= MSG::DEBUG ) 
-	msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+	msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
     }
   
   // get tau objects from the trigger element:
@@ -208,39 +208,39 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     {
       msg() << MSG::INFO
 	    << " REGTEST: Failed to get tauContainer's from the trigger element" 
-	    << endreq;
+	    << endmsg;
       return HLT::OK;
     } 
   
   if( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << " Got " << vectorTauContainers.size() 
-	  << " tauContainers's associated to the TE " << endreq;
+	  << " tauContainers's associated to the TE " << endmsg;
   
   if(vectorTauContainers.size() == 0)
     {
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
 	      << "This algorithm is designed to work with  one tau container per TE."
-	      << endreq;
+	      << endmsg;
       return HLT::OK;
     }
   
   const xAOD::TauJetContainer *TauContainer = vectorTauContainers.back();
   
-  msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endreq;
+  msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endmsg;
   
   for(xAOD::TauJetContainer::const_iterator tauIt = TauContainer->begin();
       tauIt != TauContainer->end(); tauIt++){ 
     
     if( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " tauRec candidate "<<endreq;
+      msg() << MSG::DEBUG << " tauRec candidate "<<endmsg;
     
     m_cutCounter++;
     
     // cut on calibrated pt:
     double EFet = (*tauIt)->pt()*1e-3;
     
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Et Calib "<< EFet <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Et Calib "<< EFet <<endmsg;
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
     m_cutCounter++;
@@ -248,9 +248,14 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     
     // cut on core and wide tracks:
     m_nTrack = (*tauIt)->nTracks();
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    m_nWideTrack = (*tauIt)->nWideTracks();
+    #else
     m_nWideTrack = (*tauIt)->nTracksIsolation();
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Track size "<< m_nTrack <<endreq;	
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Wide Track size "<< m_nWideTrack <<endreq;
+    #endif
+
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Track size "<< m_nTrack <<endmsg;	
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Wide Track size "<< m_nWideTrack <<endmsg;
  
     if (!( (m_nTrack >= m_nTrackMin) && (m_nTrack <= m_nTrackMax)))  continue;
     if (!( m_nWideTrack <= m_nWideTrackMax ))  continue;
@@ -260,7 +265,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // cut on leading track pt:     
     (*tauIt)->detail(xAOD::TauJetParameters::leadTrkPt, m_leadTrkPt);
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: leadTrkPt "<< m_leadTrkPt <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: leadTrkPt "<< m_leadTrkPt <<endmsg;
 
     if(!( m_leadTrkPt > m_leadTrkPtMin)) continue;
     m_cutCounter++;
@@ -268,7 +273,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // cut on massTrkSys:     
     (*tauIt)->detail(xAOD::TauJetParameters::massTrkSys, m_massTrkSys);
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys "<< m_massTrkSys <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys "<< m_massTrkSys <<endmsg;
 
     // for dikaon mass hypothesis, compute invariant mass with kaon mass
     TLorentzVector my_kaons(0.,0.,0.,0.);
@@ -280,11 +285,15 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
       try 
       {
-        trk = (*tauIt)->track(i)->track();
+        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+        trk = (*tauIt)->track(i);
+	#else
+	trk = (*tauIt)->track(i)->track();
+	#endif
       }
       catch(std::exception e)
       {
-        msg() << MSG::WARNING << " REGTEST: EFTauDiKaonHypo, failed to get tau track link! " <<endreq;
+        msg() << MSG::WARNING << " REGTEST: EFTauDiKaonHypo, failed to get tau track link! " <<endmsg;
       } 
 
       if(trk) {
@@ -294,7 +303,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
       my_kaons = my_kaons + tmpKaon;
     }
     m_massTrkSysKaon = my_kaons.M();
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon mass hypo "<< m_massTrkSysKaon <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon mass hypo "<< m_massTrkSysKaon <<endmsg;
 
     // kaon+pi mass hypo
     double finalKPiMass = 0;
@@ -319,7 +328,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
           }
     }
     m_massTrkSysKaonPi = finalKPiMass;
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon+pi mass hypo "<< m_massTrkSysKaonPi <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: massTrkSys with kaon+pi mass hypo "<< m_massTrkSysKaonPi <<endmsg;
 
     if (!( (m_massTrkSys > m_massTrkSysMin) && (m_massTrkSys < m_massTrkSysMax) ) )  continue;
     m_cutCounter++;
@@ -335,7 +344,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // cut on EMPOverTrkSysP:     
     (*tauIt)->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: EMPOverTrkSysP "<< m_EMPOverTrkSysP <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: EMPOverTrkSysP "<< m_EMPOverTrkSysP <<endmsg;
                
     if ( !(m_EMPOverTrkSysP < m_EMPOverTrkSysPMax) )  continue;
     m_cutCounter++;
@@ -343,7 +352,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // cut on etOverPtLeadTrk:
     (*tauIt)->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etOverPtLeadTrk);
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: etOverPtLeadTrk "<< m_etOverPtLeadTrk <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: etOverPtLeadTrk "<< m_etOverPtLeadTrk <<endmsg;
 
     if( !( (m_etOverPtLeadTrk > m_etOverPtLeadTrkMin) && (m_etOverPtLeadTrk < m_etOverPtLeadTrkMax)  ) ) continue;
     m_cutCounter++;
@@ -351,7 +360,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
     // cut on dRmax:
     (*tauIt)->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
-    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: dRmax "<< m_dRmax <<endreq;
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: dRmax "<< m_dRmax <<endmsg;
 
     if( !( m_dRmax < m_dRmaxMax ) ) continue;
     m_cutCounter++;    
@@ -366,7 +375,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     pass=true;
     
     if( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " REGTEST: pass taurec is "<<pass<<endreq;
+      msg() << MSG::DEBUG << " REGTEST: pass taurec is "<<pass<<endmsg;
     
   } // end of loop in tau objects.
   
@@ -375,7 +384,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG
 	      << " REGTEST: TE accepted !! "
-	      << endreq;
+	      << endmsg;
       // activate Trigger Element.
     }
   else
@@ -383,7 +392,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG
 	      << " REGTEST: No good tau found !! TE rejected "
-	      << endreq;
+	      << endmsg;
     }
   
   return HLT::OK;

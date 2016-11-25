@@ -6,6 +6,7 @@
 # Author: Geng-Yuan  Jeng
 ######################################################################
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigTauHypo.TrigTauHypoConf import *
 from AthenaCommon.Logging import logging
 
@@ -57,6 +58,9 @@ class HLTTrackTauHypo_rejectNoTracks(HLTTrackTauHypoBase):
         self.TrackVariableCore = 0.0
         #setHLTTrackPreselMonTools(self)
         #setTauMonTools(self)
+
+        if TriggerFlags.run2Config=='2016':
+             self.relaxHighPt=False;
 
 class HLTTrackTauHypo (HLTTrackTauHypoBase):
     __slots__ = []

@@ -5,6 +5,8 @@
 #ifndef L2TAUTOPOFEX_H
 #define L2TAUTOPOFEX_H
 
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 #include "TrigInterfaces/ComboAlgo.h"
 
@@ -25,5 +27,10 @@ class L2TauTopoFex : public HLT::ComboAlgo
 		HLT::ErrorCode hltFinalize();
 		HLT::ErrorCode acceptInputs(HLT::TEConstVec& inputTE, bool& pass);
 		HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE);
+
+	private:
+		xAOD::TrigCompositeContainer *m_cont;
+		float m_dR;
+
 };
 #endif

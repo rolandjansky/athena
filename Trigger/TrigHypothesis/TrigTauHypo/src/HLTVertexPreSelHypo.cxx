@@ -44,12 +44,12 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
 
-	msg() << MSG::INFO << "in HLTVertexPreSelHypo initialize()" << endreq;
-        msg() << MSG::INFO << " REGTEST: HLTVertexPreSelHypo will cut on "<<endreq;
-        msg() << MSG::INFO << " REGTEST: param acceptableZ0Distance " << m_acceptableZ0Distance <<endreq;
-        msg() << MSG::INFO << " REGTEST: param useVertices " << m_useVertices <<endreq;
-        msg() << MSG::INFO << " REGTEST: param mustUseSameSource " << m_mustUseSameSource <<endreq;
-        msg() << MSG::INFO << " REGTEST: param useLeadingTrackZ0 " << m_useLeadingTrackZ0 <<endreq;
+	msg() << MSG::INFO << "in HLTVertexPreSelHypo initialize()" << endmsg;
+        msg() << MSG::INFO << " REGTEST: HLTVertexPreSelHypo will cut on "<<endmsg;
+        msg() << MSG::INFO << " REGTEST: param acceptableZ0Distance " << m_acceptableZ0Distance <<endmsg;
+        msg() << MSG::INFO << " REGTEST: param useVertices " << m_useVertices <<endmsg;
+        msg() << MSG::INFO << " REGTEST: param mustUseSameSource " << m_mustUseSameSource <<endmsg;
+        msg() << MSG::INFO << " REGTEST: param useLeadingTrackZ0 " << m_useLeadingTrackZ0 <<endmsg;
 	
 	return HLT::OK;
 }
@@ -165,8 +165,11 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 			size_t numberOfTracks = tauJet1->nTracks();
 			if(numberOfTracks == 0)
 			{
-				ATH_MSG_ERROR("No Core tracks in Taujet, cannot find z0");
-				return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+				ATH_MSG_DEBUG("No Core tracks in Taujet, cannot find z0 for tau with pt "<<tauJet1->pt());
+				//return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+				//ATR-15473: becuase of ATR-12851, 0trk candidates with highpt are not rejected. Events with these taus are accepted here
+				pass = true;
+				return HLT::OK;
 			}
 			z0Jet1 = findLeadingTrackZ0(numberOfTracks, tauJet1);
 		}
@@ -175,8 +178,10 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 			size_t numberOfTracks = tauJet2->nTracks();
 			if(numberOfTracks == 0)
 			{
-				ATH_MSG_ERROR("No Core tracks in Taujet, cannot find z0");
-				return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+				ATH_MSG_DEBUG("No Core tracks in Taujet, cannot find z0 for tau with pt "<<tauJet2->pt());
+				//return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+                                pass = true;
+                                return HLT::OK;
 			}
 			z0Jet2 = findLeadingTrackZ0(numberOfTracks, tauJet2);
 		}
@@ -206,7 +211,12 @@ float HLTVertexPreSelHypo::findLeadingTrackZ0(size_t numberOfTracks, const xAOD:
 	const xAOD::TrackParticle* leadingTrack(NULL);
 	for(size_t i = 0; i < numberOfTracks; i++)
 	{
-		const xAOD::TrackParticle* currentTrack = tauJet->track(i)->track();
+		const xAOD::TrackParticle* currentTrack = 0;
+		#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+		currentTrack = tauJet->track(i);
+		#else
+		currentTrack = tauJet->track(i)->track();
+		#endif
 		ATH_MSG_DEBUG("Track " << (i + 1) << "  | pT: " << currentTrack->pt());
 		if(fabs(currentTrack->pt()) > highestpT)
 		{

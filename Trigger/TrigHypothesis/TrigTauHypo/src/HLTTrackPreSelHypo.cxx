@@ -34,10 +34,13 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
+#include "xAODTau/TauJetContainer.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#include "xAODTrigger/TrigPassBits.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -66,6 +69,8 @@ HLTTrackPreSelHypo::HLTTrackPreSelHypo(const std::string& name,
   declareProperty("TracksInIsoCut",       m_tracksInIsoCut=1);
   declareProperty("DeltaZ0Cut",           m_deltaZ0Cut=2.);
   declareProperty("rejectNoTracks",       m_rejectNoTracks=false);
+  declareProperty("relaxHighPt",          m_relax_highpt=true);
+  declareProperty("HighPtThreshold",      m_highpt_threshold=200000.);
 
   declareMonitoredVariable("CutCounter"        , m_cutCounter);
   declareMonitoredVariable("nTracksInCore"   , m_nTracksInCore);
@@ -89,16 +94,18 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
-  msg() << MSG::INFO << " REGTEST: HLTTrackPreSelHypo will cut on "           << endreq;
-  msg() << MSG::INFO << " REGTEST: Lower pt cut for track selection: " <<  m_lowerTrackPtCut   << endreq;
-  msg() << MSG::INFO << " REGTEST: Tracks in core <= " << m_tracksInCoreCut       << endreq;  
-  msg() << MSG::INFO << " REGTEST: Tracks in outer <= " << m_tracksInIsoCut       << endreq;  
-  msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
+  msg() << MSG::INFO << " REGTEST: HLTTrackPreSelHypo will cut on "                           << endmsg;
+  msg() << MSG::INFO << " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   << endmsg;
+  msg() << MSG::INFO << " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   << endmsg;  
+  msg() << MSG::INFO << " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    << endmsg;  
+  msg() << MSG::INFO << " REGTEST: Relax High pT: "                    << m_relax_highpt      << endmsg;
+  msg() << MSG::INFO << " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold << endmsg;
+  msg() << MSG::INFO << " REGTEST: ------ "                                                   << endmsg;
 
 
-  msg() << MSG::INFO << "Initialization of HLTTrackPreSelHypo completed successfully" << endreq;
+  msg() << MSG::INFO << "Initialization of HLTTrackPreSelHypo completed successfully" << endmsg;
   return HLT::OK;
 }
 
@@ -110,7 +117,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltInitialize()
 HLT::ErrorCode HLTTrackPreSelHypo::hltFinalize(){
 // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -126,7 +133,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   // Get the messaging service, print where you are
   
   if( msgLvl() <= MSG::DEBUG )  
-    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endreq;
+    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endmsg;
   
   // general reset
   m_cutCounter = 0;
@@ -137,7 +144,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode status = getFeature(inputTE, roiDescriptor);
   if ( status != HLT::OK || roiDescriptor == 0 ) {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return status;
   }
 
@@ -153,13 +160,13 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   status = getFeatures(inputTE,vectorFoundTracks);
   
   if (status !=HLT::OK) {
-    msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endreq;
+    msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endmsg;
     return status;
   }
   else {
 
     if (vectorFoundTracks.size()<1) {
-      msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endreq;
+      msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endmsg;
       return HLT::ERROR;
     }
 
@@ -168,21 +175,96 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
 
-  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  if(foundTracks) {
+    msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endmsg;
+  }
 
-  if(foundTracks) if(m_rejectNoTracks && foundTracks->size() == 0)
+
+  // retrieve the tau container
+  std::vector<const xAOD::TauJetContainer*> vectorTauContainers;
+  
+  status = getFeatures(inputTE, vectorTauContainers);
+ 
+  if(status!=HLT::OK) 
     {
-      msg() << MSG::DEBUG << "No Tracks in Input Collection: reject TE" << endreq;
-      pass = false;
+      msg() << MSG::INFO
+	    << " REGTEST: Failed to get tauContainer's from the trigger element" 
+	    << endmsg;
+      return HLT::OK;
+    } 
+  
+  if( msgLvl() <= MSG::DEBUG )
+    msg() << MSG::DEBUG << " Got " << vectorTauContainers.size() 
+	  << " tauContainers's associated to the TE " << endmsg;
+  
+  if(vectorTauContainers.size() == 0)
+    {
+      if( msgLvl() <= MSG::DEBUG )
+	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
+	      << "This algorithm is designed to work with  one tau container per TE."
+	      << endmsg;
       return HLT::OK;
     }
   
-  if(foundTracks) if(m_rejectNoTracks && foundTracks->size())
-    { 
-      msg() << MSG::DEBUG << "Tracks in Input Collection: accept TE" << endreq;
-      pass = true;
+  const xAOD::TauJetContainer *TauContainer = vectorTauContainers.back();
+  msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endmsg;
+
+
+
+  
+  if (foundTracks) {
+    if (m_rejectNoTracks) {
+
+      // ignore the 0trk cut if one taus is above m_highpt_threshold
+      if (m_relax_highpt) { 
+	for(xAOD::TauJetContainer::const_iterator tauIt = TauContainer->begin();
+	    tauIt != TauContainer->end(); tauIt++) {
+	  
+	  double EFet = (*tauIt)->pt();
+	  
+	  if (msgLvl() <= MSG::DEBUG) {
+	    msg() << MSG::DEBUG << " REGTEST: Et Calib " << EFet << endmsg;
+	  }
+	  // check if at least one tau passes the threshold
+	  if (EFet > m_highpt_threshold) {
+	    pass = true;
+	    return HLT::OK;
+	  }
+	  
+	}
+      }
+
+      // checking if the container is empty
+      if (foundTracks->size() == 0) {
+	msg() << MSG::DEBUG << "No Tracks in Input Collection: reject TE" << endmsg;
+	pass = false;
+	return HLT::OK;
+      }
+
+      // retrieving the passbits
+      const xAOD::TrigPassBits* bits(0);
+      HLT::ErrorCode status = getFeature(inputTE, bits, "passbits");
+      if (status != HLT::OK) {
+	ATH_MSG_WARNING(" Failed to get TrigPassBits ");
+	return HLT::MISSING_FEATURE;
+      }
+
+      // check if at least one track satisfies the selection
+      TrackCollection::const_iterator track = foundTracks->begin();
+      for (track = foundTracks->begin(); track != foundTracks->end(); ++track) {
+	if(bits->isPassing((*track), foundTracks)){
+	  msg() << MSG::DEBUG << "track is passing selection" << endmsg;
+	  pass = true;
+	  return HLT::OK;
+	}
+      }
+
+      // reject if no track satisfy the selection
+      pass = false;
       return HLT::OK;
-    }  
+    }
+  }
+
  
   if(foundTracks){
     const Trk::Track *Ltrack = 0;
@@ -211,9 +293,9 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
       }
     }
     if(Ltrack) {
-      msg() << MSG::DEBUG << " leading track pT " << trk_pt_max << endreq;
+      msg() << MSG::DEBUG << " leading track pT " << trk_pt_max << endmsg;
     }
-    else msg() << MSG::DEBUG << " no leading track pT, using the RoI " << endreq;
+    else msg() << MSG::DEBUG << " no leading track pT, using the RoI " << endmsg;
 
     //next, count tracks in core and outer region with respect to leading track (or RoI)  
     float ltrk_eta;
@@ -276,7 +358,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
 	      << " ("
 	      << m_tracksInIsoCut
 	      << ") "
-	      << endreq;
+	      << endmsg;
       return HLT::OK;
     }
 
@@ -284,7 +366,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   pass = true;
   
   if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endreq;
+    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
   
   
   return HLT::OK;

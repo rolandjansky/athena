@@ -73,21 +73,21 @@ HLT::ErrorCode HLTTauGenericHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
-  msg() << MSG::INFO << " REGTEST: HLTTauGenericHypo will cut on "           << endreq;
-  msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
+  msg() << MSG::INFO << " REGTEST: HLTTauGenericHypo will cut on "           << endmsg;
+  msg() << MSG::INFO << " REGTEST: ------ "                                       << endmsg;
   
   
   // Here we store the formulas since they need to compile
   for(unsigned int i=0; i<m_member.size(); i++)
     {
       m_store.push_back(TFormula(("TauHypoCut"+m_formula.at(i)).c_str(), m_formula.at(i).c_str()));
-      msg() << MSG::INFO << " REGTEST: " << m_formula.at(i) << endreq;
+      msg() << MSG::INFO << " REGTEST: " << m_formula.at(i) << endmsg;
     }
-  msg() << MSG::INFO << " REGTEST: where x is the ID variables, y is Tau pT and z is Tau eta " << endreq;
+  msg() << MSG::INFO << " REGTEST: where x is the ID variables, y is Tau pT and z is Tau eta " << endmsg;
 
-  msg() << MSG::INFO << "Initialization of HLTTauGenericHypo completed successfully" << endreq;
+  msg() << MSG::INFO << "Initialization of HLTTauGenericHypo completed successfully" << endmsg;
   return HLT::OK;
 }
 
@@ -99,7 +99,7 @@ HLT::ErrorCode HLTTauGenericHypo::hltInitialize()
 HLT::ErrorCode HLTTauGenericHypo::hltFinalize(){
 // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -114,7 +114,7 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
   
   // Get the messaging service, print where you are
   if( msgLvl() <= MSG::DEBUG )  
-    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endreq;
+    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endmsg;
   
   // general reset
   pass = false;
@@ -123,13 +123,13 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<const xAOD::TauJetContainer*> myTauContainers;
   HLT::ErrorCode status = getFeatures(inputTE, myTauContainers);
   if ( status != HLT::OK || myTauContainers.size()==0) {
-    msg() << MSG::ERROR << "Input tau collection could not be found " << endreq;
+    msg() << MSG::ERROR << "Input tau collection could not be found " << endmsg;
     return status;
   } else {
-    msg() << MSG::DEBUG << " Input tau collection has size " << myTauContainers.size() << endreq;
+    msg() << MSG::DEBUG << " Input tau collection has size " << myTauContainers.size() << endmsg;
     if((myTauContainers.back())->size()==0)
       {
-	msg() << MSG::DEBUG << "No taus in input collection: Rejecting" << endreq;
+	msg() << MSG::DEBUG << "No taus in input collection: Rejecting" << endmsg;
 	return status;
       }
   }
@@ -152,10 +152,10 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
       
       // What about upper and lower bounds? can work using x, y, z, t...
       double theResult = m_store.at(i).Eval(theValue, theTau->pt(), theTau->eta());
-      msg() << MSG::DEBUG << " Evaluating Hypothesis on ID Variable #: " << m_member.at(i) << endreq;
-      msg() << MSG::DEBUG << " With Cut = " << m_formula.at(i).c_str() << endreq;
-      msg() << MSG::DEBUG << " And value x (ID), y (pT), z (Eta) = " << theValue <<", "<< theTau->pt() << ", " << theTau->eta() << endreq;
-      msg() << MSG::DEBUG << " Result = " << (theResult > 0.5) << endreq;
+      msg() << MSG::DEBUG << " Evaluating Hypothesis on ID Variable #: " << m_member.at(i) << endmsg;
+      msg() << MSG::DEBUG << " With Cut = " << m_formula.at(i).c_str() << endmsg;
+      msg() << MSG::DEBUG << " And value x (ID), y (pT), z (Eta) = " << theValue <<", "<< theTau->pt() << ", " << theTau->eta() << endmsg;
+      msg() << MSG::DEBUG << " Result = " << (theResult > 0.5) << endmsg;
 
       if(theResult < 0.5)
 	{
@@ -171,14 +171,14 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
 	      << " REGTEST: Cut Number: "
 	      << hasFailed-1
               << " did not pass the threshold" 
-	      << endreq;
+	      << endmsg;
       return HLT::OK;
     }
 
   pass = true;
   
   if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endreq;
+    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
   
   
   return HLT::OK;

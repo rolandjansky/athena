@@ -19,6 +19,7 @@ use     ITrackToVertex          ITrackToVertex-*        Reconstruction/RecoTools
 use     MuidEvent               MuidEvent-*             Reconstruction/MuonIdentification
 use     VxVertex                VxVertex-*              Tracking/TrkEvent
 use     Particle                Particle-*              Reconstruction
+use     xAODTrigger             xAODTrigger-*           Event/xAOD
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="jobOfragment_*.py TriggerConfig_*.py"
@@ -35,6 +36,7 @@ use     TrkTrackSummary         TrkTrackSummary-*       Tracking/TrkEvent
 use	xAODJet                 xAODJet-*               Event/xAOD
 use	xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
 use	xAODTau                 xAODTau-*		Event/xAOD
+use     xAODEgamma              xAODEgamma-*            Event/xAOD
 use 	xAODTracking            xAODTracking-*          Event/xAOD
 use     CaloEvent               CaloEvent-*             Calorimeter
 use  	TrigNavStructure        TrigNavStructure-*      Trigger/TrigEvent

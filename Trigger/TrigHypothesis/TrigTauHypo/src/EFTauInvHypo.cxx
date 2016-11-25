@@ -96,32 +96,32 @@ HLT::ErrorCode EFTauInvHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
   
-  msg() << MSG::INFO << " REGTEST: EFTauInvHypo will cut on "<<endreq;
-  msg() << MSG::INFO << " REGTEST: ntracks "<<m_numTrackMin <<"-"<< m_numTrackMax <<endreq; 
-  msg() << MSG::INFO << " REGTEST: NTrkOnly1or3: "<<m_numTrkOnly1or3 <<endreq; 
-  msg() << MSG::INFO << " REGTEST: emradius 1P < "<<m_EMRadiusMax_1P <<endreq;
-  msg() << MSG::INFO << " REGTEST: emradius MP < "<<m_EMRadiusMax_MP <<endreq;
-  msg() << MSG::INFO << " REGTEST: Et calib > "<< m_EtCalibMin  <<endreq;
-  msg() << MSG::INFO << " REGTEST: DrTrkAvg 1P < "<<m_DrTrkAvgMax_1P <<endreq;
-  msg() << MSG::INFO << " REGTEST: DrTrkAvg MP < "<<m_DrTrkAvgMax_MP <<endreq;
-  msg() << MSG::INFO << " REGTEST: Et ov Pt 1P < "<<m_EtovPtLeadMax_1P <<endreq;
-  msg() << MSG::INFO << " REGTEST: Et ov Pt MP < "<<m_EtovPtLeadMax_MP <<endreq;
-  msg() << MSG::INFO << " REGTEST: param emrad OP "<<m_emrad_OP_a0<<","<<m_emrad_OP_a1<<","<<m_emrad_OP_a2<<endreq;
-  msg() << MSG::INFO << " REGTEST: param emrad MP "<<m_emrad_MP_a0<<","<<m_emrad_MP_a1<<","<<m_emrad_MP_a2<<endreq;
-  msg() << MSG::INFO << " REGTEST: param trkrad OP "<<m_trkrad_OP_a0<<","<<m_trkrad_OP_a1<<","<<m_trkrad_OP_a2<<endreq;
-  msg() << MSG::INFO << " REGTEST: param trkrad MP "<<m_trkrad_MP_a0<<","<<m_trkrad_MP_a1<<","<<m_trkrad_MP_a2<<endreq;
-  msg() << MSG::INFO << " REGTEST: ------ "<<endreq;
+  msg() << MSG::INFO << " REGTEST: EFTauInvHypo will cut on "<<endmsg;
+  msg() << MSG::INFO << " REGTEST: ntracks "<<m_numTrackMin <<"-"<< m_numTrackMax <<endmsg; 
+  msg() << MSG::INFO << " REGTEST: NTrkOnly1or3: "<<m_numTrkOnly1or3 <<endmsg; 
+  msg() << MSG::INFO << " REGTEST: emradius 1P < "<<m_EMRadiusMax_1P <<endmsg;
+  msg() << MSG::INFO << " REGTEST: emradius MP < "<<m_EMRadiusMax_MP <<endmsg;
+  msg() << MSG::INFO << " REGTEST: Et calib > "<< m_EtCalibMin  <<endmsg;
+  msg() << MSG::INFO << " REGTEST: DrTrkAvg 1P < "<<m_DrTrkAvgMax_1P <<endmsg;
+  msg() << MSG::INFO << " REGTEST: DrTrkAvg MP < "<<m_DrTrkAvgMax_MP <<endmsg;
+  msg() << MSG::INFO << " REGTEST: Et ov Pt 1P < "<<m_EtovPtLeadMax_1P <<endmsg;
+  msg() << MSG::INFO << " REGTEST: Et ov Pt MP < "<<m_EtovPtLeadMax_MP <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param emrad OP "<<m_emrad_OP_a0<<","<<m_emrad_OP_a1<<","<<m_emrad_OP_a2<<endmsg;
+  msg() << MSG::INFO << " REGTEST: param emrad MP "<<m_emrad_MP_a0<<","<<m_emrad_MP_a1<<","<<m_emrad_MP_a2<<endmsg;
+  msg() << MSG::INFO << " REGTEST: param trkrad OP "<<m_trkrad_OP_a0<<","<<m_trkrad_OP_a1<<","<<m_trkrad_OP_a2<<endmsg;
+  msg() << MSG::INFO << " REGTEST: param trkrad MP "<<m_trkrad_MP_a0<<","<<m_trkrad_MP_a1<<","<<m_trkrad_MP_a2<<endmsg;
+  msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
   
   if( m_numTrackMin >  m_numTrackMax  && ! m_numTrkOnly1or3) //only check consistency of Max/Min if  numTrkOnly1or3==false
     {
-      msg() << MSG::ERROR << "EFTauInvHypo is uninitialized! " << endreq;
+      msg() << MSG::ERROR << "EFTauInvHypo is uninitialized! " << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   
-  msg() << MSG::INFO << "Initialization of EFTauInvHypo completed successfully"<< endreq;
+  msg() << MSG::INFO << "Initialization of EFTauInvHypo completed successfully"<< endmsg;
   return HLT::OK;
 }
 
@@ -129,7 +129,7 @@ HLT::ErrorCode EFTauInvHypo::hltInitialize()
 HLT::ErrorCode EFTauInvHypo::hltFinalize(){
   // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -140,7 +140,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   
   // Get the messaging service, print where you are
   
-  if( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in execute()" << endreq;
+  if( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG <<"REGTEST:"<< name() << ": in execute()" << endmsg;
   
   // general reset
   pass=false;
@@ -162,12 +162,12 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if( msgLvl() <= MSG::DEBUG ) 
 	msg() << MSG::DEBUG << "REGTEST: RoI id " << roiDescriptor->roiId()
 	      << " located at   phi = " <<  roiDescriptor->phi()
-	      << ", eta = " << roiDescriptor->eta() << endreq;
+	      << ", eta = " << roiDescriptor->eta() << endmsg;
     } 
   else 
     {
       if( msgLvl() <= MSG::DEBUG ) 
-	msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endreq;
+	msg() <<  MSG::DEBUG << "Failed to find RoiDescriptor " << endmsg;
     }
   
   // get tau objects from the trigger element:
@@ -180,25 +180,25 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(status!=HLT::OK) {
     msg() << MSG::INFO
 	  << " REGTEST: Failed to get tauContainer's from the trigger element" 
-	  << endreq;
+	  << endmsg;
     return HLT::OK;
   } 
   
   if( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << " Got " << vectorTauContainers.size() 
-	  << " tauContainers's associated to the TE " << endreq;
+	  << " tauContainers's associated to the TE " << endmsg;
   
   if(vectorTauContainers.size() == 0){
     if( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
 	    << "This algorithm is designed to work with  one tau container per TE."
-	    << endreq;
+	    << endmsg;
     return HLT::OK;
   }
   
   const Analysis::TauJetContainer *TauContainer = vectorTauContainers.back();
   
-  msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endreq;
+  msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endmsg;
   
   for(Analysis::TauJetContainer::const_iterator tauIt = TauContainer->begin();
       tauIt != TauContainer->end(); tauIt++){                
@@ -213,7 +213,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if (TauDetails == NULL) 
 	continue;
       
-      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " tauRec candidate "<<endreq;
+      if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " tauRec candidate "<<endmsg;
       
       m_cutCounter++;
       
@@ -222,7 +222,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       double EFet = (*tauIt)->et()*1e-3;
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: Et Calib "<<EFet<<endreq;
+	msg() << MSG::DEBUG << " REGTEST: Et Calib "<<EFet<<endmsg;
       
       if(!( EFet > m_EtCalibMin*1e-3)) continue;
       m_cutCounter++;
@@ -232,7 +232,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       m_numTrack = (*tauIt)->numTrack(); //changed from seedCalo_numTrack() to numTrack() to syncronize with tauRec04-00-04
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endreq;	
+	msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endmsg;	
       
       if (m_numTrkOnly1or3) 
 	{
@@ -248,7 +248,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       m_EMRadius = TauDetails->seedCalo_EMRadius();
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: EMRadius  "<< m_EMRadius <<endreq;
+	msg() << MSG::DEBUG << " REGTEST: EMRadius  "<< m_EMRadius <<endmsg;
       
       double emrad_cut=999.;
       if( EFet!=0 && EFet<=60. && m_numTrack==1 ) 
@@ -261,7 +261,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if( EFet>60. && m_numTrack>1 )  emrad_cut = m_EMRadiusMax_MP;
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: EMRadius cut "<< emrad_cut<<endreq;
+	msg() << MSG::DEBUG << " REGTEST: EMRadius cut "<< emrad_cut<<endmsg;
       
       if( m_EMRadius > emrad_cut ) continue;
       m_cutCounter++;
@@ -269,7 +269,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       // Cut on track average distance
       
       m_DrTrkAvg = TauDetails->seedCalo_trkAvgDist();
-      msg() << MSG::DEBUG<<" REGTEST: Track avg distance "<<m_DrTrkAvg<<endreq;
+      msg() << MSG::DEBUG<<" REGTEST: Track avg distance "<<m_DrTrkAvg<<endmsg;
       
       double trkrad_cut=999.;
       if( EFet!=0 && EFet<=60. && m_numTrack==1 ) 
@@ -282,7 +282,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if( EFet>60. && m_numTrack>1 )  trkrad_cut = m_DrTrkAvgMax_MP;
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: TrkRadius cut "<< trkrad_cut<<endreq;
+	msg() << MSG::DEBUG << " REGTEST: TrkRadius cut "<< trkrad_cut<<endmsg;
       
       if( m_DrTrkAvg > trkrad_cut ) continue;      
       m_cutCounter++;
@@ -291,7 +291,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       m_EtovPtLead = TauDetails->etOverPtLeadTrk();
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: Et over pTLead  "<< m_EtovPtLead <<endreq;
+	msg() << MSG::DEBUG << " REGTEST: Et over pTLead  "<< m_EtovPtLead <<endmsg;
       
       if(m_numTrack==1 && m_EtovPtLead > m_EtovPtLeadMax_1P) continue;
       if(m_numTrack>1  && m_EtovPtLead > m_EtovPtLeadMax_MP) continue;
@@ -305,7 +305,7 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       pass=true;
       
       if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG << " REGTEST: pass taurec is "<<pass<<endreq;
+	msg() << MSG::DEBUG << " REGTEST: pass taurec is "<<pass<<endmsg;
       
     }
     
@@ -314,12 +314,12 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(pass){
     
     if( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endreq;
+      msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
     // activate Trigger Element.
   }
   else{
     if( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " REGTEST: No good tau found !! TE rejected " << endreq;
+      msg() << MSG::DEBUG << " REGTEST: No good tau found !! TE rejected " << endmsg;
   }
   
   return HLT::OK;
