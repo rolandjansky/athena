@@ -85,6 +85,13 @@ private:
 
   const AtlasDetectorID* m_id_helper;
 
+
+  double m_trainingBeamspotX;
+  double m_trainingBeamspotY;
+  double m_trainingBeamspotZ;
+  double m_trainingBeamspotTiltX;
+  double m_trainingBeamspotTiltY;
+
   // Convertor for RDO objects 
   FTK_RawTrack* SimToRaw(const FTKTrack&);
   bool check_track(const FTKTrack &track, FTK_RawTrack &rdo);
