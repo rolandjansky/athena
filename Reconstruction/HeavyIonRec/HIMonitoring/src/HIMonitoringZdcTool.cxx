@@ -69,7 +69,7 @@ StatusCode HIMonitoringZdcTool::fillHistograms()
 	}
 	else {
 		ATH_MSG_INFO("Zdcs retrieved from StoreGate");
-		std::cout << "Number of zdcs " << zdcs->size() << std::endl;
+//		std::cout << "Number of zdcs " << zdcs->size() << std::endl;
 	}
 
 	xAOD::ZdcModuleContainer::const_iterator zdc_itr = zdcs->begin();
