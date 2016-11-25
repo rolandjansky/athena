@@ -20,25 +20,25 @@
 #include <set>
 
 namespace{
- int rodLinkFromOnlineId(const uint32_t id){
-   SCT_OnlineId online(id);
-   uint32_t f(online.fibre());
-   int formatter((f/12) & 0x7);
-   int linknb = (f - (formatter*12)) & 0xF ;
-   int rodlink = (formatter << 4) | linknb ;
-   return rodlink;
- } 
- bool isOdd(const int someNumber){
-   return bool(someNumber & 1); 
- }
+  int rodLinkFromOnlineId(const uint32_t id){
+    SCT_OnlineId online(id);
+    uint32_t f(online.fibre());
+    int formatter((f/12) & 0x7);
+    int linknb = (f - (formatter*12)) & 0xF ;
+    int rodlink = (formatter << 4) | linknb ;
+    return rodlink;
+  } 
+  bool isOdd(const int someNumber){
+    return bool(someNumber & 1); 
+  }
  
- bool isEven(const int someNumber){
-   return !isOdd(someNumber);
- }
+  bool isEven(const int someNumber){
+    return !isOdd(someNumber);
+  }
  
- bool swappedCable(const int moduleSide, const int linkNumber){
-   return isOdd(linkNumber)?(moduleSide==0) : (moduleSide==1);
- }
+  bool swappedCable(const int moduleSide, const int linkNumber){
+    return isOdd(linkNumber)?(moduleSide==0) : (moduleSide==1);
+  }
 }//end of anon namespace
 
 
@@ -52,17 +52,17 @@ SCT_RodEncoder::SCT_RodEncoder
      m_condensed(false),
      m_WriteByteStreamSummary(false),
      m_swapModuleId{},
-     m_singleCondHitNumber(0),
-     m_pairedCondHitNumber(0),
-     m_firstExpHitNumber(0),
-     m_evenExpHitNumber(0),
-     m_lastExpHitNumber(0),
-     m_headerNumber(0),
-     m_trailerNumber(0)
-{
-  declareInterface< ISCT_RodEncoder  >( this );
-  declareProperty("CondensedMode",m_condensed=true);
-}
+  m_singleCondHitNumber(0),
+  m_pairedCondHitNumber(0),
+  m_firstExpHitNumber(0),
+  m_evenExpHitNumber(0),
+  m_lastExpHitNumber(0),
+  m_headerNumber(0),
+  m_trailerNumber(0)
+     {
+       declareInterface< ISCT_RodEncoder  >( this );
+       declareProperty("CondensedMode",m_condensed=true);
+     }
 
 
 /** destructor  */
@@ -72,8 +72,8 @@ SCT_RodEncoder::~SCT_RodEncoder() {
 
 
 StatusCode SCT_RodEncoder::initialize() {
-	//prob. dont need this next line now:
-  ATH_CHECK( AlgTool::initialize()); 
+  //prob. dont need this next line now:
+  //ATH_CHECK( AlgTool::initialize()); 
   ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
   
   /** Retrieve cabling service */
@@ -140,18 +140,39 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
   addSpecificErrors(robid, abcdErrors, ABCD_ERR, v16data);
   addSpecificErrors(robid, rawErrors, RAWDATA_ERR, v16data);
   
+  std::vector<bool> v_isDuplicated(rdoVec.size(), false);
+  for(unsigned int iRdo=0; iRdo<rdoVec.size(); iRdo++) {
+    const RDO* rawdata = rdoVec.at(iRdo);
+    if(rawdata==0) {
+      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endmsg;
+      v_isDuplicated.at(iRdo) = true;
+      continue;
+    }
 
-  vRDOs::iterator  rdo_it = rdoVec.begin();   
-  vRDOs::iterator  rdo_it_end = rdoVec.end() ;
+    // Check if there is another RDO with the same first strip
+    for(unsigned int iRdo2=0; iRdo2<iRdo; iRdo2++) {
+      const RDO* rawdata2 = rdoVec.at(iRdo2);
+      if(v_isDuplicated.at(iRdo2)) continue;
+
+      if(rawdata->identify()==rawdata2->identify()) {
+	// Keep RDO with larger cluster size. If cluster sizes are the same, keep the first one.
+	if(rawdata->getGroupSize()>=rawdata2->getGroupSize()) {
+	  v_isDuplicated.at(iRdo2) = true;
+	} else {
+	  v_isDuplicated.at(iRdo)  = true;
+	}
+	break;
+      }
+    }
+  }
+
   uint32_t lastHeader = 0;
   bool firstInRod = true;
   uint16_t lastTrailer=0;
-  for(; rdo_it!=rdo_it_end; ++rdo_it) {   
-    const RDO * rawdata = (*rdo_it) ;
-    if (rawdata == 0) {
-      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endreq;
-      continue;
-    }
+  for(unsigned int iRdo=0; iRdo<rdoVec.size(); iRdo++) {
+    const RDO* rawdata = rdoVec.at(iRdo);
+    if(v_isDuplicated.at(iRdo)) continue;
+
     uint16_t header = this->getHeaderUsingRDO(rawdata);
     if (header != lastHeader) {
       if (! firstInRod) {
@@ -173,17 +194,30 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
       /** Sim rdo could have groupe size > 1 then I need to split 
        * them 2 by 2 to built the condensed BS data */
       else { /** Encoding in condensed BS paired data from groupe size > 1 */
-        int n_pairedRdo = groupsize/2 ;
-        for (int i = 0; i< n_pairedRdo; i++ ) {
-          int gSize = 2 ;
-          int strip2 = strip1+ (2*i) ;
-          encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
-        } 
-        if((groupsize != 0) && isOdd(groupsize)) {/** The last hit from a cluster with odd group size */
-          int gSize = 1 ;
-          int strip2 = strip1+ (groupsize - 1) ;
-          encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
-        }  
+	int chipFirst = strip1/128;
+	int chipLast  = (strip1+groupsize-1)/128;
+
+	for(int chip=chipFirst; chip<=chipLast; chip++) {
+	  int tmpGroupsize = 0;
+	  if(chipFirst==chipLast) tmpGroupsize = groupsize; // In case of one chip
+	  else if(chip==chipLast) tmpGroupsize = strip1+groupsize-chip*128; // In case of last chip
+	  else if(chip==chipFirst) tmpGroupsize = (chip+1)*128-strip1; // In case of first chip
+	  else tmpGroupsize = 128; // In case of middle chip
+	  int tmpStrip1 = (chip==chipFirst ? strip1 : 128*chip);
+
+	  int n_pairedRdo = tmpGroupsize/2 ;
+	  for (int i = 0; i< n_pairedRdo; i++ ) {
+	    int gSize = 2 ;
+	    int strip2 = tmpStrip1+ (2*i) ;
+	    encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+	  } 
+	  if((tmpGroupsize != 0) && isOdd(tmpGroupsize)) {/** The last hit from a cluster with odd group size */
+	    int gSize = 1 ;
+	    int strip2 = tmpStrip1+ (tmpGroupsize - 1) ;
+	    encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+	  }  
+	}
+
       }  
       
     } /** end of condensed Mode */
@@ -191,7 +225,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
     else {/** Expanded mode */
       
       vtbin.clear() ;
-      const RDO * rawdata   = (*rdo_it) ;
+      const RDO* rawdata = rdoVec.at(iRdo);
       strip1    = strip(rawdata) ;
       theTimeBin      = tbin(rawdata) ;
       groupsize = groupSize(rawdata) ;
@@ -277,7 +311,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& 
   int strip1  = strip2 ;
   
   Identifier idColl = offlineId(rdo) ;
-  if( std::find(m_swapModuleId.begin(), m_swapModuleId.end(),idColl) != m_swapModuleId.end() ) {
+  if(m_swapModuleId.find(idColl)!= m_swapModuleId.end() ) {
     strip1= 767 - strip1;
     strip1= strip1-(gSize-1) ;
   }
@@ -300,7 +334,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& 
   ///-------------------------------------------------------------------------------------
   if(m_condensed){/** single Hit on condensed Mode */
     
-    if(gSize == 1) {/** Groupe size = 1 */
+    if(gSize == 1) {/** Group size = 1 */
       uint16_t HitCondSingle = 0x8000 | encodedSide | chipNb | clustBaseAddr | firstHitErr;
       v16.push_back(HitCondSingle);
       m_singleCondHitNumber++;
@@ -440,8 +474,8 @@ SCT_RodEncoder::getHeaderUsingRDO(const RDO* rdo) {
   //IdentifierHash offlineIdHash = m_sct_id->wafer_hash(thisId);
   int rodlink = rodLink(rdo);
   uint16_t LinkHeader = 0x2000 
-  | (m_condensed << 8) 
-  |  rodlink  ;
+    | (m_condensed << 8) 
+    |  rodlink  ;
   m_headerNumber++ ;
   return LinkHeader;
 }

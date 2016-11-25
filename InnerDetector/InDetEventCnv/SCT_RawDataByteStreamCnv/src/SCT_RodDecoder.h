@@ -3,7 +3,7 @@
 */
 
 /**
-*      @file header for SCT_RodDecoder Class
+ *      @file header for SCT_RodDecoder Class
  *      AlgTool class to decode ROB bytestream data into RDO
  *      @author: Kondo.Gnanvo@cern.ch, Maria.Jose.Costa@cern.ch
  *      @current developer: Kondo Gnanvo, QMUL (London), august 2005
@@ -33,12 +33,12 @@ namespace InDetDD{
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /** @class SCT_RodDecoder
-*  @brief AlgTool which decodes the SCT binary format to create RDOs
-*  also inserts them to the collection.
-*  This tool is used by the SCTRawCollByteStreamTool
-**/
+ *  @brief AlgTool which decodes the SCT binary format to create RDOs
+ *  also inserts them to the collection.
+ *  This tool is used by the SCTRawCollByteStreamTool
+ **/
 class SCT_RodDecoder : virtual public ISCT_RodDecoder, virtual public IIncidentListener, virtual public AthAlgTool {
-public: 
+ public: 
   //@name Usual AlgTool methods
   //@{
   /** constructor*/
@@ -52,30 +52,30 @@ public:
 
   /** AlgTool finalize*/
   virtual StatusCode finalize();
-//@}
+  //@}
   /** function to be executed at BeginEvent incident */
   virtual void handle(const Incident& inc);
   
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
-    *  with the RDO built by the makeRDO(..) method
-    **/
+   *  with the RDO built by the makeRDO(..) method
+   **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
-            SCT_RDO_Container* rdoIdc,
-            std::vector<IdentifierHash>* vecHash = 0);
+				    SCT_RDO_Container* rdoIdc,
+				    std::vector<IdentifierHash>* vecHash = 0);
 
   /// method that builds the RawData RDO and add it to the collection 
   int makeRDO(int strip, int groupSize, int tbin, 
-         uint32_t onlineId, int ERRORS,
-         SCT_RDO_Container* rdoIdc,
-         std::vector<IdentifierHash>* vecHash, 
-         IdentifierHash& skipHash, IdentifierHash& lastHash);
+	      uint32_t onlineId, int ERRORS,
+	      SCT_RDO_Container* rdoIdc,
+	      std::vector<IdentifierHash>* vecHash, 
+	      IdentifierHash& skipHash, IdentifierHash& lastHash);
 
   /// add an error for each wafer in a problematic ROD.
   void addRODError(uint32_t rodid, int errorType);
 
 
  private:
-   bool addSingleError(const IdentifierHash & idHash, const int bsErrorType);
+  bool addSingleError(const IdentifierHash & idHash, const int bsErrorType);
   const SCT_ID* m_sct_id;
   const InDetDD::SCT_DetectorManager *m_indet_mgr;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
