@@ -10,6 +10,8 @@
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
      import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 
 ## T2IDCoreTau TEST
 class T2IDCoreTauHypo_tau29_medium_2stTest (T2IDCoreTauHypo):
@@ -50,6 +52,10 @@ class EFTauMVHypo (EFTauMVHypoBase):
         self.NTrackMin = 1 #for all items
         self.Method    = 2 #default bdt as of March 22
         setVarCut(self, var, val)
+
+        if TriggerFlags.run2Config=='2016':
+            self.Highpt    = False
+
 
 class EFTauMVHypo_highpt (EFTauMVHypoBase):
     __slots__ = []
