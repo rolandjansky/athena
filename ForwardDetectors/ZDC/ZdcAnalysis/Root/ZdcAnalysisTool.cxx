@@ -48,6 +48,9 @@ namespace ZDC
   declareProperty("NumSampl", m_numSample = 7); 
   declareProperty("DeltaTSample", m_deltaTSample = 25); 
   declareProperty("Presample", m_presample = 0); 
+  declareProperty("CombineDelay", m_combineDelay = false); 
+  declareProperty("DelayDeltaT", m_delayDeltaT = -12.5); 
+
   declareProperty("PeakSample", m_peakSample = 2);
   declareProperty("Peak2ndDerivThresh", m_Peak2ndDerivThresh = 10);
 
@@ -230,9 +233,89 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
   zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1, tau2, t0, t0);
   zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
 
+  if (m_combineDelay) {
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    zdcDataAnalyzer->EnableDelayed(m_delayDeltaT, defaultPedestalShifts);
+  }
+
   return zdcDataAnalyzer;
 }
 
+ZDCDataAnalyzer* ZdcAnalysisTool::initializepPb2016()
+{
+  //
+  //   For now, we continue to use hard-coded values for the maximum and minimum ADC values
+  //   For now we also use the FermiExp pulse model.
+
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr, tau2Arr, peak2ndDerivMinSamples, t0;
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
+  ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
+    
+  //  For now we allow the tau values to be controlled by the job properties until they are better determined
+  //
+  const int peakSample = 5;
+  const float peak2ndDerivThreshHG = -12;
+  const float peak2ndDerivThreshLG = -10;
+  const float tau1 = 4.5;
+  const float tau2 = 22.;
+
+
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      fixTau1Arr[side][module] = m_fixTau1;
+      fixTau2Arr[side][module] = m_fixTau2;
+      tau1Arr[side][module] = tau1;
+      tau2Arr[side][module] = tau2;
+
+      peak2ndDerivMinSamples[side][module] = peakSample;
+      peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
+      peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
+
+      t0[side][module] = m_t0;
+      deltaT0CutLow[side][module] = -m_deltaTCut;
+      deltaT0CutHigh[side][module] = m_deltaTCut;
+      chisqDivAmpCut[side][module] = m_ChisqRatioCut;
+    }
+  }
+
+  //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
+
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+
+  //  Construct the data analyzer
+  //
+  //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
+  //
+  ZDCDataAnalyzer* zdcDataAnalyzer = new ZDCDataAnalyzer(7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
+							 peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly);
+
+  // Open up tolerances on the position of the peak for now
+  //
+  zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(2);
+
+  // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
+  //
+  zdcDataAnalyzer->DisableModule(0,0);
+
+  zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
+  zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0, t0);
+  zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
+
+  // We allow the combineDelay to be controlled by the properties
+  //
+  //  if (m_combineDelay) {
+  m_combineDelay = true;
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
+    //  }
+
+  return zdcDataAnalyzer;
+}
 
 void ZdcAnalysisTool::initialize40MHz()
 {
@@ -437,26 +520,6 @@ StatusCode ZdcAnalysisTool::initializeTool()
   m_zdcTriggerEffParamsFileName = std::string(env.GetValue("ZdcTriggerEffFileName", "ZdcTriggerEffParameters_v4.root"));
   ATH_MSG_INFO("ZDC trigger efficiencies filename " << m_zdcTriggerEffParamsFileName);
 
-  ATH_MSG_INFO("Configuration: "<<m_configuration);
-  ATH_MSG_INFO("FlipEMDelay: "<<m_flipEMDelay);
-  ATH_MSG_INFO("LowGainOnly: "<<m_lowGainOnly);
-  ATH_MSG_INFO("WriteAux: "<<m_writeAux);
-  ATH_MSG_INFO("AuxSuffix: "<<m_auxSuffix);
-  ATH_MSG_INFO("DoCalib: "<<m_doCalib);
-  ATH_MSG_INFO("ForceCalibRun: "<<m_forceCalibRun);
-  ATH_MSG_INFO("ForceCalibLB: "<<m_forceCalibLB);
-  ATH_MSG_INFO("NumSampl: "<<m_numSample); 
-  ATH_MSG_INFO("DeltaTSample: "<<m_deltaTSample); 
-  ATH_MSG_INFO("Presample: "<<m_presample); 
-  ATH_MSG_INFO("PeakSample: "<<m_peakSample);
-  ATH_MSG_INFO("Peak2ndDerivThresh: "<<m_Peak2ndDerivThresh);
-  ATH_MSG_INFO("T0: "<<m_t0);
-  ATH_MSG_INFO("Tau1: "<<m_tau1);
-  ATH_MSG_INFO("Tau2: "<<m_tau2);
-  ATH_MSG_INFO("FixTau1: "<<m_fixTau1);
-  ATH_MSG_INFO("FixTau2: "<<m_fixTau2);
-  ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
-  ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
 
   if (m_forceCalibRun>-1) {
     ATH_MSG_INFO("CAREFUL: forcing calibration run/LB =" << m_forceCalibRun << "/" << m_forceCalibLB);
@@ -478,6 +541,9 @@ StatusCode ZdcAnalysisTool::initializeTool()
     
     m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz; // default
   }
+  else if (m_configuration == "pPb2016") {
+    m_zdcDataAnalyzer = initializepPb2016();
+  }
   else {
     ATH_MSG_ERROR("Unknown configuration: "  << m_configuration);
     return StatusCode::FAILURE;
@@ -489,6 +555,32 @@ StatusCode ZdcAnalysisTool::initializeTool()
     m_auxSuffix = "_" + m_auxSuffix;
   }
 
+  ATH_MSG_INFO("Configuration: "<<m_configuration);
+  ATH_MSG_INFO("FlipEMDelay: "<<m_flipEMDelay);
+  ATH_MSG_INFO("LowGainOnly: "<<m_lowGainOnly);
+
+  ATH_MSG_INFO("Using Combined delayed and undelayed samples: "<< m_combineDelay);
+
+  ATH_MSG_INFO("WriteAux: "<<m_writeAux);
+  ATH_MSG_INFO("AuxSuffix: "<<m_auxSuffix);
+  ATH_MSG_INFO("DoCalib: "<<m_doCalib);
+  ATH_MSG_INFO("ForceCalibRun: "<<m_forceCalibRun);
+  ATH_MSG_INFO("ForceCalibLB: "<<m_forceCalibLB);
+  ATH_MSG_INFO("NumSampl: "<<m_numSample); 
+  ATH_MSG_INFO("DeltaTSample: "<<m_deltaTSample); 
+  ATH_MSG_INFO("Presample: "<<m_presample); 
+  ATH_MSG_INFO("PeakSample: "<<m_peakSample);
+  ATH_MSG_INFO("Peak2ndDerivThresh: "<<m_Peak2ndDerivThresh);
+
+  if (m_combineDelay)  ATH_MSG_INFO("DelayDeltaT: "<< m_delayDeltaT);
+
+  ATH_MSG_INFO("T0: "<<m_t0);
+  ATH_MSG_INFO("Tau1: "<<m_tau1);
+  ATH_MSG_INFO("Tau2: "<<m_tau2);
+  ATH_MSG_INFO("FixTau1: "<<m_fixTau1);
+  ATH_MSG_INFO("FixTau2: "<<m_fixTau2);
+  ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
+  ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
 
   m_init = true;
   return StatusCode::SUCCESS;
@@ -608,8 +700,11 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
   ATH_MSG_DEBUG("Starting event processing");
   m_zdcDataAnalyzer->StartEvent(calibLumiBlock);
 
-  const std::vector<unsigned short>* adc0;
-  const std::vector<unsigned short>* adc1;
+  const std::vector<unsigned short>* adcUndelayLG = 0;
+  const std::vector<unsigned short>* adcUndelayHG = 0;
+
+  const std::vector<unsigned short>* adcDelayLG = 0;
+  const std::vector<unsigned short>* adcDelayHG = 0;
 
   ATH_MSG_DEBUG("Processing modules");
   for (const auto zdcModule : moduleContainer)
@@ -619,27 +714,56 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 
       if (zdcModule->zdcModule()==0 && m_flipEMDelay) // flip delay/non-delay for EM big tube
 	{
-	  adc0 = &(*(zdcModule->TTg0d1Link()))->adc();
-	  adc1 = &(*(zdcModule->TTg1d1Link()))->adc();
+	  adcUndelayLG = &(*(zdcModule->TTg0d1Link()))->adc();
+	  adcUndelayHG = &(*(zdcModule->TTg1d1Link()))->adc();
+
+	  adcDelayLG = &(*(zdcModule->TTg0d0Link()))->adc();
+	  adcDelayHG = &(*(zdcModule->TTg1d0Link()))->adc();
 	}
       else
 	{
-	  adc0 = &(*(zdcModule->TTg0d0Link()))->adc();
-	  adc1 = &(*(zdcModule->TTg1d0Link()))->adc();
+	  adcUndelayLG = &(*(zdcModule->TTg0d0Link()))->adc();
+	  adcUndelayHG = &(*(zdcModule->TTg1d0Link()))->adc();
+
+	  adcDelayLG = &(*(zdcModule->TTg0d1Link()))->adc();
+	  adcDelayHG = &(*(zdcModule->TTg1d1Link()))->adc();
 	}
       
-      static std::vector<float> HGADCSamples(m_numSample);
-      static std::vector<float> LGADCSamples(m_numSample);
+      static std::vector<float> HGUndelADCSamples(m_numSample);
+      static std::vector<float> LGUndelADCSamples(m_numSample);
 
-      std::copy(adc0->begin(),adc0->end(),LGADCSamples.begin());
-      std::copy(adc1->begin(),adc1->end(),HGADCSamples.begin());
+      std::copy(adcUndelayLG->begin(), adcUndelayLG->end(), LGUndelADCSamples.begin());
+      std::copy(adcUndelayHG->begin(), adcUndelayHG->end(), HGUndelADCSamples.begin());
       
       int side = (zdcModule->side()==-1) ? 0 : 1 ;
 
       //std::cout << "LG: ";for (int i = 0;i<7;i++){std::cout<<LGADCSamples.at(i)<< " ";};std::cout<<std::endl;
       //std::cout << "HG: ";for (int i = 0;i<7;i++){std::cout<<HGADCSamples.at(i)<< " ";};std::cout<<std::endl;
 
-      m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),HGADCSamples, LGADCSamples);
+      if (!m_combineDelay) {
+	m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), HGUndelADCSamples, LGUndelADCSamples);
+      }
+      else {
+	std::vector<float> HGDelayADCSamples(m_numSample);
+	std::vector<float> LGDelayADCSamples(m_numSample);
+
+	std::copy(adcDelayLG->begin(),adcDelayLG->end(), LGDelayADCSamples.begin());
+	std::copy(adcDelayHG->begin(),adcDelayHG->end(), HGDelayADCSamples.begin());
+
+	// If the delayed channels actually come earlier (as in the pPb in 2016), we invert the meaning of delayed and undelayed
+	//   see the initialization sections for similar inversion on the sign of the pedestal difference
+	//
+	if (m_delayDeltaT > 0) {
+	  m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+						HGUndelADCSamples, LGUndelADCSamples,
+						HGDelayADCSamples, LGDelayADCSamples);
+	}
+	else {
+	  m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+						HGDelayADCSamples, LGDelayADCSamples,
+						HGUndelADCSamples, LGUndelADCSamples);
+	}
+      }
     }
 
   ATH_MSG_DEBUG("Finishing event processing");
@@ -678,6 +802,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 	zdcModule->auxdecor<float>("FitAmpError" + m_auxSuffix) = pulseAna_p->GetAmpError();
 	zdcModule->auxdecor<float>("FitT0" + m_auxSuffix) = pulseAna_p->GetFitT0();
 	zdcModule->auxdecor<float>("BkgdMaxFraction" + m_auxSuffix) = pulseAna_p->GetBkgdMaxFraction();
+	zdcModule->auxdecor<float>("PreSampleAmp" + m_auxSuffix) = pulseAna_p->GetPreSampleAmp();
+	//zdcModule->auxdecor<float>("Presample" + m_auxSuffix) = pulseAna_p->GetPresample();
       }
       /*      
       std::cout << "side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
