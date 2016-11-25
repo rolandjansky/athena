@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findtdaq-common.cmake 790478 2016-12-19 13:20:23Z krasznaa $
+# $Id: Findtdaq-common.cmake 778185 2016-10-13 08:34:54Z alibrari $
 #
 # Try to find TDAQ-COMMON.
 # Defines:
@@ -23,8 +23,7 @@ include( AtlasInternals )
 # Declare the module:
 atlas_external_module( NAME tdaq-common
    INCLUDE_SUFFIXES installed/include INCLUDE_NAMES eformat/eformat.h
-   LIBRARY_SUFFIXES installed/$ENV{CMTCONFIG}/lib
-   installed/${ATLAS_PLATFORM}/lib
+   LIBRARY_SUFFIXES installed/${ATLAS_PLATFORM}/lib
    COMPULSORY_COMPONENTS eformat ers )
 
 # Handle the standard find_package arguments:
@@ -38,15 +37,9 @@ mark_as_advanced( TDAQ-COMMON_FOUND TDAQ-COMMON_INCLUDE_DIR
 if( TDAQ-COMMON_FOUND )
    set( TDAQ-COMMON_PYTHON_PATH ${TDAQ-COMMON_ROOT}/installed/share/lib/python
       ${TDAQ-COMMON_LIBRARY_DIRS} )
-   if( "$ENV{CMTCONFIG}" STREQUAL "" )
-      set( TDAQ-COMMON_BINARY_PATH
-         ${TDAQ-COMMON_ROOT}/installed/${ATLAS_PLATFORM}/bin
-         ${TDAQ-COMMON_ROOT}/installed/share/bin )
-   else()
-      set( TDAQ-COMMON_BINARY_PATH
-         ${TDAQ-COMMON_ROOT}/installed/$ENV{CMTCONFIG}/bin
-         ${TDAQ-COMMON_ROOT}/installed/share/bin )
-   endif()
+   set( TDAQ-COMMON_BINARY_PATH
+      ${TDAQ-COMMON_ROOT}/installed/${ATLAS_PLATFORM}/bin
+      ${TDAQ-COMMON_ROOT}/installed/share/bin )    
 endif()
 
 # Add the RPM dependencies:
