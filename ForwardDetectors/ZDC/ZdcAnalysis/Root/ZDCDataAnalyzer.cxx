@@ -29,6 +29,9 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
   _haveECalib(false),
   _currentLB(-1)
 {
+  _moduleDisabled[0] = {false, false, false, false};
+  _moduleDisabled[1] = {false, false, false, false};
+
   _moduleAnalyzers[0] = {0, 0, 0, 0};
   _moduleAnalyzers[1] = {0, 0, 0, 0};
 
@@ -81,6 +84,40 @@ ZDCDataAnalyzer::~ZDCDataAnalyzer()
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
       if (!_moduleAnalyzers[side][module]) delete _moduleAnalyzers[side][module];
+    }
+  }
+}
+
+bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
+{
+  if (side < 2 && module < 4) {
+    //
+    // Can't disable in the middle of analysis
+    //
+    if (_dataLoaded[side][module]) return false;
+    else {
+      _moduleDisabled[side][module] = true;
+      return true;
+    }
+  }
+  else {
+    return false;
+  }
+}
+
+void ZDCDataAnalyzer::EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
+{
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      _moduleAnalyzers[side][module]->EnableDelayed(deltaT, undelayedDelayedPedestalDiff[side][module]);
+    }
+  }
+}
+
+void ZDCDataAnalyzer::SetPeak2ndDerivMinTolerances(size_t tolerance) {
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      _moduleAnalyzers[side][module]->SetPeak2ndDerivMinTolerance(tolerance);
     }
   }
 }
@@ -231,8 +268,18 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 
 void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples)
 {
+  // We immediately return if this module is disabled
+  //
+  if (_moduleDisabled[side][module]) {
+    if (_debugLevel > 2) {
+      std::cout << "Skipping analysis of disabled mofule for event index " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
+    }
+
+    return;
+  }
+
   if (_debugLevel > 1) {
-    std::cout << "Loading data for event index " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
+    std::cout << "/n Loading data for event index " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
     
     if (_debugLevel > 2) {
       std::cout << " Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size() << std::endl;
@@ -291,18 +338,96 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   _moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
 
+void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
+					 const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed)
+{
+  // We immediately return if this module is disabled
+  //
+  if (_moduleDisabled[side][module]) {
+    if (_debugLevel > 2) {
+      std::cout << "Skipping analysis of disabled mofule for event index " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
+    }
+
+    return;
+  }
+
+  if (_debugLevel > 1) {
+    std::cout << "Loading undelayed and delayed data for event index " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
+    
+    if (_debugLevel > 2) {
+      std::cout << " Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size() << std::endl;
+      if (_debugLevel > 3) {
+	for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+	  std::cout << "HGSample[" << sample << "] = " << HGSamples[sample] << std::endl;
+	}
+
+	for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+	  std::cout << "HGSampleDelayed[" << sample << "] = " << HGSamplesDelayed[sample] << std::endl;
+	}
+      }
+
+    }
+  }
+
+  ZDCPulseAnalyzer* pulseAna_p = _moduleAnalyzers[side][module];
+
+  bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
+  _dataLoaded[side][module] = true;
+
+  if (result) {
+    if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq()) {
+      int moduleMaskBit = 4*side + module;
+      _moduleMask |= 1<< moduleMaskBit;
+      
+      float amplitude = pulseAna_p->GetAmplitude();
+      float ampError = pulseAna_p->GetAmpError();
+
+      _calibAmplitude[side][module] = amplitude*_currentECalibCoeff[side][module];
+
+      float calibAmpError = ampError * _currentECalibCoeff[side][module];
+
+      float timeCalib = pulseAna_p->GetT0Corr();
+      if (pulseAna_p->UseLowGain()) timeCalib -= _currentT0OffsetsLG[side][module];
+      else timeCalib -= _currentT0OffsetsHG[side][module];
+
+      _calibTime[side][module] = timeCalib;
+
+      _moduleSum[side] += amplitude;
+      _moduleSumErrSq[side] += ampError*ampError;
+
+      _moduleSumPreSample[side] += pulseAna_p->GetPreSampleAmp();
+
+      _calibModuleSum[side] += _calibAmplitude[side][module];
+      _calibModuleSumErrSq[side] += calibAmpError*calibAmpError;
+
+      _averageTime[side] += _calibTime[side][module]*_calibAmplitude[side][module];
+    }
+  }
+  else {
+    if (pulseAna_p->Failed()) {
+      if (_debugLevel >= 0) {
+	std::cout << "ZDCPulseAnalyzer::LoadData() returned fail for event " << _eventCount << ", side, module = " << side << ", " << module << std::endl;
+      }
+
+      _fail[side] = true;
+    }
+  }
+
+  _moduleStatus[side][module] = pulseAna_p->GetStatusMask();
+}
+
 bool ZDCDataAnalyzer::FinishEvent()
 {
   // First make sure that all data is loaded
   //
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      if (!_dataLoaded[side][module]) return false;
+      if (!_dataLoaded[side][module] && !_moduleDisabled[side][module]) return false;
     }
 
     // Divide the average times by the calibrated module sums  
     //
-    if (_calibModuleSum[side] > 0) {
+    if (_calibModuleSum[side] > 1e-6) {
       _averageTime[side] /= _calibModuleSum[side]; 
     }
     else {

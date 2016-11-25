@@ -71,6 +71,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   // Private methods
   //
   ZDCDataAnalyzer* initializeDefault();
+  ZDCDataAnalyzer* initializepPb2016();
 
   StatusCode configureNewRun(unsigned int runNumber);
 
@@ -98,6 +99,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   const xAOD::ZdcModuleContainer* m_zdcModules;
   bool m_flipEMDelay;
   bool m_lowGainOnly;
+  bool m_combineDelay;
   bool m_doCalib;
   int m_forceCalibRun;
   int m_forceCalibLB;
@@ -110,6 +112,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   unsigned int m_peakSample;
   float m_Peak2ndDerivThresh;
   float m_t0;
+  float m_delayDeltaT;
   float m_tau1;
   float m_tau2;
   bool m_fixTau1;

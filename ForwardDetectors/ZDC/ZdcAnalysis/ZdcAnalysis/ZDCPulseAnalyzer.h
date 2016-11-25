@@ -11,15 +11,19 @@
 
 #include <TF1.h>
 #include <TH1.h>
+#include <TGraph.h>
+#include <TList.h>
 
 #include "ZdcAnalysis/ZDCFitWrapper.h"
+
+class TFitter;
 
 class ZDCPulseAnalyzer
 {
 public:
-  enum {PulseBit = 0, LowGainBit, FailBit, HGOverflowBit, 
-	HGUnderflowBit, PSHGOverUnderflowBit, LGOverflowBit, LGUnderflowBit,
-	PrePulseBit, PostPulseBit, FitFailedBit, BadChisqBit, BadT0Bit};
+  enum {PulseBit = 0, LowGainBit = 1, FailBit = 2, HGOverflowBit = 3, 
+	HGUnderflowBit = 4, PSHGOverUnderflowBit = 5, LGOverflowBit = 6, LGUnderflowBit = 7,
+	PrePulseBit = 8, PostPulseBit = 9, FitFailedBit = 10, BadChisqBit = 11, BadT0Bit = 12};
 
 private:
   typedef std::vector<float>::const_iterator SampleCIter;
@@ -28,6 +32,9 @@ private:
   //
   static std::string _fitOptions;
   static bool _quietFits;
+  static TH1* _undelayedFitHist;
+  static TH1* _delayedFitHist;
+  static TF1* _combinedFitFunc;
 
   // Quantities provided/set in the constructor
   //
@@ -40,8 +47,10 @@ private:
   bool _forceLG;
   float _tmin;
   float _tmax;
+
   std::string _fitFunction;
-  float _peak2ndDerivMinSample;
+  size_t _peak2ndDerivMinSample;
+  size_t _peak2ndDerivMinTolerance;
   float _peak2ndDerivMinThreshLG;
   float _peak2ndDerivMinThreshHG;
 
@@ -84,10 +93,15 @@ private:
   ZDCFitWrapper* _defaultFitWrapper;
   ZDCFitWrapper* _prePulseFitWrapper;
 
-  //  TH1* _LGFitHist;
-  // TH1* _fitHist;
-  // TF1* _FitFuncNoPrePulse;
-  // TF1* _FitFuncPrePulse;
+  // Delayed pulse emembers
+  //
+  bool _useDelayed;
+  float _delayedDeltaT;
+  float _delayedPedestalDiff;
+  mutable TH1* _delayedHist;
+
+  TFitter* _prePulseCombinedFitter;
+  TFitter* _defaultCombinedFitter;
 
   // Dynamic data loaded for each pulse (event)
   // ==========================================
@@ -128,8 +142,9 @@ private:
 
   float _fitAmplitude;
   float _fitAmpError;
-  float _fitT0;
-  float _fitT0Corr;
+  float _fitTime;
+  float _fitTimeSub;
+  float _fitTimeCorr;
   float _fitTau1;
   float _fitTau2;
   float _fitChisq;
@@ -137,6 +152,7 @@ private:
   float _ampError;
   float _preSampleAmp;
   float _bkgdMaxFraction;
+  float _delayedBaselineShift;
 
   std::vector<float> _ADCSamplesHGSub;
   std::vector<float> _ADCSamplesLGSub;
@@ -154,7 +170,8 @@ private:
   void SetDefaults();
   void SetupFitFunctions();
 
-  bool AnalyzeData(const std::vector<float>& samples,        // The samples used for this event
+  bool AnalyzeData(size_t nSamples, size_t preSample, 
+		   const std::vector<float>& samples,        // The samples used for this event
 		   const std::vector<float>& samplesSig,     // The "resolution" on the ADC value
 		   const std::vector<float>& toCorrParams,   // The parameters used to correct the t0               
 		   float maxChisqDivAmp,                     // The maximum chisq / amplitude ratio
@@ -165,13 +182,35 @@ private:
 
   void FillHistogram(const std::vector<float>& samples, const std::vector<float>& samplesSig) const
   {
-    // Set the data and errors in the histogram object
-    //
-    for (size_t isample = 0; isample < _Nsample; isample++) {
-      _fitHist->SetBinContent(isample + 1, samples[isample]);
-      _fitHist->SetBinError(isample + 1, samplesSig[isample]);
+    if (!_useDelayed) {
+      // Set the data and errors in the histogram object
+      //
+      for (size_t isample = 0; isample < _Nsample; isample++) {
+	_fitHist->SetBinContent(isample + 1, samples[isample]);
+	_fitHist->SetBinError(isample + 1, samplesSig[isample]);
+      }
+    }
+    else {
+      // Set the data and errors in the histogram object
+      //
+      for (size_t isample = 0; isample < _Nsample; isample++) {
+	_fitHist->SetBinContent(isample + 1, samples[isample*2]);
+	_delayedHist->SetBinContent(isample + 1, samples[isample*2 + 1]);
+
+	_fitHist->SetBinError(isample + 1, samplesSig[isample]); // ***** horrible hack: fix ASAP
+      }
+
     }
   }
+
+  void DoFit();
+  void DoFitCombined();
+
+  static TFitter* MakeCombinedFitter(TF1* func);
+
+  //  The minuit FCN used for fitting combined undelayed and delayed pulses
+  //
+  static void CombinedPulsesFCN(int& numParam, double*, double& f, double* par, int flag);
 
 public:
 
@@ -183,6 +222,10 @@ public:
   static void SetFitOPtions(std::string fitOptions) { _fitOptions = fitOptions;}
   static void SetQuietFits(bool quiet) {_quietFits = quiet;}
   static bool QuietFits() {return _quietFits;}
+
+  void EnableDelayed(float deltaT, float pedestalShift);
+
+  void SetPeak2ndDerivMinTolerance(size_t tolerance) {_peak2ndDerivMinTolerance = tolerance;}
 
   void SetForceLG(bool forceLG) {_forceLG = forceLG;}
   bool ForceLG() const {return _forceLG;}
@@ -219,6 +262,9 @@ public:
 
   bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG);
 
+  bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG,
+			  std::vector<float> ADCSamplesHGDelayed, std::vector<float> ADCSamplesLGDelayed);
+
   bool HaveData() const {return _haveData;}
   bool HavePulse() const {return _havePulse;}
   bool Failed() const {return _fail;}
@@ -236,8 +282,9 @@ public:
   bool PSHGOverUnderflow() const {return _PSHGOverUnderflow;}
 
   float GetFitAmplitude() const {return _fitAmplitude;}
-  float GetFitT0() const {return _fitT0;}
-  float GetT0Corr() const {return _fitT0Corr;}
+  float GetFitT0() const {return _fitTime;}
+  float GetT0Sub() const {return _fitTimeSub;}
+  float GetT0Corr() const {return _fitTimeCorr;}
   float GetChisq() const {return _fitChisq;}
 
   float GetFitTau1() const {return _fitTau1;}
@@ -277,7 +324,32 @@ public:
     return _fitHist;
   }
 
-  void DoFit();
+  TGraph* GetCombinedGraph() const {
+    //
+    // We defer filling the histogram if we don't have a pulse until the histogram is requested
+    // 
+    GetHistogramPtr();
+
+    TGraph* theGraph = new TGraph(2*_Nsample);
+    size_t npts = 0;
+
+    for (size_t ipt = 0; ipt < _fitHist->GetNbinsX(); ipt++) {
+      theGraph->SetPoint(npts++, _fitHist->GetBinCenter(ipt + 1), _fitHist->GetBinContent(ipt + 1));
+    }
+
+    for (size_t iDelayPt = 0; iDelayPt < _delayedHist->GetNbinsX(); iDelayPt++) {
+      theGraph->SetPoint(npts++, _delayedHist->GetBinCenter(iDelayPt + 1), _delayedHist->GetBinContent(iDelayPt + 1) - _delayedBaselineShift);
+    }
+
+    TF1* func_p = (TF1*) _fitHist->GetListOfFunctions()->Last();
+    theGraph->GetListOfFunctions()->Add(func_p);
+    theGraph->SetName(( std::string(_fitHist->GetName()) + "combinaed").c_str());
+
+    theGraph->SetMarkerStyle(20);
+    theGraph->SetMarkerColor(1);
+
+    return theGraph;
+  }
 
   void Dump() const;
 

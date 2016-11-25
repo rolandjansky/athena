@@ -190,8 +190,8 @@ public:
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
   virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return GetWrapperTF1()->GetParameter(2);}
-  virtual float GetTau2() const {return GetWrapperTF1()->GetParameter(3);}
+  virtual float GetTau1() const {return _tau1;}
+  virtual float GetTau2() const {return _tau2;}
 
   virtual float GetTime() const {
     float fitT0 =  GetWrapperTF1()->GetParameter(1);
@@ -252,4 +252,82 @@ public:
   }
 };
 
+class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
+{
+  float _tau1;
+  float _tau2;
+  float _norm;
+  float _timeCorr;
+
+  size_t _numPulses;
+  std::vector<float> _pulseDeltaT;
+
+  TF1* _fitFunc;
+  TF1* _expFermiFunc;
+
+
+public:
+  ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2);
+
+  ~ZDCFitExpFermiPulseSequence() 
+  {
+    delete _fitFunc;
+    delete _expFermiFunc;
+  }
+
+  virtual TF1* GetWrapperTF1() {return _fitFunc;}
+  virtual const TF1* GetWrapperTF1() const {return _fitFunc;}
+
+  virtual void Initialize(float initialAmp, float initialT0);
+  //  void InitializePrePulseT0(float initPreT0) {  GetWrapperTF1()->SetParameter(3, initPreT0);}
+
+  virtual float GetAmplitude() const {return _fitFunc->GetParameter(0); }
+  virtual float GetAmpError() const {return _fitFunc->GetParError(0); }
+
+  virtual float GetTau1() const {return _tau1;}
+  virtual float GetTau2() const {return _tau2;}
+
+  virtual float GetTime() const {
+    float fitT0 =  _fitFunc->GetParameter(1);
+
+    // Correct the time to the maximum (the factor of 1/2 is still not fully understood)
+    //
+    fitT0 += _timeCorr; 
+    return fitT0;
+  }
+
+  virtual float GetShapeParameter(size_t index) const
+  {
+    if (index == 0) return _tau1;
+    else if (index == 1) return _tau2;
+    else if (index < _numPulses + 2) return _fitFunc->GetParameter(index);
+    else throw;
+  }
+
+  virtual float GetBkgdMaxFraction() const
+  {
+    return 0;
+  }
+
+  virtual double operator() (double *x, double *p) 
+  {
+    double t = x[0];
+
+    double mainAmp = p[0];
+    double t0 = p[1];
+
+    double mainDeltaT = t - t0;
+    double funcValue =  mainAmp*_norm*_expFermiFunc->operator()(mainDeltaT);
+
+    for (size_t ipulse = 0; ipulse < _numPulses - 1; ipulse++) {
+      double deltaT = mainDeltaT - _pulseDeltaT[ipulse];
+      double amp = p[2 + ipulse];
+
+      double pulse = amp*_norm*_expFermiFunc->operator()(deltaT);
+      funcValue += pulse;
+    }
+
+    return funcValue;
+  }
+};
 #endif
