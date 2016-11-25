@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
+                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkEvent/TrkTrack

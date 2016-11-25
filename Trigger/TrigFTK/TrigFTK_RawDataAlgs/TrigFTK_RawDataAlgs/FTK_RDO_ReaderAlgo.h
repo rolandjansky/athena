@@ -10,6 +10,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+#include "TrkTrack/TrackCollection.h" //
+#include "TrkToolInterfaces/IUpdator.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
@@ -23,6 +29,15 @@
 #include "TTree.h"
 
 /////////////////////////////////////////////////////////////////////////////
+class AtlasDetectorID;
+class Identifier;
+class PixelID;
+class SCT_ID;
+
+namespace Trk {
+  class IResidualPullCalculator;
+}  
+
 class FTK_RDO_ReaderAlgo: public AthAlgorithm {
 public:
   FTK_RDO_ReaderAlgo (const std::string& name, ISvcLocator* pSvcLocator);
@@ -42,6 +57,8 @@ public:
   void Fill_Refit_Vertices(unsigned int track_requirement);
   void Fill_Offline_Vertices(unsigned int track_requirement);
   void Fill_Truth_Vtx();
+  void Fill_Clusters(TrackCollection *trackCollection,std::vector<float> *x_residual,std::vector<float> *y_residual,std::vector<float> *x_loc,std::vector<float> *y_loc,std::vector<bool> *is_Pixel,std::vector<bool> *is_Barrel,std::vector<bool> *is_SCT,std::vector<int> *Layer,std::vector<int> *resAssociatedTrack,std::vector<int> *clustID);
+  void Fill_Clusters(const xAOD::TrackParticleContainer *trackCollection,std::vector<float> *x_residual,std::vector<float> *y_residual,std::vector<float> *x_loc,std::vector<float> *y_loc,std::vector<bool> *is_Pixel,std::vector<bool> *is_Barrel,std::vector<bool> *is_SCT,std::vector<int> *Layer,std::vector<int> *resAssociatedTrack,std::vector<int> *clustID);
 
 private:
 
@@ -79,10 +96,19 @@ private:
   //  std::string m_refitVertexContainerName;
   bool m_getOfflineVertex;
   bool m_getTruthVertex;
+  bool m_getClusters;
+  bool m_getOfflineClusters;
 
+  const AtlasDetectorID* m_idHelper;
+  const PixelID* m_pixelId;  
+  const SCT_ID* m_sctId;  
+  const InDetDD::SiDetectorManager*  m_PIX_mgr;
+  const InDetDD::SiDetectorManager*  m_SCT_mgr;
 
+  ToolHandle<Trk::IResidualPullCalculator> m_residualCalc;
   //IFTK_DataProviderSvc* m_DataProviderSvc;
   ServiceHandle<IFTK_DataProviderSvc> m_DataProviderSvc;
+  ToolHandle<Trk::IUpdator> m_iUpdator;
 
   bool m_fillHists;
   bool m_fillTree;
@@ -321,6 +347,30 @@ private:
   Int_t extendedLevel1ID;
   Int_t level1TriggerType;
   std::vector<unsigned int> level1TriggerInfo;
+
+
+  std::vector<float>   *refit_x_residual;
+  std::vector<float>   *refit_y_residual;
+  std::vector<float>   *refit_locX;
+  std::vector<float>   *refit_locY;
+  std::vector<bool>   *refit_isPixel;
+  std::vector<bool>   *refit_isBarrel;
+  std::vector<bool>   *refit_isSCT;
+  std::vector<int>     *refit_layer;
+  std::vector<int>     *refit_resAssociatedTrack;
+  std::vector<int>     *refit_clustID;
+
+
+  std::vector<float>   *offline_x_residual;
+  std::vector<float>   *offline_y_residual;
+  std::vector<float>   *offline_locX;
+  std::vector<float>   *offline_locY;
+  std::vector<bool>   *offline_isPixel;
+  std::vector<bool>   *offline_isBarrel;
+  std::vector<bool>   *offline_isSCT;
+  std::vector<int>     *offline_layer;
+  std::vector<int>     *offline_resAssociatedTrack;
+  std::vector<int>     *offline_clustID;
 
 };
 

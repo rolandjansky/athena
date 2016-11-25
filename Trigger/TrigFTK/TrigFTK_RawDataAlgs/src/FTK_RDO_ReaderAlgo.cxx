@@ -8,6 +8,14 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
@@ -22,6 +30,8 @@
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
+
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
 #include "TMath.h"
 #define NINT(a) ((a) >= 0.0 ? (int)((a)+0.5) : (int)((a)-0.5))
@@ -48,8 +58,12 @@ FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSv
   m_getRefitVertex(true),
   m_getOfflineVertex(true),
   m_getTruthVertex(true),
+  m_getClusters(false),
+  m_getOfflineClusters(false),
+  m_residualCalc("Trk::ResidualPullCalculator"),
 
   m_DataProviderSvc("IFTK_DataProviderSvc/IFTK_DataProviderSvc", name),
+  m_iUpdator ("Trk::KalmanUpdator"),
   m_fillHists(true),
   m_fillTree(true)
 
@@ -67,6 +81,10 @@ FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("GetRefitVertex",m_getRefitVertex);
   declareProperty("GetOfflineVertex_Offline",m_getOfflineVertex);
   declareProperty("GetTruthVertex",m_getTruthVertex);
+  declareProperty("GetClusters",m_getClusters);
+  declareProperty("GetOfflineClusters",m_getOfflineClusters);
+  declareProperty("ResidualPullCalculator", m_residualCalc);
+  declareProperty("UpdatorTool"                  , m_iUpdator);
 
   declareProperty("FTK_DataProvider", m_DataProviderSvc);
   declareProperty("fillHists", m_fillHists);
@@ -102,22 +120,17 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   if (m_getRefitVertex_Fast) ATH_MSG_INFO("Getting FTK Refit Vertex (fast vertex tool) from "<< m_DataProviderSvc);
   if (m_getRefitVertex) ATH_MSG_INFO("Getting FTK Refit Vertex (offline vertex tool) from "<< m_DataProviderSvc);
   if (m_getOfflineVertex) ATH_MSG_INFO("Getting Offline Vertex");
+  if (m_getTruthVertex) ATH_MSG_INFO("Getting Truth Vertex");
+  if (m_getClusters) ATH_MSG_INFO("Filling FTK Cluster variables");
+  if (m_getOfflineClusters) ATH_MSG_INFO("Filling Offline Cluster variables");
 
 
   //Set up the FTK Data Provider SVC //
   ATH_CHECK(m_DataProviderSvc.retrieve());
+  /// Get Histogram Service ///
+  ATH_CHECK(service("THistSvc", rootHistSvc));
 
   
-  std::vector<TH1D*> *histograms = new std::vector<TH1D*> ;
-
-    /// Get Histogram Service ///
-    ATH_CHECK(service("THistSvc", rootHistSvc));
-
-  if (m_fillHists) {
-    //Book Histograms//
-    Hist_Init(histograms);
-  }
-
 
   ///Tree
   std::string trackRootPath;
@@ -142,6 +155,11 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   
 
   if(m_fillHists){ 
+    std::vector<TH1D*> *histograms = new std::vector<TH1D*> ;
+
+    //Book Histograms//
+    Hist_Init(histograms);
+
     trackRootPath = "/TRACKS/";
     for( uint i = 0; i < histograms->size(); ++i){
       if ( rootHistSvc->regHist( trackRootPath + (*histograms)[i]->GetName(), (*histograms)[i] ).isFailure()) {
@@ -152,8 +170,10 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
 	ATH_MSG_INFO(temp);
       }
     }
+    delete(histograms);
   }
-  return StatusCode::SUCCESS;
+
+  return StatusCode::SUCCESS; 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -548,6 +568,57 @@ void FTK_RDO_ReaderAlgo::Tree_Init(){
   Tree_ftk->Branch("extendedLevel1ID",&extendedLevel1ID);
   Tree_ftk->Branch("level1TriggerType",&level1TriggerType);
   Tree_ftk->Branch("level1TriggerInfo",&level1TriggerInfo);
+
+  //Clusters
+
+  refit_x_residual = new std::vector<float>;
+  refit_y_residual = new std::vector<float>; 
+  refit_locX = new std::vector<float>;
+  refit_locY = new std::vector<float>;
+  refit_isPixel = new std::vector<bool>;
+  refit_isBarrel = new std::vector<bool>;
+  refit_isSCT = new std::vector<bool>;
+  refit_layer = new std::vector<int>;
+  refit_resAssociatedTrack = new std::vector<int>;
+  refit_clustID = new std::vector<int>;
+
+
+  Tree_ftk->Branch("refit_x_residual",&refit_x_residual);
+  Tree_ftk->Branch("refit_y_residual",&refit_y_residual);
+  Tree_ftk->Branch("refit_locX",&refit_locX);
+  Tree_ftk->Branch("refit_locY",&refit_locY);
+  Tree_ftk->Branch("refit_is_Pixel",&refit_isPixel);
+  Tree_ftk->Branch("refit_is_Barrel",&refit_isBarrel);
+  Tree_ftk->Branch("refit_is_SCT",&refit_isSCT);
+  Tree_ftk->Branch("refit_layer",&refit_layer);
+  Tree_ftk->Branch("refit_resAssociatedTrack",&refit_resAssociatedTrack);
+  Tree_ftk->Branch("refit_clustID",&refit_clustID);
+
+
+
+  offline_x_residual = new std::vector<float>;
+  offline_y_residual = new std::vector<float>; 
+  offline_locX = new std::vector<float>;
+  offline_locY = new std::vector<float>;
+  offline_isPixel = new std::vector<bool>;
+  offline_isBarrel = new std::vector<bool>;
+  offline_isSCT = new std::vector<bool>;
+  offline_layer = new std::vector<int>;
+  offline_resAssociatedTrack = new std::vector<int>;
+  offline_clustID = new std::vector<int>;
+
+
+  Tree_ftk->Branch("offline_x_residual",&offline_x_residual);
+  Tree_ftk->Branch("offline_y_residual",&offline_y_residual);
+  Tree_ftk->Branch("offline_locX",&offline_locX);
+  Tree_ftk->Branch("offline_locY",&offline_locY);
+  Tree_ftk->Branch("offline_is_Pixel",&offline_isPixel);
+  Tree_ftk->Branch("offline_is_Barrel",&offline_isBarrel);
+  Tree_ftk->Branch("offline_is_SCT",&offline_isSCT);
+  Tree_ftk->Branch("offline_layer",&offline_layer);
+  Tree_ftk->Branch("offline_resAssociatedTrack",&offline_resAssociatedTrack);
+  Tree_ftk->Branch("offline_clustID",&offline_clustID);
+
   
   ///////////////////////////// Clear Vectors ////////////////////////////////////////////////////           
   
@@ -707,6 +778,30 @@ void FTK_RDO_ReaderAlgo::Tree_Init(){
   
   //additional variables                                                                            
   level1TriggerInfo.clear();
+
+  //cluster variables 
+  refit_x_residual->clear();
+  refit_y_residual->clear();
+  refit_locX->clear();
+  refit_locY->clear();
+  refit_isPixel->clear();
+  refit_isBarrel->clear();
+  refit_isSCT->clear();
+  refit_layer->clear();
+  refit_resAssociatedTrack->clear();
+  refit_clustID->clear();
+
+
+  offline_x_residual->clear();
+  offline_y_residual->clear();
+  offline_locX->clear();
+  offline_locY->clear();
+  offline_isPixel->clear();
+  offline_isBarrel->clear();
+  offline_isSCT->clear();
+  offline_layer->clear();
+  offline_resAssociatedTrack->clear();
+  offline_clustID->clear();
 
 }
 
@@ -946,6 +1041,7 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
 		     " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
 		     " nPix: " << nPix << " nSCT: " << nSCT );
   }
+  if(m_fillTree && m_getClusters) Fill_Clusters(refitTracks,refit_x_residual,refit_y_residual,refit_locX,refit_locY,refit_isPixel,refit_isBarrel,refit_isSCT,refit_layer,refit_resAssociatedTrack,refit_clustID);
   delete (refitTracks);
 }
 
@@ -963,6 +1059,7 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
   const xAOD::TrackParticleContainer *offlineTracks = nullptr;
   if(evtStore()->retrieve(offlineTracks,"InDetTrackParticles").isFailure()){
     ATH_MSG_DEBUG("Failed to retrieve Offline Tracks");
+    return;
   }
   ATH_MSG_VERBOSE( " Printing information for " << offlineTracks->size()<< " offline tracks" );
    
@@ -982,6 +1079,7 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
       }
     }
   }
+  if(m_fillTree && m_getOfflineClusters) Fill_Clusters(offlineTracks,offline_x_residual,offline_y_residual,offline_locX,offline_locY,offline_isPixel,offline_isBarrel,offline_isSCT,offline_layer,offline_resAssociatedTrack,offline_clustID);
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
@@ -1636,6 +1734,300 @@ std::string FTK_RDO_ReaderAlgo::strVertexType( const Trk::VertexType vxtype) {
       vxstring = "unknown";
   }
   return vxstring;
+}
+void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vector<float> *x_residual,std::vector<float> *y_residual,std::vector<float> *x_loc,std::vector<float> *y_loc,std::vector<bool> *is_Pixel,std::vector<bool> *is_Barrel,std::vector<bool> *is_SCT,std::vector<int> *Layer,std::vector<int> *resAssociatedTrack,std::vector<int> *clustID){
+
+  if ( m_residualCalc.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_residualCalc << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get AtlasDetectorID helper" << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get PixelID helper !" << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get sctID helper !" << endl);
+    return;
+  }
+  if( m_iUpdator.retrieve().isFailure() ){
+    ATH_MSG_ERROR( "Could not get updatorTool !" << endl);
+    return;
+  }
+  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+    ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+    return;
+  }
+  if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
+    ATH_MSG_ERROR( "Unable to retrieve SCT manager from DetectorStore" << endl);
+    return;
+  }
+
+
+  auto track_it   = trackCollection->begin();
+  auto last_track = trackCollection->end();
+
+  x_residual->clear();
+  y_residual->clear();
+  x_loc->clear();
+  y_loc->clear();
+  y_residual->clear();
+  is_Pixel->clear();
+  is_Barrel->clear();
+  is_SCT->clear();
+  Layer->clear();
+  resAssociatedTrack->clear();
+  clustID->clear();
+
+  for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
+    
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates=(*track_it)->trackStateOnSurfaces();   
+    if(!trackStates)     ATH_MSG_ERROR("trackStates issue");
+
+
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
+    if (!(*it)) {
+      ATH_MSG_WARNING("TrackStateOnSurface == Null" << endl);
+      continue;
+    }
+
+    for (; it!=it_end; it++) {
+      
+      const Trk::TrackStateOnSurface* tsos=(*it);	
+      if (tsos == 0) continue;
+
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+
+
+
+	if(  (*it)->trackParameters() !=0 &&
+	     //	     (*it)->trackParameters()->associatedSurface() != 0 &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() != nullptr &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 
+	     ){
+
+
+
+
+	  const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(measurement);
+	  const Identifier & hitId = hit->identify();
+
+	  const Trk::TrackParameters* PropagatedTrackParams = tsos->trackParameters()->clone();
+	  const Trk::TrackParameters* UnbiasedTrackParams = m_iUpdator->removeFromState(*PropagatedTrackParams, tsos->measurementOnTrack()->localParameters(), tsos->measurementOnTrack()->localCovariance());
+	  delete PropagatedTrackParams;
+
+	  const Trk::ResidualPull* residualPull = m_residualCalc->residualPull(measurement, UnbiasedTrackParams, Trk::ResidualPull::Unbiased);
+	  delete UnbiasedTrackParams;
+
+	  bool isBarrelPixel = m_pixelId->is_barrel(hitId);
+	  unsigned int layerPixel = m_pixelId->layer_disk(hitId);
+	  bool isBarrelSCT = m_sctId->is_barrel(hitId);
+	  unsigned int layerSCT = m_sctId->layer_disk(hitId);
+               
+	  if (residualPull){                                  
+
+	    float res_x = (residualPull->residual()[Trk::locX]);
+	    float res_y = (residualPull->residual()[Trk::locY]);
+	    float locX = (float)measurement->localParameters()[Trk::locX];
+	    float locY = (float)measurement->localParameters()[Trk::locY];
+
+	    x_residual->push_back(res_x);
+	    x_loc->push_back(locX);
+
+	    resAssociatedTrack->push_back(iTrack);
+	    if (m_idHelper->is_pixel(hitId)) {
+	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+	      clustID->push_back(sielement->identifyHash());
+
+	      y_residual->push_back(res_y);
+	      y_loc->push_back(locY);
+	      
+	      is_Pixel->push_back(1);
+	      is_SCT->push_back(0);
+	      if(isBarrelPixel) is_Barrel->push_back(1);
+	      else is_Barrel->push_back(0);
+	      Layer->push_back(layerPixel);
+	    }
+	    if (m_idHelper->is_sct(hitId)) {	      
+	      const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
+	      clustID->push_back(sielement->identifyHash());
+	      
+	      y_residual->push_back(999999);
+	      y_loc->push_back(9999999);
+
+	      is_Pixel->push_back(0);
+	      is_SCT->push_back(1);
+	      if(isBarrelSCT) is_Barrel->push_back(1);
+	      else is_Barrel->push_back(0);
+	      Layer->push_back(layerSCT);
+	    }
+	    
+	  }
+	  delete residualPull;
+
+	}
+      }
+    }
+  }
+
+}
+
+///case of tracks as xAOD::trk::trackparticlecontainer
+void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *trackCollection,std::vector<float> *x_residual,std::vector<float> *y_residual,std::vector<float> *x_loc,std::vector<float> *y_loc,std::vector<bool> *is_Pixel,std::vector<bool> *is_Barrel,std::vector<bool> *is_SCT,std::vector<int> *Layer,std::vector<int> *resAssociatedTrack,std::vector<int> *clustID){
+
+
+  if ( m_residualCalc.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_residualCalc << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get AtlasDetectorID helper" << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get PixelID helper !" << endl);
+    return;
+  }
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+    ATH_MSG_ERROR( "Could not get sctID helper !" << endl);
+    return;
+  }
+  if( m_iUpdator.retrieve().isFailure() ){
+    ATH_MSG_ERROR( "Could not get updatorTool !" << endl);
+    return;
+  }
+  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+    ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+    return;
+  }
+  if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
+    ATH_MSG_ERROR( "Unable to retrieve SCT manager from DetectorStore" << endl);
+    return;
+  }
+
+
+
+
+
+
+  auto track_it   = trackCollection->begin();
+  auto last_track = trackCollection->end();
+
+  x_residual->clear();
+  y_residual->clear();
+  x_loc->clear();
+  y_loc->clear();
+  is_Pixel->clear();
+  is_Barrel->clear();
+  is_SCT->clear();
+  Layer->clear();
+  resAssociatedTrack->clear();
+  clustID->clear();
+
+
+  for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
+
+
+
+    auto track = (*track_it)->track();
+    
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();   
+    if(trackStates == 0){
+      ATH_MSG_ERROR("trackStates issue");
+      return;
+    }
+
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
+    if (!(*it)) {
+      ATH_MSG_WARNING("TrackStateOnSurface == Null" << endl);
+      continue;
+    }
+
+    for (; it!=it_end; it++) {
+      
+      const Trk::TrackStateOnSurface* tsos=(*it);	
+      if (tsos == 0) continue;
+
+
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+
+
+
+	if(  (*it)->trackParameters() !=0 && 
+	     //	     (*it)->trackParameters()->associatedSurface() != 0 &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() != nullptr &&
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0
+	     ){
+
+
+	  const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(measurement);
+	  const Identifier & hitId = hit->identify();
+
+	  const Trk::TrackParameters* PropagatedTrackParams = tsos->trackParameters()->clone();
+	  const Trk::TrackParameters* UnbiasedTrackParams = m_iUpdator->removeFromState(*PropagatedTrackParams, tsos->measurementOnTrack()->localParameters(), tsos->measurementOnTrack()->localCovariance());
+	  delete PropagatedTrackParams;
+
+	  const Trk::ResidualPull* residualPull = m_residualCalc->residualPull(measurement, UnbiasedTrackParams, Trk::ResidualPull::Unbiased);
+	  delete UnbiasedTrackParams;
+
+	  bool isBarrelPixel = m_pixelId->is_barrel(hitId);
+	  unsigned int layerPixel = m_pixelId->layer_disk(hitId);
+	  bool isBarrelSCT = m_sctId->is_barrel(hitId);
+	  unsigned int layerSCT = m_sctId->layer_disk(hitId);
+               
+	  if (residualPull){                                  
+
+	    float res_x = (residualPull->residual()[Trk::locX]);
+	    float res_y = (residualPull->residual()[Trk::locY]);
+	    float locX = (float)measurement->localParameters()[Trk::locX];
+	    float locY = (float)measurement->localParameters()[Trk::locY];
+	    
+	    resAssociatedTrack->push_back(iTrack);
+	    if (m_idHelper->is_pixel(hitId)) {
+	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+	      clustID->push_back(sielement->identifyHash());
+
+	      x_residual->push_back(res_x);
+	      x_loc->push_back(locX);
+	      y_residual->push_back(res_y);
+	      y_loc->push_back(locY);
+	      
+	      is_Pixel->push_back(1);
+	      is_SCT->push_back(0);
+	      if(isBarrelPixel) is_Barrel->push_back(1);
+	      else is_Barrel->push_back(0);
+	      Layer->push_back(layerPixel);
+	    }
+	    if (m_idHelper->is_sct(hitId)) {
+	      const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
+	      clustID->push_back(sielement->identifyHash());
+
+	      x_residual->push_back(res_x);
+	      x_loc->push_back(locX);
+	      y_residual->push_back(999999);
+	      y_loc->push_back(9999999);
+
+	      is_Pixel->push_back(0);
+	      is_SCT->push_back(1);
+	      if(isBarrelSCT) is_Barrel->push_back(1);
+	      else is_Barrel->push_back(0);
+	      Layer->push_back(layerSCT);
+
+	    }
+	  }
+	  delete residualPull;
+
+	}
+      }
+    }
+  }
 }
 
 std::string FTK_RDO_ReaderAlgo::strVertexType( const xAOD::VxType::VertexType vxtype) {
