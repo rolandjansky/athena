@@ -51,13 +51,24 @@ class ZdcModuleGetter ( Configured ) :
             mlog.info("not DetFlags.makeRIO.Zdc_on : Quit.")
             return False
 
+        from AthenaCommon.AppMgr import ToolSvc
+        from AthenaCommon import CfgMgr
+        mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
+        #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
+        
+        ToolSvc.ZdcAnalysisTool.FixTau1=True
+        ToolSvc.ZdcAnalysisTool.FixTau2=True
+        ToolSvc.ZdcAnalysisTool.Tau1=5
+        ToolSvc.ZdcAnalysisTool.Tau2=21
+        ToolSvc.ZdcAnalysisTool.Peak2ndDerivThresh=15
 
         try:
-            from ZdcRec.ZdcRecConf import ZdcRecV2
+            from ZdcRec.ZdcRecConf import ZdcRecV3
             mlog.info("got ZdcRecV2")
-            self._zdcRecHandle = ZdcRecV2()
+            self._zdcRecHandle = ZdcRecV3()
         except Exception:
-            mlog.error("could not get handle to ZdcRecV2")
+            mlog.error("could not get handle to ZdcRecV3")
             print traceback.format_exc()
             return False
 
@@ -75,7 +86,7 @@ class ZdcModuleGetter ( Configured ) :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence += self.zdcRecHandle()
-        mlog.info("added ZdcRecV2")
+        mlog.info("added ZdcRecV3")
 
         return True
 
