@@ -59,7 +59,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- this is for the TRT-extension
     self.__minTRTonTrk             = 9
-    self.__minTRTPrecFrac          = 0.5
+    self.__minTRTPrecFrac          = 0.3
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker
@@ -173,7 +173,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts 
       self.__maxSecondarySCTHoles      = 1                # tighten hole cuts 
       self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts 
-      self.__minSecondaryTRTPrecFrac   = 0.5              # default for all tracking now, as well for BackTracking
+      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
       # self.__maxSecondaryTRTShared     = 0.2              # tighen shared hit cut for segment maker ?
