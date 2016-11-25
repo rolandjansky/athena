@@ -128,8 +128,9 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     return sc;
   }
   int nLVL1ID = m_bsErrSvc->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size();
+  int nROBFragment = m_bsErrSvc->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError)->size();
 
-  if (nLVL1ID > 500) {
+  if (nLVL1ID > 500 or nROBFragment > 1000) {
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD = false;
@@ -157,7 +158,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     }
 
     sc = StatusCode::SUCCESS;
-  } /// 500 LVL1ID errors
+  } /// 500 LVL1ID errors or 1000 ROBFragment errors
 
   return sc; 
 

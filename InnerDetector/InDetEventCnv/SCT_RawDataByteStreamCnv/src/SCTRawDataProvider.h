@@ -25,6 +25,8 @@
 #include "GaudiKernel/ToolHandle.h"
 /** other */
 #include "InDetRawData/InDetTimeCollection.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 /** STL */
 #include <string>
@@ -61,10 +63,9 @@ class SCTRawDataProvider : public AthAlgorithm
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
   ServiceHandle<ISCT_CablingSvc>     m_cabling;
   const SCT_ID*                      m_sct_id; 
-  std::string                        m_RDO_Key;
-
-  InDetTimeCollection* m_LVL1Collection;
-  InDetTimeCollection* m_BCIDCollection;
+  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
+  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
+  SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
 
 };
 
