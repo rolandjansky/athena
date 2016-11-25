@@ -5,23 +5,13 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "FastCaloSim/FSStoregateClean.h"
-
-// Gaudi includes
-#include "GaudiKernel/DataSvc.h"
-#include "GaudiKernel/Chrono.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 namespace FastCaloSim {
 
   FSStoregateClean:: FSStoregateClean(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator)
-  {
-    
+  {    
     declareProperty("StoreGateKeys",      m_SG_keys);
   }
   
@@ -32,8 +22,7 @@ namespace FastCaloSim {
 
   //__________________________________________________________________________
   StatusCode FSStoregateClean::initialize()
-  {
-    
+  {    
     ATH_MSG_DEBUG("initialize()");
     return StatusCode::SUCCESS; 
   }
@@ -44,10 +33,8 @@ namespace FastCaloSim {
   }
   
   //_________________________________________________________________________
-  StatusCode FSStoregateClean::execute()
-  {
-    MsgStream m_log( messageService(), name() );
-
+  StatusCode FSStoregateClean::execute() {
+  
     ATH_MSG_DEBUG("execute()");
     
     StatusCode sc;
@@ -68,6 +55,7 @@ namespace FastCaloSim {
         } else {
           p=0;
           sc = evtStore()->retrieve(p,m_SG_keys[i]);
+	  sc.ignore();
           msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endreq;
         }
       }
