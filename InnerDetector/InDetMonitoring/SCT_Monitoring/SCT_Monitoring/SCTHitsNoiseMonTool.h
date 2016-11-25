@@ -313,7 +313,9 @@ private:
 
   // Book noise occupancy map histograms
   StatusCode bookGeneralNoiseOccupancyMaps( const unsigned int systemIndex);
-
+	//Book hit occupancy map histograms
+	StatusCode bookGeneralHitOccupancyMaps( const unsigned int systemIndex);
+	
   // Book Hits Histograms
   StatusCode 
     bookGeneralHits( const unsigned int systemIndex);
@@ -323,7 +325,6 @@ private:
 
   // Book Correlation Histograms
   StatusCode bookCorrelations();
-
 
   //Do checking of noise maps
   StatusCode checkNoiseMaps(bool final);
@@ -364,6 +365,89 @@ private:
   int m_occTriggerECm_lb[NBINS_LBs+1];
   int m_eventsTrigger_lb;
   
+	//Added 09.09.2016
+	VecProf2_t m_phitoccupancymapHistoVector;
+	VecProf2_t m_phitoccupancymapHistoVectorRecent;
+	VecProf2_t m_phitoccupancymapHistoVectorTrigger;
+	VecProf2_t m_phitoccupancymapHistoVectorECp;
+	VecProf2_t m_phitoccupancymapHistoVectorECpRecent;
+	VecProf2_t m_phitoccupancymapHistoVectorECpTrigger;
+	VecProf2_t m_phitoccupancymapHistoVectorECm;
+	VecProf2_t m_phitoccupancymapHistoVectorECmRecent;
+	VecProf2_t m_phitoccupancymapHistoVectorECmTrigger;
+	
+	//Histograms with HO distribution
+	H1_t m_BARHO;
+	H1_t m_BARHOTrigger;
+	H1_t m_ECmHO;
+	H1_t m_ECmHOTrigger;
+	H1_t m_ECpHO;
+	H1_t m_ECpHOTrigger;
+	H1_t m_SCTHO;
+	H1_t m_SCTHOTrigger;
+	
+	//---- results required no triggers
+	// # of hits vs LBs
+	Prof_t m_HallHitsBAR_vsLB;
+	Prof_t m_HSPHitsBAR_vsLB;
+	Prof_t m_HallHitsECm_vsLB;
+	Prof_t m_HSPHitsECm_vsLB;
+	Prof_t m_HallHitsECp_vsLB;
+	Prof_t m_HSPHitsECp_vsLB;
+	 // HO with hits subtracted by SP
+	Prof_t m_BARHO_vsLB;
+	Prof_t m_ECmHO_vsLB;
+	Prof_t m_ECpHO_vsLB;
+	Prof_t m_SCTHO_vsLB;
+	Prof_t m_NoisyModulesWithHO100_vsLB;
+	Prof_t m_NoisyModulesWithHO1000_vsLB;
+	Prof_t m_NoisyModulesWithHO10000_vsLB;
+
+	//---- results required trigger
+	// # of hits vs LBs
+	Prof_t m_HallHitsTriggerBAR_vsLB;
+	Prof_t m_HSPHitsTriggerBAR_vsLB;
+	Prof_t m_HallHitsTriggerECm_vsLB;
+	Prof_t m_HSPHitsTriggerECm_vsLB;
+	Prof_t m_HallHitsTriggerECp_vsLB;
+	Prof_t m_HSPHitsTriggerECp_vsLB;
+	// HO with hits
+	Prof_t m_BARHOTrigger_vsLB;
+	Prof_t m_ECmHOTrigger_vsLB;
+	Prof_t m_ECpHOTrigger_vsLB;
+	Prof_t m_SCTHOTrigger_vsLB;
+	Prof_t m_NoisyModulesWithHOTrigger100_vsLB;
+	Prof_t m_NoisyModulesWithHOTrigger1000_vsLB;
+	Prof_t m_NoisyModulesWithHOTrigger10000_vsLB;
+
+	std::map<Identifier, double> m_hitoccSumUnbiased;
+	std::map<Identifier, double> m_hitoccSumUnbiasedTrigger;
+	std::map<Identifier, double> m_hitoccSumUnbiasedRecent;
+	
+	std::map<Identifier, double> m_hitoccSumUnbiased_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedBAR_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedECp_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedECm_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedTrigger_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedTriggerBAR_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedTriggerECp_lb;
+	std::map<Identifier, double> m_hitoccSumUnbiasedTriggerECm_lb;
+
+  int m_noisyMWithHO100[NBINS_LBs+1];
+  int m_noisyMWithHO1000[NBINS_LBs+1];
+  int m_noisyMWithHO10000[NBINS_LBs+1];
+  int m_hitocc_lb[NBINS_LBs+1];
+  int m_hitoccBAR_lb[NBINS_LBs+1];
+  int m_hitoccECp_lb[NBINS_LBs+1];
+  int m_hitoccECm_lb[NBINS_LBs+1];
+  int m_noisyMWithHOTrigger100[NBINS_LBs+1];
+  int m_noisyMWithHOTrigger1000[NBINS_LBs+1];
+  int m_noisyMWithHOTrigger10000[NBINS_LBs+1];
+  int m_hitoccTrigger_lb[NBINS_LBs+1];
+  int m_hitoccTriggerBAR_lb[NBINS_LBs+1];
+  int m_hitoccTriggerECp_lb[NBINS_LBs+1];
+  int m_hitoccTriggerECm_lb[NBINS_LBs+1];
+
   StatusCode initializeNoiseMaps();
 
   StatusCode resetNoiseMapHists();

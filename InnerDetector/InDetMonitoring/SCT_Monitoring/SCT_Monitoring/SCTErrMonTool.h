@@ -177,6 +177,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   int m_current_lb;
   int m_last_reset_lb;
 
+  bool m_sctflag;
+
   /// flag to run online
   bool m_runOnline;
 
@@ -221,6 +223,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile_LW * m_ConfOnline[NREGIONS_INC_GENERAL];
 
   TProfile_LW * m_ByteStreamVsLB[N_ERRTYPES][NREGIONS_INC_GENERAL];
+  TProfile_LW * m_ByteStreamWithSctFlagVsLB[N_ERRTYPES][NREGIONS_INC_GENERAL];
   TProfile_LW * m_LinksWithAnyErrorsVsLB[NREGIONS_INC_GENERAL];
   TProfile_LW * m_LinksWithBadErrorsVsLB[NREGIONS_INC_GENERAL];
   TProfile_LW * m_LinksWithLnkErrorsVsLB[NREGIONS_INC_GENERAL];
