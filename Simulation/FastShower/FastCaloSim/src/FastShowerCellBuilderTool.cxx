@@ -1023,6 +1023,8 @@ bool FastShowerCellBuilderTool::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVe
       Amg::Vector3D hitPos1 = (*it).trackParms->position();
       int sid1=(*it).detID;
       it++;
+      if ((hitPos1-it->trackParms->position()).mag()<0.001 ) it++; // ST exit and entry to the next layer may coincide
+      if (it==hitVector->end()) break;
       Amg::Vector3D hitPos2 = (*it).trackParms->position();
       int sid2=(*it).detID;
       double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());

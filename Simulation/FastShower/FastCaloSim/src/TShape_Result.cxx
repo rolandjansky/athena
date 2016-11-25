@@ -8,6 +8,7 @@
 #include "TVector2.h"
 #include "TSpline.h"
 #include "TH1F.h"
+#include "TBuffer.h"
 #include <cmath>
 
 #include "FastCaloSimAthenaPool/FastShowerInfo.h"
