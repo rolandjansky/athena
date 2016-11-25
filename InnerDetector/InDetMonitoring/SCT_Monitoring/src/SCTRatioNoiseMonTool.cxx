@@ -437,7 +437,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
     // ignores the RDO cut online since the empty events are pre-filtered there
     if (count_SCT_RDO < 1E6 || (m_ignore_RDO_cut_online && m_environment == AthenaMonManager::online)) {
       m_num_RDO->Fill(count_SCT_RDO);
-      noisyM[m_current_lb] = 0;
+      if(m_current_lb<=NBINS_LBs) noisyM[m_current_lb] = 0;
       for (int j = 0; j < n_mod[GENERAL_INDEX]; j++) {
         noSidesHit = false;
         oneSideHit = false;
@@ -519,7 +519,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
         }
         // --------------------------------------
         if (calculateNoiseOccupancyUsingRatioMethod(nOneSide_lb[j], nNoSides_lb[j]) * 1E5 > 100.) {
-          noisyM[m_current_lb] += 1;
+          if(m_current_lb<=NBINS_LBs) noisyM[m_current_lb] += 1;
         }
       }
 
