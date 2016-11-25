@@ -739,7 +739,10 @@ int egammaMVACalib::getBin() const
 TTree* egammaMVACalib::createInternalTree(TTree *tree)
 {
   ATH_MSG_DEBUG("Creating internal tree");
-  if (!tree) { ATH_MSG_FATAL("tree is null"); }
+  if (!tree) { 
+      ATH_MSG_FATAL("tree is null"); 
+      throw std::runtime_error("Null pointer");
+  }
   TTree* new_tree = new TTree();
   new_tree->SetDirectory(0);
   new_tree->SetCacheSize(0);

@@ -199,24 +199,23 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const std::stri
     return 0;
   }
 
-  {
-    if (egType == "Electron") {
-      ATH_MSG_DEBUG("Processing for HLT electron");
-      m_MVATreeElectron->update(nullptr, cluster);
-      return m_mvaElectron->getMVAEnergy();
-    }
-    else if(egType == "Photon"){
-      ATH_MSG_DEBUG("Processing for HLT photon");
-      m_MVATreePhoton->update(nullptr, cluster);
-      return m_mvaPhoton->getMVAEnergy();
-    }
-    else {
-      ATH_MSG_INFO("Unknown Type");
-    }
-    return 0;
-  }
 
+  if (egType == "Electron") {
+    ATH_MSG_DEBUG("Processing for HLT electron");
+    m_MVATreeElectron->update(nullptr, cluster);
+    return m_mvaElectron->getMVAEnergy();
+  }
+  else if(egType == "Photon"){
+    ATH_MSG_DEBUG("Processing for HLT photon");
+    m_MVATreePhoton->update(nullptr, cluster);
+    return m_mvaPhoton->getMVAEnergy();
+  }
+  else {
+    ATH_MSG_WARNING("Unknown particle type");
+  }
   return 0;
+  
+
 }
 
 float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma* eg){
