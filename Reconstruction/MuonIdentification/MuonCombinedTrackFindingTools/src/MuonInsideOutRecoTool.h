@@ -15,7 +15,7 @@
 
 
 namespace Muon {
-  class MuonCandidate;
+  struct MuonCandidate;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
   class IMuonSystemExtensionTool;
