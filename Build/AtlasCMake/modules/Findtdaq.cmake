@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findtdaq.cmake 785934 2016-11-23 09:25:16Z elmsheus $
+# $Id: Findtdaq.cmake 786558 2016-11-25 19:11:45Z fwinkl $
 #
 # Try to find TDAQ
 # Defines:
@@ -49,7 +49,9 @@ if( TDAQ_FOUND )
       ${TDAQ_ROOT}/installed/share/bin )
    set( TDAQ_ENVIRONMENT
       SET    TDAQ_DB_PATH ${TDAQ_ROOT}/installed/share/data
-      APPEND TDAQ_DB_PATH ${TDAQ_ROOT}/installed/databases )
+      APPEND TDAQ_DB_PATH ${TDAQ_ROOT}/installed/databases
+      APPEND TDAQ_DB_PATH ${TDAQ_ROOT}/databases )
+
 endif()
 
 # When using tdaq, some macro definitions are made in the tdaq headers,
