@@ -24,6 +24,7 @@ private:
   std::string _fitFunction;
   bool _forceLG;
 
+  ZDCModuleBoolArray _moduleDisabled;
   std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> _moduleAnalyzers;
 
   int _debugLevel;
@@ -81,6 +82,8 @@ public:
     else ZDCPulseAnalyzer::SetQuietFits(false);
   }
 
+  void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
+
   unsigned int GetModuleMask() const {return _moduleMask;}
 
   float GetModuleSum(size_t side) const {return _moduleSum.at(side);}
@@ -103,6 +106,10 @@ public:
   float GetModuleStatus(size_t side, size_t module) const {return _moduleStatus.at(side).at(module);}
 
   const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return _moduleAnalyzers.at(side).at(module);}
+
+  bool DisableModule(size_t side, size_t module);
+
+  void SetPeak2ndDerivMinTolerances(size_t tolerance);
 
   void SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC, 
 				 const ZDCModuleFloatArray& LGOverflowADC);
@@ -146,6 +153,9 @@ public:
   void StartEvent(int lumiBlock);
 
   void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples); 
+
+  void LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
+			  const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed); 
 
   bool FinishEvent();
 

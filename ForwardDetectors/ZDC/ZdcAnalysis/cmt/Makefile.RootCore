@@ -10,7 +10,7 @@
 PACKAGE              = ZdcAnalysis
 
 # the libraries to link with this one:
-PACKAGE_PRELOAD      = 
+PACKAGE_PRELOAD      = Minuit
 
 # additional compilation flags to pass (not propagated to dependent packages):
 PACKAGE_CXXFLAGS     = 
