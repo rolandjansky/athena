@@ -52,7 +52,7 @@ namespace Muon {
                         << " r " << pars->position().perp() << " z " << pars->position().z() 
                         << " local " << pars->parameters()[Trk::locX] << " " << pars->parameters()[Trk::locY];
       if( pars->covariance() ) msg(MSG::VERBOSE) << " err " << Amg::error(*pars->covariance(),Trk::locX) << " " << Amg::error(*pars->covariance(),Trk::locY);
-      msg(MSG::VERBOSE) << endreq;
+      msg(MSG::VERBOSE) << endmsg;
     }
     
     std::unique_ptr<const Trk::TrackParameters> exPars(m_extrapolator->extrapolate(*intersection.trackParameters,segment.associatedSurface(),Trk::anyDirection,false,Trk::muon));
@@ -73,7 +73,7 @@ namespace Muon {
                         << " extrapolation  r " << ataPlane->position().perp() << " z " << ataPlane->position().z() 
                         << " local " << ataPlane->parameters()[Trk::locX] << " " << ataPlane->parameters()[Trk::locY];
       if( ataPlane->covariance() ) msg(MSG::VERBOSE) << " err " << Amg::error(*ataPlane->covariance(),Trk::locX) << " " << Amg::error(*ataPlane->covariance(),Trk::locY);
-      msg(MSG::VERBOSE) << endreq;
+      msg(MSG::VERBOSE) << endmsg;
     }
 
     MuonCombined::MuonSegmentInfo segmentInfo = m_matchingTool->muTagSegmentInfo( nullptr, &segment, ataPlane );

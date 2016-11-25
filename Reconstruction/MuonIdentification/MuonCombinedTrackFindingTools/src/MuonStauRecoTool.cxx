@@ -212,12 +212,12 @@ namespace MuonCombined {
             << " phi " << indetTrackParticle.phi();
       if( truthInfo ) msg(MSG::INFO) << truthInfo->toString();
       if( !muonSystemExtension ) msg(MSG::INFO) << " failed muonSystemExtension";
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
 
     // exit if no MuonSystemExtension was found
     if( !muonSystemExtension ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endmsg;
       return;
     }
     
@@ -232,7 +232,7 @@ namespace MuonCombined {
 
     AssociatedData associatedData;
     if( !extractTimeMeasurements(*muonSystemExtension,associatedData) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endmsg;
       return;
     }
     if( truthMatchingCounter ) truthMatchingCounter->fillStage(1);
@@ -244,7 +244,7 @@ namespace MuonCombined {
 
     CandidateVec candidates;
     if( !createCandidates(associatedData,candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
@@ -256,7 +256,7 @@ namespace MuonCombined {
     */
 
     if( !refineCandidates(candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
@@ -268,7 +268,7 @@ namespace MuonCombined {
     */
 
     if( !combineCandidates(indetTrackParticle,candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,2);
@@ -280,7 +280,7 @@ namespace MuonCombined {
     */
 
     if( !resolveAmbiguities(candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endreq;
+      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,3);
@@ -379,7 +379,7 @@ namespace MuonCombined {
         for( const auto& layer :  candidate->allLayers ) msg(MSG::INFO) << std::endl << "     " << printIntersectionToString(layer.intersection)
                                                                         << " segments " << layer.segments.size();
       }
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
 
     return !candidates.empty();
@@ -778,7 +778,7 @@ namespace MuonCombined {
                           << " time " << std::setw(3) << time << " beta"  << std::setw(2) << beta
                           << " err " << std::setw(3) << er << " intrinsic " << std::setw(3) << tres << " track " << std::setw(3) << trackTimeRes;
           if( !isSelected ) msg(MSG::DEBUG) << " outlier";
-          msg(MSG::DEBUG) << std::setprecision(5)  << endreq;
+          msg(MSG::DEBUG) << std::setprecision(5)  << endmsg;
         }
 
         if( !isSelected ) continue;
@@ -842,7 +842,7 @@ namespace MuonCombined {
       for( const auto& segment :  segments ) msg(MSG::INFO) << std::endl << "     " << m_printer->print(*segment);
       if( combinedTrack ) msg(MSG::INFO) << std::endl << "   track " << m_printer->print(*combinedTrack) 
                                          << std::endl << m_printer->printStations(*combinedTrack);
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
 
 
@@ -892,7 +892,7 @@ namespace MuonCombined {
       msg(MSG::INFO) << std::endl << "  candidate: beta fit result: beta " <<  candidate->betaFitResult.beta << " chi2/ndof " << candidate->betaFitResult.chi2PerDOF()
                      << " layers with segments" << candidate->allLayers.size() << std::endl
                      << "   track " << m_printer->print(*candidate->combinedTrack) << std::endl << m_printer->printStations(*candidate->combinedTrack);
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
     
     return true;
@@ -950,7 +950,7 @@ namespace MuonCombined {
         msg(MSG::INFO)<< " layers with segments" << candidate->allLayers.size() << std::endl
                       << "   track " << m_printer->print(*candidate->combinedTrack) << std::endl << m_printer->printStations(*candidate->combinedTrack);
       }
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
     
     return !candidates.empty();
@@ -974,7 +974,7 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Creating candidates from seeds  " << seedMaximumDataVec.size());
     
     if( seedMaximumDataVec.empty() ) {
-      if( m_doSummary || msgLvl(MSG::DEBUG) ) msg(MSG::INFO) << " Summary::createCandidates, no seeds found " << endreq;
+      if( m_doSummary || msgLvl(MSG::DEBUG) ) msg(MSG::INFO) << " Summary::createCandidates, no seeds found " << endmsg;
       return false;
     }
 
@@ -1028,7 +1028,7 @@ namespace MuonCombined {
         for( const auto& layerData :  candidate->layerDataVec ) msg(MSG::INFO) << std::endl << "     " << printIntersectionToString(layerData.intersection)
                                                                       << " maximumDataVec " << layerData.maximumDataVec.size();
       }
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
 
     return !candidates.empty();
@@ -1162,7 +1162,7 @@ namespace MuonCombined {
         msg(MSG::INFO) << std::endl << " layer " << printIntersectionToString(layerData.intersection) << " associated maxima " 
               << layerData.maximumDataVec.size() << " maxima with beta seeds " << nmaxWithBeta;
       }
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
 
     // return false if no layers were associated 

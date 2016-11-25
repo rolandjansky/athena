@@ -96,7 +96,7 @@ namespace Muon {
               msg(MSG::VERBOSE) << std::endl << "  " << m_printer->print(*entry.segment);
             }
           }
-          msg(MSG::VERBOSE) << endreq;
+          msg(MSG::VERBOSE) << endmsg;
         }
         resolvedCandidates.insert(resolvedCandidates.end(),candidates.begin(),candidates.end());
         
@@ -253,7 +253,7 @@ namespace Muon {
           msg(MSG::DEBUG) << std::endl << "  " << m_printer->print(*entry.segment);
         }
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
 
   }

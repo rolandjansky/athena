@@ -11,6 +11,10 @@
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "Identifier/Identifier.h"
 
 namespace Muon {
 
@@ -18,12 +22,15 @@ namespace Muon {
     AthAlgTool(type,name,parent),
     m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_reOrderMeasurements(true),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder")
   {
     declareInterface<IMuonCandidateTrackBuilderTool>(this);
 
     declareProperty("MuonSegmentTrackBuilder",    m_muonTrackBuilder );
     declareProperty("MuonEDMPrinterTool",         m_printer );    
+    declareProperty("ReOrderMeasurements",        m_reOrderMeasurements);    
     declareProperty("MuonTrackBuilder",           m_trackFitter );    
   }
 
@@ -37,6 +44,7 @@ namespace Muon {
 
     ATH_CHECK(m_muonTrackBuilder.retrieve());
     ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
 
     return StatusCode::SUCCESS;
@@ -44,7 +52,7 @@ namespace Muon {
 
   const Trk::Track* MuonCandidateTrackBuilderTool::buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const {
 
-    
+  
     ATH_MSG_DEBUG("Building track from candidate with " << candidate.layerIntersections.size() << " layers ");
     // copy and sort layerIntersections according to their distance to the IP
     std::vector<MuonLayerIntersection> layerIntersections = candidate.layerIntersections;
@@ -58,11 +66,111 @@ namespace Muon {
 
     // loop over sorted layers and extract measurements
     std::vector<const Trk::MeasurementBase*> measurements;
+    int intersec = 0;
+    bool isEndcap = false;
+    bool isBarrel = false;
+    bool isSmall  = false;
+    bool isLarge  = false;
     for( const auto& layerIntersection : layerIntersections ){
+      intersec++;
+      ATH_MSG_VERBOSE(" layerIntersection " << intersec << " perp " <<  layerIntersection.intersection.trackParameters->position().perp() << " z " << layerIntersection.intersection.trackParameters->position().z() << " distance to IP " << layerIntersection.intersection.trackParameters->position().mag());  
+      ATH_MSG_VERBOSE(" segment surface center perp " <<  layerIntersection.segment->associatedSurface().center().perp() << " z " << layerIntersection.segment->associatedSurface().center().z() << " nr of msts " << layerIntersection.segment->containedMeasurements().size() );
+      ATH_MSG_VERBOSE( m_printer->print(*(layerIntersection.segment))) ;
+
+// Fix problem with segments where measurements are not ordered wrt IP 
+
+// first check whether it is a Barrel or Endcap segment
+
+      std::vector<const Trk::MeasurementBase*> containedMeasurements = layerIntersection.segment->containedMeasurements();
+      std::vector<const Trk::MeasurementBase*>::const_iterator mit     = containedMeasurements.begin();
+      std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = containedMeasurements.end();
+      for(; mit!=mit_end; ++mit) {
+     // get Identifier
+        Identifier id;
+        const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(*mit);
+        if (rio)  id=rio->identify();
+        else {
+          const Trk::CompetingRIOsOnTrack* crio=dynamic_cast<const Trk::CompetingRIOsOnTrack*>(*mit);
+          if (crio) id=crio->rioOnTrack(0).identify();
+         else continue;
+        }
+     // check if valid ID
+       if( !id.is_valid() ) continue;
+     // check if muon
+        if (!m_idHelper->isMuon(id)) continue;
+        
+        if(m_idHelper->isEndcap(id)) { 
+         isEndcap = true;
+        } else {
+         isBarrel = true;
+        }
+        if(m_idHelper->isTrigger(id)) continue; 
+
+        if(m_idHelper->isSmallChamber(id)) { 
+         isSmall = true;
+        } else {
+         isLarge = true;
+        }
+        break;
+      } 
+   
+      if(m_reOrderMeasurements) {
+
+// reorder measurements using R or fabs(z)
+ 
+        if(isEndcap) {
+          std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
+            auto getDistance = []( const Trk::MeasurementBase* mst ) {
+              return fabs(mst->globalPosition().z());
+            };
+            return getDistance(mst1) < getDistance(mst2);
+          });
+        } else {
+          std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
+            auto getDistance = []( const Trk::MeasurementBase* mst ) {
+              return mst->globalPosition().perp();
+            };
+            return getDistance(mst1) < getDistance(mst2);
+          });
+        }
+      }
+
+// insert in measurements list  
+ 
       measurements.insert( measurements.end(),
-                           layerIntersection.segment->containedMeasurements().begin(),
-                           layerIntersection.segment->containedMeasurements().end() );
+                           containedMeasurements.begin(),
+                           containedMeasurements.end() );
     }
+
+// reorder in case of Small Large overlaps in Barrel or Endcap ONLY   
+
+    bool reorderAllMeasurements = false;
+    if(isSmall&&isLarge) reorderAllMeasurements = true;
+    if(isEndcap&&isBarrel) reorderAllMeasurements = false;
+
+    if(m_reOrderMeasurements&&reorderAllMeasurements) {
+
+// reorder measurements using R or fabs(z)
+        ATH_MSG_VERBOSE(" reorder all measurements before " <<  m_printer->print(measurements)) ;
+ 
+        if(isEndcap) {
+          std::stable_sort(measurements.begin(),measurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
+            auto getDistance = []( const Trk::MeasurementBase* mst ) {
+              return fabs(mst->globalPosition().z());
+            };
+            return getDistance(mst1) < getDistance(mst2);
+          });
+        } else {
+          std::stable_sort(measurements.begin(),measurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
+            auto getDistance = []( const Trk::MeasurementBase* mst ) {
+              return mst->globalPosition().perp();
+            };
+            return getDistance(mst1) < getDistance(mst2);
+          });
+        }
+    }
+
+    ATH_MSG_VERBOSE( m_printer->print(measurements)) ;
 
     ATH_MSG_DEBUG("Extracted hits from candidate: " << measurements.size() );
     Trk::Track* refittedTrack = m_trackFitter->indetExtension(idTrack,measurements);
