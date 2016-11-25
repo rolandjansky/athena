@@ -54,7 +54,8 @@ class ZdcModuleGetter ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
         mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
-        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
+        #ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
         
         ToolSvc.ZdcAnalysisTool.FixTau1=True
         ToolSvc.ZdcAnalysisTool.FixTau2=True
