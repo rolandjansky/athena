@@ -239,8 +239,7 @@ namespace Rec
 	ServiceHandle<MagField::IMagFieldSvc>		m_magFieldSvc;
 	ToolHandle<Trk::IMaterialAllocator>		m_materialAllocator;
 	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator;
-	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonScaledErrorOptimizer;
-	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonAlignmentErrorOptimizer;
+	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonErrorOptimizer;
 	ToolHandle<Muon::IMuonHoleRecoveryTool>		m_muonHoleRecovery;
 	ToolHandle<Trk::IPropagator>        		m_propagator;
 	ToolHandle<Trk::IPropagator>        		m_propagatorSL;
