@@ -86,8 +86,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_magFieldSvc			("AtlasFieldSvc",name),
 	m_materialAllocator		(""),
 	m_mdtRotCreator			(""),
-  	m_muonScaledErrorOptimizer	("Muon::MuonErrorOptimisationTool/MuidScaledErrorOptimisationTool"), // overwritten 
-	m_muonAlignmentErrorOptimizer	("Muon::MuonErrorOptimisationTool/MuidAlignmentErrorOptimisationTool"),
+  	m_muonErrorOptimizer    	("Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool"),
 	m_muonHoleRecovery		("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
 	m_propagator            	("Trk::IntersectorWrapper/IntersectorWrapper"),
 	m_propagatorSL			("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
@@ -161,8 +160,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
     declareProperty("Intersector",			m_intersector);
     declareProperty("MaterialAllocator",		m_materialAllocator);
     declareProperty("MdtRotCreator",			m_mdtRotCreator);
-    declareProperty("MuonScaledErrorOptimizer",		m_muonScaledErrorOptimizer); // overwritten
-    declareProperty("MuonAlignmentErrorOptimizer",	m_muonAlignmentErrorOptimizer);
+    declareProperty("MuonErrorOptimizer",		m_muonErrorOptimizer);
     declareProperty("MuonHoleRecovery",			m_muonHoleRecovery);
     declareProperty("Propagator",			m_propagator);
     declareProperty("SLPropagator",			m_propagatorSL);
@@ -217,9 +215,6 @@ StatusCode
 CombinedMuonTrackBuilder::initialize()
 {
 
-// use only m_muonAlignmentErrorOptimizer 
-  m_muonScaledErrorOptimizer = m_muonAlignmentErrorOptimizer;
- 
   if( !AthAlgTool::initialize() ) return StatusCode::FAILURE;
 
     ATH_MSG_DEBUG( "Initializing CombinedMuonTrackBuilder"
@@ -232,8 +227,7 @@ CombinedMuonTrackBuilder::initialize()
     if (m_reallocateMaterial)		msg(MSG::DEBUG) << " ReallocateMaterial";
     if (! m_cscRotCreator.empty())	msg(MSG::DEBUG) << " RedoCscRots";
     if (! m_mdtRotCreator.empty())	msg(MSG::DEBUG) << " RedoMdtRots";
-    if (! m_muonScaledErrorOptimizer.empty())	msg(MSG::DEBUG) << " ScaledErrorOptimisation";
-    if (! m_muonAlignmentErrorOptimizer.empty())	msg(MSG::DEBUG) << " AlignmentErrorOptimisation";
+    if (! m_muonErrorOptimizer.empty())	msg(MSG::DEBUG) << " ErrorOptimisation";
     if (! m_muonHoleRecovery.empty())	msg(MSG::DEBUG) << " HoleRecovery";
     msg(MSG::DEBUG) << endmsg;
 
@@ -463,28 +457,16 @@ CombinedMuonTrackBuilder::initialize()
 	    ATH_MSG_DEBUG( "Retrieved tool " << m_mdtRotCreator );
 	}
     }
-    if (! m_muonScaledErrorOptimizer.empty())
+    if (! m_muonErrorOptimizer.empty())
     {
-	if (m_muonScaledErrorOptimizer.retrieve().isFailure())
+	if (m_muonErrorOptimizer.retrieve().isFailure())
 	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonScaledErrorOptimizer );
+	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonErrorOptimizer );
 	    return StatusCode::FAILURE;
 	}
 	else
 	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_muonScaledErrorOptimizer );
-	}
-    }
-    if (! m_muonAlignmentErrorOptimizer.empty())
-    {
-	if (m_muonAlignmentErrorOptimizer.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonAlignmentErrorOptimizer );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_muonAlignmentErrorOptimizer );
+	    ATH_MSG_DEBUG( "Retrieved tool " << m_muonErrorOptimizer );
 	}
     }
     if (! m_muonHoleRecovery.empty())
@@ -2519,9 +2501,9 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	
 	// fit with optimized spectrometer errors
 	//this should also be inside the "if(refittedTrack) statement	
-	if (! m_muonAlignmentErrorOptimizer.empty() && ! refittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && countAEOTs(refittedTrack, " before optimize ") == 0 ) {
+	if (! m_muonErrorOptimizer.empty() && ! refittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && countAEOTs(refittedTrack, " before optimize ") == 0 ) {
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization after cleaning " );
-	  Trk::Track* optimizedTrack = m_muonAlignmentErrorOptimizer->optimiseErrors(*refittedTrack);
+	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*refittedTrack);
 	  if (optimizedTrack) {
             if(checkTrack("standaloneRefitOpt",optimizedTrack, refittedTrack)) {
 	      delete refittedTrack;
@@ -2673,9 +2655,9 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
  
     // fit with optimized spectrometer errors
 
-        if (! m_muonScaledErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
+        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization after cleaning " );
-	  Trk::Track* optimizedTrack = m_muonScaledErrorOptimizer->optimiseErrors(*fittedTrack);
+	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
 	  if (optimizedTrack) {
             if(checkTrack("fitInterface1Opt",optimizedTrack, fittedTrack)) {
                delete fittedTrack;
@@ -2807,9 +2789,9 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 
 // fit with optimized spectrometer errors
 
-        if (! m_muonScaledErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
+        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization after cleaning " );
-	  Trk::Track* optimizedTrack = m_muonScaledErrorOptimizer->optimiseErrors(*fittedTrack);
+	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
 	  if (optimizedTrack) {
             if(checkTrack("fitInterface2Opt",optimizedTrack, fittedTrack)) {
               delete fittedTrack;
@@ -2928,9 +2910,9 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     {
     // fit with optimized spectrometer errors
 
-        if (! m_muonScaledErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
+        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization after cleaning " );
-	  Trk::Track* optimizedTrack = m_muonScaledErrorOptimizer->optimiseErrors(*fittedTrack);
+	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
 	  if (optimizedTrack) {
 	    delete fittedTrack;
 	    fittedTrack = optimizedTrack;
@@ -3314,16 +3296,27 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	const Trk::TrackParameters* leadingParameters		= &parameters;
 	if (particleHypothesis == Trk::muon)
 	{
-	    bool haveMaterial	= false;
+	    bool haveMaterial			= false;
+            bool haveLeadingMaterial            = false;
+            bool firstMSHit                     = false;
+ 
 	    for (s = spectrometerTSOS.begin(); s != spectrometerTSOS.end(); ++s)
 	    {
 		if ((**s).materialEffectsOnTrack())
 		{
-		    haveMaterial	= true;
-		    break;
+		    			haveMaterial	= true;
+                    if(!firstMSHit)     haveLeadingMaterial = true;
 		}
+                if ((**s).measurementOnTrack()&&!firstMSHit) 
+                {
+                     firstMSHit = true;
+                }
+                if(haveMaterial&&firstMSHit) break;
 	    }
-	    if (! m_materialAllocator.empty() && haveMaterial)
+
+// only add leading material if there is no material in fron of first muon measurement 
+
+	    if (! m_materialAllocator.empty() && haveMaterial && ! haveLeadingMaterial)
 	    {
 		leadingTSOS	       	= m_materialAllocator->leadingSpectrometerTSOS(parameters);
 		if (leadingTSOS && leadingTSOS->size() && leadingTSOS->front()->trackParameters())
@@ -4467,10 +4460,10 @@ CombinedMuonTrackBuilder::finalTrackBuild(Trk::Track*& track) const
     }
 
     // final fit with optimized spectrometer errors
-    if (! m_muonAlignmentErrorOptimizer.empty() && ! track->info().trackProperties(Trk::TrackInfo::StraightTrack) && countAEOTs(track, " before optimize ") == 0)
+    if (! m_muonErrorOptimizer.empty() && ! track->info().trackProperties(Trk::TrackInfo::StraightTrack) && countAEOTs(track, " before optimize ") == 0)
     {
 	ATH_MSG_VERBOSE( " perform spectrometer error optimization... " );
-	Trk::Track* optimizedTrack = m_muonAlignmentErrorOptimizer->optimiseErrors(*track);
+	Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*track);
 	if (optimizedTrack&&checkTrack("finalTrackBuild2",optimizedTrack,track))
 	{
 	    delete track;
