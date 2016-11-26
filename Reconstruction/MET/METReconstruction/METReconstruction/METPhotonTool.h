@@ -58,11 +58,11 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     bool resolveOverlap(const xAOD::IParticle* object,
 			xAOD::MissingETComponentMap* metMap,
 			std::vector<const xAOD::IParticle*>& acceptedSignals,
-			MissingETBase::Types::weight_t& objWeight);
+			MissingETBase::Types::weight_t& objWeight) const;
 
   private:
     /// Default constructor: 
@@ -71,7 +71,7 @@ namespace met{
     // Identify tracks that may contribute to the photon SW cluster
     // or are associated to the photon for some other reason
     // and hence should not enter later sums
-    void matchTracks(const xAOD::Photon* ph, std::vector<const xAOD::IParticle*>& trklist);
+    void matchTracks(const xAOD::Photon* ph, std::vector<const xAOD::IParticle*>& trklist) const;
 
   }; 
 

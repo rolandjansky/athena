@@ -101,7 +101,7 @@ namespace met {
   bool METElectronTool::resolveOverlap(const xAOD::IParticle* object,
 				       xAOD::MissingETComponentMap* metMap,
 				       std::vector<const xAOD::IParticle*>& acceptedSignals,
-				       MissingETBase::Types::weight_t& objWeight)
+				       MissingETBase::Types::weight_t& objWeight) const
   {
     if(object->type() != xAOD::Type::Electron) {
       ATH_MSG_WARNING("METElectronTool::resolveOverlap given an object of type " << object->type());
@@ -111,10 +111,17 @@ namespace met {
 
     ATH_MSG_DEBUG("Identifying signals overlapping this electron");
 
+    const CaloClusterContainer* tcCont(0);
+    if( evtStore()->retrieve(tcCont, m_tcCont_key).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve topocluster container for overlap removal");
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_DEBUG("Successfully retrieved topocluster collection");    
+
     // retrieve topoclusters associated to the electron
     vector<const IParticle*> tcList;
     tcList.reserve(el->nCaloClusters());
-    matchTopoClusters(el, tcList, m_tcCont);
+    matchTopoClusters(el, tcList, tcCont);
     // test the clusters for matches to other objects
     bool clustersUsed = metMap->checkUsage(tcList,MissingETBase::UsageHandler::OnlyCluster);
     if(clustersUsed) { // true implies some cluster has been used
@@ -147,7 +154,7 @@ namespace met {
     return !clustersUsed; // return true if the electron shares no clusters with another object
   }
 
-  void METElectronTool::matchTracks(const xAOD::Electron* el, std::vector<const xAOD::IParticle*>& trklist)
+  void METElectronTool::matchTracks(const xAOD::Electron* el, std::vector<const xAOD::IParticle*>& trklist) const
   {
     for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
       const TrackParticle* eltrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
@@ -161,7 +168,7 @@ namespace met {
     ATH_MSG_VERBOSE("Electron has " << trklist.size() << " linked tracks");
   }
 
-  StatusCode METElectronTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METElectronTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -171,13 +178,6 @@ namespace met {
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("Successfully retrieved electron collection");
-
-    m_tcCont = 0;
-    if( evtStore()->retrieve(m_tcCont, m_tcCont_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve topocluster container for overlap removal");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
 
     MissingETComponentMap::iterator iter = MissingETComposition::find(metMap,metTerm);
     if(iter==metMap->end()) {

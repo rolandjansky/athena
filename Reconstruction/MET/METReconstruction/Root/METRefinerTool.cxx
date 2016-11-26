@@ -20,6 +20,9 @@
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 
+// For DeltaR
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using xAOD::MissingET;
@@ -53,7 +56,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

@@ -147,7 +147,7 @@ namespace met {
   bool METMuonTool::resolveOverlap(const xAOD::IParticle* object,
 				   xAOD::MissingETComponentMap* metMap,
 				   std::vector<const xAOD::IParticle*>& acceptedSignals,
-				   MissingETBase::Types::weight_t& /*objWeight*/)
+				   MissingETBase::Types::weight_t& /*objWeight*/) const
   {
 
     if(object->type() != xAOD::Type::Muon) {
@@ -167,7 +167,7 @@ namespace met {
     return true;
   }
 
-  StatusCode METMuonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METMuonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

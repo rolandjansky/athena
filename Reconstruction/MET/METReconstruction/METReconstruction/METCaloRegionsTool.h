@@ -30,15 +30,11 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
 
-// CaloNoiseTool
-#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-#else
-#include "CaloInterface/ICaloNoiseTool.h"
-#endif
-
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+
+class ICaloNoiseTool;
 
 class CaloCellContainer;
 
@@ -65,7 +61,7 @@ namespace met{
     // AsgTool Hooks
     StatusCode  initialize();
     StatusCode  finalize();
-    StatusCode  execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode  execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -91,16 +87,16 @@ namespace met{
     bool             resolveOverlap    (const xAOD::IParticle* object,
                                         xAOD::MissingETComponentMap* metMap,
                                         std::vector<const xAOD::IParticle*>& acceptedSignals,
-                                        MissingETBase::Types::weight_t& objWeight);
+                                        MissingETBase::Types::weight_t& objWeight) const;
     // Fill Cell MET
     StatusCode       fillCellMet       (xAOD::MissingETContainer* metContainer,
-                                        const CaloCellContainer* caloCellContainer );
+                                        const CaloCellContainer* caloCellContainer ) const;
     // Fill Cluster MET
     StatusCode       fillClusterMet    (xAOD::MissingETContainer* metContainer,
-                                        const xAOD::CaloClusterContainer* caloClusContainer);
+                                        const xAOD::CaloClusterContainer* caloClusContainer) const;
     // Find MET term for a given sampling
     xAOD::MissingET* findMetTerm       (xAOD::MissingETContainer* metContainer, 
-                                        CaloSampling::CaloSample sample);
+                                        CaloSampling::CaloSample sample) const;
     // CaloRegions enum - do NOT mess w/ the order
     enum CaloRegions {
       EMB = 0,
@@ -113,7 +109,7 @@ namespace met{
       REGIONS_TOTAL
     };
     // CaloRegions human-readable names for enums
-    const static std::string CaloRegionNames[];
+    const static std::string s_CaloRegionNames[];
     
   private:
     // Default constructor: 

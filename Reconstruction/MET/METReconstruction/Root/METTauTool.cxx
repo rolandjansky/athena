@@ -30,6 +30,9 @@
 // Calo helpers
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using std::vector;
@@ -139,7 +142,7 @@ namespace met {
   bool METTauTool::resolveOverlap(const xAOD::IParticle* object,
 				  xAOD::MissingETComponentMap* metMap,
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
-				  MissingETBase::Types::weight_t& objWeight)
+				  MissingETBase::Types::weight_t& objWeight) const
   {
     if(object->type() != xAOD::Type::Tau) {
       ATH_MSG_WARNING("METTauTool::resolveOverlap given an object of type " << object->type());
@@ -263,7 +266,8 @@ namespace met {
     return !clustersUsed; // return true if the tau shares no clusters with another object
   }
 
-  StatusCode METTauTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METTauTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

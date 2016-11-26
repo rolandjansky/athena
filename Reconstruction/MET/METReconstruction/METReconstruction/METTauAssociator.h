@@ -51,19 +51,19 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const final;
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::IParticleContainer* tcCont) const;
+				   const met::METAssociator::ConstitHolder& constits) const final;
+
     StatusCode extractPFO(const xAOD::IParticle* obj,
 			  std::vector<const xAOD::IParticle*>& pfolist,
-			  const xAOD::PFOContainer* pfoCont,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-			  const xAOD::Vertex* pv) const final;
+			  const met::METAssociator::ConstitHolder& constits,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+    
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     const xAOD::IParticleContainer* tcCont,
-			     const xAOD::Vertex* pv) const final;
+			     const met::METAssociator::ConstitHolder& constits) const final;
 
     private:
  

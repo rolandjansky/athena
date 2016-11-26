@@ -29,7 +29,10 @@
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFO.h"
-#include "PFlowUtils/IRetrievePFOTool.h"
+
+namespace CP {
+  class IRetrievePFOTool;
+}
 
 namespace met{
 
@@ -66,19 +69,19 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     // Accept functions
     bool accept            (const xAOD::IParticle* object) const;
     bool accept            (const xAOD::CaloCluster* clus) const;
     bool accept            (const xAOD::TrackParticle* trk) const;
-    bool accept            (const xAOD::PFO* pfo) const;
+    bool accept            (const xAOD::PFO* pfo, const xAOD::Vertex* pv) const;
     // Overlap resolver function
     bool resolveOverlap    (const xAOD::IParticle* object,
                             xAOD::MissingETComponentMap* metMap,
                             std::vector<const xAOD::IParticle*>& acceptedSignals,
-                            MissingETBase::Types::weight_t& objWeight);
+                            MissingETBase::Types::weight_t& objWeight) const;
     bool resolveOverlap    (xAOD::MissingETComponentMap* metMap,
-                            std::vector<const xAOD::IParticle*>& acceptedSignals);
+                            std::vector<const xAOD::IParticle*>& acceptedSignals) const;
 
   private:
     // Default constructor: 
@@ -91,7 +94,6 @@ namespace met{
     bool m_cl_onlyNegE;
     // temporary, until a track-vertex association tool is available
     std::string m_pv_inputkey;
-    const xAOD::VertexContainer* m_pv_cont;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
   }; 

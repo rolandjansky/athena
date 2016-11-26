@@ -32,6 +32,7 @@
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFOContainer.h"
+#include "PFlowUtils/IRetrievePFOTool.h"
 
 namespace met {
 
@@ -63,8 +64,7 @@ namespace met {
   METSoftTermsTool::METSoftTermsTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
-    m_st_objtype(0),
-    m_pv_cont(NULL)
+    m_st_objtype(0)
   {
     declareProperty( "InputComposition", m_inputType = "Clusters" ); // Options : Clusters (default) OR Tracks OR PFOs
     declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );
@@ -154,9 +154,8 @@ namespace met {
 	ATH_MSG_WARNING("Expected PFlow Object, given " << object->type());
 	return false;
       }
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(object);
-      return (pfo) ? accept(pfo) : false;
 
+      ATH_MSG_ERROR("Should use PFO accept() overload with PV check.");
     } // end of if using PFOs
     
     return false; // Default 
@@ -187,17 +186,17 @@ namespace met {
     return true;
   }
 
-  bool METSoftTermsTool::accept(const xAOD::PFO* pfo) const
+  bool METSoftTermsTool::accept(const xAOD::PFO* pfo, const xAOD::Vertex* pv) const
   {
-    if(pfo->charge()==0) return true;
-    if(fabs(pfo->track(0)->z0() - (*m_pv_cont)[0]->z())>2) return false;
+    if(fabs(pfo->charge())<1e-9) return true;
+    if(fabs(pfo->track(0)->z0() - pv->z())>2) return false;
     return true;
   }
 
   bool METSoftTermsTool::resolveOverlap(const xAOD::IParticle* /*object*/,
 				        xAOD::MissingETComponentMap* metMap,
 				        std::vector<const xAOD::IParticle*>& acceptedSignals,
-				        MissingETBase::Types::weight_t& /*objWeight*/)
+				        MissingETBase::Types::weight_t& /*objWeight*/) const
   {
 
     // Check/Resolve overlap
@@ -225,14 +224,15 @@ namespace met {
 
   // overload for convenience
   bool METSoftTermsTool::resolveOverlap(xAOD::MissingETComponentMap* metMap,
-				        std::vector<const xAOD::IParticle*>& acceptedSignals)
+				        std::vector<const xAOD::IParticle*>& acceptedSignals) const
   {
     const xAOD::IParticle* dummyObject = 0;                  // Just a dummy object
     MissingETBase::Types::weight_t dummyObjWeight(1.,1.,1.); // Currently use a default value
     return resolveOverlap(dummyObject, metMap, acceptedSignals, dummyObjWeight);
   }
 
-  StatusCode METSoftTermsTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METSoftTermsTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -322,13 +322,17 @@ namespace met {
         return StatusCode::SUCCESS;
       }
 
-      m_pv_cont = 0;
-      if( evtStore()->retrieve( m_pv_cont, m_pv_inputkey).isFailure() ) {
+      const xAOD::VertexContainer* pv_cont(0);
+      if( evtStore()->retrieve( pv_cont, m_pv_inputkey).isFailure() ) {
         ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
         return StatusCode::SUCCESS;
       }
-      if(m_pv_cont->size()>0) {
-	ATH_MSG_DEBUG("Main primary vertex has z = " << (*m_pv_cont)[0]->z());
+      const xAOD::Vertex* pv(0);
+      for(const auto& vx : *pv_cont) {
+	if(vx->vertexType()==xAOD::VxType::PriVtx) {pv = vx; break;}
+      }
+      if(pv) {
+	ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z());
       } else{
 	ATH_MSG_WARNING("Event has no primary vertices");
 	return StatusCode::SUCCESS;
@@ -350,7 +354,7 @@ namespace met {
       // Loop over all pfos
       for( PFOContainer::const_iterator iPfo=pfoCont->begin(); iPfo!=pfoCont->end(); ++iPfo ) {
         // Check if pfo satisfies the requirements
-        if( this->accept(*iPfo) ) {
+        if( this->accept(*iPfo,pv) ) {
 	  // Add the selected pfo particles to the list
 	  signalList.push_back(*iPfo);
 	}
@@ -373,11 +377,13 @@ namespace met {
 	   iPart!=signalList.end(); ++iPart) {
 	const PFO* pfo = dynamic_cast<const PFO*>(*iPart);
         if(pfo) {
-	  if(pfo->charge()==0) {
 	    metTerm->add(pfo->ptEM()*cos(pfo->phiEM()),
 		         pfo->ptEM()*sin(pfo->phiEM()),
 		         pfo->ptEM());
 	  } else {
+	  // In principle for the charged PFOs we should perhaps add the weights
+	  // but this shouldn't happen if we don't have a jet. 
+	  if(fabs(pfo->charge()<1e-9)) {
 	    metTerm->add(pfo->pt()*cos(pfo->phi()),
 		         pfo->pt()*sin(pfo->phi()),
 		         pfo->pt());

@@ -34,11 +34,18 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+namespace InDet {
+  class IInDetTrackSelectionTool;
+}
+ 
+namespace xAOD {
+  class ITrackIsolationTool;
+  class ICaloTopoClusterIsolationTool;
+}
 
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+namespace CP {
+  class ITrackVertexAssociationTool;
+}
 
 namespace met{
 
@@ -75,7 +82,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     // Accept functions
     // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,
@@ -117,6 +124,9 @@ namespace met{
 
     bool m_trk_doEoverPsel;
     std::string m_cl_inputkey;
+
+    double m_cenTrackPtThr;
+    double m_forTrackPtThr;
   }; 
 
 }

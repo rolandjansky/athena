@@ -51,20 +51,21 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
+
     StatusCode extractPFO(const xAOD::IParticle*,
 			  std::vector<const xAOD::IParticle*>&,
-			  const xAOD::PFOContainer*,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&,
-			  const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
-
+			  const met::METAssociator::ConstitHolder&,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
+    {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     const xAOD::IParticleContainer*,
-			     const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
+			     const met::METAssociator::ConstitHolder&) const
+    {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   const xAOD::IParticleContainer*) const {return StatusCode::FAILURE;} // should not be called
+				   const met::METAssociator::ConstitHolder&) const
+    {return StatusCode::FAILURE;} // should not be called
 
     private:
  
@@ -73,8 +74,7 @@ namespace met{
 
     void getPFOs(const xAOD::Jet *jet,
                  std::vector<const xAOD::IParticle*> &consts,
-                 const xAOD::Vertex *pv,
-                 const xAOD::PFOContainer *pfoCont,
+                 const met::METAssociator::ConstitHolder& constits,
                  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const;
     void getClus(const xAOD::Jet *jet,std::vector<const xAOD::IParticle*> &consts) const;
     void getOther(const xAOD::Jet *jet,

@@ -52,8 +52,8 @@ namespace met{
     protected: 
 
     StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-			    const xAOD::IParticleContainer* hardObjs) const;
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
+			    const xAOD::IParticleContainer* hardObjs) const final;
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
     //
     StatusCode associateJets(xAOD::MissingETAssociationMap* metMap) const;
     //
@@ -72,17 +72,17 @@ namespace met{
     //
     StatusCode extractPFO(const xAOD::IParticle*,
 			  std::vector<const xAOD::IParticle*>&,
-			  const xAOD::PFOContainer*,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&,
-			  const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
-
+			  const met::METAssociator::ConstitHolder&,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const final
+    {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     const xAOD::IParticleContainer*,
-			     const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
+			     const met::METAssociator::ConstitHolder&) const final
+    {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   const xAOD::IParticleContainer*) const {return StatusCode::FAILURE;} // should not be called
+				   const met::METAssociator::ConstitHolder&) const final
+    {return StatusCode::FAILURE;} // should not be called
 
     private:
 
@@ -91,7 +91,7 @@ namespace met{
     std::string m_recoMuKey;
     std::string m_recoGamKey;
     std::string m_recoTauKey;
-    std::string m_truthPartKey;
+    std::string m_truthEventKey;
  
     /// Default constructor: 
     METTruthAssociator();

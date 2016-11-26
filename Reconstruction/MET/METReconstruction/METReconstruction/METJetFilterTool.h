@@ -61,7 +61,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     // Accept functions
     bool isHSJet         (const xAOD::Jet* jet) const;
 

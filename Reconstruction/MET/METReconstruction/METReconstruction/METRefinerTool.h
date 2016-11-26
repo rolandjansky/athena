@@ -23,7 +23,6 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
@@ -53,7 +52,7 @@ namespace met {
 
     // AsgTool Hooks
     virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     virtual StatusCode finalize();
 
     /////////////////////////////////////////////////////////////////// 
@@ -74,7 +73,7 @@ namespace met {
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
-    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) = 0;
+    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const = 0;
 
   private:
     /// Default constructor:

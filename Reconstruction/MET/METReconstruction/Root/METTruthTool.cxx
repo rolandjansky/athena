@@ -21,8 +21,12 @@
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 
 // Truth EDM
+#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+
+// Base EDM
+#include "AthContainers/ConstDataVector.h"
 
 // Truth Utilities
 #include "TruthUtils/TruthParticleHelpers.h"
@@ -33,6 +37,8 @@ namespace met {
   //
   using xAOD::IParticle;
   //
+  using xAOD::TruthEvent;
+  using xAOD::TruthEventContainer;
   using xAOD::TruthParticle;
   using xAOD::TruthParticleContainer;
   //
@@ -185,40 +191,38 @@ namespace met {
     return true;
   }
 
-  // don't really need this for anything
-  bool METTruthTool::resolveOverlap(const xAOD::IParticle* /*object*/,
-				    xAOD::MissingETComponentMap* /*metMap*/,
-				    std::vector<const xAOD::IParticle*>& /*acceptedSignals*/,
-				    MissingETBase::Types::weight_t& /*objWeight*/)
-  {
-
-    return true;
-  }
-
-  StatusCode METTruthTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METTruthTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
-    const TruthParticleContainer* truthCont = 0;
+    const TruthEventContainer* truthEvents = 0;
 
     metTerm->setSource(m_truth_type);
 
     // Retrieve the truth container
-    if ( evtStore()->retrieve(truthCont, m_input_data_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truth particle container");
+    if ( evtStore()->retrieve(truthEvents, m_input_data_key).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve input truth event container");
       return StatusCode::SUCCESS;
     }
 
+    // First truth event is the hard scatter
+    const TruthEvent* hsevent = truthEvents->front();
+    ConstDataVector<TruthParticleContainer> truthCont(SG::VIEW_ELEMENTS);
+    for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
+      truthCont.push_back(hsevent->truthParticle(itp));
+      ATH_MSG_VERBOSE("Extracted truth particle with index " << hsevent->truthParticle(itp)->index());
+    }
+
     vector<const IParticle*> signalList;
-    signalList.reserve(truthCont->size());
+    signalList.reserve(truthCont.size());
     // Loop over all truth particles
-    for( TruthParticleContainer::const_iterator iTruth=truthCont->begin(); iTruth!=truthCont->end(); ++iTruth ) {
+    for( const auto& truthp : truthCont ) {
       // Check if truth particles satisfies the requirements
-      if( this->accept(*iTruth) ) {
+      if( this->accept(truthp) ) {
 	// Add the selected truth particles to the list
-	signalList.push_back(*iTruth);
+	signalList.push_back(truthp);
       }
-    } // end loop over truths
+    } // end loop over truth particles
 
     // Loop over the content and add to MET 
     MissingETBase::Types::weight_t unitWeight(1.,1.,1.);

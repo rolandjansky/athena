@@ -7,9 +7,7 @@ atlas_subdir( METReconstruction )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloInterface
                           Control/AthToolSupport/AsgTools
-                          Event/FourMomUtils
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODJet
@@ -19,13 +17,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           GaudiKernel
+                          Reconstruction/MET/METRecoInterface
+                          PRIVATE
+                          Calorimeter/CaloInterface
+                          Event/FourMomUtils
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
-                          Reconstruction/MET/METRecoInterface
                           Reconstruction/PFlow/PFlowUtils
                           Reconstruction/RecoTools/CaloClusterMatching
-			  Reconstruction/RecoTools/RecoToolInterfaces
-                          PRIVATE
+                          Reconstruction/RecoTools/RecoToolInterfaces
                           Calorimeter/CaloEvent
                           Control/AthContainers
                           Control/AthenaBaseComps

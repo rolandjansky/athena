@@ -97,7 +97,7 @@ namespace met {
   bool METPhotonTool::resolveOverlap(const xAOD::IParticle* object,
 				     xAOD::MissingETComponentMap* metMap,
 				     std::vector<const xAOD::IParticle*>& acceptedSignals,
-				     MissingETBase::Types::weight_t& objWeight)
+				     MissingETBase::Types::weight_t& objWeight) const
   {
 
     if(object->type() != xAOD::Type::Photon) {
@@ -108,10 +108,17 @@ namespace met {
 
     ATH_MSG_DEBUG("Identifying signals overlapping this photon");
 
+    const CaloClusterContainer* tcCont(0);
+    if( evtStore()->retrieve(tcCont, m_tcCont_key).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve topocluster container for overlap removal");
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_DEBUG("Successfully retrieved topocluster collection");    
+
     // retrieve topoclusters associated to the photon
     vector<const IParticle*> tcList;
     tcList.reserve(ph->nCaloClusters());
-    matchTopoClusters(ph, tcList, m_tcCont);
+    matchTopoClusters(ph, tcList, tcCont);
     // test the clusters for matches to other objects
     bool clustersUsed = metMap->checkUsage(tcList,MissingETBase::UsageHandler::OnlyCluster);
     if(clustersUsed) { // true implies some cluster has been used
@@ -141,7 +148,7 @@ namespace met {
     return !clustersUsed; // return true if the photon shares no clusters with another object
   }
 
-  void METPhotonTool::matchTracks(const xAOD::Photon* ph, std::vector<const xAOD::IParticle*>& trklist)
+  void METPhotonTool::matchTracks(const xAOD::Photon* ph, std::vector<const xAOD::IParticle*>& trklist) const
   {
     for(size_t iVtx=0; iVtx<ph->nVertices(); ++iVtx) {
       const Vertex* phvx = ph->vertex(iVtx);
@@ -162,7 +169,7 @@ namespace met {
     ATH_MSG_VERBOSE("Photon has " << trklist.size() << " linked tracks");
   }
 
-  StatusCode METPhotonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METPhotonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
     const PhotonContainer* phCont = 0;
@@ -171,13 +178,6 @@ namespace met {
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("Successfully retrieved photon collection");
-
-    m_tcCont = 0;
-    if( evtStore()->retrieve(m_tcCont, m_tcCont_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve topocluster container for overlap removal");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
 
     MissingETBase::Types::bitmask_t source = MissingETBase::Source::photon();
     metTerm->setSource(source);

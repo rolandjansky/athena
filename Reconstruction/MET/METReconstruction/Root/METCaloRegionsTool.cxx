@@ -19,6 +19,7 @@
 #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
 #else
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 #endif
 
 namespace met {
@@ -33,8 +34,8 @@ namespace met {
   using xAOD::MissingET;
   using xAOD::MissingETContainer;
 
-  // Initialize CaloRegionNames
-  const std::string METCaloRegionsTool::CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
+  // Initialize s_CaloRegionNames
+  const std::string METCaloRegionsTool::s_CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
   {
     "EMB",
     "EME",
@@ -112,7 +113,8 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) {
+  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -127,7 +129,7 @@ namespace met {
         metCont->push_back( new MissingET(0.,0.,0.) ); 
       }
       // Set Name and Source
-      metCont->at(i)->setName( CaloRegionNames[i] );      
+      metCont->at(i)->setName( s_CaloRegionNames[i] );      
       metCont->at(i)->setSource( source );      
     }
     // The last term is Trigger MET if asked for by the user
@@ -194,7 +196,7 @@ namespace met {
   }
 
   // Find MetTerm name for a given sampling
-  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) 
+  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) const 
   { 
     switch(sample) {
       case CaloSampling::EMB1:
@@ -241,7 +243,8 @@ namespace met {
 
   // Fill Cell MET
   StatusCode METCaloRegionsTool::fillCellMet(xAOD::MissingETContainer* metContainer,
-                                             const CaloCellContainer* caloCellContainer) {
+                                             const CaloCellContainer* caloCellContainer) const
+  {
     #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     ATH_MSG_WARNING("Cell information is only available in athena framework");
     #else
@@ -298,7 +301,8 @@ namespace met {
 
   // Fill Cluster MET
   StatusCode METCaloRegionsTool::fillClusterMet(xAOD::MissingETContainer* metContainer, 
-                                                const CaloClusterContainer* caloClusContainer) {
+                                                const CaloClusterContainer* caloClusContainer) const
+  {
 
     // Loop over all clusters
     for( CaloClusterContainer::const_iterator iClus=caloClusContainer->begin();

@@ -22,13 +22,17 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "AthContainers/ConstDataVector.h"
 
 // Helpers
 #include "xAODEgamma/EgammaxAODHelpers.h"
 //#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "xAODTruth/xAODTruthHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
+
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace met {
 
@@ -49,7 +53,7 @@ namespace met {
     declareProperty("RecoGamKey", m_recoGamKey = "Photons"   );
     declareProperty("RecoTauKey", m_recoTauKey = "TauJets"   );
 
-    declareProperty("TruthPartKey", m_truthPartKey = "TruthParticles" );
+    declareProperty("TruthEventKey", m_truthEventKey = "TruthEvents" );
   }
 
   // Destructor
@@ -84,7 +88,7 @@ namespace met {
   /////////////////////////////////////////////////////////////////// 
   // executeTool
   ////////////////
-  StatusCode METTruthAssociator::executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap)
+  StatusCode METTruthAssociator::executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
@@ -211,14 +215,22 @@ namespace met {
 
     ATH_MSG_VERBOSE("Added core terms.");
 
-    const TruthParticleContainer* truthParticleCont(0);
-    if( evtStore()->retrieve(truthParticleCont, m_truthPartKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthParticle container " << m_truthPartKey);
+    const TruthEventContainer* truthEventCont(0);
+    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
       return StatusCode::FAILURE;
     }
 
-    const IParticleContainer* uniqueTruth = metMap->getUniqueSignals(truthParticleCont,MissingETBase::UsageHandler::TruthParticle);
-    ATH_MSG_VERBOSE("Extracted " << uniqueTruth->size() << "/" << truthParticleCont->size()
+    // First truth event is the hard scatter
+    const TruthEvent* hsevent = truthEventCont->front();
+    ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
+    for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
+      truthParticleCont.push_back(hsevent->truthParticle(itp));
+      ATH_MSG_VERBOSE("Extracted truth particle with index " << hsevent->truthParticle(itp)->index() );
+    }
+
+    const IParticleContainer* uniqueTruth = metMap->getUniqueSignals(truthParticleCont.asDataVector(),MissingETBase::UsageHandler::TruthParticle);
+    ATH_MSG_VERBOSE("Extracted " << uniqueTruth->size() << "/" << truthParticleCont.size()
 		    << " unique truth particles.");
     for(const auto& part : *uniqueTruth) {
       const xAOD::TruthParticle* truth = static_cast<const xAOD::TruthParticle*>(part);
@@ -279,13 +291,20 @@ namespace met {
     //   if(truth && truth!=eltruth) truthlist.push_back(truth);
     // }
 
-    const TruthParticleContainer* truthParticleCont(0);
-    if( evtStore()->retrieve(truthParticleCont, m_truthPartKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthParticle container " << m_truthPartKey);
+    const TruthEventContainer* truthEventCont(0);
+    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
       return StatusCode::FAILURE;
     }
 
-    for(const auto& truth : *truthParticleCont) {
+    // First truth event is the hard scatter
+    const TruthEvent* hsevent = truthEventCont->front();
+    ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
+    for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
+      truthParticleCont.push_back(hsevent->truthParticle(itp));
+    }
+
+    for(const auto& truth : truthParticleCont) {
       if(truth->pt()<1) continue;
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;
@@ -353,13 +372,20 @@ namespace met {
     //   }
     // }
 
-    const TruthParticleContainer* truthParticleCont(0);
-    if( evtStore()->retrieve(truthParticleCont, m_truthPartKey).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truthParticle container " << m_truthPartKey);
+    const TruthEventContainer* truthEventCont(0);
+    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+      ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
       return StatusCode::FAILURE;
     }
 
-    for(const auto& truth : *truthParticleCont) {
+    // First truth event is the hard scatter
+    const TruthEvent* hsevent = truthEventCont->front();
+    ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
+    for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
+      truthParticleCont.push_back(hsevent->truthParticle(itp));
+    }
+
+    for(const auto& truth : truthParticleCont) {
       if(truth->pt()<1) continue;
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;

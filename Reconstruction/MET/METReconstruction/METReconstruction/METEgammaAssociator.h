@@ -17,8 +17,9 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 #include "METReconstruction/METRecoCommon.h"
+#include "xAODEgamma/EgammaFwd.h"
 
-#include "AsgTools/ToolHandle.h"
+#include <set>
 
 namespace met{
 
@@ -56,15 +57,30 @@ namespace met{
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::IParticleContainer* tcCont) const;
+				   const met::METAssociator::ConstitHolder& constits) const final;
+
+    StatusCode extractPFO(const xAOD::IParticle* obj,
+			  std::vector<const xAOD::IParticle*>& pfolist,
+			  const met::METAssociator::ConstitHolder& constits,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+
+    StatusCode extractTracks(const xAOD::IParticle* obj,
+			     std::vector<const xAOD::IParticle*>& constlist,
+			     const met::METAssociator::ConstitHolder& constits) const final;
 
     StatusCode selectEgammaClusters(const xAOD::CaloCluster *swclus,
 				    const std::vector<const xAOD::IParticle*>& inputTC,
 				    std::vector<const xAOD::IParticle*>& tclist) const;
 
+    StatusCode selectEgammaTracks(const xAOD::Egamma* el,
+				  const xAOD::TrackParticleContainer* trkCont,
+				  std::set<const xAOD::TrackParticle*>& tracklist) const;
+
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;
     unsigned short m_tcMatch_method;
+
+    double m_extraTrkMatch_dR;
 
     private:
  
