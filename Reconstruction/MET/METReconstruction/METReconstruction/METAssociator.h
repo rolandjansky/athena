@@ -24,9 +24,6 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
-// Tracking Tool
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-
 // METRecoInterface includes
 #include "METRecoInterface/IMETAssocToolBase.h"
 
@@ -35,12 +32,20 @@
 //#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
-#include "PFlowUtils/IRetrievePFOTool.h"
-#include "PFlowUtils/IWeightPFOTool.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+namespace CP {
+  class IWeightPFOTool;
+  class IRetrievePFOTool;
+}
+
+namespace InDet {
+  class IInDetTrackSelectionTool;
+}
+ 
+namespace xAOD {
+  class ITrackIsolationTool;
+  class ICaloTopoClusterIsolationTool;
+}
 
 namespace met {
   class METAssociator

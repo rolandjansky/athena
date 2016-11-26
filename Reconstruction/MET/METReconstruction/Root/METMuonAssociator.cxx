@@ -23,6 +23,8 @@
 
 #include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
+#include "PFlowUtils/IWeightPFOTool.h"
+
 namespace met {
 
   using namespace xAOD;

@@ -19,6 +19,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Photon.h"
 
+#include "PFlowUtils/IWeightPFOTool.h"
+
 namespace met {
 
   using namespace xAOD;

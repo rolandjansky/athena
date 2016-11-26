@@ -37,6 +37,16 @@
 // ConstDV
 #include "AthContainers/ConstDataVector.h"
 
+// Tool interfaces
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using std::vector;
@@ -274,8 +284,8 @@ namespace met {
       }
       if(pv) { ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z()); }
       else {
-	ATH_MSG_WARNING("Did not find a primary vertex in the container.");
-	return StatusCode::FAILURE;
+	ATH_MSG_DEBUG("Did not find a primary vertex in the container. Reject all tracks.");
+	return StatusCode::SUCCESS;
       }
     }
 

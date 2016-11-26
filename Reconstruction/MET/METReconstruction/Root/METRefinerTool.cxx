@@ -20,6 +20,9 @@
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 
+// For DeltaR
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using xAOD::MissingET;

@@ -30,15 +30,11 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
 
-// CaloNoiseTool
-#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-#else
-#include "CaloInterface/ICaloNoiseTool.h"
-#endif
-
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+
+class ICaloNoiseTool;
 
 class CaloCellContainer;
 

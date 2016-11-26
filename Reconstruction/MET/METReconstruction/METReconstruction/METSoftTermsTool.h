@@ -29,7 +29,10 @@
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFO.h"
-#include "PFlowUtils/IRetrievePFOTool.h"
+
+namespace CP {
+  class IRetrievePFOTool;
+}
 
 namespace met{
 

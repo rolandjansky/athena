@@ -23,6 +23,11 @@
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
+#include "PFlowUtils/IWeightPFOTool.h"
+
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using namespace xAOD;

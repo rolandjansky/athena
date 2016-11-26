@@ -19,6 +19,7 @@
 #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
 #else
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 #endif
 
 namespace met {

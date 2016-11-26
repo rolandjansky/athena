@@ -30,6 +30,9 @@
 // Calo helpers
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using std::vector;

@@ -32,6 +32,7 @@
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFOContainer.h"
+#include "PFlowUtils/IRetrievePFOTool.h"
 
 namespace met {
 
