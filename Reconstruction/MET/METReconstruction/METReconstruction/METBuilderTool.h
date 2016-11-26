@@ -26,7 +26,6 @@
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 
 // Forward declaration
 namespace xAOD {

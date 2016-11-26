@@ -29,6 +29,16 @@
 // Track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+// Tool interface headers
+#include "PFlowUtils/IRetrievePFOTool.h"
+#include "PFlowUtils/IWeightPFOTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+
+// For DeltaR
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using namespace xAOD;
@@ -181,7 +191,7 @@ namespace met {
 	  {constits.pv = vx; break;}
       }
       if(!constits.pv) {
-	ATH_MSG_WARNING("Failed to find primary vertex!");
+	ATH_MSG_DEBUG("Failed to find primary vertex! Reject all tracks.");
       } else {
 	ATH_MSG_VERBOSE("Primary vertex has z = " << constits.pv->z());
       }

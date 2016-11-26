@@ -23,7 +23,6 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"

@@ -31,6 +31,9 @@
 #include "xAODTruth/xAODTruthHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
 
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace met {
 
   using namespace xAOD;

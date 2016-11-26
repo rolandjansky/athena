@@ -34,11 +34,18 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+namespace InDet {
+  class IInDetTrackSelectionTool;
+}
+ 
+namespace xAOD {
+  class ITrackIsolationTool;
+  class ICaloTopoClusterIsolationTool;
+}
 
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+namespace CP {
+  class ITrackVertexAssociationTool;
+}
 
 namespace met{
 

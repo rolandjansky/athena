@@ -25,6 +25,11 @@
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
+// DeltaR calculation
+#include "FourMomUtils/xAODP4Helpers.h"
+
+#include "PFlowUtils/IWeightPFOTool.h"
+
 namespace met {
 
   using namespace xAOD;
@@ -76,11 +81,11 @@ namespace met {
 
     const TauJetContainer* tauCont(0);
     if( evtStore()->retrieve(tauCont, m_input_data_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input electron container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_DEBUG("Successfully retrieved electron collection");
+    ATH_MSG_DEBUG("Successfully retrieved tau collection");
     if (fillAssocMap(metMap,tauCont).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with tau container " << m_input_data_key);
       return StatusCode::FAILURE;
@@ -186,7 +191,10 @@ namespace met {
     for(const auto& pfo : *constits.pfoCont) {
       bool match = false;
       if (fabs(pfo->charge())<1e-9) {
-	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {match = true;}
+	if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
+	  ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
+	  match = true;
+	}
       }
       else {
         const TrackParticle* pfotrk = pfo->track(0);
@@ -209,6 +217,7 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
+	    ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
             if(acceptChargedPFO(tautrk,constits.pv)) match = true;
           }
         }
@@ -219,10 +228,12 @@ namespace met {
 	  momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 						     momentum.E(),momentum.Pt());
+	  ATH_MSG_VERBOSE("Vx-corrected nPFO pt: " << momentum.Pt());
 	} else if(m_weight_charged_pfo) {
 	  float weight = 0.0;
 	  ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
 	  momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
+	  ATH_MSG_VERBOSE("cPFO pt: " << pfo->pt() << ", weight: " << weight);
 	}
       }
     }
