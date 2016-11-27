@@ -300,40 +300,40 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   //
   m_pSCTHelper(nullptr),
   m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name) {
-  /** sroe 3 Sept 2015:
-      histoPathBase is declared as a property in the base class, assigned to m_path
-      with default as empty string.
-      Declaring it here as well gives rise to compilation warning
-      WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+    /** sroe 3 Sept 2015:
+	histoPathBase is declared as a property in the base class, assigned to m_path
+	with default as empty string.
+	Declaring it here as well gives rise to compilation warning
+	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
 
-      declareProperty("histoPathBase", m_stream = "/stat"); **/
-  m_stream = "/stat";
-  declareProperty("localSummary", m_localSummary = 0);
-  declareProperty("doHitmapHistos", m_boolhitmaps = true);
-  declareProperty("doTXScan", m_booltxscan = false);
-  declareProperty("CheckRate", m_checkrate = 1000);
-  declareProperty("CheckRecent", m_checkrecent = 30);
-  declareProperty("tracksName", m_tracksName = "Combined_Tracks");
-  declareProperty("NOTrigger", m_NOTrigger = "L1_RD0_EMPTY");
-  declareProperty("numberOfSigma", m_numSigma = 3);
-  declareProperty("EvtsBins", m_evtsbins = 5000);
-  declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
-  declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
-  declareProperty("doTrackBasedNoise", m_doTrackBasedNoise = false);
-  declareProperty("doSpacePointBasedNoise", m_doSpacePointBasedNoise = true);
-  declareProperty("doTimeBinFilteringForNoise", m_doTimeBinFilteringForNoise = true);
-  declareProperty("doTrackHits", m_doTrackHits = true);
-  declareProperty("MaxTracks", m_maxTracks = 250);
-  declareProperty("doLogXNoise", m_doLogXNoise = true);
-  declareProperty("conditionsService", m_ConfigurationSvc);
+	declareProperty("histoPathBase", m_stream = "/stat"); **/
+    m_stream = "/stat";
+    declareProperty("localSummary", m_localSummary = 0);
+    declareProperty("doHitmapHistos", m_boolhitmaps = true);
+    declareProperty("doTXScan", m_booltxscan = false);
+    declareProperty("CheckRate", m_checkrate = 1000);
+    declareProperty("CheckRecent", m_checkrecent = 30);
+    declareProperty("tracksName", m_tracksName = "Combined_Tracks");
+    declareProperty("NOTrigger", m_NOTrigger = "L1_RD0_EMPTY");
+    declareProperty("numberOfSigma", m_numSigma = 3);
+    declareProperty("EvtsBins", m_evtsbins = 5000);
+    declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
+    declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
+    declareProperty("doTrackBasedNoise", m_doTrackBasedNoise = false);
+    declareProperty("doSpacePointBasedNoise", m_doSpacePointBasedNoise = true);
+    declareProperty("doTimeBinFilteringForNoise", m_doTimeBinFilteringForNoise = true);
+    declareProperty("doTrackHits", m_doTrackHits = true);
+    declareProperty("MaxTracks", m_maxTracks = 250);
+    declareProperty("doLogXNoise", m_doLogXNoise = true);
+    declareProperty("conditionsService", m_ConfigurationSvc);
 
-  clear1D(m_tbinfrac);
-  clear1D(m_tbinfracECp);
-  clear1D(m_tbinfracECm);
-  clear1D(m_clusizedist);
-  clear1D(m_clusizedistECp);
-  clear1D(m_clusizedistECm);
-}
+    clear1D(m_tbinfrac);
+    clear1D(m_tbinfracECp);
+    clear1D(m_tbinfracECm);
+    clear1D(m_clusizedist);
+    clear1D(m_clusizedistECp);
+    clear1D(m_clusizedistECm);
+  }
 
 // ====================================================================================================
 // ====================================================================================================
@@ -544,7 +544,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
     return StatusCode::RECOVERABLE;
   }
   int tmp_lb = pEvent->event_ID()->lumi_block();
-  if (tmp_lb > m_current_lb) {
+  if ((tmp_lb > m_current_lb) and (m_current_lb<=NBINS_LBs)) {
     m_noisyM100[m_current_lb] = 0;
     m_noisyM1000[m_current_lb] = 0;
     m_noisyM10000[m_current_lb] = 0;
@@ -575,14 +575,14 @@ SCTHitsNoiseMonTool::fillHistograms() {
     m_hitoccTriggerECp_lb[m_current_lb] = 0;
     m_hitoccTriggerECm_lb[m_current_lb] = 0;
     int nlinks = 0;
-		int nlinksBAR = 0;
-		int nlinksECp = 0;
-		int nlinksECm = 0;
-		SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
-		SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
-		for (; planeIterator not_eq planeEnd; ++planeIterator) {
-			Identifier planeId(*planeIterator);
-			const int bec(m_pSCTHelper->barrel_ec(planeId));
+    int nlinksBAR = 0;
+    int nlinksECp = 0;
+    int nlinksECm = 0;
+    SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
+    SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
+    for (; planeIterator not_eq planeEnd; ++planeIterator) {
+      Identifier planeId(*planeIterator);
+      const int bec(m_pSCTHelper->barrel_ec(planeId));
       // Don't initialize a value for disabled  modules
       if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
         continue;
@@ -633,11 +633,11 @@ SCTHitsNoiseMonTool::fillHistograms() {
         // add 09.09.2016
         m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
         m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
-                                               m_eventsTrigger_lb;
+	  m_eventsTrigger_lb;
         m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
-                                               m_eventsTrigger_lb;
+	  m_eventsTrigger_lb;
         m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
-                                               m_eventsTrigger_lb;
+	  m_eventsTrigger_lb;
         if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
           m_noisyMWithHOTrigger100[m_current_lb]++;
         }
@@ -665,33 +665,33 @@ SCTHitsNoiseMonTool::fillHistograms() {
       m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] = 0;
       m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] = 0;
       m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] = 0;
-			if (bec == BARREL)  nlinksBAR++; 
-			if (bec == ENDCAP_A)nlinksECp++;
-			if (bec == ENDCAP_C)nlinksECm++;
+      if (bec == BARREL)  nlinksBAR++; 
+      if (bec == ENDCAP_A)nlinksECp++;
+      if (bec == ENDCAP_C)nlinksECm++;
       nlinks++;
     }
-			//std::cout <<"Line660: Number of links = "<<nlinks << std::endl;
+    //std::cout <<"Line660: Number of links = "<<nlinks << std::endl;
     if (nlinks >0){
       m_occ_lb[m_current_lb] /= nlinks;
       m_occTrigger_lb[m_current_lb] /= nlinks;
       // 09.09.2016
       m_hitocc_lb[m_current_lb] /= nlinks;
       m_hitoccTrigger_lb[m_current_lb] /= nlinks;
-		}
+    }
     if (nlinksBAR >0){
       m_occBAR_lb[m_current_lb] /= nlinksBAR;
       m_occTriggerBAR_lb[m_current_lb] /= nlinksBAR;
       // 09.09.2016
       m_hitoccBAR_lb[m_current_lb] /= nlinksBAR;
       m_hitoccTriggerBAR_lb[m_current_lb] /= nlinksBAR;
-		}
+    }
     if (nlinksECp >0){
       m_occECp_lb[m_current_lb] /= nlinksECp;
       m_occTriggerECp_lb[m_current_lb] /= nlinksECp;
       // 09.09.2016
       m_hitoccECp_lb[m_current_lb] /= nlinksECp;
       m_hitoccTriggerECp_lb[m_current_lb] /= nlinksECp;
-		}
+    }
     if (nlinksECm >0){
       m_occECm_lb[m_current_lb] /= nlinksECm;
       m_occTriggerECm_lb[m_current_lb] /= nlinksECm;
@@ -1444,7 +1444,7 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
       string streamhits = "hits" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitle = "SCT Hitmap for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecent = "SCT Hitmap from recent events for " + names[systemIndex] + ": " +
-                                     layerSide.title();
+	layerSide.title();
       h2Factory(streamhitmap, histotitle, bec, hitHists, *(hitsArray[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
         h2Factory(streamhitmaprecent, histotitlerecent, bec, hitHists, *(hitsArrayRecent[systemIndex]));
@@ -1566,7 +1566,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
       if (m_environment == AthenaMonManager::online) {
         const string streamclusizerecent = "clusize_recent" + abbreviations[systemIndex] + "_" + layerSide.name();
         std::string histotitlerecent = "SCT " + names[systemIndex] + " Cluster size from recent events: " +
-                                       layerSide.title();
+	  layerSide.title();
         h1DFactory(streamclusizerecent, histotitlerecent, clusterSize, clusterSizeVectorRecent, 0., 200., 200);
         // clusterSizeVectorRecent[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
         // clusterSizeVectorRecent[systemIndex]->GetYaxis()->SetTitle("Num of Events");
@@ -1612,13 +1612,13 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmap = "noiseoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name();
       const string streamhitmaptrigger = "noiseoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
-                                         layerSide.name();
+	layerSide.name();
       const string streamhitmaprecent = "noiseoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitle = "SCT Noise Occupancy map for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitletrigger = "SCT Noise Occupancy map for " + m_NOTrigger + " Trigger and " +
-                                      names[systemIndex] + ": " + layerSide.title();
+	names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecent = "SCT Noise Occupancy map in recent events for " + names[systemIndex] + ": " +
-                                     layerSide.title();
+	layerSide.title();
       prof2Factory(streamhitmap, histotitle, bec, noiseOccMaps, *(storageVectors[systemIndex]));
       prof2Factory(streamhitmaptrigger, histotitletrigger, bec, noiseOccMaps, *(storageVectorsTrigger[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
@@ -1805,13 +1805,13 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmapR = "hitoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name();
       const string streamhitmaptriggerR = "hitoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
-                                          layerSide.name();
+	layerSide.name();
       const string streamhitmaprecentR = "hitoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitleR = "SCT Hit Occupancy map for " + names[systemIndex] + ": " + layerSide.title();
       std::string histotitletriggerR = "SCT Hit Occupancy map for " + m_NOTrigger + " Trigger and " +
-                                       names[systemIndex] + ": " + layerSide.title();
+	names[systemIndex] + ": " + layerSide.title();
       std::string histotitlerecentR = "SCT Hit Occupancy map in recent events for " + names[systemIndex] + ": " +
-                                      layerSide.title();
+	layerSide.title();
       prof2Factory(streamhitmapR, histotitleR, bec, hitOccMaps, *(storageVectorsHO[systemIndex]));
       prof2Factory(streamhitmaptriggerR, histotitletriggerR, bec, hitOccMaps, *(storageVectorsTriggerHO[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
@@ -2054,7 +2054,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
 
-// Add 09.09.2016
+      // Add 09.09.2016
       if (m_hitoccSumUnbiased.size() && m_numberOfEvents) {
         for (std::map<Identifier, double>::iterator it = m_hitoccSumUnbiased.begin(); it != m_hitoccSumUnbiased.end();
              it++) {
@@ -2131,148 +2131,150 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
 
-      m_noisyM100[m_current_lb] = 0;
-      m_noisyM1000[m_current_lb] = 0;
-      m_noisyM10000[m_current_lb] = 0;
-      m_occ_lb[m_current_lb] = 0;
-      m_occBAR_lb[m_current_lb] = 0;
-      m_occECp_lb[m_current_lb] = 0;
-      m_occECm_lb[m_current_lb] = 0;
-      m_noisyMTrigger100[m_current_lb] = 0;
-      m_noisyMTrigger1000[m_current_lb] = 0;
-      m_noisyMTrigger10000[m_current_lb] = 0;
-      m_occTrigger_lb[m_current_lb] = 0;
-      m_occTriggerBAR_lb[m_current_lb] = 0;
-      m_occTriggerECp_lb[m_current_lb] = 0;
-      m_occTriggerECm_lb[m_current_lb] = 0;
-      // 09.09.2016
-      m_noisyMWithHO100[m_current_lb] = 0;
-      m_noisyMWithHO1000[m_current_lb] = 0;
-      m_noisyMWithHO10000[m_current_lb] = 0;
-      m_hitocc_lb[m_current_lb] = 0;
-      m_hitoccBAR_lb[m_current_lb] = 0;
-      m_hitoccECp_lb[m_current_lb] = 0;
-      m_hitoccECm_lb[m_current_lb] = 0;
-      m_noisyMWithHOTrigger100[m_current_lb] = 0;
-      m_noisyMWithHOTrigger1000[m_current_lb] = 0;
-      m_noisyMWithHOTrigger10000[m_current_lb] = 0;
-      m_hitoccTrigger_lb[m_current_lb] = 0;
-      m_hitoccTriggerBAR_lb[m_current_lb] = 0;
-      m_hitoccTriggerECp_lb[m_current_lb] = 0;
-      m_hitoccTriggerECm_lb[m_current_lb] = 0;
+      if(m_current_lb<=NBINS_LBs) {
+	m_noisyM100[m_current_lb] = 0;
+	m_noisyM1000[m_current_lb] = 0;
+	m_noisyM10000[m_current_lb] = 0;
+	m_occ_lb[m_current_lb] = 0;
+	m_occBAR_lb[m_current_lb] = 0;
+	m_occECp_lb[m_current_lb] = 0;
+	m_occECm_lb[m_current_lb] = 0;
+	m_noisyMTrigger100[m_current_lb] = 0;
+	m_noisyMTrigger1000[m_current_lb] = 0;
+	m_noisyMTrigger10000[m_current_lb] = 0;
+	m_occTrigger_lb[m_current_lb] = 0;
+	m_occTriggerBAR_lb[m_current_lb] = 0;
+	m_occTriggerECp_lb[m_current_lb] = 0;
+	m_occTriggerECm_lb[m_current_lb] = 0;
+	// 09.09.2016
+	m_noisyMWithHO100[m_current_lb] = 0;
+	m_noisyMWithHO1000[m_current_lb] = 0;
+	m_noisyMWithHO10000[m_current_lb] = 0;
+	m_hitocc_lb[m_current_lb] = 0;
+	m_hitoccBAR_lb[m_current_lb] = 0;
+	m_hitoccECp_lb[m_current_lb] = 0;
+	m_hitoccECm_lb[m_current_lb] = 0;
+	m_noisyMWithHOTrigger100[m_current_lb] = 0;
+	m_noisyMWithHOTrigger1000[m_current_lb] = 0;
+	m_noisyMWithHOTrigger10000[m_current_lb] = 0;
+	m_hitoccTrigger_lb[m_current_lb] = 0;
+	m_hitoccTriggerBAR_lb[m_current_lb] = 0;
+	m_hitoccTriggerECp_lb[m_current_lb] = 0;
+	m_hitoccTriggerECm_lb[m_current_lb] = 0;
 
-      int nlinks = 0;
-			int nlinksBAR = 0;
-			int nlinksECp = 0;
-			int nlinksECm = 0;
-			SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
-			SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
-			for (; planeIterator not_eq planeEnd; ++planeIterator) {
-				Identifier planeId(*planeIterator);
-				const int bec(m_pSCTHelper->barrel_ec(planeId));
-        // Don't initialize a value for disabled  modules
-        if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
-          continue;
-        }
-        if (m_events_lb > 0) {
-          m_occ_lb[m_current_lb] += (1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb;
-          m_occBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
-          m_occECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
-          m_occECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
-          if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
-            m_noisyM100[m_current_lb]++;
-          }
-          if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
-            m_noisyM1000[m_current_lb]++;
-          }
-          if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
-            m_noisyM10000[m_current_lb]++;
-          }
-          // 09.09.2016
-          m_hitocc_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb;
-          m_hitoccBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
-          m_hitoccECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
-          m_hitoccECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
-          if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
-            m_noisyMWithHO100[m_current_lb]++;
-          }
-          if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
-            m_noisyMWithHO1000[m_current_lb]++;
-          }
-          if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
-            m_noisyMWithHO10000[m_current_lb]++;
-          }
-        }
-        if (m_eventsTrigger_lb > 0) {
-          m_occTrigger_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
-          m_occTriggerBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerBAR_lb[*planeIterator] /
-                                              m_eventsTrigger_lb;
-          m_occTriggerECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECp_lb[*planeIterator] /
-                                              m_eventsTrigger_lb;
-          m_occTriggerECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECm_lb[*planeIterator] /
-                                              m_eventsTrigger_lb;
-          if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
-            m_noisyMTrigger100[m_current_lb]++;
-          }
-          if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
-            m_noisyMTrigger1000[m_current_lb]++;
-          }
-          if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
-            m_noisyMTrigger10000[m_current_lb]++;
-          }
-          // 09.09.2016
-          m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] /
-                                              m_eventsTrigger_lb;
-          m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
-                                                 m_eventsTrigger_lb;
-          m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
-                                                 m_eventsTrigger_lb;
-          m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
-                                                 m_eventsTrigger_lb;
-          if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
-            m_noisyMWithHOTrigger100[m_current_lb]++;
-          }
-          if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
-            m_noisyMWithHOTrigger1000[m_current_lb]++;
-          }
-          if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
-            m_noisyMWithHOTrigger10000[m_current_lb]++;
-          }
-        }
-				if (bec == BARREL)  nlinksBAR++; 
-				if (bec == ENDCAP_A)nlinksECp++;
-				if (bec == ENDCAP_C)nlinksECm++;
-				nlinks++;
-			}
-			//
-			if (nlinks >0){
-				m_occ_lb[m_current_lb] /= nlinks;
-				m_occTrigger_lb[m_current_lb] /= nlinks;
-				// 09.09.2016
-				m_hitocc_lb[m_current_lb] /= nlinks;
-				m_hitoccTrigger_lb[m_current_lb] /= nlinks;
-			}
-			if (nlinksBAR >0){
-				m_occBAR_lb[m_current_lb] /= nlinksBAR;
-				m_occTriggerBAR_lb[m_current_lb] /= nlinksBAR;
-				// 09.09.2016
-				m_hitoccBAR_lb[m_current_lb] /= nlinksBAR;
-				m_hitoccTriggerBAR_lb[m_current_lb] /= nlinksBAR;
-			}
-			if (nlinksECp >0){
-				m_occECp_lb[m_current_lb] /= nlinksECp;
-				m_occTriggerECp_lb[m_current_lb] /= nlinksECp;
-				// 09.09.2016
-				m_hitoccECp_lb[m_current_lb] /= nlinksECp;
-				m_hitoccTriggerECp_lb[m_current_lb] /= nlinksECp;
-			}
-			if (nlinksECm >0){
-				m_occECm_lb[m_current_lb] /= nlinksECm;
-				m_occTriggerECm_lb[m_current_lb] /= nlinksECm;
-				// 09.09.2016
-				m_hitoccECm_lb[m_current_lb] /= nlinksECm;
-				m_hitoccTriggerECm_lb[m_current_lb] /= nlinksECm;
-			}
+	int nlinks = 0;
+	int nlinksBAR = 0;
+	int nlinksECp = 0;
+	int nlinksECm = 0;
+	SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
+	SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
+	for (; planeIterator not_eq planeEnd; ++planeIterator) {
+	  Identifier planeId(*planeIterator);
+	  const int bec(m_pSCTHelper->barrel_ec(planeId));
+	  // Don't initialize a value for disabled  modules
+	  if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
+	    continue;
+	  }
+	  if (m_events_lb > 0) {
+	    m_occ_lb[m_current_lb] += (1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb;
+	    m_occBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
+	    m_occECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
+	    m_occECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
+	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
+	      m_noisyM100[m_current_lb]++;
+	    }
+	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
+	      m_noisyM1000[m_current_lb]++;
+	    }
+	    if ((1E5) * m_occSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
+	      m_noisyM10000[m_current_lb]++;
+	    }
+	    // 09.09.2016
+	    m_hitocc_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb;
+	    m_hitoccBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedBAR_lb[*planeIterator] / m_events_lb;
+	    m_hitoccECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECp_lb[*planeIterator] / m_events_lb;
+	    m_hitoccECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedECm_lb[*planeIterator] / m_events_lb;
+	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 100.) {
+	      m_noisyMWithHO100[m_current_lb]++;
+	    }
+	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 1000.) {
+	      m_noisyMWithHO1000[m_current_lb]++;
+	    }
+	    if ((1E5) * m_hitoccSumUnbiased_lb[*planeIterator] / m_events_lb > 10000.) {
+	      m_noisyMWithHO10000[m_current_lb]++;
+	    }
+	  }
+	  if (m_eventsTrigger_lb > 0) {
+	    m_occTrigger_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb;
+	    m_occTriggerBAR_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerBAR_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    m_occTriggerECp_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECp_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    m_occTriggerECm_lb[m_current_lb] += (1E5) * m_occSumUnbiasedTriggerECm_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
+	      m_noisyMTrigger100[m_current_lb]++;
+	    }
+	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
+	      m_noisyMTrigger1000[m_current_lb]++;
+	    }
+	    if ((1E5) * m_occSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
+	      m_noisyMTrigger10000[m_current_lb]++;
+	    }
+	    // 09.09.2016
+	    m_hitoccTrigger_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    m_hitoccTriggerBAR_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerBAR_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    m_hitoccTriggerECp_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECp_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    m_hitoccTriggerECm_lb[m_current_lb] += (1E5) * m_hitoccSumUnbiasedTriggerECm_lb[*planeIterator] /
+	      m_eventsTrigger_lb;
+	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 100.) {
+	      m_noisyMWithHOTrigger100[m_current_lb]++;
+	    }
+	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 1000.) {
+	      m_noisyMWithHOTrigger1000[m_current_lb]++;
+	    }
+	    if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[*planeIterator] / m_eventsTrigger_lb > 10000.) {
+	      m_noisyMWithHOTrigger10000[m_current_lb]++;
+	    }
+	  }
+	  if (bec == BARREL)  nlinksBAR++; 
+	  if (bec == ENDCAP_A)nlinksECp++;
+	  if (bec == ENDCAP_C)nlinksECm++;
+	  nlinks++;
+	}
+	//
+	if (nlinks >0){
+	  m_occ_lb[m_current_lb] /= nlinks;
+	  m_occTrigger_lb[m_current_lb] /= nlinks;
+	  // 09.09.2016
+	  m_hitocc_lb[m_current_lb] /= nlinks;
+	  m_hitoccTrigger_lb[m_current_lb] /= nlinks;
+	}
+	if (nlinksBAR >0){
+	  m_occBAR_lb[m_current_lb] /= nlinksBAR;
+	  m_occTriggerBAR_lb[m_current_lb] /= nlinksBAR;
+	  // 09.09.2016
+	  m_hitoccBAR_lb[m_current_lb] /= nlinksBAR;
+	  m_hitoccTriggerBAR_lb[m_current_lb] /= nlinksBAR;
+	}
+	if (nlinksECp >0){
+	  m_occECp_lb[m_current_lb] /= nlinksECp;
+	  m_occTriggerECp_lb[m_current_lb] /= nlinksECp;
+	  // 09.09.2016
+	  m_hitoccECp_lb[m_current_lb] /= nlinksECp;
+	  m_hitoccTriggerECp_lb[m_current_lb] /= nlinksECp;
+	}
+	if (nlinksECm >0){
+	  m_occECm_lb[m_current_lb] /= nlinksECm;
+	  m_occTriggerECm_lb[m_current_lb] /= nlinksECm;
+	  // 09.09.2016
+	  m_hitoccECm_lb[m_current_lb] /= nlinksECm;
+	  m_hitoccTriggerECm_lb[m_current_lb] /= nlinksECm;
+	}
+      }
 
       m_BARNO_vsLB->Reset();
       m_ECmNO_vsLB->Reset();
@@ -2305,93 +2307,93 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       m_NoisyModulesWithHOTrigger10000_vsLB->Reset();
       //
       for (int bin = 1; bin <= NBINS_LBs; bin++) {
-        if (m_occBAR_lb[bin] != 0) {
-          m_BARNO_vsLB->Fill(bin, m_occBAR_lb[bin]);
-        }
-        if (m_occECm_lb[bin] != 0) {
-          m_ECmNO_vsLB->Fill(bin, m_occECm_lb[bin]);
-        }
-        if (m_occECp_lb[bin] != 0) {
-          m_ECpNO_vsLB->Fill(bin, m_occECp_lb[bin]);
-        }
-        if (m_occ_lb[bin] != 0) {
-          m_SCTNO_vsLB->Fill(bin, m_occ_lb[bin]);
-        }
-        if (m_noisyM100[bin] != 0) {
-          m_NoisyModules100_vsLB->Fill(bin, m_noisyM100[bin]);
-        }
-        if (m_noisyM1000[bin] != 0) {
-          m_NoisyModules1000_vsLB->Fill(bin, m_noisyM1000[bin]);
-        }
-        if (m_noisyM10000[bin] != 0) {
-          m_NoisyModules10000_vsLB->Fill(bin, m_noisyM10000[bin]);
-        }
-        if (m_occTriggerBAR_lb[bin] != 0) {
-          m_BARNOTrigger_vsLB->Fill(bin, m_occTriggerBAR_lb[bin]);
-        }
-        if (m_occTriggerECm_lb[bin] != 0) {
-          m_ECmNOTrigger_vsLB->Fill(bin, m_occTriggerECm_lb[bin]);
-        }
-        if (m_occTriggerECp_lb[bin] != 0) {
-          m_ECpNOTrigger_vsLB->Fill(bin, m_occTriggerECp_lb[bin]);
-        }
-        if (m_occTrigger_lb[bin] != 0) {
-          m_SCTNOTrigger_vsLB->Fill(bin, m_occTrigger_lb[bin]);
-        }
-        if (m_noisyMTrigger100[bin] != 0) {
-          m_NoisyModulesTrigger100_vsLB->Fill(bin, m_noisyMTrigger100[bin]);
-        }
-        if (m_noisyMTrigger1000[bin] != 0) {
-          m_NoisyModulesTrigger1000_vsLB->Fill(bin, m_noisyMTrigger1000[bin]);
-        }
-        if (m_noisyMTrigger10000[bin] != 0) {
-          m_NoisyModulesTrigger10000_vsLB->Fill(bin, m_noisyMTrigger10000[bin]);
-        }
+	if (m_occBAR_lb[bin] != 0) {
+	  m_BARNO_vsLB->Fill(bin, m_occBAR_lb[bin]);
+	}
+	if (m_occECm_lb[bin] != 0) {
+	  m_ECmNO_vsLB->Fill(bin, m_occECm_lb[bin]);
+	}
+	if (m_occECp_lb[bin] != 0) {
+	  m_ECpNO_vsLB->Fill(bin, m_occECp_lb[bin]);
+	}
+	if (m_occ_lb[bin] != 0) {
+	  m_SCTNO_vsLB->Fill(bin, m_occ_lb[bin]);
+	}
+	if (m_noisyM100[bin] != 0) {
+	  m_NoisyModules100_vsLB->Fill(bin, m_noisyM100[bin]);
+	}
+	if (m_noisyM1000[bin] != 0) {
+	  m_NoisyModules1000_vsLB->Fill(bin, m_noisyM1000[bin]);
+	}
+	if (m_noisyM10000[bin] != 0) {
+	  m_NoisyModules10000_vsLB->Fill(bin, m_noisyM10000[bin]);
+	}
+	if (m_occTriggerBAR_lb[bin] != 0) {
+	  m_BARNOTrigger_vsLB->Fill(bin, m_occTriggerBAR_lb[bin]);
+	}
+	if (m_occTriggerECm_lb[bin] != 0) {
+	  m_ECmNOTrigger_vsLB->Fill(bin, m_occTriggerECm_lb[bin]);
+	}
+	if (m_occTriggerECp_lb[bin] != 0) {
+	  m_ECpNOTrigger_vsLB->Fill(bin, m_occTriggerECp_lb[bin]);
+	}
+	if (m_occTrigger_lb[bin] != 0) {
+	  m_SCTNOTrigger_vsLB->Fill(bin, m_occTrigger_lb[bin]);
+	}
+	if (m_noisyMTrigger100[bin] != 0) {
+	  m_NoisyModulesTrigger100_vsLB->Fill(bin, m_noisyMTrigger100[bin]);
+	}
+	if (m_noisyMTrigger1000[bin] != 0) {
+	  m_NoisyModulesTrigger1000_vsLB->Fill(bin, m_noisyMTrigger1000[bin]);
+	}
+	if (m_noisyMTrigger10000[bin] != 0) {
+	  m_NoisyModulesTrigger10000_vsLB->Fill(bin, m_noisyMTrigger10000[bin]);
+	}
       }
       // 09.09.2016
       for (int bin = 1; bin <= NBINS_LBs; bin++) {
-        if (m_hitoccBAR_lb[bin] != 0) {
-          m_BARHO_vsLB->Fill(bin, m_hitoccBAR_lb[bin]);
-        }
-        if (m_hitoccECm_lb[bin] != 0) {
-          m_ECmHO_vsLB->Fill(bin, m_hitoccECm_lb[bin]);
-        }
-        if (m_hitoccECp_lb[bin] != 0) {
-          m_ECpHO_vsLB->Fill(bin, m_hitoccECp_lb[bin]);
-        }
-        if (m_hitocc_lb[bin] != 0) {
-          m_SCTHO_vsLB->Fill(bin, m_hitocc_lb[bin]);
-        }
-        if (m_noisyMWithHO100[bin] != 0) {
-          m_NoisyModulesWithHO100_vsLB->Fill(bin, m_noisyMWithHO100[bin]);
-        }
-        if (m_noisyMWithHO1000[bin] != 0) {
-          m_NoisyModulesWithHO1000_vsLB->Fill(bin, m_noisyMWithHO1000[bin]);
-        }
-        if (m_noisyMWithHO10000[bin] != 0) {
-          m_NoisyModulesWithHO10000_vsLB->Fill(bin, m_noisyMWithHO10000[bin]);
-        }
-        if (m_hitoccTriggerBAR_lb[bin] != 0) {
-          m_BARHOTrigger_vsLB->Fill(bin, m_hitoccTriggerBAR_lb[bin]);
-        }
-        if (m_hitoccTriggerECm_lb[bin] != 0) {
-          m_ECmHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECm_lb[bin]);
-        }
-        if (m_hitoccTriggerECp_lb[bin] != 0) {
-          m_ECpHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECp_lb[bin]);
-        }
-        if (m_hitoccTrigger_lb[bin] != 0) {
-          m_SCTHOTrigger_vsLB->Fill(bin, m_hitoccTrigger_lb[bin]);
-        }
-        if (m_noisyMWithHOTrigger100[bin] != 0) {
-          m_NoisyModulesWithHOTrigger100_vsLB->Fill(bin, m_noisyMWithHOTrigger100[bin]);
-        }
-        if (m_noisyMWithHOTrigger1000[bin] != 0) {
-          m_NoisyModulesWithHOTrigger1000_vsLB->Fill(bin, m_noisyMWithHOTrigger1000[bin]);
-        }
-        if (m_noisyMWithHOTrigger10000[bin] != 0) {
-          m_NoisyModulesWithHOTrigger10000_vsLB->Fill(bin, m_noisyMWithHOTrigger10000[bin]);
-        }
+	if (m_hitoccBAR_lb[bin] != 0) {
+	  m_BARHO_vsLB->Fill(bin, m_hitoccBAR_lb[bin]);
+	}
+	if (m_hitoccECm_lb[bin] != 0) {
+	  m_ECmHO_vsLB->Fill(bin, m_hitoccECm_lb[bin]);
+	}
+	if (m_hitoccECp_lb[bin] != 0) {
+	  m_ECpHO_vsLB->Fill(bin, m_hitoccECp_lb[bin]);
+	}
+	if (m_hitocc_lb[bin] != 0) {
+	  m_SCTHO_vsLB->Fill(bin, m_hitocc_lb[bin]);
+	}
+	if (m_noisyMWithHO100[bin] != 0) {
+	  m_NoisyModulesWithHO100_vsLB->Fill(bin, m_noisyMWithHO100[bin]);
+	}
+	if (m_noisyMWithHO1000[bin] != 0) {
+	  m_NoisyModulesWithHO1000_vsLB->Fill(bin, m_noisyMWithHO1000[bin]);
+	}
+	if (m_noisyMWithHO10000[bin] != 0) {
+	  m_NoisyModulesWithHO10000_vsLB->Fill(bin, m_noisyMWithHO10000[bin]);
+	}
+	if (m_hitoccTriggerBAR_lb[bin] != 0) {
+	  m_BARHOTrigger_vsLB->Fill(bin, m_hitoccTriggerBAR_lb[bin]);
+	}
+	if (m_hitoccTriggerECm_lb[bin] != 0) {
+	  m_ECmHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECm_lb[bin]);
+	}
+	if (m_hitoccTriggerECp_lb[bin] != 0) {
+	  m_ECpHOTrigger_vsLB->Fill(bin, m_hitoccTriggerECp_lb[bin]);
+	}
+	if (m_hitoccTrigger_lb[bin] != 0) {
+	  m_SCTHOTrigger_vsLB->Fill(bin, m_hitoccTrigger_lb[bin]);
+	}
+	if (m_noisyMWithHOTrigger100[bin] != 0) {
+	  m_NoisyModulesWithHOTrigger100_vsLB->Fill(bin, m_noisyMWithHOTrigger100[bin]);
+	}
+	if (m_noisyMWithHOTrigger1000[bin] != 0) {
+	  m_NoisyModulesWithHOTrigger1000_vsLB->Fill(bin, m_noisyMWithHOTrigger1000[bin]);
+	}
+	if (m_noisyMWithHOTrigger10000[bin] != 0) {
+	  m_NoisyModulesWithHOTrigger10000_vsLB->Fill(bin, m_noisyMWithHOTrigger10000[bin]);
+	}
       }
     }
   }
@@ -3129,7 +3131,7 @@ SCTHitsNoiseMonTool::positionString(const Identifier &plane) const {
   ostringstream position_txt;
 
   position_txt << m_pSCTHelper->barrel_ec(plane) << "_" << m_pSCTHelper->layer_disk(plane) << "_" <<
-  m_pSCTHelper->phi_module(plane) << "_" << m_pSCTHelper->eta_module(plane) << "_" << m_pSCTHelper->side(plane);
+    m_pSCTHelper->phi_module(plane) << "_" << m_pSCTHelper->eta_module(plane) << "_" << m_pSCTHelper->side(plane);
   return position_txt.str();
 }
 
@@ -3177,7 +3179,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     if (trackStates == 0) {
       if (msgLvl(MSG::WARNING)) {
         msg(MSG::WARNING) <<
-        "for current track is TrackStateOnSurfaces == Null, no data will be written for this track" << endmsg;
+	  "for current track is TrackStateOnSurfaces == Null, no data will be written for this track" << endmsg;
       }
     }else {// Loop over all track states on surfaces
       for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
@@ -3239,13 +3241,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
     for (unsigned int i(0); i != limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamhitmap = "mapsOfHitsOnTracks" + abbreviations[systemIndex] + streamDelimiter +
-                                  "trackhitsmap_" + layerSide.name();
+	"trackhitsmap_" + layerSide.name();
       const string streamhitmaprecent = "mapsOfHitsOnTracksRecent" + abbreviations[systemIndex] + streamDelimiter +
-                                        "trackhitsmap_" + layerSide.name();
+	"trackhitsmap_" + layerSide.name();
       std::string histoName = stem + streamhitmap;
       std::string histotitle = "SCT hits on tracks for " + names[systemIndex] + " " + layerSide.title();
       std::string histotitlerecent = "SCT hits on tracks from recent events for " + names[systemIndex] + " " +
-                                     layerSide.title();
+	layerSide.title();
       h2Factory(streamhitmap, histotitle, bec, tracksMon, *(histoVec[systemIndex]));
       if (m_environment == AthenaMonManager::online) {
         h2Factory(streamhitmaprecent, histotitlerecent, bec, tracksMon, *(histoVecRecent[systemIndex]));
@@ -3372,7 +3374,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       const string streamlayer(std::to_string(i));
       const string streamhitmap = "TrackTimeBin" + abbreviations[systemIndex] + streamDelimiter + streamlayer;
       const string streamhitmaprecent = "TrackTimeBinRecent" + abbreviations[systemIndex] + streamDelimiter +
-                                        streamlayer;
+	streamlayer;
       histoName = stem + streamhitmap;
       histoNameRecent = stem + streamhitmaprecent;
       histoTitle = "RDO Track TimeBin: layer " + streamlayer;
@@ -3430,7 +3432,7 @@ SCTHitsNoiseMonTool::H2_t
 SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title, const SCT_Monitoring::Bec bec,
                                MonGroup &registry, VecH2_t &storageVector) {
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS),
-  nPhi(N_PHI_BINS);
+    nPhi(N_PHI_BINS);
 
   if (bec != BARREL) {
     firstEta = FIRST_ETA_BIN_EC;
@@ -3441,7 +3443,7 @@ SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title
     nPhi = N_PHI_BINS_EC;
   }
   H2_t tmp = new TH2F(TString(name), TString(
-                        title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
+					     title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
@@ -3513,7 +3515,7 @@ SCTHitsNoiseMonTool::Prof2_t
 SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &title, const SCT_Monitoring::Bec bec,
                                   MonGroup &registry, VecProf2_t &storageVector) {
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS),
-  nPhi(N_PHI_BINS);
+    nPhi(N_PHI_BINS);
 
   if (bec != BARREL) {
     firstEta = FIRST_ETA_BIN_EC;
@@ -3524,7 +3526,7 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &ti
     nPhi = N_PHI_BINS_EC;
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(
-                                 title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
+						      title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
