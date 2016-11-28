@@ -35,7 +35,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','SharedReader','EventService','RoundRobin']    
+    allowedValues = ['SharedQueue','FileScheduling','EventService','RoundRobin']    
     StoredValue = 'SharedQueue'
 
 class CollectSubprocessLogs(JobProperty):
@@ -74,13 +74,6 @@ class EventRangeChannel(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
 
-class TokenExtractorChannel(JobProperty):
-    """ For the Event Service: Communication channel between Range Scatterer and Token Extractor
-    """
-    statusOn = True
-    allowedTypes = ['str']
-    StoredValue = 'TokenExtractorChannel'
-
 class EvtRangeScattererCaching(JobProperty):
     """ For the Event Service: flag for activating extra event caching by the EvtRangeScatterer
     """
@@ -102,13 +95,6 @@ class ChunkSize(JobProperty):
     allowedTypes = ['int']
     StoredValue  = 1
 
-class UseTokenExtractor(JobProperty):
-    """ Flag to indicate the usage of the Token Extractor in ES jobs
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-
 class ReadEventOrders(JobProperty):
     """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
     """
@@ -122,6 +108,20 @@ class EventOrdersFile(JobProperty):
     statusOn = True
     allowedTypes = ['str']
     StoredValue = 'athenamp_eventorders.txt'
+
+class UseSharedReader(JobProperty):
+    """ Flag for activating shared reader process
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class UseSharedWriter(JobProperty):
+    """ Flag for activating shared writer process
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
 
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
@@ -143,13 +143,13 @@ list_jobproperties = [
     PollingInterval,
     EventsBeforeFork,
     EventRangeChannel,
-    TokenExtractorChannel,
     MemSamplingInterval,
     EvtRangeScattererCaching,
     ChunkSize,
-    UseTokenExtractor,
     ReadEventOrders,
     EventOrdersFile,
+    UseSharedReader,
+    UseSharedWriter,
     ]
 
 for i in list_jobproperties:

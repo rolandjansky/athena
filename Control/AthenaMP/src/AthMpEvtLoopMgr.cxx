@@ -140,7 +140,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Create Shared Event queue if necessary and make it available to the tools
   if(m_strategy=="SharedQueue" 
-     || m_strategy=="SharedReader"
      || m_strategy=="RoundRobin") {
     AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
@@ -473,11 +472,12 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   // 2. Skip also stdout and stderr
 
   std::vector<std::string> excludePatterns;
-  excludePatterns.reserve(3);
+  excludePatterns.reserve(5);
   excludePatterns.push_back("/root/etc/plugins/");
   excludePatterns.push_back("/root/cint/cint/");
   excludePatterns.push_back("/root/include/");
   excludePatterns.push_back("/var/tmp/");
+  excludePatterns.push_back("/var/lock/");
 
   path fdPath("/proc/self/fd");
   for(directory_iterator fdIt(fdPath); fdIt!=directory_iterator(); fdIt++) {
