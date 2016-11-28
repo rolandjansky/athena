@@ -139,7 +139,7 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 			     Amg::Transform3D& htrans,double& hphi,
 			     std::vector<double>& radius,  
 			     std::vector<double>& depth, 
-			     std::vector<double>& hlength )
+			     std::vector<double>& hlength ) const
 {
 
   double rad,dep,len;
@@ -173,17 +173,17 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
   if ( alvol == CaloSubdetNames::SOLENOID ) {
     
     // DDDb : LAr / CryoCylinders / CryoMother nb 11 & 12 & 13
-    m_lar = m_recCryoCyl;
-    if ( !m_lar || m_lar->size()<14) return false;
+    const IRDBRecordset* lar = m_recCryoCyl;
+    if ( !lar || lar->size()<14) return false;
 
-    m_rec = (*m_lar)[11];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    len =  m_rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  m_rec->getDouble("DR")*CLHEP::cm;
-    m_rec = (*m_lar)[12];
-    dep =  dep +m_rec->getDouble("DR")*CLHEP::cm;
-    m_rec = (*m_lar)[13];
-    dep =  dep +m_rec->getDouble("DR")*CLHEP::cm;
+    const IRDBRecord* rec = (*lar)[11];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
+    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rec = (*lar)[12];
+    dep =  dep +rec->getDouble("DR")*CLHEP::cm;
+    rec = (*lar)[13];
+    dep =  dep +rec->getDouble("DR")*CLHEP::cm;
 
     //rad = 124.18*CLHEP::cm;
     //dep = (.305 + 1.38 + .47 )*CLHEP::cm;
@@ -199,14 +199,14 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb : LAr / CryoCylinders
 	
-    m_lar = m_recCryoCyl;
-    if ( !m_lar || m_lar->size()<15) return false;
+    const IRDBRecordset* lar = m_recCryoCyl;
+    if ( !lar || lar->size()<15) return false;
 
     //  CryoMother nb 10
-    m_rec = (*m_lar)[10];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    len =  m_rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  m_rec->getDouble("DR")*CLHEP::cm;
+    const IRDBRecord* rec = (*lar)[10];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
+    dep =  rec->getDouble("DR")*CLHEP::cm;
 
     //rad = 122.9*CLHEP::cm;
     //dep = 1.28*CLHEP::cm;
@@ -217,10 +217,10 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     hlength.push_back( len );
 
     //  CryoMother nb 14
-    m_rec = (*m_lar)[14];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    len =  m_rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  m_rec->getDouble("DR")*CLHEP::cm;
+    rec = (*lar)[14];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
+    dep =  rec->getDouble("DR")*CLHEP::cm;
 
     //rad = 126.335*CLHEP::cm;
     //dep = 1.2*CLHEP::cm;
@@ -231,10 +231,10 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     hlength.push_back( len );
 
     // CryoMother nb 0
-    m_rec = (*m_lar)[0];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    len =  m_rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  m_rec->getDouble("DR")*CLHEP::cm;
+    rec = (*lar)[0];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
+    dep =  rec->getDouble("DR")*CLHEP::cm;
 
     //rad = 2140*mm;
     //dep = 30*mm;
@@ -245,10 +245,10 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     hlength.push_back( len );
 
     //  CryoMother nb 5
-    m_rec = (*m_lar)[5];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    len =  m_rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  m_rec->getDouble("DR")*CLHEP::cm;
+    rec = (*lar)[5];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
+    dep =  rec->getDouble("DR")*CLHEP::cm;
 
     //rad = 2220*mm;
     //dep = 30*mm;
@@ -265,18 +265,18 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb : LAr / PresamplerGeometry / rmin, rmax
     //        LAr / BarrelGeometry / zmax
-    m_lar = m_recPresGeo;
-    if ( !m_lar || m_lar->size()==0) return false;
+    const IRDBRecordset* lar = m_recPresGeo;
+    if ( !lar || lar->size()==0) return false;
     
-    m_rec = (*m_lar)[0];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    dep =  m_rec->getDouble("RMAX")*CLHEP::cm - rad;
+    const IRDBRecord* rec = (*lar)[0];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    dep =  rec->getDouble("RMAX")*CLHEP::cm - rad;
 	
-    m_lar = m_recBarrGeo;
-    if ( !m_lar || m_lar->size()==0) return false;
+    lar = m_recBarrGeo;
+    if ( !lar || lar->size()==0) return false;
 
-    m_rec = (*m_lar)[0];
-    len =  m_rec->getDouble("ZMAX")*CLHEP::cm;
+    rec = (*lar)[0];
+    len =  rec->getDouble("ZMAX")*CLHEP::cm;
 
     //rad = 138.5*CLHEP::cm;
     //dep = (144.7 - 138.5)*CLHEP::cm;
@@ -293,13 +293,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     // DDDb : LAr / BarrelGeometry / rmin, rmax, zmax
     
-    m_lar = m_recBarrGeo;
-    if ( !m_lar || m_lar->size()==0) return false;
+    const IRDBRecordset* lar = m_recBarrGeo;
+    if ( !lar || lar->size()==0) return false;
 
-    m_rec = (*m_lar)[0];
-    rad =  m_rec->getDouble("RMIN")*CLHEP::cm;
-    dep =  m_rec->getDouble("RMAX")*CLHEP::cm - rad;
-    len =  m_rec->getDouble("ZMAX")*CLHEP::cm;
+    const IRDBRecord* rec = (*lar)[0];
+    rad =  rec->getDouble("RMIN")*CLHEP::cm;
+    dep =  rec->getDouble("RMAX")*CLHEP::cm - rad;
+    len =  rec->getDouble("ZMAX")*CLHEP::cm;
 
     //rad = 1447.3*CLHEP::cm;
     //dep = (2003.35 - 1447.3)*CLHEP::cm;
@@ -320,7 +320,7 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 			 Amg::Transform3D& htrans,double& hphi, 
 			 std::vector<double>& z, 
 			 std::vector<double>& depth,
-			 std::vector<double>& rmin, std::vector<double>& rmax )
+			 std::vector<double>& rmin, std::vector<double>& rmax ) const
 {
 
   // Tracking geometry convention : z is the center of the layer, it is signed 
@@ -358,15 +358,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
      
    // DDDb : LAr / CryoCylinders / Endcap nb 11
 
-    m_lar = m_recCryoCyl;
-    if ( !m_lar || m_lar->size()<60) return false;
+    const IRDBRecordset* lar = m_recCryoCyl;
+    if ( !lar || lar->size()<60) return false;
 
-    m_rec = (*m_lar)[49];
+    const IRDBRecord* rec = (*lar)[49];
 
-    ri = m_rec->getDouble("RMIN")*CLHEP::cm;
-    ra = ri + m_rec->getDouble("DR")*CLHEP::cm;
-    dep = m_rec->getDouble("DZ")*CLHEP::cm;
-    zcent = m_rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*CLHEP::cm;
+    ra = ri + rec->getDouble("DR")*CLHEP::cm;
+    dep = rec->getDouble("DZ")*CLHEP::cm;
+    zcent = rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
     //ri = 22.1*CLHEP::cm;
@@ -380,12 +380,12 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     z.push_back( zcent );
     
     // DDDb : LAr / CryoCylinders / Endcap nb 6
-    m_rec = (*m_lar)[44];
+    rec = (*lar)[44];
 
-    ri = m_rec->getDouble("RMIN")*CLHEP::cm;
-    ra = ri + m_rec->getDouble("DR")*CLHEP::cm;
-    dep = m_rec->getDouble("DZ")*CLHEP::cm;
-    zcent = m_rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*CLHEP::cm;
+    ra = ri + rec->getDouble("DR")*CLHEP::cm;
+    dep = rec->getDouble("DZ")*CLHEP::cm;
+    zcent = rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
     //ri = 79.*CLHEP::cm;
@@ -405,15 +405,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
        alvol == CaloSubdetNames::PRESAMPLER_EC_NEG ) {
     
     // DDDb Cryostat / PresamplerPosition
-    m_lar = m_recPresPos;
-    if (!m_lar) return false;
+    const IRDBRecordset* lar = m_recPresPos;
+    if (!lar) return false;
 
-    m_rec = (*m_lar)[0];
+    const IRDBRecord* rec = (*lar)[0];
 
-    ri = m_rec->getDouble("RMIN")*CLHEP::cm;
-    ra = m_rec->getDouble("RMAX")*CLHEP::cm;
-    dep = m_rec->getDouble("TCK")*CLHEP::cm;
-    zcent = m_rec->getDouble("ZPOS")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*CLHEP::cm;
+    ra = rec->getDouble("RMAX")*CLHEP::cm;
+    dep = rec->getDouble("TCK")*CLHEP::cm;
+    zcent = rec->getDouble("ZPOS")*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::PRESAMPLER_EC_NEG) zcent = -1. * zcent;
 
     //ri = 123.174*CLHEP::cm;
@@ -433,15 +433,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
        alvol == CaloSubdetNames::EMEC_NEG ) {
     
     // handcoded copy of dddb : LAr / EmecGeometry / z1, etot, rmin, rmax
-    m_lar = m_EmecGeo;
-    if ( !m_lar ) return false;
+    const IRDBRecordset* lar = m_EmecGeo;
+    if ( !lar ) return false;
 
-    m_rec = (*m_lar)[0];
+    const IRDBRecord* rec = (*lar)[0];
 
-    ri = m_rec->getDouble("RMIN")*CLHEP::cm;
-    ra = m_rec->getDouble("RMAX")*CLHEP::cm;
-    dep = m_rec->getDouble("ETOT")*CLHEP::cm;
-    zcent = m_rec->getDouble("Z1")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*CLHEP::cm;
+    ra = rec->getDouble("RMAX")*CLHEP::cm;
+    dep = rec->getDouble("ETOT")*CLHEP::cm;
+    zcent = rec->getDouble("Z1")*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::EMEC_NEG) zcent = -1. * zcent;
 
     //ri = 29.*CLHEP::cm;
@@ -461,18 +461,18 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb numbers : LAr / HadronicEndcap / zstart, roorig, rend
     //                + for depth, see LArNumberHelper
-    m_lar = m_HEC;
-    if ( !m_lar || m_lar->size()==0) return false;
+    const IRDBRecordset* lar = m_HEC;
+    if ( !lar || lar->size()==0) return false;
 
-    m_rec = (*m_lar)[0];
+    const IRDBRecord* rec = (*lar)[0];
 
-    ri = m_rec->getDouble("ROORIG")*CLHEP::cm;
-    ra = m_rec->getDouble("REND")*CLHEP::cm;
+    ri = rec->getDouble("ROORIG")*CLHEP::cm;
+    ra = rec->getDouble("REND")*CLHEP::cm;
     // Block0+Block1+Block2
-    dep = m_rec->getDouble("PLATE_0")/2. 
-      + 3*8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0"));
+    dep = rec->getDouble("PLATE_0")/2. 
+      + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"));
     dep = dep*CLHEP::cm;
-    zcent = m_rec->getDouble("ZSTART")*CLHEP::cm + dep/2.;
+    zcent = rec->getDouble("ZSTART")*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC1_NEG) zcent = -1. * zcent;
 
     //ri = 37.2*CLHEP::cm;
@@ -493,22 +493,22 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     // DDDb numbers : LAr / HadronicEndcap / zstart, roorig, rend
     //                + for depth, see LArNumberHelper
 
-    m_lar = m_HEC;
-    if ( !m_lar || m_lar->size()==0) return false;
+    const IRDBRecordset* lar = m_HEC;
+    if ( !lar || lar->size()==0) return false;
 
-    m_rec = (*m_lar)[0];
+    const IRDBRecord* rec = (*lar)[0];
 
-    ri = m_rec->getDouble("ROORIG")*CLHEP::cm;
-    ra = m_rec->getDouble("REND")*CLHEP::cm;
+    ri = rec->getDouble("ROORIG")*CLHEP::cm;
+    ra = rec->getDouble("REND")*CLHEP::cm;
     // Block 3 + Block 4 + Block 5 + Block 6
-    dep =  m_rec->getDouble("PLATE_1")/2. 
-      + 4*4*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_1"));
+    dep =  rec->getDouble("PLATE_1")/2. 
+      + 4*4*(rec->getDouble("LARG") + rec->getDouble("PLATE_1"));
     dep = dep*CLHEP::cm;
     // start+depth of HEC1 + gap
-    zcent =  m_rec->getDouble("ZSTART") 
-      + m_rec->getDouble("PLATE_0")/2. 
-      + 3*8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0"))
-      +  m_rec->getDouble("GAPWHL") ;
+    zcent =  rec->getDouble("ZSTART") 
+      + rec->getDouble("PLATE_0")/2. 
+      + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"))
+      +  rec->getDouble("GAPWHL") ;
     zcent = zcent*CLHEP::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC2_NEG) zcent = -1. * zcent;
 
@@ -587,7 +587,7 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 } 
    
 void 
-LArRecoSimpleGeomTool::print()
+LArRecoSimpleGeomTool::print() const
 {}
   
 bool  
@@ -660,7 +660,7 @@ LArRecoSimpleGeomTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 }
 
 std::string 
-LArRecoSimpleGeomTool::map_av(CaloSubdetNames::ALIGNVOL alvol)
+LArRecoSimpleGeomTool::map_av(CaloSubdetNames::ALIGNVOL alvol) const
 {
   switch(alvol)
   {

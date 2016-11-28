@@ -92,7 +92,7 @@ LArRecoMaterialTool::get_material (CaloSubdetNames::ALIGNVOL alvol,
 				   double& mass, double& volume,
 				   double& x0, double& dEdx,
 				   double& aveA, double& aveZ
-				   )
+				   ) const
 {
   bool result = false;
 
@@ -117,7 +117,7 @@ void
 LArRecoMaterialTool::get_default_material (double& density,
 					   double& x0, double& dEdx,
 					   double& aveA, double& aveZ
-					   )
+					   ) const
 {
   // FIXME ! should take real LAr numbers 
   density = 1.;
@@ -129,7 +129,7 @@ LArRecoMaterialTool::get_default_material (double& density,
 }
 
 void
-LArRecoMaterialTool::print ()
+LArRecoMaterialTool::print () const
 {
     
   for ( unsigned int i = 0; i < m_alignvol_number.size(); i++ )
