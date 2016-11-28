@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRKVALHISTUTILS__ 
+#ifndef __TRKVALHISTUTILS__
 #define __TRKVALHISTUTILS__
 
 #include "TrkValHistUtils/EfficiencyPlots.h"
@@ -41,7 +41,6 @@
 #pragma link C++ class Trk::ResolutionPlots+ ;
 #pragma link C++ class Trk::TruthInfoPlots+ ;
 #pragma link C++ class Trk::TruthTrkExtrapolationPlots+ ;
-
 #endif
 
 #endif

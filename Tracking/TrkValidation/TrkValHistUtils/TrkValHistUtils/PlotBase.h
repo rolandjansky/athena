@@ -11,12 +11,18 @@
 #define TRKVALHISTUTILS_PLOTBASE_H
 
 #include <string>
+#include <utility> //for std::pair
+#include <vector>
+//should be possible to fwd-declare TH1F, TH2F, TH3F, TProfile, TProfile2D TTree .. why isn't this done?
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TTree.h"
+
+//fwd-declares
+class TEfficiency;
 
 typedef std::pair<TH1*, std::string> HistData;
 typedef std::pair<TTree*, std::string> TreeData;
@@ -36,6 +42,7 @@ public:
   std::vector<TreeData> retrieveBookedTrees();
 
   ///@name Methods to book monitoring histograms
+  ///Note: methods starting with capitals should be deprecated in favour of camel-cased methods
   ///@{
 
   /// Book a TH1D histogram
@@ -56,14 +63,17 @@ public:
   TH3F* Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir = true);
 
   /// Book a TProfile histogram
-  TProfile* BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float startX, float endX, float startY=-1, float endY=-1, bool prependDir = true);
+  TProfile* BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float startX, float endX, float startY=-1, float endY=-1, bool prependDir = true, bool useRMS=false);
   /// Book a TProfile histogram with variable binning in x-axis
   TProfile* BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float* binsX, bool prependDir = true);
   /// Book a TProfile histogram with variable binning in x-axis and limits in y-values
   TProfile* BookTProfileRangeY(const std::string &name, const std::string & labels, int nBinsX, double* binsX, double startY, double endY, bool prependDir = true); //cannot overload, conflicts with previous definitions
   /// Book a TProfile 2D histogram with variable binning in x-axis and limits in y-values
-  TProfile2D * BookTProfile2D(const std::string &name, const std::string & labels, const int nBinsX, 
-    const double xlo, const double xhi, const int nBinsY, const double ylo, const double yhi, bool prependDir=true);
+  TProfile2D * BookTProfile2D(const std::string &name, const std::string & labels, const int nBinsX, const double xlo, const double xhi, const int nBinsY, const double ylo, const double yhi, bool prependDir=true, bool useRMS=false);
+  /// Book a TProfile 2D histogram with variable binning in x-axis and limits in y-values
+  TProfile2D * BookTProfile2D(const std::string &name, const std::string &labels, const int nBinsX, double* binsX, const int nBinsY, double* binsY, bool prependDir=true, bool useRMS=false);
+  /// Book a (1-D) TEfficiency histogram
+  TEfficiency * BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const bool prependDir = true);
   ///@}
   /// Book a TTree
   TTree* BookTree(const std::string & name, bool prependDir = true);
