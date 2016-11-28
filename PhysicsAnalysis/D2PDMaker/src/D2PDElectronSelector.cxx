@@ -968,7 +968,7 @@ StatusCode D2PDElectronSelector::processObject( const Analysis::Electron* electr
       // Identification selection
       if ( isPassed && m_doPassID && m_passID >= 0 )
         {
-          isPassed = electron->passID( ((egammaPID::egammaIDQuality)m_passID.value()) );
+          isPassed = electron->passID( ((egammaPIDObs::egammaIDQuality)m_passID.value()) );
           if ( isPassed && m_printInternalCutflow ) { m_objCutFlow[m_idxPassID] += 1; }
         }
 

@@ -119,33 +119,33 @@ StatusCode CreateControlPlots::initialize()
     {
       msg(MSG::INFO)
         << "Initializing CreateControlPlots"
-        << endreq;
+        << endmsg;
 
       // Print out the used configuration
-      msg(MSG::INFO) << " using inputCollection        = " << m_vtxCollName << endreq;
+      msg(MSG::INFO) << " using inputCollection        = " << m_vtxCollName << endmsg;
 
-      //msg(MSG::INFO) << " using THistSvcName           = " << m_thistSvcName << endreq;
-      msg(MSG::INFO) << " using THistService           = " << m_thistSvc << endreq;
+      //msg(MSG::INFO) << " using THistSvcName           = " << m_thistSvcName << endmsg;
+      msg(MSG::INFO) << " using THistService           = " << m_thistSvc << endmsg;
 
-      msg(MSG::INFO) << " using outputStreamName       = " << m_outStreamName << endreq;
-      msg(MSG::INFO) << " using rootDirectoryName      = " << m_rootDirName << endreq;
-      msg(MSG::INFO) << " using histogramPrefixName    = " << m_histPreName << endreq;
+      msg(MSG::INFO) << " using outputStreamName       = " << m_outStreamName << endmsg;
+      msg(MSG::INFO) << " using rootDirectoryName      = " << m_rootDirName << endmsg;
+      msg(MSG::INFO) << " using histogramPrefixName    = " << m_histPreName << endmsg;
 
-      msg(MSG::INFO) << " using minNumberVxTracks      = " << m_minNumberVxTracks << endreq;
-      msg(MSG::INFO) << " using maxNumberVxTracks      = " << m_maxNumberVxTracks << endreq;
+      msg(MSG::INFO) << " using minNumberVxTracks      = " << m_minNumberVxTracks << endmsg;
+      msg(MSG::INFO) << " using maxNumberVxTracks      = " << m_maxNumberVxTracks << endmsg;
 
-      msg(MSG::INFO) << " using acceptVertexTypeList   = " << m_acceptVertexTypeList  << endreq;
-      msg(MSG::INFO) << " using requireVertexTypeList  = " << m_requireVertexTypeList << endreq;
-      msg(MSG::INFO) << " using vetoVertexTypeList     = " << m_vetoVertexTypeList    << endreq;
+      msg(MSG::INFO) << " using acceptVertexTypeList   = " << m_acceptVertexTypeList  << endmsg;
+      msg(MSG::INFO) << " using requireVertexTypeList  = " << m_requireVertexTypeList << endmsg;
+      msg(MSG::INFO) << " using vetoVertexTypeList     = " << m_vetoVertexTypeList    << endmsg;
 
-      msg(MSG::INFO) << " using vertexXMin             = " << m_minVertexX << endreq;
-      msg(MSG::INFO) << " using vertexXMin             = " << m_maxVertexX << endreq;
+      msg(MSG::INFO) << " using vertexXMin             = " << m_minVertexX << endmsg;
+      msg(MSG::INFO) << " using vertexXMin             = " << m_maxVertexX << endmsg;
 
-      msg(MSG::INFO) << " using vertexYMin             = " << m_minVertexY << endreq;
-      msg(MSG::INFO) << " using vertexYMin             = " << m_maxVertexY << endreq;
+      msg(MSG::INFO) << " using vertexYMin             = " << m_minVertexY << endmsg;
+      msg(MSG::INFO) << " using vertexYMin             = " << m_maxVertexY << endmsg;
 
-      msg(MSG::INFO) << " using vertexZMin             = " << m_minVertexZ << endreq;
-      msg(MSG::INFO) << " using vertexZMin             = " << m_maxVertexZ << endreq;
+      msg(MSG::INFO) << " using vertexZMin             = " << m_minVertexZ << endmsg;
+      msg(MSG::INFO) << " using vertexZMin             = " << m_maxVertexZ << endmsg;
     }
 
 
@@ -162,7 +162,7 @@ StatusCode CreateControlPlots::initialize()
         {
           msg(MSG::ERROR)
             << "Unable to retrieve pointer to THistSvc"
-            << endreq;
+            << endmsg;
         }
       return sc;
     }
@@ -183,7 +183,7 @@ StatusCode CreateControlPlots::initialize()
         {
           msg(MSG::ERROR)
             << "ROOT Hist m_vtx_number registration failed"
-            << endreq;
+            << endmsg;
         }
       return sc;
     }
@@ -196,7 +196,7 @@ StatusCode CreateControlPlots::initialize()
         {
           msg(MSG::ERROR)
             << "Empty input collection! Please configure it properly!"
-            << endreq;
+            << endmsg;
         }
       sc = StatusCode::FAILURE ;
     }
@@ -228,7 +228,7 @@ StatusCode CreateControlPlots::finalize()
     {
       msg(MSG::INFO)
         << "FINALIZING AFTER ALL EVENTS ARE PROCESSED"
-        << endreq;
+        << endmsg;
     }
   
   return sc;
@@ -248,7 +248,7 @@ StatusCode CreateControlPlots::execute()
     {
       msg(MSG::DEBUG)
         << "execute()"
-        << endreq;
+        << endmsg;
     }
 
 
@@ -267,7 +267,7 @@ StatusCode CreateControlPlots::execute()
             << "No Vertex Container with name "
             << m_vtxCollName
             << " found"
-            << endreq;
+            << endmsg;
         } 
       return sc;
     }
@@ -279,7 +279,7 @@ StatusCode CreateControlPlots::execute()
         << " successfully retrieved! It has"
         << vtxCont->size()
         << " entries."
-        << endreq;
+        << endmsg;
     }
 
 
@@ -301,7 +301,7 @@ StatusCode CreateControlPlots::execute()
             {
               msg(MSG::ERROR) 
                 << "Could not cast the vertex iterator to a VxCandidate! Skipping this vertex. "
-                << endreq;
+                << endmsg;
             }
           continue;
         }
@@ -311,7 +311,7 @@ StatusCode CreateControlPlots::execute()
             {
               msg(MSG::DEBUG) 
                 << "Successfully casted the vertex iterator to a VxCandidate."
-                << endreq ;
+                << endmsg ;
             } 
         }
 
@@ -404,7 +404,7 @@ StatusCode CreateControlPlots::execute()
                 {
                   msg(MSG::ERROR) 
                     << "Could not cast the vertex candidate to a vxTrackAtVertex vector! Skipping this vertex. "
-                    << endreq;
+                    << endmsg;
                   continue;
                 }
             }
@@ -414,7 +414,7 @@ StatusCode CreateControlPlots::execute()
                 {
                   msg(MSG::DEBUG) 
                     << "Successfully casted the vertex candidate to a vxTrackAtVertex vector."
-                    << endreq ;
+                    << endmsg ;
                 } 
             }
       
