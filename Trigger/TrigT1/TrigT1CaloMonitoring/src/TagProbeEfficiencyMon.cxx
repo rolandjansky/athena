@@ -93,7 +93,7 @@ StatusCode TagProbeEfficiencyMon::initialize()
 /*------------------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
   
   /// Here we initialize our tools 
 
@@ -105,14 +105,14 @@ StatusCode TagProbeEfficiencyMon::initialize()
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
   //Setting some values necessary for later use and keeping graphs consistent
@@ -144,7 +144,7 @@ StatusCode TagProbeEfficiencyMon::finalize()
 StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
 /*----------------------------------------------------------------*/
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In TagProbeEfficiencyMon::bookHistogramsRecurrent" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In TagProbeEfficiencyMon::bookHistogramsRecurrent" << endmsg;
 
   if (m_environment == AthenaMonManager::online) {
     // Book histograms that are only made in the online environment
@@ -219,7 +219,7 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
 
   } // End if (newRun)
 
-  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -229,16 +229,16 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
 /*----------------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histograms not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histograms not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -251,7 +251,7 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
   StatusCode sc;
   sc = evtStore()->retrieve(eles, "Electrons");
   if (sc.isFailure() || !eles) {
-    if (debug) msg(MSG::DEBUG) << "No xAOD Electron container found" << endreq;
+    if (debug) msg(MSG::DEBUG) << "No xAOD Electron container found" << endmsg;
   }
 
   TLorentzVector probeLV1; 
@@ -329,7 +329,7 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
     sc = evtStore()->retrieve(cpmTobRoiTES, m_cpmTobRoiLocation);
     if (sc.isFailure() || !cpmTobRoiTES) {
       if (debug) msg(MSG::DEBUG) << "No CPM TOB RoI container found in TES: "
-				 << m_cpmTobRoiLocation << endreq;
+				 << m_cpmTobRoiLocation << endmsg;
     }
  
   // Loop over the CPM TOB RoIs and fill histograms
@@ -406,7 +406,7 @@ StatusCode TagProbeEfficiencyMon::fillHistograms()
   }// End if (cpmTobRoiTES)
     
 }//end if (probeLV1.Pt() != 0)
-  msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
   
 
   return StatusCode::SUCCESS;
@@ -420,7 +420,7 @@ StatusCode TagProbeEfficiencyMon::procHistograms()
   // Stuff that happens at the end of a run or LB goes here
   // In practice, this isn't used much
 
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
   if (endOfLumiBlock) {
   }

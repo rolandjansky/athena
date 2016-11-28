@@ -20,7 +20,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class LWHist;
 class TH1F_LW;
