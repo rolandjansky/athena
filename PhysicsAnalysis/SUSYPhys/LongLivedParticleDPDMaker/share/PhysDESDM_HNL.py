@@ -4,7 +4,7 @@ from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFr
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
 
 HnlFilterTool = skimtool( name = "HnlFilterTool",
-                          Triggers  = [],
+                          Triggers  = ["HLT_mu26_ivarmedium"],
                           Mu1PtMin  = 28*Units.GeV,
                           Mu1Types  = [0],
                           Mu1IsoCut = 0.05,

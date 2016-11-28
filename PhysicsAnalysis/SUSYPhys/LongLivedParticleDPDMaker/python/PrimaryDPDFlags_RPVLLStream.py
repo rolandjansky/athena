@@ -72,7 +72,7 @@ primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 class doEmerging(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
-    StoredValue=False # FIXME: Set True to turn this on
+    StoredValue=True # FIXME: Set True to turn this on
     pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
