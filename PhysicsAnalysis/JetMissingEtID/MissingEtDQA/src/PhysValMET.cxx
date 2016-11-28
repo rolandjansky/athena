@@ -70,7 +70,8 @@ namespace MissingEtDQA {
     declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
     declareProperty( "PhotonIsEMSelectionTool" , m_photonSelIsEMTool     );
     declareProperty( "TauSelectionTool",         m_tauSelTool            );
-    declareProperty( "METMaker",         m_metmaker );
+    declareProperty( "METMakerTopo",         m_metmakerTopo );
+    declareProperty( "METMakerPFlow",         m_metmakerPFlow );
     declareProperty( "JVTTool",          m_jvtTool );
   }
   
@@ -154,10 +155,16 @@ namespace MissingEtDQA {
 
     ATH_MSG_INFO("Retrieving tools...");
 
-    if( m_metmaker.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metmaker->name());
+    if( m_metmakerTopo.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metmakerTopo->name());
       return StatusCode::FAILURE;
     }
+
+    if( m_metmakerPFlow.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metmakerPFlow->name());   
+      return StatusCode::FAILURE;
+    }
+
 
     if( m_muonSelTool.retrieve().isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve MuonSelection tool: " << m_muonSelTool->name());
@@ -356,6 +363,8 @@ namespace MissingEtDQA {
 
       	for(std::vector<TH2D*>::size_type i = 0; i < v_MET_CorrFinalTrk_Ref.size(); ++i) {
       	  ATH_CHECK(regHist(m_MET_CorrFinalTrk_Ref[type].at(i),"MET/" + name_sub + "/",all));
+	}
+      	for(std::vector<TH2D*>::size_type i = 0; i < v_MET_CorrFinalClus_Ref.size(); ++i) {
       	  ATH_CHECK(regHist(m_MET_CorrFinalClus_Ref[type].at(i),"MET/" + name_sub + "/",all));
       	}
 
@@ -495,6 +504,8 @@ namespace MissingEtDQA {
 
       	for(std::vector<TH2D*>::size_type i = 0; i < v_MET_CorrFinalTrk_Reb.size(); ++i) {
       	  ATH_CHECK(regHist(m_MET_CorrFinalTrk_Reb[type].at(i),"MET/" + name_sub + "/",all));
+	}
+      	for(std::vector<TH2D*>::size_type i = 0; i < v_MET_CorrFinalClus_Reb.size(); ++i) {
       	  ATH_CHECK(regHist(m_MET_CorrFinalClus_Reb[type].at(i),"MET/" + name_sub + "/",all));
       	}
 
@@ -876,6 +887,9 @@ namespace MissingEtDQA {
 
       ATH_MSG_INFO( "  MET_Rebuilt_" << type << ":" );
       //Select and flag objects for final MET building ***************************
+      if( type.find("PFlow") != std::string::npos) m_metmaker = m_metmakerPFlow;
+      else m_metmaker = m_metmakerTopo;
+
       // Electrons
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), metMap).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
@@ -901,7 +915,7 @@ namespace MissingEtDQA {
     	ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
-      if((*met_Reb)["FinalTrk"]) trksource = (*met_Reb)["FinalTrk"]->source();
+      if((*met_Reb)["PVSoftTrk"]) trksource = (*met_Reb)["PVSoftTrk"]->source();
       if( m_metmaker->buildMETSum("FinalTrk", met_Reb, trksource).isFailure() ){
     	ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
       }
@@ -910,7 +924,7 @@ namespace MissingEtDQA {
       else if (type == "AntiKt4EMTopo") clsource = MissingETBase::Source::EMTopo;
       else clsource = MissingETBase::Source::UnknownSignal;
       
-      if((*met_Reb)["FinalClus"]) clsource = (*met_Reb)["FinalClus"]->source();
+      if((*met_Reb)["SoftClus"]) clsource = (*met_Reb)["SoftClus"]->source();
       if( m_metmaker->buildMETSum("FinalClus", met_Reb, clsource).isFailure() ) {
     	ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       }
@@ -1105,7 +1119,6 @@ namespace MissingEtDQA {
     	  (m_MET_CorrFinalClus_Reb[type]).at(5)->Fill((*met_Reb)[name.c_str()]->met()/1000.,(*met_Reb)["FinalClus"]->met()/1000., 1.);
     	}
       }
-
 
       // Fill Resolution
       if(m_doTruth)
@@ -1316,8 +1329,11 @@ namespace MissingEtDQA {
 
       for(std::vector<TH2D*>::size_type i = 0; i < (m_MET_CorrFinalTrk_Ref[type]).size(); ++i) {
     	(m_MET_CorrFinalTrk_Ref[type]).at(i)->Sumw2();
-    	(m_MET_CorrFinalClus_Ref[type]).at(i)->Sumw2();
     	(m_MET_CorrFinalTrk_Reb[type]).at(i)->Sumw2();
+      }
+
+      for(std::vector<TH2D*>::size_type i = 0; i < (m_MET_CorrFinalClus_Ref[type]).size(); ++i) {
+    	(m_MET_CorrFinalClus_Ref[type]).at(i)->Sumw2();
     	(m_MET_CorrFinalClus_Reb[type]).at(i)->Sumw2();
       }
 
