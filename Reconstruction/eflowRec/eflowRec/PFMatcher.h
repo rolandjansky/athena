@@ -155,11 +155,11 @@ template<class ClusterType>
   
   clusEta = theCluster->eta();
 
-  if (abs(clusEta)<0.6) ieta=0;
-  if (abs(clusEta)>=0.6 && abs(clusEta)<1.6) ieta = 1 + int((abs(clusEta) - 0.6)/0.2) ;
-  if (abs(clusEta)>=1.6 && abs(clusEta)<2.0) ieta = 6 ;
-  if (abs(clusEta)>=2.0 && abs(clusEta)<2.5) ieta = 7 ;
-  if (abs(clusEta)>=2.5) ieta = 7 ; 
+  if (std::abs(clusEta)<0.6) ieta=0;
+  if (std::abs(clusEta)>=0.6 && std::abs(clusEta)<1.6) ieta = 1 + int((std::abs(clusEta) - 0.6)/0.2) ;
+  if (std::abs(clusEta)>=1.6 && std::abs(clusEta)<2.0) ieta = 6 ;
+  if (std::abs(clusEta)>=2.0 && std::abs(clusEta)<2.5) ieta = 7 ;
+  if (std::abs(clusEta)>=2.5) ieta = 7 ; 
 
   double clusterEnergy = theCluster->e()/1000.0;
 

@@ -26,11 +26,9 @@ CREATED:  25th January, 2005
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/cycle.h"
-#include "eflowRec/phicorr.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
-using namespace eflowSubtract;
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -49,6 +47,8 @@ using namespace eflowSubtract;
 #include <vector>
 
 
+using namespace eflowSubtract;
+
 eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_eflowCaloObjectContainer(0),
@@ -60,7 +60,7 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
   m_binnedParameters(0),
   m_integrator(0),
   m_theEOverPTool("eflowCellEOverPTool",this),
-  m_rCell(0.75),
+  //m_rCell(0.75),
   m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
   m_calcEOverP(false),
@@ -94,15 +94,15 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
   sc = service("ToolSvc", myToolSvc);
 
   if (m_matchingTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endreq;
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
   }
 
   if (m_matchingToolForPull_015.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endreq;
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
   if (m_matchingToolForPull_02.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endreq;
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
   m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
@@ -111,7 +111,7 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
   sc = m_theEOverPTool->execute(m_binnedParameters);
 
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endreq;
+    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -121,7 +121,7 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
 
 void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Executing eflowCellLevelSubtractionTool" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Executing eflowCellLevelSubtractionTool" << endmsg;
 
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
   m_eflowTrackContainer = recTrackContainer;
@@ -177,7 +177,7 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   /* Create 3 types eflowCaloObjects: track-only, cluster-only, track-cluster-link */
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_eflowTrackContainer, m_eflowClusterContainer, m_eflowCaloObjectContainer);
-  msg(MSG::INFO)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endreq;
+  msg(MSG::DEBUG)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endmsg;
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo=0; iCalo<m_eflowCaloObjectContainer->size(); ++iCalo) {

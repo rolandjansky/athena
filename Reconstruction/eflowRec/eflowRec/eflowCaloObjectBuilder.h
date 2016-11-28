@@ -15,13 +15,13 @@ CREATED:  24th January, 2005
 
 ********************************************************************/
 
-#include "eflowRec/eflowBaseAlg.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class eflowISubtractionAlgTool;
 class StoreGateSvc;
 
-class eflowCaloObjectBuilder : public eflowBaseAlg {
+class eflowCaloObjectBuilder : public AthAlgorithm {
 
  public:
 

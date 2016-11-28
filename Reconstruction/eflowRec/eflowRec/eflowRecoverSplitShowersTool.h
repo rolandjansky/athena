@@ -17,7 +17,6 @@ CREATED: 16 January 2014
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "eflowRec/eflowISubtractionAlgTool.h"

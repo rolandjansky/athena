@@ -16,7 +16,7 @@ CREATED:  10th November, 2001
 
 #include <vector>
 #include <sstream>
-#include "eflowRec/eflowBaseAlg.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Particle/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -39,7 +39,7 @@ class CaloCellContainer;
 class eflowRecTrackContainer;
 class eflowRecClusterContainer;
 
-class eflowPreparation : public eflowBaseAlg {
+class eflowPreparation : public AthAlgorithm {
  public:
 
   // constructor

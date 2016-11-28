@@ -24,10 +24,16 @@ class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
 
         self.SubtractionSigmaCut = 1.2
         self.ConsistencySigmaCut = 1.0
-        self.nMatchesInCellLevelSubtraction = 1
+
+        from eflowRec.eflowRecFlags import jobproperties
+        if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+            self.nMatchesInCellLevelSubtraction = -1
+        else:
+            self.nMatchesInCellLevelSubtraction = 1
 
         try:
             from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+            MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
             MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
             MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
         except:
@@ -46,11 +52,18 @@ class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
         MatchingTool_Pull_02.DistanceType        = 'EtaPhiSquareDistance' # str
         MatchingTool_Pull_02.MatchCut = 0.2*0.2 # float
         self.PFTrackClusterMatchingTool_02 = MatchingTool_Pull_02
+
+        self.PFTrackClusterMatchingTool = MatchingTool
+
+        if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+            MatchingTool.ClusterPositionType = 'PlainEtaPhi' # str
+            MatchingTool.DistanceType        = 'EtaPhiSquareDistance'
+            MatchingTool.MatchCut = 0.2*0.2 # float
+
         
         from eflowRec.eflowCellLevelSubtractionSetup import setup_eflowCellLevelSubtraction
         return setup_eflowCellLevelSubtraction(self, "EM", mlog)
     
-        from eflowRec.eflowRecFlags import jobproperties
         if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
             self.useUpdated2015ChargedShowerSubtraction = False
         

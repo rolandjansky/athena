@@ -16,7 +16,6 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowCellIntegrator.h"
 #include "eflowRec/eflowDepthCalculator.h"
-#include "eflowRec/phicorr.h"
 #include "eflowRec/cycle.h"
 #include "eflowRec/LegendreWeights.h"
 #include "eflowRec/eflowDatabase.h"

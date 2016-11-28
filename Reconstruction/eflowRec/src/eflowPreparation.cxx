@@ -27,7 +27,6 @@ CREATED:  8th November, 2001
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/eflowBaseAlg.h"
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
@@ -58,7 +57,7 @@ CREATED:  8th November, 2001
 //  CONSTRUCTOR:
     
 eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLocator):
-  eflowBaseAlg(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_tracksName("InDetTrackParticles"),
   m_eflowCaloObjectsOutputName("eflowCaloObjects01"),
   m_caloObjectContainer(0),
@@ -113,18 +112,18 @@ StatusCode eflowPreparation::initialize() {
   sc = service("ToolSvc", myToolSvc);
 
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
+    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (m_matchingTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endreq;
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
   }
 
   sc = m_theTrackExtrapolatorTool.retrieve();
 
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Cannot find eflowTrackToCaloExtrapolatroTool " << endreq;
+    msg(MSG::WARNING) << "Cannot find eflowTrackToCaloExtrapolatroTool " << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -137,7 +136,7 @@ StatusCode eflowPreparation::initialize() {
 
 StatusCode eflowPreparation::finalize() {
 
-  msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endreq;
+  msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endmsg;
 
   if (m_useLeptons && m_selectedMuons) delete m_selectedMuons;
 
@@ -156,7 +155,7 @@ StatusCode eflowPreparation::execute() {
   sc = evtStore()->record(m_caloObjectContainer, m_eflowCaloObjectsOutputName,false);
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
-      msg(MSG::WARNING) << "Could not record eflowCaloObjectContainer in TDS" << endreq;
+      msg(MSG::WARNING) << "Could not record eflowCaloObjectContainer in TDS" << endmsg;
     }
     return StatusCode::SUCCESS;
   }
@@ -166,7 +165,7 @@ StatusCode eflowPreparation::execute() {
   sc = evtStore()->record(m_recTrackContainer, m_eflowRecTracksOutputName,false);
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
-      msg(MSG::WARNING) << "Could not record eflowRecTrackContainer in TDS" << endreq;
+      msg(MSG::WARNING) << "Could not record eflowRecTrackContainer in TDS" << endmsg;
     }
     return StatusCode::SUCCESS;
   }
@@ -176,7 +175,7 @@ StatusCode eflowPreparation::execute() {
   sc = evtStore()->record(m_recClusterContainer, m_eflowRecClustersOutputName,false);
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
-      msg(MSG::WARNING) << "Could not record eflowRecClusterContainer in TDS" << endreq;
+      msg(MSG::WARNING) << "Could not record eflowRecClusterContainer in TDS" << endmsg;
     }
     return StatusCode::SUCCESS;
   }
@@ -193,14 +192,14 @@ StatusCode eflowPreparation::execute() {
     sc = this->selectElectrons();
     if (sc.isFailure()) {
       //won't mask out the tracks, but issue WARNING
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any electrons " << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any electrons " << endmsg;
     }
 
     /* Select some muons */
     sc = this->selectMuons();
     if (sc.isFailure()) {
       //won't mask out the tracks, but issue WARNING
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any muons " << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any muons " << endmsg;
     }
   }
 
@@ -225,14 +224,14 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
   /* Retrieve the CaloCal cluster container */
   const xAOD::CaloClusterContainer* CaloCalClusterContainer;
   if (evtStore()->retrieve(CaloCalClusterContainer, m_clustersCalName).isFailure() || !CaloCalClusterContainer) {
-    msg(MSG::WARNING) << " In retrieveLCCalCellWeight Can not retrieve cal cluster Container: " << m_clustersCalName << endreq;
+    msg(MSG::WARNING) << " In retrieveLCCalCellWeight Can not retrieve cal cluster Container: " << m_clustersCalName << endmsg;
     return ;
   }
 
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
   const xAOD::CaloCluster* matchedCalCluster = CaloCalClusterContainer->at(index);
-  if (!fabs(energy - matchedCalCluster->rawE()) < 0.001) {
+  if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
     matchedCalCluster = 0;
     for (unsigned iCalCalCluster = 0; iCalCalCluster < CaloCalClusterContainer->size();
         ++iCalCalCluster) {
@@ -245,14 +244,14 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
   assert (matchedCalCluster);
 
   /* obtain cell index and cell weight */
-  const CaloDetDescrManager*   m_calo_dd_man  = CaloDetDescrManager::instance();
-  const CaloCell_ID*               m_calo_id  = m_calo_dd_man->getCaloCell_ID();
+  const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
+  const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
   xAOD::CaloCluster::const_cell_iterator itCell = matchedCalCluster->cell_begin();
   xAOD::CaloCluster::const_cell_iterator endCell = matchedCalCluster->cell_end();
   for (; itCell != endCell; ++itCell) {
     const CaloCell* pCell = *itCell;
     Identifier myId = pCell->ID();
-    IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId);
+    IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
     cellsWeight[myHashId] = itCell.weight();
   }
 
@@ -265,7 +264,7 @@ StatusCode eflowPreparation::makeClusterContainer() {
   const xAOD::CaloClusterContainer* thisCaloClusterContainer;
   StatusCode code = evtStore()->retrieve(thisCaloClusterContainer, m_clustersName);
   if (evtStore()->retrieve(thisCaloClusterContainer, m_clustersName).isFailure() || !thisCaloClusterContainer) {
-    msg(MSG::WARNING) << " Can not retrieve cluster Container: " << m_clustersName << endreq;
+    msg(MSG::WARNING) << " Can not retrieve cluster Container: " << m_clustersName << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -297,7 +296,7 @@ StatusCode eflowPreparation::makeClusterContainer() {
     if (msgLvl(MSG::DEBUG)) {
       const xAOD::CaloCluster* thisCluster = thisCaloClusterContainer->at(iCluster);
       msg(MSG::DEBUG) << "eflowPreparation clus = " << thisCluster->eta() << " "
-		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endreq;
+		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endmsg;
     }
   }
 
@@ -309,7 +308,7 @@ StatusCode eflowPreparation::makeTrackContainer() {
   const xAOD::TrackParticleContainer* trackContainer;
   StatusCode sc = evtStore()->retrieve(trackContainer, m_tracksName);
   if (sc.isFailure() || !trackContainer) {
-    if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << " No track container found in TDS" << endreq; }
+    if (msgLvl(MSG::WARNING)) { msg(MSG::WARNING) << " No track container found in TDS" << endmsg; }
     return StatusCode::FAILURE;
   }
 
@@ -356,7 +355,7 @@ StatusCode eflowPreparation::recordLeptonContainers(){
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
         << "Could not record egammaContainer in TDS"
-        << endreq;
+        << endmsg;
     return sc;
   }
 
@@ -368,7 +367,7 @@ StatusCode eflowPreparation::recordLeptonContainers(){
 
     if (sc.isFailure()) {
       if (msgLvl(MSG::WARNING))
-        msg(MSG::WARNING) << "Could not record eflowRec LeptonCellContainer in TDS" << endreq;
+        msg(MSG::WARNING) << "Could not record eflowRec LeptonCellContainer in TDS" << endmsg;
       return sc;
     }
   }
@@ -382,7 +381,7 @@ StatusCode eflowPreparation::selectMuons() {
   const xAOD::MuonContainer* muonContainer(NULL);
   StatusCode sc = evtStore()->retrieve(muonContainer, m_muonsName);
   if (sc.isFailure() || !muonContainer) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No xAOD Muon container found in TDS with the name " << m_muonsName << endreq;    
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No xAOD Muon container found in TDS with the name " << m_muonsName << endmsg;    
     return StatusCode::FAILURE;
   }
 
@@ -427,11 +426,11 @@ bool eflowPreparation::isMuon(const xAOD::TrackParticle* track){
 	    if (track == ID_track) return true;
 	    return false;
 	  }
-	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has a NULL pointer to the track " << endreq;
+	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has a NULL pointer to the track " << endmsg;
 	}
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid link to the track " << endreq;
+	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid link to the track " << endmsg;
       }//if muon pointer is valid
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon is a NULL pointer " << endreq;
+      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon is a NULL pointer " << endmsg;
     }//muon loop
   }
   else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in isMuon " << std::endl;
@@ -455,9 +454,9 @@ void eflowPreparation::storeMuonCells(const xAOD::Muon* muon){
       }//cell loop
       
     }
-    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid pointer to its cluster " << endreq;
+    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid pointer to its cluster " << endmsg;
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid element link to its cluster " << endreq;
+  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has an invalid element link to its cluster " << endmsg;
 
 }
 
@@ -467,7 +466,7 @@ StatusCode eflowPreparation::selectElectrons(){
   const xAOD::ElectronContainer* egammaContainer(0);
   StatusCode sc = evtStore()->retrieve(egammaContainer, m_electronsName);
   if (sc.isFailure() || !egammaContainer){
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No Electron container found in TDS" << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No Electron container found in TDS" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -482,7 +481,7 @@ StatusCode eflowPreparation::selectElectrons(){
         bool val_med = false;
 	bool gotID = theElectron->passSelection(val_med, "LHMedium");
 	if (!gotID) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Electron ID " << endreq;
+	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Electron ID " << endmsg;
 	  continue;
 	}
 	if (true == val_med){
@@ -492,7 +491,7 @@ StatusCode eflowPreparation::selectElectrons(){
 	}//mediumPP
       }//10GeV pt cut
     }//valid egamma pointer
-    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This electron is a NULL pointer " << endreq;
+    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This electron is a NULL pointer " << endmsg;
     
   }//electron loop
 
@@ -521,14 +520,14 @@ bool eflowPreparation::isElectron(const xAOD::TrackParticle* track){
 	      return true;
 	    }
 	  }//if valid track pointer
-	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object map has NULL pointer to original TrackParticle " << endreq;
+	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object map has NULL pointer to original TrackParticle " << endmsg;
 	}//if has a track
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object has " << nTrack << " tracks " << endreq;
+	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron object has " << nTrack << " tracks " << endmsg;
       }//if valid pointer
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron is a NULL pointer " << endreq;
+      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Electron is a NULL pointer " << endmsg;
     }//electron loop    
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_selectedElectrons in isElectron " << endreq;
+  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_selectedElectrons in isElectron " << endmsg;
 
   return false;
 
@@ -540,7 +539,7 @@ void eflowPreparation::storeElectronCells(const xAOD::Egamma* electron){
   if (electronCluster){
     this->storeLeptonCells(electronCluster);      
   }
-  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This electron has an invalid pointer to its cluster " << endreq;
+  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This electron has an invalid pointer to its cluster " << endmsg;
 
 }
 
@@ -555,10 +554,10 @@ void eflowPreparation::storeLeptonCells(const xAOD::CaloCluster* theCluster){
     
     for (; firstCell != lastCell; ++firstCell){
       if (m_leptonCellContainer) m_leptonCellContainer->push_back(*firstCell);
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_leptonCellContainer in storeLeptonCells" << endreq;
+      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_leptonCellContainer in storeLeptonCells" << endmsg;
     }//cell loop
   }
- else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This cluster has an invalid pointer to its cells, in storeLeptonCells " << endreq;
+ else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This cluster has an invalid pointer to its cells, in storeLeptonCells " << endmsg;
 
 }
 

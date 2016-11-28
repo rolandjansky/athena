@@ -9,13 +9,13 @@ if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
     eflowRecAODList += [ "xAOD::PFOContainer#EOverPNeutralParticleFlowObjects"]
 
     eflowRecAODList += [ "xAOD::PFOAuxContainer#EOverPChargedParticleFlowObjectsAux."]
-    eflowRecAODList += [ "xAOD::PFOAuxContainer#EOverPNeutralParticleFlowObjectsAux."+excludeList]    
+    eflowRecAODList += [ "xAOD::PFOAuxContainer#EOverPNeutralParticleFlowObjectsAux."]#+excludeList]    
 else:
     eflowRecAODList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjects"]
     eflowRecAODList += [ "xAOD::PFOContainer#JetETMissNeutralParticleFlowObjects"]
 
     eflowRecAODList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsAux."]
-    eflowRecAODList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsAux."+excludeList]
+    eflowRecAODList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsAux."]#+excludeList]
 
 
     

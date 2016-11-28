@@ -33,7 +33,7 @@ using namespace std;
 
 
 eflowCaloObjectBuilder::eflowCaloObjectBuilder(const std::string& name,  ISvcLocator* pSvcLocator):
-  eflowBaseAlg(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_eflowClustersOutputName("PFOClusters_JetETMiss"),
   m_eflowCaloObjectsName("eflowCaloObjects01"),
   m_eflowRecTracksName("eflowRecTracks01"),
@@ -58,25 +58,25 @@ eflowCaloObjectBuilder::~eflowCaloObjectBuilder() { }
 
 StatusCode eflowCaloObjectBuilder::initialize() {
   
-  msg(MSG::DEBUG) << "Initialising eflowCaloObjectBuilder " << endreq;
+  msg(MSG::DEBUG) << "Initialising eflowCaloObjectBuilder " << endmsg;
 
   if (service("StoreGateSvc", m_storeGate).isFailure()) {
-    msg(MSG::WARNING) << "Unable to retrieve pointer to StoreGateSvc" << endreq;
+    msg(MSG::WARNING) << "Unable to retrieve pointer to StoreGateSvc" << endmsg;
     return StatusCode::SUCCESS;
   } 
 
   /* Tool service */
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
+    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if ( m_tools.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve " << m_tools << endreq;
+    msg(MSG::WARNING) << "Failed to retrieve " << m_tools << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_tools << endreq;
+    msg(MSG::INFO) << "Retrieved " << m_tools << endmsg;
   }
   
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
@@ -87,14 +87,14 @@ StatusCode eflowCaloObjectBuilder::initialize() {
 
 StatusCode eflowCaloObjectBuilder::execute(){
 
-  msg(MSG::DEBUG) << "Executing eflowCaloObjectBuilder" << endreq;
+  msg(MSG::DEBUG) << "Executing eflowCaloObjectBuilder" << endmsg;
   StatusCode sc;
 
   /* Retrieve the eflowCaloObject container, return if not existing */
   const eflowCaloObjectContainer* caloObjectContainer;
   sc = m_storeGate->retrieve(caloObjectContainer,m_eflowCaloObjectsName);
   if(sc.isFailure() || !caloObjectContainer ){
-    msg(MSG::WARNING) <<" no eflow calo object container" <<endreq; 
+    msg(MSG::WARNING) <<" no eflow calo object container" <<endmsg; 
     return StatusCode::SUCCESS;
   }
 
@@ -102,7 +102,7 @@ StatusCode eflowCaloObjectBuilder::execute(){
   const eflowRecTrackContainer* recTrackContainer;
   sc = m_storeGate->retrieve(recTrackContainer,m_eflowRecTracksName);
   if(sc.isFailure() || !recTrackContainer ){
-    msg(MSG::WARNING) <<" no eflow rec track container" <<endreq;
+    msg(MSG::WARNING) <<" no eflow rec track container" <<endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -110,7 +110,7 @@ StatusCode eflowCaloObjectBuilder::execute(){
   const eflowRecClusterContainer* recClusterContainer;
   sc = m_storeGate->retrieve(recClusterContainer,m_eflowRecClustersName);
   if(sc.isFailure() || !recClusterContainer ){
-    msg(MSG::WARNING) <<" no eflow rec cluster container" <<endreq;
+    msg(MSG::WARNING) <<" no eflow rec cluster container" <<endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -139,10 +139,10 @@ StatusCode eflowCaloObjectBuilder::finalize() { return StatusCode::SUCCESS; }
 
 void eflowCaloObjectBuilder::printTools() {
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
-  msg(MSG::INFO) << " " << endreq;
-  msg(MSG::INFO) << "List of tools in execution sequence of eflowCaloObjectBuilder:" << endreq;
-  msg(MSG::INFO) << "------------------------------------" << endreq;
-  msg(MSG::INFO) << " " << endreq;
+  msg(MSG::INFO) << " " << endmsg;
+  msg(MSG::INFO) << "List of tools in execution sequence of eflowCaloObjectBuilder:" << endmsg;
+  msg(MSG::INFO) << "------------------------------------" << endmsg;
+  msg(MSG::INFO) << " " << endmsg;
   ToolHandleArray<eflowISubtractionAlgTool>::iterator itTool = m_tools.begin();
   ToolHandleArray<eflowISubtractionAlgTool>::iterator lastTool = m_tools.end();
   unsigned int toolCtr = 0;
@@ -151,8 +151,8 @@ void eflowCaloObjectBuilder::printTools() {
     msg(MSG::INFO) << std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
     << std::resetiosflags(std::ios_base::right) << std::setw(36) << std::setfill('.')
     << std::setiosflags(std::ios_base::left) << (*itTool)->type() << std::setfill('.')
-    << (*itTool)->name() << std::setfill(' ') << endreq;
+    << (*itTool)->name() << std::setfill(' ') << endmsg;
   }
-  msg(MSG::INFO) << " " << endreq;
-  msg(MSG::INFO) << "------------------------------------" << endreq;
+  msg(MSG::INFO) << " " << endmsg;
+  msg(MSG::INFO) << "------------------------------------" << endmsg;
 }

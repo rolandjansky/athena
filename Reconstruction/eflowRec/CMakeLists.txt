@@ -7,7 +7,6 @@ atlas_subdir( eflowRec )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloClusterCorrection
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloRec
@@ -31,7 +30,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           PRIVATE
                           Calorimeter/CaloDetDescr
-                          Calorimeter/CaloInterface
                           Calorimeter/CaloUtils
                           Control/StoreGate
                           Event/FourMomUtils
@@ -48,7 +46,7 @@ atlas_add_component( eflowRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloClusterCorrectionLib CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils SGTools GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils SGTools GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers )
 
 # Install files from the package:
 atlas_install_headers( eflowRec )

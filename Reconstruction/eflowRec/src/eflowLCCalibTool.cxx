@@ -9,8 +9,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "CaloRec/CaloClusterMomentsMaker.h"
-#include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "CaloRec/CaloClusterProcessor.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -108,10 +106,10 @@ void eflowLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTo
   if (myCalibProcessor) {
     if (myCalibProcessor->execute(cluster).isFailure()) {
       if (msgLvl(MSG::WARNING))
-        msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endreq;
+        msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endmsg;
     }
   } else if (msgLvl(MSG::WARNING))
-    msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endreq;
+    msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endmsg;
 }
 
 void eflowLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
@@ -120,12 +118,12 @@ void eflowLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
 
   /* Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster */
   const std::map<IdentifierHash, double> weightMap = theEFRecClusters->getCellsWeight();
-  const CaloCell_ID* m_calo_id = CaloDetDescrManager::instance()->getCaloCell_ID();
+  const CaloCell_ID* calo_id = CaloDetDescrManager::instance()->getCaloCell_ID();
   xAOD::CaloCluster::cell_iterator cellIter = theCluster->cell_begin();
 
   for (int cellIndex = 0; cellIter != theCluster->cell_end(); cellIter++) {
     const CaloCell* pCell = *cellIter;
-    IdentifierHash myHashId = m_calo_id->calo_cell_hash(pCell->ID());
+    IdentifierHash myHashId = calo_id->calo_cell_hash(pCell->ID());
     double weight = weightMap.find(myHashId)->second;
     theCluster->reweightCell(cellIter, weight);
     cellIndex++;

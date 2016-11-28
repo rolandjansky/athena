@@ -17,7 +17,6 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowCellPosition.h"
 #include "eflowRec/eflowTrackCaloPoints.h"
-#include "eflowRec/phicorr.h"
 #include "eflowRec/cycle.h"
 
 #include "CaloEvent/CaloCell.h"
