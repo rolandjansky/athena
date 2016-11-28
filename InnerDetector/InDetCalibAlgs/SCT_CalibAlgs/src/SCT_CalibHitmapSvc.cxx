@@ -47,8 +47,8 @@ SCT_CalibHitmapSvc::SCT_CalibHitmapSvc(const std::string &name, ISvcLocator * sv
 
 StatusCode 
 SCT_CalibHitmapSvc::initialize(){
-  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endreq, StatusCode::FAILURE;
-  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endreq, StatusCode::FAILURE;
+  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg, StatusCode::FAILURE;
+  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endmsg, StatusCode::FAILURE;
   //
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
   m_waferItrEnd  = m_pSCTHelper->wafer_end();
@@ -58,7 +58,7 @@ SCT_CalibHitmapSvc::initialize(){
 
 StatusCode 
 SCT_CalibHitmapSvc::finalize(){
-  msg(MSG::VERBOSE) << "SCT_CalibHitmapSvc::finalize()"<<endreq;
+  msg(MSG::VERBOSE) << "SCT_CalibHitmapSvc::finalize()"<<endmsg;
   if (m_sct_waferHash) delete m_sct_waferHash;
   if (m_sct_rdoGroupSize) delete m_sct_rdoGroupSize;
   if (m_sct_firstStrip) delete m_sct_firstStrip;
@@ -85,7 +85,7 @@ SCT_CalibHitmapSvc::book(){
   //histogram for numbers of events
   m_numberOfEventsHisto=new TH1I("events","Events",1,0.5,1.5);
   if( m_thistSvc->regHist( histoName.c_str(), m_numberOfEventsHisto ).isFailure() ) {
-    msg( MSG::ERROR ) << "Error in booking EventNumber histogram" << endreq;
+    msg( MSG::ERROR ) << "Error in booking EventNumber histogram" << endmsg;
   }
   //histograms for each wafer
   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
@@ -103,7 +103,7 @@ SCT_CalibHitmapSvc::book(){
 
     //cout<<name.c_str()<<endl;
     if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure()) {
-      msg( MSG::ERROR ) << "Error in booking Hitmap histogram" << endreq;
+      msg( MSG::ERROR ) << "Error in booking Hitmap histogram" << endmsg;
     } else {
       m_phistoVector.push_back( hitmapHisto_tmp );
     }
@@ -118,16 +118,16 @@ SCT_CalibHitmapSvc::read(const std::string & fileName){
   //pointers to the histos are deleted by m_thistSvc methods
   m_phistoVector.clear();
   TFile *fileHitmap = TFile::Open( fileName.c_str() );
-  msg( MSG::INFO ) << "opening Hitmap file : " << fileName.c_str() << endreq;
+  msg( MSG::INFO ) << "opening Hitmap file : " << fileName.c_str() << endmsg;
 
   if(fileHitmap==NULL) {
-    msg( MSG::ERROR ) << "can not open Hitmap file : " << fileName.c_str() << endreq;
+    msg( MSG::ERROR ) << "can not open Hitmap file : " << fileName.c_str() << endmsg;
     return result;
   }
   //histogram for numbers of events
   m_numberOfEventsHisto = (TH1I*) fileHitmap->Get("GENERAL/events");
   if( m_numberOfEventsHisto==NULL ) {
-    msg( MSG::ERROR ) << "Error in reading EventNumber histogram" << endreq;
+    msg( MSG::ERROR ) << "Error in reading EventNumber histogram" << endmsg;
   }
   //histograms for each wafer
   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
@@ -137,7 +137,7 @@ SCT_CalibHitmapSvc::read(const std::string & fileName){
     std::string name=detectorPaths[bec2Index(m_pSCTHelper->barrel_ec( waferId ))] + formattedPosition;
     TH1F* hitmapHisto_tmp = (TH1F*) fileHitmap->Get(name.c_str());
     if( hitmapHisto_tmp==NULL ) {
-      msg( MSG::ERROR ) << "Error in reading Hitmap histogram" << endreq;
+      msg( MSG::ERROR ) << "Error in reading Hitmap histogram" << endmsg;
     } else {
       m_phistoVector.push_back( hitmapHisto_tmp );
     }
@@ -178,7 +178,7 @@ SCT_CalibHitmapSvc::fillFromData(){
   m_numberOfEventsHisto->Fill( 1 );
   // unused int eventNumber = m_numberOfEventsHisto->GetEntries();
   const SCT_RDO_Container * prdoContainer(0);
-  if (m_evtStore->retrieve(prdoContainer,"SCT_RDOs").isFailure() ) msg(MSG::ERROR) <<"Failed to retrieve the SCT RDO container"<<endreq;
+  if (m_evtStore->retrieve(prdoContainer,"SCT_RDOs").isFailure() ) msg(MSG::ERROR) <<"Failed to retrieve the SCT RDO container"<<endmsg;
   SCT_RDO_Container::const_iterator itr=prdoContainer->begin();
   const SCT_RDO_Container::const_iterator end=prdoContainer->end();
   for (;itr !=end;++itr){

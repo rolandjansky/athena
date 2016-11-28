@@ -92,6 +92,10 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
                     print "Run %s : run selection passed ---> job will be launched" %(Run0)
                 line = f.readline()
             f.close()
+
+        else: 
+            print "ERROR problem in access to /data/MyLBCollection.xml file produced by AtlRunQuery.py --- probably due to AtlRunQuery crash..."
+            sys.exit( -1 )
             
         if not StableBeam:
             print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)

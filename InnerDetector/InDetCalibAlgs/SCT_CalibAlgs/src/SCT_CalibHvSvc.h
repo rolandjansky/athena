@@ -102,7 +102,7 @@ private:
  ///retrieve a service and report if it failed
  template<class S>
  bool retrievedService(S & service, const std::string & serviceName){
-   if (service.retrieve().isFailure() ) return msg(MSG::ERROR)<<"Unable to retrieve "<<serviceName<<endreq, false;
+   if (service.retrieve().isFailure() ) return msg(MSG::ERROR)<<"Unable to retrieve "<<serviceName<<endmsg, false;
    return true;
  }
 
