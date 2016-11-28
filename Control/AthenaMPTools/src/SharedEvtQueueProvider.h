@@ -9,6 +9,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaInterprocess/SharedQueue.h"
 
+class IEventShare;
+
 class SharedEvtQueueProvider : public AthenaMPToolBase
   , public IIncidentListener
 {
@@ -44,6 +46,7 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
 
   // Properties
   bool m_isPileup;        // Are we doing pile-up digitization?
+  bool m_useSharedReader; // Are we doing the reading?
   int  m_nEventsBeforeFork;
   int  m_nChunkSize;
   int  m_nChunkStart;      // The beginning of the current chunk
@@ -54,8 +57,8 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   int  m_skipEvents;       // SkipEvent property value of the Event Selectors
   int  m_nEvtCounted;      // The number of events this tool has counted itself in the input files 
   
-
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
+  IEventShare*             m_evtShare;
 
   // Add next event chunk to the queue
   void addEventsToQueue(); 
