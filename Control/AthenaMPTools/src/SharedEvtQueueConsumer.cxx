@@ -67,13 +67,13 @@ SharedEvtQueueConsumer::~SharedEvtQueueConsumer()
 
 StatusCode SharedEvtQueueConsumer::initialize()
 {
-  msg(MSG::DEBUG) << "In initialize" << endreq;
+  msg(MSG::DEBUG) << "In initialize" << endmsg;
   if(m_isPileup) {
     m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    msg(MSG::INFO) << "The job running in pileup mode" << endreq;
+    msg(MSG::INFO) << "The job running in pileup mode" << endmsg;
   }
   else {
-    msg(MSG::INFO) << "The job running in non-pileup mode" << endreq;
+    msg(MSG::INFO) << "The job running in non-pileup mode" << endmsg;
   }
 
   StatusCode sc = AthenaMPToolBase::initialize();
@@ -85,14 +85,14 @@ StatusCode SharedEvtQueueConsumer::initialize()
   if(m_isPileup) {
     m_evtSeek = dynamic_cast<IEventSeek*>(m_evtProcessor.operator->());
     if(!m_evtSeek) {
-      msg(MSG::ERROR) << "Unable to dyn-cast PileUpEventLoopMgr to IEventSeek" << endreq;
+      msg(MSG::ERROR) << "Unable to dyn-cast PileUpEventLoopMgr to IEventSeek" << endmsg;
       return StatusCode::FAILURE;
     }
   }
   else {
     sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
     if(sc.isFailure() || m_evtSeek==0) {
-      msg(MSG::ERROR) << "Error retrieving IEventSeek" << endreq;
+      msg(MSG::ERROR) << "Error retrieving IEventSeek" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -100,14 +100,14 @@ StatusCode SharedEvtQueueConsumer::initialize()
   if(m_useSharedReader) {
     sc = serviceLocator()->service(m_evtSelName,m_evtShare);
     if(sc.isFailure() || m_evtShare==0) {
-      msg(MSG::ERROR) << "Error retrieving IEventShare" << endreq;
+      msg(MSG::ERROR) << "Error retrieving IEventShare" << endmsg;
       return StatusCode::FAILURE;
     }
   }
 
   sc = m_chronoStatSvc.retrieve();
   if (!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Cannot get ChronoStatSvc." << endreq;
+    msg(MSG::ERROR) << "Cannot get ChronoStatSvc." << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -161,15 +161,15 @@ StatusCode SharedEvtQueueConsumer::finalize()
 
 int SharedEvtQueueConsumer::makePool(int, int nprocs, const std::string& topdir)
 {
-  msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
+  msg(MSG::DEBUG) << "In makePool " << getpid() << endmsg;
 
   if(nprocs==0 || nprocs<-1) {
-    msg(MSG::ERROR) << "Invalid value for the nprocs parameter: " << nprocs << endreq;
+    msg(MSG::ERROR) << "Invalid value for the nprocs parameter: " << nprocs << endmsg;
     return -1;
   }
 
   if(topdir.empty()) {
-    msg(MSG::ERROR) << "Empty name for the top directory!" << endreq;
+    msg(MSG::ERROR) << "Empty name for the top directory!" << endmsg;
     return -1;
   }
 
@@ -177,10 +177,10 @@ int SharedEvtQueueConsumer::makePool(int, int nprocs, const std::string& topdir)
   m_subprocTopDir = topdir;
 
   // Get the shared event queue
-  msg(MSG::DEBUG) << "Event queue name " << "AthenaMPEventQueue_" << m_randStr << endreq;
+  msg(MSG::DEBUG) << "Event queue name " << "AthenaMPEventQueue_" << m_randStr << endmsg;
   StatusCode sc = detStore()->retrieve(m_sharedEventQueue,"AthenaMPEventQueue_"+m_randStr);
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Event Queue" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Event Queue" << endmsg;
     return -1;
   }
 
@@ -189,27 +189,27 @@ int SharedEvtQueueConsumer::makePool(int, int nprocs, const std::string& topdir)
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue("SharedEvtQueueConsumer_RankQueue_"+m_randStr,m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
-      msg(MSG::ERROR) << "Unable to send int to the ranks queue!" << endreq;
+      msg(MSG::ERROR) << "Unable to send int to the ranks queue!" << endmsg;
       return -1;
     }
 
   // Create the process group and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(m_nprocs);
-  msg(MSG::INFO) << "Created Pool of " << m_nprocs << " worker processes" << endreq;
+  msg(MSG::INFO) << "Created Pool of " << m_nprocs << " worker processes" << endmsg;
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
     return -1;
-  msg(MSG::INFO) << "Workers bootstraped" << endreq; 
+  msg(MSG::INFO) << "Workers bootstraped" << endmsg; 
 
   return m_nprocs;
 }
 
 StatusCode SharedEvtQueueConsumer::exec()
 {
-  msg(MSG::DEBUG) << "In exec " << getpid() << endreq;
+  msg(MSG::DEBUG) << "In exec " << getpid() << endmsg;
 
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
     return StatusCode::FAILURE;
-  msg(MSG::INFO) << "Workers started processing events" << endreq;
+  msg(MSG::INFO) << "Workers started processing events" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -244,7 +244,7 @@ StatusCode SharedEvtQueueConsumer::wait_once(pid_t& pid)
 
 void SharedEvtQueueConsumer::reportSubprocessStatuses()
 {
-  msg(MSG::INFO) << "Statuses of event processors" << endreq;
+  msg(MSG::INFO) << "Statuses of event processors" << endmsg;
   const std::vector<AthenaInterprocess::ProcessStatus>& statuses = m_processGroup->getStatuses();
   for(size_t i=0; i<statuses.size(); ++i) {
     // Get the number of events processed by this worker
@@ -253,11 +253,11 @@ void SharedEvtQueueConsumer::reportSubprocessStatuses()
 		   << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS") 
 		   << ". Number of events processed: ";
     if(it==m_eventStat.end())
-      msg(MSG::INFO) << "N/A" << endreq;
+      msg(MSG::INFO) << "N/A" << endmsg;
     else
       msg(MSG::INFO) << it->second.first
 		     << ", Event Loop Time: " << it->second.second << "sec."
-		     << endreq;
+		     << endmsg;
   }
 }
 
@@ -290,7 +290,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   // ________________________ Get IncidentSvc and fire PostFork ________________________
   IIncidentSvc* p_incidentSvc(0);
   if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
-    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endmsg;
     return outwork;
   }
   p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
@@ -299,7 +299,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   // ________________________ Get RankID ________________________
   //
   if(!m_sharedRankQueue->receive_basic<int>(m_rankId)) {
-    msg(MSG::ERROR) << "Unable to get rank ID!" << endreq;
+    msg(MSG::ERROR) << "Unable to get rank ID!" << endmsg;
     return outwork;
   }
   std::ostringstream workindex;
@@ -311,7 +311,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    msg(MSG::ERROR) << "Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno) << endreq;
+    msg(MSG::ERROR) << "Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno) << endmsg;
     return outwork;
   }
 
@@ -320,14 +320,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
     if(redirectLog(worker_rundir.string()))
       return outwork;
 
-    msg(MSG::INFO) << "Logs redirected in the AthenaMP event worker PID=" << getpid() << endreq;
+    msg(MSG::INFO) << "Logs redirected in the AthenaMP event worker PID=" << getpid() << endmsg;
   }
 
   // ________________________ Update Io Registry ____________________________
   if(updateIoReg(worker_rundir.string()))
     return outwork;
 
-  msg(MSG::INFO) << "Io registry updated in the AthenaMP event worker PID=" << getpid() << endreq;
+  msg(MSG::INFO) << "Io registry updated in the AthenaMP event worker PID=" << getpid() << endmsg;
 
   // ________________________ SimParams & DigiParams ____________________________
   boost::filesystem::path abs_worker_rundir = boost::filesystem::absolute(worker_rundir);
@@ -344,39 +344,39 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   if(reopenFds())
     return outwork;
 
-  msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event worker PID=" << getpid() << endreq;
+  msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event worker PID=" << getpid() << endmsg;
 
   
   // ________________________ Make Shared RAW Reader Client ________________________
   if(m_useSharedReader) {
     if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-      msg(MSG::ERROR) << "Failed to make the event selector a share client" << endreq;
+      msg(MSG::ERROR) << "Failed to make the event selector a share client" << endmsg;
       return outwork;
     }
     else {
-      msg(MSG::DEBUG) << "Successfully made the event selector a share client" << endreq;
+      msg(MSG::DEBUG) << "Successfully made the event selector a share client" << endmsg;
     }
   }
 
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to reinitialize I/O" << endreq;
+    msg(MSG::ERROR) << "Failed to reinitialize I/O" << endmsg;
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully reinitialized I/O" << endreq;
+    msg(MSG::DEBUG) << "Successfully reinitialized I/O" << endmsg;
   }
 
   // ________________________ Event selector restart ________________________
   IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
   if(!evtSelSvc) {
-    msg(MSG::ERROR) << "Failed to dyncast event selector to IService" << endreq;
+    msg(MSG::ERROR) << "Failed to dyncast event selector to IService" << endmsg;
     return outwork;
   }
   if(!evtSelSvc->start().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to restart the event selector" << endreq;
+    msg(MSG::ERROR) << "Failed to restart the event selector" << endmsg;
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully restarted the event selector" << endreq;
+    msg(MSG::DEBUG) << "Successfully restarted the event selector" << endmsg;
   }
 
   // ________________________ Restart background event selectors in pileup jobs ________________________
@@ -388,9 +388,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
       IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(*itSvc);
       if(evtsel && (evtsel != m_evtSelector)) {
 	if((*itSvc)->start().isSuccess())
-	  msg(MSG::DEBUG) << "Restarted event selector " << (*itSvc)->name() << endreq;
+	  msg(MSG::DEBUG) << "Restarted event selector " << (*itSvc)->name() << endmsg;
 	else {
-	  msg(MSG::ERROR) << "Failed to restart event selector " << (*itSvc)->name() << endreq;
+	  msg(MSG::ERROR) << "Failed to restart event selector " << (*itSvc)->name() << endmsg;
 	  return outwork;
 	}
       }
@@ -418,7 +418,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
 	    m_eventOrders.push_back(evtnum);
 	    msg(MSG::INFO) << " " << evtnum;
 	  }
-	  msg(MSG::INFO) << endreq;
+	  msg(MSG::INFO) << endmsg;
 	}
       }
       if(m_eventOrders.empty()) {
@@ -435,7 +435,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
 
   // ________________________ Worker dir: chdir ________________________
   if(chdir(worker_rundir.string().c_str())==-1) {
-    msg(MSG::ERROR) << "Failed to chdir to " << worker_rundir.string() << endreq;
+    msg(MSG::ERROR) << "Failed to chdir to " << worker_rundir.string() << endmsg;
     return outwork;
   }
 
@@ -449,7 +449,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_func()
 {
-  msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
+  msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endmsg;
 
   bool all_ok(true);
 
@@ -457,14 +457,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
   int skipEvents(0);
   IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
   if(propertyServer==0) {
-    msg(MSG::ERROR) << "Unable to cast event selector to IProperty" << endreq;
+    msg(MSG::ERROR) << "Unable to cast event selector to IProperty" << endmsg;
     all_ok = false;
   }
   else {
     std::string propertyName("SkipEvents");
     IntegerProperty skipEventsProp(propertyName,skipEvents);
     if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
-      msg(MSG::INFO) << "Event Selector does not have SkipEvents property" << endreq;
+      msg(MSG::INFO) << "Event Selector does not have SkipEvents property" << endmsg;
     }
     else {
       skipEvents = skipEventsProp.value();
@@ -481,13 +481,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
     IEventSeek* evtSeek(0);
     StatusCode sc = serviceLocator()->service(m_evtSelName,evtSeek);
     if(sc.isFailure() || evtSeek==0) {
-      msg(MSG::ERROR) << "Error retrieving Event Selector with IEventSeek interface for PileUp job" << endreq;
+      msg(MSG::ERROR) << "Error retrieving Event Selector with IEventSeek interface for PileUp job" << endmsg;
       all_ok = false;
     }
     else {
       if((m_nEventsBeforeFork+skipEvents)
 	 && evtSeek->seek(m_nEventsBeforeFork+skipEvents).isFailure()) {
-	msg(MSG::ERROR) << "Unable to seek to " << m_nEventsBeforeFork+skipEvents << endreq;    
+	msg(MSG::ERROR) << "Unable to seek to " << m_nEventsBeforeFork+skipEvents << endmsg;    
 	all_ok = false;
       }
     }
@@ -506,7 +506,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
   boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_only);
   int* shmemCountedEvts = (int*)shmemRegion.get_address();
   int* shmemCountFinal = shmemCountedEvts+1;
-  msg(MSG::DEBUG) << "Counted events " << *shmemCountedEvts << " and the count is final " << *shmemCountFinal << endreq;
+  msg(MSG::DEBUG) << "Counted events " << *shmemCountedEvts << " and the count is final " << *shmemCountFinal << endmsg;
 
   unsigned evtCounter(0);
   int evtnum(0), chunkSize(1);
@@ -553,19 +553,19 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 	    // The event queue is empty, but we should check whether there are more events to come or not
 	    msg(MSG::DEBUG) << "Event queue is empty"; 
 	    if(*shmemCountFinal) {
-	      msg(MSG::DEBUG) << " and no more events are expected" << endreq;
+	      msg(MSG::DEBUG) << " and no more events are expected" << endmsg;
 	      break;
 	    }
 	    else {
-	      msg(MSG::DEBUG) << " but more events are expected" << endreq;
+	      msg(MSG::DEBUG) << " but more events are expected" << endmsg;
 	      usleep(1);
 	      continue;
 	    }
 	  }
-	  msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
+	  msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endmsg;
 	  chunkSize = evtnumAndChunk >> (sizeof(int)*8);
 	  evtnum = evtnumAndChunk & intmask;
-	  msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
+	  msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endmsg;
 
 	  // Save event order
 	  for(int i(0);i<chunkSize;++i) {
@@ -580,24 +580,24 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       if(m_useSharedReader) {
 	sc = m_evtShare->share(evtnum);
 	if(sc.isFailure()){
-	  msg(MSG::ERROR) << "Unable to share " << evtnum << endreq;
+	  msg(MSG::ERROR) << "Unable to share " << evtnum << endmsg;
 	  all_ok=false;
 	  break;
 	}
 	else {
-	  msg(MSG::INFO) << "Share of " << evtnum << " succeeded" << endreq;
+	  msg(MSG::INFO) << "Share of " << evtnum << " succeeded" << endmsg;
 	}
       }
       else {
 	m_chronoStatSvc->chronoStart("AthenaMP_seek");
 	sc=m_evtSeek->seek(evtnum);
 	if(sc.isFailure()){
-	  msg(MSG::ERROR) << "Unable to seek to " << evtnum << endreq;
+	  msg(MSG::ERROR) << "Unable to seek to " << evtnum << endmsg;
 	  all_ok=false;
 	  break;
 	}
 	else {
-	  msg(MSG::INFO) << "Seek to " << evtnum << " succeeded" << endreq;
+	  msg(MSG::INFO) << "Seek to " << evtnum << " succeeded" << endmsg;
 	}
 	m_chronoStatSvc->chronoStop("AthenaMP_seek");
       }
@@ -606,9 +606,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       nEventsProcessed += chunkSize;
       if(sc.isFailure()){
 	if(chunkSize==1)
-	  msg(MSG::ERROR) << "Unable to process event " << evtnum << endreq;
+	  msg(MSG::ERROR) << "Unable to process event " << evtnum << endmsg;
 	else
-	  msg(MSG::ERROR) << "Unable to process the chunk (" << evtnum << "," << evtnum+chunkSize-1 << ")" << endreq;
+	  msg(MSG::ERROR) << "Unable to process the chunk (" << evtnum << "," << evtnum+chunkSize-1 << ")" << endmsg;
 	all_ok=false;
 	break;
       }
@@ -621,7 +621,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 
   if(all_ok) {
     if(m_evtProcessor->executeRun(0).isFailure()) {
-      msg(MSG::ERROR) << "Could not finalize the Run" << endreq;
+      msg(MSG::ERROR) << "Could not finalize the Run" << endmsg;
       all_ok=false;
     }
     else if(!m_useSharedReader) {
@@ -629,9 +629,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       while(!(*shmemCountFinal)) {
         usleep(1000);
       }
-      msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted and SkipEvents=" << skipEvents << endreq; 
+      msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted and SkipEvents=" << skipEvents << endmsg; 
       if(m_evtSeek->seek(*shmemCountedEvts+skipEvents).isFailure()) 
-	msg(MSG::DEBUG) << "Seek past maxevt to " << *shmemCountedEvts+skipEvents << " returned failure. As expected..." << endreq;
+	msg(MSG::DEBUG) << "Seek past maxevt to " << *shmemCountedEvts+skipEvents << " returned failure. As expected..." << endmsg;
     }
   }
 
@@ -656,17 +656,17 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::fin_func()
 {
-  msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endreq;
+  msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endmsg;
 
   bool all_ok(true);
 
   if(m_appMgr->stop().isFailure()) {
-    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
+    msg(MSG::ERROR) << "Unable to stop AppMgr" << endmsg; 
     all_ok=false;
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
+      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endmsg;
       all_ok=false;
     }
   }
@@ -694,7 +694,7 @@ int SharedEvtQueueConsumer::decodeProcessResult(const AthenaInterprocess::Proces
 {
   if(!presult) return 0;
   const AthenaInterprocess::ScheduledWork& output = presult->output;
-  msg(MSG::DEBUG) << "Decoding the output of PID=" << presult->pid << " with the size=" << output.size << endreq;
+  msg(MSG::DEBUG) << "Decoding the output of PID=" << presult->pid << " with the size=" << output.size << endmsg;
   if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)+sizeof(TimeValType)) return 0;
   
   AthenaMPToolBase::Func_Flag func;
@@ -706,49 +706,49 @@ int SharedEvtQueueConsumer::decodeProcessResult(const AthenaInterprocess::Proces
     memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
     memcpy(&elapsed,(char*)output.data+2*+sizeof(int)+sizeof(func),sizeof(TimeValType));
     m_eventStat[presult->pid]=std::pair<int,TimeValType>(nevt,elapsed);
-    msg(MSG::DEBUG) << "PID=" << presult->pid << " processed " << nevt << " events in " << elapsed << "sec." <<endreq;
+    msg(MSG::DEBUG) << "PID=" << presult->pid << " processed " << nevt << " events in " << elapsed << "sec." <<endmsg;
 
     if(doFinalize) {
       // Add PID to the finalization queue
       m_finQueue.push(presult->pid);
-      msg(MSG::DEBUG) << "Added PID=" << presult->pid << " to the finalization queue" << endreq;
+      msg(MSG::DEBUG) << "Added PID=" << presult->pid << " to the finalization queue" << endmsg;
 
       // If this is the only element in the queue then start its finalization
       // Otherwise it has to wait its turn until all previous processes have been finalized
       if(m_finQueue.size()==1) {
 	if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,presult->pid)
 	   || m_processGroup->map_async(0,0,presult->pid)) {
-	  msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << presult->pid << endreq;
+	  msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << presult->pid << endmsg;
 	  return 1;
 	}
 	else {
-	  msg(MSG::DEBUG) << "Scheduled finalization of PID=" << presult->pid << endreq;
+	  msg(MSG::DEBUG) << "Scheduled finalization of PID=" << presult->pid << endmsg;
 	}
       }
     }
   }
   else if(doFinalize && func==AthenaMPToolBase::FUNC_FIN) {
-    msg(MSG::DEBUG) << "Finished finalization of PID=" << presult->pid << endreq;
+    msg(MSG::DEBUG) << "Finished finalization of PID=" << presult->pid << endmsg;
     pid_t pid = m_finQueue.front();
     if(pid==presult->pid) {
       // pid received as expected. Remove it from the queue
       m_finQueue.pop();
-      msg(MSG::DEBUG) << "PID=" << presult->pid << " removed from the queue" << endreq;
+      msg(MSG::DEBUG) << "PID=" << presult->pid << " removed from the queue" << endmsg;
       // Schedule finalization of the next processe in the queue
       if(m_finQueue.size()) {
 	if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
            || m_processGroup->map_async(0,0,m_finQueue.front())) {
-	  msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << m_finQueue.front() << endreq;
+	  msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << m_finQueue.front() << endmsg;
           return 1;
 	}
 	else  {
-	  msg(MSG::DEBUG) << "Scheduled finalization of PID=" << m_finQueue.front() << endreq;
+	  msg(MSG::DEBUG) << "Scheduled finalization of PID=" << m_finQueue.front() << endmsg;
 	}
       }
     }
     else {
       // Error: unexpected pid received from presult
-      msg(MSG::ERROR) << "Finalized PID=" << presult->pid << " while PID=" << pid << " was expected" << endreq;
+      msg(MSG::ERROR) << "Finalized PID=" << presult->pid << " while PID=" << pid << " was expected" << endmsg;
       return 1;
     }
   }

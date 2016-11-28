@@ -28,16 +28,12 @@ EvtRangeScatterer::EvtRangeScatterer(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_processorChannel("")
   , m_eventRangeChannel("")
-  , m_tokenExtractorChannel("TokenExtractorChannel")
   , m_doCaching(false)
-  , m_useTokenExtractor(false)
 {
   m_subprocDirPrefix = "range_scatterer";
   declareProperty("ProcessorChannel", m_processorChannel);
   declareProperty("EventRangeChannel", m_eventRangeChannel);
-  declareProperty("TokenExtractorChannel",m_tokenExtractorChannel);
   declareProperty("DoCaching",m_doCaching);
-  declareProperty("UseTokenExtractor",m_useTokenExtractor);
 }
 
 EvtRangeScatterer::~EvtRangeScatterer()
@@ -202,12 +198,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   std::string socket2ProcessorName = m_processorChannel.value() + std::string("_") + m_randStr;
   yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(socket2ProcessorName,yampl::LOCAL),yampl::MOVE_DATA);
   ATH_MSG_INFO("Created SERVER socket to token processors: " << socket2ProcessorName);
-  // Create a socket to communicate with the token extractor
-  yampl::ISocket* socket2Extractor(nullptr);
-  if(m_useTokenExtractor) {
-    socket2Extractor = socketFactory->createClientSocket(yampl::Channel(m_tokenExtractorChannel.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
-    ATH_MSG_INFO("Created CLIENT socket to the extractor: " << m_tokenExtractorChannel.value());
-  }
 
   bool all_ok=true;
   int procReportPending(0);  // Keep track of how many output files are yet to be reported by Token Processors
@@ -326,65 +316,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     std::string message2ProcessorStr;
     char* message2Processor(0);
 
-    if(m_useTokenExtractor) {
-      // Compose a string to be sent to the TokenExtractor
-      // Format GUID,Event1,Event2,...EventN
-      std::ostringstream streamMessage2Extractor;
-      for(int i(startEvent); i<=lastEvent; ++i)
-	streamMessage2Extractor << "," << i;
-      std::string message2Extractor = guid + streamMessage2Extractor.str();
-      ATH_MSG_INFO("Composed a message to Token Extractor : " << message2Extractor);
-
-      // Send the message to Token Extractor
-      char *requestBuffer(0), *responseBuffer(0); 
-      requestBuffer = (char*)malloc(message2Extractor.size());
-      memcpy(requestBuffer,message2Extractor.data(),message2Extractor.size());
-      socket2Extractor->send(requestBuffer,message2Extractor.size());
-      ATH_MSG_INFO("Sent message to the Token Extractor");
-    
-      // Get the response: list of tokens
-      ssize_t responseSize = socket2Extractor->recv(responseBuffer);    
-      if(responseSize==sizeof(unsigned)) {
-	// Token Extractor reported an error. In such cases the Token Extractor sends two messages
-	// 1. Error code: 0 - Global, 1 - Range-specific
-	unsigned* errorCode = (unsigned*)responseBuffer;
-	bool globalTEError = (*errorCode==0?true:false);
-	// 2. Error message
-	responseSize = socket2Extractor->recv(responseBuffer);
-	std::string errorString(responseBuffer,responseSize);
-	ATH_MSG_ERROR("Token Extractor reporting an error: " << errorString);
-
-	if(globalTEError) {
-	  std::string errorStr("ERR_TE_FATAL " + rangeID + ": " + errorString);
-	  void* errorMessage = malloc(errorStr.size());
-	  memcpy(errorMessage,errorStr.data(),errorStr.size());
-	  socket2Pilot->send(errorMessage,errorStr.size());
-	  ATH_MSG_ERROR("This is a FATAL error! Stopping the event loop");
-	  all_ok = false;
-	  break;
-	}
-	else {
-	  // Range specific error
-	  std::string errorStr("ERR_TE_RANGE " + rangeID + ": " + errorString);
-	  void* errorMessage = malloc(errorStr.size());
-	  memcpy(errorMessage,errorStr.data(),errorStr.size());
-	  socket2Pilot->send(errorMessage,errorStr.size());
-	  ATH_MSG_INFO("Ignoring this event range ");
-	  continue;
-	}
-      }
-      std::string responseStr(responseBuffer,responseSize);
-      ATH_MSG_INFO("Received response from the token extractor with the tokens: " << responseStr);
-
-      message2ProcessorStr = rangeID+std::string(",")+responseStr;
+    std::ostringstream ostr;
+    ostr << rangeID;
+    if(eventRangeMap.find("PFN")!=eventRangeMap.end()) {
+      ostr << "," << "PFN:" << eventRangeMap["PFN"];
     }
-    else {
-      std::ostringstream ostr;
-      ostr << rangeID;
-      for(int i(startEvent); i<=lastEvent; ++i)
-	ostr << "," << i;
-      message2ProcessorStr = ostr.str();
-    }
+    ostr << "," << eventRangeMap["startEvent"]
+         << "," << eventRangeMap["lastEvent"];
+    message2ProcessorStr = ostr.str();
 
     // CACHING MODE: first get an event range from the pilot, transform it into the tokens
     // and only after that wait for a new range request by one of the processors
@@ -410,17 +349,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     processorWaitRequest.clear();
 
     ATH_MSG_INFO("Sent response to the processor : " << message2ProcessorStr);
-  }
-
-  if(m_useTokenExtractor) {
-    // Send an empty message to the Token Extractor, by this way informing that it can exit
-    // Here (and everywhere) the empty message is in fact a dummy message with size=1, as I'm having troubles sending 0 size messages
-    //
-    // NB!!! This should be done only IF Token Scatterer and Token Extractor run on the same machine.
-    //       I.e. we have one extractor for each scatterer. Otherwise the scatterer should not be stopping the extractor
-    //
-    void* emptyMessage = malloc(1);
-    socket2Extractor->send(emptyMessage,1);
   }
 
   if(all_ok) {
@@ -478,7 +406,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
   // ...
-  delete socket2Extractor;
   delete socket2Processor;
   delete socket2Pilot;
   delete socketFactory;

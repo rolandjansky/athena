@@ -10,6 +10,7 @@
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "AthenaKernel/IEventShare.h"
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -27,6 +28,7 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_isPileup(false)
+  , m_useSharedReader(false)
   , m_nEventsBeforeFork(0)
   , m_nChunkSize(1)
   , m_nChunkStart(0)
@@ -35,10 +37,12 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
   , m_skipEvents(0)
   , m_nEvtCounted(0)
   , m_sharedEventQueue(0)
+  , m_evtShare(0)
 {
   declareInterface<IAthenaMPTool>(this);
 
   declareProperty("IsPileup",m_isPileup);
+  declareProperty("UseSharedReader",m_useSharedReader);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("ChunkSize",m_nChunkSize);
 
@@ -89,7 +93,7 @@ StatusCode SharedEvtQueueProvider::finalize()
   return StatusCode::SUCCESS;
 }
 
-int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
+int SharedEvtQueueProvider::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
   ATH_MSG_DEBUG( "In makePool " << getpid() );
 
@@ -104,6 +108,7 @@ int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
   }
 
   m_nEvtRequested = maxevt;
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
   m_subprocTopDir = topdir;
 
   // Create event queue
@@ -212,6 +217,23 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
   incsvc->addListener(this,"EndInputFile");
   ATH_MSG_DEBUG( "Added self as listener to EndInputFile" );
 
+  // _______________________ event sharing ________________________________
+  // Use EventSelector as SharedReader
+  if (m_useSharedReader) {
+    m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
+    if(!m_evtShare) {
+      ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
+      return outwork;
+    } else {
+      if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+        ATH_MSG_ERROR("Failed to make the event selector a share server");
+        return outwork;
+      } else {
+        ATH_MSG_DEBUG("Successfully made the event selector a share server");
+      }
+    }
+  }
+
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
     ATH_MSG_ERROR( "Failed to reinitialize I/O" );
@@ -291,6 +313,15 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
 
     ATH_MSG_INFO("Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
 		 << ", Event Chunk size in the queue is " << m_nChunkSize);
+
+    if (m_evtShare) {
+      if(m_evtShare->readEvent(0).isFailure()) {
+        ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
+        all_ok=false;
+      } else {
+        ATH_MSG_DEBUG("readEvent succeeded");
+      }
+    }
 
     if(m_appMgr->stop().isFailure()) {
       ATH_MSG_ERROR("Unable to stop AppMgr"); 
