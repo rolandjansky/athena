@@ -21,7 +21,7 @@
 
 
 #include "QatDataAnalysis/AttributeListConstLink.h"
-#include "QatDataAnalysis/TupleLink.h"
+//#include "QatDataAnalysis/TupleLink.h"
 
 inline Tuple::Tuple(AttributeListConstLink attributeList):
   _attributeList(attributeList),_status(true),_doubleRep(NULL),

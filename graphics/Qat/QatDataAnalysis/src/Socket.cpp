@@ -163,10 +163,7 @@ bool Socket::connect ( const std::string host, const int port )
 
   status = ::connect ( m_sock, ( sockaddr * ) &m_addr, sizeof ( m_addr ) );
 
-  if ( status == 0 )
-    return true;
-  else
-    return false;
+  return  ( status == 0 );
 }
 
 void Socket::set_non_blocking ( const bool b )
@@ -187,9 +184,10 @@ void Socket::set_non_blocking ( const bool b )
   else
     opts = ( opts & ~O_NONBLOCK );
 
-  fcntl ( m_sock,
-	  F_SETFL,opts );
-
+  const int retval=fcntl ( m_sock,F_SETFL,opts );
+  if (retval==-1){
+    std::cout << "status == -1 in Socket::set_non_blocking of QatDataAnalysis\n";
+  }
 }
 
 

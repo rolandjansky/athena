@@ -46,6 +46,8 @@ class TupleCut : public Cut<Tuple> {
   // Can also say TupleCut cut (f, TupleCut::GT, 0),
   // Can also say TupleCut cut (f, TupleCut::LT, 0);
   TupleCut (Genfun::GENFUNCTION f, Type t, double val);
+  //no assignment
+  TupleCut & operator=(const TupleCut & other)=delete;
 
   // Don't forget you can and and or these, too.
 

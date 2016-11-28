@@ -6,6 +6,9 @@ author Vakho Tsulaia
 use AtlasPolicy     AtlasPolicy-*
 use AtlasCLHEP      AtlasCLHEP-*       External
 
+# Add the -ldl linkopts for cmake
+apply_pattern cmake_add_libraries target=QatDataAnalysis libraries=dl
+
 library QatDataAnalysis *.cpp
 
 apply_pattern installed_library

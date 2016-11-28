@@ -14,7 +14,7 @@ struct HIOZeroToOne {
   void optParse(int & argc, char ** & argv);                        //
   //---------------End importatant part-----------------------------//
 
-  HIOZeroToOne();
+  HIOZeroToOne(const std::string & driver="");
   ~HIOZeroToOne();
 
 
@@ -37,7 +37,7 @@ struct HIOOneToOne {
   void optParse(int & argc, char ** & argv);                        //
   //---------------End importatant part-----------------------------//
 
-  HIOOneToOne();
+  HIOOneToOne(const std::string & driver="");
   ~HIOOneToOne();
 
 
@@ -59,7 +59,7 @@ struct HIOOneToZero {
   void optParse(int & argc, char ** & argv);                        //
   //---------------End importatant part-----------------------------//
 
-  HIOOneToZero();
+  HIOOneToZero(const std::string & driver="");
   ~HIOOneToZero();
 
 
@@ -82,7 +82,7 @@ struct HIONToOne {
   void optParse(int & argc, char ** & argv);                        //
   //---------------End importatant part-----------------------------//
 
-  HIONToOne();
+  HIONToOne(const std::string & driver="");
   ~HIONToOne();
 
 
@@ -104,7 +104,7 @@ struct HIONToZero {
   void optParse(int & argc, char ** & argv);                        //
   //---------------End importatant part-----------------------------//
 
-  HIONToZero();
+  HIONToZero(const std::string & driver="");
   ~HIONToZero();
 
 

@@ -103,8 +103,9 @@ void Hist2D::accumulate(double x, double y, double weight) {
     
     c->xW        +=  x*weight;
     c->xxW       += (x*x*weight);
-    c->yW        += (y*y*weight);
-    c->xyW       *= (x*y*weight);
+    c->yW        += (y*weight);
+    c->yyW       += (y*y*weight);
+    c->xyW       += (x*y*weight);
     c->sumWeight += weight;
     c->minContents = 0;
     c->maxContents = 0;
