@@ -12,11 +12,7 @@
  *
  * @author A. R-Veronneau 26/02/07, Shaun Roe 4/4/2008
  **/
-//STL
-#include <vector>
-#include <list>
-#include <string>
-#include <map>
+
 //
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -27,6 +23,11 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaKernel/IOVSvcDefs.h" 
 #include "AthenaKernel/IIOVDbSvc.h" 
+//STL
+#include <vector>
+#include <list>
+#include <string>
+#include <map>
 
 class IIOVSvc;
 template <class TYPE> class SvcFactory;
