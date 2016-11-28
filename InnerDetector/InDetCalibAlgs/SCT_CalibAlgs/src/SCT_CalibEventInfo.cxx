@@ -51,7 +51,7 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * sv
 
 StatusCode 
 SCT_CalibEventInfo::initialize(){
-   msg( MSG::INFO)<<"Initialize of evtInfo in "<<PACKAGE_VERSION<<endreq;
+   msg( MSG::INFO)<<"Initialize of evtInfo in "<<PACKAGE_VERSION<<endmsg;
    //agrohsje const int pri(100);
    const int pri(500);
    m_incidentSvc->addListener( this, "BeginRun",   pri, true, true );
@@ -84,7 +84,7 @@ int SCT_CalibEventInfo::lumiBlock() const{
 void
 SCT_CalibEventInfo::handle(const Incident &inc){
   if (m_storegateSvc->retrieve( m_evt ).isFailure()) 
-    msg( MSG::ERROR ) << "SCT_CalibEventInfo: Unable to get eventinfo !" << endreq;
+    msg( MSG::ERROR ) << "SCT_CalibEventInfo: Unable to get eventinfo !" << endmsg;
   if (not m_evt) return;
 
   //listening for the Unknown offlineId for OfflineId..." error.
@@ -103,13 +103,13 @@ SCT_CalibEventInfo::handle(const Incident &inc){
   if (inc.type() == "EndEvent"){
     int nUOFO = UOFO();
     if (nUOFO > m_numUOFOth){
-      msg ( MSG::DEBUG ) << " More than " << m_numUOFOth <<" Id ROD failures, skipping event" << endreq;
+      msg ( MSG::DEBUG ) << " More than " << m_numUOFOth <<" Id ROD failures, skipping event" << endmsg;
       m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
     }
   }
 
   if ( m_source == "BS" ) {
-    msg( MSG::VERBOSE ) << SCT_CalibAlgs::eventInfoAsString(m_evt) << endreq;
+    msg( MSG::VERBOSE ) << SCT_CalibAlgs::eventInfoAsString(m_evt) << endmsg;
     //--- TimeStamp/LB range analyzed
     const int timeStamp = m_evt->event_ID()->time_stamp();
     const int lumiBlock = m_evt->event_ID()->lumi_block();
@@ -121,8 +121,8 @@ SCT_CalibEventInfo::handle(const Incident &inc){
       EventInfo* eventInfo = const_cast<EventInfo*>( m_evt );
       eventInfo->event_ID()->set_run_number( m_runNumber );
       eventInfo->event_ID()->set_time_stamp( m_timeStampBegin );
-      msg( MSG::DEBUG ) << SCT_CalibAlgs::eventInfoAsString(m_evt)<<endreq;
-  } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endreq;
+      msg( MSG::DEBUG ) << SCT_CalibAlgs::eventInfoAsString(m_evt)<<endmsg;
+  } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endmsg;
 }
 
 

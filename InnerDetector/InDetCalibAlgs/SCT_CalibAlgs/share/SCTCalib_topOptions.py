@@ -180,16 +180,20 @@ if DoNoisyStrip and NoisyUploadTest :
         #--- List of data and average num of modules w/ >= 1 noisy strip
         print "---------------> Noisy strips in COOL : last ", numRuns, " runs <---------------"
         sumNoisyModulesInDB = 0
+        sumNoisyStripsInDB = 0
         for i in range( len(RunList) ) :
             numNoisyModules = GetNumNoisyMods( dbstring, folder, tag, RunList[i] )
             numNoisyStrips  = GetNumNoisyStrips( dbstring, folder, tag, RunList[i] )
             print "[ run, modules, strips ] = [", RunList[i], ",", numNoisyModules, ",", numNoisyStrips, "]"
             sumNoisyModulesInDB = sumNoisyModulesInDB + numNoisyModules
+            sumNoisyStripsInDB = sumNoisyStripsInDB + numNoisyStrips
         NoisyModuleAverageInDB = float(sumNoisyModulesInDB) / float(len(RunList))
+        NoisyStripAverageInDB = float(sumNoisyStripsInDB) / float(len(RunList))
         #--- Num of noisy strips in the last run
         NoisyStripLastRunInDB = GetNumNoisyStrips( dbstring, folder, tag, RunList[0] )
         print "Average num of modules w/ >= 1 noisy strip  : ",         NoisyModuleAverageInDB
         print "Num of noisy strips in the last run", RunList[0], " : ", NoisyStripLastRunInDB
+        print "Average num of noisy strips in last runs", RunList[0], " : ", NoisyStripAverageInDB
         print "----------------------------------------------------------------------"
         
 
@@ -438,6 +442,8 @@ SCTCalib.NoisyChipFraction      = NoisyChipFraction
 SCTCalib.NoisyUploadTest        = NoisyUploadTest
 SCTCalib.NoisyModuleAverageInDB = NoisyModuleAverageInDB
 SCTCalib.NoisyStripLastRunInDB  = NoisyStripLastRunInDB
+SCTCalib.NoisyStripAverageInDB  = NoisyStripAverageInDB
+
 SCTCalib.NoisyModuleList        = NoisyModuleList
 SCTCalib.NoisyModuleDiff        = NoisyModuleDiff
 SCTCalib.NoisyStripDiff         = NoisyStripDiff 
@@ -493,8 +499,8 @@ SCTCalib.BSErrorModuleFile         = 'BSErrorModuleSummary.xml'        # Summary
 
 SCTCalib.LorentzAngleFile          = 'LorentzAngleFile.xml'          # Summary of LorentzAngle ------- Roger
 
-SCTCalib.NoisyModuleAverageInDB    = NoisyModuleAverageInDB  #noisyModulesAverageInDB
-SCTCalib.NoisyStripLastRunInDB     = NoisyStripLastRunInDB   #noisyStripsInDB_lastRun
+#SCTCalib.NoisyModuleAverageInDB    = NoisyModuleAverageInDB  #noisyModulesAverageInDB
+#SCTCalib.NoisyStripLastRunInDB     = NoisyStripLastRunInDB   #noisyStripsInDB_lastRun
 
 SCTCalib.OutputLevel     = INFO # DEBUG
 SCTCalib.AuditAlgorithms = True # False

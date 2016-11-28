@@ -16,7 +16,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
 // Athena includes
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
@@ -84,7 +84,8 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   
   m_evt(0),
   m_regSvc(0),
-  m_streamer(0),
+  //m_streamer(0),
+  m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
   m_badIds(),
   
   m_defectRecorded(false),
@@ -129,8 +130,8 @@ SCTCalibWriteSvc::~SCTCalibWriteSvc()
 
 StatusCode SCTCalibWriteSvc::initialize(){ 
   StatusCode sc = service("DetectorStore", m_detStore);
-  if ( !sc.isSuccess() || 0 == m_detStore) return msg(MSG:: ERROR) << "Could not find DetStore" << endreq, StatusCode::FAILURE;
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG:: ERROR) << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
+  if ( !sc.isSuccess() || 0 == m_detStore) return msg(MSG:: ERROR) << "Could not find DetStore" << endmsg, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG:: ERROR) << "SCT mgr failed to retrieve" << endmsg, StatusCode::FAILURE;
   
   // ------------------------------------------------------------
   // The following is required for writing out something to COOL
@@ -146,20 +147,20 @@ StatusCode SCTCalibWriteSvc::initialize(){
   m_attrListColl_LA = new CondAttrListCollection(true);
 
   // Get Output Stream tool for writing
-  if (m_writeCondObjs) {
+  /* if (m_writeCondObjs) {
     IToolSvc* toolSvc(0);// Pointer to Tool Service
-    if (service("ToolSvc", toolSvc).isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endreq,StatusCode::FAILURE;
+    if (service("ToolSvc", toolSvc).isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endmsg,StatusCode::FAILURE;
     if (m_version == 0) {
       sc = toolSvc->retrieveTool("AthenaOutputStreamTool",m_streamName, m_streamer);
     } else {
       sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool",m_streamName, m_streamer);
     }
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find Athena(Pool)OutputStreamTool" << endreq, StatusCode::FAILURE;
-  }
+    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find Athena(Pool)OutputStreamTool" << endmsg, StatusCode::FAILURE;
+  } */
     
   // Get the IOVRegistrationSvc when needed
   if (m_regIOV) {
-    if (service("IOVRegistrationSvc", m_regSvc).isFailure()) return msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endreq, StatusCode::FAILURE;
+    if (service("IOVRegistrationSvc", m_regSvc).isFailure()) return msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endmsg, StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
@@ -265,7 +266,7 @@ StatusCode SCTCalibWriteSvc::createCondObjects(const Identifier& wafer_id,const 
   attrSpec->extend("DefectList","string");
  
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   } 
 
@@ -296,7 +297,7 @@ StatusCode SCTCalibWriteSvc::createListStrip(const Identifier& wafer_id,
   attrSpec->extend("DefectList","string");
  
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   } 
 
@@ -309,7 +310,7 @@ StatusCode SCTCalibWriteSvc::createListStrip(const Identifier& wafer_id,
   std::ostringstream attrStr2;
   attrList0.toOutputStream( attrStr2 );
   m_attrListColl_deadStrip->add(wafer_id.get_identifier32().get_compact(), attrList0);
-  msg(MSG::INFO)<<"createListStrip: return StatusCode::SUCCESS"<<endreq;
+  msg(MSG::INFO)<<"createListStrip: return StatusCode::SUCCESS"<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -322,7 +323,7 @@ StatusCode SCTCalibWriteSvc::createListChip(const Identifier& wafer_id,const SCT
   attrSpec->extend("Threshold","float");
   attrSpec->extend("DefectList","string");
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   } 
 
@@ -348,7 +349,7 @@ StatusCode SCTCalibWriteSvc::createListEff(const Identifier& wafer_id,const SCT_
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
   attrSpec->extend("Efficiency", "float");
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return(StatusCode::FAILURE);
   } 
 
@@ -370,7 +371,7 @@ StatusCode SCTCalibWriteSvc::createListNO(const Identifier& wafer_id,const SCT_I
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
   attrSpec->extend("NoiseOccupancy", "float");
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   } 
   // Add three attr lists
@@ -391,7 +392,7 @@ SCTCalibWriteSvc::createListRawOccu(const Identifier& wafer_id,const SCT_ID* sct
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
   attrSpec->extend("RawOccupancy", "float");
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   } 
   // Add three attr lists
@@ -427,7 +428,7 @@ SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* sctId
   attrSpec->extend("BadFraction", "string");
 
   if (!attrSpec->size()) {
-      msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+      msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -475,7 +476,7 @@ SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* sctId,co
   attrSpec->extend("err_minClusterWidth", "float");
    
   if (!attrSpec->size()) {
-    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+    msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -522,7 +523,7 @@ SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* sctId,co
 //   attrSpec->extend("MinClusterWidth", "float");
  
 //   if (!attrSpec->size()) {
-//     msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+//     msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg;
 //     return StatusCode::FAILURE;
 //   } 
 
@@ -551,7 +552,7 @@ SCTCalibWriteSvc::getAttrListCollectionByFolder(const string& foldername) const 
   const CondAttrListCollection* nullPtr(0);
   const CondAttrListCollection* attrListCollection = nullPtr;
   if (m_attrListCollectionMap.count(foldername) == 0) {
-      if ( m_detStore->retrieve(attrListCollection, foldername).isFailure()) return  msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endreq, nullPtr;
+      if ( m_detStore->retrieve(attrListCollection, foldername).isFailure()) return  msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endmsg, nullPtr;
       m_attrListCollectionMap.insert(make_pair(foldername, attrListCollection));
   } else {
       attrListCollection = m_attrListCollectionMap[foldername];
@@ -624,8 +625,9 @@ StatusCode SCTCalibWriteSvc::wrapUpLorentzAngle(){
 ///////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername) const{
-  if (m_streamer->connectOutput().isFailure()) {
-    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endreq;
+  //if (m_streamer->connectOutput().isFailure()) {
+  if (m_streamer->connectOutput(m_streamName).isFailure()) {
+    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endmsg;
     return( StatusCode::FAILURE);
   }
   IAthenaOutputStreamTool::TypeKeyPairs typeKeys(1);
@@ -636,12 +638,12 @@ StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername)
   }
     
   if (m_streamer->streamObjects(typeKeys).isFailure()) {
-    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endreq;
+    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endmsg;
     return StatusCode::FAILURE;
   }
     
   if (m_streamer->commitOutput().isFailure()) {
-    msg(MSG:: ERROR) << "Could not commit output stream" << endreq;
+    msg(MSG:: ERROR) << "Could not commit output stream" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -650,7 +652,7 @@ StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername)
 
 StatusCode SCTCalibWriteSvc::streamOutCondObjectsWithErrMsg(const std::string& foldername) const{
   if (streamOutCondObjects(foldername).isFailure()){
-    return msg(MSG:: ERROR) <<"Could create conditions object  "<< foldername<< endreq, StatusCode::FAILURE;
+    return msg(MSG:: ERROR) <<"Could create conditions object  "<< foldername<< endmsg, StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
@@ -670,11 +672,11 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
       if ( !m_manualiov ) {
         StoreGateSvc* pStoreGate;
         if (service("StoreGateSvc",pStoreGate).isFailure()) {
-          msg(MSG:: FATAL) << "StoreGate service not found !" << endreq;
+          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
           return StatusCode::FAILURE;
         }
         if (pStoreGate->retrieve(m_evt).isFailure()) {
-          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endreq;
+          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
           return StatusCode::FAILURE;
         }
         beginRun = m_evt->event_ID()->run_number();
@@ -688,7 +690,7 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
       unsigned int beginLB = IOVTime::MINEVENT;
       unsigned int endLB = IOVTime::MAXEVENT;
       
-      //msg(MSG:: INFO) <<"beginRun = "<<beginRun<<"   endRun = "<<endRun<<"    tag = "<<tagname<<"   m_manualiov = "<<m_manualiov << endreq;
+      //msg(MSG:: INFO) <<"beginRun = "<<beginRun<<"   endRun = "<<endRun<<"    tag = "<<tagname<<"   m_manualiov = "<<m_manualiov << endmsg;
 
       if (not tagname.empty()) {
         sc = m_regSvc->registerIOV("CondAttrListCollection",foldername,tagname,beginRun, endRun,beginLB, endLB);
@@ -696,7 +698,7 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
         sc = m_regSvc->registerIOV("CondAttrListCollection",foldername,"",beginRun, endRun,beginLB, endLB);
       }
       if (sc.isFailure()) {
-        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endreq;
+        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -708,7 +710,7 @@ StatusCode
 SCTCalibWriteSvc::registerCondObjectsWithErrMsg(const std::string& foldername,const std::string& tagname) {
   if (m_regIOV){
     if (registerCondObjects(foldername,tagname).isFailure()){
-       msg(MSG:: ERROR) << "Could not register "<<foldername << endreq;
+       msg(MSG:: ERROR) << "Could not register "<<foldername << endmsg;
        return StatusCode::FAILURE;
     }
   }
@@ -719,7 +721,7 @@ StatusCode
 SCTCalibWriteSvc::recordAndStream(const CondAttrListCollection* pCollection,const std::string & foldername, bool & flag){
   if (m_writeCondObjs) {
     if (m_detStore->record(pCollection, foldername).isFailure()) {
-      msg(MSG:: ERROR) << "Could not record "<<foldername << endreq;
+      msg(MSG:: ERROR) << "Could not record "<<foldername << endmsg;
       return StatusCode::FAILURE;
     }
     flag=true;

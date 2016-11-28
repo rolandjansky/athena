@@ -24,6 +24,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 #include "StoreGate/StoreGate.h"
@@ -209,7 +210,8 @@ private:
 
   const EventInfo*             m_evt;
   IIOVRegistrationSvc*         m_regSvc;
-  IAthenaOutputStreamTool*     m_streamer;
+  //IAthenaOutputStreamTool*     m_streamer;
+  ToolHandle<IAthenaOutputStreamTool> m_streamer;
 
   //StringArrayProperty          m_badElements; unused list of bad detector elements (= module sides)
   std::set<Identifier>         m_badIds;

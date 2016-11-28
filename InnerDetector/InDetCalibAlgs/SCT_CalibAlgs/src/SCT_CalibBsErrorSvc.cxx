@@ -58,9 +58,9 @@ SCT_CalibBsErrorSvc::SCT_CalibBsErrorSvc(const std::string &name, ISvcLocator * 
 
 StatusCode
 SCT_CalibBsErrorSvc::initialize(){
-  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endreq, StatusCode::FAILURE;
-  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endreq, StatusCode::FAILURE;
-  if ( m_bytestreamErrorsSvc.retrieve().isFailure()) return msg( MSG::ERROR) << "Unable to retrieve BS Error Svc" << endreq, StatusCode::FAILURE;
+  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg, StatusCode::FAILURE;
+  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endmsg, StatusCode::FAILURE;
+  if ( m_bytestreamErrorsSvc.retrieve().isFailure()) return msg( MSG::ERROR) << "Unable to retrieve BS Error Svc" << endmsg, StatusCode::FAILURE;
   //
   MAXHASH=m_pSCTHelper->wafer_hash_max();
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
@@ -71,7 +71,7 @@ SCT_CalibBsErrorSvc::initialize(){
 
 StatusCode
 SCT_CalibBsErrorSvc::finalize(){
-  msg( MSG::INFO)<<"Finalize of SCT_CalibBsErrorSvc"<<endreq;
+  msg( MSG::INFO)<<"Finalize of SCT_CalibBsErrorSvc"<<endmsg;
  
   return StatusCode::SUCCESS;
 }
@@ -95,7 +95,7 @@ SCT_CalibBsErrorSvc::book(){
   //histogram for numbers of events
   m_numberOfEventsHisto=new TH1I("events","Events",1,0.5,1.5);
   if( m_thistSvc->regHist( histoName.c_str(), m_numberOfEventsHisto ).isFailure() ) {
-      msg( MSG::ERROR ) << "Error in booking BSErrors histogram" << endreq;
+      msg( MSG::ERROR ) << "Error in booking BSErrors histogram" << endmsg;
   }
   //--- BSErrors for each wafer
   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
@@ -107,7 +107,7 @@ SCT_CalibBsErrorSvc::book(){
     std::string histotitle = string( "SCT " ) + detectorNames[ bec2Index(bec) ] + string( " BSErrors : plane " ) + formattedPosition;
     const std::string name=pathRoot+detectorPaths[bec2Index(m_pSCTHelper->barrel_ec( waferId ))] + formattedPosition;
     TH1F* hitmapHisto_tmp = new TH1F( TString( formattedPosition ), TString( histotitle ), n_BSErrorType, firstBSErrorType-0.5, lastBSErrorType+0.5 );
-    if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure() ) msg( MSG::ERROR ) << "Error in booking BSErrors histogram" << endreq;
+    if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure() ) msg( MSG::ERROR ) << "Error in booking BSErrors histogram" << endmsg;
     m_phistoVector.push_back( hitmapHisto_tmp );
   }
   return result; 
@@ -115,7 +115,7 @@ SCT_CalibBsErrorSvc::book(){
 
 bool 
 SCT_CalibBsErrorSvc::read(const std::string & fileName){
-  msg( MSG::ERROR ) << "Reding BsError histograms from " << fileName.c_str() << " is not supported!" << endreq;
+  msg( MSG::ERROR ) << "Reding BsError histograms from " << fileName.c_str() << " is not supported!" << endmsg;
   return false;
 }
 
@@ -168,9 +168,9 @@ SCT_CalibBsErrorSvc::fillBsErrorsForWafer(const Identifier & waferId, const int 
   const string osWafer=formatPosition(waferId, m_pSCTHelper,".");
   //--- Protection for wrong waferID
   if ( iWaferHash < 0 || iWaferHash >= MAXHASH ) {
-    msg( MSG::WARNING ) << "WaferHash " << iWaferHash << " is out of range : [ bec.layer.eta.phi.side, BSErrorType ] = [ " << osWafer << ", " << type << " ]" << endreq;
+    msg( MSG::WARNING ) << "WaferHash " << iWaferHash << " is out of range : [ bec.layer.eta.phi.side, BSErrorType ] = [ " << osWafer << ", " << type << " ]" << endmsg;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg( MSG::DEBUG ) << "BSError : [ bec.layer.eta.phi.side, Type ] = [ " << osWafer<< ", " << type << " ]"<< endreq;
+    if (msgLvl(MSG::DEBUG)) msg( MSG::DEBUG ) << "BSError : [ bec.layer.eta.phi.side, Type ] = [ " << osWafer<< ", " << type << " ]"<< endmsg;
     m_phistoVector[ iWaferHash ]->Fill( type );
   }
 }

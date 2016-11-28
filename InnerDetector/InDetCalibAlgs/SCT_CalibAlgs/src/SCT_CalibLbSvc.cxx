@@ -63,12 +63,12 @@ m_LbsToMerge(0){
 
 StatusCode 
 SCT_CalibLbSvc::initialize(){
-  msg( MSG::INFO)<<"Initialize of "<<PACKAGE_VERSION<<endreq;
-  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endreq, StatusCode::FAILURE;
-  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endreq, StatusCode::FAILURE;
-  if ( m_detStore->retrieve( m_pManager, "SCT").isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve SCTManager" << endreq,StatusCode::FAILURE;
+  msg( MSG::INFO)<<"Initialize of "<<PACKAGE_VERSION<<endmsg;
+  if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg, StatusCode::FAILURE;
+  if ( m_detStore->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endmsg, StatusCode::FAILURE;
+  if ( m_detStore->retrieve( m_pManager, "SCT").isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve SCTManager" << endmsg,StatusCode::FAILURE;
   std::pair<std::string, bool> msgCode=retrievedService(m_evtInfo);
-  if (not msgCode.second) return msg( MSG::ERROR) <<msgCode.first<< endreq,StatusCode::FAILURE;
+  if (not msgCode.second) return msg( MSG::ERROR) <<msgCode.first<< endmsg,StatusCode::FAILURE;
   //
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
   m_waferItrEnd  = m_pSCTHelper->wafer_end();
@@ -81,7 +81,7 @@ SCT_CalibLbSvc::initialize(){
 
 StatusCode 
 SCT_CalibLbSvc::finalize(){
-  msg( MSG::INFO)<<"Finalize of "<<PACKAGE_VERSION<<endreq;
+  msg( MSG::INFO)<<"Finalize of "<<PACKAGE_VERSION<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -98,7 +98,7 @@ SCT_CalibLbSvc::queryInterface(const InterfaceID & riid, void** ppvInterface ){
 
 bool
 SCT_CalibLbSvc::book(){
-  msg( MSG::INFO)<<"book() method of "<<PACKAGE_VERSION<<endreq;
+  msg( MSG::INFO)<<"book() method of "<<PACKAGE_VERSION<<endmsg;
   bool result(true);
   //pointers to the histos are deleted by m_thistSvc methods
   m_phistoVector.clear();
@@ -112,7 +112,7 @@ SCT_CalibLbSvc::book(){
 
 
   if( m_thistSvc->regHist( histoName.c_str(), m_numberOfEventsHisto ).isFailure() ) {
-    msg( MSG::ERROR ) << "Error in booking EventNumber histogram" << endreq;
+    msg( MSG::ERROR ) << "Error in booking EventNumber histogram" << endmsg;
   }
   //histograms for each wafer
   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
@@ -135,7 +135,7 @@ SCT_CalibLbSvc::book(){
     //    hitmapHistoLB_tmp2D->GetYaxis()->SetCanExtend(kTRUE);
     //    TH2F* hitmapHistoLB_tmp2D = new TH2F( TString( formattedPosition2D ), TString( histotitle ), nbins, firstStrip-0.5, lastStrip+0.5 ,m_LbRange,0.5,m_LbRange+0.5);
     if(m_thistSvc->regHist( name2D.c_str(), hitmapHistoLB_tmp2D ).isFailure() ) {
-      msg( MSG::ERROR ) << "Error in booking 2D Hitmap histogram" << endreq;
+      msg( MSG::ERROR ) << "Error in booking 2D Hitmap histogram" << endmsg;
     } else {
       //      m_phistoVector.push_back( hitmapHisto_tmp );
       m_phistoVector2D.push_back( hitmapHistoLB_tmp2D );
@@ -156,24 +156,24 @@ SCT_CalibLbSvc::book(){
 
 bool 
 SCT_CalibLbSvc::read(const std::string & fileName){
-  msg( MSG::INFO)<<"read() method of "<<PACKAGE_VERSION<<endreq;
+  msg( MSG::INFO)<<"read() method of "<<PACKAGE_VERSION<<endmsg;
   bool result(true);
    m_LbRange=numberOfLb();
   //pointers to the histos are deleted by m_thistSvc methods
   m_phistoVector.clear();
   m_phistoVector2D.clear();
   TFile *fileLB = TFile::Open( fileName.c_str() );
-  msg( MSG::INFO ) << "opening LB file : " << fileName.c_str() << endreq;
+  msg( MSG::INFO ) << "opening LB file : " << fileName.c_str() << endmsg;
 
   if(fileLB){
     m_numberOfEventsHisto= (TH1I*) fileLB->Get("GENERAL/events");
   } else {
-    msg( MSG::ERROR ) << "can not open LB file : " << fileName.c_str() << endreq;
+    msg( MSG::ERROR ) << "can not open LB file : " << fileName.c_str() << endmsg;
     return result;
   }
 
   if( m_numberOfEventsHisto==NULL ) {
-    msg( MSG::ERROR ) << "Error in reading EventNumber histogram" << endreq;
+    msg( MSG::ERROR ) << "Error in reading EventNumber histogram" << endmsg;
   }
   //std::cout<<"new of m_numberOfEventsHisto, value = "<<m_numberOfEventsHisto<<std::endl;
   //histograms for each wafer
@@ -188,7 +188,7 @@ SCT_CalibLbSvc::read(const std::string & fileName){
     //    hitmapHistoLB_tmp2D->GetYaxis()->SetCanExtend(kTRUE);
 
     if( hitmapHistoLB_tmp2D==NULL ) {
-      msg( MSG::ERROR ) << "Error in reading Hitmap histogram" << endreq;
+      msg( MSG::ERROR ) << "Error in reading Hitmap histogram" << endmsg;
     } else {
       m_phistoVector2D.push_back( hitmapHistoLB_tmp2D );
     }
@@ -198,7 +198,7 @@ SCT_CalibLbSvc::read(const std::string & fileName){
       const string hname= detectorPaths[bec2Index(bec)]+"/"+formattedPosition + boost::lexical_cast<string>(chipId);
       TH1F* hist_tmp = (TH1F*) fileLB->Get(hname.c_str());
       if( hist_tmp==NULL ) {
-        msg( MSG::ERROR ) << "Error in reading LB histogram" << endreq;
+        msg( MSG::ERROR ) << "Error in reading LB histogram" << endmsg;
       } else {
         m_phistoVector.push_back(hist_tmp);
       }
@@ -237,7 +237,7 @@ SCT_CalibLbSvc::fill(const bool fromData){
 
 bool 
 SCT_CalibLbSvc::fillFromData(){
-  if (not m_evtInfo) return msg( MSG::ERROR ) << "The evtInfo pointer is NULL" << endreq, false;
+  if (not m_evtInfo) return msg( MSG::ERROR ) << "The evtInfo pointer is NULL" << endmsg, false;
   m_lumiBlock=m_evtInfo->lumiBlock();
   m_numberOfEventsHisto->Fill(m_lumiBlock);
   bool result(true);
@@ -245,7 +245,7 @@ SCT_CalibLbSvc::fillFromData(){
   typedef SCT_RDORawData SCTRawDataType;
   const SCT_RDO_Container* p_rdoContainer;
   if (  m_evtStore->retrieve( p_rdoContainer, "SCT_RDOs" ).isFailure() ) {
-   msg( MSG::ERROR ) << "Failed to retrieve SCT RDO container" << endreq;
+   msg( MSG::ERROR ) << "Failed to retrieve SCT RDO container" << endmsg;
   }
  
   SCT_RDO_Container::const_iterator itr  = p_rdoContainer->begin();
@@ -290,7 +290,7 @@ SCT_CalibLbSvc::fillLbForWafer(const IdentifierHash &waferHash, const int theFir
     }
     
   } else {
-    msg( MSG::FATAL ) << "Element pointer is NULL" << endreq;
+    msg( MSG::FATAL ) << "Element pointer is NULL" << endmsg;
   }
   
 }
