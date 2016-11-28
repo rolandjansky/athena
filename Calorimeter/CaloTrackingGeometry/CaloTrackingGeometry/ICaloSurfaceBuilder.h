@@ -58,24 +58,24 @@ class ICaloSurfaceBuilder : virtual public IAlgTool {
   virtual CaloDepthTool* getCaloDepth() = 0;
 
   /** entrance of the sample, no eta dependence -> flat approximation */
-  virtual Trk::Surface* CreateDDSurface (const CaloCell_ID::CaloSample sample, const int side) = 0;
+  virtual Trk::Surface* CreateDDSurface (const CaloCell_ID::CaloSample sample, const int side) const = 0;
 
 
   /** overwrite DD radius/z by CaloDepth radius, and an offset can be added */
   virtual Trk::Surface* CreateUserSurface (const CaloCell_ID::CaloSample sample,
 			                                     const double offset,
-			                                     const double etaCaloLocal) = 0;
+			                                     const double etaCaloLocal) const = 0;
   /** end of the sample for the last layers of the Calo */
   virtual Trk::Surface* CreateLastSurface (const CaloCell_ID::CaloSample sample,
 			                                     const double offset,
-			                                     const double etaCaloLocal) = 0;
+			                                     const double etaCaloLocal) const = 0;
 
   /** Creates a surface at the end of the girder (Tile Calorimeter Iron Support extructure) */
-  virtual Trk::Surface* CreateGirderSurface() = 0;
+  virtual Trk::Surface* CreateGirderSurface() const = 0;
 
   /** simplified geometry */
-  virtual bool CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer) = 0;
-  virtual bool CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer) = 0;
+  virtual bool CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer) const = 0;
+  virtual bool CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer) const = 0;
 
   /** These methods provide the default parameters used by the CaloTrackingGeometry and Surface Builders,
       clients should not need to use them */
@@ -83,35 +83,35 @@ class ICaloSurfaceBuilder : virtual public IAlgTool {
   virtual bool get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
                              Amg::Transform3D* htrans, 
 			     double& radius,  double& hphi, 
-			     double& hlength, double& depth) = 0;
+			     double& hlength, double& depth) const = 0;
   
   virtual bool get_disk_surface (CaloCell_ID::CaloSample sample, int side,
                          Amg::Transform3D* htrans, double& z, 
 			 double& rmin, 
-			 double& rmax, double& hphisec, double& depth) = 0;   
+			 double& rmax, double& hphisec, double& depth) const = 0;   
   
   virtual bool get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
                              Amg::Transform3D* htrans,double& hphi,
                              std::vector<double>& radius,  
                              std::vector<double>& depth, 
-                             std::vector<double>& hlength ) = 0;
+                             std::vector<double>& hlength ) const = 0;
   
   virtual bool get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
                          Amg::Transform3D* htrans,double& hphi, 
                          std::vector<double>& z, 
                          std::vector<double>& depth,
-                         std::vector<double>& rmin, std::vector<double>& rmax) = 0;
+                         std::vector<double>& rmin, std::vector<double>& rmax) const = 0;
 
-  virtual  std::vector<const Trk::Surface*> allSampleSurfaces()  = 0;
-  virtual  std::vector<const Trk::Surface*> allTileBarSurfaces() = 0;
-  virtual  std::vector<const Trk::Surface*> allTileExtSurfaces() = 0;
-  virtual  std::vector<const Trk::Surface*> allTileGapSurfaces() = 0;
-  virtual  std::vector<const Trk::Surface*> allEMBSurfaces()     = 0;
-  virtual  std::vector<const Trk::Surface*> allEMESurfaces()     = 0;
-  virtual  std::vector<const Trk::Surface*> allHECSurfaces()     = 0;
+  virtual  std::vector<const Trk::Surface*> allSampleSurfaces() const  = 0;
+  virtual  std::vector<const Trk::Surface*> allTileBarSurfaces() const = 0;
+  virtual  std::vector<const Trk::Surface*> allTileExtSurfaces() const = 0;
+  virtual  std::vector<const Trk::Surface*> allTileGapSurfaces() const = 0;
+  virtual  std::vector<const Trk::Surface*> allEMBSurfaces() const     = 0;
+  virtual  std::vector<const Trk::Surface*> allEMESurfaces() const     = 0;
+  virtual  std::vector<const Trk::Surface*> allHECSurfaces() const     = 0;
 
-  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurfaces() = 0;
-  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurfaces() = 0;
+  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurfaces() const = 0;
+  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurfaces() const = 0;
   
 
 };

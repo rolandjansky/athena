@@ -71,8 +71,8 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   m_entryVolume("Calo::Container::EntryVolume"),
   m_exitVolume("Calo::Container"),
   m_mbtsNegLayers(0),
-  m_mbtsPosLayers(0),
-  m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
+  m_mbtsPosLayers(0)
+  //m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilder>(this);
   // declare the properties via Python
@@ -166,12 +166,14 @@ StatusCode Calo::CaloTrackingGeometryBuilder::initialize()
       ATH_MSG_INFO( "Retrieved tool " << m_tileVolumeBuilder );
 
     // Retrieve the calo surface helper (to load MBTS) -------------------------------------------------    
+#if 0
     if (m_caloSurfaceHelper.retrieve().isFailure())
     {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloSurfaceHelper );
       return StatusCode::FAILURE;
     } else
       ATH_MSG_INFO( "Retrieved tool " << m_caloSurfaceHelper );
+#endif
 
     // Dummy MaterialProerties
     m_caloMaterial = new Trk::Material;
@@ -501,6 +503,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
      // Disc
      const Trk::CylinderVolumeBounds* mbtsBounds 
        = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(lArPositiveMBTS->volumeBounds()));
+#if 0
      if (mbtsBounds && m_caloSurfaceHelper) {     // pass ownership
        Amg::Transform3D* mbtsNeg = new Amg::Transform3D(Amg::Translation3D(lArNegativeMBTS->center()));
        Amg::Transform3D* mbtsPos = new Amg::Transform3D(Amg::Translation3D(lArPositiveMBTS->center()));
@@ -508,6 +511,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
 					     (new Trk::DiscSurface(mbtsNeg,mbtsBounds->innerRadius(),mbtsBounds->outerRadius()),
 					      new Trk::DiscSurface(mbtsPos,mbtsBounds->innerRadius(),mbtsBounds->outerRadius())));
      }
+#endif
      if (mbtsBounds && m_buildMBTS) {
        float rmin = mbtsBounds->innerRadius(); 
        float rmax = mbtsBounds->outerRadius(); 
