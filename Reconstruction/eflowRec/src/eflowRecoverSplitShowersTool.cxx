@@ -66,22 +66,22 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
   // tool service
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
+    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (m_matchingTool.retrieve().isFailure()){
-    msg(MSG::WARNING) << "Couldn't retrieve PFTrackClusterMatchingTool." << endreq;
+    msg(MSG::WARNING) << "Couldn't retrieve PFTrackClusterMatchingTool." << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (m_theEOverPTool.retrieve().isFailure()){
-    msg(MSG::WARNING) << "Cannot find eflowEOverPTool" << endreq;
+    msg(MSG::WARNING) << "Cannot find eflowEOverPTool" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (m_theEOverPTool->execute(m_binnedParameters).isFailure()){
-    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endreq;
+    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -90,7 +90,7 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
 
 void eflowRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*){
 
-  msg(MSG::DEBUG) << "Executing eflowRecoverSplitShowersTool" << endreq;
+  msg(MSG::DEBUG) << "Executing eflowRecoverSplitShowersTool" << endmsg;
 
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
 
@@ -106,7 +106,7 @@ void eflowRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCal
 
 StatusCode eflowRecoverSplitShowersTool::finalize(){
 
-  msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endreq;
+  msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endmsg;
 
   delete m_binnedParameters;
   delete m_integrator;
@@ -236,7 +236,7 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_tracksToRecover, m_clustersToConsider,
                                                           m_eflowCaloObjectContainer);
-  msg(MSG::DEBUG) << "eflowRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects." << endreq;
+  msg(MSG::DEBUG) << "eflowRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects." << endmsg;
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo = nCaloObj; iCalo < m_eflowCaloObjectContainer->size(); ++iCalo) {
