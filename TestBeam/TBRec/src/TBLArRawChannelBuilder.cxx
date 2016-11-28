@@ -118,7 +118,7 @@ StatusCode TBLArRawChannelBuilder::execute() {
     // FIXME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! only for 5 leading noise samples!
     float thePedestal = (float)samples[m_iPedestal];
     //    log << MSG::INFO
-    //	<< "pedestal " << thePedestal << endreq;
+    //	<< "pedestal " << thePedestal << endmsg;
     for ( unsigned int i=0; i<samples.size(); i++ )
       {
 	mySamples[i] = ((float)samples[i]) - thePedestal;

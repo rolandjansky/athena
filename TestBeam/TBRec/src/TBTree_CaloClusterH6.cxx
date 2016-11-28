@@ -35,7 +35,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
@@ -608,12 +608,12 @@ StatusCode TBTree_CaloClusterH6::execute()
         for (int i=0; i<nLayer; i++) {
           msg()<<MSG::VERBOSE<<(*m_wtcNOverflow)[i]<<" ";
         }
-        msg()<<MSG::VERBOSE<<endreq;
+        msg()<<MSG::VERBOSE<<endmsg;
         msg()<<MSG::VERBOSE<<"Signals: ";
         for (int i=0; i<nLayer; i++) {
           msg()<<MSG::VERBOSE<<(*m_wtcSignal)[i]<<" ";
         }
-        msg()<<MSG::VERBOSE<<endreq;
+        msg()<<MSG::VERBOSE<<endmsg;
       }
   }
 

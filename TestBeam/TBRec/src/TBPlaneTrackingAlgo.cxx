@@ -79,8 +79,7 @@ StatusCode TBPlaneTrackingAlgo::execute()
 
   // Get run number and get new calib constants -----------------------------
   unsigned int thisrun=0;
-  EventID *thisEvent;           //EventID is a part of EventInfo
-  const EventInfo* thisEventInfo;
+  const EventInfo* thisEventInfo = nullptr;
   sc1=evtStore()->retrieve(thisEventInfo);
   if (sc1!=StatusCode::SUCCESS){
     ATH_MSG_WARNING ("No EventInfo object found! Can't read run number!");
@@ -90,8 +89,7 @@ StatusCode TBPlaneTrackingAlgo::execute()
   }
   else
     {
-      thisEvent=thisEventInfo->event_ID();
-      thisrun = thisEvent->run_number();
+      thisrun = thisEventInfo->event_ID()->run_number();
     }
 
   if(thisrun != m_runnumber)

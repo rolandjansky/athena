@@ -12,7 +12,7 @@
 #include "LArRawUtils/LArRawOrdering.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"

@@ -236,7 +236,9 @@ public:
 
   virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex& vertex, bool /*reuse*/) const;
 
+#if 0
   virtual Trk::Intersection getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const;
+#endif
 
 private:
 

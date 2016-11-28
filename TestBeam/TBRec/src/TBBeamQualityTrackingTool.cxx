@@ -52,7 +52,7 @@ StatusCode TBBeamQualityTrackingTool::initializeTool()
   
   log << MSG::DEBUG
       << "initializing TBBeamQualityTrackingTool"
-      << endreq;
+      << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -67,9 +67,9 @@ StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particle
     {
       log << MSG::ERROR
           << "Cannot alllocate StoreGate service!"
-          << endreq;
+          << endmsg;
     }
-   log << MSG::DEBUG << "Asked for : "<<m_particles.size()<<" particles"<<endreq;
+   log << MSG::DEBUG << "Asked for : "<<m_particles.size()<<" particles"<<endmsg;
   
   // Retrieve Beam Track and select on chi2 values in x and y
 
@@ -80,7 +80,7 @@ StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particle
     if (sc.isFailure()){
       log << MSG::WARNING
 	  << "Retrieval of TBTrack failed"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     } else {
       //          log << MSG::INFO
@@ -89,14 +89,14 @@ StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particle
       //    << thisTBTrack->getChi2_u()
       //    << ", "
       //    << thisTBTrack->getChi2_v()
-      //    << endreq;
+      //    << endmsg;
       if (thisTBTrack->getChi2_u() > m_chi2cut_u || thisTBTrack->getChi2_v() > m_chi2cut_v ) {
 	log << MSG::DEBUG
 	    << "Rejecting event with chi2(u,v) = "
 	    << thisTBTrack->getChi2_u()
 	    << ", "
 	    << thisTBTrack->getChi2_v()
-	    << endreq;
+	    << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	return StatusCode::SUCCESS;
@@ -108,7 +108,7 @@ StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particle
     } else {
       log << MSG::WARNING << "Improper Track Chi2 Cuts Applied ! : "
 	  << "Must specfiy cuts for both X and Y fits"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
   }

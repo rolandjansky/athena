@@ -51,7 +51,7 @@ StatusCode TBBeamQualityMuonToolH6::initializeTool()
   
   log << MSG::DEBUG
       << "initialize"
-      << endreq;
+      << endmsg;
   
   // setting triggflag
   
@@ -94,7 +94,7 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
     {
       log << MSG::ERROR
           << "Cannot alllocate StoreGate service!"
-          << endreq;
+          << endmsg;
     }
   
   // Trigger Pattern Pointer
@@ -102,7 +102,7 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
   
   sc = m_StoreGate->retrieve(triggpat_object, m_SGTrigkey);
   if (sc.isFailure()){
-    log << MSG::INFO << "TBCaloNtuple: Can't Retrieve "<<m_SGTrigkey<<" from SG"<< endreq;
+    log << MSG::INFO << "TBCaloNtuple: Can't Retrieve "<<m_SGTrigkey<<" from SG"<< endmsg;
     return sc;
   }else{ // obtaining trigger word from storegate
     
@@ -140,7 +140,7 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
   //muons
   log<<MSG::DEBUG
      <<m_particles[0]
-     <<endreq;
+     <<endmsg;
   
   if(m_particles[0]=="mu+" || m_particles[0]=="mu-"){
     m_successflag=false;

@@ -48,7 +48,6 @@ StatusCode TBXCryYTableRead::finalize()
 StatusCode TBXCryYTableRead::execute()
 {
   m_nEvent++;
-  MsgStream log( messageService(), name() );
   ATH_MSG_DEBUG ( "Executing TBXCryYTableRead " );
 
   StatusCode sc;
@@ -102,7 +101,7 @@ StatusCode TBXCryYTableRead::execute()
   
   //sc = m_eventStore->record(m_eventinfo,"TBEventInfo");
   //if ( sc.isFailure( ) ) {
-  //   log << MSG::FATAL << "Cannot record new TBEventInfo "<< endreq;
+  //   ATH_MSG_FATAL( "Cannot record new TBEventInfo " );
   //   setFilterPassed(false);
   //   return StatusCode::SUCCESS;
   //}

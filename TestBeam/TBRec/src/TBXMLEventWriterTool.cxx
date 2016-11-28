@@ -43,10 +43,10 @@ TBXMLEventWriterTool::writeEvent(std::ostream& outStream,
     {
       log << MSG::ERROR
 	  << "not hanging off the TBXMLWriter algorithm."
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
-  log << MSG::DEBUG << "EntryTag: "<< entryTag <<endreq;
+  log << MSG::DEBUG << "EntryTag: "<< entryTag <<endmsg;
       
   // access some data
   unsigned int theRun     = m_mother->getRunNumber(); 

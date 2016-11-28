@@ -130,7 +130,7 @@ StatusCode TBXMLWriter::initialize()
 // 	  << std::setfill('.')
 // 	  << (*fTool)->name()
 // 	  << std::setfill(' ')
-// 	  << endreq;
+// 	  << endmsg;
       // reset statistics
       m_toolInvoke[(*fTool)->name()] = 0;
       m_toolReject[(*fTool)->name()] = 0;
@@ -269,7 +269,7 @@ StatusCode TBXMLWriter::finalize()
 // 	  << std::setw(6) << std::setiosflags(std::ios_base::right)
 // 	  << m_toolReject[(*firstName).first]
 // 	  << ")"
-// 	  << endreq;
+// 	  << endmsg;
     }
   return StatusCode::SUCCESS;
 }

@@ -39,7 +39,7 @@ StatusCode TBPreScalerStreamerTool::initializeTool()
       MsgStream report(msgSvc(),name());
       report << MSG::ERROR
 	     << "event accept frequency outside allowed range [0,1]"
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
   // initialize randomizer

@@ -19,16 +19,16 @@
 #define coutPurple		"\033[35m"
 #define coutUnderLine		"\033[4;30m"
 #define coutWhiteOnBlack	"\33[40;37;1m"
-#define MSG_DEBUG_RED(string)						log << MSG::DEBUG << coutRed << string << coutDefault << endreq;
-#define MSG_DEBUG_GREEN(string)					log << MSG::DEBUG << coutGreen << string << coutDefault << endreq;
-#define MSG_DEBUG_BLUE(string)					log << MSG::DEBUG << coutBlue << string << coutDefault << endreq;
-#define MSG_DEBUG_PURPLE(string)				log << MSG::DEBUG << coutPurple << string << coutDefault << endreq;
-#define MSG_DEBUG_WHITEONBLACK(string)	log << MSG::DEBUG << coutWhiteOnBlack << string << coutDefault << endreq;
-#define MSG_ERROR_WHITEONBLACK(string)	log << MSG::ERROR << coutWhiteOnBlack << string << coutDefault << endreq;
+#define MSG_DEBUG_RED(string)						log << MSG::DEBUG << coutRed << string << coutDefault << endmsg;
+#define MSG_DEBUG_GREEN(string)					log << MSG::DEBUG << coutGreen << string << coutDefault << endmsg;
+#define MSG_DEBUG_BLUE(string)					log << MSG::DEBUG << coutBlue << string << coutDefault << endmsg;
+#define MSG_DEBUG_PURPLE(string)				log << MSG::DEBUG << coutPurple << string << coutDefault << endmsg;
+#define MSG_DEBUG_WHITEONBLACK(string)	log << MSG::DEBUG << coutWhiteOnBlack << string << coutDefault << endmsg;
+#define MSG_ERROR_WHITEONBLACK(string)	log << MSG::ERROR << coutWhiteOnBlack << string << coutDefault << endmsg;
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "EventInfo/EventInfo.h"
 #include "TBEvent/TBTrackInfo.h"

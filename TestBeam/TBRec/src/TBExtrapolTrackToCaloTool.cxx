@@ -445,7 +445,7 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::TrackParameters* parm,
   }
 
   if (!surf) {
-    ATH_MSG_WARNING ("extrapolate TrkParam called with null Trk::Surface*" << endreq );
+    ATH_MSG_WARNING ("extrapolate TrkParam called with null Trk::Surface*" << endmsg );
     return param;
   }
 
@@ -568,6 +568,7 @@ Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex&
 }
 
 
+#if 0
 Trk::Intersection TBExtrapolTrackToCaloTool::getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const
 {
   Trk::Intersection result{Amg::Vector3D(0., 0., 0.), 0., false};
@@ -582,3 +583,5 @@ Trk::Intersection TBExtrapolTrackToCaloTool::getIntersectionInCalo(const Amg::Ve
   delete surface;
   return result;
 }
+#endif
+

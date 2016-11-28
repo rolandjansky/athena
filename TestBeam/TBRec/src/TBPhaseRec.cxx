@@ -140,8 +140,7 @@ StatusCode TBPhaseRec::execute()
 
   // Get run number...
   unsigned int thisrun=0;
-  EventID *thisEvent;           
-  const EventInfo* thisEventInfo;
+  const EventInfo* thisEventInfo = nullptr;
   StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS){
     ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
@@ -149,8 +148,7 @@ StatusCode TBPhaseRec::execute()
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   } else {
-    thisEvent=thisEventInfo->event_ID();
-    thisrun = thisEvent->run_number();
+    thisrun = thisEventInfo->event_ID()->run_number();
   }
   
   // ... and get new calib constants (only if calibration constant file has been specified!)

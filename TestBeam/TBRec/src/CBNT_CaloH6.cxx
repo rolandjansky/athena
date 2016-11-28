@@ -71,7 +71,7 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
   // const DataHandle<LArDetDescrManager> m_larMgr;
   // sc = m_detStore->retrieve(m_larMgr);
   // if (sc.isFailure()) {
-  //   log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detecto\r store"<< endreq;
+  //   log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detecto\r store"<< endmsg;
   //   return sc;
   // }
   
