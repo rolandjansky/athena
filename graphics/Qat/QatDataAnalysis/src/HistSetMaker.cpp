@@ -32,7 +32,7 @@ class HistSetMaker::Clockwork {
 public:
 
   struct Hist1DDescriptor {
-    Hist1DDescriptor() :f(NULL),hist(NULL),weight(NULL) {}
+    Hist1DDescriptor() :name{},f(NULL),nBins(0),min(0.0),max(0.0),hist(NULL),weight(NULL) {}
     std::string           name;
     Genfun::AbsFunction   *f;
     unsigned int          nBins;
@@ -44,7 +44,8 @@ public:
 
 
   struct Hist2DDescriptor {
-    Hist2DDescriptor() :fX(NULL),fY(NULL),hist(NULL),weight(NULL) {}
+    Hist2DDescriptor() :name{},fX(NULL),nBinsX(0),minX(0.0),maxX(0.0),
+      fY(NULL),nBinsY(0),minY(0.0),maxY(0.0),hist(NULL),weight(NULL) {}
     std::string           name;
     Genfun::AbsFunction   *fX;
     unsigned int          nBinsX;

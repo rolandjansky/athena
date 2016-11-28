@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------//
 //                                                                           //
 // This file is part of the Pittsburgh Visualization System (PVS)            //
 //                                                                           //
@@ -33,88 +33,104 @@
 #include <cstdio>
 class IOLoader::Clockwork {
 public:
-
-
-
+  //Creation method is a function pointer taking no parameters and returning void *
   typedef void * (*CreationMethod) ();
-
+  //could use: 'using CreationMethod = void* (*)();', or just use std::function<> instead of pointer
   std::string _loadFileName;
 
   std::map<std::string, CreationMethod>    _create;
   std::map<std::string, const IODriver *>  _driver;
 
-  void loadDrivers() {
+  void
+  loadDrivers() {
     //
     // This is only for atlas:
     //
     char *_ldlibpath = getenv("LD_LIBRARY_PATH");
-    char *ldlibpath = _ldlibpath ? strdup(_ldlibpath):NULL;
-    if (ldlibpath) {
-      char *thisDir=strtok(ldlibpath,(char *)":");
-      bool allLoaded=false;
-      while (thisDir) {
-	DIR *directory = opendir(thisDir);
-	if (directory) {
-	  dirent * entry = readdir(directory);
-	  while (entry) {
-	    
-	    std::string  name = entry->d_name;
-	    std::string  path = thisDir + std::string("/") + name;
-	    std::string  basename, extension;
-	    size_t  dotpos = name.find_last_of('.');
-	    if (dotpos != name.npos) {
-	      extension = name.substr(dotpos);
-	      basename  = name.substr(0,dotpos);
-	    }
-	    
-	    std::string shortName;
-	    
-	    // Here is a list of known drivers.  This is not nice but neither
-	    // is CMT...
-	    
-	    if (name=="libQoot.so") shortName="RootDriver";
+    char *ldlibpath = _ldlibpath ? strdup(_ldlibpath) : NULL;
 
-	    // .. and their is only one driver on the list..
-	    
-	    if (shortName!="") {
-	      if (_create.find(shortName)==_create.end()) {
-		
-		std::string createFunctionName;
-		createFunctionName=shortName+"Create";
-		
-		void *handle = dlopen(path.c_str(),RTLD_LAZY);
-		if (!handle) std::cerr << dlerror() << std::endl;
-		
-		CreationMethod createMethod;
-		union { CreationMethod func; void* data; } sym;
-		
-		sym.data= dlsym(handle, createFunctionName.c_str());
-		createMethod = sym.func;
-		_create[shortName]=createMethod;
-		if (!createMethod) {
-		  std::cout << basename << " load failed" << std::endl;
-		}
-		else {
-		  allLoaded=true; // only one, so far...
-		  break;
-		}
-	      }
-	    }
-	    entry = readdir(directory);
-	  }
-	  closedir(directory);
-	  if (allLoaded) break;
-	}
-	else {
-	  //perror(NULL);
-	}
-	thisDir=strtok(NULL, (char *) ":");
+    if (ldlibpath) {
+      char *thisDir = strtok(ldlibpath, (char *) ":");
+      int nLoaded = 0;
+      while (thisDir) {
+        DIR *directory = opendir(thisDir);
+        if (directory) {
+          dirent *entry = readdir(directory);
+          while (entry) {
+            std::string name = entry->d_name;
+            std::string path = thisDir + std::string("/") + name;
+            std::string basename, extension;
+            size_t dotpos = name.find_last_of('.');
+            if (dotpos != name.npos) {
+              extension = name.substr(dotpos);
+              basename = name.substr(0, dotpos);
+            }
+
+            std::string shortName;
+
+            // Here is a list of known drivers.  This is not nice but neither
+            // is CMT...
+
+            if (name == "libQoot.so") {
+              shortName = "RootDriver";
+            }
+            if (name == "libQHDF5.so") {
+              shortName = "HDF5Driver";
+            }
+
+            // .. and their is only one driver on the list..
+            if (shortName != "") {
+              if (_create.find(shortName) == _create.end()) {
+                std::string createFunctionName;
+                createFunctionName = shortName + "Create";
+
+                void *handle = dlopen(path.c_str(), RTLD_LAZY);
+                if (!handle) {
+                  std::cerr << dlerror() << std::endl;
+                  free(ldlibpath);ldlibpath=nullptr;
+                  int retVal = closedir(directory);
+                  if (retVal !=0){
+                    std::cerr<<"Failed to close directory in "<<__FILE__<<std::endl;
+                  }
+                  return;
+                }
+
+                CreationMethod createMethod;
+                union {
+                  CreationMethod func;
+                  void *data;
+                } sym;
+
+                sym.data = dlsym(handle, createFunctionName.c_str());
+                createMethod = sym.func;
+                _create[shortName] = createMethod;
+                if (!createMethod) {
+                  std::cout << basename << " load failed" << std::endl;
+                }else {
+                  nLoaded++;
+                  if (nLoaded == 2) {
+                    break;
+                  }
+                }
+              }
+            }
+            entry = readdir(directory);
+          }
+          closedir(directory);
+          if (nLoaded == 2) {
+            break;
+          }
+        }else {
+          // perror(NULL);
+        }
+        thisDir = strtok(NULL, (char *) ":");
       }
+      free(ldlibpath);ldlibpath=nullptr;
     }
   }
 };
 
-IOLoader::IOLoader():c(new Clockwork()) {
+IOLoader::IOLoader() : c(new Clockwork()) {
   c->loadDrivers();
 }
 
@@ -122,23 +138,21 @@ IOLoader::~IOLoader() {
   delete c;
 }
 
-
-
-const IODriver *IOLoader::ioDriver(const std::string & name ) const {
+const IODriver *
+IOLoader::ioDriver(const std::string &name) const {
   std::map<std::string, const IODriver *>::iterator d = c->_driver.find(name);
-  if (d==c->_driver.end()) {
+
+  if (d == c->_driver.end()) {
     std::map<std::string, Clockwork::CreationMethod>::iterator m = c->_create.find(name);
-    if (m!=c->_create.end()) {
+    if (m != c->_create.end()) {
       Clockwork::CreationMethod createMethod = (*m).second;
-      IODriver *driver = (IODriver *) (*createMethod) ();
-      c->_driver[name] =driver;
+      IODriver *driver = (IODriver *) (*createMethod)();
+      c->_driver[name] = driver;
       return driver;
-    }
-    else {
+    }else {
       return NULL;
     }
-  }
-  else 
+  }else {
     return (*d).second;
-  
+  }
 }

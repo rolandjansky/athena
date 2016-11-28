@@ -14,5 +14,5 @@ atlas_add_library( QatDataAnalysis
                    PUBLIC_HEADERS QatDataAnalysis
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} dl )
 
