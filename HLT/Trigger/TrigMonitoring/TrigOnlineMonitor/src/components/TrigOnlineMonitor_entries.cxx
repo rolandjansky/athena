@@ -1,7 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigOnlineMonitor/TrigROBMonitor.h"
 #include "TrigOnlineMonitor/TrigMuCTPiROBMonitor.h"
-#include "TrigOnlineMonitor/TrigALFAROBMonitor.h"
+#include "src/TrigALFAROBMonitor.h"
 #include "src/TrigL1TopoROBMonitor.h"
 
 DECLARE_ALGORITHM_FACTORY( TrigROBMonitor )

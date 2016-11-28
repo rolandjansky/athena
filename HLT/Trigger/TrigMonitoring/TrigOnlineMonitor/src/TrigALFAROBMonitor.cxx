@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineMonitor/TrigALFAROBMonitor.h"
+#include "../src/TrigALFAROBMonitor.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -1165,14 +1165,14 @@ bool TrigALFAROBMonitor::getLvl1Result(LVL1CTP::Lvl1Result &resultL1) {
 		return true;
 	}
 	else {
-		//log() << MSG::WARNING << "Error retrieving Lvl1Result from StoreGate" << endreq;
+		//log() << MSG::WARNING << "Error retrieving Lvl1Result from StoreGate" << endmsg;
                 ATH_MSG_INFO ("Error retrieving Lvl1Result from StoreGate");
 		return false;
 	}
     }
     else {
 	if(1) /* outputLevel() <= MSG::DEBUG) */ {
-		//log() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endreq;
+		//log() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endmsg;
 		ATH_MSG_INFO ("Lvl1Result does not exist with key: " << "Lvl1Result");
                 return false;
 	}
@@ -1219,10 +1219,8 @@ void TrigALFAROBMonitor::reset1LBhistos(int lbNumber) {
 
 
 void TrigALFAROBMonitor::reset10LBhistos(int lbNumber) {
-     std::ostringstream ost_LB;
 
-     ost_LB << lbNumber-10 << "-"<<lbNumber;
-     ATH_MSG_INFO ("reset 10LB histos: " << ost_LB);
+     ATH_MSG_INFO ("reset 10LB histos: " << lbNumber-10 << "-"<<lbNumber);
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
              (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->Reset();
@@ -1232,10 +1230,8 @@ void TrigALFAROBMonitor::reset10LBhistos(int lbNumber) {
 
 
 void TrigALFAROBMonitor::reset60LBhistos(int lbNumber) {
-     std::ostringstream ost_LB;
 
-     ost_LB << lbNumber-60 << "-"<<lbNumber;
-     ATH_MSG_INFO ("reset 60LB histos: " << ost_LB);
+     ATH_MSG_INFO ("reset 60LB histos: " << lbNumber-60 << "-"<<lbNumber);
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
             (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->Reset();
