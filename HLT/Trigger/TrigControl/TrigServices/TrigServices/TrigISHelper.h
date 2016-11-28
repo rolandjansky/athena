@@ -168,15 +168,13 @@ StatusCode TrigISHelper::findValue(ISObject obj, R& value, G getter)
     getter(namedInfo, value);   // set 'value'
   }
   catch (daq::is::Exception& e) {
-    msg() << MSG::WARNING << "IS Exception reading " << isName << " from partition "
-          << partName << ". Exception was: " << e.what() << endreq;
+    ATH_MSG_WARNING("IS Exception reading " << isName << " from partition "
+                    << partName << ". Exception was: " << e.what());
 
     return m_ignoreIfMissing ? StatusCode::SUCCESS : StatusCode::FAILURE;
   }
 
-  if ( msgLvl(MSG::DEBUG) ) {
-    msg() << MSG::DEBUG << "Successfully read " << isName << " from IS: " << value << endreq;
-  }
+  ATH_MSG_DEBUG("Successfully read " << isName << " from IS: " << value);
   return StatusCode::SUCCESS;
 }
 
@@ -193,9 +191,9 @@ StatusCode TrigISHelper::getAttributes(ISObject obj, std::vector<T>& values)
     ISInfoDictionary isInfoDict(part);
     isInfoDict.findValue(isName, ida);
   }
-  catch (daq::is::Exception e) {
-    msg() << MSG::WARNING << "IS Exception reading " << isName << " from partition "
-          << partName << ". Exception was: " << e.what() << endreq;
+  catch (daq::is::Exception& e) {
+    ATH_MSG_WARNING("IS Exception reading " << isName << " from partition "
+                    << partName << ". Exception was: " << e.what());
 
     return m_ignoreIfMissing ? StatusCode::SUCCESS : StatusCode::FAILURE;
   }

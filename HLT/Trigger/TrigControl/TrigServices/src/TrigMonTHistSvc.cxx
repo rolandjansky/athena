@@ -103,7 +103,6 @@ StatusCode TrigMonTHistSvc::finalize() {
   ATH_MSG_DEBUG("Resetting OH histogram mutex");
   lock_histogram_mutex::reset_histogram_mutex();
         
-  std::stringstream f;
   hltinterface::IInfoRegister::THList thlist;
   hltinterface::IInfoRegister::instance()->get(".*", thlist); 
   hltinterface::IInfoRegister::THList::iterator lIter;
@@ -337,7 +336,6 @@ StatusCode TrigMonTHistSvc::getTHists_i(const std::string& dir, TList &tl) const
     hltinterface::IInfoRegister::instance()->get(".+", thlist); 
     hltinterface::IInfoRegister::THList::iterator lIter;
 
-    std::vector<std::string> l; 
     for ( lIter = thlist.begin() ; lIter != thlist.end(); ++lIter ){
 	if ( lIter->first.find(dir) == 0 ) {
 	    // histogram booking path starts from the dir 

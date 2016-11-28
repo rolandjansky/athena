@@ -33,7 +33,7 @@ namespace
   void printSOR(MsgStream& log, const SORHelper::SOR * sor)
   {
     log << MSG::DEBUG << ST_WHERE
-        << "Dump SOR CondAttrListCollection: size=" << sor->size() << endreq;
+        << "Dump SOR CondAttrListCollection: size=" << sor->size() << endmsg;
     sor->dump();
   }
 
@@ -52,16 +52,16 @@ namespace
 ////////////////////////////////////////////////////////////////////////////////
 const SORHelper::SOR * SORHelper::fillSOR(const ptree & rparams) const
 {
-  m_log << MSG::DEBUG << ST_WHERE << "Setup SOR in DetectorStore" << endreq;
+  m_log << MSG::DEBUG << ST_WHERE << "Setup SOR in DetectorStore" << endmsg;
   SG dstore("DetectorStore", CLNAME);
   if((dstore.retrieve()).isFailure())
-    m_log << MSG::ERROR << ST_WHERE << "could not find DetectorStore" << endreq;
+    m_log << MSG::ERROR << ST_WHERE << "could not find DetectorStore" << endmsg;
 
   // get handle to the IOVDbSvc
   ServiceHandle<IIOVDbSvc> iovdbsvc("IOVDbSvc", CLNAME);
   if ((iovdbsvc.retrieve()).isFailure()) {
     m_log << MSG::ERROR << ST_WHERE 
-          << "could not find IOVDbSvc. Time dependent conditions data may be not properly handled." << endreq;
+          << "could not find IOVDbSvc. Time dependent conditions data may be not properly handled." << endmsg;
   } else {
     IOVTime currentIOVTime(rparams.get<unsigned int>("run_number"), 
 			   IOVTime::MINEVENT,
@@ -70,10 +70,10 @@ const SORHelper::SOR * SORHelper::fillSOR(const ptree & rparams) const
     // Signal BeginRun directly to IOVDbSvc to set complete IOV start time
     if (StatusCode::SUCCESS != iovdbsvc->signalBeginRun(currentIOVTime)) {
       m_log << MSG::ERROR << ST_WHERE 
-            << "Unable to signal begin run IOVTime to IOVDbSvc. IOVTime = " << currentIOVTime << endreq;
+            << "Unable to signal begin run IOVTime to IOVDbSvc. IOVTime = " << currentIOVTime << endmsg;
     } else {
       m_log << MSG::DEBUG << ST_WHERE 
-            << "Set start of run time to IOVTime = " << currentIOVTime << endreq;
+            << "Set start of run time to IOVTime = " << currentIOVTime << endmsg;
     }
   }
 
@@ -81,11 +81,11 @@ const SORHelper::SOR * SORHelper::fillSOR(const ptree & rparams) const
   if(!sor || fillSor(rparams, sor).isFailure() ||
       updateProxy(dstore, sor).isFailure())
   {
-    m_log << MSG::ERROR << ST_WHERE << "could not properly setup SOR" << endreq;
+    m_log << MSG::ERROR << ST_WHERE << "could not properly setup SOR" << endmsg;
     return nullptr;
   }
 
-  m_log << MSG::DEBUG << ST_WHERE << "successfully setup SOR" << endreq;
+  m_log << MSG::DEBUG << ST_WHERE << "successfully setup SOR" << endmsg;
   printSOR(m_log, sor);
 
   return sor;
@@ -100,13 +100,13 @@ SORHelper::SOR * SORHelper::getSOR(const SG & dstore) const
   {
     const SOR * oldsor = dstore->retrieve<const SOR>(SORPATH);
     m_log << MSG::INFO << ST_WHERE
-          << "overwriting SOR contents (a dump of the old one follows)"<<endreq;
+          << "overwriting SOR contents (a dump of the old one follows)"<<endmsg;
     printSOR(m_log, oldsor);
     sc = dstore->overwrite(sor, SORPATH, true);
   }
   else
   {
-    m_log << MSG::INFO << ST_WHERE << "recording new SOR" << endreq;
+    m_log << MSG::INFO << ST_WHERE << "recording new SOR" << endmsg;
     sc = dstore->record(sor, SORPATH, true);
   }
 
@@ -114,7 +114,7 @@ SORHelper::SOR * SORHelper::getSOR(const SG & dstore) const
   {
     m_log << MSG::ERROR << ST_WHERE
           << "could not record SOR in DetectorStore\n" << dstore->dump()
-          << endreq;
+          << endmsg;
     delete sor;
     sor = nullptr;
   }
@@ -193,7 +193,7 @@ StatusCode SORHelper::setIOVRange(IOVRange & iovRange) const
   ServiceHandle<IIOVSvc> iovsvc("IOVSvc", CLNAME);
   if ((iovsvc.retrieve()).isFailure())
   {
-    m_log << MSG::ERROR << ST_WHERE << "could not find IOVSvc" << endreq;
+    m_log << MSG::ERROR << ST_WHERE << "could not find IOVSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -201,7 +201,7 @@ StatusCode SORHelper::setIOVRange(IOVRange & iovRange) const
   if ((iovsvc->setRange(clid, SORPATH, iovRange, "StoreGateSvc")).isFailure())
   {
     m_log << MSG::ERROR << ST_WHERE
-          << "could not set IOVRange for SOR folder in IOVSvc." << endreq;
+          << "could not set IOVRange for SOR folder in IOVSvc." << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -217,14 +217,14 @@ SORHelper::updateProxy(const SG & dstore, SOR * sor) const
   auto proxy = dstore->proxy(sor);
   if (!proxy) {
     m_log << MSG::ERROR << ST_WHERE
-          << "could not find proxy for SOR_Params folder." << endreq;
+          << "could not find proxy for SOR_Params folder." << endmsg;
     return StatusCode::FAILURE;
   }
 
   auto transientAddr = proxy->transientAddress();
   if (!transientAddr) {
     m_log << MSG::ERROR << ST_WHERE
-          << "could not find transient address for SOR_Params folder" << endreq;
+          << "could not find transient address for SOR_Params folder" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -234,7 +234,7 @@ SORHelper::updateProxy(const SG & dstore, SOR * sor) const
     // get handle to the IOVDbSvc
     ServiceHandle<IIOVDbSvc> iovdbsvc("IOVDbSvc", CLNAME);
     if ((iovdbsvc.retrieve()).isFailure()) {
-      m_log << MSG::ERROR << ST_WHERE << "could not find IOVDbSvc." << endreq;
+      m_log << MSG::ERROR << ST_WHERE << "could not find IOVDbSvc." << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -242,7 +242,7 @@ SORHelper::updateProxy(const SG & dstore, SOR * sor) const
     if (!provider) {
       m_log << MSG::ERROR << ST_WHERE
             << "could not cast to IAddressProvider interface and set the "
-               "provider for SOR_Params." << endreq;
+               "provider for SOR_Params." << endmsg;
       return StatusCode::FAILURE;
     }
     transientAddr->setProvider(provider, transientAddr->storeID());

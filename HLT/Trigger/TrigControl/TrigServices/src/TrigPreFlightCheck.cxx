@@ -57,7 +57,7 @@ StatusCode TrigPreFlightCheck::checkRelease(const MSG::Level& errLvl)
 {
   const char* ld_lib_path = getenv("LD_LIBRARY_PATH");
   if ( ld_lib_path==0 ) {
-    msg() << errLvl << "Cannot read LD_LIBRARY_PATH" << endreq;
+    msg() << errLvl << "Cannot read LD_LIBRARY_PATH" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -74,10 +74,10 @@ StatusCode TrigPreFlightCheck::checkRelease(const MSG::Level& errLvl)
       
       if ( it->find(*dir)!=string::npos ) {
         if ( fs::exists(*it) ) {
-          msg() << MSG::DEBUG << "Checking " << (*it) << ": OK" << endreq;
+          ATH_MSG_DEBUG("Checking " << (*it) << ": OK");
         }
         else {
-          msg() << errLvl << (*it) << " does not exist" << endreq;
+          msg() << errLvl << (*it) << " does not exist" << endmsg;
           return StatusCode::FAILURE;
         }
       }

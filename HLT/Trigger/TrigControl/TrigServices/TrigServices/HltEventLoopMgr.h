@@ -16,7 +16,6 @@
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "AthenaKernel/Timeout.h"
 #include "TrigKernel/HltOstreams.h"
@@ -120,18 +119,6 @@ public:
   //@}
   
 private:
-
-  /**
-   * @brief Accessor method for the MsgStream.
-   * @return handle to the MsgStream.
-   */
-  inline MsgStream& logStream() const { return *m_msg; }
-
-  /**
-   * @brief Accessor method for the message level variable.
-   * @return value of the message level for this algorithm.
-   */
-  inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
    /**
    * @brief Call execute method of algorithms
@@ -286,10 +273,10 @@ private:
   // check if a Sub Detector is enabled for readout in OKS
   bool isSubDetectorEnabled(uint32_t subdetid) const;
   // filter a set of robs according to whether or not they are enabled
-  std::set<uint32_t> filterRobs(const std::set<uint32_t> robs) const;
+  std::set<uint32_t> filterRobs(const std::set<uint32_t>& robs) const;
   // filter a set of dets according to whether or not they are enabled
   std::set<eformat::SubDetector>
-  filterDets(const std::set<uint32_t> dets) const;
+  filterDets(const std::set<uint32_t>& dets) const;
 
   // act on failure to process event
   void failedEvent(hltinterface::HLTResult& hlt_result,
@@ -324,8 +311,8 @@ private:
   ToolHandle<TrigCOOLUpdateHelper>    m_coolHelper;
 
   /** Pointers to optional services/tools **/
-  TrigConf::IHLTConfigSvc* m_hltConfigSvc;
-  IAlgContextSvc*          m_algContextSvc;
+  TrigConf::IHLTConfigSvc* m_hltConfigSvc{0};
+  IAlgContextSvc*          m_algContextSvc{0};
 
   IntegerProperty          m_lvl1CTPROBid ;       // Source ID for CTP ROB fragment
   BooleanProperty          m_doMonitoring;        // Monitoring
@@ -335,10 +322,9 @@ private:
   hltonl::MapResultStatusCode m_mapResultStatus;
   hltonl::MapAcceptFlag       m_mapAccept;
 
-  MsgStream*                m_msg       ;   //!< Pointer to MsgStream
-  EventID::number_type      m_currentRun;   //!< current run number
-  EventID::number_type      m_currentLB;    //!< current lumiblock
-  const EventInfo*          m_currentEvent; //!< current EventInfo object in StoreGate
+  EventID::number_type      m_currentRun{0};   //!< current run number
+  EventID::number_type      m_currentLB{0};    //!< current lumiblock
+  const EventInfo*          m_currentEvent{0}; //!< current EventInfo object in StoreGate
   
   /// Start of Run Time: posix time in seconds since 1970/01/01
   /// Start of Run Time: time stamp ns - ns time offset for time_stamp, 32 bit unsigned
@@ -353,26 +339,26 @@ private:
   uint32_t                  m_l1_hltPrescaleUpdateLB;    //!< LB of prescale update from CTP fragment
   
   // --------------------------- Monitoring Histograms --------------------------
-  TH1F*                     m_hist_eventAcceptFlags;            //!< Accept flags for processed events
-  TH1F*                     m_hist_frameworkErrorCodes;         //!< PSC error codes
-  TH1F*                     m_hist_Hlt_result_size;             //!< size of HLT result
-  TH1F*                     m_hist_Hlt_result_status;           //!< Status flags in HLT result
-  TH1F*                     m_hist_numStreamTags;               //!< Number of StreamTags from HLT
-  TH1F*                     m_hist_streamTagTypes;              //!< StreamTag types from HLT   
-  TH1F*                     m_hist_streamTagNames;              //!< StreamTag names from HLT
-  TH1F*                     m_hist_num_partial_eb_robs;         //!< Number of ROBs for partial event building from HLT   
-  TH1F*                     m_hist_num_partial_eb_SubDetectors; //!< Number of SubDetectors for partial event building from HLT 
-  TH1F*                     m_hist_partial_eb_SubDetectors_ROBs;//!< SubDetectors for partial event building derived from ROB list
-  TH1F*                     m_hist_partial_eb_SubDetectors_SDs; //!< SubDetectors for partial event building derived from SubDetector list
-  TH1F*                     m_hist_Hlt_result_size_physics;           //!< size of HLT result in physics Main
-  TH1F*                     m_hist_Hlt_result_size_express;           //!< size of HLT result in express stream
-  TH1F*                     m_hist_Hlt_result_size_DataScouting;      //!< size of HLT result in express stream
-  TProfile*                 m_hist_HltResultSizes_Stream_physics;     //!< HLT Result sizes for physiscs streams
-  TProfile*                 m_hist_HltResultSizes_Stream_DataScouting;//!< HLT Result sizes for DataScouting streams
-  TProfile*                 m_hist_HltEdmSizes_No_Truncation;   //!< HLT EDM sizes for all events without a truncated HLT result 
-  TProfile*                 m_hist_HltEdmSizes_With_Truncation; //!< HLT EDM sizes for all events with a truncated HLT result 
-  TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Retained_Collections; //!< HLT EDM sizes for all collections which were retained in a truncated HLT result
-  TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections;//!< HLT EDM sizes for all collections which were truncated in a truncated HLT result
+  TH1F*                     m_hist_eventAcceptFlags{0};            //!< Accept flags for processed events
+  TH1F*                     m_hist_frameworkErrorCodes{0};         //!< PSC error codes
+  TH1F*                     m_hist_Hlt_result_size{0};             //!< size of HLT result
+  TH1F*                     m_hist_Hlt_result_status{0};           //!< Status flags in HLT result
+  TH1F*                     m_hist_numStreamTags{0};               //!< Number of StreamTags from HLT
+  TH1F*                     m_hist_streamTagTypes{0};              //!< StreamTag types from HLT   
+  TH1F*                     m_hist_streamTagNames{0};              //!< StreamTag names from HLT
+  TH1F*                     m_hist_num_partial_eb_robs{0};         //!< Number of ROBs for partial event building from HLT   
+  TH1F*                     m_hist_num_partial_eb_SubDetectors{0}; //!< Number of SubDetectors for partial event building from HLT 
+  TH1F*                     m_hist_partial_eb_SubDetectors_ROBs{0};//!< SubDetectors for partial event building derived from ROB list
+  TH1F*                     m_hist_partial_eb_SubDetectors_SDs{0}; //!< SubDetectors for partial event building derived from SubDetector list
+  TH1F*                     m_hist_Hlt_result_size_physics{0};           //!< size of HLT result in physics Main
+  TH1F*                     m_hist_Hlt_result_size_express{0};           //!< size of HLT result in express stream
+  TH1F*                     m_hist_Hlt_result_size_DataScouting{0};      //!< size of HLT result in express stream
+  TProfile*                 m_hist_HltResultSizes_Stream_physics{0};     //!< HLT Result sizes for physiscs streams
+  TProfile*                 m_hist_HltResultSizes_Stream_DataScouting{0};//!< HLT Result sizes for DataScouting streams
+  TProfile*                 m_hist_HltEdmSizes_No_Truncation{0};   //!< HLT EDM sizes for all events without a truncated HLT result 
+  TProfile*                 m_hist_HltEdmSizes_With_Truncation{0}; //!< HLT EDM sizes for all events with a truncated HLT result 
+  TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Retained_Collections{0}; //!< HLT EDM sizes for all collections which were retained in a truncated HLT result
+  TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections{0};//!< HLT EDM sizes for all collections which were truncated in a truncated HLT result
   // --------------------------- Properties -------------------------------------
   BooleanProperty           m_setMagFieldFromPtree; //!< Read magnet currents from ptree
   StringProperty            m_applicationName;      //!< Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment) */
@@ -400,36 +386,36 @@ private:
   Histo1DProperty           m_histProp_num_partial_eb_robs;
   Histo1DProperty           m_histProp_Hlt_Edm_Sizes;       //!< HLT EDM sizes profile plots 
 
-  int                       m_total_evt;
-  int                       m_failed_evt;
-  int                       m_invalid_lvl1_result;
-  int                       m_invalid_hlt_result;
-  int                       m_truncated_hlt_result;
-  int                       m_truncated_hlt_result_to_debug;
-  int                       m_truncated_hlt_result_not_to_debug;
+  int                       m_total_evt{0};
+  int                       m_failed_evt{0};
+  int                       m_invalid_lvl1_result{0};
+  int                       m_invalid_hlt_result{0};
+  int                       m_truncated_hlt_result{0};
+  int                       m_truncated_hlt_result_to_debug{0};
+  int                       m_truncated_hlt_result_not_to_debug{0};
 
   // for CTP Lvl1 Rob
   std::vector<uint32_t>     m_ctpRobIdVec ;
   // event number - 32 bit unsigned
-  uint32_t                  m_lvl1id  ;
+  uint32_t                  m_lvl1id{0}  ;
   // run number - 32 bit unsigned
-  EventID::number_type      m_run_no ;
+  EventID::number_type      m_run_no{0} ;
   // bunch crossing ID,  32 bit unsigned
-  EventID::number_type      m_bunch_crossing_id ;
+  EventID::number_type      m_bunch_crossing_id{0} ;
   // time stamp - posix time in seconds from 1970, 32 bit unsigned
-  EventID::number_type      m_time_stamp ;
+  EventID::number_type      m_time_stamp{0} ;
   // time stamp ns - ns time offset for time_stamp, 32 bit unsigned
-  EventID::number_type      m_time_stamp_ns_offset ;
+  EventID::number_type      m_time_stamp_ns_offset{0} ;
   // luminosity block identifier, 32 bit unsigned
-  EventID::number_type      m_lumi_block ;
+  EventID::number_type      m_lumi_block{0} ;
   // status element
-  TriggerInfo::number_type  m_l1_Status_Element ;
+  TriggerInfo::number_type  m_l1_Status_Element{0} ;
   // LVL1 trigger type
-  TriggerInfo::number_type  m_l1_Trigger_Type ;
+  TriggerInfo::number_type  m_l1_Trigger_Type{0} ;
   // LVL1 trigger info
   std::vector<TriggerInfo::number_type> m_l1_Trigger_Info ;
   // LVL1 detev type
-  uint32_t                  m_l1_detev_type ;
+  uint32_t                  m_l1_detev_type{0} ;
 
   /// Reference to a THistSvc which implements also the Hlt additions
   SmartIF<IHltTHistSvc>     m_hltTHistSvc;
@@ -441,7 +427,7 @@ private:
   BooleanProperty           m_lvl1CTPROBcheck ;
 
   /// Monitoring
-  TH1F*                     m_hist_l1_robs;
+  TH1F*                     m_hist_l1_robs{0};
 
   /// Flag to write events with truncated HLT result to a special debug stream
   BooleanProperty           m_writeHltTruncationToDebug ;
@@ -450,10 +436,10 @@ private:
   /// Stream names for which events should be not send to the debug stream even when the HLT result is truncated
   StringArrayProperty       m_excludeFromHltTruncationDebugStream; 
   /// Monitoring histogram for truncated HLT results
-  TH1F*                     m_hist_Hlt_truncated_result;
+  TH1F*                     m_hist_Hlt_truncated_result{0};
 
   /// we need this maintain the data
-  uint32_t                  m_status_words[3];
+  uint32_t                  m_status_words[3] = {0};
 
 };
 

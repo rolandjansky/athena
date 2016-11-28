@@ -650,8 +650,6 @@ std::string TrigMessageSvc::colTrans(std::string col, int offset) {
 
 void TrigMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
 
-  int nmsg;
-
   pthread_mutex_lock(&msgsvcmutex);
   int key = msg.getType();
   ++m_msgCount[key];
@@ -669,7 +667,7 @@ void TrigMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
   const Message *cmsg = &msg;
 
   if ( m_doSuppress || m_stats.value() ) {
-    
+    int nmsg;    
     std::map<std::string,msgAry>::iterator itr = m_sourceMap.find(msg.getSource());
     if ( itr != m_sourceMap.end() ) {
       nmsg = ++(itr->second.msg[key]);
@@ -761,7 +759,7 @@ void TrigMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
     while( first != last ) {
       std::ostream& stream = *( (*first).second.second );
       stream << *cmsg << msgTrailer.str() << std::endl;
-      first++;
+      ++first;
     }
   }
   else if ( key >= outputLevel )   {
@@ -872,7 +870,7 @@ void TrigMessageSvc::reportMessage (const StatusCode& key,
       Message stat_code1( source, msg.getType(), os1.str() );
       reportMessage( stat_code1 );
       reportMessage( msg );
-      first++;
+      ++first;
     }
   }
   else {

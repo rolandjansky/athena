@@ -60,7 +60,7 @@ TrigISHelper::~TrigISHelper()
 StatusCode TrigISHelper::initialize()
 {
   if (m_ignoreIfMissing ) {
-    msg() << MSG::WARNING << "Will ignore any missing IS objects and return SUCCESS" << endreq;
+    ATH_MSG_WARNING("Will ignore any missing IS objects and return SUCCESS");
   }
 
   return StatusCode::SUCCESS;
@@ -72,17 +72,15 @@ void TrigISHelper::initPartitionName(Property& /*prop*/)
 {
   m_isid.clear();
   
-  if (msgLvl(MSG::DEBUG))
-    msg() << MSG::DEBUG << "Configured ISInfo objects (partition : name):" << endreq;
+  ATH_MSG_DEBUG("Configured ISInfo objects (partition : name):");
   
   // Fill map with partition and IS names
   map<ISObject, string>::const_iterator iter = m_isprop.begin();
   for (; iter != m_isprop.end(); ++iter ) {
     m_isid[iter->first] = split(iter->second);
 
-    if (msgLvl(MSG::DEBUG))
-      msg() << MSG::DEBUG << "   " << m_isid[iter->first].first
-            << " : " << m_isid[iter->first].second << endreq;
+    ATH_MSG_DEBUG("   " << m_isid[iter->first].first
+                  << " : " << m_isid[iter->first].second);
   } 
 }
 
@@ -101,15 +99,14 @@ StatusCode TrigISHelper::findValue(ISObject obj, ISInfo& value)
     isInfoDict.findValue(isName, value);
   }
   catch (daq::is::Exception& e) {
-    msg() << MSG::WARNING << "IS Exception reading " << isName << " from partition "
-          << partName << ". Exception was: " << e << endreq;
+    ATH_MSG_WARNING("IS Exception reading " << isName << " from partition "
+                    << partName << ". Exception was: " << e);
     
     return m_ignoreIfMissing ? StatusCode::SUCCESS : StatusCode::FAILURE;
   }
 
-  if ( msgLvl(MSG::DEBUG) ) {
-    msg() << MSG::DEBUG << "Successfully read " << isName << " from IS: " << value << endreq;
-  }
+  ATH_MSG_DEBUG("Successfully read " << isName << " from IS: " << value);
+
   return StatusCode::SUCCESS;  
 }
 

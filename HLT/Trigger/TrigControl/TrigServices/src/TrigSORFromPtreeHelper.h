@@ -30,7 +30,7 @@ class TrigSORFromPtreeHelper
 public:
   typedef CondAttrListCollection SOR;
 
-  TrigSORFromPtreeHelper(const MsgStream & log);
+  explicit TrigSORFromPtreeHelper(const MsgStream & log);
 
   /*
    * Fill SOR record in Detector Store, reusing if present or creating new one
