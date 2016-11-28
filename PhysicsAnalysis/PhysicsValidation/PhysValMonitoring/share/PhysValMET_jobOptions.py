@@ -14,26 +14,29 @@ jvtTool = CfgMgr.JetVertexTaggerTool('JVTTool')
 ToolSvc += jvtTool
 tool1.JVTTool = jvtTool
 
-mettool = CfgMgr.met__METMaker('METMaker')
-ToolSvc += mettool
-tool1.METMaker = mettool
+mettoolTopo = CfgMgr.met__METMaker('METMaker_AntiKt4Topo')
+ToolSvc += mettoolTopo
+tool1.METMakerTopo = mettoolTopo
+
+mettoolPFlow = CfgMgr.met__METMaker('METMaker_AntiKt4PFlow',
+                                    DoPFlow=True)
+ToolSvc += mettoolPFlow
+tool1.METMakerPFlow = mettoolPFlow
 
 museltool = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool",
-                                       MuQuality=1, # Medium
-                                       MaxEta=2.4)
-museltool.TurnOffMomCorr = True
+                                         MuQuality=1, # Medium
+                                         MaxEta=2.4,
+                                         TurnOffMomCorr = True)
 ToolSvc += museltool
 tool1.MuonSelectionTool = museltool
 
 eseltool = CfgMgr.AsgElectronLikelihoodTool("ElectronLHSelectionTool",
-                                            ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodMediumOfflineConfig2015.conf")
+                                            WorkingPoint="MediumLHElectron")
 ToolSvc += eseltool
 tool1.ElectronLHSelectionTool = eseltool
 
-from ROOT import egammaPID
 phoseltool = CfgMgr.AsgPhotonIsEMSelector("PhotonIsEMSelectionTool",
-                                             isEMMask=egammaPID.PhotonTight,
-                                             ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/PhotonIsEMTightSelectorCutDefs.conf")
+                                           WorkingPoint="TightPhoton")
 ToolSvc += phoseltool
 tool1.PhotonIsEMSelectionTool = phoseltool
 
