@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
-find_package( Threads )
+find_package ( Threads )
 
 # Component(s) in the package:
 atlas_add_component( AthenaMP

@@ -140,7 +140,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Create Shared Event queue if necessary and make it available to the tools
   if(m_strategy=="SharedQueue" 
-     || m_strategy=="SharedReader"
      || m_strategy=="RoundRobin") {
     AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {

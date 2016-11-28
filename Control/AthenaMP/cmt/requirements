@@ -29,3 +29,4 @@ application getSharedMemory memory-profiler/getSharedMemory.cc memory-profiler/g
 application MemoryMonitor memory-monitor/MemoryMonitor.cxx application_suffix="" 
 
 end_private
+

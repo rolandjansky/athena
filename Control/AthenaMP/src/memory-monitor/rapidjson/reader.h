@@ -217,7 +217,7 @@ class StreamLocalCopy;
 template<typename Stream>
 class StreamLocalCopy<Stream, 1> {
 public:
-	// cppcheck-suppress uninitMemberVar
+    // cppcheck-suppress uninitMemberVar
     StreamLocalCopy(Stream& original) : s(original), original_(original) {}
     ~StreamLocalCopy() { original_ = s; }
 
