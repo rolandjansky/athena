@@ -4,7 +4,7 @@
 
 // New SCT_DCSConditions Service, based on existing tool in SCT_ConditionsAlgs
 // A. R-Veronneau 26/02/08
-#include <algorithm>
+
 
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/Property.h"
@@ -26,6 +26,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 using SCT_ConditionsServices::DcsValueStatus;
@@ -276,7 +277,7 @@ float SCT_DCSConditionsSvc::sensorTemperature(const Identifier & elementId, InDe
       if (modeta==2){
       	return ( pPair->second + m_ecInner_correction);  //return the temp+correction
       } else {
-	return ( pPair->second + m_ecOuter_correction);  //return the temp+correction	
+	      return ( pPair->second + m_ecOuter_correction);  //return the temp+correction	
       }
     }
   }
@@ -314,14 +315,14 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
       for (;attrList!=end;++attrList) {
         //A CondAttrListCollection is a map of ChanNum and AttributeList
         CondAttrListCollection::ChanNum  channelNumber=(*attrList).first;
-        CondAttrListCollection::AttributeList   payload=(*attrList).second;
+        const CondAttrListCollection::AttributeList   & payload=attrList->second;
         //loop over AttributeListSpecification
         coral::AttributeList::const_iterator attrspecb = payload.begin();
         coral::AttributeList::const_iterator attrspece = payload.end();
         for (;attrspecb!=attrspece;++attrspecb) {
           //0 is OK, 1 is Alarm, 2 is Unknown : see SCT_DcsAlerts.h 'DcsStatus' enum.
           std::string param=(*attrspecb).specification().name();
-	  //Check if modules was not ok (1 or 16 for HV and LV) and not set manually (3 or 48). Both LV and HV must be either for module to be good.  
+	        //Check if modules was not ok (1 or 16 for HV and LV) and not set manually (3 or 48). Both LV and HV must be either for module to be good.  
           if (param == "STATE") {
 	    try{
 	      int hvstate = (*attrList).second[param].data<unsigned int>() bitand 240;

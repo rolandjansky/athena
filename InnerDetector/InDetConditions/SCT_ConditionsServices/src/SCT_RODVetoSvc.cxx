@@ -50,14 +50,14 @@ SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocato
   AthService(name, pSvcLocator), 
   m_cabling("SCT_CablingSvc",name),
   m_badRODElements("BadRODIdentifiers"),
-  mw_filled("isFilled"), 
-  mr_filled("isFilled"),
+  m_wFilled("isFilled"), 
+  m_rFilled("isFilled"),
   m_pHelper(0),
   m_detStore("DetectorStore", name)
 {
   declareProperty("BadRODIdentifiers",m_badRODElements );
-  declareProperty("w_isFilled", mw_filled );
-  declareProperty("r_isFilled", mr_filled );
+  declareProperty("w_isFilled", m_wFilled );
+  declareProperty("r_isFilled", m_rFilled );
 }
 
 //Initialize
@@ -67,8 +67,8 @@ SCT_RODVetoSvc::initialize(){
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
   ATH_CHECK(m_cabling.retrieve());
   ATH_CHECK(m_badRODElements.initialize());
-  ATH_CHECK(mw_filled.initialize());
-  ATH_CHECK(mr_filled.initialize());
+  ATH_CHECK(m_wFilled.initialize());
+  ATH_CHECK(m_rFilled.initialize());
  
   return  StatusCode::SUCCESS;
 }
@@ -176,18 +176,18 @@ SCT_RODVetoSvc::fillData(){
   //At this point, as WriteHandles only work once and we cannot update them
   //we will only set isFilled if it is true. If false it will not be set
   if ( success ){
-    SG::WriteHandle<bool> w_filled (mw_filled);
-    ATH_CHECK( w_filled.record( CxxUtils::make_unique<bool> (success))); 
+    SG::WriteHandle<bool> wFilled (m_wFilled);
+    ATH_CHECK( wFilled.record( CxxUtils::make_unique<bool> (success))); 
 
 
-    if ( !w_filled.isValid() ){
+    if ( !wFilled.isValid() ){
       ATH_MSG_INFO("isFilled not set yet");
       
     } 
 
-    std::cout << "Recorded WH with key: " << w_filled.key() << " and value: " << *w_filled.cptr() << std::endl;   //w_filled->val() << std::endl; 
+    std::cout << "Recorded WH with key: " << wFilled.key() << " and value: " << *wFilled.cptr() << std::endl;   //wFilled->val() << std::endl; 
     //Need to add a checck if this succeeded
-    if (*w_filled) ATH_MSG_INFO("Structure successfully filled with "<<m_badIds.size()<<" modules.");
+    if (*wFilled) ATH_MSG_INFO("Structure successfully filled with "<<m_badIds.size()<<" modules.");
   }
 
 
@@ -208,10 +208,10 @@ SCT_RODVetoSvc::canFillDuringInitialize(){
 bool
 SCT_RODVetoSvc::filled() const{
   //code
-  SG::ReadHandle<bool> r_filled (mr_filled);
-  if (!r_filled.isValid()){
+  SG::ReadHandle<bool> rFilled (m_rFilled);
+  if (!rFilled.isValid()){
     ATH_MSG_INFO("No value found for isFilled in SG, assuming false");
     return false;
-  }else return *r_filled;
+  }else return *rFilled;
 }
 

@@ -104,8 +104,8 @@ private:
 
   // These are the read- and writehandle keys for the boolean that checks
   // if the service has been filled. 
-  SG::WriteHandleKey<bool> mw_filled;
-  SG::ReadHandleKey<bool>  mr_filled;
+  SG::WriteHandleKey<bool> m_wFilled;
+  SG::ReadHandleKey<bool>  m_rFilled;
   
   const SCT_ID * m_pHelper;
   ServiceHandle<StoreGateSvc> m_detStore;

@@ -17,6 +17,8 @@ use AtlasBoost            	  AtlasBoost-*             		External
 private
 use AthenaBaseComps       	  AthenaBaseComps-*      		Control
 use StoreGate             	  StoreGate-*            		Control
+use CxxUtils                  CxxUtils-*                Control
+use SGTools                   SGTools-*                 Control
 
 use SCT_Cabling           	  SCT_Cabling-*            		InnerDetector/InDetDetDescr
 use AthenaPoolUtilities	  	  AthenaPoolUtilities-*  		Database/AthenaPOOL
