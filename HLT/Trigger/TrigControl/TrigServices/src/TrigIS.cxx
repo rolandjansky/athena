@@ -41,7 +41,7 @@ StatusCode TrigIS::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode TrigIS::initialize()
 {
   if (m_partitionName=="NONE") {
-    msg() << MSG::WARNING << "No partition specified. Will not publish any data to IS." << endreq;    
+    ATH_MSG_WARNING("No partition specified. Will not publish any data to IS.");
     return StatusCode::SUCCESS;
   }
   
@@ -53,7 +53,7 @@ StatusCode TrigIS::initialize()
     m_isDict = ISInfoDictionary(m_partition);
   }
   catch ( daq::ipc::Exception & ex ) {
-    msg() << MSG::ERROR << "Failure during initialize: " << ex.what() << endreq;
+    ATH_MSG_ERROR("Failure during initialize: " << ex.what());
     return StatusCode::FAILURE;
   }
 
@@ -69,7 +69,7 @@ StatusCode TrigIS::publish(const std::string& name, const ISInfo& info, bool kee
       m_isDict.checkin(name, info, keep_history);
     }
     catch ( daq::is::Exception& ex ) {
-      msg() << MSG::ERROR << "Failure publishing " << name << ": " << ex.what() << endreq;
+      ATH_MSG_ERROR("Failure publishing " << name << ": " << ex.what());
       return StatusCode::FAILURE;
     }
   }

@@ -49,7 +49,7 @@ struct FolderInfo {
  */
 struct FolderUpdate {
   FolderUpdate() : lumiBlock(0), folderIndex(0), needsUpdate(true) {}
-  FolderUpdate(const CTPfragment::FolderEntry& entry) :
+  explicit FolderUpdate(const CTPfragment::FolderEntry& entry) :
     lumiBlock(entry.lumiBlock),
     folderIndex(entry.folderIndex),
     needsUpdate(true) {}

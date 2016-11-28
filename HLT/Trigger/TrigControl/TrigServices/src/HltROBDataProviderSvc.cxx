@@ -6,7 +6,6 @@
 #include "TrigServices/HltROBDataProviderSvc.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -48,7 +47,6 @@ HltROBDataProviderSvc::HltROBDataProviderSvc(const std::string& name, ISvcLocato
  m_removeEmptyROB(false),
  m_isEventComplete(false),
  m_callerName("UNKNOWN"),
- m_msg(0),
  m_histProp_requestedROBsPerCall(Gaudi::Histo1DDef("RequestedROBsPerCall" ,0,300,50)),
  m_histProp_receivedROBsPerCall(Gaudi::Histo1DDef("ReceivedROBsPerCall" ,0,300,50)),
  m_histProp_timeROBretrieval(Gaudi::Histo1DDef("TimeForROBretrieval" ,0.,500.,50)),
@@ -112,25 +110,21 @@ StatusCode HltROBDataProviderSvc::initialize()
 {
   StatusCode sc = ROBDataProviderSvc::initialize();
 
-  // set message stream
-  m_msg  = new MsgStream( msgSvc(), name() );
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " ---> HltROBDataProviderSvc = " << name() << " initialize "
-      << " - package version " << PACKAGE_VERSION << endreq ;
+  ATH_MSG_INFO(" ---> HltROBDataProviderSvc = " << name() << " initialize "
+               << " - package version " << PACKAGE_VERSION);
 
   // get Property filterEmptyROB from base class
   if ( !sc.isSuccess() ) {
-    log << MSG::ERROR << " ROBDataProviderSvc::initialize() failed." << endreq;
+    ATH_MSG_ERROR(" ROBDataProviderSvc::initialize() failed.");
     return sc;
   } else {
     BooleanProperty filterEmptyROB;
     filterEmptyROB.setName("filterEmptyROB");
     if (filterEmptyROB.assign(getProperty("filterEmptyROB"))) {
       m_removeEmptyROB = filterEmptyROB.value() ;
-      log << MSG::INFO << " ---> getProperty('filterEmptyROB')       = " << filterEmptyROB << endreq;
+      ATH_MSG_INFO(" ---> getProperty('filterEmptyROB')       = " << filterEmptyROB);
     } else {
-      log << MSG::WARNING << " ROBDataProviderSvc::getProperty('filterEmptyROB') failed." << endreq;
+      ATH_MSG_WARNING(" ROBDataProviderSvc::getProperty('filterEmptyROB') failed.");
     }
   }
 
@@ -142,42 +136,41 @@ StatusCode HltROBDataProviderSvc::initialize()
   if ( m_readROBfromOKS.value() ) {
     ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
     if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-      log << MSG::ERROR << "Could not find JobOptionsSvc" << endreq;
+      ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
       const std::vector<const Property*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
       if(!dataFlowProps)
-        log << MSG::ERROR << "Could not find DataFlowConfig properties" << endreq;
+        ATH_MSG_ERROR("Could not find DataFlowConfig properties");
       else
       {
-        for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
-            cur != dataFlowProps->end(); cur++) {
+        for ( const Property* cur : *dataFlowProps ) {
           // the enabled ROB list is found
-          if ( (*cur)->name() == "DF_Enabled_ROB_IDs" ) {
-            if (m_enabledROBs.assign(**cur)) {
+          if ( cur->name() == "DF_Enabled_ROB_IDs" ) {
+            if (m_enabledROBs.assign(*cur)) {
               robOKSconfigFound = true;
-              log << MSG::INFO << " ---> Read from OKS                       = " << m_enabledROBs.value().size() << " enabled ROB IDs." << endreq;
+              ATH_MSG_INFO(" ---> Read from OKS                       = " << m_enabledROBs.value().size() << " enabled ROB IDs.");
             } else {
-              log << MSG::WARNING << " Could not set Property 'enabledROBs' from OKS." << endreq;
+              ATH_MSG_WARNING(" Could not set Property 'enabledROBs' from OKS.");
             }
           }
 
           // the LAr MET ROB list is found
-          if ( (*cur)->name() == "DF_LAr_MET_ROB_IDs" ) {
-            if (m_enabledLArMetROBs.assign(**cur)) {
+          if ( cur->name() == "DF_LAr_MET_ROB_IDs" ) {
+            if (m_enabledLArMetROBs.assign(*cur)) {
               robLArMetOKSconfigFound = true;
-              log << MSG::INFO << " ---> Read from OKS                       = " << m_enabledLArMetROBs.value().size() << " LAr MET ROB IDs." << endreq;
+              ATH_MSG_INFO(" ---> Read from OKS                       = " << m_enabledLArMetROBs.value().size() << " LAr MET ROB IDs.");
             } else {
-              log << MSG::WARNING << " Could not set Property 'LArMetROBs' from OKS." << endreq;
+              ATH_MSG_WARNING(" Could not set Property 'LArMetROBs' from OKS.");
             }
           }
 
           // the Tile MET ROB list is found
-          if ( (*cur)->name() == "DF_Tile_MET_ROB_IDs" ) {
-            if (m_enabledTileMetROBs.assign(**cur)) {
+          if ( cur->name() == "DF_Tile_MET_ROB_IDs" ) {
+            if (m_enabledTileMetROBs.assign(*cur)) {
               robTileMetOKSconfigFound = true;
-              log << MSG::INFO << " ---> Read from OKS                       = " << m_enabledTileMetROBs.value().size() << " Tile MET ROB IDs." << endreq;
+              ATH_MSG_INFO(" ---> Read from OKS                       = " << m_enabledTileMetROBs.value().size() << " Tile MET ROB IDs.");
             } else {
-              log << MSG::WARNING << " Could not set Property 'TileMetROBs' from OKS." << endreq;
+              ATH_MSG_WARNING(" Could not set Property 'TileMetROBs' from OKS.");
             }
           }
         }
@@ -186,84 +179,77 @@ StatusCode HltROBDataProviderSvc::initialize()
     }
   }
 
-  log << MSG::INFO << " ---> HltROBDataProviderSvc               = " << name() << " special properties <---" << endreq;
-  log << MSG::INFO << " ---> Filter out empty ROB fragments      = " << m_removeEmptyROB << endreq;
-  log << MSG::INFO << " ---> Fill monitoring histograms          = " << m_doMonitoring << endreq;
-  log << MSG::INFO << "        Hist:RequestedROBsPerCall         = " << m_histProp_requestedROBsPerCall << endreq; 
-  log << MSG::INFO << "        Hist:ReceivedROBsPerCall          = " << m_histProp_receivedROBsPerCall << endreq; 
-  log << MSG::INFO << "        Hist:TimeROBretrieval             = " << m_histProp_timeROBretrieval << endreq; 
-  log << MSG::INFO << " ---> Do detailed ROB monitoring          = " << m_doDetailedROBMonitoring << endreq;
-  log << MSG::INFO << " ---> SG name for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
-  log << MSG::INFO << " ---> Read list of enabled ROBs from OKS  = " << m_readROBfromOKS << endreq;
+  ATH_MSG_INFO(" ---> HltROBDataProviderSvc               = " << name() << " special properties <---");
+  ATH_MSG_INFO(" ---> Filter out empty ROB fragments      = " << m_removeEmptyROB);
+  ATH_MSG_INFO(" ---> Fill monitoring histograms          = " << m_doMonitoring);
+  ATH_MSG_INFO("        Hist:RequestedROBsPerCall         = " << m_histProp_requestedROBsPerCall);
+  ATH_MSG_INFO("        Hist:ReceivedROBsPerCall          = " << m_histProp_receivedROBsPerCall);
+  ATH_MSG_INFO("        Hist:TimeROBretrieval             = " << m_histProp_timeROBretrieval);
+  ATH_MSG_INFO(" ---> Do detailed ROB monitoring          = " << m_doDetailedROBMonitoring);
+  ATH_MSG_INFO(" ---> SG name for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name);
+  ATH_MSG_INFO(" ---> Read list of enabled ROBs from OKS  = " << m_readROBfromOKS);
   if (m_enabledROBs.value().size() == 0) {
-    log << MSG::INFO << " ---> The list of enabled ROBs has size   = 0. No check will be performed " << endreq;
+    ATH_MSG_INFO(" ---> The list of enabled ROBs has size   = 0. No check will be performed ");
   } else {
     if (m_readROBfromOKS.value() && robOKSconfigFound) {
-      log << MSG::INFO << " ---> The list of enabled ROBs has size   = " << m_enabledROBs.value().size() 
-	      << ". It was read from the partition database."  << endreq;
+      ATH_MSG_INFO(" ---> The list of enabled ROBs has size   = " << m_enabledROBs.value().size() 
+                   << ". It was read from the partition database." );
     } else {
-      log << MSG::INFO << " ---> The list of enabled ROBs has size   = " << m_enabledROBs.value().size() 
-	      << ". It was read from job options."  << endreq;
+      ATH_MSG_INFO(" ---> The list of enabled ROBs has size   = " << m_enabledROBs.value().size() 
+                   << ". It was read from job options." );
     }
   }
 
-  log << MSG::INFO << " ---> Generic Module ID for LAr MET ROB   = " << m_genericLArMetModuleID << endreq;
+  ATH_MSG_INFO(" ---> Generic Module ID for LAr MET ROB   = " << m_genericLArMetModuleID);
   if (m_enabledLArMetROBs.value().size() == 0) {
-    log << MSG::INFO << " ---> The list of LAr MET ROBs has size   = 0. No LAr MET ROB access will be done." << endreq;
+    ATH_MSG_INFO(" ---> The list of LAr MET ROBs has size   = 0. No LAr MET ROB access will be done.");
   } else {
     if (m_readROBfromOKS.value() && robLArMetOKSconfigFound) {
-      log << MSG::INFO << " ---> The list of LAr MET ROBs has size   = " << m_enabledLArMetROBs.value().size() 
-	      << ". It was read from the partition database."  << endreq;
+      ATH_MSG_INFO(" ---> The list of LAr MET ROBs has size   = " << m_enabledLArMetROBs.value().size() 
+                   << ". It was read from the partition database." );
     } else {
-      log << MSG::INFO << " ---> The list of LAr MET ROBs has size   = " << m_enabledLArMetROBs.value().size() 
-	      << ". It was read from job options."  << endreq;
+      ATH_MSG_INFO(" ---> The list of LAr MET ROBs has size   = " << m_enabledLArMetROBs.value().size() 
+                   << ". It was read from job options." );
     }
   }
 
-  log << MSG::INFO << " ---> Generic Module ID for Tile MET ROB  = " << m_genericTileMetModuleID << endreq;
+  ATH_MSG_INFO(" ---> Generic Module ID for Tile MET ROB  = " << m_genericTileMetModuleID);
   if (m_enabledTileMetROBs.value().size() == 0) {
-    log << MSG::INFO << " ---> The list of Tile MET ROBs has size  = 0. No Tile MET ROB access will be done." << endreq;
+    ATH_MSG_INFO(" ---> The list of Tile MET ROBs has size  = 0. No Tile MET ROB access will be done.");
   } else {
     if (m_readROBfromOKS.value() && robTileMetOKSconfigFound) {
-      log << MSG::INFO << " ---> The list of Tile MET ROBs has size  = " << m_enabledTileMetROBs.value().size() 
-	      << ". It was read from the partition database."  << endreq;
+      ATH_MSG_INFO(" ---> The list of Tile MET ROBs has size  = " << m_enabledTileMetROBs.value().size() 
+                   << ". It was read from the partition database." );
     } else {
-      log << MSG::INFO << " ---> The list of Tile MET ROBs has size  = " << m_enabledTileMetROBs.value().size() 
-	      << ". It was read from job options."  << endreq;
+      ATH_MSG_INFO(" ---> The list of Tile MET ROBs has size  = " << m_enabledTileMetROBs.value().size() 
+                   << ". It was read from job options." );
     }
   }
 
-  log << MSG::INFO << " ---> Separate MET and Det ROB Retrieval  = " << m_separateMETandDetROBRetrieval << endreq;
+  ATH_MSG_INFO(" ---> Separate MET and Det ROB Retrieval  = " << m_separateMETandDetROBRetrieval);
 
   if (m_ignoreROB.value().size() == 0) {
-    log << MSG::INFO << " ---> The list of ROBs to ignore has size = 0. No check will be performed " << endreq;
+    ATH_MSG_INFO(" ---> The list of ROBs to ignore has size = 0. No check will be performed ");
   } else {
-    log << MSG::INFO << " ---> The list of ROBs to ignore has size = " << m_ignoreROB.value().size() << endreq;
+    ATH_MSG_INFO(" ---> The list of ROBs to ignore has size = " << m_ignoreROB.value().size());
   }
 
   for (unsigned int i=0; i<m_ignoreROB.value().size(); i++) {
-    log << MSG::INFO << " ---> do not retrieve ROB[" << i << "]: hex(id)=0x"
-        << MSG::hex << m_ignoreROB.value()[i]<<MSG::dec
-        << " dec(id)="<< m_ignoreROB.value()[i] << endreq;
+    ATH_MSG_INFO(" ---> do not retrieve ROB[" << i << "]: hex(id)=0x"
+                 << MSG::hex << m_ignoreROB.value()[i]<<MSG::dec
+                 << " dec(id)="<< m_ignoreROB.value()[i]);
   }
 
   // register incident handler for begin run
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-  if ((incidentSvc.retrieve()).isFailure()) {
-    log << MSG::ERROR << "Unable to locate IncidentSvc" << endreq;
-    incidentSvc.release().ignore();
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(incidentSvc.retrieve());
+
   long int pri=100;
   incidentSvc->addListener(this,"BeginRun",pri);
   incidentSvc.release().ignore();
 
   // Setup the StoreGateSvc
-  if( (m_storeGateSvc.retrieve()).isFailure() ) {
-    log << MSG::ERROR << "Error retrieving StoreGateSvc " << m_storeGateSvc << endreq;
-    m_storeGateSvc.release().ignore();
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_storeGateSvc.retrieve());
 
   return sc;
 }
@@ -272,14 +258,9 @@ StatusCode HltROBDataProviderSvc::initialize()
 StatusCode HltROBDataProviderSvc::finalize()
 {
   StatusCode sc = ROBDataProviderSvc::finalize();
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "finalize()" << endreq; 
   if ( !sc.isSuccess() ) {
-    log << MSG::ERROR << " ROBDataProviderSvc::finalize() failed." << endreq;
+    ATH_MSG_ERROR(" ROBDataProviderSvc::finalize() failed.");
   }
-
-  // delete message stream
-  if ( m_msg ) delete m_msg;
 
   // release the AlgContextSvc if used
   if ( m_algContextSvc ) m_algContextSvc->release();
@@ -372,14 +353,14 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
         if ( p_robMonCollection ) {
           p_robMonCollection->reserve( HltROBDataProviderConstants::Number_of_Rob_Monitor_Structs ) ;
           if ( (m_storeGateSvc->record(p_robMonCollection, m_ROBDataMonitorCollection_SG_Name.value(), true)).isFailure() ) {
-            logStream() << MSG::WARNING << " Registering ROB Monitoring collection in StoreGate failed." << endreq;
+            ATH_MSG_WARNING(" Registering ROB Monitoring collection in StoreGate failed.");
             delete p_robMonCollection;
             p_robMonCollection = 0;
           }
         }
       } else {
         if ( m_storeGateSvc->retrieve(p_robMonCollection).isFailure() ) {
-          logStream() << MSG::WARNING << " Retrieval of ROB Monitoring collection from StoreGate failed." << endreq;
+          ATH_MSG_WARNING(" Retrieval of ROB Monitoring collection from StoreGate failed.");
           p_robMonCollection = 0;
         }
       }
@@ -413,18 +394,14 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
     vRobIds.reserve( robIdsUnique.size() ) ;
 
     // find missing ROB ids which should be retrieved  
-    if(logLevel() <= MSG::DEBUG)
-      logStream() << MSG::DEBUG << " ---> addROBData: Number of ROB Ids requested : " << robIdsUnique.size() << endreq;
+    ATH_MSG_DEBUG(" ---> addROBData: Number of ROB Ids requested : " << robIdsUnique.size());
 
-    for(std::vector<uint32_t>::const_iterator it=robIdsUnique.begin(); it!=robIdsUnique.end(); ++it){
-      uint32_t id = (*it);
+    for (uint32_t id : robIdsUnique) {
 
       // check if ROB is already in cache
       ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id) ;
       if(map_it != m_online_robmap.end()) {
-        if(logLevel() <= MSG::DEBUG)
-          logStream() << MSG::DEBUG << " ---> addROBData: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id() << MSG::dec
-          <<" in cache "<< endreq;
+        ATH_MSG_DEBUG(" ---> addROBData: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id());
         //* detailed monitoring
         if ( p_robMonStruct ) {
           (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::CACHED;
@@ -445,9 +422,7 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
         std::vector<uint32_t>::const_iterator rob_ignore_it =
             std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id);
         if(rob_ignore_it != m_ignoreROB.value().end()) {
-          if(logLevel() <= MSG::DEBUG)
-            logStream() << MSG::DEBUG << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
-            << " will be not retrieved, since it is on the veto list."<< endreq;
+          ATH_MSG_DEBUG(" ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec << " will be not retrieved, since it is on the veto list.");
           //* detailed monitoring
           if ( p_robMonStruct ) {
             (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
@@ -464,9 +439,8 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
         std::vector<uint32_t>::const_iterator rob_enabled_it =
             std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),id);
         if(rob_enabled_it == m_enabledROBs.value().end()) {
-          if(logLevel() <= MSG::DEBUG)
-            logStream() << MSG::DEBUG << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
-            << " will be not retrieved, since it is not on the list of enabled ROBs."<< endreq;
+          ATH_MSG_DEBUG(" ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
+                        << " will be not retrieved, since it is not on the list of enabled ROBs.");
           //* detailed monitoring
           if ( p_robMonStruct ) {
             (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::DISABLED;
@@ -476,21 +450,16 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       }
 
       // the ROB should be retrieved from the ROS
-      if (logLevel() <= MSG::DEBUG)
-        logStream() << MSG::DEBUG << " ---> addROBData: Request ROB Id : 0x" << MSG::hex << id << MSG::dec
-        <<" from ROS "<< endreq;
-      vRobIds.push_back( *it ) ;
+      ATH_MSG_DEBUG(" ---> addROBData: Request ROB Id : 0x" << MSG::hex << id <<" from ROS ");
+      vRobIds.push_back( id ) ;
     } // end loop over requested input ROBs
 
     if (vRobIds.size() == 0) {
-      if(logLevel() <= MSG::DEBUG)
-        logStream() << MSG::DEBUG
-        << " ---> addROBData: either all requested ROBs are found in cache for running mode ONLINE, \n"
-        << "      or input ROB Id list was empty, \n"
-        << "      or all requested ROBs were not retrieved due to the veto list.\n"
-        << "      Number of requested ROB Ids = " << robIdsUnique.size() << "\n"
-        << "      Lvl1 id                     = " << m_currentLvl1ID
-        << endreq;
+      ATH_MSG_DEBUG(" ---> addROBData: either all requested ROBs are found in cache for running mode ONLINE, \n"
+                    << "      or input ROB Id list was empty, \n"
+                    << "      or all requested ROBs were not retrieved due to the veto list.\n"
+                    << "      Number of requested ROB Ids = " << robIdsUnique.size() << "\n"
+                    << "      Lvl1 id                     = " << m_currentLvl1ID);
       // Set ROB request time also in the case when no DataCollector request is necessary 
       // to allow correlation with RoI request times
       // start and stop times will be equal
@@ -509,18 +478,16 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       // Tell the DCM that these ROBs may be needed
       // ---------------------------------------------------------------
       //
-      if(logLevel() <= MSG::DEBUG) {
-	std::ostringstream ost;
-	ost << "      Number of scheduled ROB Ids = " << vRobIds.size() << "\n" ;
-	unsigned int rob_counter = 1;
-	for (std::vector<uint32_t>::const_iterator rob_it=vRobIds.begin(); rob_it!=vRobIds.end(); ++rob_it,++rob_counter)
-	  ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << (*rob_it) << std::dec << "\n";
-
-	logStream() << MSG::DEBUG
-	      << " ---> addROBData: The following ROB Ids are scheduled for retrieval and are reserved in the DCM: \n"
-              << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
-              << ost.str()
-              << endreq;
+      if (msgLvl(MSG::DEBUG)) {
+        std::ostringstream ost;
+        ost << "      Number of scheduled ROB Ids = " << vRobIds.size() << "\n" ;
+        unsigned int rob_counter = 1;
+        for (uint32_t rob : vRobIds) {
+          ost << "       # = "<< std::setw(5) << rob_counter++ << " ROB id = 0x" << std::hex << rob << std::dec << "\n";
+        }
+        ATH_MSG_DEBUG(" ---> addROBData: The following ROB Ids are scheduled for retrieval and are reserved in the DCM: \n"
+                      << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
+                      << ost.str());                      
       }
       // reserve the ROBs in the DCM
       hltinterface::DataCollector::instance()->reserveROBData(m_currentLvl1ID, vRobIds);
@@ -549,9 +516,8 @@ void HltROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
   m_isEventComplete = false;
 
   if ( result.size() == 0 ) {
-    logStream()<<MSG::ERROR<< " ---> setNextEvent online for "<< name() 
-	           <<" failed: Size of received vector of ROB fragments = " << result.size()
-	           <<endreq;
+    ATH_MSG_ERROR(" ---> setNextEvent online for "<< name() 
+                  <<" failed: Size of received vector of ROB fragments = " << result.size());
     return;
   }
 
@@ -565,30 +531,28 @@ void HltROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
     uint32_t id = it_robf->source_id() ;
     // check current L1 ID against CTP fragment when possible
     if ( (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_CTP) &&
-        (it_robf->rod_lvl1_id() != m_currentLvl1ID) ) {
-      logStream() << MSG::ERROR << " ---> Lvl1 ID mismatch for CTP fragment with SourceId = 0x" << MSG::hex << id << MSG::dec
-          << " and L1 Id = " << it_robf->rod_lvl1_id()
-          << " to currently used L1 Id = " << m_currentLvl1ID
-          << " -> Use CTP version from now on."<< endreq;
+         (it_robf->rod_lvl1_id() != m_currentLvl1ID) ) {
+      ATH_MSG_ERROR(" ---> Lvl1 ID mismatch for CTP fragment with SourceId = 0x" << MSG::hex << id << MSG::dec
+                    << " and L1 Id = " << it_robf->rod_lvl1_id()
+                    << " to currently used L1 Id = " << m_currentLvl1ID
+                    << " -> Use CTP version from now on.");
       m_currentLvl1ID = it_robf->rod_lvl1_id() ;
     }
     // remove empty ROB fragments or ones with bad status, if requested
     if ((it_robf->rod_ndata() == 0) && (m_removeEmptyROB)) { 
-      if(logLevel() <= MSG::DEBUG) { 
-        logStream() << MSG::DEBUG << " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-            << " removed for L1 Id = " << m_currentLvl1ID << endreq;
-      }  
+      ATH_MSG_DEBUG(" ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+                    << " removed for L1 Id = " << m_currentLvl1ID);
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&*it_robf) ) {
-      if ((logLevel() <= MSG::DEBUG) && (it_robf->nstatus() > 0)) {
+      if (msgLvl(MSG::DEBUG) && (it_robf->nstatus() > 0)) {
         const uint32_t* it_status;
         it_robf->status(it_status);
         eformat::helper::Status tmpstatus( (*it_status) ) ;
-        logStream() << MSG::DEBUG << " ---> ROB Id = 0x" << MSG::hex << id
-            << std::setfill( '0' )
-        << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
-        << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
-        << MSG::dec
-        << " removed for L1 Id = " << m_currentLvl1ID << endreq;
+        ATH_MSG_DEBUG(" ---> ROB Id = 0x" << MSG::hex << id
+                      << std::setfill( '0' )
+                      << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
+                      << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
+                      << MSG::dec
+                      << " removed for L1 Id = " << m_currentLvl1ID);
       }
     } else {
       m_online_robmap[id]= (*it_robf) ;
@@ -620,13 +584,13 @@ void HltROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
     }
   }
 
-  if(logLevel() <= MSG::DEBUG) {
-    logStream()<<MSG::DEBUG<< " ---> setNextEvent online for "<< name()<<endreq; 
-    logStream()<<MSG::DEBUG<< "      online running    = " << m_onlineRunning <<endreq;
-    logStream()<<MSG::DEBUG<< "      current LVL1 id   = " << m_currentLvl1ID <<endreq;
-    logStream()<<MSG::DEBUG<< "      # LVL1 ROBs       = " << result.size() <<endreq;
-    logStream()<<MSG::DEBUG<< "      size of ROB cache = " << m_online_robmap.size() <<endreq;
-    logStream()<<MSG::DEBUG<< dumpROBcache() <<endreq; 
+  if(msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG << " ---> setNextEvent online for "<< name() << endmsg; 
+    msg() << MSG::DEBUG << "      online running    = " << m_onlineRunning << endmsg;
+    msg() << MSG::DEBUG << "      current LVL1 id   = " << m_currentLvl1ID << endmsg;
+    msg() << MSG::DEBUG << "      # LVL1 ROBs       = " << result.size() << endmsg;
+    msg() << MSG::DEBUG << "      size of ROB cache = " << m_online_robmap.size() << endmsg;
+    msg() << MSG::DEBUG << dumpROBcache() << endmsg; 
   }
   return; 
 }
@@ -704,14 +668,14 @@ void HltROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std:
 	if ( p_robMonCollection ) {
 	  p_robMonCollection->reserve( HltROBDataProviderConstants::Number_of_Rob_Monitor_Structs ) ;
 	  if ( (m_storeGateSvc->record(p_robMonCollection, m_ROBDataMonitorCollection_SG_Name.value(), true)).isFailure() ) {
-	    logStream() << MSG::WARNING << " getROBData: Registering ROB Monitoring collection in StoreGate failed." << endreq;
+	    ATH_MSG_WARNING(" getROBData: Registering ROB Monitoring collection in StoreGate failed.");
 	    delete p_robMonCollection;
 	    p_robMonCollection = 0;
 	  }
 	}
       } else {
 	if ( m_storeGateSvc->retrieve(p_robMonCollection).isFailure() ) {
-	  logStream() << MSG::WARNING << " getROBData: Retrieval of ROB Monitoring collection from StoreGate failed." << endreq;
+	  ATH_MSG_WARNING(" getROBData: Retrieval of ROB Monitoring collection from StoreGate failed.");
 	  p_robMonCollection = 0;
 	}
       }
@@ -756,11 +720,9 @@ void HltROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std:
       if(map_it != m_online_robmap.end()) {      
         robFragments.push_back( &((*map_it).second) );
       } else {
-        if(logLevel() <= MSG::DEBUG) {
-          logStream()<<MSG::DEBUG<<" ---> getROBData: Failed to find ROB for id 0x"
-              <<MSG::hex<< id <<MSG::dec<<endreq;
-          if(logLevel() <= MSG::VERBOSE) { logStream()<<MSG::VERBOSE<< dumpROBcache() <<endreq; }
-        }
+        ATH_MSG_DEBUG(" ---> getROBData: Failed to find ROB for id 0x"
+                      << MSG::hex << id << MSG::dec);
+        ATH_MSG_VERBOSE(dumpROBcache());
       }
     }
   }
@@ -837,19 +799,20 @@ int HltROBDataProviderSvc::collectCompleteEventData(const std::string callerName
 
   if ( m_doMonitoring || m_doDetailedROBMonitoring.value() ) gettimeofday(&time_stop, 0);
 
-  if (logLevel() <= MSG::DEBUG) {
+  if (msgLvl(MSG::DEBUG)) {
     std::ostringstream ost;
     unsigned int rob_counter = 1;
-    for (ROBInfoVec::const_iterator rob_it = vRobInfos.begin(); rob_it != vRobInfos.end(); ++rob_it,++rob_counter)
-      ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << rob_it->robFragment.source_id() << std::dec << "\n" ; 
-    logStream() << MSG::DEBUG 
-        << " ---> collectCompleteEventData: The following ROB Ids were received from DataCollector : \n"
-        << "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
-        << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
-        << ost.str()
-        << endreq;
+    for (const auto& rob : vRobInfos) {
+      ost << "       # = "<< std::setw(5) << rob_counter++ << " ROB id = 0x" 
+          << std::hex << rob.robFragment.source_id() << std::dec << "\n" ; 
+    }
+    ATH_MSG_DEBUG(" ---> collectCompleteEventData: The following ROB Ids were received from DataCollector : \n"
+                  << "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
+                  << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
+                  << ost.str());
   }
-
+    
+    
   // detailed ROB monitoring
   //------------------------
   // Create a ROB monitoring collection and register it to StoreGate
@@ -858,21 +821,21 @@ int HltROBDataProviderSvc::collectCompleteEventData(const std::string callerName
     if ( !(m_storeGateSvc->transientContains<ROBDataMonitorCollection>(m_ROBDataMonitorCollection_SG_Name.value())) ) {
       p_robMonCollection = new ROBDataMonitorCollection;
       if ( p_robMonCollection ) {
-	p_robMonCollection->reserve( HltROBDataProviderConstants::Number_of_Rob_Monitor_Structs ) ;
-	if ( (m_storeGateSvc->record(p_robMonCollection, m_ROBDataMonitorCollection_SG_Name.value(), true)).isFailure() ) {
-	  logStream() << MSG::WARNING << " Registering ROB Monitoring collection in StoreGate failed." << endreq;
-	  delete p_robMonCollection;
-	  p_robMonCollection = 0;
-	}
+        p_robMonCollection->reserve( HltROBDataProviderConstants::Number_of_Rob_Monitor_Structs ) ;
+        if ( (m_storeGateSvc->record(p_robMonCollection, m_ROBDataMonitorCollection_SG_Name.value(), true)).isFailure() ) {
+          ATH_MSG_WARNING(" Registering ROB Monitoring collection in StoreGate failed.");
+          delete p_robMonCollection;
+          p_robMonCollection = 0;
+        }
       }
     } else {
       if ( m_storeGateSvc->retrieve(p_robMonCollection).isFailure() ) {
-	logStream() << MSG::WARNING << " Retrieval of ROB Monitoring collection from StoreGate failed." << endreq;
-	p_robMonCollection = 0;
+        ATH_MSG_WARNING(" Retrieval of ROB Monitoring collection from StoreGate failed.");
+        p_robMonCollection = 0;
       }
     }
   }
-
+  
   // create a new ROBDataMonitorStruct and fill it
   robmonitor::ROBDataMonitorStruct* p_robMonStruct(0);
   if ( p_robMonCollection ) {
@@ -949,15 +912,14 @@ void HltROBDataProviderSvc::setCallerName(const std::string callerName) {
 // handler for BeginRun
 void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (incident.type()!="BeginRun") return;
-  if(logLevel() <= MSG::DEBUG)
-    logStream() <<MSG::DEBUG << "In BeginRun incident." << endreq;
+  ATH_MSG_DEBUG("In BeginRun incident.");
 
   // if detailed ROB monitoring is requested, check if the AlgContextSvc is running, 
   // if yes use it to obtain the calling algorithm name
   if ( m_doDetailedROBMonitoring.value() ) {
     if ( service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure() ) {
-      logStream() << MSG::ERROR << "Error retrieving AlgContextSvc."  
-          << "Calling algorithm name not available in detailed ROB monitoring" << endreq;
+      ATH_MSG_ERROR("Error retrieving AlgContextSvc."  
+                    << "Calling algorithm name not available in detailed ROB monitoring");
       m_algContextSvc=0;
     }
   }
@@ -968,7 +930,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   // find histogramming service
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
   if ((rootHistSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    ATH_MSG_ERROR("Unable to locate THistSvc");
     rootHistSvc.release().ignore();
     return;
   }
@@ -988,7 +950,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (m_hist_requestedROBsPerCall) {
     CAN_REBIN(m_hist_requestedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endreq;
+      ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName());
     }
   }
 
@@ -1001,7 +963,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (m_hist_receivedROBsPerCall) {
     CAN_REBIN(m_hist_receivedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endreq;
+      ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName());
     }
   }
 
@@ -1014,7 +976,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (m_hist_timeROBretrieval) {
     CAN_REBIN(m_hist_timeROBretrieval);
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endreq;
+      ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName());
     }
   }
 
@@ -1026,7 +988,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (m_hist_genericStatusForROB) {
     uint32_t n_tmp_bin = 1;
     for (eformat::helper::EnumClass<eformat::SubDetector>::const_iterator it_sub=eformat::helper::SubDetectorDictionary.begin();
-        it_sub != eformat::helper::SubDetectorDictionary.end(); it_sub++ ) {
+        it_sub != eformat::helper::SubDetectorDictionary.end(); ++it_sub ) {
       m_hist_genericStatusForROB->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
       n_tmp_bin++;
     }
@@ -1037,7 +999,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
       n_tmp_bin++;
     }
     if( rootHistSvc->regHist(path + m_hist_genericStatusForROB->GetName(), m_hist_genericStatusForROB).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName() << endreq;
+      ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName());
     }
   }
 
@@ -1049,7 +1011,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   if (m_hist_specificStatusForROB) {
     uint32_t n_tmp_bin = 1;
     for (eformat::helper::EnumClass<eformat::SubDetector>::const_iterator it_sub=eformat::helper::SubDetectorDictionary.begin();
-        it_sub != eformat::helper::SubDetectorDictionary.end(); it_sub++ ) {
+        it_sub != eformat::helper::SubDetectorDictionary.end(); ++it_sub ) {
       m_hist_specificStatusForROB->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
       n_tmp_bin++;
     }
@@ -1060,7 +1022,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
       n_tmp_bin++;
     }
     if( rootHistSvc->regHist(path + m_hist_specificStatusForROB->GetName(), m_hist_specificStatusForROB).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName() << endreq;
+      ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName());
     }
   }
 
@@ -1075,9 +1037,8 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
   struct timeval time_start;
   struct timeval time_stop;
 
-  if(logLevel() <= MSG::DEBUG)
-    logStream() << MSG::DEBUG << " ---> addROBDataToCache: Number of ROB Ids requested for retrieval : " << robIdsForRetrieval.size() 
-    << ", Lvl1 id = " << m_currentLvl1ID << endreq;
+  ATH_MSG_DEBUG(" ---> addROBDataToCache: Number of ROB Ids requested for retrieval : " 
+                << robIdsForRetrieval.size() << ", Lvl1 id = " << m_currentLvl1ID);
 
   // return if no ROBs are requested
   if (robIdsForRetrieval.size() == 0) return;
@@ -1092,9 +1053,8 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
     // check first if ROB is already in cache
     ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(*rob_it) ;
     if(map_it != m_online_robmap.end()) {
-      if(logLevel() <= MSG::DEBUG)
-	logStream() << MSG::DEBUG << " ---> addROBDataToCache: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id() << MSG::dec
-		    <<" in cache "<< endreq;
+      ATH_MSG_DEBUG(" ---> addROBDataToCache: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id() 
+                    << MSG::dec <<" in cache ");
       continue;
     } 
 
@@ -1106,9 +1066,8 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
       std::vector<uint32_t>::const_iterator rob_enabled_it =
 	std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),(*rob_it));
       if(rob_enabled_it == m_enabledROBs.value().end()) {
-	if(logLevel() <= MSG::DEBUG)
-	  logStream() << MSG::DEBUG << " ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << (*rob_it) << MSG::dec
-		      << " will be not retrieved, since it is not on the list of enabled ROBs."<< endreq;
+        ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << (*rob_it) << MSG::dec
+                      << " will be not retrieved, since it is not on the list of enabled ROBs.");
 	continue;
       }
     }
@@ -1144,19 +1103,19 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
     vRobInfos.insert( vRobInfos.end(), vMETRobInfos.begin(), vMETRobInfos.end() );
   }
 
-  if((logLevel() <= MSG::DEBUG) && ((vRobIds.size()!=0) || (vMETRobIds.size()!=0))) {
+  if(msgLvl(MSG::DEBUG) && ((vRobIds.size()!=0) || (vMETRobIds.size()!=0))) {
     std::ostringstream ost;
     unsigned int rob_counter = 1;
-    for (ROBInfoVec::const_iterator rob_it = vRobInfos.begin(); rob_it != vRobInfos.end(); ++rob_it,++rob_counter)
-      ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << rob_it->robFragment.source_id() << std::dec << "\n" ; 
-    logStream() << MSG::DEBUG 
-        << " ---> addROBDataToCache: The following ROB Ids were received from DataCollector : \n"
-        << "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
-        << "      Number of detector ROB Ids requested for retrieval  = " << vRobIds.size() << "\n"
-        << "      Number of MET ROB Ids requested for retrieval       = " << vMETRobIds.size() << "\n"
-        << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
-        << ost.str()
-        << endreq;
+    for (const auto& rob : vRobInfos) {
+      ost << "       # = "<< std::setw(5) << rob_counter++ << " ROB id = 0x" << std::hex 
+          << rob.robFragment.source_id() << std::dec << "\n" ; 
+    }
+    ATH_MSG_DEBUG(" ---> addROBDataToCache: The following ROB Ids were received from DataCollector : \n"
+                  << "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
+                  << "      Number of detector ROB Ids requested for retrieval  = " << vRobIds.size() << "\n"
+                  << "      Number of MET ROB Ids requested for retrieval       = " << vMETRobIds.size() << "\n"
+                  << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
+                  << ost.str());
   }
 
   if ( m_doMonitoring || p_robMonStruct ) {
@@ -1205,9 +1164,8 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
 void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROBInfo>& vRobInfo,
 					      robmonitor::ROBDataMonitorStruct* p_robMonStruct) {
 
-  if(logLevel() <= MSG::DEBUG)
-    logStream() << MSG::DEBUG << " ---> updateROBDataCache: Number of ROB Info records for cache update : " << vRobInfo.size() 
-    << ", Lvl1 id = " << m_currentLvl1ID << endreq;
+  ATH_MSG_DEBUG(" ---> updateROBDataCache: Number of ROB Info records for cache update : " 
+                << vRobInfo.size() << ", Lvl1 id = " << m_currentLvl1ID);
 
   // return if no ROB Info records are available
   if (vRobInfo.size() == 0) return;
@@ -1217,21 +1175,19 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
   for(ROBInfoVec::const_iterator it=vRobInfo.begin(); it!=vRobInfo.end(); ++it) {
     uint32_t id = it->robFragment.source_id() ;
     if ((it->robFragment.rod_ndata() == 0) && (m_removeEmptyROB)) {
-      if(logLevel() <= MSG::DEBUG) { 
-        logStream() << MSG::DEBUG << " ---> addROBDataToCache: Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-            << " removed for L1 Id = " << m_currentLvl1ID << endreq;
-      }
+      ATH_MSG_DEBUG(" ---> addROBDataToCache: Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+                    << " removed for L1 Id = " << m_currentLvl1ID);
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&it->robFragment)) {
-      if ((logLevel() <= MSG::DEBUG) && (it->robFragment.nstatus() > 0)) {
+      if (msgLvl(MSG::DEBUG) && (it->robFragment.nstatus() > 0)) {
         const uint32_t* it_status;
         it->robFragment.status(it_status);
         eformat::helper::Status tmpstatus( (*it_status) ) ;
-        logStream() << MSG::DEBUG << " ---> addROBDataToCache: ROB Id = 0x" << MSG::hex << id
-            << std::setfill( '0' )
-        << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
-        << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
-        << MSG::dec
-        << " removed for L1 Id = " << m_currentLvl1ID << endreq;
+        ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id = 0x" << MSG::hex << id
+                      << std::setfill( '0' )
+                      << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
+                      << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
+                      << MSG::dec
+                      << " removed for L1 Id = " << m_currentLvl1ID);
       }
     } else {
       m_online_robmap[id]= (it->robFragment);

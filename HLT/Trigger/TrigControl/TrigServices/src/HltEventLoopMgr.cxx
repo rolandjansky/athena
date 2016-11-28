@@ -87,12 +87,6 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 
 #define ST_WHERE "HltEventLoopMgr::" << __func__ << "(): "
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
 using namespace boost::property_tree;
 using std::string;
 using std::function;
@@ -281,59 +275,15 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_THistSvc( "THistSvc", nam ),
   m_isHelper( "TrigISHelper", this),
   m_coolHelper( "TrigCOOLUpdateHelper", this),
-  m_hltConfigSvc(0),
-  m_algContextSvc(0),
-  m_msg(0),
-  m_currentRun(0),
-  m_currentLB(0),
-  m_currentEvent(0),
   m_sorTime_stamp(2,0),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_l1_hltPrescaleUpdateLB(0xffffffff),
-  m_hist_eventAcceptFlags(0),
-  m_hist_frameworkErrorCodes(0),
-  m_hist_Hlt_result_size(0),
-  m_hist_Hlt_result_status(0),
-  m_hist_numStreamTags(0),
-  m_hist_streamTagTypes(0),
-  m_hist_streamTagNames(0),
-  m_hist_num_partial_eb_robs(0),
-  m_hist_num_partial_eb_SubDetectors(0),
-  m_hist_partial_eb_SubDetectors_ROBs(0),
-  m_hist_partial_eb_SubDetectors_SDs(0),
-  m_hist_Hlt_result_size_physics(0),
-  m_hist_Hlt_result_size_express(0),
-  m_hist_Hlt_result_size_DataScouting(0),
-  m_hist_HltResultSizes_Stream_physics(0),
-  m_hist_HltResultSizes_Stream_DataScouting(0),
-  m_hist_HltEdmSizes_No_Truncation(0),
-  m_hist_HltEdmSizes_With_Truncation(0),
-  m_hist_HltEdmSizes_TruncatedResult_Retained_Collections(0),
-  m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections(0),
   m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
   m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,9.5,10)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,99.5,100)),
-  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
-  m_total_evt(0),
-  m_failed_evt(0),
-  m_invalid_lvl1_result(0),
-  m_invalid_hlt_result(0),
-  m_truncated_hlt_result(0),
-  m_truncated_hlt_result_to_debug(0),
-  m_truncated_hlt_result_not_to_debug(0),
-  m_lvl1id(0),
-  m_run_no(0),
-  m_bunch_crossing_id(0),
-  m_time_stamp(0),
-  m_time_stamp_ns_offset(0),
-  m_lumi_block(0),
-  m_l1_Status_Element(0),
-  m_l1_Trigger_Type(0),
-  m_l1_detev_type(0),
-  m_hist_l1_robs(0),
-  m_hist_Hlt_truncated_result(0)
+  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100))
 {
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
@@ -394,8 +344,6 @@ StatusCode HltEventLoopMgr::queryInterface(const InterfaceID& riid, void** ppvIn
 //=========================================================================
 StatusCode HltEventLoopMgr::sysInitialize()
 {
-  // set message stream
-  m_msg  = new MsgStream( msgSvc(), name() );
 
   // initialize the base class
   StatusCode sc = MinimalEventLoopMgr::sysInitialize();
@@ -407,8 +355,8 @@ void HltEventLoopMgr::updateDFProps()
 {
   ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
   if ((p_jobOptionsSvc.retrieve()).isFailure()) {
-    logStream() << MSG::WARNING << "Could not find JobOptionsSvc to set "
-                << "DataFlow properties" << endreq;
+    msgStream() << MSG::WARNING << "Could not find JobOptionsSvc to set "
+                << "DataFlow properties" << endmsg;
   } else {
     auto dfprops = p_jobOptionsSvc->getProperties("DataFlowConfig");
 
@@ -416,48 +364,48 @@ void HltEventLoopMgr::updateDFProps()
     auto pname = "DF_ApplicationName";
     const auto * prop = Gaudi::Utils::getProperty(dfprops, pname);
     if(prop && m_applicationName.assign(*prop)) {
-      logStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
-                  << m_applicationName << endreq;
+      msgStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
+                  << m_applicationName << endmsg;
     } else {
-      logStream() << MSG::WARNING << "Could not set Property '" << pname
-                  << "' from DataFlow." << endreq;
+      msgStream() << MSG::WARNING << "Could not set Property '" << pname
+                  << "' from DataFlow." << endmsg;
     }
 
     // Partition name
     pname = "DF_PartitionName";
     prop = Gaudi::Utils::getProperty(dfprops, pname);
     if (prop && m_partitionName.assign(*prop)) {
-      logStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
-                  << m_partitionName << endreq;
+      msgStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
+                  << m_partitionName << endmsg;
     } else {
-      logStream() << MSG::WARNING << "Could not set Property '" << pname
-                  << "' from DataFlow." << endreq;
+      msgStream() << MSG::WARNING << "Could not set Property '" << pname
+                  << "' from DataFlow." << endmsg;
     }
 
     // get the list of enabled ROBs
     pname = "DF_Enabled_ROB_IDs";
     prop = Gaudi::Utils::getProperty(dfprops, pname);
     if (prop && m_enabledROBs.assign(*prop)) {
-      logStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
+      msgStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
                   << m_enabledROBs.value().size() << " enabled ROB IDs."
-                  << endreq;
+                  << endmsg;
     } else {
       // this is only info, because it is normal in athenaHLT
-      logStream() << MSG::INFO << "Could not set Property '" << pname
-                  << "' from DataFlow." << endreq;
+      msgStream() << MSG::INFO << "Could not set Property '" << pname
+                  << "' from DataFlow." << endmsg;
     }
 
     // get the list of enabled Sub Detectors
     pname = "DF_Enabled_SubDet_IDs";
     prop = Gaudi::Utils::getProperty(dfprops, pname);
     if (prop && m_enabledSubDetectors.assign(*prop)) {
-      logStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
+      msgStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: "
                   << m_enabledSubDetectors.value().size()
-                  << " enabled Sub Detector IDs." << endreq;
+                  << " enabled Sub Detector IDs." << endmsg;
     } else {
       // this is only info, because it is normal in athenaHLT
-      logStream() << MSG::INFO << "Could not set Property '"
-                  << pname << "' from DataFlow." << endreq;
+      msgStream() << MSG::INFO << "Could not set Property '"
+                  << pname << "' from DataFlow." << endmsg;
     }
   }
 
@@ -474,10 +422,10 @@ StatusCode HltEventLoopMgr::initialize()
 
   // leave this after initialization of base class, otherwise msgSvc is not correctly set up
   //            -----
-  logStream() << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " initialize "
-      << " - package version " << CMT_PACKAGE_VERSION << endreq ;
+  msgStream() << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " initialize "
+      << " - package version " << CMT_PACKAGE_VERSION << endmsg ;
   if (sc.isFailure()) {
-    logStream() << MSG::ERROR << "Failed to initialize base class MinimalEventLoopMgr" << endreq;
+    msgStream() << MSG::ERROR << "Failed to initialize base class MinimalEventLoopMgr" << endmsg;
     return sc;
   }
 
@@ -488,63 +436,63 @@ StatusCode HltEventLoopMgr::initialize()
   if( propMgr.isValid() ) {
     try {
       if (m_jobOptionsType.assign( propMgr->getProperty("JobOptionsType") ))
-        logStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_jobOptionsType << endreq;
+        msgStream() << MSG::DEBUG << " ---> Read from DataFlow configuration: " << m_jobOptionsType << endmsg;
     }
     catch (...) {
-      logStream() << MSG::WARNING << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow." << endreq;
+      msgStream() << MSG::WARNING << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow." << endmsg;
     }
   }
   else {
-    logStream() << MSG::WARNING << "Error retrieving IProperty interface of ApplicationMgr" << endreq;
+    msgStream() << MSG::WARNING << "Error retrieving IProperty interface of ApplicationMgr" << endmsg;
   }
 
   // print properties
-  logStream() << MSG::INFO << " ---> predefinedLumiBlock    = " << m_predefinedLumiBlock << endreq ;
-  logStream() << MSG::INFO << " ---> Lvl1 CTP ROB Id        = " << m_lvl1CTPROBid 
-      << " SourceID in hex = 0x" << MSG::hex << m_lvl1CTPROBid.value() << MSG::dec << endreq ;
-  logStream() << MSG::INFO << " ---> ApplicationName        = " << m_applicationName << endreq ;
-  logStream() << MSG::INFO << " ---> PartitionName          = " << m_partitionName << endreq ;
-  logStream() << MSG::INFO << " ---> JobOptionsType         = " << m_jobOptionsType << endreq ;
+  msgStream() << MSG::INFO << " ---> predefinedLumiBlock    = " << m_predefinedLumiBlock << endmsg ;
+  msgStream() << MSG::INFO << " ---> Lvl1 CTP ROB Id        = " << m_lvl1CTPROBid 
+      << " SourceID in hex = 0x" << MSG::hex << m_lvl1CTPROBid.value() << MSG::dec << endmsg ;
+  msgStream() << MSG::INFO << " ---> ApplicationName        = " << m_applicationName << endmsg ;
+  msgStream() << MSG::INFO << " ---> PartitionName          = " << m_partitionName << endmsg ;
+  msgStream() << MSG::INFO << " ---> JobOptionsType         = " << m_jobOptionsType << endmsg ;
 
-  logStream() << MSG::INFO << " ---> Enabled ROBs: size = "
+  msgStream() << MSG::INFO << " ---> Enabled ROBs: size = "
               << m_enabledROBs.value().size();
   if (m_enabledROBs.value().size() == 0)
   {
-    logStream() << MSG::INFO << ". No check will be performed ";
+    msgStream() << MSG::INFO << ". No check will be performed ";
   }
-  logStream() << endreq;
+  msgStream() << endmsg;
 
-  logStream() << MSG::INFO << " ---> Enabled Sub Detectors: size = "
+  msgStream() << MSG::INFO << " ---> Enabled Sub Detectors: size = "
               << m_enabledSubDetectors.value().size();
   if (m_enabledSubDetectors.value().size() == 0)
   {
-     logStream() << ". No check will be performed " << endreq;
+     msgStream() << ". No check will be performed " << endmsg;
   }
-  logStream() << endreq;
+  msgStream() << endmsg;
 
-  logStream() << MSG::INFO << " ---> Fill monitoring histograms   = " << m_doMonitoring << endreq ;
-  logStream() << MSG::INFO << " ---> Hist: histHltResultSize      = " << m_histProp_Hlt_result_size << endreq ;
-  logStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags = " << m_histProp_numStreamTags << endreq ;
-  logStream() << MSG::INFO << " ---> Hist: histStreamTagNames     = " << m_histProp_streamTagNames << endreq ;
-  logStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB= " << m_histProp_num_partial_eb_robs << endreq ;
-  logStream() << MSG::INFO << " ---> Hist: histHltEdmSizes        = " << m_histProp_Hlt_Edm_Sizes << endreq;
-  logStream() << MSG::INFO << " ---> HLT EDM Collection Names     = " << m_hltEdmCollectionNames << endreq;
-  logStream() << MSG::INFO << " ---> HltResult SG key             = " << m_HltResultName << endreq ;
-  logStream() << MSG::INFO << " ---> HLT debug stream name        = " << m_HltDebugStreamName << endreq ;
-  logStream() << MSG::INFO << " ---> HLT stream for forced events = " << m_HltForcedStreamName << endreq ;
-  logStream() << MSG::INFO << " ---> ForceHltReject               = " << m_forceHltReject << endreq ;
-  logStream() << MSG::INFO << " ---> ForceHltAccept               = " << m_forceHltAccept << endreq;
+  msgStream() << MSG::INFO << " ---> Fill monitoring histograms   = " << m_doMonitoring << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize      = " << m_histProp_Hlt_result_size << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags = " << m_histProp_numStreamTags << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histStreamTagNames     = " << m_histProp_streamTagNames << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB= " << m_histProp_num_partial_eb_robs << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltEdmSizes        = " << m_histProp_Hlt_Edm_Sizes << endmsg;
+  msgStream() << MSG::INFO << " ---> HLT EDM Collection Names     = " << m_hltEdmCollectionNames << endmsg;
+  msgStream() << MSG::INFO << " ---> HltResult SG key             = " << m_HltResultName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT debug stream name        = " << m_HltDebugStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT stream for forced events = " << m_HltForcedStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltReject               = " << m_forceHltReject << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltAccept               = " << m_forceHltAccept << endmsg;
 
   if (m_forceHltReject.value()) {
-    logStream() << MSG::INFO << " +------------------------------------------+ "  << endreq ;
-    logStream() << MSG::INFO << " | >>>   ForceHltReject is enabled !    <<< | "  << endreq ;
-    logStream() << MSG::INFO << " | It takes precedence over ForceHltAccept  | "  << endreq ;
-    logStream() << MSG::INFO << " +------------------------------------------+ "  << endreq ;
+    msgStream() << MSG::INFO << " +------------------------------------------+ "  << endmsg ;
+    msgStream() << MSG::INFO << " | >>>   ForceHltReject is enabled !    <<< | "  << endmsg ;
+    msgStream() << MSG::INFO << " | It takes precedence over ForceHltAccept  | "  << endmsg ;
+    msgStream() << MSG::INFO << " +------------------------------------------+ "  << endmsg ;
   }
 
-  logStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endreq;
-  logStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endreq;
-  logStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endreq;
+  msgStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endmsg;
+  msgStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endmsg;
+  msgStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endmsg;
 
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
@@ -552,7 +500,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_evtStore.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving StoreGateSvc "+m_evtStore << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving StoreGateSvc "+m_evtStore << endmsg;
     return sc;
   }
 
@@ -562,7 +510,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_detectorStore.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving DetectorStore "+m_detectorStore << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving DetectorStore "+m_detectorStore << endmsg;
     return sc;
   }
 
@@ -572,7 +520,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_inputMetaDataStore.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving InputMetaDataStore"+m_inputMetaDataStore << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving InputMetaDataStore"+m_inputMetaDataStore << endmsg;
     return sc;
   }
 
@@ -582,7 +530,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_incidentSvc.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving IncidentSvc "+m_incidentSvc << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving IncidentSvc "+m_incidentSvc << endmsg;
     return sc;
   }
 
@@ -592,7 +540,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_robDataProviderSvc.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving ROBDataProviderSvc "+m_robDataProviderSvc << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving ROBDataProviderSvc "+m_robDataProviderSvc << endmsg;
     return sc;
   }
 
@@ -602,7 +550,7 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_THistSvc.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving THistSvc "+m_THistSvc << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving THistSvc "+m_THistSvc << endmsg;
     return sc;
   }
 
@@ -612,14 +560,14 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_isHelper.retrieve();
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error retrieving TrigISHelper "+m_isHelper << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving TrigISHelper "+m_isHelper << endmsg;
     return sc;
   }
   sc = m_isHelper->setProperty(m_partitionName);
   if(sc.isFailure())
   {
-    logStream() << MSG::FATAL << "Error setting " << m_partitionName.name()
-                    << " of " << m_isHelper << endreq;
+    msgStream() << MSG::FATAL << "Error setting " << m_partitionName.name()
+                    << " of " << m_isHelper << endmsg;
     return sc;
   }
 
@@ -627,7 +575,7 @@ StatusCode HltEventLoopMgr::initialize()
   // COOL helper
   //--------------------------------------------------------------------------
   if (m_coolHelper.retrieve().isFailure()) {
-    logStream() << MSG::FATAL << "Error retrieving" << m_coolHelper << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving" << m_coolHelper << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -636,7 +584,7 @@ StatusCode HltEventLoopMgr::initialize()
   //--------------------------------------------------------------------------
   if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure()) {
     m_algContextSvc = 0;
-    logStream() << MSG::DEBUG << "No AlgContextSvc available" << endreq;
+    msgStream() << MSG::DEBUG << "No AlgContextSvc available" << endmsg;
   }
 
   //--------------------------------------------------------------------------
@@ -644,20 +592,20 @@ StatusCode HltEventLoopMgr::initialize()
   //--------------------------------------------------------------------------
   ToolHandle<TrigPreFlightCheck> preFlightCheck;
   if (preFlightCheck.retrieve().isFailure()) {
-    logStream() << MSG::FATAL << "Error retrieving TrigPreFlightCheck "+preFlightCheck << endreq;
+    msgStream() << MSG::FATAL << "Error retrieving TrigPreFlightCheck "+preFlightCheck << endmsg;
     return StatusCode::FAILURE;
   }
 
   // A failed pre-flight check is fatal in a partition
   if ( validPartition() ) {
     if ( preFlightCheck->check(MSG::ERROR).isFailure() ) {
-      logStream() << MSG::FATAL << "Pre-flight check for HLT failed." << endreq;
+      msgStream() << MSG::FATAL << "Pre-flight check for HLT failed." << endmsg;
       return StatusCode::FAILURE;
     }
   }
   else {
     if ( preFlightCheck->check(MSG::WARNING).isFailure() )
-      logStream() << MSG::WARNING << "Pre-flight check for HLT failed." << endreq;
+      msgStream() << MSG::WARNING << "Pre-flight check for HLT failed." << endmsg;
   }    
   preFlightCheck->release();
 
@@ -670,10 +618,10 @@ StatusCode HltEventLoopMgr::initialize()
   }
 
   // print properties
-  logStream() << MSG::INFO << " ---> HltEventLoopMgr            = " << name() << " special properties <--- " << endreq ;
-  logStream() << MSG::INFO << " ---> Lvl1 CTP ROB Id vec.        = 0x" << MSG::hex << m_ctpRobIdVec[0] << MSG::dec
-      << " size of vector = " << m_ctpRobIdVec.size() << endreq ;
-  logStream() << MSG::INFO << " ---> Check for invalid CTP ROBs  = " << m_lvl1CTPROBcheck << endreq ;
+  msgStream() << MSG::INFO << " ---> HltEventLoopMgr            = " << name() << " special properties <--- " << endmsg ;
+  msgStream() << MSG::INFO << " ---> Lvl1 CTP ROB Id vec.        = 0x" << MSG::hex << m_ctpRobIdVec[0] << MSG::dec
+      << " size of vector = " << m_ctpRobIdVec.size() << endmsg ;
+  msgStream() << MSG::INFO << " ---> Check for invalid CTP ROBs  = " << m_lvl1CTPROBcheck << endmsg ;
 
 //-------------------------------------------------------------------------
 // Reset counters
@@ -692,11 +640,11 @@ StatusCode HltEventLoopMgr::initialize()
   if ( &*m_THistSvc ) {
     m_hltTHistSvc = SmartIF<IHltTHistSvc>( &*m_THistSvc );
     if (m_hltTHistSvc.isValid()) {
-      logStream() << MSG::INFO << "A THistSvc implementing the HLT interface IHltTHistSvc was found."
-    << endreq;
+      msgStream() << MSG::INFO << "A THistSvc implementing the HLT interface IHltTHistSvc was found."
+    << endmsg;
     } else {
-      logStream() << MSG::INFO << "No THistSvc implementing the HLT interface IHltTHistSvc was found."
-    << endreq;
+      msgStream() << MSG::INFO << "No THistSvc implementing the HLT interface IHltTHistSvc was found."
+    << endmsg;
     }
   }
 
@@ -706,11 +654,11 @@ StatusCode HltEventLoopMgr::initialize()
   if ( &*m_robDataProviderSvc ) {
     m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
     if (m_hltROBDataProviderSvc.isValid()) {
-      logStream() << MSG::INFO << "A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-    << endreq;
+      msgStream() << MSG::INFO << "A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
+    << endmsg;
     } else {
-      logStream() << MSG::INFO << "No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-    << endreq;
+      msgStream() << MSG::INFO << "No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
+    << endmsg;
     }
   }
 
@@ -725,8 +673,6 @@ StatusCode HltEventLoopMgr::sysFinalize()
   // initialize the base class
   StatusCode sc = MinimalEventLoopMgr::sysFinalize();
   sc.setChecked();
-  // delete message stream
-  if ( m_msg ) delete m_msg;
   return sc;
 }
 
@@ -736,14 +682,14 @@ StatusCode HltEventLoopMgr::sysFinalize()
 StatusCode HltEventLoopMgr::finalize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " finalize " << endreq;
-  log << MSG::INFO << " Total number of events processed :                                     " << m_total_evt << endreq;
-  log << MSG::INFO << "    Events with error in event processing                               " << m_failed_evt << endreq;
-  log << MSG::INFO << "    Events with invalid Lvl1 Result                                     " << m_invalid_lvl1_result << endreq;
-  log << MSG::INFO << "    Events with invalid Hlt Result                                      " << m_invalid_hlt_result << endreq;
-  log << MSG::INFO << "    Events with truncated Hlt Result payload                            " << m_truncated_hlt_result << endreq;   
-  log << MSG::INFO << "    Events with truncated Hlt Result payload (send to debug stream)     " << m_truncated_hlt_result_to_debug << endreq;   
-  log << MSG::INFO << "    Events with truncated Hlt Result payload (not send to debug stream) " << m_truncated_hlt_result_not_to_debug << endreq;   
+  log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " finalize " << endmsg;
+  log << MSG::INFO << " Total number of events processed :                                     " << m_total_evt << endmsg;
+  log << MSG::INFO << "    Events with error in event processing                               " << m_failed_evt << endmsg;
+  log << MSG::INFO << "    Events with invalid Lvl1 Result                                     " << m_invalid_lvl1_result << endmsg;
+  log << MSG::INFO << "    Events with invalid Hlt Result                                      " << m_invalid_hlt_result << endmsg;
+  log << MSG::INFO << "    Events with truncated Hlt Result payload                            " << m_truncated_hlt_result << endmsg;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (send to debug stream)     " << m_truncated_hlt_result_to_debug << endmsg;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (not send to debug stream) " << m_truncated_hlt_result_not_to_debug << endmsg;   
 
   // Need to release now. Automatic release in destructor is too late since services are already gone.
   m_hltTHistSvc.reset();
@@ -751,7 +697,7 @@ StatusCode HltEventLoopMgr::finalize()
 
   StatusCode sc = MinimalEventLoopMgr::finalize();
   if (sc.isFailure()) {
-    logStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Finalize" << endreq;
+    msgStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Finalize" << endmsg;
   }
 
   // Release all interfaces
@@ -774,10 +720,7 @@ StatusCode HltEventLoopMgr::sysReinitialize()
   // initialize the base class
   StatusCode sc = MinimalEventLoopMgr::sysReinitialize();
   sc.setChecked();
-  // set message stream if not already done
-  if ( !m_msg ) {
-    m_msg  = new MsgStream( msgSvc(), name() );
-  }
+
   return sc;
 }
 
@@ -787,7 +730,7 @@ StatusCode HltEventLoopMgr::sysReinitialize()
 StatusCode HltEventLoopMgr::reinitialize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " reinitialize " << endreq;
+  log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " reinitialize " << endmsg;
 
 //-------------------------------------------------------------------------
 // Reset counters
@@ -802,7 +745,7 @@ StatusCode HltEventLoopMgr::reinitialize()
 
   StatusCode sc = MinimalEventLoopMgr::reinitialize();
   if (sc.isFailure()) {
-    logStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Reinitialize" << endreq;
+    msgStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Reinitialize" << endmsg;
   }
 
   return sc;
@@ -831,9 +774,9 @@ StatusCode HltEventLoopMgr::executeAlgorithms()
 StatusCode HltEventLoopMgr::executeEvent(void* par)
 {
   StatusCode  sc;
-  if (logLevel() <= MSG::DEBUG) {  
-    logStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name()
-		    << " executeEvent(par): par = 0x" << MSG::hex << par << MSG::dec << endreq;
+  if (msgLevel() <= MSG::DEBUG) {  
+    msgStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name()
+		    << " executeEvent(par): par = 0x" << MSG::hex << par << MSG::dec << endmsg;
   }
 
   {
@@ -844,15 +787,15 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   }
 
   if( sc.isFailure() ) {
-    logStream() << MSG::ERROR << "Expected an EventInfo object." << endreq;
+    msgStream() << MSG::ERROR << "Expected an EventInfo object." << endmsg;
     return StatusCode::FAILURE;
   } else {
     const auto eventrn = m_currentEvent->event_ID()->run_number();
     if ( (m_currentRun != eventrn))
-      logStream() << (m_currentRun ? MSG::WARNING : MSG::DEBUG)
+      msgStream() << (m_currentRun ? MSG::WARNING : MSG::DEBUG)
                   << "Run number changed from " << m_currentRun << " to "
                   << eventrn << " Complete EventID   = "
-                  << *(m_currentEvent->event_ID()) << endreq;
+                  << *(m_currentEvent->event_ID()) << endmsg;
   }
 
   //-----------------------------------------------------------------------
@@ -931,7 +874,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   // Record it in StoreGate (object can be modified)
   sc = m_evtStore->record(pHltResult, m_HltResultName, true);
   if(sc.isFailure()) {
-    logStream() << MSG::ERROR << "Error declaring HLT Result object in SG" << endreq;
+    msgStream() << MSG::ERROR << "Error declaring HLT Result object in SG" << endmsg;
   }
 
   //-----------------------------------------------------------------------
@@ -946,11 +889,11 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     ISSUE(IssueSeverity::ERROR, std::string("Invalid CTP fragment. Exception = ")+ex.what());
   }
 
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "CTP extra payload (" << l1_extraPayload.size() << " words): ";
-    for (std::size_t i=0; i<l1_extraPayload.size(); ++i) logStream() << " " << l1_extraPayload[i];
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "CTP extra payload (" << l1_extraPayload.size() << " words): ";
+    for (std::size_t i=0; i<l1_extraPayload.size(); ++i) msgStream() << " " << l1_extraPayload[i];
 
-    logStream() << ctp_payload << endreq;
+    msgStream() << ctp_payload << endmsg;
   }
 
   // Schedule COOL updates
@@ -967,7 +910,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
         // set the HLT PSK flag to 0 to indicate error
         vExtraData[vExtraData.size()-2] = 0;       // one word for prescale counter (=1 ok, =0 error)
       }
-      logStream() << MSG::FATAL << "HLT Conditions update failed" << endreq;
+      msgStream() << MSG::FATAL << "HLT Conditions update failed" << endmsg;
       throw ers::HLTAbort(ERS_HERE, name()+": HLT Conditions update failed");
     }
   }
@@ -983,7 +926,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
 
     if ( m_coolHelper->hltCoolUpdate(m_currentLB, m_currentRun,
                                      m_sorTime_stamp[0], m_sorTime_stamp[1]).isFailure() ) {
-      logStream() << MSG::FATAL << "COOL update failed. Aborting." << endreq;
+      msgStream() << MSG::FATAL << "COOL update failed. Aborting." << endmsg;
       throw ers::HLTAbort(ERS_HERE, name()+": Failure during COOL update");
     }
   }
@@ -994,22 +937,22 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     sc = executeAlgorithms();
   }
   catch ( const std::exception& e ) {
-    logStream() << MSG::ERROR << "Caught a standard exception "
-                << e.what() << endreq;
+    msgStream() << MSG::ERROR << "Caught a standard exception "
+                << e.what() << endmsg;
     sc = StatusCode::FAILURE;
   }
   catch (...) {
-    logStream() << MSG::ERROR << "Unknown exception" << endreq;
+    msgStream() << MSG::ERROR << "Unknown exception" << endmsg;
     sc = StatusCode::FAILURE;
   }
 
   if (sc.isSuccess()) {
     // Call the execute() method of all output streams
-    for (ListAlg::iterator ito = m_outStreamList.begin(); ito != m_outStreamList.end(); ito++ ) {
-      (*ito)->resetExecuted();
-      sc = (*ito)->sysExecute();
+    for (auto o : m_outStreamList ) {
+      o->resetExecuted();
+      sc = o->sysExecute();
       if(sc.isFailure())  {
-        logStream() << MSG::WARNING << "Execution of output stream " << (*ito)->name() << " failed" << endmsg;
+        msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
         eventFailed = true;
       }
     }
@@ -1059,21 +1002,21 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
   }
   catch(const ptree_bad_path & e)
   {
-    logStream() << MSG::ERROR << ST_WHERE
+    msgStream() << MSG::ERROR << ST_WHERE
                 << "Bad ptree path: \""
                 << e.path<ptree::path_type>().dump() << "\" - " << e.what()
-                << endreq;
+                << endmsg;
   }
   catch(const ptree_bad_data & e)
   {
-    logStream() << MSG::ERROR << ST_WHERE
+    msgStream() << MSG::ERROR << ST_WHERE
                 << "Bad ptree data: \""
-                << e.data<ptree::data_type>() << "\" - " << e.what() << endreq;
+                << e.data<ptree::data_type>() << "\" - " << e.what() << endmsg;
   }
   catch(const std::runtime_error& e)
   {
-    logStream() << MSG::ERROR << ST_WHERE
-                << "Runtime error: " << e.what() << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "Runtime error: " << e.what() << endmsg;
   }
 
   return StatusCode::FAILURE;
@@ -1116,13 +1059,13 @@ StatusCode HltEventLoopMgr::processRoIs (
   //-----------------------------------------------------------------------
   m_total_evt++;
 
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << " " << endreq;
-    logStream() << MSG::DEBUG << " +------------+" << endreq;
-    logStream() << MSG::DEBUG << " | processRoI | for " << name()
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << " " << endmsg;
+    msgStream() << MSG::DEBUG << " +------------+" << endmsg;
+    msgStream() << MSG::DEBUG << " | processRoI | for " << name()
                 << " and event number = " << m_total_evt  << " called."
-                << endreq;
-    logStream() << MSG::DEBUG << " +------------+" << endreq;
+                << endmsg;
+    msgStream() << MSG::DEBUG << " +------------+" << endmsg;
   }
 
   //-----------------------------------------------------------------------
@@ -1130,9 +1073,9 @@ StatusCode HltEventLoopMgr::processRoIs (
   //-----------------------------------------------------------------------
   if ( m_hltTHistSvc.isValid() ) {
     (m_hltTHistSvc->send()).ignore() ;
-    if ( logLevel() <= MSG::DEBUG ) {
-      logStream() << MSG::DEBUG << " ---> THistSvc->send(): m_hltTHistSvc = "
-      << m_hltTHistSvc << endreq;
+    if ( msgLevel() <= MSG::DEBUG ) {
+      msgStream() << MSG::DEBUG << " ---> THistSvc->send(): m_hltTHistSvc = "
+      << m_hltTHistSvc << endmsg;
     }
   }
 
@@ -1346,8 +1289,8 @@ StatusCode HltEventLoopMgr::processRoIs (
   // Clear the event store, if used in the event loop
   //-----------------------------------------------------------------------
   sc = m_evtStore->clearStore();
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << " ---> Clear of Event data store " << sc << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << " ---> Clear of Event data store " << sc << endmsg;
   }
   if(sc.isFailure()) {
     failedEvent(hlt_result, hltonl::PSC_ERROR_SG_CLEAR_FAILED,
@@ -1372,17 +1315,17 @@ StatusCode HltEventLoopMgr::processRoIs (
                                               m_l1_Trigger_Type,
                                               m_l1_Trigger_Info));
 
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << " +-----------+ " << endreq;
-    logStream() << MSG::DEBUG << " | New Event | Run = " << m_run_no 
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << " +-----------+ " << endmsg;
+    msgStream() << MSG::DEBUG << " | New Event | Run = " << m_run_no 
 		<< " / Level-1 ID = "      << m_lvl1id 
 		<< " / global Event ID = " << evId.globalId
-		<< endreq;
-    logStream() << MSG::DEBUG << " +-----------+ " << endreq;
-    logStream() << MSG::DEBUG << " Complete EventID    = " << *(pEvent->event_ID()) << endreq;
-    logStream() << MSG::DEBUG << "        EventType    = " << ((pEvent->event_type())->typeToString()) << endreq;
-    logStream() << MSG::DEBUG << "      TriggerInfo    = " << *(pEvent->trigger_info()) << endreq;
-    logStream() << MSG::DEBUG << " Current Run number  = " << m_currentRun << endreq;
+		<< endmsg;
+    msgStream() << MSG::DEBUG << " +-----------+ " << endmsg;
+    msgStream() << MSG::DEBUG << " Complete EventID    = " << *(pEvent->event_ID()) << endmsg;
+    msgStream() << MSG::DEBUG << "        EventType    = " << ((pEvent->event_type())->typeToString()) << endmsg;
+    msgStream() << MSG::DEBUG << "      TriggerInfo    = " << *(pEvent->trigger_info()) << endmsg;
+    msgStream() << MSG::DEBUG << " Current Run number  = " << m_currentRun << endmsg;
   }
 
   // Record it in StoreGate
@@ -1408,13 +1351,13 @@ StatusCode HltEventLoopMgr::processRoIs (
   xAOD::EventInfo * xev{nullptr};
   if(m_evtStore->retrieve(xev, "EventInfo").isFailure())
   {
-    logStream() << MSG::WARNING << ST_WHERE
+    msgStream() << MSG::WARNING << ST_WHERE
                 << "Could not retrieve xAOD::EventInfo in store gate. "
                 << "If running in HelloWorld algorithms, this is OK."
-                << endreq;
+                << endmsg;
   }
 
-  logStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endreq;
+  msgStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endmsg;
 
   //-----------------------------------------------------------------------
   // build HLT result
@@ -1435,8 +1378,8 @@ StatusCode HltEventLoopMgr::stop()
   if ( FSMState() != Gaudi::StateMachine::RUNNING )
     return StatusCode::SUCCESS;
 
-  if (logLevel() <= MSG::DEBUG) {  
-    logStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name() << " stop() " << endreq;
+  if (msgLevel() <= MSG::DEBUG) {  
+    msgStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name() << " stop() " << endmsg;
   }
 
   //-----------------------------------------------------------------------
@@ -1512,11 +1455,11 @@ StatusCode HltEventLoopMgr::timeOutReached(const ptree& pt)
 //=========================================================================
 StatusCode HltEventLoopMgr::checkHltPrescaleUpdate(std::vector<uint32_t>& hltCounter)
 {
-  if (logLevel() <= MSG::DEBUG) {  
-    logStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name()
+  if (msgLevel() <= MSG::DEBUG) {  
+    msgStream() << MSG::DEBUG << " ---> HltEventLoopMgr = " << name()
 		    << " hltConditionsUpdate(std::vector<uint32_t>&): size of input = " << hltCounter.size() << ": ";
-    for (size_t i=0; i<hltCounter.size(); ++i) logStream() << hltCounter[i] << " ";
-    logStream() << endreq;
+    for (size_t i=0; i<hltCounter.size(); ++i) msgStream() << hltCounter[i] << " ";
+    msgStream() << endmsg;
   }
   if ( hltCounter.empty() ) return StatusCode::SUCCESS;  
 
@@ -1531,12 +1474,12 @@ StatusCode HltEventLoopMgr::checkHltPrescaleUpdate(std::vector<uint32_t>& hltCou
     const EventInfo* pEvent(0);
     StatusCode sc = m_evtStore->retrieve(pEvent);
     if(sc.isFailure()) {
-      logStream() << MSG::ERROR << "Unable to retrieve EventInfo object" << endreq;
+      msgStream() << MSG::ERROR << "Unable to retrieve EventInfo object" << endmsg;
       return sc;
     }
 
-    logStream() << MSG::INFO << "Prescale update requested for lumiblock "
-        << m_l1_hltPrescaleUpdateLB << ". Current event: " << *pEvent->event_ID() << endreq;
+    msgStream() << MSG::INFO << "Prescale update requested for lumiblock "
+        << m_l1_hltPrescaleUpdateLB << ". Current event: " << *pEvent->event_ID() << endmsg;
 
     // Perform prescale update right away (including on first event)
     sc = hltPrescaleUpdate(m_l1_hltPrescaleUpdateLB);
@@ -1558,8 +1501,8 @@ StatusCode HltEventLoopMgr::hltPrescaleUpdate(uint32_t lumiBlock)
 
   // ID must be unqiue across runs until DbProxy gets restarted
   unsigned int id = m_currentRun*10000 + lumiBlock;
-  logStream() << MSG::INFO << " ---> HltEventLoopMgr = " << name()
-                  << " calling HLTConfigSvc::updatePrescaleSets(" << id << ")" << endreq;
+  msgStream() << MSG::INFO << " ---> HltEventLoopMgr = " << name()
+                  << " calling HLTConfigSvc::updatePrescaleSets(" << id << ")" << endmsg;
   StatusCode sc = m_hltConfigSvc->updatePrescaleSets(id);
 
   return sc;
@@ -1582,10 +1525,10 @@ bool HltEventLoopMgr::isRobEnabled(uint32_t robid) const
                                     robid);
     if(rob_enabled_it == m_enabledROBs.value().end())
     {
-      if(logLevel() <= MSG::DEBUG)
-        logStream() << MSG::DEBUG << "---> ROB Id : 0x" << MSG::hex << robid
+      if(msgLevel() <= MSG::DEBUG)
+        msgStream() << MSG::DEBUG << "---> ROB Id : 0x" << MSG::hex << robid
                     << MSG::dec << " will not be retrieved, since it is not on "
-                                   "the list of enabled ROBs." << endreq;
+                                   "the list of enabled ROBs." << endmsg;
 
       b_enabled = false;
     }
@@ -1610,10 +1553,10 @@ bool HltEventLoopMgr::isSubDetectorEnabled(uint32_t subdetid) const
                                    subdetid);
     if(sd_enabled_it == m_enabledSubDetectors.value().end())
     {
-      if(logLevel() <= MSG::DEBUG)
-        logStream() << MSG::DEBUG << "---> Sub Detector Id : 0x" << MSG::hex
+      if(msgLevel() <= MSG::DEBUG)
+        msgStream() << MSG::DEBUG << "---> Sub Detector Id : 0x" << MSG::hex
                     << subdetid << MSG::dec << " will not be retrieved, since "
-                    "it is not on the list of enabled Sub Detectors." << endreq;
+                    "it is not on the list of enabled Sub Detectors." << endmsg;
       b_enabled = false;
     }
   }
@@ -1625,7 +1568,7 @@ bool HltEventLoopMgr::isSubDetectorEnabled(uint32_t subdetid) const
 // filter a set of robs according to whether or not they are enabled
 //=========================================================================
 std::set<uint32_t>
-HltEventLoopMgr::filterRobs(const std::set<uint32_t> robs) const
+HltEventLoopMgr::filterRobs(const std::set<uint32_t>& robs) const
 {
   auto ret = decltype(robs){};
   for(const auto& r : robs)
@@ -1639,7 +1582,7 @@ HltEventLoopMgr::filterRobs(const std::set<uint32_t> robs) const
 // filter a set of dets according to whether or not they are enabled
 //=========================================================================
 std::set<eformat::SubDetector>
-HltEventLoopMgr::filterDets(const std::set<uint32_t> dets) const
+HltEventLoopMgr::filterDets(const std::set<uint32_t>& dets) const
 {
   auto ret = std::set<eformat::SubDetector>{};
   for(const auto& d : dets)
@@ -1654,36 +1597,36 @@ HltEventLoopMgr::filterDets(const std::set<uint32_t> dets) const
 //=========================================================================
 StatusCode HltEventLoopMgr::nextEvent(int maxevt)
 {
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::nextEvent(int maxevt) <--- called         | " << endreq;
-  logStream() << MSG::ERROR << " | This method can not be used in trigger since the event loop is          | " << endreq;
-  logStream() << MSG::ERROR << " | controlled by the data flow software.                                   | " << endreq;
-  logStream() << MSG::ERROR << " | Method is not implemented                                               | " << endreq;
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " maxevt = " << maxevt << endreq;
-  logStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endreq;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::nextEvent(int maxevt) <--- called         | " << endmsg;
+  msgStream() << MSG::ERROR << " | This method can not be used in trigger since the event loop is          | " << endmsg;
+  msgStream() << MSG::ERROR << " | controlled by the data flow software.                                   | " << endmsg;
+  msgStream() << MSG::ERROR << " | Method is not implemented                                               | " << endmsg;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " maxevt = " << maxevt << endmsg;
+  msgStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endmsg;
   return StatusCode::FAILURE;
 }
 
 StatusCode HltEventLoopMgr::executeRun(int)
 {
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::executeRun(int) <--- called               | " << endreq;
-  logStream() << MSG::ERROR << " | This method can not be used in trigger since the event loop is          | " << endreq;
-  logStream() << MSG::ERROR << " | controlled by the data flow software.                                   | " << endreq;
-  logStream() << MSG::ERROR << " | Method is not implemented                                               | " << endreq;
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endreq;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::executeRun(int) <--- called               | " << endmsg;
+  msgStream() << MSG::ERROR << " | This method can not be used in trigger since the event loop is          | " << endmsg;
+  msgStream() << MSG::ERROR << " | controlled by the data flow software.                                   | " << endmsg;
+  msgStream() << MSG::ERROR << " | Method is not implemented                                               | " << endmsg;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endmsg;
   return StatusCode::FAILURE;
 }
 
 StatusCode HltEventLoopMgr::stopRun()
 {
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::stopRun() <--- called                     | " << endreq;
-  logStream() << MSG::ERROR << " | This method is not implemented for online usage. Call stop() instead.   | " << endreq;
-  logStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endreq;
-  logStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endreq;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " | method --->  HltEventLoopMgr::stopRun() <--- called                     | " << endmsg;
+  msgStream() << MSG::ERROR << " | This method is not implemented for online usage. Call stop() instead.   | " << endmsg;
+  msgStream() << MSG::ERROR << " +-------------------------------------------------------------------------+ " << endmsg;
+  msgStream() << MSG::ERROR << " Type info = " << System::typeinfoName(typeid(*this)) << endmsg;
   return StatusCode::FAILURE;
 }
 
@@ -1695,10 +1638,10 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
     uint32_t l1_Trigger_Type, uint32_t l1_detev_type,
     hltonl::PSCErrorCode pscErrorCode)
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> HltEmptyResultROB() for " << name() 
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> HltEmptyResultROB() for " << name() 
 		    << " and sub detector = " << eformat::helper::SubDetectorDictionary.string(eformat::TDAQ_HLT)
-		    << " called " << endreq;
+		    << " called " << endmsg;
   }
 
   //
@@ -1737,10 +1680,10 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
   // find the maximum allowed payload
   int hltr_max_payload = hlt_result.max_result_size - rob.size_word() ;
   if ( hlt_result.max_result_size <= rob.size_word() ) {
-    logStream() << MSG::ERROR
+    msgStream() << MSG::ERROR
         << "Can not create empty HLT result ROB with available ROB buffer size ! Available buffer size = "
         << hlt_result.max_result_size << " Number of header words used by empty ROB = " << rob.size_word()
-        << endreq;
+        << endmsg;
     return;
   }
 
@@ -1764,10 +1707,10 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
   }
 
   if (( hltr_data_size > hltr_max_payload)) { // consistency check
-    logStream() << MSG::ERROR 
+    msgStream() << MSG::ERROR 
         << "Inconsistency for created dummy HLT result ROB. Returned data size = " << hltr_data_size
         << " is greater than allowed max. payload size = " << hltr_max_payload << "."
-        << endreq;
+        << endmsg;
     hltr_data_size = hltr_max_payload;
 
     // Update status words for dummy HLT result
@@ -1802,9 +1745,9 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
 //=========================================================================
 void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result, hltonl::PSCErrorCode pscErrorCode)
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> HltEmptyResultROB() for "
-                << name() << " called " << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> HltEmptyResultROB() for "
+                << name() << " called " << endmsg;
   }
 
   HltEmptyResultROB(hlt_result,
@@ -1841,9 +1784,9 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
        (sc = m_evtStore->retrieve(dobj,m_HltResultName)).isFailure())
     {
       hlt_decision = hltonl::PSC_DEBUG;
-      logStream() << MSG::ERROR << ST_WHERE
+      msgStream() << MSG::ERROR << ST_WHERE
                   << "Error retrieving HLTResult from StoreGate with key = "
-                  << m_HltResultName << endreq;
+                  << m_HltResultName << endmsg;
 
       ecode = sc.isFailure() ? hltonl::PSC_ERROR_NO_HLTRESULT_RETRIEVED
                              : hltonl::PSC_ERROR_NO_HLTRESULT_FOUND;
@@ -1883,20 +1826,20 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
 	    }
 	    hlt_result.stream_tag.clear();
 	    addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
-	    logStream() << MSG::ERROR << ST_WHERE
+	    msgStream() << MSG::ERROR << ST_WHERE
 			<< "HLTResult was truncated. Event send to debug stream  = "
-			<< m_HltTruncationDebugStreamName << endreq;
+			<< m_HltTruncationDebugStreamName << endmsg;
 	  } else {
 	    m_truncated_hlt_result_not_to_debug++;	 
 	    if (m_hist_Hlt_truncated_result) {
 	      scoped_lock_histogram lock;
 	      m_hist_Hlt_truncated_result->Fill(3.);
 	    }
-	    logStream() << MSG::WARNING << ST_WHERE
+	    msgStream() << MSG::WARNING << ST_WHERE
 			<< "HLTResult was truncated. Event was NOT send to debug stream  = "
 			<< m_HltTruncationDebugStreamName
 			<< " because an exclusion stream tag name matched from = " << m_excludeFromHltTruncationDebugStream.value()  
-			<< endreq;
+			<< endmsg;
 	  }
 	} else {
 	  m_truncated_hlt_result_not_to_debug++;
@@ -1913,17 +1856,17 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
     lock_histogram_operation<TH1F>(m_hist_eventAcceptFlags)->Fill(
         static_cast<float>(m_mapAccept.codeToHash(hlt_decision)));
 
-  if(logLevel() <= MSG::DEBUG)
+  if(msgLevel() <= MSG::DEBUG)
   {
-    logStream() << MSG::DEBUG << ST_WHERE << "Decision = "
+    msgStream() << MSG::DEBUG << ST_WHERE << "Decision = "
                 << hltonl::PrintHltAcceptFlag(hlt_decision) << "\n"
-                << hlt_result << endreq;
+                << hlt_result << endmsg;
     if(dobj)
     {
       const auto& extraData = dobj->getExtraData();
-      logStream() << MSG::DEBUG << ST_WHERE
+      msgStream() << MSG::DEBUG << ST_WHERE
           << "HltResult extra data: Host name = " << extraData.appName
-          << ", status code = " << extraData.statusCode << endreq;
+          << ", status code = " << extraData.statusCode << endmsg;
     }
   }
 
@@ -1937,8 +1880,8 @@ void HltEventLoopMgr::HltResult(hltinterface::HLTResult& hlt_result,
                                 const EventInfo* pEvent,
                                 const xAOD::EventInfo * xev)
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> HltResult() for " << name() << " called " << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> HltResult() for " << name() << " called " << endmsg;
   }
 
   using xev_stags_t = decltype(xev->streamTags());
@@ -1967,9 +1910,9 @@ void HltEventLoopMgr::HltResult(hltinterface::HLTResult& hlt_result,
 //=========================================================================
 void HltEventLoopMgr::bookHistograms()
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> bookHistograms() for " << name()
-                    << " called. Do monitoring = " << m_doMonitoring.value() << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> bookHistograms() for " << name()
+                    << " called. Do monitoring = " << m_doMonitoring.value() << endmsg;
   }
 
   // return if no monitoring is requested
@@ -1991,7 +1934,7 @@ void HltEventLoopMgr::bookHistograms()
       "EventAcceptFlags;;entries", n_bins_eventAcceptFlags, 0.5, n_bins_eventAcceptFlags+0.5);
 
   if (m_hist_eventAcceptFlags) {
-    for (hltonl::MapAcceptFlag::EnumMap::const_iterator map_it = m_mapAccept.begin(); map_it != m_mapAccept.end(); map_it++) {
+    for (hltonl::MapAcceptFlag::EnumMap::const_iterator map_it = m_mapAccept.begin(); map_it != m_mapAccept.end(); ++map_it) {
       m_hist_eventAcceptFlags->GetXaxis()->SetBinLabel( ((*map_it).second).second , (((*map_it).second).first).c_str() );
     }
     regHistsTH1F.push_back(&m_hist_eventAcceptFlags);
@@ -2007,7 +1950,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
   if (m_hist_Hlt_result_size) {
-    CAN_REBIN(m_hist_Hlt_result_size);
+    m_hist_Hlt_result_size->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_Hlt_result_size);
   }
 
@@ -2018,7 +1961,7 @@ void HltEventLoopMgr::bookHistograms()
 
   if (m_hist_Hlt_result_status) {
     // do not print label for normal HLT result with no errors, it is not filled
-    for (hltonl::MapResultStatusCode::EnumMap::const_iterator map_it = m_mapResultStatus.begin(); map_it != m_mapResultStatus.end(); map_it++) {
+    for (hltonl::MapResultStatusCode::EnumMap::const_iterator map_it = m_mapResultStatus.begin(); map_it != m_mapResultStatus.end(); ++map_it) {
       if ( (*map_it).first == hltonl ::NORMAL_HLT_RESULT ) {
         m_hist_Hlt_result_status->GetXaxis()->SetBinLabel( ((*map_it).second).second, (((*map_it).second).first+" (bin not filled)").c_str() );
       } else {
@@ -2047,7 +1990,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
   if (m_hist_Hlt_result_size_physics) {
-    CAN_REBIN(m_hist_Hlt_result_size_physics);
+    m_hist_Hlt_result_size_physics->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
   }
 
@@ -2058,7 +2001,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
   if (m_hist_Hlt_result_size_express) {
-    CAN_REBIN(m_hist_Hlt_result_size_express);
+    m_hist_Hlt_result_size_express->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
   }
 
@@ -2069,7 +2012,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
   if (m_hist_Hlt_result_size_DataScouting) {
-    CAN_REBIN(m_hist_Hlt_result_size_DataScouting);
+    m_hist_Hlt_result_size_DataScouting->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
   }
 
@@ -2081,7 +2024,7 @@ void HltEventLoopMgr::bookHistograms()
 						       (double) 0., (double) 3000000.);
   if (m_hist_HltResultSizes_Stream_physics) {
     m_hist_HltResultSizes_Stream_physics->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    CAN_REBIN(m_hist_HltResultSizes_Stream_physics);
+    m_hist_HltResultSizes_Stream_physics->SetCanExtend(TH1::kAllAxes);
     regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_physics);
   }
 
@@ -2093,7 +2036,7 @@ void HltEventLoopMgr::bookHistograms()
 						       (double) 0., (double) 3000000.);
   if (m_hist_HltResultSizes_Stream_DataScouting) {
     m_hist_HltResultSizes_Stream_DataScouting->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    CAN_REBIN(m_hist_HltResultSizes_Stream_DataScouting);
+    m_hist_HltResultSizes_Stream_DataScouting->SetCanExtend(TH1::kAllAxes);
     regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_DataScouting);
   }
 
@@ -2105,7 +2048,7 @@ void HltEventLoopMgr::bookHistograms()
       "FrameworkErrorCodes;;entries", n_bins_error, 0.5, n_bins_error+0.5);
 
   if (m_hist_frameworkErrorCodes) {
-    for (hltonl::MapPscErrorCode::EnumMap::const_iterator map_it = m_mapPscError.begin(); map_it != m_mapPscError.end(); map_it++) {
+    for (hltonl::MapPscErrorCode::EnumMap::const_iterator map_it = m_mapPscError.begin(); map_it != m_mapPscError.end(); ++map_it) {
       m_hist_frameworkErrorCodes->GetXaxis()->SetBinLabel( ((*map_it).second).second , (((*map_it).second).first).c_str() );
     }
     regHistsTH1F.push_back(&m_hist_frameworkErrorCodes);
@@ -2121,7 +2064,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_numStreamTags.value().lowEdge(),
       m_histProp_numStreamTags.value().highEdge());
   if (m_hist_numStreamTags) {
-    CAN_REBIN(m_hist_numStreamTags);
+    m_hist_numStreamTags->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_numStreamTags);
   }
 
@@ -2147,7 +2090,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_streamTagNames.value().highEdge());
   if (m_hist_streamTagNames) {
     if (m_histProp_streamTagNames.value().bins()>0) m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
-    CAN_REBIN(m_hist_streamTagNames);
+    m_hist_streamTagNames->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_streamTagNames);
   }
 
@@ -2164,7 +2107,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_num_partial_eb_robs.value().lowEdge(),
       m_histProp_num_partial_eb_robs.value().highEdge());
   if (m_hist_num_partial_eb_robs) {
-    CAN_REBIN(m_hist_num_partial_eb_robs);
+    m_hist_num_partial_eb_robs->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_num_partial_eb_robs);
   }
 
@@ -2173,7 +2116,7 @@ void HltEventLoopMgr::bookHistograms()
       "NumberSubDetectorsPartialEB;subdet;entries",
       n_bins_partEBSubDet,-0.5,(float) n_bins_partEBSubDet-0.5);
   if (m_hist_num_partial_eb_SubDetectors) {
-    CAN_REBIN(m_hist_num_partial_eb_SubDetectors);
+    m_hist_num_partial_eb_SubDetectors->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_num_partial_eb_SubDetectors);
   }
 
@@ -2183,12 +2126,11 @@ void HltEventLoopMgr::bookHistograms()
       n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
   if (m_hist_partial_eb_SubDetectors_ROBs) {
     uint32_t n_tmp_bin = 1;
-    for (eformat::helper::EnumClass<eformat::SubDetector>::const_iterator it_sub=eformat::helper::SubDetectorDictionary.begin();
-        it_sub != eformat::helper::SubDetectorDictionary.end(); it_sub++ ) {
-      m_hist_partial_eb_SubDetectors_ROBs->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
+    for (const auto& sub : eformat::helper::SubDetectorDictionary) {
+      m_hist_partial_eb_SubDetectors_ROBs->GetXaxis()->SetBinLabel( n_tmp_bin, sub.second.c_str() );
       n_tmp_bin++;
     }
-    CAN_REBIN(m_hist_partial_eb_SubDetectors_ROBs);
+    m_hist_partial_eb_SubDetectors_ROBs->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_ROBs);
   }
 
@@ -2198,12 +2140,11 @@ void HltEventLoopMgr::bookHistograms()
       n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet);
   if (m_hist_partial_eb_SubDetectors_SDs) {
     uint32_t n_tmp_bin = 1;
-    for (eformat::helper::EnumClass<eformat::SubDetector>::const_iterator it_sub=eformat::helper::SubDetectorDictionary.begin();
-        it_sub != eformat::helper::SubDetectorDictionary.end(); it_sub++ ) {
-      m_hist_partial_eb_SubDetectors_SDs->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
+    for (const auto& sub: eformat::helper::SubDetectorDictionary) {
+      m_hist_partial_eb_SubDetectors_SDs->GetXaxis()->SetBinLabel( n_tmp_bin, sub.second.c_str() );
       n_tmp_bin++;
     }
-    CAN_REBIN(m_hist_partial_eb_SubDetectors_SDs);
+    m_hist_partial_eb_SubDetectors_SDs->SetCanExtend(TH1::kAllAxes);
     regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_SDs);
   }
 
@@ -2219,9 +2160,8 @@ void HltEventLoopMgr::bookHistograms()
       (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
   if (m_hist_HltEdmSizes_No_Truncation) {
     uint32_t n_tmp_bin = 1;
-    for (std::vector<std::string>::const_iterator it_col_name = m_hltEdmCollectionNames.value().begin();
-        it_col_name != m_hltEdmCollectionNames.value().end(); it_col_name++ ) {
-      m_hist_HltEdmSizes_No_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, (*it_col_name).c_str() );
+    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+      m_hist_HltEdmSizes_No_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
       n_tmp_bin++;
     }
     //    m_hist_HltEdmSizes_No_Truncation->SetBit(TProfile::kCanRebin);
@@ -2236,9 +2176,8 @@ void HltEventLoopMgr::bookHistograms()
       (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
   if (m_hist_HltEdmSizes_With_Truncation) {
     uint32_t n_tmp_bin = 1;
-    for (std::vector<std::string>::const_iterator it_col_name = m_hltEdmCollectionNames.value().begin();
-        it_col_name != m_hltEdmCollectionNames.value().end(); it_col_name++ ) {
-      m_hist_HltEdmSizes_With_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, (*it_col_name).c_str() );
+    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+      m_hist_HltEdmSizes_With_Truncation->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
       n_tmp_bin++;
     }
     //    m_hist_HltEdmSizes_With_Truncation->SetBit(TProfile::kCanRebin);
@@ -2253,9 +2192,8 @@ void HltEventLoopMgr::bookHistograms()
       (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
   if (m_hist_HltEdmSizes_TruncatedResult_Retained_Collections) {
     uint32_t n_tmp_bin = 1;
-    for (std::vector<std::string>::const_iterator it_col_name = m_hltEdmCollectionNames.value().begin();
-        it_col_name != m_hltEdmCollectionNames.value().end(); it_col_name++ ) {
-      m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, (*it_col_name).c_str() );
+    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+        m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
       n_tmp_bin++;
     }
     //    m_hist_HltEdmSizes_TruncatedResult_Retained_Collections->SetBit(TProfile::kCanRebin);
@@ -2270,9 +2208,8 @@ void HltEventLoopMgr::bookHistograms()
       (double) m_histProp_Hlt_Edm_Sizes.value().highEdge());
   if (m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections) {
     uint32_t n_tmp_bin = 1;
-    for (std::vector<std::string>::const_iterator it_col_name = m_hltEdmCollectionNames.value().begin();
-        it_col_name != m_hltEdmCollectionNames.value().end(); it_col_name++ ) {
-      m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, (*it_col_name).c_str() );
+    for (const std::string& col_name : m_hltEdmCollectionNames.value()) {
+      m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->GetXaxis()->SetBinLabel( n_tmp_bin, col_name.c_str() );
       n_tmp_bin++;
     }
     //    m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections->SetBit(TProfile::kCanRebin);
@@ -2282,19 +2219,19 @@ void HltEventLoopMgr::bookHistograms()
   // *-- | register histograms |
   //     +---------------------+
   // *-- TH1F
-  for (std::vector<TH1F**>::iterator it_hist=regHistsTH1F.begin(); it_hist != regHistsTH1F.end(); ++it_hist) {
-    if ( (*it_hist) && m_THistSvc->regHist(histPath + (**it_hist)->GetName(), (**it_hist)).isFailure() ) {
-      logStream() << MSG::WARNING << "Cannot register histogram " << (**it_hist)->GetName() << endreq;
-      delete (**it_hist);
-      **it_hist = 0;
+  for (TH1F** hist : regHistsTH1F) {
+    if ( *hist && m_THistSvc->regHist(histPath + (*hist)->GetName(), (*hist)).isFailure() ) {
+      msgStream() << MSG::WARNING << "Cannot register histogram " << (*hist)->GetName() << endmsg;
+      delete (*hist);
+      *hist = 0;
     }
   }
   // *-- TProfile
-  for (std::vector<TProfile**>::iterator it_hist=regHistsTProfile.begin(); it_hist != regHistsTProfile.end(); ++it_hist) {
-    if ( (**it_hist) && m_THistSvc->regHist(histPath + (**it_hist)->GetName(), (**it_hist)).isFailure() ) {
-      logStream() << MSG::WARNING << "Cannot register histogram " << (**it_hist)->GetName() << endreq;
-      delete (**it_hist);
-      **it_hist = 0;
+  for (TProfile** hist : regHistsTProfile) {
+    if ( *hist && m_THistSvc->regHist(histPath + (*hist)->GetName(), (*hist)).isFailure() ) {
+      msgStream() << MSG::WARNING << "Cannot register histogram " << (*hist)->GetName() << endmsg;
+      delete (*hist);
+      *hist = 0;
     }
   }
 }
@@ -2302,9 +2239,9 @@ void HltEventLoopMgr::bookHistograms()
 //=========================================================================
 void HltEventLoopMgr::HltBookHistograms()
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> HltBookHistograms() for " << name()
-        << " called. Do monitoring = " << m_doMonitoring.value() << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> HltBookHistograms() for " << name()
+        << " called. Do monitoring = " << m_doMonitoring.value() << endmsg;
   }
 
   // return if no monitoring is requested
@@ -2336,16 +2273,16 @@ void HltEventLoopMgr::HltBookHistograms()
   // Register it
   if(m_THistSvc->regHist(path + m_hist_l1_robs->GetName(), m_hist_l1_robs).isFailure())
   {
-    logStream() << MSG::WARNING << "Can not register monitoring histogram: "
-                << m_hist_l1_robs->GetName() << endreq;
+    msgStream() << MSG::WARNING << "Can not register monitoring histogram: "
+                << m_hist_l1_robs->GetName() << endmsg;
   }
 } //  end method HltEventLoopMgr::HltBookHistograms
 
 //=========================================================================
 void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt_result)
 {
-  if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> fillHltResultHistograms(hltinterface::HLTResult& hlt_result) for " << name() << " called " << endreq;
+  if ( msgLevel() <= MSG::DEBUG ) {
+    msgStream() << MSG::DEBUG << "---> fillHltResultHistograms(hltinterface::HLTResult& hlt_result) for " << name() << " called " << endmsg;
   }
 
   // return if no monitoring is requested
@@ -2362,29 +2299,29 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
     if ((m_hist_Hlt_result_size) && (hltrob_moduleID == 0)) lock_histogram_operation<TH1F>(m_hist_Hlt_result_size)->Fill( (float) hltrob.fragment_size_word() ) ;
 
     if ( (m_hist_Hlt_result_size_physics) || (m_hist_Hlt_result_size_express) || (m_hist_Hlt_result_size_DataScouting) ||
-	 (m_hist_HltResultSizes_Stream_physics) || (m_hist_HltResultSizes_Stream_DataScouting) ) {
+         (m_hist_HltResultSizes_Stream_physics) || (m_hist_HltResultSizes_Stream_DataScouting) ) {
       scoped_lock_histogram lock;
-      for(std::vector<eformat::read::ROBFragment>::const_iterator it_rob = hlt_result.hltResult_robs.begin(); it_rob != hlt_result.hltResult_robs.end(); it_rob++) {
-	uint16_t moduleID = eformat::helper::SourceIdentifier( (*it_rob).rob_source_id() ).module_id();
-	for(std::vector<eformat::helper::StreamTag>::const_iterator it = hlt_result.stream_tag.begin(); it != hlt_result.stream_tag.end(); it++) {
+      for (const eformat::read::ROBFragment& rob : hlt_result.hltResult_robs) {
+        uint16_t moduleID = eformat::helper::SourceIdentifier( rob.rob_source_id() ).module_id();
+        for (const eformat::helper::StreamTag& st : hlt_result.stream_tag) {
           // only normal HLT Results
-	  if (moduleID == 0) {
-	    if ((*it).type == "physics") {
-	      if (((*it).name == "Main") && (m_hist_Hlt_result_size_physics)) m_hist_Hlt_result_size_physics->Fill( (float) (*it_rob).fragment_size_word() ) ;
-	      if (m_hist_HltResultSizes_Stream_physics) m_hist_HltResultSizes_Stream_physics->Fill( ((*it).name).c_str(), (double) (*it_rob).fragment_size_word() ) ;
-	    }
-	    if ((*it).type == "express") {
-	      if (m_hist_Hlt_result_size_express) m_hist_Hlt_result_size_express->Fill( (float) (*it_rob).fragment_size_word() ) ;
-	    }
-	  }
-	  // DataScouting HLT ROBs
-	  if (moduleID != 0) {
-	    if (((*it).type == "calibration") && (((*it).name).find("DataScouting_") != std::string::npos)) {
-	      if (m_hist_Hlt_result_size_DataScouting) m_hist_Hlt_result_size_DataScouting->Fill( (float) (*it_rob).fragment_size_word() ) ;
-	      if (m_hist_HltResultSizes_Stream_DataScouting) m_hist_HltResultSizes_Stream_DataScouting->Fill( ((*it).name).c_str(), (double) (*it_rob).fragment_size_word() ) ;
-	    }
-	  }
-	}
+          if (moduleID == 0) {
+            if (st.type == "physics") {
+              if ((st.name == "Main") && (m_hist_Hlt_result_size_physics)) m_hist_Hlt_result_size_physics->Fill( (float) rob.fragment_size_word() ) ;
+              if (m_hist_HltResultSizes_Stream_physics) m_hist_HltResultSizes_Stream_physics->Fill( st.name.c_str(), (double) rob.fragment_size_word() ) ;
+            }
+            if (st.type == "express") {
+              if (m_hist_Hlt_result_size_express) m_hist_Hlt_result_size_express->Fill( (float) rob.fragment_size_word() ) ;
+            }
+          }
+          // DataScouting HLT ROBs
+          if (moduleID != 0) {
+            if ((st.type == "calibration") && ((st.name).find("DataScouting_") != std::string::npos)) {
+              if (m_hist_Hlt_result_size_DataScouting) m_hist_Hlt_result_size_DataScouting->Fill( (float) rob.fragment_size_word() ) ;
+              if (m_hist_HltResultSizes_Stream_DataScouting) m_hist_HltResultSizes_Stream_DataScouting->Fill( (st.name).c_str(), (double) rob.fragment_size_word() ) ;
+            }
+          }
+        }
       }
       // deflate bins for profile histograms
       m_hist_HltResultSizes_Stream_physics->LabelsDeflate("X");
@@ -2405,8 +2342,8 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   //     +-----------------------+
   if ((hlt_result.psc_errors.size() > 0) &&  (m_hist_frameworkErrorCodes))  {
     scoped_lock_histogram lock;
-    for (std::vector<uint32_t>::const_iterator it=hlt_result.psc_errors.begin();it!=hlt_result.psc_errors.end();it++) {
-      m_hist_frameworkErrorCodes->Fill( (float) m_mapPscError.codeToHash( (hltonl::PSCErrorCode) (*it)) );
+    for (uint32_t ec : hlt_result.psc_errors) {
+      m_hist_frameworkErrorCodes->Fill( (float) m_mapPscError.codeToHash( (hltonl::PSCErrorCode) ec) );
     }
   }
 
@@ -2436,8 +2373,8 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
     if(hlt_result.stream_tag.empty()) {
       m_hist_streamTagNames->Fill(0.);
     } else {
-      for(std::vector<eformat::helper::StreamTag>::const_iterator it = hlt_result.stream_tag.begin(); it != hlt_result.stream_tag.end(); it++) {
-        m_hist_streamTagNames->Fill((*it).name.c_str(),1.);
+      for(const eformat::helper::StreamTag& st: hlt_result.stream_tag) {
+        m_hist_streamTagNames->Fill(st.name.c_str(),1.);
       }
     }
     m_hist_streamTagNames->LabelsDeflate("X");
@@ -2450,11 +2387,11 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   uint32_t num_robs(0), num_sd(0);
   std::set<uint32_t> peb_robs;
   std::set<eformat::SubDetector> peb_sd;
-  for(std::vector<eformat::helper::StreamTag>::const_iterator it = hlt_result.stream_tag.begin(); it != hlt_result.stream_tag.end(); it++) {
-    num_robs = num_robs + (it->robs).size();
-    num_sd = num_sd + (it->dets).size();
-    peb_robs.insert( (it->robs).begin(),(it->robs).end() );
-    peb_sd.insert(   (it->dets).begin(),(it->dets).end() );
+  for (const eformat::helper::StreamTag& st : hlt_result.stream_tag) {
+    num_robs = num_robs + (st.robs).size();
+    num_sd = num_sd + (st.dets).size();
+    peb_robs.insert( (st.robs).begin(),(st.robs).end() );
+    peb_sd.insert(   (st.dets).begin(),(st.dets).end() );
   }
 
   // *-- number of ROBs for partial event building
@@ -2466,8 +2403,8 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   // *-- SubDetectors for partial event building in ROB list
   if (m_hist_partial_eb_SubDetectors_ROBs) {
     scoped_lock_histogram lock;
-    for(std::set<uint32_t>::const_iterator it = peb_robs.begin(); it != peb_robs.end(); it++) {
-      m_hist_partial_eb_SubDetectors_ROBs->Fill(eformat::helper::SourceIdentifier(*it).human_detector().c_str(),1.);
+    for(uint32_t rob : peb_robs) {
+      m_hist_partial_eb_SubDetectors_ROBs->Fill(eformat::helper::SourceIdentifier(rob).human_detector().c_str(),1.);
       m_hist_partial_eb_SubDetectors_ROBs->LabelsDeflate("X");
     }
   }
@@ -2475,8 +2412,8 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   // *-- SubDetectors for partial event building in SD list
   if (m_hist_partial_eb_SubDetectors_SDs) {
     scoped_lock_histogram lock;
-    for(std::set<eformat::SubDetector>::const_iterator it = peb_sd.begin(); it != peb_sd.end(); it++) {
-      m_hist_partial_eb_SubDetectors_SDs->Fill(eformat::helper::SourceIdentifier(*it,0).human_detector().c_str(),1.);
+    for (const eformat::SubDetector& sd : peb_sd) {
+      m_hist_partial_eb_SubDetectors_SDs->Fill(eformat::helper::SourceIdentifier(sd,0).human_detector().c_str(),1.);
       m_hist_partial_eb_SubDetectors_SDs->LabelsDeflate("X");
     }
   }
@@ -2498,17 +2435,17 @@ StatusCode
 HltEventLoopMgr::callOnAlgs(const function<StatusCode(IAlgorithm&)> & func,
                             const string & fname, bool failureIsError)
 {
-  logStream() << MSG::DEBUG << ST_WHERE
-              << "calling " << fname << "() on all algorithms" << endreq;
+  msgStream() << MSG::DEBUG << ST_WHERE
+              << "calling " << fname << "() on all algorithms" << endmsg;
 
   StatusCode sc;
   for(auto alg : m_topAlgList)
   {
     if(func(*alg).isFailure())
     {
-      logStream() << (failureIsError ? MSG::ERROR : MSG::WARNING) << ST_WHERE
+      msgStream() << (failureIsError ? MSG::ERROR : MSG::WARNING) << ST_WHERE
                   << "Calling " << fname << "() on algorithm " << alg->name()
-                  << " failed" << endreq;
+                  << " failed" << endmsg;
       sc = StatusCode::FAILURE;
       if(failureIsError)
         break;
@@ -2538,8 +2475,8 @@ StatusCode HltEventLoopMgr::internalPrepareResets()
   if (m_predefinedLumiBlock > 0)
   {
     m_currentLB = m_predefinedLumiBlock;
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "Using predefined lumi block " << m_currentLB << endreq;
+    msgStream() << MSG::DEBUG << ST_WHERE
+                << "Using predefined lumi block " << m_currentLB << endmsg;
   }
 
   // The real CTP counter only has 16 bits and never reaches this value
@@ -2555,11 +2492,11 @@ const SOR * HltEventLoopMgr::processRunParams(const ptree & pt)
   m_currentRun = pt.get<uint32_t>("RunParams.run_number");
 
   // Fill SOR parameters from the ptree
-  TrigSORFromPtreeHelper sorhelp{logStream()};
+  TrigSORFromPtreeHelper sorhelp{msgStream()};
   auto sor = sorhelp.fillSOR(pt.get_child("RunParams"));
   if(!sor)
-    logStream() << MSG::ERROR << ST_WHERE
-                << "setup of SOR from ptree failed" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "setup of SOR from ptree failed" << endmsg;
 
   return sor;
 }
@@ -2574,25 +2511,25 @@ void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
   auto sorTime = sor_attrlist["SORTime"].data<unsigned long long>();
   updSorTime(sorTime);
 
-  if(logLevel() <= MSG::DEBUG)
+  if(msgLevel() <= MSG::DEBUG)
   {
     // save current stream flags for later reset
     // cast needed (stream thing returns long, but doesn't take it back)
     auto previous_stream_flags =
-        static_cast<std::ios::fmtflags>(logStream().flags());
-    logStream() << MSG::DEBUG << ST_WHERE
+        static_cast<std::ios::fmtflags>(msgStream().flags());
+    msgStream() << MSG::DEBUG << ST_WHERE
                 << "Full detector mask (128 bits) = 0x"
                 << MSG::hex << std::setfill('0')
                 << std::setw(8) << std::get<3>(m_detector_mask)
                 << std::setw(8) << std::get<2>(m_detector_mask)
                 << std::setw(8) << std::get<1>(m_detector_mask)
-                << std::setw(8) << std::get<0>(m_detector_mask) << endreq;
-    logStream().flags(previous_stream_flags);
+                << std::setw(8) << std::get<0>(m_detector_mask) << endmsg;
+    msgStream().flags(previous_stream_flags);
 
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "sorTimeStamp[0] [sec] = " << m_sorTime_stamp[0] << endreq;
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "sorTimeStamp[1] [ns]  = " << m_sorTime_stamp[1] << endreq;
+    msgStream() << MSG::DEBUG << ST_WHERE
+                << "sorTimeStamp[0] [sec] = " << m_sorTime_stamp[0] << endmsg;
+    msgStream() << MSG::DEBUG << ST_WHERE
+                << "sorTimeStamp[1] [ns]  = " << m_sorTime_stamp[1] << endmsg;
   }
 }
 
@@ -2623,14 +2560,14 @@ void HltEventLoopMgr::updMetadaStore(const coral::AttributeList & sor_attrlist)
   // Record ByteStreamMetadata in MetaData Store
   if(m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure())
   {
-    logStream() << MSG::WARNING << ST_WHERE
+    msgStream() << MSG::WARNING << ST_WHERE
                 << "Unable to record MetaData in InputMetaDataStore."
-                << endreq;
+                << endmsg;
     delete metadata;
   }
   else
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "Recorded MetaData in InputMetaDataStore." << endreq;
+    msgStream() << MSG::DEBUG << ST_WHERE
+                << "Recorded MetaData in InputMetaDataStore." << endmsg;
 }
 
 //=========================================================================
@@ -2640,11 +2577,11 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
   // Clear the event store, if used in the event loop
   //-----------------------------------------------------------------------
   auto sc = m_evtStore->clearStore();
-  logStream() << MSG::DEBUG << ST_WHERE
-              << "clear of Event Store " << sc << endreq;
+  msgStream() << MSG::DEBUG << ST_WHERE
+              << "clear of Event Store " << sc << endmsg;
   if(sc.isFailure()) {
-    logStream() << MSG::ERROR << ST_WHERE
-                << "clear of Event Store failed" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "clear of Event Store failed" << endmsg;
     return sc;
   }
 
@@ -2652,11 +2589,11 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
   // Clear the InputMetaDataStore
   //-----------------------------------------------------------------------
   sc = m_inputMetaDataStore->clearStore();
-  logStream() << MSG::DEBUG << ST_WHERE
-              << "clear of InputMetaDataStore store " << sc << endreq;
+  msgStream() << MSG::DEBUG << ST_WHERE
+              << "clear of InputMetaDataStore store " << sc << endmsg;
   if(sc.isFailure())
-    logStream() << MSG::ERROR << ST_WHERE
-                << "clear of InputMetaDataStore failed" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "clear of InputMetaDataStore failed" << endmsg;
 
   return sc;
 }
@@ -2699,11 +2636,11 @@ namespace
     time_t sorTime_sec = sorTime_ns/1000000000;
     const auto sorTime_readable = OWLTime(sorTime_sec);
 
-    log << lvl << "SOR parameters:" << endreq;
+    log << lvl << "SOR parameters:" << endmsg;
     log << "   RunNumber        = "
-        << atr["RunNumber"].data<unsigned int>() << endreq;
+        << atr["RunNumber"].data<unsigned int>() << endmsg;
     log << "   SORTime [ns]     = "
-        << sorTime_ns << " (" << sorTime_readable << ") " << endreq;
+        << sorTime_ns << " (" << sorTime_readable << ") " << endmsg;
 
     // save current stream flags for later reset
     // cast needed (stream thing returns long, but doesn't take it back)
@@ -2711,17 +2648,17 @@ namespace
     auto dmfst = atr["DetectorMaskFst"].data<unsigned long long>();
     auto dmsnd = atr["DetectorMaskSnd"].data<unsigned long long>();
     log << MSG::hex << std::setfill('0');
-    log << "   DetectorMaskFst     = 0x" << std::setw(16) << dmfst << endreq;
-    log << "   DetectorMaskSnd     = 0x" << std::setw(16) << dmsnd << endreq;
+    log << "   DetectorMaskFst     = 0x" << std::setw(16) << dmfst << endmsg;
+    log << "   DetectorMaskSnd     = 0x" << std::setw(16) << dmsnd << endmsg;
     log << "   (complete DetectorMask = 0x"
-        << std::setw(16) << dmfst << std::setw(16) << dmsnd << ")" << endreq;
+        << std::setw(16) << dmfst << std::setw(16) << dmsnd << ")" << endmsg;
     // reset stream flags
     log.flags(previous_stream_flags);
 
     log << "   RunType          = "
-        << atr["RunType"].data<std::string>() << endreq;
+        << atr["RunType"].data<std::string>() << endmsg;
     log << "   RecordingEnabled = "
-        << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endreq;
+        << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
   }
 }
 
@@ -2735,14 +2672,14 @@ HltEventLoopMgr::getSorAttrList(const SOR * sor) const
     //corresponding to the SOR should contain one single AttrList). Since
     //that's required by code ahead but not checked at compile time, we
     //explicitly guard against any potential future mistake with this check
-    logStream() << MSG::ERROR << ST_WHERE
-                << "Wrong SOR: size = " << sor->size() << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "Wrong SOR: size = " << sor->size() << endmsg;
     throw std::runtime_error("SOR record should have one and one only attribute"
                              " list, but it has " + sor->size());
   }
 
   const auto & soral = sor->begin()->second;
-  printSORAttrList(soral, logStream(), MSG::INFO);
+  printSORAttrList(soral, msgStream(), MSG::INFO);
   return soral;
 }
 
@@ -2754,9 +2691,9 @@ StatusCode HltEventLoopMgr::updHLTConfigSvc()
           m_hltConfigSvc, /*createIf=*/false).ignore();
 
   if ( (m_hltConfigSvc==0) && (m_jobOptionsType.value()=="DB") ) {
-    logStream() << MSG::ERROR << ST_WHERE
+    msgStream() << MSG::ERROR << ST_WHERE
                 << "JobOptionsType==DB but could not retrieve HLTConfigSvc"
-                << endreq;
+                << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -2782,14 +2719,14 @@ const EventInfo * HltEventLoopMgr::prepEventInfo() const
   // Record it in StoreGate
   if(m_evtStore->record(pEvent,"EventInfo").isFailure())
   {
-    logStream() << MSG::ERROR << ST_WHERE
-                << "Could not record EventInfo object" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "Could not record EventInfo object" << endmsg;
     return nullptr;
   }
 
-  logStream() << MSG::DEBUG << ST_WHERE
+  msgStream() << MSG::DEBUG << ST_WHERE
               << "Recorded EventInfo object: "
-              << *pEvent->event_ID() << endreq;
+              << *pEvent->event_ID() << endmsg;
 
   return pEvent;
 }
@@ -2815,15 +2752,15 @@ StatusCode HltEventLoopMgr::prepXAODEventInfo() const
   if(m_evtStore->record(aux, "EventInfoAux.").isFailure() ||
      m_evtStore->record(ev, "EventInfo").isFailure())
   {
-    logStream() << MSG::ERROR << ST_WHERE
-                << "Could not record xAOD::EventInfo object" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "Could not record xAOD::EventInfo object" << endmsg;
 
     return StatusCode::FAILURE;
   }
 
-  logStream() << MSG::DEBUG << ST_WHERE
+  msgStream() << MSG::DEBUG << ST_WHERE
               << "Recorded xAOD::EventInfo object: "
-              << *ev << endreq;
+              << *ev << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -2841,44 +2778,44 @@ StatusCode HltEventLoopMgr::updMagField(const ptree& pt) const
       IProperty* magfsvc(0);
       service("AtlasFieldSvc", magfsvc, /*createIf=*/false).ignore();
       if ( magfsvc==0 ) {
-        logStream() << MSG::ERROR << ST_WHERE
-                    << "Cannot retrieve AtlasFieldSvc" << endreq;
+        msgStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot retrieve AtlasFieldSvc" << endmsg;
         return StatusCode::FAILURE;
       }
 
       auto sc = Gaudi::Utils::setProperty(magfsvc, "UseSoleCurrent", sol_cur);
       if ( sc.isFailure() ) {
-        logStream() << MSG::ERROR << ST_WHERE
+        msgStream() << MSG::ERROR << ST_WHERE
                     << "Cannot set property AtlasFieldSvc.UseSoleCurrent"
-                    << endreq;
+                    << endmsg;
         return StatusCode::FAILURE;
       }
 
       sc = Gaudi::Utils::setProperty(magfsvc, "UseToroCurrent", tor_cur);
       if ( sc.isFailure() ) {
-        logStream() << MSG::ERROR << ST_WHERE
+        msgStream() << MSG::ERROR << ST_WHERE
                     << "Cannot set property AtlasFieldSvc.UseToroCurrent"
-                    << endreq;
+                    << endmsg;
         return StatusCode::FAILURE;
       }
 
-      logStream() << MSG::INFO << "*****************************************" << endreq;
-      logStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endreq;
-      logStream() << MSG::INFO << "    solenoid current from IS = " << sol_cur << endreq;
-      logStream() << MSG::INFO << "     torroid current from IS = " << tor_cur << endreq;
-      logStream() << MSG::INFO << "*****************************************" << endreq;
+      msgStream() << MSG::INFO << "*****************************************" << endmsg;
+      msgStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endmsg;
+      msgStream() << MSG::INFO << "    solenoid current from IS = " << sol_cur << endmsg;
+      msgStream() << MSG::INFO << "     torroid current from IS = " << tor_cur << endmsg;
+      msgStream() << MSG::INFO << "*****************************************" << endmsg;
     }
     catch(ptree_bad_path& e)
     {
-      logStream() << MSG::ERROR << ST_WHERE
-                  << "Magnet auto-configuration failed: " << e.what() << endreq;
+      msgStream() << MSG::ERROR << ST_WHERE
+                  << "Magnet auto-configuration failed: " << e.what() << endmsg;
       return StatusCode::FAILURE;
     }
   }
   else
   {
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "Magnetic fields not available" << endreq;
+    msgStream() << MSG::DEBUG << ST_WHERE
+                << "Magnetic fields not available" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -2888,8 +2825,8 @@ StatusCode HltEventLoopMgr::updMagField(const ptree& pt) const
 StatusCode HltEventLoopMgr::resetCoolValidity()
 {
   if ( m_coolHelper->resetBeginRunFolders(m_currentRun).isFailure() ) {
-    logStream() << MSG::ERROR << ST_WHERE
-                << "Reset of at least one proxy failed" << endreq;
+    msgStream() << MSG::ERROR << ST_WHERE
+                << "Reset of at least one proxy failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -2899,23 +2836,23 @@ StatusCode HltEventLoopMgr::resetCoolValidity()
 //=========================================================================
 void HltEventLoopMgr::readyMsg() const
 {
-  if (logLevel() <= MSG::INFO)
+  if (msgLevel() <= MSG::INFO)
   {
     LumiBlock lb;
     lb.LumiBlockNumber = 0;
     if(validPartition() &&
        m_isHelper->findValue(TrigISHelper::LumiBlock, lb).isFailure())
     { // Lumiblock only used for information. Do not make this a failure.
-      logStream() << MSG::WARNING << ST_WHERE
-                  << "Cannot read lumiblock number from IS" << endreq;
+      msgStream() << MSG::WARNING << ST_WHERE
+                  << "Cannot read lumiblock number from IS" << endmsg;
     }
 
     const auto& ilbn = lb.LumiBlockNumber;
-    logStream() << MSG::INFO  << ST_WHERE
+    msgStream() << MSG::INFO  << ST_WHERE
                 << "Ready to start event processing. Run = "
                 <<  m_currentRun << " (LB = "
                 << (ilbn ? boost::lexical_cast<string>(ilbn) : string{"??"})
-                << ")" << endreq;
+                << ")" << endmsg;
   }
 }
 
@@ -3047,10 +2984,10 @@ bool HltEventLoopMgr::serializeRob(uint32_t*& tmpstor,
 
   if(payload > payload_max)
   {
-    logStream() << MSG::ERROR << ST_WHERE
+    msgStream() << MSG::ERROR << ST_WHERE
                 << "Serialized ROB's size (" << payload << ") is bigger "
                    "than max allowed size (" << payload_max << ")"
-                << endreq;
+                << endmsg;
 
     payload = payload_max;
     ret = false;
@@ -3084,11 +3021,11 @@ void HltEventLoopMgr::addRobToHLTResult(hltinterface::HLTResult& hltr,
   spaceleft -= copied;
 
   if(copied == 0 || copied != rob.size_word())  {
-    logStream() << MSG::ERROR
+    msgStream() << MSG::ERROR
                 << "Memory copy operation for HLT result ROB failed. "
                    "Returned number of copied words = " << copied
                 << ". Number of words in ROB which should be copied = "
-                << rob.size_word() << "." << endreq;
+                << rob.size_word() << "." << endmsg;
   }
 }
 
@@ -3096,9 +3033,8 @@ void HltEventLoopMgr::addRobToHLTResult(hltinterface::HLTResult& hltr,
 void HltEventLoopMgr::recordEDMSizeInfo(size_t nav_size,
                                         bool serializationOk) const
 {
-  const HLT::TrigEDMSizes* dobjNavSizes(0);
-
   if (m_evtStore->transientContains<HLT::TrigEDMSizes>("TrigEDMSizes")) {
+    const HLT::TrigEDMSizes* dobjNavSizes(0);
     if ( m_evtStore->retrieve(dobjNavSizes).isSuccess() ) {
       for(const auto& navSizeInfo : dobjNavSizes->info())
       {
@@ -3110,10 +3046,10 @@ void HltEventLoopMgr::recordEDMSizeInfo(size_t nav_size,
                                      colname);
         if(it_col_name == m_hltEdmCollectionNames.value().end())
         {
-          if ( logLevel() <= MSG::DEBUG )
-            logStream() << MSG::DEBUG << "EDM collection name = " << colname
+          if ( msgLevel() <= MSG::DEBUG )
+            msgStream() << MSG::DEBUG << "EDM collection name = " << colname
                         << " is not in the configured list of EDM collections."
-                        << endreq;
+                        << endmsg;
 
           colname=m_hltEdmCollectionNames.value().back();
         }
@@ -3132,8 +3068,8 @@ void HltEventLoopMgr::recordEDMSizeInfo(size_t nav_size,
       }
     }
     else
-      logStream() << MSG::WARNING << "cannot access EDM sizes information"
-                  << endreq;
+      msgStream() << MSG::WARNING << "cannot access EDM sizes information"
+                  << endmsg;
   }
 }
 
@@ -3143,12 +3079,12 @@ bool HltEventLoopMgr::checkRobSize(uint32_t robsize, uint32_t spaceleft,
 {
   if(spaceleft <= robsize)
   {
-    logStream() << MSG::ERROR << ST_WHERE
+    msgStream() << MSG::ERROR << ST_WHERE
                 << "Can not create HLT result ROB with available ROB "
                    "buffer size ! Total available buffer size = "
                 << maxsize << "; buffer size left = " << spaceleft
                 << "; Number of header words used by empty ROB = "
-                << robsize << endreq;
+                << robsize << endmsg;
 
     return false;
   }
@@ -3162,12 +3098,12 @@ checkEventIdConsistency(const hltinterface::EventId& evId) const
 {
   if(evId.l1Id != m_lvl1id || evId.lbNumber != m_lumi_block)
   {
-    logStream() << MSG::WARNING << ST_WHERE
+    msgStream() << MSG::WARNING << ST_WHERE
                 << "EventId information does not match CTP fragment contents: "
                 << "EventId = {globalId: " << evId.globalId << ", l1Id: "
                 << evId.l1Id << ", lbNumber: " << evId.lbNumber
                 << "}, but the CTP fragment included l1Id = " << m_lvl1id
-                << " and lumiblock = " << m_lumi_block << "." << endreq;
+                << " and lumiblock = " << m_lumi_block << "." << endmsg;
     return false;
   }
 
@@ -3189,10 +3125,10 @@ void HltEventLoopMgr::failedEvent(hltinterface::HLTResult& hlt_result,
     fillHltResultHistograms(hlt_result);
   }
 
-  logStream() << MSG::ERROR << ST_WHERE
+  msgStream() << MSG::ERROR << ST_WHERE
               << emsg << " PSC error code = "
               << hltonl::PrintPscErrorCode(ecode)
-              << "\n" << hlt_result << "\n" << endreq;
+              << "\n" << hlt_result << "\n" << endmsg;
 }
 
 //=========================================================================

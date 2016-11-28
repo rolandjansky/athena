@@ -39,7 +39,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "GaudiKernel/Property.h"
@@ -130,18 +129,6 @@ public:
     // handler for BeginRun actions
     void handle(const Incident& incident);
 
-protected:
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& logStream() const { return *m_msg; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
 private:
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
@@ -198,9 +185,6 @@ private:
 
     // name of the program which presently uses the ROBDataProviderSvc
     std::string m_callerName;
-
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
 
     // monitoring
     std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
