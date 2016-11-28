@@ -934,7 +934,7 @@ StatusCode D2PDPhotonSelector::processObject( const Analysis::Photon* photon,
       // Identification selection
       if ( isPassed && m_doPassID && m_passID >= 0 )
         {
-          isPassed = photon->passID( ((egammaPID::egammaIDQuality)m_passID.value()) );
+          isPassed = photon->passID( ((egammaPIDObs::egammaIDQuality)m_passID.value()) );
           if ( isPassed && m_printInternalCutflow ) { m_objCutFlow[m_idxPassID] += 1; }
         }
 

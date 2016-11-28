@@ -643,7 +643,7 @@ StatusCode D2PDParticleCombiner::execute()
                 {
                   msg(MSG::DEBUG)  << aUniqueChoice.at(ichoice) << ",";
                 }
-              msg(MSG::DEBUG) << endreq;
+              msg(MSG::DEBUG) << endmsg;
             }
 
           // Loop over all containers
@@ -708,8 +708,8 @@ StatusCode D2PDParticleCombiner::execute()
           //--------------------------
           // Calculate the UserData
           //--------------------------
-          ToolHandleArray<IUserDataCalcTool>::const_iterator toolItr    = m_userDataCalcTools.begin();
-          ToolHandleArray<IUserDataCalcTool>::const_iterator toolItrEnd = m_userDataCalcTools.end();
+          ToolHandleArray<IUserDataCalcTool>::iterator toolItr    = m_userDataCalcTools.begin();
+          ToolHandleArray<IUserDataCalcTool>::iterator toolItrEnd = m_userDataCalcTools.end();
           for ( ; toolItr != toolItrEnd; ++toolItr )
             {
               ATH_CHECK( (*toolItr)->calculateElementUserData( compPart ) );
@@ -749,7 +749,7 @@ StatusCode D2PDParticleCombiner::execute()
                 << (m_inputLinkContainerList.at(i))->size()
                 << ", " ;
             }
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }
       setFilterPassed(true);
     }
@@ -772,7 +772,7 @@ StatusCode D2PDParticleCombiner::execute()
                 << (m_inputLinkContainerList.at(i))->size()
                 << ", " ;
             }
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }
       setFilterPassed(false);
     }
@@ -1063,8 +1063,8 @@ StatusCode D2PDParticleCombiner::buildComposite( CompositeParticleContainer* out
             {
               // Loop over all ISelector tools that the user provided
               // and check if this inav is accepted by the ISelector tools
-              ToolHandleArray<ISelector>::const_iterator toolItr    = m_selectionTools.begin();
-              ToolHandleArray<ISelector>::const_iterator toolItrEnd = m_selectionTools.end();
+              ToolHandleArray<ISelector>::iterator toolItr    = m_selectionTools.begin();
+              ToolHandleArray<ISelector>::iterator toolItrEnd = m_selectionTools.end();
               for ( ; toolItr != toolItrEnd; ++toolItr )
                 {
                   if ( passAll )

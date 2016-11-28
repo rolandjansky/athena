@@ -777,8 +777,8 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
           // the original container where the link container was pointing to!
           if ( !m_inputIsLinkColl || m_forceExecuteUserData )
             {
-              ToolHandleArray<IUserDataCalcTool>::const_iterator toolItr    = m_userDataCalcTools.begin();
-              ToolHandleArray<IUserDataCalcTool>::const_iterator toolItrEnd = m_userDataCalcTools.end();
+              ToolHandleArray<IUserDataCalcTool>::iterator toolItr    = m_userDataCalcTools.begin();
+              ToolHandleArray<IUserDataCalcTool>::iterator toolItrEnd = m_userDataCalcTools.end();
               for ( ; toolItr != toolItrEnd; ++toolItr )
                 {
                   ATH_CHECK( (*toolItr)->calculateElementUserData( inav ) );
@@ -888,8 +888,8 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
               ATH_MSG_VERBOSE ( "Object going into running the selection tools" );
               // Loop over all ISelector tools that the user provided
               // and check if this inav is accepted by the ISelector tools
-              ToolHandleArray<ISelector>::const_iterator toolItr    = m_selectionTools.begin();
-              ToolHandleArray<ISelector>::const_iterator toolItrEnd = m_selectionTools.end();
+              ToolHandleArray<ISelector>::iterator toolItr    = m_selectionTools.begin();
+              ToolHandleArray<ISelector>::iterator toolItrEnd = m_selectionTools.end();
               unsigned int idxISelTool(0);
               for ( ; toolItr != toolItrEnd; ++toolItr )
                 {
@@ -914,8 +914,8 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
               ATH_MSG_VERBOSE ( "Object going into running the selector tools" );
               // Loop over all PATCore tools that the user provided
               // and check if this inav is accepted by the ISelector tools
-              ToolHandleArray<IAthSelectorTool>::const_iterator toolItr    = m_selectorTools.begin();
-              ToolHandleArray<IAthSelectorTool>::const_iterator toolItrEnd = m_selectorTools.end();
+              ToolHandleArray<IAthSelectorTool>::iterator toolItr    = m_selectorTools.begin();
+              ToolHandleArray<IAthSelectorTool>::iterator toolItrEnd = m_selectorTools.end();
               unsigned int idxToolPlusCut(0);
               for ( ; toolItr != toolItrEnd; ++toolItr )
                 {
