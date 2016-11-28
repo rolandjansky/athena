@@ -162,6 +162,8 @@ class PhysValMET
   ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
   ToolHandle<IJetUpdateJvt> m_jvtTool;
   ToolHandle<IMETMaker> m_metmaker;
+  ToolHandle<IMETMaker> m_metmakerTopo;
+  ToolHandle<IMETMaker> m_metmakerPFlow;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
 }; 
 
