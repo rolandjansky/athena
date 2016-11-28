@@ -438,7 +438,9 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         } else if (simBcidBits[1] != datBcidBits[1]) { // mismatch
           mismatch = 1;
           if (!simBcidBits[1]) { // data no sim
-              hist1 = m_h_ppm_2d_etaPhi_tt_satBcid_DataNoSim;
+              //Temporarily disabled
+              //hist1 = m_h_ppm_2d_etaPhi_tt_satBcid_DataNoSim;
+               mismatch=0;
           } else if (!datBcidBits[1]) { // sim no data
               hist1 = m_h_ppm_2d_etaPhi_tt_satBcid_SimNoData;
           }

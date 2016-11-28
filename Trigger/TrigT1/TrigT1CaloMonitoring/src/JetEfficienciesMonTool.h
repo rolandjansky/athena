@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"

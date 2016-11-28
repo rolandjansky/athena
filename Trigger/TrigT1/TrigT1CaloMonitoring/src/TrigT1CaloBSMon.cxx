@@ -17,7 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StlVectorClids.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrigT1CaloEvent/CMMCPHits.h"
 #include "TrigT1CaloEvent/CMMEtSums.h"

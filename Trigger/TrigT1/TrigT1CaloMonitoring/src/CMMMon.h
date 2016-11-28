@@ -20,7 +20,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 

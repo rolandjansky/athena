@@ -204,7 +204,7 @@ StatusCode CPSimMon::initialize()
 
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
     return sc;
   }
 
@@ -625,11 +625,11 @@ StatusCode CPSimMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   if (m_debug)
-    msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+    msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_histBooked) {
     if (m_debug)
-      msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+      msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -637,7 +637,7 @@ StatusCode CPSimMon::fillHistograms()
 
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
     if (m_debug)
-      msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+      msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -883,12 +883,12 @@ StatusCode CPSimMon::fillHistograms()
   ErrorVector *save = new ErrorVector(crateErr);
   sc = evtStore()->record(save, m_errorLocation);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Error recording CPM mismatch vector in TES " << endreq;
+    msg(MSG::ERROR) << "Error recording CPM mismatch vector in TES " << endmsg;
     return sc;
   }
 
   if (m_debug)
-    msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+    msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -1202,7 +1202,7 @@ bool CPSimMon::compareHad(const TriggerTowerMapHad &ttMap,
 void CPSimMon::compare(const CpmTobRoiMap &roiSimMap,
                        const CpmTobRoiMap &roiMap, ErrorVector &errors) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Compare Simulated RoIs with data" << endreq;
+    msg(MSG::DEBUG) << "Compare Simulated RoIs with data" << endmsg;
 
   LVL1::CPRoIDecoder decoder;
   CpmTobRoiMap::const_iterator simMapIter = roiSimMap.begin();
@@ -1353,7 +1353,7 @@ void CPSimMon::compare(const CmxCpTobMap &simMap, const CmxCpTobMap &datMap,
                        const std::vector<int> parityMap, ErrorVector &errorsCPM,
                        ErrorVector &errorsCMX) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endreq;
+    msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endmsg;
 
   LVL1::CPRoIDecoder decoder;
   CmxCpTobMap::const_iterator simMapIter = simMap.begin();
@@ -1931,7 +1931,7 @@ void CPSimMon::setupMap(const xAOD::CMXCPHitsContainer *coll,
 void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
                         xAOD::CPMTobRoIContainer *rois) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endreq;
+    msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endmsg;
 
   // Process a crate at a time to use overlap data
   std::vector<CpmTowerMap> crateMaps(s_crates);
@@ -1991,7 +1991,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
 void CPSimMon::simulate(const CpmTowerMap *towers,
                         xAOD::CPMTobRoIContainer *rois) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endreq;
+    msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endmsg;
 
   // InternalRoiCollection* intRois = new InternalRoiCollection;
   //@@m_emTauTool->findRoIs(&towers, intRois);
@@ -2005,7 +2005,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers,
 void CPSimMon::simulate(const xAOD::CPMTobRoIContainer *rois,
                         xAOD::CMXCPTobContainer *tobs) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CMX TOBs from CPM TOB RoIs" << endreq;
+    msg(MSG::DEBUG) << "Simulate CMX TOBs from CPM TOB RoIs" << endmsg;
 
   m_cpCmxTool->formCMXCPTob(rois, tobs);
 }
@@ -2015,7 +2015,7 @@ void CPSimMon::simulate(const xAOD::CPMTobRoIContainer *rois,
 void CPSimMon::simulate(const xAOD::CMXCPTobContainer *tobs,
                         xAOD::CMXCPHitsContainer *hits, int selection) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CMX Hit sums from CMX TOBs" << endreq;
+    msg(MSG::DEBUG) << "Simulate CMX Hit sums from CMX TOBs" << endmsg;
 
   if (selection == xAOD::CMXCPHits::LOCAL) {
     m_cpCmxTool->formCMXCPHitsCrate(tobs, hits);
@@ -2030,7 +2030,7 @@ void CPSimMon::simulate(const xAOD::CMXCPHitsContainer *hitsIn,
                         xAOD::CMXCPHitsContainer *hitsOut) {
   if (m_debug)
     msg(MSG::DEBUG) << "Simulate CMX Total Hit sums from Remote/Local"
-                    << endreq;
+                    << endmsg;
 
   m_cpCmxTool->formCMXCPHitsSystem(hitsIn, hitsOut);
 }
