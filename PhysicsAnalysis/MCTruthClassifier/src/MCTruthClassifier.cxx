@@ -1919,7 +1919,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
   m_NumOfDaug     = m_partOriVert->nOutgoingParticles();
 
   int  NumOfNucFr(0),NumOfEl(0),NumOfPos(0),NumOfMu(0),NumOfTau(0), NumOfPht(0),NumOfLQ(0);
-  long DaugBarcode(0),DaugType(0), NumOfLep(0), NumOfNeut(0);
+  long DaugBarcode(0),DaugType(0), NumOfLep(0), NumOfNeut(0), NumOfPartons(0);
   for(unsigned int ipOut=0;ipOut<m_partOriVert->nOutgoingParticles();ipOut++){
     if(!m_partOriVert->outgoingParticle(ipOut)) continue;  
     DaugType = m_partOriVert->outgoingParticle(ipOut)->pdgId();
@@ -1933,6 +1933,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
     if(abs(DaugType) == 42) NumOfLQ++;
     if(abs(DaugType) == 11||abs(DaugType) == 13||abs(DaugType) == 15) NumOfLep++;
     if(abs(DaugType) == 12||abs(DaugType) == 14||abs(DaugType) == 16) NumOfNeut++;
+    if(abs(DaugType)<11 || (abs(DaugType)>16&&abs(DaugType)<43&&abs(DaugType)!=22)) NumOfPartons++;
 
     if(DaugType == m_MotherPDG ) DaugBarcode = m_partOriVert->outgoingParticle(ipOut)->barcode() ;
   } // cycle itrDaug
@@ -2045,7 +2046,8 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
   
   //-- to find initial and final state raiation and underline photons
   //-- SUSY
-  if(m_NumOfParents==1&&(abs(m_MotherPDG)<7||m_MotherPDG==21)){
+  if(m_NumOfParents==1&&(abs(m_MotherPDG)<7||m_MotherPDG==21) &&
+     !(m_NumOfDaug==NumOfPht+NumOfPartons&&(m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22))){
     for(unsigned int ipOut=0;ipOut<m_partOriVert->nOutgoingParticles();ipOut++){
       if(!m_partOriVert->outgoingParticle(ipOut)) continue;
       if(m_MotherPDG!=m_partOriVert->outgoingParticle(ipOut)->pdgId()) continue;
@@ -2201,7 +2203,11 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
   if( abs(m_MotherPDG)<2000040&&
       abs(m_MotherPDG)>1000001)             return SUSY; 
  
- 
+  // Pythia8 gamma+jet samples
+  if ((m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22) &&
+      thePriPart->status()==1 && NumOfPht==1 && m_NumOfDaug==(NumOfPht+NumOfPartons) ){
+    return PromptPhot;
+  } 
 
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart ) 
