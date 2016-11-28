@@ -190,10 +190,10 @@ private:
   TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr6cr7;   ///< PPM LUT Mismatch Event Numbers Crates 6 and 7
   
   // Mismatch Event Number Histograms for LUT-JEP
-  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr0cr1;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 0 and 1
-  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr2cr3;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 2 and 3
-  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr4cr5;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 4 and 5
-  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr6cr7;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 6 and 7
+  //TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr0cr1;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 0 and 1
+  //TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr2cr3;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 2 and 3
+  //TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr4cr5;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 4 and 5
+  //TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr6cr7;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 6 and 7
   
 };
 

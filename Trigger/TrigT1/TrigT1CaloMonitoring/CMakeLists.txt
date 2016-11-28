@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Control/AthenaMonitoring
-                          Control/DataModel
+                          Control/AthContainers
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -18,10 +18,10 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/EventInfo
                           Event/xAOD/xAODJet
                           Event/xAOD/xAODTrigL1Calo
+			  Event/xAOD/xAODEgamma
                           GaudiKernel
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Reconstruction/Jet/JetInterface
-                          Reconstruction/egamma/egammaEvent
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileEvent
                           Tools/LWHists
@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigConfiguration/TrigConfL1Data
+			  Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigT1/TrigT1CaloCalibConditions
                           Trigger/TrigT1/TrigT1CaloCalibToolInterfaces
                           Trigger/TrigT1/TrigT1CaloCalibTools
@@ -47,7 +48,7 @@ atlas_add_component( TrigT1CaloMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthenaMonitoringLib DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo xAODJet xAODTrigL1Calo GaudiKernel AnalysisTriggerEvent JetInterface egammaEvent TileConditionsLib TileEvent LWHists VxVertex TrigDecisionToolLib TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthenaMonitoringLib AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo xAODJet xAODTrigL1Calo xAODEgamma GaudiKernel AnalysisTriggerEvent JetInterface TileConditionsLib TileEvent LWHists VxVertex TrigDecisionToolLib TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_headers( TrigT1CaloMonitoring )

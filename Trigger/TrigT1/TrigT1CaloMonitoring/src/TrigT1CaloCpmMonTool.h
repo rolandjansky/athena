@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class TH1F_LW;
 class TH2F_LW;

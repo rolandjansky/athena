@@ -151,7 +151,7 @@ StatusCode JEPCMXMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -161,14 +161,14 @@ StatusCode JEPCMXMon::initialize()
   sc = m_errorTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -179,7 +179,7 @@ StatusCode JEPCMXMon::initialize()
 StatusCode JEPCMXMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in JEPCMXMon::bookHistogramsRecurrent" << endreq;
+  msg(MSG::DEBUG) << "in JEPCMXMon::bookHistogramsRecurrent" << endmsg;
 
   if ( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -189,7 +189,7 @@ StatusCode JEPCMXMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newEventsBlock || newLumiBlock) { }
+  //if ( newEventsBlock || newLumiBlock) { }
 
   if ( newRun ) {
 
@@ -413,14 +413,14 @@ StatusCode JEPCMXMon::fillHistograms()
   const bool debug = msgLvl(MSG::DEBUG);
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -442,12 +442,12 @@ StatusCode JEPCMXMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(CMXJetTob, m_CMXJetTobLocation);
   if (sc == StatusCode::FAILURE || !CMXJetTob) {
     msg(MSG::INFO) << "No CMX JetTob found in TES at "
-                   << m_CMXJetTobLocation << endreq;
+                   << m_CMXJetTobLocation << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "--------------  CMX Jet TOBs ---------------" << endreq;
+    msg(MSG::DEBUG) << "--------------  CMX Jet TOBs ---------------" << endmsg;
   }
 
   xAOD::CMXJetTobContainer::const_iterator it_CMXJetTob ;
@@ -511,12 +511,12 @@ StatusCode JEPCMXMon::fillHistograms()
   sc = evtStore()->retrieve(CMXJetHits, m_CMXJetHitsLocation);
   if (sc == StatusCode::FAILURE || !CMXJetHits) {
     msg(MSG::INFO) << "No CMX JetHits found in TES at "
-                   << m_CMXJetHitsLocation << endreq;
+                   << m_CMXJetHitsLocation << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "--------------  CMX Jet Hits ---------------" << endreq;
+    msg(MSG::DEBUG) << "--------------  CMX Jet Hits ---------------" << endmsg;
   }
 
   xAOD::CMXJetHitsContainer::const_iterator it_CMXJetHits ;
@@ -648,11 +648,11 @@ StatusCode JEPCMXMon::fillHistograms()
   sc = evtStore()->retrieve(CMXEtSums, m_CMXEtSumsLocation);
   if (sc == StatusCode::FAILURE || !CMXEtSums) {
     msg(MSG::INFO) << "No CMXEtSums found in TES at "
-                   << m_CMXEtSumsLocation << endreq ;
+                   << m_CMXEtSumsLocation << endmsg ;
     return StatusCode::SUCCESS;
   }
 
-  msg(MSG::DEBUG) << "-------------- CMX Et Sums ---------------" << endreq;
+  msg(MSG::DEBUG) << "-------------- CMX Et Sums ---------------" << endmsg;
 
   // Step over all cells
   xAOD::CMXEtSumsContainer::const_iterator it_CMXEtSums ;
@@ -812,13 +812,13 @@ StatusCode JEPCMXMon::fillHistograms()
   sc = evtStore()->retrieve (CRCon, m_CMXRoILocation);
   if (sc == StatusCode::FAILURE || !CRCon || !CRCon->size()) {
     msg(MSG::INFO) << "No CMX RoI found in TES at " << m_CMXRoILocation
-                   << endreq;
+                   << endmsg;
     return StatusCode::SUCCESS;
   }
   const xAOD::CMXRoI* CR = *CRCon->begin();
 
   if (debug) {
-    msg(MSG::DEBUG) << "-------------- CMX RoI ---------------" << endreq;
+    msg(MSG::DEBUG) << "-------------- CMX RoI ---------------" << endmsg;
   }
 
   // -------------------------------------------------------------------------
@@ -878,7 +878,7 @@ StatusCode JEPCMXMon::fillHistograms()
   sc = evtStore()->record(save, m_errorLocation);
   if (sc != StatusCode::SUCCESS) {
     msg(MSG::ERROR) << "Error recording JEM CMX error vector in TES "
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -889,9 +889,9 @@ StatusCode JEPCMXMon::fillHistograms()
 StatusCode JEPCMXMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in procHistograms" << endreq ;
+  msg(MSG::DEBUG) << "in procHistograms" << endmsg ;
 
-  if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) { }
+  //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) { }
 
   return StatusCode::SUCCESS;
 }

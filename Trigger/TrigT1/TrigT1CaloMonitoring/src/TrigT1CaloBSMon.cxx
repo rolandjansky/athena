@@ -17,7 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StlVectorClids.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrigT1CaloEvent/CMMCPHits.h"
 #include "TrigT1CaloEvent/CMMEtSums.h"
@@ -109,7 +109,7 @@ StatusCode TrigT1CaloBSMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -120,7 +120,7 @@ StatusCode TrigT1CaloBSMon::initialize()
     sc = m_caloTool.retrieve();
     if( sc.isFailure() ) {
       msg(MSG::ERROR) << "Unable to locate Tool L1CaloMonitoringCaloTool"
-                      << endreq;
+                      << endmsg;
       return sc;
     }
   }
@@ -158,17 +158,17 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
     const TriggerTowerCollection* triggerTowerMuonTES = 0; 
     sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation); 
     if( sc.isFailure()  ||  !triggerTowerTES ) {
-      msg(MSG::WARNING) << "No Trigger Tower container found"<< endreq; 
+      msg(MSG::WARNING) << "No Trigger Tower container found"<< endmsg; 
     }
     sc = evtStore()->retrieve(triggerTowerSpareTES,
                                          m_triggerTowerLocation+"Spare"); 
     if( sc.isFailure()  ||  !triggerTowerSpareTES ) {
-      msg(MSG::WARNING) << "No Spare Trigger Tower container found"<< endreq; 
+      msg(MSG::WARNING) << "No Spare Trigger Tower container found"<< endmsg; 
     }
     sc = evtStore()->retrieve(triggerTowerMuonTES,
                                          m_triggerTowerLocation+"Muon"); 
     if( sc.isFailure()  ||  !triggerTowerMuonTES ) {
-      msg(MSG::WARNING) << "No Tile Muon Trigger Tower container found"<< endreq; 
+      msg(MSG::WARNING) << "No Tile Muon Trigger Tower container found"<< endmsg; 
     }
   }
 
@@ -181,32 +181,32 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
     const CpmTowerCollection* cpmTowerOvTES = 0; 
     sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation); 
     if( sc.isFailure()  ||  !cpmTowerTES ) {
-      msg(MSG::WARNING) << "No Core CPM Tower container found"<< endreq; 
+      msg(MSG::WARNING) << "No Core CPM Tower container found"<< endmsg; 
     }
     sc = evtStore()->retrieve(cpmTowerOvTES, m_cpmTowerLocationOverlap); 
     if( sc.isFailure()  ||  !cpmTowerOvTES ) {
-      msg(MSG::WARNING) << "No Overlap CPM Tower container found"<< endreq; 
+      msg(MSG::WARNING) << "No Overlap CPM Tower container found"<< endmsg; 
     }
   
     //Retrieve CPM RoIs from SG
     const CpmRoiCollection* cpmRoiTES = 0;
     sc = evtStore()->retrieve( cpmRoiTES, m_cpmRoiLocation);
     if( sc.isFailure()  ||  !cpmRoiTES ) {
-      msg(MSG::WARNING) << "No CPM RoIs container found"<< endreq;
+      msg(MSG::WARNING) << "No CPM RoIs container found"<< endmsg;
     }
   
     //Retrieve CPM Hits from SG
     const CpmHitsCollection* cpmHitsTES = 0;
     sc = evtStore()->retrieve( cpmHitsTES, m_cpmHitsLocation);
     if( sc.isFailure()  ||  !cpmHitsTES ) {
-      msg(MSG::WARNING) << "No CPM Hits container found"<< endreq; 
+      msg(MSG::WARNING) << "No CPM Hits container found"<< endmsg; 
     }
   
     //Retrieve CMM-CP Hits from SG
     const CmmCpHitsCollection* cmmCpHitsTES = 0;
     sc = evtStore()->retrieve( cmmCpHitsTES, m_cmmCpHitsLocation);
     if( sc.isFailure()  ||  !cmmCpHitsTES ) {
-      msg(MSG::WARNING) << "No CMM-CP Hits container found"<< endreq; 
+      msg(MSG::WARNING) << "No CMM-CP Hits container found"<< endmsg; 
     }
 
   }
@@ -220,53 +220,53 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
     const JetElementCollection* jetElementOvTES = 0; 
     sc = evtStore()->retrieve(jetElementTES, m_jetElementLocation); 
     if( sc.isFailure()  ||  !jetElementTES ) {
-      msg(MSG::WARNING) << "No Core Jet Element container found"<< endreq; 
+      msg(MSG::WARNING) << "No Core Jet Element container found"<< endmsg; 
     }
     sc = evtStore()->retrieve(jetElementOvTES, m_jetElementLocationOverlap);
     if( sc.isFailure()  ||  !jetElementOvTES ) {
-      msg(MSG::WARNING) << "No Overlap Jet Element container found"<< endreq;
+      msg(MSG::WARNING) << "No Overlap Jet Element container found"<< endmsg;
     }
   
     //Retrieve JEM RoIs from SG
     const JemRoiCollection* jemRoiTES = 0;
     sc = evtStore()->retrieve( jemRoiTES, m_jemRoiLocation);
     if( sc.isFailure()  ||  !jemRoiTES  ) {
-      msg(MSG::WARNING) << "No DAQ JEM RoIs container found" << endreq; 
+      msg(MSG::WARNING) << "No DAQ JEM RoIs container found" << endmsg; 
     }
   
     //Retrieve JEM Hits from SG
     const JemHitsCollection* jemHitsTES = 0;
     sc = evtStore()->retrieve( jemHitsTES, m_jemHitsLocation);
     if( sc.isFailure()  ||  !jemHitsTES ) {
-      msg(MSG::WARNING) << "No JEM Hits container found"<< endreq; 
+      msg(MSG::WARNING) << "No JEM Hits container found"<< endmsg; 
     }
   
     //Retrieve CMM-Jet Hits from SG
     const CmmJetHitsCollection* cmmJetHitsTES = 0;
     sc = evtStore()->retrieve( cmmJetHitsTES, m_cmmJetHitsLocation);
     if( sc.isFailure()  ||  !cmmJetHitsTES ) {
-      msg(MSG::WARNING) << "No CMM-Jet Hits container found"<< endreq; 
+      msg(MSG::WARNING) << "No CMM-Jet Hits container found"<< endmsg; 
     }
   
     //Retrieve CMM RoIs from SG
     const LVL1::CMMRoI* cmmRoiTES = 0;
     sc = evtStore()->retrieve( cmmRoiTES, m_cmmRoiLocation);
     if( sc.isFailure()  ||  !cmmRoiTES ) {
-      msg(MSG::WARNING) << "No CMM RoIs container found" << endreq; 
+      msg(MSG::WARNING) << "No CMM RoIs container found" << endmsg; 
     }
 
     //Retrieve JEM Et Sums from SG
     const JemEtSumsCollection* jemEtSumsTES = 0;
     sc = evtStore()->retrieve( jemEtSumsTES, m_jemEtSumsLocation);
     if( sc.isFailure()  ||  !jemEtSumsTES ) {
-      msg(MSG::WARNING) << "No JEM Et Sums container found"<< endreq;
+      msg(MSG::WARNING) << "No JEM Et Sums container found"<< endmsg;
     }
 
     //Retrieve CMM Et Sums from SG
     const CmmEtSumsCollection* cmmEtSumsTES = 0;
     sc = evtStore()->retrieve( cmmEtSumsTES, m_cmmEtSumsLocation);
     if( sc.isFailure()  ||  !cmmEtSumsTES ) {
-      msg(MSG::WARNING) << "No CMM-Energy Et Sums container found"<< endreq;
+      msg(MSG::WARNING) << "No CMM-Energy Et Sums container found"<< endmsg;
     }
 
   }
@@ -279,21 +279,21 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
     const RodHeaderCollection* rodTES = 0; 
     sc = evtStore()->retrieve(rodTES, m_rodHeaderLocation); 
     if( sc.isFailure()  ||  !rodTES ) {
-      msg(MSG::WARNING) << "No ROD Header container found"<< endreq; 
+      msg(MSG::WARNING) << "No ROD Header container found"<< endmsg; 
     }
 
     //Retrieve CP RoIB ROD Headers from SG
     const RodHeaderCollection* cpRoibTES = 0; 
     sc = evtStore()->retrieve(cpRoibTES, m_cpRoibRodHeaderLocation); 
     if( sc.isFailure()  ||  !cpRoibTES ) {
-      msg(MSG::WARNING) << "No CP RoIB ROD Header container found"<< endreq; 
+      msg(MSG::WARNING) << "No CP RoIB ROD Header container found"<< endmsg; 
     }
 
     //Retrieve JEP RoIB ROD Headers from SG
     const RodHeaderCollection* jepRoibTES = 0; 
     sc = evtStore()->retrieve(jepRoibTES, m_jepRoibRodHeaderLocation); 
     if( sc.isFailure()  ||  !jepRoibTES ) {
-      msg(MSG::WARNING) << "No JEP RoIB ROD Header container found"<< endreq; 
+      msg(MSG::WARNING) << "No JEP RoIB ROD Header container found"<< endmsg; 
     }
 
     //Retrieve ROB Status and Unpacking Error vector from SG
@@ -301,7 +301,7 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
     sc = evtStore()->retrieve(errColl, m_robErrorVectorLocation);
     if( sc.isFailure()  ||  !errColl ) {
       msg(MSG::WARNING) << "No ROB Status and Unpacking Error vector found"
-                        << endreq;
+                        << endmsg;
     }
   }
 

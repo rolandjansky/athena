@@ -190,7 +190,7 @@ if l1caloRawMon:
         L1CaloMan.AthenaMonTools += [ L1CMMMonTool ]
     
         
-        # (amazurov): Disable JEPSimBSMon for RUN2 since we could not currently
+        # (amazurov): Disable JEPSimBSMon for RUN1 since we could not currently
         # support it due to RUN2 changes. We can enable it later.
         # if isData:
     
@@ -284,52 +284,55 @@ if l1caloRawMon:
             ToolSvc += L1GlobalMonTool
             L1CaloMan.AthenaMonTools += [ L1GlobalMonTool ]
     
-        if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
-                                           or rec.triggerStream() == "Muons"
-                                           or rec.triggerStream() == "express"):
+        # if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
+        #                                    or rec.triggerStream() == "Muons"
+        #                                    or rec.triggerStream() == "express"):
     
-            #=================================================================================
-            #=============================== EM Efficiencies =================================
-            #=================================================================================
-            trigstring = ['EF_.*']
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__EmEfficienciesMonTool
-            L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
-                                                                  TriggerStrings = trigstring
-                                                            )
-            ToolSvc += L1EmEfficienciesMonTool
-            L1CaloMan.AthenaMonTools += [ L1EmEfficienciesMonTool ]
-            if not hasattr( ToolSvc, "TrigDecisionTool" ):
-                from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-                tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-                ToolSvc += tdt
+        #     #=================================================================================
+        #     #=============================== EM Efficiencies =================================
+        #     #=================================================================================
+        #     trigstring = ['EF_.*']
+        #     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__EmEfficienciesMonTool
+        #     L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
+        #                                                           TriggerStrings = trigstring
+        #                                                     )
+        #     ToolSvc += L1EmEfficienciesMonTool
+        #     L1CaloMan.AthenaMonTools += [ L1EmEfficienciesMonTool ]
+        #     if not hasattr( ToolSvc, "TrigDecisionTool" ):
+        #         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+        #         tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+        #         ToolSvc += tdt
     
-        if isData and isCalo and Offline and (rec.triggerStream() == "Egamma"
-                                           or rec.triggerStream() == "Muons"
-                                           or rec.triggerStream() == "express"):
+        # (amazurov): Disable L1JetEfficienciesMonTool for RUN1 due to the problems with RUN2 changes
+        # on JetCleaningMediumTool. We can enable it later.
+        
+        # if isData and isCalo and Offline and (rec.triggerStream() == "Egamma"
+        #                                    or rec.triggerStream() == "Muons"
+        #                                    or rec.triggerStream() == "express"):
     
-            #=================================================================================
-            #=============================== Jet Efficiencies ================================
-            #=================================================================================
-            trigstring = ['EF_.*']
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JetEfficienciesMonTool
-            from JetSelectorTools.ConfiguredJetCleaningTools import *  
-            L1JetEfficienciesMonTool = LVL1__JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
-                                                                  TriggerStrings = trigstring
-                                                              )
-            from AthenaCommon.AppMgr import ToolSvc
-            ToolSvc += JetCleaningTool('JetCleaningLooseTool')
-            # ToolSvc += JetCleaningTool('JetCleaningMediumTool')
-            ToolSvc += JetCleaningTool('JetCleaningTightTool')
-            L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
-            # L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
-            L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredJetCleaningTool_Tight("JetCleaningTightTool") 
+        #     #=================================================================================
+        #     #=============================== Jet Efficiencies ================================
+        #     #=================================================================================
+        #     trigstring = ['EF_.*']
+        #     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JetEfficienciesMonTool
+        #     from JetSelectorTools.ConfiguredJetCleaningTools import *  
+        #     L1JetEfficienciesMonTool = LVL1__JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
+        #                                                           TriggerStrings = trigstring
+        #                                                       )
+        #     from AthenaCommon.AppMgr import ToolSvc
+        #     ToolSvc += JetCleaningTool('JetCleaningLooseTool')
+        #     # ToolSvc += JetCleaningTool('JetCleaningMediumTool')
+        #     ToolSvc += JetCleaningTool('JetCleaningTightTool')
+        #     L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
+        #     # L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
+        #     L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredJetCleaningTool_Tight("JetCleaningTightTool") 
 
-            ToolSvc += L1JetEfficienciesMonTool
-            L1CaloMan.AthenaMonTools += [ L1JetEfficienciesMonTool ]
-            if not hasattr( ToolSvc, "TrigDecisionTool" ):
-                from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-                tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-                ToolSvc += tdt
+        #     ToolSvc += L1JetEfficienciesMonTool
+        #     L1CaloMan.AthenaMonTools += [ L1JetEfficienciesMonTool ]
+        #     if not hasattr( ToolSvc, "TrigDecisionTool" ):
+        #         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+        #         tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+        #         ToolSvc += tdt
     
     #=================================================================================
     # FileKey must match that given to THistSvc

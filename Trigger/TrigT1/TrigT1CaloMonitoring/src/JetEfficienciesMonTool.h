@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
@@ -149,7 +149,6 @@ class TrigT1CaloLWHistogramToolV1;
  *  <tr><td> @c TrigT1CaloLWHistogramToolV1   </td><td> @copydoc m_histTool  </td></tr>
  *  <tr><td> @c LVL1::IL1TriggerTowerTool   </td><td> @copydoc m_ttTool    </td></tr>
  *  <tr><td> @c LVL1::IL1CaloLArTowerEnergy </td><td> @copydoc m_larEnergy </td></tr>
- *  <tr><td> @c Trig::TrigDecisionTool      </td><td> @copydoc m_trigger   </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
@@ -159,7 +158,6 @@ class TrigT1CaloLWHistogramToolV1;
  *  <tr><td> @c HistogramTool             </td><td> @copydoc m_histTool                  </td></tr>
  *  <tr><td> @c TriggerTowerTool          </td><td> @copydoc m_ttTool                    </td></tr>
  *  <tr><td> @c LArTowerEnergyTool        </td><td> @copydoc m_larEnergy                 </td></tr>
- *  <tr><td> @c TrigDecisionTool          </td><td> @copydoc m_trigger                   </td></tr>
  *  <tr><td> @c DeadChannelsFolder        </td><td> @copydoc m_dbPpmDeadChannelsFolder   </td></tr>
  *  <tr><td> @c TriggerTowersLocation     </td><td> @copydoc m_triggerTowersLocation     </td></tr>
  *  <tr><td> @c RoIsLocation              </td><td> @copydoc m_lvl1RoIsLocation          </td></tr>
@@ -257,8 +255,6 @@ private:
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Tool for Missing FEB. Used first event only
   ToolHandle<LVL1::IL1CaloLArTowerEnergy> m_larEnergy;
-  /// Trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigger;
   /// JetSelect
   ToolHandle<IJetSelector> m_looseJetSelector;
   ToolHandle<IJetSelector> m_mediumJetSelector;
