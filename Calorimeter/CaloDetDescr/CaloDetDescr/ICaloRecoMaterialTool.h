@@ -42,18 +42,18 @@ public:
 			     double& mass, double& volume,
 			     double& x0, double& dEdx,
 			     double& aveA, double& aveZ
-			     ) = 0;
+			     ) const = 0;
   
   /** @brief default material used to fill the envelope 
    */
   virtual void get_default_material (double& density,
 				     double& x0, double& dEdx,
 				     double& aveA, double& aveZ
-				     ) = 0;
+				     ) const = 0;
 
   /** @brief printout method
    */
-  virtual void print() = 0;
+  virtual void print() const = 0;
 
 };
 

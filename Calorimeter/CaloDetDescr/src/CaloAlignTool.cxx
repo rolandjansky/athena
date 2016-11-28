@@ -52,18 +52,18 @@ StatusCode CaloAlignTool::initialize()
   // Get pointers to the GeoModelSvc and DetectorStore
   StatusCode status;
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In initialize" << endreq;
+  log << MSG::DEBUG << "In initialize" << endmsg;
 
   status = m_IOVDbSvc.retrieve();
   if(status.isFailure()) {
-    log << MSG::ERROR << "Could not retrieve IOVDbSvc" << endreq;
+    log << MSG::ERROR << "Could not retrieve IOVDbSvc" << endmsg;
     return status;
   }
 
   const IGeoModelSvc *geoModel=0;
   status = service("GeoModelSvc", geoModel);
   if(status.isFailure()) {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
+    log << MSG::ERROR << "Could not locate GeoModelSvc" << endmsg;
     return status;
   }
 
@@ -74,21 +74,21 @@ StatusCode CaloAlignTool::initialize()
 				larTool,
 				&IGeoAlignTool::align,dynamic_cast<IGeoAlignTool*>(this));
     if(status.isFailure())
-      log << MSG::INFO << "Could not register callback on the folder /LAR/Align. Calo alignments will have no effect" << endreq;
+      log << MSG::INFO << "Could not register callback on the folder /LAR/Align. Calo alignments will have no effect" << endmsg;
     else
-      log << MSG::DEBUG << "Callback registered on the folder /LAR/Align" << endreq;
+      log << MSG::DEBUG << "Callback registered on the folder /LAR/Align" << endmsg;
 
     // Register callback function on the folder /LAR/LArCellPositionShift
     const DataHandle<CaloRec::CaloCellPositionShift> posShift;
     status = detStore()->regFcn(&IGeoAlignTool::align,dynamic_cast<IGeoAlignTool*>(this),
 				posShift,"LArCellPositionShift");
     if(status.isFailure())
-      log << MSG::INFO << "Could not register callback on the folder /LAR/LArCellPositionShift. Sagging corrections will have no effect" << endreq;
+      log << MSG::INFO << "Could not register callback on the folder /LAR/LArCellPositionShift. Sagging corrections will have no effect" << endmsg;
     else 
-      log << MSG::DEBUG << "Callback registered on the folder /LAR/LArCellPositionShift" << endreq;
+      log << MSG::DEBUG << "Callback registered on the folder /LAR/LArCellPositionShift" << endmsg;
 
   } else {
-    log << MSG::DEBUG << "Could not locate LAr Detector Tool. Skipping callback registration" << endreq;
+    log << MSG::DEBUG << "Could not locate LAr Detector Tool. Skipping callback registration" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -109,17 +109,17 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 
   status = detStore()->retrieve(caloMgr);
   if (status.isFailure()) {
-    log << MSG::WARNING << "Unable to retrieve CaloDetDescrManager from DetectorStore. No alignments&sagging for Calo." << endreq;
+    log << MSG::WARNING << "Unable to retrieve CaloDetDescrManager from DetectorStore. No alignments&sagging for Calo." << endmsg;
     return StatusCode::SUCCESS;
   } else 
-    log << MSG::DEBUG << "Successfully retrieved CaloDetDescrManager from the DetectorStore" << endreq;
+    log << MSG::DEBUG << "Successfully retrieved CaloDetDescrManager from the DetectorStore" << endmsg;
 
   const CaloRec::CaloCellPositionShift* posShift = 0;
   status = detStore()->retrieve(posShift,"LArCellPositionShift");
   if(status.isFailure() || posShift==0)
-    log << MSG::WARNING << "Unable to retrieve CaloCellPositionShift. No sagging corrections for Calo" << endreq;
+    log << MSG::WARNING << "Unable to retrieve CaloCellPositionShift. No sagging corrections for Calo" << endmsg;
   else 
-    log << MSG::DEBUG << "Successfully retrieved CaloCellPositionShift from the DetectorStore" << endreq;
+    log << MSG::DEBUG << "Successfully retrieved CaloCellPositionShift from the DetectorStore" << endmsg;
 
   const CaloIdManager* caloId_mgr = caloMgr->getCalo_Mgr();
 
@@ -147,7 +147,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   status = detStore()->retrieve(embManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the EMBDetectorManager. No lignment infromation for EMB" << endreq;
+    log << MSG::WARNING << "Could not get the EMBDetectorManager. No lignment infromation for EMB" << endmsg;
   }
   else
   {     
@@ -178,7 +178,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       default:
 	{
 	  log << MSG::WARNING << "Wrong Side Index for EMB region " << embRegion->getEndcapIndex() 
-	      << ". No alignments for this region" << endreq;
+	      << ". No alignments for this region" << endmsg;
 	  continue;
 	}
       }
@@ -192,7 +192,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       if(embDescr==0)
       {
 	log << MSG::WARNING << "0 pointer to EMBDescriptor " << regId.getString() 
-	    << ". No alignments for this region" << endreq;
+	    << ". No alignments for this region" << endmsg;
 	continue;
       }
 
@@ -224,7 +224,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	  if(embElement==0)
 	  {
 	    log << MSG::DEBUG << "0 pointer to EMBDetectorElement " << chanId.getString()
-		<< ". No alignments for this element" << endreq;
+		<< ". No alignments for this element" << endmsg;
 	    continue;
 	  }
 
@@ -277,7 +277,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   status = detStore()->retrieve(emecManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the EMECDetectorManager. No alignment infromation for EMEC" << endreq;
+    log << MSG::WARNING << "Could not get the EMECDetectorManager. No alignment infromation for EMEC" << endmsg;
   }
   else
   {
@@ -311,7 +311,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       default:
 	{
 	  log << MSG::ERROR << "Wrong Endcap Index for EMEC region " << endcapInd 
-	      << ". No alignments for this region" << endreq;
+	      << ". No alignments for this region" << endmsg;
 	  continue;
 	}
       }// switch(endcapInd)
@@ -331,7 +331,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       default:
 	{
 	  log << MSG::ERROR << "Wrong Radial Index for  EMEC region " << radialInd
-	      << ". No alignments for this region" << endreq;
+	      << ". No alignments for this region" << endmsg;
 	  continue;
 	}
       }// switch(radialInd)
@@ -345,7 +345,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       if(emecDescr==0)
       {
 	log << MSG::WARNING << "0 pointer to EMECDescriptor " << regId.getString() 
-	    << ". No alignments for this region" << endreq;
+	    << ". No alignments for this region" << endmsg;
 	continue;
       }
       
@@ -373,7 +373,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	  if(emecElement==0)
 	  {
 	    log << MSG::DEBUG << "0 pointer to EMECDetectorElement " << chanId.getString()
-		<< ". No alignments for this element" << endreq;
+		<< ". No alignments for this element" << endmsg;
 	    continue;
 	  }
 
@@ -427,7 +427,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   status = detStore()->retrieve(hecManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the HECDetectorManager. No alignment infromation for HEC" << endreq;
+    log << MSG::WARNING << "Could not get the HECDetectorManager. No alignment infromation for HEC" << endmsg;
   }
   else
   {
@@ -453,7 +453,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       if(hecDescr==0)
       {
 	log << MSG::WARNING << "0 pointer to HECDescriptor " << regId.getString() 
-	    << ". No alignments for this region" << endreq;
+	    << ". No alignments for this region" << endmsg;
 	continue;
       }
       
@@ -485,7 +485,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	    if(hecElement==0)
 	    {
 	      log << MSG::DEBUG << "0 pointer to HECDetectorElement " << chanId.getString()
-		  << ". No alignments for this element" << endreq;
+		  << ". No alignments for this element" << endmsg;
 	      continue;
 	    }
 
@@ -539,7 +539,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   status = detStore()->retrieve(fcalManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the FCALDetectorManager. No alignment infromation for FCAL" << endreq;
+    log << MSG::WARNING << "Could not get the FCALDetectorManager. No alignment infromation for FCAL" << endmsg;
   }
   else
   {
@@ -567,7 +567,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       if(fcalDescr==0)
       {
 	log << MSG::WARNING << "0 pointer to FCALDescriptor " << regId.getString() 
-	    << ". No alignments for this region" << endreq;
+	    << ". No alignments for this region" << endmsg;
 	continue;
       }
 
@@ -593,7 +593,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	if(fcalElement==0)
 	{
 	  log << MSG::DEBUG << "0 pointer to FCALDetectorElement " << chanId.getString()
-	      << ". No alignments for this element" << endreq;
+	      << ". No alignments for this element" << endmsg;
 	  continue;
 	}
 
@@ -642,7 +642,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 
   // Clean up StoreGate from conditions objects
   if(m_IOVDbSvc->dropObject("LArCellPositionShift",true)) 
-    log << MSG::DEBUG << "LArCellPositionShift released" << endreq;
+    log << MSG::DEBUG << "LArCellPositionShift released" << endmsg;
 
   return StatusCode::SUCCESS;
 }

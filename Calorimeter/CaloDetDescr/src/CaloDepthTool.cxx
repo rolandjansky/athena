@@ -69,7 +69,7 @@ CaloDepthTool::initialize()
   if ( status.isSuccess( ) ) {
     MsgStream log(m_msgSvc, name() );
     
-    log << MSG::DEBUG << " getting started " << endreq;
+    log << MSG::DEBUG << " getting started " << endmsg;
 
     // Get the Calo geometry
     status = detStore()->retrieve(m_calo_dd);
@@ -80,19 +80,19 @@ CaloDepthTool::initialize()
     StatusCode s=service("ToolSvc",m_toolsvc);
     if(s.isFailure())
       {
-	log<<MSG::FATAL<<"Could not find ToolSvc. Exiting."<<endreq;
+	log<<MSG::FATAL<<"Could not find ToolSvc. Exiting."<<endmsg;
 	return s;
       }
 
     if (m_depth_choice=="") {
     log << MSG::INFO << " CaloDepthTool " << this->name() 
 	<< " successfully initialised, will provide entrance (default)" 
-	<< m_depth_choice << endreq;
+	<< m_depth_choice << endmsg;
     }
     else{
     log << MSG::INFO << " CaloDepthTool " << this->name() 
 	<< " successfully initialised, will provide " 
-	<< m_depth_choice << endreq;
+	<< m_depth_choice << endmsg;
     }
     
 

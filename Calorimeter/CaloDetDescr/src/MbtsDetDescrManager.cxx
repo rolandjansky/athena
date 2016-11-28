@@ -44,7 +44,7 @@ void MbtsDetDescrManager::add(CaloDetDescrElement* element)
     // Issue warning message and don't update map entry
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "MbtsDetDescrManager::add");
-      log << MSG::DEBUG << "Attempt to update map entry for ID=" << element->identify().getString() << ". Skipping" << endreq;
+      log << MSG::DEBUG << "Attempt to update map entry for ID=" << element->identify().getString() << ". Skipping" << endmsg;
     }
   }
 }
