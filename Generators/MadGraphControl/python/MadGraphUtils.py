@@ -193,7 +193,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     # Check if process is NLO or LO
     isNLO=is_NLO_run(proc_dir=proc_dir)
-           
+
     if grid_pack:
         #Running in gridpack mode
         mglog.info('Started generating gridpack at '+str(time.asctime()))
@@ -308,6 +308,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     old_opts.close()
     new_opts.close()
     mglog.info('Make file hacking complete.')
+
+    print_cards(run_card=run_card_loc,param_card=(param_card_loc if param_card_loc is not None else proc_dir+'/Cards/param_card.dat'))
 
     currdir=os.getcwd()
     os.chdir(proc_dir)
@@ -567,6 +569,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         if param_card != gridpack_dir + '/Cards/' + param_card.split('/')[-1]:
             shutil.copy( param_card , gridpack_dir+'/Cards' )
         mglog.info( 'Moved param card into place: '+str(param_card) )
+
+    print_cards(run_card=gridpack_dir+'/Cards/run_card.dat',param_card=gridpack_dir+'/Cards/param_card.dat')
 
     # Work in progress...
     #if card_check:
@@ -1131,21 +1135,25 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
 
     mglog.info('Putting a copy in place for the transform.')
     if hasUnweighted:
-        orig_input = open(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe','r')
+        orig_input = proc_dir+'/Events/'+run_name+'/unweighted_events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
     else:
-        orig_input = open(proc_dir+'/Events/'+run_name+'/events.lhe','r')
+        orig_input = proc_dir+'/Events/'+run_name+'/events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
 
 
     #Removing empty lines in LHE
     nEmpty=0
-    for line in orig_input.readlines():
-        if line.strip():
-            mod_output.write(line)
-        else:
-            nEmpty=nEmpty+1
-    orig_input.close()
+    # Try to do this in a way that uses less memory...
+    # Note that I could do this instead with unix commands:
+    #grep -cvP '\S' orig_input
+    #sed -i '/^$/d' orig_input
+    with open(orig_input,'r') as fileobject:
+        for line in fileobject:
+            if line.strip():
+                mod_output.write(line)
+            else:
+                nEmpty=nEmpty+1
     mod_output.close()
 
     mglog.info('Removed %i empty lines from LHEF.'%nEmpty)
@@ -1768,7 +1776,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','req_acc']
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
                 if ak in excludeList:
                     mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
                     raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
@@ -1821,20 +1829,27 @@ def modify_run_card(run_card='Cards/run_card.dat',
     mglog.info('Finished modification of run card.')
     if delete_backup: os.unlink(run_card_backup)
 
-def print_cards():
-    if os.access('proc_card_mg5.dat',os.R_OK):
-        mglog.info("proc_card_mg5.dat:")
-        procCard = subprocess.Popen(['cat','proc_card_mg5.dat'])
+def print_cards(proc_card='proc_card_mg5.dat',run_card='run_card.dat',param_card='param_card.dat'):
+    if os.access(proc_card,os.R_OK):
+        mglog.info("proc_card:")
+        procCard = subprocess.Popen(['cat',proc_card])
         procCard.wait()
     else:
-        mglog.warning('No proc_card_mg5.dat found')
+        mglog.warning('No proc_card: '+proc_card+' found')
 
-    if os.access('run_card.dat',os.R_OK):
-        mglog.info("run_card.dat:")
-        runCard = subprocess.Popen(['cat','run_card.dat'])
+    if os.access(run_card,os.R_OK):
+        mglog.info("run_card:")
+        runCard = subprocess.Popen(['cat',run_card])
         runCard.wait()
     else:
-        mglog.warning('No run_card.dat found')
+        mglog.warning('No run_card: '+run_card+' found')
+
+    if os.access(param_card,os.R_OK):
+        mglog.info("param_card:")
+        runCard = subprocess.Popen(['cat',param_card])
+        runCard.wait()
+    else:
+        mglog.warning('No param_card: '+param_card+' found')
 
 
 def is_gen_from_gridpack(grid_pack=None):
