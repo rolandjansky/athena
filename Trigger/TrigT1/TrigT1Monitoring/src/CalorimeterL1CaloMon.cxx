@@ -804,21 +804,25 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
       if (em_caloE > 255) em_caloE = 255; //set calo tt energies to saturate
     
       // Comparison of L1Calo (JEP) and Calo 
-      //if (em_L1CaloE>5 || em_caloE>5) {             // KW change OR to AND to remove low-ET noise
+      double emDiffE = 0.;
+      double emRelDiffE = 0.;
+      
+      //if (em_L1CaloE > 5 || em_caloE > 5) { // KW change OR to AND to remove low-ET noise 
       if (em_L1CaloE > 5 && em_caloE > 5) {  
         em_coolId = m_ttTool->channelID(eta, phi, 0);
         bool em_disabled = m_ttTool->disabledChannel(em_coolId);
         if (!em_disabled) {
 	    
-          double emDiffE = em_L1CaloE-em_caloE;
-          double emRelDiffE = 0.;
+          emDiffE = em_L1CaloE-em_caloE;
           
           if (em_caloE != 0) {
             emRelDiffE = emDiffE / em_caloE;
-            m_h_em_profile_Match->Fill(em_L1CaloE, emRelDiffE);
-            m_h_em_profile_etaRegion->Fill(eta, emRelDiffE);                           
-            m_histTool->fillPPMPhi(m_h_em_profile_phiRegion, eta, phi, emRelDiffE);
-	    m_histTool->fillPPMEmEtaVsPhi(m_h_average_emDE_map, eta, phi, emRelDiffE);
+            //if (em_L1CaloE < 255) {
+              m_h_em_profile_Match->Fill(em_L1CaloE, emRelDiffE);
+              m_h_em_profile_etaRegion->Fill(eta, emRelDiffE);                           
+              m_histTool->fillPPMPhi(m_h_em_profile_phiRegion, eta, phi, emRelDiffE);
+	      m_histTool->fillPPMEmEtaVsPhi(m_h_average_emDE_map, eta, phi, emRelDiffE);
+           // }
           }
 
           /*if (em_L1CaloE == 0 && em_caloE > 5) {                                   // KW commenting out for now... will never be filled with new ET cut
@@ -861,21 +865,26 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
       }
 
       // Comparison of L1Calo (CP) and Calo 
+      
+      double emDiffE_CP = 0.;
+      double emRelDiffE_CP = 0.;
+
       //if (em_L1CaloE_CP>5 || em_caloE>5) {
       if (em_L1CaloE_CP > 5 && em_caloE > 5) {            // KW change OR to AND to remove low-ET noise  
         em_coolId = m_ttTool->channelID(eta, phi, 0);
         bool em_disabled = m_ttTool->disabledChannel(em_coolId);
         if (!em_disabled) {
 	    
-          double emDiffE_CP = em_L1CaloE_CP-em_caloE;
-          double emRelDiffE_CP = 0;
+          emDiffE_CP = em_L1CaloE_CP-em_caloE;
           
           if (em_caloE != 0) {
             emRelDiffE_CP = emDiffE_CP / em_caloE;
-            m_h_em_profile_Match_CP->Fill(em_L1CaloE_CP, emDiffE_CP);
-            m_h_em_profile_etaRegion_CP->Fill(eta, emDiffE_CP);
-            m_histTool->fillPPMPhi(m_h_em_profile_phiRegion_CP, eta, phi, emDiffE_CP);
-	    m_histTool->fillPPMEmEtaVsPhi(m_h_average_emDE_map_CP, eta, phi, emDiffE_CP);
+            //if (em_L1CaloE_CP < 255) {  
+              m_h_em_profile_Match_CP->Fill(em_L1CaloE_CP, emRelDiffE_CP);
+              m_h_em_profile_etaRegion_CP->Fill(eta, emRelDiffE_CP);
+              m_histTool->fillPPMPhi(m_h_em_profile_phiRegion_CP, eta, phi, emRelDiffE_CP);
+	      m_histTool->fillPPMEmEtaVsPhi(m_h_average_emDE_map_CP, eta, phi, emRelDiffE_CP);
+           // } 
 	  } 
           /*                                        
           if (em_L1CaloE_CP == 0 && em_caloE > 5) {                              // KW commenting out for now... will never be filled with new ET cut
@@ -996,17 +1005,19 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
           
           if (had_caloE != 0) {
             hadRelDiffE = hadDiffE / had_caloE;
-            m_h_had_profile_Match->Fill(had_L1CaloE, hadRelDiffE);
-            m_h_had_profile_etaRegion->Fill(eta, hadRelDiffE);                           
-            m_histTool->fillPPMPhi(m_h_had_profile_phiRegion, eta, phi, hadRelDiffE);
-	    m_histTool->fillPPMHadEtaVsPhi(m_h_average_hadDE_map, eta, phi, hadRelDiffE);
+            //if (had_L1CaloE < 255) {
+              m_h_had_profile_Match->Fill(had_L1CaloE, hadRelDiffE);
+              m_h_had_profile_etaRegion->Fill(eta, hadRelDiffE);                           
+              m_histTool->fillPPMPhi(m_h_had_profile_phiRegion, eta, phi, hadRelDiffE);
+	      m_histTool->fillPPMHadEtaVsPhi(m_h_average_hadDE_map, eta, phi, hadRelDiffE);
+           // }
           }
 
           /*if (had_L1CaloE == 0 && had_caloE > 5) {           // KW commenting out for now... will never be filled with new ET cut
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi, eta, phi);
           }
           if (had_L1CaloE > 5 && had_caloE == 0) {
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_alt, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_alt, eta, phi);
           }*/
 
           if (absEta < 0.9) {
@@ -1053,16 +1064,18 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
           
           if (had_caloE != 0) {
             hadRelDiffE_CP = hadDiffE_CP / had_caloE;
-            m_h_had_profile_Match_CP->Fill(had_L1CaloE_CP, hadDiffE_CP);
-            m_h_had_profile_etaRegion_CP->Fill(eta, hadDiffE_CP);
-            m_histTool->fillPPMPhi(m_h_had_profile_phiRegion_CP, eta, phi, hadDiffE_CP);
-	    m_histTool->fillPPMEmEtaVsPhi(m_h_average_hadDE_map_CP, eta, phi, hadDiffE_CP);
+            //if (had_L1CaloE_CP < 255) {
+              m_h_had_profile_Match_CP->Fill(had_L1CaloE_CP, hadRelDiffE_CP);
+              m_h_had_profile_etaRegion_CP->Fill(eta, hadRelDiffE_CP);
+              m_histTool->fillPPMPhi(m_h_had_profile_phiRegion_CP, eta, phi, hadRelDiffE_CP);
+	      m_histTool->fillPPMHadEtaVsPhi(m_h_average_hadDE_map_CP, eta, phi, hadRelDiffE_CP);
+           // }
 	  }  
           /*if (had_L1CaloE_CP == 0 && had_caloE > 5) {     // KW commenting out for now... will never be filled with new ET cut
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_CP, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_CP, eta, phi);
           }
           if (had_L1CaloE_CP > 5 && had_caloE == 0) {
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_alt_CP, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_alt_CP, eta, phi);
           }*/
 
           if (absEta < 0.9) {
@@ -1153,7 +1166,7 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
     m_histTool->fillPPMEmEtaVsPhi(m_h_emTTME_etaphi_CP, eta_max_em_CP, phi_max_em_CP);
   }
   if (eta_max_had_CP != -10) {
-    m_histTool->fillPPMEmEtaVsPhi(m_h_hadTTME_etaphi_CP, eta_max_had_CP, phi_max_had_CP);
+    m_histTool->fillPPMHadEtaVsPhi(m_h_hadTTME_etaphi_CP, eta_max_had_CP, phi_max_had_CP);
   }
 
   return StatusCode::SUCCESS;     

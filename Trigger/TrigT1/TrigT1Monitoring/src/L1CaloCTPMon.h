@@ -8,7 +8,8 @@
 // PACKAGE:     TrigT1CaloMonitoring  
 //
 // AUTHOR:      Johanna Fleckner (Johanna.Fleckner@uni-mainz.de)
-//           
+//              Kate Whalen (Run 2 version) <kate.whalen@cern.ch>
+//
 // DESCRIPTION: Monitoring of L1Calo --> CTP transmission
 //
 // ********************************************************************
@@ -41,22 +42,19 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class CMMCPHits;
-class CMMJetHits;
-class CMMEtSums;
 class ITrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
+class TrigT1CaloLWHistogramTool;
 // ============================================================================
 
 /** Monitoring of L1Calo --> CTP transmission
  *
- *  Compares L1Calo data with CTP PIT data.
+ *  Compares L1Calo data with CTP TIP data.
  *
  *  <b>ROOT Histogram Directories:</b>
  *
  *  <table>
  *  <tr><th> Directory              </th><th> Contents                              </th></tr>
- *  <tr><td> @c LVL1_Interfaces/CTP </td><td> L1Calo/CTP PIT matches and mismatches <br>
+ *  <tr><td> @c LVL1_Interfaces/CTP </td><td> L1Calo/CTP TIP matches and mismatches <br>
  *                                            Mismatch event numbers                </td></tr>
  *  </table>
  *
@@ -135,15 +133,13 @@ public:
 private:
 
    /// Hit types for binning
-   enum L1CaloCTPHitTypes { EMType, EMTauType, MainType, ForwardType,
-                            BackwardType, JetEtType, MissingEtType,
-			    SumEtType, MissingEtSigType, NumberOfHitTypes };
+   enum L1CaloCTPHitTypes { EM1Type, EM2Type,                                              // EM1, EM2 cables 
+                            Tau1Type, Tau2Type,                                            // TAU1, TAU2 cables
+                            Jet3BitType, Jet2BitType,                                      // JET1, JET2 cables
+                            TEFullEtaType, XEFullEtaType, XSType,                          // EN1 cable
+                            TERestrictedEtaType, XERestrictedEtaType, NumberOfHitTypes };  // EN2 cable
 
-   typedef DataVector<LVL1::CMMCPHits>  CMMCPHitsCollection;
-   typedef DataVector<LVL1::CMMJetHits> CMMJetHitsCollection;
-   typedef DataVector<LVL1::CMMEtSums>  CMMEtSumsCollection;
-
-   /// Compare L1Calo hits with corresponding PIT hits
+   /// Compare L1Calo hits with corresponding TIP hits
    void compare(const CTP_BC& bunch, int hits, int totalBits, int offset,
                                                L1CaloCTPHitTypes type);
    /// Bin labels for summary plots
@@ -154,15 +150,14 @@ private:
    /// Corrupt events tool
    ToolHandle<ITrigT1CaloMonErrorTool>      m_errorTool;
    /// Histogram utilities tool
-   ToolHandle<TrigT1CaloLWHistogramToolV1>   m_histTool;
+   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
 
    // location of data
-   /// CMMJetHits collection StoreGate key
-   std::string m_CMMJetHitsLocation;
-   /// CMMEtSums collection StoreGate key
-   std::string m_CMMEtSumsLocation;
-   /// CMMCPHits collection StoreGate key
-   std::string m_CMMCPHitsLocation;
+   std::string m_cmxJetHitsLocation;
+   /// CMXEtSums container StoreGate key
+   std::string m_cmxEtSumsLocation;         
+   /// CMX-CP hits container StoreGate key
+   std::string m_cmxCpHitsLocation;
    /// CTP_RDO StoreGate key
    std::string m_CTPRDOLocation;
  
@@ -173,18 +168,32 @@ private:
    /// Histograms booked flag
    bool m_histBooked;
 
-   /// PIT map
-   std::vector<int> m_pitMap;
+   /// TIP map
+   std::vector<std::pair<std::string, int>> m_tipMap;
+
+   /// Number of TIP bits (CTP input)
+   const int m_nTIP = 512; 
+
+   // Number of jet thresholds 
+   const int max_JET_2bit_Threshold_Number = 15; 
+   const int max_JET_3bit_Threshold_Number = 10; 
 
    /** Histos */   
    // Data transmission checks
    TH1F_LW* m_h_ctp_1d_L1CaloNeCTPSummary; ///< Transmission Errors between L1Calo and CTP
    TH1F_LW* m_h_ctp_1d_L1CaloEqCTPSummary; ///< Transmission Matches between L1Calo and CTP
-   TH1F_LW* m_h_ctp_1d_PITMatches;         ///< CTP/L1Calo PIT Matches
-   TH1F_LW* m_h_ctp_1d_HitNoPITMismatch;   ///< L1Calo Hit but no CTP PIT Mismatches
-   TH1F_LW* m_h_ctp_1d_PITNoHitMismatch;   ///< CTP PIT but no L1Calo Hit Mismatches
+   TH1F_LW* m_h_ctp_1d_TIPMatches;         ///< CTP/L1Calo TIP Matches
+   TH1F_LW* m_h_ctp_1d_HitNoTIPMismatch;   ///< L1Calo Hit but no CTP TIP Mismatches
+   TH1F_LW* m_h_ctp_1d_TIPNoHitMismatch;   ///< CTP TIP but no L1Calo Hit Mismatches
    TH2I_LW* m_h_ctp_2d_MismatchEvents;     ///< Transmission Errors between L1Calo and CTP Event Numbers
-
+   TH1F_LW* m_h_ctp_1d_EM_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (EM thresholds
+   TH1F_LW* m_h_ctp_1d_TAU_HitNoTIPMismatch; ///< L1Calo hit but no CTP TIP mismatches (TAU thresholds)
+   TH1F_LW* m_h_ctp_1d_JET_HitNoTIPMismatch; ///< L1Calo hit but no CTP TIP mismatches (JET thresholds)
+   TH1F_LW* m_h_ctp_1d_TE_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (TE thresholds)
+   TH1F_LW* m_h_ctp_1d_XE_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (XE thresholds)
+   TH1F_LW* m_h_ctp_1d_XS_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (XS thresholds)
+   
+   
 };
 // ============================================================================
 }  // end namespace
