@@ -101,7 +101,7 @@ StatusCode MuTagAmbiguitySolverTool::finalize(){
 }
 
 
-  std::vector<  MuonCombined::MuonSegmentInfo >  MuTagAmbiguitySolverTool::solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) {
+  std::vector<  MuonCombined::MuonSegmentInfo >  MuTagAmbiguitySolverTool::solveAmbiguities( std::vector<  MuonCombined::MuonSegmentInfo > mtos ) const {
     //  std::vector<  MuonCombined::MuonSegmentInfo > outputMTOs;
 	ATH_MSG_DEBUG(  "mtos size before any cuts " << mtos.size() );
   // Store the number of segments associated to one track (pointer) 
@@ -357,7 +357,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
 }
 
 
-std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBestMuTaggedSegments( std::vector<  MuonCombined::MuonSegmentInfo > mtss ){
+std::vector<  MuonCombined::MuonSegmentInfo > MuTagAmbiguitySolverTool::selectBestMuTaggedSegments( std::vector<  MuonCombined::MuonSegmentInfo > mtss ) const {
   ATH_MSG_DEBUG( "cleaning set of MTSs" );
   
   std::vector<  MuonCombined::MuonSegmentInfo > outputMTSs;
