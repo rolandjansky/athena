@@ -9,18 +9,18 @@ if [[ $? -eq 0 ]]; then
   echo "ERROR: Subprocess failure detected"
   exit 2
 else  
-  grep -q FATAL athenaMP_workers/worker_*/stdout
+  grep -q FATAL athenaMP_workers/worker_*/AthenaMP.log
   if [[ $? -eq 0 ]]; then
     echo "ERROR: Subprocess FATAL detected"
     exit 2
   fi
-  grep -q ERROR athenaMP_workers/worker_*/stdout
+  grep -q ERROR athenaMP_workers/worker_*/AthenaMP.log
   if [[ $? -eq 0 ]]; then
     echo "ERROR: Subprocess ERROR detected"
     exit 2
   fi
 fi
 
-grep 'Received event' athenaMP_workers/worker_*/stdout
+grep 'Received event' athenaMP_workers/worker_*/AthenaMP.log
 
 
