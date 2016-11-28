@@ -43,7 +43,7 @@ public:
                                      Amg::Transform3D& htrans,double& hphi,
                                      std::vector<double>& radius,  
 				     std::vector<double>& depth, 
-                                     std::vector<double>& hlength )=0;
+                                     std::vector<double>& hlength ) const =0;
   
   /** @brief the enum ALIGNVOL covers all LAr pieces, including cryostats and coil 
    */
@@ -51,10 +51,10 @@ public:
                                  Amg::Transform3D& htrans,double& hphi,
 				 std::vector<double>& z, 
 				 std::vector<double>& depth,
-                                 std::vector<double>& rmin, std::vector<double>& rmax )=0;  
+                                 std::vector<double>& rmin, std::vector<double>& rmax ) const =0;
   /** @brief method for printout
    */ 
-  virtual void print() = 0;
+  virtual void print() const = 0;
 
 };
 
