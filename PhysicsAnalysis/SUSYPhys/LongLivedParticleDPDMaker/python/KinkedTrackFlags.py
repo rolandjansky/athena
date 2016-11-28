@@ -138,6 +138,8 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe110_pufit_L1XE60',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
+        'HLT_xe110_mht_L1XE50',
+        'HLT_xe110_mht_L1XE50_AND_xe70_L1XE50',
         'HLT_xe110_tc_lcw_L1XE60',
         'HLT_xe120',
         'HLT_xe120_mht',
@@ -150,11 +152,15 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_pueta_wEFMu',
         'HLT_xe120_pufit_wEFMu',
         'HLT_xe120_tc_em_wEFMu',
-        'HLT_xe120_tc_lcw_wEFMu'
+        'HLT_xe120_tc_lcw_wEFMu',
+        'HLT_xe130_mht_L1XE50'        
         ]
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
+    cutsEtMinForMultiJets = [150.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV]
+    jetMetPtMin = 40.0*Units.GeV
     cutEtaMax = 3.2
     doLeptonVeto = True
+    requireIsolatedTrack = True
     electronIDKey = "Tight"
     muonIDKey = "Medium"
     leptonPtMax = 20.0*Units.GeV

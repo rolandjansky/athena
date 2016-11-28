@@ -13,6 +13,7 @@
 #include "LongLivedParticleDPDMaker/KinkTrkSingleJetMetFilterTool.h"
 #include "LongLivedParticleDPDMaker/KinkTrkZmumuTagTool.h"
 #include "LongLivedParticleDPDMaker/KinkTrkZeeTagTool.h"
+#include "LongLivedParticleDPDMaker/EmergingJetsFilterTool.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, RpvElectronD0Tool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, RpvMuonD0Tool )
@@ -27,6 +28,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkSingleJetMetFilterTo
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkZmumuTagTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkZeeTagTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, HVJetMETFilterTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, EmergingJetsFilterTool )
 
 DECLARE_FACTORY_ENTRIES( LongLivedParticleDPDMaker ) {
 
@@ -43,5 +45,7 @@ DECLARE_FACTORY_ENTRIES( LongLivedParticleDPDMaker ) {
   DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkZmumuTagTool );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkZmeeagTool );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, HVJetMETFilterTool  );
+  DECLARE_NAMESPACE_TOOL( DerivationFramework, EmergingJetsFilterTool  );
+
 }
 
