@@ -12,16 +12,14 @@
 //package includes
 #include "ISF_Geant4Tools/G4AtlasRunManager.h"
 
+// Barcode classes
+#include "BarcodeInterfaces/IBarcodeSvc.h"
+
 // ISF classes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/ISFParticleVector.h"
 
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-
 // Athena classes
-#include "G4AtlasAlg/PreEventActionManager.h"
-
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
@@ -48,27 +46,22 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
   : AthAlgTool(t,n,p),
-    m_UASvc("UserActionSvc",n),
+    m_useMT(false),
+    m_userActionSvc("",n),
     m_rndmGenSvc("AtDSFMTGenSvc",n),
+    m_barcodeSvc("",n),
+    m_barcodeGenerationIncrement(Barcode::fUndefinedBarcode),
     m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
     m_physListTool("PhysicsListToolBase"),
-    //m_physicsValidationUserAction("iGeant4::PhysicsValidationUserAction/PhysicsValidationUserAction"),
-    //m_trackProcessorUserAction("iGeant4::TrackProcessorUserAction/TrackProcessorUserAction"),
-    //m_mcTruthUserAction("iGeant4::MCTruthUserAction/ISF_MCTruthUserAction"),
-    m_storeGate(0),
     m_mcEventCollectionName("TruthEvent"),
     m_quasiStableParticlesIncluded(false),
     m_worldSolid(0)
-    //, m_particleBroker("ISF_ParticleParticleBroker",n)
-    //, m_particleHelper("ISF::ParticleHelper/ParticleHelper")
-    //, m_configTool("PyAthena::Tool/G4ConfigTool")
 {
 
   declareInterface<ITransportTool>(this);
 
-  //declareProperty( "ParticleBroker" , m_particleBroker  , "ISF Particle Broker Svc");
-  //declareProperty( "ParticleHelper" , m_particleHelper  , "ISF Particle Helper");
-  //declareProperty("Geant4ConfigTool", m_geant4ConfigTool, "Geant4 configuration tool");
+  // the barcode service (used to compute Vertex Barco des)
+  declareProperty("BarcodeSvc",                 m_barcodeSvc           );
 
   declareProperty("McEventCollection",          m_mcEventCollectionName);
 
@@ -85,12 +78,14 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty( "RecordFlux",                m_recordFlux=false);
 
   declareProperty( "PhysicsListTool", m_physListTool);
-  //declareProperty( "PhysicsValidationUserAction",  m_physicsValidationUserAction);
-  //declareProperty( "TrackProcessorUserAction",  m_trackProcessorUserAction);
-  //declareProperty( "MCTruthUserAction",         m_mcTruthUserAction);
-  declareProperty( "G4RunManagerHelper",        m_g4RunManagerHelper);
+  declareProperty( "G4RunManagerHelper", m_g4RunManagerHelper);
   declareProperty( "QuasiStableParticlesIncluded", m_quasiStableParticlesIncluded);
-  declareProperty( "UserActionService",m_UASvc);
+  declareProperty( "UserActionSvc", m_userActionSvc);
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
+
+  // Commands to send to the G4UI
+  declareProperty("G4Commands", m_g4commands);
 
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
@@ -120,36 +115,26 @@ StatusCode iGeant4::G4TransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
 
-//  if (m_physicsValidationUserAction.retrieve().isSuccess())
-//    ATH_MSG_DEBUG("retrieved "<<m_physicsValidationUserAction);
-//  else {
-//    ATH_MSG_DEBUG("Could not get "<<m_physicsValidationUserAction);
-//    return StatusCode::FAILURE;
-//  }
-//  if (m_trackProcessorUserAction.retrieve().isSuccess())
-//    ATH_MSG_DEBUG("retrieved "<<m_trackProcessorUserAction);
-//  else {
-//    ATH_MSG_FATAL("Could not get "<<m_trackProcessorUserAction);
-//    return StatusCode::FAILURE;
-//   }
-//  if (m_mcTruthUserAction.retrieve().isSuccess())
-//    ATH_MSG_DEBUG("retrieved "<<m_mcTruthUserAction);
-//  else {
-//    ATH_MSG_FATAL("Could not get "<<m_mcTruthUserAction);
-//    return StatusCode::FAILURE;
-//   }
-//
-
-  if (m_UASvc.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Could not retrieve UserActionSvc" << m_UASvc );
+  // retrieve BarcodeSvc
+  if ( m_barcodeSvc.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Unable to retrieve BarcodeService. Abort.");
+    return StatusCode::FAILURE;
+  }
+  m_barcodeGenerationIncrement = m_barcodeSvc->particleGenerationIncrement();
+  if (m_barcodeGenerationIncrement == Barcode::fUndefinedBarcode) {
+    ATH_MSG_FATAL( "'Barcode::fUndefinedBarcode' returned as 'BarcodeGenerationIncrement' by BarcodeService. Abort." );
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_userActionSvc.retrieve() );
+  p_runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  if ( svcLocator->service("StoreGateSvc", m_storeGate).isFailure()) {
-    ATH_MSG_WARNING("AthenaHitsCollectionHelper: could not accessStoreGateSvc!");
-    return StatusCode::FAILURE;
+  if(m_useMT) {
+    // Retrieve the python service to trigger its initialization. This is done
+    // here just to make sure things are initialized in the proper order.
+    // Hopefully we can drop this at some point.
+    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
+    ATH_CHECK( pyG4Svc.retrieve() );
   }
 
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -205,6 +190,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
+  // Send UI commands
+  for (auto g4command : m_g4commands){
+    ui->ApplyCommand( g4command );
+  }
+
   ATH_MSG_DEBUG("initalize");
   /*
     if (m_particleBroker.retrieve().isSuccess())
@@ -249,12 +239,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 {
-
-  static PreEventActionManager *preEvent=PreEventActionManager::
-    GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  preEvent->Execute();
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
 
@@ -278,7 +263,7 @@ StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 
   // const DataHandle <TrackRecordCollection> tracks;
 
-  // StatusCode sc = m_storeGate->retrieve(tracks,m_trackCollName);
+  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
 
   // if (sc.isFailure()) {
   //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
@@ -293,10 +278,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 {
   ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
 
-  static PreEventActionManager *preEvent=PreEventActionManager::GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  preEvent->Execute();
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
 
@@ -319,7 +301,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   // const DataHandle <TrackRecordCollection> tracks;
 
-  // StatusCode sc = m_storeGate->retrieve(tracks,m_trackCollName);
+  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
 
   // if (sc.isFailure()) {
   //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
@@ -397,9 +379,10 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
 
   // create new primaries and set them to the vertex
   //  G4double mass =  particle_definition->GetPDGMass();
-  G4double px = gp.momentum().x();
-  G4double py = gp.momentum().y();
-  G4double pz = gp.momentum().z();
+  auto &gpMomentum = gp.momentum();
+  G4double px = gpMomentum.x();
+  G4double py = gpMomentum.y();
+  G4double pz = gpMomentum.z();
 
   G4PrimaryParticle* particle =
     new G4PrimaryParticle(particle_definition,px,py,pz);
@@ -425,6 +408,11 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
                           gp.end_vertex()->position().t() );
     particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
   }
+
+  // Set the user information for this primary to point to the HepMcParticleLink...
+  PrimaryParticleInformation* ppi = new PrimaryParticleInformation(&gp);
+  particle->SetUserInformation(ppi);
+  std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
 
   return particle;
 }
@@ -466,87 +454,87 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
 
   // create new primaries and set them to the vertex
   //  G4double mass =  particle_definition->GetPDGMass();
-  G4double px = isp.momentum().x();
-  G4double py = isp.momentum().y();
-  G4double pz = isp.momentum().z();
+  auto &ispMomentum = isp.momentum();
+  G4double px = ispMomentum.x();
+  G4double py = ispMomentum.y();
+  G4double pz = ispMomentum.z();
 
   G4PrimaryParticle* particle =
     new G4PrimaryParticle(particle_definition,px,py,pz);
 
+  auto truthBinding = isp.getTruthBinding();
+  if (!truthBinding) {
+      G4ExceptionDescription description;
+      description << G4String("getPrimaryParticle: ") + "No ISF::TruthBinding associated with ISParticle (" << isp <<")";
+      G4Exception("iGeant4::TransportTool", "NoISFTruthBinding", FatalException, description);
+      return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
+  HepMC::GenParticle*        genpart = truthBinding->getTruthParticle();
+  HepMC::GenParticle* primaryGenpart = truthBinding->getPrimaryTruthParticle();
+
   // UserInformation
-  PrimaryParticleInformation* ppi=new PrimaryParticleInformation(0,&isp);
+  PrimaryParticleInformation* ppi = new PrimaryParticleInformation(primaryGenpart,&isp);
 
-  ISF::ITruthBinding *truth = isp.truthBinding();
-  // if truth binding exists -> try to retrieve a HepMC::GenParticle from it
+  Barcode::ParticleBarcode barcode = isp.barcode();
+  int regenerationNr = (barcode - barcode%m_barcodeGenerationIncrement)/m_barcodeGenerationIncrement;
+  ppi->SetRegenerationNr(regenerationNr);
 
-  if ( truth) {
-    // GenParticleTruth type gives a HepMC::GenParticle as truthParticle()
-    const ISF::HepMC_TruthBinding *mctruth = dynamic_cast<const ISF::HepMC_TruthBinding* >(truth);
-    if (mctruth) {
-      HepMC::GenParticle* genpart= &(mctruth->truthParticle());
-
-      ppi->SetParticle(genpart);
-      ppi->SetRegenerationNr(0); // // *AS* this may not be true if this is not a real primary particle
-
-      if (genpart->end_vertex()){
+  // if truth binding exists -> try to retrieve the HepMC::GenParticle from it
+  if ( genpart ) {
+    if (genpart->end_vertex()){
+      if(m_quasiStableParticlesIncluded) {
+        ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
+        ATH_MSG_VERBOSE( "Will add the primary particle set on." );
+        ATH_MSG_VERBOSE( "ISF Particle: " << isp );
+        ATH_MSG_VERBOSE( "Primary Particle: " << *genpart );
+        ATH_MSG_VERBOSE("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+      }
+      else {
+        ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
+        ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
+        ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
+        ATH_MSG_WARNING( "particle set on." );
+        ATH_MSG_WARNING( "ISF Particle: " << isp );
+        ATH_MSG_WARNING( "Primary Particle: " << *genpart );
+        ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+      }
+      // Add all necessary daughter particles
+      for (HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
+           iter!=genpart->end_vertex()->particles_out_const_end(); ++iter){
+        G4PrimaryParticle * daught = getPrimaryParticle( **iter );
         if(m_quasiStableParticlesIncluded) {
-          ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
-          ATH_MSG_VERBOSE( "Will add the primary particle set on." );
-          ATH_MSG_VERBOSE( "ISF Particle: " << isp );
-          ATH_MSG_VERBOSE( "Primary Particle: " << *genpart );
-          ATH_MSG_VERBOSE("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+          ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
         }
         else {
-          ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
-          ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
-          ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
-          ATH_MSG_WARNING( "particle set on." );
-          ATH_MSG_WARNING( "ISF Particle: " << isp );
-          ATH_MSG_WARNING( "Primary Particle: " << *genpart );
-          ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
         }
-        // Add all necessary daughter particles
-        for (HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
-             iter!=genpart->end_vertex()->particles_out_const_end(); ++iter){
-          G4PrimaryParticle * daught = getPrimaryParticle( **iter );
+        if(nullptr==(*iter)->end_vertex()) {
           if(m_quasiStableParticlesIncluded) {
-            ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
           }
           else {
-            ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
           }
-          if(NULL==(*iter)->end_vertex()) {
-            if(m_quasiStableParticlesIncluded) {
-              ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
-            }
-            else {
-              ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
-            }
-          }
-          else {
-            if(m_quasiStableParticlesIncluded) {
-              ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
-            }
-            else {
-              ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
-            }
-          }
-          particle->SetDaughter( daught );
         }
-        // Set the lifetime appropriately - this is slow but rigorous, and we
-        //  don't want to end up with something like vertex time that we have
-        //  to validate for every generator on earth...
-        G4LorentzVector lv0 ( genpart->production_vertex()->position().x(),
-                              genpart->production_vertex()->position().y(),
-                              genpart->production_vertex()->position().z(),
-                              genpart->production_vertex()->position().t() );
-        G4LorentzVector lv1 ( genpart->end_vertex()->position().x(),
-                              genpart->end_vertex()->position().y(),
-                              genpart->end_vertex()->position().z(),
-                              genpart->end_vertex()->position().t() );
-        particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
-      } // particle had an end vertex
-    } // Truth binding worked
+        else {
+          if(m_quasiStableParticlesIncluded) {
+            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+          }
+          else {
+            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+          }
+        }
+        particle->SetDaughter( daught );
+      }
+      // Set the lifetime appropriately - this is slow but rigorous, and we
+      //  don't want to end up with something like vertex time that we have
+      //  to validate for every generator on earth...
+      const auto& prodVtx = genpart->production_vertex()->position();
+      const auto& endVtx = genpart->end_vertex()->position();
+      const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+      const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
+      particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
+    } // particle had an end vertex
   } // Truth was detected
 
   particle->SetUserInformation(ppi);
@@ -591,8 +579,8 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
   McEventCollection* mcEventCollection;
 
   // retrieve McEventCollection from storegate
-  if (m_storeGate->contains<McEventCollection>(m_mcEventCollectionName)) {
-    StatusCode status = m_storeGate->retrieve( mcEventCollection, m_mcEventCollectionName);
+  if (evtStore()->contains<McEventCollection>(m_mcEventCollectionName)) {
+    StatusCode status = evtStore()->retrieve( mcEventCollection, m_mcEventCollectionName);
     if (status.isFailure())
       ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_mcEventCollectionName
                        << ". Will create new collection.");

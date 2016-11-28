@@ -6,7 +6,6 @@
 #define ISF_GEANT4TOOLS_G4UA__MCTRUTHUSERACTIONTOOL_H 
 #include "G4AtlasInterfaces/IPreTrackingActionTool.h"
 #include "G4AtlasInterfaces/IPostTrackingActionTool.h"
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "MCTruthUserAction.h"
 
@@ -23,7 +22,7 @@ namespace G4UA{
   
     class MCTruthUserActionTool: 
     public ActionToolBase<MCTruthUserAction>,
-      public IPreTrackingActionTool,  public IPostTrackingActionTool,  public IBeginRunActionTool
+      public IPreTrackingActionTool,  public IPostTrackingActionTool
     {
       
     public:
@@ -35,10 +34,7 @@ namespace G4UA{
       /// Retrieve the postTracking action
       virtual IPostTrackingAction* getPostTrackingAction() override final 
       { return static_cast<IPostTrackingAction*>( getAction() ); }
-      /// Retrieve the BoR action
-      virtual IBeginRunAction* getBeginRunAction() override final 
-      { return static_cast<IBeginRunAction*>( getAction() ); }
-      
+
       /// Query interface for gaudi
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:

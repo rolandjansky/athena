@@ -9,24 +9,24 @@ use Geant4                Geant4-*                External
 use G4AtlasInterfaces     G4AtlasInterfaces-*     Simulation/G4Atlas
 
 private
+use AsgTools		  AsgTools-*		  Control/AthToolSupport
 use AthenaBaseComps       AthenaBaseComps-*       Control
 use AtlasCLHEP            AtlasCLHEP-*            External
 use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
-use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use AtlasHepMC            AtlasHepMC-*            External
 use AtlasROOT             AtlasROOT-*             External
+use BarcodeEvent          BarcodeEvent-*          Simulation/Barcode
 use BarcodeInterfaces     BarcodeInterfaces-*     Simulation/Barcode
 use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
 use GeneratorObjects      GeneratorObjects-*      Generators
-use G4AtlasAlg            G4AtlasAlg-*            Simulation/G4Atlas
 use ISF_Event             ISF_Event-*             Simulation/ISF/ISF_Core
+use ISF_Geant4Event       ISF_Geant4Event-*       Simulation/ISF/ISF_Geant4
 use ISF_Geant4Interfaces  ISF_Geant4Interfaces-*  Simulation/ISF/ISF_Geant4
-use ISF_HepMC_Event       ISF_HepMC_Event-*       Simulation/ISF/ISF_HepMC
 use ISF_Interfaces        ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use MCTruth               MCTruth-*               Simulation/G4Sim
 use SimHelpers            SimHelpers-*            Simulation/G4Sim
 use StoreGate             StoreGate-*             Control
-use CxxUtils         	  CxxUtils-*              Control
+use CxxUtils              CxxUtils-*              Control
 public
 library ISF_Geant4Tools *.cxx components/*.cxx
 apply_pattern component_library

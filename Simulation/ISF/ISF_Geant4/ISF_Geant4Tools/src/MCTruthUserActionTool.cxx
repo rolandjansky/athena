@@ -19,6 +19,8 @@ namespace G4UA{
 
     std::unique_ptr<MCTruthUserAction>  MCTruthUserActionTool::makeAction(){
       ATH_MSG_DEBUG("makeAction");
+      if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
+      else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<MCTruthUserAction>(m_config);
       return std::move(action);
     }
@@ -31,11 +33,6 @@ namespace G4UA{
       }
       if(riid == IPostTrackingActionTool::interfaceID()) {
 	*ppvIf = (IPostTrackingActionTool*) this;
-	addRef();
-	return StatusCode::SUCCESS;
-      }
-      if(riid == IBeginRunActionTool::interfaceID()) {
-	*ppvIf = (IBeginRunActionTool*) this;
 	addRef();
 	return StatusCode::SUCCESS;
       }

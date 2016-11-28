@@ -20,6 +20,7 @@
 #include "G4UImanager.hh"
 #include "G4UserRunAction.hh"
 #include "G4Version.hh"
+#include "G4HCofThisEvent.hh"
 
 //________________________________________________________________________
 iGeant4::G4AtlasRunManager::G4AtlasRunManager()
@@ -30,6 +31,7 @@ iGeant4::G4AtlasRunManager::G4AtlasRunManager()
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListTool("PhysicsListToolBase")
+  , m_userActionSvc("", "G4AtlasRunManager")
 {
 }
 
@@ -39,6 +41,32 @@ iGeant4::G4AtlasRunManager* iGeant4::G4AtlasRunManager::GetG4AtlasRunManager()
   static G4AtlasRunManager* thisManager=0;
   if (!thisManager) thisManager=new G4AtlasRunManager;
   return thisManager;
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::SetUserActionSvc(const std::string& typeAndName)
+{
+  m_userActionSvc.setTypeAndName(typeAndName);
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::Initialize()
+{
+  // Call the base class Initialize method. This will call
+  // InitializeGeometry and InitializePhysics.
+  G4RunManager::Initialize();
+  // Now that the G4 geometry is available, setup the user actions.
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_MSG_INFO("Creating user actions now");
+    if(m_userActionSvc.retrieve().isFailure()) {
+      throw GaudiException("Could not retrieve UserActionSvc",
+                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+    }
+    if(m_userActionSvc->initializeActions().isFailure()) {
+      throw GaudiException("Failed to initialize actions",
+                           "UserActionInitError", StatusCode::FAILURE);
+    }
+  }
 }
 
 //________________________________________________________________________
@@ -106,6 +134,19 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::EndEvent()
 {
+  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+  if(ScM){
+    G4int nPar = ScM->GetNumberOfMesh();
+    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
+    if(HCE && nPar>0){
+      G4int nColl = HCE->GetCapacity();
+      for(G4int i=0;i<nColl;i++)
+        {
+          G4VHitsCollection* HC = HCE->GetHC(i);
+          if(HC) ScM->Accumulate(HC);
+        }
+    }
+  }
   ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
 }
 
@@ -220,7 +261,8 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
   } // Do flux recording
 
   //  kernel->RunInitialization();
-  RunInitialization();
+  // the following line has been commented to solve an early initialization issue. see ATLASSIM-3078
+  //RunInitialization();
   //std::cout<<"*AS* run init <<< "<<std::endl;
   return;
 }
@@ -263,6 +305,15 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
 void iGeant4::G4AtlasRunManager::RunTermination()
 {
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
+  if (m_recordFlux){
+    G4UImanager *ui=G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  }
+
 #if G4VERSION_NUMBER < 1010
   for (size_t itr=0;itr<previousEvents->size();itr++) { delete (*previousEvents)[itr]; }
 #else

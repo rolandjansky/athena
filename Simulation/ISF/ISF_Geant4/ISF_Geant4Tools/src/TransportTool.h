@@ -15,22 +15,25 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "BarcodeEvent/Barcode.h"
+
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
-//#include "G4AtlasInterfaces/IUserAction.h"
+
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>
 
 class G4Event;
-class StoreGateSvc;
 class G4PrimaryParticle;
+
+namespace Barcode {
+  class IBarcodeSvc;
+}
 
 namespace ISF {
   class ISFParticle;
-  //class IParticleBroker;
-  //class IParticleHelper;
 }
 
 namespace HepMC {
@@ -93,22 +96,21 @@ namespace iGeant4
 
     G4AtlasRunManager    * p_runMgr;
 
-    ServiceHandle<G4UA::IUserActionSvc>    m_UASvc;
+    /// Activate multi-threading configuration
+    bool m_useMT;
+    /// user action service 
+    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
 
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
+
     ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
     ToolHandle<IPhysicsListTool> m_physListTool;
     //  ToolHandle<IUserAction> m_physicsValidationUserAction;
     //  ToolHandle<IUserAction> m_trackProcessorUserAction;
     //  ToolHandle<IUserAction> m_mcTruthUserAction;
-
-    //ServiceHandle<ISF::IParticleBroker> m_particleBroker;
-    //ToolHandle<ISF::IParticleHelper> m_particleHelper;
-
-    //ToolHandle<PyAthena::Tool> m_configTool;
-
-    StoreGateSvc* m_storeGate;
 
     std::string m_libList;
     std::string m_physList;
@@ -124,6 +126,9 @@ namespace iGeant4
                                            //simulation
 
     G4VSolid *m_worldSolid;                // the Geant4 world volume solid
+
+    /// Commands to send to the G4 UI
+    std::vector<std::string> m_g4commands;
   };
 
 

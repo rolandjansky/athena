@@ -9,27 +9,22 @@
 // class header
 #include "TrackProcessorUserActionBase.h"
 
-// local package includes
-#include "ISFG4Helpers.h"
-
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/EntryLayer.h"
 
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-
 #include "ISF_Interfaces/IParticleBroker.h"
+
+// ISF Geant4 includes
+#include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -50,257 +45,201 @@
 
 #include <iostream>
 
-iGeant4::TrackProcessorUserActionBase::TrackProcessorUserActionBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : UserActionBase(type,name,parent),
-    m_curTrackID(-999),
-    m_curISP(0)
-{
-    //  declareInterface<IUserAction>(this);
+namespace G4UA {
+
+namespace iGeant4 {
+
+TrackProcessorUserActionBase::TrackProcessorUserActionBase():
+  m_eventInfo(nullptr),
+  m_curBaseISP(nullptr)
+{;
 }
 
-void iGeant4::TrackProcessorUserActionBase::BeginOfEvent(const G4Event*)
+void TrackProcessorUserActionBase::beginOfEvent(const G4Event*)
 {
-  //std::cout<<"clearing ISFParticle map"<<std::endl;
-  m_curISP     =    0;
-  m_curTrackID = -999;
+  m_curBaseISP = nullptr;
+  m_eventInfo = ::iGeant4::ISFG4Helper::getEventInformation();
+  return;
 }
 
-void iGeant4::TrackProcessorUserActionBase::Step(const G4Step* aStep)
+void TrackProcessorUserActionBase::endOfEvent(const G4Event*)
 {
-  G4Track*           aTrack   = aStep->GetTrack();
-  int               aTrackID  = aTrack->GetTrackID();
+  m_curBaseISP = nullptr;
+  m_eventInfo = nullptr;
+  return;
+}
 
-  // update m_curISP if TrackID has changed or current ISP is unset
-  if ( aTrackID!=m_curTrackID || !m_curISP ){
-    m_curTrackID = aTrackID;
-
-    // get link to last ISFParticle from G4Track user information
-    G4VUserTrackInformation *g4TrackInfo = aTrack->GetUserInformation();
-    VTrackInformation       *trackInfo   = dynamic_cast<VTrackInformation*>( g4TrackInfo );
-    const ISF::ISFParticle  *attachedISFP = (trackInfo) ? trackInfo->GetISFParticle() : 0;
-    m_curISP = const_cast<ISF::ISFParticle*>( attachedISFP );
-
-    if ( !m_curISP ) {
-      //ELLI ATH_MSG_ERROR("No corresponding ISFParticle link found for current G4Track (TrackID=="<< m_curTrackID << ") !");
-      G4ExceptionDescription description;
-      description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
-                  << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
-                  << ", parentID " << aTrack->GetParentID() << ")";
-      G4Exception("iGeant4::TrackProcessorUserActionPassBack", "NoISFParticle", FatalException, description);
-      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-    }
-  }
-
+void TrackProcessorUserActionBase::processStep(const G4Step* aStep)
+{
   // get geoID from parent
-  //ELLI AtlasDetDescr::AtlasRegion curGeoID = m_curISP->nextGeoID();
-  //ELLI ATH_MSG_DEBUG( "Currently simulating TrackID = " << m_curTrackID <<
-  //ELLI                " inside geoID = " << curGeoID );
+  //TODO ELLI AtlasDetDescr::AtlasRegion curGeoID = m_curBaseISP->nextGeoID();
+  //TODO ELLI ATH_MSG_DEBUG( "Currently simulating TrackID = " << aStep->GetTrack()->GetTrackID() <<
+  //TODO ELLI                " inside geoID = " << curGeoID );
 
   //
   // call the ISFSteppingAction method of the implementation
-  // 
-  ISFSteppingAction( aStep, m_curISP );
+  //
+  ISFSteppingAction( aStep, m_curBaseISP );
 
   //
   // propagate the current ISFParticle link to all secondaries
   //
-  const std::vector<const G4Track*> *secondaryVector = aStep->GetSecondaryInCurrentStep();
-  for ( const G4Track* aConstSecondaryTrack : *secondaryVector ) {
+  const std::vector<const G4Track*>  *secondaryVector = aStep->GetSecondaryInCurrentStep();
+  for ( auto* aConstSecondaryTrack : *secondaryVector ) {
     // get a non-const G4Track for current secondary (nasty!)
-    G4Track *aSecondaryTrack = const_cast<G4Track*>( aConstSecondaryTrack );
+    G4Track* aSecondaryTrack = const_cast<G4Track*>( aConstSecondaryTrack );
 
-    ISFG4Helpers::linkG4TrackToISFParticle( *aSecondaryTrack, m_curISP );
+    auto *trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aSecondaryTrack);
+
+    // G4Tracks aready returned to ISF will have a TrackInformation attached to them
+    bool particleReturnedToISF = trackInfo && trackInfo->GetReturnedToISF();
+    if (!particleReturnedToISF) {
+      HepMC::GenParticle* generationZeroTruthParticle = nullptr;
+      ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aSecondaryTrack,
+                                                *m_curBaseISP,
+                                                Secondary,
+                                                generationZeroTruthParticle );
+    }
+  } // <- loop over secondaries from this step
+
+  return;
+}
+
+void TrackProcessorUserActionBase::preTracking(const G4Track* aTrack)
+{
+  bool isPrimary = ! aTrack->GetParentID();
+  if (isPrimary) {
+    G4Track* nonConstTrack = const_cast<G4Track*> (aTrack); // love it :)
+    setupPrimary(*nonConstTrack);
+  } else {
+    setupSecondary(*aTrack);
   }
 
   return;
 }
 
-void iGeant4::TrackProcessorUserActionBase::PreTracking(const G4Track* aTrack)
+void TrackProcessorUserActionBase::setupPrimary(G4Track& aTrack)
 {
-  G4Track* inT = const_cast<G4Track*> (aTrack);
-  TrackHelper trackHelper(inT);
-
-  EventInformation* eventInfo = static_cast<EventInformation*>
-    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-
-  if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary()) {
-    HepMC::GenParticle* part=const_cast<HepMC::GenParticle*>(trackHelper.GetTrackInformation()->
-                                                             GetHepMCParticle());
-
-    if (trackHelper.IsPrimary()) eventInfo->SetCurrentPrimary(part);
-
-    eventInfo->SetCurrentlyTraced(part);
-  }
-
-  // see if primary particle
-  int pID = aTrack->GetParentID();
-  bool isPrimary = !pID;
-
-  if (!isPrimary) return;
-
   //
   // Get PrimaryParticleInformation from G4PrimaryParticle (assigned by TransportTool::addPrimaryVertex)
-  // The ISFParticle should always exist, and the HepMC::GenParticle should exist if a primary EvGen particle (secondaries passed from G4 back to ISF for subsequent processing with G4 will have null pointer for HepMC::GenParticle)
   //
 
-  PrimaryParticleInformation* ppInfo = dynamic_cast <PrimaryParticleInformation*> (aTrack->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation());
-  if (!ppInfo) {
-      G4ExceptionDescription description;
-      description << G4String("PreUserTrackingAction: ") + "NULL PrimaryParticleInformation pointer for current G4Step (trackID "
-                  << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
-                  << ", parentID " << aTrack->GetParentID() << ")";
-      G4Exception("iGeant4::TrackProcessorUserActionBase", "NoPPInfo", FatalException, description);
-      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(aTrack);
+  if ( trackInfo ) {
+    G4ExceptionDescription description;
+    description << G4String("PreUserTrackingAction: ")
+                << "Started simulation of primary particle which already has a TrackInformation/TrackBarcodeInfo object attached (trackID: "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserActionBase", "TrackInformationAlreadyExists", FatalException, description);
+    return; // The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
-  // get parent
-  const ISF::ISFParticle *parent = ppInfo->GetISFParticle();
 
-  //ELLI if (!parent) {ATH_MSG_ERROR("no ISFParticle in PrimaryParticleInformation for "<<aTrack->GetTrackID()<<"!");}
+  auto* ppInfo = dynamic_cast <PrimaryParticleInformation*> (aTrack.GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation());
+  if (!ppInfo) {
+    G4ExceptionDescription description;
+    description << G4String("PreUserTrackingAction: ") + "NULL PrimaryParticleInformation pointer for current G4Step (trackID "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserActionBase", "NoPPInfo", FatalException, description);
+    return; // The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
 
-  // Set the event info properly
-  eventInfo->SetCurrentISFPrimary(parent);
+  // get base ISFParticle and link to TrackInformation
+  auto* baseISP = ppInfo->GetISFParticle();
+  if (!baseISP) {
+    G4ExceptionDescription description;
+    description << G4String("PreUserTrackingAction: ") + "No ISFParticle associated with primary particle (trackID: "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserActionBase", "NoISFParticle", FatalException, description);
+    return; // The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
 
-  // store the link to the ISFParticle inside the G4Track
-  G4Track *aTrackNonConst = const_cast<G4Track*>( aTrack );
-  ISFG4Helpers::linkG4TrackToISFParticle( *aTrackNonConst, parent );
+  auto* truthBinding = baseISP->getTruthBinding();
+  if (!truthBinding) {
+    G4ExceptionDescription description;
+    description << G4String("PreUserTrackingAction: ") + "No ISF::TruthBinding associated with primary particle (trackID: "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserActionBase", "NoISFTruthBinding", FatalException, description);
+    return; // The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
 
+  int regenerationNr = ppInfo->GetRegenerationNr();
+  auto* primaryTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto* generationZeroTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto* currentlyTracedHepPart = truthBinding->getTruthParticle();
+  auto classification = classify(primaryTruthParticle,
+                                 generationZeroTruthParticle,
+                                 currentlyTracedHepPart,
+                                 regenerationNr);
+
+  auto* newTrackInfo = ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track(aTrack,
+                                                                 *baseISP,
+                                                                 classification,
+                                                                 generationZeroTruthParticle );
+  newTrackInfo->SetRegenerationNr(regenerationNr);
+
+  setCurrentParticle(const_cast<ISF::ISFParticle*>(baseISP),
+                     primaryTruthParticle,
+                     currentlyTracedHepPart);
   return;
 }
 
-
-StatusCode iGeant4::TrackProcessorUserActionBase::queryInterface(const InterfaceID& riid, void** ppvInterface)
+void TrackProcessorUserActionBase::setupSecondary(const G4Track& aTrack)
 {
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
+  auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(aTrack);
+
+  // why does TrackInformation return *const* GenParticle and ISFParticle objects!?
+  auto* currentlyTracedTruthParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetHepMCParticle() );
+  auto* primaryTruthParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetPrimaryHepMCParticle() );
+  auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+
+  setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
+  return;
+}
+
+void TrackProcessorUserActionBase::setCurrentParticle(ISF::ISFParticle* baseISFParticle,
+                                                      HepMC::GenParticle* truthPrimary,
+                                                      HepMC::GenParticle* truthCurrentlyTraced)
+{
+  m_curBaseISP = baseISFParticle;
+  m_eventInfo->SetCurrentPrimary( truthPrimary );
+  m_eventInfo->SetCurrentlyTraced( truthCurrentlyTraced );
+  return;
+}
+
+/// Classify the particle represented by the given set of truth links
+TrackClassification TrackProcessorUserActionBase::classify(const HepMC::GenParticle* primaryTruthParticle,
+                                                           const HepMC::GenParticle* generationZeroTruthParticle,
+                                                           const HepMC::GenParticle* currentlyTracedHepPart,
+                                                           int regenerationNumber) const
+{
+  // if particle points to a non-zero truth particle it can not just be a 'simple' Secondary
+  if (currentlyTracedHepPart) {
+    if (currentlyTracedHepPart==primaryTruthParticle) {
+      return Primary;
+    }
+    else if (generationZeroTruthParticle==primaryTruthParticle && regenerationNumber>0) {
+      return RegeneratedPrimary;
+    }
+    else {
+      return RegisteredSecondary;
+    }
   }
-  return StatusCode::SUCCESS;
+
+  return Secondary;
 }
 
 
-namespace G4UA{
 
-  namespace iGeant4{
+void TrackProcessorUserActionBase::postTracking(const G4Track*)
+{
+  m_curBaseISP = nullptr;
+  return;
+}
 
-    TrackProcessorUserActionBase::TrackProcessorUserActionBase():  m_curTrackID(-999),
-    m_curISP(0){;
-    }
+} // namespace iGeant4
 
-
-    void TrackProcessorUserActionBase::preTracking(const G4Track* aTrack){
-      
-      G4Track* inT = const_cast<G4Track*> (aTrack);
-      TrackHelper trackHelper(inT);
-      
-      EventInformation* eventInfo = static_cast<EventInformation*>
-	(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-      
-      if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary()) {
-	HepMC::GenParticle* part=const_cast<HepMC::GenParticle*>(trackHelper.GetTrackInformation()->
-								 GetHepMCParticle());
-	
-	if (trackHelper.IsPrimary()) eventInfo->SetCurrentPrimary(part);
-	
-	eventInfo->SetCurrentlyTraced(part);
-      }
-      
-      // see if primary particle
-      int pID = aTrack->GetParentID();
-      bool isPrimary = !pID;
-
-      if (!isPrimary) return;
-
-      //
-      // Get PrimaryParticleInformation from G4PrimaryParticle (assigned by TransportTool::addPrimaryVertex)
-      // The ISFParticle should always exist, and the HepMC::GenParticle should exist if a primary EvGen particle (secondaries passed from G4 back to ISF for subsequent processing with G4 will have null pointer for HepMC::GenParticle)
-      //
-      
-      PrimaryParticleInformation* ppInfo = dynamic_cast <PrimaryParticleInformation*> (aTrack->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation());
-      if (!ppInfo) {
-	G4ExceptionDescription description;
-	description << G4String("PreUserTrackingAction: ") + "NULL PrimaryParticleInformation pointer for current G4Step (trackID "
-		    << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
-		    << ", parentID " << aTrack->GetParentID() << ")";
-	G4Exception("iGeant4::TrackProcessorUserActionBase", "NoPPInfo", FatalException, description);
-	return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-      }
-      // get parent
-      const ISF::ISFParticle *parent = ppInfo->GetISFParticle();
-      
-      //ELLI if (!parent) {ATH_MSG_ERROR("no ISFParticle in PrimaryParticleInformation for "<<aTrack->GetTrackID()<<"!");}
-      
-      // Set the event info properly
-      eventInfo->SetCurrentISFPrimary(parent);
-      
-      // store the link to the ISFParticle inside the G4Track
-      G4Track *aTrackNonConst = const_cast<G4Track*>( aTrack );
-      ::iGeant4::ISFG4Helpers::linkG4TrackToISFParticle( *aTrackNonConst, parent );
-      
-      return;
-     
-    }
-    
-    void TrackProcessorUserActionBase::processStep(const G4Step* aStep){
-      G4Track*           aTrack   = aStep->GetTrack();
-      int               aTrackID  = aTrack->GetTrackID();
-      
-      // update m_curISP if TrackID has changed or current ISP is unset
-      if ( aTrackID!=m_curTrackID || !m_curISP ){
-	m_curTrackID = aTrackID;
-	
-	// get link to last ISFParticle from G4Track user information
-	G4VUserTrackInformation *g4TrackInfo = aTrack->GetUserInformation();
-	VTrackInformation       *trackInfo   = dynamic_cast<VTrackInformation*>( g4TrackInfo );
-	const ISF::ISFParticle  *attachedISFP = (trackInfo) ? trackInfo->GetISFParticle() : 0;
-	m_curISP = const_cast<::ISF::ISFParticle*>( attachedISFP );
-	
-	if ( !m_curISP ) {
-	  //ELLI ATH_MSG_ERROR("No corresponding ISFParticle link found for current G4Track (TrackID=="<< m_curTrackID << ") !");
-	  G4ExceptionDescription description;
-	  description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
-		      << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
-		      << ", parentID " << aTrack->GetParentID() << ")";
-	  G4Exception("iGeant4::TrackProcessorUserActionPassBack", "NoISFParticle", FatalException, description);
-	  return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-	}
-      }
-      
-      // get geoID from parent
-      //ELLI AtlasDetDescr::AtlasRegion curGeoID = m_curISP->nextGeoID();
-      //ELLI ATH_MSG_DEBUG( "Currently simulating TrackID = " << m_curTrackID <<
-      //ELLI                " inside geoID = " << curGeoID );
-      
-      //
-      // call the ISFSteppingAction method of the implementation
-      // 
-      ISFSteppingAction( aStep, m_curISP );
-      
-      //
-      // propagate the current ISFParticle link to all secondaries
-      //
-      const std::vector<const G4Track*> *secondaryVector = aStep->GetSecondaryInCurrentStep();
-      for ( const G4Track* aConstSecondaryTrack : *secondaryVector ) {
-	// get a non-const G4Track for current secondary (nasty!)
-	G4Track *aSecondaryTrack = const_cast<G4Track*>( aConstSecondaryTrack );
-	
-	::iGeant4::ISFG4Helpers::linkG4TrackToISFParticle( *aSecondaryTrack, m_curISP );
-      }
-      
-      return;
-      
-      
-    }
-    
-    void TrackProcessorUserActionBase::beginOfEvent(const G4Event*){
-      m_curISP     =    0;
-      m_curTrackID = -999;
-    }
-    
-    
-  } // iGeant4
-  
-  
-} // namespace G4UA 
+} // namespace G4UA
