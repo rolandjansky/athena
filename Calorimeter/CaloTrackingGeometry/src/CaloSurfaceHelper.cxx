@@ -33,20 +33,20 @@ CaloSurfaceHelper::CaloSurfaceHelper(const std::string& type,
 				       const std::string& name,
 				       const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_surfBuilder("CaloSurfaceBuilder"),
-  m_mbtsSurfs()
+  m_surfBuilder("CaloSurfaceBuilder")
+  //m_mbtsSurfs()
 {
   declareInterface<ICaloSurfaceHelper>( this );
 
   declareProperty ("CaloSurfaceBuilder",         m_surfBuilder);
 
-  m_mbtsSurfs=std::pair<const Trk::Surface*,const Trk::Surface*> (0,0); 
+  //m_mbtsSurfs=std::pair<const Trk::Surface*,const Trk::Surface*> (0,0); 
 }
 
 CaloSurfaceHelper::~CaloSurfaceHelper()
 {
-  delete m_mbtsSurfs.first; 
-  delete m_mbtsSurfs.second; 
+  //delete m_mbtsSurfs.first; 
+  //delete m_mbtsSurfs.second; 
 }
 
 StatusCode
@@ -102,6 +102,7 @@ const Trk::Surface& CaloSurfaceHelper::GetExitSurface (const CaloCell_ID::CaloSa
   return *surf;
 }
 
+#if 0
 const Trk::Surface& CaloSurfaceHelper::GetMBTSSurface(int side) {
 
   const Trk::Surface* surf = side>0 ? m_mbtsSurfs.first : m_mbtsSurfs.second;
@@ -110,6 +111,7 @@ const Trk::Surface& CaloSurfaceHelper::GetMBTSSurface(int side) {
   return *surf;
 
 }
+#endif
 
 void CaloSurfaceHelper::get_flat_surfaces() {
 

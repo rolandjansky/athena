@@ -44,9 +44,11 @@ class ICaloSurfaceHelper : virtual public IAlgTool {
   /** Layer exit */
   virtual const Trk::Surface& GetExitSurface (const CaloCell_ID::CaloSample sample, int side=0) = 0;
 
+#if 0
   /** MBTS surfaces */
   virtual const Trk::Surface& GetMBTSSurface(int side=0) = 0;
   virtual void LoadMBTSSurfaces(std::pair<const Trk::Surface*,const Trk::Surface*>) = 0;
+#endif
 
   /** Girder exit */
   //virtual const Trk::Surface& GetGirderExitSurface() = 0;
