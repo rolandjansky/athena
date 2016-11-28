@@ -127,7 +127,7 @@ void InDet::InDetCosmicsEventPhaseTool::beginRun()
 }
 
 
-double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Track const * track )
+double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Track const * track ) const
 {
   ATH_MSG_DEBUG( "Finding phase..." );
   
@@ -143,13 +143,11 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Track const * track )
   double timeresidualsum = 0;
   size_t ntrthits = 0;  
 
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
-  for( ; trackStateItr!= trackStateEnd; ++trackStateItr )
+  for (Trk::TrackStateOnSurface const * state : *track->trackStateOnSurfaces())
     {
-      Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
+      Trk::MeasurementBase const * mesb = state->measurementOnTrack();
       if(  !mesb
-	|| !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) 
+	|| !state->type(Trk::TrackStateOnSurface::Measurement) 
 	) 
 	continue;
       
@@ -177,7 +175,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Track const * track )
       if (m_gett0)
 	rtr = m_trtconddbsvc->getRtRelation(ident) ;
       
-      Trk::TrackParameters const * tparp=((*trackStateItr)->trackParameters());
+      Trk::TrackParameters const * tparp=(state->trackParameters());
       if( !tparp )
 	continue;
 
@@ -208,7 +206,7 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Track const * track )
 }
 
 
-double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Segment const * segment)
+double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Segment const * segment) const
 {
   std::vector<float> data(4);
   data.push_back(0.); //0 0.1 -0.00087 0
@@ -268,20 +266,18 @@ double InDet::InDetCosmicsEventPhaseTool::findPhase( Trk::Segment const * segmen
 }
 
 
-double InDet::InDetCosmicsEventPhaseTool::findPhaseFromTE(Trk::Track const * track)
+double InDet::InDetCosmicsEventPhaseTool::findPhaseFromTE(Trk::Track const * track) const
 {
   ATH_MSG_DEBUG( "Finding phase..." );
   
   double timeresidualsum = 0;
   size_t ntrthits = 0;  
   
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
-  for( ; trackStateItr!= trackStateEnd; ++trackStateItr)
+  for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces())
     {
-      Trk::MeasurementBase const * mesb=(*trackStateItr)->measurementOnTrack();
+      Trk::MeasurementBase const * mesb=state->measurementOnTrack();
       if(  !mesb 
-	|| !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement)
+	|| !state->type(Trk::TrackStateOnSurface::Measurement)
 	) 
 	continue;
       

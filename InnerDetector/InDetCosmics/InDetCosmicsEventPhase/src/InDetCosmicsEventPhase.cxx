@@ -76,10 +76,10 @@ namespace InDet
 
 // Sasa Nov 30
 
-    const TRT_ID *m_TRTHelper; 
-    StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
+    const TRT_ID *TRTHelper; 
+    StatusCode sc = detStore()->retrieve(TRTHelper, "TRT_ID");
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endreq;
+      msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endmsg;
       return sc;
     }
 
@@ -108,16 +108,14 @@ namespace InDet
 
           int nTRTbarrelHits = 0;
           Trk::Track const * track = *trackIt;
-          std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
-          std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
-          for( ; trackStateItr!= trackStateEnd; ++trackStateItr ) {
+          for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces()) {
 
-            Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
-            if (!mesb || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) ) continue;
+            Trk::MeasurementBase const * mesb = state->measurementOnTrack();
+            if (!mesb || !state->type(Trk::TrackStateOnSurface::Measurement) ) continue;
             InDet::TRT_DriftCircleOnTrack const * trtcirc = dynamic_cast<InDet::TRT_DriftCircleOnTrack const *>(mesb);
             if( !trtcirc ) continue;
             Identifier const & id = trtcirc->identify();
-            if (abs(m_TRTHelper->barrel_ec(id))!=1) continue;
+            if (abs(TRTHelper->barrel_ec(id))!=1) continue;
             nTRTbarrelHits++;
           }
 

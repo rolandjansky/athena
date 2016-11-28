@@ -27,13 +27,13 @@ namespace InDet
     virtual void beginRun()=0; 
 
     /** finds event phase of a track from the leading edge */
-    virtual double findPhase(const Trk::Track *track)=0;
+    virtual double findPhase(const Trk::Track *track) const =0;
 
     /** finds event phase of a segment from the leading edge */
-    virtual double findPhase(const Trk::Segment *segment)=0;
+    virtual double findPhase(const Trk::Segment *segment) const =0;
 
     /** finds event phase of a track from the trailing edge */
-    virtual double findPhaseFromTE(const Trk::Track *track)=0;
+    virtual double findPhaseFromTE(const Trk::Track *track) const =0;
 
   };
 
