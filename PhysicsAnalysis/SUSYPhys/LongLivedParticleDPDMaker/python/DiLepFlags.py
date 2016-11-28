@@ -13,7 +13,7 @@ class DiLep_FilterFlags(JobProperty):
     StoredValue   = True
     
     SiPhTriggers  = ["HLT_g140_loose"]
-    DiPhTriggers  = ["HLT_2g50_loose"]
+    DiPhTriggers  = ["HLT_2g50_loose", "2g60_loose_L12EM15VH"]
     SiMuTriggers  = ["HLT_mu60_0eta105_msonly"]
     
     ElEtaMax      = 2.5

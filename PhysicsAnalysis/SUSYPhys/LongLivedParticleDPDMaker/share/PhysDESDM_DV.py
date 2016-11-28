@@ -320,7 +320,7 @@ DVMETFilterTool = DerivationFramework__DVMissingETFilterTool(name = "DVMETFilter
 ToolSvc+=DVMETFilterTool
 
 DV_METFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_METFinalFilter",
-                                                               FilterList=[DVMETFilterTool,DVCombinedTracklessJetFilterToolForMET,DVMETTriggerFilter],
+                                                               FilterList=[DVMETFilterTool,DVMETTriggerFilter],
 ##                                                               OutputLevel=DEBUG
                                                                )
 ToolSvc += DV_METFinalFilter

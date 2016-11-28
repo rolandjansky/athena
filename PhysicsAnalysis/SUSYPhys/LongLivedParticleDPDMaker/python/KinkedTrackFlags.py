@@ -23,10 +23,10 @@ primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
 class KinkedTrack_containerFlags(JobProperty):
     statusOn = True
-    jetCollectionName = "AntiKt4LCTopoJets"
+    jetCollectionName = "AntiKt4EMTopoJets"
     electronCollectionName = "Electrons"
     muonCollectionName = "Muons"
-    METCollectionName = "MET_Reference_AntiKt4LCTopo"
+    METCollectionName = "MET_Reference_AntiKt4EMTopo"
     METTermName = "FinalTrk" # or "FinalClus" ??
     egClusterCollectionName = "egammaClusters"
     msTrackCollectionName = "MuonSpectrometerTrackParticles"
@@ -38,21 +38,134 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        "HLT_j80_xe80_dphi10_L1J40_DPHI-J20s2XE50",
-        "HLT_j80_xe80_dphi10_L1J40_DPHI-J20XE50",
-        "HLT_j100_xe80_dphi10_L1J40_DPHI-J20s2XE50",
-        "HLT_j100_xe80_dphi10_L1J40_DPHI-J20XE50",
-        "HLT_j80_xe80",
-        "HLT_j100_xe80"
+        'HLT_xe80_L1XE50',
+        'HLT_xe80_tc_lcw_L1XE50',
+        'HLT_xe80_tc_em_L1XE50',
+        'HLT_xe80_mht_L1XE50',
+        'HLT_xe80_pueta_L1XE50',
+        'HLT_xe80_pufit_L1XE50',
+        'HLT_xe80_wEFMu_L1XE50',
+        'HLT_xe80_tc_lcw_wEFMu_L1XE50',
+        'HLT_xe80_tc_em_wEFMu_L1XE50',
+        'HLT_xe80_mht_wEFMu_L1XE50',
+        'HLT_xe80_pueta_wEFMu_L1XE50',
+        'HLT_xe80_pufit_wEFMu_L1XE50',
+        'HLT_xe80',
+        'HLT_xe80_tc_lcw',
+        'HLT_xe80_tc_em',
+        'HLT_xe80_mht',
+        'HLT_xe80_pueta',
+        'HLT_xe80_pufit',
+        'HLT_xe80_wEFMu',
+        'HLT_xe80_tc_lcw_wEFMu',
+        'HLT_xe80_tc_em_wEFMu',
+        'HLT_xe80_mht_wEFMu',
+        'HLT_xe80_pueta_wEFMu',
+        'HLT_xe80_pufit_wEFMu',
+        'HLT_xe80_L1XE70',
+        'HLT_xe80_tc_lcw_L1XE70',
+        'HLT_xe80_tc_em_L1XE70',
+        'HLT_xe80_mht_L1XE70',
+        'HLT_xe80_pueta_L1XE70',
+        'HLT_xe80_pufit_L1XE70',
+        'HLT_xe80_wEFMu_L1XE70',
+        'HLT_xe80_tc_lcw_wEFMu_L1XE70',
+        'HLT_xe80_tc_em_wEFMu_L1XE70',
+        'HLT_xe80_mht_wEFMu_L1XE70',
+        'HLT_xe80_pueta_wEFMu_L1XE70',
+        'HLT_xe80_pufit_wEFMu_L1XE70',
+        'HLT_xe90_L1XE50',
+        'HLT_xe90_tc_lcw_L1XE50',
+        'HLT_xe90_mht_L1XE50',
+        'HLT_xe90_tc_em_L1XE50',
+        'HLT_xe90_wEFMu_L1XE50',
+        'HLT_xe90_tc_lcw_wEFMu_L1XE50',
+        'HLT_xe90_mht_wEFMu_L1XE50',
+        'HLT_xe90_tc_em_wEFMu_L1XE50',
+        'HLT_xe90_pueta_L1XE50',
+        'HLT_xe90_L1XE60',
+        'HLT_xe90_mht',
+        'HLT_xe90_mht_L1XE60',
+        'HLT_xe90_mht_wEFMu',
+        'HLT_xe90_pueta',
+        'HLT_xe90_pueta_L1XE60',
+        'HLT_xe90_pueta_wEFMu',
+        'HLT_xe90_pufit',
+        'HLT_xe90_pufit_L1XE60',
+        'HLT_xe90_pufit_wEFMu',
+        'HLT_xe90_tc_em',
+        'HLT_xe90_tc_em_wEFMu',
+        'HLT_xe90_tc_lcw',
+        'HLT_xe90_tc_lcw_L1XE60',
+        'HLT_xe90_tc_lcw_wEFMu',
+        'HLT_xe90_wEFMu',
+        'HLT_xe100',
+        'HLT_xe100_L1XE60',
+        'HLT_xe100_mht_L1XE60',
+        'HLT_xe100_tc_lcw_L1XE60',
+        'HLT_xe100_L1XE50',
+        'HLT_xe100_L1XE80',
+        'HLT_xe100_tc_lcw',
+        'HLT_xe100_tc_lcw_L1XE50',
+        'HLT_xe100_tc_lcw_L1XE80',
+        'HLT_xe100_tc_em',
+        'HLT_xe100_tc_em_L1XE50',
+        'HLT_xe100_tc_em_L1XE80',
+        'HLT_xe100_mht',
+        'HLT_xe100_mht_L1XE50',
+        'HLT_xe100_mht_L1XE80',
+        'HLT_xe100_pueta',
+        'HLT_xe100_pueta_L1XE80',
+        'HLT_xe100_pufit',
+        'HLT_xe100_pufit_L1XE80',
+        'HLT_xe100_wEFMu',
+        'HLT_xe100_wEFMu_L1XE50',
+        'HLT_xe100_wEFMu_L1XE80',
+        'HLT_xe100_tc_lcw_wEFMu',
+        'HLT_xe100_tc_lcw_wEFMu_L1XE50',
+        'HLT_xe100_tc_lcw_wEFMu_L1XE80',
+        'HLT_xe100_tc_em_wEFMu',
+        'HLT_xe100_tc_em_wEFMu_L1XE50',
+        'HLT_xe100_tc_em_wEFMu_L1XE80',
+        'HLT_xe100_mht_wEFMu',
+        'HLT_xe100_mht_wEFMu_L1XE50',
+        'HLT_xe100_mht_wEFMu_L1XE80',
+        'HLT_xe100_pueta_wEFMu',
+        'HLT_xe100_pueta_wEFMu_L1XE80',
+        'HLT_xe100_pufit_wEFMu',
+        'HLT_xe100_pufit_wEFMu_L1XE80',
+        'HLT_xe110_pueta_L1XE60',
+        'HLT_xe110_pufit_L1XE60',
+        'HLT_xe110_L1XE60',
+        'HLT_xe110_mht_L1XE60',
+        'HLT_xe110_mht_L1XE50',
+        'HLT_xe110_mht_L1XE50_AND_xe70_L1XE50',
+        'HLT_xe110_tc_lcw_L1XE60',
+        'HLT_xe120',
+        'HLT_xe120_mht',
+        'HLT_xe120_pueta',
+        'HLT_xe120_pufit',
+        'HLT_xe120_tc_em',
+        'HLT_xe120_tc_lcw',
+        'HLT_xe120_wEFMu',
+        'HLT_xe120_mht_wEFMu',
+        'HLT_xe120_pueta_wEFMu',
+        'HLT_xe120_pufit_wEFMu',
+        'HLT_xe120_tc_em_wEFMu',
+        'HLT_xe120_tc_lcw_wEFMu',
+        'HLT_xe130_mht_L1XE50'        
         ]
-    cutsEtMin = [120.0*Units.GeV, 60.0*Units.GeV]
+    cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
+    cutsEtMinForMultiJets = [150.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV]
+    jetMetPtMin = 40.0*Units.GeV
     cutEtaMax = 3.2
     doLeptonVeto = True
+    requireIsolatedTrack = True
     electronIDKey = "Tight"
     muonIDKey = "Medium"
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
-    cutMetMin = -1  # no cut
+    cutMetMin = 60.0*Units.GeV  # no cut
     jetMetDphiMin = 1.0
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
@@ -62,18 +175,40 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        #"HLT_e24_medium_iloose",
-        #"HLT_e24_tight_iloose",
-        #"HLT_e26_tight_iloose",
-        #"HLT_e28_tight_iloose",
-        "HLT_e24_medium_iloose_L1EM18VH",
-        "HLT_e24_lhmedium_iloose_L1EM18VH",
-        "HLT_e24_medium_iloose_L1EM20VH",
-        "HLT_e24_lhmedium_iloose_L1EM20VH",
-        "HLT_e24_tight_iloose_L1EM20VH",
-        "HLT_e24_lhtight_iloose_L1EM20VH",
-        "HLT_e26_tight_iloose",
-        "HLT_e26_lhtight_iloose"
+        ## 0.3e34
+        'HLT_e24_lhmedium_iloose_L1EM18VH',
+        'HLT_e24_lhmedium_ivarloose_L1EM18VH',
+        'HLT_e24_lhmedium_nod0_iloose_L1EM18VH',
+        'HLT_e24_lhmedium_nod0_ivarloose_L1EM18VH',
+        ## 0.5e34
+        'HLT_e24_lhmedium_L1EM20VH',
+        'HLT_e24_lhmedium_nod0_L1EM20VH',
+        'HLT_e24_lhmedium_iloose',
+        'HLT_e24_lhmedium_ivarloose',
+        'HLT_e24_lhmedium_nod0_iloose',
+        'HLT_e24_lhmedium_nod0_ivarloose',
+        'HLT_e24_lhmedium_iloose_L1EM20VH',
+        'HLT_e24_lhmedium_ivarloose_L1EM20VH',
+        'HLT_e24_lhmedium_nod0_iloose_L1EM20VH',
+        'HLT_e24_lhmedium_nod0_ivarloose_L1EM20VH',
+        ## runs up to 1e34 :
+        'HLT_e24_lhtight_iloose',
+        'HLT_e24_lhtight_nod0_iloose',
+        'HLT_e24_lhtight_ivarloose',
+        'HLT_e24_lhtight_nod0_ivarloose',
+        ##  runs up to 2e34 :
+        'HLT_e26_lhtight_smooth_iloose',
+        'HLT_e26_lhtight_smooth_ivarloose',
+        'HLT_e26_lhtight_iloose',
+        'HLT_e26_lhtight_ivarloose',
+        'HLT_e26_lhtight_nod0_iloose',
+        'HLT_e26_lhtight_nod0_ivarloose',
+        'HLT_e28_lhtight_smooth_iloose',
+        'HLT_e28_lhtight_smooth_ivarloose',
+        'HLT_e28_lhtight_iloose',
+        'HLT_e28_lhtight_ivarloose',
+        'HLT_e28_lhtight_nod0_iloose',
+        'HLT_e28_lhtight_nod0_ivarloose',
         ]
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
@@ -94,12 +229,18 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        "HLT_mu20_iloose",
-        "HLT_mu20_iloose_L1MU15",
-        "HLT_mu24_iloose",
-        "HLT_mu24_iloose_L1MU15",
-        "HLT_mu24_imedium",
-        "HLT_mu26_imedium"
+        ## 0.5e34
+        'HLT_mu20_iloose_L1MU15',
+        'HLT_mu20_ivarloose_L1MU15',
+        ## 1.0e34
+        'HLT_mu24_iloose_L1MU15',
+        'HLT_mu24_ivarloose_L1MU15',
+        ## 1.5e34
+        'HLT_mu24_imedium',
+        'HLT_mu24_ivarmedium',
+        ## 2e34
+        'HLT_mu26_imedium',
+        'HLT_mu26_ivarmedium',
         ]
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV

@@ -50,6 +50,7 @@ ToolSvc += KinkTrkJetTriggerFilterTool
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkSingleJetMetFilterTool
 KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkSingleJetMetFilterTool",
                                                                                    LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
+                                                                                   IsolatedTrack        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.requireIsolatedTrack,
                                                                                    JetContainerKey      = jetContainer,
                                                                                    ElectronContainerKey = electronContainer,
                                                                                    ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
@@ -60,7 +61,9 @@ KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTo
                                                                                    MetCut               = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMin,
                                                                                    JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMin,
                                                                                    JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
+                                                                                   JetNumCut            = 1,
                                                                                    JetMetDphiMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetDphiMin,
+                                                                                   JetMetPtMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetPtMin,
                                                                                    LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                    LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
@@ -77,6 +80,37 @@ topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackJetFilter
                                                      SkimmingTools = [KinkTrkJetFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 
+KinkTrkMultiJetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkMultiJetFilterTool",
+                                                                               LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
+                                                                               IsolatedTrack        = False,
+                                                                               JetContainerKey      = jetContainer,
+                                                                               ElectronContainerKey = electronContainer,
+                                                                               ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
+                                                                               MuonContainerKey     = muonContainer,
+                                                                               MuonIDKey            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.muonIDKey,
+                                                                               MetContainerKey      = METContainer,
+                                                                               MetTerm              = METTerm,
+                                                                               MetCut               = -1.0,
+                                                                               JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMinForMultiJets,
+                                                                               JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
+                                                                               JetNumCut            = 3,
+                                                                               JetMetDphiMin        = -1.0,
+                                                                               JetMetPtMin          = 999.9*Units.GeV,
+                                                                               LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
+                                                                               LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
+
+print KinkTrkMultiJetFilterTool
+ToolSvc += KinkTrkMultiJetFilterTool
+
+
+KinkTrkTrigMetMultiJetFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkTrigMetMultiJetFilterTool",
+                                                                 FilterList=[KinkTrkJetTriggerFilterTool, KinkTrkMultiJetFilterTool],
+                                                                 OutputLevel=INFO)
+ToolSvc+= KinkTrkTrigMetMultiJetFilterTool
+
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackMultiJetFilterKernel",
+                                                     SkimmingTools = [KinkTrkTrigMetMultiJetFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackMultiJetFilterKernel"])
 
 
 #====================================================================

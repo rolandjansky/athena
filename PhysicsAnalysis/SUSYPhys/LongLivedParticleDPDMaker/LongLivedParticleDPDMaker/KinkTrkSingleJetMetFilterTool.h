@@ -42,6 +42,7 @@ namespace DerivationFramework {
     mutable unsigned int m_npass;
     bool m_passAll;
     bool m_LeptonVeto;
+    bool m_isolatedTrack;
     std::string m_jetSGKey;
     std::string m_metSGKey;
     std::string m_metTerm;
@@ -53,7 +54,9 @@ namespace DerivationFramework {
     float m_metCut;
     std::vector<float> m_jetPtCuts;
     float m_jetEtaMax;
+    int   m_jetNumCut;
     float m_jetMetDphiMin;
+    float m_jetMetPtMin;
     float m_leptonPtCut;
     float m_leptonEtaMax;
 
