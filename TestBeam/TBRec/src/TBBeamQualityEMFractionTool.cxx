@@ -58,14 +58,14 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   MsgStream log(msgSvc(),name());
   log << MSG::DEBUG
       << "initialize"
-      << endreq;
+      << endmsg;
   
   StatusCode sc;
   
   // accessing Store Gate
   sc = service( "StoreGateSvc", m_StoreGate);
   if( sc.isFailure() ){
-    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endreq;
+    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endmsg;
     return sc;
   }
   
@@ -85,25 +85,25 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   const DataHandle<LArDetDescrManager> m_larMgr;
   sc = m_detStore->retrieve(m_larMgr);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detector store"<< endreq;
+    log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detector store"<< endmsg;
     return sc;
   }
   
   //obtainine Identifier helpers
   m_hecID_help = m_larMgr->get_hec_id();
   if (!m_hecID_help) {
-    log << MSG::ERROR << "unable to obtain hec id " << endreq;
+    log << MSG::ERROR << "unable to obtain hec id " << endmsg;
     return StatusCode::FAILURE;
   }
   m_emecID_help = m_larMgr->get_em_id();
   if (!m_emecID_help) {
-    log << MSG::ERROR << "unable to obtain emec id " << endreq;
+    log << MSG::ERROR << "unable to obtain emec id " << endmsg;
     return StatusCode::FAILURE;
   }
   
   m_fcalID_help = m_larMgr->get_fcal_id();
   if (!m_fcalID_help) {
-    log << MSG::ERROR << "unable to obtain fcal id " << endreq;
+    log << MSG::ERROR << "unable to obtain fcal id " << endmsg;
     return StatusCode::FAILURE;
   }
   */
@@ -113,31 +113,31 @@ StatusCode TBBeamQualityEMFractionTool::initializeTool()
   const DataHandle<CaloIdManager> m_caloMgr;
   sc = m_detStore->retrieve(m_caloMgr);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "unable to retrieve CaloIdManager from detector store"<< endreq;
+    log << MSG::ERROR << "unable to retrieve CaloIdManager from detector store"<< endmsg;
     return sc;
   }
   
   //obtainine Identifier helpers
   m_hecID_help = m_caloMgr->getHEC_ID();
   if (!m_hecID_help) {
-    log << MSG::ERROR << "unable to obtain hec id " << endreq;
+    log << MSG::ERROR << "unable to obtain hec id " << endmsg;
     return StatusCode::FAILURE;
   }
   m_emecID_help = m_caloMgr->getEM_ID();
   if (!m_emecID_help) {
-    log << MSG::ERROR << "unable to obtain emec id " << endreq;
+    log << MSG::ERROR << "unable to obtain emec id " << endmsg;
     return StatusCode::FAILURE;
   }
   
   m_fcalID_help = m_caloMgr->getFCAL_ID();
   if (!m_fcalID_help) {
-    log << MSG::ERROR << "unable to obtain fcal id " << endreq;
+    log << MSG::ERROR << "unable to obtain fcal id " << endmsg;
     return StatusCode::FAILURE;
   }
   
   
   
-  log<<MSG::DEBUG<<"Got to before p_toolSvc"<<endreq;
+  log<<MSG::DEBUG<<"Got to before p_toolSvc"<<endmsg;
   
   if (m_em_fracnumdet=="HEC") {
     m_em_fracnumsamp.push_back(8);
@@ -178,13 +178,13 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
   
   log << MSG::DEBUG
       << "TBBeamQualityEMFractionTool: Started Accept"
-      << endreq;
+      << endmsg;
   
   StatusCode sc;
   
-  log << MSG::DEBUG << "m_em_fracnumdet: "<<m_em_fracnumdet<<endreq;
-  log << MSG::DEBUG << "m_em_fracdendet: "<<m_em_fracdendet<<endreq;
-  log << MSG::DEBUG << " called for:  "<<m_particles.size()<<" particles"<<endreq;
+  log << MSG::DEBUG << "m_em_fracnumdet: "<<m_em_fracnumdet<<endmsg;
+  log << MSG::DEBUG << "m_em_fracdendet: "<<m_em_fracdendet<<endmsg;
+  log << MSG::DEBUG << " called for:  "<<m_particles.size()<<" particles"<<endmsg;
   
   // setting up layers (h6)
   
@@ -203,8 +203,8 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
   
   sc = m_StoreGate->retrieve(cellContainer);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "couldn't get the calo cells from storegate" << endreq;
-    log << MSG::ERROR << "here is what is in storegate: " << m_StoreGate->dump() << endreq;
+    log << MSG::ERROR << "couldn't get the calo cells from storegate" << endmsg;
+    log << MSG::ERROR << "here is what is in storegate: " << m_StoreGate->dump() << endmsg;
     return StatusCode::FAILURE;
   }
   

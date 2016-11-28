@@ -350,14 +350,14 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	/*
 	if (theCellN4) {
-	  log << MSG::DEBUG << "EMEC2 cell (N4): energy before = " << eN4 << " | energy after rescaling = " << rescaled_eN4 << endreq;
+	  log << MSG::DEBUG << "EMEC2 cell (N4): energy before = " << eN4 << " | energy after rescaling = " << rescaled_eN4 << endmsg;
 	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEMEC2Eta)*eN4 + m_xtalkScaleEMEC2Eta*e
-	      << " | " << (theCellN4->energy()-eN4) << endreq;
+	      << " | " << (theCellN4->energy()-eN4) << endmsg;
 	}
 	if (theCellN5) {
-	  log << MSG::DEBUG << "EMEC2 cell (N5): energy before = " << eN5 << " | energy after rescaling = " << rescaled_eN5 << endreq;
+	  log << MSG::DEBUG << "EMEC2 cell (N5): energy before = " << eN5 << " | energy after rescaling = " << rescaled_eN5 << endmsg;
 	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEMEC2Eta)*eN5 + m_xtalkScaleEMEC2Eta*e
-	      << " | " << (theCellN5->energy()-eN5) << endreq;
+	      << " | " << (theCellN5->energy()-eN5) << endmsg;
 	}
 	*/
 	theCell  ->setEnergy(rescaled_e);

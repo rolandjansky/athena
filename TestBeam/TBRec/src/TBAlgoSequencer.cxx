@@ -132,7 +132,7 @@ TBAlgoSequencer::execute()
       //	  << " Event "
       //	  << setw(6)
       //	  << theEvent->getEventNumber()
-      //	  << endreq;
+      //	  << endmsg;
     }
 
   ////////////////////
@@ -237,7 +237,7 @@ TBAlgoSequencer::finalize()
 	  << std::setprecision(5)
 	  << percentReject
 	  << " %)"
-	  << endreq;
+	  << endmsg;
     }
   ATH_MSG_INFO
     ( "-------------------------------------------------------- " );
@@ -264,7 +264,7 @@ TBAlgoSequencer::finalize()
 	  << std::setprecision(5)
 	  << percentAccept
 	  << " %)"
-	  << endreq;
+	  << endmsg;
     }
   ATH_MSG_INFO
     ( "======================================================== " );

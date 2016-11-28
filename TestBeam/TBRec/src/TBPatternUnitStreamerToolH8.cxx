@@ -57,7 +57,7 @@ StatusCode TBPatternUnitStreamerToolH8::initializeTool()
     {
       report << MSG::ERROR
 	     << "cannot build accept pattern mask."
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -69,29 +69,29 @@ StatusCode TBPatternUnitStreamerToolH8::initializeTool()
     {
       report << MSG::ERROR
 	     << "cannot build reject pattern mask."
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
 
   // print pattern matrices
-  report << MSG::INFO << " " << endreq;
-  report << MSG::INFO << "                      ###################" << endreq;
-  report << MSG::INFO << "                      # TriggerPatterns #" << endreq;
-  report << MSG::INFO << "                      ###################" << endreq;
-  report << MSG::INFO << " " << endreq;
-  report << MSG::INFO << "         +-+-+-+-+-+-+" << endreq;
-  report << MSG::INFO << "         |   | C |   |" << endreq;
-  report << MSG::INFO << "         |   | a |   |" << endreq;
-  report << MSG::INFO << "         |   | l |   |" << endreq;
-  report << MSG::INFO << "         |   | i |   |" << endreq;
-  report << MSG::INFO << "         | P | b |   |" << endreq;
-  report << MSG::INFO << "         | h | r | R |" << endreq;
-  report << MSG::INFO << "         | y | a | a |" << endreq;
-  report << MSG::INFO << "         | s | t | n |" << endreq;
-  report << MSG::INFO << "         | i | i | d |" << endreq;
-  report << MSG::INFO << "         | c | o | o |" << endreq;
-  report << MSG::INFO << "         | s | n | m |" << endreq;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
+  report << MSG::INFO << " " << endmsg;
+  report << MSG::INFO << "                      ###################" << endmsg;
+  report << MSG::INFO << "                      # TriggerPatterns #" << endmsg;
+  report << MSG::INFO << "                      ###################" << endmsg;
+  report << MSG::INFO << " " << endmsg;
+  report << MSG::INFO << "         +-+-+-+-+-+-+" << endmsg;
+  report << MSG::INFO << "         |   | C |   |" << endmsg;
+  report << MSG::INFO << "         |   | a |   |" << endmsg;
+  report << MSG::INFO << "         |   | l |   |" << endmsg;
+  report << MSG::INFO << "         |   | i |   |" << endmsg;
+  report << MSG::INFO << "         | P | b |   |" << endmsg;
+  report << MSG::INFO << "         | h | r | R |" << endmsg;
+  report << MSG::INFO << "         | y | a | a |" << endmsg;
+  report << MSG::INFO << "         | s | t | n |" << endmsg;
+  report << MSG::INFO << "         | i | i | d |" << endmsg;
+  report << MSG::INFO << "         | c | o | o |" << endmsg;
+  report << MSG::INFO << "         | s | n | m |" << endmsg;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
   std::string decoded = this->decodeBinary(m_acceptPattern);
   report << MSG::INFO << "| accept | " ;
   for ( unsigned int i=0; i<std::min(decoded.length(),m_triggerBitMap.size());
@@ -103,8 +103,8 @@ StatusCode TBPatternUnitStreamerToolH8::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0') 
 // 	 << std::setiosflags(std::ios_base::hex) << m_acceptPattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endreq;      
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
+// 	 << endmsg;      
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
   report << MSG::INFO << "| reject | ";
   decoded = this->decodeBinary(m_rejectPattern);
   for ( unsigned int i=0; i<std::min(decoded.length(),m_triggerBitMap.size());
@@ -116,8 +116,8 @@ StatusCode TBPatternUnitStreamerToolH8::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0')
 // 	 << std::setiosflags(std::ios_base::hex) << m_rejectPattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endreq;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
+// 	 << endmsg;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
   report << MSG::INFO << "| ignore | ";
   bit_mask ignorePattern = ~( m_rejectPattern ^ m_acceptPattern );
   decoded = this->decodeBinary(ignorePattern);
@@ -130,8 +130,8 @@ StatusCode TBPatternUnitStreamerToolH8::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0')
 // 	 << std::setiosflags(std::ios_base::hex) << ignorePattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endreq;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
+// 	 << endmsg;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -219,7 +219,7 @@ StatusCode TBPatternUnitStreamerToolH8::findPattern(const pattern_store&
 		 << "requested pattern <"
 		 << *firstPattern
 		 << "> unknown, ignore..."
-		 << endreq;
+		 << endmsg;
 	}
     }
   return StatusCode::SUCCESS;

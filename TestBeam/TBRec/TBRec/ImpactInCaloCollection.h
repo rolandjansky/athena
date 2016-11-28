@@ -5,7 +5,7 @@
 #ifndef IMPACTINCALOCOLLECTION_H
 #define IMPACTINCALOCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "TBRec/ImpactInCalo.h"
 

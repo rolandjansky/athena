@@ -15,7 +15,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBPhase.h"
@@ -107,7 +107,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
              << "\042 ";
     }
   }
-  msg() << MSG::INFO << endreq;
+  msg() << MSG::INFO << endmsg;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
   for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
@@ -136,7 +136,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
              << m_samplingToNameLookup[*sample]
              << "\042";
     }
-    msg()  << MSG::INFO << endreq;
+    msg()  << MSG::INFO << endmsg;
   }
 
   return StatusCode::SUCCESS; 
@@ -210,7 +210,7 @@ StatusCode CBNT_Timing::CBNT_execute()
       os << std::hex << *it_febID;
       msg() << MSG::INFO << " \042" << os.str() << "\042";
     }
-    msg() << MSG::INFO << endreq;
+    msg() << MSG::INFO << endmsg;
 
     m_first_event = false;
   }

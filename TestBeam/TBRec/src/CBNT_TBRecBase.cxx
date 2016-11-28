@@ -22,11 +22,11 @@ CBNT_TBRecBase::~CBNT_TBRecBase() {
 StatusCode CBNT_TBRecBase::initialize() {
   m_log=new MsgStream(msgSvc(), name());
   
-  *m_log << MSG::DEBUG << "Initializing CBNT_TBRecBase base class" << endreq;
+  *m_log << MSG::DEBUG << "Initializing CBNT_TBRecBase base class" << endmsg;
   
   StatusCode sc=service("DetectorStore",m_detStore);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
     return sc;
   }
 
@@ -36,30 +36,30 @@ StatusCode CBNT_TBRecBase::initialize() {
   m_hecId=caloIdMgr->getHEC_ID();
 
   if (!m_emId) {
-    (*m_log) << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    (*m_log) << MSG::ERROR << "Could not access lar EM ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if (!m_fcalId) {
-    (*m_log) << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    (*m_log) << MSG::ERROR << "Could not access lar FCAL ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   if (!m_hecId) {
-    (*m_log) << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    (*m_log) << MSG::ERROR << "Could not access lar HEC ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = m_detStore->retrieve(m_onlineId, "LArOnlineID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
     else {
-      (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+      (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
     }
 
   sc = m_larCablingSvc.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc." << endreq;
+    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc." << endmsg;
     return sc;
   }
 
@@ -74,13 +74,13 @@ StatusCode CBNT_TBRecBase::pre_execute() {
   if(!m_initialized) {
 
     if (m_ntpath.size()==0 || m_ntTitle.size()==0) {
-      *m_log << MSG::ERROR << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endreq;
+      *m_log << MSG::ERROR << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endmsg;
       return StatusCode::FAILURE;
     }
  
     size_t i=m_ntpath.rfind('/');
     if (i==std::string::npos) {
-      *m_log << MSG::ERROR << "Expected at least on '/' in path " << m_ntpath << endreq;
+      *m_log << MSG::ERROR << "Expected at least on '/' in path " << m_ntpath << endmsg;
       return StatusCode::FAILURE;
     }
     std::string basepath(m_ntpath.begin(),m_ntpath.begin()+i);
@@ -90,19 +90,19 @@ StatusCode CBNT_TBRecBase::pre_execute() {
     ITHistSvc * tHistSvc = 0;
     sc = Gaudi::svcLocator()->service("THistSvc", tHistSvc);
     if (sc.isFailure()) {
-       *m_log << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
+       *m_log << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endmsg;
        return sc;
     } 
     // get TTree
     sc = tHistSvc->getTree(m_ntpath,m_nt);
     if (sc.isFailure()) {
-       *m_log << MSG::ERROR << "Unable to retrieve TTree : " << m_ntpath << endreq;
+       *m_log << MSG::ERROR << "Unable to retrieve TTree : " << m_ntpath << endmsg;
        return sc;
     }
     /*
     NTupleFilePtr file1(ntupleSvc(),basepath);
     if (!file1){
-      (*m_log)  << MSG::ERROR << "Could not get NTupleFilePtr with path " << basepath << " failed" << endreq;
+      (*m_log)  << MSG::ERROR << "Could not get NTupleFilePtr with path " << basepath << " failed" << endmsg;
       return StatusCode::FAILURE;
     }
     NTuplePtr nt(ntupleSvc(),m_ntpath);
@@ -110,7 +110,7 @@ StatusCode CBNT_TBRecBase::pre_execute() {
       nt=ntupleSvc()->book(m_ntpath,CLID_ColumnWiseTuple,m_ntTitle);
     }
     if (!nt){
-      (*m_log)  << MSG::ERROR << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endreq;
+      (*m_log)  << MSG::ERROR << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endmsg;
       return StatusCode::FAILURE; 
     }
     m_nt=nt;
@@ -124,16 +124,16 @@ StatusCode CBNT_TBRecBase::pre_execute() {
     catch( const std::exception& Exception ) {
       *m_log << MSG::ERROR << " Standard exception " 
                   << Exception.what() 
-                  << " caught from sub-algorithm::CBNT_initialize () :" << endreq ;
+                  << " caught from sub-algorithm::CBNT_initialize () :" << endmsg ;
     }
     catch (...) {
               *m_log << MSG::ERROR << " Unknown exception " 
-         << " caught from sub-algorithm::CBNT_initialize () :" << endreq ;
+         << " caught from sub-algorithm::CBNT_initialize () :" << endmsg ;
    }
 
    if (sc.isFailure())
      {
-              *m_log << MSG::ERROR << "CBNT_initialize() failed" << endreq;
+              *m_log << MSG::ERROR << "CBNT_initialize() failed" << endmsg;
                return sc;
      }
 
@@ -147,15 +147,15 @@ StatusCode CBNT_TBRecBase::pre_execute() {
   catch( const std::exception& Exception ) {
    *m_log << MSG::ERROR << " Standard exception " 
         << Exception.what() 
-        << " caught from sub-algorithm::CBNT_clear () :" << endreq ;
+        << " caught from sub-algorithm::CBNT_clear () :" << endmsg ;
   }
   catch (...) {
    *m_log << MSG::ERROR << " Unknown exception " 
-               << " caught from sub-algorithm::CBNT_clear () :" << endreq ;
+               << " caught from sub-algorithm::CBNT_clear () :" << endmsg ;
   }
 
   if (sc.isFailure()) {
-      *m_log << MSG::ERROR << "CBNT_clear() failed" << endreq;
+      *m_log << MSG::ERROR << "CBNT_clear() failed" << endmsg;
        return sc;
   }
  
@@ -175,20 +175,20 @@ StatusCode CBNT_TBRecBase::execute() {
   catch( const std::exception& Exception ) {
    *m_log << MSG::ERROR << " Standard exception " 
                << Exception.what() 
-               << " caught from sub-algorithm::CBNT_pre_execute (). Disable !" << endreq ;
+               << " caught from sub-algorithm::CBNT_pre_execute (). Disable !" << endmsg ;
     sc = this->setProperty(BooleanProperty( "Enable",false ) );
     return StatusCode::FAILURE;
    
   }
   catch (...) {
     *m_log << MSG::ERROR << " Unknown exception " 
-         << " caught from sub-algorithm::CBNT_pre_execute (). Disable !" << endreq ;
+         << " caught from sub-algorithm::CBNT_pre_execute (). Disable !" << endmsg ;
      sc = this->setProperty(BooleanProperty( "Enable",false ) );
      return StatusCode::FAILURE;
   }
  
   if (sc.isFailure()) {
-    *m_log << MSG::ERROR << "CBNT_pre_execute() failed. Disable !" << endreq;
+    *m_log << MSG::ERROR << "CBNT_pre_execute() failed. Disable !" << endmsg;
      sc = this->setProperty(BooleanProperty( "Enable",false ) );
      return sc;
   }
@@ -201,12 +201,12 @@ StatusCode CBNT_TBRecBase::execute() {
   catch( const std::exception& Exception ) {
     *m_log << MSG::ERROR << " Standard exception " 
          << Exception.what() 
-         << " caught from sub-algorithm::CBNT_execute () :" << endreq ;
+         << " caught from sub-algorithm::CBNT_execute () :" << endmsg ;
      return StatusCode::FAILURE;
   }
   catch (...) {
     *m_log << MSG::ERROR << " Unknown exception " 
-         << " caught from sub-algorithm::CBNT_execute () :" << endreq ;
+         << " caught from sub-algorithm::CBNT_execute () :" << endmsg ;
      return StatusCode::FAILURE;
   }
 
@@ -225,11 +225,11 @@ StatusCode CBNT_TBRecBase::finalize() {
   catch( const std::exception& Exception ) {
     *m_log << MSG::ERROR << " Standard exception " 
          << Exception.what() 
-         << " caught from sub-algorithm::CBNT_finalize () :" << endreq ;
+         << " caught from sub-algorithm::CBNT_finalize () :" << endmsg ;
   }
   catch (...) {
      *m_log << MSG::ERROR << " Unknown exception " 
-          << " caught from sub-algorithm::CBNT_finalize () :" << endreq ;
+          << " caught from sub-algorithm::CBNT_finalize () :" << endmsg ;
   }
  
   return sc;

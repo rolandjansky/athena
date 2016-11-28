@@ -39,7 +39,7 @@ StatusCode CBNT_UpstreamMat::CBNT_initialize() {
   
   sc = service( "StoreGateSvc", m_storeGate);
   if( sc.isFailure() ){
-    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endreq;
+    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endmsg;
     return sc;
   }
 
@@ -64,7 +64,7 @@ StatusCode CBNT_UpstreamMat::CBNT_execute() {
 
   if (!m_storeGate->contains<TrackRecordCollection>(m_key)) {
     if (!m_notFound) {
-      log << MSG::WARNING << "TrackRecordCollection with key " << m_key << " not found" << endreq;
+      log << MSG::WARNING << "TrackRecordCollection with key " << m_key << " not found" << endmsg;
       m_notFound=true;
     }
     return StatusCode::SUCCESS;
@@ -72,7 +72,7 @@ StatusCode CBNT_UpstreamMat::CBNT_execute() {
   const TrackRecordCollection *trackRecordCollection(0);
   sc = m_storeGate->retrieve(trackRecordCollection, m_key);
   if ( sc.isFailure() ) {
-    log << MSG::ERROR  << "Error retrieving TrackRecordCollection with key " << m_key << " not found" << endreq;
+    log << MSG::ERROR  << "Error retrieving TrackRecordCollection with key " << m_key << " not found" << endmsg;
     return sc;
   }
 
@@ -95,7 +95,7 @@ StatusCode CBNT_UpstreamMat::CBNT_execute() {
       m_nElec++;
     }
     else
-      log << MSG::INFO << "Found particle code " << pdgCode << endreq; 
+      log << MSG::INFO << "Found particle code " << pdgCode << endmsg; 
   }//end loop over TrackRecords
 
   return StatusCode::SUCCESS;

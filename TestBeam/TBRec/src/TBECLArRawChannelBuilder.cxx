@@ -333,10 +333,10 @@ StatusCode TBECLArRawChannelBuilder::execute()
       saturation++;
     }
     if ( m_skipSaturCells && nSatur>-1 ) {
-      msg() << ". Skipping channel." << endreq; 
+      msg() << ". Skipping channel." << endmsg; 
       continue; // Ignore this cell, saturation on at least one sample
     } else if ( nSatur>-1 ) {
-      msg() << "." << endreq;
+      msg() << "." << endmsg;
     }   
     
     //Get conditions data for this channel:
@@ -393,7 +393,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	if (debugPrint) msg() << MSG::VERBOSE << " OFC=" << ofcTimeOffset;
       }
 
-      if (debugPrint) msg() << MSG::VERBOSE << " Total=" << timeShift << endreq;
+      if (debugPrint) msg() << MSG::VERBOSE << " Total=" << timeShift << endmsg;
       
       if (m_allowTimeJump && timeShift >= m_NOFCPhases*m_OFCTimeBin ) {
 	if (debugPrint) ATH_MSG_VERBOSE ( "Time Sample jump: -1" );
@@ -649,7 +649,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
   //Put this LArRawChannel container in the transient store
   //sc = evtStore()->record(m_larRawChannelContainer, m_ChannelContainerName);
   //if(sc.isFailure()) {
-  // log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endreq;
+  // log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endmsg;
   //}
   //else
   //  std::cout << "Successfully recorded LArRawChannelContainer to StoreGate" << std::endl;
@@ -732,7 +732,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
         msg() << MSG::WARNING << "   " << saturation << " out of " 
 	      << digitContainer->size() << " channel(s) showed saturations." << std::endl;
     }
-    msg() << endreq;
+    msg() << endmsg;
   }
     
   // lock raw channel container
@@ -790,7 +790,7 @@ StatusCode TBECLArRawChannelBuilder::finalize()
           << " out of " << (int)round(m_aveChannels) << " saturating channels."  
 	  << std::endl ;
     
-    msg() << endreq;
+    msg() << endmsg;
   } 
   else
     ATH_MSG_INFO ( "TBECLArRawChannelBuilder finished without errors or warnings." );
