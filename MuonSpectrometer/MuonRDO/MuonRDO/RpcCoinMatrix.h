@@ -28,27 +28,37 @@ class RpcCoinMatrix : public DataVector<RpcFiredChannel> {
   ubit16 m_febcId;
 
  public:
-
+	 friend class RpcCoinMatrixCnv_p1;
   // default constructor
   RpcCoinMatrix() 
     : DataVector<RpcFiredChannel>(), m_id(), m_onlineId(0), m_crc(0),
-    m_fel1Id(0), m_febcId(0) { };
+    m_fel1Id(0), m_febcId(0) { 
+		//std::cout<<"RpcCoinMatrix ctor 0 ["<<this<<"]"<<std::endl; 
+	};
 
   // Partial constructor.
   RpcCoinMatrix(const Identifier& id, ubit16 onlineId, 
                  ubit16 fel1Id, ubit16 febcId)
     : DataVector<RpcFiredChannel>(), m_id(id), m_onlineId(onlineId), m_crc(0),
-    m_fel1Id(fel1Id), m_febcId(febcId) { };
+    m_fel1Id(fel1Id), m_febcId(febcId) { 
+		// std::cout<<"RpcCoinMatrix ctor 1 ["<<this<<"]"<<std::endl;
+	};
 
   // Full constructor.
   RpcCoinMatrix(const Identifier& id, ubit16 onlineId, 
                  ubit16 crc, ubit16 fel1Id, 
                  ubit16 febcId)
     : DataVector<RpcFiredChannel>(), m_id(id), m_onlineId(onlineId),
-    m_crc(crc), m_fel1Id(fel1Id), m_febcId(febcId) { };
+    m_crc(crc), m_fel1Id(fel1Id), m_febcId(febcId) { 
+		// std::cout<<"RpcCoinMatrix ctor 2 ["<<this<<"]"<<std::endl;
+	};
 
   // virtual destructor for persistency
-  virtual ~RpcCoinMatrix() {}
+  virtual ~RpcCoinMatrix() { 
+	  // std::cout<<"RpcCoinMatrix dtor ["<<this<<"]"<<std::endl;
+  }
+
+  RpcCoinMatrix& operator= (RpcCoinMatrix&&) = default;
   
   // return the pad Identifier of this CM
   Identifier identify() const { return m_id;}

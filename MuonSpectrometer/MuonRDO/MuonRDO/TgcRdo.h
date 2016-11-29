@@ -169,6 +169,8 @@ public:
     }
     void setErrors(uint16_t data)
     {
+        // FIXME BUG: This is not portable!
+        //   The layout of bitfields in a structure is implementation-defined.
         m_errors = *TgcRdo_const_pointer_cast<Errors>(&data);
     }
 
@@ -178,6 +180,8 @@ public:
     }
     void setRodStatus(uint32_t data)
     {
+        // FIXME BUG: This is not portable!
+        //   The layout of bitfields in a structure is implementation-defined.
         m_rodStatus = *TgcRdo_const_pointer_cast<RodStatus>(&data);
     }
 
@@ -187,6 +191,8 @@ public:
     }
     void setLocalStatus(uint32_t data)
     {
+        // FIXME BUG: This is not portable!
+        //   The layout of bitfields in a structure is implementation-defined.
         m_localStatus = *TgcRdo_const_pointer_cast<LocalStatus>(&data);
     }
 

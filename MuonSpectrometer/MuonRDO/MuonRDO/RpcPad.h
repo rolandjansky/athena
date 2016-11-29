@@ -32,7 +32,10 @@ public:  // functions
   RpcPad ()
     : DataVector<RpcCoinMatrix>(), m_id(0), m_idHash(0), 
     m_onlineId(0), m_lvl1Id(0), m_bcId(0), m_status(0), m_errorCode(0), m_sector(0)
-  {}
+  {
+  // std::cout<<"RpcPad default ctor ["<<this<<"]"<<std::endl;
+
+}
 
   /** Creates an empty container ready for writing.
    * constructor to be used to identified the collection (pad)
@@ -41,7 +44,10 @@ public:  // functions
   RpcPad(const Identifier& id, const IdentifierHash& idHash) 
     : DataVector<RpcCoinMatrix>(), m_id(id), m_idHash(idHash), 
     m_onlineId(0), m_lvl1Id(0), m_bcId(0), m_status(0), m_errorCode(0), m_sector(0)
-        { };
+        {
+  // std::cout<<"RpcPad ctor 2 ["<<this<<"]"<<std::endl;
+
+ };
 
   /** full constructor*/
   RpcPad(const Identifier& id, const IdentifierHash& idHash, ubit16 onlineId, ubit16 status,
@@ -49,7 +55,10 @@ public:  // functions
     : DataVector<RpcCoinMatrix>(), m_id(id), m_idHash(idHash),m_onlineId(onlineId),
     m_lvl1Id(0), m_bcId(0),
     m_status(status), m_errorCode(errorCode), m_sector(sector)
-    { };
+    {
+  // std::cout<<"RpcPadContainer ctor 3 ["<<this<<"]"<<std::endl;
+
+ };
   
   /** full constructor with Lvl1 and Bcid*/
   RpcPad(const Identifier& id, const IdentifierHash& idHash, ubit16 onlineId, 
@@ -58,7 +67,10 @@ public:  // functions
     : DataVector<RpcCoinMatrix>(), m_id(id), m_idHash(idHash),m_onlineId(onlineId),
     m_lvl1Id(lvl1Id), m_bcId(bcId),
     m_status(status), m_errorCode(errorCode), m_sector(sector)
-    { };
+    {
+  // std::cout<<"RpcPadContainer ctor 4 ["<<this<<"]"<<std::endl;
+
+ };
   
   /** partial contructor: needed when filling pad from bytestream
     * errorCode not know until one is reading the pad footer!*/
@@ -67,11 +79,24 @@ public:  // functions
     : DataVector<RpcCoinMatrix>(), m_id(id), m_idHash(idHash),m_onlineId(onlineId),
     m_lvl1Id(0), m_bcId(0),
     m_status(status), m_errorCode(0), m_sector(sector)
-    { };
+    { 
+  // std::cout<<"RpcPadContainer ctor 5 ["<<this<<"]"<<std::endl;
+
+};
   
   // virtual destructor for persistency
-  virtual ~RpcPad() {}
+  virtual ~RpcPad() {
+  // std::cout<<"RpcPadContainer dtor ["<<this<<"]"<<std::endl;
+  // for( auto it : this->stdcont() ) {
+  //   for (auto it2 : it->stdcont() ) {
+  //     delete it2;
+  //   }
+  //   delete it;
+  // }
+}
   
+  RpcPad& operator= (RpcPad&&) = default;
+
   Identifier identify() const { return m_id; }
   
   /** Returns the OFFLINE identifier hash for this collection*/
@@ -97,6 +122,7 @@ public:  // functions
 
 private:
   friend class RpcPadContainerCnv_p1;
+  friend class RpcPadCnv_p1;
 
   Identifier m_id;   
   IdentifierHash m_idHash; 
