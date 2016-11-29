@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "EventInfo/EventInfo.h"
-#undef private
-#undef protected
-
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
@@ -18,12 +13,18 @@
 #include "EventTPCnv/TriggerInfoCnv_p2.h"
 
 
-static	EventIDCnv_p1		idConv;
-static	EventTypeCnv_p3		typeConv;
-static	TriggerInfoCnv_p2	trigInfoCnv;
+static const EventIDCnv_p1		idConv;
+static const EventTypeCnv_p3		typeConv;
+static const TriggerInfoCnv_p2	trigInfoCnv;
 
 
-void EventInfoCnv_p4::transToPers(const EventInfo* trans, EventInfo_p4* pers, MsgStream &log) {
+void EventInfoCnv_p4::transToPers(const EventInfo* trans, EventInfo_p4* pers, MsgStream &log)
+{
+  const EventInfoCnv_p4* cthis = this;
+  cthis->transToPers (trans, pers, log);
+}
+
+void EventInfoCnv_p4::transToPers(const EventInfo* trans, EventInfo_p4* pers, MsgStream &log) const {
     idConv.transToPers(trans->m_event_ID, &pers->m_event_ID, log);
     typeConv.transToPers(trans->m_event_type, &pers->m_event_type, log);
     if( trans->m_trigger_info ) {
@@ -39,7 +40,13 @@ void EventInfoCnv_p4::transToPers(const EventInfo* trans, EventInfo_p4* pers, Ms
     }
 }
 
-void EventInfoCnv_p4::persToTrans(const EventInfo_p4* pers, EventInfo* trans, MsgStream &log)  {
+void EventInfoCnv_p4::persToTrans(const EventInfo_p4* pers, EventInfo* trans, MsgStream &log)
+{
+  const EventInfoCnv_p4* cthis = this;
+  cthis->persToTrans (pers, trans, log);
+}
+
+void EventInfoCnv_p4::persToTrans(const EventInfo_p4* pers, EventInfo* trans, MsgStream &log) const {
     delete trans->m_event_ID;
     trans->m_event_ID     = idConv.createTransient(&pers->m_event_ID, log);
     delete trans->m_event_type;
@@ -50,8 +57,15 @@ void EventInfoCnv_p4::persToTrans(const EventInfo_p4* pers, EventInfo* trans, Ms
 }
 
 // work around the default constructor of EventInfo allocating memory
-EventInfo* EventInfoCnv_p4::createTransient( const EventInfo_p4* persObj, MsgStream &log) {
-    std::auto_ptr<EventInfo> trans( new EventInfo(0,0,0) );
+EventInfo* EventInfoCnv_p4::createTransient( const EventInfo_p4* persObj, MsgStream &log) const {
+    std::unique_ptr<EventInfo> trans( new EventInfo(0,0,0) );
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
+
+EventInfo* EventInfoCnv_p4::createTransient( const EventInfo_p4* persObj, MsgStream &log)
+{
+  const EventInfoCnv_p4* cthis = this;
+  return cthis->createTransient (persObj, log);
+}
+
