@@ -20,6 +20,14 @@
 using CLHEP::micrometer;
 using CLHEP::deg;
 
+namespace
+{
+  //using x*x might be quicker than pow(x,2), depends on compiler optimisation
+  inline double square(const double x){
+    return x*x;
+  }
+}
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -64,8 +72,6 @@ InDet::SCT_ClusterOnTrackTool::~SCT_ClusterOnTrackTool(){}
 
 StatusCode InDet::SCT_ClusterOnTrackTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
-
   msg(MSG::INFO) << "A strategy to ";
   switch (m_option_errorStrategy) {
     case -1:  msg(MSG::INFO)<< "keep the PRD errors"; break;
@@ -74,27 +80,20 @@ StatusCode InDet::SCT_ClusterOnTrackTool::initialize()
     case  2:  msg(MSG::INFO)<< "assign tuned, angle-dependent SCT errors"; break;
     default:  msg(MSG::INFO)<< " -- NO, UNKNOWN. Pls check jobOptions!"; break;
   }
-  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endreq;
+  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endmsg;
   if (m_option_correctionStrategy == 0) {
-    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endreq;
+    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endmsg;
   }
 
-  if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endreq;
-    m_scaleSctCov   = m_errorScalingTool->needToScaleSct();
-    if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endreq;
-  }
+  ATH_CHECK( m_errorScalingTool.retrieve());
+  msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
+  m_scaleSctCov   = m_errorScalingTool->needToScaleSct();
+  if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endmsg;
 
   //Get ISCT_ModuleDistortionsTool
-  if (m_distortionsTool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<< "Could not retrieve distortions tool: " << m_distortionsTool.name() << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_distortionsTool.retrieve());
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -103,8 +102,8 @@ StatusCode InDet::SCT_ClusterOnTrackTool::initialize()
 
 StatusCode InDet::SCT_ClusterOnTrackTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); return sc;
-}
+  return StatusCode::SUCCESS;
+ }
 
 ///////////////////////////////////////////////////////////////////
 // Trk::SCT_ClusterOnTrack  production
@@ -161,28 +160,29 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   // Local position and error matrix production
   //
   // let's start to re-compute cluster error if errorStrategy >=0
+  constexpr double ONE_TWELFTH= 1.0/12.;
   if(m_option_errorStrategy > -1){ 
     Amg::MatrixX mat(2,2);
     mat.setZero();
     switch (m_option_errorStrategy) 
       {
       case 0:
-        mat(0,0) = pow(width.phiR(),2)/12;
-        mat(1,1) = pow(width.z(),2)/12;
+        mat(0,0) = square(width.phiR())*ONE_TWELFTH;
+        mat(1,1) = square(width.z())*ONE_TWELFTH;
         break;
       case 1:
         if(colRow.x() == 1){
-          mat(0,0) = pow(1.05*width.phiR(),2)/12;
+          mat(0,0) = square(1.05*width.phiR())*ONE_TWELFTH;
         } else if(colRow.x() == 2){
-          mat(0,0) = pow(0.27*width.phiR(),2)/12;
+          mat(0,0) = square(0.27*width.phiR())*ONE_TWELFTH;
         } else{
-          mat(0,0) = pow(width.phiR(),2)/12;
+          mat(0,0) = square(width.phiR())*ONE_TWELFTH;
         }
-        mat(1,1) = pow(width.z()/colRow.y(),2)/12;
+        mat(1,1) = square(width.z()/colRow.y())*ONE_TWELFTH;
         break;
       case 2:
-	mat(0,0) = pow(getError(dphi,int(colRow.x()))*(EL->phiPitch()/0.080),2);
-        mat(1,1) = pow(width.z()/colRow.y(),2)/12;
+	      mat(0,0) = square(getError(dphi,int(colRow.x()))*(EL->phiPitch()/0.080));
+        mat(1,1) = square(width.z()/colRow.y())*ONE_TWELFTH;
         break;
       default:
         // don't do anything....
@@ -197,7 +197,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
           double v0      = mat(0,0)*w*w;
           double v1      = mat(1,1);
 	  mat(0,0) = (cs2*v0+sn2*v1);
-	  mat(1,0) = (sn*sqrt(cs2)*(v0-v1));
+	  mat(1,0) = (sn*std::sqrt(cs2)*(v0-v1));
 	  mat(0,1) = mat(1,0);
 	  mat(1,1) = (sn2*v0+cs2*v1);
 	}
@@ -241,7 +241,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
     double Sn      = EL->sinStereoLocal(SC->localPosition ()); 
     double Sn2     = Sn*Sn;
     double Cs2     = (1.-Sn)*(1.+Sn);
-    double SC      = Sn*sqrt(Cs2);
+    double SC      = Sn*std::sqrt(Cs2);
     double W       = EL->phiPitch(loct)/EL->phiPitch(); 
     double dV0     = (Cs2*cov(0,0)+Sn2*cov(1,1)+
                       2.*SC*cov(1,0))*(W*W-1.);
@@ -327,7 +327,7 @@ double InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
 	               20.6, 21.9, 22.1, 21.1, 27.9, 41.6,  0.0,  0.0,  0.0,  0.0 };
 
   // Phi bins have 1 degree width, and cover 0-60 degrees
-  int phiBin = int(fabs(phi)/deg);
+  int phiBin = int(std::fabs(phi)/deg);
 
   float sigma(0.);
   if (phiBin<60) {
@@ -337,7 +337,7 @@ double InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
     if (nstrip==4) sigma = sigma4[phiBin];
     if (nstrip==5) sigma = sigma5[phiBin];
   }
-  if (sigma<0.1) sigma = std::max(100.,float(nstrip)*80./sqrt(12));
+  if (sigma<0.1) sigma = std::max(100.,float(nstrip)*80./std::sqrt(12));
 
   return sigma * micrometer;
 }
