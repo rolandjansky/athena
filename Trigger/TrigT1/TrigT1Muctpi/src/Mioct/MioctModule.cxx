@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MioctModule.cxx 678659 2015-06-26 14:54:31Z wengler $
+// $Id: MioctModule.cxx 787150 2016-11-29 17:31:35Z smh $
 
 // STL include(s):
 #include <sstream>
@@ -16,12 +16,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 678659 $
+//       Version : $Revision: 787150 $
 //
 //   Description :
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
+//          Date : $Date: 2016-11-29 18:31:35 +0100 (Tue, 29 Nov 2016) $
 //
 //
 //
@@ -49,7 +49,9 @@ namespace LVL1MUCTPI {
 
    PtMultiplicitySet MioctModule::calculateMultiplicity() const {
 
-      m_mioctSectors.print();
+      if( m_logger.msgLvl(LVL1MUCTPI::VERBOSE) ) {
+        m_mioctSectors.print();
+      }
 
       return m_lvl1OverlapLogic->calculateMultiplicity( m_mioctSectors, m_ID ) ;
    }
