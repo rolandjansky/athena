@@ -43,5 +43,6 @@ TEST(CombinationsGenTester, n3k0) {
 }
 
 TEST(CombinationsGenTester, n3kgtn) { 
-  EXPECT_THROW (CombinationsGen gen(3,4), std::out_of_range);
+  CombinationsGen gen(3,4);
+  EXPECT_FALSE(gen.next().second);
 }
