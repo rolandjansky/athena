@@ -27,7 +27,7 @@
  *  EXPECT_EXCEPTION (std::runtime_error, doSomething());
  @endcode
  *
- * This will produce an exception failure if @c doSomething()
+ * This will produce an assertion failure if @c doSomething()
  * does _not_ throw a @c std::runtime_error exception.
  */
 #define EXPECT_EXCEPTION(EXC, CODE) do { \
