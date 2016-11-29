@@ -1,0 +1,44 @@
+## automatically generated CMT requirements file
+package SampleHandler
+author  cburgard
+
+## for athena policies: this has to be the first use statement
+public
+use  AtlasPolicy 	     	AtlasPolicy-*
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasPyROOT                AtlasPyROOT-*                   External
+use  RootCoreUtils              RootCoreUtils-*                 PhysicsAnalysis/D3PDTools
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+end_public
+
+private
+use AtlasBoost AtlasBoost-* External
+#use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+## for gaudi tools, services and objects
+
+## put here your package dependencies...
+
+##
+
+branches Root src
+
+apply_tag  ROOTBasicLibs
+macro_append SampleHandler_shlibflags " -lPyROOT -lProof -lProofPlayer $(Boost_linkopts_regex) " 
+
+# create an installed library, i.e., one where others can inherit from
+library SampleHandler ../Root/*.cxx
+apply_pattern installed_library
+
+
+private
+macro_append extra_root_cint_includes "-I${RootCoreUtils_root}"
+apply_pattern have_root_headers root_headers="DiskList.h DiskListEOS.h DiskListLocal.h DiskListSRM.h DiskListXRD.h DiskOutput.h DiskOutputLocal.h DiskOutputXRD.h DiskWriter.h DiskWriterLocal.h DiskWriterXRD.h Global.h Meta.h MetaData.h MetaNames.h MetaDataQuery.h MetaDataSample.h MetaFields.h MetaObject.h MetaVector.h Sample.h SampleComposite.h SampleGrid.h SampleHandler.h SampleHist.h SampleLocal.h SampleMeta.h SamplePtr.h ScanDir.h TagList.h ToolsDiscovery.h ToolsDuplicates.h ToolsJoin.h ToolsMeta.h ToolsSplit.h fetch.h ../Root/LinkDef.h"  headers_lib=SampleHandler
+
+use TestTools	   TestTools-*         AtlasTest
+
+# unit tests
+apply_pattern UnitTest_run unit_test=ut_meta_convert
+
+end_private
