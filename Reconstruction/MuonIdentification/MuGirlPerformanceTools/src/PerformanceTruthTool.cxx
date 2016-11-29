@@ -49,16 +49,16 @@ PerformanceTruthTool::~PerformanceTruthTool()
 
 StatusCode PerformanceTruthTool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AlgTool::initialize();
 
     if (m_truthParameters.retrieve().isFailure())
     {
-        msg(MSG::INFO) << "Failed to retrieve tool m_truthParameters" <<endreq;
+        msg(MSG::INFO) << "Failed to retrieve tool m_truthParameters" <<endmsg;
     }
     else
     {
-        msg(MSG::INFO) << "Retrieved tool m_truthParameters"  << endreq;
+        msg(MSG::INFO) << "Retrieved tool m_truthParameters"  << endmsg;
     }
 
     if (sc.isFailure()) return sc;
@@ -69,7 +69,7 @@ StatusCode PerformanceTruthTool::initialize()
 
 StatusCode PerformanceTruthTool::finalize()
 {
-    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AlgTool::finalize();
     return sc;
 }
@@ -83,7 +83,7 @@ StatusCode PerformanceTruthTool::printParticle(int icode)
     StatusCode sc =evtStore()->retrieve(pRecordCollection, "MuonEntryLayerFilter") ;
     if( sc.isFailure() || pRecordCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endmsg;
         return sc;
     }
 
@@ -94,19 +94,20 @@ StatusCode PerformanceTruthTool::printParticle(int icode)
        {
            TrackRecord pTrkRec = *itTrkRec;
 
-           if (fabs(pTrkRec.GetPDGCode()) == icode )
+           if (std::abs(pTrkRec.GetPDGCode()) == icode )
               std::cout<<" printParticle: found particle at the entrance of MS: PDGID "<<pTrkRec.GetPDGCode()<<" eta "<<pTrkRec.GetMomentum().eta()<<std::endl;
        }
 
 
-       sc = evtStore()->retrieve(m_pMcEventCollection, m_sMcEventCollection);
-    if (sc.isFailure() || m_pMcEventCollection == NULL)
+       const McEventCollection* mcEventCollection = nullptr;
+       sc = evtStore()->retrieve(mcEventCollection, m_sMcEventCollection);
+    if (sc.isFailure() || mcEventCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endmsg;
         return StatusCode::FAILURE;
     }
-    for (McEventCollection::const_iterator itMc = m_pMcEventCollection->begin();
-            itMc != m_pMcEventCollection->end();
+    for (McEventCollection::const_iterator itMc = mcEventCollection->begin();
+            itMc != mcEventCollection->end();
             itMc++)
     {
         const HepMC::GenEvent* pGenEvent = *itMc;
@@ -117,7 +118,7 @@ StatusCode PerformanceTruthTool::printParticle(int icode)
         {
             const HepMC::GenParticle* pPart = *itPart;
 
-            if ( fabs(pPart->pdg_id()) == icode && pPart->status()==1)
+            if ( std::abs(pPart->pdg_id()) == icode && pPart->status()==1)
               std::cout<<" printParticle:.found  particle in GenEvent: PDGID "<<pPart->pdg_id()<<" eta "<<pPart->momentum().eta()<<std::endl;
         }
     }
@@ -137,7 +138,7 @@ StatusCode PerformanceTruthTool::printParticle(int icode)
 
 StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthMuons" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthMuons" << endmsg;
     truthMuonList.clear();
 
     int nTruthMu = 0;
@@ -146,7 +147,7 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
     StatusCode sc = evtStore()->retrieve(pRecordCollection, "MuonEntryLayerFilter");
     if (sc.isFailure() || pRecordCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endmsg;
         return StatusCode::FAILURE;
     }
     for (TrackRecordConstIterator itTrkRec = pRecordCollection->begin();
@@ -155,7 +156,7 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
     {
         TrackRecord pTrkRec = *itTrkRec;
 
-        if (fabs(pTrkRec.GetPDGCode()) == 13 || fabs(pTrkRec.GetPDGCode()) > 1000000 )
+        if (std::abs(pTrkRec.GetPDGCode()) == 13 || std::abs(pTrkRec.GetPDGCode()) > 1000000 )
         {
             TruthMuon* pTruthMuon = new TruthMuon(1,
                                                   pTrkRec.GetMomentum().phi(),
@@ -169,19 +170,19 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
                 << " pt = "  << pTruthMuon->perp
                 << " eta = " << pTruthMuon->eta
                 << " phi = " << pTruthMuon->phi
-                << " pdg = " << pTruthMuon->pdgCode << endreq;
+                << " pdg = " << pTruthMuon->pdgCode << endmsg;
         }
     }
 
-    m_pMcEventCollection = NULL;
-    sc = evtStore()->retrieve(m_pMcEventCollection, m_sMcEventCollection);
-    if (sc.isFailure() || m_pMcEventCollection == NULL)
+    const McEventCollection* mcEventCollection = nullptr;
+    sc = evtStore()->retrieve(mcEventCollection, m_sMcEventCollection);
+    if (sc.isFailure() || mcEventCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endmsg;
         return StatusCode::FAILURE;
     }
-    for (McEventCollection::const_iterator itMc = m_pMcEventCollection->begin();
-            itMc != m_pMcEventCollection->end();
+    for (McEventCollection::const_iterator itMc = mcEventCollection->begin();
+            itMc != mcEventCollection->end();
             itMc++)
     {
         const HepMC::GenEvent* pGenEvent = *itMc;
@@ -192,7 +193,7 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
         {
             const HepMC::GenParticle* pPart = *itPart;
 
-            if (fabs(pPart->pdg_id()) == 13 || fabs(pPart->pdg_id()) > 1000000)
+            if (std::abs(pPart->pdg_id()) == 13 || std::abs(pPart->pdg_id()) > 1000000)
             {
                 int parent_pdg = 0;
                 if (pPart->production_vertex() != NULL)
@@ -217,16 +218,16 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
                     << " eta = " << pPart->momentum().eta()
                     << " phi = " << pPart->momentum().phi()
                     << " pdg = " << pPart->pdg_id()
-                    << " parent pdg = " << parent_pdg << endreq;
+                    << " parent pdg = " << parent_pdg << endmsg;
             }
         }
     }
     return StatusCode::SUCCESS;
 }
 
-StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack, CandidateSummary* summary)
+StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack, CandidateSummary* summary) const
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack" << endmsg;
 
     bool found_match = false;
 
@@ -241,11 +242,11 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
     StatusCode sc =evtStore()->retrieve(pRecordCollection, "MuonEntryLayerFilter") ;
     if( sc.isFailure() || pRecordCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endmsg;
         goto mcEvent;
     }
 
-    if (msgLvl(MSG::DEBUG)) msg() << "Found "<<summary->innerIsectPositions.size()<<" inner intersections" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Found "<<summary->innerIsectPositions.size()<<" inner intersections" << endmsg;
     for (unsigned int i=0;i<summary->innerIsectPositions.size();i++)
     {
        double isect_eta = (summary->innerIsectPositions[i]).eta();
@@ -254,7 +255,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
        double isect_pt = cand_momentum * sin(isect_theta);
 
        if (msgLvl(MSG::DEBUG)) msg() << "Found InnerDist intersection: p "<<cand_momentum<<" pt " 
-                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endreq;
+                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endmsg;
 
        for (TrackRecordConstIterator itTrkRec = pRecordCollection->begin();
             itTrkRec != pRecordCollection->end();
@@ -262,7 +263,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
        {
            TrackRecord pTrkRec = *itTrkRec;
 
-           if (fabs(pTrkRec.GetPDGCode())!=13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
+           if (std::abs(pTrkRec.GetPDGCode())!=13 && std::abs(pTrkRec.GetPDGCode())<1000000) continue;
 
            double      charge   = pTrkRec.GetPDGCode() < 0 ? 1. : -1.;
  
@@ -274,9 +275,9 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
 
            if (msgLvl(MSG::DEBUG)) msg() <<" Processing a muon in the TrackRecordCollection: p "<<pTrkRec.GetMomentum().mag()
                                          <<" pt " <<pTrkRec.GetMomentum().perp()<<" phi "<<pTrkRec.GetMomentum().phi()
-                                         <<" eta "<<pTrkRec.GetMomentum().eta() << endreq;
+                                         <<" eta "<<pTrkRec.GetMomentum().eta() << endmsg;
            if (msgLvl(MSG::DEBUG)) msg() << "dp_p "<<dp_p<<" dpt_pt " 
-                                      <<dpt_pt<<" dphi "<<dphi<<" deta "<<deta << endreq;
+                                      <<dpt_pt<<" dphi "<<dphi<<" deta "<<deta << endmsg;
         //const HepGeom::Point3D<double> vertex(0.,0.,0.);
         // const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
         // if (charge == pPerigee->charge() &&
@@ -289,7 +290,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                double y = pTrkRec.GetPosition().y();
                double z = pTrkRec.GetPosition().z();
                double phi_pos = std::atan2(y,x);
-               if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackRecordCollection truth Association Found" << endreq;
+               if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackRecordCollection truth Association Found" << endmsg;
                truthTrack.PDG_ID=pTrkRec.GetPDGCode();
                truthTrack.PDG_Mother=999;
                truthTrack.Phi = pTrkRec.GetMomentum().phi();
@@ -312,7 +313,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                         << " cotTheta=" << truthTrack.Theta
                         << " charge="   << truthTrack.Charge
                         << " z0="       << truthTrack.z0
-                        << " d0="       << truthTrack.d0 << endreq;
+                        << " d0="       << truthTrack.d0 << endmsg;
 
                goto mcEvent;
             }
@@ -326,28 +327,28 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
 
     if (found_match == false)  
        if (msgLvl(MSG::DEBUG)) 
-           msg(MSG::DEBUG) << "Could not find a match in the TrackRecordCollection, moving to McEvent" << endreq;
+           msg(MSG::DEBUG) << "Could not find a match in the TrackRecordCollection, moving to McEvent" << endmsg;
 
     const Trk::Perigee pPerigee = pParticle->perigeeParameters();
     double perigee_pt   = pPerigee.pT();
     double perigee_phi  = pPerigee.parameters()[Trk::phi];
     double perigee_eta  = pPerigee.eta();
     if (msgLvl(MSG::DEBUG)) msg() << "perigeeParameters: pt " 
-                                      <<perigee_pt<<" phi "<<perigee_phi<<" eta "<<perigee_eta << endreq;
+                                      <<perigee_pt<<" phi "<<perigee_phi<<" eta "<<perigee_eta << endmsg;
 
-    m_pMcEventCollection = NULL;
-    sc = evtStore()->retrieve(m_pMcEventCollection, m_sMcEventCollection);
-    if( sc.isFailure() || m_pMcEventCollection == NULL)
+    const McEventCollection* mcEventCollection = NULL;
+    sc = evtStore()->retrieve(mcEventCollection, m_sMcEventCollection);
+    if( sc.isFailure() || mcEventCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve McEventCollection" << endmsg;
         if (found_match) 
             return StatusCode::SUCCESS;
         else
             return StatusCode::RECOVERABLE;
     }
 
-    for (McEventCollection::const_iterator itMc = m_pMcEventCollection->begin();
-            itMc != m_pMcEventCollection->end();
+    for (McEventCollection::const_iterator itMc = mcEventCollection->begin();
+            itMc != mcEventCollection->end();
             itMc++)
     {
         const HepMC::GenEvent* pGenEvent = *itMc;
@@ -359,7 +360,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
         {
             const HepMC::GenParticle* pPart = *itPart;
 
-            if(fabs(pPart->pdg_id())!=13 && fabs(pPart->pdg_id())<1000000) continue;
+            if(std::abs(pPart->pdg_id())!=13 && std::abs(pPart->pdg_id())<1000000) continue;
 
             if(pPart->status() == 1&&pPart->momentum().perp()>1000.)
             {
@@ -371,7 +372,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                 const Amg::Vector3D vertex(0.,0.,0.);
                 const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
                 if (pPartPerigeeParameters==0) {
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endmsg;
                     continue;
                 }
                 double charge = pPartPerigeeParameters->charge();
@@ -380,7 +381,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                         fabs(dphi) < 0.006 &&
                         fabs(dpt_pt) < 0.2) 
                 {
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "McEventCollection truth Association Found" << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "McEventCollection truth Association Found" << endmsg;
                     truthTrack.PDG_ID=pPart->pdg_id();
                     truthTrack.PDG_Mother=-100;
                     if (pPart->production_vertex()!=NULL)
@@ -398,7 +399,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                     truthTrack.DEta = deta;
                     truthTrack.DPt_Pt = dpt_pt;
 
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "This track is associated to muon " << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "This track is associated to muon " << endmsg;
                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth parameters   :"
                         << " PDG_ID=" << pPart->pdg_id()
                         << " pT=" << pPart->momentum().perp()
@@ -407,7 +408,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                         << " cotTheta=" <<truthTrack.Theta
                         << " charge=" << charge
                         << " z0=" << truthTrack.z0
-                        << " d0=" <<truthTrack.d0<<endreq;
+                        << " d0=" <<truthTrack.d0<<endmsg;
                     if (msgLvl(MSG::DEBUG)) msg() << "ID track parameters:"
                         << " pT=" << pPerigee.pT()
                         << " eta=" << pPerigee.eta()
@@ -415,7 +416,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                         << " cotTheta=" << 1./tan(pPerigee.parameters()[Trk::theta])
                         << " charge=" << pPerigee.charge()
                         << " z0=" << pPerigee.parameters()[Trk::z0]
-                        << " d0=" <<pPerigee.parameters()[Trk::d0]<<endreq;
+                        << " d0=" <<pPerigee.parameters()[Trk::d0]<<endmsg;
                     
                     return StatusCode::SUCCESS;
                 }
@@ -427,15 +428,15 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
     else
     {
        if (msgLvl(MSG::DEBUG)) 
-           msg(MSG::DEBUG) <<"This trackParticle is not associated to truth " << endreq;
+           msg(MSG::DEBUG) <<"This trackParticle is not associated to truth " << endmsg;
        return StatusCode::RECOVERABLE;
     }
 }
 
 /////////////////// sofia
-StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack,CandidateSummary* summary)
+StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack,CandidateSummary* summary) const
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack from mFeature" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack from mFeature" << endmsg;
 
 
     double mf_pt = fabs(muonFeature->pt())*1000;
@@ -450,7 +451,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
     StatusCode sc = evtStore()->retrieve(pRecordCollection, "MuonEntryLayerFilter");
     if (sc.isFailure() || pRecordCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endmsg;
         goto mcEvent;
     }
 
@@ -463,7 +464,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
        double isect_pt = cand_momentum * sin(isect_theta);
      
        if (msgLvl(MSG::DEBUG)) msg() << "Found InnerDist intersection: p "<<cand_momentum<<" pt "
-                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endreq;
+                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endmsg;
 
        for (TrackRecordConstIterator itTrkRec = pRecordCollection->begin();
             itTrkRec != pRecordCollection->end();
@@ -471,7 +472,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
        {
            TrackRecord pTrkRec = *itTrkRec;
  
-           if (fabs(pTrkRec.GetPDGCode())!= 13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
+           if (std::abs(pTrkRec.GetPDGCode())!= 13 && std::abs(pTrkRec.GetPDGCode())<1000000) continue;
 
           double dpt_pt = (pTrkRec.GetMomentum().perp() - isect_pt) / pTrkRec.GetMomentum().perp();
           double dphi = pTrkRec.GetMomentum().phi() - isect_phi;
@@ -486,7 +487,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
           if (fabs(deta) < 0.006*50 &&
               fabs(dphi) < 0.006*50)
           {
-              if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endreq;
+              if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endmsg;
               truthTrack.PDG_ID=pTrkRec.GetPDGCode();
               truthTrack.PDG_Mother=999;
               truthTrack.Phi = pTrkRec.GetMomentum().phi();
@@ -508,19 +509,19 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 
     mcEvent:
 
-    m_pMcEventCollection = NULL;
-    sc = evtStore()->retrieve(m_pMcEventCollection, m_sMcEventCollection);
-    if( sc.isFailure() || m_pMcEventCollection == NULL)
+    const McEventCollection* mcEventCollection = NULL;
+    sc = evtStore()->retrieve(mcEventCollection, m_sMcEventCollection);
+    if( sc.isFailure() || mcEventCollection == NULL)
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) <<"Cannot retrieve McEventCollection" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) <<"Cannot retrieve McEventCollection" << endmsg;
         if (found_match) 
             return StatusCode::SUCCESS;
         else
             return StatusCode::RECOVERABLE;
     }
     
-    for (McEventCollection::const_iterator itMc = m_pMcEventCollection->begin();
-            itMc != m_pMcEventCollection->end();
+    for (McEventCollection::const_iterator itMc = mcEventCollection->begin();
+            itMc != mcEventCollection->end();
             itMc++)
     {
         const HepMC::GenEvent* pGenEvent = *itMc;
@@ -531,12 +532,12 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
                 itPart++)
         {
             const HepMC::GenParticle* pPart = *itPart;
-            if (fabs(pPart->pdg_id())>1000000 && fabs(pPart->momentum().eta())>1.0)
+            if (std::abs(pPart->pdg_id())>1000000 && std::abs(pPart->momentum().eta())>1.0)
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"True R-Hadron out of barrel   :"
                       << " PDG_ID=" << pPart->pdg_id()
-		      << " Eta=" << pPart->momentum().eta()<<endreq;
+		      << " Eta=" << pPart->momentum().eta()<<endmsg;
 
-            if (fabs(pPart->pdg_id()) !=13 && fabs(pPart->pdg_id())<1000000) continue;
+            if (std::abs(pPart->pdg_id()) !=13 && std::abs(pPart->pdg_id())<1000000) continue;
 
 	    if(pPart->status() == 1&&pPart->momentum().perp()>1000.)
 	    {
@@ -548,7 +549,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 		const Amg::Vector3D vertex(0.,0.,0.);
 		const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
                 if (pPartPerigeeParameters==0) {
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endmsg;
                     continue;
                 }
 		int charge = pPartPerigeeParameters->charge() > 0 ? 1 : -1;
@@ -564,7 +565,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 		     //const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
 		     //double charge = pPartPerigeeParameters->charge();
 		     //if (charge == pPerigee->charge()) {
-                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Truth Association Found" << endreq;
+                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Truth Association Found" << endmsg;
 		     truthTrack.PDG_ID=pPart->pdg_id();
 		     truthTrack.PDG_Mother=-100;
 		     if (pPart->production_vertex()!=NULL) 
@@ -584,7 +585,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 		
                      if (msgLvl(MSG::DEBUG)) 
 		     {
-                         msg(MSG::DEBUG) <<"This mFeature is associated to muon " << endreq;
+                         msg(MSG::DEBUG) <<"This mFeature is associated to muon " << endmsg;
 		         msg(MSG::DEBUG) << "Truth parameters   :"
 					<< " PDG_ID=" << pPart->pdg_id()
 			          	<< " pT=" << pPart->momentum().perp()
@@ -595,11 +596,11 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 					<< " cotTheta=" <<truthTrack.Theta
 					<< " charge=" << charge 
 					<< " z0=" << truthTrack.z0
-					<< " d0=" <<truthTrack.d0<<endreq;
+					<< " d0=" <<truthTrack.d0<<endmsg;
 			  msg(MSG::DEBUG) << "muonFeature parameters:"
 					<< " pT=" << muonFeature->pt()
 					<< " eta=" << muonFeature->eta()
-					<< " phi=" << muonFeature->phi()<<endreq;
+					<< " phi=" << muonFeature->phi()<<endmsg;
 		     }
 		     return StatusCode::SUCCESS;
 			
@@ -614,7 +615,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
     else
     {
        if (msgLvl(MSG::DEBUG)) 
-           msg(MSG::DEBUG) <<"This mFeature is not associated to truth " << endreq;
+           msg(MSG::DEBUG) <<"This mFeature is not associated to truth " << endmsg;
        return StatusCode::RECOVERABLE;
     }
 }
@@ -622,9 +623,9 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
 
 //========================================
 
-StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack,CandidateSummary* summary)
+StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack,CandidateSummary* summary) const
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack from mFeature" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "in PerformanceTruthTool::getTruthTrack from mFeature" << endmsg;
 
 
     double mf_pt = muonEFTrack->pt();
@@ -639,7 +640,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
     StatusCode sc = evtStore()->retrieve(pRecordCollection, "MuonEntryLayerFilter");
     if (sc.isFailure() || pRecordCollection == NULL)
     {
-        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endreq;
+        msg(MSG::WARNING) << "Cannot retrieve TrackRecordCollection" << endmsg;
         goto mcEvent;
     }
 
@@ -652,7 +653,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
        double isect_pt = cand_momentum * sin(isect_theta);
      
        if (msgLvl(MSG::DEBUG)) msg() << "Found InnerDist intersection: p "<<cand_momentum<<" pt "
-                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endreq;
+                                      <<isect_pt<<" phi "<<isect_phi<<" eta "<<isect_eta << endmsg;
 
        for (TrackRecordConstIterator itTrkRec = pRecordCollection->begin();
             itTrkRec != pRecordCollection->end();
@@ -660,7 +661,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
        {
            TrackRecord pTrkRec = *itTrkRec;
  
-           if (fabs(pTrkRec.GetPDGCode())!= 13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
+           if (std::abs(pTrkRec.GetPDGCode())!= 13 && std::abs(pTrkRec.GetPDGCode())<1000000) continue;
 
           double dpt_pt = (pTrkRec.GetMomentum().perp() - isect_pt) / pTrkRec.GetMomentum().perp();
           double dphi = pTrkRec.GetMomentum().phi() - isect_phi;
@@ -675,7 +676,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
           if (fabs(deta) < 0.006*50 &&
               fabs(dphi) < 0.006*50)
           {
-              if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endreq;
+              if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endmsg;
               truthTrack.PDG_ID=pTrkRec.GetPDGCode();
               truthTrack.PDG_Mother=999;
               truthTrack.Phi = pTrkRec.GetMomentum().phi();
@@ -697,19 +698,19 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 
     mcEvent:
 
-    m_pMcEventCollection = NULL;
-    sc = evtStore()->retrieve(m_pMcEventCollection, m_sMcEventCollection);
-    if( sc.isFailure() || m_pMcEventCollection == NULL)
+    const McEventCollection* mcEventCollection = NULL;
+    sc = evtStore()->retrieve(mcEventCollection, m_sMcEventCollection);
+    if( sc.isFailure() || mcEventCollection == NULL)
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) <<"Cannot retrieve McEventCollection" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) <<"Cannot retrieve McEventCollection" << endmsg;
         if (found_match) 
             return StatusCode::SUCCESS;
         else
             return StatusCode::RECOVERABLE;
     }
     
-    for (McEventCollection::const_iterator itMc = m_pMcEventCollection->begin();
-            itMc != m_pMcEventCollection->end();
+    for (McEventCollection::const_iterator itMc = mcEventCollection->begin();
+            itMc != mcEventCollection->end();
             itMc++)
     {
         const HepMC::GenEvent* pGenEvent = *itMc;
@@ -720,12 +721,12 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
                 itPart++)
         {
             const HepMC::GenParticle* pPart = *itPart;
-            if (fabs(pPart->pdg_id())>1000000 && fabs(pPart->momentum().eta())>1.0)
+            if (std::abs(pPart->pdg_id())>1000000 && std::abs(pPart->momentum().eta())>1.0)
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"True R-Hadron out of barrel   :"
                       << " PDG_ID=" << pPart->pdg_id()
-		      << " Eta=" << pPart->momentum().eta()<<endreq;
+		      << " Eta=" << pPart->momentum().eta()<<endmsg;
 
-            if (fabs(pPart->pdg_id()) !=13 && fabs(pPart->pdg_id())<1000000) continue;
+            if (std::abs(pPart->pdg_id()) !=13 && std::abs(pPart->pdg_id())<1000000) continue;
 
 	    if(pPart->status() == 1&&pPart->momentum().perp()>1000.)
 	    {
@@ -737,7 +738,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 		const Amg::Vector3D vertex(0.,0.,0.);
 		const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
                 if (pPartPerigeeParameters==0) {
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to retrieve the Truth parameters, skipping this track!" << endmsg;
                     continue;
                 }
 		int charge = pPartPerigeeParameters->charge() > 0 ? 1 : -1;
@@ -752,7 +753,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 		     //const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
 		     //double charge = pPartPerigeeParameters->charge();
 		     //if (charge == pPerigee->charge()) {
-                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Truth Association Found" << endreq;
+                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Truth Association Found" << endmsg;
 		     truthTrack.PDG_ID=pPart->pdg_id();
 		     truthTrack.PDG_Mother=-100;
 		     if (pPart->production_vertex()!=NULL) 
@@ -772,7 +773,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 		
                      if (msgLvl(MSG::DEBUG)) 
 		     {
-                         msg(MSG::DEBUG) <<"This muonEFTrack is associated to muon " << endreq;
+                         msg(MSG::DEBUG) <<"This muonEFTrack is associated to muon " << endmsg;
 		         msg(MSG::DEBUG) << "Truth parameters   :"
 					<< " PDG_ID=" << pPart->pdg_id()
 			          	<< " pT=" << pPart->momentum().perp()
@@ -783,11 +784,11 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 					<< " cotTheta=" <<truthTrack.Theta
 					<< " charge=" << charge 
 					<< " z0=" << truthTrack.z0
-					<< " d0=" <<truthTrack.d0<<endreq;
+					<< " d0=" <<truthTrack.d0<<endmsg;
 			  msg(MSG::DEBUG) << "muonEFTrack parameters:"
 					<< " pT=" << muonEFTrack->pt()
 					<< " eta=" << muonEFTrack->eta()
-					<< " phi=" << muonEFTrack->phi()<<endreq;
+					<< " phi=" << muonEFTrack->phi()<<endmsg;
 		     }
 		     return StatusCode::SUCCESS;
 			
@@ -802,7 +803,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
     else
     {
        if (msgLvl(MSG::DEBUG)) 
-           msg(MSG::DEBUG) <<"This muonEFTrack is not associated to truth " << endreq;
+           msg(MSG::DEBUG) <<"This muonEFTrack is not associated to truth " << endmsg;
        return StatusCode::RECOVERABLE;
     }
 }
@@ -811,7 +812,7 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
 //========================================
 StatusCode PerformanceTruthTool::bookNTuple(NTuple::Tuple* pNtuple)
 {
-    msg(MSG::INFO) << " Adding Candidate Truth Parameters to NTuple" << endreq;
+    msg(MSG::INFO) << " Adding Candidate Truth Parameters to NTuple" << endmsg;
     if (pNtuple->addItem("MUGIRL/TruthPdgId" , m_pTruthPdgId).isFailure() ||
             pNtuple->addItem("MUGIRL/TruthPdgMother" , m_pTruthPdgMother).isFailure() ||
             pNtuple->addItem("MUGIRL/TruthPt" , m_pTruthPt).isFailure() ||
@@ -826,7 +827,7 @@ StatusCode PerformanceTruthTool::bookNTuple(NTuple::Tuple* pNtuple)
             pNtuple->addItem("MUGIRL/TruthDEta" ,    m_pTruthDEta).isFailure() ||
             pNtuple->addItem("MUGIRL/TruthDPhi" ,    m_pTruthDPhi).isFailure())
     {
-        msg(MSG::WARNING) << "Cannot addItem(MUGIRL/<Candidate Truth Parameters>)" << endreq;
+        msg(MSG::WARNING) << "Cannot addItem(MUGIRL/<Candidate Truth Parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -864,7 +865,7 @@ StatusCode PerformanceTruthTool::fillNTuple(CandidateSummary* summary)
     }
     else
     {
-        msg(MSG::WARNING) << "Truth Particle not Found" << endreq;
+        msg(MSG::WARNING) << "Truth Particle not Found" << endmsg;
         m_pTruthPdgId     = -100.0;
         m_pTruthPdgMother = -100.0;
         m_pTruthPt        = -100.0;
@@ -885,7 +886,7 @@ StatusCode PerformanceTruthTool::fillNTuple(CandidateSummary* summary)
 StatusCode PerformanceTruthTool::fillNTuple(const MuonFeature* muonFeature)
 {
     if (msgLvl(MSG::DEBUG)) 
-        msg(MSG::DEBUG) << "in PerformanceTruthTool::fillNTuple from mFeature" << endreq;
+        msg(MSG::DEBUG) << "in PerformanceTruthTool::fillNTuple from mFeature" << endmsg;
 	TruthTrack truthTrack;
 	StatusCode sc = getTruthTrack(muonFeature, truthTrack, summary);
         if (sc.isSuccess())
@@ -909,7 +910,7 @@ StatusCode PerformanceTruthTool::fillNTuple(const MuonFeature* muonFeature)
         }
         else
         {
-	    msg(MSG::WARNING) << "Truth Particle not Found" << endreq;
+	    msg(MSG::WARNING) << "Truth Particle not Found" << endmsg;
 	    m_pTruthPdgId     = -100.0;
 	    m_pTruthPdgMother = -100.0;
             m_pTruthPt        = -100.0;
