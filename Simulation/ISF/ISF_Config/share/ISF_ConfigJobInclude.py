@@ -53,6 +53,11 @@ if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
 simFlags.load_atlas_flags()
 simFlags.EventFilter.set_Off()
 
+# --- Read in special simulation job option fragments based on
+# --- metadata passed by the evgen stage (move earlier?)
+from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
+checkForSpecialConfigurationMetadata()
+
 #--------------------------------------------------------------
 # Job setup
 #--------------------------------------------------------------
@@ -84,7 +89,6 @@ theApp.AuditServices   = True
 #
 # --- Display detailed size and timing statistics for writing and reading
 ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
-
 
 #--------------------------------------------------------------
 # ISF input
@@ -160,7 +164,9 @@ simFlags.RandomSeedList.printSeeds()
 # Setup the ISF Output
 #--------------------------------------------------------------
 from ISF_Example.ISF_Output import ISF_HITSStream
-
+from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configureRunNumberOverrides
+createSimulationParametersMetadata()
+configureRunNumberOverrides()
 #--------------------------------------------------------------
 # Post kernel configuration
 #--------------------------------------------------------------
