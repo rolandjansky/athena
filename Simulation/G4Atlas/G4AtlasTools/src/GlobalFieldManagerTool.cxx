@@ -5,6 +5,9 @@
 // Main header
 #include "G4AtlasTools/GlobalFieldManagerTool.h"
 
+// Local package include
+#include "TightMuonSteppingFieldManager.h"
+
 // Geant4 includes
 #include "G4TransportationManager.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
@@ -23,6 +26,8 @@ GlobalFieldManagerTool::GlobalFieldManagerTool(const std::string& type,
                                                const IInterface* parent)
   : G4FieldManagerToolBase(type, name, parent)
 {
+  declareProperty("UseTightMuonStepping", m_useTightMuonStepping=false,
+                  "Use tight muon stepping parameters by default");
 }
 
 //-----------------------------------------------------------------------------
@@ -39,7 +44,28 @@ StatusCode GlobalFieldManagerTool::initializeField()
 
     // Retrieve the global field manager
     auto transpManager = G4TransportationManager::GetTransportationManager();
-    auto fieldMgr = transpManager->GetFieldManager();
+    G4FieldManager* fieldMgr(nullptr);
+    if (m_useTightMuonStepping){
+      // In the case of tight stepping we need to make our own global field manager
+      // If field manager already exists for current thread, error.
+      // There is no foreseen use-case for this situation.
+      if(m_fieldMgrHolder.get()) {
+        ATH_MSG_ERROR("GlobalFieldManagerTool::initializeField() - " <<
+                      "Field manager already exists!");
+        return StatusCode::FAILURE;
+      }
+      // Create a new field manager
+      fieldMgr = new TightMuonSteppingFieldManager();
+
+      // Save it in the TL holder
+      m_fieldMgrHolder.set(fieldMgr);
+
+      // Assign it to the global field manager
+      transpManager->SetFieldManager(fieldMgr);
+    } else {
+      // Otherwise get the default from the transportation manager
+      fieldMgr = transpManager->GetFieldManager();
+    }
 
     // Configure the field manager
     fieldMgr->SetDetectorField(field);

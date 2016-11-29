@@ -97,8 +97,8 @@ void DetectorGeometryBase::SetRotationAndOffset()
       //FIXME probably a neater way to do this part.
       m_envelope.theRotation=new G4RotationMatrix;
       m_envelope.theRotation->rotateX(m_rotateX);
-      m_envelope.theRotation->rotateX(m_rotateY);
-      m_envelope.theRotation->rotateX(m_rotateZ);
+      m_envelope.theRotation->rotateY(m_rotateY);
+      m_envelope.theRotation->rotateZ(m_rotateZ);
       if (m_envelope.thePositionedVolume)
         m_envelope.thePositionedVolume->SetRotation(m_envelope.theRotation);
     }
