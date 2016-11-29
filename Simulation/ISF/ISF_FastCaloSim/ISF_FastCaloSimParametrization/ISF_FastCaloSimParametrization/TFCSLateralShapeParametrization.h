@@ -5,7 +5,7 @@
 #ifndef TFCSLateralShapeParametrization_h
 #define TFCSLateralShapeParametrization_h
 
-#include "ISF_FastCaloSimParametrization/TFCSParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 
 class TFCSLateralShapeParametrization:public TFCSParametrization {
 public:
@@ -32,9 +32,5 @@ private:
 
   ClassDef(TFCSLateralShapeParametrization,1)  //TFCSLateralShapeParametrization
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSLateralShapeParametrization;
-#endif
 
 #endif

@@ -3,7 +3,7 @@
 */
 
 #include "ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h"
-#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
@@ -16,8 +16,8 @@ TFCSNNLateralShapeParametrization::TFCSNNLateralShapeParametrization(const char*
 void TFCSNNLateralShapeParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
-  double hit_eta=0.5*( extrapol->eta(cs,TFCSExtrapolationState::SUBPOS_ENT) + extrapol->eta(cs,TFCSExtrapolationState::SUBPOS_EXT) );
-  double hit_phi=0.5*( extrapol->phi(cs,TFCSExtrapolationState::SUBPOS_ENT) + extrapol->phi(cs,TFCSExtrapolationState::SUBPOS_EXT) );
+  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
+  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
   double hit_weight=1;
 
   simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);

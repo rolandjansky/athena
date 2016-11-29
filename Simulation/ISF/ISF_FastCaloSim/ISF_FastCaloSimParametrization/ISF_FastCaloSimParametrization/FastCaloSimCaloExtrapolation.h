@@ -22,9 +22,9 @@ namespace HepPDT {
   class ParticleDataTable;
 }  
 
-#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
-#include "ISF_FastCaloSimParametrization/TFCSExtrapolationState.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
 class IFastCaloSimGeometryHelper;
 
@@ -39,8 +39,6 @@ class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExt
 
    IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
-   enum SUBPOS { SUBPOS_MID = TFCSExtrapolationState::SUBPOS_MID, SUBPOS_ENT = TFCSExtrapolationState::SUBPOS_ENT, SUBPOS_EXT = TFCSExtrapolationState::SUBPOS_EXT}; //MID=middle, ENT=entrance, EXT=exit of cal layer
-
  protected:
    bool   isCaloBarrel(int sample) const;
    double deta(int sample,double eta) const;
@@ -54,9 +52,9 @@ class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExt
    double zmid(int sample,double eta) const;
    double zent(int sample,double eta) const;
    double zext(int sample,double eta) const;
-   double rpos(int sample,double eta,int subpos=SUBPOS_MID) const;
-   double zpos(int sample,double eta,int subpos=SUBPOS_MID) const;
-   double rzpos(int sample,double eta,int subpos=SUBPOS_MID) const;
+   double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+   double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+   double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
    
    HepPDT::ParticleDataTable*     m_particleDataTable;
    

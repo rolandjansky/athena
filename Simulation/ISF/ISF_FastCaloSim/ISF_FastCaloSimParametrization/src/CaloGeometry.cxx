@@ -14,7 +14,7 @@
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 //#include "TMVA/Tools.h"
 //#include "TMVA/Factory.h"
 
@@ -207,11 +207,11 @@ void CaloGeometryLookup::post_process()
     m_deta_double=deta();
     m_dphi_double=dphi();
   } else {
-    double rnx=nx_double()-nx();
-    double rny=ny_double()-ny();
-    if(TMath::Abs(rnx)>0.05 || TMath::Abs(rny)>0.05) {
-      cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": mapping cells into a regular grid, although cells don't fit well"<<endl;
-    }
+    //double rnx=nx_double()-nx();
+    //double rny=ny_double()-ny();
+    //if(TMath::Abs(rnx)>0.05 || TMath::Abs(rny)>0.05) {
+    //  cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": mapping cells into a regular grid, although cells don't fit well"<<endl;
+    //}
 
     m_cell_grid_eta=TMath::Nint(TMath::Ceil(nx_double()/m_xy_grid_adjustment_factor));
     m_cell_grid_phi=TMath::Nint(TMath::Ceil(ny_double()/m_xy_grid_adjustment_factor));
@@ -262,7 +262,7 @@ void CaloGeometryLookup::post_process()
       }
     }
   }  
-  cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": "<<ncells<<"/"<<size()<<" cells filled, "<<nempty<<" empty grid positions"<<endl;
+  //cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": "<<ncells<<"/"<<size()<<" cells filled, "<<nempty<<" empty grid positions"<<endl;
 }
 
 float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
@@ -516,7 +516,7 @@ void CaloGeometry::PrintMapInfo(int i, int j)
 
 void CaloGeometry::post_process(int sampling)
 {
-  cout<<"post processing sampling "<<sampling<<endl;
+  //cout<<"post processing sampling "<<sampling<<endl;
   bool found_overlap=false;
   for(unsigned int j=0;j<m_cells_in_regions[sampling].size();++j) {
     /*
@@ -1122,8 +1122,8 @@ double CaloGeometry::rpos(int sample,double eta,int subpos) const
   int side=0;
   if(eta>0) side=1;
 
-  if(subpos==SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
-  if(subpos==SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
+  if(subpos==CaloSubPos::SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
+  if(subpos==CaloSubPos::SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
   return m_rmid_map[side][sample].find_closest(eta)->second;
 }
 
@@ -1132,8 +1132,8 @@ double CaloGeometry::zpos(int sample,double eta,int subpos) const
   int side=0;
   if(eta>0) side=1;
 
-  if(subpos==SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
-  if(subpos==SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
+  if(subpos==CaloSubPos::SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
+  if(subpos==CaloSubPos::SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
   return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
@@ -1143,12 +1143,12 @@ double CaloGeometry::rzpos(int sample,double eta,int subpos) const
   if(eta>0) side=1;
  
   if(isCaloBarrel(sample)) {
-    if(subpos==SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
-    if(subpos==SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
+    if(subpos==CaloSubPos::SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
+    if(subpos==CaloSubPos::SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
     return m_rmid_map[side][sample].find_closest(eta)->second;
   } else {
-    if(subpos==SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
-    if(subpos==SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
+    if(subpos==CaloSubPos::SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
+    if(subpos==CaloSubPos::SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
     return m_zmid_map[side][sample].find_closest(eta)->second;
   }  
 }
