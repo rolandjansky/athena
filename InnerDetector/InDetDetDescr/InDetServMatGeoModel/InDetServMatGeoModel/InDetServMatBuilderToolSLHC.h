@@ -14,7 +14,7 @@
 
 class GeoMaterial;
 class PixelGeoModelAthenaComps;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class InDetServMatGeometryManager;
@@ -87,7 +87,7 @@ private:
 
 
   /// Properties
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
 

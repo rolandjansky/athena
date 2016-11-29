@@ -18,7 +18,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include <iostream>
 
@@ -41,7 +41,7 @@ PixelServMatFactoryDC3::~PixelServMatFactoryDC3()
 //## Other Operations (implementation)
 void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
 
   // And the list of materials that we are using:
     std::string mat[6] = {
@@ -54,7 +54,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
     };
     double epsilon = 0.002;
   
-  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
+    DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
  
   IRDBRecordset_ptr pbfi = rdbAccessSvc()->getRecordsetPtr("PBFISERV", indetVersionKey.tag(), indetVersionKey.node());
 
@@ -94,7 +94,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
     const GeoMaterial* cylMat = materialManager()->getMaterial(matName);
 
 //  log << MSG::DEBUG << "Pixel Service Material=" <<matName<<" Density="<<cylMat->getDensity()
-//      <<" Rad.length="<<cylMat->getRadLength()<<endreq;
+//      <<" Rad.length="<<cylMat->getRadLength()<<endmsg;
 //  std::cout << "Pixel Service Material=" <<matName<<" Density="<<cylMat->getDensity()
 //      <<" Rad.length="<<cylMat->getRadLength()<<'\n';
 

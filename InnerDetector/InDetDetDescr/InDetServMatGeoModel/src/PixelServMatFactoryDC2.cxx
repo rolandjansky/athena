@@ -18,7 +18,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -46,12 +45,12 @@ PixelServMatFactoryDC2::~PixelServMatFactoryDC2()
 void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
 
   // Get the material manager:  
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
 
   // And the list of materials that we are using:
     std::string mat[6] = {
@@ -64,13 +63,7 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
     };
     double epsilon = 0.002;
   
- // Get the SvcLocator 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey("InnerDetector");
  
   IRDBRecordset_ptr pbfi = m_rdbAccess->getRecordsetPtr("PBFISERV", indetVersionKey.tag(), indetVersionKey.node());
   

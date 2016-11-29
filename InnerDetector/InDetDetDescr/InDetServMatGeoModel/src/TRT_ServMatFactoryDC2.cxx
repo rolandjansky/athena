@@ -20,7 +20,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -51,24 +50,16 @@ TRT_ServMatFactoryDC2::~TRT_ServMatFactoryDC2()
 void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
 
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
   
   double epsilon = 0.002;
   
-
-  // Get the SvcLocator 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
- 
-
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey("InnerDetector");
 
   IRDBRecordset_ptr ipan = m_rdbAccess->getRecordsetPtr("IPAN", indetVersionKey.tag(), indetVersionKey.node());
   IRDBRecordset_ptr inel = m_rdbAccess->getRecordsetPtr("INEL", indetVersionKey.tag(), indetVersionKey.node());

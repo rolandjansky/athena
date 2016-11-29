@@ -5,7 +5,6 @@
 #include "InDetServMatGeoModel/InDetServMatGeometryManager.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -18,23 +17,23 @@ InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaCo
     m_matMgr(0)
 {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing InDetServMatGeometryManager" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing InDetServMatGeometryManager" << endmsg;
    
+  IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
   IRDBAccessSvc *rdbSvc = m_athenaComps->rdbAccessSvc();
-  IGeoModelSvc *geoModel = m_athenaComps->geoModelSvc();;
 
   // Get version tag and node for Pixel.
-  DecodeVersionKey pixelVersionKey(geoModel, "Pixel");
+  DecodeVersionKey pixelVersionKey(geoDbTag,"Pixel");
   std::string pixelDetectorKey  = pixelVersionKey.tag();
   std::string pixelDetectorNode = pixelVersionKey.node();
 
   // Get version tag and node for SCT.
-  DecodeVersionKey sctVersionKey(geoModel, "SCT");
+  DecodeVersionKey sctVersionKey(geoDbTag,"SCT");
   std::string sctDetectorKey  = sctVersionKey.tag();
   std::string sctDetectorNode = sctVersionKey.node();
 
   //// Get version tag and node for InnerDetector.
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
   std::string indetDetectorKey  = indetVersionKey.tag();
   std::string indetDetectorNode = indetVersionKey.node();
   
@@ -45,10 +44,10 @@ InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaCo
 /////////////////////////////////////////////////////////
 
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Retrieving Pixel Record Sets from database ..." << endreq;
-    msg(MSG::DEBUG) << "Pixel: Key = " << pixelDetectorKey << " Node = " << pixelDetectorNode << endreq;
-    msg(MSG::DEBUG) << "SCT:   Key = " << sctDetectorKey   << " Node = " << sctDetectorNode << endreq;
-    msg(MSG::DEBUG) << "InDet: Key = " << indetDetectorKey << " Node = " << indetDetectorNode << endreq;
+    msg(MSG::DEBUG) << "Retrieving Pixel Record Sets from database ..." << endmsg;
+    msg(MSG::DEBUG) << "Pixel: Key = " << pixelDetectorKey << " Node = " << pixelDetectorNode << endmsg;
+    msg(MSG::DEBUG) << "SCT:   Key = " << sctDetectorKey   << " Node = " << sctDetectorNode << endmsg;
+    msg(MSG::DEBUG) << "InDet: Key = " << indetDetectorKey << " Node = " << indetDetectorNode << endmsg;
   }
  
   m_InDetWeights       = rdbSvc->getRecordsetPtr("InDetWeights",       indetDetectorKey, indetDetectorNode);
@@ -178,12 +177,12 @@ int InDetServMatGeometryManager::pixelNumSectorsForLayer(int layer) const
 // Number of modules per stave
 int InDetServMatGeometryManager::pixelModulesPerStave(int layer) const
 {
-  //msg(MSG::INFO) << "Entering InDetServMatGeometryManager::pixelModulesPerStave for layer " << layer << endreq;
+  //msg(MSG::INFO) << "Entering InDetServMatGeometryManager::pixelModulesPerStave for layer " << layer << endmsg;
 
   int staveIndex = db()->getInt(m_PixelLayer,"STAVEINDEX",layer);
 
-  //msg(MSG::INFO) << "staveIndex for the layer is " << staveIndex << endreq;
-  //msg(MSG::INFO) << "modules per stave is " << db()->getInt(m_PixelStave,"NMODULE",staveIndex) << endreq;
+  //msg(MSG::INFO) << "staveIndex for the layer is " << staveIndex << endmsg;
+  //msg(MSG::INFO) << "modules per stave is " << db()->getInt(m_PixelStave,"NMODULE",staveIndex) << endmsg;
 
   return db()->getInt(m_PixelStave,"NMODULE",staveIndex);
 }
@@ -230,7 +229,7 @@ int InDetServMatGeometryManager::pixelModulesPerEndcapSector( int layer) const
     if ( disk == layer) {
       int ring = db()->getInt(m_PixelDiskRing,"RING",indexTmp);
       nModulesDisk += pixelModulesPerRing( ring);
-      //msg(MSG::INFO) << "Pixel Ring " << ring << " on disk " << disk << " has " << pixelModulesPerRing( ring) << " modules" << endreq;
+      //msg(MSG::INFO) << "Pixel Ring " << ring << " on disk " << disk << " has " << pixelModulesPerRing( ring) << " modules" << endmsg;
     }
   }
   if(pixelEndcapNumSectorsForLayer(layer)==0) return 0;

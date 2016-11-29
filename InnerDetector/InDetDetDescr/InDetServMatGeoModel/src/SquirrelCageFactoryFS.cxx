@@ -19,7 +19,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -51,15 +50,9 @@ void SquirrelCageFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
   
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
    
-  // Get the SvcLocator 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-  
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey("InnerDetector");
   
   IRDBRecordset_ptr cage = m_rdbAccess->getRecordsetPtr("SquirrelCage",  indetVersionKey.tag(), indetVersionKey.node());
 
@@ -72,7 +65,7 @@ void SquirrelCageFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
     tmpStr >> sqversion;
   }
-  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endreq;
+  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endmsg;
   
 
 //----------------------------------------------------------------------------------

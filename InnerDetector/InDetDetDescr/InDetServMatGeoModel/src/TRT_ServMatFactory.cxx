@@ -22,7 +22,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 
@@ -48,13 +48,13 @@ TRT_ServMatFactory::~TRT_ServMatFactory()
 void TRT_ServMatFactory::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
 
   //double epsilon = 0.002;
   
-  DecodeVersionKey atlasVersionKey(geoModelSvc(), "ATLAS");
-  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
-  DecodeVersionKey trtVersionKey(geoModelSvc(), "TRT");
+  DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");
+  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
+  DecodeVersionKey trtVersionKey(geoDbTagSvc(),"TRT");
 
   std::string railversion =  rdbAccessSvc()->getChildTag("IDDetailedRail",indetVersionKey.tag(),indetVersionKey.node());
   if(!railversion.empty()) {

@@ -13,7 +13,7 @@
 #include <string>
 
 class InDetServMatAthenaComps;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class IInDetServMatBuilderTool;
@@ -34,7 +34,7 @@ class InDetServMatTool : public GeoModelTool {
   virtual StatusCode clear(StoreGateSvc* detStore);
 
  private:
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ToolHandle<IInDetServMatBuilderTool> m_builderTool;

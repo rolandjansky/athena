@@ -21,8 +21,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
-
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #define TRTELEMENTSINEL 9
@@ -48,15 +47,15 @@ SCT_ServMatFactoryDC3::~SCT_ServMatFactoryDC3()
 void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
 
   double epsilon = 0.002;
 
-  DecodeVersionKey atlasVersionKey(geoModelSvc(), "ATLAS");
-  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
-  DecodeVersionKey sctVersionKey(geoModelSvc(), "SCT");
-  DecodeVersionKey trtVersionKey(geoModelSvc(), "TRT");
+  DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");
+  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
+  DecodeVersionKey sctVersionKey(geoDbTagSvc(),"SCT");
+  DecodeVersionKey trtVersionKey(geoDbTagSvc(),"TRT");
 
   IRDBRecordset_ptr atls = rdbAccessSvc()->getRecordsetPtr("AtlasMother", atlasVersionKey.tag(), atlasVersionKey.node());
   IRDBRecordset_ptr inel = rdbAccessSvc()->getRecordsetPtr("INEL",  indetVersionKey.tag(), indetVersionKey.node());
