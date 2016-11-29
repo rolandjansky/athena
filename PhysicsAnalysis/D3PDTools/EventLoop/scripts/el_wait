@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+set -u
+
+rc root -l -b -q "$ROOTCOREBIN/user_scripts/EventLoop/wait.C(\"$1\")"
