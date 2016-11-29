@@ -95,6 +95,8 @@ public:  // functions
   // }
 }
   
+  RpcPad& operator= (RpcPad&&) = default;
+
   Identifier identify() const { return m_id; }
   
   /** Returns the OFFLINE identifier hash for this collection*/

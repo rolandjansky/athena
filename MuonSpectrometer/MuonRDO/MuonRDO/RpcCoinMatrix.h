@@ -57,6 +57,8 @@ class RpcCoinMatrix : public DataVector<RpcFiredChannel> {
   virtual ~RpcCoinMatrix() { 
 	  // std::cout<<"RpcCoinMatrix dtor ["<<this<<"]"<<std::endl;
   }
+
+  RpcCoinMatrix& operator= (RpcCoinMatrix&&) = default;
   
   // return the pad Identifier of this CM
   Identifier identify() const { return m_id;}
