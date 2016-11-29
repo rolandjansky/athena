@@ -24,7 +24,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -54,20 +53,14 @@ TRT_ServMatFactoryFS::~TRT_ServMatFactoryFS()
 void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
 
   //double epsilon = 0.002;
   
 
-  // Get the SvcLocator 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IGeoModelSvc *geoModel;
-  StatusCode sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-  
-  DecodeVersionKey atlasVersionKey(geoModel, "ATLAS");
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
-  DecodeVersionKey trtVersionKey(geoModel, "TRT");
+  DecodeVersionKey atlasVersionKey("ATLAS");
+  DecodeVersionKey indetVersionKey("InnerDetector");
+  DecodeVersionKey trtVersionKey("TRT");
 
   IRDBRecordset_ptr atls = m_rdbAccess->getRecordsetPtr("AtlasMother",  atlasVersionKey.tag(), atlasVersionKey.node());
   IRDBRecordset_ptr cage = m_rdbAccess->getRecordsetPtr("SquirrelCage",  indetVersionKey.tag(), indetVersionKey.node());

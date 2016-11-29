@@ -100,7 +100,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
     bpVertRouteRmax = 0.5*(epRmax + c_epEosLength + tracker.geoMgr()->sctInnerSupport());
     // Pixel horizontal route in the middle between pixel disks and first strip layer
     if ( epRmax + c_epEosLength + c_ServiceCylinderThickness > tracker.geoMgr()->sctInnerSupport())
-      msg(MSG::WARNING)<< " No space for services between pixel diskd and sct support" << endreq;
+      msg(MSG::WARNING)<< " No space for services between pixel diskd and sct support" << endmsg;
   }
   else {
     // services along PST, as close as they can get
@@ -110,7 +110,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   double bpHorRouteR = bpVertRouteRmax;
   double bpHRouteZmin = bpVertRouteZpos +  0.5*c_ServiceDiskThickness + c_safetyGap;
   double bpHRouteZmax = eplc.back()->zPos(); // prolong if along PST ?
-  msg(MSG::INFO) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endreq;
+  msg(MSG::INFO) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
   /// Assume same length barrel, the loop is to make sure there are no volume overlaps
   /// in case strip barrel layers are slightly different
@@ -130,7 +130,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   if(bMSTI||bMSTM||bMSTO)
     if(bpHRouteZmax_mode>0.1&&bpHRouteZmax_mode<bpHRouteZmax) bpHRouteZmax = bpHRouteZmax_mode-0.001;
 
-  msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endreq;
+  msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
   double bsVertRouteRmin = bpHorRouteR + 0.5*c_ServiceCylinderThickness + c_safetyGap;
   double bsVertRouteRmax = bslc.back()->radius() + c_ServiceCylinderThickness; // approx
@@ -317,7 +317,7 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   }
   else {
     msg(MSG::WARNING) << "not enough space for end of stave of barrel layer at radius "
-		      << (**bl).radius() << endreq;
+		      << (**bl).radius() << endmsg;
   }
   double halfEosThick = eosHalfThickness( (*bl)->type(), DetType::Barrel);
   ServiceVolume* eosCylinder = new ServiceVolume( ServiceVolume::Cylinder,
@@ -360,12 +360,12 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
 //   double rEosMax = rEosMin + eosLength( (*bl)->type(), DetType::Endcap);
 //   if (rEosMax > route.position() - 0.5*c_ServiceCylinderThickness) {
 //     msg(MSG::WARNING) << "not enough space for end of stave of endcap layer at Z = "
-// 		      << (**bl).zPos() << endreq;
+// 		      << (**bl).zPos() << endmsg;
 //   }
 //   rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap;
 //   if (rEosMax < rEosMin) {
 //     msg(MSG::WARNING) << "no space for routing of endcap layer at Z = "
-// 		      << (**bl).zPos() << endreq;
+// 		      << (**bl).zPos() << endmsg;
 //   }
 
   double rEosMin = 0.0;
@@ -380,7 +380,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
     rEosMin = (*bl)->rMax() + eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge + safety
     rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap; // support tube - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
-    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endreq;
+    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
   }
   else if (SupportName == "MST")
   {
@@ -393,7 +393,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
     rEosMin = route.position() + 0.5*c_ServiceCylinderThickness + c_safetyGap; // support tube + safety
     rEosMax = (*bl)->rMin() - eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
-    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endreq;
+    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
   }
   else if (SupportName == "MSTO" || SupportName == "MSTM" || SupportName == "MSTI" )
   {
@@ -417,17 +417,17 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
       EOSZOffset = 0;
       if (rEosMax > route.position() - 0.5*c_ServiceCylinderThickness) {
 	msg(MSG::WARNING) << "not enough space for end of stave of endcap layer at Z = "
-			  << (**bl).zPos() << endreq;
+			  << (**bl).zPos() << endmsg;
       }
       rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap;
       if (rEosMax < rEosMin) {
 	msg(MSG::WARNING) << "no space for routing of endcap layer at Z = "
-			  << (**bl).zPos() << endreq;
+			  << (**bl).zPos() << endmsg;
       }
     }
   else
   {
-    msg(MSG::ERROR) << "Specified support name (" << SupportName<< ") not recognised - EOS not created!" << endreq;
+    msg(MSG::ERROR) << "Specified support name (" << SupportName<< ") not recognised - EOS not created!" << endmsg;
     return;
   }
 
@@ -585,7 +585,7 @@ void Routing2::dumpRoute( const Route& route)
 {
   using namespace std;
   msg(MSG::INFO)<< "Dumping route at pos " << route.position() 
-		<< " with exit at " << route.exit() << endreq;
+		<< " with exit at " << route.exit() << endmsg;
   for ( Route::VolumeContainer::const_iterator iv = route.volumes().begin(); 
 	iv != route.volumes().end(); ++iv) {
     (**iv).dump(false);

@@ -18,7 +18,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include <iostream>
@@ -39,10 +39,7 @@ EndPlateFactory::~EndPlateFactory()
 //## Other Operations (implementation)
 void EndPlateFactory::create(GeoPhysVol *mother)
 {
-
-   DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
-  
-
+   DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
    IRDBRecordset_ptr shell  = rdbAccessSvc()->getRecordsetPtr("EPShell",  indetVersionKey.tag(), indetVersionKey.node());
    IRDBRecordset_ptr insert = rdbAccessSvc()->getRecordsetPtr("EPInsert", indetVersionKey.tag(), indetVersionKey.node());
    IRDBRecordset_ptr ribs   = rdbAccessSvc()->getRecordsetPtr("EPRibs",   indetVersionKey.tag(), indetVersionKey.node());

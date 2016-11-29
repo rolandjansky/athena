@@ -22,7 +22,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include <iostream>
 
@@ -42,10 +42,10 @@ PixelServMatFactory::~PixelServMatFactory()
 //## Other Operations (implementation)
 void PixelServMatFactory::create(GeoPhysVol *mother)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq; 
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg; 
   
-  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
-  DecodeVersionKey pixelVersionKey(geoModelSvc(), "Pixel");
+  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
+  DecodeVersionKey pixelVersionKey(geoDbTagSvc(),"Pixel");
 
   IRDBRecordset_ptr pixelGenServices = rdbAccessSvc()->getRecordsetPtr("PixelGenServices",  indetVersionKey.tag(), indetVersionKey.node());
 

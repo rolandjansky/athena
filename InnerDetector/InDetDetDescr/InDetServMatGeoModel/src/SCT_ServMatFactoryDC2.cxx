@@ -23,7 +23,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -53,26 +52,18 @@ SCT_ServMatFactoryDC2::~SCT_ServMatFactoryDC2()
 void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
  
   double epsilon = 0.002;
 
 
-
-  // Get the SvcLocator 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
- 
-
-  DecodeVersionKey sctVersionKey(geoModel, "SCT");
-  DecodeVersionKey trtVersionKey(geoModel, "TRT");
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey sctVersionKey("SCT");
+  DecodeVersionKey trtVersionKey("TRT");
+  DecodeVersionKey indetVersionKey("InnerDetector");
 
   IRDBRecordset_ptr inel = m_rdbAccess->getRecordsetPtr("INEL",  indetVersionKey.tag(), indetVersionKey.node());
   IRDBRecordset_ptr tsci = m_rdbAccess->getRecordsetPtr("TSCI", trtVersionKey.tag(), trtVersionKey.node());

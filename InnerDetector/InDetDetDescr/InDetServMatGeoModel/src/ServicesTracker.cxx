@@ -77,7 +77,7 @@ void ServicesTracker::computeServicesPerLayer()
 
 void ServicesTracker::finaliseServices()
 {
-  msg(MSG::INFO) << "ServicesTracker::finaliseServices called for " << m_volumes.size() << " volumes" << endreq;
+  msg(MSG::INFO) << "ServicesTracker::finaliseServices called for " << m_volumes.size() << " volumes" << endmsg;
 
   ComputeStaveServices staveComputer(msgStream());
   ConvertStaveServices staveConverter;
@@ -107,7 +107,7 @@ void ServicesTracker::finaliseServices()
 	staveConverter.addCooling( layer.type(), layer.part(), layer.number(), layer.nStaves(), layerMat);
 
 	if(msgLvl(MSG::DEBUG)){
-	  msg(MSG::DEBUG) <<"Dumping services for layer " << layer.number()<< endreq;
+	  msg(MSG::DEBUG) <<"Dumping services for layer " << layer.number()<< endmsg;
 	  layerMat.dump(cout);
 	}
 	layerMaterial[*il] = layerMat;
@@ -134,7 +134,7 @@ void ServicesTracker::addEosMaterial( const ServiceVolume& vol, std::vector<Serv
   ServiceMaterial::Entry eos( name, layer->nStaves(), 0);
   ServiceMaterial::EntryContainer entries( 1, eos);
   result.push_back( ServiceMaterial( name, entries));
-  // msg(MSG::INFO) << "Added EOS material to volume " << vol.name() << endreq;
+  // msg(MSG::INFO) << "Added EOS material to volume " << vol.name() << endmsg;
 }
 
 /*

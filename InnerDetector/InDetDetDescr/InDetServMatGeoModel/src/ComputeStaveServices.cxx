@@ -16,7 +16,7 @@ StaveServices ComputeStaveServices::compute( DetType::Type type, DetType::Part p
 {
   msg(MSG::DEBUG) << "Computing services for " << DetType::name( type, part) << " layer " << layerNumber 
 		  << " with " << nModulesPerStave << " modulesPerStave and " 
-		  << nChipsPerModule << " chipsPerModule" << endreq;
+		  << nChipsPerModule << " chipsPerModule" << endmsg;
   
   // The input parameters to the calculation of services per stave.
   // FIXME: They must be eventually stored in the DB, and not hard-wired in the code
