@@ -52,7 +52,6 @@ namespace Analysis {
 
     // internal typdefs
     typedef std::map<std::string, double> var_map;
-    var_map inputs;
 
     // load input variables from xAOD
     void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) const;
@@ -83,7 +82,7 @@ namespace Analysis {
     /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
     // this pointer does not need to be deleted in the destructor (because it
     // points to something in storegate)
-    const xAOD::Vertex* m_priVtx;
+    const xAOD::Vertex* m_priVtx = 0;
   }; // end class
 
   inline void MultivariateTagManager::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }

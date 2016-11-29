@@ -88,10 +88,10 @@ namespace Analysis {
   void NewLikelihoodTool::printStatus() const {
     msg(MSG::INFO) << "#BTAG# - hypotheses : ";
     for(unsigned int ih=0;ih<m_hypotheses.size();ih++) msg(MSG::INFO) << m_hypotheses[ih] << ", ";
-    msg(MSG::INFO) << endreq;
-    msg(MSG::INFO) << "#BTAG# - histograms : " << endreq;
-    for(unsigned int ih=0;ih<m_histograms.size();ih++) msg(MSG::INFO) << m_histograms[ih] << endreq;
-    msg(MSG::INFO) << "#BTAG# - status of underlying calibrations: " << endreq;
+    msg(MSG::INFO) << endmsg;
+    msg(MSG::INFO) << "#BTAG# - histograms : " << endmsg;
+    for(unsigned int ih=0;ih<m_histograms.size();ih++) msg(MSG::INFO) << m_histograms[ih] << endmsg;
+    msg(MSG::INFO) << "#BTAG# - status of underlying calibrations: " << endmsg;
     m_calibrationTool->printStatus();
   }
 
@@ -321,16 +321,16 @@ namespace Analysis {
   		}
               }
               if(m_normalizedProb) { // pdf are already normalized
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endmsg;
               } else {
                 double binw = tmpHisto->GetBinWidth(binx);
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " binw= " << binw;
                 if(0==binw) {
-                  msg(MSG::ERROR) << "bin width is 0" << endreq;
+                  msg(MSG::ERROR) << "bin width is 0" << endmsg;
                 } else {
                   tmp /= binw;
                 }
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endmsg;
               }
               tmpVector.push_back(tmp);
               sum += tmp;
@@ -356,17 +356,17 @@ namespace Analysis {
 		}
               }
               if(m_normalizedProb) { // pdf are already normalized
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endmsg;
               } else {
                 double binw  = tmpHisto->GetXaxis()->GetBinWidth(binx) 
                              * tmpHisto->GetYaxis()->GetBinWidth(biny);
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " binw= " << binw;
                 if(0==binw) {
-                  msg(MSG::ERROR) << "bin width is 0" << endreq;
+                  msg(MSG::ERROR) << "bin width is 0" << endmsg;
                 } else {
                   tmp /= binw;
                 }
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endmsg;
               }
               tmpVector.push_back(tmp);
               sum += tmp;
@@ -398,52 +398,52 @@ namespace Analysis {
 		}
               }
               if(m_normalizedProb) { // pdf are already normalized
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endmsg;
               } else {
                 double binw  = tmpHisto->GetXaxis()->GetBinWidth(binx) 
                              * tmpHisto->GetYaxis()->GetBinWidth(biny)
                              * tmpHisto->GetZaxis()->GetBinWidth(binz);
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " binw= " << binw;
                 if(0==binw) {
-                  msg(MSG::ERROR) << "bin width is 0" << endreq;
+                  msg(MSG::ERROR) << "bin width is 0" << endmsg;
                 } else {
                   tmp /= binw;
                 }
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endreq;
+                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " normalized f = " << tmp << endmsg;
               }
               tmpVector.push_back(tmp);
               sum += tmp;
             }
             if(idim>3 || idim<1 ) msg(MSG::DEBUG) << "#BTAG# " << idim 
                                                   << " is not a correct dimensionality for pdfs !" 
-                                                  << endreq;
+                                                  << endmsg;
           }
         } // endloop on hypotheses (B,U,C..) 
         unsigned int classCount(0);
         for( std::vector<double>::iterator itr3 = tmpVector.begin();  
              itr3 != tmpVector.end(); ++itr3 ) {
           if(sum != 0.) {
-            if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG# sum of pX = " << sum << endreq;
+            if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG# sum of pX = " << sum << endmsg;
             double p = (*itr3);
             if(m_normalizedProb) p /= sum;
             probDensityPerEventClassAllVariables[classCount] *= p;
           } else {
             msg(MSG::DEBUG) << "#BTAG# Empty bins for all hypothesis... "
                             << "The discriminating variables are not taken into "
-                            << "account in this jet." << endreq;
-            msg(MSG::DEBUG) << "#BTAG# Please check your inputs" << endreq;
+                            << "account in this jet." << endmsg;
+            msg(MSG::DEBUG) << "#BTAG# Please check your inputs" << endmsg;
           }
           if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG#   probDensity= "
                                                    << probDensityPerEventClassAllVariables[classCount]
-                                                   << " ic= " << classCount << endreq;
+                                                   << " ic= " << classCount << endmsg;
           classCount++;
         } 
         if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG#  Final probDensity= " 
                                                  << probDensityPerEventClassAllVariables 
-                                                 << endreq;
+                                                 << endmsg;
       }
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG#  Ending ..." << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "#BTAG#  Ending ..." << endmsg;
     m_likelihoodVector=probDensityPerEventClassAllVariables;
     return m_likelihoodVector;
   }
@@ -462,14 +462,14 @@ namespace Analysis {
       if(nden!=0) {
         eff = nnum / nden;
         if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "#BTAG# Efficiency for " << hypo << "#" << hname << " " 
-                                                     << suffix << ": " << nnum << "/" << nden << "= " << eff << endreq;
+                                                     << suffix << ": " << nnum << "/" << nden << "= " << eff << endmsg;
       } else {
         msg(MSG::DEBUG) << "#BTAG# Problem with Efficiency for " << hypo << "#" << hname << " " 
-                        << suffix << ": " << nnum << "/" << nden << "= " << eff << endreq;
+                        << suffix << ": " << nnum << "/" << nden << "= " << eff << endmsg;
       }
     } else {
       msg(MSG::DEBUG) << "#BTAG# Unknown histogram for Efficiency for " << hypo 
-                      << "#" << hname << " " << suffix << endreq;
+                      << "#" << hname << " " << suffix << endmsg;
     }
     return eff;
   }

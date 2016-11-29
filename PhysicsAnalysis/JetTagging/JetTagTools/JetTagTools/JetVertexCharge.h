@@ -69,7 +69,7 @@ namespace Analysis {
    ToolHandle<CalibrationBroker> m_calibrationTool;
    ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
-   const xAOD::Vertex *m_primVtx; 
+   const xAOD::Vertex *m_primVtx = 0; 
 
 
    enum MVAcat {

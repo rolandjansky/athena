@@ -98,53 +98,53 @@ namespace Analysis {
  
     /** dump cuts: */
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endmsg;
       if(m_useAntiPileUpCuts) {
         msg(MSG::DEBUG) << "#BTAG#     - antiPUcut: reject tracks with |sigz0| > " << m_antiPileUpSigZ0Cut 
-                        << " when |sigd0| < " << m_antiPileUpSigD0Cut << endreq;
+                        << " when |sigd0| < " << m_antiPileUpSigD0Cut << endmsg;
       }
       if(m_useTrackSummaryInfo) {
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endreq;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endmsg;
 	if(m_useDeadPixInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endreq;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endmsg;
 	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endreq;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endmsg;
 	}
 	if(m_useBLayerHitPrediction)
-	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endreq;
+	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endmsg;
 	  
 	if(m_useDeadSctInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endreq;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endmsg;
 	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endreq;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endmsg;
 	}
 	int nhsi = m_nHitSi;
 	if(m_useAntiPileUpCuts) nhsi = m_antiPileUpNHitSiCut;
 	if(m_useDeadPixInfo) {
 	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endreq;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endmsg;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endreq;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endmsg;
 	  }
 	} else {
 	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endreq;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endmsg;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endreq;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endmsg;
 	  }
 	}
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endreq;
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrtHighE >= " << m_nHitTrtHighE << endreq;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrtHighE >= " << m_nHitTrtHighE << endmsg;
       }
-      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 <= " << m_fitChi2 << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - fit proba >= " << m_fitProb << endreq;
-      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 / ndf <= " << m_fitChi2OnNdfMax << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 <= " << m_fitChi2 << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - fit proba >= " << m_fitProb << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 / ndf <= " << m_fitChi2OnNdfMax << endmsg;
     }
 
     return StatusCode::SUCCESS;
@@ -356,7 +356,7 @@ namespace Analysis {
 	if(passl) m_ntrc[i]++;
 	msg(MSG::VERBOSE) << passl;
       } 
-      msg(MSG::VERBOSE) << endreq;
+      msg(MSG::VERBOSE) << endmsg;
     }
 
     m_passedCuts = ~failedCuts;

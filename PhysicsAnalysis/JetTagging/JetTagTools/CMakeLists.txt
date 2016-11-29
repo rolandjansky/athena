@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 780621 2016-10-26 22:04:58Z asciandr $
+# $Id: CMakeLists.txt 786110 2016-11-23 19:25:18Z ssnyder $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -100,3 +100,4 @@ atlas_add_component( JetTagTools
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )
+
