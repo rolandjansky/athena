@@ -24,7 +24,7 @@ void CaloCalibrationHitContainerCnv_p2::transToPers(const CaloCalibrationHitCont
 	
 //    static int ev=0;
     size_t size = transCont->size();  
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CaloCalibrationHitContainer_p2 of size:"<<size<<endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CaloCalibrationHitContainer_p2 of size:"<<size<<endmsg;
 	
     persCont->m_channelHash.reserve(size);	
     std::vector<float> tempE;	tempE.reserve(size*4);
@@ -87,7 +87,7 @@ void CaloCalibrationHitContainerCnv_p2::persToTrans(const CaloCalibrationHitCont
 {
 //	static int dog=0;
     size_t cells=persCont->m_channelHash.size();
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CaloCalibrationHitContainer of size: "<<cells<<endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CaloCalibrationHitContainer of size: "<<cells<<endmsg;
     transCont->clear();
     transCont->reserve(cells);
     transCont->setName(persCont->name() );

@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "CaloSimEventTPCnv/CaloCalibrationHitCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -21,6 +22,7 @@
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   MsgStream log (0, "test");
 
   CaloCalibrationHit trans1 (Identifier(1234),
