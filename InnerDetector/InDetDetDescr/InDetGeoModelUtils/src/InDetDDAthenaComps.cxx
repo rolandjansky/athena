@@ -9,7 +9,7 @@ namespace InDetDD {
 AthenaComps::AthenaComps(const std::string & msgStreamName)
   : m_msg(msgStreamName),
     m_detStore(0),
-    m_geoModelSvc(0),
+    m_geoDbTagSvc(0),
     m_rdbAccessSvc(0),
     m_geometryDBSvc(0)
 {}
@@ -20,10 +20,10 @@ AthenaComps::setDetStore(StoreGateSvc * detStore)
   m_detStore = detStore;
 } 
 
-void 
-AthenaComps::setGeoModelSvc(IGeoModelSvc * geoModelSvc)
+void
+AthenaComps::setGeoDbTagSvc(IGeoDbTagSvc * geoDbTagSvc)
 {
-  m_geoModelSvc = geoModelSvc;
+  m_geoDbTagSvc = geoDbTagSvc;
 }
 
 void 

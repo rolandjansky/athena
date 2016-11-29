@@ -159,8 +159,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   baseMaterials.reserve(2);
   fracWeight.reserve(2);
 
-  msg(MSG::INFO)<<"Composite material : "<<volumeTot/CLHEP::cm3<<" = "<<volume1/CLHEP::cm3<<" + "<<volume2/CLHEP::cm3<<endmsg;
-  msg(MSG::INFO)<<"Composite material : "<<matName1<<" "<<matName2<<endmsg;
+  msg(MSG::DEBUG)<<"Composite material : "<<volumeTot/CLHEP::cm3<<" = "<<volume1/CLHEP::cm3<<" + "<<volume2/CLHEP::cm3<<endmsg;
+  msg(MSG::DEBUG)<<"Composite material : "<<matName1<<" "<<matName2<<endmsg;
   
   double density1, density2;
   
@@ -168,23 +168,23 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   if ((iter = m_weightMap.find(matName1)) != m_weightMap.end()) {
     const GeoMaterial* mat1 = getMaterialForVolume(matName1,volume1);
     density1=mat1->getDensity();
-    msg(MSG::INFO)<<"Composite material 1 - weight : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::DEBUG)<<"Composite material 1 - weight : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     } 
   else {
     const GeoMaterial* mat1 = getMaterial(matName1);
     density1=mat1->getDensity();
-    msg(MSG::INFO)<<"Composite material 1 - standard : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::DEBUG)<<"Composite material 1 - standard : "<<density1/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     } 
 
   if ((iter = m_weightMap.find(matName2)) != m_weightMap.end()) {
     const GeoMaterial* mat2 = getMaterialForVolume(matName2,volume2);
     density2=mat2->getDensity();
-    msg(MSG::INFO)<<"Composite material 2 - weight : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::DEBUG)<<"Composite material 2 - weight : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     } 
   else {
     const GeoMaterial* mat2 = getMaterial(matName2);
     density2=mat2->getDensity();
-    msg(MSG::INFO)<<"Composite material 2 - standard : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+    msg(MSG::DEBUG)<<"Composite material 2 - standard : "<<density2/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     } 
 
   double weight1=density1*volume1;
@@ -197,8 +197,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string & newMatNa
   double frac2=weight2/(weight1+weight2);
   double density_2=1.0/(frac1/density1+frac2/density2);
   double density_3=(weight1+weight2)/(volume1+volume2);
-  msg(MSG::INFO)<<"-> weights : "<<weight1/(CLHEP::gram)<<" "<<weight2/(CLHEP::gram)<<endmsg;
-  msg(MSG::INFO)<<"-> density : "<<density/(CLHEP::gram/CLHEP::cm3)<<"  "<<density_2/(CLHEP::gram/CLHEP::cm3)<<" "<<density_3/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+  msg(MSG::DEBUG)<<"-> weights : "<<weight1/(CLHEP::gram)<<" "<<weight2/(CLHEP::gram)<<endmsg;
+  msg(MSG::DEBUG)<<"-> density : "<<density/(CLHEP::gram/CLHEP::cm3)<<"  "<<density_2/(CLHEP::gram/CLHEP::cm3)<<" "<<density_3/(CLHEP::gram/CLHEP::cm3)<<endmsg;
 
 
   baseMaterials.push_back(matName1);
@@ -398,7 +398,7 @@ InDetMaterialManager::addWeightMaterial(std::string materialName, std::string ma
   if (m_weightMap.find(materialName) != m_weightMap.end()) {
     msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endmsg;
   } else {
-    msg(MSG::INFO) << "Adding " << materialName 
+    msg(MSG::DEBUG) << "Adding " << materialName 
 		    << " weight " << weight
 		    << " linearWeightFlag " << linearWeightFlag
 		    << " to weight table" << endmsg;
@@ -463,7 +463,7 @@ InDetMaterialManager::addScalingTable(IRDBRecordset_ptr scalingTable)
   if (!scalingTable) return;
   if (db()->getTableSize(scalingTable) == 0) return;
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Reading in extra material scaling table: " << scalingTable->nodeName() << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading in extra material scaling table: " << scalingTable->nodeName() << endmsg;
   if (!db()) {
     msg(MSG::ERROR) << "GeometryDBSvc not available. Unable to read in scaling table." << endmsg;
   }

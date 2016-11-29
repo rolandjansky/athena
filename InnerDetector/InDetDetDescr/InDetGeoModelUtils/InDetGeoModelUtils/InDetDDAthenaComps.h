@@ -8,7 +8,7 @@
 // Message Stream Member
 #include "AthenaKernel/MsgStreamMember.h"
 class  StoreGateSvc;
-class  IGeoModelSvc;
+class  IGeoDbTagSvc;
 class  IRDBAccessSvc;
 class  IGeometryDBSvc; 
 
@@ -29,12 +29,12 @@ public:
   bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
 
   void setDetStore(StoreGateSvc *);
-  void setGeoModelSvc(IGeoModelSvc *);
+  void setGeoDbTagSvc(IGeoDbTagSvc *);
   void setRDBAccessSvc(IRDBAccessSvc *);
   void setGeometryDBSvc(IGeometryDBSvc *);
 
   StoreGateSvc * detStore() const;
-  IGeoModelSvc * geoModelSvc() const;
+  IGeoDbTagSvc * geoDbTagSvc() const;
   IRDBAccessSvc * rdbAccessSvc() const;
   IGeometryDBSvc * geomDB() const;
   
@@ -43,7 +43,7 @@ private:
   mutable Athena::MsgStreamMember m_msg;
   
   StoreGateSvc * m_detStore;
-  IGeoModelSvc * m_geoModelSvc;
+  IGeoDbTagSvc * m_geoDbTagSvc;
   IRDBAccessSvc * m_rdbAccessSvc;
   IGeometryDBSvc * m_geometryDBSvc;
 
@@ -54,9 +54,9 @@ inline StoreGateSvc * AthenaComps::detStore() const
   return m_detStore;
 }
 
-inline IGeoModelSvc * AthenaComps::geoModelSvc() const
+inline IGeoDbTagSvc * AthenaComps::geoDbTagSvc() const
 {
-  return m_geoModelSvc;
+  return m_geoDbTagSvc;
 }
 
 inline IRDBAccessSvc * AthenaComps::rdbAccessSvc() const

@@ -5,7 +5,6 @@
 
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "StoreGate/StoreGate.h"
@@ -32,12 +31,8 @@ DistortedMaterialManager::DistortedMaterialManager()
   sc = svcLocator->service("RDBAccessSvc",rdbSvc);
   if (sc.isFailure()) log << MSG::FATAL << "Could not locate RDBAccessSvc" << endmsg;
 
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModelSvc" << endmsg;
-
   // Get version tag and node for InDet.
-  DecodeVersionKey versionKey(geoModel, "InnerDetector");
+  DecodeVersionKey versionKey("InnerDetector");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
