@@ -15,7 +15,7 @@
 // Please consult the README for more information about which options to set in your joboptions file. //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 
@@ -51,7 +51,7 @@ public:
     int m_overridedigversion;
     bool m_alignable;
 
-    ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+    ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
     ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
     ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon

@@ -4,7 +4,7 @@
 
 #include "TRT_GeoModel/TRT_DetDescrDB_ParameterInterface.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -65,13 +65,13 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
   // RDBAccessSvc (Interface to the DD database).
   IRDBAccessSvc* iAccessSvc = m_athenaComps->rdbAccessSvc();
  
-  // Get tag key and corresponding node from GeoModelSvc
-  DecodeVersionKey versionKey(m_athenaComps->geoModelSvc(), "TRT");
+  // Get tag key and corresponding node 
+  DecodeVersionKey versionKey(m_athenaComps->geoDbTagSvc(),"TRT");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
-  DecodeVersionKey indetVersionKey(m_athenaComps->geoModelSvc(), "InnerDetector");
+  DecodeVersionKey indetVersionKey(m_athenaComps->geoDbTagSvc(),"InnerDetector");
 
 
   /////////////////////////////////////////////////////////////////////////////////////////

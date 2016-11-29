@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -32,7 +32,7 @@
 TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& name, const IInterface* parent )
   : GeoModelTool( type, name, parent ), 
     m_initialLayout(true),
-    m_geoModelSvc("GeoModelSvc",name),
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_sumSvc("TRT_StrawStatusSummarySvc", name),
@@ -46,7 +46,7 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
   declareProperty("OverrideDigVersion",  m_overridedigversion = -999 );
   declareProperty("Alignable", m_alignable = true);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
+  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
   declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 0. Overridden by DOARGONMIXTURE switch
@@ -68,57 +68,57 @@ TRT_DetectorTool::~TRT_DetectorTool()
 StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 { 
   //MsgStream log(msgSvc(), name()); 
-  //msg(MSG::INFO) << " hello " << endreq;
+  //msg(MSG::INFO) << " hello " << endmsg;
 
 
   // Get the detector configuration.
-  StatusCode sc = m_geoModelSvc.retrieve();
+  StatusCode sc = m_geoDbTagSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return (StatusCode::FAILURE); 
-  }  
- 
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "TRT");
+    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
+    return (StatusCode::FAILURE);
+  } 
+  
+  DecodeVersionKey versionKey(&*m_geoDbTagSvc, "TRT");
 
   // Unless we are using custom trt, the switch positions are going to
   // come from the database:
-  msg(MSG::INFO) << "Building TRT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endreq;
+  msg(MSG::INFO) << "Building TRT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 
   
   sc = m_rdbAccessSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
  
   // Print the TRT version tag:
   std::string trtVersionTag = m_rdbAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node(), false);
-  msg(MSG::INFO) << "TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION << endreq;
+  msg(MSG::INFO) << "TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
  
 
   // Check if version is empty. If so, then the TRT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (trtVersionTag.empty()) { 
-     msg(MSG::INFO) << "No TRT Version. TRT will not be built." << endreq;
+     msg(MSG::INFO) << "No TRT Version. TRT will not be built." << endmsg;
      return StatusCode::SUCCESS;
   }
 
   std::string versionName;
   if (versionKey.custom()) {
     
-    msg(MSG::WARNING) << "TRT_DetectorTool:  Detector Information coming from a custom configuration!!" << endreq;
+    msg(MSG::WARNING) << "TRT_DetectorTool:  Detector Information coming from a custom configuration!!" << endmsg;
  
   } else {
-    msg(MSG::DEBUG) << "TRT_DetectorTool:  Detector Information coming from the database and job options IGNORED." << endreq;
+    msg(MSG::DEBUG) << "TRT_DetectorTool:  Detector Information coming from the database and job options IGNORED." << endmsg;
     
-    msg(MSG::DEBUG) << "Keys for TRT Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endreq;
+    msg(MSG::DEBUG) << "Keys for TRT Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endmsg;
     IRDBRecordset_ptr switchSet =  m_rdbAccessSvc->getRecordsetPtr("TRTSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord    *switches   = (*switchSet)[0];
     
     //Should be stored as booleans?
     if (switches->getInt("DC1COMPATIBLE")) {
       msg(MSG::ERROR) << "DC1COMPATIBLE flag set in database,"
-	  << " but DC1 is no longer supported in the code!!" << endreq;
+	  << " but DC1 is no longer supported in the code!!" << endmsg;
     }
     m_DC2CompatibleBarrelCoordinates = switches->getInt("DC2COMPATIBLE");
     m_useOldActiveGasMixture         	= ( switches->getInt("GASVERSION") == 0 );
@@ -133,18 +133,18 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
         if      ( switches->getInt("DOARGONMIXTURE") == 0) m_doArgonMixture = 0;
         else if ( switches->getInt("DOARGONMIXTURE") == 1) m_doArgonMixture = 1;
       } else {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOARGONMIXTURE not available, m_doArgonMixture= " << m_doArgonMixture << endreq;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOARGONMIXTURE not available, m_doArgonMixture= " << m_doArgonMixture << endmsg;
       }
 
       if(!switches->isFieldNull( "DOKRYPTONMIXTURE")) {
         if      ( switches->getInt("DOKRYPTONMIXTURE") == 0) m_doKryptonMixture = 0;
         else if ( switches->getInt("DOKRYPTONMIXTURE") == 1) m_doKryptonMixture = 1;
       } else {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture << endreq;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture << endmsg;
       }
      }
       catch(std::runtime_error& ex) {
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
+       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endmsg;
        // result = false;
       }
     }
@@ -161,27 +161,27 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
       versionName = "Rome";
     }
   }
-  msg(MSG::INFO)  << "Creating the TRT" << endreq;
-  msg(MSG::INFO)  << "TRT Geometry Options:" << endreq;
-  msg(MSG::INFO)  << "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture 	? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  Do Argon    = " << (m_doArgonMixture   ? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  Do Krypton  = " << (m_doKryptonMixture ? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  DC2CompatibleBarrelCoordinates = " << (m_DC2CompatibleBarrelCoordinates ? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  InitialLayout                  = " << (m_initialLayout ? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  Alignable                      = " << (m_alignable ? "true" : "false") <<endreq;
-  msg(MSG::INFO)  << "  VersioName                     = " << versionName  <<endreq;
+  msg(MSG::INFO)  << "Creating the TRT" << endmsg;
+  msg(MSG::INFO)  << "TRT Geometry Options:" << endmsg;
+  msg(MSG::INFO)  << "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture 	? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  Do Argon    = " << (m_doArgonMixture   ? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  Do Krypton  = " << (m_doKryptonMixture ? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  DC2CompatibleBarrelCoordinates = " << (m_DC2CompatibleBarrelCoordinates ? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  InitialLayout                  = " << (m_initialLayout ? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  Alignable                      = " << (m_alignable ? "true" : "false") <<endmsg;
+  msg(MSG::INFO)  << "  VersioName                     = " << versionName  <<endmsg;
    
   // Retrieve the Geometry DB Interface
   sc = m_geometryDBSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
+    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
     return (StatusCode::FAILURE);
   } 
 
   // Pass athena services to factory, etc
   m_athenaComps = new InDetDD::AthenaComps("TRT_GeoModel");
   m_athenaComps->setDetStore(detStore);
-  m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
+  m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     
@@ -193,14 +193,14 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
     msg(MSG::ERROR) 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+	<< endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
   if ( 0 == m_detector ) {
     GeoPhysVol *world = theExpt->getPhysVol();
 
-    msg(MSG::INFO) << " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" << endreq;
+    msg(MSG::INFO) << " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" << endmsg;
 
     TRTDetectorFactory_Full theTRTFactory(m_athenaComps, 
 					  m_sumSvc,
@@ -220,7 +220,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
       
       sc = detStore->record(m_manager,m_manager->getName());
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endreq;
+	msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
       }
       
@@ -248,34 +248,34 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/TRT/AlignL1/TRT";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
-        msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+        msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
         const DataHandle<CondAttrListCollection> calc;
         StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
         // We don't expect this to fail as we have already checked that the detstore contains the object. 
         if (trttmp.isFailure()) {
-          msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+          msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
         } else {
           sc =  StatusCode::SUCCESS;
         }
       } else {
-        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endmsg;
         //return StatusCode::FAILURE;
       }
 
       folderName = "/TRT/AlignL2";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
         const DataHandle<AlignableTransformContainer> atc;
         StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
         if(sctmp.isFailure()) {
-          msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+          msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
         } else {
           sc =  StatusCode::SUCCESS;
         }
       }
       else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-                          << folderName <<  endreq;
+                          << folderName <<  endmsg;
         //return StatusCode::FAILURE;
       }
     }
@@ -285,18 +285,18 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/TRT/Align";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
 	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			  << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
+			  << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endmsg;
       }
     }
 
@@ -304,22 +304,22 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/TRT/Calib/DX";
       if (detStore->contains<TRTCond::StrawDxContainer>(folderName)) {
-        msg(MSG::DEBUG) << "Registering callback on StrawDxContainer with folder " << folderName << endreq;
+        msg(MSG::DEBUG) << "Registering callback on StrawDxContainer with folder " << folderName << endmsg;
         const DataHandle<TRTCond::StrawDxContainer> sdc;
 	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), sdc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on StrawDxContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on StrawDxContainer with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-        msg(MSG::DEBUG) << "Unable to register callback on StrawDxContainer with folder " << folderName <<endreq;
+        msg(MSG::DEBUG) << "Unable to register callback on StrawDxContainer with folder " << folderName <<endmsg;
       }
     }    
    
   } else {
-    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endreq;
+    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
     // We return failure otherwise it will try and register
     // a GeoModelSvc callback associated with this callback.
   }
@@ -343,13 +343,13 @@ TRT_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   MsgStream log(msgSvc(), name()); 
   if (!m_manager) { 
-    msg(MSG::WARNING) << "Manager does not exist" << endreq;
+    msg(MSG::WARNING) << "Manager does not exist" << endmsg;
     return StatusCode::FAILURE;
   }    
   if (m_alignable) {     
     return m_manager->align(I,keys);
   } else {
-    msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endreq;
+    msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endmsg;
     return StatusCode::SUCCESS;
   }
 }
