@@ -16,7 +16,7 @@
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -44,7 +44,7 @@ SCT_DetectorTool::SCT_DetectorTool( const std::string& type,
     m_cosmic(false),
     m_manager(0), 
     m_athenaComps(0),
-    m_geoModelSvc("GeoModelSvc",name),
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_lorentzAngleSvc("SCTLorentzAngleSvc", name)
@@ -56,7 +56,7 @@ SCT_DetectorTool::SCT_DetectorTool( const std::string& type,
   declareProperty("Alignable", m_alignable);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
+  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
 }
 
@@ -83,39 +83,38 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
   SCT_MaterialManager::reinit();
 
   // Get the detector configuration.
-  StatusCode sc = m_geoModelSvc.retrieve();
+  StatusCode sc = m_geoDbTagSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return (StatusCode::FAILURE); 
-  }  
-
-
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
+    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
+    return (StatusCode::FAILURE);
+  } 
+  
+  DecodeVersionKey versionKey(&*m_geoDbTagSvc, "SCT");
   
   // Issue error if AUTO.
   if (versionKey.tag() == "AUTO"){
-    msg(MSG::ERROR) << "AUTO Atlas version. Please select a version." << endreq;
+    msg(MSG::ERROR) << "AUTO Atlas version. Please select a version." << endmsg;
   }
 
  
-  msg(MSG::INFO) << "Building SCT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endreq;
+  msg(MSG::INFO) << "Building SCT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 
   sc = m_rdbAccessSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
 
   // Print the SCT version tag:
   std::string sctVersionTag;
   sctVersionTag =  m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
-  msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endreq;
+  msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
 
 
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (sctVersionTag.empty()) { 
-    msg(MSG::INFO) << "No SCT Version. SCT will not be built." << endreq;
+    msg(MSG::INFO) << "No SCT Version. SCT will not be built." << endmsg;
      
   } else {
 
@@ -123,12 +122,12 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
 
     if (versionKey.custom()) {
 
-      msg(MSG::WARNING) << "SCT_DetectorTool:  Detector Information coming from a custom configuration!!" << endreq;    
+      msg(MSG::WARNING) << "SCT_DetectorTool:  Detector Information coming from a custom configuration!!" << endmsg;    
     } else {
       
       if(msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "SCT_DetectorTool:  Detector Information coming from the database and job options IGNORED." << endreq;
-	msg(MSG::DEBUG) << "Keys for SCT Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endreq;
+	msg(MSG::DEBUG) << "SCT_DetectorTool:  Detector Information coming from the database and job options IGNORED." << endmsg;
+	msg(MSG::DEBUG) << "Keys for SCT Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endmsg;
       }
       IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
       const IRDBRecord    *switches   = (*switchSet)[0];
@@ -156,16 +155,16 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
     }
     {
       if(msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "Creating the SCT" << endreq;
-	msg(MSG::DEBUG) << "SCT Geometry Options: " << endreq;
+	msg(MSG::DEBUG) << "Creating the SCT" << endmsg;
+	msg(MSG::DEBUG) << "SCT Geometry Options: " << endmsg;
 	msg(MSG::DEBUG) << " InitialLayout:         "  << (m_initialLayout ? "true" : "false")
-			<< endreq;
+			<< endmsg;
 	msg(MSG::DEBUG) << " Alignable:             " << (m_alignable ? "true" : "false")
-			<< endreq;
+			<< endmsg;
 	msg(MSG::DEBUG) << " CosmicLayout:          " << (m_cosmic ? "true" : "false")
-			<< endreq;
+			<< endmsg;
 	msg(MSG::DEBUG) << " VersionName:           " << versionName
-			<< endreq;
+			<< endmsg;
 	 }
       
       SCT_Options options;
@@ -182,27 +181,27 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
 	msg(MSG::ERROR) 
 	    << "Could not find GeoModelExperiment ATLAS" 
-	    << endreq; 
+	    << endmsg; 
 	return (StatusCode::FAILURE); 
       } 
       
       // Retrieve the Geometry DB Interface
       sc = m_geometryDBSvc.retrieve();
       if (sc.isFailure()) {
-	msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
+	msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
 	return (StatusCode::FAILURE);
       } 
 
       // Pass athena services to factory, etc
       m_athenaComps = new SCT_GeoModelAthenaComps;
       m_athenaComps->setDetStore(detStore);
-      m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
+      m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
       m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
       m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
       m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
       const SCT_ID* idHelper;
       if (detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
-	msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+	msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	m_athenaComps->setIdHelper(idHelper);
@@ -212,7 +211,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       // LorentzAngleService
       //
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-	<< "Lorentz angle service passed to InDetReadoutGeometry with name: " << m_lorentzAngleSvc.name() << endreq;
+	<< "Lorentz angle service passed to InDetReadoutGeometry with name: " << m_lorentzAngleSvc.name() << endmsg;
 
 
       //try {   
@@ -227,7 +226,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       m_manager = theSCT.getDetectorManager();
 	  
       if (!m_manager) {
-	msg(MSG::ERROR) << "SCT_DetectorManager not created" << endreq;
+	msg(MSG::ERROR) << "SCT_DetectorManager not created" << endmsg;
 	return( StatusCode::FAILURE );
       }
       
@@ -235,12 +234,12 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       //   m_detector is non constant so I can not set it to a const pointer.
       //   m_detector = theSCT.getDetectorManager();
       
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endmsg;
       
       result = detStore->record(m_manager, m_manager->getName());
       
       if (result.isFailure() ) {
-	msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endreq;
+	msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
       }
       theExpt->addManager(m_manager);
@@ -249,7 +248,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       const SiDetectorManager * siDetManager = m_manager;
       result = detStore->symLink(m_manager, siDetManager);
       if (result.isFailure() ) {
-	msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and SiDetectorManager" << endreq;
+	msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and SiDetectorManager" << endmsg;
 	return( StatusCode::FAILURE );
       }
       
@@ -262,12 +261,12 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
     if (!m_lorentzAngleSvc.empty()) {
       sc = m_lorentzAngleSvc.retrieve();
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endreq;
+	msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
       } else {
-	msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endreq;
+	msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
       }
     } else {
-      msg(MSG::INFO) << "Lorentz angle service not requested." << endreq;
+      msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
     } 
   }
 
@@ -299,50 +298,50 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/Indet/AlignL1/ID";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
 	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
 	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endmsg;
         //return StatusCode::FAILURE; 
       }
 
       folderName = "/Indet/AlignL2/SCT";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
 	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
 	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endmsg;
         //return StatusCode::FAILURE;  
       }
 
       folderName = "/Indet/AlignL3";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
 	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
         sc =  StatusCode::SUCCESS;
 	}
       }
       else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			<< folderName << endreq;
+			<< folderName << endmsg;
 	//return StatusCode::FAILURE;                                                         
       }
     }
@@ -351,23 +350,23 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/Indet/Align";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
 	StatusCode sctmp =  detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
-			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endreq;
+			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endmsg;
 	//return StatusCode::FAILURE; 
       }
     }
 
   } else {
-    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endreq;
+    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
     // We return failure otherwise it will try and register
     // a GeoModelSvc callback associated with this callback. 
     return StatusCode::FAILURE;
@@ -379,13 +378,13 @@ StatusCode
 SCT_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   if (!m_manager) { 
-    msg(MSG::WARNING) << "Manager does not exist" << endreq;
+    msg(MSG::WARNING) << "Manager does not exist" << endmsg;
     return StatusCode::FAILURE;
   }    
   if (m_alignable) {     
     return m_manager->align(I,keys);
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endmsg;
     return StatusCode::SUCCESS;
   }
 }

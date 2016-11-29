@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class ISiLorentzAngleSvc;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class SCT_GeoModelAthenaComps;
@@ -50,7 +50,7 @@ private:
   
   SCT_GeoModelAthenaComps * m_athenaComps;
 
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;

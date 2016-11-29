@@ -38,7 +38,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -88,7 +88,7 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
 
   // Set Version information
   // Get the geometry tag
-  DecodeVersionKey versionKey(geoModelSvc(), "SCT");
+  DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
   IRDBRecordset_ptr switchSet
     = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
   const IRDBRecord    *switches   = (*switchSet)[0];
@@ -136,8 +136,8 @@ SCT_DetectorFactory::~SCT_DetectorFactory()
 void SCT_DetectorFactory::create(GeoPhysVol *world) 
 { 
 
-  msg(MSG::INFO) << "Building SCT Detector." << endreq;
-  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
+  msg(MSG::INFO) << "Building SCT Detector." << endmsg;
+  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
   // The name tag here is what is used by the GeoModel viewer.
   GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");         
@@ -171,7 +171,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   //  
   if (barrelPresent) {
    
-    msg(MSG::DEBUG) << "Building the SCT Barrel." << endreq;
+    msg(MSG::DEBUG) << "Building the SCT Barrel." << endmsg;
 
     m_detectorManager->numerology().addBarrel(0);
 
@@ -200,7 +200,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   //  
   if (forwardPlusPresent) {
 
-    msg(MSG::DEBUG) << "Building the SCT Endcap A (positive z)." << endreq;
+    msg(MSG::DEBUG) << "Building the SCT Endcap A (positive z)." << endmsg;
 
     m_detectorManager->numerology().addEndcap(2);
 
@@ -232,7 +232,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
   if (forwardMinusPresent) {
 
-    msg(MSG::DEBUG) << "Building the SCT Endcap C (negative z)." << endreq;
+    msg(MSG::DEBUG) << "Building the SCT Endcap C (negative z)." << endmsg;
 
     m_detectorManager->numerology().addEndcap(-2);
     
@@ -374,11 +374,11 @@ InDetDD::AlignFolderType SCT_DetectorFactory::getAlignFolderType() const
   if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
 
   if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg;
     return InDetDD::static_run1;
   }
   else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
     return InDetDD::timedependent_run2;
   }
   else if (static_folderStruct && timedep_folderStruct){
