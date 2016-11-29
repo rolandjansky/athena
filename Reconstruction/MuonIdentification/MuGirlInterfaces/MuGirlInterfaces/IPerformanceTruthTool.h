@@ -74,13 +74,13 @@ namespace MuGirlNS
         };
     
         //virtual StatusCode getTruthTrack(const Rec::TrackParticle* pParticle, TruthTrack& truthTrack) = 0;
-        virtual StatusCode getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack, CandidateSummary* summary) = 0;
+        virtual StatusCode getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack, CandidateSummary* summary) const = 0;
 	virtual StatusCode bookNTuple(NTuple::Tuple* pNTuple) = 0;
     	//virtual StatusCode fillNTuple(const Rec::TrackParticle* pParticle, CandidateSummary *summary=NULL)=0;
     	virtual StatusCode fillNTuple(CandidateSummary *summary)=0;
     
-        virtual StatusCode getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack, CandidateSummary* summary) = 0;
-        virtual StatusCode getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack, CandidateSummary* summary) = 0;
+        virtual StatusCode getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack, CandidateSummary* summary) const = 0;
+        virtual StatusCode getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack, CandidateSummary* summary) const = 0;
     };
 
 
