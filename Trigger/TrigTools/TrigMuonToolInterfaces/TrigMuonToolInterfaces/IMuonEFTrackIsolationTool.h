@@ -13,6 +13,8 @@
 
 // xAOD classes
 #include "xAODMuon/Muon.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
+
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
 // fwd declare classes
@@ -31,11 +33,14 @@ class IMuonEFTrackIsolationTool : virtual public IAlgTool {
 
  public:
   
-  /// Function where the isolation should be calculated for an EF muon & ID tracks
+  /// Function where the isolation should be calculated for an EF muon & ID tracks (deprecated)
   virtual StatusCode calcTrackIsolation(const TrigMuonEFInfoTrack* efmuon, const Rec::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals) =0;
 
   /// Function where the isolation should be calculated for an EF muon & ID tracks (xAOD version)
-  virtual StatusCode calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals) =0;
+  virtual StatusCode calcTrackIsolation(const xAOD::L2CombinedMuon* L2muon, const xAOD::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval) =0;
+  
+  /// Function where the isolation should be calculated for an L2 muon & FTK tracks (xAOD version)                                                                                       
+  virtual StatusCode calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval) =0;
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_IMuonEFTrackIsolationTool;}
