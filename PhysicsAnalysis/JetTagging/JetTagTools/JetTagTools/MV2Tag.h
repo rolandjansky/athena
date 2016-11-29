@@ -74,7 +74,7 @@ namespace Analysis {
 
 
     const unsigned m_nClasses=3;//b,u,c probabilities. It might be better to read from calib file for future
-    const bool m_writeRootFile=false;//Developper option
+    //const bool m_writeRootFile=false;//Developer option
     bool m_disableAlgo;
     int  m_warnCounter;
 

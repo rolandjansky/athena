@@ -68,7 +68,7 @@ namespace Analysis {
     /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
     // this pointer does not need to be deleted in the destructor (because it
     // points to something in storegate)
-    const xAOD::Vertex* m_priVtx;
+    const xAOD::Vertex* m_priVtx = 0;
 
     /** reader to define the TMVA algorithms */
     float m_ip3;

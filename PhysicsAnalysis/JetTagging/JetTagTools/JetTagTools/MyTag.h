@@ -69,7 +69,7 @@ namespace Analysis {
     std::string m_xAODBaseName;
 
     const unsigned m_nClasses=3;//b,u,c probabilities. It might be better to read from calib file for future
-    const bool m_writeRootFile=false;//Developper option
+    //const bool m_writeRootFile=false;//Developer option
     bool m_disableAlgo;
     int  m_warnCounter;
 
@@ -100,7 +100,7 @@ namespace Analysis {
     float m_ip3;
     float m_ip3_c;
     float m_ip3_cu;
-    float m_ip3_2hitGradeFrac;
+    //float m_ip3_2hitGradeFrac;
     //more sv1 variables
     float m_sv1;
     float m_sv1_c;
@@ -133,9 +133,9 @@ namespace Analysis {
     float m_sv1_pb;
     float m_sv1_pc;
     //JetFitterCombNN posteriors
-    float m_jfc_pu;
-    float m_jfc_pb;
-    float m_jfc_pc;
+    //float m_jfc_pu;
+    //float m_jfc_pb;
+    //float m_jfc_pc;
     //SV0 informations
     float m_sv0;
     float m_sv0_ntkv;

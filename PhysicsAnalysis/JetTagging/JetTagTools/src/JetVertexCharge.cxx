@@ -186,7 +186,7 @@ namespace Analysis {
     for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
     
 
-    msg(MSG::DEBUG)  << "Finalize successful" << endreq;
+    msg(MSG::DEBUG)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
     
   } 

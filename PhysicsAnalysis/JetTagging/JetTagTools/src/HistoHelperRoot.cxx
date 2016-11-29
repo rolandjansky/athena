@@ -671,7 +671,8 @@ double HistoHelperRoot::Interpol2d(double x, double y, TH2* h)
   int ibx = h->GetXaxis()->FindBin(x), iby = h->GetYaxis()->FindBin(y);
   int ibx2,iby2;
   double z00,z11,z01,z10,xc,yc,xc2,yc2,u,t,r;
-  if (ibx > nx) ibx = nx; if (iby > ny) iby = ny;
+  if (ibx > nx) ibx = nx;
+  if (iby > ny) iby = ny;
   xc  = h->GetXaxis()->GetBinCenter(ibx);
   yc  = h->GetYaxis()->GetBinCenter(iby);
   z11 = h->GetBinContent(ibx,iby);
@@ -716,7 +717,9 @@ double HistoHelperRoot::Interpol3d(double x, double y, double z, TH3* h)
   int ibx = h->GetXaxis()->FindBin(x), iby = h->GetYaxis()->FindBin(y), ibz = h->GetZaxis()->FindBin(z);
   int ibx2,iby2,ibz2;
   double z000,z010,z110,z100,z001,z011,z111,z101,xc,yc,zc,xc2,yc2,zc2,u,t,v,r;
-  if (ibx > nx) ibx = nx; if (iby > ny) iby = ny; if (ibz > nz) ibz = nz;
+  if (ibx > nx) ibx = nx;
+  if (iby > ny) iby = ny;
+  if (ibz > nz) ibz = nz;
   xc  = h->GetXaxis()->GetBinCenter(ibx);
   yc  = h->GetYaxis()->GetBinCenter(iby);
   zc  = h->GetZaxis()->GetBinCenter(ibz);

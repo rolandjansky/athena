@@ -56,7 +56,7 @@ JetFitterNNTool::JetFitterNNTool(const std::string& name,
 
   declareProperty("maximumRegisteredLayers",m_maximumRegisteredLayers);
 
-  declareProperty("usePtCorrectedMass",m_usePtCorrectedMass);
+  declareProperty("usePtCorrectedMass",m_usePtCorrectedMass = false);
 
   declareInterface<IJetFitterClassifierTool>(this);
 

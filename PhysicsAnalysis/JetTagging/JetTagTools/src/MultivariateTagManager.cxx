@@ -536,8 +536,8 @@ namespace Analysis {
 
 	if (std::fabs(d0sig) > 1.8){
 	  if(n_trk_d0cut==INT_MISSING) n_trk_d0cut = 0;
-	  n_trk_d0cut++;
-  }
+          n_trk_d0cut++;
+        }
 
   // track width components
 	if (std::isnan(sum_pt) && std::isnan(sum_pt_dr)) {
@@ -545,7 +545,7 @@ namespace Analysis {
 	}
 
 
-  sum_pt += trk.Pt();
+        sum_pt += trk.Pt();
 	const float dRtoJet = trk.DeltaR(jet.p4());
 	sum_pt_dr += dRtoJet * trk.Pt();
 	// for 3rd higest d0/z0 significance

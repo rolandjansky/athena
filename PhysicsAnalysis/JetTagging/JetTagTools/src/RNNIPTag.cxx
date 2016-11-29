@@ -58,6 +58,19 @@ namespace {
   const std::string UNKNOWN_SORT = "unknown_sort";
   std::string get_sort_name(const lwt::JSONConfig& cfg);
   TrackSorter get_sort_function(const std::string& key);
+
+struct TrackSorterFunctional
+{
+  TrackSorterFunctional (const TrackSorter& sorter)
+    : m_sorter (sorter) {}
+  bool operator() (const IPxDInfo& a, const IPxDInfo& b) const
+  {
+    return m_sorter (a, b);
+  }
+
+  const TrackSorter& m_sorter;
+};
+
 }
 
 // Track variable names, for both the NN inputs and for writing to the
@@ -419,7 +432,10 @@ namespace Analysis {
     for (const auto& sort_group: m_networks.at(author)) {
       const auto& sort_func = sort_group.first;
       const auto& networks = sort_group.second;
-      std::sort( track_info.begin(), track_info.end(), sort_func);
+      // This doesn't compile with clang 3.8 and gcc 6.1
+      //std::sort( track_info.begin(), track_info.end(), sort_func);
+      TrackSorterFunctional sorter (sort_func);
+      std::sort( track_info.begin(), track_info.end(), sorter);
       const auto inputs = get_nn_inputs(track_info);
 
       // inner loop is over the networks that use this sort function
@@ -478,7 +494,7 @@ namespace Analysis {
   }
 
   std::string RNNIPTag::get_calib_string(const std::string& author,
-                                         const std::string& name) const
+                                         const std::string& name)
   {
     // if we have an override we ignore the author and just read from
     // a text file

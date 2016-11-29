@@ -495,6 +495,7 @@ namespace Analysis
       if ( inputVars.size()!=nConfgVar or badVariableFound ) {
 	ATH_MSG_WARNING("#BTAG# Number of expected variables for SoftMu: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	m_disableAlgo=true;
+	delete bdt;
 	return StatusCode::SUCCESS;
       }
  
