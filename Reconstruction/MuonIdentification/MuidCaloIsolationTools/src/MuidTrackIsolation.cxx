@@ -123,7 +123,7 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
 	msg() << " for muon at calo with eta,phi "
 	      << std::setw(8) << std::setprecision(3) << eta
 	      << std::setw(8) << std::setprecision(3) << phi;
-	if (msgLvl(MSG::VERBOSE)) msg() << endreq << MSG::VERBOSE;
+	if (msgLvl(MSG::VERBOSE)) msg() << endmsg << MSG::VERBOSE;
     }
 
     // set initial state
@@ -163,7 +163,7 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
 	      << std::setw(8) << std::setprecision(1) << isolation.second/Gaudi::Units::GeV <<" Gaudi::Units::GeV "
 	      << "and maximum momentum "
 	      << std::setw(8) << std::setprecision(1) << m_maxP/Gaudi::Units::GeV
-	      << endreq;
+	      << endmsg;
     }
     
     return isolation;
@@ -305,7 +305,7 @@ MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double
 	delete caloIntersection;
 	delete idIntersection;
     }
-    if (msgLvl(MSG::VERBOSE)) msg() << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
 
     return std::make_pair(numberTracks,sumP);
 }
