@@ -12,6 +12,8 @@ use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 
 
 private
+use GaudiInterface       GaudiInterface-*           External
+use CxxUtils             CxxUtils-*                 Control
 use AthenaKernel         AthenaKernel-*             Control
 end_private
 
@@ -26,4 +28,28 @@ apply_pattern lcgdict dict=OLD_EventTPCnv  selectionfile=OLD_selection.xml heade
 private
 use TestTools       TestTools-*         AtlasTest
 
+apply_pattern UnitTest_run unit_test=EventIDCnv_p1
+apply_pattern UnitTest_run unit_test=EventIDCnv_p2
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p3
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p4
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p1
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p2
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p3
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p1
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p2
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p3
+apply_pattern UnitTest_run unit_test=MergedEventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=MergedEventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p3
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p4
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p5
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p1
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p2
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p3
+apply_pattern UnitTest_run unit_test=AtlasMcWeight
 apply_pattern UnitTest_run unit_test=vectorize
+

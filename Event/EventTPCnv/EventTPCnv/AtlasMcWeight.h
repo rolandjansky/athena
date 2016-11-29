@@ -12,7 +12,7 @@
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov>, Borut Kersevan <borut.kersevan@cern.ch>
  *
- * $Id: AtlasMcWeight.h 542280 2013-03-25 12:34:31Z schaffer $
+ * $Id: AtlasMcWeight.h 764382 2016-07-26 15:37:04Z ssnyder $
  */
 
 namespace AtlasMcWeight {
@@ -22,6 +22,7 @@ namespace AtlasMcWeight {
     /// Convert weight from unsigned to double
     double decode(number_type binnedWeight);
 
+    number_type encode(double weight);
 }
 
 #endif

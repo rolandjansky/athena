@@ -7,7 +7,7 @@
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov>, Borut Kersevan <borut.kersevan@cern.ch>
  *
- * $Id: AtlasMcWeight.cxx 566179 2013-10-20 09:27:11Z schaffer $
+ * $Id: AtlasMcWeight.cxx 764382 2016-07-26 15:37:04Z ssnyder $
  */
 #include <iostream>
 #include <limits>
@@ -15,6 +15,8 @@
 #include <cmath>
 
 #include "EventTPCnv/AtlasMcWeight.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/GaudiException.h"
 
 /* #define AMC_DEBUG 1 */
 
@@ -58,3 +60,32 @@ AtlasMcWeight::decode(number_type binnedWeight) {
     return wt_decode;
 } 
 
+
+AtlasMcWeight::number_type
+AtlasMcWeight::encode(double weight) { 
+    int exponent = int(floor(log10(fabs(weight)))+1);
+    if ( abs(exponent) > 9 ) { 
+        throw GaudiException( "The MC weight abs value is bigger than 1E9,encoding failed","AtlasMcWeight", StatusCode::FAILURE ); 
+    }
+
+    number_type wt_prec = int(fabs(weight)*pow(10,(NPLACES-1-exponent)));
+    number_type wt_exp = abs(exponent);
+    int d_sign = ( weight > 0. ? 0 : 1 );
+    int e_sign = ( exponent > 0. ? 0 : 1 );
+    number_type wt_pref = d_sign+2*e_sign;
+
+    char senc[12];
+    snprintf(senc,12,"%d%d%d",wt_pref, wt_exp, wt_prec);
+    number_type wt_encode=atoll(senc);
+
+#ifdef AMC_DEBUG
+    std::cout << " AtlasMcWeight::encode weight = " << weight << std::endl;
+    printf("encode parts =%d %d %d \n", wt_pref, wt_exp, wt_prec);
+    printf("encoded string=%s \n", senc);
+    std::cout << " weight=" << weight << std::endl;
+    std::cout << " str weight=" << senc << std::endl;
+    std::cout << " exp weight=" << atoll(senc) << std::endl;
+    std::cout << " encoded weight=" << wt_encode << std::endl;
+#endif
+    return wt_encode;
+} 

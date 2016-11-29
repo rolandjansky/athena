@@ -13,6 +13,7 @@
  */
 
 #include <vector>
+#include <string>
 
 class TriggerInfo_p2 {
 public:

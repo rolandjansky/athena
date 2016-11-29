@@ -2,23 +2,52 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "EventInfo/EventType.h"
-#undef private
-#undef protected
-
 #include "EventTPCnv/EventTypeCnv_p1.h"
+#include "CxxUtils/make_unique.h"
 
-void EventTypeCnv_p1::transToPers(const EventType* /*trans*/, EventType_p1* /*pers*/, MsgStream &) {
+void EventTypeCnv_p1::transToPers(const EventType* trans, EventType_p1* pers, MsgStream &log)
+{
+  const EventTypeCnv_p1* cthis = this;
+  cthis->transToPers (trans, pers, log);
+}
+
+
+void EventTypeCnv_p1::transToPers(const EventType* trans, EventType_p1* pers, MsgStream &) const {
     // Deprecated - writing out with _p3 RDS 2013/10
-    // pers->m_user_type           = trans->m_user_type;
-    // pers->m_bit_mask            = trans->m_bit_mask;
-    // pers->m_mc_event_weight     = trans->m_mc_event_weights[0];
+    pers->m_user_type           = trans->user_type_raw();
+    pers->m_bit_mask            = trans->bit_mask();
+    pers->m_mc_event_weight     = 0;
+    if (trans->n_mc_event_weights() > 0)
+      pers->m_mc_event_weight     = trans->mc_event_weight(0);
 }
 
-void EventTypeCnv_p1::persToTrans(const EventType_p1* pers, EventType* trans, MsgStream &) {
-    trans->m_user_type           = pers->m_user_type;
-    trans->m_bit_mask            = pers->m_bit_mask;
-    trans->m_mc_event_weights[0] = (float)pers->m_mc_event_weight;
+void EventTypeCnv_p1::persToTrans(const EventType_p1* pers, EventType* trans, MsgStream &log)
+{
+  const EventTypeCnv_p1* cthis = this;
+  cthis->persToTrans (pers, trans, log);
 }
+
+void EventTypeCnv_p1::persToTrans(const EventType_p1* pers, EventType* trans, MsgStream &) const {
+    *trans = EventType();
+    trans->set_user_type         (pers->m_user_type);
+    for (size_t i = 0; i < pers->m_bit_mask.size(); i++) {
+      if (pers->m_bit_mask[i])
+        trans->add_type (i);
+    }
+    trans->set_mc_event_weight ((float)pers->m_mc_event_weight, 0, 1);
+}
+
+EventType* EventTypeCnv_p1::createTransient (const EventType_p1* persObj, MsgStream& log)
+{
+  const EventTypeCnv_p1* cthis = this;
+  return cthis->createTransient (persObj, log);
+}
+
+EventType* EventTypeCnv_p1::createTransient (const EventType_p1* persObj, MsgStream& log) const
+{
+  auto trans = CxxUtils::make_unique<EventType>();
+  persToTrans(persObj, trans.get(), log);
+  return(trans.release());
+}
+

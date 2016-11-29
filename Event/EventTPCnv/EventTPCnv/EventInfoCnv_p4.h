@@ -6,17 +6,23 @@
 #define EVENTATHENAPOOL_EVENTINFOCNV_P4_H
 
 #include "EventTPCnv/EventInfo_p4.h"
+#include "EventInfo/EventInfo.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class MsgStream;
 class EventInfoCnv_p4  : public T_AthenaPoolTPCnvBase<EventInfo, EventInfo_p4>  {
 public:
   EventInfoCnv_p4() {}
-  virtual void   persToTrans(const EventInfo_p4* persObj, EventInfo* transObj, MsgStream &log) ;
-  virtual void   transToPers(const EventInfo* transObj, EventInfo_p4* persObj, MsgStream &log) ;
+  virtual void   persToTrans(const EventInfo_p4* persObj, EventInfo* transObj, MsgStream &log) override;
+  virtual void   transToPers(const EventInfo* transObj, EventInfo_p4* persObj, MsgStream &log) override;
+
+  void   persToTrans(const EventInfo_p4* persObj, EventInfo* transObj, MsgStream &log) const;
+  void   transToPers(const EventInfo* transObj, EventInfo_p4* persObj, MsgStream &log) const;
 
   // needed to handle specific default constructor of EventInfo
-  virtual EventInfo *createTransient( const EventInfo_p4* persObj, MsgStream &log);
+  virtual EventInfo *createTransient( const EventInfo_p4* persObj, MsgStream &log) override;
+
+  EventInfo *createTransient( const EventInfo_p4* persObj, MsgStream &log) const;
 };
 
 template<>

@@ -6,6 +6,7 @@
 #define EVENTATHENAPOOL_PILEUPEVENTINFOCNV_P5_H
 
 #include "EventTPCnv/PileUpEventInfo_p5.h"
+#include "EventInfo/PileUpEventInfo.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class MsgStream;
