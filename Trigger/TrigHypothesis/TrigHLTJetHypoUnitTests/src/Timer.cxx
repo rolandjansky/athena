@@ -2,10 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteMatcher.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/OrderedCollectionsMatcher.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteGroupsMatcher.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 #include "./TLorentzVectorAsIJet.h"
 #include "./TLorentzVectorFactory.h"
 #include <TLorentzVector.h>
@@ -38,22 +37,28 @@ class Timer{
     HypoJetVector jets;
     TLorentzVectorAsIJet  j0 (m_tl0);
     TLorentzVectorAsIJet  j1 (m_tl1);
-    jets.push_back(&j0);
-    jets.push_back(&j1);
+    HypoJetVector jets0;
+    jets0.push_back(&j0);
+
+    HypoJetVector jets1;
+    jets1.push_back(&j1);
+    HypoJetGroupVector jetGroups{jets0, jets1};
 
     std::vector<double> etaMins{-1., -1., -1.};
     std::vector<double> etaMaxs{1., 1, 1.};
     std::vector<double> thresholds{100., 120, 140.};
+    std::vector<int> asymmetricEtas{0, 0, 0, 0};
 
-    auto conditions = conditionsFactory(etaMins, etaMaxs, thresholds);
-    std::string name = "testOrderedConditionsMatcher";
+    auto conditions = conditionsFactoryEtaEt(etaMins, 
+                                             etaMaxs, 
+                                             thresholds,
+                                             asymmetricEtas);
 
-    MaximumBipartiteMatcher matcher(conditions, name);
-    // OrderedCollectionsMatcher matcher(conditions, name);
+    MaximumBipartiteGroupsMatcher matcher(conditions);
 
     auto t0 = high_resolution_clock::now();
     for(int i = 0; i != 1000000; ++i){
-      matcher.match(jets.begin(), jets.end());
+      matcher.match(jetGroups.begin(), jetGroups.end());
     }
     auto t1 = high_resolution_clock::now();
     std::cout << std::boolalpha << matcher.pass() << '\n';

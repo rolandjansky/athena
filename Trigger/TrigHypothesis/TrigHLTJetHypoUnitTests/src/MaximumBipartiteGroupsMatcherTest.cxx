@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/OrderedCollectionsMatcher.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteGroupsMatcher.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory.h"
@@ -17,7 +17,7 @@
 
 
 /*
- * OrderedCollectionsMatcher functionality tested:
+ * MaximumBipartiteMatcher functionality tested:
  * 0 fail if no jet vector indices
  * 1 fail if no if there are fewer passing jets than conditions
  * 2 pass if there are at least as many passing jets as conditions
@@ -35,9 +35,9 @@ using ::testing::_;
 using ::testing::SetArgReferee;
 
 
-class OrderedCollectionsMatcherTest: public ::testing::Test {
+class MaximumBipartiteGroupsMatcherTest: public ::testing::Test {
 public:
-  OrderedCollectionsMatcherTest() {
+  MaximumBipartiteGroupsMatcherTest() {
 
 
     std::vector<double> etaMins{-1., -1., -1.};
@@ -46,18 +46,20 @@ public:
 
     m_conditions = conditionsFactory(etaMins, etaMaxs, thresholds);
     m_name = "testOrderedConditionsMatcher";
+    m_nconditions = m_conditions.size();
   }
 
   Conditions m_conditions;
+  int m_nconditions;
   std::string m_name;
 };
 
 
-TEST_F(OrderedCollectionsMatcherTest, zeroInputJets){
+TEST_F(MaximumBipartiteGroupsMatcherTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
   HypoJetVector jets;
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
   
   EXPECT_FALSE(matcher.pass());
@@ -66,7 +68,7 @@ TEST_F(OrderedCollectionsMatcherTest, zeroInputJets){
 }
 
 
-TEST_F(OrderedCollectionsMatcherTest, tooFewSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherTest, tooFewSelectedJets){
   /* pass fewer jets than indicies. Fails, all jets are bad */
 
   double eta{5};
@@ -77,31 +79,19 @@ TEST_F(OrderedCollectionsMatcherTest, tooFewSelectedJets){
 
   MockJetWithLorentzVector jet0(tl);
   MockJetWithLorentzVector jet1{tl};
-  MockJetWithLorentzVector jet2{tl};
-  MockJetWithLorentzVector jet3{tl};
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{&jet0, &jet1};
 
-  EXPECT_CALL(jet0, eta());
-  EXPECT_CALL(jet1, eta());
-  EXPECT_CALL(jet2, eta());
-  EXPECT_CALL(jet3, eta());
-
-  EXPECT_CALL(jet0, et());
-  EXPECT_CALL(jet1, et());
-  EXPECT_CALL(jet2, et());
-  EXPECT_CALL(jet3, et());
-
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
 
   EXPECT_FALSE(matcher.pass());
   EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(0));
-  EXPECT_EQ(matcher.failedJets().size(), jets.size());
+  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(2));
 }
 
 
-TEST_F(OrderedCollectionsMatcherTest, oneSelectedJet){
+TEST_F(MaximumBipartiteGroupsMatcherTest, oneSelectedJet){
   /* 1 jet1 over highest threshold - check good/bad jet list, fail. */
 
   double eta{5};
@@ -121,26 +111,26 @@ TEST_F(OrderedCollectionsMatcherTest, oneSelectedJet){
 
   HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
 
-  EXPECT_CALL(jet0, eta());
-  EXPECT_CALL(jet1, eta());
-  EXPECT_CALL(jet2, eta());
-  EXPECT_CALL(jet3, eta());
+  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet0, et());
-  EXPECT_CALL(jet1, et());
-  EXPECT_CALL(jet2, et());
-  EXPECT_CALL(jet3, et());
+  EXPECT_CALL(jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
 
   EXPECT_FALSE(matcher.pass());
   EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(1));
-  EXPECT_EQ(matcher.failedJets().size(), jets.size()-1);
+  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(3));
 }
 
 
-TEST_F(OrderedCollectionsMatcherTest, twoSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherTest, twoSelectedJets){
   /* 2 jets over repsective thresholds - check good/bad jet list, fail. */
 
 
@@ -171,26 +161,27 @@ TEST_F(OrderedCollectionsMatcherTest, twoSelectedJets){
 
   HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
 
-  EXPECT_CALL(jet0, eta());
-  EXPECT_CALL(jet1, eta());
-  EXPECT_CALL(jet2, eta());
-  EXPECT_CALL(jet3, eta());
 
-  EXPECT_CALL(jet0, et());
-  EXPECT_CALL(jet1, et());
-  EXPECT_CALL(jet2, et());
-  EXPECT_CALL(jet3, et());
+  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
 
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  EXPECT_CALL(jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(jet3, et()).Times(m_nconditions);
+
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
 
   EXPECT_FALSE(matcher.pass());
   EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(2));
-  EXPECT_EQ(matcher.failedJets().size(), jets.size()-2);
+  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(2));
 }
 
 
-TEST_F(OrderedCollectionsMatcherTest, threeSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherTest, threeSelectedJets){
   /* 3 jets over repsective thresholds - check good/bad jet list, pass.
      Expect no failed jets (alg stops on success) and no checks on the
      unused jet*/
@@ -223,24 +214,26 @@ TEST_F(OrderedCollectionsMatcherTest, threeSelectedJets){
   HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
 
 
-  EXPECT_CALL(jet1, eta());
-  EXPECT_CALL(jet2, eta());
-  EXPECT_CALL(jet3, eta());
+  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet1, et());
-  EXPECT_CALL(jet2, et());
-  EXPECT_CALL(jet3, et());
+  EXPECT_CALL(jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(jet3, et()).Times(m_nconditions);
+  EXPECT_CALL(jet0, et()).Times(m_nconditions);
 
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
 
   EXPECT_TRUE(matcher.pass());
   EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(3));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(0));
+  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(1));
 }
 
 
-TEST_F(OrderedCollectionsMatcherTest, fourSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherTest, fourSelectedJets){
   /* 4 jets over repsective thresholds - check good/bad jet list, pass.
      Expect no failed jets (alg stops on success) and no checks on the
      unused jet*/
@@ -272,18 +265,80 @@ TEST_F(OrderedCollectionsMatcherTest, fourSelectedJets){
 
   HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
 
-  EXPECT_CALL(jet0, eta());
-  EXPECT_CALL(jet1, eta());
-  EXPECT_CALL(jet2, eta());
+  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet0, et());
-  EXPECT_CALL(jet1, et());
-  EXPECT_CALL(jet2, et());
+  EXPECT_CALL(jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  OrderedCollectionsMatcher matcher(m_conditions, m_name);
+  MaximumBipartiteGroupsMatcher matcher(m_conditions, m_name);
   matcher.match(jets.begin(), jets.end());
 
   EXPECT_TRUE(matcher.pass());
   EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(3));
+  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(1));
+}
+
+
+
+TEST_F(MaximumBipartiteGroupsMatcherTest, overlappingEtaRegions){
+  /* 4 jets over repsective thresholds - check good/bad jet list, pass.
+     Expect no failed jets (alg stops on success) and no checks on the
+     unused jet*/
+
+  std::vector<double> etaMins{-1.00, -1.00, -0.25, -0.25};
+  std::vector<double> etaMaxs{ 0.25,  0.25,  1.00,  1.00};
+  std::vector<double> thresholds{100., 80, 140., 90.};
+
+  auto conditions = conditionsFactory(etaMins, etaMaxs, thresholds);
+  std::string name = "overlappingRegionsMatcher";
+  int nconditions = conditions.size();
+
+  double eta{0.1};
+  double et{180.};
+
+  auto factory = TLorentzVectorFactory();
+  auto tl0 = factory.make(eta, et);
+
+  MockJetWithLorentzVector jet0(tl0);
+
+  eta = 0.1;
+  et = 101;
+  auto tl1 = factory.make(eta, et);
+
+  MockJetWithLorentzVector jet1{tl1};
+
+
+  eta = 0.1;
+  et = 91.;
+  auto tl2 = factory.make(eta, et);
+  MockJetWithLorentzVector jet2{tl2};
+
+  eta = 0.1;
+  et = 81.;
+  auto tl3 = factory.make(eta, et);
+  MockJetWithLorentzVector jet3{tl3};
+
+  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+
+  EXPECT_CALL(jet0, eta()).Times(nconditions);
+  EXPECT_CALL(jet1, eta()).Times(nconditions);
+  EXPECT_CALL(jet2, eta()).Times(nconditions);
+  EXPECT_CALL(jet3, eta()).Times(nconditions);
+
+  EXPECT_CALL(jet0, et()).Times(nconditions);
+  EXPECT_CALL(jet1, et()).Times(nconditions);
+  EXPECT_CALL(jet2, et()).Times(nconditions);
+  EXPECT_CALL(jet3, et()).Times(nconditions);
+
+  MaximumBipartiteGroupsMatcher matcher(conditions, name);
+  matcher.match(jets.begin(), jets.end());
+
+  EXPECT_TRUE(matcher.pass());
+  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(4));
   EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(0));
 }
