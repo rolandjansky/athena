@@ -46,7 +46,7 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   // the same as the energy from the calculator?  Not necessarily.
   // The calculator may include detector effects such as
   // charge-collection which are not modeled by Geant4.)
-  if(a_step->GetTotalEnergyDeposit() == 0.) return false;
+  //if(a_step->GetTotalEnergyDeposit() == 0.) return false; //FIXME commenting this out to fix for ATLASSIM-3065
 
   // Convert the G4Step into (eta,phi,sampling).
   // Check that hit was valid.  (It might be invalid if, for example,
