@@ -89,7 +89,7 @@ SCT_Barrel::build(SCT_Identifier id) const
     
   // Old geometries are no longer supported - give up now if one is requested
   if(m_isOldGeometry) {
-    msg(MSG::FATAL) << "Old barrel geometry versions are not supported" << endreq;
+    msg(MSG::FATAL) << "Old barrel geometry versions are not supported" << endmsg;
     return barrel;
   }
 

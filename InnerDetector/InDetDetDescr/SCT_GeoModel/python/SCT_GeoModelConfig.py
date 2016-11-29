@@ -8,7 +8,7 @@ def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
     kwargs.setdefault("Alignable",        True);
     kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc");
     kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc");
-    kwargs.setdefault("GeoModelSvc",      "GeoModelSvc");
+    kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc");
     from AthenaCommon.DetFlags      import DetFlags
     if DetFlags.digitize.SCT_on() or DetFlags.haveRDO.SCT_on() or DetFlags.haveRIO.SCT_on():
         # SCTLorentzAngleSvc needed for digi and reco
