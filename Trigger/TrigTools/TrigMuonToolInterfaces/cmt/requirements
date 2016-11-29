@@ -20,5 +20,6 @@ use MuonCombinedEvent MuonCombinedEvent-* Reconstruction/MuonIdentification
 use Particle          Particle-*          Reconstruction
 use DataModel         DataModel-*         Control
 use xAODMuon	      xAODMuon-*	  Event/xAOD
+use xAODTrigMuon      xAODTrigMuon-*      Event/xAOD
 use xAODTracking      xAODTracking-*	  Event/xAOD
 use xAODCaloEvent     xAODCaloEvent-*     Event/xAOD

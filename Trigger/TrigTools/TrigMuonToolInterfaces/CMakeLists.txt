@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODMuon
+			  Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
