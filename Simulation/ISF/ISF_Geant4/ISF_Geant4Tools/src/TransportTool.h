@@ -128,6 +128,9 @@ namespace iGeant4
                                            //simulation
 
     G4VSolid *m_worldSolid;                // the Geant4 world volume solid
+
+    /// Commands to send to the G4 UI
+    std::vector<std::string> m_g4commands;
   };
 
 
