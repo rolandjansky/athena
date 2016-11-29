@@ -146,10 +146,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   	m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT");
 	m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
   }
-  msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endreq ;
-  if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endreq;
-  if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
-  if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
+  msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endmsg ;
+  if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endmsg;
+  if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
+  if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
   
  
   //---------------------- Initialize ID Helper ------------------------------------//
@@ -160,7 +160,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const TRT_ID *idHelper = 0;
 
   if (detStore()->retrieve(idHelper, "TRT_ID").isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endmsg;
   } //else {
     //idHelperInitialized = true;
   //}
@@ -2581,11 +2581,11 @@ InDetDD::AlignFolderType TRTDetectorFactory_Full::getAlignFolderType() const
   if (detStore()->contains<AlignableTransformContainer>("/TRT/Align") ) static_folderStruct = true;
 
   if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg;
     return InDetDD::static_run1;
   }
   else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
     return InDetDD::timedependent_run2;
   }
   else if (static_folderStruct && timedep_folderStruct){

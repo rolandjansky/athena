@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/DetDescrCond/DetDescrConditions
-                          DetectorDescription/GeoModel/GeoModelInterfaces
+			  DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeometryDBSvc
                           DetectorDescription/IdDictDetDescr
