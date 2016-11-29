@@ -18,7 +18,7 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "GeometryDBSvc/IGeometryDBSvc.h"
@@ -45,7 +45,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
     m_bcmTool(""),
     m_blmTool(""),
     m_serviceBuilderTool(""),
-    m_geoModelSvc("GeoModelSvc",name),
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
@@ -62,9 +62,9 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("BCM_Tool", m_bcmTool);
   declareProperty("BLM_Tool", m_blmTool);
   declareProperty("ServiceBuilderTool", m_serviceBuilderTool);
+  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
   declareProperty("OverrideVersionName", m_overrideVersionName);
 }
@@ -89,39 +89,39 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
   if (m_devVersion) {
     msg(MSG::WARNING) << "You are using a development version. There are no guarantees of stability"
-	<< endreq;
+	<< endmsg;
   }
    
 
   // Get the detector configuration.
-  StatusCode sc = m_geoModelSvc.retrieve();
+  StatusCode sc = m_geoDbTagSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return (StatusCode::FAILURE); 
-  }  
- 
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
+    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
+    return (StatusCode::FAILURE);
+  } 
+  
+  DecodeVersionKey versionKey(&*m_geoDbTagSvc, "Pixel");
 
   msg(MSG::INFO) << "Building Pixel Detector with Version Tag: " << versionKey.tag() << " at Node: " 
-		 << versionKey.node() << endreq;
+		 << versionKey.node() << endmsg;
 
   std::string pixelVersionTag;
 
   sc = m_rdbAccessSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
 
   // Print the version tag:
   pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
-  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endreq;
+  msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
   
   
   // Check if version is empty. If so, then the SCT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (pixelVersionTag.empty()) { 
-    msg(MSG::INFO) << "No Pixel Version. Pixel Detector will not be built." << endreq;
+    msg(MSG::INFO) << "No Pixel Version. Pixel Detector will not be built." << endmsg;
      
   } else {
   
@@ -133,12 +133,12 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
     if (versionKey.custom()) {
 
-      msg(MSG::WARNING) << "PixelDetectorTool:  Detector Information coming from a custom configuration!!" << endreq;
+      msg(MSG::WARNING) << "PixelDetectorTool:  Detector Information coming from a custom configuration!!" << endmsg;
  
     } else {
 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PixelDetectorTool:  Detector Information coming from the database and job options IGNORED." << endreq;
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Keys for Pixel Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PixelDetectorTool:  Detector Information coming from the database and job options IGNORED." << endmsg;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Keys for Pixel Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endmsg;
       IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("PixelSwitches", versionKey.tag(), versionKey.node());
       const IRDBRecord    *switchTable   = (*switchSet)[0];
       
@@ -165,17 +165,17 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
    if (!m_overrideVersionName.empty()) {
      versionName = m_overrideVersionName;
-     msg(MSG::INFO) << "Overriding version name: " << versionName << endreq;
+     msg(MSG::INFO) << "Overriding version name: " << versionName << endmsg;
    }
 
    if(msgLvl(MSG::DEBUG)) {  
-     msg(MSG::DEBUG)  << "Creating the Pixel " << endreq;
-     msg(MSG::DEBUG)  << "Pixel Geometry Options:" << endreq;
-     msg(MSG::DEBUG)  << "  Services           = " << (m_services ? "true" : "false") << endreq;
-     msg(MSG::DEBUG)  << "  Alignable          = " << (m_alignable ? "true" : "false") <<endreq;
-     msg(MSG::DEBUG)  << "  DC1Geometry        = " << (m_dc1Geometry ? "true" : "false") <<endreq;
-     msg(MSG::DEBUG)  << "  InitialLayout      = " << (m_initialLayout ? "true" : "false") <<endreq;
-     msg(MSG::DEBUG)  << "  VersioName         = " << versionName  << endreq;
+     msg(MSG::DEBUG)  << "Creating the Pixel " << endmsg;
+     msg(MSG::DEBUG)  << "Pixel Geometry Options:" << endmsg;
+     msg(MSG::DEBUG)  << "  Services           = " << (m_services ? "true" : "false") << endmsg;
+     msg(MSG::DEBUG)  << "  Alignable          = " << (m_alignable ? "true" : "false") <<endmsg;
+     msg(MSG::DEBUG)  << "  DC1Geometry        = " << (m_dc1Geometry ? "true" : "false") <<endmsg;
+     msg(MSG::DEBUG)  << "  InitialLayout      = " << (m_initialLayout ? "true" : "false") <<endmsg;
+     msg(MSG::DEBUG)  << "  VersioName         = " << versionName  << endmsg;
    }
     if (m_IBLParameterSvc.retrieve().isFailure()) {
        ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
@@ -205,7 +205,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
     const PixelID * idHelper = 0;
     if (detStore->retrieve(idHelper, "PixelID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -213,14 +213,14 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // Retrieve the Geometry DB Interface
     sc = m_geometryDBSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
+      msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
       return (StatusCode::FAILURE); 
     }  
 
     // Pass athena services to factory, etc
     m_athenaComps = new PixelGeoModelAthenaComps;
     m_athenaComps->setDetStore(detStore);
-    m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
+    m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
@@ -230,22 +230,22 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // LorentzAngleService
     //
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lorentz angle service passed to InDetReadoutGeometry with name: " 
-					   << m_lorentzAngleSvc.name() << endreq;
+					   << m_lorentzAngleSvc.name() << endmsg;
      
 
     // BCM Tool.
     if (!m_bcmTool.empty()) {
       sc = m_bcmTool.retrieve();
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "BCM_GeoModel tool retrieved: " << m_bcmTool << endreq;
+	msg(MSG::INFO) << "BCM_GeoModel tool retrieved: " << m_bcmTool << endmsg;
       } else {
-	msg(MSG::INFO) << "Could not retrieve " << m_bcmTool << " -  BCM will not be built" << endreq;
+	msg(MSG::INFO) << "Could not retrieve " << m_bcmTool << " -  BCM will not be built" << endmsg;
       }
       m_athenaComps->setBCM(&*m_bcmTool);
       //IGeoSubDetTool* tt = m_bcmTool;
 
     } else {
-      msg(MSG::INFO) << "BCM not requested." << endreq;
+      msg(MSG::INFO) << "BCM not requested." << endmsg;
     }
 
 
@@ -253,32 +253,32 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     if (!m_blmTool.empty()) {
       sc = m_blmTool.retrieve();
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "BLM_GeoModel tool retrieved: " << m_blmTool << endreq;
+	msg(MSG::INFO) << "BLM_GeoModel tool retrieved: " << m_blmTool << endmsg;
       } else {
-	msg(MSG::INFO) << "Could not retrieve " << m_blmTool << " -  BLM will not be built" << endreq;
+	msg(MSG::INFO) << "Could not retrieve " << m_blmTool << " -  BLM will not be built" << endmsg;
       }
       m_athenaComps->setBLM(&*m_blmTool);
 
     } else {
-      msg(MSG::INFO) << "BLM not requested." << endreq;
+      msg(MSG::INFO) << "BLM not requested." << endmsg;
     }
 
     // Service builder tool
     if (!m_serviceBuilderTool.empty()) {
       sc = m_serviceBuilderTool.retrieve(); 
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Service builder tool retrieved: " << m_serviceBuilderTool << endreq;
+	msg(MSG::INFO) << "Service builder tool retrieved: " << m_serviceBuilderTool << endmsg;
 	m_athenaComps->setServiceBuilderTool(&*m_serviceBuilderTool);
       } else {
-	msg(MSG::ERROR) << "Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built." << endreq;
+	msg(MSG::ERROR) << "Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built." << endmsg;
       }
     } else {
       if (versionName == "SLHC") {
 	// This will become an error once the tool is ready.
-	//msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endreq;
-	msg(MSG::INFO) << "Service builder tool not specified." << endreq; 
+	//msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
+	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
       } else {
-	msg(MSG::INFO) << "Service builder tool not specified." << endreq; 
+	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
       }	
     }
 
@@ -290,7 +290,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
       msg(MSG::ERROR) 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endreq; 
+	<< endmsg; 
       return (StatusCode::FAILURE); 
     } 
     
@@ -315,7 +315,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 	if(descrName.compare("TrackingGeometry")!=0)
 	  thePixel.create(world);      
 	else
-	  msg(MSG::INFO) << "Pixel - TrackingGeometry tag - no geometry built" << endreq; 
+	  msg(MSG::INFO) << "Pixel - TrackingGeometry tag - no geometry built" << endmsg; 
         m_manager  = thePixel.getDetectorManager();
       }	  
       
@@ -332,7 +332,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 
     // Register the manager to the Det Store    
     if (StatusCode::FAILURE == detStore->record(m_manager, m_manager->getName()) ) {
-      msg(MSG::ERROR) << "Could not register Pixel detector manager" << endreq;
+      msg(MSG::ERROR) << "Could not register Pixel detector manager" << endmsg;
       return( StatusCode::FAILURE );
     }
     // Add the manager to the experiment 
@@ -341,7 +341,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // Symlink the manager
     const SiDetectorManager * siDetManager = m_manager;
     if (StatusCode::FAILURE == detStore->symLink(m_manager, siDetManager) ) { 
-      msg(MSG::ERROR) << "Could not make link between PixelDetectorManager and SiDetectorManager" << endreq;
+      msg(MSG::ERROR) << "Could not make link between PixelDetectorManager and SiDetectorManager" << endmsg;
       return( StatusCode::FAILURE );
     }
 
@@ -353,12 +353,12 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     if (!m_lorentzAngleSvc.empty()) {
       sc = m_lorentzAngleSvc.retrieve();
       if (!sc.isFailure()) {
-	msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endreq;
+	msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
       } else {
-	msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endreq;
+	msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
       }
     } else {
-      msg(MSG::INFO) << "Lorentz angle service not requested." << endreq;
+      msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
     }
    
   } 
@@ -386,50 +386,50 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     {  
       std::string folderName = "/Indet/AlignL1/ID";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
 	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
 	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endmsg;
 	//return StatusCode::FAILURE;
       }
 
       folderName = "/Indet/AlignL2/PIX";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
 	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
 	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endmsg;
         //return StatusCode::FAILURE;
       }
 
       folderName = "/Indet/AlignL3";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
 	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       }
       else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
-		      << folderName <<  endreq;
+		      << folderName <<  endmsg;
 	//return StatusCode::FAILURE;
       }
     }
@@ -438,18 +438,18 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     {
       std::string folderName = "/Indet/Align";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
 	const DataHandle<AlignableTransformContainer> atc;
 	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
 	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       }
       else {
 	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
-			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endreq;
+			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endmsg;
 	//return StatusCode::FAILURE; 
       }
     }
@@ -458,25 +458,25 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
       //IBLDist alignment should be made optional; Will not be available prior to period G in Run2
       std::string ibl_folderName = "/Indet/IBLDist";
       if (detStore->contains<CondAttrListCollection>(ibl_folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on IBLDist with folder " << ibl_folderName << endreq;
+	msg(MSG::DEBUG) << "Registering callback on IBLDist with folder " << ibl_folderName << endmsg;
 	const DataHandle<CondAttrListCollection> calc;
 	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, ibl_folderName);
 	// We don't expect this to fail as we have already checked that the detstore contains the object.
 	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on IBLDist with folder " << ibl_folderName <<endreq;
+	  msg(MSG::ERROR) << "Problem when register callback on IBLDist with folder " << ibl_folderName <<endmsg;
 	} else {
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
 	// We don't return false, as it might be possible that we run an old configuration without new DB;
 	// Return a clear warning msg for now.
-	msg(MSG::WARNING) << "Unable to register callback on IBLDist with folder " << ibl_folderName <<endreq;
-	msg(MSG::WARNING) << "This should not happen that  no LB-IOV IBL-bowing DB is provided for this run " <<endreq;
+	msg(MSG::WARNING) << "Unable to register callback on IBLDist with folder " << ibl_folderName <<endmsg;
+	msg(MSG::WARNING) << "This should not happen that  no LB-IOV IBL-bowing DB is provided for this run " <<endmsg;
       }
     }// end of tweakIBLDist
 
   } else {
-    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endreq;
+    msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
     // We return failure otherwise it will try and register
     // a GeoModelSvc callback associated with this callback.
   }
@@ -488,13 +488,13 @@ StatusCode
 PixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   if (!m_manager) { 
-    msg(MSG::WARNING) << "Manager does not exist" << endreq;
+    msg(MSG::WARNING) << "Manager does not exist" << endmsg;
     return StatusCode::FAILURE;
   }    
   if (m_alignable) {     
     return m_manager->align(I,keys);
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endmsg;
     return StatusCode::SUCCESS;
   }
 }

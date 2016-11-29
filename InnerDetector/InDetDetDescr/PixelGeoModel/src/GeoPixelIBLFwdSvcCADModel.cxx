@@ -43,16 +43,16 @@ GeoPixelIBLFwdSvcCADModel::GeoPixelIBLFwdSvcCADModel(int section):
 GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Build()"<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Build()"<<endmsg;
   
 #if !defined(GEOTORUS) || GEOTORUS==0
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is not defined "<<GEOTORUS<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is not defined "<<GEOTORUS<<endmsg;
   return 0;
 
 #else
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endmsg;
 
   //  double safety = 0.01*CLHEP::mm;
 

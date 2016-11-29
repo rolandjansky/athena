@@ -15,7 +15,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
  
@@ -24,7 +24,7 @@
  **/
 IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),
-    m_geoModelSvc("GeoModelSvc",name), 
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_disablePixMapCondDB(false),
     m_disableSpecialPixels(false),
@@ -34,7 +34,7 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
     m_disableClusterMakerOfflineCalib(false),
     m_disableDCS(true)
 {
-	declareProperty("GeoModelSvc", m_geoModelSvc);
+	declareProperty("GeoDbTagSvc",m_geoDbTagSvc);
 	declareProperty("RDBAccessSvc",m_rdbAccessSvc);
  	declareProperty("DisablePixMapCondDB",m_disablePixMapCondDB);
  	declareProperty("DisableSpecialPixels",m_disableSpecialPixels);
@@ -87,14 +87,14 @@ StatusCode IBLParameterSvc::initialize()
 
 //Determine if IBL is present and set appropriate parameters
 StatusCode IBLParameterSvc::setIblParameters() {
-  if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return (StatusCode::FAILURE); 
-  }  
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
+  if (m_geoDbTagSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
+    return (StatusCode::FAILURE);
+  } 
+  DecodeVersionKey versionKey(&*m_geoDbTagSvc, "Pixel");
 
   if (m_rdbAccessSvc.retrieve().isFailure()) {
-     msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+     msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
      return (StatusCode::FAILURE); 
   } 
   m_rdbAccessSvc->connect();

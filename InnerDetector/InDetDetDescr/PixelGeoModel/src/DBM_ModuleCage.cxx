@@ -272,7 +272,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
       containerPhys->add(botRodPhys);
 
     } else 
-      gmt_mgr->msg(MSG::WARNING) << "Module cage   invalid layer value: " << gmt_mgr->GetLD() << endreq; 
+      gmt_mgr->msg(MSG::WARNING) << "Module cage   invalid layer value: " << gmt_mgr->GetLD() << endmsg; 
 
   
   }

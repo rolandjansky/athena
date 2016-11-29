@@ -43,7 +43,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   GeoFullPhysVol* ecPhys = new GeoFullPhysVol(ecLog);
 
   int ndisks = gmt_mgr->PixelEndcapNDisk();
-  gmt_mgr->msg(MSG::DEBUG) << "Number of disks is " << ndisks << endreq;
+  gmt_mgr->msg(MSG::DEBUG) << "Number of disks is " << ndisks << endmsg;
   
   // Set numerology
   DDmgr->numerology().setNumDisks(ndisks);
@@ -110,7 +110,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
 	ecPhys->add(pecc->Build() );
       }
     } else {
-      if(gmt_mgr->msgLvl(MSG::DEBUG))	gmt_mgr->msg(MSG::DEBUG) << "Disk " << idisk << " not built" << endreq;
+      if(gmt_mgr->msgLvl(MSG::DEBUG))	gmt_mgr->msg(MSG::DEBUG) << "Disk " << idisk << " not built" << endmsg;
     }
   }
   delete pdslhc;

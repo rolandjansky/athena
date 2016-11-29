@@ -165,15 +165,15 @@ GeoVPhysVol* DBM_Module::Build()
     idwafer = idHelper->wafer_id(dbmdet,gmt_mgr->GetLD(),gmt_mgr->Phi(),gmt_mgr->Eta());
 
     // if (gmt_mgr->msgLvl(MSG::INFO)) {
-    //   gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "check identifier for side="<< dbmdet <<" layer=" << gmt_mgr->GetLD() << " phi=" << gmt_mgr->Phi() << " eta=" << gmt_mgr->Eta() << endreq; 
-    //   gmt_mgr->msg(MSG::INFO) << "is pixel = " << idHelper->is_pixel(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "is barrel = " << idHelper->is_barrel(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "barrelendcap = " << idHelper->barrel_ec(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "layer = " << idHelper->layer_disk(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "phi_module = " << idHelper->phi_module(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "eta module = " << idHelper->eta_module(idwafer) << endreq;
-    //   gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "check identifier for side="<< dbmdet <<" layer=" << gmt_mgr->GetLD() << " phi=" << gmt_mgr->Phi() << " eta=" << gmt_mgr->Eta() << endmsg; 
+    //   gmt_mgr->msg(MSG::INFO) << "is pixel = " << idHelper->is_pixel(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "is barrel = " << idHelper->is_barrel(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "barrelendcap = " << idHelper->barrel_ec(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "layer = " << idHelper->layer_disk(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "phi_module = " << idHelper->phi_module(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "eta module = " << idHelper->eta_module(idwafer) << endmsg;
+    //   gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endmsg;
     //}
 
     SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, dbmDiamondPhys, gmt_mgr->commonItems());
@@ -259,7 +259,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
   
   if (etaPitchLongEnd == etaPitchLong && etaPitchLong != etaPitch) {
     // long:normal:long (standard ATLAS case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (long:normal:long, Standard ATLAS case)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
 
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -277,14 +277,14 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
     // normal:normal:normal
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:normal)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							0, normalCell, circuitsEta*diodeColPerCirc, 0);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, > 2 chips)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
     // normal:normal:long: > 2 chips
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -310,7 +310,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
     // normal:normal:long: 2 chips (current SLHC case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, 2 chips)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, 2 chips)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     
@@ -331,7 +331,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
   } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
     // end:normal:end  (for single chip)
     // end:normal:normal  (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:end, single chips or end:normal:normal)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
     
@@ -344,7 +344,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else {
     // end:normal:long    (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:long)" << endreq;
+    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:long)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 

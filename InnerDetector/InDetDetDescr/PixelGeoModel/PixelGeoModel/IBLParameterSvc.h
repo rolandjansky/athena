@@ -19,7 +19,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h" 
 
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 
 static const InterfaceID IID_IIBLParameterSvc("IBLParameterSvc",1,0); 
@@ -85,7 +85,7 @@ bool m_IBLpresent,m_DBMpresent;
 int LayerColumnsPerFE,LayerRowsPerFE,LayerFEsPerHalfModule_planar,LayerFEsPerHalfModule_3d,layout;
 std::vector<int> LayerFEsPerHalfModule;
 
-ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
 ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;  
 bool m_disablePixMapCondDB;
 bool m_disableSpecialPixels;

@@ -341,7 +341,7 @@ void GeoPixelServices::initialize(const std::string & a)
     schema.setPixelSchema();
     label = "EC";
   } else {
-    gmt_mgr->msg(MSG::ERROR) << "Unrecognized service table type: " << a << endreq;
+    gmt_mgr->msg(MSG::ERROR) << "Unrecognized service table type: " << a << endmsg;
     return;
   } 
 

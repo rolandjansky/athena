@@ -14,7 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
@@ -77,18 +77,18 @@ OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athena
 void
 OraclePixGeoManager::init()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
   IRDBAccessSvc *rdbSvc = athenaComps()->rdbAccessSvc();
-  IGeoModelSvc *geoModel = athenaComps()->geoModelSvc();;
+  IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
 
   // Get version tag and node for Pixel.
-  DecodeVersionKey versionKey(geoModel, "Pixel");
+  DecodeVersionKey versionKey(geoDbTag,"Pixel");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
 
   m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
 
@@ -99,8 +99,8 @@ OraclePixGeoManager::init()
 /////////////////////////////////////////////////////////
 
   if(msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endreq;
-    msg(MSG::INFO) << "Key = " << detectorKey << " Node = " << detectorNode << endreq;
+    msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endmsg;
+    msg(MSG::INFO) << "Key = " << detectorKey << " Node = " << detectorNode << endmsg;
   }
 
   //atls = rdbSvc->getRecordset("AtlasMother",geoModel->atlasVersion(), "ATLAS");
@@ -163,13 +163,13 @@ OraclePixGeoManager::init()
 
   m_dbVersion = determineDbVersion();
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Database version number: " << dbVersion() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Database version number: " << dbVersion() << endmsg;
 
   if (dbVersion() < 4) {
     m_legacyManager = new PixelLegacyManager(rdbSvc,  detectorKey, detectorNode);
   }
 
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "... Record Sets retrieved." << endreq;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "... Record Sets retrieved." << endmsg;
 
   m_distortedMatManager = new InDetDD::DistortedMaterialManager;
  
@@ -299,42 +299,42 @@ void OraclePixGeoManager::SetCurrentLD(int i)
     if(i <= PixelBarrelNLayer()) {
       currentLD=i;
     } else {
-      msg(MSG::ERROR) << "Layer set out of bounds: " << i << ", Setting it to 0" << endreq;
+      msg(MSG::ERROR) << "Layer set out of bounds: " << i << ", Setting it to 0" << endmsg;
       currentLD = 0;
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current layer set to " << currentLD << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current layer set to " << currentLD << endmsg;
   }
   if(isEndcap() ) {
      if (i<= PixelEndcapNDisk() ) {
        currentLD=i;
      } else {
-       msg(MSG::ERROR) << "Disk set out of bounds: " << i << ", Setting it to 0" << endreq;
+       msg(MSG::ERROR) << "Disk set out of bounds: " << i << ", Setting it to 0" << endmsg;
        currentLD = 0;
      }
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current disk set to " << currentLD << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current disk set to " << currentLD << endmsg;
   } 
  if(isDBM() ) {
      if (i<= 2 ) {
        currentLD=i;
      } else {
-       msg(MSG::ERROR) << "DBM: Disk set out of bounds: " << i << ", Setting it to 0" << endreq;
+       msg(MSG::ERROR) << "DBM: Disk set out of bounds: " << i << ", Setting it to 0" << endmsg;
        currentLD = 0;
      }
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current disk set to " << currentLD << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Current disk set to " << currentLD << endmsg;
   }
 }
 
 void OraclePixGeoManager::SetBarrel() {
-  //msg(MSG::DEBUG) << "Setting Barrel" << endreq;
+  //msg(MSG::DEBUG) << "Setting Barrel" << endmsg;
   BarrelEndcap = 0;
 }
 void OraclePixGeoManager::SetEndcap() {
   BarrelEndcap = 1;
-  //msg(MSG::DEBUG) << "Setting Endcap" << endreq;
+  //msg(MSG::DEBUG) << "Setting Endcap" << endmsg;
 }
 void OraclePixGeoManager::SetPartsDBM() {
   BarrelEndcap = 2;
-  //msg(MSG::DEBUG) << "Setting DBM" << endreq;
+  //msg(MSG::DEBUG) << "Setting DBM" << endmsg;
 }
 /////////////////////////////////////////////////////////
 //
@@ -422,7 +422,7 @@ PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
     //
     StatusCode sc = athenaComps()->detStore()->retrieve(m_pDDmgr);  
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot retrieve PixelDetectorManager" << endreq;
+      msg(MSG::ERROR) << "Cannot retrieve PixelDetectorManager" << endmsg;
     } 
   }
   return m_pDDmgr;
@@ -1054,7 +1054,7 @@ IRDBRecordset_ptr  OraclePixGeoManager::getPixelServiceRecordset(const std::stri
     recordSet = PixelEnvelopeService;
     //if(type != "Inside") index += m_endcapInFrames;
   } else {
-    msg(MSG::ERROR) << "ERROR:  getPixelServiceRecord(), neither Barrel of Endcap selected!" << endreq;
+    msg(MSG::ERROR) << "ERROR:  getPixelServiceRecord(), neither Barrel of Endcap selected!" << endmsg;
   }
   return recordSet;
 } 
@@ -1312,7 +1312,7 @@ unsigned int OraclePixGeoManager::PixelEnvelopeNumPlanes()
 double OraclePixGeoManager::PixelEnvelopeZ(int i) 
 {
   double zmin =  db()->getDouble(PixelEnvelope,"Z",i) * CLHEP::mm;
-  if (zmin < 0) msg(MSG::ERROR) << "PixelEnvelope table should only contain +ve z values" << endreq;
+  if (zmin < 0) msg(MSG::ERROR) << "PixelEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
 
@@ -1444,11 +1444,11 @@ int OraclePixGeoManager::getFrameElementIndex(int sectionIndex, int element)
   std::map<int,std::vector<int> >::const_iterator iter = m_frameElementMap->find(section);
   if (iter ==  m_frameElementMap->end()) {
     // Should never be the case as PixelFrameNumSideElements should generally be called first
-    msg(MSG::ERROR) << "Frame section " << section << " has no elements." << endreq;
+    msg(MSG::ERROR) << "Frame section " << section << " has no elements." << endmsg;
   } else {
     const std::vector<int> & vec = iter->second;
     if (static_cast<unsigned int>(element) >= vec.size()) {
-      msg(MSG::ERROR) << "Element index " << element << " for section " << section << " out of range." << endreq;
+      msg(MSG::ERROR) << "Element index " << element << " for section " << section << " out of range." << endmsg;
     } else {
       newIndex = vec[element];
     }
@@ -1467,7 +1467,7 @@ int OraclePixGeoManager::PixelFrameNumSideElements(int sectionIndex)
 
   std::map<int,std::vector<int> >::const_iterator iter = m_frameElementMap->find(section);
   if (iter ==  m_frameElementMap->end()) {
-    msg(MSG::DEBUG) << "Frame section " << section << " has no elements." << endreq;
+    msg(MSG::DEBUG) << "Frame section " << section << " has no elements." << endmsg;
   } else {
     numElements = iter->second.size();
   }
@@ -1539,7 +1539,7 @@ double OraclePixGeoManager::PixelLayerRadius()
   double radius = db()->getDouble(PixelLayer,"RLAYER",currentLD)*mmcm();
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PixelLayerRadius for layer " << currentLD
       << " is " << radius
-      << endreq;
+      << endmsg;
   return radius;
 }
 
@@ -2522,7 +2522,7 @@ double OraclePixGeoManager::PixelModuleZPositionTabulated(int etaModule, int typ
   }
   int index = m_zPositionMap->find(type, etaModule);
   if (index < 0) {
-    msg(MSG::ERROR) << "Z position not found for etaModule,type =  " << etaModule << ", " << type << endreq;
+    msg(MSG::ERROR) << "Z position not found for etaModule,type =  " << etaModule << ", " << type << endmsg;
     return 0;
   }
   return db()->getDouble(PixelStaveZ,"ZPOS",index) * CLHEP::mm;
@@ -2974,7 +2974,7 @@ int OraclePixGeoManager::PixelFluidIndex(int type)
   for (int i = 0; i < PixelFluidNumTypes(); i++) {
     if (type == PixelFluidType(i)) return i;
   }
-  msg(MSG::ERROR) << "Unrecognized fluid volume type: " << type << endreq;
+  msg(MSG::ERROR) << "Unrecognized fluid volume type: " << type << endmsg;
   return -1;
 }
  
@@ -3141,7 +3141,7 @@ int  OraclePixGeoManager::designType(bool isModule3D)
     return 0; // Not used
   } else {
     if (PixelReadout->size() == 0) {
-      msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endreq;
+      msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endmsg;
       return 0;
     } else if (PixelReadout->size() == 1 && !slhc() && !ibl()) {
       return 0;
@@ -3160,7 +3160,7 @@ int  OraclePixGeoManager::designType3D()
   } 
   else {
     if (PixelReadout->size() == 0) {
-      msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endreq;
+      msg(MSG::ERROR) << "ERROR in PixelReadout size. Should not occur!" << endmsg;
       return 0;
     } else if (PixelReadout->size() == 1 && !slhc() && !ibl()) {
       return 0;
@@ -3316,11 +3316,11 @@ int OraclePixGeoManager::GangedTableIndex(int index, int type)
   int newIndex = -1;
   std::map<int,std::vector<int> >::const_iterator iter = m_gangedIndexMap->find(type);
   if (iter == m_gangedIndexMap->end()) {
-    msg(MSG::ERROR) << "Ganged pixel type " << type << " not found." << endreq;
+    msg(MSG::ERROR) << "Ganged pixel type " << type << " not found." << endmsg;
   } else {
     const std::vector<int> & vec = iter->second;
     if (index < 0 || static_cast<unsigned int>(index) >= vec.size()) {
-      msg(MSG::ERROR) << "Ganged pixel index " << index << " for type " << type << " out of range." << endreq;
+      msg(MSG::ERROR) << "Ganged pixel index " << index << " for type " << type << " out of range." << endmsg;
     } else {
       newIndex = vec[index];
     }
@@ -3480,7 +3480,7 @@ int OraclePixGeoManager::getDiskRingIndex(int disk, int eta)
     }
   }
   int index = m_diskRingIndexMap->find(disk, eta);
-  if (index < 0)  msg(MSG::ERROR) << "Index not found for disk,ring =  " << disk << ", " << eta << endreq;
+  if (index < 0)  msg(MSG::ERROR) << "Index not found for disk,ring =  " << disk << ", " << eta << endmsg;
   //std::cout << "Index found for disk,ring =  " << disk << ", " << eta << " : " << index << std::endl;
   return index;
 }
@@ -3529,7 +3529,7 @@ double  OraclePixGeoManager::PixelDiskRMin(bool includeSupports)
       double ringRmin = db()->getDouble(PixelRing,"RMIN",ringType) * CLHEP::mm - 0.01*CLHEP::mm;  // ring envelope has a 0.01mm safety
       if (ringRmin < result) {
 	msg(MSG::WARNING) << "Ring rmin is less than disk rmin for disk : " << currentLD 
-			  << ". Ring rmin: " << ringRmin << ", Disk rmin: " << result <<endreq;
+			  << ". Ring rmin: " << ringRmin << ", Disk rmin: " << result <<endmsg;
 	result = ringRmin - 0.1*CLHEP::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
       }
     }
@@ -3555,7 +3555,7 @@ double OraclePixGeoManager::PixelDiskRMax(bool includeSupports)
     double ringRmax  = PixelRingRMax(0.01*CLHEP::mm); // ring envelope has a 0.01mm safety
     if (ringRmax > result) {
       msg(MSG::WARNING) << "Ring rmax is greater than disk rmax for disk : " << currentLD 
-			<< ". Ring rmax: " << ringRmax << ", Disk rmax: " << result <<endreq;
+			<< ". Ring rmax: " << ringRmax << ", Disk rmax: " << result <<endmsg;
       result = ringRmax + 0.1*CLHEP::mm; // NB. ring envelope has a 0.01mm saftey added, but we add a little more.
     }
   }
@@ -3864,7 +3864,7 @@ double OraclePixGeoManager::DBMSpacingRadial() {
   else if (currentLD == 2)
     return db()->getDouble(DBMCage,"RADIAL_SPACE_2")*CLHEP::mm;
   else {
-     msg(MSG::WARNING) << "DBMSpacingRadial() is not found" << endreq;
+     msg(MSG::WARNING) << "DBMSpacingRadial() is not found" << endmsg;
      return 0.;
   }
 }

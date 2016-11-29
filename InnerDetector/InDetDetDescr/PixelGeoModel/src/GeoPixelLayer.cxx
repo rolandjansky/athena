@@ -87,11 +87,11 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
   if(!staveSupport)
     {
-      gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endreq; 
+      gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endmsg; 
       return 0;
     }
 
-  gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
 
 
   GeoPixelLadder pixelLadder(theSensor, staveSupport);
@@ -167,7 +167,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 	rmaxSupport >  layerRadius - layerThicknessN) {
       gmt_mgr->msg(MSG::ERROR) 
 	<< "GeoPixelLayer: Support cylinder clashes with ladder. Support: " << rminSupport << " to " << rmaxSupport
-	<< " , Ladder extent: " << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP << endreq;
+	<< " , Ladder extent: " << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP << endmsg;
     }
     layerThicknessN = std::max(layerThicknessN, layerRadius - rminSupport);
     layerThicknessP = std::max(layerThicknessP, rmaxSupport - layerRadius);
@@ -323,7 +323,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 	double outerRadius = gmt_mgr->IBLSupportMidRingOuterRadius();  
 	rmax=outerRadius+safety;
       }
-      gmt_mgr->msg(MSG::INFO)<<"Layer IBL / stave ring :  outer radius max  "<<rmax<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"Layer IBL / stave ring :  outer radius max  "<<rmax<<endmsg;
 
     }
 
@@ -384,7 +384,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       //
       // Now make the layer envelope
       // 
-      gmt_mgr->msg(MSG::INFO)<<"Layer "<<gmt_mgr->GetLD()<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"Layer "<<gmt_mgr->GetLD()<<" in/out radius "<<rmin<<"  "<<rmax<<endmsg;
       const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << gmt_mgr->GetLD();
@@ -456,7 +456,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     // Will generalize later. 
     std::string matName = gmt_mgr->getMaterialName("LayerSupport", gmt_mgr->GetLD());
     if (matName.empty()) {
-      gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endreq;
+      gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endmsg;
       matName = "std::Carbon";
     }
     const GeoMaterial *supportMat = mat_mgr->getMaterial(matName);
@@ -479,7 +479,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   if(bAddIBLStaveRings)
     {
-      gmt_mgr->msg(MSG::INFO) << "IBL stave ring support"<< endreq;
+      gmt_mgr->msg(MSG::INFO) << "IBL stave ring support"<< endmsg;
 
       GeoPixelStaveRingServices staveRingService(pixelLadder, *staveSupport);
       staveRingService.Build();
