@@ -12,7 +12,7 @@ during the years 2000-2003.
 """
 
 __author__= 'M. Gallas'
-__version__ = "$Revision: 728941 $"
+__version__ = "$Revision: 787225 $"
 
 
 from AthenaCommon.JobProperties import JobProperty
@@ -84,7 +84,7 @@ class Theta(JobProperty):
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
-                if abs(n_value) >= 60. and not (abs(abs(theta)-90.0) < 0.01) :
+                if abs(n_value) >= 60. and not (abs(abs(n_value)-90.0) < 0.01) :
                     raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
