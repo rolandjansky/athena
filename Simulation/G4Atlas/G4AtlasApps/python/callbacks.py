@@ -10,16 +10,16 @@ SimFlags.InitFunctions.add_function("postInit", callbacks.use_classicalrk4_stepp
 
 ## Change the field stepper
 def use_simplerunge_stepper():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng._ctrl.fldMenu.SetDefaultStepper('SimpleRunge')
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Stepper = 'SimpleRunge'
 
 def use_classicalrk4_stepper():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng._ctrl.fldMenu.SetDefaultStepper('ClassicalRK4')
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Stepper = 'ClassicalRK4'
 
 def use_nystromrk4_stepper():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng._ctrl.fldMenu.SetDefaultStepper('NystromRK4')
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Stepper = 'NystromRK4'
 
 ## Use verbose G4 tracking
 def use_verbose_tracking():

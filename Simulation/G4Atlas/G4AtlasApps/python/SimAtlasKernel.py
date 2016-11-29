@@ -115,6 +115,10 @@ class AtlasSimSkeleton(SimSkeleton):
         #athenaCommonFlags.RuntimeStrictness = 'abort'
         #AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_jobproperties :: Enabled floating point exceptions')
 
+        if not simFlags.ISFRun:
+            from G4AtlasApps.G4Atlas_Metadata import checkForSpecialConfigurationMetadata
+            checkForSpecialConfigurationMetadata()
+
         ## Print flags
         if AtlasG4Eng.G4Eng.log.getEffectiveLevel() < 40:
             AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: printing detector flags DetFlags')
@@ -342,135 +346,14 @@ class AtlasSimSkeleton(SimSkeleton):
         """
         Setup and add metadata to the HIT file.
         """
-        import AtlasG4Eng,os
+        import AtlasG4Eng
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_metadata :: starting')
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        ## Read in special simulation job option fragments based on metadata passed by the evgen stage
-        if 'G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']:
-            AtlasG4Eng.G4Eng.log.info('Skipping reading of extra metadata - will not work with G4ATLAS_SKIPFILEPEEK set')
-        elif athenaCommonFlags.PoolEvgenInput.statusOn:
-            AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_metadata :: checking input file metadata.')
-            import PyUtils.AthFile as af
-            f = af.fopen(athenaCommonFlags.PoolEvgenInput()[0])
-            #for k, v in f.infos.iteritems():
-            #    print k, v
-            if "specialConfiguration" in f.infos["tag_info"]:
-                item = f.infos["tag_info"]["specialConfiguration"]
-                ## Parse the specialConfiguration string
-                ## Format is 'key1=value1;key2=value2;...'. or just '
-                AtlasG4Eng.G4Eng.log.debug("AtlasSimSkeleton._do_metadata :: Evgen specialConfiguration directive: ", item)
-                spcitems = item.split(";")
-                params = {}
-                for spcitem in spcitems:
-                    #print spcitem
-                    ## Ignore empty or "NONE" substrings, e.g. from consecutive or trailing semicolons
-                    if not spcitem or spcitem.upper() == "NONE":
-                        continue
-                    ## If not in key=value format, treat as v, with k="preInclude"
-                    if "=" not in spcitem:
-                        spcitem = "preInclude=" + spcitem
-                    ## Handle k=v directives
-                    k, v = spcitem.split("=")
-                    AtlasG4Eng.G4Eng.log.info("AtlasSimSkeleton._do_metadata :: specialConfiguration metadata item: %s => %s" % (k, v))
-                    if k == "preInclude":
-                        AtlasG4Eng.G4Eng.log.info("AtlasSimSkeleton._do_metadata :: Including %s as instructed by specialConfiguration metadata" % v)
-                        include(v)
-                    else:
-                        params[k] = v
-                    AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.update( params )
-
         from G4AtlasApps.SimFlags import simFlags
         if not simFlags.ISFRun:
             AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_metadata :: recording metadata')
-
-            from IOVDbMetaDataTools import ParameterDbFiller
-            dbFiller = ParameterDbFiller.ParameterDbFiller()
-
-            ## Set run numbers
-            minrunnum = 0
-            maxrunnum = 2147483647
-            import os
-            from G4AtlasApps.SimFlags import simFlags
-
-            if hasattr(simFlags, 'RunNumber') and simFlags.RunNumber.statusOn:
-                minrunnum = simFlags.RunNumber()
-                ## FIXME need to use maxrunnum = 2147483647 for now to keep overlay working but in the future this should be set properly.
-                # maxrunnum = minrunnum + 1
-            elif 'G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']:
-                AtlasG4Eng.G4Eng.log.info('Skipping run number setting - would need to set simFlags.RunNumber for this')
-            elif athenaCommonFlags.PoolEvgenInput.statusOn:
-                import PyUtils.AthFile as af
-                try:
-                    f = af.fopen(athenaCommonFlags.PoolEvgenInput()[0])
-                    if len(f.run_numbers) > 0:
-                        minrunnum = f.run_numbers[0]
-                        maxrunnum = minrunnum + 1
-                    else:
-                        raise Exception('IllegalRunNumber')
-                except Exception :
-                    myCommand = 'dumpRunNumber.py '+jobproperties.AthenaCommonFlags.PoolEvgenInput.get_Value()[0] +' | grep "run number:" | sed \'s/run number://\''
-                    myOutput = os.popen3(myCommand)[1].read().strip() #read in child_stdout only
-                    if (len(myOutput) > 0 and int(myOutput) > 0) :
-                        AtlasG4Eng.G4Eng.log.info( "Setting run number from file to ",myOutput," with a range of one" )
-                        minrunnum = myOutput
-                        maxrunnum = myOutput+1
-                    else:
-                        AtlasG4Eng.G4Eng.log.info( "Setting run number from 0 to 2147483647 (could not open evgen file)" )
-
-            AtlasG4Eng.G4Eng.log.info("AtlasSimSkeleton._do_metadata :: Setting IOV run number range to [%d, %d]" % (minrunnum, maxrunnum))
-            dbFiller.setBeginRun(minrunnum)
-            dbFiller.setEndRun(maxrunnum)
-
-            ## Write sim parameters as metadata keys
-            from AthenaCommon.JobProperties import JobProperty
-            simParams = [sf for sf in dir(simFlags) if isinstance(getattr(simFlags, sf), JobProperty)]
-            for sp in simParams:
-                ## Don't write out random number seeds or RunDict as metadata
-                if sp in ("RandomSeedList", "RandomSeedOffset", "RunDict"):
-                    continue
-                ## Only store InitFunction names
-                if sp in ("InitFunctions"):
-                    initfuncdict = dict()
-                    for level in getattr(simFlags, sp).get_Value():
-                        initfuncdict.setdefault(level, [])
-                        for element in getattr(simFlags, sp).get_Value()[level]:
-                            initfuncdict[level].append(element.__name__)
-                    testValue = str( initfuncdict ) if getattr(simFlags, sp).statusOn else 'default'
-                    dbFiller.addSimParam(sp, testValue)
-                    continue
-                testValue = str( getattr(simFlags, sp).get_Value() ) if getattr(simFlags, sp).statusOn else 'default'
-                dbFiller.addSimParam(sp, testValue)
-            import os
-            dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
-            dbFiller.addSimParam('RunType', 'atlas')
-            dbFiller.addSimParam('beamType', jobproperties.Beam.beamType.get_Value())
-
-            ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
-            simDets = []
-            for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
-                attrname = det+"_on"
-                checkfn = getattr(DetFlags.geometry, attrname, None)
-                if checkfn is None:
-                    AtlasG4Eng.G4Eng.log.warning("AtlasSimSkeleton._do_metadata :: No attribute '%s' found on DetFlags.geometry" % attrname)
-                    continue
-                if checkfn():
-                    simDets.append(det)
-            AtlasG4Eng.G4Eng.log.info("AtlasSimSkeleton._do_metadata :: Setting 'SimulatedDetectors' = %s" % repr(simDets))
-            dbFiller.addSimParam('SimulatedDetectors', repr(simDets))
-
-            ## Hard-coded simulation hit file magic number (for major changes)
-            dbFiller.addSimParam('hitFileMagicNumber', '0') ##FIXME Remove this?
-
-            ## Write the db info
-            dbFiller.genSimDb()
-            folder = "/Simulation/Parameters"
-            dbConnection = "sqlite://;schema=SimParams.db;dbname=SIMPARAM"
-            import IOVDbSvc.IOVDb
-            from AthenaCommon.AppMgr import ServiceMgr
-            ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
-            ServiceMgr.IOVDbSvc.FoldersToMetaData += [folder]
-            ServiceMgr.IOVSvc.partialPreLoadData = True
-
+            from G4AtlasApps.G4Atlas_Metadata import createSimulationParametersMetadata
+            createSimulationParametersMetadata()
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if not athenaCommonFlags.PoolHitsOutput.statusOn:
                 AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.')
             else:

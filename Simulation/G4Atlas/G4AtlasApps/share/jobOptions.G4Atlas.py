@@ -60,7 +60,7 @@ simFlags.EventFilter.set_On()
 
 ## Change the field stepper or use verbose G4 tracking
 #from G4AtlasApps import callbacks
-#simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
+#callbacks.use_simplerunge_stepper()
 #simFlags.InitFunctions.add_function("postInit", callbacks.use_verbose_tracking)
 
 ## Use single particle generator

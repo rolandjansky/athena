@@ -229,6 +229,15 @@ class PhysicsList(JobProperty):
         JobProperty.__setattr__(self, name, n_value)
 
 
+class PhysicsOptions(JobProperty):
+    """
+    PhysicsOptionTools to be used in this job
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
+
 class SimLayout(JobProperty):
     """
     Simulation layout tag to use: specifies the geometry to be used.
@@ -674,6 +683,14 @@ class OptionalUserActionList(JobProperty):
             except ValueError:
                 print "WARNING Attempt to remove unkown action",actionTool,"from role ",role
 
+class G4Commands(JobProperty):
+    """
+    Commands to send to the G4 user interface once initialization is complete
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
 class UserActionConfig(JobProperty):
     """Configuration for UserActions
     The name of the action must be a name retrievable through the ConfigurableFactory """
@@ -687,6 +704,14 @@ class UserActionConfig(JobProperty):
         else:
             self.StoredValue[actionTool]={prop:value}
 
+
+class specialConfiguration(JobProperty):
+    """ contains information on configuring simulation for special physics models.
+        Populated, if possible, by evgen file metadata.
+    """
+    statusOn = False
+    allowedTypes = ['dict']
+    StoredValue = dict()
 
 
 ## Definition and registration of the simulation flag container

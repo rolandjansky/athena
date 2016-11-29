@@ -123,6 +123,15 @@ class TightMuonStepping(JobProperty):
     StoredValue = False
 
 
+class MuonFieldOnlyInCalo(JobProperty):
+    """
+    Switch so that only muons see the B-field in the calo
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class ForwardDetectors(JobProperty):
     """
     Decide whether simulation must be run for forward detectors.
@@ -171,15 +180,6 @@ class VertexTimeOffset(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
-
-
-class PhysicsOptions(JobProperty):
-    """
-    PhysicsOptionTools to be used in this job
-    """
-    statusOn = True
-    allowedTypes = ['list']
-    StoredValue = []
 
 
 class CavernBG(JobProperty):
@@ -399,7 +399,7 @@ class TRTRangeCut(JobProperty):
     statusOn = True
     allowedTypes = ['float']
     allowedValues = [0.05,30.0]
-    StoredValue = 0.05
+    StoredValue = 30.0
 
 class IsEventOverlayInputSim(JobProperty):
     """
