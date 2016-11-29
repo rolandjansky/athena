@@ -11,6 +11,8 @@
 #include "gmock/gmock.h"
 #include <array>
 
+#include <iostream>
+
 using ::testing::Return;
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -53,7 +55,6 @@ public:
 TEST_F(DijetDEtaMassConditionTest, artefacts){
     /* sanity checks on the TLorentzVectors and IJets
      used to test the DijetDEtaMassCondition objects */
-    
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
     
@@ -76,66 +77,76 @@ TEST_F(DijetDEtaMassConditionTest, artefacts){
     EXPECT_NEAR((m_tl0 + m_tl1).M(), 104.219, m_masseps);
 }
 
-
 TEST_F(DijetDEtaMassConditionTest, accepts) {
     
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
     
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
-    
     HypoJetVector jets{&jet0, &jet1};
     
-    DijetDEtaMassCondition condition({-1.}, {1.}, {5.}, {-5.}, {5.}, {100.}, {110.});
-    
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
     EXPECT_TRUE(condition.isSatisfied(jets));
 }
 
 
-TEST_F(DijetDEtaMassConditionTest, belowEtaMinCut) {
+TEST_F(DijetDEtaMassConditionTest, belowAbsEtaMinCut) {
     
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
     
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
-    
     HypoJetVector jets{&jet0, &jet1};
     
-    DijetDEtaMassCondition condition({-0.5+0.001}, {1.}, {5.}, {-5.}, {5.}, {100.}, {110.});
+    DijetDEtaMassCondition condition({0.5+0.001, 0.5+0.001}, 
+                                     {0.5 + 0.002,  0.5 + 0.002}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
+
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
 
 
-TEST_F(DijetDEtaMassConditionTest, aboveEtaMaxCut) {
-    DijetDEtaMassCondition condition({-1.0}, {0.5-0.001}, {5.}, {-5.}, {5.}, {100.}, {110.});
+TEST_F(DijetDEtaMassConditionTest, aboveAbsEtaMaxCut) {
     
-    
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
-    
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
-    
-    HypoJetVector jets{&jet0, &jet1};
-    
-    EXPECT_FALSE(condition.isSatisfied(jets));
+  DijetDEtaMassCondition condition({0.5-0.002, 0.5-0.002}, 
+                                   {0.5 - 0.001,  0.5 - 0.001}, 
+                                   {100.-0.001, 100.-0.001},
+                                   {1.0 - 0.001},
+                                   {1.0 + 0.001},
+                                   {104.2 -0.1},
+                                   {104.2 + 0.1});
+  
+  MockJetWithLorentzVector jet0{m_tl0};
+  MockJetWithLorentzVector jet1{m_tl1};
+  
+  HypoJetVector jets{&jet0, &jet1};
+  
+  EXPECT_FALSE(condition.isSatisfied(jets));
 }
-
 
 TEST_F(DijetDEtaMassConditionTest, belowYStarCut) {
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {1.0 + 0.001}, {5.}, {100.}, {110.});
-    
+
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 + 0.001},
+                                     {1.0 + 0.002},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
+
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
-    
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
     
     HypoJetVector jets{&jet0, &jet1};
     
@@ -144,14 +155,17 @@ TEST_F(DijetDEtaMassConditionTest, belowYStarCut) {
 
 
 TEST_F(DijetDEtaMassConditionTest, aboveYStarCut) {
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {-5.0}, {1-0.001}, {100.}, {110.});
     
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.002},
+                                     {1.0 - 0.001},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
-    
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
     
     HypoJetVector jets{&jet0, &jet1};
     
@@ -160,39 +174,53 @@ TEST_F(DijetDEtaMassConditionTest, aboveYStarCut) {
 
 
 TEST_F(DijetDEtaMassConditionTest, belowMassCut) {
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {-5.0}, {5.0}, {104.3}, {110.});
-    
+
+
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 + 0.1},
+                                     {104.2 + 0.2});
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
-    
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
     
     HypoJetVector jets{&jet0, &jet1};
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
 
 TEST_F(DijetDEtaMassConditionTest, aboveMassCut) {
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {-5.0}, {5.0}, {100.}, {104.2});
-    
+
+
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 - 0.2},
+                                     {104.2 - 0.1});
+
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
     
-    EXPECT_CALL(jet0, eta());
-    
-    EXPECT_CALL(jet1, eta());
-    
     HypoJetVector jets{&jet0, &jet1};
-    
+
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
 
 
 TEST_F(DijetDEtaMassConditionTest, tooManyJets) {
     
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {-5.0}, {5.0}, {100.}, {110.});
-    
+
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
     MockJetWithLorentzVector jet0{m_tl0};
     MockJetWithLorentzVector jet1{m_tl1};
     
@@ -205,8 +233,15 @@ TEST_F(DijetDEtaMassConditionTest, tooManyJets) {
 
 TEST_F(DijetDEtaMassConditionTest, tooFewJets) {
     
-    DijetDEtaMassCondition condition({-1.0}, {1.0}, {5.}, {-5.0}, {5.0}, {100.}, {110.});
-    
+
+    DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
+                                     {0.5 + 0.001,  0.5 + 0.001}, 
+                                     {100.-0.001, 100.-0.001},
+                                     {1.0 - 0.001},
+                                     {1.0 + 0.001},
+                                     {104.2 -0.1},
+                                     {104.2 + 0.1});
+
     MockJetWithLorentzVector jet0{m_tl0};
     
     HypoJetVector jets{&jet0};
