@@ -14,9 +14,11 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include <cmath>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "MuidCaloEnergyTools/MuidCaloEnergyParam.h"
 #include "muonEvent/CaloEnergy.h"
+#include "AthenaKernel/Units.h"
+
+namespace Units = Athena::Units;
 
 namespace Rec
 {
@@ -24,11 +26,19 @@ namespace Rec
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
  
 MuidCaloEnergyParam::MuidCaloEnergyParam (const std::string&type,
-					  const std::string&name, 
+					  const std::string&name,
 					  const IInterface*parent)
     :	AthAlgTool		(type, name, parent),
 	m_cosmics		(false),
-	m_smoothingFraction	(0.5)
+	m_smoothingFraction	(0.5),
+	m_binWidth(0.),
+	m_etaOffset(0.),
+	m_inverseWidth(0.),
+	m_etaBin1(0),
+	m_etaBin2(0),
+	m_etaWeight1(0.),
+	m_etaWeight2(0.),
+	m_etaGranularity(0.)
 {
     declareInterface<IMuidCaloEnergyParam>(this);
     declareProperty ("Cosmics",			m_cosmics);
@@ -249,7 +259,7 @@ MuidCaloEnergyParam::meanParametrizedEnergy(double trackMomentum,
     double meanEloss				= meanEnergyLoss(eta,trackMomentum);
     std::pair<double,double> parametrizedErrors	= meanEnergyLossError(eta,trackMomentum);
     
-    ATH_MSG_DEBUG( " Mean_deposited_energy = " << meanEloss/CLHEP::GeV );
+    ATH_MSG_DEBUG( " Mean_deposited_energy = " << meanEloss/Units::GeV );
     
     // cosmics: energy sign flip in upper hemisphere
     if (m_cosmics && phi > 0.)
@@ -287,8 +297,8 @@ MuidCaloEnergyParam::mopParametrizedEnergy(double trackMomentum,
     double mopEloss				= mopEnergyLoss(eta,trackMomentum);
     double meanEloss				= meanEnergyLoss(eta,trackMomentum);
 
-    ATH_MSG_DEBUG( " Most probable (mean) deposited energy " << mopEloss/CLHEP::GeV
-		   << " (" << meanEloss/CLHEP::GeV << ")" );
+    ATH_MSG_DEBUG( " Most probable (mean) deposited energy " << mopEloss/Units::GeV
+		   << " (" << meanEloss/Units::GeV << ")" );
 
     // mop energy deposition uncertainty (Gaussian fit around mop value +- 2 sigma)
     double mopError				= mopEnergyLossError(eta,trackMomentum);
@@ -296,11 +306,11 @@ MuidCaloEnergyParam::mopParametrizedEnergy(double trackMomentum,
     // scale low transverse momentum to allow for fluctuations
     double pt					= trackMomentum*sin(2.*atan(exp(-eta)));
     double scale				= 1.;
-    if (pt < 15.*CLHEP::GeV) scale = (2.5 - 1.5*pt/(15.*CLHEP::GeV));
+    if (pt < 15.*Units::GeV) scale = (2.5 - pt*(1.5/(15.*Units::GeV)));
 						  
     // asymmetric error to allow for Landau
     double alpha				= 0.2;
-    double beta					= 300.*CLHEP::MeV;
+    double beta					= 300.*Units::MeV;
     double mopErrorPlus				= mopError + alpha*(meanEloss - mopEloss) + beta;
         
     // cosmics: energy sign flip in upper hemisphere
@@ -337,8 +347,8 @@ MuidCaloEnergyParam::mopPeakEnergy(double trackMomentum,
     double mopEloss				= mopEnergyLoss(eta,trackMomentum);
     double meanEloss				= meanEnergyLoss(eta,trackMomentum);
 
-    ATH_MSG_DEBUG( " Most probable (mean) deposited energy " << mopEloss/CLHEP::GeV
-		   << " (" << meanEloss/CLHEP::GeV << ")" );
+    ATH_MSG_DEBUG( " Most probable (mean) deposited energy " << mopEloss/Units::GeV
+		   << " (" << meanEloss/Units::GeV << ")" );
 
     // mop energy deposition uncertainty (Gaussian fit around mop value +- 2 sigma)
     double mopError				= mopEnergyLossError(eta,trackMomentum);
@@ -347,11 +357,11 @@ MuidCaloEnergyParam::mopPeakEnergy(double trackMomentum,
     // scale low transverse momentum to allow for fluctuations
     double pt					= trackMomentum*sin(2.*atan(exp(-eta)));
     double scale				= 1.;
-    if (pt < 15.*CLHEP::GeV) scale = (2.5 - 1.5*pt/(15.*CLHEP::GeV));
+    if (pt < 15.*Units::GeV) scale = (2.5 - pt*(1.5/(15.*Units::GeV)));
 									  
     // asymmetric error to allow for Landau
     double alpha				= 0.1;
-    double beta					= 150.*CLHEP::MeV;
+    double beta					= 150.*Units::MeV;
     double mopErrorPlus				= mopError + alpha*(meanEloss - mopEloss) + beta;
         
     // cosmics: energy sign flip in upper hemisphere
@@ -394,7 +404,7 @@ MuidCaloEnergyParam::mopDepositedEnergy(double trackMomentum,
     //double mop_eloss	= symmetricMopEnergyLoss(eta_phi.first,trackMomentum);
     double mop_eloss_error= mopEnergyLossError(eta_phi.first,trackMomentum);
     
-    ATH_MSG_DEBUG( " Most probable deposited energy... " << mop_eloss/CLHEP::GeV );
+    ATH_MSG_DEBUG( " Most probable deposited energy... " << mop_eloss/Units::GeV );
 
     // cosmics: energy sign flip in upper hemisphere
     if (m_cosmics && phi > 0.)
@@ -495,8 +505,8 @@ MuidCaloEnergyParam::meanEnergyLoss(double eta, double momentum) const
 				  m_etaWeight2*m_meanEnergyLossP1[m_etaBin2];
     double p2			= m_etaWeight1*m_meanEnergyLossP2[m_etaBin1] +
 				  m_etaWeight2*m_meanEnergyLossP2[m_etaBin2];
-    double parametrisedDeposit	= p0*CLHEP::GeV +
-				  p1*CLHEP::GeV*log(0.0067*momentum*momentum/CLHEP::GeV/CLHEP::GeV) +
+    double parametrisedDeposit	= p0*Units::GeV +
+                                  p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;
  
     //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011, 03/2012)
@@ -518,7 +528,7 @@ MuidCaloEnergyParam::meanEnergyLoss(double eta, double momentum) const
 				    -0.553009 };
     double fix			=  m_etaWeight1*fixFromPeter[m_etaBin1] +
 				   m_etaWeight2*fixFromPeter[m_etaBin2];
-    parametrisedDeposit		+= fix*CLHEP::GeV;
+    parametrisedDeposit		+= fix*Units::GeV;
     
     return parametrisedDeposit;
 }
@@ -535,8 +545,8 @@ MuidCaloEnergyParam::meanEnergyLossError(double eta, double momentum) const
 			  m_etaWeight2*m_meanEnergyLossErrorRightP0[m_etaBin2];
     double right_p1	= m_etaWeight1*m_meanEnergyLossErrorRightP1[m_etaBin1] +
 			  m_etaWeight2*m_meanEnergyLossErrorRightP1[m_etaBin2];
-    double sigma_left	= left_p0*CLHEP::GeV + left_p1*momentum;
-    double sigma_right	= right_p0*CLHEP::GeV + right_p1*momentum;
+    double sigma_left	= left_p0*Units::GeV + left_p1*momentum;
+    double sigma_right	= right_p0*Units::GeV + right_p1*momentum;
 
     return std::make_pair(sigma_left,sigma_right);
 }
@@ -553,8 +563,8 @@ MuidCaloEnergyParam::mopEnergyLoss(double eta, double momentum) const
 				  m_etaWeight2*m_mopEnergyLossP1[m_etaBin2] ;
     double p2			= m_etaWeight1*m_mopEnergyLossP2[m_etaBin1] +
 				  m_etaWeight2*m_mopEnergyLossP2[m_etaBin2];
-    double parametrisedDeposit	= p0*CLHEP::GeV +
-				  p1*CLHEP::GeV*log(0.0067*momentum*momentum/CLHEP::GeV/CLHEP::GeV) +
+    double parametrisedDeposit	= p0*Units::GeV +
+                                  p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;
  
     //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011)
@@ -577,7 +587,7 @@ MuidCaloEnergyParam::mopEnergyLoss(double eta, double momentum) const
 
     double fix			=  m_etaWeight1*fixFromPeter[m_etaBin1] +
 				   m_etaWeight2*fixFromPeter[m_etaBin2];
-    parametrisedDeposit		+= fix*CLHEP::GeV;
+    parametrisedDeposit		+= fix*Units::GeV;
     
     return parametrisedDeposit;
 }
@@ -591,7 +601,7 @@ MuidCaloEnergyParam::mopEnergyLossError(double eta, double momentum) const
 			  m_etaWeight2*m_mopEnergyLossErrorP0[m_etaBin2];
     double sigma_p1	= m_etaWeight1*m_mopEnergyLossErrorP1[m_etaBin1] +
 			  m_etaWeight2*m_mopEnergyLossErrorP1[m_etaBin2];
-    double sigma	= sigma_p0*CLHEP::GeV + sigma_p1*momentum;
+    double sigma	= sigma_p0*Units::GeV + sigma_p1*momentum;
 
     // fix for mc11 as underestimate in barrel, overestimate in endcap
     if (eta < 1.7)
@@ -618,8 +628,8 @@ MuidCaloEnergyParam::symmetricMopEnergyLoss(double eta, double momentum) const
 				  m_etaWeight2*m_mopSymmetricEnergyLossP1[m_etaBin2];
     double p2			= m_etaWeight1*m_mopSymmetricEnergyLossP2[m_etaBin1] +
 				  m_etaWeight2*m_mopSymmetricEnergyLossP2[m_etaBin2];
-    double parametrisedDeposit	= p0*CLHEP::GeV +
-				  p1*CLHEP::GeV*log(0.0067*momentum*momentum/CLHEP::GeV/CLHEP::GeV) +
+    double parametrisedDeposit	= p0*Units::GeV +
+                                  p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;
     return parametrisedDeposit;
 }
@@ -719,9 +729,10 @@ MuidCaloEnergyParam::caloCompartmentDepthLArHEC(int icomp) const
     double total = 0.;
     for(int i=0;i<4;i++)
 	total+=comp[i];
+    const double inv_total = 1. /total;
     if(icomp >= 0 && icomp <4)
     {
-	return comp[icomp]/total;
+	return comp[icomp]*inv_total;
     }
     return 0.;
 }

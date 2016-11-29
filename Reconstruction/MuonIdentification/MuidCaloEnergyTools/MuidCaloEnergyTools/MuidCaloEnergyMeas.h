@@ -88,7 +88,8 @@ private:
 						     double phi) const;
     
     // helpers, managers, tools
-    ToolHandle<ICaloNoiseTool>			m_caloNoiseTool;
+    // FIXME: mutable
+    mutable ToolHandle<ICaloNoiseTool>		m_caloNoiseTool;
     ToolHandle<IMuidCaloEnergyParam>		m_caloParamTool;
 
     const TileID*				m_tileID;

@@ -20,7 +20,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include <cmath>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "MuidCaloEnergyTools/MuidCaloEnergyTool.h"
 #include "MuidEvent/CaloMeas.h"
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
@@ -30,6 +29,9 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "muonEvent/CaloEnergy.h"
+#include "AthenaKernel/Units.h"
+
+namespace Units = Athena::Units;
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
@@ -49,13 +51,13 @@ MuidCaloEnergyTool::MuidCaloEnergyTool (const std::string&type,
 	m_FSRtreatment		(true),
 	m_MOPparametrization	(true),
 	m_trackIsolation	(false),
-	m_emEtCut		(2.5*CLHEP::GeV),
+	m_emEtCut		(2.5*Units::GeV),
 	m_emF1Cut		(0.15),
-	m_emMinEnergy		( 2.*CLHEP::GeV),
-	m_hecMinEnergy		(10.*CLHEP::GeV),
+	m_emMinEnergy		( 2.*Units::GeV),
+	m_hecMinEnergy		(10.*Units::GeV),
 	m_maxNTracksIso		(2),
-	m_minFinalEnergy	( 0.*CLHEP::GeV),
-	m_minMuonPt		(15.*CLHEP::GeV),
+	m_minFinalEnergy	( 0.*Units::GeV),
+	m_minMuonPt		(15.*Units::GeV),
 	m_countMean		(0),
 	m_countMeasurement	(0),
 	m_countMop		(0)
@@ -160,7 +162,7 @@ MuidCaloEnergyTool::energyLoss(double trackMomentum,
 			       double phi) const
 {
     // debug
-    ATH_MSG_VERBOSE( "Muon with : p = " << trackMomentum/CLHEP::GeV 
+    ATH_MSG_VERBOSE( "Muon with : p = " << trackMomentum/Units::GeV
 		     << " Phi = " << phi
 		     << " Eta =  " << eta );
 
@@ -217,17 +219,17 @@ MuidCaloEnergyTool::energyLoss(double trackMomentum,
 	    break;
 	};
 	ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed) << " energyLoss with"
-		       << " momentum ="	<< std::setw(6) << std::setprecision(1) << trackMomentum/CLHEP::GeV 
+		       << " momentum ="	<< std::setw(6) << std::setprecision(1) << trackMomentum/Units::GeV
 		       << "  phi ="	<< std::setw(6) << std::setprecision(3) << phi
 		       << "  eta ="	<< std::setw(6) << std::setprecision(3) << eta
 		       << ".  CaloEnergy: deltaE = "	<< std::setw(8) << std::setprecision(3)
-		       << caloEnergy->deltaE()/CLHEP::GeV 
+		       << caloEnergy->deltaE()/Units::GeV
 		       << "  +"		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaPlusDeltaE()/CLHEP::GeV 
+		       << caloEnergy->sigmaPlusDeltaE()/Units::GeV
 		       << "  -"		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaMinusDeltaE()/CLHEP::GeV
+		       << caloEnergy->sigmaMinusDeltaE()/Units::GeV
 		       << " ("		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaDeltaE()/CLHEP::GeV
+		       << caloEnergy->sigmaDeltaE()/Units::GeV
 		       << ") GeV,  CaloEnergy::Type " << eLossType );
     }
 
@@ -239,7 +241,7 @@ MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParame
 					const Trk::TrackParameters* innerParameters,
 					const Trk::TrackParameters* outerParameters) const
 {
-    ATH_MSG_VERBOSE( "Muon with : p = " << middleParameters.momentum().mag()/CLHEP::GeV 
+    ATH_MSG_VERBOSE( "Muon with : p = " << middleParameters.momentum().mag()/Units::GeV
 		     << " Phi = " << middleParameters.position().phi()
 		     << " Eta =  " << middleParameters.position().eta() );
 
@@ -282,10 +284,10 @@ MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParame
 				middleParameters.position().phi());
 
 	// WARN in case of anomalously high loss
-	if (caloEnergy->deltaE() > 8.*CLHEP::GeV && middleParameters.momentum().mag() < 500.*CLHEP::GeV)
+	if (caloEnergy->deltaE() > 8.*Units::GeV && middleParameters.momentum().mag() < 500.*Units::GeV)
 	    ATH_MSG_WARNING(" high parametrized energy loss: "
-			    << caloEnergy->deltaE()/CLHEP::GeV << " GeV"
-			    << "   for p " << middleParameters.momentum().mag()/CLHEP::GeV << " GeV"
+			    << caloEnergy->deltaE()/Units::GeV << " GeV"
+			    << "   for p " << middleParameters.momentum().mag()/Units::GeV << " GeV"
 			    << "   eta " << middleParameters.position().eta() );
     }
 
@@ -331,19 +333,19 @@ MuidCaloEnergyTool::trackStateOnSurface(const Trk::TrackParameters& middleParame
 
 	ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed) << " trackStateOnSurface with"
 		       << " momentum ="	<< std::setw(6) << std::setprecision(1)
-		       << middleParameters.momentum().mag()/CLHEP::GeV
+		       << middleParameters.momentum().mag()/Units::GeV
 		       << "  phi ="	<< std::setw(6) << std::setprecision(3)
 		       << middleParameters.position().phi()
 		       << "  eta ="	<< std::setw(6) << std::setprecision(3)
 		       << middleParameters.position().eta()
 		       << ".  CaloEnergy: deltaE = "	<< std::setw(8) << std::setprecision(3)
-		       << caloEnergy->deltaE()/CLHEP::GeV 
+		       << caloEnergy->deltaE()/Units::GeV
 		       << "  +"		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaPlusDeltaE()/CLHEP::GeV 
+		       << caloEnergy->sigmaPlusDeltaE()/Units::GeV
 		       << "  -"		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaMinusDeltaE()/CLHEP::GeV
+		       << caloEnergy->sigmaMinusDeltaE()/Units::GeV
 		       << " ("		<< std::setw(5) << std::setprecision(3)
-		       << caloEnergy->sigmaDeltaE()/CLHEP::GeV
+		       << caloEnergy->sigmaDeltaE()/Units::GeV
 		       << ") GeV,  CaloEnergy::Type " << eLossType );
     }
 
@@ -367,7 +369,7 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
     // Mop Energy Loss parametrization
     CaloEnergy* caloParamMop		= m_caloParamTool->mopParametrizedEnergy(trackMomentum,eta,phi);
     // Mip Energy Loss
-    CaloEnergy* caloParamMip		= m_caloParamTool->meanParametrizedEnergy(10.*CLHEP::GeV,eta,phi);
+    CaloEnergy* caloParamMip		= m_caloParamTool->meanParametrizedEnergy(10.*Units::GeV,eta,phi);
     // Mop Energy Loss peak
     CaloEnergy* mopPeak			= m_caloParamTool->mopPeakEnergy(trackMomentum,eta,phi);
     
@@ -412,12 +414,12 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
     double TotalMeasuredEnergy	= TileEnergy + EmEnergy + LArHECEnergy;
         
 
-    ATH_MSG_VERBOSE( "Energy Deposition:Tile= " 	<< TileEnergy/CLHEP::GeV
-		     << ",LArHEC= "			<< LArHECEnergy/CLHEP::GeV
-		     << ",EM= "				<< EmEnergy/CLHEP::GeV
-		     << "  ForwardHECCorrection "	<< ForwardHECCorrection/CLHEP::GeV
+    ATH_MSG_VERBOSE( "Energy Deposition:Tile= " 	<< TileEnergy/Units::GeV
+		     << ",LArHEC= "			<< LArHECEnergy/Units::GeV
+		     << ",EM= "				<< EmEnergy/Units::GeV
+		     << "  ForwardHECCorrection "	<< ForwardHECCorrection/Units::GeV
 		     << "  HECMaterial "		<< HECMaterial
-		     << "  MopLossCorrected "		<< MopLossCorrected/CLHEP::GeV );
+		     << "  MopLossCorrected "		<< MopLossCorrected/Units::GeV );
     
     bool bHEC	= false; // performed HEC measurement?
     bool bEM	= false; // performed Em measurement?
@@ -496,30 +498,30 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
     int ieta			=  static_cast<int> (fabs(eta)/0.10);
     if (ieta > 25) ieta		=  25;
     double FinalMeasuredEnergy	= MeasCorrected + eOverMipCorrection +
-				  (fix1FromPeter[ieta] + fix2FromPeter[ieta])*CLHEP::GeV;
+				  (fix1FromPeter[ieta] + fix2FromPeter[ieta])*Units::GeV;
 
-    ATH_MSG_VERBOSE( "Sum of cells "			<< (TileEnergy + EmEnergy + LArHECEnergy)/CLHEP::GeV
-		     << " Total energy deposition "	<< TotalMeasuredEnergy/CLHEP::GeV
-		     << " corrected energy deposition "	<< MeasCorrected/CLHEP::GeV
-		     << " e/mip corre "			<< FinalMeasuredEnergy/CLHEP::GeV << std::endl
-		     << "\nFinal Energy Measurement  = " << FinalMeasuredEnergy / CLHEP::GeV 
-		     //<< "\nMean Energy Deposition    = " << MeanLoss/CLHEP::GeV
-		     //<< " - " << MeanErrorLeft/CLHEP::GeV << " + "<< MeanErrorRight/CLHEP::GeV
-		     << "\nMop Energy Deposition     = " << MopLoss/CLHEP::GeV << " +- " << MopError/CLHEP::GeV
-		     //<< "\nOld parametrization energy= " << m_caloParamOld->deltaE()/CLHEP::GeV
-		     //<< " +- " <<  m_caloParamOld->sigmaDeltaE()/CLHEP::GeV
-		     //<< "\nTrack Momentum            = "  <<  trackMomentum/CLHEP::GeV
+    ATH_MSG_VERBOSE( "Sum of cells "			<< (TileEnergy + EmEnergy + LArHECEnergy)/Units::GeV
+		     << " Total energy deposition "	<< TotalMeasuredEnergy/Units::GeV
+		     << " corrected energy deposition "	<< MeasCorrected/Units::GeV
+		     << " e/mip corre "			<< FinalMeasuredEnergy/Units::GeV << std::endl
+		     << "\nFinal Energy Measurement  = " << FinalMeasuredEnergy /Units::GeV
+		     //<< "\nMean Energy Deposition    = " << MeanLoss/Units::GeV
+		     //<< " - " << MeanErrorLeft/Units::GeV << " + "<< MeanErrorRight/Units::GeV
+		     << "\nMop Energy Deposition     = " << MopLoss/Units::GeV << " +- " << MopError/Units::GeV
+		     //<< "\nOld parametrization energy= " << m_caloParamOld->deltaE()/Units::GeV
+		     //<< " +- " <<  m_caloParamOld->sigmaDeltaE()/Units::GeV
+		     //<< "\nTrack Momentum            = "  <<  trackMomentum/Units::GeV
 		     //<< " Eta= " << eta << "  Phi= " << phi
 		     << std::endl
-		     << "Final Meas = "			<< FinalMeasuredEnergy / CLHEP::GeV
-		     << " Mop Dep = "			<< MopLoss/CLHEP::GeV << " +- " << MopError/CLHEP::GeV );
+		     << "Final Meas = "			<< FinalMeasuredEnergy / Units::GeV
+		     << " Mop Dep = "			<< MopLoss/Units::GeV << " +- " << MopError/Units::GeV );
     
     const double HECIso	= caloMeas->Tile_Isolation() + caloMeas->LArHEC_Isolation();
     const double EmIso	= caloMeas->LArEM_Isolation();
 
     const double Theta	= 2.*atan(exp(-eta));
     const double pT	= trackMomentum*sin(Theta)*CLHEP::MeV;
-    const double EmCut	= m_emMinEnergy + (3.-2.)/(100.-15.)*(pT/1.e3-15.)*CLHEP::GeV;
+    const double EmCut	= m_emMinEnergy + (3.-2.)/(100.-15.)*(pT/Units::GeV-15.)*Units::GeV;
     const double HECCut	= m_hecMinEnergy;
     const double pTCut	= m_minMuonPt;
     bool PassCut	= true;
@@ -537,11 +539,11 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
 	// double maxP 	= m_trackIsolationTool->maxP();
 	nTracks 	= inner.first;
 	// tracksEnergy	= inner.second - maxP;
-	if (pT < 100.*CLHEP::GeV && nTracks > m_maxNTracksIso)	PassCut = false;
+	if (pT < 100.*Units::GeV && nTracks > m_maxNTracksIso)	PassCut = false;
     }
 
-    ATH_MSG_VERBOSE( "pT= " << pT/CLHEP::GeV << ",HECIso= " << HECIso/CLHEP::GeV
-		     << ",EmIso= " <<EmIso/CLHEP::GeV << ", nTracks= "<< nTracks
+    ATH_MSG_VERBOSE( "pT= " << pT/Units::GeV << ",HECIso= " << HECIso/Units::GeV
+		     << ",EmIso= " <<EmIso/Units::GeV << ", nTracks= "<< nTracks
 		     << ",PassCut= " << PassCut );
 
     CaloEnergy::EnergyLossType lossType = CaloEnergy::NotIsolated;
@@ -563,21 +565,21 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
 	double F1			= 0.;
 	if (caloMeas->LArEM_EnergyMeasured() > m_emEtCut)
 	    F1		= caloMeas->LArEM_FirstCompartmentEnergy()/caloMeas->LArEM_EnergyMeasured();
-	ATH_MSG_VERBOSE( " start Tail and FSR treatment: Et in e.m. " << EmEnergy*sin(Theta)/CLHEP::GeV
+	ATH_MSG_VERBOSE( " start Tail and FSR treatment: Et in e.m. " << EmEnergy*sin(Theta)/Units::GeV
 			 << "  F1 ratio " << F1);
         if (! m_FSRtreatment
 	    || EmEnergy*sin(Theta)	< m_emEtCut
 	    || F1			< m_emF1Cut)
 	{
 	    ++m_countMeasurement;
-	    double FinalEnergyErrorMinus= 0.50 * sqrt(FinalMeasuredEnergy/CLHEP::GeV) * CLHEP::GeV;
-	    double FinalEnergyErrorPlus	= 0.50 * sqrt(FinalMeasuredEnergy/CLHEP::GeV) * CLHEP::GeV;
+	    double FinalEnergyErrorMinus= 0.50 * sqrt(FinalMeasuredEnergy/Units::GeV) * Units::GeV;
+	    double FinalEnergyErrorPlus	= 0.50 * sqrt(FinalMeasuredEnergy/Units::GeV) * Units::GeV;
 
 	    // overall also have 50% resolution in EC rather than the 70% naively expected from LArHEC
-	    if (LArHECEnergy > 1.*CLHEP::GeV)
+	    if (LArHECEnergy > 1.*Units::GeV)
 	    {
-		FinalEnergyErrorMinus	= 0.50 * sqrt(FinalMeasuredEnergy/CLHEP::GeV) * CLHEP::GeV;
-		FinalEnergyErrorPlus	= 0.50 * sqrt(FinalMeasuredEnergy/CLHEP::GeV) * CLHEP::GeV;
+              FinalEnergyErrorMinus	= 0.50 * sqrt(FinalMeasuredEnergy/Units::GeV) * Units::GeV;
+              FinalEnergyErrorPlus	= 0.50 * sqrt(FinalMeasuredEnergy/Units::GeV) * Units::GeV;
 	    }
 	    double FinalEnergyError	= 0.5*(FinalEnergyErrorMinus + FinalEnergyErrorPlus);
 	    lossType			= CaloEnergy::Tail;
@@ -631,7 +633,7 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
 		//  significant hadronic energy deposit
 		++m_countMeasurement;
 		lossType			= CaloEnergy::FSRcandidate;
-		double FinalEnergyErrorNoEm	= 0.50 * sqrt(FinalMeasuredEnergyNoEm/CLHEP::GeV) * CLHEP::GeV;
+		double FinalEnergyErrorNoEm	= 0.50 * sqrt(FinalMeasuredEnergyNoEm/Units::GeV) * Units::GeV;
 		FinalEnergyErrorNoEm		= sqrt(FinalEnergyErrorNoEm*FinalEnergyErrorNoEm +
 						       MopErrorEm*MopErrorEm);
 		caloEnergy			= new CaloEnergy(FinalMeasuredEnergyNoEm,
@@ -682,7 +684,7 @@ MuidCaloEnergyTool::muSpecResolParam(double trackMomentum,
 				     double eta) const
 {
     const double Theta    = 2.*atan(exp(-eta));
-    const double pT       = trackMomentum*sin(Theta)/1.e3; // pt in GeV
+    const double pT       = trackMomentum*sin(Theta)/Units::GeV; // pt in GeV
     double a              = 0.;
     double b              = 0.;
     if (fabs(eta)<1.)
@@ -719,9 +721,10 @@ MuidCaloEnergyTool::paramCorrection(double trackMomentum,
     if (xlow<0.) xlow	= 0.;
     double xup		= MopLoss + Nsigma * sigma;
     int Na		= 50;
+    const double inv_Na = 1. / static_cast<double> (Na);
     for (int j = 0; j < Na; ++j)
     {
-	double x = xlow + j*(xup-xlow)/Na;
+        double x = xlow + j*(xup-xlow)*inv_Na;
 	double w = landau(x,MopLoss,MopLossSigma,true);
 	sum     += x*w;
 	weight  += w;
