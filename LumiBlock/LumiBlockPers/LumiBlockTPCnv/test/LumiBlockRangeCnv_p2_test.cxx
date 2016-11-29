@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "LumiBlockTPCnv/LumiBlockRangeCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "LumiBlockData/LB_IOVRange.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -21,6 +22,7 @@
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   MsgStream log (0, "test");
 
   LB_IOVRange trans1 (IOVTime(123, 234), IOVTime(123, 987));
