@@ -3,17 +3,19 @@
 */
 
 #include "ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h"
-#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
 //=============================================
 
-TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(const char* name, const char* title):TFCSLateralShapeParametrization(name,title)
+TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(const char* name, const char* title) :
+  TFCSLateralShapeParametrization(name,title),
+  m_rnd(0)
 {
 
-    sigma_x = 0;
-    sigma_y = 0;
+    m_sigmaX = 0;
+    m_sigmaY = 0;
 
     //sigma2_x = 0;
     //sigma2_y = 0;
@@ -23,8 +25,8 @@ TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(con
 void TFCSSimpleLateralShapeParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
-  double hit_eta=0.5*( extrapol->eta(cs,TFCSExtrapolationState::SUBPOS_ENT) + extrapol->eta(cs,TFCSExtrapolationState::SUBPOS_EXT) );
-  double hit_phi=0.5*( extrapol->phi(cs,TFCSExtrapolationState::SUBPOS_ENT) + extrapol->phi(cs,TFCSExtrapolationState::SUBPOS_EXT) );
+  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
+  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
   double hit_weight=1;
 
   double x, y;
@@ -44,8 +46,8 @@ void TFCSSimpleLateralShapeParametrization::simulate(TFCSSimulationState& simuls
 bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, const char* histname)
 {
     // Setup random numbers
-    rnd = new TRandom3();
-    rnd->SetSeed(0);
+    m_rnd = new TRandom3();
+    m_rnd->SetSeed(0);
 
 
     // input file with histogram to fit
@@ -109,8 +111,8 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
     //out->Close();
 
     // Finally set sigma
-    sigma_x = fitx->GetParameter(2);
-    sigma_y = fity->GetParameter(2);
+    m_sigmaX = fitx->GetParameter(2);
+    m_sigmaY = fity->GetParameter(2);
 
 
     // clean up
@@ -128,8 +130,8 @@ void TFCSSimpleLateralShapeParametrization::getHitXY(double &x, double &y)
 {
 
 
-    x = rnd->Gaus(0, sigma_x);
-    y = rnd->Gaus(0, sigma_y);
+    x = m_rnd->Gaus(0, m_sigmaX);
+    y = m_rnd->Gaus(0, m_sigmaY);
 
 }
 

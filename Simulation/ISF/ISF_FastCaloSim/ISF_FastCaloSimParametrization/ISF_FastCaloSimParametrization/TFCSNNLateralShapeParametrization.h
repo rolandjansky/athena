@@ -21,8 +21,4 @@ private:
   ClassDef(TFCSNNLateralShapeParametrization,1)  //TFCSNNLateralShapeParametrization
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSNNLateralShapeParametrization;
-#endif
-
 #endif

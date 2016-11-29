@@ -10,7 +10,7 @@
 """
 
 __author__ = "KG Tan"
-__version__= "$Revision: 612425 $"
+__version__= "$Revision: 779694 $"
 __doc__    = "ISF_NativeFastCaloSimJobProperties"
 
 __all__    = [ "ISF_NativeFastCaloSimJobProperties" ]
@@ -44,6 +44,11 @@ class CaloCellsName(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'AllCalo'
 
+class outputFile(JobProperty):
+    statusOn     = False
+    allowedTypes = ['str']
+    StoredValue  = 'ESD_output_test.root'
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -64,7 +69,7 @@ jobproperties.add_Container(ISF_NativeFastCaloSimJobProperties)
 jobproperties.ISF_NativeFastCaloSimJobProperties.add_JobProperty( NativeFastCaloSimIsActive        )
 jobproperties.ISF_NativeFastCaloSimJobProperties.add_JobProperty( RandomStreamName           )
 jobproperties.ISF_NativeFastCaloSimJobProperties.add_JobProperty( CaloCellsName              )
-
+jobproperties.ISF_NativeFastCaloSimJobProperties.add_JobProperty( outputFile              )
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

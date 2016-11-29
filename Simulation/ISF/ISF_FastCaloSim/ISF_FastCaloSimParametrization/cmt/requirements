@@ -24,9 +24,9 @@ use HepPDT                      v*                              LCG_Interfaces
 ######################
 
 use CaloInterface               CaloInterface-*                 Calorimeter
-use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
-use BarcodeInterfaces           BarcodeInterfaces-*             Simulation/Barcode
+use BarcodeEvent                BarcodeEvent-*                  Simulation/Barcode
 use ISF_Interfaces              ISF_Interfaces-*                Simulation/ISF/ISF_Core
+use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
 
 private
 use Geant4                      Geant4-*                        External
@@ -41,12 +41,12 @@ use TileDetDescr                TileDetDescr-*                  TileCalorimeter
 use LArSimEvent                 LArSimEvent-*                   LArCalorimeter
 use GeoAdaptors                 GeoAdaptors-*                   DetectorDescription/GeoModel
 use CaloIdentifier              CaloIdentifier-*                Calorimeter
+use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
 use TileConditions              TileConditions-*                TileCalorimeter
 
 use NavFourMom                  NavFourMom-*                    Event
 use ISF_Event                   ISF_Event-*                     Simulation/ISF/ISF_Core
 use CaloEvent                   CaloEvent-*                     Calorimeter
-use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
 use ISF_FastCaloSimInterfaces   ISF_FastCaloSimInterfaces-*     Simulation/ISF/ISF_FastCaloSim
 
 ####################
@@ -65,15 +65,18 @@ apply_tag ROOTTMVALibs
 apply_tag ROOTTreePlayerLibs
 
 # Create a named installed library
-library ISF_FastCaloSimParametrizationLib "../Root/*.cxx"
+library ISF_FastCaloSimParametrizationLib "../Root/*.cxx ../src/*.cxx"
 apply_pattern named_installed_library library=ISF_FastCaloSimParametrizationLib
 
 # Create the CINT dictionary
 private
 macro_append extra_root_cint_includes " -p -I$(CaloGeoHelpers_root) "
 end_private
-apply_pattern have_root_headers root_headers="MeanAndRMS.h FastCaloSim_CaloCell_ID.h TFCSParametrizationBase.h TFCSParametrization.h TFCSEnergyParametrization.h TFCSPCAEnergyParametrization.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCSExtrapolationState.h TFCSTruthState.h TFCSSimulationState.h TFCS1DFunction.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h TreeReader.h firstPCA.h secondPCA.h ../Root/LinkDef.h" \ 
+apply_pattern have_root_headers root_headers="MeanAndRMS.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h TreeReader.h firstPCA.h secondPCA.h TFCS2Function.h TFCS2DFunction.h DetailedShapeBinning.h FitDetailedShape.h TFCS2DFunctionRegression.h TFCS1DFunctionRegressionTF.h ../Root/LinkDef.h" \ 
               headers_lib=ISF_FastCaloSimParametrizationLib 
+
+macro_append ISF_FastCaloSimParametrizationLib_shlibflags "-L$(ROOTSYS)/lib -lTree -lTreePlayer"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer)"
 
 library ISF_FastCaloSimParametrization *.cxx components/*.cxx
 macro_append ISF_FastCaloSimParametrization_dependencies " ISF_FastCaloSimParametrizationLib"

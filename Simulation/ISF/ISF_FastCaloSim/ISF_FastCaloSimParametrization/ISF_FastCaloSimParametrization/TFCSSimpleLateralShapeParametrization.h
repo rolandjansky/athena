@@ -28,40 +28,36 @@ public:
   bool Initialize(float input_sigma_x, float input_sigma_y)
   {
         // Setup random numbers
-        rnd = new TRandom3();
-        rnd->SetSeed(0);
+        m_rnd = new TRandom3();
+        m_rnd->SetSeed(0);
 
-        sigma_x = input_sigma_x;
-        sigma_y = input_sigma_y;
+        m_sigmaX = input_sigma_x;
+        m_sigmaY = input_sigma_y;
         return true;
   };
 
   void getHitXY(double &x, double &y);
 
-  float getSigma_x(){return sigma_x;};
-  float getSigma_y(){return sigma_y;};
+  float getSigma_x(){return m_sigmaX;};
+  float getSigma_y(){return m_sigmaY;};
   
 
 
 private:
   // simple shape information should be stored as private member variables here
 
-  float sigma_x;
-  float sigma_y;
+  float m_sigmaX;
+  float m_sigmaY;
 
   //float sigma2_x;
   //float sigma2_y;
 
   //float gaus_ratio;
 
-  TRandom3 *rnd;
+  TRandom3 *m_rnd;
 
 
   ClassDef(TFCSSimpleLateralShapeParametrization,1)  //TFCSSimpleLateralShapeParametrization
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSSimpleLateralShapeParametrization;
-#endif
 
 #endif

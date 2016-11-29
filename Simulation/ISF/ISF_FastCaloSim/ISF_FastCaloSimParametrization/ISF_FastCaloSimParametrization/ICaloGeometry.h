@@ -6,9 +6,9 @@
 #define ICaloGeometry_h
 
 #include "Identifier/Identifier.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 class CaloDetDescrElement;
-   
 class ICaloGeometry {
 public :
    virtual bool PostProcessGeometry() = 0;
@@ -30,10 +30,9 @@ public :
    virtual double zmid(int sample,double eta) const = 0;
    virtual double zent(int sample,double eta) const = 0;
    virtual double zext(int sample,double eta) const = 0;
-   enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
-   virtual double rpos(int sample,double eta,int subpos=SUBPOS_MID) const = 0;
-   virtual double zpos(int sample,double eta,int subpos=SUBPOS_MID) const = 0;
-   virtual double rzpos(int sample,double eta,int subpos=SUBPOS_MID) const = 0;
+   virtual double rpos(int sample,double eta,int subpos=CaloSubPos::SUBPOS_MID) const = 0;
+   virtual double zpos(int sample,double eta,int subpos=CaloSubPos::SUBPOS_MID) const = 0;
+   virtual double rzpos(int sample,double eta,int subpos=CaloSubPos::SUBPOS_MID) const = 0;
    virtual bool   isCaloBarrel(int sample) const = 0;
 };
 

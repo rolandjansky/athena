@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TREEREADER_H
-#define TREEREADER_H
+#ifndef TreeReader_h
+#define TreeReader_h
 
 //////////////////////////////////////////////////
 //
@@ -31,10 +31,10 @@ class TreeReader //: public TTreeFormulaManager
  private:
 
   TTree* m_tree;
-  int              m_currentEntry; 			// current ntuple entry stored in buffer
-  int              m_entries;      			// total number of entries
-  bool             m_isChain;
-  int              m_currentTree;
+  int    m_currentEntry; 			// current ntuple entry stored in buffer
+  int    m_entries;      			// total number of entries
+  bool   m_isChain;
+  int    m_currentTree;
   std::map<std::string, TTreeFormula*>     m_formulae;	// known formulae
 
  public:
@@ -43,12 +43,13 @@ class TreeReader //: public TTreeFormulaManager
   TreeReader(TTree* n);       // ctor with ntuple
   virtual ~TreeReader();      // dtor
 
-  void SetTree(TTree* n);       //
+  void   SetTree(TTree* n);       //
   double GetVariable(const char* c, int entry=-2); // return variable s for a given entry (<0 -> current entry)
   int    GetEntry(int entry=-1);     // Read a given entry in the buffer (-1 -> next entry);
-  int      GetEntries()             { return m_entries ; }
-  TTree*   GetTree()                { return m_tree    ; }
-  void Restart()                    {m_currentEntry = -1;}
+  int    GetEntries()             { return m_entries ; }
+  TTree* GetTree()                { return m_tree    ; }
+  void   Restart()                    {m_currentEntry = -1;}
+
   ClassDef(TreeReader,0);  // Integrate this class into ROOT (must be the last member)
 };
 

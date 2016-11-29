@@ -16,8 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
                           LArCalorimeter/LArElecCalib
-                          Simulation/Barcode/BarcodeInterfaces
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
+                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
@@ -33,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           LArCalorimeter/LArSimEvent
                           Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileDetDescr
@@ -55,11 +55,11 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrizationLibDictSource
-                           ROOT_HEADERS ISF_FastCaloSimParametrization/MeanAndRMS.h ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h ISF_FastCaloSimParametrization/TFCSParametrizationBase.h ISF_FastCaloSimParametrization/TFCSParametrization.h ISF_FastCaloSimParametrization/TFCSEnergyParametrization.h ISF_FastCaloSimParametrization/TFCSPCAEnergyParametrization.h ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSExtrapolationState.h ISF_FastCaloSimParametrization/TFCSTruthState.h ISF_FastCaloSimParametrization/TFCSSimulationState.h ISF_FastCaloSimParametrization/TFCS1DFunction.h ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h ISF_FastCaloSimParametrization/TFCSFunction.h ISF_FastCaloSimParametrization/TreeReader.h ISF_FastCaloSimParametrization/firstPCA.h ISF_FastCaloSimParametrization/secondPCA.h Root/LinkDef.h
+                           ROOT_HEADERS ISF_FastCaloSimParametrization/MeanAndRMS.h ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h ISF_FastCaloSimParametrization/TFCS1DFunctionRegressionTF.h ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h ISF_FastCaloSimParametrization/TFCSFunction.h ISF_FastCaloSimParametrization/TreeReader.h ISF_FastCaloSimParametrization/firstPCA.h ISF_FastCaloSimParametrization/secondPCA.h ISF_FastCaloSimParametrization/TFCS2Function.h ISF_FastCaloSimParametrization/TFCS2DFunction.h ISF_FastCaloSimParametrization/DetailedShapeBinning.h ISF_FastCaloSimParametrization/FitDetailedShape.h ISF_FastCaloSimParametrization/TFCS2DFunctionRegression.h  Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx
+                   ISF_FastCaloSimParametrization/*.h Root/*.cxx src/*.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}

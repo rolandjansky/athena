@@ -29,7 +29,8 @@ TreeReader::TreeReader()
   //============================================================
 {
   // Default constructor.
-  
+  m_isChain = false;
+  m_currentTree = -1;
   m_tree = 0;
   m_currentEntry = -1;
   m_entries = -1;
@@ -40,6 +41,7 @@ TreeReader::TreeReader(TTree* n)
   //============================================================
 {
   // Constructor.
+  m_tree = 0;
   m_entries = -1;
   SetTree(n);
 }
@@ -56,14 +58,15 @@ TreeReader::~TreeReader()
 void TreeReader::SetTree(TTree* n)
   //============================================================
 {
+  // check for null pointer BEFORE trying to use it
+  if(!n) return;
   // Set tree.
-  m_tree = n ;
+  m_tree = n;
   m_currentEntry = -1;
   m_formulae.clear();
   m_formulae["__DUMMY__"] = new TTreeFormula("__DUMMY__","0",m_tree);  
-  m_isChain = n->IsA() == TClass::GetClass("TChain");
+  m_isChain = (n->IsA() == TClass::GetClass("TChain"));
   m_currentTree = 0;
-  if(!n) return;
   m_entries = (int) m_tree->GetEntries();
 }
 

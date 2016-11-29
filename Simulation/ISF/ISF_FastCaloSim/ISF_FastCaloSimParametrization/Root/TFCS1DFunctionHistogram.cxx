@@ -2,11 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+using namespace std;
 #include "ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h"
 #include "TMath.h"
 #include <iostream>
-
-using namespace std;
 
 //=============================================
 //======= TFCSFunctionRegression =========
@@ -16,179 +15,351 @@ TFCS1DFunctionHistogram::TFCS1DFunctionHistogram()
 {
 }
 
-TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist)
+TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist, int verbose, double cut_maxdev)
 {
-  Initialize(hist);
+  Initialize(hist, verbose,cut_maxdev);
 }
 
-void TFCS1DFunctionHistogram::Initialize(TH1* hist)
+void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxdev)
 {
-	
- //smart rebinning
-	
- int do_histo_iteration=1;
- double maxdev=100;
- int iter=0; //0
- while(maxdev>5 && do_histo_iteration && iter<=10)
- {
-  smart_rebinning(hist,1.0-iter*0.1);
-  TH1* h_rebinned=vector_to_histo();
-  maxdev=get_maxdev(hist,h_rebinned);
-  delete h_rebinned;
-  cout<<"Histo Iteration "<<iter<<" maxdev "<<maxdev<<endl;
-  iter++;
- }
-  
- //m_histo=(TH1*)hist->Clone("m_histo");
-  
+
+  smart_rebin_loop(hist, verbose,cut_maxdev);
+
   //test the sampling
   /*
-  TH1D* h_test=new TH1D("h_test","h_test",5000,m_histo->GetXaxis()->GetXmin(),m_histo->GetXaxis()->GetXmax());
-  for(int i=0;i<10000;i++)
-  {
-   double random=myRandom->Uniform(1);
-   double *histoVals=histo_to_array();
-   double value=sample_from_histo(random,histoVals);
-   h_test->Fill(value);
-  }
-  TH1* h_cum=get_cumul(h_test);
-  TFile* testfile=new TFile("samplingtest.root","RECREATE");
-  testfile->Add(h_test);
-  testfile->Add(h_cum);
-  testfile->Add(m_histo);
-  testfile->Write();
-  */
-  
-}
+     TH1D* h_test=new TH1D("h_test","h_test",5000,m_histo->GetXaxis()->GetXmin(),m_histo->GetXaxis()->GetXmax());
+     for(int i=0;i<10000;i++)
+     {
+     double random=myRandom->Uniform(1);
+     double *histoVals=histo_to_array();
+     double value=sample_from_histo(random,histoVals);
+     h_test->Fill(value);
+     }
+     TH1* h_cum=get_cumul(h_test);
+     TFile* testfile=new TFile("samplingtest.root","RECREATE");
+     testfile->Add(h_test);
+     testfile->Add(h_cum);
+     testfile->Add(m_histo);
+     testfile->Write();
+     */
 
+
+}
 
 double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
 {
- 
- TH1D* h_clone=(TH1D*)hist->Clone("h_clone");
- h_clone->Scale(1.0/h_clone->Integral());
- 
- double *histoVals=new double[h_clone->GetNbinsX()];
- histoVals[0]=h_clone->GetBinContent(1);
- for (int i=1; i<h_clone->GetNbinsX(); i++)
- {
-  histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
- }
- return histoVals;
- 
+
+  TH1D* h_clone=(TH1D*)hist->Clone("h_clone");
+  h_clone->Scale(1.0/h_clone->Integral());
+
+  double *histoVals=new double[h_clone->GetNbinsX()];
+  histoVals[0]=h_clone->GetBinContent(1);
+  for (int i=1; i<h_clone->GetNbinsX(); i++)
+  {
+    histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
+  }
+
+  // cleanup
+  //delete[] histoVals;
+
+  return histoVals;
+
 }
 
 double TFCS1DFunctionHistogram::sample_from_histo(TH1* hist, double random)
 {
- 
- double* histoVals=histo_to_array(hist);
- double value=0.0;
- int chosenBin = (int)TMath::BinarySearch(hist->GetNbinsX(), histoVals, random);
- value = hist->GetBinCenter(chosenBin+2);
- 
- return value;
- 
+
+  double* histoVals=histo_to_array(hist);
+  double value=0.0;
+  int chosenBin = (int)TMath::BinarySearch(hist->GetNbinsX(), histoVals, random);
+  value = hist->GetBinCenter(chosenBin+2);
+
+  // cleanup
+  delete[] histoVals;
+
+  return value;
+
 }
 
 double TFCS1DFunctionHistogram::sample_from_histovalues(double random)
 { 
- double value=0.0;
+  double value=0.0;
 
- TH1* hist=vector_to_histo(); hist->SetName("hist");
- double *histoVals=histo_to_array(hist);
- int chosenBin = (int)TMath::BinarySearch(hist->GetNbinsX(), histoVals, random);
- value = hist->GetBinCenter(chosenBin+2);
- 
- return value;
+  TH1* hist=vector_to_histo(); hist->SetName("hist");
+  double *histoVals=histo_to_array(hist);
+  int chosenBin = (int)TMath::BinarySearch(hist->GetNbinsX(), histoVals, random);
+  value = hist->GetBinCenter(chosenBin+2);
+
+  delete hist;
+  delete[] histoVals;
+
+  return value;
 }
 
 
 
 TH1* TFCS1DFunctionHistogram::vector_to_histo()
 {
- 
- double *bins=new double[m_HistoBorders.size()];
- for(unsigned int i=0;i<m_HistoBorders.size();i++)
-  bins[i]=m_HistoBorders[i];
 
- TH1* h_out=new TH1D("h_out","h_out",m_HistoBorders.size()-1,bins);
- for(int b=1;b<=h_out->GetNbinsX();b++)
- 	h_out->SetBinContent(b,m_HistoContents[b-1]);
- 
- return h_out;
- 
+  double *bins=new double[m_HistoBorders.size()];
+  for(unsigned int i=0;i<m_HistoBorders.size();i++)
+    bins[i]=m_HistoBorders[i];
+
+  TH1* h_out=new TH1D("h_out","h_out",m_HistoBorders.size()-1,bins);
+  for(int b=1;b<=h_out->GetNbinsX();b++)
+    h_out->SetBinContent(b,m_HistoContents[b-1]);
+
+  return h_out;
+
 }
 
-void TFCS1DFunctionHistogram::smart_rebinning(TH1* hist, double change /*in percent*/ )
+void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cut_maxdev)
 {
- 
- int debug=0;
- 
- //do the rebin and save the bins in a vector
- vector<double> content;
- vector<double> binborder;
- 
- binborder.push_back(hist->GetXaxis()->GetXmin());
- 
- change=change/100.0;
- double sum=0;
- int count=0;
- for(int b=1;b<hist->GetNbinsX();b++)
- {
-  double thisBin=hist->GetBinContent(b);
-  double nextBin=hist->GetBinContent(b+1);
-  if(debug) cout<<"b "<<b<<" begin, thisBin "<<thisBin<<" nextBin "<<nextBin<<" sum "<<sum<<endl;
-  if(fabs(nextBin/thisBin-1.0)>=change)
+
+  m_HistoContents.clear();
+  m_HistoBorders.clear();
+
+  double maxdev=-1;
+  double change=0.0001; double step=0.00005;
+  TH1D* h_input; TH1D* h_output;
+  int i=0;
+  while(1)
   {
-   sum+=thisBin;
-   count++;
- 	 binborder.push_back(hist->GetBinCenter(b)+0.5*hist->GetBinWidth(b));
- 	 //divide the sum by the number of summed bins:
- 	 content.push_back(sum/(double)count);
-   //Reset the sum:
-   sum=0;
-   count=0;
+    if(i==0) h_input=(TH1D*)hist->Clone("h_input");
+
+    TH1D* h_out=smart_rebin(h_input,change); h_out->SetName("h_out");
+
+    maxdev=get_maxdev(hist,h_out);
+    if(verbose==2) cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
+
+    if(maxdev<cut_maxdev)
+    {
+      h_input=(TH1D*)h_out->Clone("h_input");
+      change+=step;
+      i++;
+    }
+    if(maxdev>cut_maxdev)
+    {
+      change-=step;
+      h_output=(TH1D*)h_input->Clone("h_output");
+      break;
+    }
+
+    delete h_out;
+
   }
-  if(fabs(nextBin/thisBin-1.0)<change)
-  {
-   //do not add this bin to the new vector of bins, but add to the sum
-   sum+=thisBin;
-   count++;
-  }
- }
- //last bin is special:
- binborder.push_back(hist->GetXaxis()->GetXmax());
- if(count==0) //that means the previous-to-last bin was written out, so simpy add the last one:
- {
-  content.push_back(hist->GetBinContent(hist->GetNbinsX()));
- }
- if(count>0)
- {
- 	sum+=hist->GetBinContent(hist->GetNbinsX());
- 	count++;
- 	content.push_back(sum/(double)count);
- }
- 
- //safe into the member variables:
- 
- m_HistoContents.clear();
- m_HistoBorders.clear();
- 
- for(unsigned int i=0;i<content.size();i++)
-  m_HistoContents.push_back((float)content[i]);
- for(unsigned int i=0;i<binborder.size();i++)
-  m_HistoBorders.push_back((float)binborder[i]);
- 
+
+  cout<<"Info: Rebinned histogram has "<<h_output->GetNbinsX()<<" bins."<<endl;
+
+  for(int b=1;b<=h_output->GetNbinsX();b++)
+    m_HistoContents.push_back(h_output->GetBinContent(b));
+
+  for(int b=1;b<=h_output->GetNbinsX();b++)
+    m_HistoBorders.push_back((float)h_output->GetBinLowEdge(b));
+
+  m_HistoBorders.push_back((float)h_output->GetXaxis()->GetXmax());
+
 }
 
+TH1D* TFCS1DFunctionHistogram::smart_rebin(TH1D* h_input, double change)
+{
+
+  //int debug=0;
+
+  vector<double> content;
+  vector<double> binborder;
+
+  content.clear();
+  binborder.clear();
+
+  binborder.push_back(h_input->GetXaxis()->GetXmin());
+
+  double sum=0;
+  double sumwidth=0;
+  int count=0;
+  for(int b=1;b<h_input->GetNbinsX();b++)
+  {
+    double thisBin=h_input->GetBinContent(b);
+    double nextBin=h_input->GetBinContent(b+1);
+    double width=h_input->GetBinWidth(b);
+    if(fabs(nextBin/thisBin-1.0)>=change)
+    {
+      sum+=thisBin*width;
+      sumwidth+=width;
+      count++;
+      binborder.push_back(h_input->GetBinLowEdge(b+1));
+
+      //divide the sum by the number of summed bins:
+      //content.push_back(sum/(double)count);
+      content.push_back(sum/sumwidth);
+
+      //Reset the sum:
+      sum=0;
+      sumwidth=0;
+      count=0;
+    }
+    else
+    {
+      //do not add this bin to the new vector of bins, but add to the sum
+      sum+=thisBin*width;
+      sumwidth+=width;
+      count++;
+    }
+  }
+  //last bin is special:
+  binborder.push_back(h_input->GetXaxis()->GetXmax());
+  if(count==0) //that means the previous-to-last bin was written out, so simpy add the last one:
+  {
+    content.push_back(h_input->GetBinContent(h_input->GetNbinsX()));
+  }
+  if(count>0)
+  {
+    sum+=h_input->GetBinContent(h_input->GetNbinsX())*h_input->GetBinWidth(h_input->GetNbinsX());
+    sumwidth+=h_input->GetBinWidth(h_input->GetNbinsX());
+    count++;
+    content.push_back(sum/sumwidth);
+  }
+
+  double* bins=new double[content.size()+1];
+  for(unsigned int i=0;i<binborder.size();i++)
+    bins[i]=binborder[i];
+
+  TH1D* h_out=new TH1D("h_out","h_out",content.size(),bins);
+  for(unsigned int b=1;b<=content.size();b++)
+    h_out->SetBinContent(b,content[b-1]);
+
+  delete [] bins;
+
+  return h_out;
+
+}
 
 double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 {
 
-  double value=sample_from_histovalues(rnd);
-  return value;
+  //double value1=sample_from_histovalues(rnd);
+  double value2=get_inverse(rnd);
+  return value2;
 
 }
+
+
+double TFCS1DFunctionHistogram::linear(double x1,double x2,double y1,double y2,double x)
+{
+  double y=-1;
+
+  double eps=0.0000000001;
+  if((x2-x1)<eps) y=y1;
+  else
+  {
+    double m=(y2-y1)/(x2-x1);
+    double n=y1-m*x1;
+    y=m*x+n;
+  }
+
+  return y;
+}
+
+
+double TFCS1DFunctionHistogram::get_inverse(double rnd)
+{
+
+  TH1* hist=vector_to_histo(); hist->SetName("hist");
+
+  double value = 0.;
+  for(int b=1;b<=hist->GetNbinsX();b++)
+  {
+    double y=hist->GetBinContent(b);
+    if(y>rnd && b!=1)
+    {
+      //use linear extrapolation to get exact x value
+      double x1=hist->GetBinCenter(b-1);
+      double x2=hist->GetBinCenter(b);
+      double y1=hist->GetBinContent(b-1);
+      double y2=hist->GetBinContent(b);
+      double y=linear(y1,y2,x1,x2,rnd);
+      //cout<<"x1 "<<x1<<" x2 "<<x2<<" y1 "<<y1<<" y2 "<<y2 <<" rnd "<<rnd<<" value "<<y<<endl;
+      value=y;
+      b=hist->GetNbinsX()+1;
+    }
+  }
+
+  return value;
+}
+
+double TFCS1DFunctionHistogram::InverseCumulant(double y)
+{
+
+  TH1* hist=vector_to_histo(); hist->SetName("hist");
+
+  int bin = 0;
+  int nbin = hist->GetNbinsX();
+  double min = 99999999;
+  for (int i=1; i<=hist->GetNbinsX()-2; i++)
+  {
+    if(fabs(hist->GetBinContent(i)-y)<min)
+    {
+      min = fabs(hist->GetBinContent(i)-y);
+      bin = i ;
+    }
+  }
+  bin = TMath::Max(bin,1);
+  bin = TMath::Min(bin,hist->GetNbinsX());
+
+  //std::cout<<bin <<std::endl;
+
+  double AvNuEvPerBin;
+  double Tampon = 0 ;
+  for (int i=1; i<=nbin; i++)
+  {
+    Tampon += hist->GetBinContent(i);
+  }
+
+  AvNuEvPerBin = Tampon/nbin;
+
+  double x;
+  double x0, x1, y0, y1;
+  double total = hist->GetNbinsX()*AvNuEvPerBin;
+  double supmin = 0.5/total;
+
+  x0 = hist->GetBinLowEdge(TMath::Max(bin,1));
+  x1 = hist->GetBinLowEdge(TMath::Min(bin,hist->GetNbinsX())+1);
+
+  y0 = hist->GetBinContent(TMath::Max(bin-1,0)); // Y0 = F(x0); Y0 >= 0
+  y1 = hist->GetBinContent(TMath::Min(bin, hist->GetNbinsX()+1));  // Y1 = F(x1);  Y1 <= 1
+
+  //Zero bin
+  if (bin == 0)
+  {
+    y0 = supmin;
+    y1 = supmin;
+  }
+  if (bin == 1) {
+    y0 = supmin;
+  }
+  if (bin > hist->GetNbinsX()) {
+    y0 = 1.-supmin;
+    y1 = 1.-supmin;
+  }
+  if (bin == hist->GetNbinsX()) {
+    y1 = 1.-supmin;
+  }
+
+  ////////////////////////
+
+  if(y0 == x1)
+  {
+    x = x0;
+  }
+  else
+  {
+    x = x0 + (y-y0)*(x1-x0)/(y1-y0);
+  }
+
+  return x;
+
+}
+
 
 //=============================================
 //========== ROOT persistency stuff ===========

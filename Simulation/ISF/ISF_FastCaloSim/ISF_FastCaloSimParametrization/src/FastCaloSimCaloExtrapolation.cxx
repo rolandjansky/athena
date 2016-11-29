@@ -11,7 +11,17 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ListItem.h"
 
-FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p),m_CaloBoundaryR(1148.0),m_CaloBoundaryZ(3549.5),m_calomargin(100)
+FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t, const std::string& n, const IInterface* p) :
+  AthAlgTool(t,n,p),
+  m_particleDataTable(0),
+  m_CaloBoundaryR(1148.0),
+  m_CaloBoundaryZ(3549.5),
+  m_calomargin(100),
+  m_extrapolator(0),
+  m_caloSurfaceHelper(0),
+  m_caloEntrance(0),
+  m_caloEntranceName(""),
+  m_CaloGeometryHelper(0)
 {
   declareInterface<IFastCaloSimCaloExtrapolation>(this);
 
