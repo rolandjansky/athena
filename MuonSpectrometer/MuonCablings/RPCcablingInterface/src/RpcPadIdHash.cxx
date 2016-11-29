@@ -23,7 +23,9 @@
 
 
 // default contructor 
-RpcPadIdHash::RpcPadIdHash( ) {
+RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
+  : m_cabling (cabling)
+{
 
   IMessageSvc*  msgSvc;
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
@@ -38,21 +40,23 @@ RpcPadIdHash::RpcPadIdHash( ) {
 
   log << MSG::DEBUG << "Into RpcPadIdHash Constructor " << endmsg; 
 
-  // initialize RPC cabling service
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  sc = svcLoc->service("RPCcablingServerSvc", RpcCabGet, true);
-  if (sc != StatusCode::SUCCESS ) 
-  {
+  if (!m_cabling) {
+    // initialize RPC cabling service
+    const IRPCcablingServerSvc* RpcCabGet = 0;
+    sc = svcLoc->service("RPCcablingServerSvc", RpcCabGet, true);
+    if (sc != StatusCode::SUCCESS ) 
+    {
       throw GaudiException("Cannot retrieve the RPCcabling server",
-                         "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
-  }
+                           "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
+    }
 
-  sc = RpcCabGet->giveCabling(m_cabling);
-  if (sc != StatusCode::SUCCESS ) 
-  {
-     throw GaudiException("Cannot retrieve the RPCcabling from the server",
-                         "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
-
+    sc = RpcCabGet->giveCabling(m_cabling);
+    if (sc != StatusCode::SUCCESS ) 
+    {
+      throw GaudiException("Cannot retrieve the RPCcabling from the server",
+                           "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
+      
+    }
   }
 
   for(int side=0;side<2;++side)
