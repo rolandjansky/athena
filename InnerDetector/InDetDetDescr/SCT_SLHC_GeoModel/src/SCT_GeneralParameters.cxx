@@ -71,7 +71,7 @@ double SCT_GeneralParameters::envelopeRMin() const
     } 
     return rmin;
   } else {      
-    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endreq;
+    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endmsg;
     return 0;
   }
 }
@@ -85,7 +85,7 @@ double SCT_GeneralParameters::envelopeRMax() const
     } 
     return rmax;
   } else {      
-    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endreq;
+    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endmsg;
     return 0;
   }
 }
@@ -96,7 +96,7 @@ double SCT_GeneralParameters::envelopeLength() const
     // The table should contain only +ve z values.
     return 2*envelopeZ(db()->getTableSize(SctEnvelope) - 1);
   } else {
-    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endreq;
+    msg(MSG::ERROR) << "Unexpected error. SctEnvelope has zero size" << endmsg;
     return 0;
   }
 }
@@ -125,7 +125,7 @@ unsigned int SCT_GeneralParameters::envelopeNumPlanes() const
 double SCT_GeneralParameters::envelopeZ(int i) const 
 {
   double zmin =  db()->getDouble(SctEnvelope,"Z",i) * CLHEP::mm;
-  if (zmin < 0) msg(MSG::ERROR) << "SctEnvelope table should only contain +ve z values" << endreq;
+  if (zmin < 0) msg(MSG::ERROR) << "SctEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
 

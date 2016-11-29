@@ -61,7 +61,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
   MsgStream log(msgSvc, "SCT_BarrelModuleParameters");
 
   log<<MSG::DEBUG<<"========== Read Local Databse Modules Parameters =======" 
-     << endreq;
+     << endmsg;
   //open the SLHC SCT local database text file
   char* textFileName = getenv ("LocalSlhcGeometryDatabase");
 

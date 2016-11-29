@@ -33,10 +33,10 @@ SCT_GeometryManager::SCT_GeometryManager(const SCT_GeoModelAthenaComps *athenaCo
   // See if some parameter that only exists in the old text files exists. If so assume we are working with 
   // with a text file with the old format.
   if (db()->testField("","L0_RLAY")) {
-    msg(MSG::INFO) << "Detected old format text file. Please migrate to new format." << endreq;
+    msg(MSG::INFO) << "Detected old format text file. Please migrate to new format." << endmsg;
     m_old = true;
   } else {
-    msg(MSG::DEBUG) << "New format text file." << endreq;
+    msg(MSG::DEBUG) << "New format text file." << endmsg;
   }
 }
 

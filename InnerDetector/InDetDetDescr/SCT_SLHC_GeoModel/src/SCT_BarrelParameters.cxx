@@ -34,7 +34,7 @@ SCT_BarrelParameters::SCT_BarrelParameters(const SCT_DataBase * sctdb, const SCT
     SctBrlGeneral        = sctdb->brlGeneral();
           
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"========== Initialize Database Barrel Parameters =======" 
-					    << endreq;
+					    << endmsg;
   
 
    
@@ -44,7 +44,7 @@ SCT_BarrelParameters::SCT_BarrelParameters(const SCT_DataBase * sctdb, const SCT
    
       int type = db()->getInt(SctBrlSkiZ,"TYPE",i);
       if (type == 0)  {
-	msg(MSG::ERROR) << "Type 0 reserved for uniformly spaced z positions. Do not use type 0 in SctBrlSkiZ table." << endreq;
+	msg(MSG::ERROR) << "Type 0 reserved for uniformly spaced z positions. Do not use type 0 in SctBrlSkiZ table." << endmsg;
       } else {
 	std::vector<double> * zposVec = m_zpositionMap[type];
 	std::vector<int> * moduleIdVec = m_moduleIdMap[type];
@@ -160,11 +160,11 @@ SCT_BarrelParameters::skiZPosition(int ilayer, int module) const{
     } else {
     std::map<int, std::vector<double> *>::const_iterator iter = m_zpositionMap.find(zpostype);
     if (iter ==  m_zpositionMap.end()) {
-      msg(MSG::ERROR) << "Z position type : " << zpostype <<  " not found" << endreq;
+      msg(MSG::ERROR) << "Z position type : " << zpostype <<  " not found" << endmsg;
     } else {
       std::vector<double> * zposVec = iter->second;
       if (!zposVec || int(zposVec->size()) <= module) {
-	msg(MSG::ERROR) << "Z position for module " << module <<  " of layer " << ilayer << " not found " << endreq;
+	msg(MSG::ERROR) << "Z position for module " << module <<  " of layer " << ilayer << " not found " << endmsg;
       } else {
 	zpos = (*zposVec)[module];
       }
@@ -189,11 +189,11 @@ SCT_BarrelParameters::skiModuleIdentifier(int ilayer, int module) const{
   } else {
     std::map<int, std::vector<int> *>::const_iterator iter = m_moduleIdMap.find(zpostype);
     if (iter ==  m_moduleIdMap.end()) {
-      msg(MSG::ERROR) << "Z position type : " << zpostype <<  " not found" << endreq;
+      msg(MSG::ERROR) << "Z position type : " << zpostype <<  " not found" << endmsg;
     } else {
       std::vector<int> * moduleIdVec = iter->second;
       if (!moduleIdVec || int(moduleIdVec->size()) <= module) {
-	msg(MSG::ERROR) << "Module id for module index " << module <<  " of layer " << ilayer << " not found " << endreq;
+	msg(MSG::ERROR) << "Module id for module index " << module <<  " of layer " << ilayer << " not found " << endmsg;
       } else {
 	moduleId = (*moduleIdVec)[module];
       }
@@ -209,13 +209,13 @@ SCT_BarrelParameters::skiModuleIdentifier(int ilayer, int module) const{
 double 
 SCT_BarrelParameters::tilt(int ilayer) const{
   double tilt = db()->getDouble(SctBrlLayer,"TILT",ilayer) * CLHEP::degree;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 tilt layer TILT("<<ilayer<<") = "<< tilt/CLHEP::degree << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 tilt layer TILT("<<ilayer<<") = "<< tilt/CLHEP::degree << endmsg;
   return tilt;
 }
 
 double SCT_BarrelParameters::radius(int ilayer) const{
   double rlay = db()->getDouble(SctBrlLayer,"RADIUS",ilayer) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 radius layer RLAY("<<ilayer<<") = "<<rlay<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 radius layer RLAY("<<ilayer<<") = "<<rlay<<endmsg;
   return rlay;
 }
 
@@ -241,7 +241,7 @@ SCT_BarrelParameters::skisPerLayer(int ilayer) const{
 int 
 SCT_BarrelParameters::layerStereoSign(int ilayer) const{
   int laytyp = db()->getInt(SctBrlLayer,"STEREOSIGN",ilayer);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 layerStereoSign layer LAYTYP("<<ilayer<<") = "<< laytyp << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 layerStereoSign layer LAYTYP("<<ilayer<<") = "<< laytyp << endmsg;
   return laytyp;
 }
 
@@ -309,21 +309,21 @@ SCT_BarrelParameters::staveSupportMaterial(int ilayer) const{
 double 
 SCT_BarrelParameters::supportCylInnerRadius(int ilayer) const{
   double risup = db()->getDouble(SctBrlServPerLayer,"SUPPORTCYLINNERRAD",ilayer) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylInnerRadius RISUP("<<ilayer<<") = "<< risup <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylInnerRadius RISUP("<<ilayer<<") = "<< risup <<endmsg;
   return risup;
 }
 
 double 
 SCT_BarrelParameters::supportCylOuterRadius(int ilayer) const{
   double rosup = db()->getDouble(SctBrlServPerLayer,"SUPPORTCYLOUTERRAD",ilayer) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylOuterRadius ROSUP("<<ilayer<<") = "<<rosup<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 supportCylOuterRadius ROSUP("<<ilayer<<") = "<<rosup<<endmsg;
   return rosup;
 }
 
 std::string 
 SCT_BarrelParameters::supportCylMaterial(int ilayer) const{
   std::string mat = db()->getString(SctBrlServPerLayer,"SUPPORTCYLMATERIAL",ilayer);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2  SUPPORTCYLMATERIAL_STRNG("<<ilayer<<") = "<<mat<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2  SUPPORTCYLMATERIAL_STRNG("<<ilayer<<") = "<<mat<<endmsg;
   return mat;
 }
 //
@@ -338,28 +338,28 @@ SCT_BarrelParameters::numLayers() const{
 double 
 SCT_BarrelParameters::barrelInnerRadius() const{
   double rmin = db()->getDouble(SctBrlGeneral,"INNERRADIUS") * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelInnerRadius RMIN = "<<rmin<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelInnerRadius RMIN = "<<rmin<<endmsg;
   return rmin;
 }
 
 double 
 SCT_BarrelParameters::barrelIntermediateRadius() const{
   double rinter = db()->getDouble(SctBrlGeneral,"RINTERMEDIATE") * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelIntermediateRadius RINTERMEDIATE = "<<rinter<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelIntermediateRadius RINTERMEDIATE = "<<rinter<<endmsg;
   return  rinter;
 }
 
 double 
 SCT_BarrelParameters::barrelOuterRadius() const{
   double rmax = db()->getDouble(SctBrlGeneral,"OUTERRADIUS") * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelOuterRadius RMAX = "<<rmax<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelOuterRadius RMAX = "<<rmax<<endmsg;
   return rmax;
 }
 
 double 
 SCT_BarrelParameters::barrelLength() const{
   double length =  db()->getDouble(SctBrlGeneral,"LENGTH") * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelLength B_LEN = "<<length<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelLength B_LEN = "<<length<<endmsg;
   return length;
 }
 
@@ -367,7 +367,7 @@ double
 SCT_BarrelParameters::barrelIntermediateLength() const{
   double interlen =  db()->getDouble(SctBrlGeneral,"INTERMEDIATELEN") * CLHEP::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"---------2 barrelIntermediateLength B_IntermediateLEN = "
-	   <<interlen<<endreq;
+	   <<interlen<<endmsg;
   return interlen;
 }
 

@@ -203,7 +203,7 @@ SCT_Ski::placeModule(GeoPhysVol * ski, SCT_Identifier id, int iModule, int side,
       <<"SCT_Ski.cxx: layer "<<m_layer<<", module "<<iModule<<" X position "<<xModulePos<<" should be < than ski half thickness, "
       <<"modXpos+halfModThickness = "<<fabs(xModulePos)+0.5*m_module->thickness()
       <<", halfSkithickness = "<<0.5*m_thickness
-      <<". exit athena!" << endreq;
+      <<". exit athena!" << endmsg;
     exit(1);
   }
   
@@ -217,7 +217,7 @@ SCT_Ski::placeModule(GeoPhysVol * ski, SCT_Identifier id, int iModule, int side,
       <<"module edge position:  "<<fabs(zModulePos)+0.5*m_module->length()<<".\n"
       <<"module extended edge position:  "<<fabs(zModulePos)+0.5*extendedLength<<".\n"
       <<"half Ski length:       "<<0.5*m_length<<"\n"
-      <<"exit athena!"<< endreq;
+      <<"exit athena!"<< endmsg;
     //Don't exit as this breaks some existing geometries.
     //exit(1);
   }

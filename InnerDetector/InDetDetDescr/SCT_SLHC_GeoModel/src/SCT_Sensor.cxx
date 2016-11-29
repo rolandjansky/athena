@@ -70,7 +70,7 @@ SCT_Sensor::preBuild()
     if (m_subSensorLength * m_numSegments > m_length) {
       geometryManager()->msg(MSG::ERROR) << "Total length of sub sensor segments is larger than sensor."
 					 << " Sensor length = " << m_length
-					 << ", Total sub sensor length = " << m_subSensorLength * m_numSegments << endreq;
+					 << ", Total sub sensor length = " << m_subSensorLength * m_numSegments << endmsg;
     }  
     
     // Build the subsensor logical volume (same for all segments).
