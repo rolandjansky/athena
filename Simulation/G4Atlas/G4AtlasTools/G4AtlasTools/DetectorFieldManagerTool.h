@@ -39,6 +39,9 @@ class DetectorFieldManagerTool : public G4FieldManagerToolBase
     /// List of volumes to assign this field configuration to
     std::vector<std::string> m_volumeList;
 
+    /// Option for muons feeling the B-field only
+    bool m_muonOnlyField;
+
     /// My field manager
     thread_utils::ThreadLocalOwner<G4FieldManager> m_fieldMgrHolder;
 

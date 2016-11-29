@@ -7,6 +7,16 @@ def getATLASFieldManagerTool(name='ATLASFieldManager', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("IntegratorStepper", simFlags.G4Stepper.get_Value())
     kwargs.setdefault("FieldSvc", "StandardField")
+    kwargs.setdefault("UseTightMuonStepping", False)
+    if simFlags.EquationOfMotion.statusOn:
+        kwargs.setdefault("EquationOfMotion", simFlags.EquationOfMotion.get_Value() )
+    return CfgMgr.GlobalFieldManagerTool(name, **kwargs)
+
+def getTightMuonsATLASFieldManagerTool(name='TightMuonsATLASFieldManager', **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("IntegratorStepper", simFlags.G4Stepper.get_Value())
+    kwargs.setdefault("FieldSvc", "StandardField")
+    kwargs.setdefault("UseTightMuonStepping",True)
     if simFlags.EquationOfMotion.statusOn:
         kwargs.setdefault("EquationOfMotion", simFlags.EquationOfMotion.get_Value() )
     return CfgMgr.GlobalFieldManagerTool(name, **kwargs)
@@ -18,7 +28,8 @@ def getClassicFieldManagerTool(name='ClassicFieldManager', **kwargs):
 def getBasicDetectorFieldManagerTool(name='BasicDetectorFieldManager', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("IntegratorStepper", simFlags.G4Stepper.get_Value())
-    kwargs.setdefault("FieldSvc",           "StandardField")
+    kwargs.setdefault("FieldSvc",          "StandardField")
+    kwargs.setdefault('MuonOnlyField',     False)
     if simFlags.EquationOfMotion.statusOn:
         kwargs.setdefault("EquationOfMotion", simFlags.EquationOfMotion.get_Value() )
     return CfgMgr.DetectorFieldManagerTool(name, **kwargs)
@@ -39,6 +50,16 @@ def getInDetFieldManagerTool(name='InDetFieldManager', **kwargs):
     kwargs.setdefault('DeltaOneStep',       0.0001)
     kwargs.setdefault('MaximumEpsilonStep', 0.001)
     kwargs.setdefault('MinimumEpsilonStep', 0.00001)
+    return getBasicDetectorFieldManagerTool(name, **kwargs)
+
+def getMuonsOnlyInCaloFieldManagerTool(name='MuonsOnlyInCaloFieldManager', **kwargs):
+    kwargs.setdefault("LogicalVolumes", ['CALO::CALO'])
+    #kwargs.setdefault('DeltaChord',         0.00000002)
+    kwargs.setdefault('DeltaIntersection',  0.00000002)
+    kwargs.setdefault('DeltaOneStep',       0.000001)
+    kwargs.setdefault('MaximumEpsilonStep', 0.0000009)
+    kwargs.setdefault('MinimumEpsilonStep', 0.000001)
+    kwargs.setdefault('MuonOnlyField',      True)
     return getBasicDetectorFieldManagerTool(name, **kwargs)
 
 def getMuonFieldManagerTool(name='MuonFieldManager', **kwargs):

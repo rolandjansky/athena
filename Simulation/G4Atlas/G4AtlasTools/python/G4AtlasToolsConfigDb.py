@@ -63,9 +63,11 @@ addTool("G4AtlasTools.G4PhysicsRegionConfig.getCavernShaftsConcretePhysicsRegion
 addTool("G4AtlasTools.G4PhysicsRegionConfig.getSCTSiliconPhysicsRegionTool", 'SCTSiliconPhysicsRegionTool')
 
 addTool("G4AtlasTools.G4FieldConfig.getATLASFieldManagerTool", 'ATLASFieldManager')
+addTool("G4AtlasTools.G4FieldConfig.getTightMuonsATLASFieldManagerTool", 'TightMuonsATLASFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getClassicFieldManagerTool", 'ClassicFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getBeamPipeFieldManagerTool", 'BeamPipeFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getInDetFieldManagerTool", 'InDetFieldManager')
+addTool("G4AtlasTools.G4FieldConfig.getMuonsOnlyInCaloFieldManagerTool", 'MuonsOnlyInCaloFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getMuonFieldManagerTool", 'MuonFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getQ1FwdFieldMangerTool", 'Q1FwdFieldManager')
 addTool("G4AtlasTools.G4FieldConfig.getQ2FwdFieldMangerTool", 'Q2FwdFieldManager')

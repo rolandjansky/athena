@@ -5,6 +5,9 @@
 // Main header
 #include "G4AtlasTools/DetectorFieldManagerTool.h"
 
+// From this package
+#include "TightMuonElseNoFieldManager.h"
+
 // Geant4 includes
 #include "G4MagneticField.hh"
 #include "G4FieldManager.hh"
@@ -22,6 +25,8 @@ DetectorFieldManagerTool::DetectorFieldManagerTool(const std::string& type,
 {
   declareProperty("LogicalVolumes", m_volumeList,
                   "List of volumes to which the field will be applied");
+  declareProperty("MuonOnlyField", m_muonOnlyField,
+                  "Only muons experience the magnetic field");
 }
 
 //-----------------------------------------------------------------------------
@@ -42,7 +47,12 @@ StatusCode DetectorFieldManagerTool::initializeField()
     }
 
     // Create a new field manager
-    auto fieldMgr = new G4FieldManager();
+    G4FieldManager * fieldMgr = nullptr;
+    if (m_muonOnlyField){
+      fieldMgr = new TightMuonElseNoFieldManager();
+    } else {
+      fieldMgr = new G4FieldManager();
+    }
 
     // Save it in the TL holder
     m_fieldMgrHolder.set(fieldMgr);

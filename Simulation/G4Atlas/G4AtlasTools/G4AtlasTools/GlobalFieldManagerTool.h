@@ -7,6 +7,7 @@
 
 // Local includes
 #include "G4AtlasTools/G4FieldManagerToolBase.h"
+#include "G4AtlasTools/ThreadLocalHolder.h"
 
 
 /** @class GlobalFieldManagerTool GlobalFieldManagerTool.h "G4AtlasTools/GlobalFieldManagerTool.h"
@@ -32,6 +33,12 @@ class GlobalFieldManagerTool : public G4FieldManagerToolBase
     StatusCode initializeField() override final;
 
   protected:
+
+    /// Tight muon stepping parameters via the field manager's configure for track
+    bool m_useTightMuonStepping;
+
+    /// My field manager -- populated only in the case that we use tight muon stepping
+    thread_utils::ThreadLocalOwner<G4FieldManager> m_fieldMgrHolder;
 
 };
 

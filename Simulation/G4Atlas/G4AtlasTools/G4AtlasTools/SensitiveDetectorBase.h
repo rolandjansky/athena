@@ -66,7 +66,7 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTo
   virtual StatusCode Gather() override { return StatusCode::SUCCESS; }
 
   /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected:
 
