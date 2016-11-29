@@ -11,7 +11,7 @@
 
 void CaloCalibrationHitCnv_p2::persToTrans(const CaloCalibrationHit_p2* persObj, CaloCalibrationHit* transObj, MsgStream &log)
 {
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CaloCalibrationHitCnv_p2::persToTrans called " << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CaloCalibrationHitCnv_p2::persToTrans called " << endmsg;
   *transObj = CaloCalibrationHit (persObj->m_ID,
                                   persObj->m_energy0,
                                   persObj->m_energy1,
@@ -23,7 +23,7 @@ void CaloCalibrationHitCnv_p2::persToTrans(const CaloCalibrationHit_p2* persObj,
 
 void CaloCalibrationHitCnv_p2::transToPers(const CaloCalibrationHit* transObj, CaloCalibrationHit_p2* persObj, MsgStream &log)
 {
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CaloCalibrationHitCnv_p2::transToPers called " << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CaloCalibrationHitCnv_p2::transToPers called " << endmsg;
   persObj->m_ID       = transObj->cellID().get_compact();
   persObj->m_energy0  = (float) transObj->energyEM();
   persObj->m_energy1  = (float) transObj->energyNonEM();

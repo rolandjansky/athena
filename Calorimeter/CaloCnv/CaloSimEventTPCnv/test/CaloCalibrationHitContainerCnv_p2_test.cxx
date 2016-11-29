@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "CaloSimEventTPCnv/CaloCalibrationHitContainerCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -32,6 +33,7 @@ void test1()
   std::cout << "test1\n";
   MsgStream log (0, "test");
 
+  // Don't run leakcheck over this; it writes log messages.
   CaloCalibrationHitContainer trans1;
   trans1.push_back (new CaloCalibrationHit (Identifier(987),
                                             45.5,
@@ -48,6 +50,9 @@ void test1()
                                             255.5,
                                             265.5,
                                             275.5));
+
+  Athena_test::Leakcheck check;
+
   CaloCalibrationHitContainerCnv_p2 cnv;
   CaloCalibrationHitContainer_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
