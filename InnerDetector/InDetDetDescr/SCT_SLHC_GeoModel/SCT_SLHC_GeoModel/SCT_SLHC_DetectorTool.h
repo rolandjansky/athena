@@ -12,7 +12,7 @@
 #include <string>
 
 class ISiLorentzAngleSvc;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class IInDetServMatBuilderTool;
@@ -49,7 +49,7 @@ private:
   InDetDDSLHC::SCT_GeoModelAthenaComps * m_athenaComps;
 
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;

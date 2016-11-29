@@ -32,7 +32,7 @@ SCT_ForwardParameters::SCT_ForwardParameters(const SCT_DataBase * sctdb, const S
     SctFwdDiscSupport  = sctdb->fwdDiscSupport();
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"========== Initialize Database Forward Parameters =======" 
-					    << endreq;
+					    << endmsg;
     
     // Fill wheel/ring map
     for (unsigned int indexTmp = 0; indexTmp < db()->getTableSize(SctFwdWheelRingMap); ++indexTmp) {
@@ -97,7 +97,7 @@ int
 SCT_ForwardParameters::getRingMapIndex(int iWheel, int iRingIndex) const
 {
   int index =  m_wheelRingIndexMap.find(iWheel, iRingIndex);
-  if (index < 0)  msg(MSG::ERROR) << "Index not found for wheel,ring =  " << iWheel << ", " << iRingIndex << endreq;
+  if (index < 0)  msg(MSG::ERROR) << "Index not found for wheel,ring =  " << iWheel << ", " << iRingIndex << endmsg;
   return index;
 }
 

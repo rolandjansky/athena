@@ -26,7 +26,7 @@ SCT_BarrelModuleParameters::SCT_BarrelModuleParameters(const SCT_DataBase * sctd
     SctBrlModule = sctdb->brlModule();
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"========== Initialize Database Barrel Modules Parameters =======" 
-					    << endreq;
+					    << endmsg;
   }
 }
 
@@ -37,7 +37,7 @@ double
 SCT_BarrelModuleParameters::sensorThickness(int moduleType) const 
 {
   double thickness = db()->getDouble(SctBrlSensor, "THICKNESS", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-----------2 sensorThickness mod_typ("<<moduleType<<") = "<< thickness << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-----------2 sensorThickness mod_typ("<<moduleType<<") = "<< thickness << endmsg;
   return thickness;
 }
 
@@ -45,7 +45,7 @@ double
 SCT_BarrelModuleParameters::sensorWidth(int moduleType) const 
 {
   double width = db()->getDouble(SctBrlSensor, "WIDTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 DXYZ2 sensorWidth mod_typ("<<moduleType<<") = "<< width <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 DXYZ2 sensorWidth mod_typ("<<moduleType<<") = "<< width <<endmsg;
   return width;
 }
 
@@ -53,7 +53,7 @@ double
 SCT_BarrelModuleParameters::sensorLength(int moduleType) const 
 {
   double sensorLen = db()->getDouble(SctBrlSensor, "LENGTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 SensorLength DXYZ3 mod_typ("<<moduleType<<") = "<<sensorLen <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 SensorLength DXYZ3 mod_typ("<<moduleType<<") = "<<sensorLen <<endmsg;
   return sensorLen;
 }
 
@@ -61,7 +61,7 @@ std::string
 SCT_BarrelModuleParameters::sensorMaterial(int moduleType) const 
 {
   std::string sensorMaterial = db()->getString(SctBrlSensor, "MATERIAL", moduleType);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel SENSORMATERIAL_STRNG("<<moduleType<<") = "<<sensorMaterial <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel SENSORMATERIAL_STRNG("<<moduleType<<") = "<<sensorMaterial <<endmsg;
   return sensorMaterial;
 }
 
@@ -70,7 +70,7 @@ SCT_BarrelModuleParameters::chargeCarrier(int moduleType) const
 {
   if (!db()->testField(SctBrlSensor, "CARRIER", moduleType)) return 1;
   int chargeCarrier = db()->getDouble(SctBrlSensor, "CARRIER", moduleType);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel Carge Carrier CARRIER mod_type("<<moduleType<<") = "<<chargeCarrier <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel Carge Carrier CARRIER mod_type("<<moduleType<<") = "<<chargeCarrier <<endmsg;
   return chargeCarrier;
 }
 
@@ -82,7 +82,7 @@ SCT_BarrelModuleParameters::baseBoardThickness(int moduleType) const
 {
   //sprintf(paraName, "BRL_M%d_BBTHICK", moduleType);
   double bbthick = db()->getDouble(SctBrlModule, "BASEBOARDTHICKNESS", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardThickness BBTHICK mod_typ("<<moduleType<<") = "<< bbthick <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardThickness BBTHICK mod_typ("<<moduleType<<") = "<< bbthick <<endmsg;
   return bbthick;
 }
 
@@ -90,13 +90,13 @@ double
 SCT_BarrelModuleParameters::baseBoardWidth(int moduleType) const 
 {
   double bbwidth = db()->getDouble(SctBrlModule, "BASEBOARDWIDTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardWidth BBWID mod_typ("<<moduleType<<") = "<< bbwidth <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardWidth BBWID mod_typ("<<moduleType<<") = "<< bbwidth <<endmsg;
   return bbwidth;
 }
 
 double SCT_BarrelModuleParameters::baseBoardLength(int moduleType) const{
   double bblength = db()->getDouble(SctBrlModule, "BASEBOARDLENGTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardLength BBLEN mod_typ("<<moduleType<<") = "<<bblength <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardLength BBLEN mod_typ("<<moduleType<<") = "<<bblength <<endmsg;
   return bblength;
 }
 
@@ -104,7 +104,7 @@ std::string
 SCT_BarrelModuleParameters::baseBoardMaterial(int moduleType) const 
 {
   std::string baseboardMaterial = db()->getString(SctBrlModule, "BASEBOARDMATERIAL", moduleType); 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel BASEBOARDMATERIAL_STRNG("<<moduleType<<") = "<<baseboardMaterial <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel BASEBOARDMATERIAL_STRNG("<<moduleType<<") = "<<baseboardMaterial <<endmsg;
   return baseboardMaterial;
 }
 double SCT_BarrelModuleParameters::baseBoardOffsetY(int /*moduleType*/) const{
@@ -142,7 +142,7 @@ double
 SCT_BarrelModuleParameters::barrelModelSideStripPitch(int moduleType) const
 {
   double pitch = db()->getDouble(SctBrlSensor, "STRIPPITCH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripPitch PITCH mod_typ("<<moduleType<<") = "<<pitch <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripPitch PITCH mod_typ("<<moduleType<<") = "<<pitch <<endmsg;
   return pitch;
 }
 
@@ -150,7 +150,7 @@ double
 SCT_BarrelModuleParameters::barrelModelSideStripLength(int moduleType) const
 {
   double stripLen =  db()->getDouble(SctBrlSensor, "STRIPLENGTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripLength STRIPLEN mod_typ("<<moduleType<<") = "<<stripLen <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripLength STRIPLEN mod_typ("<<moduleType<<") = "<<stripLen <<endmsg;
   return stripLen;
 }
 
@@ -158,7 +158,7 @@ double
 SCT_BarrelModuleParameters::barrelModelSideTotalDeadLength(int moduleType) const
 {
   double stripdeadLen = db()->getDouble(SctBrlSensor, "STRIPDEADLENGTH", moduleType) * CLHEP::mm;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideTotalDeadLength STRIPDEADLEN mod_typ("<<moduleType<<") = "<<stripdeadLen<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideTotalDeadLength STRIPDEADLEN mod_typ("<<moduleType<<") = "<<stripdeadLen<<endmsg;
   return stripdeadLen;
 }
 
@@ -199,7 +199,7 @@ int
 SCT_BarrelModuleParameters::barrelModelSideCells(int moduleType) const
 {
   int cells =  db()->getInt(SctBrlSensor, "NUMREADOUTSTRIPS", moduleType);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideCells NRO mod_typ("<<moduleType<<") = "<< cells <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideCells NRO mod_typ("<<moduleType<<") = "<< cells <<endmsg;
   return cells;
 }
 
@@ -213,7 +213,7 @@ double
 SCT_BarrelModuleParameters::barrelDeadEdge(int moduleType) const
 {
   double deadEdge = 0.5*(sensorLength(moduleType) - barrelModelSideStripLength(moduleType));
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelDeadEdge DEADED mod_typ("<<moduleType<<") = "<<deadEdge<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelDeadEdge DEADED mod_typ("<<moduleType<<") = "<<deadEdge<<endmsg;
   return deadEdge;
 }
 

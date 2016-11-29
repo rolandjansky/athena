@@ -38,7 +38,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -78,7 +78,7 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
 
   // Set Version information
   // Get the geometry tag
-  DecodeVersionKey versionKey(geoModelSvc(), "SCT");
+  DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
   IRDBRecordset_ptr switchSet
     = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
   const IRDBRecord    *switches   = (*switchSet)[0];
@@ -125,8 +125,8 @@ SCT_DetectorFactory::~SCT_DetectorFactory()
 
 void SCT_DetectorFactory::create(GeoPhysVol *world){ 
 
-  msg(MSG::INFO) << "Building Upgrade SCT Detector." << endreq;
-  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
+  msg(MSG::INFO) << "Building Upgrade SCT Detector." << endmsg;
+  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
   //Change precision (only because somewhere its being set to 2)
   int oldPrecision = std::cout.precision(6);
 
@@ -266,10 +266,10 @@ void SCT_DetectorFactory::create(GeoPhysVol *world){
 
     if (barrelServicesCylinderLength > 0 && materialIncreaseFactor > 0 && !barrelParameters->barrelServicesMaterial().empty()) {
       //double cf_density                          = 0.189*materialIncreaseFactor*CLHEP::g/CLHEP::cm3;
-      //msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" cf_density (CLHEP::g/CLHEP::cm3) "<<cf_density/(CLHEP::g/CLHEP::cm3) << endreq;
+      //msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" cf_density (CLHEP::g/CLHEP::cm3) "<<cf_density/(CLHEP::g/CLHEP::cm3) << endmsg;
       //const GeoMaterial* barrel_serivesMaterial = materials->getMaterial(barrelParameters->barrelServicesMaterial(), cf_density, "UpgradeSCTBarrel_ServicesMaterial");
       const GeoMaterial* barrel_serivesMaterial = materials->getMaterialScaled(barrelParameters->barrelServicesMaterial(), materialIncreaseFactor, "UpgradeSCTBarrel_ServicesMaterial");
-      msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" density (CLHEP::g/CLHEP::cm3) "<< barrel_serivesMaterial->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+      msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" density (CLHEP::g/CLHEP::cm3) "<< barrel_serivesMaterial->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
   
     
       const GeoTube*   barrelPos_servicesMaterialShape    = new GeoTube(inner_radius, outer_radius, 0.5*barrelServicesCylinderLength);
@@ -385,7 +385,7 @@ SCT_DetectorFactory::doChecks()
   const SCT_ID * idHelper = m_geometryManager->athenaComps()->getIdHelper();
   const SCT_DetectorManager * manager = m_detectorManager;
 
-  msg(MSG::INFO) << "Doing consistency checks." << endreq;
+  msg(MSG::INFO) << "Doing consistency checks." << endmsg;
 
   unsigned int maxHash = idHelper->wafer_hash_max();
 
@@ -396,15 +396,15 @@ SCT_DetectorFactory::doChecks()
     count++;
     const InDetDD::SiDetectorElement * element = *iter; 
     if (!element) {
-      msg(MSG::WARNING) << "MISSING ELEMENT!!!!!!!!!!! - Element # " << count-1 << endreq;
+      msg(MSG::WARNING) << "MISSING ELEMENT!!!!!!!!!!! - Element # " << count-1 << endmsg;
       missingCount++;
     }
   }
   
   if (missingCount) { 
-    msg(MSG::ERROR) << "There are missing elements in element array." << endreq;
-    msg(MSG::INFO) << "Number of elements: " << count << endreq;
-    msg(MSG::INFO) << "Number missing:     " << missingCount << endreq;
+    msg(MSG::ERROR) << "There are missing elements in element array." << endmsg;
+    msg(MSG::INFO) << "Number of elements: " << count << endmsg;
+    msg(MSG::INFO) << "Number missing:     " << missingCount << endmsg;
   } 
 
 
@@ -431,7 +431,7 @@ SCT_DetectorFactory::doChecks()
 	      ostr << "[2.2." << iBarrel << "." << iLayer << "." << iPhi << "." << iEta << "." << iSide << ".0]"; 
 	      if (!element) {
 		barrelCountError++;
-		msg(MSG::WARNING) << "   No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endreq;
+		msg(MSG::WARNING) << "   No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endmsg;
 	      }
 	    } // iSide
 	  } // iEta
@@ -458,7 +458,7 @@ SCT_DetectorFactory::doChecks()
 	      ostr << "[2.2." << iEndcap << "." << iDisk << "." << iPhi << "." << iEta << "." << iSide  << ".0]"; 
 	      if (!element) {
 		endcapCountError++;
-		msg(MSG::WARNING) << "    No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endreq;
+		msg(MSG::WARNING) << "    No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endmsg;
 	      }
 	    } // iSide
 	  } // iEta
@@ -468,17 +468,17 @@ SCT_DetectorFactory::doChecks()
   } // Endcap;
 
   if (barrelCountError || endcapCountError) {
-    msg(MSG::ERROR) << "There are elements which cannot be found."  << endreq;
-    msg(MSG::INFO) << "Number of barrel elements not found : " << barrelCountError << endreq;
-    msg(MSG::INFO) << "Number of endcap elements not found : " << endcapCountError << endreq;
+    msg(MSG::ERROR) << "There are elements which cannot be found."  << endmsg;
+    msg(MSG::INFO) << "Number of barrel elements not found : " << barrelCountError << endmsg;
+    msg(MSG::INFO) << "Number of endcap elements not found : " << endcapCountError << endmsg;
   }
 
   if ( barrelCount+endcapCount != int(maxHash)) { 
-     msg(MSG::ERROR) << "Total count does not match maxHash." << endreq;
-     msg(MSG::INFO) << "Number of barrel elements : " << barrelCount << endreq;
-     msg(MSG::INFO) << "Number of endcap elements : " << endcapCount << endreq;
-     msg(MSG::INFO) << "Total                     : " << barrelCount+endcapCount << endreq;
-     msg(MSG::INFO) << "MaxHash                   : " << maxHash << endreq;
+     msg(MSG::ERROR) << "Total count does not match maxHash." << endmsg;
+     msg(MSG::INFO) << "Number of barrel elements : " << barrelCount << endmsg;
+     msg(MSG::INFO) << "Number of endcap elements : " << endcapCount << endmsg;
+     msg(MSG::INFO) << "Total                     : " << barrelCount+endcapCount << endmsg;
+     msg(MSG::INFO) << "MaxHash                   : " << maxHash << endmsg;
   }
 }
 

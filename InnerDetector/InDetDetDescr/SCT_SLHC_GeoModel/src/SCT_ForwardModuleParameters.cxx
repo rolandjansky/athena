@@ -26,7 +26,7 @@ SCT_ForwardModuleParameters::SCT_ForwardModuleParameters(const SCT_DataBase * sc
     SctFwdSpine   = sctdb->fwdSpine();
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"========== Initialize Database Forward Modules Parameters =======" 
-					    << endreq;
+					    << endmsg;
   }
 }
 
@@ -128,7 +128,7 @@ SCT_ForwardModuleParameters::fwdSensorChargeCarrier(int iModuleType) const
 {
   if (!db()->testField(SctFwdSensor, "CARRIER", iModuleType)) return 1;
   int chargeCarrier = db()->getDouble(SctFwdSensor, "CARRIER", iModuleType);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Fwd Charge Carrier CARRIER mod_type("<<iModuleType<<") = "<<chargeCarrier <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Fwd Charge Carrier CARRIER mod_type("<<iModuleType<<") = "<<chargeCarrier <<endmsg;
   return chargeCarrier;
 }
 
