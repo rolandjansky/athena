@@ -18,7 +18,7 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "GeometryDBSvc/IGeometryDBSvc.h"
@@ -45,7 +45,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
     m_bcmTool(""),
     m_blmTool(""),
     m_serviceBuilderTool(""),
-    m_geoModelSvc("GeoModelSvc",name),
+    m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
@@ -62,9 +62,9 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("BCM_Tool", m_bcmTool);
   declareProperty("BLM_Tool", m_blmTool);
   declareProperty("ServiceBuilderTool", m_serviceBuilderTool);
+  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
   declareProperty("OverrideVersionName", m_overrideVersionName);
 }
@@ -94,13 +94,13 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
    
 
   // Get the detector configuration.
-  StatusCode sc = m_geoModelSvc.retrieve();
+  StatusCode sc = m_geoDbTagSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-    return (StatusCode::FAILURE); 
-  }  
- 
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
+    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
+    return (StatusCode::FAILURE);
+  } 
+  
+  DecodeVersionKey versionKey(&*m_geoDbTagSvc, "Pixel");
 
   msg(MSG::INFO) << "Building Pixel Detector with Version Tag: " << versionKey.tag() << " at Node: " 
 		 << versionKey.node() << endmsg;
@@ -220,7 +220,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // Pass athena services to factory, etc
     m_athenaComps = new PixelGeoModelAthenaComps;
     m_athenaComps->setDetStore(detStore);
-    m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
+    m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);

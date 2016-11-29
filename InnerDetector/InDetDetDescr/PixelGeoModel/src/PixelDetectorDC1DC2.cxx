@@ -1715,7 +1715,6 @@ void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
 
 // Joe's Material Manager
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 //
@@ -1769,12 +1768,8 @@ OraclePixGeoManager::OraclePixGeoManager()
   if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
 
 
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-
   // Get version tag and node for Pixel.
-  DecodeVersionKey versionKey(geoModel, "Pixel");
+  DecodeVersionKey versionKey("Pixel");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
@@ -1789,7 +1784,8 @@ OraclePixGeoManager::OraclePixGeoManager()
 
   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endmsg;
 
-  atls = rdbSvc->getRecordsetPtr("AtlasMother",geoModel->atlasVersion(), "ATLAS");
+  DecodeVersionKey versionKeyAtlas("Pixel");
+  atls = rdbSvc->getRecordsetPtr("AtlasMother",versionKeyAtlas.tag(), versionKeyAtlas.node());
   PixelBarrelGeneral = rdbSvc->getRecordsetPtr("PixelBarrelGeneral",     detectorKey, detectorNode);
   PixelBarrelService = rdbSvc->getRecordsetPtr("PixelBarrelService",     detectorKey, detectorNode);
   PixelCommon        = rdbSvc->getRecordsetPtr("PixelCommon",            detectorKey, detectorNode);

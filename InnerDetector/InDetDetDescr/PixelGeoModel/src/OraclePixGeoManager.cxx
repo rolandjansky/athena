@@ -14,7 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
@@ -80,15 +80,15 @@ OraclePixGeoManager::init()
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
   IRDBAccessSvc *rdbSvc = athenaComps()->rdbAccessSvc();
-  IGeoModelSvc *geoModel = athenaComps()->geoModelSvc();;
+  IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
 
   // Get version tag and node for Pixel.
-  DecodeVersionKey versionKey(geoModel, "Pixel");
+  DecodeVersionKey versionKey(geoDbTag,"Pixel");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
-  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey indetVersionKey(geoDbTag,"InnerDetector");
 
   m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
 

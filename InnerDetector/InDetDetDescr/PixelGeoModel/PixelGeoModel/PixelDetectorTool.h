@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class PixelGeoModelAthenaComps;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class ISiLorentzAngleSvc;
@@ -55,7 +55,7 @@ private:
   ToolHandle< IGeoSubDetTool > m_bcmTool;
   ToolHandle< IGeoSubDetTool > m_blmTool;
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
