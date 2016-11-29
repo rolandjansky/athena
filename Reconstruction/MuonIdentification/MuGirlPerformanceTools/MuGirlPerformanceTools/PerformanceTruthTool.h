@@ -46,24 +46,24 @@ public:
     virtual ~PerformanceTruthTool ();
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
-    virtual StatusCode printParticle(int i);
-    virtual StatusCode getTruthMuons(TruthMuonList& truthMuonList);
+    virtual StatusCode finalize  () override;
+    virtual StatusCode printParticle(int i) override;
+    virtual StatusCode getTruthMuons(TruthMuonList& truthMuonList) override;
     //virtual StatusCode getTruthTrack(const Rec::TrackParticle* pParticle, TruthTrack& truthTrack);
-    virtual StatusCode getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack,CandidateSummary* summary);
-    virtual StatusCode bookNTuple(NTuple::Tuple* pNTuple);
-    virtual StatusCode fillNTuple(CandidateSummary* summary);
+    virtual StatusCode getTruthTrack(const xAOD::TrackParticle* pParticle, TruthTrack& truthTrack,CandidateSummary* summary) const override;
+    virtual StatusCode bookNTuple(NTuple::Tuple* pNTuple) override;
+    virtual StatusCode fillNTuple(CandidateSummary* summary) override;
     //virtual StatusCode fillNTuple(const Rec::TrackParticle* pParticle, CandidateSummary* summary=NULL);
 
-    virtual StatusCode getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack, CandidateSummary* summary); 	 
-    virtual StatusCode getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack, CandidateSummary* summary); 	 
+    virtual StatusCode getTruthTrack(const MuonFeature* muonFeature, TruthTrack& truthTrack, CandidateSummary* summary) const override;
+    virtual StatusCode getTruthTrack(const TrigMuonEFTrack* muonEFTrack, TruthTrack& truthTrack, CandidateSummary* summary) const override;
 
     /** member variables for algorithm properties: */
 private:
-    ToolHandle<ITruthParameters>    m_truthParameters;
-    const McEventCollection*        m_pMcEventCollection;
+    // FIXME: mutable
+    mutable ToolHandle<ITruthParameters>    m_truthParameters;
 
     StringProperty m_sTrackRecordCollection; /**< The name of the track record collection in the store */
     StringProperty m_sMcEventCollection;
