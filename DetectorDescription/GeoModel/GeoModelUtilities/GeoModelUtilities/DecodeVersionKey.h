@@ -7,6 +7,7 @@
 
 #include <string>
 class IGeoModelSvc;
+class IGeoDbTagSvc;
 
 /// This is a helper class to query the version tags from GeoModelSvc and
 /// determine the appropriate tag and node to pass to RDBAccessServer.
@@ -21,6 +22,9 @@ class DecodeVersionKey
   /// for which you want the tag. 
   /// Possible nodes are ATLAS, InnerDetector, Pixel, SCT, TRT, LAr, TileCal, or MuonSpectrometer.
   DecodeVersionKey(const IGeoModelSvc *, const std::string & node);
+  // Overloading the constructor to allow adiabatic migration of clients away from the IGeoModelSvc
+  DecodeVersionKey(const IGeoDbTagSvc *, const std::string & node);
+  DecodeVersionKey(const std::string & node);
   
   /// Return version tag 
   const std::string & tag() const;
@@ -32,7 +36,10 @@ class DecodeVersionKey
   bool custom() const;
 
  private:
-  
+
+  template <class T>
+    void defineTag(const T* svc, const std::string & node);
+
   // utilily for dealing with CUSTOM tags.
   bool getCustomTag(const std::string & inputTag, std::string & outputTag);
 
