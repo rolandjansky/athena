@@ -228,9 +228,9 @@ std::vector<double> ServiceVolumeMakerMgr::readLayerShift() const
   std::vector<double> layerShift;
 
   IRDBAccessSvc *rdbSvc = m_athenaComps->rdbAccessSvc();
-  IGeoModelSvc *geoModel = m_athenaComps->geoModelSvc();
+  IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
 
-  DecodeVersionKey versionKey(geoModel, "Pixel");
+  DecodeVersionKey versionKey(geoDbTag,"Pixel");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 

@@ -285,7 +285,7 @@ ServiceVolume::getShape() const {
     double w2 = 0.5*m_phiWidth*m_rmax/averad;
     serviceShape = new GeoTrap(halflength, 0, 0, thickness, w1, w2, 0, thickness, w1, w2, 0);
   } else {
-    // msg(MSG::ERROR) << "Unrecognized shape for services" << m_shapeType << endreq;
+    // msg(MSG::ERROR) << "Unrecognized shape for services" << m_shapeType << endmsg;
     std::cout << "ServiceVolume: ERROR: Unrecognized shape for services" << m_shapeType << std::endl;
   }    
 

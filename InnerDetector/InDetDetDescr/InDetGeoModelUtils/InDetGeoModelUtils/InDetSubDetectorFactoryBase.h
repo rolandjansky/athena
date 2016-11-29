@@ -9,7 +9,7 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
 class StoreGateSvc;
-class IGeoModelSvc;
+class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class InDetMaterialManager;
 
@@ -36,7 +36,7 @@ public:
 
   StoreGateSvc * detStore() const {return m_athenaComps->detStore();}
 
-  IGeoModelSvc * geoModelSvc() const {return m_athenaComps->geoModelSvc();}
+  IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
   IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
   

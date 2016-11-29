@@ -103,6 +103,10 @@ namespace InDetDD {
     virtual bool inSide(const Point & point) const;
     virtual Point findEntry(const Ray & ray) const;
     virtual Point findExit(const Ray & ray) const;
+    virtual double getRmin() const { return m_rmin; }
+    virtual double getRmax() const { return m_rmax; }
+    virtual double getZmin() const { return m_zmin; }
+    virtual double getZmax() const { return m_zmax; }
   private:
     bool inR(double r) const;
     bool inZ(double z) const;
