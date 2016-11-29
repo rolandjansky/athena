@@ -5,19 +5,18 @@
 #ifndef TFCSFunction_h
 #define TFCSFunction_h
 
-#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
+//#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
 
-class TFCSFunction {
+class TFCSFunction
+{
   public:
-    static TFCS1DFunction* Create(TH1* hist);
+    TFCSFunction();
     virtual ~TFCSFunction() {}
+    static TFCS1DFunction* Create(TH1* hist,int,int,int,double,double,int);
   private:
 
-  ClassDef(TFCSFunction,1)  //TFCSFunction
+  ClassDef(TFCSFunction,1)
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSFunction;
-#endif
 
 #endif

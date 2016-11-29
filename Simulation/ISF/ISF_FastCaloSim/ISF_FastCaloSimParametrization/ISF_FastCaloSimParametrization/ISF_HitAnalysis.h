@@ -25,9 +25,9 @@
 #include "TrkParameters/TrackParameters.h"
 //#####################################
 
-#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimParametrization/FastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 namespace Trk {
   class TrackingVolume;
@@ -77,7 +77,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
    //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
    bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
    bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
@@ -216,9 +215,9 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double zmid(int sample,double eta) const;
    double zent(int sample,double eta) const;
    double zext(int sample,double eta) const;
-   double rpos(int sample,double eta,int subpos=SUBPOS_MID) const;
-   double zpos(int sample,double eta,int subpos=SUBPOS_MID) const;
-   double rzpos(int sample,double eta,int subpos=SUBPOS_MID) const;
+   double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+   double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+   double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
    
    bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
    double m_letaCalo[CaloCell_ID_FCS::MaxSample][3];

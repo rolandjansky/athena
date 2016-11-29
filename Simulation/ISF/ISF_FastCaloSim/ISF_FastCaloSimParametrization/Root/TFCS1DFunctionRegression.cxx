@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+using namespace std;
 #include "ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h"
 
 #include "TMVA/Config.h"
@@ -11,25 +12,15 @@
 #include "TRandom3.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TMath.h"
+
 #include "TMVA/IMethod.h"
 #include "TMVA/MethodMLP.h"
-#include "TMath.h"
 
 
 //=============================================
 //======= TFCS1DFunctionRegression =========
 //=============================================
-
-using namespace std;
-
-namespace {
-class MethodMLPNetworkGetter
-  : public TMVA::MethodMLP
-{
-public:
-  using TMVA::MethodMLP::fNetwork;
-};
-}
 
 TFCS1DFunctionRegression::TFCS1DFunctionRegression()
 {
@@ -38,25 +29,17 @@ TFCS1DFunctionRegression::TFCS1DFunctionRegression()
 TFCS1DFunctionRegression::TFCS1DFunctionRegression(TH1* hist)
 {
 	
-	cout<<"IN TFCS1DFunctionRegression"<<endl;
   Initialize(hist);
   
 }
 
-TFCS1DFunctionRegression::TFCS1DFunctionRegression(string weightfilename)
-{
-	
-	cout<<"IN TFCS1DFunctionRegression"<<endl;
-  Initialize(weightfilename);
-  
-}
 
 void TFCS1DFunctionRegression::Initialize(TH1* /*hist*/)
 {
  //not needed
 }
 
-void TFCS1DFunctionRegression::Initialize(string weightfilename)
+void TFCS1DFunctionRegression::storeRegression(string weightfilename)
 {
   
 	get_weights(weightfilename);
@@ -73,7 +56,8 @@ void TFCS1DFunctionRegression::validate(int Ntoys,string weightfilename)
  TRandom* myRandom=new TRandom3(); myRandom->SetSeed(0);
  
  //calculate regression from the weights and compare to TMVA value:
- cout<<"Validating the regression value:"<<endl;
+ cout<<endl;
+ cout<<"--- Validating the regression value:"<<endl;
  for(int i=0;i<Ntoys;i++)
  {
   double random=myRandom->Uniform(1);
@@ -83,10 +67,11 @@ void TFCS1DFunctionRegression::validate(int Ntoys,string weightfilename)
 }
 
 
-
-
-void TFCS1DFunctionRegression::get_weights(string weightfile)
+void TFCS1DFunctionRegression::get_weights(string /*weightfile*/)
 {
+
+/*
+
  using namespace TMVA;
  int debug=1;
  
@@ -142,13 +127,12 @@ void TFCS1DFunctionRegression::get_weights(string weightfile)
  
  TMVA::IMethod* m=reader->FindMVA("MLP method");
  TMVA::MethodMLP *mlp = dynamic_cast<TMVA::MethodMLP*>(m);
- TObjArray* Network=reinterpret_cast<MethodMLPNetworkGetter*>(mlp)->fNetwork;
- 
+ TObjArray* Network=mlp->fNetwork;
  int num_neurons_input=((TObjArray*)Network->At(1))->GetEntriesFast()-1;
  if(debug) cout<<"num_neurons_input "<<num_neurons_input<<endl;
+// mlp->MakeClass(Form("mlpcode_neurons%i.C",num_neurons_input));
  
  int fLayers = Network->GetEntriesFast();
- if(fLayers!=3) cout<<"!!!!!!!!!! fLayers is not 3 !!!!!!!!!"<<endl;
  
  for(int a=0;a<((TObjArray*)Network->At(1))->GetEntriesFast();a++)
  {
@@ -171,11 +155,11 @@ void TFCS1DFunctionRegression::get_weights(string weightfile)
  Int_t numNeurons = curLayer->GetEntriesFast();
  for (Int_t n = 0; n < numNeurons; n++)
  {  
-  TNeuron* neuron = (TNeuron*)curLayer->At(n);
+  TMVA::TNeuron* neuron = (TMVA::TNeuron*)curLayer->At(n);
   int numSynapses = neuron->NumPostLinks();
   for (int s = 0; s < numSynapses; s++)
   {
-   TSynapse* synapse = neuron->PostLinkAt(s);  
+   TMVA::TSynapse* synapse = neuron->PostLinkAt(s);  
    m_fWeightMatrix0to1[s][n]=synapse->GetWeight();
    if(debug) cout<<"fWeightMatrix0to1["<<s<<"]["<<n<<"] "<<synapse->GetWeight()<<endl;
   }
@@ -185,17 +169,19 @@ void TFCS1DFunctionRegression::get_weights(string weightfile)
  numNeurons = curLayer->GetEntriesFast();
  for (Int_t n = 0; n < numNeurons; n++)
  {  
-  TNeuron* neuron = (TNeuron*)curLayer->At(n);
+  TMVA::TNeuron* neuron = (TMVA::TNeuron*)curLayer->At(n);
   int numSynapses = neuron->NumPostLinks();
   for (int s = 0; s < numSynapses; s++)
   {
-   TSynapse* synapse = neuron->PostLinkAt(s);  
+   TMVA::TSynapse* synapse = neuron->PostLinkAt(s);  
    m_fWeightMatrix1to2[s][n]=synapse->GetWeight();
    if(debug) cout<<"fWeightMatrix1to2["<<s<<"]["<<n<<"] "<<synapse->GetWeight()<<endl;
   }
  }
  
  delete reader;
+
+*/
  
 }
 
@@ -263,6 +249,7 @@ double TFCS1DFunctionRegression::rnd_to_fct(double rnd)
   return value;
   
 }
+
 
 //=============================================
 //========== ROOT persistency stuff ===========
