@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 785787 2016-11-22 16:43:17Z wsfreund $
+// $Id: xAODRingSetConfWriter.cxx 786303 2016-11-24 13:38:29Z wsfreund $
 
 // STL include(s)
 #include <algorithm>
@@ -95,12 +95,16 @@ StatusCode xAODRingSetConfWriter::initialize() {
 
   // Now work to set xAOD RingSet/CaloRings configuration metadata available on
   // the output meta store:
-  CHECK( copyInputMetaStore() );
   CHECK( retrieveCaloRingsBuilders() );
   CHECK( allocateContainers() );
   CHECK( fillConfigurations() );
 
+  // NOTE: This must be called after fillConfigurations, otherwise it will
+  // attempt to fill those configurations retrieven from the builders.
+  CHECK( copyInputMetaStore() );
+
   // Print-out configurations:
+  ATH_MSG_DEBUG("There are available a total of " << m_rsConfContVec.size() << " RingSetConfContainer(s).");
   for ( const auto* c : m_rsConfContVec ) {
     if ( nullptr != c ) {
       if ( msg().level() <= MSG::DEBUG ) {
@@ -191,7 +195,15 @@ StatusCode xAODRingSetConfWriter::copyKeyToStore( const std::string &key )
   contCopy->reserve( cont->size() );
   contAuxCopy->reserve( cont->size() );
   for ( value_type obj : *cont ) {
+    // Print-out object:
+    ATH_MSG_DEBUG("Original object with key: " << key);
+    obj->print( msg(), MSG::DEBUG ); 
+    // Copy object
     value_type objCopy = new (base_value_type)( *obj );
+    // Print-out object:
+    ATH_MSG_DEBUG("Copied object which will be recorded with same key: " << key);
+    objCopy->print( msg(), MSG::DEBUG ); 
+    // Add to container
     contCopy->push_back( objCopy );
   }
   

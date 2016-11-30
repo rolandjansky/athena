@@ -4,7 +4,7 @@
 # File:  CaloRingerAlgs/python/CaloRingerFlags.py
 #=======================================================================
 __author__  = 'W. S. Freund'
-__version__="$Revision: 785787 $"
+__version__="$Revision: 785784 $"
 __doc__="CaloRinger flags."
 
 
