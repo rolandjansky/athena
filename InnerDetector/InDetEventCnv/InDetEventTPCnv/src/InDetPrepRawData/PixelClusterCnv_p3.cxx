@@ -125,7 +125,7 @@ persToTrans( const InDet::PixelCluster_p3 *persObj, InDet::PixelCluster *transOb
 
 void PixelClusterCnv_p3::transToPers( const InDet::PixelCluster *transObj, InDet::PixelCluster_p3 *persObj, MsgStream &log )
 {
-//   log << MSG::VERBOSE << "In PixelCluster::transToPers" << endreq;
+//   log << MSG::VERBOSE << "In PixelCluster::transToPers" << endmsg;
   m_swCnv.transToPers(&transObj->width(), &persObj->m_width, log);
 
   // base class:

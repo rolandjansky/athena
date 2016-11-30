@@ -57,11 +57,11 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
+//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const InDet::PixelClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -77,7 +77,7 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing PixelClusterContainer ***" << endreq;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing PixelClusterContainer ***" << endmsg;
 }
 
 void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::PixelClusterContainer* transCont, MsgStream &log) 
@@ -103,7 +103,7 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
     PixelClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of PixelCluster (SG::VIEW_ELEMENTS)
@@ -131,11 +131,11 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         }
 //         if (log.level() <= MSG::DEBUG) {
 //             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endreq;
+// collID.get_compact() << ", added to Identifiable container." << endmsg;
 //         }
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading PixelClusterContainer" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading PixelClusterContainer" << endmsg;
 }
 
 
@@ -145,7 +145,7 @@ InDet::PixelClusterContainer* InDet::PixelClusterContainerCnv_p1::createTransien
 {
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p1 " << endmsg;
      } 
     }
     std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
@@ -162,7 +162,7 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -170,29 +170,29 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
    // Get the pixel helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+      log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endreq;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
    //   }
 
    sc = detStore->retrieve(m_pixMgr);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
       return sc;
    }
 
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }

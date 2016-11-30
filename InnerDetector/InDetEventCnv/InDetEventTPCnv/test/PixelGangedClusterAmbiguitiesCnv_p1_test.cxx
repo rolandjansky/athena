@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguitiesCnv_p1.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "SGTools/TestStore.h"
@@ -61,7 +62,7 @@ public:
   virtual bool is_thinned_impl(const SG::DataProxy* /*p*/) const override { std::abort(); }
 
   std::size_t index_impl( const SG::DataProxy* /*objProxy*/, 
-                          std::size_t idx ) const 
+                          std::size_t idx ) const override
   {
     map_t::const_iterator i = m_map.find (idx);
     if (i != m_map.end())
@@ -103,6 +104,7 @@ void testit (const InDet::PixelGangedClusterAmbiguities& trans1)
 void test1 (const InDet::PixelClusterContainer& cont)
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   const InDet::PixelClusterCollection& coll = **cont.indexFind(3);
 

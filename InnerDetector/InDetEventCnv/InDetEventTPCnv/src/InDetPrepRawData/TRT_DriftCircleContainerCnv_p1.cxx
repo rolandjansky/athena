@@ -56,7 +56,7 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
@@ -75,7 +75,7 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing TRT_DriftCircleContainer ***" << endreq;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing TRT_DriftCircleContainer ***" << endmsg;
 }
 
 void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::TRT_DriftCircleContainer* transCont, MsgStream &log) 
@@ -101,7 +101,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
     TRT_DriftCircleCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of TRT_DriftCircle (SG::VIEW_ELEMENTS)
@@ -131,11 +131,11 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
         }
 //         if (log.level() <= MSG::DEBUG) {
 //             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endreq;
+// collID.get_compact() << ", added to Identifiable container." << endmsg;
 //         }
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading TRT_DriftCircleContainer" << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading TRT_DriftCircleContainer" << endmsg;
 }
 
 
@@ -144,7 +144,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
 InDet::TRT_DriftCircleContainer* InDet::TRT_DriftCircleContainerCnv_p1::createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log) {
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p1 " << endmsg;
      } 
     }
     std::auto_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->module_hash_max()));

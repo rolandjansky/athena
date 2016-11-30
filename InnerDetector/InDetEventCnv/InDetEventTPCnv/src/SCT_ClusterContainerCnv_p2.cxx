@@ -62,7 +62,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
     //to retrieve the SCT_ID helper
     if(!m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
-	log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endreq;
+	log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
       }
     }
 
@@ -80,7 +80,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
     persCont->m_rawdata.resize(totSize);
     persCont->m_prdDeltaId.resize(totSize);
 
-    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
     //for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
     for (collIndex = 0, it_Coll=transCont->begin(); it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
@@ -91,9 +91,9 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
 	unsigned int deltaId = (collection.identifyHash()-idLast);
 	//        unsigned int deltaId = (collection.identify().get_compact()-idLast)/IDJUMP;
         // if(deltaId*IDJUMP != collection.identify().get_compact()-idLast ) 
-        //   log << MSG::FATAL << "THere is a mistake in Identifiers of the collection" << endreq;
+        //   log << MSG::FATAL << "THere is a mistake in Identifiers of the collection" << endmsg;
         // if(deltaId > 0xFFFF) {
-        //   log << MSG::FATAL << "Fixme!!! This is too big, something needs to be done " << endreq;
+        //   log << MSG::FATAL << "Fixme!!! This is too big, something needs to be done " << endmsg;
         // }
         // pcollection.m_idDelta = (unsigned short) deltaId;
         // idLast = collection.identify().get_compact(); // then update the last identifier 
@@ -103,7 +103,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
         // Add in channels
         //persCont->m_rawdata.resize(chanEnd);
         //persCont->m_prdDeltaId.resize(chanEnd);
-	//        if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endreq;
+	//        if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endmsg;
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDet::SCT_Cluster_p2* pchan = &(persCont->m_rawdata[i + chanBegin]);
             const InDet::SCT_Cluster* chan = dynamic_cast<const InDet::SCT_Cluster*>(collection[i]);
@@ -112,7 +112,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
 	    persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
         }
     }
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::SCT_ClusterContainer" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::SCT_ClusterContainer" << endmsg;
 }
 
 void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_p2* persCont, InDet::SCT_ClusterContainer* transCont, MsgStream &log) 
@@ -141,7 +141,7 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
     // this is the id of the latest collection read in
     // This starts from the base of the TRT identifiers
     unsigned int idLast(0);
-    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - in NOT owner of SCT_DriftCircle (SG::VIEW_ELEMENTS)
@@ -159,7 +159,7 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
         // Fill with channels:
         // This is used to read the vector of errMat
         // values and lenght of the value are specified in separate vectors
-        //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endreq;
+        //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endmsg;
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::SCT_Cluster_p2* pchan = &(persCont->m_rawdata[ichan + collBegin]);
 	    Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
@@ -179,21 +179,21 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
             throw std::runtime_error("Failed to add collection to ID Container");
         }
 	//        if (log.level() <= MSG::DEBUG) {
-	//            log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << collID << ", added to Identifiable container." << endreq;
+	//            log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << collID << ", added to Identifiable container." << endmsg;
 	//        }
     }
 
-    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endreq;
+    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endmsg;
 }
 
 
 
 //================================================================
 InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p2::createTransient(const InDet::SCT_ClusterContainer_p2* persObj, MsgStream& log) {
-    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterContainerCnv_p2::createTransient called " << endreq;
+    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterContainerCnv_p2::createTransient called " << endmsg;
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endreq;
+      log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
      }
     }
     std::auto_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()));
@@ -205,13 +205,13 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p2::createTransient(const I
 StatusCode SCT_ClusterContainerCnv_p2::initialize(MsgStream &log) {
    // Do not initialize again:
    m_isInitialized=true;
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterContainerCnv_p2::initialize called " << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterContainerCnv_p2::initialize called " << endmsg;
    // Get Storegate, ID helpers, and so on
    ISvcLocator* svcLocator = Gaudi::svcLocator();
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -219,30 +219,30 @@ StatusCode SCT_ClusterContainerCnv_p2::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
    // Get the sct helper from the detector store
    sc = detStore->retrieve(m_sctId, "SCT_ID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_ID helper !" << endreq;
+      log << MSG::FATAL << "Could not get SCT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endreq;
+   //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
    sc = detStore->retrieve(m_sctMgr);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endreq;
+      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endmsg;
       return sc;
    }
 
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }
 

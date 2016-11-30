@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p1.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -86,6 +87,7 @@ void testit (const InDet::PixelCluster& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D locpos (1.5, 2.5);
   std::vector<Identifier> rdoList { Identifier(54436),

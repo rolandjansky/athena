@@ -46,7 +46,7 @@ void SCT_ClusterOnTrackCnv_p2::persToTrans( const InDet::SCT_ClusterOnTrack_p2 *
     if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << transObj->identify()<<"/"<<transObj->idDE()<<endreq;
+            << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;
 
 }
 

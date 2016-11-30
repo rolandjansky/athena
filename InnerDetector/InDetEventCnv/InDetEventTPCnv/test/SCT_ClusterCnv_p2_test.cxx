@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "CxxUtils/make_unique.h"
@@ -77,6 +78,7 @@ void testit (const SCT_ID& sct_id, const InDet::SCT_Cluster& trans1)
 void test1 (const SCT_ID& sct_id)
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D locpos (1.5, 2.5);
   std::vector<Identifier> rdoList { Identifier(5432),

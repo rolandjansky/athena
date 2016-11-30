@@ -19,7 +19,7 @@ persToTrans( const InDet::PixelClusterOnTrack_p1 *persObj,
 {
    if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-       log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p1 " << endreq;
+       log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p1 " << endmsg;
      }
    }
 

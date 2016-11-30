@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/SiWidthCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -41,6 +42,7 @@ void testit (const InDet::SiWidth& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   InDet::SiWidth trans1 (Amg::Vector2D (1, 2),
                          Amg::Vector2D (3.5, 4.5));

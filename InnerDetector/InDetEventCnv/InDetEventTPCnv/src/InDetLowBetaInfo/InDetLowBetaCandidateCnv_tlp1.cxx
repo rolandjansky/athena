@@ -26,7 +26,7 @@ void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToT
 void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::transToPers(const InDet::InDetLowBetaCandidate *trans,
 										     InDetLowBetaCandidate_tlp1 *pers,
 										     MsgStream &msg) {
-//  if (log.level() <= MSG::DEBUG)  msg << MSG::DEBUG << "::transToPers called " << endreq;
+//  if (log.level() <= MSG::DEBUG)  msg << MSG::DEBUG << "::transToPers called " << endmsg;
   this->setTLPersObject(pers);
   m_mainConverter.virt_toPersistent(trans, msg);
   this->clearTLPersObject();
