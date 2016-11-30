@@ -78,7 +78,6 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     inname = "CutBookkeepers"
     outname = "FileBookkeepers"
     cutflowtool = BookkeeperTool(outname,
-                                 OutputLevel = 2, 
                                  InputCollName = inname,
                                  OutputCollName= outname) 
     svcMgr.ToolSvc += cutflowtool
@@ -95,14 +94,12 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         # PDF
         name = "PDFSumOfWeights"
         pdfweighttool = BookkeeperTool(name,
-                                       OutputLevel = 2, 
                                        OutputCollName= name, 
                                        InputCollName = name)
         svcMgr.ToolSvc += pdfweighttool
 
         # Add tool to MetaDataSvc
         svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
-
 
     # Check if we have a sequence given
     if not seq :

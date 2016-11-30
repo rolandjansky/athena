@@ -169,37 +169,20 @@ StatusCode BookkeeperTool::endInputFile()
 
   // Get the tmp bookkeeper from the input
   const xAOD::CutBookkeeperContainer* tmpCompleteBook(NULL);
-  if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
-    ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore" );
-  }
-  else {
-    // update the complete output with the complete input
-    ATH_CHECK(this->updateContainer(completeBook,tmpCompleteBook));
-    // remove the tmp container
-    const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
-    ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
-    ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
-  }
-
-/*
-  if (!m_cutflowTaken) {
-    // Get the bookkeeper from the current processing
-    const xAOD::CutBookkeeperContainer* fileCompleteBook(NULL);
-    if( !(outputMetaStore()->retrieve( fileCompleteBook, m_cutflowCollName) ).isSuccess() ) {
-      ATH_MSG_WARNING( "Could not get CutFlowSvc CutBookkeepers from output MetaDataStore" );
+  if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName+"tmp") ) {
+    if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
+      ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore" );
     }
     else {
       // update the complete output with the complete input
-      ATH_CHECK(this->updateContainer(completeBook,fileCompleteBook));
-      // Set flag for cutflow container to false
-      m_cutflowTaken = true;
+      ATH_CHECK(this->updateContainer(completeBook,tmpCompleteBook));
+      // remove the tmp container
+      const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
     }
   }
-  else {
-    ATH_MSG_DEBUG("Cutflow information written into container before endInputFile");
-  }
 
-*/
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
       ATH_MSG_ERROR("Could not add CutFlow information");
@@ -231,36 +214,20 @@ StatusCode BookkeeperTool::metaDataStop()
 
   // Get the tmp bookkeeper from the input
   const xAOD::CutBookkeeperContainer* tmpCompleteBook(NULL);
-  if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
-    ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore for " << m_outputCollName+"tmp");
-  }
-  else {
-    // update the complete output with the complete input
-    ATH_CHECK(this->updateContainer(incompleteBook,tmpCompleteBook));
-    // remove the tmp container
-    const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
-    ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
-    ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
-  }
-
-/*
-  if (!m_cutflowTaken) {
-    // Get the bookkeeper from the current processing
-    const xAOD::CutBookkeeperContainer* fileCompleteBook(NULL);
-    if( !(outputMetaStore()->retrieve( fileCompleteBook, m_cutflowCollName) ).isSuccess() ) {
-      ATH_MSG_WARNING( "Could not get CutFlowSvc CutBookkeepers from output MetaDataStore" );
+  if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName+"tmp") ) {
+    if( !(outputMetaStore()->retrieve( tmpCompleteBook, m_outputCollName+"tmp") ).isSuccess() ) {
+      ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore for " << m_outputCollName+"tmp");
     }
     else {
       // update the complete output with the complete input
-      ATH_CHECK(this->updateContainer(incompleteBook,fileCompleteBook));
-      // Set flag for cutflow container to false
-      m_cutflowTaken = true;
+      ATH_CHECK(this->updateContainer(incompleteBook,tmpCompleteBook));
+      // remove the tmp container
+      const SG::IConstAuxStore* tmpCompleteBookAux = tmpCompleteBook->getConstStore();
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBook));
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpCompleteBookAux));
     }
   }
-  else {
-    ATH_MSG_DEBUG("Cutflow information written into container before metaDataStop");
-  }
-*/  
+
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
       ATH_MSG_ERROR("Could not add CutFlow information");
