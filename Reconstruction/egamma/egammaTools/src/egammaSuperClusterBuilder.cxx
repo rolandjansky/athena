@@ -251,26 +251,16 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
    // calculate the seed cluster kinematics.
    CaloClusterKineHelper::calculateKine(newCluster, true, true);
    //
-   //
-   //Set the raw eta/phi of the seed cell, here defined as the hottest cell 
-   //of the seed cluster in the sampling with most energy (if in both)
 
-   double etaSeed0=-999;
-   double phiSeed0=-999;
-   const bool isBarrel = xAOD::EgammaHelpers::isBarrel(newCluster);
-   const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
-   if (mgr) {
-     CaloSampling::CaloSample sample = isBarrel ? CaloSampling::EMB2:CaloSampling::EME2;
-     CaloCell_ID::CaloSample xsample = isBarrel ? CaloCell_ID::EMB2 :CaloCell_ID::EME2;
-     const CaloDetDescrElement* dde = mgr->get_element (xsample, newCluster->etamax(sample), newCluster->phimax(sample));
-     if(dde){
-       etaSeed0=dde->eta_raw();
-       phiSeed0=dde->phi_raw();
-     }
+   //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
+   if (!newCluster->hasSampling(CaloSampling::EMB2) &&  !newCluster->hasSampling(CaloSampling::EME2)) {
+     ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
+       delete newCluster;
+       return nullptr;     
    }
-   newCluster->setEta0(etaSeed0);
-   newCluster->setPhi0(phiSeed0);
-   //
+   //Set the eta0/phi0 based on the 2nd layer of the seed cluster above 
+   newCluster->setEta0(newCluster->etaBE(2));
+   newCluster->setPhi0(newCluster->phiBE(2));
    //
    // Now continue with the remaining clusters
    for (size_t i = 1; i < acSize; i++) {
@@ -303,13 +293,6 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
    }
    ///Calculate the kinematics of the new cluster, after all cells are added
    CaloClusterKineHelper::calculateKine(newCluster, true, true);
-
-   //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
-   if (!newCluster->hasSampling(CaloSampling::EMB2) &&  !newCluster->hasSampling(CaloSampling::EME2)) {
-       ATH_MSG_WARNING("Supercluster doesn't have L2?? Skipping it ...");
-       delete newCluster;
-       return nullptr;     
-   }
 
    //If adding all EM cells I am somehow below the seed threshold then remove 
    //this one
