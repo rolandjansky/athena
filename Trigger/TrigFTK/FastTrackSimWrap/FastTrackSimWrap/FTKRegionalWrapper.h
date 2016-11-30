@@ -131,6 +131,9 @@ private:
   std::vector<uint32_t> m_pix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
   std::vector<uint32_t> m_sct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
 
+  std::vector<std::string> m_spix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
+  std::vector<std::string> m_ssct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
+
   bool dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rmap);
 
 

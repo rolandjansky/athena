@@ -23,6 +23,7 @@
 #include "SCT_Cabling/SCT_SerialNumber.h"
 
 #include <algorithm>
+#include <sstream> 
 
 FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
@@ -85,8 +86,15 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   //m_pix_rodIdlist({0x130007, 0x112510, 0x111816, 0x112508,0x112414}),
   //m_sct_rodIdlist({0x21010a, 0x210000}),
 
-  m_pix_rodIdlist({0x130007, 0x111510, 0x111816, 0x111508,0x112414,0x1400a3,0x130010,0x130011,0x112508,0x112510}),
-  m_sct_rodIdlist({0x21010a, 0x210000, 0x210109}),
+  //  m_pix_rodIdlist({0x130007, 0x111510, 0x111816, 0x111508,0x112414,0x1400a3,0x130010,0x130011,0x112508,0x112510}),
+  // m_sct_rodIdlist({0x21010a, 0x210000, 0x210109}),
+
+  m_pix_rodIdlist({0x112414, 0x140170, 0x111816, 0x112411, 0x112416, 0x140140, 0x140180, 0x130011}),
+  m_sct_rodIdlist({0x210000, 0x210109, 0x210108, 0x230100, 0x220000, 0x220109, 0x22010a, 0x21010a}),
+
+  m_spix_rodIdlist({"0x112414", "0x140170", "0x111816", "0x112411", "0x112416", "0x140140", "0x140180", "0x130011"}),
+  m_ssct_rodIdlist({"0x210000", "0x210109", "0x210108", "0x230100", "0x220000", "0x220109", "0x22010a", "0x21010a"}),
+
   m_FTKPxlClu_CollName("FTK_Pixel_Clusters"), 
   m_FTKPxlCluContainer(0x0),
   m_FTKSCTClu_CollName("FTK_SCT_Cluster"),
@@ -133,8 +141,8 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
 
   //for DF board emulation 
   declareProperty("EmulateDF",m_EmulateDF);
-  declareProperty("pixRodIds", m_pix_rodIdlist);
-  declareProperty("sctRodIds", m_sct_rodIdlist);
+  declareProperty("pixRodIds", m_spix_rodIdlist);
+  declareProperty("sctRodIds", m_ssct_rodIdlist);
   declareProperty("L1IDToSave", m_L1ID_to_save);
 }
 
@@ -345,13 +353,22 @@ StatusCode FTKRegionalWrapper::initialize()
 	  ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
       }
 
-    for (auto it = m_pix_rodIdlist.begin(); it < m_pix_rodIdlist.end(); it++){
+    m_pix_rodIdlist.clear();
+
+    for (auto it = m_spix_rodIdlist.begin(); it < m_spix_rodIdlist.end(); it++){
+      std::stringstream str;
+      str<<(*it);
+      int val;
+      str>>std::hex>>val;
+      
+      m_pix_rodIdlist.push_back(val);
+
       ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
-		    << (*it) <<MSG::dec);
+		    << val <<MSG::dec);
     
 	std::vector<IdentifierHash> offlineIdHashList;
-	m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(*it));
-	ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<*it<<MSG::dec<<"));");
+	m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(val));
+	ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<val<<MSG::dec<<"));");
 	for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
 
 	    Identifier id = m_pixelId->wafer_id( *oit );
@@ -360,16 +377,25 @@ StatusCode FTKRegionalWrapper::initialize()
 	    int phi_module     = m_pixelId->phi_module(id);
 	    int eta_module     = m_pixelId->eta_module(id);
 
-	    ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<*it<<MSG::dec
+	    ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<val<<MSG::dec
 			  << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
 			  << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
 	}
     }
-    for (auto it = m_sct_rodIdlist.begin(); it < m_sct_rodIdlist.end(); it++)
+
+    m_sct_rodIdlist.clear();
+    for (auto it = m_ssct_rodIdlist.begin(); it < m_ssct_rodIdlist.end(); it++){
+      std::stringstream str;
+      str<<(*it);
+      int val;
+      str>>std::hex>>val;
+      m_sct_rodIdlist.push_back(val);
+      
       ATH_MSG_DEBUG("Going to test against the following SCT RODIDs "<< MSG::hex
-		    << (*it) <<MSG::dec);
-	
-	}
+		    << val <<MSG::dec);
+    }
+    
+  }
 
 
   return StatusCode::SUCCESS;
