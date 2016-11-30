@@ -2319,7 +2319,7 @@ void Trk::STEP_Propagator::dumpMaterialEffects( const Trk::CurvilinearParameters
 {
 
   // kinematics
-  double mom = parms->parameters().mag();
+  double mom = parms->momentum().mag();
 
   // first update to make sure all material counted
   updateMaterialEffects( mom, sin(parms->momentum().theta()), path );
