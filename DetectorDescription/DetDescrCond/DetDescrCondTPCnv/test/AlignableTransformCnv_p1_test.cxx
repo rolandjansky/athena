@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "DetDescrCondTPCnv/AlignableTransformCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -28,6 +29,7 @@ HepGeom::Transform3D makexform (float dx, float dy, float dz,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   MsgStream log (0, "test");
   AlignableTransform trans1 ("tag");
 

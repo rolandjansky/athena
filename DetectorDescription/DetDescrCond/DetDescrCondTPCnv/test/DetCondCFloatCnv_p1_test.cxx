@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "DetDescrCondTPCnv/DetCondCFloatCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -20,6 +21,7 @@
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   MsgStream log (0, "test");
   DetCondCFloat trans1 (3, "tag");
 
