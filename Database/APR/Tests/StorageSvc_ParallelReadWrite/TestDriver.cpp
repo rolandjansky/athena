@@ -59,11 +59,11 @@ TestDriver::testWriting()
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file1, file1 );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, *fd ).isSuccess() ) ) {
+  pool::FileDescriptor fd( file1, file1 );
+  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
-  pool::DatabaseConnection* connection = fd->dbc();
+  pool::DatabaseConnection* connection = fd.dbc();
   pool::Transaction* transaction = 0;
   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
@@ -91,8 +91,8 @@ TestDriver::testWriting()
     // Creating the persistent shape.
     Guid guid = pool::DbReflex::guid(class_SimpleTestClass);
     const pool::Shape* shape = 0;
-    if ( storSvc->getShape( *fd, guid, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( *fd, container, guid, shape );
+    if ( storSvc->getShape( fd, guid, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+      storSvc->createShape( fd, container, guid, shape );
     }
     if ( ! shape ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -100,7 +100,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( transaction, *fd,
+    if ( ! ( storSvc->allocate( transaction, fd,
 				container, pool::ROOTTREE_StorageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -119,10 +119,9 @@ TestDriver::testWriting()
 	iObject != myObjects.end(); ++iObject ) delete *iObject;
   myObjects.clear();
 
-  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end correctly the session." );
   }
@@ -153,32 +152,32 @@ TestDriver::testParallelReadWrite()
 
 
   // Open the file to read
-  pool::FileDescriptor* fd1 = new pool::FileDescriptor( file1, file1 );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, *fd1 );
+  pool::FileDescriptor fd1( file1, file1 );
+  sc = storSvc->connect( sessionHandle, poolDb::READ, fd1 );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   pool::Transaction* transaction1 = 0;
-  if ( ! ( storSvc->startTransaction( fd1->dbc(), transaction1 ).isSuccess() ) ) {
+  if ( ! ( storSvc->startTransaction( fd1.dbc(), transaction1 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
   }
 
   // Open the file to write
-  pool::FileDescriptor* fd2 = new pool::FileDescriptor( file2, file2 );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, *fd2 ).isSuccess() ) ) {
+  pool::FileDescriptor fd2( file2, file2 );
+  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd2 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   pool::Transaction* transaction2 = 0;
-  if ( ! ( storSvc->startTransaction( fd2->dbc(), transaction2 ).isSuccess() ) ) {
+  if ( ! ( storSvc->startTransaction( fd2.dbc(), transaction2 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
   }
 
 
   // Fetch the containers
   std::vector<const Token*> containerTokens;
-  storageExplorer->containers( *fd1, containerTokens );
+  storageExplorer->containers( fd1, containerTokens );
   if ( containerTokens.size() != 1 ) {
     throw std::runtime_error( "Unexpected number of containers" );
   }
@@ -207,7 +206,7 @@ TestDriver::testParallelReadWrite()
 
   // Fetch the objects in the container.
   pool::DbSelect selectionObject("");
-  sc = storageExplorer->select( *fd1, containerToken->contID(), selectionObject );
+  sc = storageExplorer->select( fd1, containerToken->contID(), selectionObject );
   int iObject = 0;
   if ( sc.isSuccess() ) {
     Token* objectToken = 0; \
@@ -217,7 +216,7 @@ TestDriver::testParallelReadWrite()
       const Guid& guid = objectToken->classID();
       //const seal::reflect::Class* classType = seal::reflect::Class::forGuid( guid.toString() );
       const pool::Shape* shape = 0;
-      if ( storSvc->getShape( *fd1, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
+      if ( storSvc->getShape( fd1, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
 	throw std::runtime_error( "Could not fetch the persistent shape" );
       }
       RootType classType = pool::DbReflex::forGuid(guid);
@@ -225,7 +224,7 @@ TestDriver::testParallelReadWrite()
 	throw std::runtime_error( "Could not resolve the class by guid" );
       }
       void* ptr = 0;
-      if ( ! ( storSvc->read( *fd1, *objectToken, shape, &ptr ) ).isSuccess() ) {
+      if ( ! ( storSvc->read( fd1, *objectToken, shape, &ptr ) ).isSuccess() ) {
 	throw std::runtime_error( "failed to read an object back from the persistency" );
       }
 
@@ -248,8 +247,8 @@ TestDriver::testParallelReadWrite()
       // Creating the persistent shape.
       Guid guidw = pool::DbReflex::guid(class_SimpleTestClass);
       const pool::Shape* shapew = 0;
-      if ( storSvc->getShape( *fd2, guidw, shapew ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-	storSvc->createShape( *fd2, container, guidw, shapew );
+      if ( storSvc->getShape( fd2, guidw, shapew ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+	storSvc->createShape( fd2, container, guidw, shapew );
       }
       if ( ! shapew ) {
 	throw std::runtime_error( "Could not create a persistent shape." );
@@ -257,7 +256,7 @@ TestDriver::testParallelReadWrite()
       
       // Writing the object.
       Token* tokenw;
-      if ( ! ( storSvc->allocate( transaction2, *fd2,
+      if ( ! ( storSvc->allocate( transaction2, fd2,
 				  container, pool::ROOTTREE_StorageType.type(),
 				  myObject, shapew, tokenw ).isSuccess() ) ) {
 	throw std::runtime_error( "Could not write an object" );
@@ -288,15 +287,13 @@ TestDriver::testParallelReadWrite()
   myObjects.clear();
 
 
-  if ( ! ( storSvc->disconnect( *fd1 ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd1 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd1;
 
-  if ( ! ( storSvc->disconnect( *fd2 ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd2 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd2;
 
   std::cout << "Closing the session" << std::endl;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
@@ -330,20 +327,20 @@ TestDriver::testReading()
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file2, file2 );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, *fd );
+  pool::FileDescriptor fd( file2, file2 );
+  sc = storSvc->connect( sessionHandle, poolDb::READ, fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( fd->dbc(), transaction ).isSuccess() ) ) {
+  if ( ! ( storSvc->startTransaction( fd.dbc(), transaction ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
   }
 
   // Fetch the containers
   std::vector<const Token*> containerTokens;
-  storageExplorer->containers( *fd, containerTokens );
+  storageExplorer->containers( fd, containerTokens );
   if ( containerTokens.size() != 1 ) {
     throw std::runtime_error( "Unexpected number of containers" );
   }
@@ -355,7 +352,7 @@ TestDriver::testReading()
 
   // Fetch the objects in the container.
   pool::DbSelect selectionObject("");
-  sc = storageExplorer->select( *fd, containerToken->contID(), selectionObject );
+  sc = storageExplorer->select( fd, containerToken->contID(), selectionObject );
   int iObject = 0;
   if ( sc.isSuccess() ) {
     Token* objectToken = 0;
@@ -363,7 +360,7 @@ TestDriver::testReading()
       const Guid& guid = objectToken->classID();
       //const seal::reflect::Class* classType = seal::reflect::Class::forGuid( guid.toString() );
       const pool::Shape* shape = 0;
-      if ( storSvc->getShape( *fd, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
+      if ( storSvc->getShape( fd, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
 	throw std::runtime_error( "Could not fetch the persistent shape" );
       }
       RootType classType = pool::DbReflex::forGuid(guid);
@@ -371,7 +368,7 @@ TestDriver::testReading()
 	throw std::runtime_error( "Could not resolve the class by guid" );
       }      
       void* ptr = 0;
-      if ( ! ( storSvc->read( *fd, *objectToken, shape, &ptr ) ).isSuccess() ) {
+      if ( ! ( storSvc->read( fd, *objectToken, shape, &ptr ) ).isSuccess() ) {
 	throw std::runtime_error( "failed to read an object back from the persistency" );
       }
 
@@ -395,10 +392,9 @@ TestDriver::testReading()
     throw std::runtime_error( "Could not end a transaction." );
   }
 
-  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd;
 
   std::cout << "Closing the session" << std::endl;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
