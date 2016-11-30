@@ -10,21 +10,10 @@
  * $Id: TriggerInfo.cxx,v 1.8 2007-12-03 15:23:56 efeld Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <iomanip>
 
 #include "EventInfo/TriggerInfo.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 
 
@@ -40,6 +29,15 @@ TriggerInfo::StreamTag::StreamTag(const std::string& name,
         m_obeysLumiblock(obeysLumiblock),
         m_robs(robs),
         m_dets(dets)
+{}
+
+TriggerInfo::StreamTag::StreamTag(std::string&& name,
+                                  std::string&& type,
+                                  bool obeysLumiblock)
+        :
+        m_name(std::move(name)),
+        m_type(std::move(type)),
+        m_obeysLumiblock(obeysLumiblock)
 {}
 
 TriggerInfo::StreamTag::StreamTag()
@@ -197,9 +195,21 @@ TriggerInfo::setLevel1TriggerInfo (const std::vector<number_type>& level1Trigger
 }
 
 void 
+TriggerInfo::setLevel1TriggerInfo (std::vector<number_type>&& level1TriggerInfo)
+{
+  m_level1TriggerInfo = std::move(level1TriggerInfo);
+}
+
+void 
 TriggerInfo::setLevel2TriggerInfo (const std::vector<number_type>& level2TriggerInfo)
 {
   m_level2TriggerInfo = level2TriggerInfo;
+}
+
+void 
+TriggerInfo::setLevel2TriggerInfo (std::vector<number_type>&& level2TriggerInfo)
+{
+  m_level2TriggerInfo = std::move(level2TriggerInfo);
 }
 
 void
@@ -209,9 +219,21 @@ TriggerInfo::setEventFilterInfo (const std::vector<number_type>& eventFilterInfo
 }
 
 void
+TriggerInfo::setEventFilterInfo (std::vector<number_type>&& eventFilterInfo)
+{
+  m_eventFilterInfo = std::move(eventFilterInfo);
+}
+
+void
 TriggerInfo::setStreamTags(const std::vector<StreamTag>&   streamTags) 
 {
     m_streamTags = streamTags;
+}
+
+void
+TriggerInfo::setStreamTags(std::vector<StreamTag>&&   streamTags) 
+{
+  m_streamTags = std::move(streamTags);
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<TriggerInfo::number_type>& rhs) 

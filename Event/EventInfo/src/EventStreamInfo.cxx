@@ -62,31 +62,31 @@ void EventStreamInfo::insertEventType(const EventType& event) {
 }
 //______________________________________________________________________________
 void EventStreamInfo::print(MsgStream& log) const {
-   log << MSG::DEBUG << "EventStreamInfo number of events: " << m_numberOfEvents << endreq;
+   log << MSG::DEBUG << "EventStreamInfo number of events: " << m_numberOfEvents << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Run Numbers: ";
    for (std::set<unsigned int>::const_iterator iter = m_runNumbers.begin(),
 		   last = m_runNumbers.end(); iter != last; iter++) {
       log << MSG::DEBUG << *iter << ", ";
    }
-   log << MSG::DEBUG << endreq;
+   log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo LumiBlock Numbers: ";
    for (std::set<unsigned int>::const_iterator iter = m_lumiBlockNumbers.begin(),
 		   last = m_lumiBlockNumbers.end(); iter != last; iter++) {
       log << MSG::DEBUG << *iter << ", ";
    }
-   log << MSG::DEBUG << endreq;
+   log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Processing Tags: ";
    for (std::set<std::string>::const_iterator iter = m_processingTags.begin(),
 		   last = m_processingTags.end(); iter != last; iter++) {
       log << MSG::DEBUG << *iter << ", ";
    }
-   log << MSG::DEBUG << endreq;
+   log << MSG::DEBUG << endmsg;
    log << MSG::DEBUG << "EventStreamInfo Event Types: ";
    for (std::set<EventType>::const_iterator iter = m_eventTypes.begin(),
 		   last = m_eventTypes.end(); iter != last; iter++) {
       log << MSG::DEBUG << iter->typeToString() << ", ";
    }
-   log << MSG::DEBUG << endreq;
+   log << MSG::DEBUG << endmsg;
    return;
 }
 //______________________________________________________________________________

@@ -148,6 +148,7 @@ EventInfo::setTriggerInfo(TriggerInfo* pTrig) {
   delete m_trigger_info; m_trigger_info = pTrig;
 }
 
+
 bool            
 EventInfo::setEventFlags(EventFlagSubDet subDet, unsigned int flags) 
 {
@@ -161,6 +162,7 @@ EventInfo::setEventFlags(EventFlagSubDet subDet, unsigned int flags)
     }
     return (false);
 }
+
 
 bool       
 EventInfo::setEventFlagBit(EventFlagSubDet subDet, unsigned char bit, bool set)

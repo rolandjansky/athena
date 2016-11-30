@@ -18,30 +18,13 @@
  */
 
 #include <cassert>
-
-#ifndef EVENTINFO_EVENTINFO_H
-# include "EventInfo/EventInfo.h"
-#endif
-
-#ifndef EVENTINFO_PILEUPTIMEEVENTINDEX_H
-# include "EventInfo/PileUpTimeEventIndex.h"
-#endif
-
-#ifndef GAUDIKERNEL_CLASSID_H
-# include "GaudiKernel/ClassID.h"
-#endif
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/PileUpTimeEventIndex.h"
+#include "GaudiKernel/ClassID.h"
 
 #include <list>
 class StoreGateSvc;
 class MsgStream;
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /** @class PileUpEventInfo
  *
@@ -97,6 +80,16 @@ public:
 	     PileUpTimeEventIndex::PileUpType typ,
 	     const EventInfo& rse, StoreGateSvc* psg);
 
+    SubEvent(time_type t, std::unique_ptr<EventInfo> pse, StoreGateSvc* psg);
+    SubEvent(time_type t, index_type index,
+	     std::unique_ptr<EventInfo> pse, StoreGateSvc* psg);
+    SubEvent(time_type t, index_type index, 
+	     PileUpTimeEventIndex::PileUpType typ,
+	     std::unique_ptr<EventInfo> pse, StoreGateSvc* psg);
+    SubEvent(time_type t, unsigned int BCID, index_type index, 
+	     PileUpTimeEventIndex::PileUpType typ,
+	     std::unique_ptr<EventInfo> pse, StoreGateSvc* psg);
+
     ///t0 wrto original event (hence original evt time == 0)
     time_type time() const { return m_timeIndex.time(); }  
     index_type index() const { return m_timeIndex.index(); }
@@ -115,16 +108,30 @@ public:
   void addSubEvt(time_type t, PileUpTimeEventIndex::PileUpType puType,
 		 const EventInfo* pse, StoreGateSvc* psg) 
   { 
-    m_subEvents.push_back(SubEvent(t, m_subEvents.size(), puType, pse, psg)); 
+    m_subEvents.emplace_back(t, m_subEvents.size(), puType, pse, psg);
   }
+
+  void addSubEvt(time_type t, PileUpTimeEventIndex::PileUpType puType,
+		 std::unique_ptr<EventInfo> pse, StoreGateSvc* psg) 
+  { 
+    m_subEvents.emplace_back(t, m_subEvents.size(), puType, std::move(pse), psg);
+  }
+
   ///setter for the subEvt collection t=0(ns) for the original event
   void addSubEvt(time_type t, unsigned int BCID,
 		 PileUpTimeEventIndex::PileUpType puType,
 		 const EventInfo& rse, StoreGateSvc* psg) 
   { 
-    m_subEvents.push_back(SubEvent(t, BCID, m_subEvents.size(), puType, 
-				   rse, psg)); 
+    m_subEvents.emplace_back(t, BCID, m_subEvents.size(), puType, rse, psg); 
   }
+
+  void addSubEvt(time_type t, unsigned int BCID,
+		 PileUpTimeEventIndex::PileUpType puType,
+		 std::unique_ptr<EventInfo>& pse, StoreGateSvc* psg) 
+  { 
+    m_subEvents.emplace_back(t, BCID, m_subEvents.size(), puType, std::move(pse), psg); 
+  }
+
   //NO INSERTIONS only push_backs in m_subEvents!
 
   /// \name accessors to the subEvt collection
@@ -137,8 +144,6 @@ public:
 
   
  private:
-  PileUpEventInfo(const PileUpEventInfo&);
-  PileUpEventInfo& operator= (const PileUpEventInfo&);
   std::list<SubEvent> m_subEvents; //FIXME should become a vector
 };
 

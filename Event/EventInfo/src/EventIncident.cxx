@@ -16,12 +16,10 @@ EventIncident::EventIncident(const EventInfo& event,
 			     const std::string& type) :
   Incident(source, type), m_eventInfo(event) {}
 
-#ifdef ATHENAHIVE
 EventIncident::EventIncident(const EventInfo& event,
 			     const std::string& source,
 			     const std::string& type,
 			     EventContext& ctx) :
   Incident(source, type, ctx), m_eventInfo(event) {}
-#endif
 
 EventIncident::~EventIncident() {}

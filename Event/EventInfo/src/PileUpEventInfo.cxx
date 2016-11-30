@@ -88,21 +88,24 @@ PileUpEventInfo::SubEvent::SubEvent(time_type t,
 				    const EventInfo* pse, 
 				    StoreGateSvc* psg) :
   m_timeIndex(t),
-  pSubEvt(0==pse ? 0 : new EventInfo(*pse)), pSubEvtSG(psg)
+  pSubEvt(0==pse ? 0 : new EventInfo(*pse)),
+  pSubEvtSG(psg)
 {}
 
 PileUpEventInfo::SubEvent::SubEvent(time_type t, index_type index,
 				    const EventInfo* pse, 
 				    StoreGateSvc* psg) :
   m_timeIndex(t, index), 
-  pSubEvt(0==pse ? 0 : new EventInfo(*pse)), pSubEvtSG(psg)
+  pSubEvt(0==pse ? 0 : new EventInfo(*pse)),
+  pSubEvtSG(psg)
 {}
 PileUpEventInfo::SubEvent::SubEvent(time_type t, index_type index,
 				    PileUpTimeEventIndex::PileUpType typ,
 				    const EventInfo* pse, 
 				    StoreGateSvc* psg) :
   m_timeIndex(t, index, typ),
-  pSubEvt(0==pse ? 0 : new EventInfo(*pse)), pSubEvtSG(psg)
+  pSubEvt(0==pse ? 0 : new EventInfo(*pse)),
+  pSubEvtSG(psg)
 {}
 PileUpEventInfo::SubEvent::SubEvent(time_type t, unsigned int BCID,
 				    index_type index,
@@ -111,6 +114,41 @@ PileUpEventInfo::SubEvent::SubEvent(time_type t, unsigned int BCID,
 				    StoreGateSvc* psg) :
   m_timeIndex(t, index, typ),
   pSubEvt(new EventInfo(rse)),
+  pSubEvtSG(psg)
+{
+  pSubEvt->event_ID()->set_bunch_crossing_id(BCID);
+}
+
+PileUpEventInfo::SubEvent::SubEvent(time_type t, 
+				    std::unique_ptr<EventInfo> pse, 
+				    StoreGateSvc* psg) :
+  m_timeIndex(t),
+  pSubEvt(pse.release()),
+  pSubEvtSG(psg)
+{}
+
+PileUpEventInfo::SubEvent::SubEvent(time_type t, index_type index,
+				    std::unique_ptr<EventInfo> pse, 
+				    StoreGateSvc* psg) :
+  m_timeIndex(t, index), 
+  pSubEvt(pse.release()),
+  pSubEvtSG(psg)
+{}
+PileUpEventInfo::SubEvent::SubEvent(time_type t, index_type index,
+				    PileUpTimeEventIndex::PileUpType typ,
+				    std::unique_ptr<EventInfo> pse, 
+				    StoreGateSvc* psg) :
+  m_timeIndex(t, index, typ),
+  pSubEvt(pse.release()),
+  pSubEvtSG(psg)
+{}
+PileUpEventInfo::SubEvent::SubEvent(time_type t, unsigned int BCID,
+				    index_type index,
+				    PileUpTimeEventIndex::PileUpType typ,
+				    std::unique_ptr<EventInfo> pse, 
+				    StoreGateSvc* psg) :
+  m_timeIndex(t, index, typ),
+  pSubEvt(pse.release()),
   pSubEvtSG(psg)
 {
   pSubEvt->event_ID()->set_bunch_crossing_id(BCID);

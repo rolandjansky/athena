@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+//Dear emacs, this is -*-c++-*-
 #ifndef EVENTINFO_EVENTINFO_H
 # define EVENTINFO_EVENTINFO_H 1
 /**
@@ -15,21 +16,14 @@
  * $Id: EventInfo.h,v 1.15 2009-03-30 17:24:37 schaffer Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#ifndef GAUDIKERNEL_CLASSID_H
-# include "GaudiKernel/ClassID.h"
-#endif
+#include "GaudiKernel/ClassID.h"
 #include <vector>
-
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class EventID;
 class EventType;
 class MixingEventSelector;
 class TagInfoMgr;
 class TriggerInfo;
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /** @class EventInfo
  *
@@ -41,9 +35,20 @@ class TriggerInfo;
  *
  */
 
-class EventInfo {
-public:
+namespace  xAODMaker {
+  class EventInfoCnvTool;
+}
 
+class EventInfo {
+  //The following 'friends' are a hack to ease the AOD->xAOD migration
+  friend class EventInfoByteStreamCnv;
+  friend class xAODMaker::EventInfoCnvTool;
+  friend class G4AtlasAlg;
+  friend class LooperKiller;
+  friend class CopyMcEventCollection;
+
+public:
+  
     /// \name enum for event flags which indicate the subsystem
     /// detector to which the flags belong
     //@{
@@ -115,31 +120,19 @@ public:
     /// trigger information (ptr may be NULL)
     TriggerInfo*        trigger_info    () const;
 
+  //private:
     /// event flags for a particular sub-detector
     unsigned int        eventFlags(EventFlagSubDet subDet) const;
 
     /// check for a event flag bit for a particular sub-detector
     bool                isEventFlagBitSet(EventFlagSubDet subDet, unsigned char bit) const;
 
-    ///
-    /// Access to number of interactions per crossing:
-    ///
-    ///  average interactions per crossing for the current (or actual) BCID - for in-time pile-up
-    float               actualInteractionsPerCrossing() const;
-
-    ///  average interactions per crossing for all BCIDs - for out-of-time pile-up
-    float               averageInteractionsPerCrossing() const;
-
+    /// All event flags.
+    const std::vector<unsigned int>& eventFlags() const;
 
 
     /// return error state for a particular sub-detector
     EventFlagErrorState errorState(EventFlagSubDet subDet) const;
-    //@}
-
-    /// \name Event information setting
-    //@{
-    /// Add TriggerInfo to existing object    
-    void                setTriggerInfo(TriggerInfo*);
 
     /// Set event flag for a particular sub detector - maximun size is
     /// 28 bits. The bits beyond this will be ignored. Returns true is
@@ -156,6 +149,22 @@ public:
     /// true is successfully inserted (i.e. valid subDet).
     bool                setErrorState(EventFlagSubDet subDet, EventFlagErrorState errorState);
 
+ public:
+    ///
+    /// Access to number of interactions per crossing:
+    ///
+    ///  average interactions per crossing for the current (or actual) BCID - for in-time pile-up
+    float               actualInteractionsPerCrossing() const;
+
+    ///  average interactions per crossing for all BCIDs - for out-of-time pile-up
+    float               averageInteractionsPerCrossing() const;
+
+    //@}
+
+    /// \name Event information setting
+    //@{
+    /// Add TriggerInfo to existing object    
+    void                setTriggerInfo(TriggerInfo*);
 
     ///
     /// Setting the number of interactions per crossing:
@@ -175,6 +184,11 @@ protected:
     void setEventType(EventType*);
 
 private:
+    friend class EventInfoCnv_p1;
+    friend class EventInfoCnv_p2;
+    friend class EventInfoCnv_p3;
+    friend class EventInfoCnv_p4;
+
     enum { EF_BITS                = 0x0FFFFFFF, 
            EF_ERROR_BITS          = 0xF0000000, 
            EF_ERROR_SHIFT         = 28,
@@ -222,6 +236,12 @@ EventInfo::isEventFlagBitSet(EventFlagSubDet subDet, unsigned char bit) const
 {
     if (subDet < m_event_flags.size() && bit < EF_ERROR_SHIFT) return ((1u << bit) & m_event_flags[subDet]);
     return (false);
+}
+
+inline const std::vector<unsigned int>&
+EventInfo::eventFlags() const
+{
+  return m_event_flags;
 }
 
 
