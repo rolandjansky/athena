@@ -149,7 +149,7 @@ StatusCode EMClusterTool::contExecute()
 // ==========================================================================
 void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
                                   xAOD::CaloClusterContainer *outputClusterContainer,
-                                  xAOD::EgammaParameters::EgammaType egType) const
+                                  xAOD::EgammaParameters::EgammaType egType)
 {
   if (!eg) {return;}
 
@@ -183,7 +183,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
 
 // ==========================================================================
 xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, 
-						 xAOD::EgammaParameters::EgammaType egType) const{
+						 xAOD::EgammaParameters::EgammaType egType) {
   //
   // Create new cluster based on an existing one
   // const CaloCluster* cluster : input cluster
@@ -220,7 +220,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
 // ==========================================================================
 xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, 
-						 const xAOD::CaloCluster::ClusterSize& cluSize) const {
+						 const xAOD::CaloCluster::ClusterSize& cluSize) {
 
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
 								   cluster.eta0(),cluster.phi0(),
@@ -245,7 +245,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
   return newClus;
 }
-xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) const {
+xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) {
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
   if(m_applySuperClusters){ 
