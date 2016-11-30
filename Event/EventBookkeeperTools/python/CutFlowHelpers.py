@@ -43,9 +43,7 @@ def GetCurrentStreamName( msg, athFile=None ):
 
 
 
-
-
-def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True ):
+def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -61,11 +59,47 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     inputStreamName = GetCurrentStreamName( msg=msg, athFile=athFile )
     msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
 
-    # Create the CutFlowSvc instance
+    # Create the CutFlowSvc instance(s)
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-    # svcMgr.CutFlowSvc.OutputLevel = 1 #=VERBOSE
+    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
+    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
+
+    # Make sure MetaDataSvc is ready
+    if not hasattr(svcMgr,'MetaDataSvc'):
+      from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+      svcMgr += MetaDataSvc( "MetaDataSvc" )
+
+    # Add BookkeeperTools
+    from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
+
+    # Standard event bookkeepers
+    inname = "CutBookkeepers"
+    outname = "FileBookkeepers"
+    cutflowtool = BookkeeperTool(outname,
+                                 InputCollName = inname,
+                                 OutputCollName= outname) 
+    svcMgr.ToolSvc += cutflowtool
+
+    # Add tool to MetaDataSvc
+    svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+
+    # Add pdf sum of weights counts if appropriate
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource() == 'geant4':
+        #from PyUtils import AthFile
+        #afc = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
+
+        # PDF
+        name = "PDFSumOfWeights"
+        pdfweighttool = BookkeeperTool(name,
+                                       OutputCollName= name, 
+                                       InputCollName = name)
+        svcMgr.ToolSvc += pdfweighttool
+
+        # Add tool to MetaDataSvc
+        svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
 
     # Check if we have a sequence given
     if not seq :
@@ -104,10 +138,38 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         # Explicitely add file metadata from input and from transient store,
         # but only the ones that we always create.
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#CutBookkeepers" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
+        SGkey = "FileBookkeepers"
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
         pass
 
     return
+
+def CreateBookkeeperTool( name="CutBookkeepers" ):
+
+  from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
+
+  # Make sure MetaDataSvc is ready
+  if not hasattr(svcMgr,'MetaDataSvc'):
+    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    svcMgr += MetaDataSvc( "MetaDataSvc" )
+
+  # Add BookkeeperTools
+  from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
+
+  # Standard event bookkeepers
+  cutflowtool = BookkeeperTool(name,
+                               InputCollName=name,
+                               OutputCollName = name)
+  svcMgr.ToolSvc += cutflowtool
+
+  # Add tool to MetaDataSvc
+  svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+
+  return

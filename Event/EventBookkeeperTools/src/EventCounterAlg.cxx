@@ -109,7 +109,10 @@ StatusCode EventCounterAlg::execute()
         std::stringstream sstm2;
         sstm2 << "non-nominal MC event weight number " << i;
         const std::string& cutDescription = sstm2.str();
-        CutIdentifier cutID = cutFlowSvc()->registerCut( cutName, cutDescription, this->cutID() );
+        CutIdentifier cutID = cutFlowSvc()->registerTopFilter( cutName,
+                                                               cutDescription,
+                                                               xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
+                                                               "AllStreams" );
         m_mcCutIDs.push_back(cutID);
       }
     }
