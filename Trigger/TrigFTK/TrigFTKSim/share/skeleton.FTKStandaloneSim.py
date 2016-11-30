@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 773494 2016-09-15 16:20:40Z jwebster $
+# $Id: skeleton.FTKStandaloneSim.py 786937 2016-11-28 16:58:14Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -364,6 +364,61 @@ FTKTagOptions["HWMode2Test64Tower"] = {
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and 
+### --PatternsVersion ftk.64tower.simulation.2017.000.nb9.ne6/
+FTKTagOptions["64Tower2017.v1"] = {
+    'NBanks': 64, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl64TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x128x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [8388608]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12Libl3D.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': True,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    }
+
+### for use with  --FitConstantsVersion Run2_x00_y00_Reb64_UseNominalOrigin_v1/ and 
+### --PatternsVersion ftk.64tower.simulation.2017.000.nb10.ne6/
+FTKTagOptions["64Tower2017.v2"] = {
+    'NBanks': 64, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl64TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x64x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [8388608]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12Libl3D.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': True,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    }
 
 
 FTKTagOptions["TDRv0"] = {
