@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 782969 2016-11-08 13:31:24Z krasznaa $
+# $Id: CMakeLists.txt 787358 2016-11-30 13:39:02Z krasznaa $
 ################################################################################
 # Package: TrigAnalysisTest
 ################################################################################
@@ -9,7 +9,8 @@ atlas_subdir( TrigAnalysisTest )
 # Extra dependencies, based on the build environment:
 set( extra_deps )
 if( XAOD_STANDALONE )
-   set( extra_deps Control/AthToolSupport/AsgTools Control/xAODRootAccess )
+   set( extra_deps Control/AthToolSupport/AsgTools Control/xAODRootAccess
+      Trigger/TrigConfiguration/TrigConfxAOD )
 else()
    set( extra_deps Control/AthenaBaseComps GaudiKernel )
 endif()
@@ -23,7 +24,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTrigBphys
    Event/xAOD/xAODTrigMissingET
-   Trigger/TrigConfiguration/TrigConfxAOD
    ${extra_deps} )
 
 # External dependencies:
@@ -34,7 +34,7 @@ set( extra_srcs )
 set( extra_libs )
 if( XAOD_STANDALONE )
    set( extra_srcs Root/*.cxx )
-   set( extra_libs AsgTools xAODRootAccess )
+   set( extra_libs AsgTools xAODRootAccess TrigConfxAODLib )
 endif()
 
 # Component(s) in the package:
