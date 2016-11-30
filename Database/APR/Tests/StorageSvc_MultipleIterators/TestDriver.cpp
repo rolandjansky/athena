@@ -60,11 +60,11 @@ TestDriver::testWriting()
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, *fd ).isSuccess() ) ) {
+  pool::FileDescriptor fd( file, file );
+  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
-  pool::DatabaseConnection* connection = fd->dbc();
+  pool::DatabaseConnection* connection = fd.dbc();
   pool::Transaction* transaction = 0;
   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
@@ -104,8 +104,8 @@ TestDriver::testWriting()
     // Creating the persistent shape.
     Guid guid = pool::DbReflex::guid(class_SimpleTestClass);
     const pool::Shape* shape_SimpleTestClass = 0;
-    if ( storSvc->getShape( *fd, guid, shape_SimpleTestClass ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( *fd, container, guid, shape_SimpleTestClass );
+    if ( storSvc->getShape( fd, guid, shape_SimpleTestClass ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+      storSvc->createShape( fd, container, guid, shape_SimpleTestClass );
     }
     if ( ! shape_SimpleTestClass ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -113,7 +113,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_SimpleTestClass;
-    if ( ! ( storSvc->allocate( transaction, *fd,
+    if ( ! ( storSvc->allocate( transaction, fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_SimpleTestClass, shape_SimpleTestClass, token_SimpleTestClass ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -130,8 +130,8 @@ TestDriver::testWriting()
     // Creating the persistent shape.
     Guid guidp = pool::DbReflex::guid(class_TestClassPrimitives);
     const pool::Shape* shape_TestClassPrimitives = 0;
-    if ( storSvc->getShape( *fd, guidp, shape_TestClassPrimitives ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( *fd, container, guidp, shape_TestClassPrimitives );
+    if ( storSvc->getShape( fd, guidp, shape_TestClassPrimitives ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+      storSvc->createShape( fd, container, guidp, shape_TestClassPrimitives );
     }
     if ( ! shape_TestClassPrimitives ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -139,7 +139,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_TestClassPrimitives;
-    if ( ! ( storSvc->allocate( transaction, *fd,
+    if ( ! ( storSvc->allocate( transaction, fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_TestClassPrimitives, shape_TestClassPrimitives, token_TestClassPrimitives ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -164,10 +164,9 @@ TestDriver::testWriting()
   myObjects_TestClassPrimitives.clear();
 
   // Disconnecting
-  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end correctly the session." );
   }

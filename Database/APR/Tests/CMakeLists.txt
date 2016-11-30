@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740758 2016-04-16 07:11:28Z krasznaa $
+# $Id: CMakeLists.txt 787458 2016-11-30 21:15:29Z ssnyder $
 ################################################################################
 # Package: Tests
 ################################################################################
@@ -13,6 +13,8 @@ atlas_depends_on_subdirs(
    Database/APR/PersistencySvc
    Database/APR/StorageSvc
    Database/PersistentDataModel
+   Control/AthContainers
+   Control/AthContainersInterfaces
    AtlasTest/TestTools )
 
 # External dependencies:
@@ -32,9 +34,12 @@ function( _add_test name )
    cmake_parse_arguments( ARG "" "DICTHEADER" "DEPENDS" ${ARGN} )
    # Create a dictionary if one was requested:
    if( ARG_DICTHEADER )
-     atlas_add_dictionary( test_${name}Dict
-       ${ARG_DICTHEADER} ${name}/classes.xml
-       NO_ROOTMAP_MERGE )
+      atlas_add_dictionary( test_${name}Dict
+         ${ARG_DICTHEADER} ${name}/classes.xml
+         INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+         LINK_LIBRARIES ${Boost_LIBRARIES} FileCatalog PersistencySvc
+         StorageSvc AthContainers
+         NO_ROOTMAP_MERGE )
    endif()
    # Set up the test properties based on the optional argument(s):
    set( properties )
@@ -45,7 +50,8 @@ function( _add_test name )
    atlas_add_test( "${name}_test"
       SOURCES ${name}/*.cpp
       INCLUDE_DIRS ${CPPUNIT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} FileCatalog PersistencySvc StorageSvc
+      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} FileCatalog PersistencySvc
+      StorageSvc AthContainers
       PersistentDataModel TestTools
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
       POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${name}_test"
@@ -54,8 +60,11 @@ endfunction( _add_test )
 
 # Declare the test(s) of the package:
 _add_test( StorageSvc_BasicFunctionality )
-_add_test( StorageSvc_MultipleIterators
+_add_test( StorageSvc_AuxStore
+  DICTHEADER StorageSvc_AuxStore/AuxStoreTest.h
   DEPENDS Tests_StorageSvc_BasicFunctionality_test_ctest )
+_add_test( StorageSvc_MultipleIterators
+  DEPENDS Tests_StorageSvc_AuxStore_test_ctest )
 _add_test( StorageSvc_ParallelReadWrite
   DEPENDS Tests_StorageSvc_MultipleIterators_test_ctest )
 _add_test( StorageSvc_TransientMembers

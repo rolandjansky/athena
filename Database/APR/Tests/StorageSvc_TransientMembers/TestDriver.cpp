@@ -59,11 +59,11 @@ TestDriver::testWriting()
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, *fd ).isSuccess() ) ) {
+  pool::FileDescriptor fd( file, file );
+  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
-  pool::DatabaseConnection* connection = fd->dbc();
+  pool::DatabaseConnection* connection = fd.dbc();
   pool::Transaction* transaction = 0;
   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a transaction." );
@@ -104,8 +104,8 @@ TestDriver::testWriting()
     // Creating the persistent shape.
     Guid guidWT = pool::DbReflex::guid(class_TestClassWithTransients);
     const pool::Shape* shape = 0;
-    if ( storSvc->getShape( *fd, guidWT, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( *fd, container, guidWT, shape );
+    if ( storSvc->getShape( fd, guidWT, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+      storSvc->createShape( fd, container, guidWT, shape );
     }
     if ( ! shape ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -113,7 +113,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( transaction, *fd,
+    if ( ! ( storSvc->allocate( transaction, fd,
 				container, pool::ROOTTREE_StorageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -136,10 +136,9 @@ TestDriver::testWriting()
 	iObject != myTransientObjects.end(); ++iObject ) delete *iObject;
   myTransientObjects.clear();
 
-  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end correctly the session." );
   }
@@ -168,15 +167,15 @@ TestDriver::testReading()
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, *fd );
+  pool::FileDescriptor fd( file, file );
+  sc = storSvc->connect( sessionHandle, poolDb::READ, fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   // Fetch the containers
   std::vector<const Token*> containerTokens;
-  storageExplorer->containers( *fd, containerTokens );
+  storageExplorer->containers( fd, containerTokens );
   if ( containerTokens.size() != 1 ) {
     throw std::runtime_error( "Unexpected number of containers" );
   }
@@ -188,18 +187,18 @@ TestDriver::testReading()
 
   // Fetch the objects in the container.
   pool::DbSelect selectionObject("");
-  sc = storageExplorer->select( *fd, containerToken->contID(), selectionObject );
+  sc = storageExplorer->select( fd, containerToken->contID(), selectionObject );
   int iObject = 0;
   if ( sc.isSuccess() ) {
     Token* objectToken = 0;
     while ( storageExplorer->next( selectionObject, objectToken ).isSuccess() ) {
       const Guid& guid = objectToken->classID();
       const pool::Shape* shape = 0;
-      if ( storSvc->getShape( *fd, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
+      if ( storSvc->getShape( fd, guid, shape ) != pool::IStorageSvc::IS_PERSISTENT_SHAPE ) {
 	throw std::runtime_error( "Could not fetch the persistent shape" );
       }
       void* ptr = 0;
-      if ( ! ( storSvc->read( *fd, *objectToken, shape, &ptr ) ).isSuccess() ) {
+      if ( ! ( storSvc->read( fd, *objectToken, shape, &ptr ) ).isSuccess() ) {
 	throw std::runtime_error( "failed to read an object back from the persistency" );
       }
 
@@ -248,10 +247,9 @@ TestDriver::testReading()
     throw std::runtime_error( "Objects read different from objects written" );
   }
 
-  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
-  delete fd;
 
   std::cout << "Closing the session" << std::endl;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
