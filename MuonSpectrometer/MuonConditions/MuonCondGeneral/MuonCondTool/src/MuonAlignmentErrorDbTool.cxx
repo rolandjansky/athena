@@ -43,6 +43,10 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
+	    m_detStore(0),
+            m_IOVSvc(0),
+            m_mdtIdHelper(0),
+            m_chronoSvc(0),
 	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false)   
@@ -74,13 +78,13 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  m_log << MSG::INFO << "Initializing - folders names are: Error "<<m_errorFolder << endreq;
+  m_log << MSG::INFO << "Initializing - folders names are: Error "<<m_errorFolder << endmsg;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
     return sc;
   }
   
@@ -89,7 +93,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
-      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
+      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
       return sc;
     }
   
@@ -100,7 +104,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -111,7 +115,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
 	
@@ -146,29 +150,29 @@ StatusCode MuonAlignmentErrorDbTool::loadAlignmentError(IOVSVC_CALLBACK_ARGS_P(I
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load ERRORS from DB" << endreq;
+  m_log << MSG::INFO << "Load errors from DB" << endmsg;
   
   // Print out callback information
   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) m_log << MSG::DEBUG << endreq;
+  if( m_debug ) m_log << MSG::DEBUG << endmsg;
  
   
 	
   const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_errorFolder<<">"<<endreq;
+  m_log << MSG::INFO << "Try to read from folder <"<<m_errorFolder<<">"<<endmsg;
   
   sc=m_detStore->retrieve(atrc,m_errorFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
 	<< "could not retrieve the CondAttrListCollection from DB folder " 
-	<< m_errorFolder << endreq;
+	<< m_errorFolder << endmsg;
     return sc;
 	  }
   
   else
-    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
  
   CondAttrListCollection::const_iterator itr;

@@ -34,17 +34,17 @@ public:
 
   /** required by the IAddressProvider interface */
   //  virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual std::string  PanelDeadFolderName() const {return m_deadPanelFolder;}
-  virtual std::string  PanelOffFolderName() const {return m_offPanelFolder;}
+  virtual std::string  PanelDeadFolderName() const override {return m_deadPanelFolder;}
+  virtual std::string  PanelOffFolderName() const override {return m_offPanelFolder;}
 
 
 
-  virtual const std::vector<Identifier>& deadPanelId(){ return m_cachedDeadPanelId;}
-  virtual const std::vector<Identifier>& offPanelId(){ return m_cachedOffPanelId;} 
+  virtual const std::vector<Identifier>& deadPanelId() const override { return m_cachedDeadPanelId;}
+  virtual const std::vector<Identifier>& offPanelId() const override { return m_cachedOffPanelId;} 
 
 
 
@@ -52,9 +52,9 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadPanelOff(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadPanelDead(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadPanelOff(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadPanelDead(IOVSVC_CALLBACK_ARGS) override;
 
 
        

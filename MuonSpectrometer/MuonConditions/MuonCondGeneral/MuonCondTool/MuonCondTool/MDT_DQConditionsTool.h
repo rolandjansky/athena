@@ -34,24 +34,24 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual std::string DeadFolderName() const {return m_deadFolder;}
-  virtual std::string NoisyFolderName() const {return m_noisyFolder;}
+  virtual std::string DeadFolderName() const override {return m_deadFolder;}
+  virtual std::string NoisyFolderName() const override {return m_noisyFolder;}
 
   virtual bool Simulation_Setup() const {return m_simulation_Setup;}
 
-  virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStations;}
-  virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadTubesId(){ return m_cachedDeadTubesId;}
+  virtual const std::vector<std::string>& deadStations() const { return m_cachedDeadStations;}
+  virtual const std::vector<Identifier>& deadStationsId() const { return m_cachedDeadStationsId;}
+  virtual const std::vector<Identifier>& deadTubesId() const override { return m_cachedDeadTubesId;}
   //  virtual const std::vector<Identifier>& deadTubes(){ return m_cachedDeadTubes;}
-  virtual const std::vector<Identifier>& deadMultiLayersId(){ return m_cachedDeadMultiLayersId;} 
-  virtual const std::vector<Identifier>& deadLayersId(){ return m_cachedDeadLayersId;} 
+  virtual const std::vector<Identifier>& deadMultiLayersId() const override { return m_cachedDeadMultiLayersId;} 
+  virtual const std::vector<Identifier>& deadLayersId() const override { return m_cachedDeadLayersId;} 
 
 
-  virtual const std::vector<Identifier>& List_Chambers_with_deadTube(){ return m_Chamber_with_deadTube;}
+  virtual const std::vector<Identifier>& List_Chambers_with_deadTube() const override { return m_Chamber_with_deadTube;}
 
   const std::string OnlineName(Identifier OfflineId);
   const Identifier OfflineName(std::string OnlineId);
@@ -60,9 +60,9 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadDeadChamber(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadNoisyChamber(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadDeadChamber(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadNoisyChamber(IOVSVC_CALLBACK_ARGS) override;
 
        
   StoreGateSvc* m_detStore;

@@ -34,19 +34,19 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual std::string ErrorFolderName() const {return m_errorFolder;}
-  virtual const std::string& errorValue() {return m_errorlistValue;};
+  virtual std::string ErrorFolderName() const override {return m_errorFolder;}
+  virtual const std::string& errorValue() const override {return m_errorlistValue;};
 
  private:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadAlignmentError(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadAlignmentError(IOVSVC_CALLBACK_ARGS) override;
   
 
        

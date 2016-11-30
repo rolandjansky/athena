@@ -30,30 +30,39 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual std::string DropChamberFolderName() const {return m_dropchamberFolder;}
-  virtual std::string HVFolderName() const {return m_hvFolder;}
-  virtual std::string ChamberFolder() const {return m_chamberFolder;}
-  virtual const std::map<Identifier,int>& CSC_ChamberId(){ return m_CSC_LayerMap;}   
+  virtual std::string DropChamberFolderName() const
+  {return m_dropchamberFolder;}
+  virtual std::string HVFolderName() const override
+  {return m_hvFolder;}
+  virtual std::string ChamberFolder() const override
+  {return m_chamberFolder;}
+  virtual const std::map<Identifier,int>& CSC_ChamberId() const
+  { return m_CSC_LayerMap;}   
 
-  virtual const std::vector<std::string>& deadStationsStr(){ return m_cachedDeadStationsStr;}
-  virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadWireLayersId(){ return m_cachedDeadWireLayersId;} 
+  virtual const std::vector<std::string>& deadStationsStr() const
+  { return m_cachedDeadStationsStr;}
+  virtual const std::vector<Identifier>& deadStationsId() const override
+  { return m_cachedDeadStationsId;}
+  virtual const std::vector<Identifier>& deadWireLayersId() const override
+  { return m_cachedDeadWireLayersId;} 
 
-  virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStationsStr;}
-  virtual const std::vector<std::string>& deadWireLayers(){ return m_cachedDeadWireLayers;} 
+  virtual const std::vector<std::string>& deadStations() const override
+  { return m_cachedDeadStationsStr;}
+  virtual const std::vector<std::string>& deadWireLayers() const override
+  { return m_cachedDeadWireLayers;} 
   
   
  private:
 
 
  
-   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-   virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
-   virtual StatusCode loadchamber(IOVSVC_CALLBACK_ARGS);
+   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+   virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) override;
+   virtual StatusCode loadchamber(IOVSVC_CALLBACK_ARGS) override;
    
        
   StoreGateSvc* m_detStore;
