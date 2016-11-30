@@ -53,7 +53,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
                                               MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleShallowClone from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // convert the 4Momentum part
   s_momCnv.persToTrans( &pers->m_momentum,
@@ -75,7 +75,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
   trans->m_charge    = static_cast<ChargeType>(pers->m_charge);
 
 //   msg << MSG::DEBUG << "Loaded ParticleShallowClone from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -84,7 +84,7 @@ void ParticleShallowCloneCnv_p1::transToPers( const Analysis::ParticleShallowClo
                                               MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleShallowClone..."
-//       << endreq;
+//       << endmsg;
 
   // convert the 4Momentum part
   s_momCnv.transToPers( &trans->momentumBase(),
@@ -106,6 +106,6 @@ void ParticleShallowCloneCnv_p1::transToPers( const Analysis::ParticleShallowClo
   pers->m_charge    = static_cast<float>(trans->m_charge);
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleShallowClone [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

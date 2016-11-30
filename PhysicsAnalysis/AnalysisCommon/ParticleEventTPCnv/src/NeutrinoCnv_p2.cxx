@@ -48,7 +48,7 @@ NeutrinoCnv_p2::persToTrans( const Neutrino_p2* pers,
 			     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Neutrino from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // base classes
   s_momCnv.persToTrans( &pers->m_momentum,     
@@ -59,7 +59,7 @@ NeutrinoCnv_p2::persToTrans( const Neutrino_p2* pers,
 			     msg );
 
 //   msg << MSG::DEBUG << "Loaded Neutrino from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -69,7 +69,7 @@ NeutrinoCnv_p2::transToPers( const Neutrino* trans,
 			     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Neutrino..."
-//       << endreq;
+//       << endmsg;
 
   // base classes
   s_momCnv.transToPers( &trans->momentumBase(), 
@@ -80,6 +80,6 @@ NeutrinoCnv_p2::transToPers( const Neutrino* trans,
 			     msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Neutrino [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

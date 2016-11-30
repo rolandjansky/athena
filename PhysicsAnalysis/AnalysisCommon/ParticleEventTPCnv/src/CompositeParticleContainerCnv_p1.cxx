@@ -48,7 +48,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticleContainer from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -70,7 +70,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
     trans->push_back( p );
   }
 //   msg << MSG::DEBUG << "Loading CompositeParticleContainer from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -81,7 +81,7 @@ CompositeParticleContainerCnv_p1::transToPers( const CompositeParticleContainer*
 {
 //    msg << MSG::DEBUG
 //        << "Creating persistent state of CompositeParticleContainer..."
-//        << endreq;
+//        << endmsg;
 
   std::size_t size = trans->size();     
   pers->resize(size);
@@ -96,7 +96,7 @@ CompositeParticleContainerCnv_p1::transToPers( const CompositeParticleContainer*
   
 //   msg << MSG::DEBUG
 //       << "Creating persistent state of CompositeParticleContainer [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 

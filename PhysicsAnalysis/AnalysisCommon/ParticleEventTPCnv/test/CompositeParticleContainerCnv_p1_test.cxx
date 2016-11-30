@@ -12,8 +12,10 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/CompositeParticleContainerCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/CompositeParticleContainer.h"
 #include "SGTools/TestStore.h"
+#include "AthAllocators/DataPool.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -78,12 +80,18 @@ void compare (const CompositeParticleContainer& c1,
 void test1()
 {
   std::cout << "test1\n";
+  AthenaBarCodeImpl dumbc; // Get services created.
+  ElementLink<VxContainer> origlink ("orig", 10);
+  INav4MomLink dum ("part", 19);
+  MsgStream log (0, "test");
+  DataPool<CompositeParticle> pool;
+  Athena_test::Leakcheck check;
 
   CompositeParticleContainer trans1;
   auto p1 = CxxUtils::make_unique<CompositeParticle>();
   p1->set4Mom (CLHEP::HepLorentzVector(100,200,300,400));
   p1->set_dataType (ParticleDataType::FastShower);
-  p1->set_origin (ElementLink<VxContainer> ("orig", 10));
+  p1->set_origin (origlink);
   p1->navigableBase().insertElement (INav4MomLink ("part", 12));
   p1->navigableBase().insertElement (INav4MomLink ("part", 19));
 
@@ -97,8 +105,6 @@ void test1()
   trans1.push_back (std::move(p2));
   trans1.push_back (std::move(p3));
 
-  MsgStream log (0, "test");
-
   CompositeParticleContainerCnv_p1 cnv;
   CompositeParticleContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -107,6 +113,7 @@ void test1()
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
+  pool.erase();
 }
 
 

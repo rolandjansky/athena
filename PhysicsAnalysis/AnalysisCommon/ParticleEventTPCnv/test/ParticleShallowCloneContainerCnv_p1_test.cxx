@@ -12,10 +12,12 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/ParticleShallowCloneContainerCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/ParticleShallowCloneContainer.h"
 #include "ParticleEvent/Neutrino.h"
 #include "ParticleEvent/NeutrinoContainer.h"
 #include "SGTools/TestStore.h"
+#include "AthAllocators/DataPool.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -55,8 +57,13 @@ void test1()
   c->push_back (CxxUtils::make_unique<Neutrino>());
   SGTest::store.record (c, "cont");
 
-  P4Momentum_t mom (100, 200, 300, 400);
+  MsgStream log (0, "test");
   ElementLink<VxContainer> origin ("vx", 0);
+  DataPool<Analysis::ParticleShallowClone> pool;
+
+  Athena_test::Leakcheck check;
+
+  P4Momentum_t mom (100, 200, 300, 400);
   ParticleShallowCloneContainer trans1;
   auto p1 = CxxUtils::make_unique<Analysis::ParticleShallowClone>
     (MasterLink_t ("cont", 0),
@@ -70,7 +77,6 @@ void test1()
   trans1.push_back (std::move (p1));
   trans1.push_back (std::move (p2));
 
-  MsgStream log (0, "test");
   ParticleShallowCloneContainerCnv_p1 cnv;
   ParticleShallowCloneContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
@@ -79,6 +85,7 @@ void test1()
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
+  pool.erase();
 }
 
 
