@@ -50,7 +50,7 @@ def getTransform():
     executorSet = set()
     executorSet.add(athenaExecutor(name = 'FTKSimulationMergeDigi',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMergeDigi.py',
-                                   inData = ['NTUP_FTKTMP'],
+                                   inData = ['NTUP_FTKTMP'],disableMP=True,
                                    outData = ['RDO_FTK'],))
     trf = transform(executor = executorSet, description = 'FTK full region merge and reco.')
 

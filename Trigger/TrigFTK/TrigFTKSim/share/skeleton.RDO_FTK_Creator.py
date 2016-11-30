@@ -86,3 +86,13 @@ StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] )
 #objKeyStore.addStreamRDO("FTK_RawTrackContainer","FTK_RDO_Tracks")
 
 pmjp.PerfMonFlags.OutputFile = 'ntuple_RDOFTKCreator.pmon.gz'
+
+## Post-include
+if hasattr(runArgs,"postInclude"):
+    for fragment in runArgs.postInclude:
+        include(fragment)
+
+## Post-exec
+if hasattr(runArgs,"postExec"):
+    for cmd in runArgs.postExec:
+        exec(cmd)

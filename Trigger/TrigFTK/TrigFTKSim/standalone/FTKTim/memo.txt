@@ -1,0 +1,97 @@
+llllllllllll  DataOrganizer llllllllllll
+calc Data Organizer!  --  DATAORGANIZER# is 0
+DataOrganizer::Calc()
+**** parameter information ****
+bd_index = 0
+bd_t_in = 10
+bd_t_out = 0
+bd_t_proc = 0.5
+bd_t_delay = 40
+***** iotime of  privious event ****
+LVL1Gap = 10000
+Max stream
+fw_in = 0
+fw_out = 0
+ew_in = 0
+ew_out = 0
+prepre   events SecDO ew_out = 0
+previous events TF ew_out = 0
+**** special information ****
+ preDO_clear = -10000      PrePreSecDO_clear = -20000
+**** input information ****
+ I have layer 0
+nhit for this DO = 1777  integral is 1777 (0)
+stacked nhit for this DO = 1777   <---- miss!!!!!!
+stacked nhit for this DO = 1777   <---- ok!!!!!!
+stacked nhit for this DO = 1777   <---- between in to TF clear signal ok!!!!!!
+**** DO time information ****
+fw_in  =          0  primary          0
+fw_out =         40  primary         40
+ew_in  =       7770  primary          0
+ew_out =       7810  primary      928.5
+
+
+llllllllllll  DataOrganizer llllllllllll
+calc Data Organizer!  --  DATAORGANIZER# is 0
+DataOrganizer::Calc()
+**** parameter information ****
+bd_index = 0
+bd_t_in = 10
+bd_t_out = 0
+bd_t_proc = 0.5
+bd_t_delay = 40
+***** iotime of  privious event ****
+LVL1Gap = 10000
+Max stream
+fw_in = 0
+fw_out = 40
+ew_in = 7770
+ew_out = 7810
+prepre   events SecDO ew_out = 0
+previous events TF ew_out = 27908.4
+**** special information ****
+ preDO_clear = -2190      PrePreSecDO_clear = -20000
+**** input information ****
+ I have layer 0
+nhit for this DO = 1731  integral is 3508 (1)
+1stacked nhit for this DO = 1731   <---- miss!!!!!!
+stacked nhit for this DO = 1731   <---- ok!!!!!!
+stacked nhit for this DO = 3508   <---- between in to TF clear signal ok!!!!!!
+**** DO time information ****
+fw_in  =          0  primary          0
+fw_out =         40  primary         40
+ew_in  =      15120  primary          0
+ew_out =      15160  primary      905.5
+
+
+llllllllllll  DataOrganizer llllllllllll
+calc Data Organizer!  --  DATAORGANIZER# is 0
+DataOrganizer::Calc()
+**** parameter information ****
+bd_index = 0
+bd_t_in = 10
+bd_t_out = 0
+bd_t_proc = 0.5
+bd_t_delay = 40
+***** iotime of  privious event ****
+LVL1Gap = 10000
+Max stream
+fw_in = 0
+fw_out = 40
+ew_in = 15120
+ew_out = 15160
+prepre   events SecDO ew_out = 26562.5
+previous events TF ew_out = 32175
+**** special information ****
+ preDO_clear = 5160      PrePreSecDO_clear = 6562.5
+**** input information ****
+ I have layer 0
+nhit for this DO = 1616  integral is 5124 (2)
+stacked nhit for this DO = 1616   <---- miss!!!!!!
+stacked nhit for this DO = 14581   <---- ok!!!!!!
+stacked nhit for this DO = 5124   <---- between in to TF clear signal ok!!!!!!
+**** DO time information ****
+fw_in  =     6562.5  primary          0
+fw_out =     6602.5  primary         40
+ew_in  =    22722.5  primary          0
+ew_out =    22762.5  primary        848

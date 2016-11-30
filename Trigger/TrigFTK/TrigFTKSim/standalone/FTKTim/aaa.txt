@@ -1,0 +1,30 @@
+./#AssociativeMemory.cc#:  double PrePreAM_clear = GetMaxEwOut(this->prepre_iotime) - 2*this->iv.LVL1Gap;  // using same AM boad Ewout
+./#IBoardBase.hh#:  std::vector<IOTimeBase> prepre_iotime;
+./#IBoardBase.hh#:  void SetPrePre(std::vector<IOTimeBase> prepre_iotime) 
+./#IBoardBase.hh#:    this->prepre_iotime = prepre_iotime;
+./#IBoardBase.hh#:  IOTimeBase GetPrePre(int idx) { return this->prepre_iotime[idx]; }
+./#IBoardBase.hh#:  std::vector<IOTimeBase> GetPrePreV() { return this->prepre_iotime; }
+./AssociativeMemory.cc:  double PrePreAM_clear = GetMaxEwOut(this->prepre_iotime) - 2*this->iv.LVL1Gap;  // using same AM boad Ewout
+./DataOrganizer.cc://   cout<<this->prepre_iotime[0].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[1].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[2].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[3].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[4].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[5].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[6].GetEwOut()<<endl;
+./DataOrganizer.cc://   cout<<this->prepre_iotime[7].GetEwOut()<<endl;
+./IBoardBase.hh:  std::vector<IOTimeBase> prepre_iotime;
+./IBoardBase.hh:  void SetPrePre(std::vector<IOTimeBase> prepre_iotime) 
+./IBoardBase.hh:    this->prepre_iotime = prepre_iotime;
+./IBoardBase.hh:  IOTimeBase GetPrePre(int idx) { return this->prepre_iotime[idx]; }
+./IBoardBase.hh:  std::vector<IOTimeBase> GetPrePreV() { return this->prepre_iotime; }
+./IBoardBase.hh~:  std::vector<IOTimeBase> prepre_iotime;
+./IBoardBase.hh~:  void SetPrePre(std::vector<IOTimeBase> prepre_iotime) 
+./IBoardBase.hh~:    this->prepre_iotime = prepre_iotime;
+./IBoardBase.hh~:  IOTimeBase GetPrePre(int idx) { return this->prepre_iotime[idx]; }
+./IBoardBase.hh~:  std::vector<IOTimeBase> GetPrePreV() { return this->prepre_iotime; }
+./IBoardBase_back.hh:  std::vector<IOTimeBase> prepre_iotime;
+./IBoardBase_back.hh:  void SetPrePre(std::vector<IOTimeBase> prepre_iotime) 
+./IBoardBase_back.hh:    this->prepre_iotime = prepre_iotime;
+./IBoardBase_back.hh:  IOTimeBase GetPrePre(int idx) { return this->prepre_iotime[idx]; }
+./IBoardBase_back.hh:  std::vector<IOTimeBase> GetPrePreV() { return this->prepre_iotime; }

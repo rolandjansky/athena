@@ -114,7 +114,8 @@ FTKHit::FTKHit() :
   m_coord(0), m_truth(MultiTruth()),
   m_channels()
 {
-   // nothing to do
+  m_scalingCoordToHWCoord[0] = 0;
+  m_scalingCoordToHWCoord[1] = 0;
 }
 
 FTKHit::FTKHit(int dim) :
@@ -126,7 +127,8 @@ FTKHit::FTKHit(int dim) :
   m_coord(dim), m_truth(MultiTruth()),
   m_channels(0)
 {
-   // nothing to do
+  m_scalingCoordToHWCoord[0] = 0;
+  m_scalingCoordToHWCoord[1] = 0;
 }
 
 FTKHit::FTKHit(const FTKHit &hit) :
@@ -138,7 +140,8 @@ FTKHit::FTKHit(const FTKHit &hit) :
   m_coord(hit.m_coord), m_truth(hit.m_truth),
   m_channels(hit.m_channels)
 {
-  // nothing to do
+  m_scalingCoordToHWCoord[0] = hit.m_scalingCoordToHWCoord[0];
+  m_scalingCoordToHWCoord[1] = hit.m_scalingCoordToHWCoord[1];
 }
 
 FTKHit& FTKHit::operator=(const FTKHit &hit)
@@ -155,6 +158,8 @@ FTKHit& FTKHit::operator=(const FTKHit &hit)
       m_n_strips = hit.m_n_strips;
       m_bankID = hit.m_bankID;
       m_ITkMode = hit.m_ITkMode;
+      m_scalingCoordToHWCoord[0] = hit.m_scalingCoordToHWCoord[0];
+      m_scalingCoordToHWCoord[1] = hit.m_scalingCoordToHWCoord[1];
       m_coord = hit.m_coord;
       m_truth = hit.m_truth;
       m_channels = hit.m_channels;

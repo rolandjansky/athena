@@ -1,6 +1,6 @@
 ################################################################################
 # Package: TrigFTKSim
-################################################################################
+################################################################################ 
 
 # Declare the package name:
 atlas_subdir( TrigFTKSim )
@@ -115,6 +115,7 @@ atlas_add_library( TrigFTKSimLib
                    src/FTKMergeRoot.cxx
                    src/FTK_AMsimulation_base.cxx
                    src/FTK_CompressedAMBank.cxx
+                   src/FTKSteering.cxx
                    ${TrigFTKSimLibDictSource}
                    PUBLIC_HEADERS TrigFTKSim
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
@@ -127,8 +128,19 @@ atlas_add_component( TrigFTKSim
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
+
+atlas_add_executable( trigftk_partitionbalancing
+                      standalone/partitionbalancing.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
 atlas_add_executable( trigftk_efficiency
                       standalone/efficiency.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
+atlas_add_executable( trigftk_dataflow
+                      standalone/dataflow.cc
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
@@ -137,7 +149,7 @@ atlas_install_python_modules( python/__init__.py python/TrigFTKTruthAlgsConfig.p
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/skeleton.*.py )
 atlas_install_runtime( scripts/*_tf.py )
-atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/CompareFTKSimDirectories_RTT.py scripts/TrigFTKSM4Un_tf.py standalone/plot_simple_dataflow.C scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
+atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/rtt_compare.py scripts/TrigFTKSM4Un_tf.py standalone/plot_simple_dataflow.C scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
 atlas_install_generic( config/map_file/*
                        DESTINATION share/ftk_configuration/map_files
                        EXECUTABLE )
@@ -150,4 +162,3 @@ atlas_install_generic( config/hwsdev_file/*
 atlas_install_generic( config/bad_modules/*
                        DESTINATION share/ftk_configuration/bad_modules
                        EXECUTABLE )
-

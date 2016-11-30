@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-// #define VERBOSE_DEBUG
+//#define VERBOSE_DEBUG
 
 using namespace std;
 
@@ -104,8 +104,13 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   // check if  the number of patterns is 0
   if (!m_npatterns)
     return 0;
-
+#ifdef VERBOSE_DEBUG
+  std::cout<<"clear()\n";
+#endif
   clear();  
+#ifdef VERBOSE_DEBUG
+  std::cout<<"sort_hits()\n";
+#endif
   sort_hits(hitlist);
     
   //readout_hits();
@@ -116,17 +121,35 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
   
   if (ftkset.getEnableFTKSim()) {
+#ifdef VERBOSE_DEBUG
+     std::cout<<"data_organizer()\n";
+#endif
       data_organizer();
+#ifdef VERBOSE_DEBUG
+      std::cout<<"am_in()\n";
+#endif
       am_in();
   }
+#ifdef VERBOSE_DEBUG
+  std::cout<<"am_output()\n";
+#endif
   am_output();
 
-  if (FTKSetup::getFTKSetup().getRoadWarrior()>0)
+  if (FTKSetup::getFTKSetup().getRoadWarrior()>0) {
+#ifdef VERBOSE_DEBUG
+     std::cout<<"road_warrior()\n";
+#endif
     road_warrior();
+  }
 
   addTotStat(getNRoads());
 
-  return getNRoads();
+#ifdef VERBOSE_DEBUG
+  std::cout<<"getNRoads()\n";
+#endif
+  int r=getNRoads();
+  // exit(0);
+  return r;
 }
 
 /**
@@ -142,6 +165,7 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
   // clear the memory used to store the SS results
   m_usedssmap_ignored.clear();
 
+  int error=0;
   std::vector<FTKHit>::const_iterator ihit = hitlist.begin();
   for (;ihit!=hitlist.end();++ihit) { // hit loop
     // reference to the current hit
@@ -159,10 +183,14 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     // reference the map for this plane
     std::map<int,FTKSS> &ssmap= (*issmap).second;
     // identify the SS on the given plane
-    int ssid = FTKSetup::getFTKSetup().getHWModeSS()==0 ?
-       getSSMapUnused()->getSSGlobal(tmphit) :
-       getSSMapUnused()->getSSTower(tmphit,getBankID());
-    
+    int ssid=-1;
+    try {
+       ssid= FTKSetup::getFTKSetup().getHWModeSS()==0 ?
+          getSSMapUnused()->getSSGlobal(tmphit) :
+          getSSMapUnused()->getSSTower(tmphit,getBankID());
+    } catch(FTKException &e) {
+       error++;
+    }
     if (ssid<0) {
       // This means that hits had a recoverable issue and has to be skipped
       continue;
@@ -178,6 +206,9 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     FTKSS &ss = (*issitem).second;
     ss.addHit(tmphit);
   } // end hit loop
+  if(error) {
+     FTKSetup::PrintMessageFmt(ftk::warn,"FTK_AMsimulation_base::passHitsUnused number or errors=%d\n",error );
+  }
   return res;
 }
 
@@ -345,7 +376,7 @@ void FTK_AMsimulation_base::road_warrior() {
 
 #ifdef VERBOSE_DEBUG
   printf("%d ghosts found, %d roads left\n", totGhosts,
-	 m_roads.size());
+         (int)m_roads.size());
 #endif
 }
 

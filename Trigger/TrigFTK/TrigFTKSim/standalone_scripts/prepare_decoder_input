@@ -46,11 +46,10 @@ def ptot(wd, v):
         if wint(wd[4:8]) != 0:
             return ' totB: ' + wint(wd[4:8])
 
-
 def dirtyhack(wd, v):
     x = int(wd)
     getBin = lambda x: x >= 0 and str(bin(x))[2:] or "-" + str(bin(x))[3:]
-    n = getBin(wd).zfill(8)
+    n = getBin(x).zfill(8)
     if v == 1:
         return wint(n[0:4])
     elif v == 2:
@@ -139,8 +138,8 @@ def explainIBLBytestream(wordlist, verbosef):
             verbosef.write(stuff + '  CONDENSED HIT'
                            + ' col: ' + wint(col4)
                            + ' row: ' + wint(row4)
-                           #+ ' totA: ' + str(dirtyhack(tmp, 1))
-                            #+ dirtyhack(tmp, 2)
+                           + ' totA: ' + str(dirtyhack(tmp, 1))
+                           + dirtyhack(tmp, 2)
 
                            + '\n')
             verbosef.write('E CONDENSED HIT'.rjust(71)

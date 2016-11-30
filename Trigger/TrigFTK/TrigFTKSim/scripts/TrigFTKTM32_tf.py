@@ -51,7 +51,7 @@ def getTransform():
     executorSet = set()
     for tower in range(ntowers) :
         executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(tower),
-              skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',
+              skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',disableMP=True,
               inData = ['NTUP_FTKIP','TXT_FTKIP'], outData = ['NTUP_FTKTMP_{0}'.format(tower)],
               extraRunargs = {'bankregion': [tower],'banksubregion': [0]},
               # Need to ensure that the correct subregion is used
@@ -64,7 +64,7 @@ def getTransform():
 
     # add final merge for all the tower, generating a NTUP_FTK file
     executorSet.add(athenaExecutor(name = "FTKSimulationMergeFinal",
-          skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
+          skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',disableMP=True,
           inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(tower) for tower in range(ntowers) ])+('NTUP_FTKIP',)],
           outData = ['NTUP_FTK'],
           extraRunargs = {'inputNTUP_FTKTMPFile': [ 'tmp.NTUP_FTKTMP_{0}'.format(tower) for tower in range(ntowers)]},

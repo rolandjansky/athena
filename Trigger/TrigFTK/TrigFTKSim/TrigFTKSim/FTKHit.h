@@ -20,6 +20,7 @@ class FTKCoord {
   int m_dim; // dimension
   
   float *m_coord; //[m_dim] coordinate
+
   /* store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
   unsigned int m_hw_word;
   bool m_includesGangedHits;
@@ -40,6 +41,7 @@ class FTKCoord {
   float &operator[](int i) const { return m_coord[i]; }
 
   void setHwWord(unsigned int hw_word) { m_hw_word = hw_word; }
+  unsigned int getHwWord() { return m_hw_word; }
   void setHwCoord(int i, unsigned int v) {
     if (m_dim==1 && i==0)
       m_hw_word = (m_hw_word & ~FTKRawHit::strip_coord_mask) |
@@ -81,6 +83,7 @@ protected:
   int m_n_strips; // # of strips in a cluster for SCT; time-over-threshold for pixels
   int m_bankID; // bank ID for 8L banks
   bool m_ITkMode; // true for ITk sector mapping
+  float m_scalingCoordToHWCoord[2]; // scaling of coordinate to FTK type
   FTKCoord m_coord;
   MultiTruth m_truth;
   std::vector<FTKHit> m_channels; // channels within the current
@@ -101,15 +104,24 @@ public:
       return true;
     return false;
   }
+
+  float getScalingCoordToHWCoord(unsigned int i) {
+    if (i < 2) return m_scalingCoordToHWCoord[i];
+    else return -999;
+  }
+  void setScalingCoordToHWCoord(unsigned int i, float f) {
+    if (i < 2) m_scalingCoordToHWCoord[i] = f;
+  }
+
   int getSector() const { return  m_sector; }
   int getPlane() const { return m_plane; }
-  int getEtaCode() const { return m_sector%1000; }
+  int getEtaCode() const { return m_ITkMode ? (m_sector % 10000) : (m_sector % 1000); }
   int getIsBarrel() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 2 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 1 : 0) : 0 ); }
   int getASide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 4 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 == 0) : 0 ); }
   int getCSide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 0 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 != 0) : 0 ); }
   int getEtaWidth() const { return m_etaWidth; }
   int getPhiWidth() const { return m_phiWidth; }
-  int getEtaModule() const { return m_ITkMode ? ( ((m_sector % 100000) / 100) - 60 ) : ( m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1 ); }
+  int getEtaModule() const { return m_ITkMode ? ( ((m_sector % 10000) / 100) - 60 ) : ( m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1 ); }
   int getPhiModule() const { return m_ITkMode ? ( m_sector / 100000 ) : ( m_coord.getDim()!=3 ? m_sector/1000 : m_sector/10000 ); }
   int getSection() const { return m_ITkMode ? ( m_sector % 10 ) : ( m_coord.getDim()!=3 ? (m_sector%1000 < 20 ? 0 : m_sector%10) : 0 ); } // FIXME
   int getDim() const { return m_coord.getDim(); }
@@ -155,8 +167,11 @@ public:
 
   //  int getHwLocalCoord(int i) const;
   void setHwWord(unsigned int hw_word) { m_coord.setHwWord(hw_word); }
+  unsigned int getHwWord() { return m_coord.getHwWord(); }
   void setHwCoord(int i, unsigned int v) { m_coord.setHwCoord(i, v); }
   unsigned int getHwCoord(int i) const { return m_coord.getHwCoord(i); }
+
+
 
   friend bool operator==(const FTKHit &left, const FTKHit &right);
   friend std::ostream &operator<<(std::ostream&,const FTKHit&);
@@ -165,6 +180,6 @@ public:
   const static int single_pixel_col_size  = 16; // one nominal pixel is 16 units of 25um
   const static int single_IBL_col_size  = 10; // one nominal IBL pixel is 10 units of 25um
 
-  ClassDef(FTKHit,6)
+  ClassDef(FTKHit,8)
 };
 #endif // FTKHIT_H

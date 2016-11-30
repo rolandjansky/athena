@@ -108,6 +108,8 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   
   // variable to create the module ID map
   std::string m_global2local_path;
+  std::string m_sram_path_pix;
+  std::string m_sram_path_sct;
   std::string m_rmap_path;
   FTKRegionMap *m_rmap;
 public:

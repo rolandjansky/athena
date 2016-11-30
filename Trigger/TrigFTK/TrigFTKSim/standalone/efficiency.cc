@@ -384,9 +384,9 @@ void Process(Long64_t ientry) {
 	const std::vector<FTKHit>& hits = road->getHits(i);
 	std::vector<FTKHit>::const_iterator match_hit=hits.end();
 	for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
-	  const FTKHit& hit = *ihit;
+	  //	  const FTKHit& hit = *ihit;
 	  // printf("plane = %d\n", hit.getPlane());
-	  assert( hit.getDim()>=1 );
+	  assert( ihit->getDim()>=1 );
 	  MultiTruth this_mt(ihit->getTruth());
 	  this_mt.assign_equal_normalization();
 	  mtv.push_back( this_mt );
@@ -401,11 +401,11 @@ void Process(Long64_t ientry) {
       MultiTruth::Weight tfrac;
       const bool ok = mt.best(tbarcode,tfrac);
       Int_t index(-1), barcode(0);
-      Double_t frac(0.0);
+      //Double_t frac(0.0);
       if( ok ) {
 	index = tbarcode.first;
 	barcode = tbarcode.second;
-	frac = tfrac;
+	//frac = tfrac;
       }
       // printf("mtv_size, index, barcode, frac = %d, %d, %d, %lf\n", mtv.size(), index, barcode, frac);
       ///if (index==0) {

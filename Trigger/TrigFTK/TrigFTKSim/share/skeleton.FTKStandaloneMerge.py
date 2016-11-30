@@ -84,6 +84,12 @@ FTKTagOptions["Run2v1"] =  \
 FTKTagOptions["Run2TempMapv0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions['SectorsAsPatterns32Tower12L3D'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns32Tower8L3D'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions['SectorsAsPatterns3D'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
@@ -104,6 +110,15 @@ FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = \
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["HWMode2Test32Tower"] = \
    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["HWMode2Test64Tower"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v1"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v2"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
@@ -143,9 +158,18 @@ FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
 
 FTKTagOptions['FitITk'] = {
-    'MergeRoads' : False ,
+    'MergeRoads' : True ,
     'HitWarrior' : 0 ,
 }
+FTKTagOptions['FitITkSaP'] = {
+    'MergeRoads' : True ,
+    'HitWarrior' : 0 ,
+}
+FTKTagOptions['FitITkDC'] = {
+    'MergeRoads' : True ,
+    'HitWarrior' : 0 ,
+}
+
 
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):

@@ -920,7 +920,7 @@ const std::list<FTKRoad>& FTK_AMBank::getRoads()
 {
   // FlagJT: moved ~half of this function to attach_SS() so that we
   // can take advantage of the KD Tree in road_warrior().
-   std::list<FTKRoad>::iterator iroad = m_roads.begin();
+  std::list<FTKRoad>::iterator iroad = m_roads.begin();
   for (;iroad!=m_roads.end();++iroad) {
     int pattID = iroad->getPatternID();
 

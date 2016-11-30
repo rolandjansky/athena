@@ -10,6 +10,10 @@
  *  write out partition file which can be used as a steering
  *    to equalize the efficiency across eta bins
  *
+ * in the partition file, each partition corresponds to a list of sectors
+ *   together with a maximum pattern count
+ *   
+ *
  */
 
 #include <iostream>
@@ -20,6 +24,8 @@
 #include <glob.h>
 #include <TString.h>
 #include <TFile.h>
+#include <TH2D.h>
+#include <TH1D.h>
 #include <TTree.h>
 #include <TGraph.h>
 #include <TMath.h>
@@ -75,7 +81,7 @@ public:
    const char *GetSlicesFilePath(void) const {
       return *(*this)["slices_file_path"];
    }
-   double const GetAbsEtaRangePar(int i) const {
+   double GetAbsEtaRangePar(int i) const {
       return (*(*this)["absetarange"])[i];
    }
    double GetEpsilonLimit(void) const {
@@ -156,18 +162,33 @@ int main(int argc, char const *argv[]) {
          <<PartitionSteering::Instance()->GetEfficiencyPlotName()
          <<"\"not found\n";
    }
+   // here one can restrict the range in eta
+   //  sectors outside the eta range are discarded
+   //  -> they will not be written to the partition file
    double absetamin=PartitionSteering::Instance()->GetAbsEtaRangePar(0);
    double absetamax=PartitionSteering::Instance()->GetAbsEtaRangePar(1);
+   // this offset is there to adjust the slices numbering
+   //  to the bins of the eta efficiency plot
    double etabinOffset=PartitionSteering::Instance()->GetEtaBinOffset();
+   // this is a limit on the maximum allowed sector ID
+   //   -> sectorIDs >= max will not be written to the partition file
    int maxSectorId=PartitionSteering::Instance()->GetMaxSectorId();
+
    cout<<"abs(eta) range: "<<absetamin<<"..."<<absetamax<<"\n";
    cout<<"etabinOffset: "<<etabinOffset<<"\n";
+
    // loop over all regions
    int totalMaxSector=0;
    int totalMaxSectorUsed=0;
    int totalNsectorTotal=0;
    int totalNsectorUsed=0;
    int totalNsectorUsedBank=0;
+
+   // write output file 
+   TFile *outputRoot=new TFile("bank_statistics.root","RECREATE");
+   TH2D *originalPerSlice2(0),*partitionedPerSlice2(0);
+   TH1D *etaPerSlice2(0),*cosThetaPerSlice2(0);
+
    for(int reg=0;reg<nreg;reg++) {
       logging.Info("loop")<<"Processing region "<<reg<<"\n";
       // read slices
@@ -177,6 +198,10 @@ int main(int argc, char const *argv[]) {
       TDirectory *slices=FTKRootFile::Instance()->OpenRootFileReadonly
          (sliceFileName);
       if(slices) {
+         // ctheta contains for each slice in cos(theta) a bitvector
+         //  the bits correspond to sector IDs
+         //  if the bit is on, the sector may have patterns
+         //  in teh given cos(theta) bin
          TClonesArray *ctheta;
          TString name("c_bits_ctheta");
          slices->GetObject(name,ctheta);
@@ -188,9 +213,13 @@ int main(int argc, char const *argv[]) {
          // output file
          TString outputFileName=TString::Format("partition_reg%d.out",reg);
          ostream *outputFile=new ofstream(outputFileName);
+
          // read pattern bank(s)
          // either read one subregion or read nSub subregions
+
+         // this variable will contain the number of patterns per sector
          map<int,int> patternsPerSector;
+         // this variable will contain the total number of patterns
          int nPatternRead=0;
          for(int isubRead=0;isubRead<nsub;isubRead++) {
             // read pattern bank(s) and determine number of patterns
@@ -236,6 +265,8 @@ int main(int argc, char const *argv[]) {
             }
             //
             // count sector multiplicities
+            // for the given bank, read the sectorID of all patterns
+            // and cout the (original) number of patterns per sector ID
             TTree *tree;
             patternBank->GetObject("Bank",tree);
             if(!tree) {
@@ -253,7 +284,7 @@ int main(int argc, char const *argv[]) {
             int sectorID;
             if(!pattern) {
                // flat format
-               // acces branches and set addresses
+               // access branches and set addresses
                branch_sectorID=tree->GetBranch("sectorID");
                branch_sectorID->SetAddress(&sectorID);
             } else {
@@ -262,7 +293,7 @@ int main(int argc, char const *argv[]) {
             for(int iPattern=0;iPattern<nPattern;++iPattern) {
                branch_sectorID->GetEntry(iPattern);
                if(pattern) {
-                  sectorID=pattern->getSectorID();
+		 sectorID=pattern->getSectorID();
                }
                patternsPerSector[sectorID]++;
                nPatternRead++;
@@ -275,6 +306,14 @@ int main(int argc, char const *argv[]) {
             <<"total sectors (bank): "<<patternsPerSector.size()
             <<" total patterns: "<<nPatternRead<<"\n";
 
+
+         // here we have:
+         //  ctheta[] : sectors per cos(theta) slice
+         //                        .
+         //  patternsPerSector[] : number of patterns per sector
+         //                        .size() is the number of sectors
+         //  nPatternRead : total number of patterns
+         
          //
          // statistics for one subregion
          int regionMaxSector=0;
@@ -282,30 +321,57 @@ int main(int argc, char const *argv[]) {
          int regionNsectorTotal=0;
          int regionNsectorUsed=0;
          int regionNsectorUsedBank=0;
-         // analyse patterns per sector in slices of eta
+
+         // there will be nsub groups of partitions
+         // (corresponding to the LAMB boards)
          for(int isub=0;isub<nsub;isub++) {
+            // analyse patterns per sector in slices of eta
             // rebalance patterns as a function of the efficiency
             // (1) for each sector, determine the eta slice number 
             int nSlice1=ctheta->GetEntries();
             map<int,double> sum0,sum1;
             for(int i=0;i<nSlice1;i++) {
                TBits *bits=(TBits *)ctheta->At(i);
-               //for(map<int,int>::const_iterator is=
-               //       patternsPerSector.begin();is!= patternsPerSector.end();
-               //    is++) {
-               //   int sector=(*is).first;
-               for(int sector=0;sector<bits->GetNbits();sector++) {
-                  if(sector %nsub !=isub) continue;
+               for(size_t sector=0;sector<bits->GetNbits();sector++) {
+		 if((int)sector %nsub !=isub) continue;
                   // skip sector if outside range
-                  if(maxSectorId && (sector>=maxSectorId)) continue;
+		 if(maxSectorId && ((int)sector>=maxSectorId)) continue;
                   if((*bits)[sector]) {
                      sum0[sector]+=1.0;
                      sum1[sector]+=i;
                   }
                }
             }
-            //map<int,int> sliceNumber;
+            // here:
+            //    sum0[sector] -> number of slices for this sector
+            //    sum1[sector] -> weighted sum of slices (weight=slice number)
+            // -> the average position of a sector is given by:
+            //       sum1[sector]/sum0[sector]
+            // This position is measured in units of slice number
+            // it can take half-integer numbers: 0 0.5 1 1.5 2 2.5 ...
+
+            // This sets the number of partitions along eta
+            //   there is one partition for each possible half-integer number
+            //   empty partitions will be skipped.
             int nSlice2=2*nSlice1;
+
+            if(!originalPerSlice2) {
+               outputRoot->cd();
+               originalPerSlice2=new TH2D("originalPerSlice2",
+                                           ";slice;tower",
+                                           nSlice2,-0.5,nSlice2-0.5,
+                                           nreg,-0.5,nreg-0.5);
+               partitionedPerSlice2=new TH2D("partitionedPerSlice2",
+                                              ";slice;tower",
+                                              nSlice2,-0.5,nSlice2-0.5,
+                                              nreg,-0.5,nreg-0.5);
+               etaPerSlice2=new TH1D("etaPerSlice2",";slice;eta",
+                                     nSlice2,-0.5,nSlice2-0.5);
+               cosThetaPerSlice2=new TH1D("cosThetaPerSlice2",
+                                          ";slice;cos(theta)",
+                                          nSlice2,-0.5,nSlice2-0.5);
+            }
+            // next, each sector is assigned to one partition "nslice2"
             vector<int> patternPerSlice(nSlice2);
             vector<vector<int> > sectorList(nSlice2);
             for(map<int,double>::const_iterator is=sum0.begin();
@@ -318,18 +384,27 @@ int main(int argc, char const *argv[]) {
                   patternPerSlice[slice2]+=patternsPerSector[sector];
                }
             }
+            // here:
+            //   sectorList[partition][] :  the sectors in this partition 
+            //   patternPerSlice[partition] : number of patterns in partition
+
             // (2) for each slice determine the efficiency and add up
-            //   target number of patterns
+            //   the target number of patterns
             vector<double> targetPatterns(nSlice2);
             double ctheta0=TMath::SinH(-3.),ctheta1=TMath::SinH(3.);
             double total=0.;
             for(int i=0;i<nSlice2;i++) {
+               // get cos(theta) from slice number
                double ctheta=(i+etabinOffset)*(ctheta1-ctheta0)/nSlice2+ctheta0;
+               // get eta coordinate (for efficiency plot)
                double eta=TMath::ASinH(ctheta);
                double abseta=TMath::Abs(eta);
+               // interpolated efficiency from plot
                double epsilon=efficiencyPlot->Eval(eta);
                double epsilon0=
                   PartitionSteering::Instance()->GetEpsilonLimit();
+               cosThetaPerSlice2->SetBinContent(i+1,ctheta);
+               etaPerSlice2->SetBinContent(i+1,eta);
                if(((absetamin>=absetamax)||
                    ((abseta>=absetamin)&&(abseta<=absetamax)))&&
                   (patternPerSlice[i]>0)) {
@@ -342,12 +417,27 @@ int main(int argc, char const *argv[]) {
                         weight=PartitionSteering::Instance()->GetWeightLimit();
                      }
                   }
+                  // weight: desired weighting factor fro which the predicted
+                  //   efficiency reaches the target efficiency
+
                   targetPatterns[i]+= patternPerSlice[i]*weight;
                   total+= targetPatterns[i];
                }
+               originalPerSlice2->SetBinContent(i+1,reg+1,patternPerSlice[i]);
             }
+            // here:
+            //   targetPatterns[partition] : patterns needed to reach target
+            //                                 efficiency
+            //   total : total number of patterns needed to reach target
+
             // (3) normalize and round
+            //   targetPatterns[] should be scaled down by the factor
+            //     nPattern/total 
+            //  Problem: finally, all number have to be integer
+            //    fractional patterns have to be rounded up or down
+            //
             int tot=0;
+            // target number of patterns in this subregion
             int nPattern=nPatternRead/nsub;
             if(PartitionSteering::Instance()->GetNPattern())
                nPattern=PartitionSteering::Instance()->GetNPattern();
@@ -357,24 +447,40 @@ int main(int argc, char const *argv[]) {
                nPattern=nSlice2;
             }
             for(int i=0;i<nSlice2;i++) {
+               // skip empty partitions
                if(patternPerSlice[i]==0) continue;
                if(total>0) {
+                  // normalized targen number of patterns
                   patternPerSlice[i]=
                      (int)((targetPatterns[i]*nPattern)/total+0.5);
                } else {
                   patternPerSlice[i]=1;
                }
                tot+= patternPerSlice[i];
-           }
+            }
+            // here:
+            //  patternPerSlice[i] : renormalized target number of patterns
+            //                         integer
+            //                  !!! the original content is overwritten !!!
+            //  tot : sum of renormalizerd target number of patterns
+
+            // execute tis loop to adjust the number of patterns
+            //   until the integer number: tot
+            //   equals the target number: nPattern
             while(tot-nPattern) {
+               // try all partitions in sequence
                for(int i=0;i<nSlice2;i++) {
+                  // do not adjust empty partitions
                   if(patternPerSlice[i]<=0) continue;
                   int delta=tot-nPattern;
-                  if(!delta) break;
+                  if(!delta) break; // done
                   else if(delta>0) {
+                     // too many patterns, subtract one in this partition
                      tot--;
                      patternPerSlice[i]--;
                   } else if(delta<0) {
+                     // too few patterns, add one in this partition
+                     // (the if is redundant???)
                      if(patternPerSlice[i]>0) {
                         tot++;
                         patternPerSlice[i]++;
@@ -382,6 +488,11 @@ int main(int argc, char const *argv[]) {
                   }
                }
             }
+            for(int i=0;i<nSlice2;i++) {
+               partitionedPerSlice2->SetBinContent(i+1,reg+1,
+                                                   patternPerSlice[i]);
+            }
+            // done
             // write out partition file
             int sum=0;
             int nSectorUsed=0;
@@ -440,6 +551,12 @@ int main(int argc, char const *argv[]) {
             <<"failed to open slices file \""<<sliceFileName<<"\"\n";
       }
    }
+   outputRoot->cd();
+   originalPerSlice2->Write();
+   partitionedPerSlice2->Write();
+   etaPerSlice2->Write();
+   cosThetaPerSlice2->Write();
+   delete outputRoot;
    logging.Info("output")
       <<"maxSector="<<totalMaxSector<<" maxSectorUsed="<<totalMaxSectorUsed
       <<" nSectorTotal="<<totalNsectorTotal<<" nSectorUsed="<<totalNsectorUsed

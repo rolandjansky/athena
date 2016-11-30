@@ -55,17 +55,14 @@ def getTransform():
             athenaExecutor(
                 name = 'FTKFullSimulationBank{0}'.format(subregion) ,
                 skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py' ,
-                inData = ['NTUP_FTKIP','TXT_FTKIP'] ,
+                inData = ['NTUP_FTKIP','TXT_FTKIP'] ,disableMP=True,
                 outData = ['NTUP_FTKTMP_{0}'.format(subregion)] ,
                 extraRunargs = {
                     'banksubregion' : [subregion] ,
-                    'FTKSetupTag' : 'FitITk' ,
-                    'maxEvents' : 200 ,
-                    #'inputNTUP_FTKIPFile' : ['ftksim_ITk_wrap.root'] ,
-                    #'outputNTUP_FTKTMPFile' : 'ftktracks_TMP{0}.root'.format(subregion) ,
-                    'fitconstantspath' : ['corrgen_raw_8L_reg13.gcon'] ,
                 } ,
                 runtimeRunargs = {
+                    'MaxMissingPlanes' : 'runArgs.MaxMissingPlanes' ,
+                    'fitconstantspath' : 'runArgs.fitconstants{0}path'.format(subregion) ,
                     'patternbankpath' : 'runArgs.patternbank{0}path'.format(subregion) ,
                     'outputNTUP_FTKTMPFile' : 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion) ,
                     'cachedbankpath' : 'runArgs.cachedbank{0}path'.format(subregion) ,
@@ -77,15 +74,11 @@ def getTransform():
     executorSet.add(
         athenaExecutor(
             name = 'FTKSimulationMerge' ,
-            skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py' ,
+            skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py' ,disableMP=True,
             inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)] ,
             outData = ['NTUP_FTKTMP'] ,
             extraRunargs = {
                 'inputNTUP_FTKTMPFile' : ['tmp.NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions)] ,
-                #'inputNTUP_FTKTMPFile' : ['ftktracks_TMP0.root'] ,
-                #'outputNTUP_FTKTMPFile' : 'ftktracks_merge.root' ,
-                'FTKSetupTag' : 'FitITk' ,
-                'maxEvents' : 200 ,
             } ,
             runtimeRunargs = {
                 'MergeRegion' : 'runArgs.bankregion[0]' ,
@@ -111,8 +104,11 @@ def addFTKSimulationArgs(parser):
     # Add a specific FTK argument group
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation options')
 
-    parser.add_argument('--maxEvents', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
-                        help='Number of events to be processed', group='TrigFTKSim')
+    parser.add_argument('--FTKSetupTag', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Configuration tag, specifies some input options', group='TrigFTKSim')
+ 
+    parser.add_argument('--MaxMissingPlanes', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Maximum allowed missing layers', group='TrigFTKSim')
 
     parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='Bank region number', group='TrigFTKSim', nargs='+')
@@ -128,9 +124,15 @@ def addFTKSimulationArgs(parser):
 
     parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of HW configuration file', group='TrigFTKSim')
+
+    parser.add_argument('--bankpatterns', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
+                        help='List of max patterns per AM bank (-1 = no limit)', group='TrigFTKSim', nargs='+')
     
     # Add named parameters for each subregion
     for subregion in range(subregions):
+        parser.add_argument('--fitconstants{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
+                            help='Fit constants (.gcon) path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
+
         parser.add_argument('--patternbank{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                             help='Pattern bank path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
 

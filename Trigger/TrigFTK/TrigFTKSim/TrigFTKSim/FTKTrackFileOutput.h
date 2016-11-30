@@ -81,7 +81,10 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
     { m_data[ib]->addNFitsBadMajority(v); }
   void addNFitsHWRejectedMajority(int ib, int v)
     { m_data[ib]->addNFitsHWRejectedMajority(v); }
-
+  void addNConnections(int ib, int v) 
+    { m_data[ib]->addNConnections(v); }
+  void addNExtrapolatedTracks(int ib, int v)
+    { m_data[ib]->addNExtrapolatedTracks(v); }
 
   void addTrackI(int, const FTKTrack&);
   void addNCombsI(int ib, int v)

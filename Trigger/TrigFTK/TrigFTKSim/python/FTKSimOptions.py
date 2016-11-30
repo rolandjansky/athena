@@ -22,6 +22,12 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.add_argument('--IBLMode',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help='Enalbe the IBL geometry',group='TrigFTKSim')
 
+    parser.add_argument('--StoreAllSS',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=True),
+                        help='If enabled, store all SS, not just those in roads',group='TrigFTKSim')
+
+    parser.add_argument('--FixEndCapL0',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=True),
+                        help='Fix EndCap L0 clustering',group='TrigFTKSim')
+
     parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='TSP bank utilisation', group='TrigFTKSim')
     parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
@@ -116,6 +122,8 @@ def addTrigFTKSimRFOptions(parser):
                         help="String format describing the generic path for the bank like: patterns_reg{0}_sub{1}.root.",
                         group="TrigFTKRoadFinder",nargs='+')
 
+    parser.add_argument("--MaxMissingSCTPairs", type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Maximum number of missing SCT pairs, allowed in the transition region", group="TrigFTKRoadFinder")
     parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
                         help='Location of badmap file', group='TrigFTKRoadFinder')
     parser.add_argument('--badmap_path_for_hit', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
@@ -133,13 +141,16 @@ def addTrigFTKSimRFOptions(parser):
                          help="Set the SS format: 0 (def) offline, 1 HW-like used in Vertical Slice, 2 HW-like 2015", group="TrigFTKRoadFinder")
     parser.add_argument('--ModuleLUTPath',type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
                          help="Global to Local module ID LUT used during the road finding stage", group="TrigFTKRoadFinder")
+
+    parser.add_argument('--ModuleLUTPath2nd',type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                         help="Global to Local module ID LUT used during the SSB", group="TrigFTKRoadFinder")
     
     parser.add_argument('--DCMatchMethod',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                          help="Set the DC matching method", group="TrigFTKRoadFinder") 
     
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
-    parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=False),
+    parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the SCT clustering [def: False]", group="TrigFTKRoadFinder")
 
     parser.add_argument('--MakeCache', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
@@ -189,6 +200,10 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
+
+    parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
+
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),

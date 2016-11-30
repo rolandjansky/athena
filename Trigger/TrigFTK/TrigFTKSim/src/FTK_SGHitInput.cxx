@@ -65,8 +65,8 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   m_minPt(.8*CLHEP::GeV),
   m_outFileNameRawHits( "ftksim_raw_hits.dat.bz2" ),
   m_readTruthTracks(false),
-  m_dooutFileRawHits(false),
   m_UseNominalOrigin(false),
+  m_dooutFileRawHits(false),
   ofl(),
   oflraw()
 {
@@ -102,42 +102,42 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_SGHitInput::initialize(){
 
-  m_log << MSG::INFO << "FTK_SGHitInput::initialize()" << endreq;
+  m_log << MSG::INFO << "FTK_SGHitInput::initialize()" << endmsg;
 
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endreq;
+    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if( m_truthToTrack.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_truthToTrack << " truth to track tool not found" << endreq;
+    m_log << MSG::FATAL << m_truthToTrack << " truth to track tool not found" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_truthToTrack << " retrieved" << endreq;
+    m_log << MSG::INFO << m_truthToTrack << " retrieved" << endmsg;
   }
 
   if( m_extrapolator.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_extrapolator << " extrapolator tool not found" << endreq;
+    m_log << MSG::FATAL << m_extrapolator << " extrapolator tool not found" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_extrapolator << " retrieved" << endreq;
+    m_log << MSG::INFO << m_extrapolator << " retrieved" << endmsg;
   }
 
   if( m_beamSpotSvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endreq;
+    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endreq;
+    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endmsg;
   }
 
   if( service("DetectorStore",m_detStore).isFailure() ) {
-    m_log << MSG::FATAL <<"DetectorStore service not found" << endreq;
+    m_log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   IPartPropSvc* partPropSvc = 0;
   if( service("PartPropSvc", partPropSvc, true).isFailure() ) {
-    m_log << MSG::FATAL << "particle properties service unavailable" << endreq;
+    m_log << MSG::FATAL << "particle properties service unavailable" << endmsg;
     return StatusCode::FAILURE;
   }
   m_particleDataTable = partPropSvc->PDT();
@@ -146,23 +146,23 @@ StatusCode FTK_SGHitInput::initialize(){
   m_idHelper = new AtlasDetectorID;
   const IdDictManager* idDictMgr( 0 );
   if( m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
-    m_log << MSG::ERROR << "Could not get IdDictManager !" << endreq;
+    m_log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -185,7 +185,7 @@ StatusCode FTK_SGHitInput::initialize(){
 
 StatusCode FTK_SGHitInput::finalize(){
   MsgStream log(msgSvc(), name());
-  m_log << MSG::INFO << "finalized" << endreq;
+  m_log << MSG::INFO << "finalized" << endmsg;
 
   if( m_idHelper ) { delete m_idHelper; }
 
@@ -214,7 +214,7 @@ int FTK_SGHitInput::readData()
 
   const EventInfo* eventInfo(0);
   if( m_storeGate->retrieve(eventInfo).isFailure() ) {
-    m_log << MSG::ERROR << "Could not retrieve event info" << endreq;
+    m_log << MSG::ERROR << "Could not retrieve event info" << endmsg;
     return -1;
   }
   const EventID* eventID( eventInfo->event_ID() );
@@ -222,7 +222,7 @@ int FTK_SGHitInput::readData()
   m_log << MSG::INFO
         << "entered execution for run " << eventID->run_number()
         << "   event " << eventID->event_number()
-        << endreq;
+        << endmsg;
 
   const TriggerInfo *triggerInfo(eventInfo->trigger_info());
 
@@ -249,21 +249,21 @@ int FTK_SGHitInput::readData()
   HitIndexMap pixelClusterIndexMap;
   // get pixel and sct cluster containers
   if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endreq;
+    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endmsg;
   }
   if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endreq;
+    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endmsg;
   }
 
 
   // dump raw silicon data
-  m_log << MSG::INFO << "Dump raw silicon data" << endreq;
+  m_log << MSG::INFO << "Dump raw silicon data" << endmsg;
   read_raw_silicon( hitIndexMap, pixelClusterIndexMap );
 
   // *** add other variables in the future (ex) SpacePoint etc... see Dump.cxx *** //
   // dump truth tracks
   if(m_readTruthTracks) {
-    m_log << MSG::INFO << "Dump truth tracks" << endreq;
+    m_log << MSG::INFO << "Dump truth tracks" << endmsg;
     m_truth_track.clear();
     read_truth_tracks();
   }
@@ -288,10 +288,10 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   const InDetSimDataCollection* pixelSimDataMap(0);
   const bool have_pixel_sdo = m_storeGate->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
   if (!have_pixel_sdo) {
-    m_log << MSG::WARNING << "Missing Pixel SDO Map" << endreq;
+    m_log << MSG::WARNING << "Missing Pixel SDO Map" << endmsg;
   }
   else {
-    m_log << MSG::INFO << "Found Pixel SDO Map" << endreq;
+    m_log << MSG::INFO << "Found Pixel SDO Map" << endmsg;
   }
 
   // push back the hit information  to DataInput for HitList , copy from RawInput.cxx
@@ -305,7 +305,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
       if( !pixel_rdoCollection ) { continue; }
       const int size = pixel_rdoCollection->size();
-      m_log << MSG::DEBUG << "Pixel InDetRawDataCollection found with " << size << " RDOs" << endreq;
+      m_log << MSG::DEBUG << "Pixel InDetRawDataCollection found with " << size << " RDOs" << endmsg;
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
         Identifier rdoId = (*iRDO)->identify();
@@ -422,7 +422,18 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         tmpSGhit.setY(gPos.y());
         tmpSGhit.setZ(gPos.z());
         tmpSGhit.setHitType(ftk::PIXEL);
-        tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+
+	bool isIBL = (m_pixelId->barrel_ec(rdoId) == 0 && m_pixelId->layer_disk(rdoId) == 0) ? true : false;
+	bool isIBL3D = (isIBL && FTKSetup::getFTKSetup().getIBLMode() == 2 && 
+			(abs(m_pixelId->eta_module(rdoId)) >= 7)) ? true : false;
+
+	if (isIBL3D)
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL3D);
+	else if (isIBL)
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL_PLANAR);
+	else
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+	
         tmpSGhit.setIdentifierHash(sielement->identifyHash());
         tmpSGhit.setBarrelEC(m_pixelId->barrel_ec(rdoId));
         tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId));
@@ -507,10 +518,10 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   const InDetSimDataCollection* sctSimDataMap(0);
   const bool have_sct_sdo = m_storeGate->retrieve(sctSimDataMap, "SCT_SDO_Map").isSuccess();
   if (!have_sct_sdo) {
-    m_log << MSG::WARNING << "Missing SCT SDO Map" << endreq;
+    m_log << MSG::WARNING << "Missing SCT SDO Map" << endmsg;
   }
   else {
-    m_log << MSG::INFO << "Found SCT SDO Map" << endreq;
+    m_log << MSG::INFO << "Found SCT SDO Map" << endmsg;
   }
 
   const DataHandle<SCT_RDO_Container> sct_rdocontainer_iter;
@@ -520,7 +531,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
       if( !SCT_Collection ) { continue; }
       const int size = SCT_Collection->size();
-      m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
+      m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endmsg;
       for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
         const Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
@@ -642,7 +653,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
         if( !SCT_Collection ) { continue; }
         const int size = SCT_Collection->size();
-        m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
+        m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endmsg;
         for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
           const Identifier rdoId = (*iRDO)->identify();
           const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
@@ -710,11 +721,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
     const InDet::SiClusterCollection* pixelClusterCollection(*iColl);
     if( !pixelClusterCollection ) {
-      m_log << MSG::DEBUG << "pixelClusterCollection not available!" << endreq;
+      m_log << MSG::DEBUG << "pixelClusterCollection not available!" << endmsg;
       continue;
     }
     const int size = pixelClusterCollection->size();
-    m_log << MSG::DEBUG << "PixelClusterCollection found with " << size << " clusters" << endreq;
+    m_log << MSG::DEBUG << "PixelClusterCollection found with " << size << " clusters" << endmsg;
 
     for( DataVector<InDet::SiCluster>::const_iterator iCluster=pixelClusterCollection->begin(), fCluster=pixelClusterCollection->end(); iCluster!=fCluster; ++iCluster ) {
       Identifier theId = (*iCluster)->identify();
@@ -852,7 +863,7 @@ FTK_SGHitInput::read_truth_tracks()
     if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
       key = "";
       if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
-        m_log << MSG::DEBUG << "could not find the McEventCollection"<< endreq;
+        m_log << MSG::DEBUG << "could not find the McEventCollection"<< endmsg;
         return;
       }
     }
@@ -874,7 +885,7 @@ FTK_SGHitInput::read_truth_tracks()
           genEvent->signal_process_vertex()->point3d().z() );
       m_log << MSG::DEBUG <<"using signal process vertex for eventIndex " << ievt << ":"
             << primaryVtx.x() << "\t" << primaryVtx.y()  << "\t" << primaryVtx.z()
-            <<endreq;
+            <<endmsg;
     }
 
 
@@ -955,7 +966,7 @@ FTK_SGHitInput::read_truth_tracks()
         //toshi/// truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
         //toshi//truth_zvertex = m_beamCondSvc->beamPos().z();
         if ( showd0corrSuccess ) {
-          m_log << MSG::DEBUG << "Beamspot from BeamCondSvc used to determine cuts in dump_truth()"<< endreq;
+          m_log << MSG::DEBUG << "Beamspot from BeamCondSvc used to determine cuts in dump_truth()"<< endmsg;
           showd0corrSuccess = false;
         }
       }
@@ -967,13 +978,13 @@ FTK_SGHitInput::read_truth_tracks()
       if( particle->barcode()>100000 || particle->barcode()==0 ) { isPrimary=false;}
       isDetPaperCut=isPrimary;
       // debug line for production_vertex variable
-      if( false ) { m_log << MSG::DEBUG << "z correction -- bool particle->production_vertex() = " << particle->production_vertex()<< endreq; }
+      if( false ) { m_log << MSG::DEBUG << "z correction -- bool particle->production_vertex() = " << particle->production_vertex()<< endmsg; }
       //
       if( isPrimary && particle->production_vertex() ) {
         const HepGeom::Point3D<double> startVertex(particle->production_vertex()->point3d().x(), particle->production_vertex()->point3d().y(), particle->production_vertex()->point3d().z());
         if( std::abs(startVertex.z() - truth_zvertex)>100. ) { isPrimary=false;}
         // debug z vertex correction
-        if( false ) { m_log << MSG::DEBUG << "z correction -- startVertex.z() = " << startVertex.z() << " , truth_zvertex = "<< truth_zvertex<< endreq; }
+        if( false ) { m_log << MSG::DEBUG << "z correction -- startVertex.z() = " << startVertex.z() << " , truth_zvertex = "<< truth_zvertex<< endmsg; }
         //double flight_length = -1.;
         if( particle->end_vertex() ) {
           HepGeom::Point3D<double> endVertex(particle->end_vertex()->point3d().x(), particle->end_vertex()->point3d().y(), particle->end_vertex()->point3d().z());

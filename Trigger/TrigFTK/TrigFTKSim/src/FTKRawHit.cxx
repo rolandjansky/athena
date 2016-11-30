@@ -332,7 +332,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
     // Working at least for SCT barrel
     // Ranges from dumping detector info --
     //   phi_modules in [0,..,72]
-    //   eta_modules in [-52,..,52]
+    //   eta_modules in [-56,..,56]
     //   m_barrel_ec in [-2,0,2] (C-side,B,A-side)
     sector = (m_phi_module*100000) + ((m_eta_module+60)*100) + ((m_barrel_ec+2)*10) + section;
   }
@@ -364,6 +364,27 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
   reshit.setPlane(plane);
   reshit.setSector(sector);
   reshit.setHwWord(m_hw_word);
+  if (m_moduleType == ftk::MODULETYPE_SCT){
+    reshit.setScalingCoordToHWCoord(0,SCT_row_scaling);
+    reshit.setScalingCoordToHWCoord(1,0);
+  }
+  else  if (m_moduleType == ftk::MODULETYPE_PIXEL) {
+    reshit.setScalingCoordToHWCoord(0,PIX_row_scaling);
+    reshit.setScalingCoordToHWCoord(1,PIX_column_scaling);
+  }
+  else  if (m_moduleType == ftk::MODULETYPE_IBL_PLANAR) {
+    reshit.setScalingCoordToHWCoord(0,IBL_planar_row_scaling);
+    reshit.setScalingCoordToHWCoord(1,IBL_planar_column_scaling);
+  }
+  else if (m_moduleType == ftk::MODULETYPE_IBL3D) {
+    reshit.setScalingCoordToHWCoord(0,IBL_3D_row_scaling);
+    reshit.setScalingCoordToHWCoord(1,IBL_3D_column_scaling);
+  }
+  else {// don't think i should be here!
+    reshit.setScalingCoordToHWCoord(0,0);
+    reshit.setScalingCoordToHWCoord(1,0);
+  }
+
   switch (m_hitType) {
   case ftk::PIXEL:
     reshit.setEtaWidth(getEtaWidth());

@@ -56,6 +56,7 @@ const int PIXEL_CLUSTERING_IDEAL=1;
 const int PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX=2;
 const int PIXEL_CLUSTERING_MIXED=100;
 const int PIXEL_CLUSTERING_REALISTIC=101;
+const int  PIXEL_CLUSTERING_HARDWARE = 200; 
 extern bool DUPLICATE_GANGED;
 extern bool GANGED_PATTERN_RECOGNITION;
 extern bool SPLIT_BLAYER_MODULES;
@@ -72,7 +73,17 @@ extern "C" {
   double eta(const FTKRawHit &);
   int hitIsGanged(const FTKRawHit &);
   int gangedPartner(const FTKRawHit &);
-
+  double getDeltaX1A(cluster &); 
+  double getDeltaX2A(cluster &); 
+  int getDeltaXEC1A(cluster &); 
+  int getDeltaXEC2A(cluster &); 
+  int getDeltaYEC1A(cluster &); 
+  int getDeltaYEC2A(cluster &); 
+  int getDeltaY1A(cluster &); 
+  int getDeltaY2A(cluster &);
+  int getDeltaY1B(cluster &); 
+  int getDeltaY2B(cluster &); 
+  	  
 #ifdef __cplusplus
 }
 #endif

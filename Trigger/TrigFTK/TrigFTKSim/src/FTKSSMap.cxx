@@ -8,6 +8,11 @@
 #include "TrigFTKSim/FTKSplitEncoder.h"
 #include "TrigFTKSim/ftkdefs.h"
 
+// #define TRACEBACK_ON_BOUNDARY_VIOLATION
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+#include <execinfo.h>
+#endif
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -848,6 +853,24 @@ int FTKSSMap::getSSGlobal(const FTKHit &hit, bool quiet) const {
        //return -1;
     }
     ss = static_cast<int>(floor( (m_ssm[iplane][isection][iphi].m_phioffset+x+offset)/phiss )*phioff+(ieta));
+
+    if( ftkset.getITkMode() ) {
+      
+      // An extra cross-check here just to ensure that new ITk changes are working
+      // correctly. We try decoding the SS and ensure that we get output values that
+      // match the inputs used to encode this SS value... basically a closure test.
+      
+      int jsection, jphimod, jlocalX, jetacode;
+      decodeSSx( ss , iplane , jsection , jphimod , jlocalX , jetacode );
+      
+      if( jsection!=isection || iphi!=jphimod || jetacode!=ieta || abs(jlocalX-x)>phiss )
+	FTKSetup::PrintMessageFmt( ftk::warn ,
+				   "FTKSSMap::getSSglobal failed to get reasonable values in decode check for ss=%i hitsector=%i because section:%d!=%d || phimod:%d!=%d || etacode:%d!=%d || x:%f-%d>%d\n" ,
+				   ss , hit.getSector() , isection , jsection , iphi , jphimod , ieta , jetacode , x , jlocalX , phiss );
+      
+    }
+    
+    
     if(x<0 || x>=m_ssm[iplane][isection][iphi].m_phiwidth) {
        if ((!quiet)||(cmDebug>5)) {
 	 //cout << "Plane " << iplane << " | Section " << isection << " | Phi " << iphi << " | Eta " << ieta << " | X " << x << " => ss " << ss << endl;
@@ -1090,7 +1113,7 @@ void FTKSSMap::decodeSSTower(int ssid, int towerid, int plane, int section,
    as input it needs a SSID, the tower id and the logical layer ID.
    It handles the pixel layers
 */
-void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
+void FTKSSMap::decodeSSTowerXY(int ssid, int /*towerid*/, int plane, int section,
                                int &localmoduleID,int &localX, int &localY, bool SecondStage) {
    int phi_dc_bits = getSSDCX(plane);
    int eta_dc_bits = getSSDCY(plane);
@@ -1132,6 +1155,9 @@ void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
    unsigned dc_xy=p0p1p2%max_compressed_ssid_etaphi_dc;
    unsigned dc_y=dc_xy/max_compressed_ssid_phi_dc;
    unsigned dc_x=dc_xy%max_compressed_ssid_phi_dc;
+   // decode gray code 
+   for(unsigned tmp=dc_x>>1;tmp; tmp>>=1) dc_x^=tmp;
+   for(unsigned tmp=dc_y>>1;tmp; tmp>>=1) dc_y^=tmp;
 
    int x,y;
    x=(nondc_x<<phi_dc_bits)+dc_x;
@@ -1148,7 +1174,7 @@ void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
    as input it needs a SSID, the tower id and the logical layer ID.
    It handles the strip layers
 */
-void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int &section,
+void FTKSSMap::decodeSSTowerX(int ssid, int /*towerid*/, int plane, int &section,
 			      int &localmoduleID,int &localX, bool SecondStage) {
    int phi_dc_bits = getSSDCX(plane);
 
@@ -1165,6 +1191,15 @@ void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int &section,
    //moduleID=m_rmap->getGlobalId(towerid,plane,localModuleID);
 
    int local_ssid= ssid%max_compressed_ssid;
+   // extract DC bits
+   int dc_x=local_ssid &((1<<phi_dc_bits)-1);
+   // clear dc bits in result
+   local_ssid^=dc_x;
+   // gray-decode dc bits
+   for(unsigned tmp=dc_x>>1;tmp;tmp>>=1) dc_x ^= tmp;
+   // put gray-decoded bits back to result
+   local_ssid |= dc_x;
+
    localX=local_ssid* m_ssm[plane][section][0].m_phiss;
    //std::cout<<"decodeSSTowerX ssid="<<ssid<<" tower="<<towerid<<" plane="<<plane<<" section="<<section<<"\n";
    //std::cout<<" -> phimod="<<phimod<<" etamod="<<etamod 
@@ -1278,6 +1313,7 @@ void FTKSSMap::decodeSSx(int SSid,int plane,int &section,
   int SSid_y = SSid%FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
   // decide barrel/endcap and section number
   static FTKHit dummyHit;
+  dummyHit.setITkMode(FTKSetup::getFTKSetup().getITkMode());
   dummyHit.setSector(SSid_y);
   section=dummyHit.getSection();
   etacode=dummyHit.getEtaCode();
@@ -1290,6 +1326,7 @@ void FTKSSMap::decodeSSx(int SSid,int plane,int &section,
   int module_max=
      m_rmap->getRegionMapItem(-1,plane,section).getTotMod()-1;
   if(FTKSetup::getFTKSetup().getIBLMode()>=1) module_max+=3;
+  if(FTKSetup::getFTKSetup().getITkMode()) module_max+=1;
   for(int test_module=module_max;test_module>=0;test_module--) {
      int phiwidth = m_ssm[plane][section][test_module].m_phiwidth;
      int phiss = m_ssm[plane][section][test_module].m_phiss;
@@ -1602,6 +1639,20 @@ FTKSSMap::compressed_ssid_word_pixel
   // full-precision representation of coordinate / ss size
   int phi_ss_width = m_ssm[plane][section][0].m_phiss;
   int eta_ss_width = m_ssm[plane][section][0].m_etass;
+
+  if((x<0.)||(x>=m_ssm[plane][section][0].m_phiwidth)||
+     (y<0.)||(y>=m_ssm[plane][section][0].m_etawidth)) {
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+     void *buffer[100];int nptrs = backtrace(buffer, 100);
+     backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO);
+#endif
+     cout<<"Error FTKSSMap::compressed_ssid_word_pixel bad coordinates plane="<<plane
+         <<" localmodule="<<local_module_id
+          <<" x="<<x<<" range [0;"<<m_ssm[plane][section][0].m_phiwidth<<"]"
+          <<" y="<<y<<" range [0;"<<m_ssm[plane][section][0].m_etawidth<<"]\n";
+      throw FTKException("compressed_ssid_word_pixel:  coordinate out of range");
+
+  }
   x /= phi_ss_width; // (12-3=9 bits / size)
   y /= eta_ss_width; // (11-3=8 bits / size)
   // dc pieces
@@ -1702,6 +1753,19 @@ FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
   const unsigned int nondcbits_x = total_nondc_bits;
   // full-precision representation of coordinate / ss size (11-1=10 bits / size)
   int x = (int)localX;
+
+  if((x<0.)||(x>=m_ssm[plane][section][0].m_phiwidth)) {
+#ifdef TRACEBACK_ON_BOUNDARY_VIOLATION
+     void *buffer[100];int nptrs = backtrace(buffer, 100);
+     backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO);
+#endif
+     cout<<"Error FTKSSMap::compressed_ssid_word_strip bad coordinates plane="<<plane
+         <<" localmodule="<<localID
+         <<" x="<<x<<" range [0;"<<m_ssm[plane][section][0].m_phiwidth<<"]\n";
+      throw FTKException("compressed_ssid_word_strip: coordinate out of range");
+  }
+
+
   int phi_ss_width = m_ssm[plane][section][0].m_phiss;
   x /= phi_ss_width;
   // dc piece.

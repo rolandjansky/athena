@@ -30,15 +30,15 @@ FTK_RoadMarketTool::~FTK_RoadMarketTool()
 StatusCode FTK_RoadMarketTool::initialize()
 {
 
-  m_log << MSG::INFO << "FTK_RoadMarketTool::initialize()" << endreq;
-  m_log << MSG::INFO << "SaveRoads = " << m_SaveRoads << endreq;  
+  m_log << MSG::INFO << "FTK_RoadMarketTool::initialize()" << endmsg;
+  m_log << MSG::INFO << "SaveRoads = " << m_SaveRoads << endmsg;  
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode FTK_RoadMarketTool::finalize()
 {
-  m_log << MSG::INFO << "FTK_RoadMarketTool::finalize()" << endreq;
+  m_log << MSG::INFO << "FTK_RoadMarketTool::finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -90,7 +90,7 @@ void FTK_RoadMarketTool::ConnectRoads(TTree *tree,  const char *fmt,
 				      int bufsize) 
 {
   if (!m_SaveRoads) {
-    m_log << MSG::INFO << "Roads store is disabled" << endreq;
+    m_log << MSG::INFO << "Roads store is disabled" << endmsg;
     return;
   }
 

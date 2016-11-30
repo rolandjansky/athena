@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4_tf.py 707064 2015-11-11 00:19:24Z end $
+# @version $Id: TrigFTKSM4_tf.py 770308 2016-08-26 12:32:36Z vcavalie $
 
 import sys
 import time
@@ -157,6 +157,8 @@ def addFTKSimulationArgs(parser):
                         help="Enables the second stage fitter", group='TrigFTKSim')
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
+    parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Prints hardware-style SSB constants", group='TrigFTKSim')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Limit on the number of combinations per road", group='TrigFTKSim')
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),

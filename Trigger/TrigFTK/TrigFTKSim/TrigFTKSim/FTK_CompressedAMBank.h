@@ -42,7 +42,6 @@ class FTKPatternOneSector;
 #define VECTOR std::vector
 #define LIST std::list
 
-//#define CANDIDATES_WITHOUT_SECTORID
 #define OPTIMIZED_VECTORMAP
 
 #ifdef OPTIMIZED_VECTORMAP
@@ -120,6 +119,12 @@ public:
                         int hwmodeid_TSP=-1,int hwmodeid_DC=-1,
                         char const *name="FTK_CompressedAMBank");
 
+   // set parameters for TSP import
+   void setNDCmax(int ndc);
+   void setNDCmaxPlane(size_t plane,int ndc);
+   inline int getNDCmax(void) const { return m_nDCmax; }
+   inline int getNDCmaxPlane(size_t plane) const { return m_nDCmaxPlane[plane]; }
+
    // check hwmodeid settings
    int getHWModeSS_dc(void) const;
    int getHWModeSS_tsp(void) const;
@@ -136,7 +141,7 @@ public:
    //   flat format=1: pbank format
    //   flat format=2: pbank+ccache format
    int writePCachedBankFile(char const *cachedBankFile,
-                            int flatFormat=0,int nsub=0) const;
+                            int flatFormat=0,int nsub=0,int nlamb=0) const;
 
    // write root file (reasonaby fast)
    int writeCCachedBankFile(char const *cachedBankFile,int flatFormat=0) const;
@@ -146,7 +151,7 @@ public:
    int compare(FTK_CompressedAMBank const *bank) const;
 
    // print head and tail of one sector of the pattern bank
-   void printSector(int sector,int npattern=10);
+   void printSector(int sector,int npattern=10,int ipattern=-1);
 
    // purely virtual methods from FTK_AMsimulation_base, to be implemented
    virtual const std::unordered_map<int,FTKSS>& getStrips(int plane);
@@ -175,21 +180,24 @@ public:
 
    // translate SSID from DC to TSP and back
    // these functions could possibly be moved elsewhere
-   //   TSPMap???
+   // argument is SSID w/o dc bits
+   // returns vector with dc-bit as index, contains TSP-SSID
+   // (note, the dc-bits possibly are gray-coded)
    std::vector<int> const &getTSPssidVector(int layer,int sector,int dcSSID);
    inline int getTSPssid(int layer,int sector,int dcSSID,int tspXY) {
       return getTSPssidVector(layer,sector,dcSSID)[tspXY];
    }
+   // returns pair(SSID w/o dc bits , dc bits)
    std::pair<int,int> const &getDCssid(int layer,int sector,int tspSSID);
    int getDCssidConst(int layer,int sector,int tspSSID) const;
 
    // read root file (sector-ordered), one subregion
-   int readSectorOrderedBank(const char *name, int maxpatts,int nSub,int numSectorMax);
+   int readSectorOrderedBank(const char *name, int maxpatts,int nSub,int numSectorMax,int nlamb);
    // read root file (sector-ordered)
    //   the sectors are divided into partitions
    //   each partition comes with a maximum number of patterns
    int readSectorOrderedBank(const char *name,const char *partitionListName,
-                             int nSub,int numSectorMax);
+                             int nSub,int numSectorMax,int nlamb);
    // this method reads patterns as defined in the partition list
    // a given partition implements two limits
    //   maximum number of sectors
@@ -203,10 +211,14 @@ public:
       std::set<int> fSectorSet;
    };
    int readPartitionedSectorOrderedBank(const char *name,
-                                        std::list<Partition> const &partitionList);
+                                        std::list<Partition> const &partitionList,int nlamb);
+
+   bool isReservedPatternId(int patternID) const;
 
    int readBANKjson(char const *jsonFile);
    int writeBANKjson(char const *jsonFile) const;
+
+   void printStrips(int plane=-1) const;
 
 protected:
    // read root file (pcache)
@@ -218,7 +230,7 @@ protected:
    // convert sector-ordered DC bank (in memory) to TSP-bank
    void importDCpatterns
       (int nLayer,int offsetSSID,int32_t *ssidData,
-       VECTOR<std::pair<int,int> > const &sectorPointer);
+       VECTOR<std::pair<int,int> > const &sectorPointer,int nlamb);
 
    // finalize memory structures after reading bank data from file
    void readBankPostprocessing(const char *where);
@@ -298,9 +310,6 @@ protected:
   // holds all pattern data
   PatternBank m_bank;
   MAP<int,std::pair<int,int> > m_SectorFirstLastPattern;
-#ifdef CANDIDATES_WITHOUT_SECTORID
-  MAP<int,int> m_patternToSector;
-#endif
   //
   // hold wildcards (layer mask) per sector
   typedef uint8_t HitPattern_t;
@@ -322,13 +331,7 @@ protected:
   // road candidates
   static int const MAX_NROAD;
   unsigned m_nRoadCand;
-  VECTOR<
-#ifdef CANDIDATES_WITHOUT_SECTORID
-     uint32_t
-#else
-     std::pair<uint32_t,uint32_t>
-#endif
-     > m_roadCand;
+  VECTOR<std::pair<uint32_t,uint32_t> > m_roadCand;
   //
   // minimum number of hits
   uint8_t m_nhWCmin;
@@ -337,7 +340,7 @@ protected:
  private:
   //
   // method to insert TSP patterns from one sector
-  typedef MAP<FTKHitPattern,uint64_t,FTKHitPatternCompare>
+  typedef std::multimap<FTKHitPattern,uint64_t,FTKHitPatternCompare>
      HitPatternMap_t;
   void insertPatterns(int sector,FTKPatternOneSector const *patterns,
                       int maxpatts,VECTOR< HitPatternMap_t > &dcPatterns,
@@ -351,22 +354,25 @@ protected:
   void insertSSID(int layer,int sector,int tspSSID,int dcSSID);
 
   //
-  // table to convert SSID and tspXY offsets to a TSP SSID
+  // table to convert SSID w/o DC bits and DC bits to a TSP SSID
   VECTOR<MAP<int,MAP<int,std::vector<int> > > > m_DCtoTSP;
   //
-  // table to convert TSP SSID to SSID and index
+  // table to convert TSP SSID to SSID w/o DC bits and dc bits
   VECTOR<MAP<int,MAP<int,std::pair<int,int> > > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
   //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
   //    m_dcMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
-  //    m_hbMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
+  //    m_hbMaskLookup[layer][dcHBbits]  returns the HB bits for this layer
   // here, dcHBbits is extracted from bits inside m_Bank.m_PatternBitData[]
   VECTOR<VECTOR<int> > m_subSSmask;
   VECTOR<VECTOR<int> > m_dcMaskLookup;
   VECTOR<VECTOR<int> > m_hbMaskLookup;
   // lookup-tables to get encoded (DC,HB) bits given the subindex of TSP wrt DC
   VECTOR<VECTOR<uint64_t> > m_dcBitsLookup1;
+  // lookup-table to get number of active DC bits given the
+  //   encoded (DC,HB) bits
+  VECTOR<VECTOR<uint8_t> > m_ndcBitsLookup;
   // lookup table to calculate the encoded merged (DC,HB) bits
   //   given two pairs of encoded (DC,HB) bits
   VECTOR<VECTOR<uint64_t> > m_dcBitsLookup2;
@@ -395,6 +401,11 @@ protected:
   //   m_moduleIdHW0[plane][sector] : module identifier for HWMODEID=0
   //   m_moduleIdHW2[plane][sector] : module identifier for HWMODEID=2
   VECTOR<VECTOR<int> > m_moduleIdHW0,m_moduleIdHW2;
+
+  // steering for importing patterns
+  VECTOR<int32_t> m_nDCmaxPlane;
+  int32_t m_nDCmax;
+
   //
   // identifier for wildcard SS
   static int const m_WCID;

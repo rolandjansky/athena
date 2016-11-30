@@ -10,14 +10,15 @@
 // #include <TMatrixD.h>
 // #include <TVectorD.h>
 #include <TMath.h>
-
+#include <Eigen/Dense>
 #include <iostream>
 #include <iomanip>
-// #include <fstream>
+#include <fstream>
 #include <string>
 #include <cassert>
 #include <cstdio>
 #include <cmath>
+#include <bitset>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -34,7 +35,10 @@ FTKConstantBank::FTKConstantBank() :
   m_maj_a(0), m_maj_kk(0), m_maj_invkk(0),
   m_kernel_aux(0), 
   m_kernel_hw(0), 
-  m_kaverage_aux(0), m_maj_invkk_hw(0), m_maj_invkk_aux(0), m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
+  m_kaverage_aux(0),
+  m_maj_invkk_aux(0),
+  m_maj_invkk_hw(0),
+  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
 {
   // nothing to do
 }
@@ -48,8 +52,8 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_kernel_aux(0),
   m_kernel_hw(0),
   m_kaverage_aux(0),
-  m_maj_invkk_hw(0),
   m_maj_invkk_aux(0),
+  m_maj_invkk_hw(0),
   m_maj_invkk_pow(0),
   m_maj_invkk_pow_hw(0)
 {
@@ -717,6 +721,702 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 
   return 0;
 }
+
+unsigned int FTKConstantBank::floatToReg27(float f) {
+
+  int f_f = (*(int*)&f);
+  int f_sign = (f_f >> 31) & 0x1;
+  int f_exp = (f_f >> 23) & 0xFF;
+  int f_frac = f_f & 0x007FFFFF;
+  int r_sign;
+  int r_exp;
+  int r_frac;
+  r_sign = f_sign;
+  if((f_exp == 0x00) || (f_exp == 0xFF)) {
+    // 0x00 -> 0 or subnormal
+    // 0xFF -> infinity or NaN
+    r_exp = 0;
+    r_frac = 0;
+  } else {
+    r_exp = (f_exp) & 0xFF;
+    r_frac = ((f_frac >> 5)) & 0x0003FFFF;
+  }
+  return (r_sign << 26) | (r_exp << 18) | r_frac;
+}
+
+Eigen::MatrixXd FTKConstantBank::get_A_matrix(
+					      int secid,
+					      ///					      std::vector<int> real_idx,
+					      std::vector<int> miss_idx,
+					      std::vector<double> hw_scale
+					      )
+{
+
+  // instantitae A_matrix
+  Eigen::MatrixXd A_matrix(11, miss_idx.size()); // 11 will never change for FTK system (this is 16 coordinates minus 5 helix parameters)
+
+  // Defining A column from the "m_kernel"
+  for (unsigned int icol = 0; icol < miss_idx.size(); ++icol)
+    {
+      for (unsigned int irow = 0; irow < 11; ++irow)
+	{
+	  // obtain the A vector in ideal coordinates
+	  double A_irow_icol = m_kernel[secid][irow][miss_idx[icol]];
+
+	  // scale them to hw_scale
+	  A_irow_icol /= hw_scale.at(miss_idx[icol]);
+
+	  // set the A matrix
+	  A_matrix(irow, icol) = A_irow_icol;
+	}
+    }
+
+  return A_matrix;
+}
+//======================
+// B column vectors = B matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_B_matrix(
+					      int secid,
+					      std::vector<int> real_idx,
+					      //					      std::vector<int> miss_idx,
+					      std::vector<double> hw_scale
+					      )
+{
+  // instantiate B_matrix, very similar to A_matrix case
+  Eigen::MatrixXd B_matrix(11, real_idx.size()); // 11 will never change for FTK system (this is 16 coordinates minus 5 helix parameters)
+
+  // set the values
+  for (unsigned int icol = 0; icol < real_idx.size(); ++icol)
+    {
+      for (unsigned int irow = 0; irow < 11; ++irow)
+	{
+	  double B_irow_icol = m_kernel[secid][irow][real_idx[icol]];
+
+	  B_irow_icol /= hw_scale.at(real_idx[icol]);
+
+	  B_matrix(irow, icol) = B_irow_icol;
+	}
+    }
+
+  return B_matrix;
+}
+//======================
+// C matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_C_matrix(
+					      Eigen::MatrixXd A_matrix
+					      )
+{
+  // the number of column vectors will be the row and col dim of C_matrix
+  int col_dim_A = A_matrix.cols();
+
+  // create C_matrix
+  Eigen::MatrixXd C_matrix(col_dim_A, col_dim_A);
+
+  // set the values;
+  for (int i = 0; i < col_dim_A; ++i)
+    {
+      for (int j = 0; j < col_dim_A; ++j)
+	{
+	  C_matrix(i, j) = A_matrix.col(i).transpose() * A_matrix.col(j);
+	}
+    }
+
+  return C_matrix;
+}
+
+
+
+
+//======================
+// h vector
+//======================
+// The h vectors
+Eigen::VectorXd FTKConstantBank::get_h_vector(
+					      int secid,
+					      std::vector<int> real_idx
+					      )
+{
+  // h_vector has dimension of number of real hits
+  Eigen::VectorXd h_vector(real_idx.size());
+
+  // set the values
+  for (unsigned int i = 0; i < real_idx.size(); ++i)
+    {
+      h_vector(i) = m_kaverage[secid][i];
+    }
+
+  return h_vector;
+}
+
+
+//======================
+// J vector
+//======================
+Eigen::VectorXd FTKConstantBank::get_J_vector(
+					      Eigen::MatrixXd A_matrix,
+					      Eigen::VectorXd h_vector
+					      )
+{
+  // J_vector has the dimension of missed coordinates
+  // (which is same as columns in A_matrix)
+  Eigen::VectorXd J_vector(A_matrix.cols());
+
+  // set the values
+  for (unsigned int i = 0; i < A_matrix.cols(); ++i)
+    {
+      J_vector(i) = A_matrix.col(i).transpose() * h_vector;
+    }
+
+  return J_vector;
+}
+
+
+
+
+//======================
+// D matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_D_matrix(
+					      Eigen::MatrixXd A_matrix,
+					      Eigen::MatrixXd B_matrix
+					      )
+{
+  // instantitaion
+  Eigen::MatrixXd D_matrix(A_matrix.cols(), B_matrix.cols());
+
+  // set the value
+  for (unsigned int i = 0; i < A_matrix.cols(); ++i)
+    {
+      for (unsigned int j = 0; j < B_matrix.cols(); ++j)
+	{
+	  D_matrix(i, j) = A_matrix.col(i).transpose() * B_matrix.col(j);
+	}
+    }
+
+  return D_matrix;
+}
+
+
+//======================
+// F vector
+//======================
+Eigen::VectorXd FTKConstantBank::get_F_vector(
+					      Eigen::MatrixXd C_matrix,
+					      Eigen::VectorXd J_vector
+					      )
+{
+  // instantiation
+  Eigen::VectorXd F_vector(C_matrix.cols());
+
+  F_vector = C_matrix.inverse() * J_vector * -1;
+
+  return F_vector;
+}
+//==============================================
+// E_matrix
+//==============================================
+Eigen::MatrixXd FTKConstantBank::get_E_matrix(
+    Eigen::MatrixXd C_matrix,
+    Eigen::MatrixXd D_matrix
+)
+{
+  // instantitaion
+  Eigen::MatrixXd E_matrix(C_matrix.cols(), D_matrix.cols());
+
+  // calculate
+  E_matrix = C_matrix.inverse() * D_matrix * -1.;
+
+  return E_matrix;
+}
+unsigned int FTKConstantBank::createMask(unsigned int a, unsigned int b)
+{
+   unsigned int r = 0;
+   for (unsigned int i=a; i<=b; i++)
+       r |= 1 << i;
+
+   return r;
+}
+
+
+void FTKConstantBank::printExtrapolationConstant(int secid, vector<int> moduleid, int eightl_secid, int nconn, int sizenconn , std::ofstream& myfile){
+
+
+
+  int nmissing = 0;
+  //int i;
+  // evaluate the number of missings points
+  for (int i=0;i<m_ncoords;++i) {
+    m_missid[i] = -1;
+    if (!m_coordsmask[i]) {
+      m_missid[nmissing] = i; // rec the index of missing
+      nmissing++;
+    }
+  
+}
+  std::vector<double> hw_scale;
+
+  hw_scale.push_back(8.);  
+  hw_scale.push_back(16.32); 
+  hw_scale.push_back(8.);   
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.);                                                           
+                       
+
+  std::vector<int> real_idx;
+  std::vector<int> miss_idx;
+  miss_idx.push_back(0);
+  miss_idx.push_back(1);
+  miss_idx.push_back(9);
+  miss_idx.push_back(11);
+  miss_idx.push_back(15);
+
+  real_idx.push_back(2);
+  real_idx.push_back(3);
+  real_idx.push_back(4);
+  real_idx.push_back(5);
+  real_idx.push_back(6);
+  real_idx.push_back(7);
+  real_idx.push_back(8);
+  real_idx.push_back(10);
+  real_idx.push_back(12);
+  real_idx.push_back(13);
+  real_idx.push_back(14);
+
+  Eigen::MatrixXd A = get_A_matrix(secid,miss_idx,hw_scale);
+  //  Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,hw_scale);
+//  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd C = get_C_matrix(A);
+  Eigen::MatrixXd D = get_D_matrix(A,B);
+  Eigen::VectorXd h = get_h_vector(secid,real_idx);
+  Eigen::VectorXd J = get_J_vector(A,h);
+  Eigen::MatrixXd E = get_E_matrix(C,D);
+  Eigen::VectorXd F = get_F_vector(C,J);
+
+
+
+  vector<double> Constants;
+  Constants.clear();
+
+  Constants.push_back(F[0]);
+  Constants.push_back(E(0,0));
+  Constants.push_back(E(0,1));
+  Constants.push_back(E(0,2));
+  Constants.push_back(E(0,3));
+  Constants.push_back(E(0,4));
+  Constants.push_back(E(0,5));
+  Constants.push_back(E(0,6));
+  Constants.push_back(E(0,7));
+  Constants.push_back(E(0,8));
+  Constants.push_back(E(0,9));
+  Constants.push_back(E(0,10));
+  
+  Constants.push_back(F[1]);
+  Constants.push_back(E(1,0));
+  Constants.push_back(E(1,1));
+  Constants.push_back(E(1,2));
+  Constants.push_back(E(1,3));
+  Constants.push_back(E(1,4));
+  Constants.push_back(E(1,5));
+  Constants.push_back(E(1,6));
+  Constants.push_back(E(1,7));
+  Constants.push_back(E(1,8));
+  Constants.push_back(E(1,9));
+  Constants.push_back(E(1,10));
+  
+  Constants.push_back(F[2]);
+  Constants.push_back(E(2,0));
+  Constants.push_back(E(2,1));
+  Constants.push_back(E(2,2));
+  Constants.push_back(E(2,3));
+  Constants.push_back(E(2,4));
+  Constants.push_back(E(2,5));
+  Constants.push_back(E(2,6));
+  Constants.push_back(E(2,7));
+  Constants.push_back(E(2,8));
+  Constants.push_back(E(2,9));
+  Constants.push_back(E(2,10));
+  
+
+    Constants.push_back(F[3]);
+    Constants.push_back(E(3,0));
+    Constants.push_back(E(3,1));
+    Constants.push_back(E(3,2));
+    Constants.push_back(E(3,3));
+    Constants.push_back(E(3,4));
+    Constants.push_back(E(3,5));
+    Constants.push_back(E(3,6));
+    Constants.push_back(E(3,7));
+    Constants.push_back(E(3,8));
+    Constants.push_back(E(3,9));
+    Constants.push_back(E(3,10));
+
+
+    Constants.push_back(F[4]);
+    Constants.push_back(E(4,0));
+    Constants.push_back(E(4,1));
+    Constants.push_back(E(4,2));
+    Constants.push_back(E(4,3));
+    Constants.push_back(E(4,4));
+    Constants.push_back(E(4,5));
+    Constants.push_back(E(4,6));
+    Constants.push_back(E(4,7));
+    Constants.push_back(E(4,8));
+    Constants.push_back(E(4,9));
+    Constants.push_back(E(4,10));
+
+
+    int NconnID = nconn ;
+    unsigned int word = (eightl_secid << 2) | NconnID ;
+    myfile << internal // fill between the prefix and the number                     
+	   << setfill('0'); // fill with 0s                                                                         
+   
+
+    myfile << hex<< setw(8) << word <<endl;
+
+    for(Int_t y=0;y<=8;y++){
+      Int_t x =y+y;
+      unsigned mask =  (((1 << 2) - 1) << (x));
+      word = ((moduleid[0] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;         
+    }
+    word = floatToReg27(Constants[9]);
+    myfile << hex << setw(8) << word  << endl;         
+    for(Int_t y=10;y<=18;y++){
+      Int_t x =(y+y-20);
+      unsigned mask =  (((1 << 2) - 1) << x)  ;
+      word = ((moduleid[1] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;         
+    }
+    word = floatToReg27(Constants[19]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=20;y<=28;y++){
+      Int_t x =(y+y-40);
+      unsigned mask =  (((1 << 2) - 1) << x);
+      word = ((moduleid[2] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[29]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=30;y<=38;y++){
+      Int_t x =(y+y-60);
+      unsigned mask =  (((1 << 2) - 1) << x);
+      word = ((moduleid[3] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[39]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=40;y<=48;y++){
+      Int_t x =(y+y-80);
+      unsigned mask =  (((1 << 2) - 1) << x) ;
+      word = ((secid  & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[49]);
+    myfile << hex << setw(8) << word  << endl;
+    unsigned mask =  ((1 << 2) - 1) << 0;
+    word = ((sizenconn & mask)<< (28)) | floatToReg27(Constants[50]);
+    myfile << hex << setw(8) << word  << endl;
+    mask =  ((1 << 2) - 1) << 2;
+    word = ((sizenconn & mask) << 26)  | floatToReg27(Constants[51]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[52]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[54]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[55]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[56]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[57]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[58]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[59]);
+    myfile << hex << setw(8) << word  << endl;
+    myfile << hex<< "00000000" << endl;
+    myfile << hex<< "00000000" << endl;
+    myfile << hex<< "00000000" << endl;
+
+    return;
+
+}
+void FTKConstantBank::printTFConstant(int secid, std::ofstream& myfile){
+
+
+
+
+  std::vector<double> hw_scale;
+  //scaling for hw coordinates
+  hw_scale.push_back(8.);  
+  hw_scale.push_back(16.32); 
+  hw_scale.push_back(8.);   
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.);                                                           
+
+
+  std::vector<int> real_idx;
+
+  real_idx.push_back(2);
+  real_idx.push_back(3);
+  real_idx.push_back(4);
+  real_idx.push_back(5);
+  real_idx.push_back(6);
+  real_idx.push_back(7);
+  real_idx.push_back(8);
+  real_idx.push_back(10);
+  real_idx.push_back(12);
+  real_idx.push_back(13);
+  real_idx.push_back(14);
+
+  vector<Eigen::MatrixXd> Cinverse;
+
+
+  for(Int_t pp=0; pp<=11;pp++){
+    std::vector<int> miss_idx1;                       
+    miss_idx1.clear();
+    if(pp ==0){
+      miss_idx1.push_back(0);
+      miss_idx1.push_back(1);
+    }
+    else if (pp ==1){
+      miss_idx1.push_back(2);
+      miss_idx1.push_back(3);
+    }
+    else if (pp ==2){
+      miss_idx1.push_back(4);
+      miss_idx1.push_back(5);
+    }
+    else if (pp ==3){
+      miss_idx1.push_back(6);
+      miss_idx1.push_back(7);
+    }else{
+      miss_idx1.push_back(pp+4);
+    }
+
+
+    Eigen::MatrixXd A = get_A_matrix(secid,miss_idx1,hw_scale);//11 (column)x16 (row) 
+    //    Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx1,hw_scale);//11 (column)x16 (row) 
+    Eigen::MatrixXd C = get_C_matrix(A);
+    Eigen::MatrixXd Cinverse_temp(C.rows(),C.cols());
+    Cinverse_temp = C.inverse();
+    Cinverse.push_back(Cinverse_temp);
+  }
+ 
+  std::vector<int> miss_idx;
+  miss_idx.push_back(0);
+  miss_idx.push_back(1);
+  miss_idx.push_back(2);
+  miss_idx.push_back(3);
+  miss_idx.push_back(4);
+  miss_idx.push_back(5);
+  miss_idx.push_back(6);
+  miss_idx.push_back(7);
+  miss_idx.push_back(8);
+  miss_idx.push_back(9);
+  miss_idx.push_back(10);
+  miss_idx.push_back(11);
+  miss_idx.push_back(12);
+  miss_idx.push_back(13);
+  miss_idx.push_back(14);
+  miss_idx.push_back(15);
+
+
+  Int_t start = m_ncoords-1; 
+  Int_t finish =0;
+  int number_block_transfer =0;
+  unsigned int parola = (secid << 4) | number_block_transfer ; 
+  myfile << internal // fill between the prefix and the number
+	 << setfill('0'); // fill with 0s
+
+
+
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl; 
+  myfile << hex<< setw(8) << floatToReg27(Cinverse[0](1,0)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(Cinverse[0](0,0)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][0]) << endl; 
+  for (int ik2=start;ik2>=finish;--ik2) { // loop kaverages
+    myfile << std::hex<< setw(8) <<floatToReg27(m_kernel[secid][0][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[0](1,1)) << endl; //missing pix0 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[0](0,1)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][1]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<  setw(8) <<floatToReg27(m_kernel[secid][1][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<setw(8) <<   floatToReg27(Cinverse[1](1,0)) << endl; //missing pix1 constants
+  myfile << std::hex<<setw(8) <<   floatToReg27(Cinverse[1](0,0)) << endl; //missing pix1 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][2]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<setw(8) <<    floatToReg27(m_kernel[secid][2][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =1;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[1](1,1)) << endl; //missing pix1 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[1](0,1)) << endl; //missing pix1 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][3]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][3][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[2](1,0)) << endl; //missing pix2 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[2](0,0)) << endl; //missing pix2 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][4]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<  setw(8) <<  floatToReg27(m_kernel[secid][4][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[2](1,1)) << endl; //missing pix2 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[2](0,1)) << endl; //missing pix2 consytants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][5]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][5][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =2;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](1,0)) << endl; //missing pix3 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](0,0)) << endl; //missing pix3 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][6]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][6][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](1,1)) << endl; //missing pix3 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](0,1)) << endl; //missing pix3 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][7]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][7][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[4](0,0)) << endl; //missing sct4 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][8]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][8][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =3;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[5](0,0)) << endl; //missing sct5 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][9]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][9][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[6](0,0)) << endl; //missing sct6 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][10]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][10][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) <<  floatToReg27(Cinverse[7](0,0)) << endl; //missing sct7 constants
+  myfile << std::hex<<  setw(8) <<  floatToReg27(m_fit_const[secid][1]) << endl; //d0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][1][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<    floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =4;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[8](0,0)) << endl; //missing sct8 constants
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][3]) << endl; //z0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][3][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) << floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[9](0,0)) << endl; //missing sct9 constants 
+  myfile << std::hex<<  setw(8) << floatToReg27(m_fit_const[secid][4]) << endl; //coth
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][4][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[10](0,0)) << endl; //missing sct10 constants 
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][2]) << endl; //phi0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][2][ik2] / hw_scale.at(ik2));
+    myfile<< std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =5;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[11](0,0)) << endl; //missing sct11 constants
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][0]) << endl; //curvature
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][0][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  for (Int_t i=0; i<43;i++){
+    myfile << hex<< "00000000" << endl;
+  }
+
+
+  return;
+}
+
+
+
+
+
+
 
 
 /** This method prepares the inverted constants used in the invlinfit() */

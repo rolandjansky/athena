@@ -13,10 +13,13 @@ else
     echo "Detected 32 bit environment"
 fi
 
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
 setupATLAS --quiet
-localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt dcache_client/2.47.6-1
-export DCAPDIR=$SFT_HOME_dcache_client/dcap
-echo "Trying to find libdcap for localSetupSFT dcache_client/2.47.6-1"
+dcapVersion=releases/Grid/dcap/2.47.7-1-cdd28
+localSetupSFT $dcapVersion
+export DCAPDIR=$SFT_HOME_dcap
+echo "Trying to find libdcap for localSetupSFT ${dcapVersion}"
 DCAP_INCDIR="${DCAPDIR}/include"
 export DCAP_CXXFLAGS="-I${DCAP_INCDIR}"
 if [ ${uct3_64} -ne 1 ]; then
@@ -39,8 +42,9 @@ fi;
 
 # Make sure boost c++ is present and export compiler flags
 echo "Trying to find boost libraries shipped with athena:"
-localSetupSFT --cmtconfig=x86_64-slc6-gcc48-opt Boost/1.53.0_python2.7
-echo "Trying to find boost dir for localSetupSFT Boost/1.53.0_python2.7"
+boostVersion=releases/Boost/1.55.0_python2.7-dcbb8
+localSetupSFT $boostVersion
+echo "Trying to find boost dir for localSetupSFT ${boostVersion}"
 export BOOSTDIR=$SFT_HOME_Boost
 export BOOST_INCDIR=$SFT_BOOST_INCLUDE
 echo "BOOSTDIR = "$BOOSTDIR
@@ -63,13 +67,13 @@ else
     if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
 
-if [ "$SITEROOT" == "/afs/cern.ch" ]; then
-    # using a nightly under afs
-    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
-else
-    # using a release (on CVMFS)
-    export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
-fi
+#if [ "${SITEROOT}" == "/afs/cern.ch" ]; then
+#    # using a nightly under afs
+#    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
+#else
+#    # using a release (on CVMFS)
+export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+###fi
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${EIGENDIR}/Eigen
 export EIGEN_CXXFLAGS="-I${EIGENDIR}"

@@ -110,6 +110,25 @@ public:
   void prepareInvConstants();
 
   int invlinfit(int, FTKTrack &, double *constr=0x0) const;
+  unsigned int floatToReg27(float f); 
+  unsigned int createMask(unsigned int, unsigned int);
+
+  ///  Eigen::MatrixXd get_A_matrix(int secid, std::vector<int> real_idx, std::vector<int> miss_idx, std::vector<double> hw_scale);
+  Eigen::MatrixXd get_A_matrix(int secid, std::vector<int> miss_idx, std::vector<double> hw_scale);
+  Eigen::MatrixXd get_C_matrix(Eigen::MatrixXd A_matrix);
+  Eigen::VectorXd get_h_vector(int secid, std::vector<int> real_idx);
+  Eigen::VectorXd get_J_vector(Eigen::MatrixXd A_matrix, Eigen::VectorXd h_vector);
+  Eigen::MatrixXd get_B_matrix(int secid, std::vector<int> real_idx, std::vector<double> hw_scale);
+  //  Eigen::MatrixXd get_B_matrix(int secid, std::vector<int> real_idx, std::vector<int> miss_idx, std::vector<double> hw_scale);
+  Eigen::MatrixXd get_D_matrix(Eigen::MatrixXd A_matrix, Eigen::MatrixXd B_matrix);
+  Eigen::MatrixXd get_E_matrix(Eigen::MatrixXd C_matrix, Eigen::MatrixXd D_matrix);
+  Eigen::VectorXd get_F_vector(Eigen::MatrixXd C_matrix, Eigen::VectorXd J_vector);
+
+  void printExtrapolationConstant(int,std::vector<int>,int,int,int,std::ofstream&);
+  void printTFConstant(int,std::ofstream&);
+
+
+
   //  int missing_point_guess(float *,int *, int, float *newcoords=0);
   int missing_point_guess(FTKTrack &, int, float *newcoords=0) const;
   int missing_point_guess_aux(FTKTrack &track, int secid) const;
