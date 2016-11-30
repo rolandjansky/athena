@@ -5,7 +5,7 @@
 # @purpose: Script to compare the histograms in two root files
 # @author:  Frank Winklmeier, Will Buttinger
 #
-# $Id: rootmonitor.py 779896 2016-10-23 11:05:09Z will $
+# $Id: rootmonitor.py 787465 2016-11-30 21:48:19Z ssnyder $
 
 """
 Look through given file, if find any 1 bin histograms, try to append to graph from previous atn nights
@@ -14,7 +14,7 @@ Return value: 0 unless more than X% difference to average of past 7 nightlies
 """              
 
 __author__  = "Will Buttinger"
-__version__ = "$Revision: 779896 $"
+__version__ = "$Revision: 787465 $"
 __doc__     = "Script monitor single values througout nightlies running"
 
 import sys
@@ -163,7 +163,10 @@ def main():
      if opts.lower and key in opts.lower:
         if(obj.GetBinContent(1) < opts.lower[key]):
            print "INFO Value in %s (%s) is below limit set by lower argument: %f vs %f" % (key,obj.GetTitle(),obj.GetBinContent(1),opts.lower[key])
-           result = 255
+           if os.environ.get('CMTCONFIG').find('-dbg') >= 0:
+              print "INFO  ... ignoring for debug build"
+           else:
+              result = 255
      else:
         if graph.GetN()>7:
        #calculate average of previous 7 points and result is 255 if more than opts.threshold out
