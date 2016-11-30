@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "DetDescrCondTPCnv/DetDescrCondIdentifier_old_cnv.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -20,6 +21,7 @@ void test1()
 {
   std::cout << "test1\n";
   DetDescrCondIdentifier_old_cnv cnv;
+  Athena_test::Leakcheck check;
 
   DetDescrCondIdentifier_old oldobj;
   oldobj.m_id = 1234;

@@ -54,7 +54,7 @@ void AlignableTransformCnv_p1::persToTrans(const AlignableTransform_p1* pers, Al
         log << MSG::ERROR << "AlignableTransformCnv_p1::persToTrans Incorrect size for transform info: number of ids: " 
             << pers->m_ids.size() << " Number of transform elements: " 
             << pers->m_trans.size() << " Should be 12*nids!! "
-            << endreq;
+            << endmsg;
     }
     for (unsigned int i = 0; i < pers->m_ids.size(); ++i) {
         Identifier     id(pers->m_ids[i]);
