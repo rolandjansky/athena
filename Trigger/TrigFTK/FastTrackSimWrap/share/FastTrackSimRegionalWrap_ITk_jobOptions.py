@@ -4,6 +4,13 @@
 #
 #==============================================================
 
+# Locate the tmap and pmap files
+from PyJobTransforms.trfUtils import findFile
+pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_ITkExample.pmap')
+rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_ITkExample.tmap')
+print "Using PMAP:", pmap_path
+print "Using RMAP:", rmap_path
+
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
 
@@ -19,14 +26,14 @@ from TrigFTKSim.TrigFTKSimConf import FTK_SGHitInput
 FTKSGInput = FTK_SGHitInput(maxEta=3.0, minPt=4*GeV)
 FTKSGInput.OutputLevel = DEBUG
 FTKSGInput.ReadTruthTracks = True
-FTKSGInput.DoOutFileRawHits = False
+FTKSGInput.DoOutFileRawHits = True
 
 ToolSvc += FTKSGInput
 
 print "Output file", OutputNTUP_FTKIPFile
-wrapper = FTKRegionalWrapper(OutputLevel = DEBUG, 
-                             PMapPath = 'maps/raw_l1track.pmap',
-                             RMapPath = 'maps/raw_l1track.tmap',
+wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
+                             PMapPath = pmap_path,
+                             RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
 wrapper.IBLMode = 0
 wrapper.ITkMode = True

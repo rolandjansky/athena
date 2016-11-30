@@ -66,6 +66,7 @@ private:
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL
+  bool m_fixEndcapL0; //fix for endcap L0 in clustering
   bool m_ITkMode; //  global FTK setup variable to toggle ITk geometry
   std::string m_pmap_path; //  path of the PMAP file
   FTKPlaneMap *m_pmap; //  pointer to the pmap object
@@ -75,7 +76,6 @@ private:
   FTKRegionMap *m_rmap; //  pointer to the RMAP object
   int m_ntowers;
   int m_nplanes;
-
  
   bool m_SaveRawHits; //  flag to allow to store FTKRawHit collections, pmap non applied
   bool m_SaveHits; //  flag to allow to store FTKHit collections, pmap applied
@@ -130,6 +130,9 @@ private:
 
   std::vector<uint32_t> m_pix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
   std::vector<uint32_t> m_sct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
+
+  std::vector<std::string> m_spix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
+  std::vector<std::string> m_ssct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
 
   bool dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rmap);
 

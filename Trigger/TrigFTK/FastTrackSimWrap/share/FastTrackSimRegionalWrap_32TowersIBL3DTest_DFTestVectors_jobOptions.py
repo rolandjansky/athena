@@ -15,6 +15,9 @@ print "Using RMAP:", rmap_path
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
 
+from AthenaCommon.GlobalFlags import globalflags
+print globalflags
+
 
 from FastTrackSimWrap.FastTrackSimWrapConf import FTKRegionalWrapper
 if hasattr(runArgs,"outputNTUP_FTKIPFile") :
@@ -27,7 +30,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigFTKSim.TrigFTKSimConf import FTK_SGHitInput
 FTKSGInput = FTK_SGHitInput( maxEta= 3.2, minPt= 0.8*GeV)
 FTKSGInput.OutputLevel = DEBUG
-FTKSGInput.ReadTruthTracks = True
+FTKSGInput.ReadTruthTracks = False
 
 ToolSvc += FTKSGInput
 
@@ -37,8 +40,17 @@ wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
                              RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
 wrapper.IBLMode = 2
-wrapper.FixEndcapL0 = False
 wrapper.HitInputTool = FTKSGInput
+wrapper.Clustering = True
+wrapper.PixelClusteringMode=101
+wrapper.SavePerPlane=True
+wrapper.EmulateDF = True
+wrapper.SaveRawHits = True
+wrapper.SaveHits = True
+wrapper.DuplicateGanged = False
+print "FTKRegionalWrapper setting ROBS"
+wrapper.pixRodIds = ["0x112414", "0x140170", "0x111816", "0x112411", "0x112416", "0x140140", "0x140180", "0x130011"]
+wrapper.sctRodIds = ["0x210000", "0x210109", "0x210108", "0x230100", "0x220000", "0x220109", "0x22010a", "0x21010a"]
 theJob += wrapper
 
 print theJob
