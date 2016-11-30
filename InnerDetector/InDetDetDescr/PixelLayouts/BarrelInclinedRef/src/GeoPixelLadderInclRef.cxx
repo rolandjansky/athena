@@ -929,7 +929,7 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   if (matMgr()->hasMaterial(wg_matName.str()))
       svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
   else
-    svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), m_barrelModule->Length(),wg_matName.str()));  // define material
+    svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), 2*length, wg_matName.str()));  // define material
 
 //  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial("std::Copper"));
   
