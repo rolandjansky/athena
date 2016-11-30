@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/ParticleBase.h"
 #include "SGTools/TestStore.h"
 #include "GaudiKernel/MsgStream.h"
@@ -51,10 +52,13 @@ void testit (const ParticleEvent::Base& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  ElementLink<VxContainer> origlink ("orig", 10);
+  AthenaBarCodeImpl dum; // Get services created.
+  Athena_test::Leakcheck check;
 
   ParticleEvent::Base trans1;
   trans1.set_dataType (ParticleDataType::FastShower);
-  trans1.set_origin (ElementLink<VxContainer> ("orig", 10));
+  trans1.set_origin (origlink);
   testit (trans1);
 
   ParticleEvent::Base trans2 (trans1);

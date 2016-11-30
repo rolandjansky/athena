@@ -45,7 +45,7 @@ typedef TrackParticleAssocs::object_link TrackParticleLink_t;
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
-   if( log.level() <= lvl ) log << lvl << msg << endreq
+   if( log.level() <= lvl ) log << lvl << msg << endmsg
 
 void 
 TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers, 

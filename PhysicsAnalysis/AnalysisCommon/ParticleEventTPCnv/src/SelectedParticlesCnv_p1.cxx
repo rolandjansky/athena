@@ -23,7 +23,7 @@ SelectedParticlesCnv_p1::persToTrans( const SelectedParticles_p1* pers,
 			     MsgStream& msg ) 
 {
    msg << MSG::DEBUG << "Creating transient state of SelectedParticles"
-       << endreq;
+       << endmsg;
    trans->Set (pers->m_bits);
   return;
 }
@@ -34,7 +34,7 @@ SelectedParticlesCnv_p1::transToPers( const SelectedParticles* trans,
 			     MsgStream& msg ) 
 {
    msg << MSG::DEBUG << "Creating persistent state of SelectedParticles"
-       << endreq;
+       << endmsg;
    pers->m_bits=trans->AllBits();
   return;
 }

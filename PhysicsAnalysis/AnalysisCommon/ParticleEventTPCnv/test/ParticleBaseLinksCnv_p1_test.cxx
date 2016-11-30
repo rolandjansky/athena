@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/ParticleBaseLinksCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/ParticleBaseLinks.h"
 #include "SGTools/TestStore.h"
 #include "GaudiKernel/MsgStream.h"
@@ -32,6 +33,8 @@ void test1()
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
+  ParticleBaseLink dum ("pp", 10); // Get the proxy allocated
+  Athena_test::Leakcheck check;
 
   ParticleBaseLinks trans1;
   trans1.push_back (ParticleBaseLink ("pp", 10));

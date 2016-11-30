@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/NeutrinoContainerCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/NeutrinoContainer.h"
 #include "SGTools/TestStore.h"
 #include "CxxUtils/make_unique.h"
@@ -64,12 +65,16 @@ void compare (const NeutrinoContainer& c1,
 void test1()
 {
   std::cout << "test1\n";
+  MsgStream log (0, "test");
+  AthenaBarCodeImpl dum; // Get services created.
+  ElementLink<VxContainer> origlink ("orig", 10);
+  Athena_test::Leakcheck check;
 
   NeutrinoContainer trans1;
   auto p1 = CxxUtils::make_unique<Neutrino>();
   p1->set4Mom (CLHEP::HepLorentzVector(100,200,300,400));
   p1->set_dataType (ParticleDataType::FastShower);
-  p1->set_origin (ElementLink<VxContainer> ("orig", 10));
+  p1->set_origin (origlink);
 
   auto p2 = CxxUtils::make_unique<Neutrino>(*p1);
   p2->set_charge (1.5);
@@ -80,8 +85,6 @@ void test1()
   trans1.push_back (std::move(p1));
   trans1.push_back (std::move(p2));
   trans1.push_back (std::move(p3));
-
-  MsgStream log (0, "test");
 
   NeutrinoContainerCnv_p2 cnv;
   NeutrinoContainer_p2 pers;

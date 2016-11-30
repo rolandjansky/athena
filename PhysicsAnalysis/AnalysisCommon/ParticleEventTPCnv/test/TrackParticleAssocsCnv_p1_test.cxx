@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/TrackParticleAssocsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/TrackParticleAssocs.h"
 #include "SGTools/TestStore.h"
 #include "CxxUtils/make_unique.h"
@@ -57,6 +58,9 @@ void test1()
   TrackParticleAssocs* xstore = new TrackParticleAssocs;
   SGTest::store.record (xstore, "xstore");
 
+  MsgStream log (0, "test");
+
+  Athena_test::Leakcheck check;
   TrackParticleAssocs trans1;
   trans1.addAssociation (ElementLink<Rec::TrackParticleContainer> ("tpc", 3),
                          ElementLink<Rec::TrackParticleContainer> ("tpc", 2));
@@ -64,8 +68,6 @@ void test1()
                          ElementLink<Rec::TrackParticleContainer> ("tpc", 4));
 
   trans1.addAssocStore (DataLink<TrackParticleAssocs> ("xstore"));
-
-  MsgStream log (0, "test");
 
   TrackParticleAssocsCnv_p1 cnv;
   TrackParticleAssocs_p1 pers;

@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/ParticleShallowCloneCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/ParticleShallowClone.h"
 #include "ParticleEvent/Neutrino.h"
 #include "ParticleEvent/NeutrinoContainer.h"
@@ -60,9 +61,10 @@ void test1()
   IParticleContainer* c = new IParticleContainer;
   c->push_back (CxxUtils::make_unique<Neutrino>());
   SGTest::store.record (c, "cont");
-
-  P4Momentum_t mom (100, 200, 300, 400);
   ElementLink<VxContainer> origin ("vx", 0);
+
+  Athena_test::Leakcheck check;
+  P4Momentum_t mom (100, 200, 300, 400);
   Analysis::ParticleShallowClone trans1 (MasterLink_t ("cont", 0),
                                          &mom,
                                          std::numeric_limits<ChargeType>::quiet_NaN(),

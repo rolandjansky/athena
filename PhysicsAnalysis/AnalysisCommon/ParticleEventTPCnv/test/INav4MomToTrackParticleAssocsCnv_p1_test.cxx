@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/INav4MomToTrackParticleAssocsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/INav4MomToTrackParticleAssocs.h"
 #include "ParticleEvent/Neutrino.h"
 #include "SGTools/TestStore.h"
@@ -58,15 +59,20 @@ void test1()
   INav4MomToTrackParticleAssocs* xstore = new INav4MomToTrackParticleAssocs;
   SGTest::store.record (xstore, "xstore");
 
+  MsgStream log (0, "test");
+  // Get proxies created.
+  ElementLink<INavigable4MomentumCollection> dum1 ("in", 3);
+  ElementLink<Rec::TrackParticleContainer> dum2   ("tp", 2);
+  DataLink<INav4MomToTrackParticleAssocs> storelink ("xstore");
+  Athena_test::Leakcheck check;
+
   INav4MomToTrackParticleAssocs trans1;
   trans1.addAssociation (ElementLink<INavigable4MomentumCollection> ("in", 3),
                          ElementLink<Rec::TrackParticleContainer>   ("tp", 2));
   trans1.addAssociation (ElementLink<INavigable4MomentumCollection> ("in", 6),
                          ElementLink<Rec::TrackParticleContainer>   ("tp", 4));
 
-  trans1.addAssocStore (DataLink<INav4MomToTrackParticleAssocs> ("xstore"));
-
-  MsgStream log (0, "test");
+  trans1.addAssocStore (storelink);
 
   INav4MomToTrackParticleAssocsCnv_p1 cnv;
   INav4MomToTrackParticleAssocs_p1 pers;

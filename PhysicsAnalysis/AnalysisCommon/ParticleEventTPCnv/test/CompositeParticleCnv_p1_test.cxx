@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/CompositeParticleCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/CompositeParticle.h"
 #include "SGTools/TestStore.h"
 #include "GaudiKernel/MsgStream.h"
@@ -83,11 +84,15 @@ void testit (const CompositeParticle& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  AthenaBarCodeImpl dumbc; // Get services created.
+  ElementLink<VxContainer> origlink ("orig", 10);
+  INav4MomLink dum ("part", 19);
+  Athena_test::Leakcheck check;
 
   CompositeParticle trans1;
   trans1.set4Mom (CLHEP::HepLorentzVector(100,200,300,400));
   trans1.set_dataType (ParticleDataType::FastShower);
-  trans1.set_origin (ElementLink<VxContainer> ("orig", 10));
+  trans1.set_origin (origlink);
   trans1.navigableBase().insertElement (INav4MomLink ("part", 12));
   trans1.navigableBase().insertElement (INav4MomLink ("part", 19));
   testit (trans1);

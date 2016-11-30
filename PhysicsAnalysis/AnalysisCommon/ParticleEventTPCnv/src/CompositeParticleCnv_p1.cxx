@@ -53,7 +53,7 @@ void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
                                            MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticle from persistent state..."
-//       << endreq;
+//       << endmsg;
   s_navCnv.persToTrans( &pers->m_nav,      
                         &trans->navigableBase(), 
                         msg );
@@ -65,7 +65,7 @@ void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
                        msg );
 
 //   msg << MSG::DEBUG << "Loaded CompositeParticle from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -74,7 +74,7 @@ void CompositeParticleCnv_p1::transToPers( const CompositeParticle* trans,
                                            MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of CompositeParticle..."
-//       << endreq;
+//       << endmsg;
 
   s_navCnv.transToPers( &trans->navigableBase(), 
                         &pers->m_nav,      
@@ -87,6 +87,6 @@ void CompositeParticleCnv_p1::transToPers( const CompositeParticle* trans,
                        msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of CompositeParticle [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

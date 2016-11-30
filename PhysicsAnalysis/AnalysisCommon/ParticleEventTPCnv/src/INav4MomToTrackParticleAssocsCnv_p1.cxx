@@ -46,7 +46,7 @@ typedef INav4MomToTrackParticleAssocs::asso_link   TrackParticleLink_t;
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
-   if( log.level() <= lvl ) log << lvl << msg << endreq
+   if( log.level() <= lvl ) log << lvl << msg << endmsg
 
 void 
 INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleAssocs_p1* pers, 

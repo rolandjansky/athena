@@ -48,7 +48,7 @@ ParticleShallowCloneContainerCnv_p1::persToTrans( const ParticleShallowCloneCont
                                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleShallowCloneContainer from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -71,7 +71,7 @@ ParticleShallowCloneContainerCnv_p1::persToTrans( const ParticleShallowCloneCont
       trans->push_back( p );
     }
 //   msg << MSG::DEBUG << "Loading ParticleShallowCloneContainer from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -82,7 +82,7 @@ ParticleShallowCloneContainerCnv_p1::transToPers( const ParticleShallowCloneCont
 {
 //    msg << MSG::DEBUG
 //        << "Creating persistent state of ParticleShallowCloneContainer..."
-//        << endreq;
+//        << endmsg;
 
   std::size_t size = trans->size();     
   pers->resize(size);
@@ -98,7 +98,7 @@ ParticleShallowCloneContainerCnv_p1::transToPers( const ParticleShallowCloneCont
   
 //   msg << MSG::DEBUG
 //       << "Creating persistent state of ParticleShallowCloneContainer [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 

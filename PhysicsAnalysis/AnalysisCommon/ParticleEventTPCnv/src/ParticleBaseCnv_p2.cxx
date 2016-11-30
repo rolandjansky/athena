@@ -51,7 +51,7 @@ void ParticleBaseCnv_p2::persToTrans( const ParticleBase_p2* pers,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
 
@@ -62,7 +62,7 @@ void ParticleBaseCnv_p2::persToTrans( const ParticleBase_p2* pers,
   trans->m_dataType  = static_cast<ParticleDataType::DataType>( pers->m_dataType );
 
 //   msg << MSG::DEBUG << "Loaded ParticleBase from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -72,7 +72,7 @@ void ParticleBaseCnv_p2::transToPers( const ParticleBase* trans,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
-//       << endreq;
+//       << endmsg;
 
   vxCnv.transToPers( &trans->m_origin, &pers->m_origin, msg );
 
@@ -83,7 +83,7 @@ void ParticleBaseCnv_p2::transToPers( const ParticleBase* trans,
   pers->m_dataType  = trans->m_dataType;
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleBase [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -93,7 +93,7 @@ void ParticleBaseCnv_p2::persToTrans( const ParticleBase_p2* pers,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
 
@@ -109,7 +109,7 @@ void ParticleBaseCnv_p2::persToTrans( const ParticleBase_p2* pers,
 
 
 //   msg << MSG::DEBUG << "Loaded ParticleBase from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -119,7 +119,7 @@ void ParticleBaseCnv_p2::transToPers( const ParticleEvent::Base* trans,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
-//       << endreq;
+//       << endmsg;
 
   vxCnv.transToPers( &trans->m_origin, &pers->m_origin, msg );
 
@@ -133,6 +133,6 @@ void ParticleBaseCnv_p2::transToPers( const ParticleEvent::Base* trans,
   s_abcCnv.transToPers((const AthenaBarCodeImpl*)(&(trans->getAthenaBarCodeImpl())), (AthenaBarCode_p1*)(&(pers->m_athenabarcode)),msg);
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleBase [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "ParticleEventTPCnv/SelectedParticlesCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "ParticleEvent/SelectedParticles.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -28,6 +29,7 @@ void compare (const SelectedParticles& p1,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   SelectedParticles trans1;
   trans1.SetBit (10);
