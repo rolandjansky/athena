@@ -172,7 +172,7 @@ void* hhh_getConstructor( void *addr ) {
    for ( jj = sizeof(void*); jj < 2*sizeof(void*); ++jj ) {
       if ( *(caddr+jj) == '\xe8' ) {
          off = 0;
-         memcpy( &off, caddr+jj+1, sizeof(void*) );
+         memcpy( &off, caddr+jj+1, sizeof(unsigned long) );
          address = (unsigned long)caddr+jj+off+0x5;
 
       /* sanity check: text section in between symbol and offset tables */
@@ -321,7 +321,7 @@ const char* hhh_addrToLine (void* addr_in, const char** symbol)
       line[0] = ' ';
       length = addr_readline (pf, line+1, sizeof(line)-1);
       if (length >= 0) ++length;
-      fclose (pf);
+      pclose (pf);
       if (length < 0 || line[1] == '?') {
         line[1] = '\0';
         length = 0;
