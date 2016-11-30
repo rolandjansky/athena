@@ -46,7 +46,8 @@ MultiLevelAlignmentDbTool::MultiLevelAlignmentDbTool (const std::string& type,
 						      const IInterface* parent)
   : AthAlgTool(type, name, parent)   
   , m_abLineDbTool("MuonAlignmentDbTool") 
-  , p_muonMgr(0) 
+  , p_muonMgr(0)
+  , m_IOVSvc(0)
   , m_alineData(0)
   , m_blineData(0)
   , m_alignModuleALines(0)
@@ -59,6 +60,7 @@ MultiLevelAlignmentDbTool::MultiLevelAlignmentDbTool (const std::string& type,
   , m_doL1(false)
   , m_doL23(false)
   , m_doL3(false)
+  , m_useCOOLonly(false)
 {
   
   declareInterface<IMultiLevelAlignmentDbTool>(this);
@@ -74,6 +76,7 @@ MultiLevelAlignmentDbTool::MultiLevelAlignmentDbTool (const std::string& type,
   declareProperty("DumpALines",     m_dumpALines=false);
   declareProperty("DoSimpleAdd",    m_doSimpleAdd=true);
 
+  m_muonIdHelper  = 0;
   m_mdtIdHelper   = 0;
   m_cscIdHelper   = 0;
   m_rpcIdHelper   = 0;
@@ -119,9 +122,9 @@ StatusCode MultiLevelAlignmentDbTool::initialize()
   }
   
   if (m_abLineDbTool.retrieve().isSuccess())
-    msg(MSG::INFO) << "Retrieved " << m_abLineDbTool << endreq; 
+    msg(MSG::INFO) << "Retrieved " << m_abLineDbTool << endmsg; 
   else{
-    msg(MSG::FATAL)<<"Could not get " << m_abLineDbTool <<endreq; 
+    msg(MSG::FATAL)<<"Could not get " << m_abLineDbTool <<endmsg; 
     return StatusCode::FAILURE;
   }
    
@@ -282,9 +285,9 @@ StatusCode MultiLevelAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
 
   const Amg::Transform3D L0Transform = level0Transform();
   /*
-  ATH_MSG_DEBUG("L0 transform: "<<endreq
-		<<L0Transform[0][0]<<" "<<L0Transform[0][1]<<" "<<L0Transform[0][2]<<endreq
-		<<L0Transform[1][0]<<" "<<L0Transform[1][1]<<" "<<L0Transform[1][2]<<endreq
+  ATH_MSG_DEBUG("L0 transform: "<<endmsg
+		<<L0Transform[0][0]<<" "<<L0Transform[0][1]<<" "<<L0Transform[0][2]<<endmsg
+		<<L0Transform[1][0]<<" "<<L0Transform[1][1]<<" "<<L0Transform[1][2]<<endmsg
 		<<L0Transform[2][0]<<" "<<L0Transform[2][1]<<" "<<L0Transform[2][2]);
   */
 
@@ -307,13 +310,13 @@ StatusCode MultiLevelAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
     const Amg::Transform3D alignToGlobal = alignToGlobalTransform(ALineId);
     const Amg::Transform3D globalToL23Module = globalToL23ModuleTransform(ALineId);
     
-    ATH_MSG_VERBOSE("L0 transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(L0Transform));
-    ATH_MSG_VERBOSE("L1 transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(L1Transform));
-    ATH_MSG_VERBOSE("L2 transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(L2Transform));
-    ATH_MSG_VERBOSE("L23 transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(L23Transform));
-    ATH_MSG_VERBOSE("L3 transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(L3Transform));
-    ATH_MSG_VERBOSE("alignToGlobal transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(alignToGlobal));
-    ATH_MSG_VERBOSE("globalToL23Module transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(globalToL23Module));
+    ATH_MSG_VERBOSE("L0 transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(L0Transform));
+    ATH_MSG_VERBOSE("L1 transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(L1Transform));
+    ATH_MSG_VERBOSE("L2 transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(L2Transform));
+    ATH_MSG_VERBOSE("L23 transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(L23Transform));
+    ATH_MSG_VERBOSE("L3 transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(L3Transform));
+    ATH_MSG_VERBOSE("alignToGlobal transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(alignToGlobal));
+    ATH_MSG_VERBOSE("globalToL23Module transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(globalToL23Module));
 
     ATH_MSG_VERBOSE(" for: "
                     <<m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(ALineId))
@@ -328,7 +331,7 @@ StatusCode MultiLevelAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
       * globalToL23Module.inverse() * L23Transform * globalToL23Module 
       * alignToGlobal * L3Transform;
 
-    ATH_MSG_VERBOSE("delta transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(delta) );
+    ATH_MSG_VERBOSE("delta transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(delta) );
     
     double* newALines=new double[6];
     
@@ -357,11 +360,11 @@ StatusCode MultiLevelAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
     else {
       
 
-      ATH_MSG_VERBOSE("old transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(ALine->deltaTransform()) );
+      ATH_MSG_VERBOSE("old transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(ALine->deltaTransform()) );
       
       Amg::Transform3D  newDeltaTransform = deltaTransform * Amg::CLHEPTransformToEigen(ALine->deltaTransform());
       	
-      ATH_MSG_VERBOSE("new transform: "<<endreq<<std::showpos<<std::setw(6) << Amg::toString(newDeltaTransform) );
+      ATH_MSG_VERBOSE("new transform: "<<endmsg<<std::showpos<<std::setw(6) << Amg::toString(newDeltaTransform) );
       decomposeTransform(newDeltaTransform,newALines);
     }
 
@@ -622,9 +625,9 @@ StatusCode MultiLevelAlignmentDbTool::readAlignTextFile(const std::string& file,
           ATH_MSG_INFO("Set transform: "
 		       << " [" << name << " " << jff << " " << jzz 
 		       << "] id " << ident 
-		       << endreq
+		       << endmsg
 		       << " rot   [" << rots << "," << rotz << "," << rott << "]"
-		       <<endreq
+		       <<endmsg
 		       << " shift [" << tras << "," << traz << "," << trat << "]");
 	  if (msgLvl(MSG::DEBUG)) {
 	    ATH_MSG_DEBUG("decomposed: ");
@@ -632,9 +635,9 @@ StatusCode MultiLevelAlignmentDbTool::readAlignTextFile(const std::string& file,
 	    decomposeTransform(delta,values);
 	    ATH_MSG_DEBUG(" [" << name << " " << jff << " " << jzz 
 			  << "] id " << ident 
-			  << endreq
+			  << endmsg
 			  << " rot   [" << values[3] << "," << values[4] << "," << values[5] << "]"
-			  <<endreq
+			  <<endmsg
 			  << " shift [" << values[0] << "," << values[1] << "," << values[2] << "]");
 	    delete [] values;
 	  }
@@ -713,11 +716,11 @@ StatusCode MultiLevelAlignmentDbTool::initializeMdtAlignObjs()
   // get muon detector manager  
   sc=detStore()->retrieve(p_muonMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endreq;
+    msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endmsg;
     return sc;
   }
   else {
-    msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endreq;
+    msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endmsg;
     p_muonMgr->msgSvc()->setOutputLevel("MuonDetectorManager", 
 					this->msgSvc()->outputLevel());
   }

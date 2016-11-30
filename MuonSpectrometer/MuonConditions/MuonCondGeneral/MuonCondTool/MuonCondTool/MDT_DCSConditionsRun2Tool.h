@@ -34,21 +34,24 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
-  virtual std::string HVFolderName() const {return m_hvFolder;}
-  virtual std::string LVFolderName() const {return m_lvFolder;}
+  virtual std::string HVFolderName() const override {return m_hvFolder;}
+  virtual std::string LVFolderName() const override {return m_lvFolder;}
   //  virtual std::string JTAGFolderName() const {return m_jtagFolder;}
 
 
 
 
-  virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStations;}
-  virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadMultiLayersId(){ return m_cachedDeadMultiLayersId;} 
+  virtual const std::vector<std::string>& deadStations() const override
+  { return m_cachedDeadStations;}
+  virtual const std::vector<Identifier>& deadStationsId() const override
+  { return m_cachedDeadStationsId;}
+  virtual const std::vector<Identifier>& deadMultiLayersId() const override
+  { return m_cachedDeadMultiLayersId;} 
 
   const std::string OnlineName(Identifier OfflineId);
   const Identifier OfflineName(std::string OnlineId);
@@ -57,10 +60,10 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
 
-  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS) override;
   // virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS);
 
        
@@ -101,7 +104,7 @@ public:
   //private comparison function for Identifier sorting
   static bool compareId(Identifier x,Identifier y) { return (x > y); } 
   
-  bool m_check_on_setPoint;
+  //bool m_check_on_setPoint;
   //bool m_simulation_Setup;
   std::string      m_DataLocation;
  

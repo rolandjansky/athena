@@ -33,33 +33,33 @@ public:
 
   /** required by the IAddressProvider interface */
   //  virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
 
 private: 
   bool m_FirstCall ;
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadRpcDqStatus(IOVSVC_CALLBACK_ARGS);
-  virtual std::string FolderName() const {return m_FolderName;}
+  virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadRpcDqStatus(IOVSVC_CALLBACK_ARGS) override;
+  virtual std::string FolderName() const  override {return m_FolderName;}
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-  virtual const std::vector<Identifier>&  EffPanelId(){ return  m_effPanelId;}
-  virtual const std::vector<Identifier>&  EffStripId(){ return  m_effStripId;}
+  virtual const std::vector<Identifier>&  EffPanelId() const override { return  m_effPanelId;}
+  virtual const std::vector<Identifier>&  EffStripId() const override { return  m_effStripId;}
 
-  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip(){ return m_RPC_StripTimeMap;}
+  virtual const std::map<Identifier,     std::vector<double> >& RPC_TimeMapforStrip() const override { return m_RPC_StripTimeMap;}
 
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap      (){ return m_RPC_PanelEfficiencyMap      ;}
-  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap   (){ return m_RPC_GapEfficiencyMap        ;}
-  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap (){ return m_RPC_PanelMeanClusterSizeMap ;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map(){ return m_RPC_PanelFracClusterSize1Map;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map(){ return m_RPC_PanelFracClusterSize2Map;}
-  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map(){ return m_RPC_PanelFracClusterSize3Map;}
-  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap   (){ return m_RPC_PanelDeadStripListMap   ;}
-  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap   (){ return m_RPC_PanelFracDeadStripMap   ;}
-  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap (){ return m_RPC_PanelProjectedTracksMap ;}
-  virtual const std::map<Identifier,        int>& RPC_DeadStripList      (){ return m_RPC_PanelDeadStripList      ;}
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyMap      () const override { return m_RPC_PanelEfficiencyMap      ;}
+  virtual const std::map<Identifier,     double>& RPC_EfficiencyGapMap   () const override { return m_RPC_GapEfficiencyMap        ;}
+  virtual const std::map<Identifier,     double>& RPC_MeanClusterSizeMap () const override { return m_RPC_PanelMeanClusterSizeMap ;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize1Map() const override { return m_RPC_PanelFracClusterSize1Map;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize2Map() const override { return m_RPC_PanelFracClusterSize2Map;}
+  virtual const std::map<Identifier,     double>& RPC_FracClusterSize3Map() const override { return m_RPC_PanelFracClusterSize3Map;}
+  virtual const std::map<Identifier,std::string>& RPC_DeadStripListMap   () const override { return m_RPC_PanelDeadStripListMap   ;}
+  virtual const std::map<Identifier,      float>& RPC_FracDeadStripMap   () const override { return m_RPC_PanelFracDeadStripMap   ;}
+  virtual const std::map<Identifier,        int>& RPC_ProjectedTracksMap () const override { return m_RPC_PanelProjectedTracksMap ;}
+  virtual const std::map<Identifier,        int>& RPC_DeadStripList      () const override { return m_RPC_PanelDeadStripList      ;}
 
   const RpcIdHelper* m_rpcIdHelper;
   

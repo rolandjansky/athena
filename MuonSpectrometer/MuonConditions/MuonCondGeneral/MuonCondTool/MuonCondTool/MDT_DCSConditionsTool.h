@@ -34,22 +34,22 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual std::string DropChamberFolderName() const {return m_dropchamberFolder;}
-  virtual std::string HVFolderName() const {return m_hvFolder;}
-  virtual std::string LVFolderName() const {return m_lvFolder;}
-  virtual std::string JTAGFolderName() const {return m_jtagFolder;}
-  virtual std::string SetPointsV0FolderName() const {return m_setPointsV0Folder;}
-  virtual std::string SetPointsV1FolderName() const {return m_setPointsV1Folder;}
+  virtual std::string DropChamberFolderName() const override {return m_dropchamberFolder;}
+  virtual std::string HVFolderName() const override {return m_hvFolder;}
+  virtual std::string LVFolderName() const override {return m_lvFolder;}
+  virtual std::string JTAGFolderName() const override {return m_jtagFolder;}
+  virtual std::string SetPointsV0FolderName() const override {return m_setPointsV0Folder;}
+  virtual std::string SetPointsV1FolderName() const override {return m_setPointsV1Folder;}
 
-  virtual bool Simulation_Setup() const {return m_simulation_Setup;}
+  virtual bool Simulation_Setup() const override {return m_simulation_Setup;}
 
-  virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStations;}
-  virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadMultiLayersId(){ return m_cachedDeadMultiLayersId;} 
+  virtual const std::vector<std::string>& deadStations() const override { return m_cachedDeadStations;}
+  virtual const std::vector<Identifier>& deadStationsId() const override { return m_cachedDeadStationsId;}
+  virtual const std::vector<Identifier>& deadMultiLayersId() const override { return m_cachedDeadMultiLayersId;} 
 
   const std::string OnlineName(Identifier OfflineId);
   const Identifier OfflineName(std::string OnlineId);
@@ -58,11 +58,11 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadDropChamber(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadDropChamber(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS) override;
 
        
   StoreGateSvc* m_detStore;
