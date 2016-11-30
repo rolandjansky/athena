@@ -196,6 +196,7 @@ def main():
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor
+      opts.skip += ["TrigTimerSvc/TimerCalls"]        # number of timing calls
       opts.skip += ["GeneralOpInfo"]                  # release number, etc.
       opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
