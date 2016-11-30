@@ -36,6 +36,10 @@ apply_pattern declare_runtime extras="../test/*.xml \
                                       ../Testing/*.conf \
                                       ../bin/RttScriptRunner_TrigAnalysisTest.py \ 
                                       ../bin/CheckLog_TrigAnalysisTest.py \
+				      ../bin/CheckForHLTChainAllZero_TrigAnalysisTest.py \
+				      ../bin/CheckForHLTTEAllZero_TrigAnalysisTest.py \
+				      ../bin/CheckForL1AllZero_TrigAnalysisTest.py \
+				      ../bin/CheckForExpertMonHistZero_TrigAnalysisTest.py \
                                       ../bin/LogTail_TrigAnalysisTest.py \
                                       ../bin/TruncateLog_TrigAnalysisTest.py \
                                       ../python/ValgrindAnalysisScript_TrigAnalysisTest.py \
