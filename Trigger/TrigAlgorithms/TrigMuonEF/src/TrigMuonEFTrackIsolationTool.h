@@ -8,14 +8,16 @@
 #include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODMuon/Muon.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 /**
  *
  * EF Track Isolation tool.
  *
- * Calculates track isolation around EF muon in varying cone sizes.
+ * Calculates track isolation around EF muon in varying cone sizes (or L2 muon with FTK tracks).
  * Has possibility to cut on dz(muon id trk, id trk) to suppress pileup.
+ *
  */
 class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTrackIsolationTool {
 
@@ -30,9 +32,14 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
   /// finalize the tool
   virtual StatusCode finalize();
 
-  // Do the isolation calculation for an EF muon
+  // Do the isolation calculation for an L2 muon  
+  StatusCode calcTrackIsolation(const xAOD::L2CombinedMuon* L2muon, const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval);
+
+  // Do the isolation calculation for an EF muon  
+  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon,           const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval);
+
+  // Old format: deprecated
   StatusCode calcTrackIsolation(const TrigMuonEFInfoTrack* efmuon, const Rec::TrackParticleContainer* idtrks,  std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals);
-  StatusCode calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals);
 
  private:
 
@@ -52,6 +59,11 @@ class TrigMuonEFTrackIsolationTool : public AthAlgTool, virtual public IMuonEFTr
 
   /// flag to determine if we want to use offline isolation variables
   bool m_useVarIso;
+  // which type of self removal to use
+  int m_removeSelfType;
+
+  StatusCode checkIsolation(const xAOD::IParticle* muon, double selfpt, const xAOD::TrackParticle* muon_idtrk, const Trk::Perigee* muidtrk_perigee, const xAOD::TrackParticleContainer* trks, std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, bool FTK, std::vector<double>* selfremoval);
+  
 
 };//class TrigMuonEFTrackIsolationTool
 
