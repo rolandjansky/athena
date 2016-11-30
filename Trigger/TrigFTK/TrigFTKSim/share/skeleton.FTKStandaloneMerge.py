@@ -114,6 +114,12 @@ FTKTagOptions["HWMode2Test32Tower"] = \
 FTKTagOptions["HWMode2Test64Tower"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v1"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v2"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}

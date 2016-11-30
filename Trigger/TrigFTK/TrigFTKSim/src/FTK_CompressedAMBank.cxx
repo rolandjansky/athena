@@ -3381,7 +3381,7 @@ void FTK_CompressedAMBank::sort_hits
 #endif
    }
    if(error) {
-      Error("sort_hits")<<"failed to calculate SSID for "<<error<<"/"
+      Warning("sort_hits")<<"failed to calculate SSID for "<<error<<"/"
                         <<expectedNHit<<" FTKHits\n";
    }
    for (int ipl=0;ipl<getNPlanes();++ipl) {
