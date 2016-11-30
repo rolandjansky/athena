@@ -75,7 +75,7 @@ persToTrans( const InDet::SCT_Cluster_p3 *persObj, InDet::SCT_Cluster *transObj,
 
 void SCT_ClusterCnv_p3::transToPers( const InDet::SCT_Cluster *transObj, InDet::SCT_Cluster_p3 *persObj, MsgStream &log )
 {
-//   if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "In SCT_Cluster::transToPers" << endreq;
+//   if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "In SCT_Cluster::transToPers" << endmsg;
   const InDet::SiWidth *sw = &transObj->width();
   m_swCnv.transToPers(sw, &persObj->m_width, log);
 

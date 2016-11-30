@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -47,6 +48,7 @@ void testit (const InDet::InDetLowBetaCandidate& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   InDet::InDetLowBetaCandidate trans1 (1.5, 2.5, 3.5, 4,
                                        5.5, 6.5, 7.5, 8.5);

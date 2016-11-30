@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p1.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -54,6 +55,7 @@ void testit (const InDet::TRT_DriftCircle& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D locpos (1.5, 2.5);
   std::vector<Identifier> rdoList { Identifier(5432),

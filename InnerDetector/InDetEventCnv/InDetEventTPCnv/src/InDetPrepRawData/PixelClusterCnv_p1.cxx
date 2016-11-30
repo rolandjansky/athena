@@ -38,7 +38,7 @@ persToTrans( const InDet::PixelCluster_p1 *persObj, InDet::PixelCluster *transOb
 void PixelClusterCnv_p1::
 transToPers( const InDet::PixelCluster *transObj, InDet::PixelCluster_p1 *persObj, MsgStream &log )
 {
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PixelClusterCnv_p1::transToPers" << endreq;
+//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PixelClusterCnv_p1::transToPers" << endmsg;
    persObj->m_siCluster = baseToPersistent( &m_siClusterCnv, transObj, log );
    persObj->m_omegax = transObj->omegax();
    persObj->m_omegay = transObj->omegay();

@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterContainerCnv_p1.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
@@ -175,6 +176,14 @@ void test1()
 {
   std::cout << "test1\n";
 
+  {
+    // Do it once without leak checking to get services initialized.
+    std::unique_ptr<const InDet::PixelClusterContainer> cont = makeclusts();
+    testit (*cont);
+  }
+
+  // And again with leak checking.
+  Athena_test::Leakcheck check;
   std::unique_ptr<const InDet::PixelClusterContainer> cont = makeclusts();
   testit (*cont);
 }

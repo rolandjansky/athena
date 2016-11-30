@@ -48,11 +48,11 @@ transToPers( const InDet::SCT_ClusterOnTrack*transObj,
        persObj->m_prdLink.m_contName         = "";
        persObj->m_prdLink.m_elementIndex     = 0;
 // commented out because it spams the log files when reading AODs (tracks from electrons e.g. aso which are in AOD)
-//       log<<MSG::WARNING<<"SCT_ClusterOnTrackCnv_p1::transToPers - ElementLink broken!"<<endreq;
+//       log<<MSG::WARNING<<"SCT_ClusterOnTrackCnv_p1::transToPers - ElementLink broken!"<<endmsg;
 //       if (transObj->prepRawData()!=0) 
-//            log<<MSG::WARNING<<"Dumping PRD: "<<*(transObj->prepRawData())<<endreq;
+//            log<<MSG::WARNING<<"Dumping PRD: "<<*(transObj->prepRawData())<<endmsg;
 //        else 
-//            log<<MSG::WARNING<<"No PRD to dump (or indeed link to)!"<<endreq;
+//            log<<MSG::WARNING<<"No PRD to dump (or indeed link to)!"<<endmsg;
    }
 }
 

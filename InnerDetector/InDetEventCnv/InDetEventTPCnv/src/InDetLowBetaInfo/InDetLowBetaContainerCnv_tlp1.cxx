@@ -35,7 +35,7 @@ persToTrans (const InDetLowBetaContainer_tlp1 *pers,
     while (it != trans->end()) {
 	  if (!(*it)){
 		  msg<< MSG::DEBUG << "InDetLowBetaContainer TP container with NULL element "
-		     << endreq;
+		     << endmsg;
 	  }
 	  it++;
     }
@@ -47,7 +47,7 @@ void T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>::
 transToPers(const InDet::InDetLowBetaContainer *trans,
             InDetLowBetaContainer_tlp1 *pers,
             MsgStream &msg) {
-//  if (log.level() <= MSG::DEBUG)  msg << MSG::DEBUG << "::transToPers called " << endreq;
+//  if (log.level() <= MSG::DEBUG)  msg << MSG::DEBUG << "::transToPers called " << endmsg;
   this->setTLPersObject(pers);
   m_mainConverter.virt_toPersistent(trans, msg);
   this->clearTLPersObject();

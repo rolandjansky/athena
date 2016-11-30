@@ -25,16 +25,16 @@
 
 void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedClusterAmbiguities* transObj, InDet::PixelGangedClusterAmbiguities_p1* persObj, MsgStream &log) 
 {
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endreq;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endmsg;
   
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize PixelGangedClusterAmbiguitiesCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize PixelGangedClusterAmbiguitiesCnv_p1 " << endmsg;
     } 
   }
   
   if (transObj->size() == 0)  {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << "No ganged pixels in this event. PixelAmbiMap has size 0. This happens often on single particle files." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << "No ganged pixels in this event. PixelAmbiMap has size 0. This happens often on single particle files." << endmsg;
   } 
   else {     
     InDet::PixelGangedClusterAmbiguities::const_iterator itr =   transObj->begin();
@@ -44,7 +44,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedCl
     const DataHandle<InDet::PixelClusterContainer> dh, dhEnd;
     StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
     if (sc.isFailure()){
-      log << MSG::WARNING <<"No containers found!"<< endreq;
+      log << MSG::WARNING <<"No containers found!"<< endmsg;
       return;
     }
     
@@ -68,7 +68,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedCl
 	}
       }
       if ( ExamplePixelCluster == NULL ) {
-	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG <<"No ganged SiClusters found that survive thinning!"<< endreq;
+	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG <<"No ganged SiClusters found that survive thinning!"<< endmsg;
 	return;
       }
     }
@@ -98,7 +98,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedCl
     }
     
     if (persObj->m_pixelClusterContainerName=="")  {
-      log << MSG::ERROR<<"Could not find matching PRD container for this PixelCluster! Dumping PRD: "<<*pixelCluster<<endreq;
+      log << MSG::ERROR<<"Could not find matching PRD container for this PixelCluster! Dumping PRD: "<<*pixelCluster<<endmsg;
     }
     
     std::vector<unsigned int> uintvector;
@@ -114,7 +114,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedCl
 	   std::find(idhashes_kept_after_thinning.begin(), 
 		     idhashes_kept_after_thinning.end(), 
 		     itr->first->getHashAndIndex().collHash() ) == idhashes_kept_after_thinning.end() ) {
-	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Skip persistifying ambiguity map entry for cluster destined to be thinned" << endreq;
+	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Skip persistifying ambiguity map entry for cluster destined to be thinned" << endmsg;
 	continue;
       }
       // for clarity assign the elements
@@ -143,17 +143,17 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers(const InDet::PixelGangedCl
 
 void  PixelGangedClusterAmbiguitiesCnv_p1::persToTrans(const InDet::PixelGangedClusterAmbiguities_p1* persObj, InDet::PixelGangedClusterAmbiguities* transObj, MsgStream &log) 
 {
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading InDet::PixelGangedClusterAmbiguities" << endreq;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading InDet::PixelGangedClusterAmbiguities" << endmsg;
   
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize PixelGangedClusterAmbiguitiesCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize PixelGangedClusterAmbiguitiesCnv_p1 " << endmsg;
     } 
   }
   
   if (persObj->m_pixelClusterContainerName == "")
   {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << "Name of the pixel cluster container is empty. Most likely cause: input is a single particle file and there were no pixel ambiguities." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << "Name of the pixel cluster container is empty. Most likely cause: input is a single particle file and there were no pixel ambiguities." << endmsg;
   } else
   {    
   const InDet::PixelClusterContainer* pCC(0);
@@ -196,16 +196,16 @@ StatusCode PixelGangedClusterAmbiguitiesCnv_p1::initialize(MsgStream &log)
 {
    // Do not initialize again:
    m_isInitialized=true;
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PixelGangedClusterAmbiguitiesCnv_p1::initialize called " << endreq;
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PixelGangedClusterAmbiguitiesCnv_p1::initialize called " << endmsg;
    // Get Storegate, ID helpers, and so on
    ISvcLocator* svcLocator = Gaudi::svcLocator();
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
    }
 
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }

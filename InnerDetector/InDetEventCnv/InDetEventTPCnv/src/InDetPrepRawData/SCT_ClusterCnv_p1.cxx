@@ -14,14 +14,14 @@
 void SCT_ClusterCnv_p1::
 persToTrans( const InDet::SCT_Cluster_p1 *persObj, InDet::SCT_Cluster *transObj,MsgStream &log ) 
 {
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterCnv_p1::persToTrans" << endreq;
+//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterCnv_p1::persToTrans" << endmsg;
    fillTransFromPStore( &m_siClusterCnv, persObj->m_siCluster, transObj, log );
 }
 
 void SCT_ClusterCnv_p1::
 transToPers( const InDet::SCT_Cluster *transObj, InDet::SCT_Cluster_p1 *persObj, MsgStream &log )
 {
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterCnv_p1::transToPers" << endreq;
+//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SCT_ClusterCnv_p1::transToPers" << endmsg;
    persObj->m_siCluster = baseToPersistent( &m_siClusterCnv, transObj, log );
 }
 

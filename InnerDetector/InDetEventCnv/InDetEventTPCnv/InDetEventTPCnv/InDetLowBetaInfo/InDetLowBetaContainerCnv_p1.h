@@ -26,13 +26,13 @@ class InDetLowBetaContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<InDet::InD
 /*     virtual void persToTrans(const InDetLowBetaContainer_p1 *persVect, */
 /* 			     InDetLowBetaContainer *transVect, */
 /* 			     MsgStream &log) { */
-/*       log << MSG::DEBUG << "InDetLowBetaContainerCnv::persToTrans" << endreq; */
+/*       log << MSG::DEBUG << "InDetLowBetaContainerCnv::persToTrans" << endmsg; */
 /*       if (!persVect) { */
-/* 	log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans cannot convert NULL persVect" << endreq; */
+/* 	log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans cannot convert NULL persVect" << endmsg; */
 /* 	return; */
 /*       } */
 /*       if (!transVect) { */
-/* 	log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans cannot convert to NULL transVect" << endreq; */
+/* 	log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans cannot convert to NULL transVect" << endmsg; */
 /* 	return; */
 /*       } */
       
@@ -45,7 +45,7 @@ class InDetLowBetaContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<InDet::InD
 /* 	InDetLowBetaCandidate *p = createTransFromPStore(&m_elementCnv, *it, log);  */
 /* 	transVect->push_back(p); */
 /* 	if (!p) */
-/* 	  log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans failed for an element " << endreq; */
+/* 	  log << MSG::WARNING << "InDetLowBetaContainerCnv::persToTrans failed for an element " << endmsg; */
 /*       } */
 /*     } */
     
@@ -54,11 +54,11 @@ class InDetLowBetaContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<InDet::InD
 /* 			     InDetLowBetaContainer_p1 *persVect, */
 /* 			     MsgStream &log) { */
 /*     if (!persVect) { */
-/*       log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers cannot convert NULL persVect" << endreq; */
+/*       log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers cannot convert NULL persVect" << endmsg; */
 /*       return; */
 /*     } */
 /*     if (!transVect) { */
-/*       log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers cannot convert to NULL transVect" << endreq; */
+/*       log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers cannot convert to NULL transVect" << endmsg; */
 /*       return; */
 /*     } */
     
@@ -72,10 +72,10 @@ class InDetLowBetaContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<InDet::InD
 /*       persVect->push_back(a); */
 /*       if (a.isNull()) { */
 /*         log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers failed for an element " << *it << " " */
-/*             << m_elementCnv << endreq; */
+/*             << m_elementCnv << endmsg; */
 /*       }else { */
 /*         log << MSG::WARNING << "InDetLowBetaContainerCnv::transToPers succeeded for an element " << *it << " " */
-/*             << m_elementCnv << endreq; */
+/*             << m_elementCnv << endmsg; */
 /*       } */
       
 /*     }  */

@@ -13,7 +13,7 @@ void PixelClusterOnTrackCnv_p2::persToTrans( const InDet::PixelClusterOnTrack_p2
 
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p2 " << endreq;
+            log << MSG::FATAL << "Could not initialize PixelClusterOnTrackCnv_p2 " << endmsg;
         }
     }
 
@@ -44,7 +44,7 @@ void PixelClusterOnTrackCnv_p2::persToTrans( const InDet::PixelClusterOnTrack_p2
     if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << transObj->identify()<<"/"<<transObj->idDE()<<endreq;
+            << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;
 
 }
 

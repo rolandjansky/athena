@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
@@ -147,6 +148,14 @@ void test1(const SCT_ID& sct_id)
 {
   std::cout << "test1\n";
 
+  {
+    // Do it once without leak checking to get services initialized.
+    std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
+    testit (*cont);
+  }
+
+  // And again with leak checking.
+  Athena_test::Leakcheck check;
   std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
   testit (*cont);
 }
