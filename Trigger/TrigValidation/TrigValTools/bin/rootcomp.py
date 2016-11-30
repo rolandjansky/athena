@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # @file:    rootcomp.py
 # @purpose: Script to compare the histograms in two root files
-# @author:  Frank Winklmeier
+# @author:  Frank Winklmeier, Will Buttinger
 #
 # $Id: rootcomp.py,v 1.18 2009-04-18 20:06:28 sgeorge Exp $
 
@@ -17,12 +17,13 @@ Return value: totalHistograms > 0 :
               (i.e. script returns 0 if all histograms match)     
 """              
 
-__author__  = "Frank Winklmeier"
+__author__  = "Frank Winklmeier, Will Buttinger"
 __version__ = "$Revision: 1.18 $"
 __doc__     = "Script to compare the histograms in two root files"
 
 import sys
 import os
+import os.path
 
 def lsroot(dir):
    """Return list of all keys in 'dir' (recursively)"""
@@ -164,9 +165,22 @@ def main():
                      action = "store_true", default = False,
                      help = "be verbose")
 
+
+   parser.add_option("--atnMode",
+                     action = "store_true", default = False, help = "reference file is one from previous atn nightly test")
    
+   parser.add_option("--html",action="store_true",default=False,help="generate root html code to view results in web browser")
+
    (opts, args) = parser.parse_args()
    
+   if opts.atnMode and len(args)==1:
+      from TrigValTools.Utils import getPreviousNightlyPath
+      for i in range(1,7):
+         refFile = getPreviousNightlyPath(i) + "/" + args[0]
+         if os.path.isfile(refFile): break
+         print "Could not find file %s" % refFile
+      args = [refFile] + args
+
    if len(args)!=2:
       parser.print_help()
       return 255
@@ -174,26 +188,26 @@ def main():
    if not opts.noSkipList:
       opts.skip += ["TIMERS"]
       opts.skip += ["TimerTot"]         # For TrigCalo[Cell,Cluster,Tower]Maker
-      opts.skip += ["FullCalo.Total"]   # TrigCaloCellMaker_fullcalo/FullCalo.Total
-      opts.skip += ["TCRec_.*"]         # TrigCaloCellMaker timers
+      opts.skip += ["FullCalo_Total"]   # TrigCaloCellMaker_fullcalo/FullCalo_Total
       opts.skip += ["signatureAcceptance"]
-      opts.skip += ["_0$","_1$"]
       opts.skip += ["ErrorCodes_vs_Chains_"]
-      opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Time$","time_","Time_"]
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor
+      opts.skip += ["TrigTimerSvc/TimerCalls"]        # number of timing calls
       opts.skip += ["GeneralOpInfo"]                  # release number, etc.
       opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
       opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
       opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
-      opts.skip += ["Lvl2EventLoopMgr/L2ResultSize"]  # L2 result size
       opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff
       opts.skip += ["HLTConfigSvc/PrescaleKey_LB"]  
       opts.skip += ["HLTConfigSvc/TimePrescaleUpdate"]  
+      opts.skip += ["run_[0-9]/lb_[0-9]+/"]           # LB histograms (ATR-15027)
+      opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
+      opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       
    # Default thresholds
    if not opts.threshold:
@@ -219,8 +233,11 @@ def main():
 
    # Now import ROOT
    import cppyy
-   from PerfMonAna import PyRootLib
-   ROOT = PyRootLib.importRoot( batch=True )
+   try:
+      from PerfMonAna import PyRootLib
+      ROOT = PyRootLib.importRoot( batch=True )
+   except ImportError:
+      import ROOT
 
    sys.stdout.flush()
    sys.stderr.flush()
@@ -293,6 +310,10 @@ def main():
       result = 0
    else:
       result  = 255
+
+   if opts.html:
+      os.system("root2html.py *.root")
+   
 
    print "Overall test result: %i" % result
    return result

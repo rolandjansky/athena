@@ -51,14 +51,14 @@ $docout = "doc.txt";
 # SCRIPT_MISC is on the right, ATN_TIME_LIMIT on the left
 # This default mask can be modified via the 'extra_failure_codes' test directive
 # only "shout" if we see/have: ATHENA_BAD_EXIT => 8 decimal 8 in bit is 0b00001000 thus 
-$default_exitmask = 0b00001000;
+$default_exitmask = 0b00001001;
 
 # Exit mask of the last run test. Not nice but the easiest way to implement
 # this on top of all the other ugly things in this script.
 $exitmask = $default_exitmask;
     
 # command to use for rootcomp
-$rootcomp_cmd = "rootcomp.py --zip --noRoot";
+$rootcomp_cmd = "rootcomp.py --pdf --noRoot";
 $checkcount_cmd = "trigtest_checkcounts.sh";
 $checkmerge_cmd = "trigtest_check_merge.sh";
 sub main();
@@ -563,15 +563,28 @@ sub parse_config(){
 	    print "$prog debug: config rootcomp_file2 >$this_test->{'rootcomp_file2'}<\n" if ($debug);
 	    next;
 	}
-	if ($line =~ /^customrootcomp\s+([^\s]+)\s+(.+)$/){
-	    $this_test->{'rootcomp'} = TRUE;
-	    $this_test->{'rootcomp_cmd'} = $1;
-	    $this_test->{'rootcomp_file2'} = $2;
-	    print "$prog debug: config rootcomp >" . ( $_ ? "true" : "false") . "<\n" if ($debug);
-	    print "$prog debug: config rootcomp_cmd >$1<\n" if ($debug);
-	    print "$prog debug: config rootcomp_file2 >$2<\n" if ($debug);
-	    next;
-	}
+    # old style                                                                                                                                                                
+    if ($line =~ /^customrootcomp\s+([^\s]+)\s+([^\s]+)$/){
+        $this_test->{'rootcomp'} = TRUE;
+        $this_test->{'rootcomp_cmd'} = $1;
+        $this_test->{'rootcomp_file2'} = $2;
+        print "$prog debug: config custom rootcomp >" . ( $_ ? "true" : "false") . "<\n" if ($debug);
+        print "$prog debug: config custom rootcomp_cmd >$1<\n" if ($debug);
+        print "$prog debug: config custom rootcomp_file2 >$2<\n" if ($debug);
+        next;
+    }
+    # optional 3rd argument                                                                                                                                                    
+    if ($line =~ /^customrootcomp\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)$/){
+        $this_test->{'rootcomp'} = TRUE;
+        $this_test->{'rootcomp_cmd'} = $1;
+        $this_test->{'rootcomp_file1'} = $2;
+        $this_test->{'rootcomp_file2'} = $3;
+        print "$prog debug: config custom rootcomp >" . ( $_ ? "true" : "false") . "<\n" if ($debug);
+        print "$prog debug: config custom rootcomp_cmd >$1<\n" if ($debug);
+        print "$prog debug: config custom rootcomp_file1 >$2<\n" if ($debug);
+        print "$prog debug: config custom rootcomp_file2 >$3<\n" if ($debug);
+        next;
+    }
 	if ($line =~ /^doc\s+(.+)$/){
 	    $this_test->{'doc'} = $1;
 	    print "$prog debug: config doc >$1<\n" if ($debug);
@@ -910,6 +923,7 @@ sub run_test($){
     }
     while (<LOG>){
 	if (/CRITICAL stopped by user interrupt/ or
+        /ERROR Keyboard interruption caught/ or
 	    /^Signal handler: Killing [0-9]+ with 15/){
 	    $timeout = TRUE;
 	    last;
