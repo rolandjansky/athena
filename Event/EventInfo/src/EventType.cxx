@@ -11,20 +11,8 @@
  * $Id: EventType.cxx,v 1.15 2009-05-18 08:31:07 schaffer Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "EventInfo/EventType.h"
 // #include "AtlasMcWeight.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 // List of EventTypeCodes
 //   To add on a new code, simply extend at the end 
@@ -110,12 +98,12 @@ EventType::typeToString    () const
 }
 
 
-const std::string&	
+std::string
 EventType::user_type	(void) const
 {
     char sep = '#';
     std::string::size_type beg = m_user_type.find(sep);
-    static std::string user_type;
+    std::string user_type;
     if (beg != std::string::npos) {
 	user_type = m_user_type.substr(0, beg);
     }
@@ -123,6 +111,13 @@ EventType::user_type	(void) const
 	user_type = m_user_type;
     }
     return user_type;
+}
+
+
+const std::string&
+EventType::user_type_raw	() const
+{
+  return m_user_type;
 }
 
 
@@ -214,6 +209,13 @@ EventType::BitMaskIterator
 EventType::bit_mask_end		(void) const
 {
     return m_bit_mask.end();
+}
+
+
+const EventType::BitMask&
+EventType::bit_mask		() const
+{
+  return m_bit_mask;
 }
 
 
