@@ -553,16 +553,31 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
                                                  deltaZCut = 6.0*mm, 
                                                  removeSelf=True,
                                                  useAnnulus=False,
-						 useVarIso=True) 
+						 useVarIso=True,
+                                                 removeSelfType=0 # 0=Standard,1=LeadTrk, 2=dRMatched
+        ) 
 
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
+
+        # Which isolation to run?
+        if "FTK" in name:
+            self.IsoType=2
+            self.removeSelfType=1
+        else:
+            self.IsoType=1
+        # Options: 1=ID+EF, 2=FTK+L2
+
 
         # ID tracks
         #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
         #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
+        # FTK tracks
+        self.FTKTrackParticles = "InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig"
+
+        
         # Only run algo on combined muons
         self.requireCombinedMuon = True
 
@@ -574,7 +589,13 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         validation_trkiso = TrigMuonEFTrackIsolationValidationMonitoring()
         online_trkiso     = TrigMuonEFTrackIsolationOnlineMonitoring()
 
-        self.AthenaMonTools = [ validation_trkiso, online_trkiso ]
+        # timing
+        self.doMyTiming = True
+        timetool = TrigTimeHistToolConfig("Time")
+        timetool.NumberOfHistBins=100
+        timetool.TimerHistLimits=[0,1000]
+        
+        self.AthenaMonTools = [ validation_trkiso, online_trkiso, timetool ]
 
 
 class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
@@ -684,7 +705,7 @@ class TrigMuonEFFSRoiMakerUnseededConfig(TrigMuonEFFSRoiMaker):
 
         from math import pi
 
-        kwargs.setdefault("RoISizeEta", 0.2)
+        kwargs.setdefault("RoISizeEta", 0.1)
         kwargs.setdefault("RoISizePhi", 3.14159)
         kwargs.setdefault("RoILabel", "forID")
 
