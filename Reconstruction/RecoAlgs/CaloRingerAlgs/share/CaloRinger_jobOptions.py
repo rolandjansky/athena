@@ -10,16 +10,34 @@ mlog.info('Entering')
 
 ringerOutputLevel = caloRingerFlags.OutputLevel()
 
+# Check if we have our other algorithm dependencies enabled, otherwise disable
+# ringer:
+if caloRingerFlags.buildCaloRingsOn():
+  # Check egamma related objects:
+  if not rec.doEgamma():
+    if caloRingerFlags.buildElectronCaloRings():
+      caloRingerFlags.buildElectronCaloRings.set_Value( False )
+      caloRingerFlags.doElectronIdentification.set_Value( False )
+      if not caloRingerFlags.buildElectronCaloRings():
+        mlog.info('No egamma builder available... disabling ElectronCaloRings reconstruction and electron selection.')
+    if caloRingerFlags.buildPhotonCaloRings():
+      caloRingerFlags.buildPhotonCaloRings.set_Value( False )
+      #caloRingerFlags.doPhotonIdentification.set_Value( False )
+      if not caloRingerFlags.buildPhotonCaloRings():
+        mlog.info('No egamma builder available... disabling PhotonCaloRings reconstruction and electron selection.')
+
+
 # To build CaloRings it is required to have doESD flag set to on.
 if not rec.doESD() and caloRingerFlags.buildCaloRingsOn():
   caloRingerFlags.buildCaloRingsOn.set_Value( False )
   caloRingerFlags.doIdentificationOn.set_Value( False )
   if not caloRingerFlags.buildCaloRingsOn():
-    mlog.info('Job will not build CaloRings as we are doing ESD.')
+    mlog.info('Job will not build CaloRings as we are not doing ESD.')
   if not caloRingerFlags.doIdentificationOn():
-    mlog.info('Job will not run Ringer selectors as we are doing ESD.')
+    mlog.info('Job will not run Ringer selectors as we are not doing ESD.')
 
 if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
+
   # Add main algorithm builder
   CRAlgBuilder = CaloRingerAlgorithmBuilder()
 
@@ -35,6 +53,13 @@ if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
       # Change the main algorithm output level
       mlog.verbose('Changing %r output level to %s', mainAlg, ringerOutputLevel)
       mainAlg.OutputLevel = ringerOutputLevel
+
+    # Get the builder handles
+    inputReaderHandles = CRAlgBuilder.getInputReaders()
+    for reader in inputReaderHandles:
+      # Change builders output level
+      mlog.verbose('Changing %r output level to %s', reader, ringerOutputLevel)
+      reader.OutputLevel = ringerOutputLevel
 
     # Get the builder handles
     builderHandles = CRAlgBuilder.getCaloRingerBuilders()

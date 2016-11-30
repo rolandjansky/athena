@@ -1,3 +1,14 @@
+2016-11-30  Werner Freund <wsfreund@cern.ch>
+
+	*  Only run egamma calo rings builder when egammaBuilder is available.
+	*  Tagged as CaloRingerAlgs-00-00-20.
+
+2016-11-24  Werner Freund <wsfreund@cern.ch>
+
+	*  Changed OutputItemList to follow new InputStore for metadata standard
+	*  Added verbose messages in xAODRingSetConfWriter.
+	*  Not tagging yet
+
 2016-11-22  Werner Freund <wsfreund@cern.ch>
 
 	*  Changed default flags to meet configuration presented in the Reco

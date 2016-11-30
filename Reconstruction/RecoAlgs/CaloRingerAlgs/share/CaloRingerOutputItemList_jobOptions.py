@@ -24,7 +24,7 @@ from CaloRingerAlgs.CaloRingerKeys import (outputCaloRingsType, CaloRingerKeysDi
                                           ,outputRingSetConfAuxType, outputRingSetType, outputRingSetAuxType
                                           ,outputCaloRingsType, outputCaloRingsAuxType)
 
-# AOD list, also added to the ESD
+# Avoid duplication
 caloRingerAODList = []
 
 # The MetaData items we need to be streamed
@@ -46,17 +46,40 @@ def addRingerInputEventToList(streamList, containerType):
 
 def __addRingerInputToList(streamList, containerType, storeTypeStr):
   from RecExConfig.InputFilePeeker import inputFileSummary
-  metaItemDict = inputFileSummary.get( storeTypeStr )
+  itemDict = inputFileSummary.get( storeTypeStr )
   try:
-    keys = metaItemDict.get( containerType )
+    keys = itemDict.get( containerType )
+    #keys = [ itemDict[dkey] for dkey in itemDict if containerType in dkey ]
     if keys:
       for key in keys:
         mlog.debug('Appending container %s#%s in input file to output file', \
             containerType, \
             key)
-        streamList.append( '%s#%s' % (containerType, key) )
+        outputName = '%s#%s' % (containerType, key)
+        if not outputName in streamList:
+          streamList.append( outputName )
+        # Code used to retrieve metadata container in early 22.0.X
+        #if type(key) in (list, tuple):
+        #  import re
+        #  for k in key:
+        #    k = re.sub(r'(.+)(_v\d+_)(.+)', r'\1#\3', k)
+        #    streamList.append( '%s' %  k )
+        #  streamList.append( '%s#%s' % (containerType, key) )
+        #  mlog.warning('Using old key format %s, while expected was cont#key.', key)
   except KeyError:
     pass
+
+def getInputMetaData( l ):
+  " Retrieve the input metadata information"
+  # NOTE: Old way to retrieve configuration:
+  #addRingerInputMetaToList( l, outputRingSetConfType() )
+  #addRingerInputMetaToList( l, outputRingSetConfAuxType() )
+  # NOTE: New way
+  from RecExConfig.InputFilePeeker import inputFileSummary
+  metaItemDict = inputFileSummary.get( 'metadata_itemsDic' )
+  if any( ['RingSetConf' in key for key in metaItemDict ] ):
+    l.append('%s#*' % outputRingSetConfType() )
+    l.append('%s#*' % outputRingSetConfAuxType() )
 
 # Add itens into lists
 if ( rec.doWriteAOD() or rec.doWriteESD() ) and caloRingerFlags.doWriteRingsToFile():
@@ -74,7 +97,7 @@ if ( rec.doWriteAOD() or rec.doWriteESD() ) and caloRingerFlags.doWriteRingsToFi
             addOutputToList(caloRingerAODList, cType, cKey, auxOption)
             mlog.debug("Added container with type/key %s/%s to StoreGateSvc", cType, cKey)
             break
-  elif rec.readESD() or rec.readAOD(): # In this case, we assume that the
+  if rec.readESD() or rec.readAOD(): # In this case, we assume that the
                                        # joboption was added to add input file ringer containers 
                                        # to the output file.
     # add the event store information:
@@ -94,15 +117,12 @@ if ( rec.doWriteAOD() or rec.doWriteESD() ) and caloRingerFlags.doWriteRingsToFi
             break
         else:
           raise ValueError("Could not find type/key %s/%s in dictionaries" % (cType, cKey) )
-    # add the meta data information:
-    addRingerInputMetaToList( caloRingerMetaDataList, outputRingSetConfType() )
-    addRingerInputMetaToList( caloRingerMetaDataList, outputRingSetConfAuxType() )
+    # add the input meta data information:
+    getInputMetaData( caloRingerMetaDataList ) 
   elif rec.readESD() or rec.readAOD():
-    # add the meta data information:
-    addRingerInputMetaToList( caloRingerMetaDataList, outputRingSetConfType() )
-    addRingerInputMetaToList( caloRingerMetaDataList, outputRingSetConfAuxType() )
+    # add the input meta data information:
+    getInputMetaData( caloRingerMetaDataList ) 
 
 
 # List for ESD: same as AOD
 caloRingerESDList = list(caloRingerAODList)
-

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerAlgorithm.cxx 785787 2016-11-22 16:43:17Z wsfreund $
+// $Id: CaloRingerAlgorithm.cxx 785784 2016-11-22 16:38:22Z wsfreund $
 #include "CaloRingerAlgorithm.h"
 
 // Framework includes:

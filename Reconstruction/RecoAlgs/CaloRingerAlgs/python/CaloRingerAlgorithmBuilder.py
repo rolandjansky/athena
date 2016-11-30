@@ -65,9 +65,14 @@ def checkBuildElectronCaloRings():
       # Try to force egammaBuilder startup if it is not already started:
       if not egammaBuilderAvailable(): 
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
-          " builder was not available. Trying to add egamma to joboptions.")
+          " builder was not available. Deactivating ElectronCaloRings and electron selection.")
           )
-        __enableEgamma()
+        #if rec.doEgamma():
+          #__enableEgamma()
+        #else
+        caloRingerFlags.buildElectronCaloRings = False
+        caloRingerFlags.doElectronIdentification = False
+        return False
       else:
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
@@ -124,9 +129,14 @@ def checkBuildPhotonCaloRings():
       # Try to force egammaBuilder startup if it is not already started:
       if not egammaBuilderAvailable(): 
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
-          " builder was not available. Trying to add egamma to joboptions.")
-          )
-        __enableEgamma()
+          " builder was not available. Deactivating buildPhotonCaloRings.")
+            )
+        #if rec.doEgamma():
+          #__enableEgamma()
+        #else:
+        caloRingerFlags.buildPhotonCaloRings = False
+        #caloRingerFlags.doPhotonIdentification = False
+        return False
       else:
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
