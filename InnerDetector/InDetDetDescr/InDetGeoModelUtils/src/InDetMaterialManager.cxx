@@ -597,8 +597,8 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialNam
   if ((iter = m_weightMap.find(materialName)) != m_weightMap.end()) {
     const std::string & materialBase = iter->second.name;
     double weight = iter->second.weight;
-    double density = weight/volume;
     if (iter->second.linearWeightFlag) weight *= length;
+    double density = weight/volume;
 
     if (materialBase.empty()) {
       return getMaterial(materialName, density, newName);
