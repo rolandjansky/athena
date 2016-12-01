@@ -258,7 +258,6 @@ def lhef_cmds(filename="events.lhe", nlo=False, usespin=True):
     return """
 set /Herwig/Shower/Evolver:HardVetoMode 1
 set /Herwig/Shower/Evolver:HardVetoScaleSource 1
-set /Herwig/Shower/Evolver:MECorrMode 0
 
 ## Create the Handler and Reader
 library LesHouches.so
@@ -268,7 +267,6 @@ set /Herwig/EventHandlers/LHEReader:IncludeSpin {usespin}
 insert /Herwig/EventHandlers/LHEHandler:LesHouchesReaders 0 /Herwig/EventHandlers/LHEReader
 
 set /Herwig/EventHandlers/LHEReader:MomentumTreatment RescaleEnergy
-set /Herwig/EventHandlers/LHEReader:WeightWarnings 0
 set /Herwig/EventHandlers/LHEReader:AllowedToReOpen 0
 
 set /Herwig/EventHandlers/LHEHandler:WeightOption VarNegWeight
@@ -321,6 +319,11 @@ set /Herwig/Shower/KinematicsReconstructor:InitialStateReconOption Rapidity
 set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption Default
 set /Herwig/Shower/ShowerHandler:RestrictPhasespace On
 
+## matrix element corrections were switched off by us in the past
+## now the Herwig7 authors recommend to go with the default, which is MECorrMode 1 [Yes]
+## keeping it for the moment for mg5amc, though, until new settings validated
+set /Herwig/Shower/Evolver:MECorrMode 0 ## keeping this here at the moment
+
 """
 
 
@@ -330,6 +333,10 @@ def powhegbox_cmds():
 ## commands specific to showering of events produced with PowhegBox
 set /Herwig/Shower/ShowerHandler:RestrictPhasespace On
 set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes
+
+## treatment of wide angle radiation
+set /Herwig/Shower/PartnerFinder:PartnerMethod Random
+set /Herwig/Shower/PartnerFinder:ScaleChoice Partner
 
 """
 
