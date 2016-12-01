@@ -36,7 +36,7 @@ StatusCode DecayInFlyTruthTrajectoryBuilder::initialize() {
 
 //================================================================
 void DecayInFlyTruthTrajectoryBuilder::
-buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input)
+buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) const
 {
   result->clear();
   if(input) {
@@ -68,7 +68,7 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input)
 
 //================================================================
 DecayInFlyTruthTrajectoryBuilder::MotherDaughter
-DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx)
+DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
 {
   const HepMC::GenParticle *mother(0), *daughter(0);
   
@@ -126,7 +126,7 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
 }
 
 //================================================================
-const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) {
+const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
 
   const HepMC::GenParticle *daughter = 0;
   
@@ -143,7 +143,7 @@ const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const He
 }
 
 //================================================================
-const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) {
+const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
 
   const HepMC::GenParticle *mother = 0;
 

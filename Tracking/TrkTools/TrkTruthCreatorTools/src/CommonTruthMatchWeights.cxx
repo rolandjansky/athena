@@ -30,7 +30,7 @@ StatusCode CommonTruthMatchWeights::initialize() {
   for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {
     log<<m_subDetWeights[i]<<" ";
   }
-  log<<")"<<endreq;
+  log<<")"<<endmsg;
 
   return StatusCode::SUCCESS;
 }

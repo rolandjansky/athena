@@ -33,7 +33,7 @@ namespace Trk {
     /** See description for IDetailedTrackTruthBuilder::buildDetailedTrackTruth() */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth);
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const;
 
   private:
     typedef InverseMultiMap<PRD_MultiTruthCollection> PRD_InverseTruth;
@@ -42,17 +42,17 @@ namespace Trk {
 
     ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajBuilder;
 
-    SubDetHitStatistics::SubDetType findSubDetType(Identifier id);
+    SubDetHitStatistics::SubDetType findSubDetType(Identifier id) const;
     
     void addTrack(DetailedTrackTruthCollection *output,
 		  const ElementLink<DataVector<Trk::Track> > &track,
 		  const std::vector<const PRD_MultiTruthCollection*>& orderedPRD_Truth,
-		  const PRD_InverseTruth& inverseTruth);
+		  const PRD_InverseTruth& inverseTruth) const;
 
-    void makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth);
+    void makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) const;
 
     SubDetHitStatistics countPRDsOnTruth(const TruthTrajectory& traj,
-                                         const PRD_InverseTruth& inverseTruth);
+                                         const PRD_InverseTruth& inverseTruth) const;
 
   };
   
