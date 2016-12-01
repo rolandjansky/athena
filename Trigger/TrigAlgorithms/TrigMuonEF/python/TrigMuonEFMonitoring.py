@@ -336,15 +336,14 @@ class TrigMuonEFTrackIsolationOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFTrackIsolationOnlineMonitoring"):
         super(TrigMuonEFTrackIsolationOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
-        self.Histograms += [ defineHistogram('EF_trks_trkptiso_cone2', type='TH1F', title="Track Isolation cone 0.2; MuonEF CB Trk Isolation cone 0.2 [GeV]",
-                                             xbins=25, xmin=0, xmax=25) ]
-        self.Histograms += [ defineHistogram('EF_trks_trkptiso_cone3', type='TH1F', title="Track Isolation cone 0.3; MuonEF CB Trk Isolation cone 0.3 [GeV]",
-                                             xbins=25, xmin=0, xmax=25) ]
-        self.Histograms += [ defineHistogram('EF_trks_idtrkdz', type='TH1F', title="dz to ID trks; dz to ID trks",
-                                             xbins=200, xmin=-100, xmax=100.0) ]
-        self.Histograms += [ defineHistogram('EF_trks_idtrkdr', type='TH1F', title="dr to ID trks; dr to ID trks",
+        self.Histograms += [ defineHistogram('trks_trkptiso_cone2', type='TH1F', title="Track Isolation cone 0.2; MuonEF CB Trk Isolation cone 0.2 [GeV] (ID)",
+                                             xbins=35, xmin=-10, xmax=25) ]
+        self.Histograms += [ defineHistogram('trks_trkptiso_cone3', type='TH1F', title="Track Isolation cone 0.3; MuonEF CB Trk Isolation cone 0.3 [GeV] (ID)",
+                                             xbins=35, xmin=-10, xmax=25) ]
+        self.Histograms += [ defineHistogram('trks_trkdz', type='TH1F', title="dz to trks; dz to trks",
+                                             xbins=200, xmin=-10, xmax=10.0) ]
+        self.Histograms += [ defineHistogram('trks_trkdr', type='TH1F', title="dr to trks; dr to trks",
                                              xbins=60, xmin=0.0, xmax=3.0) ]
-
 
 class TrigMuonEFTrackIsolationValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFTrackIsolationValidationMonitoring"):
