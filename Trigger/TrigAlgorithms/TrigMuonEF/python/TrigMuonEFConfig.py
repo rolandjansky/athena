@@ -563,7 +563,7 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         # Which isolation to run?
         if "FTK" in name:
             self.IsoType=2
-            self.removeSelfType=1
+            TMEF_VarIsolationTool.removeSelfType=1 # use LeadTrk by default
         else:
             self.IsoType=1
         # Options: 1=ID+EF, 2=FTK+L2
