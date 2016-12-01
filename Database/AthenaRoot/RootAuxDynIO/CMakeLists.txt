@@ -11,10 +11,12 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthContainersRoot
                           Control/AthContainersInterfaces
-                          Database/AthenaRoot/AthenaRootComps
+                          Control/AthenaRootComps
                           GaudiKernel )
 
-find_package( ROOT COMPONENTS Core RIO Tree )
+# External dependencies:
+#find_package( ROOT COMPONENTS Core RIO TreePlayer Tree MathCore Hist pthread )
+
 
 # Component(s) in the package:
 atlas_add_library( RootAuxDynIO

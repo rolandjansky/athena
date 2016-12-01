@@ -2,17 +2,22 @@ package RootAuxDynIO
 
 author Marcin Nowak
 
+# WARNING - untested
+
 use AtlasPolicy         AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*             External
+use AthContainersInterfaces AthContainersInterfaces-* Control
 
 private
-use AthContainersInterfaces AthContainersInterfaces-* Control
 use AthContainers         AthContainers-*       Control
 use AthContainersRoot     AthContainersRoot-*   Control
+use CxxUtils              CxxUtils-*            Control
 use RootUtils             RootUtils-*           Control
+use GaudiInterface	  GaudiInterface-*	External
 
-public
 apply_pattern installed_library
 library RootAuxDynIO *.cxx 
 
+private
+macro_append ROOT_linkopts " -lRIO -lTreePlayer "
 
