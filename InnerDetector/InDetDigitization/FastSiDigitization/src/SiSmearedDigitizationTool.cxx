@@ -52,20 +52,20 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, const std::string &name, 
-						     const IInterface* parent):
+const IInterface* parent):
 
-  PileUpToolBase(type, name, parent),
-  m_thpcsi(NULL),
-  m_rndmSvc("AtRndmGenSvc",name),
-  m_manager_pix(NULL),
-  m_pixel_ID(0),
-  m_randomEngine(0),
-  m_randomEngineName("SiSmearedDigitization"),
-  m_pixelClusterContainer(0),
-  m_mergeSvc("PileUpMergeSvc",name),
-  m_prdTruthName("PRD_MultiTruthPixel"),
-  m_sigmaX(0.005),
-  m_sigmaY(0.005)
+PileUpToolBase(type, name, parent),
+m_thpcsi(NULL),
+m_rndmSvc("AtRndmGenSvc",name),
+m_manager_pix(NULL),
+m_pixel_ID(0),
+m_randomEngine(0),
+m_randomEngineName("SiSmearedDigitization"),
+m_pixelClusterContainer(0),
+m_mergeSvc("PileUpMergeSvc",name),
+m_prdTruthName("PRD_MultiTruthPixel"),
+m_sigmaX(0.005),
+m_sigmaY(0.005)
 {
   declareInterface<ISiSmearedDigitizationTool>(this);
   declareProperty("RndmSvc",                   m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
@@ -86,10 +86,10 @@ StatusCode SiSmearedDigitizationTool::initialize()
 
   //locate the AtRndmGenSvc and initialize our local ptr
   if (!m_rndmSvc.retrieve().isSuccess()) 
-    {
-      ATH_MSG_ERROR ( "Could not find given RndmSvc" );
-      return StatusCode::FAILURE;
-    }
+  {
+    ATH_MSG_ERROR ( "Could not find given RndmSvc" );
+    return StatusCode::FAILURE;
+  }
 
   // Get the Pixel Detector Manager
   if (StatusCode::SUCCESS != detStore()->retrieve(m_manager_pix,"Pixel") ) {
@@ -112,10 +112,10 @@ StatusCode SiSmearedDigitizationTool::initialize()
   }
   
   if (m_inputObjectName=="") 
-    {
-      ATH_MSG_FATAL ( "Property InputObjectName not set !" );
-      return StatusCode::FAILURE;
-    } 
+  {
+    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
+    return StatusCode::FAILURE;
+  } 
   else ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
   
   //locate the PileUpMergeSvc and initialize our local ptr
@@ -147,8 +147,8 @@ StatusCode SiSmearedDigitizationTool::prepareEvent(unsigned int)
 
 
 StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
-						      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						      PileUpEventInfo::SubEvent::const_iterator eSubEvents) 
+PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+PileUpEventInfo::SubEvent::const_iterator eSubEvents) 
 {
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: processBunchXing() ---" );
@@ -321,8 +321,10 @@ StatusCode SiSmearedDigitizationTool::digitize() {
   while (m_thpcsi->nextDetectorElement(i, e)) {
     
     while (i != e) {
-     
+      
       TimedHitPtr<SiHit> hit(*i++);
+      if (not hit->particleLink().isValid()) continue;
+      
       int barrelEC  = hit->getBarrelEndcap();
       int layerDisk = hit->getLayerDisk();
       int phiModule = hit->getPhiModule();
@@ -333,8 +335,8 @@ StatusCode SiSmearedDigitizationTool::digitize() {
       ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
             
       if ( !hitSiDetElement) {
-	ATH_MSG_ERROR( " could not get detector SiDetElement");
-	continue;
+        ATH_MSG_ERROR( " could not get detector SiDetElement");
+        continue;
       }
       
       if (not hitSiDetElement->isPixel()) continue;
@@ -348,12 +350,18 @@ StatusCode SiSmearedDigitizationTool::digitize() {
       localStartPosition = hitSiDetElement->hitLocalToLocal3D(localStartPosition);
       localEndPosition = hitSiDetElement->hitLocalToLocal3D(localEndPosition);
  
+ 
       double localEntryX = localStartPosition.x();
       double localEntryY = localStartPosition.y();
       double localEntryZ = localStartPosition.z();
       double localExitX = localEndPosition.x();
       double localExitY = localEndPosition.y();
       double localExitZ = localEndPosition.z();
+         
+      // we only consider -/+ z for the moment
+      if (localEntryZ * localExitZ > 0 ){
+        continue;
+      }    
          
       Amg::Vector2D localEntry(localEntryX,localEntryY);
       Amg::Vector2D localExit(localExitX,localExitY);
@@ -372,31 +380,43 @@ StatusCode SiSmearedDigitizationTool::digitize() {
 
       ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: entryValid? " << entryValid << " --- exitValid? " << exitValid );
 
-      if (!entryValid and !exitValid) continue;
-      
-      const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
-      
-      // the entry index in phi/eta
-      int entryPhiIndex = localEntryX<0. ? 0 : design->rows()-1;
-      int entryEtaIndex = localEntryY<0. ? 0 : design->columns()-1;
-      if (entryValid) {
-	entryPhiIndex = entryCellId.phiIndex();
-	entryEtaIndex = entryCellId.etaIndex();
-      }
-      
-      // the exit index in phi/eta
-      int exitEtaIndex  =  localExitY<0. ? 0 : design->columns()-1;
-      int exitPhiIndex  =  localExitX<0. ? 0 : design->rows()-1;
-      if (exitValid) {
-	exitPhiIndex = exitCellId.phiIndex();
-	exitEtaIndex = exitCellId.etaIndex();
-      }
+      // Noemi has commented this for the moment
+      //if (!entryValid or !exitValid) continue;
       
       // the pixel positions and other needed stuff for the geometrical clustering
       std::vector<Identifier> rdoList;
       
-      // the intersecetion id and cellId of it
+      // the intersection id and cellId of it
       Amg::Vector2D avePos = 0.5*(localEntry+localExit);   
+
+      // correct the average position in case it is needed 
+      if ( fabs(localEntryZ+localExitZ) > 1e-6 ){
+        // 
+        const Trk::Surface& hitSiSurface = hitSiDetElement->surface(hitSiDetElement->identify());
+        // intersect the surface if necessary
+        Amg::Vector3D amgStartPos(localStartPosition.x(),localStartPosition.y(),localStartPosition.z());
+        Amg::Vector3D amgEndPosition(localEndPosition.x(),localEndPosition.y(),localEndPosition.z());
+
+        // get the direction 
+        Amg::Vector3D amgDirection = (amgEndPosition-amgStartPos).unit();
+                
+        // get the stuff from surface frame into global 3D frame
+        Amg::Vector3D amgPosition3D  = hitSiSurface.transform()*amgStartPos;
+        
+        Amg::Vector3D amgDirection3D = hitSiSurface.transform().linear()*amgDirection;
+        // intersect
+        auto sIntersection = hitSiSurface.straightLineIntersection(amgPosition3D, amgDirection3D, false, true);
+        
+        if (!sIntersection.valid) {
+          ATH_MSG_WARNING("Intersection is not valid!");          
+          continue;
+        }
+        // get back into local
+        Amg::Vector3D avePositionLocal = hitSiSurface.transform().inverse() * sIntersection.position;
+        
+        // update the local position
+        avePos = Amg::Vector2D(avePositionLocal.x(),avePositionLocal.y());
+      } 
       
       Identifier avePosId = hitSiDetElement->identifierOfPosition(avePos);
     
@@ -409,18 +429,38 @@ StatusCode SiSmearedDigitizationTool::digitize() {
 
       if (!avePosValid) continue;     
       
+      const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
+      
+      // the entry index in phi/eta
+      int entryPhiIndex = localEntryX<0. ? 0 : design->rows()-1;
+      int entryEtaIndex = localEntryY<0. ? 0 : design->columns()-1;
+      if (entryValid) {
+        entryPhiIndex = entryCellId.phiIndex();
+        entryEtaIndex = entryCellId.etaIndex();
+      }
+      
+      // the exit index in phi/eta
+      int exitEtaIndex  =  localExitY<0. ? 0 : design->columns()-1;
+      int exitPhiIndex  =  localExitX<0. ? 0 : design->rows()-1;
+      if (exitValid) {
+        exitPhiIndex = exitCellId.phiIndex();
+        exitEtaIndex = exitCellId.etaIndex();
+      }
+            
       double pitchX = hitSiDetElement->phiPitch(avePos);
       double pitchY = hitSiDetElement->etaPitch();
+      
+      
       
       double smearPosX = avePos[Trk::locX];
       double smearPosY = avePos[Trk::locY];
       
-//       double distX = fabs(fabs(localEntry[Trk::locX])-fabs(localExit[Trk::locX]));
-//       double distY = fabs(fabs(localEntry[Trk::locY])-fabs(localExit[Trk::locY]));
+      //       double distX = fabs(fabs(localEntry[Trk::locX])-fabs(localExit[Trk::locX]));
+      //       double distY = fabs(fabs(localEntry[Trk::locY])-fabs(localExit[Trk::locY]));
       
       //the particle crosses at least n pixels (in x direction you have timesX, in y direction you have timesY)
-//       int elementX = floor(distX/pitchX)+1;
-//       int elementY = floor(distY/pitchY)+1;
+      //       int elementX = floor(distX/pitchX)+1;
+      //       int elementY = floor(distY/pitchY)+1;
       
       int elementX = fabs(entryPhiIndex-exitPhiIndex)+1;
       int elementY = fabs(entryEtaIndex-exitEtaIndex)+1;
@@ -438,14 +478,14 @@ StatusCode SiSmearedDigitizationTool::digitize() {
       double sParX = 0.;
       double sParY = 0.;        
       do {
-	sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., m_sigmaX);
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
+        sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., m_sigmaX);
+        ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
       } while (fabs(smearPosX+sParX)>(hitSiDetElement->width()/2.));
       smearPosX += sParX;
       
       do {
-	sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., m_sigmaY);
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
+        sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., m_sigmaY);
+        ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
       } while (fabs(smearPosY+sParY)>(hitSiDetElement->length()/2.));
       smearPosY += sParY;
       
@@ -484,16 +524,16 @@ StatusCode SiSmearedDigitizationTool::digitize() {
 
       // create the cluster
       InDet::PixelCluster* pixelCluster = new InDet::PixelCluster(smearedPosId,
-								  smearedPos,
-								  rdoList,
-								  *siWidth,
-								  hitSiDetElement,
-								  clusterErr);
+      smearedPos,
+      rdoList,
+      *siWidth,
+      hitSiDetElement,
+      clusterErr);
       m_pixelClusterMap->insert(std::pair<IdentifierHash, const InDet::PixelCluster* >(waferID, pixelCluster));
 	
       if (FillTruthMap(m_prdTruthCollection, pixelCluster, hit).isFailure()) {
-	ATH_MSG_FATAL ( "FillTruthMap() for pixel failed!" );
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ( "FillTruthMap() for pixel failed!" );
+        return StatusCode::FAILURE;
       }  
     }
   }
