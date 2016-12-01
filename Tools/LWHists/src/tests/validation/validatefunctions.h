@@ -251,11 +251,11 @@ namespace HistValFunctions {
       int bin1 = obj1->GetUniqueID();
       assert(bin1>=0);
       unsigned bin = static_cast<unsigned>(bin1);
-      const char * label = obj1->GetString().Data();
+      const std::string label(obj1->GetString().Data());
       const char * label_lw = hlw->GetXaxis()->GetBinLabel(bin);
       if (!label_lw)
         testfailed("GetXaxis()->GetBinLabel(..) (NULL)");
-      test("GetXaxis()->GetBinLabel(..)",label,label_lw);
+      test("GetXaxis()->GetBinLabel(..)",label.c_str(),label_lw);
    }
     TListIter next2(hroot->GetYaxis()->GetLabels());
     TObjString *obj2;
@@ -263,11 +263,11 @@ namespace HistValFunctions {
       int bin1 = obj2->GetUniqueID();
       assert(bin1>=0);
       unsigned bin = static_cast<unsigned>(bin1);
-      const char * label = obj2->GetString().Data();
+      std::string label(obj2->GetString().Data());
       const char * label_lw = hlw->GetYaxis()->GetBinLabel(bin);
       if (!label_lw)
         testfailed("GetYaxis()->GetBinLabel(..) (NULL)");
-      test("GetYaxis()->GetBinLabel(..)",label,label_lw);
+      test("GetYaxis()->GetBinLabel(..)",label.c_str(),label_lw);
    }
   }
 
