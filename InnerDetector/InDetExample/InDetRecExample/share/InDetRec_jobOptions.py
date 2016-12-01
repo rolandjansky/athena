@@ -838,11 +838,13 @@ else:
                                                         ExtrapolationTool   = InDetExtrapolator,
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
-                                                        MinDegreesOfFreedom = 1,
-                                                        MinSiHits           =  InDetNewTrackingCuts.minClusters() )
-        if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-            InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
-            InDetTruthTrackBuilder.ForwardBoundary  = InDetNewTrackingCutsForwardTracks.minEta()
+                                                        MinDegreesOfFreedom = 1)
+        if InDetFlags.doSLHC():
+          InDetTruthTrackBuilder.InDetDynamicCutsTool   = InDetDynamicCutsTool
+          InDetTruthTrackBuilder.UseDynamicCuts         = True
+        else:
+          InDetTruthTrackBuilder.MinSiHits           =  InDetNewTrackingCuts.minClusters()
+
 #        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
         
@@ -874,10 +876,15 @@ else:
         InDetPRD_TruthTrajectoryBuilder=Trk__PRD_TruthTrajectoryBuilder(name = 'InDetPRD_TruthTrajectoryBuilder',
                                          PRD_MultiTruthCollections       = [ PixelClusterTruth,SCT_ClusterTruth,TRT_DriftCircleTruth],
                                          InDetPRD_Provider               = InDetPRD_Provider,
-                                         MinimumPt                       =  InDetNewTrackingCuts.minPT(),
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
         if not InDetFlags.doSLHC():
             InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
+
+            InDetPRD_TruthTrajectoryBuilder.MinimumPt                       = InDetNewTrackingCuts.minPT()
+        else:
+            InDetPRD_TruthTrajectoryBuilder.InDetDynamicCutsTool  = InDetDynamicCutsTool
+            InDetPRD_TruthTrajectoryBuilder.UseDynamicCuts        = True
+
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
