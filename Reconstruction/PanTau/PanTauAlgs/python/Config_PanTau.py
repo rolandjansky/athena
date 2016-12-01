@@ -122,37 +122,37 @@ class DecayModeDeterminator_BDTCutValue_R10X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  0.19
+    StoredValue  =  0.57
 
 class DecayModeDeterminator_BDTCutValue_R11X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  -0.11
+    StoredValue  =  -0.25
 
 class DecayModeDeterminator_BDTCutValue_R110_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  0.37
+    StoredValue  =  0.53
 
 class DecayModeDeterminator_BDTCutValue_R1XX_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  0.07
+    StoredValue  =  -0.06
 
 class DecayModeDeterminator_BDTCutValue_R30X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  -0.01
+    StoredValue  =  -0.12
 
 class DecayModeDeterminator_BDTCutValue_R3XX_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  =  -0.03
+    StoredValue  =  -0.09
 
 #
 # PanTau BDT Cut values --- eflowRec
