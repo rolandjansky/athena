@@ -11,84 +11,98 @@
 #include "TauDiscriminant/TauEleBDT.h"
 #include "TH2F.h"
 
-using std::string;
-using TauID::MethodBDT;
-using TauID::MethodCuts;
-
 StatusCode TauEleBDT::initialize()
 {
-    if (this->m_eleBDTFile != "")
-    {
-        std::string eleBDTPath = find_calibFile(this->m_eleBDTFile);
-        if(eleBDTPath == "")
-        {
-	  ATH_MSG_FATAL("File: " << this->m_eleBDTFile << " not found! ");
-	  return StatusCode::FAILURE;
-        }
+  //StatusCode::enableFailure();
+     
+  if (this->m_eleBDTFile == "") {
+    ATH_MSG_FATAL("No BDTs were initialized!");
+    return StatusCode::FAILURE;
+  }
+ 
+
+  std::string eleBDTPath = find_file(this->m_eleBDTFile);
+  if(eleBDTPath == "") {
+    ATH_MSG_FATAL("File: " << this->m_eleBDTFile << " not found! ");
+    return StatusCode::FAILURE;
+  }
          
-        this->m_eleBDT = new MethodBDT("TauBDT:EleBDT");
+  this->m_eleBDT = new TauID::MethodBDT("TauBDT:EleBDT");
         
-        if (!this->m_eleBDT->build(eleBDTPath))
-        {
-	  ATH_MSG_FATAL("Loading electron BDT file " << eleBDTPath << " failed!");
-	  return StatusCode::FAILURE;
-        }
+  if (!this->m_eleBDT->build(eleBDTPath)) {
+    ATH_MSG_FATAL("Loading electron BDT file " << eleBDTPath << " failed!");
+    return StatusCode::FAILURE;
+  }
         
-        if (this->m_eleBitsFile != "")
-        {
-            string eleBitsPath = find_calibFile(this->m_eleBitsFile);
-            if(eleBitsPath == "")
-            {
-	      ATH_MSG_FATAL("File: " << this->m_eleBitsFile << " not found! ");
-	      return StatusCode::FAILURE;
-            }
-
-            this->m_eleBits = new MethodCuts("TauBDT:EleBits");
-
-            if (!this->m_eleBits->build(eleBitsPath))
-            {
-	      ATH_MSG_FATAL("Loading ele bits file " << eleBitsPath << " failed!");
-	      return StatusCode::FAILURE;
-            }
-        }
-	if(this->m_eleBitsRootFile != ""){
-		string eleBitsRootPath = find_calibFile(this->m_eleBitsRootFile);
-        	if(eleBitsRootPath == "")
-	        {
-		  ATH_MSG_FATAL("File: " << this->m_eleBitsRootFile << " not found! ");
-		  return StatusCode::FAILURE;
-        	}
-
-
-		this->m_cutsFile = new TFile(eleBitsRootPath.c_str());	
-		if(this->m_cutsFile){
-		        this->m_hloose  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_loose");
-		       	this->m_hmedium = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_medium");
-               		this->m_htight  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_tight");
-		}
-
-	}
-	else
-	{
-	  ATH_MSG_FATAL("No BDT bits file was specified!");
-	  return StatusCode::FAILURE;
-        }
-
-	
-    }
-    else
-    {
-      ATH_MSG_FATAL("No BDTs were initialized!");
+  if (!m_onlyDecorateScore and this->m_eleBitsFile != "") {
+    std::string eleBitsPath = find_file(this->m_eleBitsFile);
+    if(eleBitsPath == "") {
+      ATH_MSG_FATAL("File: " << this->m_eleBitsFile << " not found! ");
       return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;
+    this->m_eleBits = new TauID::MethodCuts("TauBDT:EleBits");
+
+    if (!this->m_eleBits->build(eleBitsPath)) {
+      ATH_MSG_FATAL("Loading ele bits file " << eleBitsPath << " failed!");
+      return StatusCode::FAILURE;
+    }
+  }
+  if(!m_onlyDecorateScore and this->m_eleBitsRootFile != ""){
+    std::string eleBitsRootPath = find_file(this->m_eleBitsRootFile);
+    if(eleBitsRootPath == ""){
+      ATH_MSG_FATAL("File: " << this->m_eleBitsRootFile << " not found! ");
+      return StatusCode::FAILURE;
+    }
+
+    
+    this->m_cutsFile = new TFile(eleBitsRootPath.c_str());	
+    if(this->m_cutsFile){
+      this->m_hloose  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_loose");
+      this->m_hmedium = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_medium");
+      this->m_htight  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_tight");
+    }
+
+  }
+  else if(!m_onlyDecorateScore) {
+    ATH_MSG_FATAL("No BDT bits file was specified!");
+    return StatusCode::FAILURE;
+  }
+
+	
+  return StatusCode::SUCCESS;
 }
+
+StatusCode TauEleBDT::decorate(xAOD::TauJet& tauJet)
+{
+  // decorate run 2 scores
+  static SG::AuxElement::Accessor<float> acc_newScore("BDTEleScore_run2");
+    
+  auto nTracks = tauJet.nTracks();
+  if(nTracks == 0) {
+    acc_newScore(tauJet) = 0.0;
+    return StatusCode::SUCCESS;
+  }
+    
+  auto eleScore = this->m_eleBDT->response(tauJet);
+  if (eleScore < 0. || eleScore > 1.) {
+    ATH_MSG_ERROR("Error in computing BDTEleScore!");
+  }
+
+  acc_newScore(tauJet) = eleScore;
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 {
    
-//     Analysis::TauPID* tauJetID = tauJet.tauID();
+
+  if(m_onlyDecorateScore) {
+    return decorate(tauJet);
+  }
+
+  //     Analysis::TauPID* tauJetID = tauJet.tauID();
 
     // Initialize scores
   tauJet.setDiscriminant(xAOD::TauJetParameters::BDTEleScore, 0.);
@@ -194,7 +208,7 @@ StatusCode TauEleBDT::finalize()
 	//delete this->m_htight;
     }
         
-    delete this->m_eleBDT;
-    delete this->m_eleBits;
+    if(this->m_eleBDT) { delete this->m_eleBDT; }
+    if(this->m_eleBits) { delete this->m_eleBits; }
     return StatusCode::SUCCESS;
 }

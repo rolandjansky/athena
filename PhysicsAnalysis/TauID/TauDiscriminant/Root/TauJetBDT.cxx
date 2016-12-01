@@ -14,7 +14,7 @@ using namespace TauID;
 using std::string;
 
 TauJetBDT::TauJetBDT(const string& name):
-  TauDiscriToolBase(name),
+  TauRecToolBase(name),
   m_jetScore(-1.),
   m_jetBDTFile(""),
   m_jetSigBitsFile(""),
@@ -33,7 +33,7 @@ StatusCode TauJetBDT::initialize()
 {
     if (this->m_jetBDTFile != "")
     {
-        string jetBDTPath = find_calibFile(this->m_jetBDTFile);
+        string jetBDTPath = find_file(this->m_jetBDTFile);
     
         if(jetBDTPath == "")
         {
@@ -51,7 +51,7 @@ StatusCode TauJetBDT::initialize()
         
         if (this->m_jetSigBitsFile != "")
         {
-            string jetSigBitsPath = find_calibFile(this->m_jetSigBitsFile);
+            string jetSigBitsPath = find_file(this->m_jetSigBitsFile);
             if(jetSigBitsPath == "")
             {
 	      ATH_MSG_FATAL("File: " << this->m_jetSigBitsFile << " not found! ");
@@ -70,7 +70,7 @@ StatusCode TauJetBDT::initialize()
         // Flat signal transformed jet score
         if (this->m_jetSigTransFile != "")
         {
-            string jetSigTransPath = find_calibFile(this->m_jetSigTransFile);
+            string jetSigTransPath = find_file(this->m_jetSigTransFile);
         
             if(jetSigTransPath == "")
             {

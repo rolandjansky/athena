@@ -8,7 +8,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/TauRecToolBase.h"
 #include "xAODTau/TauJet.h"
 #include "PATInterfaces/CorrectionCode.h"
 
@@ -26,10 +26,10 @@ class TauDiscriminantProcessor : public asg::AsgTool
   
   CP::CorrectionCode applyDiscriminant(xAOD::TauJet& tau);
 
-  void setToolArray(const ToolHandleArray<TauDiscriToolBase>& array) {m_tools = array; }
+  void setToolArray(const ToolHandleArray<TauRecToolBase>& array) {m_tools = array; }
   
  private:
-  ToolHandleArray<TauDiscriToolBase> m_tools;
+  ToolHandleArray<TauRecToolBase> m_tools;
 };
 
 //#endif //XAOD_STANDALONE

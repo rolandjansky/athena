@@ -12,7 +12,7 @@
 #ifndef TAUJETBDT_H
 #define TAUJETBDT_H
 
-#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/TauRecToolBase.h"
 #include "TauDiscriminant/MethodBDT.h"
 #include "TauDiscriminant/MethodCuts.h"
 #include "TauDiscriminant/MethodTransform.h"
@@ -20,9 +20,9 @@
 #include "xAODTau/TauJet.h"
 
 
-class TauJetBDT: virtual public TauDiscriToolBase
+class TauJetBDT: virtual public TauRecToolBase
 {
-  ASG_TOOL_CLASS2(TauJetBDT, TauDiscriToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauJetBDT, TauRecToolBase, ITauToolBase)
     public:
 
   
