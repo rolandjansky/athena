@@ -39,6 +39,7 @@ namespace Muon {
 
   MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa), 
+      m_storeGate(0),
       m_detMgr(0),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
@@ -75,7 +76,7 @@ namespace Muon {
       for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
       msg(MSG::DEBUG) << " PDG codes used for matching";
       for( auto val : m_selectedPdgs ) msg(MSG::DEBUG) << " " << val;
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
     return StatusCode::SUCCESS;
   }
@@ -221,7 +222,7 @@ namespace Muon {
                 msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->point3d().perp() 
                                   << " z " << truthTrajectory->front()->production_vertex()->point3d().z();
               }
-	      msg(MSG::VERBOSE) << endreq;
+	      msg(MSG::VERBOSE) << endmsg;
 	    }
 	    
 	    // now collect all barcodes beloning to this TruthTrajectory
@@ -236,7 +237,7 @@ namespace Muon {
                 if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->point3d().perp() 
                                                                     << " z " << (*pit)->production_vertex()->point3d().z();
                 
-                msg(MSG::VERBOSE) << endreq;
+                msg(MSG::VERBOSE) << endmsg;
 		// sanity check 
 		if( m_barcodeMap.count(code) ) ATH_MSG_VERBOSE("  pre-existing barcode " << code);
 	      }
@@ -304,7 +305,7 @@ namespace Muon {
     
     
     if( m_doSummary || msgLvl(MSG::DEBUG) ){
-      msg(MSG::INFO) << " summarizing truth tree: number of particles " << m_truthTree.size()  << endreq;
+      msg(MSG::INFO) << " summarizing truth tree: number of particles " << m_truthTree.size()  << endmsg;
       TruthTreeIt it = m_truthTree.begin();
       TruthTreeIt it_end = m_truthTree.end();
       for( ;it!=it_end;++it ){
@@ -321,7 +322,7 @@ namespace Muon {
 	if( !it->second.mmHits.empty() )   msg(MSG::INFO) << " mm   " << it->second.mmHits.size();
 	if( it->second.mdtHits.empty() && it->second.rpcHits.empty() && it->second.tgcHits.empty() && 
 	    it->second.cscHits.empty() && it->second.stgcHits.empty()  && it->second.mmHits.empty() ) msg(MSG::INFO) <<" no hits ";
-	msg(MSG::INFO) << endreq;
+	msg(MSG::INFO) << endmsg;
       }
     }
 
@@ -411,7 +412,7 @@ namespace Muon {
         if( msgLvl(MSG::VERBOSE) ){
           msg(MSG::VERBOSE) << MSG::VERBOSE <<  " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
 	  if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
-	  msg(MSG::VERBOSE) << endreq;
+	  msg(MSG::VERBOSE) << endmsg;
 	}
       }
     }    
@@ -457,7 +458,7 @@ namespace Muon {
         if( msgLvl(MSG::VERBOSE) ){
           msg(MSG::VERBOSE) << " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
           if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
-          msg(MSG::VERBOSE) << endreq;
+          msg(MSG::VERBOSE) << endmsg;
         }
         eit->second.cscHits.insert(*it);
       }

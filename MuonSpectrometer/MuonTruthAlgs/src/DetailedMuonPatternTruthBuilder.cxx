@@ -171,7 +171,7 @@ StatusCode DetailedMuonPatternTruthBuilder::initialize() {
     ATH_MSG_INFO("Retrieved TruthTrajectory building tool " << m_truthTrajBuilder);
   }
   if (m_idHelperTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_idHelperTool.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_idHelperTool.type() << endmsg;
     return StatusCode::FAILURE;
   }
   if(!detStore()->retrieve(m_idHelper, "AtlasID").isSuccess()) {
@@ -180,11 +180,11 @@ StatusCode DetailedMuonPatternTruthBuilder::initialize() {
   }
 
   if (m_mdtCreator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_mdtCreator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_mdtCreator.type() << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_muonClusterCreator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator.type() << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator.type() << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -249,7 +249,7 @@ buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection *output,
 	 
   // TODO:  Reinsert the following code once I understand the compile-time error 
   //    msg(interesting  ? MSG::DEBUG : MSG::VERBOSE) 
-  //      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endreq; 
+  //      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endmsg; 
 	 
     if(interesting) { 
       const TruthTrajectory& t = i->second.trajectory(); 
@@ -257,7 +257,7 @@ buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection *output,
       for(unsigned k=0; k<t.size(); ++k) { 
         msg(MSG::VERBOSE)<<*t[k]<<"\n"; 
       } 
-      msg(MSG::VERBOSE)<<"\n"<<endreq; 
+      msg(MSG::VERBOSE)<<"\n"<<endmsg; 
     }        
   } 	   
 } 
@@ -318,7 +318,7 @@ buildDetailedTrackTruth(std::vector<DetailedTrackTruth> *output,
 
   // TODO:  Reinsert the following code once I understand the compile-time error
 //    msg(interesting  ? MSG::DEBUG : MSG::VERBOSE)
-//      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endreq;
+//      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endmsg;
 
     if(interesting) {
       const TruthTrajectory& t = i.trajectory();
@@ -326,7 +326,7 @@ buildDetailedTrackTruth(std::vector<DetailedTrackTruth> *output,
       for(unsigned k=0; k<t.size(); ++k) {
 	msg(MSG::VERBOSE)<<*t[k]<<"\n";
       }
-      msg(MSG::VERBOSE)<<"\n"<<endreq;
+      msg(MSG::VERBOSE)<<"\n"<<endmsg;
     }
 	  
   }
@@ -431,7 +431,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
       msg(MSG::VERBOSE)<<i->first<<",";
     }
-    msg(MSG::VERBOSE)<<endreq;
+    msg(MSG::VERBOSE)<<endmsg;
   }
 
   //----------------------------------------------------------------
@@ -572,6 +572,7 @@ SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const Trut
     for(iter i = range.first; i != range.second; ++i) {
       if(chIndices.find(m_idHelperTool->chamberIndex(i->second)) != chIndices.end()) {
         SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);
+	if(subdet==SubDetHitStatistics::NUM_SUBDETECTORS) continue;
         prds.subDetHits[subdet].insert(i->second);
       }
     }
@@ -927,7 +928,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
       msg(MSG::VERBOSE)<<i->first<<",";
     }
-    msg(MSG::VERBOSE)<<endreq;
+    msg(MSG::VERBOSE)<<endmsg;
   }
 
   //----------------------------------------------------------------
@@ -1098,7 +1099,7 @@ buildDetailedTrackTruthFromSegments(std::vector<DetailedSegmentTruth> *output,
 
   // TODO:  Reinsert the following code once I understand the compile-time error
 //    msg(interesting  ? MSG::DEBUG : MSG::VERBOSE)
-//      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endreq;
+//      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endmsg;
 
     if(interesting) {
       const TruthTrajectory& t = i.trajectory();
@@ -1106,7 +1107,7 @@ buildDetailedTrackTruthFromSegments(std::vector<DetailedSegmentTruth> *output,
       for(unsigned k=0; k<t.size(); ++k) {
 	msg(MSG::VERBOSE)<<*t[k]<<"\n";
       }
-      msg(MSG::VERBOSE)<<"\n"<<endreq;
+      msg(MSG::VERBOSE)<<"\n"<<endmsg;
     }
 	  
   }
@@ -1176,7 +1177,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
       msg(MSG::VERBOSE)<<i->first<<",";
     }
-    msg(MSG::VERBOSE)<<endreq;
+    msg(MSG::VERBOSE)<<endmsg;
   }
 
   //----------------------------------------------------------------

@@ -8,10 +8,16 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "MuonTruthAssociationAlg.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
 // Constructor with parameters:
 MuonTruthAssociationAlg::MuonTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-AthAlgorithm(name,pSvcLocator)
+  AthAlgorithm(name,pSvcLocator),
+  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {  
     
     // Get parameter values from jobOptions file
@@ -24,7 +30,8 @@ AthAlgorithm(name,pSvcLocator)
 // Initialize method:
 StatusCode MuonTruthAssociationAlg::initialize()
 {
-    return StatusCode::SUCCESS;
+  ATH_CHECK(m_idHelper.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 // Execute method:
@@ -114,7 +121,172 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
                             // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
                             ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(truthParticle, truthParticles);
                             muonTruthLink.toPersistent();
-                            const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = muonTruthLink;  	  
+                            const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = muonTruthLink;
+			    const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthType") = tp->auxdata<int>("truthType");
+			    const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthOrigin") = tp->auxdata<int>("truthOrigin");
+			    if(muon->author()==1 || muon->author()==5 || muon->author()==6){ //only match hits for muons with MS tracks
+			      if(!truthParticle->isAvailable<std::vector<unsigned long long> >("truthMdtHits")){
+				ATH_MSG_DEBUG("muon with author "<<muon->author()<<" has no truth hits vector in the truth association alg");
+			      }
+			      else{
+				std::vector<unsigned long long> mdtTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthMdtHits");
+				std::vector<unsigned long long> cscTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthCscHits");
+				std::vector<unsigned long long> rpcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthRpcHits");
+				std::vector<unsigned long long> tgcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthTgcHits");
+				const Trk::Track* ptrk=tp->track();
+				const DataVector<const Trk::TrackStateOnSurface>* trkstates = ptrk->trackStateOnSurfaces();
+				DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsit = trkstates->rbegin();
+				DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsit_end = trkstates->rend();
+				std::vector<unsigned int> nprecHitsPerChamberLayer;
+				nprecHitsPerChamberLayer.resize(Muon::MuonStationIndex::ChIndexMax);
+				std::vector<unsigned int> nphiHitsPerChamberLayer;
+				nphiHitsPerChamberLayer.resize(Muon::MuonStationIndex::PhiIndexMax);
+				std::vector<unsigned int> ntrigEtaHitsPerChamberLayer;
+				ntrigEtaHitsPerChamberLayer.resize(Muon::MuonStationIndex::PhiIndexMax);
+				//zero-suppression: don't want to store meaningless zeroes (no truth or reco hits found)
+				for(unsigned int i=0;i<nprecHitsPerChamberLayer.size();i++) nprecHitsPerChamberLayer[i]=999;
+				for(unsigned int i=0;i<nphiHitsPerChamberLayer.size();i++) nphiHitsPerChamberLayer[i]=999;
+				for(unsigned int i=0;i<ntrigEtaHitsPerChamberLayer.size();i++) ntrigEtaHitsPerChamberLayer[i]=999;
+				for( ; tsit!=tsit_end ; ++tsit ){
+				  if(!*tsit) continue;
+				  if(!(*tsit)->trackParameters() || !(*tsit)->measurementOnTrack()) continue;
+				  const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+				  Identifier id;
+				  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+				  if(rot) id=rot->identify();
+				  else{
+				    const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+				    if(crot){
+				      if( !crot->containedROTs().empty() && crot->containedROTs().front() ) id=crot->containedROTs().front()->identify();
+				    }
+				  }
+				  if(!m_idHelper->isMuon(id)) continue;
+				  bool measPhi = m_idHelper->measuresPhi(id);
+				  bool isTgc = m_idHelper->isTgc(id);
+				  Muon::MuonStationIndex::ChIndex chIndex = !isTgc ? m_idHelper->chamberIndex(id) : Muon::MuonStationIndex::ChUnknown;
+				  bool found=false;
+				  for(unsigned int i=0;i<mdtTruth.size();i++){
+				    if(id==mdtTruth[i]){
+				      if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
+				      else ++nprecHitsPerChamberLayer[chIndex];
+				      found=true;
+				      break;
+				    }
+				  }
+				  if(found) continue;
+				  for(unsigned int i=0;i<cscTruth.size();i++){
+				    if(id==cscTruth[i]){
+				      if( measPhi ) {
+					Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
+					if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
+					else ++nphiHitsPerChamberLayer[index];
+				      }
+				      else{
+					if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
+					else ++nprecHitsPerChamberLayer[chIndex];
+				      }
+				      found=true;
+				    break;
+				    }
+				  }
+				  if(found) continue;
+				  for(unsigned int i=0;i<rpcTruth.size();i++){
+				    if(id==rpcTruth[i]){
+				      int index = m_idHelper->phiIndex(id);
+				      if( measPhi ){
+					if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
+					else ++nphiHitsPerChamberLayer[index];
+				      }
+				      else{
+					if(ntrigEtaHitsPerChamberLayer[index]==999) ntrigEtaHitsPerChamberLayer[index]=1;
+					else ++ntrigEtaHitsPerChamberLayer[index];
+				      }
+				      found=true;
+				      break;
+				    }
+				  }
+				  if(found) continue;
+				  for(unsigned int i=0;i<tgcTruth.size();i++){
+				    if(id==tgcTruth[i]){
+				      int index = m_idHelper->phiIndex(id);
+				      if( measPhi ){
+					if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
+					else ++nphiHitsPerChamberLayer[index];
+				      }
+				      else{
+					if(ntrigEtaHitsPerChamberLayer[index]==999) ntrigEtaHitsPerChamberLayer[index]=1;
+					else ++ntrigEtaHitsPerChamberLayer[index];
+				      }
+				      found=true;
+				      break;
+				    }
+				  }
+				} //end loop over TSOS
+				//now, have to check if there are non-zero truth hits in indices without reco hits
+				for(unsigned int i=0;i<nprecHitsPerChamberLayer.size();i++){
+				  if(nprecHitsPerChamberLayer[i]==999){
+				    bool found=false;
+				    for(unsigned int j=0;j<mdtTruth.size();j++){
+				      Identifier id(mdtTruth[j]);
+				      if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; found=true; break;}
+				    }
+				    if(found) continue;
+				    for(unsigned int j=0;j<cscTruth.size();j++){
+				      Identifier id(cscTruth[j]);
+				      if(!m_idHelper->measuresPhi(id)){
+					if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
+				      }
+				    }
+				  }
+				}
+				for(unsigned int i=0;i<nphiHitsPerChamberLayer.size();i++){
+				  if(nphiHitsPerChamberLayer[i]==999){
+				    bool found=false;
+				    for(unsigned int j=0;j<cscTruth.size();j++){
+				      Identifier id(cscTruth[j]);
+				      if(m_idHelper->measuresPhi(id)){
+					if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+				      }
+				    }
+				    if(found) continue;
+				    for(unsigned int j=0;j<rpcTruth.size();j++){
+				      Identifier id(rpcTruth[j]);
+				      if(m_idHelper->measuresPhi(id)){
+					if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+				      }
+				    }
+				    if(found) continue;
+                                    for(unsigned int j=0;j<tgcTruth.size();j++){
+				      Identifier id(tgcTruth[j]);
+				      if(m_idHelper->measuresPhi(id)){
+					if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
+				      }
+				    }
+				  }
+				}
+				for(unsigned int i=0;i<ntrigEtaHitsPerChamberLayer.size();i++){
+				  if(ntrigEtaHitsPerChamberLayer[i]==999){
+				    bool found=false;
+				    for(unsigned int j=0;j<rpcTruth.size();j++){
+				      Identifier id(rpcTruth[j]);
+				      if(!m_idHelper->measuresPhi(id)){
+					if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+				      }
+				    }
+				    if(found) continue;
+				    for(unsigned int j=0;j<tgcTruth.size();j++){
+				      Identifier id(tgcTruth[j]);
+				      if(!m_idHelper->measuresPhi(id)){
+					if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
+				      }
+				    }
+				  }
+				}
+				const_cast<xAOD::Muon&>(*muon).auxdata<std::vector<unsigned int> >("nprecMatchedHitsPerChamberLayer")=nprecHitsPerChamberLayer;
+				const_cast<xAOD::Muon&>(*muon).auxdata<std::vector<unsigned int> >("nphiMatchedHitsPerChamberLayer")=nphiHitsPerChamberLayer;
+				const_cast<xAOD::Muon&>(*muon).auxdata<std::vector<unsigned int> >("ntrigEtaMatchedHitsPerChamberLayer")=ntrigEtaHitsPerChamberLayer;
+			      }
+			    }
                             break;
                         }
                     }
