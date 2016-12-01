@@ -16,7 +16,7 @@ TruthMatchTanimoto::TruthMatchTanimoto(const std::string& type, const std::strin
 }
 
 //================================================================
-double TruthMatchTanimoto::trackTruthSimilarity(const DetailedTrackTruth& dt)
+double TruthMatchTanimoto::trackTruthSimilarity(const DetailedTrackTruth& dt) const
 {
   double prd_truth=0, prd_track=0, prd_common=0;
   for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {

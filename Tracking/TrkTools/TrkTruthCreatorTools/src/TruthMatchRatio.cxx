@@ -16,7 +16,7 @@ TruthMatchRatio::TruthMatchRatio(const std::string& type, const std::string& nam
 }
 
 //================================================================
-double TruthMatchRatio::trackTruthSimilarity(const DetailedTrackTruth& dt)
+double TruthMatchRatio::trackTruthSimilarity(const DetailedTrackTruth& dt) const
 {
   double prd_track=0, prd_common=0;
   for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {

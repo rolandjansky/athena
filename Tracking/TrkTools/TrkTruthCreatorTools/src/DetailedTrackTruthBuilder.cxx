@@ -43,7 +43,7 @@ namespace {
     std::set<Identifier> subDetHits[SubDetHitStatistics::NUM_SUBDETECTORS];
   };
 
-  SubDetPRDs& operator+=(SubDetPRDs& a, const SubDetPRDs& b) {
+  SubDetPRDs& operator+=(SubDetPRDs& a, const SubDetPRDs& b)  {
     for(unsigned i=0; i<SubDetHitStatistics::NUM_SUBDETECTORS; i++) {
       const std::set<Identifier>& bset = b.subDetHits[i];
       for(std::set<Identifier>::const_iterator pb=bset.begin(); pb!=bset.end(); pb++) {
@@ -105,7 +105,7 @@ StatusCode DetailedTrackTruthBuilder::initialize() {
 void DetailedTrackTruthBuilder::
 buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 			const TrackCollection& tracks,
-			const std::vector<const PRD_MultiTruthCollection*>& prdTruth)
+			const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const
 {
   ATH_MSG_VERBOSE("DetailedTrackTruthBuilder::buildDetailedTrackTruth() ");
   
@@ -135,7 +135,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 	}
       }
       else {
-	ATH_MSG_DEBUG("Empty truth ???");
+		  ATH_MSG_DEBUG("Empty truth ???");
       }
     }
   }
@@ -158,7 +158,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
     bool interesting = (i->second.trajectory().size() > 1);
 
     msg(interesting  ? MSG::DEBUG : MSG::VERBOSE)
-      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endreq;
+      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endmsg;
 
     if(interesting) {
       const TruthTrajectory& t = i->second.trajectory();
@@ -166,7 +166,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
       for(unsigned k=0; k<t.size(); ++k) {
 	msg(MSG::VERBOSE)<<*t[k]<<"\n";
       }
-      msg(MSG::VERBOSE)<<"\n"<<endreq;
+      msg(MSG::VERBOSE)<<"\n"<<endmsg;
     }
 	  
   }
@@ -180,7 +180,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 // (no way to reuse its private function PrepRawDataCollectionType() )
 
 SubDetHitStatistics::SubDetType 
-DetailedTrackTruthBuilder::findSubDetType(Identifier id) {
+DetailedTrackTruthBuilder::findSubDetType(Identifier id) const {
   if (m_idHelper->is_pixel(id))
     return SubDetHitStatistics::Pixel;
   if (m_idHelper->is_sct(id))
@@ -209,7 +209,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 					 const ElementLink<DataVector<Trk::Track> > &track,
 					 const std::vector<const PRD_MultiTruthCollection*>& orderedPRD_Truth,
 					 const PRD_InverseTruth& inverseTruth
-					 )
+					 ) const
 {
   SubDetHitStatistics trackStat;
   std::map<HepMcParticleLink,SubDetPRDs> pairStat; // stats for (track,GenParticle) for the current track
@@ -285,7 +285,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     for(std::map<HepMcParticleLink,SubDetPRDs>::const_iterator i=pairStat.begin(); i!=pairStat.end(); i++) {
       msg(MSG::VERBOSE)<<i->first<<",";
     }
-    msg(MSG::VERBOSE)<<endreq;
+    msg(MSG::VERBOSE)<<endmsg;
   }
 
   //----------------------------------------------------------------
@@ -411,7 +411,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   ATH_MSG_VERBOSE("addTrack(): #sprouts = "<<sprouts.size()<<", output->size() = "<<output->size());
 }
 //================================================================
-void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) {
+void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) const {
   // invert the map from Identifier (reco hit) to HepMcParticleLink,
   // to allow lookup of all Identifiers produced by a given HepMcParticleLink.
   // the result is only used in countPRDsOnTruth. since that code ignores
@@ -429,7 +429,7 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   
 //================================================================
 SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTrajectory& traj,
-								const PRD_InverseTruth& inverseTruth)
+								const PRD_InverseTruth& inverseTruth) const
 {
   // Different particles from the same TruthTrajectory can contribute to the same cluster.
   // We should be careful to avoid double-counting in such cases.
@@ -448,7 +448,8 @@ SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTraje
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);
     for(iter i = range.first; i != range.second; ++i) {
       SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);
-      prds.subDetHits[subdet].insert(i->second);
+      
+      if (subdet<SubDetHitStatistics::NUM_SUBDETECTORS) prds.subDetHits[subdet].insert(i->second);
     }
   }
 
