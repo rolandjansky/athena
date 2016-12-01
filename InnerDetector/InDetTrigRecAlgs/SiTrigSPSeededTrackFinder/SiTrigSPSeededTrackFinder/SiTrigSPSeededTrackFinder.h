@@ -126,6 +126,9 @@ namespace InDet {
     void    filterSharedTracks(std::multimap<double,Trk::Track*>&);
 
 
+    //timeout checking
+    bool           m_doTimeOutChecks;   //check global timer
+
     //!< Timing
     TrigTimer      *m_timerRegSel;
     TrigTimer      *m_timerZVertexTool;
