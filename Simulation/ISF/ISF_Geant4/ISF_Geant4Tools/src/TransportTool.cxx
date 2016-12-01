@@ -436,10 +436,6 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
     particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
   }
 
-  // Set the user information for this primary to point to the HepMcParticleLink...
-  PrimaryParticleInformation* ppi = new PrimaryParticleInformation(&gp);
-  particle->SetUserInformation(ppi);
-
   return particle;
 }
 

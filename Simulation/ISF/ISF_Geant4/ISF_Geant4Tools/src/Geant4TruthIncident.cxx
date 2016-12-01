@@ -17,7 +17,6 @@
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/PrimaryParticleInformation.h"
 #include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
@@ -40,6 +39,9 @@
 
 #include "G4EventManager.hh"
 #include "G4Event.hh"
+
+// ISF includes
+#include "ISF_Event/ISFParticle.h"
 
 /*
   Comments:
@@ -67,6 +69,7 @@
 
 
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
+                                               const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
                                                int numChildren,
                                                SecondaryTracksHelper &sHelper,
@@ -75,6 +78,7 @@ iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
   m_positionSet(false),
   m_position(),
   m_step(step),
+  m_baseISP(baseISP),
   m_sHelper( sHelper),
   m_eventInfo(eventInfo),
   m_childrenPrepared(false),
@@ -138,6 +142,11 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticle() const {
   return hepParticle;
 }
 
+int iGeant4::Geant4TruthIncident::parentBCID() const { 
+  return m_baseISP.getBCID();
+}
+
+
 bool iGeant4::Geant4TruthIncident::parentSurvivesIncident() const { 
   const G4Track *track = m_step->GetTrack();
 
@@ -162,10 +171,12 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticleAfterIncident(Ba
   if ( !m_parentParticleAfterIncident ) {
     // create new HepMC particle, using momentum and energy
     // from G4DynamicParticle (which should be equivalent to postStep)
-    m_parentParticleAfterIncident = convert(track, newBarcode, false);
+    m_parentParticleAfterIncident = convert(track);
     
     m_eventInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
     
+    m_parentParticleAfterIncident->suggest_barcode( newBarcode );
+
     // store (new) hepmc particle in track's UserInformation
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
@@ -259,7 +270,8 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
   //     secondary could decay right away and create further particles which pass the
   //     truth strategies.
 
-  HepMC::GenParticle* hepParticle = convert( thisChildTrack , newBarcode , true );
+  HepMC::GenParticle* hepParticle = convert( thisChildTrack );
+  hepParticle->suggest_barcode( newBarcode );
 
   TrackHelper tHelper(thisChildTrack);
   TrackInformation *trackInfo = tHelper.GetTrackInformation();
@@ -290,7 +302,7 @@ bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
 }
 
 
-HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, const int barcode, const bool secondary) const {
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track) const {
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
@@ -299,21 +311,6 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 
   int status = 1; // stable particle not decayed by EventGenerator
   HepMC::GenParticle* newParticle = new HepMC::GenParticle(fourMomentum, pdgCode, status);
-
-  // This should be a *secondary* track.  If it has a primary, it was a decay and 
-  //  we are running with quasi-stable particle simulation.  Note that if the primary
-  //  track is passed in as a secondary that survived the interaction, then this was
-  //  *not* a decay and we should not treat it in this way
-  if (secondary &&
-      track->GetDynamicParticle() &&
-      track->GetDynamicParticle()->GetPrimaryParticle() &&
-      track->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation()){
-    // Then the new particle should use the same barcode as the old one!!
-    PrimaryParticleInformation* ppi = dynamic_cast<PrimaryParticleInformation*>( track->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation() );
-    newParticle->suggest_barcode( ppi->GetParticleBarcode() );
-  } else {
-    newParticle->suggest_barcode( barcode );
-  }
 
   return newParticle;
 }

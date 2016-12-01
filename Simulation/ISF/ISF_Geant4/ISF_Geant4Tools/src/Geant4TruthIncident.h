@@ -21,12 +21,18 @@
 // HepMC includes
 #include "HepMC/SimpleVector.h"
 
+
+// forward declarations
 class G4Step;
 class G4Track;
 class EventInformation;
 
-namespace iGeant4 {
+namespace ISF {
+  class ISFParticle;
+}
 
+
+namespace iGeant4 {
 
   /** @class Geant4TruthIncident
 
@@ -43,6 +49,7 @@ namespace iGeant4 {
   class Geant4TruthIncident : public ISF::ITruthIncident {
     public:
       Geant4TruthIncident( const G4Step*,
+                           const ISF::ISFParticle& baseISP,
                            AtlasDetDescr::AtlasRegion geoID,
                            int numChildren,
                            SecondaryTracksHelper& sHelper,
@@ -67,6 +74,8 @@ namespace iGeant4 {
       int                       parentPdgCode() const override final;
       /** Return the barcode of the parent particle */
       Barcode::ParticleBarcode  parentBarcode() const override final;
+      /** Return the bunch-crossing identifier of the parent particle */
+      int                       parentBCID() const override final;
       /** Return a boolean whether or not the parent particle survives the incident */
       bool                      parentSurvivesIncident() const override final;
       /** Return the parent particle after the TruthIncident vertex (and give
@@ -103,11 +112,12 @@ namespace iGeant4 {
       /** check if the given G4Track represents a particle that is alive in ISF or ISF-G4 */
       inline bool particleAlive(const G4Track *track) const;
 
-      HepMC::GenParticle* convert(const G4Track *particle, const int barcode, const bool secondary) const; //*AS* might be put static
+      HepMC::GenParticle* convert(const G4Track *particle) const; //*AS* might be put static
 
       mutable bool                  m_positionSet;
       mutable HepMC::FourVector     m_position;
       const G4Step*                 m_step;
+      const ISF::ISFParticle&       m_baseISP;
 
       SecondaryTracksHelper&        m_sHelper;
       EventInformation*             m_eventInfo;

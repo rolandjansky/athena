@@ -6,7 +6,7 @@
 #define ISF_GEANT4TOOLS_ISFG4HELPERS_H
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // ISF Includes
 #include "ISF_Event/ISFParticle.h"
@@ -39,11 +39,6 @@ namespace iGeant4 {
     /** convert the given G4Track into an ISFParticle */
     static ISF::ISFParticle* convertG4TrackToISFParticle(const G4Track& aTrack,
                                                          const ISF::ISFParticle& parent,
-                                                         ISF::TruthBinding* truth = nullptr);
-
-    /** convert the given G4Track into an ISFParticle */
-    static ISF::ISFParticle* convertG4TrackToISFParticle(const G4Track& aTrack,
-                                                         const ISF::DetRegionSvcIDPair& regionSimSvcPair,
                                                          ISF::TruthBinding* truth = nullptr);
 
     /** return a valid UserInformation object of the G4Track for use within the ISF */

@@ -127,6 +127,8 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     else:
         kwargs.setdefault('UserActionSvc','ISFUserActionSvc')
         kwargs.setdefault('UserActionSvcV2', '')
+    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
+        kwargs.setdefault('RecordFlux',simFlags.RecordFlux())
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
@@ -134,8 +136,6 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     else:
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
-    # Set commands for the G4AtlasAlg
-    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
     return iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions

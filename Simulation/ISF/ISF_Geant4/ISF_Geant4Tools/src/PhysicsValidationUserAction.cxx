@@ -365,7 +365,9 @@ void iGeant4::PhysicsValidationUserAction::Step(const G4Step* aStep)
     if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 
     EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-    iGeant4::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
+    VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
+    const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+    iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
     unsigned int nSec = truth.numberOfChildren();
     if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
       //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;
