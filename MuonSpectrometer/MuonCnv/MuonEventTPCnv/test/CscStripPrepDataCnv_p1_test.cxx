@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/CscStripPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/CscStripPrepDataContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -60,6 +61,7 @@ void testit (const Muon::CscStripPrepData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D locpos (1.5, 2.5);
 

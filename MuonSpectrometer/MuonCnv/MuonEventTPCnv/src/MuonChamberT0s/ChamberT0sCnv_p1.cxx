@@ -15,7 +15,7 @@
 void ChamberT0sCnv_p1::
 persToTrans( const Muon::ChamberT0s_p1 *persObj, Muon::ChamberT0s *transObj,MsgStream & log ) 
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::persToTrans" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::persToTrans" << endmsg;
     // better way to do this?
 
     std::vector<std::pair<Identifier, float> > t0s;
@@ -30,7 +30,7 @@ persToTrans( const Muon::ChamberT0s_p1 *persObj, Muon::ChamberT0s *transObj,MsgS
 void ChamberT0sCnv_p1::
 transToPers( const Muon::ChamberT0s *transObj, Muon::ChamberT0s_p1 *persObj, MsgStream & log )
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::transToPers" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::transToPers" << endmsg;
     persObj->m_t0s.clear();
     persObj->m_t0s.reserve( transObj->getAllT0s().size() );
     for (const std::pair< Identifier, float>& p : transObj->getAllT0s() ) {

@@ -33,7 +33,7 @@ persToTrans( const Muon::RpcPrepData_p2 *persObj, Muon::RpcPrepData *transObj,Ms
 void RpcPrepDataCnv_p2::
 transToPers( const Muon::RpcPrepData *transObj, Muon::RpcPrepData_p2 *persObj, MsgStream &log )
 {
-   //log << MSG::DEBUG << "RpcPrepDataCnv_p2::transToPers" << endreq;
+   //log << MSG::DEBUG << "RpcPrepDataCnv_p2::transToPers" << endmsg;
    persObj->m_prd = baseToPersistent( &m_prdCnv, transObj, log );
    persObj->m_time           = transObj->time();
    persObj->m_triggerInfo    = transObj->triggerInfo();

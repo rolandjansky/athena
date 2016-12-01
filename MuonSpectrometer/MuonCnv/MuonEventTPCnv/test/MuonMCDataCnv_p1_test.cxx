@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonDigitContainer/MuonMCDataCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -40,6 +41,7 @@ void testit (const MuonMCData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MuonMCData trans1 (2.5, 3.5);
   testit (trans1);

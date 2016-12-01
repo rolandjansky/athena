@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollectionCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -70,6 +71,7 @@ void testit (const CscSimDataCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   CscSimDataCollection trans1;
   for (int i=0; i < 3; i++) {

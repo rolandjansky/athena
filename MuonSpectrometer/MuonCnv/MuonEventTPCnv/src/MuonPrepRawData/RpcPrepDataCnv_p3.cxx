@@ -53,7 +53,7 @@ persToTrans( const Muon::RpcPrepData_p3 *persObj, Muon::RpcPrepData *transObj,Ms
 void RpcPrepDataCnv_p3::
 transToPers( const Muon::RpcPrepData *transObj, Muon::RpcPrepData_p3 *persObj, MsgStream & /**log*/ )
 {
-    //log << MSG::DEBUG << "RpcPrepDataCnv_p3::transToPers" << endreq;
+    //log << MSG::DEBUG << "RpcPrepDataCnv_p3::transToPers" << endmsg;
     persObj->m_locX           = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat       = transObj->localCovariance()(0,0);
     
