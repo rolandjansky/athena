@@ -361,8 +361,10 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         import AthenaCommon.SystemOfUnits as Units
         InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
       elif slice=='FTK' or slice=='FTKRefit':
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
         InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
+        InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK
+        #InDetTrigAmbiguityProcessor.RefitPrds = 
 
       if InDetTrigFlags.materialInteractions() and InDetTrigFlags.solenoidOn():
          InDetTrigAmbiguityProcessor.MatEffects = 3
