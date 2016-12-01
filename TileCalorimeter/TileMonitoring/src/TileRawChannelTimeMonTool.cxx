@@ -49,7 +49,7 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   , m_timeCorrectionLBC(-15.37)
   , m_timeCorrectionEBA(47.65)
   , m_timeCorrectionEBC(47.42)
-  , m_partitionTimeCorrection{0}
+  , m_partitionTimeCorrection{{0}}
   , m_timeDifferenceBetweenROS{{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}}
   , m_nLumiblocks(3000)
 	 /*---------------------------------------------------------*/
@@ -93,11 +93,11 @@ StatusCode TileRawChannelTimeMonTool::initialize()
   m_thresholds[0] = m_lowGainThreshold;
   m_thresholds[1] = m_hiGainThreshold;
 
-  m_partitionTimeCorrection = {0, 
-                               m_timeCorrectionLBA, 
-                               m_timeCorrectionLBC, 
-                               m_timeCorrectionEBA, 
-                               m_timeCorrectionEBC};
+  m_partitionTimeCorrection = {{0, 
+                                m_timeCorrectionLBA, 
+                                m_timeCorrectionLBC, 
+                                m_timeCorrectionEBA, 
+                                m_timeCorrectionEBC}};
 
   CHECK(TileFatherMonTool::initialize());
 

@@ -21,6 +21,7 @@ class ITileBadChanTool;
 class TileDQstatus;
 class TileCondToolNoiseSample;
 class ITileCondToolTMDB;
+class TileRawChannelCollection;
 
 #include <vector>
 #include <string>
@@ -46,26 +47,24 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
 
   private:
 
-    StatusCode bookTMDBHistograms(unsigned int ros, unsigned int channel);
-    StatusCode bookTMDBSummaryHistograms();
-	int tilemodule_to_check(int sector);
-	float calc_dR(float dEta, float dPhi);
+    StatusCode bookTMDBHistograms(const TileRawChannelCollection* rawChannelCollection);
+    StatusCode bookTMDBSummaryHistograms(unsigned int ros);
+    int tilemodule_to_check(int sector);
+    float calc_dR(float dEta, float dPhi);
     void fillTMDBThresholds();
     
     int m_nEventsProcessed;
     ToolHandle<ITileCondToolTMDB> m_tileToolTMDB;
-    bool m_histogramsNotBooked;
+    //    bool m_histogramsNotBooked;
     bool m_isNotDSP;
     bool m_eff;
-    std::vector<float> TMDB_A_D6_amplitude;
-    std::vector<float> TMDB_A_D56_amplitude;
-    std::vector<float> TMDB_C_D6_amplitude;
-    std::vector<float> TMDB_C_D56_amplitude;
-    
-    
+
+    float m_TMDB_D6_amplitude[2][64]; // (EBA and EBC) x 64 modules
+    float m_TMDB_D56_amplitude[2][64]; // (EBA and EBC) x 64 modules
+
     std::string m_rawChannelContainerName;
-	std::string m_muonContainer;
-	std::string m_muRoi;
+    std::string m_muonContainer;
+    std::string m_muRoi;
     
     std::vector<std::string> m_TMDB_names[5];
 	
@@ -76,8 +75,8 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
     TH1F* m_partition_amplitude[5]; 
     TH1F* m_partition_time[5]; 
 	
-	TH1F* m_drawer[5][2][2];  //m_drawer[ros][ch][thr]
-	TH1F* m_sector[5]; //m_sector[ros]
+    TH1F* m_drawer[5][2][2];  //m_drawer[ros][ch][thr]
+    TH1F* m_sector[5]; //m_sector[ros]
 
     TProfile2D* m_amplitude_map[5];
     TProfile2D* m_time_map[5];
@@ -87,8 +86,8 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
     float m_amplitudeThreshold;
 	
 	
-	int thre_a[256];
-	int thre_c[256];
+    int m_thre_a[256];
+    int m_thre_c[256];
 };
 
 #endif

@@ -13,6 +13,8 @@ topSequence = AlgSequence()
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
+if not 'rec' in dir():
+    from RecExConfig.RecFlags import rec
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 ManagedAthenaTileMon = AthenaMonManager( "ManagedAthenaTileMon" ) #topSequence.ManagedAthenaTileMon
@@ -114,8 +116,8 @@ if tileESDMon:
                                          , do_1dim_histos    = True
                                          , do_2dim_histos    = False
                                          , do_enediff_histos = False
-                                         , energyChanMin     = 15000 # 2000
-                                         , energyChanMax     = 50000 # 4000
+                                         , energyChanMin     = 2000 # Default: 2000
+                                         , energyChanMax     = 4000 # Default: 4000
                                          , enediff_threshold = 2000
                                          , do_energy_profiles= True
                                          , do_event_cleaning = True
@@ -138,13 +140,14 @@ if tileESDMon:
             ToolSvc.TileJetMonTool.useJetCleaning    = cleaning
 
         if DQMonFlags.monManDataType == 'heavyioncollisions':
-            ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
+            if not rec.doHIP(): 
+                ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
             ToolSvc.TileJetMonTool.do_event_cleaning = False
             ToolSvc.TileJetMonTool.do_jet_cleaning   = False
         
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
 
-    if not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon:
+    if (not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon)  and (DQMonFlags.useTrigger() and rec.doTrigger()):
         from TileConditions.TileCondToolConf import getTileCondToolTMDB
         tileCondToolTMDB = getTileCondToolTMDB('COOL')
         if tileCondToolTMDB:

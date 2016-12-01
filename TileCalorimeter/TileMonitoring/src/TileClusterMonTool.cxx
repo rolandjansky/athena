@@ -38,8 +38,8 @@
 TileClusterMonTool::TileClusterMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_TileClusterTrig(0)
-  , m_partitionTimeLB{0}
-  , m_paritionTimeOnlineLB{0}
+  , m_partitionTimeLB{{0}}
+  , m_paritionTimeOnlineLB{{0}}
   , m_doOnline(false)
   , m_oldLumiblock(-1)
   , m_fillTimingHistograms(false)
