@@ -32,6 +32,7 @@
 #include "MuonEventTPCnv/MuonPrepRawData/MdtTwinPrepData_p1.h"
 #include "MuonEventTPCnv/MuonChamberT0s/ChamberT0s_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p1.h"
 
@@ -70,6 +71,7 @@ struct MuonEventTPCnvDict
     Muon::MuonPRD_Container_p2<Muon::MMPrepData_p1>      m_v21;
     Muon::MuonDigitContainer_p1<Muon::MM_Digit_p1>      m_v22;
     Muon::MuonDigitContainer_p1<Muon::STGC_Digit_p1>      m_v23;
+    Muon::MuonDigitContainer_p2<Muon::MM_Digit_p2>      m_v24;
     
 };
 

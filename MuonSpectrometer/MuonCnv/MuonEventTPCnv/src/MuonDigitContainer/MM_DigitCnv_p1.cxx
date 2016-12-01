@@ -13,6 +13,12 @@
 
 void MM_DigitCnv_p1::persToTrans( const Muon::MM_Digit_p1 *persObj, MmDigit *transObj,MsgStream & /**log*/ ) 
 {
+
+  std::vector<float> tmp_trigtime(1, persObj->m_stripTimeForTrigger);
+  std::vector<int>   tmp_trigpos(1, persObj->m_stripForTrigger);
+  std::vector<float> nothing_float(0);
+  std::vector<int>   nothing_int(0);
+
   *transObj = MmDigit (Identifier(persObj->m_muonId),
                        persObj->m_stripResponseTime,
                        persObj->m_stripResponsePosition,
@@ -20,8 +26,11 @@ void MM_DigitCnv_p1::persToTrans( const Muon::MM_Digit_p1 *persObj, MmDigit *tra
                        persObj->m_chipResponseTime,
                        persObj->m_chipResponsePosition,
                        persObj->m_chipResponseCharge,
-                       persObj->m_stripForTrigger,
-                       persObj->m_stripTimeForTrigger);
+                       tmp_trigtime,
+                       tmp_trigpos,
+                       nothing_float,
+                       nothing_int,
+                       nothing_int);
 }
 
 void MM_DigitCnv_p1::transToPers( const MmDigit *transObj, Muon::MM_Digit_p1 *persObj, MsgStream & /*log*/ )
@@ -37,8 +46,8 @@ void MM_DigitCnv_p1::transToPers( const MmDigit *transObj, Muon::MM_Digit_p1 *pe
   persObj->m_chipResponseCharge     = transObj->chipResponseCharge();
   persObj->m_chipResponsePosition   = transObj->chipResponsePosition();
 
-  persObj->m_stripForTrigger          = transObj->stripForTrigger();
-  persObj->m_stripTimeForTrigger      = transObj->stripTimeForTrigger();   
+  persObj->m_stripForTrigger          = (transObj->stripPositionForTrigger()).front();
+  persObj->m_stripTimeForTrigger      = (transObj->stripTimeForTrigger()).front();   
 }
 
 

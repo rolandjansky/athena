@@ -6,7 +6,7 @@
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCnv_p1.h"
 
 void CscSimDataCnv_p1::persToTrans(const Muon::CscSimData_p1 * persObj, CscSimData * transObj, MsgStream & log){
-   log << MSG::DEBUG << "CscSimDataCnv_p1::persToTrans" << endreq;
+   log << MSG::DEBUG << "CscSimDataCnv_p1::persToTrans" << endmsg;
 
    std::vector<CscSimData::Deposit> deposits;
    deposits.reserve(persObj->m_deposits.size());
@@ -25,9 +25,9 @@ void CscSimDataCnv_p1::persToTrans(const Muon::CscSimData_p1 * persObj, CscSimDa
 }
 
 void CscSimDataCnv_p1::transToPers( const CscSimData * transObj, Muon::CscSimData_p1 * persObj, MsgStream & log){
-   log << MSG::DEBUG << "CscSimDataCnv_p1::transToPers" << endreq;
+   log << MSG::DEBUG << "CscSimDataCnv_p1::transToPers" << endmsg;
    persObj->m_word = transObj->word();
-   log << MSG::VERBOSE << "\tconverting m_word:\t" << transObj->word() << "\tto\t" << persObj->m_word << endreq;
+   log << MSG::VERBOSE << "\tconverting m_word:\t" << transObj->word() << "\tto\t" << persObj->m_word << endmsg;
    persObj->m_deposits.clear();
    persObj->m_deposits.reserve(transObj->getdeposits().size());
    for (const CscSimData::Deposit& d : transObj->getdeposits()) {

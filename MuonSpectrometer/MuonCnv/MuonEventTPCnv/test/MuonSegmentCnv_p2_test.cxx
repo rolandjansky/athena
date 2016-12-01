@@ -19,6 +19,7 @@
 #include "TrkEventPrimitives/CurvilinearUVT.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkEventTPCnv/SegmentCollectionCnv_tlp3.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -127,6 +128,7 @@ void testit (const Muon::MuonSegment& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Trk::LocalParameters locpars (1.5, 2.5, 3.5, 4.5, 5.5);
   Trk::FitQuality fq (1.5, 2.5);

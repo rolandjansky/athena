@@ -63,13 +63,13 @@ persToTrans( const Muon::RpcCoinData_p1 *persObj, Muon::RpcCoinData *transObj,Ms
 void RpcCoinDataCnv_p1::
 transToPers( const Muon::RpcCoinData *transObj, Muon::RpcCoinData_p1 *persObj, MsgStream & log)
 {
-  //log << MSG::DEBUG << "RpcCoinDataCnv_p1::transToPers" << endreq;
+  //log << MSG::DEBUG << "RpcCoinDataCnv_p1::transToPers" << endmsg;
   persObj->m_localPos         = transObj->localPosition()[Trk::locX];
   persObj->m_errorMat         = transObj->localCovariance()(0,0);
   
   // List of Id of the cluster
   persObj->m_rdoList.resize( transObj->rdoList().size() );
-  if (!transObj->identify().get_identifier32().is_valid()) log << MSG::ERROR << "RpcCoinDataCnv_p1::transToPers - invalid trans id!!" << endreq;
+  if (!transObj->identify().get_identifier32().is_valid()) log << MSG::ERROR << "RpcCoinDataCnv_p1::transToPers - invalid trans id!!" << endmsg;
   unsigned int id32 = transObj->identify().get_identifier32().get_compact();
   // convert the list of ID saved for the cluster
   persObj->m_rdoList.clear();

@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinDataContainerCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "CxxUtils/make_unique.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/initGaudi.h"
@@ -167,6 +168,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::unique_ptr<const Muon::RpcCoinDataContainer> cont = makeclusts (muo_dd);
   testit (*cont);

@@ -32,7 +32,7 @@ persToTrans( const Muon::MdtPrepData_p1 *persObj, Muon::MdtPrepData *transObj,Ms
 void MdtPrepDataCnv_p1::
 transToPers( const Muon::MdtPrepData *transObj, Muon::MdtPrepData_p1 *persObj, MsgStream &log )
 {
-   //log << MSG::DEBUG << "MdtPrepDataCnv_p1::transToPers" << endreq;
+   //log << MSG::DEBUG << "MdtPrepDataCnv_p1::transToPers" << endmsg;
    persObj->m_prd = baseToPersistent( &m_prdCnv, transObj, log );
    persObj->m_tdc              = transObj->tdc();
    persObj->m_adc              = transObj->adc();

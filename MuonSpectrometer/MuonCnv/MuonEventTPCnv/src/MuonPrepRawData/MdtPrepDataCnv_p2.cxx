@@ -54,7 +54,7 @@ persToTrans( const Muon::MdtPrepData_p2 *persObj, Muon::MdtPrepData *transObj,Ms
 void MdtPrepDataCnv_p2::
 transToPers( const Muon::MdtPrepData *transObj, Muon::MdtPrepData_p2 *persObj, MsgStream & /**log*/ )
 {
-    //log << MSG::DEBUG << "MdtPrepDataCnv_p2::transToPers" << endreq;
+    //log << MSG::DEBUG << "MdtPrepDataCnv_p2::transToPers" << endmsg;
     persObj->m_driftRadius      = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat         = transObj->localCovariance()(0,0);
     persObj->m_tdc              = transObj->tdc();

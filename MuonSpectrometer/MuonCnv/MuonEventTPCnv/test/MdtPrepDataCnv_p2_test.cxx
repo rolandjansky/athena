@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -57,6 +58,7 @@ void testit (const Muon::MdtPrepData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D driftRadius (2.5, 3.5);
 

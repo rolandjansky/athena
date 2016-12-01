@@ -14,7 +14,7 @@
 void CscPrepDataCnv_p1::
 persToTrans( const Muon::CscPrepData_p1 *persObj, Muon::CscPrepData *transObj,MsgStream &log ) 
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p1::persToTrans" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p1::persToTrans" << endmsg;
 
    Amg::Vector2D locPos;
    locPos.setZero();
@@ -37,7 +37,7 @@ persToTrans( const Muon::CscPrepData_p1 *persObj, Muon::CscPrepData *transObj,Ms
 void CscPrepDataCnv_p1::
 transToPers( const Muon::CscPrepData *transObj, Muon::CscPrepData_p1 *persObj, MsgStream &log )
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p1::transToPers" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p1::transToPers" << endmsg;
    persObj->m_prd = baseToPersistent( &m_prdCnv, transObj, log );
    persObj->m_charge         = transObj->charge();
    persObj->m_time           = transObj->time();
