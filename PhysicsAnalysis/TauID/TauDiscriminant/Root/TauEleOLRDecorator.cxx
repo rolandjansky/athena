@@ -15,15 +15,13 @@
 #include "TFile.h"
 
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
-  TauDiscriToolBase(name),
+  TauRecToolBase(name),
   m_tEMLHTool(nullptr),
   m_xElectronContainer(nullptr),
   m_sElectronContainerName("Electrons"),
   m_bElectonsAvailable(true),
   m_sEleOLRFilePath("eveto_cutvals.root"),
-  m_hCutValues(nullptr),
-  m_bEleOLRMatchAvailable(false),
-  m_bEleOLRMatchAvailableChecked(false)
+  m_hCutValues(nullptr)
 {
   declareProperty("ElectronContainerName", m_sElectronContainerName);
   declareProperty("EleOLRFile", m_sEleOLRFilePath);
@@ -61,7 +59,7 @@ StatusCode TauEleOLRDecorator::initialize()
       return StatusCode::FAILURE;
     }
 
-  m_sEleOLRFilePath = find_calibFile(m_sEleOLRFilePath);
+  m_sEleOLRFilePath = find_file(m_sEleOLRFilePath);
   TFile tmpFile(m_sEleOLRFilePath.c_str());
   m_hCutValues = std::unique_ptr<TH2D>(static_cast<TH2D*>(tmpFile.Get("eveto_cutvals")));
   m_hCutValues->SetDirectory(0);
@@ -177,9 +175,8 @@ StatusCode TauEleOLRDecorator::retrieveElectrons()
 
 float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
 {
-  if(fPt>250) fPt=250;
+  if(fPt>1900) fPt=1900;
   if(fabs(fEta)>2.465) fEta=2.465;
-
   int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }

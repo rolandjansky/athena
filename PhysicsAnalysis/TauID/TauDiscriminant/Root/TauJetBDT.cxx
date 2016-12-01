@@ -10,55 +10,57 @@
 
 #include "TauDiscriminant/TauJetBDT.h"
 
+using namespace TauID;
+using std::string;
 
 TauJetBDT::TauJetBDT(const string& name):
-  TauDiscriToolBase(name),
-  jetScore(-1.),
-  jetBDTFile(""),
-  jetSigBitsFile(""),
-  jetSigTransFile(""),
-  jetBDT(nullptr),
-  jetSigBits(nullptr),
-  jetSigTrans(nullptr)
+  TauRecToolBase(name),
+  m_jetScore(-1.),
+  m_jetBDTFile(""),
+  m_jetSigBitsFile(""),
+  m_jetSigTransFile(""),
+  m_jetBDT(nullptr),
+  m_jetSigBits(nullptr),
+  m_jetSigTrans(nullptr)
 {
-  declareProperty("jetBDT", this->jetBDTFile);
-  declareProperty("jetSigBits",this->jetSigBitsFile);
-  declareProperty("jetSigTrans",this->jetSigTransFile);
+  declareProperty("jetBDT", this->m_jetBDTFile);
+  declareProperty("jetSigBits",this->m_jetSigBitsFile);
+  declareProperty("jetSigTrans",this->m_jetSigTransFile);
 }
 
 
 StatusCode TauJetBDT::initialize()
 {
-    if (this->jetBDTFile != "")
+    if (this->m_jetBDTFile != "")
     {
-        string jetBDTPath = find_calibFile(this->jetBDTFile);
+        string jetBDTPath = find_file(this->m_jetBDTFile);
     
         if(jetBDTPath == "")
         {
-	  ATH_MSG_FATAL("File: " << this->jetBDTFile << " not found! ");
+	  ATH_MSG_FATAL("File: " << this->m_jetBDTFile << " not found! ");
 	  return StatusCode::FAILURE;
         }
     
-        this->jetBDT = new TauID::MethodBDT("TauBDT:JetBDT");
+        this->m_jetBDT = new TauID::MethodBDT("TauBDT:JetBDT");
     
-        if (!this->jetBDT->build(jetBDTPath))
+        if (!this->m_jetBDT->build(jetBDTPath))
         {
 	  ATH_MSG_FATAL("Loading jet BDT file " << jetBDTPath << " failed!");
 	  return StatusCode::FAILURE;
         }
         
-        if (this->jetSigBitsFile != "")
+        if (this->m_jetSigBitsFile != "")
         {
-            string jetSigBitsPath = find_calibFile(this->jetSigBitsFile);
+            string jetSigBitsPath = find_file(this->m_jetSigBitsFile);
             if(jetSigBitsPath == "")
             {
-	      ATH_MSG_FATAL("File: " << this->jetSigBitsFile << " not found! ");
+	      ATH_MSG_FATAL("File: " << this->m_jetSigBitsFile << " not found! ");
 	      return StatusCode::FAILURE;
             }
             
-            this->jetSigBits = new TauID::MethodCuts("TauBDT:JetSigBits");
+            this->m_jetSigBits = new TauID::MethodCuts("TauBDT:JetSigBits");
 
-            if (!this->jetSigBits->build(jetSigBitsPath))
+            if (!this->m_jetSigBits->build(jetSigBitsPath))
             {
 	      ATH_MSG_FATAL("Loading jet bits file " << jetSigBitsPath << " failed!");
 	      return StatusCode::FAILURE;
@@ -66,19 +68,19 @@ StatusCode TauJetBDT::initialize()
         }
 
         // Flat signal transformed jet score
-        if (this->jetSigTransFile != "")
+        if (this->m_jetSigTransFile != "")
         {
-            string jetSigTransPath = find_calibFile(this->jetSigTransFile);
+            string jetSigTransPath = find_file(this->m_jetSigTransFile);
         
             if(jetSigTransPath == "")
             {
-	      ATH_MSG_FATAL("File: " << this->jetSigTransFile << " not found! ");
+	      ATH_MSG_FATAL("File: " << this->m_jetSigTransFile << " not found! ");
 	      return StatusCode::FAILURE;
             }
         
-            this->jetSigTrans = new TauID::MethodTransform("TauBDT:JetBDT:SignalTranform");
+            this->m_jetSigTrans = new TauID::MethodTransform("TauBDT:JetBDT:SignalTranform");
         
-            if (!this->jetSigTrans->build(jetSigTransPath))
+            if (!this->m_jetSigTrans->build(jetSigTransPath))
             {
 	      ATH_MSG_FATAL("Loading jet BDT signal transformation file " << jetSigTransPath << " failed!");
 	      return StatusCode::FAILURE;
@@ -110,28 +112,28 @@ StatusCode TauJetBDT::execute(xAOD::TauJet& tauJet)
     tauJet.setIsTau(xAOD::TauJetParameters::JetBDTSigTight, false);
     
     // Set the response of the jet BDT
-    if (this->jetBDT)
+    if (this->m_jetBDT)
     {
 
 
-        this->jetScore = this->jetBDT->response(tauJet);
-	ATH_MSG_VERBOSE("BDTJetScore: " << this->jetScore);
-        if (this->jetScore < 0. || this->jetScore > 1.)
+        this->m_jetScore = this->m_jetBDT->response(tauJet);
+	ATH_MSG_VERBOSE("BDTJetScore: " << this->m_jetScore);
+        if (this->m_jetScore < 0. || this->m_jetScore > 1.)
         {
 	  ATH_MSG_ERROR("Error in computing BDTJetScore!");
         }
-        tauJet.setDiscriminant(xAOD::TauJetParameters::BDTJetScore, this->jetScore);
+        tauJet.setDiscriminant(xAOD::TauJetParameters::BDTJetScore, this->m_jetScore);
     }
     else
     {
         tauJet.setDiscriminant(xAOD::TauJetParameters::BDTJetScore, 0.);
     }
 
-    if (this->jetBDT && this->jetSigBits)
+    if (this->m_jetBDT && this->m_jetSigBits)
     {
-        loose = this->jetSigBits->response(tauJet, 0);
-        medium = this->jetSigBits->response(tauJet, 1);
-        tight = this->jetSigBits->response(tauJet, 2);
+        loose = this->m_jetSigBits->response(tauJet, 0);
+        medium = this->m_jetSigBits->response(tauJet, 1);
+        tight = this->m_jetSigBits->response(tauJet, 2);
         tauJet.setIsTau(xAOD::TauJetParameters::JetBDTSigLoose, loose);
         tauJet.setIsTau(xAOD::TauJetParameters::JetBDTSigMedium, medium);
         tauJet.setIsTau(xAOD::TauJetParameters::JetBDTSigTight, tight);
@@ -148,9 +150,9 @@ StatusCode TauJetBDT::execute(xAOD::TauJet& tauJet)
         }
     }
 
-    if (this->jetSigTrans)
+    if (this->m_jetSigTrans)
     {
-        float jetSigTransScore(this->jetSigTrans->response(tauJet));
+        float jetSigTransScore(this->m_jetSigTrans->response(tauJet));
 	ATH_MSG_VERBOSE("Signal Transformed BDTJetScore: " << jetSigTransScore);
         tauJet.setDiscriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans, jetSigTransScore);
     }
@@ -160,8 +162,8 @@ StatusCode TauJetBDT::execute(xAOD::TauJet& tauJet)
 
 StatusCode TauJetBDT::finalize()
 {
-    delete this->jetBDT;
-    delete this->jetSigBits;
-    delete this->jetSigTrans;
+    delete this->m_jetBDT;
+    delete this->m_jetSigBits;
+    delete this->m_jetSigTrans;
     return StatusCode::SUCCESS;
 }

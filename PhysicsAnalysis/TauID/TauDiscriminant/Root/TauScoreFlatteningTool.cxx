@@ -14,7 +14,7 @@
 #include <algorithm>
 
 TauScoreFlatteningTool::TauScoreFlatteningTool(const std::string& name):
-  TauDiscriToolBase(name),
+  TauRecToolBase(name),
   m_inputFile(""),
   m_effVeryLoose1P(0.95),
   m_effLoose1P(0.65),
@@ -44,7 +44,7 @@ TauScoreFlatteningTool::TauScoreFlatteningTool(const std::string& name):
 
 StatusCode TauScoreFlatteningTool::initialize()
 {
-  m_inputFile = find_calibFile(m_inputFile);
+  m_inputFile = find_file(m_inputFile);
   TFile tmpFile(m_inputFile.c_str());
 
   fetchInput(static_cast<TDirectory*>(tmpFile.Get("1prong")), m_graphs1p);

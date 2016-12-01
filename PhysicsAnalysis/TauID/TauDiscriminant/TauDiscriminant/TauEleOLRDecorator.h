@@ -13,15 +13,15 @@
 #ifndef TAUELEOLRDECORATOR_H
 #define TAUELEOLRDECORATOR_H
 
-#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/TauRecToolBase.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "TH2D.h"
 
 class AsgElectronLikelihoodTool;
 
-class TauEleOLRDecorator: virtual public TauDiscriToolBase
+class TauEleOLRDecorator: virtual public TauRecToolBase
 {
-  ASG_TOOL_CLASS2(TauEleOLRDecorator, TauDiscriToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauEleOLRDecorator, TauRecToolBase, ITauToolBase)
 
     public:
   
@@ -44,8 +44,10 @@ class TauEleOLRDecorator: virtual public TauDiscriToolBase
   bool m_bElectonsAvailable;
   std::string m_sEleOLRFilePath;
   std::unique_ptr<TH2D> m_hCutValues;
-  bool m_bEleOLRMatchAvailable;
-  bool m_bEleOLRMatchAvailableChecked;
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  bool m_bEleOLRMatchAvailable=false;
+  bool m_bEleOLRMatchAvailableChecked=false;
+#endif
   
  private:
   float getCutVal(float fEta, float fPt);

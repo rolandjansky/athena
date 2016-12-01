@@ -12,13 +12,13 @@
 #ifndef TAUIDVARCALCULATOR_H
 #define TAUIDVARCALCULATOR_H
 
-#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/TauRecToolBase.h"
 #include "xAODTau/TauJet.h"
 #include <string>
 
-class TauIDVarCalculator: virtual public TauDiscriToolBase
+class TauIDVarCalculator: virtual public TauRecToolBase
 {
-  ASG_TOOL_CLASS2(TauIDVarCalculator, TauDiscriToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauIDVarCalculator, TauRecToolBase, ITauToolBase)
 
     public:
   

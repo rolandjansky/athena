@@ -36,6 +36,7 @@ apply_pattern declare_python_modules files="../python/*.py"
 # macro_remove componentshr_linkopts "-Wl,-s"
 
 private
+use xAODEventInfo xAODEventInfo-* Event/xAOD
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 use xAODTracking        xAODTracking-*       Event/xAOD
 use StoreGate           StoreGate-*          Control

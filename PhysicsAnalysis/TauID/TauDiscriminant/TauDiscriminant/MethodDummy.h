@@ -16,7 +16,7 @@
 
 #include "TauDiscriminant/MethodBase.h"
 
-using namespace std;
+//using namespace std;
 
 namespace TauID
 {
@@ -25,15 +25,15 @@ namespace TauID
         public:
 
             //!< Default constructor
-            MethodDummy(const string& _name = ""):
-                MethodBase(_name)
+            MethodDummy(const std::string& name = ""):
+                MethodBase(name)
             {}
 
             //!< Destructor
             ~MethodDummy()
             {}
 
-            bool build(const string& filename, bool checkTree = false);
+            bool build(const std::string& filename, bool checkTree = false);
 
             float response(xAOD::TauJet& tau);
 

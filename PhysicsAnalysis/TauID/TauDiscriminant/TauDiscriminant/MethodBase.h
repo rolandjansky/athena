@@ -20,7 +20,7 @@
 
 #include "xAODTau/TauJet.h"
 
-using namespace std;
+//using namespace std;
 
 namespace TauID
 {
@@ -32,9 +32,9 @@ namespace TauID
             /// The name is an arbitrary name set by the user and should
             /// have no influence on the behaviour of the method
             ////////////////////////////////////////////////////////////
-            MethodBase(const string& _name = ""):
-                AsgMessaging(_name),
-                name(_name)
+            MethodBase(const std::string& name = ""):
+                AsgMessaging(name),
+                m_name(name)
             {}
 
             virtual ~MethodBase() {}
@@ -53,20 +53,20 @@ namespace TauID
             ///////////////////////////////////////////////////////////
             virtual float response(xAOD::TauJet& tau, unsigned int level) =0;
 
-            string getName() const
+            std::string getName() const
             {
-                return name;
+                return m_name;
             }
 
-	    void registerVariable(const string& name, char type);
+	    void registerVariable(const std::string& name, char type);
 
-	    void registerVariables(vector<string>& names, char type);
+	    void registerVariables(std::vector<std::string>& names, char type);
 
 	    bool updateVariables(xAOD::TauJet& tau);
 
-	    const map<string, const float*>* getFloatPointers();
+	    const std::map<std::string, const float*>* getFloatPointers();
 
-	    const map<string, const int*>* getIntPointers();
+	    const std::map<std::string, const int*>* getIntPointers();
 
             ////////////////////////////////////////////////////////////
             /// Build the discriminant from an input file
@@ -78,7 +78,7 @@ namespace TauID
             /// used to optionally validate your method after
             /// building from your input file.
             ////////////////////////////////////////////////////////////
-            virtual bool build(const string&, bool = false) =0;
+            virtual bool build(const std::string&, bool = false) =0;
 
             virtual Types::MethodType getType() const =0;
 
@@ -89,17 +89,17 @@ namespace TauID
                 return std::toupper((unsigned char)c);
             }
 
-            string name;
+            std::string m_name;
 
-	    deque<float> m_floatVariableStore;
-            deque<int> m_intVariableStore;
+            std::deque<float> m_floatVariableStore;
+            std::deque<int> m_intVariableStore;
 
         protected:
 
-            map<string, const float*> m_floatVars;
-            map<string, const int*> m_intVars;
-	    map<string, SG::AuxElement::ConstAccessor<float>> m_floatAccessors;
-	    map<string, SG::AuxElement::ConstAccessor<int>> m_intAccessors;
+            std::map<std::string, const float*> m_floatVars;
+            std::map<std::string, const int*> m_intVars;
+	    std::map<std::string, SG::AuxElement::ConstAccessor<float>> m_floatAccessors;
+	    std::map<std::string, SG::AuxElement::ConstAccessor<int>> m_intAccessors;
     };
 }
 #endif

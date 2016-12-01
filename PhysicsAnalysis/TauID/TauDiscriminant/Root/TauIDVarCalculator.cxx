@@ -10,11 +10,13 @@
 
 #include "TauDiscriminant/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
+#include "xAODEventInfo/EventInfo.h"
+
 
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
-  TauDiscriToolBase(name),
+  TauRecToolBase(name),
   m_vertexContainerKey("PrimaryVertices"),
   m_nVtx(1)
 {
@@ -58,6 +60,13 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
+
+  const xAOD::EventInfo* m_xEventInfo;  //!
+
+  static SG::AuxElement::Accessor<float> acc_mu("MU");
+  ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
+  acc_mu(tau) = m_xEventInfo->averageInteractionsPerCrossing();
+
   if(!inTrigger()){
     static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
     acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
@@ -77,7 +86,9 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   if(inTrigger()) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
-  static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
+  static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
+  static SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
+  static SG::AuxElement::Accessor<float> acc_leadTrackEta("leadTrackEta");
   static SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
   static SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
   static SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
@@ -102,6 +113,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     track = tau.track(0);
 #endif
     acc_absEtaLead(tau) = fabs( track->eta() );
+    acc_leadTrackEta(tau) = fabs( track->eta() );
     acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
     acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
@@ -126,6 +138,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     acc_trtNhtOverNlt(tau) = (numberOfTRTHits + numberOfTRTOutliers) > 0 ?
       float( numberOfTRTHighThresholdHits + numberOfTRTHighThresholdOutliers) / float(numberOfTRTHits + numberOfTRTOutliers) : LOW_NUMBER;
     acc_newhadLeakEt(tau) = acc_hadLeakEt(tau);
+
+    float fTracksEProbabilityHT;
+    track->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT);
+    acc_leadTrackProbHT(tau) = fTracksEProbabilityHT;
+
   }else{
     acc_absEtaLead(tau) = LOW_NUMBER;
     acc_absDeltaEta(tau) = LOW_NUMBER;

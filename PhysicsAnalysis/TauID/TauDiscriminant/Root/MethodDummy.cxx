@@ -11,6 +11,7 @@
 #include "TauDiscriminant/MethodDummy.h"
 
 using namespace TauID;
+using namespace std;
 
 float MethodDummy::response(xAOD::TauJet& /*tau*/)
 {    

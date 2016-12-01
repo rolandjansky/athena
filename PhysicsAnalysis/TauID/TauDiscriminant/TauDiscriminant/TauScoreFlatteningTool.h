@@ -12,13 +12,13 @@
 #ifndef TAUSCOREFLATTENINGTOOL_H
 #define TAUSCOREFLATTENINGTOOL_H
 
-#include "TauDiscriminant/TauDiscriToolBase.h"
+#include "tauRecTools/TauRecToolBase.h"
 #include "TauDiscriminant/TauCutGraph.h"
 #include "TDirectory.h"
 
-class TauScoreFlatteningTool: virtual public TauDiscriToolBase
+class TauScoreFlatteningTool: virtual public TauRecToolBase
 {
-  ASG_TOOL_CLASS2(TauScoreFlatteningTool, TauDiscriToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauScoreFlatteningTool, TauRecToolBase, ITauToolBase)
 
     public:
   
