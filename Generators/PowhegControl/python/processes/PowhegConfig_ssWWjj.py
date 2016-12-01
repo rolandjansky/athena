@@ -60,6 +60,6 @@ class PowhegConfig_ssWWjj(PowhegConfig_base):
                                     "WpWpemuvemuv", "WpWpemuvlv",
                                     "WmWmemuvemuv", "WmWmemuvlv",
                                     "WpWplvlv", "WmWmlvlv"]
-        self.decay_mode = "WpWplvlv"
+        self.decay_mode          = "WpWplvlv"
 
         self.populate_default_strings()

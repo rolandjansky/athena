@@ -68,7 +68,7 @@ class SingleProcessThread(object):
     # Check if the underlying process is running and finalise stream readers if not
     def is_running(self):
         if self.__process.poll() is not None:  # process has ended
-            for nbsr in ("stdout", "stderr") :
+            for nbsr in ("stdout", "stderr"):
                 getattr(self, nbsr).finalise()
             return False
         return True

@@ -10,11 +10,11 @@ PowhegConfig.add_weight_to_group( group_name="quark_mass_variation", weight_name
 PowhegConfig.add_weight_to_group( group_name="quark_mass_variation", weight_name="mtinf", parameter_values=[0,0] )
 PowhegConfig.add_weight_to_group( group_name="quark_mass_variation", weight_name="mtmb-bminlo", parameter_values=[1,1] )
 # To combine the user-defined weights with NNLOPS
-PowhegConfig.NNLO_reweighting_inputs = { "nn-mtinf":"H1250_CM13_CT10_APX0_11.top", "nn-mtmb":"H1250_CM13_CT10_APX2_22.top" }
-PowhegConfig.NNLO_output_weights = { "nnlops-mtmb":"combine "nn-mtmb" and "mtmb"",\
-                                     "nnlops-mtinf":"combine "nn-mtinf" and "mtinf"",\
-                                     "nnlops-mtmb-bminlo":"combines "nn-mtmb" and "mtmb-bminlo""
-                                   }
+PowhegConfig.NNLO_reweighting_inputs["nn-mtinf"] = "H1250_CM13_CT10_APX0_11.top"
+PowhegConfig.NNLO_reweighting_inputs["nn-mtmb"] = "H1250_CM13_CT10_APX2_22.top"
+PowhegConfig.NNLO_output_weights["nnlops-mtmb"] = "combine 'nn-mtmb' and 'mtmb'"
+PowhegConfig.NNLO_output_weights["nnlops-mtinf"] = "combine \"nn-mtinf\" and \"mtinf\""
+PowhegConfig.NNLO_output_weights["nnlops-mtmb-bminlo"] = "combines \"nn-mtmb\" and 'mtmb-bminlo'"
 PowhegConfig.generate()
 
 #--------------------------------------------------------------

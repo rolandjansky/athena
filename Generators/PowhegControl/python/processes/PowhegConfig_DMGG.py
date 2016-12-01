@@ -21,7 +21,7 @@ class PowhegConfig_DMGG(PowhegConfig_base):
         self._powheg_executable += "/DMGG/pwhg_main"
 
         # Add process specific options
-        self.add_parameter("Lambda", 100, desc="UV scale", parameter="DMLambda")
+        self.add_parameter("Lambda", 100,    desc="UV scale", parameter="DMLambda")
         self.add_parameter("nloformfact", 1, desc="(0:disabled; 1:enabled) include Higgs-specific corrections into GGS and GGP form factor")
 
         # Decorate with generic option sets

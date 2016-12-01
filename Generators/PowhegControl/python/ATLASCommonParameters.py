@@ -22,7 +22,7 @@ mass_g   = 0.75
 mass_t   = 172.5
 mass_W   = 80.399
 mass_Z   = 91.1876
-mass_H   = 125.09
+mass_H   = 125.0
 
 # Particle widths
 width_t = 1.32

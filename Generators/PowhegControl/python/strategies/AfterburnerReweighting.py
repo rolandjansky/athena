@@ -18,8 +18,6 @@ from ..utility import FileParser, RepeatingTimer
 logger = logging.getLogger("PowhegControl")
 
 # Initialise and validate reweighting lists
-
-
 def initialise_reweighting(configurator):
     logger.info("Initialising PDF/scale variations")
 
