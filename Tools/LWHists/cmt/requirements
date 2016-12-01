@@ -62,4 +62,3 @@ macro_append lwhists_benchmark_dependencies "$(LWHists_library_dependencies)"
 #library. Don't remove!!!:
 macro_append lwhists_comphistfiles_dependencies "$(LWHists_library_dependencies)"
 public
-

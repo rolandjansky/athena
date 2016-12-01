@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 726579 2016-02-27 10:29:14Z krasznaa $
+# $Id: CMakeLists.txt 763045 2016-07-19 20:30:19Z ssnyder $
 ################################################################################
 # Package: LWHists
 ################################################################################
@@ -7,7 +7,7 @@
 atlas_subdir( LWHists )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Hist RIO Core )
+find_package( ROOT COMPONENTS Hist RIO Core MathCore )
 
 # To let valgrind look for problems:
 #add_definitions( -DLW_DEBUG_POOLS_USE_NEW )
