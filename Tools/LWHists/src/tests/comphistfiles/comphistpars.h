@@ -25,8 +25,8 @@ bool checkParameters(T*h1,T*h2);
 template <class T> bool varCompatible(const T var1,const T var2) {
   if (var1==var2)
     return true;
-  const bool var1_nan = isnan(var1);
-  const bool var2_nan = isnan(var2);
+  const bool var1_nan = std::isnan(var1);
+  const bool var2_nan = std::isnan(var2);
   if (var1_nan&&var2_nan) {
     if (cfg_report_NaN)
       std::cout<<"WARNING: Spotted NaN values in parameter (but same in both of the compared histograms)!"<<std::endl;
