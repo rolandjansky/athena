@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
+                          Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/IRegionSelector
                           Event/EventPrimitives
@@ -31,7 +32,7 @@ atlas_add_component( SiTrigSPSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrigInterfacesLib GeoPrimitives IRegionSelector EventPrimitives InDetRecToolInterfaces TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkTrack TrigInDetEvent TrigParticle TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrigInterfacesLib AthenaKernel GeoPrimitives IRegionSelector EventPrimitives InDetRecToolInterfaces TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkTrack TrigInDetEvent TrigParticle TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( SiTrigSPSeededTrackFinder )

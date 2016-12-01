@@ -13,6 +13,7 @@
 #include "SiTrigSPSeededTrackFinder/SiTrigSPSeededTrackFinder.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
+#include "AthenaKernel/Timeout.h"
 
 //Trigger stuff
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -58,7 +59,8 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   m_etaHalfWidth(0.1),
   m_phiHalfWidth(0.1),
   m_doFullScan(false),
-  m_fastTracking(false)
+  m_fastTracking(false),
+  m_doTimeOutChecks(true)
 {
   // SiTrigSPSeededTrackFinder steering parameters
   declareProperty("SeedsTool"     ,m_seedsmaker    );
@@ -73,6 +75,7 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   declareProperty("doFullScan",    m_doFullScan);
   declareProperty("FastTracking",  m_fastTracking);
   declareProperty("FreeClustersCut"   ,m_nfreeCut      );
+  declareProperty("doTimeOutChecks",         m_doTimeOutChecks);
   
   //declare properties to be monitored
   declareMonitoredVariable("numSeeds",m_nseeds);
@@ -110,7 +113,7 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
 //----------------------------------------------------------------------------
 HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltBeginRun() {
   
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::beginRun()" << endreq;
+  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::beginRun()" << endmsg;
   return HLT::OK;
 }
 //----------------------------------------------------------------------------
@@ -122,42 +125,42 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltBeginRun() {
 HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
   // Get tool for space points seed maker
   if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_seedsmaker << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_seedsmaker << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } 
   else {
-    msg() << MSG::INFO << "Retrieved tool " << m_seedsmaker << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_seedsmaker << endmsg;
   }
   
   if(m_useZvertexTool) {
     
     // Get tool for z-coordinates primary vertices search
     if ( m_zvertexmaker.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_zvertexmaker << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved tool " << m_zvertexmaker << endreq; 
+      msg() << MSG::INFO << "Retrieved tool " << m_zvertexmaker << endmsg; 
     }
   }
 
   // Get track-finding tool
   if ( m_trackmaker.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } 
   else {
-    msg() << MSG::INFO << "Retrieved tool " << m_trackmaker << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_trackmaker << endmsg;
   }
 
-  msg() << MSG::INFO << "Using internal seedMaker: " << m_useSeedMaker << endreq;
+  msg() << MSG::INFO << "Using internal seedMaker: " << m_useSeedMaker << endmsg;
 
 
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endreq;
+    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endmsg;
   }
   
   m_nseedsTotal  = 0;
@@ -170,13 +173,13 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
     if ( m_regionSelector.retrieve().isFailure() ) {
       msg() << MSG::FATAL
 	    << "Unable to retrieve RegionSelector tool "
-	    << m_regionSelector.type() << endreq;
+	    << m_regionSelector.type() << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
   }
   else{
     msg() << MSG::INFO
-	  << "RegionSelector not initialized due to FullScan mode. " << endreq;
+	  << "RegionSelector not initialized due to FullScan mode. " << endmsg;
   }
 
   // Initialize timers:
@@ -213,13 +216,13 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
   // Get RoiDescriptor
   const TrigRoiDescriptor* roi;
   if ( ( HLT::OK != getFeature(outputTE, roi) ) || !roi ) {
-    msg() << MSG::WARNING << "Can't get RoI" << endreq;
+    msg() << MSG::WARNING << "Can't get RoI" << endmsg;
     return HLT::NAV_ERROR;
   }
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
-    msg() << MSG::DEBUG << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth <<endreq;
+    msg() << MSG::DEBUG << "REGTEST:" << *roi << endmsg;
+    msg() << MSG::DEBUG << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth <<endmsg;
   }
   m_RoIEta = roi->eta();
   m_RoIPhi = roi->phi();
@@ -281,7 +284,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(doTiming()) m_timerSeedsMaker->stop();
       
       if(m_outputlevel <= 0){ 
-	msg() << MSG::DEBUG << "REGTEST: Number of zvertex found = " << (m_zvertexmaker->getVertices()).size() << endreq;
+	msg() << MSG::DEBUG << "REGTEST: Number of zvertex found = " << (m_zvertexmaker->getVertices()).size() << endmsg;
       }
       m_nZvtx = (m_zvertexmaker->getVertices()).size();
     }
@@ -339,12 +342,17 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     //++m_nseeds;
         
     if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Using internal seeding::::  " << endreq;
+      msg() << MSG::DEBUG << "Using internal seeding::::  " << endmsg;
 
     int nseedwithtrack(0);
     ///////////////////////////////////////
     
     while((seed = m_seedsmaker->next())) {
+
+      if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
+	ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
+	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
+      }
       
       if(doTiming()) 
 	m_timerSeedProcessing->start();
@@ -361,9 +369,9 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       
       if (msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "Using 3SPs seed with ====> " << endreq; 
+	msg() << MSG::VERBOSE << "Using 3SPs seed with ====> " << endmsg; 
 	for(std::list<const Trk::SpacePoint*>::const_iterator it=seed->spacePoints().begin(); it != seed->spacePoints().end(); it++) {
-	  msg() << MSG::VERBOSE << "Using SP with :::: " << endreq; 
+	  msg() << MSG::VERBOSE << "Using SP with :::: " << endmsg; 
 	  msg() << " :: r :: " << (*it)->globalPosition().mag() 
 		<< " :: perp :: " << (*it)->globalPosition().perp() 
 		<< " :: phi :: " << (*it)->globalPosition().phi() 
@@ -371,7 +379,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 		<< " :: eta :: " << (*it)->globalPosition().eta() 
 		<< " :: x :: " << (*it)->globalPosition().x() 
 		<< " :: y :: " << (*it)->globalPosition().y() 
-		<< " :: z :: " << (*it)->globalPosition().z() <<endreq;
+		<< " :: z :: " << (*it)->globalPosition().z() <<endmsg;
 	  (*it)->dump(msg());
 	}
       }
@@ -397,14 +405,14 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	  TRACK_COUNTER++;
 	  
 	  if (msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Found track with ====> " << endreq; 
+	    msg() << MSG::VERBOSE << "Found track with ====> " << endmsg; 
 	    for(unsigned int i(0); i<((*t)->trackParameters())->size(); i++) {
 	      double trkx = ((*t)->trackParameters()->at(i))->parameters()[Trk::x];
 	      double trky = ((*t)->trackParameters()->at(i))->parameters()[Trk::y];
 	      double trkz = ((*t)->trackParameters()->at(i))->parameters()[Trk::z];
 	      double trktheta = ((*t)->trackParameters()->at(i))->parameters()[Trk::theta];
 	      double trkphi = ((*t)->trackParameters()->at(i))->parameters()[Trk::phi];
-	      msg() << MSG::VERBOSE << "Track Parameters :::: " << endreq;
+	      msg() << MSG::VERBOSE << "Track Parameters :::: " << endmsg;
 	      msg() << " :: r :: " << sqrt( trkx*trkx + trky*trky + trkz*trkz )
 		    << " :: perp :: " << sqrt( trkx*trkx + trky*trky )
 		    << " :: phi :: " << trkphi
@@ -414,18 +422,18 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 		    << " :: z0 :: " << ((*t)->trackParameters()->at(i))->parameters()[Trk::z0]
 		    << " :: x :: " << trkx
 		    << " :: y :: " << trky
-		    << " :: z :: " << trkz <<endreq;
+		    << " :: z :: " << trkz <<endmsg;
 	    }
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================== back ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================== back ========================== " << endmsg << endmsg; 
 	    ((*t)->trackParameters()->back())->dump(msg());
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================================================== " << endreq << endreq; 
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================== front ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================================================== " << endmsg << endmsg; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================== front ========================== " << endmsg << endmsg; 
 	    ((*t)->trackParameters()->front())->dump(msg());
-	    msg() << MSG::VERBOSE << endreq 
-		  << "=========================================================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "=========================================================== " << endmsg << endmsg; 
 	  }
 	}
       }
@@ -435,25 +443,25 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	  nseedwithtrack++;
 	  
 	  if (msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Using seed :::: " << m_nseeds << " :::: " << endreq;
+	    msg() << MSG::VERBOSE << "Using seed :::: " << m_nseeds << " :::: " << endmsg;
 	    
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================== DUMP SEED ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================== DUMP SEED ========================== " << endmsg << endmsg; 
 	    seed->dump(msg());
-	    msg() << MSG::VERBOSE << endreq 
-		  << "====================== END DUMP SEED ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "====================== END DUMP SEED ========================== " << endmsg << endmsg; 
 	    
 	    
 	    msg() <<MSG::VERBOSE
 		  << "TRACK_COUNTER = " << TRACK_COUNTER 
-		  << " ====> Found " << TRACK_COUNTER << " track(s) with this seed. " << endreq;
+		  << " ====> Found " << TRACK_COUNTER << " track(s) with this seed. " << endmsg;
 	  }
 	}
     }
     
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Processed number of seeds = " << m_nseeds << ". " << endreq; 
-      msg() << MSG::DEBUG << "Number of seeds with at least 1 track = " << nseedwithtrack << ". " << endreq; 
+      msg() << MSG::DEBUG << "Processed number of seeds = " << m_nseeds << ". " << endmsg; 
+      msg() << MSG::DEBUG << "Number of seeds with at least 1 track = " << nseedwithtrack << ". " << endmsg; 
     }
     
   } else {      // external seeding
@@ -464,7 +472,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     const TrackCollection *tx;
 
     if (getFeature(outputTE, tx) != HLT::OK || !tx) {
-      msg() << MSG::ERROR << "Can't get InDetTrackCollection " << endreq;
+      msg() << MSG::ERROR << "Can't get InDetTrackCollection " << endmsg;
       return HLT::NAV_ERROR;
     }
        
@@ -481,9 +489,9 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       const Trk::Perigee* perig = (*iter)->perigeeParameters();
       /////////////////////////////////////////////
       if (msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "Using seed with ====> " << endreq; 
+	msg() << MSG::VERBOSE << "Using seed with ====> " << endmsg; 
 	msg() << MSG::VERBOSE 
-	      << "========================== DUMP Measured Perigee ========================== " << endreq << endreq; 
+	      << "========================== DUMP Measured Perigee ========================== " << endmsg << endmsg; 
 	double MPphi = perig->parameters()[Trk::phi]; 
 	double MPtheta = perig->parameters()[Trk::theta]; 
 	double MPd0 = perig->parameters()[Trk::d0]; 
@@ -500,10 +508,10 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	      << " :: z0 :: " << MPz0
 	      << " :: x :: " << MPx
 	      << " :: y :: " << MPy
-	      << " :: z :: " << MPz << endreq;
+	      << " :: z :: " << MPz << endmsg;
 	perig->dump(msg());
 	msg() << MSG::VERBOSE 
-	      << "========================== DUMP Measured Perigee ========================== " << endreq << endreq; 
+	      << "========================== DUMP Measured Perigee ========================== " << endmsg << endmsg; 
       }
       
       std::list<Amg::Vector3D> gpList;
@@ -525,9 +533,9 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if (msgLvl() <= MSG::VERBOSE) {
 	
-	msg() << MSG::VERBOSE << "Using gpList with ====> " << endreq; 
+	msg() << MSG::VERBOSE << "Using gpList with ====> " << endmsg; 
 	for(std::list<Amg::Vector3D>::iterator itt = gpList.begin(); itt != gpList.end(); ++itt) {
-	  msg() << MSG::VERBOSE << "Global Position :::: " << endreq; 
+	  msg() << MSG::VERBOSE << "Global Position :::: " << endmsg; 
 	  msg() << " :: r :: " << (*itt).mag() 
 		<< " :: perp :: " << (*itt).perp() 
 		<< " :: phi :: " << (*itt).phi() 
@@ -535,7 +543,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 		<< " :: eta :: " << (*itt).eta() 
 		<< " :: x :: " << (*itt).x() 
 		<< " :: y :: " << (*itt).y() 
-		<< " :: z :: " << (*itt).z() <<endreq;
+		<< " :: z :: " << (*itt).z() <<endmsg;
 	}
       }
       
@@ -566,14 +574,14 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	  TRACK_COUNTER++;
 	  if (msgLvl() <= MSG::VERBOSE) {
 
-	    msg() << MSG::VERBOSE << "Found track with ====> " << endreq; 
+	    msg() << MSG::VERBOSE << "Found track with ====> " << endmsg; 
 	    for(unsigned int i(0); i<((*t)->trackParameters())->size(); i++) {
 	      double trkx = ((*t)->trackParameters()->at(i))->parameters()[Trk::x];
 	      double trky = ((*t)->trackParameters()->at(i))->parameters()[Trk::y];
 	      double trkz = ((*t)->trackParameters()->at(i))->parameters()[Trk::z];
 	      double trktheta = ((*t)->trackParameters()->at(i))->parameters()[Trk::theta];
 	      double trkphi = ((*t)->trackParameters()->at(i))->parameters()[Trk::phi];
-	      msg() << MSG::VERBOSE << "Track Parameters :::: " << endreq;
+	      msg() << MSG::VERBOSE << "Track Parameters :::: " << endmsg;
 	      msg() << " :: r :: " << sqrt( trkx*trkx + trky*trky + trkz*trkz )
 		    << " :: perp :: " << sqrt( trkx*trkx + trky*trky )
 		    << " :: phi :: " << trkphi
@@ -583,18 +591,18 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 		    << " :: z0 :: " << ((*t)->trackParameters()->at(i))->parameters()[Trk::z0]
 		    << " :: x :: " << trkx
 		    << " :: y :: " << trky
-		    << " :: z :: " << trkz <<endreq;
+		    << " :: z :: " << trkz <<endmsg;
 	    }
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================== back ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================== back ========================== " << endmsg << endmsg; 
 	    ((*t)->trackParameters()->back())->dump(msg());
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================================================== " << endreq << endreq; 
-	    msg() << MSG::VERBOSE << endreq 
-		  << "========================== front ========================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================================================== " << endmsg << endmsg; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "========================== front ========================== " << endmsg << endmsg; 
 	    ((*t)->trackParameters()->front())->dump(msg());
-	    msg() << MSG::VERBOSE << endreq 
-		  << "=========================================================== " << endreq << endreq; 
+	    msg() << MSG::VERBOSE << endmsg 
+		  << "=========================================================== " << endmsg << endmsg; 
 	    ///////////////////////////////////////
 	  }
 	}
@@ -602,7 +610,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	if (msgLvl() <= MSG::DEBUG) {
 	  msg() <<MSG::DEBUG 
 		<< "TRACK_COUNTER = " << TRACK_COUNTER 
-		<< " ====> Found " << TRACK_COUNTER << " track(s) with this seed. " << endreq;
+		<< " ====> Found " << TRACK_COUNTER << " track(s) with this seed. " << endmsg;
 	}
 	///////////////////////////////////////
 	  
@@ -650,14 +658,14 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
   m_ntracksTotal += m_ntracks;
     
   if(m_outputlevel<=0) 
-    msg() << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endreq;
+    msg() << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endmsg;
     
     
   // Save reconstructed tracks
   const std::string sgkey = "SPSeeded";
   HLT::ErrorCode ec = attachFeature(outputTE, foundTracks, sgkey);
   if ( ec != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not record feature " << sgkey << endreq;
+    msg() << MSG::ERROR << "Could not record feature " << sgkey << endmsg;
   } 
     
   // Print common event information
@@ -668,14 +676,14 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	  << " and found "
 	  << std::setw(5) << foundTracks->size() 
 	  << " tracks stored to SG/" << sgkey
-	  << endreq;
-    // m_nprint=1; msg()<<MSG::DEBUG<<(*this)<<endreq;
+	  << endmsg;
+    // m_nprint=1; msg()<<MSG::DEBUG<<(*this)<<endmsg;
   }
     
   if (msgLvl() <= MSG::VERBOSE){
     for (size_t i=0; i<foundTracks->size() ; i++){
-      msg() << MSG::VERBOSE << "REGTEST track " << i << endreq;
-      msg() << MSG::VERBOSE << *(foundTracks->at(i)) << endreq;
+      msg() << MSG::VERBOSE << "REGTEST track " << i << endmsg;
+      msg() << MSG::VERBOSE << *(foundTracks->at(i)) << endmsg;
     }
   }
     
@@ -687,10 +695,10 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 ///////////////////////////////////////////////////////////////////
 HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltFinalize() {
   
-  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endreq;
+  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endmsg;
   msg() << MSG::INFO << "REGTEST Investigated " << m_nseedsTotal
 	<< " seeds and found " << m_ntracksTotal 
-	<< ". Invoked " << m_nInvoked << " times." << endreq;
+	<< ". Invoked " << m_nInvoked << " times." << endmsg;
   return HLT::OK;
 }
 //----------------------------------
@@ -698,7 +706,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltFinalize() {
 //----------------------------------------------------------------------------
 HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltEndRun() {
    
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::endRun()" << endreq;
+  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::endRun()" << endmsg;
  
   return HLT::OK;
 }
@@ -729,7 +737,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::SiTrigSPSeededTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -812,7 +821,8 @@ double InDet::SiTrigSPSeededTrackFinder::trackQuality(const Trk::Track* Tr)
    double q;
    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
    else                     q =      (W-x2    );
-   if(q < 0.) q = 0.; quality+=q;
+   if(q < 0.) q = 0.;
+   quality+=q;
  }
  return quality;
 }
@@ -848,7 +858,8 @@ void InDet::SiTrigSPSeededTrackFinder::filterSharedTracks
     }
 
     if(nf >= m_nfreeCut|| nf == nc) {
-      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]); ++q;
+      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+      ++q;
     } 
     else  {
       delete (*q).second; QT.erase(q++);

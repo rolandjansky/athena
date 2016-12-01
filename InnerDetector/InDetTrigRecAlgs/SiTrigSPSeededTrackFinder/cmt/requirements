@@ -26,6 +26,7 @@ use GeoPrimitives      GeoPrimitives-*    DetectorDescription
 
 #linkage of TrigStorage
 use TrigParticle        TrigParticle-*          Trigger/TrigEvent
+use AthenaKernel         AthenaKernel-*         Control
 
 end_private
 
