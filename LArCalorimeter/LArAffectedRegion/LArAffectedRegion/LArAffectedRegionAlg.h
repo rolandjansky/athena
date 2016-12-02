@@ -52,8 +52,8 @@ class LArAffectedRegionAlg : public AthAlgorithm,virtual public IIncidentListene
 
   float HV_nominal(const char *identification,const float eta);
   std::vector<int> returnProblem(const float eta, const float phi, const float delta_eta, const float delta_phi);  
-  int getOccurenceProblem(std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo_global,float eta_min,float eta_max,float phi_min,float phi_max,int layer_min,int layer_max,int problem,float rate);
-  void debuggingSearchDoublons(std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo);
+  int getOccurenceProblem(const std::vector<CaloAffectedRegionInfo>& ArrayLArAffectedRegionInfo_global,float eta_min,float eta_max,float phi_min,float phi_max,int layer_min,int layer_max,int problem,float rate);
+  void debuggingSearchDoublons(const std::vector<CaloAffectedRegionInfo>& ArrayLArAffectedRegionInfo);
   //---
  private:
 
