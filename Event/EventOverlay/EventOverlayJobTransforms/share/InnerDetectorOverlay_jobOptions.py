@@ -60,7 +60,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         CfgGetter.getPublicTool("SCT_DigitizationTool").InputObjectName="SCT_Hits"
         indetovl.do_SCT = True
         if readBS and isRealData:
-           job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
+           #job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
+           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG/SCT_RDOs"
+           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG/SCT_LVL1ID"
+           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG/SCT_BCID"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
     else:
