@@ -223,18 +223,20 @@ void LArAffectedRegionAlg::handle(const Incident& inc) { //for non nominal HV
     
     for (unsigned int i=0;i<m_ArrayLArAffectedRegionInfo_global.size();++i) {
       CaloAffectedRegionInfo& info = m_ArrayLArAffectedRegionInfo_global[i];
-      coral::AttributeList* attrList = new coral::AttributeList(*attrSpec);
-      (*attrList)["eta_min"].setValue(info.get_eta_min());
-      (*attrList)["eta_max"].setValue(info.get_eta_max());
-      (*attrList)["phi_min"].setValue(info.get_phi_min());
-      (*attrList)["phi_max"].setValue(info.get_phi_max());
-      (*attrList)["layer_min"].setValue(info.get_layer_min());
-      (*attrList)["layer_max"].setValue(info.get_layer_max());
-      (*attrList)["problem"].setValue(info.get_problem());
-      m_attrListColl->add(i, *attrList);  // channel number, payload
+      coral::AttributeList attrList(*attrSpec,true);
+      attrList["eta_min"].setValue(info.get_eta_min());
+      attrList["eta_max"].setValue(info.get_eta_max());
+      attrList["phi_min"].setValue(info.get_phi_min());
+      attrList["phi_max"].setValue(info.get_phi_max());
+      attrList["layer_min"].setValue(info.get_layer_min());
+      attrList["layer_max"].setValue(info.get_layer_max());
+      attrList["problem"].setValue(info.get_problem());
+      m_attrListColl->add(i, attrList);  // channel number, payload
     }
     
     m_attrListColl->addNewStart(IOVTime(runNumber, 0));       // start run, LB
+
+    attrSpec->release(); //Decrease ref-count, we don't need that guy any more
 
     // Register folder in the IOV Db MetaData
     if (StatusCode::SUCCESS != m_metaDataTool->registerFolder("/LAR/LArAffectedRegionInfo")) {      
@@ -280,7 +282,6 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
   const LArHVManager *manager = NULL;
 
   //std::cout << " in HV_EMB " << std::endl;
-  CaloPhiRange _range;
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
     
 // accordion calorimeter
@@ -338,8 +339,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   //std::cout << " -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max << std::endl;
                   are_previous_HV_dead = true;
                  }
@@ -351,8 +352,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   //std::cout << " -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max << std::endl;
                   are_previous_HV_affected = true;
                  }
@@ -395,8 +396,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
             //std::cout << "  HV " <<  hv[0] << " " << hv[1] << " ";
             float eta_min=hvMod->getEtaMin();
             float eta_max=hvMod->getEtaMax();
-            float phi_min=_range.fix(hvMod->getPhiMin());
-            float phi_max=_range.fix(hvMod->getPhiMax());
+            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
             //std::cout << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max ;
 
             //take decisions according to all the gaps HV :
@@ -426,8 +427,6 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
 //=========================================================================================
 void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr HV, EM EndCap OUTER
   const LArHVManager *manager = NULL;
-
-  CaloPhiRange _range;
 
   //std::cout << " start HV_EMEC_OUTER " << std::endl;
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
@@ -492,8 +491,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr H
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   are_previous_HV_dead = true;
                   //std::cout << " -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max << std::endl;
                  }
@@ -505,8 +504,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr H
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   are_previous_HV_affected = true;
                   //std::cout << " -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max << std::endl;
                  }
@@ -549,8 +548,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr H
             //std::cout << "  HV " <<  hv[0] << " " << hv[1] << " ";
             float eta_min=hvMod->getEtaMin(); 
             float eta_max=hvMod->getEtaMax();
-            float phi_min=_range.fix(hvMod->getPhiMin());
-            float phi_max=_range.fix(hvMod->getPhiMax());
+            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
             //std::cout << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max ;
 
             //take decisions according to all the gaps HV :
@@ -577,8 +576,6 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr H
 //=========================================================================================
 void LArAffectedRegionAlg::searchNonNominalHV_EMEC_INNER() { // deals with LAr HV, EM EndCap INNER
   const LArHVManager *manager = NULL;
-
-  CaloPhiRange _range;
 
   //std::cout << " start loop over EMEC_INNER " << std::endl;
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
@@ -643,8 +640,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_INNER() { // deals with LAr H
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   //std::cout << " -- start dead region " << phi_min << " " << phi_max << std::endl;
                   are_previous_HV_dead = true;
                  }
@@ -656,8 +653,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_INNER() { // deals with LAr H
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=_range.fix(electrode->getPhi()-1e-4);
-                  phi_max=_range.fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
                   are_previous_HV_affected = true;
                   //std::cout << " -- start affected region " << phi_min << " " << phi_max << std::endl;
                  }
@@ -690,7 +687,6 @@ void LArAffectedRegionAlg::searchNonNominalHV_HEC() { // deals with LAr HV, HEC
   
  // std::cout << " in HEC " << std::endl;
   const LArHVManager *manager = NULL;
-  CaloPhiRange _range;
   float etamax_layer[4]={3.3,3.1,3.1,3.3};
   float etamin_layer[4]={1.5,1.5,1.6,1.7};
  
@@ -734,8 +730,8 @@ void LArAffectedRegionAlg::searchNonNominalHV_HEC() { // deals with LAr HV, HEC
                            (fabs(hv[2]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[3]-HVnominal)>HV_NON_NOMINAL_TOLERANCE)) ) isAffected=true;
           //std::cout << " isDead/isAffected " << isDead << " " << isAffected << std::endl;
 
-          float phiMin = _range.fix(hvMod->getPhiMin());
-          float phiMax = _range.fix(hvMod->getPhiMax());
+          float phiMin = CaloPhiRange::fix(hvMod->getPhiMin());
+          float phiMax = CaloPhiRange::fix(hvMod->getPhiMax());
 
 
 	  if (isDead) { //stores it, DEAD means all hvs < threshold
@@ -758,7 +754,6 @@ void LArAffectedRegionAlg::searchNonNominalHV_HEC() { // deals with LAr HV, HEC
 void LArAffectedRegionAlg::searchNonNominalHV_FCAL() { // deals with LAr HV, FCAL
 
   //std::cout << " inFCAL " << std::endl;
-  CaloPhiRange _range;
   const LArHVManager *manager = NULL;
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {  
     
@@ -778,12 +773,12 @@ void LArAffectedRegionAlg::searchNonNominalHV_FCAL() { // deals with LAr HV, FCA
           //std::cout << " FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " << iSector << std::endl;
           //std::cout << "   HV nominal " << HVnominal << std::endl;
  
-          float dphi=_range.twopi()/16;
-          if (iSampling==1) dphi=_range.twopi()/8.;
-          if (iSampling==2) dphi=_range.twopi()/4.;
+          float dphi=CaloPhiRange::twopi()/16;
+          if (iSampling==1) dphi=CaloPhiRange::twopi()/8.;
+          if (iSampling==2) dphi=CaloPhiRange::twopi()/4.;
           float phi_min = ((float)(iSector))*dphi;
-          phi_min =   _range.fix(phi_min);
-          float phi_max = _range.fix(dphi+phi_min);
+          phi_min =   CaloPhiRange::fix(phi_min);
+          float phi_max = CaloPhiRange::fix(dphi+phi_min);
         
           //std::cout << " eta_min,eta_max,phi_min,phi_max " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max << std::endl;
 	  
@@ -1043,21 +1038,21 @@ float LArAffectedRegionAlg::HV_nominal(const char *identification,const float my
 //====================================================================================
 // Return the occurence of given AffectedRegion in the list of Affected Region (useful to extend the AffectedRegion in the case of a new run, and useful to update the MetaData)
 
-int LArAffectedRegionAlg::getOccurenceProblem(std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo_global,float eta_min,float eta_max,float phi_min,float phi_max,int layer_min,int layer_max,int problem,float rate) {
+int LArAffectedRegionAlg::getOccurenceProblem(const std::vector<CaloAffectedRegionInfo>& ArrayLArAffectedRegionInfo_global,float eta_min,float eta_max,float phi_min,float phi_max,int layer_min,int layer_max,int problem,float rate) {
   
   float epsilon=1e-3;
   int occurences=0;
 
-  for (unsigned int i = 0; i < m_ArrayLArAffectedRegionInfo_global.size(); ++i) {
+  for (unsigned int i = 0; i < ArrayLArAffectedRegionInfo_global.size(); ++i) {
     
-    if (fabs(m_ArrayLArAffectedRegionInfo_global[i].get_eta_min()-eta_min)<epsilon &&
-	fabs(m_ArrayLArAffectedRegionInfo_global[i].get_eta_max()-eta_max)<epsilon &&
-	fabs(m_ArrayLArAffectedRegionInfo_global[i].get_phi_min()-phi_min)<epsilon &&
-	fabs(m_ArrayLArAffectedRegionInfo_global[i].get_phi_max()-phi_max)<epsilon &&
-	m_ArrayLArAffectedRegionInfo_global[i].get_layer_min()==layer_min &&
-	m_ArrayLArAffectedRegionInfo_global[i].get_layer_max()==layer_max &&
-	m_ArrayLArAffectedRegionInfo_global[i].get_problem()==problem &&
-	fabs(m_ArrayLArAffectedRegionInfo_global[i].get_rate()-rate)<epsilon) {
+    if (fabs(ArrayLArAffectedRegionInfo_global[i].get_eta_min()-eta_min)<epsilon &&
+	fabs(ArrayLArAffectedRegionInfo_global[i].get_eta_max()-eta_max)<epsilon &&
+	fabs(ArrayLArAffectedRegionInfo_global[i].get_phi_min()-phi_min)<epsilon &&
+	fabs(ArrayLArAffectedRegionInfo_global[i].get_phi_max()-phi_max)<epsilon &&
+	ArrayLArAffectedRegionInfo_global[i].get_layer_min()==layer_min &&
+	ArrayLArAffectedRegionInfo_global[i].get_layer_max()==layer_max &&
+	ArrayLArAffectedRegionInfo_global[i].get_problem()==problem &&
+	fabs(ArrayLArAffectedRegionInfo_global[i].get_rate()-rate)<epsilon) {
       occurences++;
       //      std::cout << "found the asked AffectedRegion in the global list of AffectedRegion" << std::endl;
     }
@@ -1105,21 +1100,21 @@ std::vector<int> LArAffectedRegionAlg::returnProblem(const float eta, const floa
   return list_problem;
 }
 //=========================================================================================
-void LArAffectedRegionAlg::debuggingSearchDoublons(std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo) { //debugging method to check if there are doublons in the current run : for example because of lack of method for some detectors parts
+void LArAffectedRegionAlg::debuggingSearchDoublons(const std::vector<CaloAffectedRegionInfo>& ArrayLArAffectedRegionInfo) { //debugging method to check if there are doublons in the current run : for example because of lack of method for some detectors parts
   
-  for (unsigned int i=0;i<m_ArrayLArAffectedRegionInfo.size();++i) {
+  for (unsigned int i=0;i<ArrayLArAffectedRegionInfo.size();++i) {
     int occurences=0;
     
-    for (unsigned int j=i+1;j<m_ArrayLArAffectedRegionInfo.size();++j) {
+    for (unsigned int j=i+1;j<ArrayLArAffectedRegionInfo.size();++j) {
       
-      if (m_ArrayLArAffectedRegionInfo[i].get_eta_min()  ==m_ArrayLArAffectedRegionInfo[j].get_eta_min() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_eta_max()  ==m_ArrayLArAffectedRegionInfo[j].get_eta_max() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_phi_min()  ==m_ArrayLArAffectedRegionInfo[j].get_phi_min() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_phi_max()  ==m_ArrayLArAffectedRegionInfo[j].get_phi_max() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_layer_min()==m_ArrayLArAffectedRegionInfo[j].get_layer_min() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_layer_max()==m_ArrayLArAffectedRegionInfo[j].get_layer_max() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_problem()  ==m_ArrayLArAffectedRegionInfo[j].get_problem() &&
-	  m_ArrayLArAffectedRegionInfo[i].get_rate()     ==m_ArrayLArAffectedRegionInfo[j].get_rate()) {
+      if (ArrayLArAffectedRegionInfo[i].get_eta_min()  ==ArrayLArAffectedRegionInfo[j].get_eta_min() &&
+	  ArrayLArAffectedRegionInfo[i].get_eta_max()  ==ArrayLArAffectedRegionInfo[j].get_eta_max() &&
+	  ArrayLArAffectedRegionInfo[i].get_phi_min()  ==ArrayLArAffectedRegionInfo[j].get_phi_min() &&
+	  ArrayLArAffectedRegionInfo[i].get_phi_max()  ==ArrayLArAffectedRegionInfo[j].get_phi_max() &&
+	  ArrayLArAffectedRegionInfo[i].get_layer_min()==ArrayLArAffectedRegionInfo[j].get_layer_min() &&
+	  ArrayLArAffectedRegionInfo[i].get_layer_max()==ArrayLArAffectedRegionInfo[j].get_layer_max() &&
+	  ArrayLArAffectedRegionInfo[i].get_problem()  ==ArrayLArAffectedRegionInfo[j].get_problem() &&
+	  ArrayLArAffectedRegionInfo[i].get_rate()     ==ArrayLArAffectedRegionInfo[j].get_rate()) {
 	//std::cout << "found a doublon for " << "index=" << i << ", with index=" << j << std::endl;
 	occurences++;
       }
@@ -1127,7 +1122,7 @@ void LArAffectedRegionAlg::debuggingSearchDoublons(std::vector<CaloAffectedRegio
     /*
     if (occurences) {
       std::cout << "found " << occurences << ", the asked AffectedRegion in given list of AffectedRegion : see next line" << std::endl;
-      m_ArrayLArAffectedRegionInfo[i].PrintInfo();      
+      ArrayLArAffectedRegionInfo[i].PrintInfo();      
      }
      */
   }
@@ -1137,13 +1132,12 @@ void LArAffectedRegionAlg::debuggingSearchDoublons(std::vector<CaloAffectedRegio
 void LArAffectedRegionAlg::extendPhiRegion(float phi, float & phi_min, float & phi_max) {
 
   static float epsilon=1e-4;
-  static CaloPhiRange _range;
   
-  phi = _range.fix(phi);
+  phi = CaloPhiRange::fix(phi);
 
   if (phi_min>10. || phi_max<-10.) {
-     phi_min = _range.fix(phi-epsilon);
-     phi_max = _range.fix(phi+epsilon);
+     phi_min = CaloPhiRange::fix(phi-epsilon);
+     phi_max = CaloPhiRange::fix(phi+epsilon);
      return;
   }
 
@@ -1156,8 +1150,8 @@ void LArAffectedRegionAlg::extendPhiRegion(float phi, float & phi_min, float & p
   }
   if (isInRegion) return;
 
-  float dphi1 = _range.diff(phi,phi_min); 
-  float dphi2 = _range.diff(phi,phi_max); 
+  float dphi1 = CaloPhiRange::diff(phi,phi_min); 
+  float dphi2 = CaloPhiRange::diff(phi,phi_max); 
   if (fabs(dphi1)<fabs(dphi2) )
      phi_min=phi;
   else
