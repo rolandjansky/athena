@@ -649,6 +649,12 @@ void *RootType::Construct(void *place) const {
    return (place && fClass.GetClass())? fClass.GetClass()->New(place) : 0;
 }
 
+//____________________________________________________________________________
+void TScopeAdapter::Destruct(void *place) const
+{
+   if (place && fClass.GetClass()) fClass.GetClass()->Destructor(place);
+}
+
 
 //____________________________________________________________________________
 const type_info& TScopeAdapter::TypeInfo() const
@@ -734,7 +740,14 @@ size_t TScopeAdapter::BaseSize() const
 //____________________________________________________________________________
 size_t TScopeAdapter::SizeOf() const
 {
-   return fClass.GetClass()? fClass.GetClass()->Size() : 0;
+   if (fClass.GetClass()) {
+      return fClass.GetClass()->Size();
+   } else {
+      const TDataType* fundType = gROOT->GetType(fName.c_str());
+      if ( fundType )
+         return fundType->Size();
+   }
+   return 0;
 }
 
 //____________________________________________________________________________
