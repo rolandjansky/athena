@@ -30,9 +30,13 @@
 #include "TH2I.h"
 #include "TH2I.h"
 #include "TH2F.h"
-#include "TH1D.h"
-#include "TProfile2D.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/SCT_TB03_RawData.h" // ?
@@ -422,11 +426,11 @@ SCTHitsNoiseMonTool::bookHistograms() {
     if (m_booltxscan) {
       if (newEventsBlockFlag()) {
         // book histograms for TX scans
-        m_hitsvstrigger = new TH1F("hits_vs_trigger", "Hits vs Trigger Type", 32, -0.5, 31.5);
+        m_hitsvstrigger = TH1F_LW::create("hits_vs_trigger", "Hits vs Trigger Type", 32, -0.5, 31.5);
         if (clu.regHist(m_hitsvstrigger).isFailure()) {
           msg(MSG::WARNING) << "Cannot book Histogram:" << stem + "hitsvstrigger" << endmsg;
         }
-        m_hitsvsL1ID = new TH1F("hits_vs_L1ID", "Hits vs L1ID", 1000, 0., 10000.);
+        m_hitsvsL1ID = TH1F_LW::create("hits_vs_L1ID", "Hits vs L1ID", 1000, 0., 10000.);
         if (clu.regHist(m_hitsvsL1ID).isFailure()) {
           msg(MSG::WARNING) << "Cannot book Histogram:" << stem + "hitsvsL1ID" << endmsg;
         }
@@ -512,11 +516,11 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent() {
   }
   if (m_booltxscan) {
     // book histograms for TX scans
-    m_hitsvstrigger = new TH1F("hits_vs_trigger", "Hits vs Trigger Type", 32, -0.5, 31.5);
+    m_hitsvstrigger = TH1F_LW::create("hits_vs_trigger", "Hits vs Trigger Type", 32, -0.5, 31.5);
     if (clu.regHist(m_hitsvstrigger).isFailure()) {
       msg(MSG::WARNING) << "Cannot book Histogram:" << stem + "hitsvstrigger" << endmsg;
     }
-    m_hitsvsL1ID = new TH1F("hits_vs_L1ID", "Hits vs L1ID", 1000, 0., 10000.);
+    m_hitsvsL1ID = TH1F_LW::create("hits_vs_L1ID", "Hits vs L1ID", 1000, 0., 10000.);
     if (clu.regHist(m_hitsvsL1ID).isFailure()) {
       msg(MSG::WARNING) << "Cannot book Histogram:" << stem + "hitsvsL1ID" << endmsg;
     }
@@ -544,7 +548,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
     return StatusCode::RECOVERABLE;
   }
   int tmp_lb = pEvent->event_ID()->lumi_block();
-  if ((tmp_lb > m_current_lb) and (m_current_lb<=NBINS_LBs)) {
+  if ((tmp_lb > m_current_lb) and (m_current_lb<=SCT_Monitoring::NBINS_LBs)) {
     m_noisyM100[m_current_lb] = 0;
     m_noisyM1000[m_current_lb] = 0;
     m_noisyM10000[m_current_lb] = 0;
@@ -774,7 +778,7 @@ SCTHitsNoiseMonTool::procHistograms() {
 // DD 08/10/2010
 // Inherited method from base class that gets called by monitoring finalize after procHists - not used
 // at this time. Previously was and unnecessary middle function between procHistograms and
-// checkNoiseMaps which caused checkNoiseMaps to be called twice double-filling NO histograms
+// checkNoiseMaps which caused checkNoiseMaps to be called twice float-filling NO histograms
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/) {
@@ -850,7 +854,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   std::vector<H2_t> *hitHistogramVectorsRecent[3] = {
     &m_phitsHistoVectorRecentECm, &m_phitsHistoVectorRecent, &m_phitsHistoVectorRecentECp
   };
-  TH1F *hitPerLumiBlockHists[3] = {
+  H1_t hitPerLumiBlockHists[3] = {
     m_numHitsPerLumiBlockECm, m_numBarrelHitsPerLumiBlock, m_numHitsPerLumiBlockECp
   };
   std::vector<int> *hitsInLayer[3] = {
@@ -1044,7 +1048,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
       int diff = numberOfHitsFromAllRDOs - numberOfHitsFromSPs;
       int num(diff);
       int den(N_STRIPS - numberOfHitsFromSPs);
-      double sumocc(0.);
+      float sumocc(0.);
       if (diff < 0) {
         num = 0;
         m_skipEvents++;
@@ -1053,7 +1057,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         }
       }
       if (den > 0) {
-        sumocc = num / static_cast<double> (den);
+        sumocc = num / static_cast<float> (den);
         m_occSumUnbiased[theWaferIdentifierOfTheRDOCollection] += sumocc;
         if (m_environment == AthenaMonManager::online) {
           m_occSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumocc;
@@ -1098,8 +1102,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
       }
 
       { // hit occupancy 09.09.2016
-        double sumhitocc(0.);
-        sumhitocc = static_cast<double> (numberOfHitsFromAllRDOs) / static_cast<double> (N_STRIPS);
+        float sumhitocc(0.);
+        sumhitocc = static_cast<float> (numberOfHitsFromAllRDOs) / static_cast<float> (N_STRIPS);
         m_hitoccSumUnbiased[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
         if (m_environment == AthenaMonManager::online) {
           m_hitoccSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
@@ -1430,7 +1434,7 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
     VecH2_t *hitsArrayRecent[] = {
       &m_phitsHistoVectorRecentECm, &m_phitsHistoVectorRecent, &m_phitsHistoVectorRecentECp
     };
-    VecH1D_t *nClustersArray[] = {
+    VecH1_t *nClustersArray[] = {
       &m_ncluHistoVectorECm, &m_ncluHistoVector, &m_ncluHistoVectorECp
     };
     (hitsArray[systemIndex])->clear();
@@ -1451,7 +1455,7 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
       }
       histotitle = "SCT Hits for " + names[systemIndex] + ": " + layerSide.title();
       if (m_boolhitmaps) {
-        h1DFactory(streamhits, histotitle, hitHists, *(nClustersArray[systemIndex]), FIRST_HIT_BIN, LAST_HIT_BIN,
+        h1Factory(streamhits, histotitle, hitHists, *(nClustersArray[systemIndex]), FIRST_HIT_BIN, LAST_HIT_BIN,
                    N_HIT_BINS);
       }
     }
@@ -1491,7 +1495,7 @@ SCTHitsNoiseMonTool::bookClusterSize() {
   if (newRunFlag()) {
     MonGroup BarrelCluSize(this, "SCT/GENERAL/hits", run, ATTRIB_UNMANAGED);
     // book Cluster width histogram for all SCT Detector
-    m_clusize = h1DFactory("clu_size", "SCT Cluster size", BarrelCluSize, 0., 200., 200);
+    m_clusize = h1Factory("clu_size", "SCT Cluster size", BarrelCluSize, 0., 200., 200);
     m_clusize->GetXaxis()->SetTitle("Cluster Size");
     m_clusize->GetYaxis()->SetTitle("Num of Events");
     for (int i = 0; i < N_BARRELSx2; i++) {
@@ -1506,7 +1510,7 @@ SCTHitsNoiseMonTool::bookClusterSize() {
     }
 
     if (m_environment == AthenaMonManager::online) {
-      m_clusizeRecent = h1DFactory("clu_size_recent", "SCT Cluster size from recent events", BarrelCluSize, 0., 200.,
+      m_clusizeRecent = h1Factory("clu_size_recent", "SCT Cluster size from recent events", BarrelCluSize, 0., 200.,
                                    200);
       m_clusizeRecent->GetXaxis()->SetTitle("Cluster Size");
       m_clusizeRecent->GetYaxis()->SetTitle("Num of Events");
@@ -1528,10 +1532,10 @@ SCTHitsNoiseMonTool::bookClusterSize() {
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
   const SCT_Monitoring::Bec bec(index2Bec(systemIndex));
-  VecH1D_t *clusterSizeArray[] = {
+  VecH1_t *clusterSizeArray[] = {
     &m_clusizeHistoVectorECm, &m_clusizeHistoVector, &m_clusizeHistoVectorECp
   };
-  VecH1D_t *clusterSizeArrayRecent[] = {
+  VecH1_t *clusterSizeArrayRecent[] = {
     &m_clusizeHistoVectorRecentECm, &m_clusizeHistoVectorRecent, &m_clusizeHistoVectorRecentECp
   };
 
@@ -1549,8 +1553,8 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
     msg(MSG::FATAL) << "Invalid subsystem index, should be 0-2, was " << systemIndex << endmsg;
     return StatusCode::FAILURE;
   }
-  VecH1D_t &clusterSizeVector = *(clusterSizeArray[systemIndex]);
-  VecH1D_t &clusterSizeVectorRecent = *(clusterSizeArrayRecent[systemIndex]);
+  VecH1_t &clusterSizeVector = *(clusterSizeArray[systemIndex]);
+  VecH1_t &clusterSizeVectorRecent = *(clusterSizeArrayRecent[systemIndex]);
   if (newRunFlag()) {
     clusterSizeVector.clear();
     clusterSizeVectorRecent.clear();
@@ -1559,7 +1563,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
       LayerSideFormatter layerSide(i, systemIndex);
       const string streamclusize = "clusize" + abbreviations[systemIndex] + "_" + layerSide.name();
       std::string histotitle = "SCT " + names[systemIndex] + " Cluster size: " + layerSide.title();
-      h1DFactory(streamclusize, histotitle, clusterSize, clusterSizeVector, 0., 200., 200);
+      h1Factory(streamclusize, histotitle, clusterSize, clusterSizeVector, 0., 200., 200);
       // h1Factory(streamclusize,histotitle);
       // clusterSizeVector[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
       // clusterSizeVector[systemIndex]->GetYaxis()->SetTitle("Num of Events");
@@ -1567,7 +1571,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
         const string streamclusizerecent = "clusize_recent" + abbreviations[systemIndex] + "_" + layerSide.name();
         std::string histotitlerecent = "SCT " + names[systemIndex] + " Cluster size from recent events: " +
 	  layerSide.title();
-        h1DFactory(streamclusizerecent, histotitlerecent, clusterSize, clusterSizeVectorRecent, 0., 200., 200);
+        h1Factory(streamclusizerecent, histotitlerecent, clusterSize, clusterSizeVectorRecent, 0., 200., 200);
         // clusterSizeVectorRecent[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
         // clusterSizeVectorRecent[systemIndex]->GetYaxis()->SetTitle("Num of Events");
       }
@@ -1626,45 +1630,45 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       }
     }
     if (systemIndex == 0) { // ECm=ECC
-      m_NallHitsECm_vsLB = new TProfile("h_NallHitsECm_vsLB", "Average num of all Hits in ECm vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_NallHitsECm_vsLB = TProfile_LW::create("h_NallHitsECm_vsLB", "Average num of all Hits in ECm vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsECm_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsECm_vsLB" << endmsg;
       }
-      m_NSPHitsECm_vsLB = new TProfile("h_NSPHitsECm_vsLB", "Average num of SP Hits in ECm vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_NSPHitsECm_vsLB = TProfile_LW::create("h_NSPHitsECm_vsLB", "Average num of SP Hits in ECm vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsECm_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsECm_vsLB" << endmsg;
       }
       m_ECmNO_vsLB =
-        new TProfile("ECCNO_vsLB", "NO vs LB for the EndCap C (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+        TProfile_LW::create("ECCNO_vsLB", "NO vs LB for the EndCap C (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECmNO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECmNO_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_ECmNO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book ECmNO_vsLB" << endmsg;
       }
-      m_NallHitsTriggerECm_vsLB = new TProfile("h_NallHitsTriggerECm_vsLB",
-                                               "Average num of all Hits in ECm with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_NallHitsTriggerECm_vsLB = TProfile_LW::create("h_NallHitsTriggerECm_vsLB",
+                                               "Average num of all Hits in ECm with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsTriggerECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsTriggerECm_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsTriggerECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsTriggerECm_vsLB" << endmsg;
       }
-      m_NSPHitsTriggerECm_vsLB = new TProfile("h_NSPHitsTriggerECm_vsLB",
-                                              "Average num of SP Hits in ECm with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_NSPHitsTriggerECm_vsLB = TProfile_LW::create("h_NSPHitsTriggerECm_vsLB",
+                                              "Average num of SP Hits in ECm with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsTriggerECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsTriggerECm_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsTriggerECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsTriggerECm_vsLB" << endmsg;
       }
-      m_ECmNOTrigger_vsLB = new TProfile("ECCNOTrigger_vsLB", "NO with trigger vs LB for the EndCap C (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_ECmNOTrigger_vsLB = TProfile_LW::create("ECCNOTrigger_vsLB", "NO with trigger vs LB for the EndCap C (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECmNOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECmNOTrigger_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_ECmNOTrigger_vsLB).isFailure()) {
@@ -1672,44 +1676,44 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       }
     }
     if (systemIndex == 1) { // BAR
-      m_NallHitsBAR_vsLB = new TProfile("h_NallHitsBAR_vsLB", "Average num of all Hits in Barrel vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_NallHitsBAR_vsLB = TProfile_LW::create("h_NallHitsBAR_vsLB", "Average num of all Hits in Barrel vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsBAR_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsBAR_vsLB" << endmsg;
       }
-      m_NSPHitsBAR_vsLB = new TProfile("h_NSPHitsBAR_vsLB", "Average num of SP Hits in Barrel vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_NSPHitsBAR_vsLB = TProfile_LW::create("h_NSPHitsBAR_vsLB", "Average num of SP Hits in Barrel vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsBAR_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsBAR_vsLB" << endmsg;
       }
-      m_BARNO_vsLB = new TProfile("BARNO_vsLB", "NO vs LB for the Barrel (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_BARNO_vsLB = TProfile_LW::create("BARNO_vsLB", "NO vs LB for the Barrel (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_BARNO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_BARNO_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_BARNO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book BARNO_vsLB" << endmsg;
       }
-      m_NallHitsTriggerBAR_vsLB = new TProfile("h_NallHitsTriggerBAR_vsLB",
-                                               "Average num of all Hits in Barrel with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_NallHitsTriggerBAR_vsLB = TProfile_LW::create("h_NallHitsTriggerBAR_vsLB",
+                                               "Average num of all Hits in Barrel with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsTriggerBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsTriggerBAR_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsTriggerBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsTriggerBAR_vsLB" << endmsg;
       }
-      m_NSPHitsTriggerBAR_vsLB = new TProfile("h_NSPHitsTriggerBAR_vsLB",
-                                              "Average num of SP Hits in Barrel with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_NSPHitsTriggerBAR_vsLB = TProfile_LW::create("h_NSPHitsTriggerBAR_vsLB",
+                                              "Average num of SP Hits in Barrel with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsTriggerBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsTriggerBAR_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsTriggerBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsTriggerBAR_vsLB" << endmsg;
       }
-      m_BARNOTrigger_vsLB = new TProfile("BARNOTrigger_vsLB", "NO with trigger vs LB for the Barrel (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_BARNOTrigger_vsLB = TProfile_LW::create("BARNOTrigger_vsLB", "NO with trigger vs LB for the Barrel (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_BARNOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_BARNOTrigger_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_BARNOTrigger_vsLB).isFailure()) {
@@ -1717,45 +1721,45 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       }
     }
     if (systemIndex == 2) { // ECp=ECA
-      m_NallHitsECp_vsLB = new TProfile("h_NallHitsECp_vsLB", "Average num of all Hits in ECp vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_NallHitsECp_vsLB = TProfile_LW::create("h_NallHitsECp_vsLB", "Average num of all Hits in ECp vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsECp_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsECp_vsLB" << endmsg;
       }
-      m_NSPHitsECp_vsLB = new TProfile("h_NSPHitsECp_vsLB", "Average num of SP Hits in ECp vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_NSPHitsECp_vsLB = TProfile_LW::create("h_NSPHitsECp_vsLB", "Average num of SP Hits in ECp vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsECp_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsECp_vsLB" << endmsg;
       }
       m_ECpNO_vsLB =
-        new TProfile("ECANO_vsLB", "NO vs LB for the EndCap A (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+        TProfile_LW::create("ECANO_vsLB", "NO vs LB for the EndCap A (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECpNO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECpNO_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_ECpNO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book ECpNO_vsLB" << endmsg;
       }
-      m_NallHitsTriggerECp_vsLB = new TProfile("h_NallHitsTriggerECp_vsLB",
-                                               "Average num of all Hits in ECp with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_NallHitsTriggerECp_vsLB = TProfile_LW::create("h_NallHitsTriggerECp_vsLB",
+                                               "Average num of all Hits in ECp with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_NallHitsTriggerECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NallHitsTriggerECp_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (noiseOccMaps.regHist(m_NallHitsTriggerECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NallHitsTriggerECp_vsLB" << endmsg;
       }
-      m_NSPHitsTriggerECp_vsLB = new TProfile("h_NSPHitsTriggerECp_vsLB",
-                                              "Average num of SP Hits in ECp with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_NSPHitsTriggerECp_vsLB = TProfile_LW::create("h_NSPHitsTriggerECp_vsLB",
+                                              "Average num of SP Hits in ECp with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_NSPHitsTriggerECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_NSPHitsTriggerECp_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (noiseOccMaps.regHist(m_NSPHitsTriggerECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book NSPHitsTriggerECp_vsLB" << endmsg;
       }
-      m_ECpNOTrigger_vsLB = new TProfile("ECANOTrigger_vsLB", "NO with trigger vs LB for the EndCap A (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_ECpNOTrigger_vsLB = TProfile_LW::create("ECANOTrigger_vsLB", "NO with trigger vs LB for the EndCap A (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECpNOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECpNOTrigger_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       if (noiseOccMaps.regHist(m_ECpNOTrigger_vsLB).isFailure()) {
@@ -1820,44 +1824,44 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
     }
 
     if (systemIndex == 0) { // ECm=ECC
-      m_HallHitsECm_vsLB = new TProfile("h_HallHitsECm_vsLB", "Average num of all Hits in ECm vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_HallHitsECm_vsLB = TProfile_LW::create("h_HallHitsECm_vsLB", "Average num of all Hits in ECm vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsECm_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsECm_vsLB" << endmsg;
       }
-      m_HSPHitsECm_vsLB = new TProfile("h_HSPHitsECm_vsLB", "Average num of SP Hits in ECm vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_HSPHitsECm_vsLB = TProfile_LW::create("h_HSPHitsECm_vsLB", "Average num of SP Hits in ECm vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsECm_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsECm_vsLB" << endmsg;
       }
-      m_ECmHO_vsLB = new TProfile("ECCHO_vsLB", "HO vs LB for the EndCap C", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_ECmHO_vsLB = TProfile_LW::create("ECCHO_vsLB", "HO vs LB for the EndCap C", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECmHO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECmHO_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_ECmHO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book ECmHO_vsLB" << endmsg;
       }
-      m_HallHitsTriggerECm_vsLB = new TProfile("h_HallHitsTriggerECm_vsLB",
-                                               "Average num of all Hits in ECm with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_HallHitsTriggerECm_vsLB = TProfile_LW::create("h_HallHitsTriggerECm_vsLB",
+                                               "Average num of all Hits in ECm with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsTriggerECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsTriggerECm_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsTriggerECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsTriggerECm_vsLB" << endmsg;
       }
-      m_HSPHitsTriggerECm_vsLB = new TProfile("h_HSPHitsTriggerECm_vsLB",
-                                              "Average num of SP Hits in ECm with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_HSPHitsTriggerECm_vsLB = TProfile_LW::create("h_HSPHitsTriggerECm_vsLB",
+                                              "Average num of SP Hits in ECm with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsTriggerECm_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsTriggerECm_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsTriggerECm_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsTriggerECm_vsLB" << endmsg;
       }
-      m_ECmHOTrigger_vsLB = new TProfile("ECCHOTrigger_vsLB", "HO with trigger vs LB for the EndCap C (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_ECmHOTrigger_vsLB = TProfile_LW::create("ECCHOTrigger_vsLB", "HO with trigger vs LB for the EndCap C (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECmHOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECmHOTrigger_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_ECmHOTrigger_vsLB).isFailure()) {
@@ -1865,44 +1869,44 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       }
     }
     if (systemIndex == 1) { // BAR
-      m_HallHitsBAR_vsLB = new TProfile("h_HallHitsBAR_vsLB", "Average num of all Hits in Barrel vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_HallHitsBAR_vsLB = TProfile_LW::create("h_HallHitsBAR_vsLB", "Average num of all Hits in Barrel vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsBAR_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsBAR_vsLB" << endmsg;
       }
-      m_HSPHitsBAR_vsLB = new TProfile("h_HSPHitsBAR_vsLB", "Average num of SP Hits in Barrel vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_HSPHitsBAR_vsLB = TProfile_LW::create("h_HSPHitsBAR_vsLB", "Average num of SP Hits in Barrel vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsBAR_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsBAR_vsLB" << endmsg;
       }
-      m_BARHO_vsLB = new TProfile("BARHO_vsLB", "HO vs LB for the Barrel (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_BARHO_vsLB = TProfile_LW::create("BARHO_vsLB", "HO vs LB for the Barrel (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_BARHO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_BARHO_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_BARHO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book BARHO_vsLB" << endmsg;
       }
-      m_HallHitsTriggerBAR_vsLB = new TProfile("h_HallHitsTriggerBAR_vsLB",
-                                               "Average num of all Hits in Barrel with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_HallHitsTriggerBAR_vsLB = TProfile_LW::create("h_HallHitsTriggerBAR_vsLB",
+                                               "Average num of all Hits in Barrel with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsTriggerBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsTriggerBAR_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsTriggerBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsTriggerBAR_vsLB" << endmsg;
       }
-      m_HSPHitsTriggerBAR_vsLB = new TProfile("h_HSPHitsTriggerBAR_vsLB",
-                                              "Average num of SP Hits in Barrel with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_HSPHitsTriggerBAR_vsLB = TProfile_LW::create("h_HSPHitsTriggerBAR_vsLB",
+                                              "Average num of SP Hits in Barrel with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsTriggerBAR_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsTriggerBAR_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsTriggerBAR_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsTriggerBAR_vsLB" << endmsg;
       }
-      m_BARHOTrigger_vsLB = new TProfile("BARHOTrigger_vsLB", "HO with trigger vs LB for the Barrel (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_BARHOTrigger_vsLB = TProfile_LW::create("BARHOTrigger_vsLB", "HO with trigger vs LB for the Barrel (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_BARHOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_BARHOTrigger_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_BARHOTrigger_vsLB).isFailure()) {
@@ -1910,45 +1914,45 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       }
     }
     if (systemIndex == 2) { // ECp=ECA
-      m_HallHitsECp_vsLB = new TProfile("h_HallHitsECp_vsLB", "Average num of all Hits in ECp vs LB", NBINS_LBs, 0.5,
-                                        NBINS_LBs + 0.5);
+      m_HallHitsECp_vsLB = TProfile_LW::create("h_HallHitsECp_vsLB", "Average num of all Hits in ECp vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                        SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsECp_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsECp_vsLB" << endmsg;
       }
-      m_HSPHitsECp_vsLB = new TProfile("h_HSPHitsECp_vsLB", "Average num of SP Hits in ECp vs LB", NBINS_LBs, 0.5,
-                                       NBINS_LBs + 0.5);
+      m_HSPHitsECp_vsLB = TProfile_LW::create("h_HSPHitsECp_vsLB", "Average num of SP Hits in ECp vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                       SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsECp_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsECp_vsLB" << endmsg;
       }
       m_ECpHO_vsLB =
-        new TProfile("ECAHO_vsLB", "HO vs LB for the EndCap A (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+        TProfile_LW::create("ECAHO_vsLB", "HO vs LB for the EndCap A (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECpHO_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECpHO_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_ECpHO_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book ECpHO_vsLB" << endmsg;
       }
-      m_HallHitsTriggerECp_vsLB = new TProfile("h_HallHitsTriggerECp_vsLB",
-                                               "Average num of all Hits in ECp with trigger vs LB", NBINS_LBs, 0.5,
-                                               NBINS_LBs + 0.5);
+      m_HallHitsTriggerECp_vsLB = TProfile_LW::create("h_HallHitsTriggerECp_vsLB",
+                                               "Average num of all Hits in ECp with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                               SCT_Monitoring::NBINS_LBs + 0.5);
       m_HallHitsTriggerECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HallHitsTriggerECp_vsLB->GetYaxis()->SetTitle("Average number of all Hits");
       if (hitOccMaps.regHist(m_HallHitsTriggerECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HallHitsTriggerECp_vsLB" << endmsg;
       }
-      m_HSPHitsTriggerECp_vsLB = new TProfile("h_HSPHitsTriggerECp_vsLB",
-                                              "Average num of SP Hits in ECp with trigger vs LB", NBINS_LBs, 0.5,
-                                              NBINS_LBs + 0.5);
+      m_HSPHitsTriggerECp_vsLB = TProfile_LW::create("h_HSPHitsTriggerECp_vsLB",
+                                              "Average num of SP Hits in ECp with trigger vs LB", SCT_Monitoring::NBINS_LBs, 0.5,
+                                              SCT_Monitoring::NBINS_LBs + 0.5);
       m_HSPHitsTriggerECp_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_HSPHitsTriggerECp_vsLB->GetYaxis()->SetTitle("Average number of SP Hits");
       if (hitOccMaps.regHist(m_HSPHitsTriggerECp_vsLB).isFailure()) {
         msg(MSG::WARNING) << "Couldn't book HSPHitsTriggerECp_vsLB" << endmsg;
       }
-      m_ECpHOTrigger_vsLB = new TProfile("ECAHOTrigger_vsLB", "HO with trigger vs LB for the EndCap A (SP noise)",
-                                         NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_ECpHOTrigger_vsLB = TProfile_LW::create("ECAHOTrigger_vsLB", "HO with trigger vs LB for the EndCap A (SP noise)",
+                                         SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_ECpHOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
       m_ECpHOTrigger_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
       if (hitOccMaps.regHist(m_ECpHOTrigger_vsLB).isFailure()) {
@@ -1980,10 +1984,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_occSumUnbiased.size() && m_numberOfEvents) {
-        for (std::map<Identifier, double>::iterator it = m_occSumUnbiased.begin(); it != m_occSumUnbiased.end(); it++) {
+        for (std::map<Identifier, float>::iterator it = m_occSumUnbiased.begin(); it != m_occSumUnbiased.end(); it++) {
           Identifier wafer_id = it->first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          double occ = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
+          float occ = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2006,11 +2010,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       }
       if (m_environment == AthenaMonManager::online) {
         if (m_occSumUnbiasedRecent.size() && m_numberOfEventsRecent) {
-          for (std::map<Identifier, double>::iterator it = m_occSumUnbiasedRecent.begin();
+          for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedRecent.begin();
                it != m_occSumUnbiasedRecent.end(); it++) {
             Identifier wafer_id = it->first;
             int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-            double occ = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
+            float occ = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
             int eta = m_pSCTHelper->eta_module(wafer_id);
             int phi = m_pSCTHelper->phi_module(wafer_id);
             int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2028,11 +2032,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_occSumUnbiasedTrigger.size() && m_numberOfEventsTrigger) {
-        for (std::map<Identifier, double>::iterator it = m_occSumUnbiasedTrigger.begin();
+        for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedTrigger.begin();
              it != m_occSumUnbiasedTrigger.end(); it++) {
           Identifier wafer_id = it->first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          double occ = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
+          float occ = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2056,11 +2060,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
 
       // Add 09.09.2016
       if (m_hitoccSumUnbiased.size() && m_numberOfEvents) {
-        for (std::map<Identifier, double>::iterator it = m_hitoccSumUnbiased.begin(); it != m_hitoccSumUnbiased.end();
+        for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiased.begin(); it != m_hitoccSumUnbiased.end();
              it++) {
           Identifier wafer_id = it->first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          double hitocc = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
+          float hitocc = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2083,11 +2087,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       }
       if (m_environment == AthenaMonManager::online) {
         if (m_hitoccSumUnbiasedRecent.size() && m_numberOfEventsRecent) {
-          for (std::map<Identifier, double>::iterator it = m_hitoccSumUnbiasedRecent.begin();
+          for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedRecent.begin();
                it != m_hitoccSumUnbiasedRecent.end(); it++) {
             Identifier wafer_id = it->first;
             int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-            double hitocc = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
+            float hitocc = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
             int eta = m_pSCTHelper->eta_module(wafer_id);
             int phi = m_pSCTHelper->phi_module(wafer_id);
             int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2105,11 +2109,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_hitoccSumUnbiasedTrigger.size() && m_numberOfEventsTrigger) {
-        for (std::map<Identifier, double>::iterator it = m_hitoccSumUnbiasedTrigger.begin();
+        for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedTrigger.begin();
              it != m_hitoccSumUnbiasedTrigger.end(); it++) {
           Identifier wafer_id = it->first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          double hitocc = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
+          float hitocc = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2131,7 +2135,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
 
-      if(m_current_lb<=NBINS_LBs) {
+      if(m_current_lb<=SCT_Monitoring::NBINS_LBs) {
 	m_noisyM100[m_current_lb] = 0;
 	m_noisyM1000[m_current_lb] = 0;
 	m_noisyM10000[m_current_lb] = 0;
@@ -2306,7 +2310,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       m_NoisyModulesWithHOTrigger1000_vsLB->Reset();
       m_NoisyModulesWithHOTrigger10000_vsLB->Reset();
       //
-      for (int bin = 1; bin <= NBINS_LBs; bin++) {
+      for (int bin = 1; bin <= SCT_Monitoring::NBINS_LBs; bin++) {
 	if (m_occBAR_lb[bin] != 0) {
 	  m_BARNO_vsLB->Fill(bin, m_occBAR_lb[bin]);
 	}
@@ -2351,7 +2355,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
 	}
       }
       // 09.09.2016
-      for (int bin = 1; bin <= NBINS_LBs; bin++) {
+      for (int bin = 1; bin <= SCT_Monitoring::NBINS_LBs; bin++) {
 	if (m_hitoccBAR_lb[bin] != 0) {
 	  m_BARHO_vsLB->Fill(bin, m_hitoccBAR_lb[bin]);
 	}
@@ -2541,11 +2545,11 @@ SCTHitsNoiseMonTool::resetNoiseMapHists() {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::resetNoiseMapsRecent() {
-  for (std::map<Identifier, double>::iterator it = m_occSumUnbiasedRecent.begin(); it != m_occSumUnbiasedRecent.end();
+  for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedRecent.begin(); it != m_occSumUnbiasedRecent.end();
        ++it) {
     it->second = 0.0;
   }
-  for (std::map<Identifier, double>::iterator it = m_hitoccSumUnbiasedRecent.begin();
+  for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedRecent.begin();
        it != m_hitoccSumUnbiasedRecent.end(); ++it) {
     it->second = 0.0;
   }// 09.09.2016
@@ -2570,13 +2574,13 @@ SCTHitsNoiseMonTool::resetHitMapHists() {
     if (resetVecH2(m_ptrackhitsHistoVectorRecentECm).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset ptrackhitsHistoVectorRecentECm!" << endmsg;
     }
-    if (resetVecH1D(m_tbinHistoVectorRecent).isFailure()) {
+    if (resetVecH1(m_tbinHistoVectorRecent).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_tbinHistoVectorRecent!" << endmsg;
     }
-    if (resetVecH1D(m_tbinHistoVectorRecentECp).isFailure()) {
+    if (resetVecH1(m_tbinHistoVectorRecentECp).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_tbinHistoVectorRecentECp!" << endmsg;
     }
-    if (resetVecH1D(m_tbinHistoVectorRecentECm).isFailure()) {
+    if (resetVecH1(m_tbinHistoVectorRecentECm).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_tbinHistoVectorRecentECm!" << endmsg;
     }
     if (resetVecH2(m_phitsHistoVectorRecent).isFailure()) {
@@ -2588,13 +2592,13 @@ SCTHitsNoiseMonTool::resetHitMapHists() {
     if (resetVecH2(m_phitsHistoVectorRecentECm).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_phitsHistoVectorRecentECm!" << endmsg;
     }
-    if (resetVecH1D(m_clusizeHistoVectorRecent).isFailure()) {
+    if (resetVecH1(m_clusizeHistoVectorRecent).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_clusizeHistoVectorRecent!" << endmsg;
     }
-    if (resetVecH1D(m_clusizeHistoVectorRecentECp).isFailure()) {
+    if (resetVecH1(m_clusizeHistoVectorRecentECp).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_clusizeHistoVectorRecentECp!" << endmsg;
     }
-    if (resetVecH1D(m_clusizeHistoVectorRecentECm).isFailure()) {
+    if (resetVecH1(m_clusizeHistoVectorRecentECm).isFailure()) {
       msg(MSG::WARNING) << "Failed to reset m_clusizeHistoVectorRecentECm!" << endmsg;
     }
     m_tbinHistoRecent->Reset();
@@ -2641,13 +2645,13 @@ SCTHitsNoiseMonTool::resetVecH2(VecH2_t hists) {
 }
 
 // ====================================================================================================
-//                                SCTHitsNoiseMonTool :: resetVecH1D
+//                                SCTHitsNoiseMonTool :: resetVecH1
 // DD 23/07/2011
-// Resets entries for all histograms in a vector of TH1Ds
+// Resets entries for all histograms in a vector of TH1s
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecH1D(VecH1D_t hists) {
+SCTHitsNoiseMonTool::resetVecH1(VecH1_t hists) {
   for (unsigned int i = 0; i < hists.size(); ++i) {
     if (!hists[i]) {
       continue;
@@ -2770,66 +2774,66 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
       msg(MSG::WARNING) << "Couldn't book NOTrigger" << endmsg;
     }
 
-    m_SCTNO_vsLB = new TProfile("NO_vsLB", "NO vs LB for all region (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+    m_SCTNO_vsLB = TProfile_LW::create("NO_vsLB", "NO vs LB for all region (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_SCTNO_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_SCTNO_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
     if (NoiseDistributions.regHist(m_SCTNO_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book SCTNO_vsLB" << endmsg;
     }
 
-    m_NoisyModulesTrigger100_vsLB = new TProfile("NoisyModulesTrigger100_vsLB",
-                                                 "NoisyModules100 with trigger vs LB for all region (SP noise)", NBINS_LBs,
-                                                 0.5, NBINS_LBs + 0.5);
+    m_NoisyModulesTrigger100_vsLB = TProfile_LW::create("NoisyModulesTrigger100_vsLB",
+                                                 "NoisyModules100 with trigger vs LB for all region (SP noise)", SCT_Monitoring::NBINS_LBs,
+                                                 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesTrigger100_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesTrigger100_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModulesTrigger100_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesTrigger100_vsLB" << endmsg;
     }
 
-    m_NoisyModulesTrigger1000_vsLB = new TProfile("NoisyModulesTrigger1000_vsLB",
+    m_NoisyModulesTrigger1000_vsLB = TProfile_LW::create("NoisyModulesTrigger1000_vsLB",
                                                   "NoisyModules1000 with trigger vs LB for all region (SP noise)",
-                                                  NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+                                                  SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesTrigger1000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesTrigger1000_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModulesTrigger1000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesTrigger1000_vsLB" << endmsg;
     }
 
-    m_NoisyModulesTrigger10000_vsLB = new TProfile("NoisyModulesTrigger10000_vsLB",
+    m_NoisyModulesTrigger10000_vsLB = TProfile_LW::create("NoisyModulesTrigger10000_vsLB",
                                                    "NoisyModules10000 with trigger vs LB for all region (SP noise)",
-                                                   NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+                                                   SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesTrigger10000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesTrigger10000_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModulesTrigger10000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesTrigger10000_vsLB" << endmsg;
     }
 
-    m_SCTNOTrigger_vsLB = new TProfile("NOTrigger_vsLB", "NO with trigger vs LB for all region (SP noise)", NBINS_LBs,
-                                       0.5, NBINS_LBs + 0.5);
+    m_SCTNOTrigger_vsLB = TProfile_LW::create("NOTrigger_vsLB", "NO with trigger vs LB for all region (SP noise)", SCT_Monitoring::NBINS_LBs,
+                                       0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_SCTNOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_SCTNOTrigger_vsLB->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
     if (NoiseDistributions.regHist(m_SCTNOTrigger_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book SCTNOTrigger_vsLB" << endmsg;
     }
 
-    m_NoisyModules100_vsLB = new TProfile("NoisyModules100_vsLB", "NoisyModules100 vs LB for all region (SP noise)",
-                                          NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+    m_NoisyModules100_vsLB = TProfile_LW::create("NoisyModules100_vsLB", "NoisyModules100 vs LB for all region (SP noise)",
+                                          SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModules100_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModules100_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModules100_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModules100_vsLB" << endmsg;
     }
 
-    m_NoisyModules1000_vsLB = new TProfile("NoisyModules1000_vsLB", "NoisyModules1000 vs LB for all region (SP noise)",
-                                           NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+    m_NoisyModules1000_vsLB = TProfile_LW::create("NoisyModules1000_vsLB", "NoisyModules1000 vs LB for all region (SP noise)",
+                                           SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModules1000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModules1000_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModules1000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModules1000_vsLB" << endmsg;
     }
 
-    m_NoisyModules10000_vsLB = new TProfile("NoisyModules10000_vsLB", "NoisyModules10000 vs LB for all region (SP noise)",
-                                            NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+    m_NoisyModules10000_vsLB = TProfile_LW::create("NoisyModules10000_vsLB", "NoisyModules10000 vs LB for all region (SP noise)",
+                                            SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModules10000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModules10000_vsLB->GetYaxis()->SetTitle("Noisy Modules");
     if (NoiseDistributions.regHist(m_NoisyModules10000_vsLB).isFailure()) {
@@ -2920,69 +2924,69 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
       msg(MSG::WARNING) << "Couldn't book HOTrigger" << endmsg;
     }
 
-    m_SCTHO_vsLB = new TProfile("HO_vsLB", "HO vs LB for all region (SP noise)", NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+    m_SCTHO_vsLB = TProfile_LW::create("HO_vsLB", "HO vs LB for all region (SP noise)", SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_SCTHO_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_SCTHO_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
     if (NoiseDistributions.regHist(m_SCTHO_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book SCTHO_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHOTrigger100_vsLB = new TProfile("NoisyModulesWithHOTrigger100_vsLB",
-                                                       "NoisyModules100 with HO with trigger vs LB for all region with threshold 100", NBINS_LBs, 0.5,
-                                                       NBINS_LBs + 0.5);
+    m_NoisyModulesWithHOTrigger100_vsLB = TProfile_LW::create("NoisyModulesWithHOTrigger100_vsLB",
+                                                       "NoisyModules100 with HO with trigger vs LB for all region with threshold 100", SCT_Monitoring::NBINS_LBs, 0.5,
+                                                       SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHOTrigger100_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHOTrigger100_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHOTrigger100_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesWithHOTrigger100_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHOTrigger1000_vsLB = new TProfile("NoisyModulesWithHOTrigger1000_vsLB",
-                                                        "NoisyModules1000 with HO with trigger vs LB for all region with threshold 1000", NBINS_LBs, 0.5,
-                                                        NBINS_LBs + 0.5);
+    m_NoisyModulesWithHOTrigger1000_vsLB = TProfile_LW::create("NoisyModulesWithHOTrigger1000_vsLB",
+                                                        "NoisyModules1000 with HO with trigger vs LB for all region with threshold 1000", SCT_Monitoring::NBINS_LBs, 0.5,
+                                                        SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHOTrigger1000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHOTrigger1000_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHOTrigger1000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesWithHOTrigger1000_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHOTrigger10000_vsLB = new TProfile("NoisyModulesWithHOTrigger10000_vsLB",
-                                                         "NoisyModules10000 with HO with trigger vs LB for all region with threshold 10000", NBINS_LBs, 0.5,
-                                                         NBINS_LBs + 0.5);
+    m_NoisyModulesWithHOTrigger10000_vsLB = TProfile_LW::create("NoisyModulesWithHOTrigger10000_vsLB",
+                                                         "NoisyModules10000 with HO with trigger vs LB for all region with threshold 10000", SCT_Monitoring::NBINS_LBs, 0.5,
+                                                         SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHOTrigger10000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHOTrigger10000_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHOTrigger10000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesWithHOTrigger10000_vsLB" << endmsg;
     }
 
-    m_SCTHOTrigger_vsLB = new TProfile("HOTrigger_vsLB", "HO with trigger vs LB for all region (SP noise)", NBINS_LBs,
-                                       0.5, NBINS_LBs + 0.5);
+    m_SCTHOTrigger_vsLB = TProfile_LW::create("HOTrigger_vsLB", "HO with trigger vs LB for all region (SP noise)", SCT_Monitoring::NBINS_LBs,
+                                       0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_SCTHOTrigger_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_SCTHOTrigger_vsLB->GetYaxis()->SetTitle("Hit Occupancy [10^{-5}]");
     if (NoiseDistributions.regHist(m_SCTHOTrigger_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book SCTHOTrigger_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHO100_vsLB = new TProfile("NoisyModulesWithHO100_vsLB",
-                                                "NoisyModulesWithHO vs LB for all region with threshold 100", NBINS_LBs,
-                                                0.5, NBINS_LBs + 0.5);
+    m_NoisyModulesWithHO100_vsLB = TProfile_LW::create("NoisyModulesWithHO100_vsLB",
+                                                "NoisyModulesWithHO vs LB for all region with threshold 100", SCT_Monitoring::NBINS_LBs,
+                                                0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHO100_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHO100_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHO100_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesWithHO100_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHO1000_vsLB = new TProfile("NoisyModulesWithHO1000_vsLB",
+    m_NoisyModulesWithHO1000_vsLB = TProfile_LW::create("NoisyModulesWithHO1000_vsLB",
                                                  "NoisyModulesWithHO vs LB for all region with threshold 1000",
-                                                 NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+                                                 SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHO1000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHO1000_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHO1000_vsLB).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book NoisyModulesWithHO1000_vsLB" << endmsg;
     }
 
-    m_NoisyModulesWithHO10000_vsLB = new TProfile("NoisyModulesWithHO10000_vsLB",
+    m_NoisyModulesWithHO10000_vsLB = TProfile_LW::create("NoisyModulesWithHO10000_vsLB",
                                                   "NoisyModulesWithHO vs LB for all region with threshold 10000",
-                                                  NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+                                                  SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
     m_NoisyModulesWithHO10000_vsLB->GetXaxis()->SetTitle("LumiBlock");
     m_NoisyModulesWithHO10000_vsLB->GetYaxis()->SetTitle("Noisy Modules with HO");
     if (NoiseDistributions.regHist(m_NoisyModulesWithHO10000_vsLB).isFailure()) {
@@ -3007,7 +3011,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     free(nminModule_buf);
     MonGroup BarrelSPHist(this, "SCT/GENERAL/hits", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     // Book a histogram
-    m_nSP = h1DFactory("sct_sp_vs_en", "Number of Spacepoints vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
+    m_nSP = th1Factory("sct_sp_vs_en", "Number of Spacepoints vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                        m_evtsbins);
     m_nSP->GetXaxis()->SetTitle("Event Number");
     m_nSP->GetYaxis()->SetTitle("Num of Spacepoints");
@@ -3016,7 +3020,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     nSP_buf = (int *) malloc(nSP_buf_size);
     nSP_pos = 0;
 
-    m_nHits = h1DFactory("sct_av_hits_vs_en", "Number of Average Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
+    m_nHits = th1Factory("sct_av_hits_vs_en", "Number of Average Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                          m_evtsbins);
     m_nHits->GetXaxis()->SetTitle("Event Number");
     m_nHits->GetYaxis()->SetTitle("Num of Average Hits");
@@ -3025,7 +3029,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     nHits_buf = (int *) malloc(nHits_buf_size);
     nHits_pos = 0;
 
-    m_nmaxHits = h1DFactory("sct_max_hits_vs_en", "Max Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
+    m_nmaxHits = th1Factory("sct_max_hits_vs_en", "Max Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
     m_nmaxHits->GetXaxis()->SetTitle("Event Number");
     m_nmaxHits->GetYaxis()->SetTitle("Num of Max Hits");
@@ -3036,7 +3040,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     nmaxModule_buf_size = m_evtsbins * sizeof(Identifier);
     nmaxModule_buf = (Identifier *) malloc(nmaxModule_buf_size);
 
-    m_nminHits = h1DFactory("sct_min_hits_vs_en", "Min Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
+    m_nminHits = th1Factory("sct_min_hits_vs_en", "Min Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
     m_nminHits->GetXaxis()->SetTitle("Event Number");
     m_nminHits->GetYaxis()->SetTitle("Num of Min Hits");
@@ -3266,15 +3270,15 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     const unsigned int limits[N_REGIONS] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
-    std::vector<TH1D *> *tbinHistoVectorArray[] = {
+    std::vector<H1_t> *tbinHistoVectorArray[] = {
       &m_tbinHistoVectorECm, &m_tbinHistoVector, &m_tbinHistoVectorECp
     };
-    std::vector<TH1D *> *tbinHistoVectorArrayRecent[] = {
+    std::vector<H1_t> *tbinHistoVectorArrayRecent[] = {
       &m_tbinHistoVectorRecentECm, &m_tbinHistoVectorRecent, &m_tbinHistoVectorRecentECp
     };
     //
-    std::vector<TH1D *> &tbinHistoVector = *(tbinHistoVectorArray[systemIndex]);
-    std::vector<TH1D *> &tbinHistoVectorRecent = *(tbinHistoVectorArrayRecent[systemIndex]);
+    std::vector<H1_t> &tbinHistoVector = *(tbinHistoVectorArray[systemIndex]);
+    std::vector<H1_t> &tbinHistoVectorRecent = *(tbinHistoVectorArrayRecent[systemIndex]);
     tbinHistoVector.clear();
     tbinHistoVectorRecent.clear();
     MonGroup timeGroup(this, path[systemIndex], run, ATTRIB_UNMANAGED);
@@ -3291,7 +3295,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     m_tbinfracall = profFactory("TBinFracAll", "fraction of 01X for each region", tbinGroup);
     switch (systemIndex) {
     case 0: {
-      m_tbinHistoECm = h1DFactory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
+      m_tbinHistoECm = h1Factory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
       std::string disksidenameECm[] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
         "8_0", "8_1"
@@ -3308,7 +3312,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       }
       m_tbinHistoECm->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
-        m_tbinHistoRecentECm = h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
+        m_tbinHistoRecentECm = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
           m_tbinHistoRecentECm->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
         }
@@ -3318,7 +3322,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     }
 
     case 1: {
-      m_tbinHisto = h1DFactory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
+      m_tbinHisto = h1Factory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
       std::string layersidenameB[] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1"
       };
@@ -3334,7 +3338,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       }
       m_tbinHisto->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
-        m_tbinHistoRecent = h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
+        m_tbinHistoRecent = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
           m_tbinHistoRecent->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
         }
@@ -3344,7 +3348,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     }
 
     case 2: {
-      m_tbinHistoECp = h1DFactory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
+      m_tbinHistoECp = h1Factory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
       std::string disksidenameECp[] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
         "8_0", "8_1"
@@ -3361,7 +3365,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       }
       m_tbinHistoECp->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
-        m_tbinHistoRecentECp = h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
+        m_tbinHistoRecentECp = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
           m_tbinHistoRecentECp->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
         }
@@ -3383,13 +3387,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
         histoTitle = "RDO Track TimeBin: disk " + streamlayer;
         histoTitleRecent = "RDO Track TimeBin form recent events: disk " + streamlayer;
       }
-      h1DFactory(streamhitmap, histoTitle, timeGroup, *(tbinHistoVectorArray[systemIndex]), -0.5, 7.5, nBins);
+      h1Factory(streamhitmap, histoTitle, timeGroup, *(tbinHistoVectorArray[systemIndex]), -0.5, 7.5, nBins);
       for (unsigned int bin(0); bin < nBins; bin++) {
         tbinHistoVector[i]->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
       }
       tbinHistoVector[i]->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
-        h1DFactory(streamhitmaprecent, histoTitleRecent, timeGroup, *(tbinHistoVectorArrayRecent[systemIndex]), -0.5,
+        h1Factory(streamhitmaprecent, histoTitleRecent, timeGroup, *(tbinHistoVectorArrayRecent[systemIndex]), -0.5,
                    7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
           tbinHistoVectorRecent[i]->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
@@ -3399,33 +3403,6 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     }
   }
   return StatusCode::SUCCESS;
-}
-
-SCTHitsNoiseMonTool::H1D_t
-SCTHitsNoiseMonTool::h1DFactory(const std::string &name, const std::string &title, MonGroup &registry,
-                                VecH1D_t &storageVector, const float lo, const float hi, const unsigned int nbins) {
-  H1D_t tmp = new TH1D(TString(name), TString(title), nbins, lo, hi);
-  //  tmp->SetXTitle("Cluster Size");
-  //  tmp->SetYTitle("Num of Events");
-  bool success(registry.regHist(tmp).isSuccess());
-
-  if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
-  }
-  storageVector.push_back(tmp);
-  return success ? tmp : NULL;
-}
-
-SCTHitsNoiseMonTool::H1D_t
-SCTHitsNoiseMonTool::h1DFactory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
-                                const float hi, const unsigned int nbins) {
-  H1D_t tmp = new TH1D(TString(name), TString(title), nbins, lo, hi);
-  bool success(registry.regHist(tmp).isSuccess());
-
-  if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
-  }
-  return success ? tmp : NULL;
 }
 
 SCTHitsNoiseMonTool::H2_t
@@ -3442,7 +3419,7 @@ SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  H2_t tmp = new TH2F(TString(name), TString(
+  H2_t tmp = TH2F_LW::create(TString(name), TString(
 					     title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
@@ -3456,8 +3433,8 @@ SCTHitsNoiseMonTool::h2Factory(const std::string &name, const std::string &title
 
 SCTHitsNoiseMonTool::H2I_t
 SCTHitsNoiseMonTool::h2IFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbinx,
-                                double xlo, double xhi, int nbiny, double ylo, double yhi) {
-  H2I_t tmp = new TH2I(TString(name), TString(title), nbinx, xlo, xhi, nbiny, ylo, yhi);
+                                float xlo, float xhi, int nbiny, float ylo, float yhi) {
+  H2I_t tmp = TH2I_LW::create(TString(name), TString(title), nbinx, xlo, xhi, nbiny, ylo, yhi);
 
   tmp->SetXTitle("module #");
   tmp->SetYTitle("Time bin");
@@ -3485,7 +3462,7 @@ SCTHitsNoiseMonTool::prof2DFactory(const std::string &name, const std::string &t
 SCTHitsNoiseMonTool::Prof_t
 SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbin,
                                  int lo, int hi) {
-  Prof_t tmp = new TProfile(TString(name), TString(title), nbin, lo, hi);
+  Prof_t tmp = TProfile_LW::create(TString(name), TString(title), nbin, lo, hi);
 
   tmp->SetXTitle("LumiBlock");
   tmp->SetYTitle("Fraction of 01X");
@@ -3498,7 +3475,7 @@ SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &tit
 
 SCTHitsNoiseMonTool::Prof_t
 SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &title, MonGroup &registry) {
-  Prof_t tmp = new TProfile(TString(name), TString(title), 3, 0, 3);
+  Prof_t tmp = TProfile_LW::create(TString(name), TString(title), 3, 0, 3);
 
   tmp->SetYTitle("Fraction of 01X");
   tmp->GetXaxis()->SetBinLabel(1.5, "Endcap C");
@@ -3526,7 +3503,7 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &ti
     nPhi = N_PHI_BINS_EC;
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(
-						      title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
+							     title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
@@ -3540,7 +3517,7 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string &name, const std::string &ti
 SCTHitsNoiseMonTool::H1_t
 SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
                                const float hi, const unsigned int nbins) {
-  H1_t tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
+  H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
@@ -3552,7 +3529,32 @@ SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title
 SCTHitsNoiseMonTool::H1_t
 SCTHitsNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry,
                                VecH1_t &storageVector, const float lo, const float hi, const unsigned int nbins) {
-  H1_t tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
+  H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
+  bool success(registry.regHist(tmp).isSuccess());
+
+  if (not success) {
+    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+  }
+  storageVector.push_back(tmp);
+  return success ? tmp : NULL;
+}
+
+TH1F*
+SCTHitsNoiseMonTool::th1Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
+				const float hi, const unsigned int nbins) {
+  TH1F* tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
+  bool success(registry.regHist(tmp).isSuccess());
+
+  if (not success) {
+    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+  }
+  return success ? tmp : NULL;
+}
+
+TH1F*
+SCTHitsNoiseMonTool::th1Factory(const std::string &name, const std::string &title, MonGroup &registry,
+                               std::vector<TH1F*> &storageVector, const float lo, const float hi, const unsigned int nbins) {
+  TH1F* tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {

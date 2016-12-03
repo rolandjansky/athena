@@ -236,9 +236,9 @@ SCTLorentzMonTool::fillHistograms() {
 
             if (perigee) {
               // Get angle to wafer surface
-              double phiToWafer(90.), thetaToWafer(90.);
-              double sinAlpha = 0.; // for barrel, which is the only thing considered here
-              double pTrack[3];
+              float phiToWafer(90.), thetaToWafer(90.);
+              float sinAlpha = 0.; // for barrel, which is the only thing considered here
+              float pTrack[3];
               pTrack[0] = trkp->momentum().x();
               pTrack[1] = trkp->momentum().y();
               pTrack[2] = trkp->momentum().z();
@@ -406,7 +406,7 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
 }
 
 TProfile *
-SCTLorentzMonTool::pFactory(const std::string &name, const std::string &title, int nbinsx, double xlow, double xhigh,
+SCTLorentzMonTool::pFactory(const std::string &name, const std::string &title, int nbinsx, float xlow, float xhigh,
                             MonGroup &registry, int &iflag) {
   Prof_t tmp = new TProfile(TString(name), TString(title), nbinsx, xlow, xhigh);
   bool success(registry.regHist(tmp).isSuccess());
@@ -441,8 +441,8 @@ SCTLorentzMonTool::h1Factory(const std::string &name, const std::string &title, 
 }
 
 int
-SCTLorentzMonTool::findAnglesToWaferSurface(const double (&vec)[3], const double &sinAlpha, const Identifier &id,
-                                            double &theta, double &phi) {
+SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &sinAlpha, const Identifier &id,
+                                            float &theta, float &phi) {
   int iflag(-1);
 
   phi = 90.;
@@ -456,13 +456,13 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const double (&vec)[3], const double
     return iflag;
   }
 
-  double cosAlpha = sqrt(1. - sinAlpha * sinAlpha);
-  double phix = cosAlpha * element->phiAxis().x() + sinAlpha * element->phiAxis().y();
-  double phiy = -sinAlpha *element->phiAxis().x() + cosAlpha * element->phiAxis().y();
+  float cosAlpha = sqrt(1. - sinAlpha * sinAlpha);
+  float phix = cosAlpha * element->phiAxis().x() + sinAlpha * element->phiAxis().y();
+  float phiy = -sinAlpha *element->phiAxis().x() + cosAlpha * element->phiAxis().y();
 
-  double pNormal = vec[0] * element->normal().x() + vec[1] * element->normal().y() + vec[2] * element->normal().z();
-  double pEta = vec[0] * element->etaAxis().x() + vec[1] * element->etaAxis().y() + vec[2] * element->etaAxis().z();
-  double pPhi = vec[0] * phix + vec[1] * phiy + vec[2] * element->phiAxis().z();
+  float pNormal = vec[0] * element->normal().x() + vec[1] * element->normal().y() + vec[2] * element->normal().z();
+  float pEta = vec[0] * element->etaAxis().x() + vec[1] * element->etaAxis().y() + vec[2] * element->etaAxis().z();
+  float pPhi = vec[0] * phix + vec[1] * phiy + vec[2] * element->phiAxis().z();
 
   if (pPhi < 0.) {
     phi = -90.;
