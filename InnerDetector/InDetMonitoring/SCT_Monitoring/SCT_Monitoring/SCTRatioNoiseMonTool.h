@@ -30,7 +30,7 @@
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+//#include "GaudiKernel/ToolHandle.h"
 
 // Forward declarations
 class IInterface;
@@ -90,57 +90,58 @@ private:
   //@}
   int eventID;
   int m_numberOfEvents;
-  int nLink0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nLink1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nBoth[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nNoSidesBarrelModule[N_BARRELS];
-  int nOneSideBarrelModule[N_BARRELS];
-  int nTwoSideBarrelModule[N_BARRELS];
-  int nNonGoodModulesBarrelModule[N_DISKS];
-  int nNoSidesEndcapAModule[N_DISKS];
-  int nOneSideEndcapAModule[N_DISKS];
-  int nTwoSideEndcapAModule[N_DISKS];
-  int nNonGoodModulesEndcapAModule[N_DISKS];
-  int nNoSidesEndcapCModule[N_DISKS];
-  int nOneSideEndcapCModule[N_DISKS];
-  int nTwoSideEndcapCModule[N_DISKS];
-  int nNonGoodModulesEndcapCModule[N_DISKS];
   
-  bool goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-
+  
+  int nNoSides_ev;
+  int nOneSide_ev;
+  int nTwoSide_ev;
+  int nNoSidesBarrel_ev[N_BARRELS];
+  int nOneSideBarrel_ev[N_BARRELS];
+  int nTwoSideBarrel_ev[N_BARRELS];
+  int nNonGoodModulesBarrel_ev[N_DISKS];
+  int nNoSidesEndcapA_ev[N_DISKS];
+  int nOneSideEndcapA_ev[N_DISKS];
+  int nTwoSideEndcapA_ev[N_DISKS];
+  int nNonGoodModulesEndcapA_ev[N_DISKS];
+  int nNoSidesEndcapC_ev[N_DISKS];
+  int nOneSideEndcapC_ev[N_DISKS];
+  int nTwoSideEndcapC_ev[N_DISKS];
+  int nNonGoodModulesEndcapC_ev[N_DISKS];
+  
   VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1;
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBar;
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide0;
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide1;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBAR;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide1;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECA;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
-
-  int nOneSideModule;
-  int nTwoSideModule;
-  int nNoFiredModules;
   
-  double d1;
-  double n1;
-  double n1Barrel[N_BARRELS];
-  double n1EndcapA[N_DISKS];
-  double n1EndcapC[N_DISKS];
-  double d1Barrel[N_BARRELS];
-  double d1EndcapA[N_DISKS];
-  double d1EndcapC[N_DISKS];
-
-
+  float d1;
+  float n1;
+  float n1Barrel[N_BARRELS];
+  float n1EndcapA[N_DISKS];
+  float n1EndcapC[N_DISKS];
+  float d1Barrel[N_BARRELS];
+  float d1EndcapA[N_DISKS];
+  float d1EndcapC[N_DISKS];
+  
   bool noSidesHit;
   bool oneSideHit;
   bool twoSidesHit;
   bool correct_TimeBin;
 
-  int nZero[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nOne[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nNoSides[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nOneSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nOneSide0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nOneSide1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nTwoSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  
+  int nLink0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nLink1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  bool goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+
   int nLayer[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nEta[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nPhi[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
@@ -157,16 +158,19 @@ private:
   float ratioside0;
   float ratioside1;
   
-  static const long NBINS_LBs = 2000;
-
+  //static const long NBINS_LBs = 2000;
+  
+  int nNoSides_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nOneSide_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int noisyM[SCT_Monitoring::NBINS_LBs+1];
   //@name Histograms related members
   //@{
 
   //General Histograms
   H1_t m_NOEV;
-  H1_t m_NOEV_Barrel[N_BARRELS];
-  H1_t m_NOEV_EndcapC[N_DISKS];
-  H1_t m_NOEV_EndcapA[N_DISKS];
+  H1_t m_NOEVBAR[N_BARRELS];
+  H1_t m_NOEVECC[N_DISKS];
+  H1_t m_NOEVECA[N_DISKS];
   H2_t m_NOEV_RDO;
   H2_t m_NOEV_Eventnum;
   H1_t m_side;
@@ -178,31 +182,27 @@ private:
   H1_t m_NZ1BAR[N_BARRELS];
   H1_t m_N11BAR[N_BARRELS];
   H1_t m_N21BAR[N_BARRELS];
-  H1_t m_NZ1BAR_vsLB[N_BARRELS];
-  H1_t m_N11BAR_vsLB[N_BARRELS];
+  Prof_t m_NZ1BAR_vsLB[N_BARRELS];
+  Prof_t m_N11BAR_vsLB[N_BARRELS];
 
   H1_t m_NZ1ECC[N_DISKS];
   H1_t m_N11ECC[N_DISKS];
   H1_t m_N21ECC[N_DISKS];
-  H1_t m_NZ1ECC_vsLB[N_DISKS];
-  H1_t m_N11ECC_vsLB[N_DISKS];
+  Prof_t m_NZ1ECC_vsLB[N_DISKS];
+  Prof_t m_N11ECC_vsLB[N_DISKS];
   
   H1_t m_NZ1ECA[N_DISKS];
   H1_t m_N11ECA[N_DISKS];
   H1_t m_N21ECA[N_DISKS];
-  H1_t m_NZ1ECA_vsLB[N_DISKS];
-  H1_t m_N11ECA_vsLB[N_DISKS];
+  Prof_t m_NZ1ECA_vsLB[N_DISKS];
+  Prof_t m_N11ECA_vsLB[N_DISKS];
 
-  H1_t m_NOb;
-  H1_t m_NObSide;
   H1_t m_NO;
   H1_t m_NOSide;
-  H1_t m_NOb_layer[N_BARRELS];
-  H1_t m_NOb_layer_vsLB[N_BARRELS];
-  H1_t m_NOECC_disk[N_DISKS];
-  H1_t m_NOECC_disk_vsLB[N_DISKS];
-  H1_t m_NOECA_disk[N_DISKS];
-  H1_t m_NOECA_disk_vsLB[N_DISKS];
+  Prof_t m_NO_vsLB;
+  Prof_t m_NoisyModules_vsLB;
+  H1_t m_NOBAR;
+  H1_t m_NOBARSide;
   H1_t m_NOEC;
   H1_t m_NOECSide;
   H1_t m_NOECASide;
@@ -211,25 +211,28 @@ private:
   H1_t m_NOEC_ShortMiddle;
   H1_t m_NOEC_Inner;
   H1_t m_NOEC_Middle; 
+  H1_t m_NOBAR_layer[N_BARRELS];
+  Prof_t m_NOBAR_layer_vsLB[N_BARRELS];
+  H1_t m_NOECC_disk[N_DISKS];
+  Prof_t m_NOECC_disk_vsLB[N_DISKS];
+  H1_t m_NOECA_disk[N_DISKS];
+  Prof_t m_NOECA_disk_vsLB[N_DISKS];
+  
   H1_t m_numberHitsinBarrel[N_BARRELS];
 
   H1_t m_NZ1_vs_modnum;
   H1_t m_N11_vs_modnum;
-
 
   std::string m_stream;
   std::string m_path;
   //@}
   /// Name of the Track collection to use
   std::string m_tracksName;
-
   std::string m_NOTrigger;
 
   //@name Service members
   //@{
-  /// Kalman Updator for SCT Unbiased states in Residual calculation
-//  ToolHandle<Trk::IUpdator> m_updator;
- /// Data object name: for the SCT this is "SCT_RDOs"
+  /// Data object name: for the SCT this is "SCT_RDOs"
   std::string m_dataObjectName;
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -251,7 +254,7 @@ private:
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const double (&vec)[3], const double &sinAlpha, const Identifier &id, double &theta, double &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, float &theta, float &phi );
   float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   bool isBarrel(const int moduleNumber);
@@ -260,9 +263,8 @@ private:
   bool isEndcapC(const int moduleNumber);
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t  pFactory(const std::string & name, const std::string & title, int nbinsx, double xlow, double xhigh, MonGroup & registry, int& iflag);
-  ///Factory + register for the 1D histograms, returns whether successfully registered
-
+  Prof_t 
+    pFactory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
   H1_t
     h1Factory(const std::string & name, const std::string & title, MonGroup & registry, VecH1_t & storageVector, const float lo, const float hi, const unsigned int nbins);
   H1_t

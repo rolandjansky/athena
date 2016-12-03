@@ -5,6 +5,7 @@ author Shaun Roe <shaun.roe@cern.ch>
 private
 # General
 use EventInfo         			EventInfo-*             Event
+use xAODEventInfo                        xAODEventInfo-*        Event/xAOD
 use DataModel         			DataModel-*             Control
 use AthenaKernel                AthenaKernel-*          Control
 
@@ -45,7 +46,7 @@ use AtlasROOT                   AtlasROOT-*             External
 use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
 use InDetReadoutGeometry        InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
 
-use AtlasBoost                  AtlasBoost-*            External
+#use AtlasBoost                  AtlasBoost-*            External
 use GaudiInterface              GaudiInterface-*        External
 
 use AthenaMonitoring            AthenaMonitoring-*      Control

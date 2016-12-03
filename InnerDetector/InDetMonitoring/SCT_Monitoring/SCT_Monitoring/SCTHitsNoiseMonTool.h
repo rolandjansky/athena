@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
- /**    @file SCTHitsNoiseMonTool.h
+/**    @file SCTHitsNoiseMonTool.h
  *   Class declaration for SCTHitsMonTool
  *   
  *                          
@@ -35,13 +35,16 @@
 // Forward declarations
 class IInterface;
 class TH1F;
+class TH2F;
 class TH1I;
 class TH2I;
-class TH2F;
-class TH2D;
-class TH1D;
-class TProfile2D;
+class TH1F_LW;
+class TH2F_LW;
+class TH2I_LW;
 class TProfile;
+class TProfile2D;
+class TProfile_LW;
+class TProfile2D_LW;
 class Identifier;
 class StatusCode;
 class SCT_ID;
@@ -54,8 +57,8 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   typedef unsigned int  ChipNumberType;
   SCTHitsNoiseMonTool(const std::string & type, const std::string & name,const IInterface* parent); 
   ~SCTHitsNoiseMonTool();
-/**    @name Book, fill & check (reimplemented from baseclass) */
-//@{
+  /**    @name Book, fill & check (reimplemented from baseclass) */
+  //@{
   ///Book is called at the beginning
   //  virtual StatusCode bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun ) ;
   virtual StatusCode bookHistograms() ;
@@ -67,23 +70,21 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   ///procHistograms is called at the end
   //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
   virtual StatusCode procHistograms();
-//@} 
+  //@} 
   
-private:
+ private:
   typedef TProfile2D * Prof2_t;
-   typedef TProfile * Prof_t;
-   typedef TH1I * H1I_t;
-   typedef TH1D * H1D_t;
-   typedef TH2I * H2I_t;
-   typedef TH1F * H1_t;
-   typedef TH2F * H2_t;
-   typedef std::vector<Prof2_t> VecProf2_t;
-   typedef std::vector<H1I_t> VecH1I_t;
-   typedef std::vector<H1D_t> VecH1D_t;
-   typedef std::vector<H2I_t> VecH2I_t;
-   typedef std::vector<H1_t> VecH1_t;
-   typedef std::vector<H2_t> VecH2_t;
-   typedef std::vector<Identifier> VecId_t;
+  typedef TProfile_LW * Prof_t;
+  typedef TH1I * H1I_t;
+  typedef TH2I_LW * H2I_t;
+  typedef TH1F_LW * H1_t;
+  typedef TH2F_LW * H2_t;
+  typedef std::vector<Prof2_t> VecProf2_t;
+  typedef std::vector<H1I_t> VecH1I_t;
+  typedef std::vector<H2I_t> VecH2I_t;
+  typedef std::vector<H1_t> VecH1_t;
+  typedef std::vector<H2_t> VecH2_t;
+  typedef std::vector<Identifier> VecId_t;
   /// ---------------------------------------
   //@name Histograms related members
   //@{
@@ -107,20 +108,18 @@ private:
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmRecent;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmTrigger;
   
-  // Modified JEGN
-  H1D_t m_nSP;
+  TH1F* m_nSP;
   int *nSP_buf;
   int nSP_pos;
-  H1D_t m_nHits;
+  TH1F* m_nHits;
   int *nHits_buf;
   int nHits_pos;
-  H1D_t m_nmaxHits;
+  TH1F* m_nmaxHits;
   int *nmaxHits_buf;
   Identifier *nmaxModule_buf;
-  H1D_t m_nminHits;
+  TH1F* m_nminHits;
   int *nminHits_buf;
   Identifier *nminModule_buf;
-  // END Modified
 
   //Histograms with hits per luminosity block
   H1_t m_numBarrelHitsPerLumiBlock;
@@ -136,24 +135,58 @@ private:
   H2_t rioMap;
   //@}
   //Histograms with NO distribution
-  H1_t m_barrelNOdistribution;
-  H1_t m_barrelNOdistributionTrigger;
-  H1_t m_ECmNOdistribution;
-  H1_t m_ECmNOdistributionTrigger;
-  H1_t m_ECpNOdistribution;
-  H1_t m_ECpNOdistributionTrigger;
-  H1_t m_SCTNOdistribution;
-  H1_t m_SCTNOdistributionTrigger;
+  TH1F* m_BARNO;
+  TH1F* m_BARNOTrigger;
+  TH1F* m_ECmNO;
+  TH1F* m_ECmNOTrigger;
+  TH1F* m_ECpNO;
+  TH1F* m_ECpNOTrigger;
+  TH1F* m_SCTNO;
+  TH1F* m_SCTNOTrigger;
+
+  //---- results required no triggers
+  // # of hits vs LBs
+  Prof_t m_NallHitsBAR_vsLB;
+  Prof_t m_NSPHitsBAR_vsLB;
+  Prof_t m_NallHitsECm_vsLB;
+  Prof_t m_NSPHitsECm_vsLB;
+  Prof_t m_NallHitsECp_vsLB;
+  Prof_t m_NSPHitsECp_vsLB;
+  // NO with hits subtracted by SP
+  Prof_t m_BARNO_vsLB;
+  Prof_t m_ECmNO_vsLB;
+  Prof_t m_ECpNO_vsLB;
+  Prof_t m_SCTNO_vsLB;
+  Prof_t m_NoisyModules100_vsLB;
+  Prof_t m_NoisyModules1000_vsLB;
+  Prof_t m_NoisyModules10000_vsLB;
+  
+  //---- results required trigger
+  // # of hits vs LBs
+  Prof_t m_NallHitsTriggerBAR_vsLB;
+  Prof_t m_NSPHitsTriggerBAR_vsLB;
+  Prof_t m_NallHitsTriggerECm_vsLB;
+  Prof_t m_NSPHitsTriggerECm_vsLB;
+  Prof_t m_NallHitsTriggerECp_vsLB;
+  Prof_t m_NSPHitsTriggerECp_vsLB;
+  // NO with hits subtracted by SP
+  Prof_t m_BARNOTrigger_vsLB;
+  Prof_t m_ECmNOTrigger_vsLB;
+  Prof_t m_ECpNOTrigger_vsLB;
+  Prof_t m_SCTNOTrigger_vsLB;
+  Prof_t m_NoisyModulesTrigger100_vsLB;
+  Prof_t m_NoisyModulesTrigger1000_vsLB;
+  Prof_t m_NoisyModulesTrigger10000_vsLB;
 
   //Online code- template vector
   VecH1_t m_pstripmapTemplateVector;
   H1_t m_MaxOccupancyStripHist;
   H1_t m_MinOccupancyStripHist;
   /// Pointers to histogram of SCT cluster width.
-  H1D_t m_clusize;
-  H1D_t m_clusizeRecent;
+  H1_t m_clusize;
+  H1_t m_clusizeRecent;
 
-   /// Pointers to histogram of hits as a function of TriggerType.
+  /// Pointers to histogram of hits as a function of TriggerType.
   H1_t m_hitsvstrigger;
 
   /// Pointers to histogram of hits as a function of L1ID.
@@ -166,21 +199,21 @@ private:
   std::string m_NOTrigger;
  
   /// Pointers to vector of histograms of SCT cluster width; 1 histo per layer and side.
-  VecH1D_t m_clusizeHistoVector;
-  VecH1D_t m_clusizeHistoVectorECp;
-  VecH1D_t m_clusizeHistoVectorECm;
-  VecH1D_t m_clusizeHistoVectorRecent;
-  VecH1D_t m_clusizeHistoVectorRecentECp;
-  VecH1D_t m_clusizeHistoVectorRecentECm;
+  VecH1_t m_clusizeHistoVector;
+  VecH1_t m_clusizeHistoVectorECp;
+  VecH1_t m_clusizeHistoVectorECm;
+  VecH1_t m_clusizeHistoVectorRecent;
+  VecH1_t m_clusizeHistoVectorRecentECp;
+  VecH1_t m_clusizeHistoVectorRecentECm;
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Event
-  H1_t m_ncluHisto;
+  TH1F* m_ncluHisto;
 
   /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
-  VecH1D_t m_ncluHistoVector;
+  VecH1_t m_ncluHistoVector;
 
-  VecH1D_t m_ncluHistoVectorECp;
-  VecH1D_t m_ncluHistoVectorECm;
+  VecH1_t m_ncluHistoVectorECp;
+  VecH1_t m_ncluHistoVectorECm;
 
   //Pointer to histogram of time bin coincidences
   H2I_t coincidenceHist; 
@@ -241,18 +274,18 @@ private:
   //  StatusCode bookGeneralTrackTimeHistos(bool isNewRun , const unsigned int systemIndex);
   StatusCode bookGeneralTrackHits(const unsigned int systemIndex);
   StatusCode bookGeneralTrackTimeHistos( const unsigned int systemIndex);
-  VecH1D_t m_tbinHistoVector;
-  VecH1D_t m_tbinHistoVectorECp;
-  VecH1D_t m_tbinHistoVectorECm;
-  VecH1D_t m_tbinHistoVectorRecent;
-  VecH1D_t m_tbinHistoVectorRecentECp;
-  VecH1D_t m_tbinHistoVectorRecentECm;
-  H1D_t m_tbinHisto;
-  H1D_t m_tbinHistoECp;
-  H1D_t m_tbinHistoECm;
-  H1D_t m_tbinHistoRecent;
-  H1D_t m_tbinHistoRecentECp;
-  H1D_t m_tbinHistoRecentECm;
+  VecH1_t m_tbinHistoVector;
+  VecH1_t m_tbinHistoVectorECp;
+  VecH1_t m_tbinHistoVectorECm;
+  VecH1_t m_tbinHistoVectorRecent;
+  VecH1_t m_tbinHistoVectorRecentECp;
+  VecH1_t m_tbinHistoVectorRecentECm;
+  H1_t m_tbinHisto;
+  H1_t m_tbinHistoECp;
+  H1_t m_tbinHistoECm;
+  H1_t m_tbinHistoRecent;
+  H1_t m_tbinHistoRecentECp;
+  H1_t m_tbinHistoRecentECm;
   Prof2_t m_tbinfrac[8];
   Prof2_t m_tbinfracECp[18];
   Prof2_t m_tbinfracECm[18];
@@ -268,34 +301,7 @@ private:
  
   //@name Histograms related methods
   //@{
-
-  // hidetoshi 14.01.22
-  /*
-  // Book Hitmaps Histograms
-  StatusCode book1DHitHists(bool isNewRun);
-
-  StatusCode bookHitMaps(bool isNewRun);
-  StatusCode bookSPvsEventNumber(bool isNewRun);
-  StatusCode makeSPvsEventNumber();//int NumberOfEvents);
-  // Book noise map histograms
-  StatusCode bookNoiseMaps(bool isNewRun);
-  StatusCode bookNoiseDistributions(bool isNewRun);
-
-  // Book noise occupancy map histograms
-  StatusCode bookGeneralNoiseOccupancyMaps(bool isNewRun, const unsigned int systemIndex);
-
-  // Book Hits Histograms
-  StatusCode 
-    bookGeneralHits(bool isNewRun,bool isNewLumiBlock, const unsigned int systemIndex);
-
-  StatusCode bookClusterSize(bool isNewRun);
-  StatusCode bookGeneralCluSize(bool isNewRun, const unsigned int systemIndex);
-
-  // Book Correlation Histograms
-  StatusCode bookCorrelations(bool isNewRun);
-  */
-
-  // hidetoshi 14.01.22
+  
   // Book Hitmaps Histograms
   StatusCode book1DHitHists();
 
@@ -308,7 +314,9 @@ private:
 
   // Book noise occupancy map histograms
   StatusCode bookGeneralNoiseOccupancyMaps( const unsigned int systemIndex);
-
+  //Book hit occupancy map histograms
+  StatusCode bookGeneralHitOccupancyMaps( const unsigned int systemIndex);
+	
   // Book Hits Histograms
   StatusCode 
     bookGeneralHits( const unsigned int systemIndex);
@@ -319,7 +327,6 @@ private:
   // Book Correlation Histograms
   StatusCode bookCorrelations();
 
-
   //Do checking of noise maps
   StatusCode checkNoiseMaps(bool final);
   //@}
@@ -328,9 +335,119 @@ private:
   //CAM adds map for SP NO
   std::string  m_SCTSPContainerName;
 
-  std::map<Identifier, double> m_occSumUnbiased;
-  std::map<Identifier, double> m_occSumUnbiasedTrigger;
-  std::map<Identifier, double> m_occSumUnbiasedRecent;
+  std::map<Identifier, float> m_occSumUnbiased;
+  std::map<Identifier, float> m_occSumUnbiasedTrigger;
+  std::map<Identifier, float> m_occSumUnbiasedRecent;
+
+  std::map<Identifier, float> m_occSumUnbiased_lb;
+  std::map<Identifier, float> m_occSumUnbiasedBAR_lb;
+  std::map<Identifier, float> m_occSumUnbiasedECp_lb;
+  std::map<Identifier, float> m_occSumUnbiasedECm_lb;
+  std::map<Identifier, float> m_occSumUnbiasedTrigger_lb;
+  std::map<Identifier, float> m_occSumUnbiasedTriggerBAR_lb;
+  std::map<Identifier, float> m_occSumUnbiasedTriggerECp_lb;
+  std::map<Identifier, float> m_occSumUnbiasedTriggerECm_lb;
+  
+  //static const long NBINS_LBs = 2000;
+  int m_noisyM100[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyM1000[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyM10000[SCT_Monitoring::NBINS_LBs+1];
+  int m_occ_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occBAR_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occECp_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occECm_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_events_lb;
+  int m_noisyMTrigger100[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMTrigger1000[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMTrigger10000[SCT_Monitoring::NBINS_LBs+1];
+  int m_occTrigger_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occTriggerBAR_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occTriggerECp_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_occTriggerECm_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_eventsTrigger_lb;
+  
+  //Added 09.09.2016
+  VecProf2_t m_phitoccupancymapHistoVector;
+  VecProf2_t m_phitoccupancymapHistoVectorRecent;
+  VecProf2_t m_phitoccupancymapHistoVectorTrigger;
+  VecProf2_t m_phitoccupancymapHistoVectorECp;
+  VecProf2_t m_phitoccupancymapHistoVectorECpRecent;
+  VecProf2_t m_phitoccupancymapHistoVectorECpTrigger;
+  VecProf2_t m_phitoccupancymapHistoVectorECm;
+  VecProf2_t m_phitoccupancymapHistoVectorECmRecent;
+  VecProf2_t m_phitoccupancymapHistoVectorECmTrigger;
+	
+  //Histograms with HO distribution
+  TH1F* m_BARHO;
+  TH1F* m_BARHOTrigger;
+  TH1F* m_ECmHO;
+  TH1F* m_ECmHOTrigger;
+  TH1F* m_ECpHO;
+  TH1F* m_ECpHOTrigger;
+  TH1F* m_SCTHO;
+  TH1F* m_SCTHOTrigger;
+	
+  //---- results required no triggers
+  // # of hits vs LBs
+  Prof_t m_HallHitsBAR_vsLB;
+  Prof_t m_HSPHitsBAR_vsLB;
+  Prof_t m_HallHitsECm_vsLB;
+  Prof_t m_HSPHitsECm_vsLB;
+  Prof_t m_HallHitsECp_vsLB;
+  Prof_t m_HSPHitsECp_vsLB;
+  // HO with hits subtracted by SP
+  Prof_t m_BARHO_vsLB;
+  Prof_t m_ECmHO_vsLB;
+  Prof_t m_ECpHO_vsLB;
+  Prof_t m_SCTHO_vsLB;
+  Prof_t m_NoisyModulesWithHO100_vsLB;
+  Prof_t m_NoisyModulesWithHO1000_vsLB;
+  Prof_t m_NoisyModulesWithHO10000_vsLB;
+
+  //---- results required trigger
+  // # of hits vs LBs
+  Prof_t m_HallHitsTriggerBAR_vsLB;
+  Prof_t m_HSPHitsTriggerBAR_vsLB;
+  Prof_t m_HallHitsTriggerECm_vsLB;
+  Prof_t m_HSPHitsTriggerECm_vsLB;
+  Prof_t m_HallHitsTriggerECp_vsLB;
+  Prof_t m_HSPHitsTriggerECp_vsLB;
+  // HO with hits
+  Prof_t m_BARHOTrigger_vsLB;
+  Prof_t m_ECmHOTrigger_vsLB;
+  Prof_t m_ECpHOTrigger_vsLB;
+  Prof_t m_SCTHOTrigger_vsLB;
+  Prof_t m_NoisyModulesWithHOTrigger100_vsLB;
+  Prof_t m_NoisyModulesWithHOTrigger1000_vsLB;
+  Prof_t m_NoisyModulesWithHOTrigger10000_vsLB;
+
+  std::map<Identifier, float> m_hitoccSumUnbiased;
+  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger;
+  std::map<Identifier, float> m_hitoccSumUnbiasedRecent;
+	
+  std::map<Identifier, float> m_hitoccSumUnbiased_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedBAR_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedECp_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedECm_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedTriggerBAR_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedTriggerECp_lb;
+  std::map<Identifier, float> m_hitoccSumUnbiasedTriggerECm_lb;
+
+  int m_noisyMWithHO100[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHO1000[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHO10000[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitocc_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccBAR_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccECp_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccECm_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHOTrigger100[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHOTrigger1000[SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHOTrigger10000[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccTrigger_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccTriggerBAR_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccTriggerECp_lb[SCT_Monitoring::NBINS_LBs+1];
+  int m_hitoccTriggerECm_lb[SCT_Monitoring::NBINS_LBs+1];
 
   StatusCode initializeNoiseMaps();
 
@@ -344,7 +461,7 @@ private:
 
   StatusCode resetVecH2(VecH2_t hists);
 
-  StatusCode resetVecH1D(VecH1D_t hists);
+  StatusCode resetVecH1(VecH1_t hists);
 
   StatusCode generalHistsandNoise();
     
@@ -363,15 +480,16 @@ private:
     h1Factory(const std::string & name, const std::string & title, MonGroup & registry, VecH1_t & storageVector, const float lo, const float hi, const unsigned int nbins);
   H1_t
     h1Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
-  H1D_t
-    h1DFactory(const std::string & name, const std::string & title, MonGroup & registry, VecH1D_t & storageVector, const float lo, const float hi, const unsigned int nbins);
-  H1D_t
-    h1DFactory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
- 
+
+  TH1F*
+    th1Factory(const std::string & name, const std::string & title, MonGroup & registry, std::vector<TH1F*> & storageVector, const float lo, const float hi, const unsigned int nbins);
+  TH1F*
+    th1Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+
   H2_t
     h2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector);
   H2I_t
-    h2IFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, double xlo, double xhi, int nbiny, double ylo, double yhi);
+    h2IFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
   Prof2_t
@@ -388,7 +506,7 @@ private:
  
   ///Format the position as a string
   std::string
-  positionString(const Identifier & plane) const;
+    positionString(const Identifier & plane) const;
   //@}
 };
 
