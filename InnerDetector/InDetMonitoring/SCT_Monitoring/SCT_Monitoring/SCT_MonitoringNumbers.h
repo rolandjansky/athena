@@ -57,6 +57,8 @@ namespace SCT_Monitoring{
   const TString subDetName[] = {"Endcap C", "Barrel", "Endcap A", "General"};
   const TString subDetNameShort[] = {"EC", "B", "EA"};
   
+  static const long NBINS_LBs = 3000;
+  
   //====================================================================================================
   //                          SCTErrMonTool :: getNumModules, Daniel Damiani 16/8/2010
   //====================================================================================================

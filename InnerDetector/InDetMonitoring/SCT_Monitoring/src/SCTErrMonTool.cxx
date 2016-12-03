@@ -267,40 +267,40 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc", name),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
-  // m_errThreshold{}, property
-  // m_effThreshold{}, property
-  // m_noiseThreshold{}, property
-/** sroe 3 Sept 2015:
-   histoPathBase is declared as a property in the base class, assigned to m_path
-   with default as empty string.
-    Declaring it here as well gives rise to compilation warning
-    WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+    // m_errThreshold{}, property
+    // m_effThreshold{}, property
+    // m_noiseThreshold{}, property
+    /** sroe 3 Sept 2015:
+	histoPathBase is declared as a property in the base class, assigned to m_path
+	with default as empty string.
+	Declaring it here as well gives rise to compilation warning
+	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
 
-   declareProperty("histoPathBase", m_stream = "/stat"); **/
+	declareProperty("histoPathBase", m_stream = "/stat"); **/
 
-  m_stream = "/stat";
-  declareProperty("CheckRate", m_checkrate = 1000);
-  declareProperty("runOnline", m_runOnline = false);
-  declareProperty("CheckRecent", m_checkrecent = 20);
-  declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
-  declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
-  declareProperty("EvtsBins", m_evtsbins = 5000);
-  declareProperty("MakeConfHisto", m_makeConfHisto = true);
-  declareProperty("conditionsService", m_ConfigurationSvc);
-  declareProperty("flaggedService", m_flaggedSvc);
+    m_stream = "/stat";
+    declareProperty("CheckRate", m_checkrate = 1000);
+    declareProperty("runOnline", m_runOnline = false);
+    declareProperty("CheckRecent", m_checkrecent = 20);
+    declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
+    declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
+    declareProperty("EvtsBins", m_evtsbins = 5000);
+    declareProperty("MakeConfHisto", m_makeConfHisto = true);
+    declareProperty("conditionsService", m_ConfigurationSvc);
+    declareProperty("flaggedService", m_flaggedSvc);
 
-  // Thresholds for the SCTConf histogram
-  declareProperty("error_threshold", m_errThreshold = 0.7);
-  declareProperty("efficiency_threshold", m_effThreshold = 0.9);
-  declareProperty("noise_threshold", m_noiseThreshold = 150);
-  // Min stats per layer to use for number of inefficient modules
-  declareProperty("MinStatsForInEffModules", m_min_stat_ineff_mod = 500.0);
+    // Thresholds for the SCTConf histogram
+    declareProperty("error_threshold", m_errThreshold = 0.7);
+    declareProperty("efficiency_threshold", m_effThreshold = 0.9);
+    declareProperty("noise_threshold", m_noiseThreshold = 150);
+    // Min stats per layer to use for number of inefficient modules
+    declareProperty("MinStatsForInEffModules", m_min_stat_ineff_mod = 500.0);
 
-  declareProperty("DoPerLumiErrors", m_doPerLumiErrors = true);
-  declareProperty("DoErr2DPerLumiHists", m_doErr2DPerLumiHists = false);
-  declareProperty("checkBadModules", m_checkBadModules);
-  declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
-}
+    declareProperty("DoPerLumiErrors", m_doPerLumiErrors = true);
+    declareProperty("DoErr2DPerLumiHists", m_doErr2DPerLumiHists = false);
+    declareProperty("checkBadModules", m_checkBadModules);
+    declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
+  }
 
 // ====================================================================================================
 // ====================================================================================================
@@ -673,19 +673,19 @@ SCTErrMonTool::fillHistograms() {
     }
   }
   if (numSCTRDOs != 0) {
-    double scale = 100. / double(numSCTRDOs);
-    m_firstHit->Fill(double(numFirstHit) * scale, 1.);
-    m_secondHit->Fill(double(numSecondHit) * scale, 1.);
+    float scale = 100. / float(numSCTRDOs);
+    m_firstHit->Fill(float(numFirstHit) * scale, 1.);
+    m_secondHit->Fill(float(numSecondHit) * scale, 1.);
   }
   if (numSCTRDOs_ECp != 0 && m_doPositiveEndcap) {
-    double scale = 100. / double(numSCTRDOs_ECp);
-    m_firstHit_ECp->Fill(double(numFirstHit_ECp) * scale, 1.);
-    m_secondHit_ECp->Fill(double(numSecondHit_ECp) * scale, 1.);
+    float scale = 100. / float(numSCTRDOs_ECp);
+    m_firstHit_ECp->Fill(float(numFirstHit_ECp) * scale, 1.);
+    m_secondHit_ECp->Fill(float(numSecondHit_ECp) * scale, 1.);
   }
   if (numSCTRDOs_ECm != 0 && m_doNegativeEndcap) {
-    double scale = 100. / double(numSCTRDOs_ECm);
-    m_firstHit_ECm->Fill(double(numFirstHit_ECm) * scale, 1.);
-    m_secondHit_ECm->Fill(double(numSecondHit_ECm) * scale, 1.);
+    float scale = 100. / float(numSCTRDOs_ECm);
+    m_firstHit_ECm->Fill(float(numFirstHit_ECm) * scale, 1.);
+    m_secondHit_ECm->Fill(float(numSecondHit_ECm) * scale, 1.);
   }
   if (m_environment == AthenaMonManager::online) {
     if (m_numberOfEvents == 1 or(m_numberOfEvents > 1 && (m_numberOfEvents % m_checkrate) == 0)) {
@@ -745,7 +745,7 @@ SCTErrMonTool::checkRateHists() {
               content = m_numErrorsPerLumi[reg]->GetBinContent(xb, yb);
               if (num_modules > 0) {
                 m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 1, content);
-                m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 0, (evt_lumi * ((double) num_modules) - content));
+                m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 0, (evt_lumi * ((float) num_modules) - content));
               }
             }
           }
@@ -971,10 +971,10 @@ SCTErrMonTool::fillByteStreamErrors() {
     // fill number of BS errors vs LBs
     for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
       if(!m_sctflag) {
-	m_ByteStreamVsLB[errType][reg]->Fill(current_lb, double (bytestream_errs[errType][reg]));
+	m_ByteStreamVsLB[errType][reg]->Fill(current_lb, float (bytestream_errs[errType][reg]));
       }
       else {
-	m_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(current_lb, double (bytestream_errs[errType][reg]));
+	m_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(current_lb, float (bytestream_errs[errType][reg]));
       }
     }
   }
@@ -982,10 +982,10 @@ SCTErrMonTool::fillByteStreamErrors() {
   for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
     bytestream_errs[MASKEDLINKALL][reg] = bytestream_errs[MASKEDLINKS][reg] + bytestream_errs[MASKEDRODS][reg];
     if(!m_sctflag) {
-      m_ByteStreamVsLB[MASKEDLINKALL][reg]->Fill(current_lb, double (bytestream_errs[MASKEDLINKALL][reg]));
+      m_ByteStreamVsLB[MASKEDLINKALL][reg]->Fill(current_lb, float (bytestream_errs[MASKEDLINKALL][reg]));
     }
     else {
-      m_ByteStreamWithSctFlagVsLB[MASKEDLINKALL][reg]->Fill(current_lb, double (bytestream_errs[MASKEDLINKALL][reg]));
+      m_ByteStreamWithSctFlagVsLB[MASKEDLINKALL][reg]->Fill(current_lb, float (bytestream_errs[MASKEDLINKALL][reg]));
     }
   }
 
@@ -1762,38 +1762,38 @@ SCTErrMonTool::bookConfMaps() {
         for (int errType = 0; errType != SUMMARY; ++errType) {
           m_ByteStreamVsLB[errType][reg] = TProfile_LW::create("SCT" + errorsString(errType) + "VsLbs" + regLabel[reg],
                                                                "Ave. " + errorsString(errType) + " per LB in " + regTitle[reg],
-							       n_lumiBins, 0.5, n_lumiBins + 0.5);
+							       SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_ByteStreamVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
           m_ByteStreamVsLB[errType][reg]->GetYaxis()->SetTitle("Num of " + errorsString(errType));
           m_ByteStreamWithSctFlagVsLB[errType][reg] = TProfile_LW::create("SCT" + errorsString(errType) + "WithSctFlagVsLbs" + regLabel[reg],
 									  "Ave. " + errorsString(errType) + " with SCT flag per LB in " + regTitle[reg],
-									  n_lumiBins, 0.5, n_lumiBins + 0.5);
+									  SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_ByteStreamWithSctFlagVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
           m_ByteStreamWithSctFlagVsLB[errType][reg]->GetYaxis()->SetTitle("Num of " + errorsString(errType));
         }
         for (int errType = SUMMARY; errType != N_ERRTYPES; ++errType) {
           m_ByteStreamVsLB[errType][reg] = TProfile_LW::create("SCT" + errorsString(errType) + regLabel[reg],
                                                                "Ave. " + errorsString(errType) + " per LB in " + regTitle[reg],
-							       n_lumiBins, 0.5, n_lumiBins + 0.5);
+							       SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_ByteStreamVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
           m_ByteStreamVsLB[errType][reg]->GetYaxis()->SetTitle(errorsString(errType));
         }
 
         m_LinksWithAnyErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithErrors" + regLabel[reg],
                                                             "Ave. num of links with errors per LB in " + regTitle[reg],
-                                                            n_lumiBins, 0.5, n_lumiBins + 0.5);
+                                                            SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
         m_LinksWithAnyErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
         m_LinksWithBadErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithBadErrors" + regLabel[reg],
                                                             "Ave. num of links with bad errors per LB in " +
-                                                            regTitle[reg], n_lumiBins, 0.5, n_lumiBins + 0.5);
+                                                            regTitle[reg], SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
         m_LinksWithBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
         m_LinksWithLnkErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithLinkLevelErrors" + regLabel[reg],
                                                             "Ave. num of links with Link-level errors per LB in " +
-                                                            regTitle[reg], n_lumiBins, 0.5, n_lumiBins + 0.5);
+                                                            regTitle[reg], SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
         m_LinksWithLnkErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
         m_LinksWithRODErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithRODLevelErrors" + regLabel[reg],
                                                             "Ave. num of links with ROD-level errors per LB in " +
-                                                            regTitle[reg], n_lumiBins, 0.5, n_lumiBins + 0.5);
+                                                            regTitle[reg], SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
         m_LinksWithRODErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
       }
 
@@ -1806,32 +1806,32 @@ SCTErrMonTool::bookConfMaps() {
           m_LinksWithAnyErrorsVsLBLayer[reg][lyr] = TProfile_LW::create(
             "SCTLinksWithErrors" + regLabel[reg] + "lyr" + streamlayer.str(),
             "Ave. num of links with errors per LB in " +
-            regTitle[reg] + " layer" + streamlayer.str(), n_lumiBins, 0.5, n_lumiBins + 0.5);
+            regTitle[reg] + " layer" + streamlayer.str(), SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_LinksWithAnyErrorsVsLBLayer[reg][lyr]->GetXaxis()->SetTitle("LumiBlock");
           m_LinksWithBadErrorsVsLBLayer[reg][lyr] = TProfile_LW::create(
             "SCTLinksWithBadErrors" + regLabel[reg] + "lyr" + streamlayer.str(),
             "Ave. num of links with bad errors per LB in " +
-            regTitle[reg] + " layer" + streamlayer.str(), n_lumiBins, 0.5, n_lumiBins + 0.5);
+            regTitle[reg] + " layer" + streamlayer.str(), SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_LinksWithBadErrorsVsLBLayer[reg][lyr]->GetXaxis()->SetTitle("LumiBlock");
           m_LinksWithLnkErrorsVsLBLayer[reg][lyr] = TProfile_LW::create(
             "SCTLinksWithLinkLevelErrors" + regLabel[reg] + "lyr" + streamlayer.str(),
             "Ave. num of links with Link-level errors per LB in " +
-            regTitle[reg] + " layer" + streamlayer.str(), n_lumiBins, 0.5, n_lumiBins + 0.5);
+            regTitle[reg] + " layer" + streamlayer.str(), SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_LinksWithLnkErrorsVsLBLayer[reg][lyr]->GetXaxis()->SetTitle("LumiBlock");
           m_LinksWithRODErrorsVsLBLayer[reg][lyr] = TProfile_LW::create(
             "SCTLinksWithRODLevelErrors" + regLabel[reg] + "lyr" + streamlayer.str(),
             "Ave. num of links with ROD-level errors per LB in " +
-            regTitle[reg] + " layer" + streamlayer.str(), n_lumiBins, 0.5, n_lumiBins + 0.5);
+            regTitle[reg] + " layer" + streamlayer.str(), SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
           m_LinksWithRODErrorsVsLBLayer[reg][lyr]->GetXaxis()->SetTitle("LumiBlock");
         }
       }
 
       m_NumberOfSCTFlagErrorsVsLB = TH1F_LW::create("NumberOfSCTFlagErrorsVsLB", "Num of SCT Flag errors per LB ",
-                                                    n_lumiBins, 0.5, n_lumiBins + 0.5);
+                                                    SCT_Monitoring::NBINS_LBs, 0.5, SCT_Monitoring::NBINS_LBs + 0.5);
       m_NumberOfSCTFlagErrorsVsLB->GetXaxis()->SetTitle("LumiBlock");
 
-      m_NumberOfEventsVsLB = TH1F_LW::create("NumberOfEventsVsLB", "Num of events per LB ", n_lumiBins, 0.5,
-                                             n_lumiBins + 0.5);
+      m_NumberOfEventsVsLB = TH1F_LW::create("NumberOfEventsVsLB", "Num of events per LB ", SCT_Monitoring::NBINS_LBs, 0.5,
+                                             SCT_Monitoring::NBINS_LBs + 0.5);
       m_NumberOfEventsVsLB->GetXaxis()->SetTitle("LumiBlock");
 
       const int conf_noise_bins = 4;
@@ -2264,32 +2264,32 @@ SCTErrMonTool::fillCondDBMaps() {
 
   if (m_makeConfHisto) {
     for (int reg = 0; reg <= 3; ++reg) {
-      m_Conf[reg]->Fill(0., double (MOut[reg]));
-      m_ConfRN[reg]->Fill(0., double (MOut[reg]));
-      m_Conf[reg]->Fill(1., double (Flagged[reg]));
-      m_ConfRN[reg]->Fill(1., double (Flagged[reg]));
-      m_Conf[reg]->Fill(2., double (MaskedAllLinks[reg]));
-      m_ConfRN[reg]->Fill(2., double (MaskedAllLinks[reg]));
-      m_Conf[reg]->Fill(3., double (ModErr[reg]));
-      m_ConfRN[reg]->Fill(3., double (ModErr[reg]));
-      m_Conf[reg]->Fill(4., double (InEffModules[reg]));
-      m_ConfRN[reg]->Fill(4., double (InEffModules[reg]));
-      m_Conf[reg]->Fill(5., double (NoisyModules[reg]));
-      m_ConfRN[reg]->Fill(5., double (RNoisyModules[reg]));
+      m_Conf[reg]->Fill(0., float (MOut[reg]));
+      m_ConfRN[reg]->Fill(0., float (MOut[reg]));
+      m_Conf[reg]->Fill(1., float (Flagged[reg]));
+      m_ConfRN[reg]->Fill(1., float (Flagged[reg]));
+      m_Conf[reg]->Fill(2., float (MaskedAllLinks[reg]));
+      m_ConfRN[reg]->Fill(2., float (MaskedAllLinks[reg]));
+      m_Conf[reg]->Fill(3., float (ModErr[reg]));
+      m_ConfRN[reg]->Fill(3., float (ModErr[reg]));
+      m_Conf[reg]->Fill(4., float (InEffModules[reg]));
+      m_ConfRN[reg]->Fill(4., float (InEffModules[reg]));
+      m_Conf[reg]->Fill(5., float (NoisyModules[reg]));
+      m_ConfRN[reg]->Fill(5., float (RNoisyModules[reg]));
       if (m_environment == AthenaMonManager::online) {
-        m_ConfOnline[reg]->Fill(0., double (MOut[reg]));
-        m_ConfOnline[reg]->Fill(1., double (Flagged[reg]));
-        m_ConfOnline[reg]->Fill(2., double (MaskedAllLinks[reg]));
-        m_ConfOnline[reg]->Fill(3., double (ModErr[reg]));
+        m_ConfOnline[reg]->Fill(0., float (MOut[reg]));
+        m_ConfOnline[reg]->Fill(1., float (Flagged[reg]));
+        m_ConfOnline[reg]->Fill(2., float (MaskedAllLinks[reg]));
+        m_ConfOnline[reg]->Fill(3., float (ModErr[reg]));
       }
     }
     if (m_environment == AthenaMonManager::online or testOffline) {
       m_ConfEffOnline->Reset("ICE");
       for (int i(0); i != 4; ++i) {
         const float f(i);
-        m_ConfEffOnline->Fill(f, double (InEffModules[i]));
-        m_ConfNoiseOnline->Fill(f, double (NoisyModules[i]));
-        m_ConfNoiseOnlineRecent->Fill(f, double (NoisyModulesRecent[i]));
+        m_ConfEffOnline->Fill(f, float (InEffModules[i]));
+        m_ConfNoiseOnline->Fill(f, float (NoisyModules[i]));
+        m_ConfNoiseOnlineRecent->Fill(f, float (NoisyModulesRecent[i]));
       }
     }
   }
@@ -2345,11 +2345,11 @@ SCTErrMonTool::fillConfigurationDetails() {
     nBadStripsExclusiveBEC[SCT_Monitoring::bec2Index(bec)] += 1;
   }
 
-  m_DetailedConfiguration->Fill(0., double (nBadMods));
-  m_DetailedConfiguration->Fill(1., double (nBadLink0));
-  m_DetailedConfiguration->Fill(2., double (nBadLink1));
-  m_DetailedConfiguration->Fill(3., double (nBadChips));
-  m_DetailedConfiguration->Fill(4., double (nBadStripsExclusive) / 100.);
+  m_DetailedConfiguration->Fill(0., float (nBadMods));
+  m_DetailedConfiguration->Fill(1., float (nBadLink0));
+  m_DetailedConfiguration->Fill(2., float (nBadLink1));
+  m_DetailedConfiguration->Fill(3., float (nBadChips));
+  m_DetailedConfiguration->Fill(4., float (nBadStripsExclusive) / 100.);
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "-----------------------------------------------------------------------" << endmsg;

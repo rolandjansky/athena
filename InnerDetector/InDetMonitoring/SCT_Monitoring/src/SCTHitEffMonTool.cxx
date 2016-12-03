@@ -106,19 +106,19 @@ namespace {// anonymous namespace for functions at file scope
 
   constexpr Double_t radianDegrees(180. / 3.1415927);
 
-  double
+  float
   amgPseudoRapidity(const Amg::Vector3D &position) {
-    double pseudo(0.);
-    double ma = position.mag(), dz = position.z();
+    float pseudo(0.);
+    float ma = position.mag(), dz = position.z();
 
     if (ma == 0) {
       return 0;
     }
     if (ma == dz) {
-      return std::numeric_limits<double>::max();
+      return std::numeric_limits<float>::max();
     }
     if (ma == -dz) {
-      return std::numeric_limits<double>::min();
+      return std::numeric_limits<float>::min();
     }
     pseudo = 0.5 * log((ma + dz) / (ma - dz));
     return pseudo;
@@ -141,7 +141,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_TrackSum(nullptr),
   m_badChips(nullptr),
   m_fieldServiceHandle("AtlasFieldSvc", name),
-  m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool"),
+  m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool", this),
   m_DetectorMode(1), // Barrel = 1, endcap =2, both =3
   m_RunningMode(2),
   m_minPixelHits(-1),
@@ -1201,9 +1201,9 @@ SCTHitEffMonTool::fillHistograms() {
     }
     const Trk::Perigee *perigee = pthisTrack->perigeeParameters();
     const AmgVector(5) & perigeeParameters(perigee->parameters());
-    const double d0(perigeeParameters[Trk::d0]);
-    const double z0(perigeeParameters[Trk::z0]);
-    const double perigeeTheta(perigeeParameters[Trk::theta]);
+    const float d0(perigeeParameters[Trk::d0]);
+    const float z0(perigeeParameters[Trk::z0]);
+    const float perigeeTheta(perigeeParameters[Trk::theta]);
 
     if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
@@ -1239,13 +1239,13 @@ SCTHitEffMonTool::fillHistograms() {
     }
     const Trk::Perigee *perigee = pthisTrack->perigeeParameters();
     const AmgVector(5) & perigeeParameters(perigee->parameters());
-    const double d0(perigeeParameters[Trk::d0]);
-    const double z0(perigeeParameters[Trk::z0]);
-    const double perigeeTheta(perigeeParameters[Trk::theta]);
-    const double pT(perigee->pT());
-    const double eta(perigee->eta());
-    const double phi(perigeeParameters[Trk::phi]);
-    const double perigeeCharge(perigee->charge());
+    const float d0(perigeeParameters[Trk::d0]);
+    const float z0(perigeeParameters[Trk::z0]);
+    const float perigeeTheta(perigeeParameters[Trk::theta]);
+    const float pT(perigee->pT());
+    const float eta(perigee->eta());
+    const float phi(perigeeParameters[Trk::phi]);
+    const float perigeeCharge(perigee->charge());
 
     if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
@@ -1283,8 +1283,8 @@ SCTHitEffMonTool::fillHistograms() {
     Int_t m_pixelNHits(0);
     Int_t m_trtNHits(0);
     std::map < Identifier, Double_t > mapOfTrackHitResiduals;
-    Double_t zmin = std::numeric_limits<double>::max();
-    Double_t zmax = -std::numeric_limits<double>::max();
+    Double_t zmin = std::numeric_limits<float>::max();
+    Double_t zmax = -std::numeric_limits<float>::max();
     Double_t zpos(0.);
     Float_t layerSide(-1);
     Float_t min_layerSide(999);
@@ -1628,8 +1628,8 @@ SCTHitEffMonTool::fillHistograms() {
       // Check guard ring
       Bool_t insideGuardRing(true);
       if (isub == BARREL_INDEX) {
-        double_t xGuard(m_effdistcut);
-        double_t yGuard(3.);
+        float_t xGuard(m_effdistcut);
+        float_t yGuard(3.);
         if (xl < -30.7 + xGuard) {
           insideGuardRing = false;
         }
@@ -1870,11 +1870,11 @@ SCTHitEffMonTool::procHistograms() {                                            
       phibins[isub][layer].push_back(phiMin);
       MaxEta[isub][layer] = std::max(etaMax, MaxEta[isub][layer]);
       MaxPhi[isub][layer] = std::max(phiMax, MaxPhi[isub][layer]);
-      double dPhi(fabs(phiMax - phiMin));
+      float dPhi(fabs(phiMax - phiMin));
       if (dPhi > M_PI) {
         dPhi = 2 * M_PI - dPhi;
       }
-      double dEta(fabs(etaMax - etaMin));
+      float dEta(fabs(etaMax - etaMin));
       std::set< Identifier >::const_iterator bMItr(m_badModules->find(*wafItr));
       Float_t eff(Float_t(bMItr == m_badModules->end()));
       Float_t accSide[2] = {
@@ -1974,7 +1974,7 @@ SCTHitEffMonTool::procHistograms() {                                            
         return StatusCode::FAILURE;
       }
       InDetDD::SiDetectorElement *element = mgr->getDetectorElement(surfaceID);
-      //      const HepGeom::Point3D<double> position = element->center();
+      //      const HepGeom::Point3D<float> position = element->center();
       //      m_accPhysMap[histnumber]->Fill(position.pseudoRapidity(), position.phi(), (1. - bMod->second) * N_CHIPS *
       // 2);
       const Amg::Vector3D position = element->center();

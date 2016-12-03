@@ -118,10 +118,10 @@ private:
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const double (&vec)[3], const double &sinAlpha, const Identifier &id, double &theta, double &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, float &theta, float &phi );
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t  pFactory(const std::string & name, const std::string & title, int nbinsx, double xlow, double xhigh, MonGroup & registry, int& iflag);
+  Prof_t  pFactory(const std::string & name, const std::string & title, int nbinsx, float xlow, float xhigh, MonGroup & registry, int& iflag);
   ///Factory + register for the 1D histograms, returns whether successfully registered
   bool h1Factory(const std::string & name, const std::string & title, const float extent, MonGroup & registry, VecH1_t & storageVector);
   //@}

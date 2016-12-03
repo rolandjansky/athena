@@ -437,7 +437,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
     // ignores the RDO cut online since the empty events are pre-filtered there
     if (count_SCT_RDO < 1E6 || (m_ignore_RDO_cut_online && m_environment == AthenaMonManager::online)) {
       m_num_RDO->Fill(count_SCT_RDO);
-      if(m_current_lb<=NBINS_LBs) noisyM[m_current_lb] = 0;
+      if(m_current_lb<=SCT_Monitoring::NBINS_LBs) noisyM[m_current_lb] = 0;
       for (int j = 0; j < n_mod[GENERAL_INDEX]; j++) {
         noSidesHit = false;
         oneSideHit = false;
@@ -519,7 +519,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
         }
         // --------------------------------------
         if (calculateNoiseOccupancyUsingRatioMethod(nOneSide_lb[j], nNoSides_lb[j]) * 1E5 > 100.) {
-          if(m_current_lb<=NBINS_LBs) noisyM[m_current_lb] += 1;
+          if(m_current_lb<=SCT_Monitoring::NBINS_LBs) noisyM[m_current_lb] += 1;
         }
       }
 
@@ -530,7 +530,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
         92, 132, 132, 132, 132, 132, 92, 92, 52
       };
 
-      double NO_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSide_ev, nNoSides_ev);
+      float NO_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSide_ev, nNoSides_ev);
 
       m_NOEV->Fill(1E5 * NO_ev);
       m_NOEV_RDO->Fill(1E5 * NO_ev, count_SCT_RDO);
@@ -541,7 +541,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (int l = 0; l < n_layers[BARREL_INDEX]; l++) {
         int nosidehit = NumModBarrelLayer[l] - nNonGoodModulesBarrel_ev[l] - nOneSideBarrel_ev[l] -
                         nTwoSideBarrel_ev[l];
-        double NO_barrel_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideBarrel_ev[l], nosidehit);
+        float NO_barrel_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideBarrel_ev[l], nosidehit);
         m_NOEVBAR[l]->Fill(1E5 * NO_barrel_ev);
         m_NZ1BAR[l]->Fill(nosidehit);
         m_N11BAR[l]->Fill(nOneSideBarrel_ev[l]);
@@ -552,7 +552,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (int m = 0; m < n_layers[ENDCAP_C_INDEX]; m++) {
         int nosidehit = NumModEndcapDisk[m] - nNonGoodModulesEndcapC_ev[m] - nOneSideEndcapC_ev[m] -
                         nTwoSideEndcapC_ev[m];
-        double NO_endcapc_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapC_ev[m], nosidehit);
+        float NO_endcapc_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapC_ev[m], nosidehit);
         m_NOEVECC[m]->Fill(1E5 * NO_endcapc_ev);
         m_NZ1ECC[m]->Fill(nosidehit);
         m_N11ECC[m]->Fill(nOneSideEndcapC_ev[m]);
@@ -563,7 +563,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (int q = 0; q < n_layers[ENDCAP_A_INDEX]; q++) {
         int nosidehit = NumModEndcapDisk[q] - nNonGoodModulesEndcapA_ev[q] - nOneSideEndcapA_ev[q] -
                         nTwoSideEndcapA_ev[q];
-        double NO_endcapa_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapA_ev[q], nosidehit);
+        float NO_endcapa_ev = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapA_ev[q], nosidehit);
         m_NOEVECA[q]->Fill(1E5 * NO_endcapa_ev);
         m_NZ1ECA[q]->Fill(nosidehit);
         m_N11ECA[q]->Fill(nOneSideEndcapA_ev[q]);
@@ -657,16 +657,16 @@ SCTRatioNoiseMonTool::procHistograms() {
   }
 
   // calculate and fill ratio noise per lumiblock
-  int nNoSides_lb_allmod[NBINS_LBs + 1];
-  int nOneSide_lb_allmod[NBINS_LBs + 1];
-  for (int bin = 1; bin < NBINS_LBs + 1; bin++) {
+  int nNoSides_lb_allmod[SCT_Monitoring::NBINS_LBs + 1];
+  int nOneSide_lb_allmod[SCT_Monitoring::NBINS_LBs + 1];
+  for (int bin = 1; bin < SCT_Monitoring::NBINS_LBs + 1; bin++) {
     nNoSides_lb_allmod[bin] = 0;
     nOneSide_lb_allmod[bin] = 0;
   }
 
   for (int layer = 0; layer < N_BARRELS; layer++) { // Barrel
     m_NOBAR_layer_vsLB[layer]->Reset();
-    for (int bin = 1; bin < NBINS_LBs + 1; bin++) {
+    for (int bin = 1; bin < SCT_Monitoring::NBINS_LBs + 1; bin++) {
       int num_zero = m_NZ1BAR_vsLB[layer]->GetBinContent(bin);
       int num_one = m_N11BAR_vsLB[layer]->GetBinContent(bin);
       if (num_zero != 0) {
@@ -679,7 +679,7 @@ SCTRatioNoiseMonTool::procHistograms() {
   }
   for (int layer = 0; layer < N_DISKS; layer++) { // Endcap
     m_NOECA_disk_vsLB[layer]->Reset();
-    for (int bin = 1; bin < NBINS_LBs + 1; bin++) {
+    for (int bin = 1; bin < SCT_Monitoring::NBINS_LBs + 1; bin++) {
       int num_zero = m_NZ1ECA_vsLB[layer]->GetBinContent(bin);
       int num_one = m_N11ECA_vsLB[layer]->GetBinContent(bin);
       if (num_zero != 0) {
@@ -690,7 +690,7 @@ SCTRatioNoiseMonTool::procHistograms() {
       nOneSide_lb_allmod[bin] += num_one;
     }
     m_NOECC_disk_vsLB[layer]->Reset();
-    for (int bin = 1; bin < NBINS_LBs + 1; bin++) {
+    for (int bin = 1; bin < SCT_Monitoring::NBINS_LBs + 1; bin++) {
       int num_zero = m_NZ1ECC_vsLB[layer]->GetBinContent(bin);
       int num_one = m_N11ECC_vsLB[layer]->GetBinContent(bin);
       if (num_zero != 0) {
@@ -703,9 +703,9 @@ SCTRatioNoiseMonTool::procHistograms() {
   }
   m_NO_vsLB->Reset();
   m_NoisyModules_vsLB->Reset();
-  for (int bin = 1; bin < NBINS_LBs + 1; bin++) {
+  for (int bin = 1; bin < SCT_Monitoring::NBINS_LBs + 1; bin++) {
     if (nNoSides_lb_allmod[bin] != 0) {
-      double NOLB = 0.;
+      float NOLB = 0.;
       NOLB = 1E5 * calculateNoiseOccupancyUsingRatioMethod(nOneSide_lb_allmod[bin], nNoSides_lb_allmod[bin]);
       if (NOLB != 0) {
         m_NO_vsLB->Fill(bin, NOLB);
@@ -906,10 +906,10 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
     m_NOEC_Outer = h1Factory("h_NOEC_Outer", "Noise Occupancy Endcap Outer Modules", RatioNoise, 0, 150, 500);
     m_NOEC_Outer->SetTitle("Noise Occupancy for Endcap Outer; Noise Occupancy [10^{-5}] ; Num of Modules");
 
-    m_NO_vsLB = pFactory("h_NO_vsLB", "Noise Occupancy All vs LB", RatioNoise, 0.5, NBINS_LBs + 0.5, NBINS_LBs);
+    m_NO_vsLB = pFactory("h_NO_vsLB", "Noise Occupancy All vs LB", RatioNoise, 0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
     m_NO_vsLB->SetTitle("Noise Occupancy vs LB for Barrel and Endcaps (Ratio Noise);LB;Noise Occupancy [10^{-5}]");
     m_NoisyModules_vsLB = pFactory("h_NoisyModules_vsLB", "Number of Noisy Modules vs LB", RatioNoise, 0.5,
-                                   NBINS_LBs + 0.5, NBINS_LBs);
+                                   SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
     m_NoisyModules_vsLB->SetTitle(
       "Number of Noisy Modules vs LB for Barrel and Endcaps (Ratio Noise);LB;Number of Noisy Modules");
 
@@ -962,7 +962,7 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_NOBAR_layer[l]->GetYaxis()->SetTitle("Num of Modules");
           m_NOBAR_layer_vsLB[l] = pFactory("h_NOb_layer" + hNumBarrel[l] + "_vsLB",
                                            "Noise Occupancy Barrel Layer" + hNumBarrel[l] + " vs LB", noiseOccMaps, 0.5,
-                                           NBINS_LBs + 0.5, NBINS_LBs);
+                                           SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NOBAR_layer_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
           m_NOBAR_layer_vsLB[l]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
           m_NZ1BAR[l] = h1Factory("h_NZ1BAR" + hNumBarrel[l], "Num of ZeroSide Hits in Barrel Layer" + hNumBarrel[l],
@@ -979,12 +979,12 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_N21BAR[l]->GetYaxis()->SetTitle("Num of Entries");
           m_NZ1BAR_vsLB[l] = pFactory("h_NZ1BAR" + hNumBarrel[l] + "_vsLB",
                                       "Num of ZeroSide Hits in Barrel Layer" + hNumBarrel[l] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NZ1BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
           m_NZ1BAR_vsLB[l]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
           m_N11BAR_vsLB[l] = pFactory("h_N11BAR" + hNumBarrel[l] + "_vsLB",
                                       "Num of OneSide Hits in Barrel Layer" + hNumBarrel[l] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_N11BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
           m_N11BAR_vsLB[l]->GetYaxis()->SetTitle("Num of OneSide Hits");
 
@@ -1007,7 +1007,7 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_NOECC_disk[m]->GetYaxis()->SetTitle("Num of Modules");
           m_NOECC_disk_vsLB[m] = pFactory("h_NOECC_disk" + hNumEndcap[m] + "_vsLB",
                                           "Noise Occupancy EndcapC Disk" + hNumEndcap[m] + " vs LB", noiseOccMaps, 0.5,
-                                          NBINS_LBs + 0.5, NBINS_LBs);
+                                          SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NOECC_disk_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
           m_NOECC_disk_vsLB[m]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
           m_NZ1ECC[m] = h1Factory("h_NZ1ECC" + hNumEndcap[m], "Num of ZeroSide Hits in EndcapC Disk" + hNumEndcap[m],
@@ -1024,12 +1024,12 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_N21ECC[m]->GetYaxis()->SetTitle("Num of Entries");
           m_NZ1ECC_vsLB[m] = pFactory("h_NZ1ECC" + hNumEndcap[m] + "_vsLB",
                                       "Num of ZeroSide Hits in EndcapC Disk" + hNumEndcap[m] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NZ1ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
           m_NZ1ECC_vsLB[m]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
           m_N11ECC_vsLB[m] = pFactory("h_N11ECC" + hNumEndcap[m] + "_vsLB",
                                       "Num of OneSide Hits in EndcapC Disk" + hNumEndcap[m] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_N11ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
           m_N11ECC_vsLB[m]->GetYaxis()->SetTitle("Num of OneSide Hits");
         }
@@ -1046,7 +1046,7 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_NOECA_disk[p]->GetYaxis()->SetTitle("Num of Modules");
           m_NOECA_disk_vsLB[p] = pFactory("h_NOECA_disk" + hNumEndcap[p] + "_vsLB",
                                           "Noise Occupancy Barrel Disk" + hNumEndcap[p] + " vs LB", noiseOccMaps, 0.5,
-                                          NBINS_LBs + 0.5, NBINS_LBs);
+                                          SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NOECA_disk_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");
           m_NOECA_disk_vsLB[p]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
           m_NZ1ECA[p] = h1Factory("h_NZ1ECA" + hNumEndcap[p], "Num of ZeroSide Hits in EndcapA Disk" + hNumEndcap[p],
@@ -1063,12 +1063,12 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
           m_N21ECA[p]->GetYaxis()->SetTitle("Num of Entries");
           m_NZ1ECA_vsLB[p] = pFactory("h_NZ1ECA" + hNumEndcap[p] + "_vsLB",
                                       "Num of ZeroSide Hits in EndcapA Disk" + hNumEndcap[p] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_NZ1ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");
           m_NZ1ECA_vsLB[p]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
           m_N11ECA_vsLB[p] = pFactory("h_N11ECA" + hNumEndcap[p] + "_vsLB",
                                       "Num of OneSide Hits in EndcapA Disk" + hNumEndcap[p] + " vs LB", noiseOccHits,
-                                      0.5, NBINS_LBs + 0.5, NBINS_LBs);
+                                      0.5, SCT_Monitoring::NBINS_LBs + 0.5, SCT_Monitoring::NBINS_LBs);
           m_N11ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");
           m_N11ECA_vsLB[p]->GetYaxis()->SetTitle("Num of OneSide Hits");
         }

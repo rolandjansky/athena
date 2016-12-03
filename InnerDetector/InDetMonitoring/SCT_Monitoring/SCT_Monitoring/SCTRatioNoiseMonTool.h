@@ -118,14 +118,14 @@ private:
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
   
-  double d1;
-  double n1;
-  double n1Barrel[N_BARRELS];
-  double n1EndcapA[N_DISKS];
-  double n1EndcapC[N_DISKS];
-  double d1Barrel[N_BARRELS];
-  double d1EndcapA[N_DISKS];
-  double d1EndcapC[N_DISKS];
+  float d1;
+  float n1;
+  float n1Barrel[N_BARRELS];
+  float n1EndcapA[N_DISKS];
+  float n1EndcapC[N_DISKS];
+  float d1Barrel[N_BARRELS];
+  float d1EndcapA[N_DISKS];
+  float d1EndcapC[N_DISKS];
   
   bool noSidesHit;
   bool oneSideHit;
@@ -158,11 +158,11 @@ private:
   float ratioside0;
   float ratioside1;
   
-  static const long NBINS_LBs = 2000;
+  //static const long NBINS_LBs = 2000;
   
   int nNoSides_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nOneSide_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int noisyM[NBINS_LBs+1];
+  int noisyM[SCT_Monitoring::NBINS_LBs+1];
   //@name Histograms related members
   //@{
 
@@ -254,7 +254,7 @@ private:
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const double (&vec)[3], const double &sinAlpha, const Identifier &id, double &theta, double &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, float &theta, float &phi );
   float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   bool isBarrel(const int moduleNumber);

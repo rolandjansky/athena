@@ -165,7 +165,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   /// "Magic numbers" for an SCT module
   //unsigned int m_nplanes; //to be determined from SCT Helper
-  enum { Confbins = 6, ConfbinsDetailed = 5,n_lumiErrBins = 15, n_lumiBins = 3000 };
+  enum { Confbins = 6, ConfbinsDetailed = 5,n_lumiErrBins = 15 };
   // NOTE: The following is not the usual index order, which goes C, Barrel, A
   enum { iBARREL = 0, iECp = 1, iECm=2, iGEN=3 }; //iECp==EA, iECm==EC
 

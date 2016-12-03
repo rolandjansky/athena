@@ -428,8 +428,8 @@ SCTTracksMonTool::fillHistograms() {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
                   return StatusCode::FAILURE;
                 } else {
-                  double local_residual(residualPull->residual()[Trk::locX]);
-                  double local_pull(residualPull->pull()[Trk::locX]);
+                  float local_residual(residualPull->residual()[Trk::locX]);
+                  float local_pull(residualPull->pull()[Trk::locX]);
                   bool bigPull(local_pull < 10. and local_pull > -10.);
                   if (doThisDetector) {
                     residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
@@ -478,7 +478,7 @@ SCTTracksMonTool::fillHistograms() {
                                 //    const CLHEP::HepVector LocalTrackParameters(trackAtPlane->parameters());
                                 const AmgVector(5) LocalTrackParameters(trackAtPlane->parameters());
                                 if(clus->localParameters().parameterKey() == ONE_D_LOCATION){
-                                    double local_residual(LocalTrackParameters[Trk::locX] -
+                                    float local_residual(LocalTrackParameters[Trk::locX] -
                                        clus->localParameters()[Trk::locX]);
                                     if (doThisDetector){
                                         residualsSummaryHistogram =
@@ -496,12 +496,12 @@ SCTTracksMonTool::fillHistograms() {
                                     }
                                 } else {
                                     if (doThisDetector){
-                                        double
+                                        float
                                            sinAlpha(RawDataClus->detectorElement()->sinStereoLocal(RawDataClus->localPosition()));
-                                        double cosAlpha(sqrt(1. - sinAlpha*sinAlpha));
+                                        float cosAlpha(sqrt(1. - sinAlpha*sinAlpha));
                                                                 // Calculate Residual for hit: res = (vec(x_track) -
                                                                    vec(x_hit)) * vec(n_perpendicular)
-                                        double local_residual((LocalTrackParameters[Trk::locX] -
+                                        float local_residual((LocalTrackParameters[Trk::locX] -
                                             clus->localParameters()[Trk::locX]) * cosAlpha
                + (LocalTrackParameters[Trk::locY] - clus->localParameters()[Trk::locY]) * sinAlpha);
                                         residualsSummaryHistogram = (bec == BARREL) ? 0 :
@@ -537,7 +537,7 @@ SCTTracksMonTool::fillHistograms() {
     m_trk_ncluHisto->Fill(local_scthits, 1.);
     // We now know whether this particular track had hits in the barrel or endcaps- update the profile histogram
     for (unsigned int region(0); region != N_REGIONS; ++region) {
-      m_trackRate->Fill(float(region), double(hasHits[region])); // note: ordering was different in original code (was
+      m_trackRate->Fill(float(region), float(hasHits[region])); // note: ordering was different in original code (was
                                                                  // barrel, Eca, Ecb)
     }
   } // end of loop on tracks
@@ -718,11 +718,11 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
 // ====================================================================================================
 //                           SCTTracksMonTool :: calculatePull
 // ====================================================================================================
-double
-SCTTracksMonTool::calculatePull(const double residual, const double trkErr, const double hitErr) {
-  double ErrorSum(pow(trkErr * trkErr + hitErr * hitErr, 0.5));
+float
+SCTTracksMonTool::calculatePull(const float residual, const float trkErr, const float hitErr) {
+  float ErrorSum(pow(trkErr * trkErr + hitErr * hitErr, 0.5));
 
-  if (ErrorSum > 1.0e-20) { // if(ErrorSum != 0) //as doubles are rarely exactly zero
+  if (ErrorSum > 1.0e-20) { // if(ErrorSum != 0) //as floats are rarely exactly zero
     return residual / ErrorSum;
   } else {
     ATH_MSG_DEBUG("Error on Track and Cluster are 0. Returning Pull value 0.");
