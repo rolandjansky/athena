@@ -169,6 +169,7 @@ namespace Analysis
     }
 
     /** ANDREA **/
+    m_warnCounter=0;
     m_disableAlgo=false;
     m_treeName = "BDT";
     m_varStrName = "variables";
