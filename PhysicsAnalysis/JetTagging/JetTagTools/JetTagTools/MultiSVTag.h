@@ -58,7 +58,7 @@ namespace Analysis
       //
       std::string m_runModus; 
       std::string m_refType;
-      const xAOD::Vertex* m_priVtx;
+      const xAOD::Vertex* m_priVtx = 0;
    
       bool m_disableAlgo;
       int  m_warnCounter;

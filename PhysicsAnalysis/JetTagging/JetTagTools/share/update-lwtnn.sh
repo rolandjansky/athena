@@ -25,10 +25,10 @@ REV=$(git describe)
 
 # only copy some files
 HEADERS=(
-    parse_json.hh LightweightNeuralNetwork.hh LightweightRNN.hh
+    parse_json.hh LightweightNeuralNetwork.hh Stack.hh
     NNLayerConfig.hh)
 SRC_FILES=(
-    LightweightNeuralNetwork.cxx parse_json.cxx LightweightRNN.cxx)
+    LightweightNeuralNetwork.cxx parse_json.cxx Stack.cxx)
 
 
 # put a banner on every copied file to warn people not to edit it

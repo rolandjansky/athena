@@ -656,7 +656,7 @@ namespace Analysis {
 			<< " sigd0= " << significance
 			<< " z0= " << szIP
 			<< "+-" << z0ErrwrtPriVtx
-			<< " sigz0= " << z0Sig << endreq;
+			<< " sigz0= " << z0Sig << endmsg;
       
       // VD: I know that this is ugly but I want to minimise the changes as much as I can
       myIPxDinfo tmpObj;

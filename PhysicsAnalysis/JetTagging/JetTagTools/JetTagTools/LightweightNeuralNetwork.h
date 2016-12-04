@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-46-g8a1bd2b)
+// https://github.com/dguest/lwtnn.git (rev v1.0-76-gd837944)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -11,180 +11,48 @@
 #ifndef LIGHTWEIGHT_NEURAL_NETWORK_HH
 #define LIGHTWEIGHT_NEURAL_NETWORK_HH
 
-// Lightweight Tagger
+// Lightweight Neural Networks
 //
 // This is a simple NN implementation, designed to be lightweight in
 // terms of both size and dependencies. For sanity we use Eigen, but
 // otherwise this aims to be a minimal NN class which is fully
 // configurable at runtime.
 //
-// Author: Dan Guest <dguest@cern.ch>
+// The classes defined here are the high level wrappers: they don't
+// directly include any Eigen code (to speed compliation of algorithms
+// that use them), and they store data in STL objects.
+//
+// Authors: Dan Guest <dguest@cern.ch>
+//          Michael Kagan <mkagan@cern.ch>
+//          Michela Paganini <micky.91@hotmail.com>
 
 #include "NNLayerConfig.h"
 
-#include <Eigen/Dense>
-
-#include <vector>
-#include <stdexcept>
-#include <map>
-#include <functional>
-
 namespace lwt {
 
-  using Eigen::VectorXd;
-  using Eigen::MatrixXd;
+  class Stack;
+  class RecurrentStack;
+  class InputPreprocessor;
+  class InputVectorPreprocessor;
 
   // use a normal map externally, since these are more common in user
-  // code.  TODO: is it worth changing to unordered_map?
+  // code.
+  // TODO: is it worth changing to unordered_map?
   typedef std::map<std::string, double> ValueMap;
   typedef std::vector<std::pair<std::string, double> > ValueVector;
-
-  // _______________________________________________________________________
-  // layer classes
-
-  class ILayer
-  {
-  public:
-    virtual ~ILayer() {}
-    virtual VectorXd compute(const VectorXd&) const = 0;
-  };
-
-  class DummyLayer: public ILayer
-  {
-  public:
-    virtual VectorXd compute(const VectorXd&) const;
-  };
-
-  class UnaryActivationLayer: public ILayer
-  {
-  public:
-    UnaryActivationLayer(Activation);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    std::function<double(double)> _func;
-  };
-
-  class SoftmaxLayer: public ILayer
-  {
-  public:
-    virtual VectorXd compute(const VectorXd&) const;
-  };
-
-  class BiasLayer: public ILayer
-  {
-  public:
-    BiasLayer(const VectorXd& bias);
-    BiasLayer(const std::vector<double>& bias);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    VectorXd _bias;
-  };
-
-  class MatrixLayer: public ILayer
-  {
-  public:
-    MatrixLayer(const MatrixXd& matrix);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    MatrixXd _matrix;
-  };
-
-  class MaxoutLayer: public ILayer
-  {
-  public:
-    typedef std::pair<MatrixXd, VectorXd> InitUnit;
-    MaxoutLayer(const std::vector<InitUnit>& maxout_tensor);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    std::vector<MatrixXd> _matrices;
-    MatrixXd _bias;
-  };
-
-  class DenseLayer: public ILayer
-  {
-  public:
-    DenseLayer(const MatrixXd& matrix,
-               const VectorXd& bias,
-               Activation activation);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    MatrixXd _matrix;
-    VectorXd _bias;
-    std::function<double(double)> _activation;
-  };
-
-  //http://arxiv.org/pdf/1505.00387v2.pdf
-  class HighwayLayer: public ILayer
-  {
-  public:
-    HighwayLayer(const MatrixXd& W,
-                 const VectorXd& b,
-                 const MatrixXd& W_carry,
-                 const VectorXd& b_carry,
-                 Activation activation);
-    virtual VectorXd compute(const VectorXd&) const;
-  private:
-    MatrixXd _w_t;
-    VectorXd _b_t;
-    MatrixXd _w_c;
-    VectorXd _b_c;
-    std::function<double(double)> _act;
-  };
+  typedef std::map<std::string, std::vector<double> > VectorMap;
 
   // ______________________________________________________________________
-  // the NN class
+  // high-level wrappers
 
-  class Stack
-  {
-  public:
-    // constructor for dummy net
-    Stack();
-    // constructor for real net
-    Stack(size_t n_inputs, const std::vector<LayerConfig>& layers,
-          size_t skip_layers = 0);
-    ~Stack();
-
-    // make non-copyable for now
-    Stack(Stack&) = delete;
-    Stack& operator=(Stack&) = delete;
-
-    VectorXd compute(VectorXd) const;
-    size_t n_outputs() const;
-
-  private:
-    // returns the size of the next layer
-    size_t add_layers(size_t n_inputs, const LayerConfig&);
-    size_t add_dense_layers(size_t n_inputs, const LayerConfig&);
-    size_t add_highway_layers(size_t n_inputs, const LayerConfig&);
-    size_t add_maxout_layers(size_t n_inputs, const LayerConfig&);
-    std::vector<ILayer*> _layers;
-    size_t _n_outputs;
-  };
-
-  // ______________________________________________________________________
-  // input preprocessor (handles normalization and packing into Eigen)
-
-  class InputPreprocessor
-  {
-  public:
-    InputPreprocessor(const std::vector<Input>& inputs);
-    VectorXd operator()(const ValueMap&) const;
-  private:
-    // input transformations
-    VectorXd _offsets;
-    VectorXd _scales;
-    std::vector<std::string> _names;
-  };
-
-  // ______________________________________________________________________
-  // high-level wrapper
-
+  // feed-forward variant
   class LightweightNeuralNetwork
   {
   public:
     LightweightNeuralNetwork(const std::vector<Input>& inputs,
                              const std::vector<LayerConfig>& layers,
                              const std::vector<std::string>& outputs);
+    ~LightweightNeuralNetwork();
     // disable copying until we need it...
     LightweightNeuralNetwork(LightweightNeuralNetwork&) = delete;
     LightweightNeuralNetwork& operator=(LightweightNeuralNetwork&) = delete;
@@ -196,67 +64,34 @@ namespace lwt {
 
   private:
     // use the Stack class above as the computational core
-    Stack _stack;
-    InputPreprocessor _preproc;
+    Stack* _stack;
+    InputPreprocessor* _preproc;
 
     // output labels
     std::vector<std::string> _outputs;
 
   };
 
-  // ______________________________________________________________________
-  // Activation functions
-
-  // note that others are supported but are too simple to
-  // require a special function
-  double nn_sigmoid( double x );
-  double nn_hard_sigmoid( double x );
-  double nn_tanh( double x );
-  double nn_relu( double x );
-  std::function<double(double)> get_activation(lwt::Activation);
-
-  // WARNING: you own this pointer! Only call when assigning to member data!
-  ILayer* get_raw_activation_layer(Activation);
-
-  // ______________________________________________________________________
-  // utility functions
-
-  // functions to build up basic units from vectors
-  MatrixXd build_matrix(const std::vector<double>& weights, size_t n_inputs);
-  VectorXd build_vector(const std::vector<double>& bias);
-
-  // consistency checks
-  void throw_if_not_maxout(const LayerConfig& layer);
-  void throw_if_not_dense(const LayerConfig& layer);
-
-  // LSTM component for convenience in some layers
-  struct DenseComponents
+  // recurrent version
+  class LightweightRNN
   {
-    Eigen::MatrixXd W;
-    Eigen::MatrixXd U;
-    Eigen::VectorXd b;
-  };
-  DenseComponents get_component(const lwt::LayerConfig& layer, size_t n_in);
-
-  // ______________________________________________________________________
-  // exceptions
-
-  // base exception
-  class LightweightNNException: public std::logic_error {
   public:
-    LightweightNNException(std::string problem);
+    LightweightRNN(const std::vector<Input>& inputs,
+                   const std::vector<LayerConfig>& layers,
+                   const std::vector<std::string>& outputs);
+    ~LightweightRNN();
+    LightweightRNN(LightweightRNN&) = delete;
+    LightweightRNN& operator=(LightweightRNN&) = delete;
+
+    ValueMap reduce(const std::vector<ValueMap>&) const;
+    ValueMap reduce(const VectorMap&) const;
+  private:
+    RecurrentStack* _stack;
+    InputPreprocessor* _preproc;
+    InputVectorPreprocessor* _vec_preproc;
+    std::vector<std::string> _outputs;
+    size_t _n_inputs;
   };
 
-  // thrown by the constructor if something goes wrong
-  class NNConfigurationException: public LightweightNNException {
-  public:
-    NNConfigurationException(std::string problem);
-  };
-
-  // thrown by `compute`
-  class NNEvaluationException: public LightweightNNException {
-  public:
-    NNEvaluationException(std::string problem);
-  };
 }
 #endif

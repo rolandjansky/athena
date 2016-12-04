@@ -58,6 +58,7 @@ namespace Analysis {
     declareProperty("inputIP3DSourceName", m_ip3d_infosource = "IP3D");
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputSoftMuonSourceName", m_softmuon_infosource = "SMT");
+    declareProperty("arbitraryAuxData", m_arbitrary_aux_data);
   }
 
   StatusCode MultivariateTagManager::initialize()
@@ -119,6 +120,8 @@ namespace Analysis {
     fill_trkSum(inputs,BTag);
     fill_softmuon(inputs,BTag);
 
+    fill_arbitrary_aux_data(inputs, BTag);
+
     ATH_MSG_DEBUG(" #BTAG# Retrieving of inputs successfull" );
 
     /* ----------------------------------------------------------------------------------- */
@@ -136,7 +139,7 @@ namespace Analysis {
   }
 
   // fill functions
-  void MultivariateTagManager::fill_softmuon(var_map& inputs, xAOD::BTagging* BTag){
+  void MultivariateTagManager::fill_softmuon(var_map& inputs, xAOD::BTagging* BTag) const {
     float sm_mu_pt           = NAN;
     float sm_dR              = NAN;
     float sm_qOverPratio     = NAN;
@@ -173,7 +176,7 @@ namespace Analysis {
 
 
   }
-  void MultivariateTagManager::fill_trkSum(var_map& inputs, xAOD::BTagging* BTag){
+  void MultivariateTagManager::fill_trkSum(var_map& inputs, xAOD::BTagging* BTag) const {
     float trkSum_ntrk = NAN;
     float trkSum_sPt = NAN;
     float trkSum_vPt = NAN;
@@ -196,7 +199,7 @@ namespace Analysis {
 
   }
 
-  void MultivariateTagManager::fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) const {
     // default values
     int jf_nvtx      = INT_MISSING;
     int jf_nvtx1t    = INT_MISSING;
@@ -269,15 +272,11 @@ namespace Analysis {
     inputs[btagvar::JF_DR_FLIGHT]= jf_dR_flight;
     inputs[btagvar::JF_DPHI]   = jf_dphi;
     inputs[btagvar::JF_DETA]   = jf_deta;
-
-    m_jf_nvtx1t = nan_if_placeholder(jf_nvtx1t);
-    m_jf_ntrkv = nan_if_placeholder(jf_ntrkAtVx);
-    m_jf_efrc = jf_efrc;
   }
 
 
 
-  void MultivariateTagManager::fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) const {
     // default values
     double ip2d_pb = NAN;
     double ip2d_pc = NAN;
@@ -317,7 +316,7 @@ namespace Analysis {
     inputs[btagvar::IP2_CU]  = ip2_cu;
   }
 
-  void MultivariateTagManager::fill_ip3d(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_ip3d(var_map& inputs, xAOD::BTagging* BTag) const {
     // default values
     double ip3d_pb = NAN;
     double ip3d_pc = NAN;
@@ -357,7 +356,7 @@ namespace Analysis {
   }
 
 
-  void MultivariateTagManager::fill_sv0(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_sv0(var_map& inputs, xAOD::BTagging* BTag) const {
     // default values
     int    sv0_n2t    = INT_MISSING;
     int    sv0_ntrkv  = INT_MISSING;
@@ -410,7 +409,7 @@ namespace Analysis {
   }
 
 
-  void MultivariateTagManager::fill_sv1(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_sv1(var_map& inputs, xAOD::BTagging* BTag) const {
     // default values
     double sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
     float     sv1 = NAN, sv1_c  = NAN, sv1_cu = NAN;
@@ -484,12 +483,9 @@ namespace Analysis {
     inputs[btagvar::SV1_SIG3D] = sv1_sig3d;
     inputs[btagvar::SV1_DR]    = sv1_dR;
     inputs[btagvar::SV1_DISTMATLAY]    = sv1_distmatlay;
-
-    m_sv1_ntkv = nan_if_placeholder(sv1_ntrkv);
-    m_sv1_efrc = sv1_efrc;
   }
 
-  void MultivariateTagManager::fill_mvb(var_map& inputs,xAOD::Jet& jet, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_mvb(var_map& inputs,xAOD::Jet& jet, xAOD::BTagging* BTag) const {
     // Generating MVb variables (as in MV2Tag.cxx)
     std::vector< ElementLink< xAOD::TrackParticleContainer > > IP3DTracks;
     bool trksOK= BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (m_ip3d_infosource, "TrackParticleLinks", IP3DTracks );
@@ -540,8 +536,8 @@ namespace Analysis {
 
 	if (std::fabs(d0sig) > 1.8){
 	  if(n_trk_d0cut==INT_MISSING) n_trk_d0cut = 0;
-	  n_trk_d0cut++;
-  }
+          n_trk_d0cut++;
+        }
 
   // track width components
 	if (std::isnan(sum_pt) && std::isnan(sum_pt_dr)) {
@@ -549,7 +545,7 @@ namespace Analysis {
 	}
 
 
-  sum_pt += trk.Pt();
+        sum_pt += trk.Pt();
 	const float dRtoJet = trk.DeltaR(jet.p4());
 	sum_pt_dr += dRtoJet * trk.Pt();
 	// for 3rd higest d0/z0 significance
@@ -560,12 +556,19 @@ namespace Analysis {
       std::sort(trk_d0_z0.begin(), trk_d0_z0.end());
       std::reverse(trk_d0_z0.begin(), trk_d0_z0.end());
 
+      // look up some variables from JF and SV1
+      double sv1_efrc = inputs.at(btagvar::SV1_EFRC);
+      double sv1_ntrkv = inputs.at(btagvar::SV1_NTRKV);
+      double jf_nvtx1t = inputs.at(btagvar::JF_NVTX1T);
+      double jf_ntrkv = inputs.at(btagvar::JF_NTRKV);
+      double jf_efrc = inputs.at(btagvar::JF_EFRC);
+
       //Assign MVb variables
       if (sum_pt > 0) width = sum_pt_dr / sum_pt;
       if (trk_d0_z0.size() > 2) trk3_d0sig = trk_d0_z0[2].first;
       if (trk_d0_z0.size() > 2) trk3_z0sig = trk_d0_z0[2].second;
-      if (m_sv1_ntkv>0) sv_scaled_efc  =  m_sv1_efrc * (static_cast<float>(ntrks) / m_sv1_ntkv);
-      if (m_jf_ntrkv + m_jf_nvtx1t>0) jf_scaled_efc  =  m_jf_efrc * (static_cast<float>(ntrks) / (m_jf_ntrkv + m_jf_nvtx1t));
+      if (sv1_ntrkv>0) sv_scaled_efc  =  sv1_efrc * (static_cast<float>(ntrks) / sv1_ntrkv);
+      if (jf_ntrkv + jf_nvtx1t>0) jf_scaled_efc  =  jf_efrc * (static_cast<float>(ntrks) / (jf_ntrkv + jf_nvtx1t));
     }
 
     inputs[btagvar::JET_WIDTH]  = width;
@@ -576,7 +579,7 @@ namespace Analysis {
     inputs[btagvar::JET_JF_SCALED_EFC]  = jf_scaled_efc;
   }
 
-  void MultivariateTagManager::fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) {
+  void MultivariateTagManager::fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) const {
     // Generating MV2cl100 variables
     std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks;
     try{
@@ -648,7 +651,10 @@ namespace Analysis {
 	TVector3 trkvector(0,0,0);
 	trkvector = trk.Vect();
 
-	float trackRapidity = (-1)*log( tan( 0.5*trkvector.Angle(flightDir) ) );
+  float trackRapidity = (trkvector.Mag2()>0 ? tan( 0.5*trkvector.Angle(flightDir) ) : 0); // steps to protect against log(0)
+
+  trackRapidity = (trackRapidity < 0.000001 ? (-1)*log(0.000001) : (-1)*log(trackRapidity) ); // value of 0.000001 should provide enough margin for typical values of trackRapidity
+
 
 	sumTrackRapidity += trackRapidity;
 
@@ -716,6 +722,23 @@ namespace Analysis {
     inputs[btagvar::JF_RAPIDITY_AVG ]       = AvgTrkRapidity_jf_path;
 
   } // end of fill_mv2cl100
+
+  void MultivariateTagManager::fill_arbitrary_aux_data(
+    var_map& inputs, xAOD::BTagging* BTag) const {
+
+    for (const auto key: m_arbitrary_aux_data) {
+      // note: we should extend this to data types beyond double at
+      // some point
+      if ( ! BTag->isAvailable<double>(key) ) {
+        ATH_MSG_WARNING("aux data '" + key + "' is missing,"
+                        " tagger inputs may be incomplete");
+      } else {
+        inputs[key] = BTag->auxdata<double>(key);
+      }
+    }
+
+  }
+
 
 } // end vp namespace
 

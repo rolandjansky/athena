@@ -52,25 +52,19 @@ namespace Analysis {
 
     // internal typdefs
     typedef std::map<std::string, double> var_map;
-    var_map inputs;
 
     // load input variables from xAOD
-    void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_sv0(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_sv1(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag);
-    void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag);
+    void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_sv0(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_sv1(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag) const;
+    void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag) const;
 
-    //constants
-    float m_sv1_efrc;
-    int m_sv1_ntkv;
-    float m_jf_efrc;
-    int m_jf_nvtx1t;
-    int m_jf_ntrkv;
+    void fill_arbitrary_aux_data(var_map& inputs, xAOD::BTagging* BTag) const;
 
     // container information
     std::string m_ip2d_infosource;
@@ -80,12 +74,15 @@ namespace Analysis {
     std::string m_jftNN_infosource;
     std::string m_softmuon_infosource;
 
+    // any other arbitrary aux data
+    std::vector<std::string> m_arbitrary_aux_data;
+
     ToolHandleArray< IMultivariateJetTagger > m_MultivariateTaggerHandleArray;
 
     /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
     // this pointer does not need to be deleted in the destructor (because it
     // points to something in storegate)
-    const xAOD::Vertex* m_priVtx;
+    const xAOD::Vertex* m_priVtx = 0;
   }; // end class
 
   inline void MultivariateTagManager::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }

@@ -44,7 +44,7 @@ namespace Analysis {
       std::string    m_runModus; 
 
       // pointer to primary vertex (needed for implementation of setOrigin())
-      const xAOD::Vertex* m_priVtx;
+      const xAOD::Vertex* m_priVtx = 0;
 
   }; // End class
   

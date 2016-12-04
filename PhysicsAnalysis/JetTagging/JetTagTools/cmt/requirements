@@ -16,6 +16,8 @@ use xAODTracking         xAODTracking-*          Event/xAOD
 use MVAUtils       	 MVAUtils-*        	 Reconstruction/
 use egammaMVACalib       egammaMVACalib-*        Reconstruction/egamma
 
+use InDetSVWithMuonTool  InDetSVWithMuonTool-*   InnerDetector/InDetRecTools
+
 # for ExKtbbTagTool
 use JetRec               JetRec-*                Reconstruction/Jet
 use AsgTools             AsgTools-*              Control/AthToolSupport
@@ -102,14 +104,6 @@ use VxJetVertex         VxJetVertex-*		 Tracking/TrkEvent
 #use AtlasHepMC       AtlasHepMC-*       External
 #use GeneratorObjects GeneratorObjects-* Generators
 
-# for GbbNN calib
-#use PathResolver         PathResolver-*         Tools
-# for GbbNN inputvariable calculation
-use AtlasFastJet        AtlasFastJet-*   External
-
-# for Gaia (re-enable once we actually have AGILEPack included...)
-# use AGILEPack  AGILEPack-*
-
 # for ExKtbbTagTool
 use  JetEDM                     JetEDM-*                        Reconstruction/Jet
 
@@ -121,7 +115,7 @@ macro DOXYGEN_IMAGE_PATH "../doc/images"
 #library JetTagTools *.cxx components/*.cxx
 #library JetTagTools DummyTag.cxx components/*.cxx
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx SoftMuonTag.cxx ExKtbbTag.cxx ExKtbbTagTool.cxx MultivariateTagManager.cxx DL1Tag.cxx LightweightNeuralNetwork.cxx TagNtupleDumper.cxx parse_json.cxx RNNIPTag.cxx LightweightRNN.cxx"
+apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MyTag.cxx MV2Tag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx SoftMuonTag.cxx ExKtbbTag.cxx ExKtbbTagTool.cxx MultivariateTagManager.cxx DL1Tag.cxx LightweightNeuralNetwork.cxx TagNtupleDumper.cxx parse_json.cxx Stack.cxx RNNIPTag.cxx"
 #apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="-s=../share *.root *.txt"
 

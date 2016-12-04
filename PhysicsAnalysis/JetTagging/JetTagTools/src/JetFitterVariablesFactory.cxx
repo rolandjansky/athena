@@ -92,9 +92,9 @@ StatusCode JetFitterVariablesFactory::finalize() {
     int ndof(0);
     float deltaRFlightDir(0.);
 
-    const std::vector<Trk::VxCandidate*>& myVertices = myJetFitterInfo->verticesJF();
+    const std::vector<Trk::VxJetCandidate*>& myVertices = myJetFitterInfo->verticesJF();
     if(myVertices.size() == 0){
-      ATH_MSG_WARNING("#BTAG# Trk::VxCandidate not found for jet fitter ");
+      ATH_MSG_WARNING("#BTAG# Trk::VxJetCandidate not found for jet fitter ");
       fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
       return StatusCode::SUCCESS;
     }

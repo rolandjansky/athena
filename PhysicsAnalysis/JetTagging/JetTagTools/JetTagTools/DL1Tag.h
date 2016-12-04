@@ -85,12 +85,6 @@ namespace Analysis {
 	reference histograms from the given MC files (m_runModus=0) or to work in analysis mode
 	(m_runModus=1) where already made reference histograms are read.*/
     std::string    m_runModus;          //!< 0=Do not read histos, 1=Read referece histos (analysis mode)
-
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it
-    // points to something in storegate)
-    const xAOD::Vertex* m_priVtx;
-
   }; // end class
 
 }// end Analysis namespace

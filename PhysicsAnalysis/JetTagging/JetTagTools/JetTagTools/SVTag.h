@@ -72,7 +72,7 @@ namespace Analysis
       // std::string m_originalTPCollectionName;
       // const xAOD::TrackParticleContainer* m_originalTPCollection;
      
-      const xAOD::Vertex* m_priVtx;
+      const xAOD::Vertex* m_priVtx = 0;
       
       /** just print some info at the beginning */
       void printParameterSettings();

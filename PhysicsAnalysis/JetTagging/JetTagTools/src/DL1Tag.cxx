@@ -24,6 +24,7 @@
 #include "JetTagTools/DL1Tag.h"
 #include "JetTagTools/LightweightNeuralNetwork.h"
 #include "JetTagTools/parse_json.h"
+#include "JetTagTools/Stack.h" // <-- added for exceptions
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"
@@ -130,6 +131,8 @@ namespace Analysis {
     }
 
     lwt::JSONConfig nn_config = lwt::parse_json(nn_config_istream);
+    ATH_MSG_DEBUG("making NN with " << nn_config.layers.size() << " layers");
+
     if (!(std::find((nn_config.outputs).begin(), (nn_config.outputs).end(), "bottom") != (nn_config.outputs).end())) {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
     }
@@ -149,6 +152,9 @@ namespace Analysis {
     }
     // get the NN configuration
     std::string calib = get_calib_string(jetauthor);
+    ATH_MSG_DEBUG("Reading NN for " + jetauthor + ": "
+                  << calib.size() << " characters");
+
     // Read in the configuration of the neural net for DL1 and build net:
     std::istringstream nn_config_sstream(calib);
     build_nn(jetauthor, nn_config_sstream);

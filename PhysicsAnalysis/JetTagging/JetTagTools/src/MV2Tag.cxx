@@ -74,14 +74,20 @@ namespace Analysis {
     declareProperty("taggerName", m_taggerName = "MV2");
     declareProperty("decTagName", m_decTagName = "MV2_inputs");
 
+    declareProperty("defaultvals", m_defaultvals );
+    declareProperty("MVTMvariableNames", m_MVTM_name_tranlations );
+
+
   }
 
 
   MV2Tag::~MV2Tag() {
+
   }
 
 
   StatusCode MV2Tag::initialize() {
+
     m_disableAlgo=false;
     m_useEgammaMethodMV2=false;
     m_warnCounter=0;
@@ -118,6 +124,10 @@ namespace Analysis {
       for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
       std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
       for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
+    }
+
+    for (auto& iter: m_local_inputvals) {
+        delete iter.second;
     }
     return StatusCode::SUCCESS;
   }
@@ -277,6 +287,8 @@ namespace Analysis {
   //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
   //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
 
+  CreateLocalVariables( inputs );
+
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
 
 
@@ -325,6 +337,8 @@ namespace Analysis {
     return;
 
 	}
+
+  CreateLocalVariables( inputs );
 
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
 
@@ -446,172 +460,39 @@ namespace Analysis {
   }
 
 
+void MV2Tag::CreateLocalVariables(std::map<std::string, double> var_map){
+
+
+
+  for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
+
+      std::string MVTM_var_name = iterator->first;
+
+      if (!(m_MVTM_name_tranlations.find(MVTM_var_name) == m_MVTM_name_tranlations.end()) ){
+      // translate to calibration file naming convention
+      std::string var_name = m_MVTM_name_tranlations.at(MVTM_var_name);
+      m_local_inputvals[var_name] = new float;
+      }
+  }
+
+}
+
 void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
-    //map of default values TODO: move to calibration file
-    std::map<std::string, double > defaultvals;
+    //replace nan values provided by MultivariateTagManager
 
-     defaultvals["m_ip2"]                         = -30;
-     defaultvals["m_ip2_c"]                       = -30;
-     defaultvals["m_ip2_cu"]                      = -30;
-     defaultvals["m_ip3"]                         = -30;
-     defaultvals["m_ip3_c"]                       = -30;
-     defaultvals["m_ip3_cu"]                      = -30;
-     defaultvals["m_sv1"]                         = -10;
-     defaultvals["m_sv1_c"]                       = -10;
-     defaultvals["m_sv1_cu"]                      = -10;
-     defaultvals["m_sv1_ntkv"]                    = -1;
-     defaultvals["m_sv1_mass"]                    = -1000;
-     defaultvals["m_sv1_efrc"]                    = -1;
-     defaultvals["m_sv1_n2t"]                     = -1;
-     defaultvals["m_sv1_Lxy"]                     = -100;
-     defaultvals["m_sv1_L3d"]                     = -100;
-     defaultvals["m_sv1_sig3"]                    = -100;
-     defaultvals["m_sv1_dR"]                      = -1;
-     defaultvals["m_sv1_distmatlay"]              = -1;
-     defaultvals["m_jf_dR"]                       = -1;
-     defaultvals["m_jf_dR_flight"]                = -1;
-     defaultvals["m_jf_mass_unco"]                = -1000;
-     defaultvals["m_ip2_pu"]                      = -1;
-     defaultvals["m_ip2_pb"]                      = -1;
-     defaultvals["m_ip2_pc"]                      = -1;
-     defaultvals["m_ip3_pu"]                      = -1;
-     defaultvals["m_ip3_pb"]                      = -1;
-     defaultvals["m_ip3_pc"]                      = -1;
-     defaultvals["m_sv1_pu"]                      = -1;
-     defaultvals["m_sv1_pb"]                      = -1;
-     defaultvals["m_sv1_pc"]                      = -1;
-     defaultvals["m_sv0"]                         = -1;
-     defaultvals["m_sv0_ntkv"]                    = -1;
-     defaultvals["m_sv0_mass"]                    = -1;
-     defaultvals["m_sv0_efrc"]                    = -1;
-     defaultvals["m_sv0_n2t"]                     = -1;
-     defaultvals["m_jf_mass"]                     = -1000;
-     defaultvals["m_jf_efrc"]                     = -1;
-     defaultvals["m_jf_n2tv"]                     = -1;
-     defaultvals["m_jf_ntrkv"]                    = -1;
-     defaultvals["m_jf_nvtx"]                     = -1;
-     defaultvals["m_jf_nvtx1t"]                   = -1;
-     defaultvals["m_jf_dphi"]                     = -11;
-     defaultvals["m_jf_deta"]                     = -11;
-     defaultvals["m_jf_sig3"]                     = -100;
-     defaultvals["m_width"]                       = 0.0;
-     defaultvals["m_n_trk_sigd0cut"]              = 0.0;
-     defaultvals["m_trk3_d0sig"]                  = -100;
-     defaultvals["m_trk3_z0sig"]                  = -100;
-     defaultvals["m_sv_scaled_efc"]               = -1;
-     defaultvals["m_jf_scaled_efc"]               = -1;
-     defaultvals["m_nTrk_vtx1"]                   =  0.0;
-     defaultvals["m_mass_first_vtx"]              =  -100.0;
-     defaultvals["m_e_first_vtx"]                 =  -100.0;
-     defaultvals["m_e_frac_vtx1"]                 =  0.0;
-     defaultvals["m_closestVtx_L3D"]              =  -10;
-     defaultvals["m_JF_Lxy1"]                     =  -5;
-     defaultvals["m_vtx1_MaxTrkRapidity_jf_path"] =  0.0;
-     defaultvals["m_vtx1_AvgTrkRapidity_jf_path"] =  0.0;
-     defaultvals["m_vtx1_MinTrkRapidity_jf_path"] =  0.0;
-     defaultvals["m_MaxTrkRapidity_jf_path"]      =  0.0;
-     defaultvals["m_MinTrkRapidity_jf_path"]      =  0.0;
-     defaultvals["m_AvgTrkRapidity_jf_path"]      =  0.0;
 
-    //assign values or replace NAN to defaults
-    //note that the name of the variables in MVTM is not always identical to MV2 inputs
-    m_pt                          = !std::isnan(var_map["jet_pt"]) ? var_map["jet_pt"] : defaultvals["m_pt"];
-    m_absEta                      = !std::isnan(var_map["jet_abs_eta"]) ? var_map["jet_abs_eta"] : defaultvals["m_absEta"];
+    for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
 
-    m_trkSum_ntrk                 = !std::isnan(var_map["trkSum_ntrk"]) ? var_map["trkSum_ntrk"] : defaultvals["m_trkSum_ntrk"];
-    m_trkSum_sPt                  = !std::isnan(var_map["trkSum_sPt"]) ? var_map["trkSum_sPt"] : defaultvals["m_trkSum_sPt"];
-    m_trkSum_vPt                  = !std::isnan(var_map["trkSum_vPt"]) ? var_map["trkSum_vPt"] : defaultvals["m_trkSum_vPt"];
-    m_trkSum_vAbsEta              = !std::isnan(var_map["trkSum_vAbsEta"]) ? var_map["trkSum_vAbsEta"] : defaultvals["m_trkSum_vAbsEta"];
 
-    //IP2D variables
-    m_ip2                         = !std::isnan(var_map["ip2"]) ? var_map["ip2"] : defaultvals["m_ip2"];
-    m_ip2_c                       = !std::isnan(var_map["ip2_c"]) ? var_map["ip2_c"] : defaultvals["m_ip2_c"];
-    m_ip2_cu                      = !std::isnan(var_map["ip2_cu"]) ? var_map["ip2_cu"] : defaultvals["m_ip2_cu"];
+      std::string MVTM_var_name = iterator->first;
 
-    m_ip2_pu                      = !std::isnan(var_map["ip2d_pu"]) ? var_map["ip2d_pu"] : defaultvals["m_ip2_pu"];
-    m_ip2_pb                      = !std::isnan(var_map["ip2d_pb"]) ? var_map["ip2d_pb"] : defaultvals["m_ip2_pb"];
-    m_ip2_pc                      = !std::isnan(var_map["ip2d_pc"]) ? var_map["ip2d_pc"] : defaultvals["m_ip2_pc"];
+       if (!(m_MVTM_name_tranlations.find(MVTM_var_name) == m_MVTM_name_tranlations.end()) ){
+      // translate to calibration file naming convention
+      std::string var_name = m_MVTM_name_tranlations.at(MVTM_var_name);
+      *m_local_inputvals.at(var_name) =  !std::isnan(iterator->second) ? iterator->second : m_defaultvals.at(var_name);
+      }
 
-    //IP3D variables
-    m_ip3                         = !std::isnan(var_map["ip3"]) ? var_map["ip3"] : defaultvals["m_ip3"];
-    m_ip3_c                       = !std::isnan(var_map["ip3_c"]) ? var_map["ip3_c"] : defaultvals["m_ip3_c"];
-    m_ip3_cu                      = !std::isnan(var_map["ip3_cu"]) ? var_map["ip3_cu"] : defaultvals["m_ip3_cu"];
-
-    m_ip3_pu                      = !std::isnan(var_map["ip3d_pu"]) ? var_map["ip3d_pu"] : defaultvals["m_ip3_pu"];
-    m_ip3_pb                      = !std::isnan(var_map["ip3d_pb"]) ? var_map["ip3d_pb"] : defaultvals["m_ip3_pb"];
-    m_ip3_pc                      = !std::isnan(var_map["ip3d_pc"]) ? var_map["ip3d_pc"] : defaultvals["m_ip3_pc"];
-
-    //SV1 variables
-    m_sv1                         = !std::isnan(var_map["sv1"]) ? var_map["sv1"] : defaultvals["m_sv1"];
-    m_sv1_c                       = !std::isnan(var_map["sv1_c"]) ? var_map["sv1_c"] : defaultvals["m_sv1_c"];
-    m_sv1_cu                      = !std::isnan(var_map["sv1_cu"]) ? var_map["sv1_cu"] : defaultvals["m_sv1_cu"];
-    m_sv1_pu                      = !std::isnan(var_map["sv1_pu"]) ? var_map["sv1_pu"] : defaultvals["m_sv1_pu"];
-    m_sv1_pb                      = !std::isnan(var_map["sv1_pb"]) ? var_map["sv1_pb"] : defaultvals["m_sv1_pb"];
-    m_sv1_pc                      = !std::isnan(var_map["sv1_pc"]) ? var_map["sv1_pc"] : defaultvals["m_sv1_pc"];
-
-    m_sv1_ntkv                    = !std::isnan(var_map["sv1_ntrkv"]) ? var_map["sv1_ntrkv"] : defaultvals["m_sv1_ntkv"];
-    m_sv1_mass                    = !std::isnan(var_map["sv1_m"]) ? var_map["sv1_m"] : defaultvals["m_sv1_mass"];
-    m_sv1_efrc                    = !std::isnan(var_map["sv1_efc"]) ? var_map["sv1_efc"] : defaultvals["m_sv1_efrc"];
-    m_sv1_n2t                     = !std::isnan(var_map["sv1_n2t"]) ? var_map["sv1_n2t"] : defaultvals["m_sv1_n2t"];
-    m_sv1_Lxy                     = !std::isnan(var_map["sv1_Lxy"]) ? var_map["sv1_Lxy"] : defaultvals["m_sv1_Lxy"];
-    m_sv1_L3d                     = !std::isnan(var_map["sv1_L3d"]) ? var_map["sv1_L3d"] : defaultvals["m_sv1_L3d"];
-    m_sv1_sig3                    = !std::isnan(var_map["sv1_sig3d"]) ? var_map["sv1_sig3d"] : defaultvals["m_sv1_sig3"];
-    m_sv1_dR                      = !std::isnan(var_map["sv1_dR"]) ? var_map["sv1_dR"] : defaultvals["m_sv1_dR"];
-    m_sv1_distmatlay              = !std::isnan(var_map["sv1_distmatlay"]) ? var_map["sv1_distmatlay"] : defaultvals["m_sv1_distmatlay"];
-
-    //JetFitter variables
-    m_jf_mass                     = !std::isnan(var_map["jf_m"]) ? var_map["jf_m"] : defaultvals["m_jf_mass"];
-    m_jf_efrc                     = !std::isnan(var_map["jf_efc"]) ? var_map["jf_efc"] : defaultvals["m_jf_efrc"];
-    m_jf_n2tv                     = !std::isnan(var_map["jf_n2t"]) ? var_map["jf_n2t"] : defaultvals["m_jf_n2tv"];
-    m_jf_ntrkv                    = !std::isnan(var_map["jf_ntrkAtVx"]) ? var_map["jf_ntrkAtVx"] : defaultvals["m_jf_ntrkv"];
-    m_jf_nvtx                     = !std::isnan(var_map["jf_nvtx"]) ? var_map["jf_nvtx"] : defaultvals["m_jf_nvtx"];
-    m_jf_nvtx1t                   = !std::isnan(var_map["jf_nvtx1t"]) ? var_map["jf_nvtx1t"] : defaultvals["m_jf_nvtx1t"];
-    m_jf_dphi                     = !std::isnan(var_map["jf_dphi"]) ? var_map["jf_dphi"] : defaultvals["m_jf_dphi"];
-    m_jf_deta                     = !std::isnan(var_map["jf_deta"]) ? var_map["jf_deta"] : defaultvals["m_jf_deta"];
-    m_jf_sig3                     = !std::isnan(var_map["jf_sig3d"]) ? var_map["jf_sig3d"] : defaultvals["m_jf_sig3"];
-    m_jf_dR                       = !std::isnan(var_map["jf_dR"]) ? var_map["jf_dR"] : defaultvals["m_jf_dR"];
-    m_jf_dR_flight                = !std::isnan(var_map["jf_dRFlightDir"]) ? var_map["jf_dRFlightDir"] : defaultvals["m_jf_dR_flight"];
-    m_jf_mass_unco                = !std::isnan(var_map["jf_m_uncor"]) ? var_map["jf_m_uncor"] : defaultvals["m_jf_mass_unco"];
-
-    //SV0
-    m_sv0                         = !std::isnan(var_map["sv0_sig3d"]) ? var_map["sv0_sig3d"] : defaultvals["m_sv0"];
-    m_sv0_ntkv                    = !std::isnan(var_map["sv0_ntrkv"]) ? var_map["sv0_ntrkv"] : defaultvals["m_sv0_ntkv"];
-    m_sv0_mass                    = !std::isnan(var_map["sv0_m"]) ? var_map["sv0_m"] : defaultvals["m_sv0_mass"];
-    m_sv0_efrc                    = !std::isnan(var_map["sv0_efc"]) ? var_map["sv0_efc"] : defaultvals["m_sv0_efrc"];
-    m_sv0_n2t                     = !std::isnan(var_map["sv0_n2t"]) ? var_map["sv0_n2t"] : defaultvals["m_sv0_n2t"];
-
-    //MVb variables
-    m_width                       = !std::isnan(var_map["jet_width"]) ? var_map["jet_width"] : defaultvals["m_width"];
-    m_n_trk_sigd0cut              = !std::isnan(var_map["jet_n_trk_sigd0cut"]) ? var_map["jet_n_trk_sigd0cut"] : defaultvals["m_n_trk_sigd0cut"];
-    m_trk3_d0sig                  = !std::isnan(var_map["jet_trk3_d0sig"]) ? var_map["jet_trk3_d0sig"] : defaultvals["m_trk3_d0sig"];
-    m_trk3_z0sig                  = !std::isnan(var_map["jet_trk3_z0sig"]) ? var_map["jet_trk3_z0sig"] : defaultvals["m_trk3_z0sig"];
-    m_sv_scaled_efc               = !std::isnan(var_map["jet_sv_scaled_efc"]) ? var_map["jet_sv_scaled_efc"] : defaultvals["m_sv_scaled_efc"];
-    m_jf_scaled_efc               = !std::isnan(var_map["jet_jf_scaled_efc"]) ? var_map["jet_jf_scaled_efc"] : defaultvals["m_jf_scaled_efc"];
-
-    //extra JetFitter variables, used in MV2cl100 and MV2c100
-    m_nTrk_vtx1                   = !std::isnan(var_map["nTrk_vtx1"]) ? var_map["nTrk_vtx1"] : defaultvals["m_nTrk_vtx1"];
-    m_mass_first_vtx              = !std::isnan(var_map["mass_first_vtx"]) ? var_map["mass_first_vtx"] : defaultvals["m_mass_first_vtx"];
-    m_e_first_vtx                 = !std::isnan(var_map["e_first_vtx"]) ? var_map["e_first_vtx"] : defaultvals["m_e_first_vtx"];
-    m_e_frac_vtx1                 = !std::isnan(var_map["e_frac_vtx1"]) ? var_map["e_frac_vtx1"] : defaultvals["m_e_frac_vtx1"];
-    m_closestVtx_L3D              = !std::isnan(var_map["closestVtx_L3D"]) ? var_map["m_closestVtx_L3D"] : defaultvals["m_closestVtx_L3D"];
-    m_JF_Lxy1                     = !std::isnan(var_map["JF_Lxy1"]) ? var_map["JF_Lxy1"] : defaultvals["m_JF_Lxy1"];
-    m_vtx1_MaxTrkRapidity_jf_path = !std::isnan(var_map["vtx1_MaxTrkRapidity_jf_path"]) ? var_map["vtx1_MaxTrkRapidity_jf_path"] : defaultvals["m_vtx1_MaxTrkRapidity_jf_path"];
-    m_vtx1_AvgTrkRapidity_jf_path = !std::isnan(var_map["vtx1_AvgTrkRapidity_jf_path"]) ? var_map["vtx1_AvgTrkRapidity_jf_path"] : defaultvals["m_vtx1_AvgTrkRapidity_jf_path"];
-    m_vtx1_MinTrkRapidity_jf_path = !std::isnan(var_map["vtx1_MinTrkRapidity_jf_path"]) ? var_map["vtx1_MinTrkRapidity_jf_path"] : defaultvals["m_vtx1_MinTrkRapidity_jf_path"];
-    m_MaxTrkRapidity_jf_path      = !std::isnan(var_map["MaxTrkRapidity_jf_path"]) ? var_map["MaxTrkRapidity_jf_path"] : defaultvals["m_MaxTrkRapidity_jf_path"];
-    m_MinTrkRapidity_jf_path      = !std::isnan(var_map["MinTrkRapidity_jf_path"]) ? var_map["MinTrkRapidity_jf_path"] : defaultvals["m_MinTrkRapidity_jf_path"];
-    m_AvgTrkRapidity_jf_path      = !std::isnan(var_map["AvgTrkRapidity_jf_path"]) ? var_map["AvgTrkRapidity_jf_path"] : defaultvals["m_AvgTrkRapidity_jf_path"];
-
-    //soft muon variables
-    m_sm_mu_pt                    = !std::isnan(var_map["sm_mu_pt"]) ? var_map["sm_mu_pt"] : defaultvals["m_sm_mu_pt"];
-    m_sm_dR                       = !std::isnan(var_map["sm_dR"]) ? var_map["sm_dR"] : defaultvals["m_sm_dR"];
-    m_sm_qOverPratio              = !std::isnan(var_map["sm_qOverPratio"]) ? var_map["sm_qOverPratio"] : defaultvals["m_sm_qOverPratio"];
-    m_sm_mombalsignif             = !std::isnan(var_map["sm_mombalsignif"]) ? var_map["sm_mombalsignif"] : defaultvals["m_sm_mombalsignif"];
-    m_sm_scatneighsignif          = !std::isnan(var_map["sm_scatneighsignif"]) ? var_map["sm_scatneighsignif"] : defaultvals["m_sm_scatneighsignif"];
-    m_sm_pTrel                    = !std::isnan(var_map["sm_pTrel"]) ? var_map["sm_pTrel"] : defaultvals["m_sm_pTrel"];
-    m_sm_mu_d0                    = !std::isnan(var_map["sm_mu_d0"]) ? var_map["sm_mu_d0"] : defaultvals["m_sm_mu_d0"];
-    m_sm_mu_z0                    = !std::isnan(var_map["sm_mu_z0"]) ? var_map["sm_mu_z0"] : defaultvals["m_sm_mu_z0"];
-    m_sm_ID_qOverP                = !std::isnan(var_map["sm_ID_qOverP"]) ? var_map["sm_ID_qOverP"] : defaultvals["m_sm_ID_qOverP"];
+    }
 
   }
 
@@ -628,102 +509,25 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
 
     for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
       //pt and abs(eta)
-      if      (inputVars.at(ivar)=="pt"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_pt       ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_pt       ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="abs(eta)" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_absEta   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_absEta   ); nConfgVar++; }
-      //jet trk kinematics
-      else if (inputVars.at(ivar)=="trk_n"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_ntrk   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_ntrk   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="trk_pt_sSum" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_sPt    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_sPt    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="trk_pt"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_vPt    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_vPt    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="abs(trk_eta)") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_vAbsEta) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_vAbsEta); nConfgVar++; }
-      //IP2D output probabilities
-      else if (inputVars.at(ivar)=="ip2_pu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_pu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_pu   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip2_pb"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_pb   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_pb   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip2_pc"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_pc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_pc   ); nConfgVar++; }
-      //IP3D output probabilities
-      else if (inputVars.at(ivar)=="ip3_pu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3_pu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3_pu   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip3_pb"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3_pb   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3_pb   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip3_pc"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3_pc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3_pc   ); nConfgVar++; }
-      //SV1 output probabilities
-      else if (inputVars.at(ivar)=="sv1_pu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_pu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_pu   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_pb"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_pb   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_pb   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_pc"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_pc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_pc   ); nConfgVar++; }
-      //IP2D output LLR
-      else if (inputVars.at(ivar)=="ip2"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip2_c"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_c    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_c    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip2_cu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_cu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_cu   ); nConfgVar++; }
-      //IP3D output LLR
-      else if (inputVars.at(ivar)=="ip3"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip3_c"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3_c    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3_c    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="ip3_cu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip3_cu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip3_cu   ); nConfgVar++; }
-      //SV1 output LLR
-      else if (inputVars.at(ivar)=="sv1"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_c"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_c    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_c    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_cu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_cu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_cu   ); nConfgVar++; }
-      //SV0 input variables
-      else if (inputVars.at(ivar)=="sv0"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv0      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv0      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv0_ntkv" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv0_ntkv ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv0_ntkv ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv0mass"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv0_mass ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv0_mass ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv0_efrc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv0_efrc ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv0_efrc ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv0_n2t"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv0_n2t  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv0_n2t  ); nConfgVar++; }
-      //SV1 input variables
-      else if (inputVars.at(ivar)=="sv1_ntkv" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_ntkv ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_ntkv ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_mass" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_mass ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_mass ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_efrc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_efrc ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_efrc ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_n2t"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_n2t  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_n2t  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_Lxy"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_Lxy  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_Lxy  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_L3d"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_L3d  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_L3d  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_sig3" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_sig3 ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_sig3 ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_dR"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_dR   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_dR   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv1_distmatlay"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_distmatlay   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_distmatlay   ); nConfgVar++; }
-      //JetFitter input variables
-      else if (inputVars.at(ivar)=="jf_mass"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_mass  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_mass  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_efrc"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_efrc  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_efrc  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_n2tv"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_n2tv  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_n2tv  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_ntrkv" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_ntrkv ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_ntrkv ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_nvtx"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_nvtx  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_nvtx  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_nvtx1t") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_nvtx1t) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_nvtx1t); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_dphi"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dphi  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dphi  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_deta"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_deta  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_deta  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_dR"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dR    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dR    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_sig3"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_sig3  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_sig3  ); nConfgVar++; }
-      //new jf variables
-      else if (inputVars.at(ivar)=="jf_dR_flight") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dR_flight) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dR_flight); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_mass_unco") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_mass_unco) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_mass_unco); nConfgVar++; }
-      //MVb input variables
-      else if (inputVars.at(ivar)=="width"         ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_width           ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_width           ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="n_trk_sigd0cut") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_n_trk_sigd0cut  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_n_trk_sigd0cut  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="trk3_d0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_d0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_d0sig      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="trk3_z0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_z0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_z0sig      ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sv_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv_scaled_efc   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="jf_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_scaled_efc   ); nConfgVar++; }
-      //MV2cl100 input variables
-      else if (inputVars.at(ivar)== "nTrk_vtx1"                    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_nTrk_vtx1                  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_nTrk_vtx1); nConfgVar++; }
-      else if (inputVars.at(ivar)== "mass_first_vtx"               ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_mass_first_vtx             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mass_first_vtx); nConfgVar++; }
-      else if (inputVars.at(ivar)== "e_first_vtx"                  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_e_first_vtx                ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_e_first_vtx); nConfgVar++; }
-      else if (inputVars.at(ivar)== "e_frac_vtx1"                  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_e_frac_vtx1                ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_e_frac_vtx1); nConfgVar++; }
-      else if (inputVars.at(ivar)== "closestVtx_L3D"               ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_closestVtx_L3D             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_closestVtx_L3D); nConfgVar++; }
-      else if (inputVars.at(ivar)== "JF_Lxy1"                      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_JF_Lxy1                    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_JF_Lxy1); nConfgVar++; }
-      else if (inputVars.at(ivar)== "vtx1_MaxTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_MaxTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_MaxTrkRapidity_jf_path); nConfgVar++; }
-      else if (inputVars.at(ivar)== "vtx1_AvgTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_AvgTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_AvgTrkRapidity_jf_path); nConfgVar++; }
-      else if (inputVars.at(ivar)== "vtx1_MinTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_MinTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_MinTrkRapidity_jf_path); nConfgVar++; }
-      else if (inputVars.at(ivar)== "MaxTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_MaxTrkRapidity_jf_path     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_MaxTrkRapidity_jf_path); nConfgVar++; }
-      else if (inputVars.at(ivar)== "MinTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_MinTrkRapidity_jf_path     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_MinTrkRapidity_jf_path); nConfgVar++; }
-      else if (inputVars.at(ivar)== "AvgTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_AvgTrkRapidity_jf_path    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_AvgTrkRapidity_jf_path); nConfgVar++; }
-      //soft muon input variables
-      else if (inputVars.at(ivar)=="sm_mu_pt"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_pt          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_pt          ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_dR"              ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_dR             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_dR             ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_qOverPratio"     ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_qOverPratio    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_qOverPratio    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_mombalsignif"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mombalsignif   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mombalsignif   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_scatneighsignif" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_scatneighsignif) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_scatneighsignif); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_pTrel"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_pTrel          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_pTrel          ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_mu_d0"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_d0          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_d0          ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_mu_z0"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_z0          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_z0          ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sm_ID_qOverP"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_ID_qOverP      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_ID_qOverP      ); nConfgVar++; }
-      else {
+
+
+      if ( m_local_inputvals.find(inputVars.at(ivar)) == m_local_inputvals.end() ){
+        //if variable is not found
         ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");//<<alias<<" "<<author);
         badVariableFound=true;
+      }else{
+        if(m_useEgammaMethodMV2){
+        inputPointers.push_back(m_local_inputvals.at(inputVars.at(ivar)) );
+        }
+        else{
+        tmvaReader->AddVariable(inputVars.at(ivar).data(),m_local_inputvals.at(inputVars.at(ivar)));
+        }
+        nConfgVar++;
       }
+
     }
+
   } //end MV2Tag::SetVariableRefs
+
 
 }//end namespace Analysis

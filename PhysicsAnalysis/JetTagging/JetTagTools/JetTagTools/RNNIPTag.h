@@ -108,6 +108,9 @@ namespace Analysis {
     // bool m_SignWithSvx;
     bool m_unbiasIPEstimation;  // remove track from vertex when computing IP
 
+    // we can save the sorted inputs for each tagger for debugging and
+    // optimization
+    bool m_writeInputsToBtagObject;
 
     //// VD: other (non-bool) configurables
     /** Name of the track-to-jet association in the BTagging object */
@@ -144,7 +147,7 @@ namespace Analysis {
     void register_hist(const std::string& name = "/rnnip");
     std::string get_calib_string(
       const std::string& author,
-      const std::string& name = "/rnnip") const;
+      const std::string& name = "/rnnip");
     std::string m_calibrationDirectory;
     ToolHandle<CalibrationBroker> m_calibrationTool;
 
@@ -171,7 +174,7 @@ namespace Analysis {
      * provides origin(). */
     // this pointer does not need to be deleted in the destructor
     // (because it points to something in storegate)
-    const xAOD::Vertex* m_priVtx;
+    const xAOD::Vertex* m_priVtx = 0;
 
     //// VD: list of tools below
     /** TrackToVertex tool */
@@ -190,9 +193,9 @@ namespace Analysis {
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
 
     // VD: for debugging
-    int m_nbjet;
-    int m_ncjet;
-    int m_nljet;
+    //int m_nbjet;
+    //int m_ncjet;
+    //int m_nljet;
 
   }; // End class
 

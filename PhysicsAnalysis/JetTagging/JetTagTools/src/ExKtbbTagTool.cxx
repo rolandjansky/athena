@@ -17,6 +17,7 @@ ExKtbbTagTool::ExKtbbTagTool(std::string myname):
   m_JetRadius(0.),
   m_PtMin(0.),
   m_ExclusiveNJets(0),
+  m_InputJetContainerName(""),
   m_SubjetRecorderTool("SubjetRecorderTool"),
   m_SubjetLabel(""),
   m_SubjetContainerName(""),
@@ -28,6 +29,7 @@ ExKtbbTagTool::ExKtbbTagTool(std::string myname):
   declareProperty("PtMin", m_PtMin);
   declareProperty("ExclusiveNJets", m_ExclusiveNJets);
 
+  declareProperty("InputJetContainerName", m_InputJetContainerName);
   declareProperty("SubjetRecorder", m_SubjetRecorderTool);
   declareProperty("SubjetLabel", m_SubjetLabel);
   declareProperty("SubjetContainerName", m_SubjetContainerName);
@@ -120,6 +122,17 @@ int ExKtbbTagTool::modifyJet(xAOD::Jet& jet) const {
 
     // set correct constituent signal state
     subjet_nonconst->setConstituentsSignalState(jet.getConstituentsSignalState());
+
+    // add parent jet information, in case the "parent" link is broken
+    auto el_parent = subjet_nonconst->auxdata<ElementLink<xAOD::JetContainer> >("Parent");
+    if(!el_parent.isValid()){
+      ATH_MSG_WARNING("#BTAG# Element link from ExKtSubjet to parent jet is invalid! No backup parent link information will be stored.");
+    }
+    else{
+      subjet_nonconst->auxdata<std::string>("Parent_ContainerName") = m_InputJetContainerName;
+      subjet_nonconst->auxdata<int>("Parent_Index") = jet.index();
+    }
+
   }
 
   // for(auto subjet : ExKtSubJets){

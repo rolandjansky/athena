@@ -30,14 +30,11 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
-#include "TMVA/Types.h"
 #include "TList.h"
 #include "TObjString.h"
 
-#include "TMVA/IMethod.h"
-#include "TMVA/BinarySearchTree.h"
 #include "TMVA/MethodBase.h"
-
+#include "TH1.h"
 
 #include "xAODBTagging/BTagVertex.h"
 
@@ -89,6 +86,7 @@ namespace Analysis {
 
     declareInterface< ITagTool >(this);
 
+    ClearVars();
   }
   
 ///////////
@@ -188,7 +186,7 @@ namespace Analysis {
     for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
     
 
-    msg(MSG::DEBUG)  << "Finalize successful" << endreq;
+    msg(MSG::DEBUG)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
     
   } 
@@ -454,7 +452,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      ATH_MSG_DEBUG("#BTAG#  Could not find muons associated with name " << m_muonAssociationName);
    } 
    else {
-     ATH_MSG_INFO("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
+     ATH_MSG_DEBUG("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
 
      for( const auto& muLink : muonsInJet) {
          const xAOD::Muon* mu = *muLink;

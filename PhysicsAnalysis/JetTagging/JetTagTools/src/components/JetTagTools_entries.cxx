@@ -1,44 +1,33 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-//#include "JetTagTools/LifetimeTag.h"
-//#include "JetTagTools/SecVtxTag.h"
+
 #include "JetTagTools/IPTag.h"
 #include "JetTagTools/RNNIPTag.h"
 #include "JetTagTools/SVTag.h"
 #include "JetTagTools/MultiSVTag.h"
-//#include "JetTagTools/JetProbTag.h"
-//#include "JetTagTools/SoftElectronTag.h"
+
 #include "JetTagTools/SoftMuonTag.h"
-//#include "JetTagTools/CombinerTool.h"
-//#include "JetTagTools/CombinerToolTag.h"
-//#include "JetTagTools/LikelihoodTool.h"
-//#include "JetTagTools/LikelihoodMultiDTool.h"
+
 #include "JetTagTools/NewLikelihoodTool.h"
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/JetFitterTag.h"
-// #include "JetTagTools/JetFitterLikelihood.h"
+
 #include "JetTagTools/JetFitterNtupleWriter.h"
 #include "JetTagTools/JetFitterVariablesFactory.h"
 #include "JetTagTools/MSVVariablesFactory.h"
-//#include "JetTagTools/JetFitterCharmVariablesFactory.h"
-//#include "JetTagTools/GaiaVariablesFactory.h"
-// #include "JetTagTools/BTagVariables.hh"
+
 #include "JetTagTools/MultivariateTagManager.h"
 #include "JetTagTools/DL1Tag.h"
 #include "JetTagTools/TagNtupleDumper.h"
 #include "JetTagTools/JetFitterNNTool.h"
-//#include "JetTagTools/JetFitterCharmNNTool.h"
-//#include "JetTagTools/GaiaNNTool.h"
+
 #include "JetTagTools/SVForIPTool.h"
 #include "JetTagTools/BasicTrackGradeFactory.h"
 #include "JetTagTools/DetailedTrackGradeFactory.h"
-//#include "JetTagTools/TrackCounting.h"
-//#include "JetTagTools/GbbNNTag.h"
-//#include "JetTagTools/HadFlavorTag.h"
+
 #include "JetTagTools/MV1Tag.h"
 #include "JetTagTools/MV1cTag.h"
 #include "JetTagTools/MV2Tag.h"
-//#include "JetTagTools/MV3Tag.h"
-#include "JetTagTools/MVbTag.h"
+#include "JetTagTools/MyTag.h"
 
 #include "JetTagTools/JetVertexCharge.h"
 
@@ -88,8 +77,9 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DetailedTrackGradeFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1Tag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1cTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV2Tag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MyTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV3Tag )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MVbTag )
+
 
 
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetVertexCharge )
@@ -142,8 +132,8 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, MV1Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, MV1cTag );
   DECLARE_NAMESPACE_TOOL( Analysis, MV2Tag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MyTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
-  DECLARE_NAMESPACE_TOOL( Analysis, MVbTag );
   DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
   DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTag );
   DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTagTool );

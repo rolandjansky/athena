@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-46-g8a1bd2b)
+// https://github.com/dguest/lwtnn.git (rev v1.0-76-gd837944)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -25,7 +25,8 @@
 namespace lwt {
   enum class Activation {NONE, LINEAR, SIGMOID, RECTIFIED, SOFTMAX, TANH,
       HARD_SIGMOID};
-  enum class Architecture {NONE, DENSE, MAXOUT, HIGHWAY, LSTM, GRU, EMBEDDING};
+  enum class Architecture {NONE, DENSE, NORMALIZATION, MAXOUT, HIGHWAY, 
+      LSTM, GRU, EMBEDDING};
   // components (for LSTM, etc)
   enum class Component {
     I, O, C, F,                 // LSTM
