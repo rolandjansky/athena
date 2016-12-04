@@ -87,10 +87,10 @@ namespace MuonCombined {
       ATH_CHECK(m_printer.retrieve());
       ATH_CHECK(m_tagTool.retrieve());
       ATH_CHECK(m_trackBuilder.retrieve());
-      ATH_CHECK(m_outwardsBuilder.retrieve());
+      if(! m_outwardsBuilder.empty() ) ATH_CHECK(m_outwardsBuilder.retrieve());
       ATH_CHECK(m_trackQuery.retrieve());
       ATH_CHECK(m_momentumBalanceTool.retrieve());
-      ATH_CHECK(m_muonRecovery.retrieve()); 
+      if(! m_muonRecovery.empty() ) ATH_CHECK(m_muonRecovery.retrieve());
       ATH_CHECK(m_matchQuality.retrieve());
       ATH_CHECK(m_trackScoringTool.retrieve());
       ATH_CHECK(m_magFieldSvc.retrieve());

@@ -69,6 +69,9 @@ namespace MuonCombined {
     // loop over ID candidates
     for( auto idTP : indetCandidates ){
       
+      //skip tracklets
+      if(idTP->isSiliconAssociated()) continue;
+
       // ensure that also the id has a perigee with covariance
       if( !idTP->indetTrackParticle().perigeeParameters().covariance() ) continue;
 

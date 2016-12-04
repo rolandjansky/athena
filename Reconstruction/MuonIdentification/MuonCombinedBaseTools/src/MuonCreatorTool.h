@@ -144,6 +144,7 @@ namespace MuonCombined {
     void addRpcTiming( const xAOD::TrackParticle& track ) const;
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
+    void addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const;
 
     /// flag to decide whether or not to make link to MS track before extrapolation
     bool m_makeMSPreExtrapLink;
@@ -153,6 +154,9 @@ namespace MuonCombined {
     
     /// Decide whether to try to extract the calo energy loss from tracks 
     bool m_fillEnergyLossFromTrack;
+
+    /// Decide whether to add alignment effects on track to the muon (available for CB and SA tracks)
+    bool m_fillAlignmentEffectsOnTrack;
     
     /// Can enabled this for debugging - will add extra information not for production
     bool m_fillExtraELossInfo;
@@ -177,7 +181,7 @@ namespace MuonCombined {
     bool m_fillTimingInformationOnMuon;
 
     /// copy truth links from primary track particle (or put dummy link if this is missing)
-    bool m_fillMuonTruthLinks;
+    //bool m_fillMuonTruthLinks;
     
     // helpers, managers, tools
     ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;

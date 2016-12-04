@@ -817,7 +817,7 @@ namespace MuonCombined {
     for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << segStation[segment_counter] ;
     } 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
 
     unsigned int extrapolation_counter(0);
     std::string signstr("");
@@ -828,7 +828,7 @@ namespace MuonCombined {
       for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << (segToSurf[extrapolation_counter])[segment_counter];
       } //end loop segments
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
       ++extrapolation_counter;
     } //end loop surfaces
 
@@ -839,7 +839,7 @@ namespace MuonCombined {
 	for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << (segToSurf[extrapolation_counter])[segment_counter];
 	} //end loop segments
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
 	++extrapolation_counter;
       } //end loop surfaces
     }

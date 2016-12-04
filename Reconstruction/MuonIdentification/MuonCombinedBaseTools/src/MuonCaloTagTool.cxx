@@ -113,7 +113,7 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     //StoreGateSvc* detStore(0);
     //if (service("DetectorStore", detStore).isFailure()) {
-    //  msg(MSG::ERROR) << "Detector service not found !" << endreq;
+    //  msg(MSG::ERROR) << "Detector service not found !" << endmsg;
     //  return StatusCode::FAILURE;
     //}
     if( true ){
@@ -199,7 +199,7 @@ namespace MuonCombined {
 	  // no decay in flight
 	  pdgId = (*truthLink)->pdgId();
 	} else {
-	  ATH_MSG_WARNING(" TruthParticleContainer NOT retrieved ");
+	  ATH_MSG_DEBUG("No TruthLink available.");
 	}
       }
 
