@@ -227,6 +227,114 @@ namespace MuonCombined {
       if(outputData.combinedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.combinedTrackParticleContainer);
       if(outputData.extrapolatedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.extrapolatedTrackParticleContainer);
       if(outputData.msOnlyExtrapolatedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.msOnlyExtrapolatedTrackParticleContainer);
+      for(auto mu: *outputData.muonContainer){
+	if(mu->primaryTrackParticle()==mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)) continue; //no CT or ST muons
+	if(mu->primaryTrackParticle()==mu->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)) continue; //no SA muons w/o ME tracks
+	const xAOD::TrackParticle* ptp=mu->primaryTrackParticle();
+	uint8_t prec=0; //all precision layers
+	mu->summaryValue(prec,xAOD::numberOfPrecisionLayers);
+	int nTotPrec=(int)prec,nGoodPrec=0,nBadPrec=0,nBadBar=0,nBadEnd=0,nBadSmall=0,nBadLarge=0,nGoodBar=0,nGoodEnd=0,nGoodLarge=0,nGoodSmall=0;
+	std::vector< std::vector<unsigned int> > chIds=ptp->auxdata<std::vector< std::vector<unsigned int> > >("alignEffectChId");
+	std::vector<float> alignEffSDT=ptp->auxdata<std::vector<float> >("alignEffectSigmaDeltaTrans");
+	std::map<Muon::MuonStationIndex::ChIndex,int> chamberQual; //1=good, 2=bad; for choosing large/small
+	for(unsigned int i=0;i<chIds.size();i++){
+	  for(unsigned int j=0;j<chIds[i].size();j++){
+	    Muon::MuonStationIndex::ChIndex currInd=(Muon::MuonStationIndex::ChIndex)chIds[i][j];
+	    if(alignEffSDT[i]>=0.5){
+	      if((chamberQual.count(currInd) && chIds[i].size()>1) || !chamberQual.count(currInd)){
+		//either we haven't seen this chamber before, or we have but now we're in a sub-vector that's not just this chamber
+		chamberQual[currInd]=2;
+	      }
+	    }
+	    else{
+	      if((chamberQual.count(currInd) && chIds[i].size()>1) || !chamberQual.count(currInd)){
+                //either we haven't seen this chamber before, or we have but now we're in a sub-vector that's not just this chamber
+                chamberQual[currInd]=1;
+	      }
+	    }
+	  }
+	}
+	for(std::map<Muon::MuonStationIndex::ChIndex,int>::iterator it=chamberQual.begin();it!=chamberQual.end();++it){
+	  int chnum=(unsigned int)((*it).first);
+	  if((*it).second==2){
+	    nBadPrec++;
+	    if(chnum<7){
+	      nBadBar++;
+	      if(chnum%2==0) nBadSmall++;
+	      else nBadLarge++;
+	    }
+	    else{
+	      nBadEnd++;
+	      if(chnum%2==0) nBadLarge++;
+              else nBadSmall++;
+	    }
+	  }
+	  else{
+	    if(chnum<7){ 
+	      nGoodBar++;
+	      if(chnum%2==0) nGoodSmall++;
+	      else nGoodLarge++;
+	    }
+            else{
+	      nGoodEnd++;
+	      if(chnum%2==0) nGoodLarge++;
+              else nGoodSmall++;
+            }
+          }
+	}
+	int isSmall=0,isEnd=0;
+	bool countHits=false;
+	if((nTotPrec-nBadPrec)>nBadPrec){
+	  nGoodPrec=nTotPrec-nBadPrec;
+	  if(nGoodEnd>nGoodBar) isEnd=1; //arbitrarily setting it to barrel if they're equal for now
+	  if(nGoodSmall>nGoodLarge) isSmall=1;
+	  if(nGoodSmall==nGoodLarge) countHits=true;
+	}
+	else{
+	  nGoodPrec=nBadPrec;
+	  if((nTotPrec-nBadPrec)==nBadPrec){ //if equal, set to whichever has the smaller error, right?
+	    if(nGoodEnd>nGoodBar) isEnd=1;
+	    if(nGoodSmall>nGoodLarge) isSmall=1;
+	    if(nGoodSmall==nGoodLarge) countHits=true;
+	  }
+	  else{
+	    if(nBadEnd>nBadBar) isEnd=1;
+	    if(nBadSmall>nBadLarge) isSmall=1;
+	    if(nBadSmall==nBadLarge) countHits=true;
+	  }
+	}
+	if(countHits){ //decide large-small by counting hits
+	  uint8_t sumval=0;
+	  int nSmallHits=0,nLargeHits=0;
+	  mu->summaryValue(sumval,xAOD::innerSmallHits);
+          nSmallHits+=(int)sumval;
+          sumval=0;
+	  mu->summaryValue(sumval,xAOD::middleSmallHits);
+          nSmallHits+=(int)sumval;
+          sumval=0;
+	  mu->summaryValue(sumval,xAOD::outerSmallHits);
+          nSmallHits+=(int)sumval;
+	  sumval=0;
+	  mu->summaryValue(sumval,xAOD::extendedSmallHits);
+          nSmallHits+=(int)sumval;
+	  sumval=0;
+	  mu->summaryValue(sumval,xAOD::innerLargeHits);
+          nLargeHits+=(int)sumval;
+	  sumval=0;
+          mu->summaryValue(sumval,xAOD::middleLargeHits);
+          nLargeHits+=(int)sumval;
+	  sumval=0;
+          mu->summaryValue(sumval,xAOD::outerLargeHits);
+          nLargeHits+=(int)sumval;
+	  sumval=0;
+          mu->summaryValue(sumval,xAOD::extendedLargeHits);
+          nLargeHits+=(int)sumval;
+	  if(nSmallHits>nLargeHits) isSmall=1;
+	}
+	mu->setSummaryValue(nGoodPrec,xAOD::numberOfGoodPrecisionLayers);
+	mu->setSummaryValue(isSmall,xAOD::isSmallGoodSectors);
+	mu->setSummaryValue(isEnd,xAOD::isEndcapGoodLayers);
+      }
     }
 
     if( msgLvl(MSG::DEBUG) || m_printSummary ){    
@@ -443,7 +551,12 @@ namespace MuonCombined {
   void MuonCreatorTool::addStatisticalCombination( xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag, OutputData& outputData ) const {
     if (!tag ){
       // init variables if necessary.
-      
+      muon.auxdata<float>("d0_staco")=-999;
+      muon.auxdata<float>("z0_staco")=-999;
+      muon.auxdata<float>("phi0_staco")=-999;
+      muon.auxdata<float>("theta_staco")=-999;
+      muon.auxdata<float>("qOverP_staco")=-999;
+      muon.auxdata<float>("qOverPErr_staco")=-999;
       return;
     }
     
@@ -493,7 +606,15 @@ namespace MuonCombined {
      
     // Add inner match chi^2
     muon.setParameter(5,   xAOD::Muon::msInnerMatchDOF);
-    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);    
+    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);
+
+    //STACO parameters added as auxdata
+    muon.auxdata<float>("d0_staco")=tag->combinedParameters().parameters()[Trk::d0];
+    muon.auxdata<float>("z0_staco")=tag->combinedParameters().parameters()[Trk::z0];
+    muon.auxdata<float>("phi0_staco")=tag->combinedParameters().parameters()[Trk::phi0];
+    muon.auxdata<float>("theta_staco")=tag->combinedParameters().parameters()[Trk::theta];
+    muon.auxdata<float>("qOverP_staco")=tag->combinedParameters().parameters()[Trk::qOverP];
+    muon.auxdata<float>("qOverPErr_staco")=sqrt((*(tag->combinedParameters().covariance()))(Trk::qOverP,Trk::qOverP));
     
     ATH_MSG_DEBUG("Done adding Staco Muon  " << tag->author() << " type " << tag->type());
   }
@@ -1598,12 +1719,13 @@ namespace MuonCombined {
 
       const Trk::Track* trk = tp->track();
       if(trk && trk->trackStateOnSurfaces()) {
-
+	int nAEOT=0;
 	for(auto tsos : *(trk->trackStateOnSurfaces())) {
 	  if (!tsos->type(Trk::TrackStateOnSurface::Alignment)) continue;
 
 	  const Trk::AlignmentEffectsOnTrack* aeot = tsos->alignmentEffectsOnTrack();
 	  if(aeot) {
+	    nAEOT++;
 	    std::set<unsigned int> chIdSet;
 	    for(auto id : aeot->vectorOfAffectedTSOS()) {
 	      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
