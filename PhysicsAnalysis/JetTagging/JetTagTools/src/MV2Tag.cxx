@@ -499,7 +499,7 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
 
   void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
 
-    std::cout << " SetVariableRefs " <<  std::endl;
+
     if (!m_useEgammaMethodMV2) {
       if(!tmvaReader) {
         ATH_MSG_WARNING("#BTAG# tmva method is chosen but tmvaReader==0!!");
@@ -526,7 +526,7 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
       }
 
     }
-    std::cout << " SetVariableRefs end " <<  std::endl;
+
   } //end MV2Tag::SetVariableRefs
 
 

@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-63-gaf7d736)
+// https://github.com/dguest/lwtnn.git (rev v1.0-76-gd837944)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -79,6 +79,7 @@ namespace lwt {
     // returns the size of the next layer
     size_t add_layers(size_t n_inputs, const LayerConfig&);
     size_t add_dense_layers(size_t n_inputs, const LayerConfig&);
+    size_t add_normalization_layers(size_t n_inputs, const LayerConfig&);
     size_t add_highway_layers(size_t n_inputs, const LayerConfig&);
     size_t add_maxout_layers(size_t n_inputs, const LayerConfig&);
     std::vector<ILayer*> _layers;
@@ -144,6 +145,22 @@ namespace lwt {
   private:
     std::vector<MatrixXd> _matrices;
     MatrixXd _bias;
+  };
+
+
+  /// Normalization layer ///
+  /// https://arxiv.org/abs/1502.03167 ///
+  class NormalizationLayer : public ILayer
+  {
+
+  public:
+    NormalizationLayer(const VectorXd& W,const VectorXd& b);
+    virtual VectorXd compute(const VectorXd&) const;
+
+  private:
+    VectorXd _W;
+    VectorXd _b;
+
   };
 
   //http://arxiv.org/pdf/1505.00387v2.pdf
@@ -315,6 +332,7 @@ namespace lwt {
   // consistency checks
   void throw_if_not_maxout(const LayerConfig& layer);
   void throw_if_not_dense(const LayerConfig& layer);
+  void throw_if_not_normalization(const LayerConfig& layer);
 
   // LSTM component for convenience in some layers
   struct DenseComponents
