@@ -1426,7 +1426,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 			<<" trying to build a TGC Id from stType/eta/phi "
 			<<stationType<<"/"
 			<<stationEta<<"/"
-			<<stationPhi<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<geoid<<" tagName = "<<stag<<endreq;
+			<<stationPhi<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<geoid<<" tagName = "<<stag<<endmsg;
         int gg = 1;
         int isStrip = 0;
         int ch = 1;
