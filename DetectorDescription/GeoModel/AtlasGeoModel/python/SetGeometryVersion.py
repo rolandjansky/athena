@@ -51,6 +51,8 @@ else:
 # Set the SupportedGeometry flag
 from AthenaCommon.AppMgr import release_metadata
 relversion = release_metadata()['release'].split('.')
+if relversion[0].startswith('MIG'):
+    relversion = [22, 0, 0]
 if len(relversion) < 3:
     relversion = release_metadata()['base release'].split('.')
 

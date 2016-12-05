@@ -56,8 +56,8 @@ elif ( DetFlags.detdescr.ID_on() ):
             else:
                 from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
                 sctSLHCTool = SCT_SLHC_DetectorTool()
+                sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
-            sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
                 from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
                 SCTLorentzAngleSvc = SiLorentzAngleSvc(name = "SCTLorentzAngleSvc",
