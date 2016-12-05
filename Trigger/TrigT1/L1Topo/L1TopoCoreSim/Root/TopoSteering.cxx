@@ -296,7 +296,15 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
    conn->setIsExecuted(true);
    conn->setExecutionStatusCode(sc);
-  
+   bool inputOverflow = false;
+   for(TCS::Connector* inputConnector: conn->inputConnectors()) {
+       // TODO DG-2016-12-05 propagate also the overflow from the input TOBs (before sort/select)
+       if(inputConnector->isSortingConnector()) {
+           inputOverflow = (inputOverflow ||
+                            dynamic_cast<SortingConnector*>(inputConnector)->sortingAlgorithm()->overflow());
+       }
+   }
+   conn->m_decision.setOverflow(inputOverflow);
    return sc;
 }
 
