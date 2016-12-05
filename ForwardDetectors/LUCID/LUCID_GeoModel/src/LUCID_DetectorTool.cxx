@@ -6,7 +6,7 @@
 #include "LUCID_GeoModel/LUCID_DetectorFactory.h" 
 #include "LUCID_GeoModel/LUCID_DetectorManager.h" 
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -33,25 +33,23 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
   
   MsgStream log(msgSvc(), name()); 
   
-  log << MSG::INFO << "Building LUCID geometry" << endreq;
+  log << MSG::INFO << "Building LUCID geometry" << endmsg;
   
-  IGeoModelSvc* geoModel;
+  IGeoDbTagSvc* geoDbTag{nullptr};
+  StatusCode sc = service("GeoDbTagSvc",geoDbTag);
+  if (sc.isFailure()) { log << MSG::FATAL << "Could not locate GeoDbTagSvc" << endmsg; return StatusCode::FAILURE; }
 
-  StatusCode sc = service("GeoModelSvc",geoModel);
-  
-  if (sc.isFailure()) { log << MSG::FATAL << "Could not locate GeoModelSvc" << endreq; return StatusCode::FAILURE; }
-  
   IRDBAccessSvc* raccess = 0;
   
   sc = service("RDBAccessSvc",raccess);
   
-  if(sc.isFailure()) { log << MSG::FATAL << "Could not locate RDBAccessSvc" << endreq; return StatusCode::FAILURE; }
+  if(sc.isFailure()) { log << MSG::FATAL << "Could not locate RDBAccessSvc" << endmsg; return StatusCode::FAILURE; }
 
-  std::string AtlasVersion = geoModel->atlasVersion();
+  std::string AtlasVersion = geoDbTag->atlasVersion();
   std::string LucidVersion = raccess->getChildTag("LUCID",AtlasVersion,"ATLAS");
 
   if(LucidVersion.empty()) {
-    log << MSG::DEBUG << "LUCID is not part of the selected ATLAS geometry. Skipping" << endreq;
+    log << MSG::DEBUG << "LUCID is not part of the selected ATLAS geometry. Skipping" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -59,7 +57,7 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
 
   if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")) { 
     
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return StatusCode::FAILURE; 
   } 
   
@@ -76,7 +74,7 @@ StatusCode LUCID_DetectorTool::create(StoreGateSvc* detStore) {
     sc = detStore->record(m_manager,
 			  m_manager->getName());
     
-    if (sc.isFailure()) { log << MSG::ERROR << "Could not register LUCID detector manager" << endreq; return StatusCode::FAILURE; }
+    if (sc.isFailure()) { log << MSG::ERROR << "Could not register LUCID detector manager" << endmsg; return StatusCode::FAILURE; }
     
     return StatusCode::SUCCESS;
   }
