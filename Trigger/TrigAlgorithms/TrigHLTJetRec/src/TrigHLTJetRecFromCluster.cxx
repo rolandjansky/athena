@@ -21,7 +21,8 @@ using fastjet::PseudoJet;
 
 TrigHLTJetRecFromCluster::TrigHLTJetRecFromCluster(const std::string& name, 
                                              ISvcLocator* pSvcLocator):
-  TrigHLTJetRecBase<xAOD::CaloClusterContainer>(name, pSvcLocator) {}
+  TrigHLTJetRecBase<xAOD::CaloClusterContainer>(name, pSvcLocator) {
+}
 
 TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 
@@ -45,7 +46,7 @@ TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
   auto uncalibrated = clusterCalib == "EM" ? true : false;
 
   indexMap->addLabel(clusterCalib + "Topo");
-  AnyToPseudoJet<InputContainer::const_value_type> apj(indexMap);
+  AnyToPseudoJet<xAOD::CaloClusterContainer::const_value_type> apj(indexMap);
   
   ClusterToPseudoJetConverter converter(apj, uncalibrated);
 
@@ -63,4 +64,9 @@ TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
 
   return HLT::OK;
 
+}
+
+
+const xAOD::JetContainer* TrigHLTJetRecFromCluster::build() const{
+    return TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
 }

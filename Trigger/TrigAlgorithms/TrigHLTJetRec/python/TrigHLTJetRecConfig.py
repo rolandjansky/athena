@@ -5,7 +5,7 @@ from AthenaCommon.SystemOfUnits import GeV
 import TrigHLTJetRecConf
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import (JetFromPseudojet,
-                               JetFinder)
+                               JetFinder,JetToolRunner)
 
 from EventShapeTools.EventDensityConfig import configEventDensityTool
 
@@ -70,13 +70,87 @@ def configHLTEventDensityTool(name,
     return EventDensityTool(name, **toolProperties)
     
 
+
+def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rclus,ptfrac):
+    from JetRec.JetRecCalibrationFinder import jrcf
+    
+    # Full list of arguments to jrcf (jet rec calib finder) are:
+    #   alg = algorithm, AntiKt
+    #   rad = radius, 1.0
+    #   inp = constituent+input type, LCTopoTrimmedPtFrac5SmallR20
+    #   seq = calibration sequence, EtaJES_JMS
+    #   config = configuration key, triggerTrim
+    #   evsprefix = event shape prefix, HLTKt4
+    #
+    # We will assume this is alg = AntiKt
+    # We will assume this is trimmed (per the function name)
+    # We will assume that this is JES+JMS calibration
+    # The rest we can get from arguments
+    # Calibration string should be in following form: calib:seq:config:evsprefix
+
+    # Prepare an error message in case it is needed
+    error = 'TrigHLTJetRecConfig._getTrimmedJetCalibrationModifier: '\
+            'request calibration is not supported (%s), '
+    error += ('merge_param %s, cluster_calib %s, jet_calib %s'\
+            % (str(int_merge_param), str(cluster_calib), str(jet_calib)))
+
+
+    # Check the easy case of no calibration
+    if jet_calib == 'nojcalib':
+        return None
+
+    # If this is EM, then there is currently no calibration
+    # If we got past nojcalib and it's EM, then this is an error
+    if cluster_calib != 'LC':
+        raise RuntimeError(error%("Trimmed calibrations only exist for LC"))
+
+    # If we are here, then this is LC and it's not nojcalib
+    # In this case, the only sane option is jes (but we interpret this as JES+JMS)
+    if jet_calib != 'jes':
+        raise RuntimeError(error%("only jes calibration is supported for LC"))
+
+    # We only have calibrations for R=1.0 jets right now
+    if int_merge_param != 10:
+        raise RuntimeError(error%("only R=1.0 is supported"))
+
+    # We only have calibrations for rclus=0.2, ptfrac=0.05
+    if rclus != 0.2 or ptfrac != 0.05:
+        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.05 are supported"))
+    
+    # If we got here, everything checks out
+    # Do a generic build from the arguments
+    # This is to be future-proof, as right now there is only a single calibration option...
+
+    alg="AntiKt"
+    rad=float(int_merge_param)/10.
+    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    seq="jm"
+    config="triggerTrim"
+    evsprefix="HLTKt4"
+
+    # Build the modifier
+    try:
+        calibmod = jrcf.find(alg, rad, inp, seq, config, evsprefix)
+    except Exception, e:
+        print "Exception raised within jrcf when finding the trimmed jet calib modifier"
+        raise e
+
+    # Check if we found it or not
+    if not calibmod:
+        raise RuntimeError(error%("failed to find trimmed jet calib modifier"))
+    
+    print "Adding calibration modifier: ",str(calibmod)
+    return calibmod
+
+
 def _getJetBuildTool(merge_param,
                      ptmin,
                      ptminFilter,
                      jet_calib,
                      cluster_calib,
                      do_minimalist_setup,
-                     name=''):
+                     name='',
+                     outputLabel=''):
     """Set up offline tools. do_minimalist_setup controls whether
     jetRecTool is set up with the minimum required jet modifiers.
     The code can be exercised with do_minimalist_setup=False to ensure
@@ -92,36 +166,26 @@ def _getJetBuildTool(merge_param,
 
     assert merge_param > 0.
 
-    # PS, SSchramm - hack until 2016 lcw constants are available.
-    # until then change jet calib from subjesIS to subjes
-    if jet_calib == 'subjesIS' and cluster_calib == 'LC':
-        jet_calib = 'subjes'
-
+    # Ensure the calibration is valid
     _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
-
+    
     mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
     jtm.gettersMap["mygetters"] = mygetters
     # print jtm.gettersMap.keys()
-    
+
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
                  'sub': 'calib:a:trigger:HLTKt4',
                  'subjesIS': 'calib:ajgi:trigger2016:HLTKt4'}.get(jet_calib, '')
-    
-    # mymods = [calib_str] if calib_str else []
-    
-    # mymods.extend([
-    #         jtm.jetens,
-    #         jtm.caloqual_cluster,
-    #        jtm.clsmoms,
-    #        ])
 
     # with S Schramm very early 18/4/2016
     mymods = [jtm.jetens]
     if calib_str: mymods.append(calib_str)
-    mymods.extend([jtm.caloqual_cluster, jtm.clsmoms])
-    
+    mymods.append(jtm.caloqual_cluster)
+    if outputLabel!='triggerTowerjets': #towers don't have cluster moments
+        mymods.append(jtm.clsmoms)
+
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
         # to run with the extra modifiers, which may be required in the
@@ -155,7 +219,7 @@ def _getJetBuildTool(merge_param,
         return None
 
     jetBuildTool = findjetBuildTool()
-
+        
     if jetBuildTool is None:
         print 'adding new jet finder ', name
         try:
@@ -172,14 +236,16 @@ def _getJetBuildTool(merge_param,
                                             ptmin=ptmin,
                                             ptminFilter=ptminFilter
                                             )
+            
+            
         except Exception, e:
             print 'error adding new jet finder %s' % name
             for jr in jtm.trigjetrecs:
                 print jr
             raise e
 
-    else:
-        print 'found jet finder ', name
+   # else:
+    #    print 'found jet finder ', name
 
     # jetBuildTool = jtm.trigjetrecs[-1]
     
@@ -199,6 +265,109 @@ def _getJetBuildTool(merge_param,
 
     return jetBuildTool
 
+def _getJetTrimmerTool (merge_param,
+                        jet_calib, 
+                        cluster_calib, 
+                        ptfrac,
+                        rclus, 
+                        name="",
+                        ):
+    """Set up offline trimmer tools. Offline trimmer and modifiers
+    make heavy use of dynamic stores, so all modifiers other than
+    calibration are currently disabled."""
+
+
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+
+    msg = 'Naming convention breaks with merge param %d' % merge_param
+    int_merge_param = int(10 * merge_param)
+    assert 10 * merge_param == int_merge_param, msg
+
+    assert merge_param > 0.
+
+    # Add the jet modifiers now
+    mymods = [jtm.jetens]
+    
+    # Currently we need to manually create the calibration tool
+    # This is not done automatically by the trimming tool (as it is during jet finding)
+    # Note, this requires some hard-coding and assumptions!
+    try:
+        calibmod  = _getTrimmedJetCalibrationModifier(jet_calib,
+                                                      int_merge_param,
+                                                      cluster_calib,
+                                                      rclus,
+                                                      ptfrac
+                                                      )
+        if calibmod: mymods.append(calibmod)
+    except Exception, e:
+        print 'Error building trimmed jet calibration modifier for %s' % name
+        raise e
+
+    jtm.modifiersMap["mymods"] = mymods
+ 
+
+    if not name:
+        name = 'TrigAntiKt%d%s%sTopoTrimmedJets' % (int_merge_param,
+                                                    cluster_calib,
+                                                    jet_calib)
+        
+    def findJetTrimmerTool():
+        for jr in jtm.trigjetrecs:
+            if jr.OutputContainer == name:
+                # jr.OutputContainer is a string, here used to identify the object
+                return jr
+            return None
+        
+    jetTrimmerTool = findJetTrimmerTool()
+        
+    if jetTrimmerTool is None:
+        print 'adding new jet trimmer ', name
+        try:
+            
+            # Create the builder
+            jetTrimmerTool = jtm.addJetTrimmer(name,
+                                               rclus,
+                                               ptfrac,
+                                               name+'notrim',
+                                               modifiersin = "mymods", #"groomed"
+                                               isTrigger=True,
+                                               doArea=False, # Not needed, we don't use jet area after trimming (speeds up execution)
+                                               )
+            
+            # Create a special builder for the groomer to use (trigger-specific need)
+            if not hasattr(jtm,"trigjblda"):
+                jtm.addJetBuilderWithArea(TrigHLTJetRecConf.TrigJetFromPseudojet("trigjblda",
+                                                                                 Attributes = ["ActiveArea", "ActiveArea4vec"]
+                                                                                ))
+
+            # Add the special builder to the tool
+            from AthenaCommon.AppMgr import ToolSvc
+            getattr(ToolSvc,name+"Groomer").unlock()
+            getattr(ToolSvc,name+"Groomer").JetBuilder = jtm.trigjblda
+            getattr(ToolSvc,name+"Groomer").lock()
+
+            # For debugging
+            #getattr(ToolSvc,name+"Groomer").unlock()
+            #getattr(ToolSvc,name+"Groomer").OutputLevel = 1
+            #ToolSvc.trigjblda.unlock()
+            #ToolSvc.trigjblda.OutputLevel = 1
+
+        except Exception, e:
+            print 'error adding new jet trimmer %s' % name
+            for jr in jtm.trigjetrecs:
+                print jr
+            raise e    
+
+    return jetTrimmerTool
+            
+            
+            
+            
+        
+        
+        
 
 def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
     """Check if the calibration is supported by the offline code"""
@@ -218,9 +387,7 @@ def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
                 str(int_merge_param), str(cluster_calib), str(do_jes))
         raise RuntimeError(m)
 
-    if do_insitu and not (do_jes and
-                          int_merge_param == 4 and
-                          cluster_calib == 'EM'):
+    if do_insitu and not (do_jes and int_merge_param == 4):
         m = 'TrigHLTJetRecConfig._getJetBuildTool: no insitu calibration support'\
             ' for merge_param %s, cluster calib %s, jes calibration: %s' % (
                 str(int_merge_param), str(cluster_calib), str(do_jes))
@@ -384,17 +551,19 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
                  cluster_calib='EM',
                  do_minimalist_setup=True,
                  output_collection_label='defaultJetCollection',
-                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster'
+                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  ):
+        
         TrigHLTJetRecConf.TrigHLTJetRecFromCluster.__init__(self, name = name)
-
+        
+      
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-
+        
         
         self.iPseudoJetSelector = _getPseudoJetSelectorAll(
             'iPseudoJetSelectorAll')
-
+        
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
             ptmin=ptmin,
@@ -402,12 +571,68 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
-            name=name
+            name=name,
             )
-
+        print 'after jetbuild'
+        
         self.output_collection_label = output_collection_label
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
+        print 'end of jets'
 
+################### Groomer class ##################################
+
+
+
+class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
+    """Configure building and grooming of jets as one step"""
+    def __init__(self,
+                 name,
+                 alg="AntiKt",
+                 merge_param="10",
+                 ptmin=7.0 * GeV,
+                 ptminFilter=7.0 * GeV,
+                 jet_calib='subjes',
+                 cluster_calib='LC',
+                 do_minimalist_setup=True,
+                 output_collection_label='defaultJetCollection',
+                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
+                 rclus= 0.2,
+                 ptfrac= 0.05,
+                 ):
+        
+        TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
+        
+      
+        self.cluster_calib = cluster_calib
+        self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+        
+        
+        self.iPseudoJetSelector = _getPseudoJetSelectorAll('iPseudoJetSelectorAll')
+        
+        self.jetBuildTool = _getJetBuildTool(float(int(merge_param))/10.,
+                                             ptmin=ptmin,
+                                             ptminFilter=ptminFilter,
+                                             jet_calib='nojcalib',
+                                             cluster_calib=cluster_calib,
+                                             do_minimalist_setup=do_minimalist_setup,
+                                             name=name+'notrim',
+                                             )
+        print 'after trimming jetbuild'
+        
+        self.jetTrimTool = _getJetTrimmerTool(merge_param=float(int(merge_param))/10.,
+                                              jet_calib=jet_calib,
+                                              cluster_calib=cluster_calib,
+                                              rclus=rclus,
+                                              ptfrac=ptfrac,
+                                              name=name,
+                                              )
+            
+        self.output_collection_label = output_collection_label
+        self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
+        print 'end of trimming jets'
+
+
+################### Frome Jet class ################################
 class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
     """Run jet reclustering. Jet calibration is off, merge parameter 10."""
     def __init__(self,
@@ -446,7 +671,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
 
         self.output_collection_label = output_collection_label
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
-
+        print 'Jet from jets'
 
 class TrigHLTJetRecFromTriggerTower(
         TrigHLTJetRecConf.TrigHLTJetRecFromTriggerTower):
@@ -484,6 +709,7 @@ class TrigHLTJetRecFromTriggerTower(
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            outputLabel='triggerTowerjets'
             )
 
         self.output_collection_label = output_collection_label

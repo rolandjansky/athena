@@ -40,9 +40,9 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
 
  public:
   TrigHLTJetRecBase(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigHLTJetRecBase();
+  virtual ~TrigHLTJetRecBase();
   
-  HLT::ErrorCode hltInitialize();
+  virtual HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
                             HLT::TriggerElement* outputTE);
   HLT::ErrorCode hltFinalize();
@@ -53,8 +53,11 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
                                       LabelIndex* indexMap,
                                       PseudoJetVector& pjv);
 
- std::string getClusterCalib() const {return m_clusterCalib;}
-    
+  std::string getClusterCalib() const {return m_clusterCalib;}
+
+  virtual const xAOD::JetContainer* build() const = 0; 
+  const xAOD::JetContainer* defaultBuild() const;
+ 
  private:
   std::string m_clusterCalib;
 
