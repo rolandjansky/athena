@@ -60,6 +60,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
+  double roTck=t->roThickness;
   double f1=t->f1Thickness;
   double f2=t->f2Thickness;
   double f3=t->f3Thickness;	
@@ -110,8 +111,11 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
     longWidthActive = longWidth;
     lengthActive = length;
 
-    if(i==(t->nlayers/2)) newpos += pcbTck;
-    double newXPos=newpos+ gasTck/2.+ pcbTck;
+    if(i==0) newpos += gasTck/2.;
+    else newpos += gasTck;
+    if( (i+1) % 2 ) newpos += pcbTck;
+    else newpos += roTck;
+    double newXPos=newpos;
  
     const GeoShape* sGasVolume = new GeoTrd(gasTck/2, gasTck/2, widthActive/2, 
                                               longWidthActive/2, lengthActive/2);
@@ -150,7 +154,6 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 
       iSenLyr++;
 
-      newpos += gasTck+pcbTck;
   } // Loop over tgc layers
         
   return ptrd;	

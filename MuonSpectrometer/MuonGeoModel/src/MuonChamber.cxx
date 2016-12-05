@@ -102,7 +102,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   if (verbose) log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
                            << m_station->GetName() << " at zi, fi "
                            << zi << " " << fi+1 << " is_mirrored " << is_mirrored
-                           << " is assembly = " << isAssembly << endreq;
+                           << " is assembly = " << isAssembly << endmsg;
   std::string stname(m_station->GetName(), 0, 3);
   MYSQL* mysql=MYSQL::GetPointer();
   //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
@@ -138,7 +138,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                              << "/" << zi << std::endl;
   if (verbose) log << MSG::VERBOSE << " MuonChamber size thick,w,lw,l "
                      << totthick << ", " << width << ", " << longWidth
-                     << ", " << length << endreq;
+                     << ", " << length << endmsg;
 
   const GeoShape* strd = 0;
   double dx = 0.;
@@ -146,7 +146,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     // sup on top & bottom
     dx = extratop/2. - extrabottom/2.;
     if (verbose) log<<MSG::VERBOSE<<" m_station name "<<m_station->GetName()<<" extra top, bottom, dx = "
-                      <<extratop<<" "<<extrabottom<<endreq;
+                      <<extratop<<" "<<extrabottom<<endmsg;
     strd = & ( (*maintrd) << HepGeom::Translate3D(dx, 0., 0.) );
   } else {
     strd =  maintrd;
@@ -285,10 +285,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
   if (verbose) log << MSG::VERBOSE <<"amdb origine: in the length direction = "
                      << amdbOrigine_along_length<<" in the thickness direction = "
-                     << amdbOrigine_along_thickness << endreq;
+                     << amdbOrigine_along_thickness << endmsg;
 
   if (isAssembly) if (debug) log<<MSG::DEBUG<<"Station  "<<stName<<" at zi, fi "
-                                  <<zi<<" "<<fi+1<<" will be described as  Assembly"<<endreq;
+                                  <<zi<<" "<<fi+1<<" will be described as  Assembly"<<endmsg;
 
   // for BOG in layout Q we will have to shorten CHV, CMI as these
   //   are not shortened in AMDB
@@ -300,12 +300,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   {
     if (verbose) log << MSG::VERBOSE << "amdb org: length= "
                        << amdbOrigine_along_length << " thickness= "
-                       << amdbOrigine_along_thickness << endreq;
+                       << amdbOrigine_along_thickness << endmsg;
       // std::cout<<"This is "<<stName<<" at zi/fi "<<zi<<"/"<<fi<<std::endl;
     std::string statType=stName.substr(0,3);
     if (m_station->GetNrOfCutouts() >0 ) {
       if (debug) log << MSG::DEBUG << "Station  "<<stName<<" at zi, fi "<<zi
-                       <<" "<<fi+1<<" has components with cutouts " << endreq;
+                       <<" "<<fi+1<<" has components with cutouts " << endmsg;
       isAssembly = true;
         // std::cout << "From the MuonChamber " << stName << " at zi, fi " << zi
         //           << " " << fi+1 << " this will be an assembly " << std::endl;
@@ -423,7 +423,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   }
   if (debug){
     log<<MSG::DEBUG<<" "<<nDoubletR;
-    log<<MSG::DEBUG<<" nMdt/Rpc/Tgc/Csc "<<nMdt<<"/"<<nRpc<<"/"<<nTgc<<"/"<<nCsc<<endreq;
+    log<<MSG::DEBUG<<" nMdt/Rpc/Tgc/Csc "<<nMdt<<"/"<<nRpc<<"/"<<nTgc<<"/"<<nCsc<<endmsg;
   }
   //std::cerr<<" nRpc, nDoubletR "<<nRpc<<" "<<nDoubletR<<" in "<<stName<<std::endl; 
    
@@ -485,7 +485,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       }            
       else log << MSG::ERROR 
                << "MuonChamber :: cannot associate a CMI subtype to the LB component "
-               << endreq;
+               << endmsg;
     }
   }
 
@@ -502,7 +502,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   manager->addMuonStation(mstat);
   if (debug) log << MSG::DEBUG << " Building a MuonStation for this MuonChamber "
                    << m_station->GetName() << " at zi, fi "
-                   << zi << " " << fi+1 << " is_mirrored " << is_mirrored << endreq;
+                   << zi << " " << fi+1 << " is_mirrored " << is_mirrored << endmsg;
 
 
   // here the big loop over the components !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -514,8 +514,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	    << " Component index "<<c->index<<" in loop for " << stName << " " << stationType
 	    << " at zi, fi " << zi << " " << fi+1 << "  cName " << c->name
 	    << " thickness " << c->GetThickness() << " length " << c->dy
-	    << " w, lw " << c->dx1 << " " << c->dx2 << endreq;
-	log << MSG::VERBOSE <<" Component local (amdb) coords "<<c->posx<<" "<<c->posy<<" "<<c->posz<<endreq;
+	    << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
+	log << MSG::VERBOSE <<" Component local (amdb) coords "<<c->posx<<" "<<c->posy<<" "<<c->posz<<endmsg;
     }
     
 
@@ -590,8 +590,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 //        }
         ncutouts++;
 	if (verbose) {
-	log<<MSG::VERBOSE<<"A new cutout for this component "<<endreq;
-	log<<MSG::VERBOSE<<*cut<<endreq;
+	log<<MSG::VERBOSE<<"A new cutout for this component "<<endmsg;
+	log<<MSG::VERBOSE<<*cut<<endmsg;
 	}
 	//	std::cout<<"Component x,y "<<c->posx<<", "<<c->posy<<" in m_station: "<<stName<<" component "<<techname<<" Jobj = "<<c->index<<std::endl;
 
@@ -626,13 +626,13 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	  if ( igeometry_version < igeometry_ref )
 	    {
 	      // do nothing 
-	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endreq;
+	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
 	    }
 	  else
 	    { 
 	      cut->dead1 = 30.; // why this is not 30. or -30. already ?????
 	      if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
-	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endreq;
+	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
 	    }
         }
 
@@ -651,7 +651,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // it has for the m_station at z>0
           vcutdef.push_back(cutmirr);
           vcutdef_todel.push_back(cutmirr);
-	  	  if (verbose) log<<MSG::VERBOSE<<"adding for application mirrored cut \n"<<*cutmirr<<endreq;
+	  	  if (verbose) log<<MSG::VERBOSE<<"adding for application mirrored cut \n"<<*cutmirr<<endmsg;
         } 
 	else if (type=="RPC" || type=="DED")
 	{
@@ -671,7 +671,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 		}
 	    }
 	    //std::cout<<"rpctypecut dx, dy = "<<cutRpcType->dx <<" "<<cutRpcType->dy<<std::endl;
-	    if (verbose) log<<MSG::VERBOSE<<" Rpc or ded coutout redefined as follows \n"<<*cutRpcType<<endreq;
+	    if (verbose) log<<MSG::VERBOSE<<" Rpc or ded coutout redefined as follows \n"<<*cutRpcType<<endmsg;
 	    vcutdef.push_back(cutRpcType);
 	    vcutdef_todel.push_back(cutRpcType);
 	}
@@ -681,7 +681,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // subtract radius of component from radius of cutout 
           Cutout* tgccut = new Cutout(*cut);
           tgccut->dy -= c->posy;  //
-	  	  if (verbose) log<<MSG::VERBOSE<<" Tgc cutout redefined as follows \n"<<*tgccut<<endreq;
+	  	  if (verbose) log<<MSG::VERBOSE<<" Tgc cutout redefined as follows \n"<<*tgccut<<endmsg;
           vcutdef.push_back(tgccut);
           vcutdef_todel.push_back(tgccut);
 
@@ -695,7 +695,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                           << c->name << " of station " 
                           << stName << " at fi/zi " << fi+1 << "/" 
                           << zi << " has " << ncutouts << " cutouts "
-                          << endreq;
+                          << endmsg;
 
     // define here the total transform that will be applied to component:
     HepGeom::Transform3D htcomponent;
@@ -735,7 +735,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       // for cutouts:
       // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10),  EMS
-      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) ||
+      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" ||
                             (stname == "BMS" && (std::abs(zi) == 1 && fi == 3)) ||
                             (stname == "EMS" && (std::abs(zi) == 1 || std::abs(zi) == 3)));
       if (((manager->IncludeCutoutsFlag() &&  mdtCutoutFlag) || 
@@ -759,7 +759,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                          << " manager->IncludeCutoutsFlag() "
                          << manager->IncludeCutoutsFlag() 
                          << " manager->IncludeCutoutsBogFlag() "
-                         << manager->IncludeCutoutsBogFlag() << endreq;
+                         << manager->IncludeCutoutsBogFlag() << endmsg;
         if ((manager->IncludeCutoutsFlag() && mdtCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
@@ -769,7 +769,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         } else {
           lvm = r->build();
         }
-        //log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endreq;
+        //log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
         savemem->StoreDetector(lvm, key);
         delete r;
         r = 0;
@@ -778,7 +778,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         GeoFullPhysVol* rfpv = (GeoFullPhysVol*)fpv;
         if (verbose) log << MSG::VERBOSE << " This MDT for station " 
                            << key << " component name is "
-                           << c->name << " already exists; clone it " << endreq;
+                           << c->name << " already exists; clone it " << endmsg;
         lvm = rfpv->clone();
       }
 
@@ -786,7 +786,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (techname == "SPA01" && stName.substr(0,1) == "C") {
         if (debug) log << MSG::DEBUG 
                          << "Ficticious spacer SPA01 in CSC chamber - skip it "
-                         << endreq;
+                         << endmsg;
         // ignore SPA 1 component of CSS/CSL chambers in R02.03 (it is there only for AMDB convenience,
         // leaving the CSC envelop => global position of the m_station unchanged)
         continue;
@@ -808,7 +808,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (fpv == 0) {
         Spacer* r = new Spacer(c);
         // log << MSG::DEBUG << " Building a SPA for m_station "
-        //     << key << " component name is " << c->name << endreq;
+        //     << key << " component name is " << c->name << endmsg;
         if (manager->IncludeCutoutsFlag()||
             (manager->IncludeCutoutsBogFlag()&&stName.substr(0,3)=="BOG"))
         {
@@ -816,7 +816,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         } else {
           lv = r->build();
         }
-        // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endreq;
+        // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
         savemem->StoreDetector(lv, key);
         delete r;
         r = 0;
@@ -883,13 +883,13 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       // log << MSG::DEBUG << " Building a SpacerBeam for m_station "
       //                   << key << " component name is "
-      //                   << c->name << endreq;
+      //                   << c->name << endmsg;
       FPVMAP* savemem = FPVMAP::GetPointer();
       GeoVPhysVol* fpv = savemem->GetDetector(key);
       if (fpv == 0 || (stName.substr(0,3) == "BOG" && type == "CMI")) {
         if (stName.substr(0,3)=="BOG")
           if (verbose) log << MSG::VERBOSE << " Building a SpacerBeam for station "
-                             << key << " component name is " << c->name << endreq;
+                             << key << " component name is " << c->name << endmsg;
         if (manager->IncludeCutoutsFlag() ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
@@ -899,8 +899,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
           // log << MSG::DEBUG << "LB: " << r->name << " height is " <<
           //     r->height << " length is " << r->length << " width is "
-          //			      << r->width << endreq;
-          // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endreq;
+          //			      << r->width << endmsg;
+          // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
         savemem->StoreDetector(lvo, key);
           // AMDB origin is in bottom centre of bottom cross-piece at
           // end of bar.
@@ -910,7 +910,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if (stName.substr(0,3)=="BOG") 
           if (verbose) log << MSG::VERBOSE << " This spacerbeam for station "
                              << key << " component name is "
-                             << c->name << " already exists; re-use it " << endreq;
+                             << c->name << " already exists; re-use it " << endmsg;
         lvo = fpv;
       }
       delete r;
@@ -951,7 +951,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                            << " RPC " << (c->name).substr(3,2)
                            << " has swap flag = " << rp->iswap
                            << " ypos, zpos "
-                           << ypos << " " << zpos << " " << endreq;
+                           << ypos << " " << zpos << " " << endmsg;
 
         htcomponent = HepGeom::TranslateX3D(ypos)*
                       HepGeom::TranslateY3D(xpos)*HepGeom::TranslateZ3D(zpos);
@@ -991,7 +991,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         r->setLogVolName(stName+techname);
         //   log << MSG::DEBUG << " Building a RPC for m_station "
         //       << key << " component name is "
-        //       << c->name << endreq;
+        //       << c->name << endmsg;
         if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
@@ -999,7 +999,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         } else {
           lvr = r->build(manager->MinimalGeoFlag());
         }
-        // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endreq;
+        // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
         savemem->StoreDetector(lvr, key);
         delete r;
         r = 0;
@@ -1008,7 +1008,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         GeoFullPhysVol* rfpv = (GeoFullPhysVol*)fpv;
         //log<<MSG::DEBUG<<" This RPC for m_station "<<key
         //   <<" component name is "
-        //   <<c->name<<" already exists; clone it "<<endreq;
+        //   <<c->name<<" already exists; clone it "<<endmsg;
         lvr = rfpv->clone();
       }
 
@@ -1044,7 +1044,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       if (fpv == 0) {
         Ded* r = new Ded(c);
-        if (verbose) log<<MSG::VERBOSE<<" Building a DED for station "<<key<<" component name is " <<c->name<<endreq;
+        if (verbose) log<<MSG::VERBOSE<<" Building a DED for station "<<key<<" component name is " <<c->name<<endmsg;
         if ((manager->IncludeCutoutsFlag() && dedCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
@@ -1053,14 +1053,14 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           lvd = r->build();
         }
           //   log<<MSG::DEBUG<<" Storing in FPVMAP with key "
-          //   <<key<<endreq;
+          //   <<key<<endmsg;
         savemem->StoreDetector(lvd, key);
         delete r;
         r = 0;
 
       } else {
         lvd = fpv;
-        if (verbose) log<<MSG::VERBOSE<<" Re-using DED for station "<<key<<" component name is " <<c->name<<endreq;
+        if (verbose) log<<MSG::VERBOSE<<" Re-using DED for station "<<key<<" component name is " <<c->name<<endmsg;
       }
                 
     } else if (type=="SUP" && manager->MinimalGeoFlag() == 0) {
@@ -1073,14 +1073,14 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         //               <<" show AMDB origin with respect to phys vol centre: "
         //               <<csup->xAMDB0()<<" "
         //               <<csup->yAMDB0()<<" "
-        //               <<csup->zAMDB0()<<endreq;
-        //            log<<MSG::DEBUG<<" z transform done"<<endreq;
-        //            log<<MSG::DEBUG<<" ypos = "<<ypos<<endreq;
-        //            log<<MSG::DEBUG<<" y transform done"<<endreq;
-        //            log<<MSG::DEBUG<<" x transform done"<<endreq;
+        //               <<csup->zAMDB0()<<endmsg;
+        //            log<<MSG::DEBUG<<" z transform done"<<endmsg;
+        //            log<<MSG::DEBUG<<" ypos = "<<ypos<<endmsg;
+        //            log<<MSG::DEBUG<<" y transform done"<<endmsg;
+        //            log<<MSG::DEBUG<<" x transform done"<<endmsg;
         //            log<<MSG::DEBUG<<" its centre x-translated by "<<ypos;
         //            log<<" y-translated by "<<xpos;
-        //            log<<" z-translated by "<<zpos<<endreq;
+        //            log<<" z-translated by "<<zpos<<endmsg;
 	htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*
                       HepGeom::TranslateZ3D(zpos);
         std::string key = stName+techname;
@@ -1098,12 +1098,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         GeoVPhysVol* fpv = savemem->GetDetector(key);
         if (fpv == 0) {
           // log<<MSG::DEBUG<<" definig ypos, from thickness & c->posz = "
-          // <<-thickness/2.<<" "<<c->posz<<endreq;
+          // <<-thickness/2.<<" "<<c->posz<<endmsg;
           //                 Sup *r=new Sup(c);
           //                 lvs=r->build();
           //   log<<MSG::DEBUG<<" a pointer to a sup " <<lvs
-          // <<" is now available in the m_station "<<endreq;
-          // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endreq;
+          // <<" is now available in the m_station "<<endmsg;
+          // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
           savemem->StoreDetector(lvs, key);
         } else {
           lvs = fpv;
@@ -1176,13 +1176,13 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         Csc* t = new Csc(c);
         t->setLogVolName(stName+techname);
           // log<<MSG::DEBUG<<" Building a CSC for  m_station "
-          // <<key<<" component name is "<<c->name<<endreq;
+          // <<key<<" component name is "<<c->name<<endmsg;
         if (manager->IncludeCutoutsFlag() ) {
           lvc = t->build(manager->MinimalGeoFlag(), 1, vcutdef);
         } else {
           lvc = t->build(manager->MinimalGeoFlag());
         }
-        // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endreq;
+        // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
         savemem->StoreDetector(lvc, key);
         delete t;
         t = 0;
@@ -1190,7 +1190,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         GeoFullPhysVol* rfpv = (GeoFullPhysVol*)fpv;
         // log<<MSG::DEBUG<<" This CSC for m_station "<<key
         // <<" component name is "
-        // <<c->name<<" already exists; clone it "<<endreq;
+        // <<c->name<<" already exists; clone it "<<endmsg;
         lvc = rfpv->clone();
       }
 
@@ -1199,7 +1199,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                         && type != "DED" && type != "SPA" && type != "CHV" 
                         && type != "CRO" && type != "CMI" && type != "LB0" 
                         && type != "LBI") log << MSG::INFO << "Unknown component " 
-                                              << type << endreq;
+                                              << type << endmsg;
     }
 
     // Place components in chamber envelope
@@ -1262,8 +1262,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                        << " trying to build a MDT Id from stType/eta/phi/ml/tl/t "
                        << stationType << "/" << stationEta << "/"
                        << stationPhi << "/" << ml << "/" << tubel << "/" 
-                       << tube <<endreq<< " Copy number is " << c->index 
-                       << " tagName " << stag << endreq;
+                       << tube <<endmsg<< " Copy number is " << c->index 
+                       << " tagName " << stag << endmsg;
       Identifier id = mdt_id->channelID(stationType, stationEta,
                                         stationPhi, ml, tubel, tube);
       det->setIdentifier(id);
@@ -1348,8 +1348,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                         <<stationType<<"/"
                         <<stationEta<<"/"
                         <<stationPhi<<"/"
-                        <<chamberLayer<<"/ and /1/0/1"<<endreq<<" Copy number is "<<c->index<<" tagName "
-                        <<stag<<endreq;
+                        <<chamberLayer<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<c->index<<" tagName "
+                        <<stag<<endmsg;
         Identifier id = csc_id->channelID(stationType,
                                           stationEta,
                                           stationPhi,
@@ -1366,11 +1366,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (lvt) {
         if (debug) log << MSG::DEBUG
                          << " Adding a TGC chamber to the tree zi,fi, is_mirrored "
-                         << zi << " " << fi+1 << " " << is_mirrored << endreq;
+                         << zi << " " << fi+1 << " " << is_mirrored << endmsg;
 
         TgcComponent* tg = (TgcComponent*)m_station->GetComponent(i);
         if (verbose) log << MSG::VERBOSE << "There's a TGC named " << techname
-                           << " of thickness " << tg->GetThickness() << endreq;
+                           << " of thickness " << tg->GetThickness() << endmsg;
 
         const TgcIdHelper* tgc_id = manager->tgcIdHelper();
         int stationEta = 0;
@@ -1426,7 +1426,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 			<<" trying to build a TGC Id from stType/eta/phi "
 			<<stationType<<"/"
 			<<stationEta<<"/"
-			<<stationPhi<<"/ and /1/0/1"<<endreq<<" Copy number is "<<geoid<<" tagName = "<<stag<<endreq;
+			<<stationPhi<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<geoid<<" tagName = "<<stag<<endmsg;
         int gg = 1;
         int isStrip = 0;
         int ch = 1;
@@ -1472,7 +1472,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                 //                   <<" RPC "<<(c->name).substr(3,2)
                 //                   <<" has swap flag = "<<rp->iswap
                 //                   <<" ypos, yd, zpos, zd "
-                //                   <<ypos<<" "<<yd<<" "<<zpos<<" "<<zd<<endreq;
+                //                   <<ypos<<" "<<yd<<" "<<zpos<<" "<<zd<<endmsg;
                 //                    htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
                 //		      *HepGeom::TranslateZ3D(zpos);
                 //		    xfcomponent = new GeoTransform(htcomponent);
@@ -1586,8 +1586,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 			    << stationType << "/"
 			    << stationEta << "/" << stationPhi << "/" << doubletR << "/"
 			    << doubletZ << "/" << doubletPhi
-			    << "///" << gasGap << "/" << measuresPhi << "/" << strip << endreq << " Copy number "
-			    << geoid << " tagName= " << stag << endreq;
+			    << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
+			    << geoid << " tagName= " << stag << endmsg;
                     
           det->setParentStationPV(PVConstLink(ptrd));
           det->setParentMuonStation(mstat);
@@ -1627,18 +1627,18 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         std::string cname = csup->name;
         if (verbose) log << MSG::VERBOSE
                            << " yes, the component is a SupComponent named "
-                           << cname << endreq;
+                           << cname << endmsg;
         GeoNameTag* nm = new GeoNameTag(stName + "_stName "+techname+" supcomponent");
         ptrd->add(new GeoIdentifierTag(c->index));
         ptrd->add(nm);
         ptrd->add(xfcomponent);
         if (verbose) {
-          log << MSG::VERBOSE << " register x" << endreq;
-          log << MSG::VERBOSE << " register y" << endreq;
-          log << MSG::VERBOSE << " register z" << endreq;
+          log << MSG::VERBOSE << " register x" << endmsg;
+          log << MSG::VERBOSE << " register y" << endmsg;
+          log << MSG::VERBOSE << " register z" << endmsg;
         }
         ptrd->add(lvs);
-        if (verbose) log << MSG::VERBOSE << " register lvs" << endreq;
+        if (verbose) log << MSG::VERBOSE << " register lvs" << endmsg;
       }
 
       if (lvd && RPCON) {
@@ -1999,7 +1999,7 @@ MuonChamber::setTgcReadoutGeom(TgcReadoutElement* re, const TgcComponent* cc,
 void MuonChamber::print()
 {
   MsgStream log(m_msgSvc, "MuGM:MuonChamber");
-  log<<MSG::INFO<<"MuonChamber "<<name<<" :"<<endreq;
+  log<<MSG::INFO<<"MuonChamber "<<name<<" :"<<endmsg;
 }
 
 int MuonChamber::stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry_version) const

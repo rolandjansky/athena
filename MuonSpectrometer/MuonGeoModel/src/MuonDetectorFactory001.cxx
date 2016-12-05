@@ -109,7 +109,7 @@ namespace MuonGM {
     m_enableFineClashFixing = 0;
   
     log<<MSG::INFO<<"MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
-       <<" Length "<< m_muon->length <<endreq;
+       <<" Length "<< m_muon->length <<endmsg;
     //std::cerr<<"MuonDetectorFactory - constructor/// size of vectors "<<m_selectedStations.size()<<" "<<m_selectedStEta.size()<<" "<<m_selectedStPhi.size()<<std::endl;
   }
 
@@ -159,55 +159,55 @@ namespace MuonGM {
       {
 	//         if (m_rdb == 0) 
 	//         {
-	//             log<<MSG::WARNING<<"Muon Layouts of type Q and following are available only via Oracle"<<endreq;
-	//             log<<MSG::WARNING<<"                       => overwriting UseRDB flag"<<endreq;
+	//             log<<MSG::WARNING<<"Muon Layouts of type Q and following are available only via Oracle"<<endmsg;
+	//             log<<MSG::WARNING<<"                       => overwriting UseRDB flag"<<endmsg;
 	//             m_rdb = 1;
 	//         }
         if (m_layout == "Q02_initial") 
 	  {
             m_includeCutouts = 0;
             m_includeCutoutsBog = 0;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Preliminary version for Rome workshop "<<endreq;
-            log<<MSG::INFO<<"                   BOG chambers are shorter; no cutouts implemented"<<endreq;
+            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Preliminary version for Rome workshop "<<endmsg;
+            log<<MSG::INFO<<"                   BOG chambers are shorter; no cutouts implemented"<<endmsg;
 	  }            
         if (m_layout == "Q02_initial_pro") 
 	  {
             m_includeCutouts = 0;
             m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endreq;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endreq;
+            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
+            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
             m_layout = "Q02_initial";
-            log<<MSG::INFO<<"                   Setting internal Layout Name to "<<m_layout<<endreq;
+            log<<MSG::INFO<<"                   Setting internal Layout Name to "<<m_layout<<endmsg;
             log<<MSG::INFO<<"                           includeCutouts and includeCutoutsBog to "
                <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endreq;
+               <<m_includeCutoutsBog <<endmsg;
 	  }            
         if (m_layout == "Q02") 
 	  {
             m_includeCutouts = 0;
             m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endreq;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endreq;
+            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
+            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
             log<<MSG::INFO<<"                   Setting includeCutouts and includeCutoutsBog to "
                <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endreq;
+               <<m_includeCutoutsBog <<endmsg;
 	  }            
         if (m_layout.substr(0,1) == "R") 
 	  {
             m_includeCutouts = 1;
             m_includeCutoutsBog = 1;
             log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Development version for DC3 - infrastructures "
-               <<endreq;
+               <<endmsg;
             log<<MSG::INFO<<"                   BOG cutouts are activated "<<m_includeCutoutsBog
-               <<" , all other cutouts are disabled "<<m_includeCutouts<<endreq;
+               <<" , all other cutouts are disabled "<<m_includeCutouts<<endmsg;
 	  }            
         if (m_layout.substr(0,3) == "CTB") 
 	  {
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = 2004 Combined Testbeam "<<endreq;
+            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = 2004 Combined Testbeam "<<endmsg;
             if (m_includeCtbBis)
-              log<<MSG::INFO<<" The BIS (or BEE) chamber will be built"<<endreq;
+              log<<MSG::INFO<<" The BIS (or BEE) chamber will be built"<<endmsg;
             else
-              log<<MSG::INFO<<" The BIS (or BEE) chamber will NOT be built (this is the default)."<<endreq;
+              log<<MSG::INFO<<" The BIS (or BEE) chamber will NOT be built (this is the default)."<<endmsg;
 	  } 
       }
 
@@ -228,7 +228,7 @@ namespace MuonGM {
     m_manager->setGeometryVersion(m_layout);
     m_manager->set_DBMuonVersion(m_DBMuonVersion);
     log<<MSG::INFO<<"Manager created for geometry version "
-       <<m_manager->geometryVersion()<<" from DB MuonVersion <"<<m_manager->get_DBMuonVersion()<<">"<<endreq;
+       <<m_manager->geometryVersion()<<" from DB MuonVersion <"<<m_manager->get_DBMuonVersion()<<">"<<endmsg;
   
     // here create the MYSQL singleton and assign to it the geometry version
     MYSQL *mysql=  MYSQL::GetPointer();	
@@ -236,7 +236,7 @@ namespace MuonGM {
     mysql->set_amdb_from_RDB(m_rdb == 1);
     mysql->set_DBMuonVersion(m_DBMuonVersion);
     log<<MSG::INFO<<"Mysql helper class created here for geometry version "
-       <<mysql->getGeometryVersion()<<" from DB MuonVersion <"<<mysql->get_DBMuonVersion()<<">"<<endreq;
+       <<mysql->getGeometryVersion()<<" from DB MuonVersion <"<<mysql->get_DBMuonVersion()<<">"<<endmsg;
         
   
     StatusCode sc =StatusCode::SUCCESS;
@@ -246,36 +246,36 @@ namespace MuonGM {
 
     const DataHandle<MdtIdHelper>  mdtidh;
     sc = m_pDetStore->retrieve(mdtidh,"MDTIDHELPER");
-    if (sc.isFailure())log<<MSG::ERROR<<" not found MDT "<<endreq;
-    else log<<MSG::INFO<<"MDTIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure())log<<MSG::ERROR<<" not found MDT "<<endmsg;
+    else log<<MSG::INFO<<"MDTIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_mdtIdHelper(mdtidh);
     const DataHandle<RpcIdHelper> rpcidh;
     sc = m_pDetStore->retrieve(rpcidh,"RPCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found RPC "<<endreq;
-    else log<<MSG::INFO<<"RPCIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure() )log<<MSG::ERROR<<" not found RPC "<<endmsg;
+    else log<<MSG::INFO<<"RPCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_rpcIdHelper(rpcidh);
     const DataHandle<TgcIdHelper> tgcidh;
     sc = m_pDetStore->retrieve(tgcidh,"TGCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found TGC "<<endreq;
-    else log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure() )log<<MSG::ERROR<<" not found TGC "<<endmsg;
+    else log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_tgcIdHelper(tgcidh);
     const DataHandle<CscIdHelper> cscidh;
     sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endreq;
-    else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endmsg;
+    else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_cscIdHelper(cscidh);
 
     //for nSW
     const DataHandle<sTgcIdHelper> stgcidh;
     sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endreq;
-    else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endmsg;
+    else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_stgcIdHelper(stgcidh);
 
     const DataHandle<MmIdHelper> mmidh;
     sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endreq;
-    else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endreq;
+    if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endmsg;
+    else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_mmIdHelper(mmidh);
 
 
@@ -291,7 +291,7 @@ namespace MuonGM {
     // const IdDictManager * idDictMgr = 0; 
     // sc = m_pDetStore->retrieve(idDictMgr, "IdDict");
     // if (sc.isFailure()) {
-    //   log<<MSG::ERROR << " Could not get IdDictManager !" << endreq;
+    //   log<<MSG::ERROR << " Could not get IdDictManager !" << endmsg;
     //   throw std::runtime_error("Error in MuonDetectorFactory, could not get IdDictManager");
     // }
     
@@ -301,21 +301,21 @@ namespace MuonGM {
     //   if (!idDictMgr->initializeHelper(*mdtidh)) { // Returns 1 if there is a problem
     //     mdtidhInitialized=true;
     //     log<<MSG::INFO << " MdtIdHelper has been initialised! "
-    //        << endreq;
+    //        << endmsg;
     //   }
     //   else 
     //   {
     //     log<<MSG::WARNING<<" IdDictManager found BUT initializeHelper ="
-    //        <<idDictMgr->initializeHelper(*mdtidh)<<endreq;
+    //        <<idDictMgr->initializeHelper(*mdtidh)<<endmsg;
     //   }
     // }
-    // else log<<MSG::WARNING<<" IdDictManager not found in the Detector Store"<<endreq;
+    // else log<<MSG::WARNING<<" IdDictManager not found in the Detector Store"<<endmsg;
     // //  }
     // //  else log<<MSG::ERROR<<" FAILURE:: IdDictManager not found in the Detector Store"
-    // //<<endreq;
+    // //<<endmsg;
     // if (!mdtidhInitialized) {
     //   log<<MSG::ERROR << " Cannot initialize MdtIdHelper ! "
-    //      << endreq;
+    //      << endmsg;
     //   delete mdtidh;
     //   mdtidh=NULL;
     //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize MdtIdHelper");
@@ -328,10 +328,10 @@ namespace MuonGM {
     // if (!idDictMgr->initializeHelper(*cscidh)) { // Returns 1 if there is a problem
     //   cscidhInitialized=true;
     //   log<<MSG::INFO << " CscIdHelper has been initialised! "
-    //      << endreq;
+    //      << endmsg;
     // }
     // if (!cscidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize CscIdHelper ! " << endreq;
+    //   log<<MSG::ERROR << " Cannot initialize CscIdHelper ! " << endmsg;
     //   delete cscidh;
     //   cscidh=NULL;
     //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize CscIdHelper");
@@ -344,10 +344,10 @@ namespace MuonGM {
     // RpcIdHelper *rpcidh = new RpcIdHelper;
     // if (!idDictMgr->initializeHelper(*rpcidh)) { // Returns 1 if there is a problem
     //   rpcidhInitialized=true;
-    //   log<<MSG::INFO << " RpcIdHelper has been initialised! " << endreq;
+    //   log<<MSG::INFO << " RpcIdHelper has been initialised! " << endmsg;
     // }
     // if (!rpcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize RpcIdHelper ! " << endreq;
+    //   log<<MSG::ERROR << " Cannot initialize RpcIdHelper ! " << endmsg;
     //   delete rpcidh;
     //   rpcidh=NULL;
     //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize RpcIdHelper");
@@ -360,10 +360,10 @@ namespace MuonGM {
     // TgcIdHelper *tgcidh = new TgcIdHelper;
     // if (!idDictMgr->initializeHelper(*tgcidh)) { // Returns 1 if there is a problem
     //   tgcidhInitialized=true;
-    //   log<<MSG::INFO << " TgcIdHelper has been initialised! " << endreq;
+    //   log<<MSG::INFO << " TgcIdHelper has been initialised! " << endmsg;
     // }
     // if (!tgcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize TgcIdHelper ! " << endreq;
+    //   log<<MSG::ERROR << " Cannot initialize TgcIdHelper ! " << endmsg;
     //   delete tgcidh;
     //   tgcidh=NULL;
     //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize TgcIdHelper");
@@ -384,8 +384,8 @@ namespace MuonGM {
     
 
 
-    log<<MSG::INFO<<" **************** MuonDetectorFactory001 ************************"<<endreq;
-    log<<  " *** Start building the Muon Geometry Tree **********************"<<endreq;
+    log<<MSG::INFO<<" **************** MuonDetectorFactory001 ************************"<<endmsg;
+    log<<  " *** Start building the Muon Geometry Tree **********************"<<endmsg;
 
     DBReader* dbr = NULL;
     std::string OracleTag =  m_DBkey;
@@ -398,7 +398,7 @@ namespace MuonGM {
       //         {
       //             //ss 21/02/2007 breaking all dependencies from NOVA
       //             // dbr = new  DBReaderAtlasP(m_pDetStore);
-      //             log<<MSG::ERROR<<"Layout P from NOVA is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endreq;
+      //             log<<MSG::ERROR<<"Layout P from NOVA is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endmsg;
       //             return;
       //         }
     }
@@ -417,7 +417,7 @@ namespace MuonGM {
       // OracleTag = "ATLAS-Rome-Final-00";
       //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
 
-      if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"calling RDBReaderAtlas with m_altAsciiDBMap"<<endreq;
+      if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"calling RDBReaderAtlas with m_altAsciiDBMap"<<endmsg;
       dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
       RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
       thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
@@ -425,13 +425,13 @@ namespace MuonGM {
     }
     else if (m_layout == "CTB2004") {
       // dbr = new DBReaderTB04(m_pDetStore);
-      log<<MSG::ERROR<<"Layout CTB2004 (existing only in NOVA) is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endreq;
-      log<<MSG::ERROR<<"For CTB studies, use AtlasRelease <13.0.0"<<endreq;
+      log<<MSG::ERROR<<"Layout CTB2004 (existing only in NOVA) is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endmsg;
+      log<<MSG::ERROR<<"For CTB studies, use AtlasRelease <13.0.0"<<endmsg;
       return;
     }
     else
       {
-        log << MSG::ERROR<<"Uninitialized DBReader; Muon node will not be built"<<endreq;
+        log << MSG::ERROR<<"Uninitialized DBReader; Muon node will not be built"<<endmsg;
       }
 
     // 
@@ -451,7 +451,7 @@ namespace MuonGM {
     sc = dbr->ProcessDB();
     if (sc != StatusCode::SUCCESS)
       {
-        log << MSG::ERROR<<" FAILURE in DB access; Muon node will not be built"<<endreq;
+        log << MSG::ERROR<<" FAILURE in DB access; Muon node will not be built"<<endmsg;
         return;
       }
     //release memory
@@ -527,14 +527,14 @@ namespace MuonGM {
 	    if (!xPar.setFromAscii(line)) {
 	      log<< MSG::ERROR
 		<< "Unable to parse AsBuilt params from Ascii line: " << line
-		<<endreq;
+		<<endmsg;
 	    } else {
 	      m_manager->storeMdtAsBuiltParams(new MdtAsBuiltPar(xPar));
 	      ++count;
 	    }
 	  }
 	}
-	log << MSG::INFO << "Parsed AsBuilt parameters: " << count << endreq;
+	log << MSG::INFO << "Parsed AsBuilt parameters: " << count << endmsg;
       }
     } */
 
@@ -546,7 +546,7 @@ namespace MuonGM {
     else
       log<< MSG::INFO
 	 <<" theMaterialManager retrieven successfully from the DetStore"
-	 <<endreq;
+	 <<endmsg;
   
   
     DetectorElement::setMaterialManager(*theMaterialManager);  
@@ -565,10 +565,10 @@ namespace MuonGM {
 	  {
             muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem","MuonSystem-00");
             log<< MSG::INFO
-               <<"MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"<<endreq;
+               <<"MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"<<endmsg;
 	  }
         else log<< MSG::INFO
-                <<"MuonSystem description from OracleTag=<"<<OracleTag<<"> and node=<"<< OracleNode<<">"<<endreq;
+                <<"MuonSystem description from OracleTag=<"<<OracleTag<<"> and node=<"<< OracleNode<<">"<<endmsg;
         //
 
         // --- Envelope from DB ....
@@ -606,7 +606,7 @@ namespace MuonGM {
 	  {
             // Muon System node is not present, go for handcoded version
             log<< MSG::INFO
-               <<"MuonSystem description not available in GeomDB - using hard-wired description"<<endreq;
+               <<"MuonSystem description not available in GeomDB - using hard-wired description"<<endmsg;
             
             double ir   = m_muon->barrelInnerRadius;
             double pir  = m_muon->innerRadius;
@@ -652,7 +652,7 @@ namespace MuonGM {
         const GeoShape* c4 = new GeoBox(xhlen,yhlen,zhlen);
         c4 = & ( (*c4)<<HepGeom::TranslateX3D( xhlen+xstart)  );
         l4 = new GeoLogVol( "MuonSys", c4, m4 );
-        log<< MSG::INFO<<" Here is the tree top volume for the CTB"<<endreq;
+        log<< MSG::INFO<<" Here is the tree top volume for the CTB"<<endmsg;
       }
     GeoPhysVol* p4 = new GeoPhysVol(l4);
   
@@ -662,8 +662,8 @@ namespace MuonGM {
     // lv->GetLogicalVolume()->SetUserLimits(ul);
   
     m_manager->addTreeTop(p4); // This is the top!
-    log << MSG::INFO<<" TreeTop added to the Manager"<<endreq;
-    log << MSG::INFO<<" Muon Layout "<< m_layout << endreq;
+    log << MSG::INFO<<" TreeTop added to the Manager"<<endmsg;
+    log << MSG::INFO<<" Muon Layout "<< m_layout << endmsg;
 
     
     std::vector<std::string> slist;
@@ -681,23 +681,23 @@ namespace MuonGM {
     int nAssemblies = 0;
     if (m_enableFineClashFixing >0)
       log<<MSG::INFO
-	 <<"Fine Clash Fixing enabled:  (should be ON/OFF for Simulation/Reconstruction)"<<endreq;
+	 <<"Fine Clash Fixing enabled:  (should be ON/OFF for Simulation/Reconstruction)"<<endmsg;
     else
       log<<MSG::INFO
-	 <<"Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)"<<endreq;
+	 <<"Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)"<<endmsg;
 
     
 
     StationSelector sel(slist);
     StationSelector::StationIterator it;
-    //  log<<MSG::DEBUG<<" Size of the station list is ???"<<endreq;
+    //  log<<MSG::DEBUG<<" Size of the station list is ???"<<endmsg;
     for ( it = sel.begin(); it != sel.end(); it++ )
       {
         Station *station = (*it).second;
         std::string stname(station->GetName(), 0, 3);
         if (m_selectedStations.size()<=0) 
 	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Processing Stations named <"<<station->GetName()<<"> "
-					    <<nstat_ss<<" built until now"<<endreq;
+					    <<nstat_ss<<" built until now"<<endmsg;
 
 	if ((skip_chambers) && (stname.substr(0,1)!="X")) continue;
 
@@ -755,7 +755,7 @@ namespace MuonGM {
             
             if ((m_selectedStPhi.size() + m_selectedStEta.size()) >0)
 	      log<<MSG::INFO<<"Build selected Station <"<<station->GetName()<<"> at Jzz = "<<zi<<" Jff = "<<fi+1<<" ******* "
-		 <<nstat_ss<<" stat.types built until now"<<endreq;
+		 <<nstat_ss<<" stat.types built until now"<<endmsg;
             
 
             // here define GeoNameTag 
@@ -777,7 +777,7 @@ namespace MuonGM {
                 if ( zi<0 ) sideC = 1;
                 int geoid = (sideC*10000 + mirsign*1000 + abs(zi)*100 + fi+1)*100000;
                 if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Adding Station with nameTag=<"<<station->GetName() + "_station"
-						<<"> and geoId "<<geoid<<endreq;
+						<<"> and geoId "<<geoid<<endmsg;
                 p4->add(new GeoIdentifierTag (geoid));
 	      }
             else 
@@ -785,7 +785,7 @@ namespace MuonGM {
                 int geoid = (mirsign*1000 + abs(zi)*100 + fi+1)*sign;
                 p4->add(new GeoIdentifierTag (geoid));
                 if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Adding Station with nameTag=<"<<station->GetName() + "_station"
-						<<"> and geoId "<<geoid<<" for zi/fi = "<<zi<<"/"<<fi<<endreq;
+						<<"> and geoId "<<geoid<<" for zi/fi = "<<zi<<"/"<<fi<<endmsg;
 	      }            
 
             // here define the GeoAlignableTransform associated to the chamber
@@ -802,7 +802,7 @@ namespace MuonGM {
             if (mst == NULL) 
 	      {
 		log<<MSG::WARNING<<"For Station with nameTag=<"<<station->GetName() 
-		   <<"> at zi/fi = "<<zi<<"/"<<fi<<" no MuonStation found => no possibility to align"<<endreq;
+		   <<"> at zi/fi = "<<zi<<"/"<<fi<<" no MuonStation found => no possibility to align"<<endmsg;
 		continue;
 	      }
 	    mst->setTransform(xf);
@@ -823,7 +823,7 @@ namespace MuonGM {
 	    //nAlines=-1; 
 	    if (nAlines==0)
 	      {
-		if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"No A-lines(-> AlignedPositions) for this station in the static Geometry DB; setting to def."<<endreq;
+		if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"No A-lines(-> AlignedPositions) for this station in the static Geometry DB; setting to def."<<endmsg;
 		ap.tras=ap.traz=ap.trat=ap.rots=ap.rotz=ap.rott=0.;
 		ap.jobindex=0;
 		mst->setDelta_fromAline( ap.tras, ap.traz, ap.trat, ap.rots, ap.rotz, ap.rott );
@@ -843,17 +843,17 @@ namespace MuonGM {
 		      {
 			log<<MSG::ERROR<<"Inconsistent AlignedPosition found in the static Geometry DB: aligPos.fi, zi = "<< ap.phiindex<<", "<<ap.zindex
 			   <<" for station "<<station->GetName()<<" at fi/zi = "<<fi<<"/"<<zi
-			   <<" AlignPos indices fi/zi "<<fi<<"/"<<zi<<endreq;
+			   <<" AlignPos indices fi/zi "<<fi<<"/"<<zi<<endmsg;
 		      }
 		    // 
 		    if (ap.jobindex==0) 
 		      {
 			// station
 			if (log.level()<=MSG::DEBUG) {
-			  log<<MSG::DEBUG<<"Going to set delta from A-line for station"<<stname<<" at zi/fi "<<zi<<"/"<<fi<<endreq;
+			  log<<MSG::DEBUG<<"Going to set delta from A-line for station"<<stname<<" at zi/fi "<<zi<<"/"<<fi<<endmsg;
 			  log<<MSG::DEBUG<<"A-line is: "
 			     <<ap.tras<<" "<<ap.traz<<" "<<ap.trat<<" "
-			     <<ap.rots<<" "<<ap.rotz<<" "<<ap.rott<<endreq;
+			     <<ap.rots<<" "<<ap.rotz<<" "<<ap.rott<<endmsg;
 			}
 			mst->setDelta_fromAline( ap.tras, ap.traz, ap.trat, ap.rots, ap.rotz, ap.rott );
 		      }
@@ -862,10 +862,10 @@ namespace MuonGM {
 			// station component
 			if (log.level()<=MSG::DEBUG) {
 			  log<<MSG::DEBUG<<"Going to set delta from A-line for component "<<ap.jobindex
-			     <<" of station "<<stname<<" at zi/fi "<<zi<<"/"<<fi<<endreq;
+			     <<" of station "<<stname<<" at zi/fi "<<zi<<"/"<<fi<<endmsg;
 			  log<<MSG::DEBUG<<"A-line is: "
 			     <<ap.tras<<" "<<ap.traz<<" "<<ap.trat<<" "
-			     <<ap.rots<<" "<<ap.rotz<<" "<<ap.rott<<endreq;
+			     <<ap.rots<<" "<<ap.rotz<<" "<<ap.rott<<endmsg;
 			}
 			mst->setDelta_fromAline_forComp(ap.jobindex, ap.tras, ap.traz, ap.trat, ap.rots, ap.rotz, ap.rott );
 		      }
@@ -873,19 +873,19 @@ namespace MuonGM {
 	      }
 
 	    //             if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From the Factory:: Total transformation for " << stname << ":"
-	    //                << endreq <<
+	    //                << endmsg <<
 	    //                 (xf->getTransform())[0][0] << " " <<
 	    //                 (xf->getTransform())[0][1] << " " <<
 	    //                 (xf->getTransform())[0][2] << " " <<
-	    //                 (xf->getTransform())[0][3] << " " << endreq <<
+	    //                 (xf->getTransform())[0][3] << " " << endmsg <<
 	    //                 (xf->getTransform())[1][0] << " " <<
 	    //                 (xf->getTransform())[1][1] << " " <<
 	    //                 (xf->getTransform())[1][2] << " " <<
-	    //                 (xf->getTransform())[1][3] << " " << endreq <<
+	    //                 (xf->getTransform())[1][3] << " " << endmsg <<
 	    //                 (xf->getTransform())[2][0] << " " <<
 	    //                 (xf->getTransform())[2][1] << " " <<
 	    //                 (xf->getTransform())[2][2] << " " <<
-	    //                 (xf->getTransform())[2][3] << " " << endreq;
+	    //                 (xf->getTransform())[2][3] << " " << endmsg;
             // get the MuonStation from the manager; store the relevant transforms;
             // let the MuonStation compute the Delta of the GeoAlignableTransform (new style)
             // MuonStation* mst = m_manager->getMuonStation (station->GetName(), zi, fi+1);
@@ -897,68 +897,68 @@ namespace MuonGM {
             //     mst->setNativeToAmdbLRS( tsz_to_szt * station->native_to_tsz_frame( (*pit).second ) );
             //     mst->setNominalAmdbLRSToGlobal( station->tsz_to_global_frame( (*pit).second ) * tsz_to_szt.inverse() );
 	    //                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From the Factory:: Before setting delta to the MuonStation " << stname << ":"
-	    //                    << endreq <<
+	    //                    << endmsg <<
 	    //                     (xf->getTransform())[0][0] << " " <<
 	    //                     (xf->getTransform())[0][1] << " " <<
 	    //                     (xf->getTransform())[0][2] << " " <<
-	    //                     (xf->getTransform())[0][3] << " " << endreq <<
+	    //                     (xf->getTransform())[0][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[1][0] << " " <<
 	    //                     (xf->getTransform())[1][1] << " " <<
 	    //                     (xf->getTransform())[1][2] << " " <<
-	    //                     (xf->getTransform())[1][3] << " " << endreq <<
+	    //                     (xf->getTransform())[1][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[2][0] << " " <<
 	    //                     (xf->getTransform())[2][1] << " " <<
 	    //                     (xf->getTransform())[2][2] << " " <<
-	    //                     (xf->getTransform())[2][3] << " " << endreq;
+	    //                     (xf->getTransform())[2][3] << " " << endmsg;
 	    // HepGeom::Transform3D Delta_amdb_frame = tsz_to_szt*station->getDeltaTransform_tszFrame(ap)*tsz_to_szt.inverse();
 	    // mst->setDeltaAmdbLRS(  Delta_amdb_frame );
 	    //                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From the Factory:: Delta(amdb) transformation for " << stname << ":"
-	    //                    << endreq <<
+	    //                    << endmsg <<
 	    //                     (Delta_amdb_frame)[0][0] << " " <<
 	    //                     (Delta_amdb_frame)[0][1] << " " <<
 	    //                     (Delta_amdb_frame)[0][2] << " " <<
-	    //                     (Delta_amdb_frame)[0][3] << " " << endreq <<
+	    //                     (Delta_amdb_frame)[0][3] << " " << endmsg <<
 	    //                     (Delta_amdb_frame)[1][0] << " " <<
 	    //                     (Delta_amdb_frame)[1][1] << " " <<
 	    //                     (Delta_amdb_frame)[1][2] << " " <<
-	    //                     (Delta_amdb_frame)[1][3] << " " << endreq <<
+	    //                     (Delta_amdb_frame)[1][3] << " " << endmsg <<
 	    //                     (Delta_amdb_frame)[2][0] << " " <<
 	    //                     (Delta_amdb_frame)[2][1] << " " <<
 	    //                     (Delta_amdb_frame)[2][2] << " " <<
-	    //                     (Delta_amdb_frame)[2][3] << " " << endreq;
+	    //                     (Delta_amdb_frame)[2][3] << " " << endmsg;
 	    //                 //now get and check the full transform
 	    //                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From MuonStation:: Total transformation for " << stname << ":"
-	    //                    << endreq <<
+	    //                    << endmsg <<
 	    //                     (xf->getTransform())[0][0] << " " <<
 	    //                     (xf->getTransform())[0][1] << " " <<
 	    //                     (xf->getTransform())[0][2] << " " <<
-	    //                     (xf->getTransform())[0][3] << " " << endreq <<
+	    //                     (xf->getTransform())[0][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[1][0] << " " <<
 	    //                     (xf->getTransform())[1][1] << " " <<
 	    //                     (xf->getTransform())[1][2] << " " <<
-	    //                     (xf->getTransform())[1][3] << " " << endreq <<
+	    //                     (xf->getTransform())[1][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[2][0] << " " <<
 	    //                     (xf->getTransform())[2][1] << " " <<
 	    //                     (xf->getTransform())[2][2] << " " <<
-	    //                     (xf->getTransform())[2][3] << " " << endreq;
+	    //                     (xf->getTransform())[2][3] << " " << endmsg;
 	    //now get and check the full transform after updating the delta directly with a-line
 	    //std::cout<<setiosflags(std::ios::fixed) << std::setprecision(6) << std::setw(12);
 	    //std::cout<<"A-lines from DB to MuonStation: "<<ap.tras<<" "<<ap.traz<<" "<<ap.trat<<" "<<ap.rots<<" "<<ap.rotz<<" "<<ap.rott<<std::endl;
 		
 	    //                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From MuonStation (A line):: Total transformation for " << stname << ":"
-	    //                    << endreq <<
+	    //                    << endmsg <<
 	    //                     (xf->getTransform())[0][0] << " " <<
 	    //                     (xf->getTransform())[0][1] << " " <<
 	    //                     (xf->getTransform())[0][2] << " " <<
-	    //                     (xf->getTransform())[0][3] << " " << endreq <<
+	    //                     (xf->getTransform())[0][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[1][0] << " " <<
 	    //                     (xf->getTransform())[1][1] << " " <<
 	    //                     (xf->getTransform())[1][2] << " " <<
-	    //                     (xf->getTransform())[1][3] << " " << endreq <<
+	    //                     (xf->getTransform())[1][3] << " " << endmsg <<
 	    //                     (xf->getTransform())[2][0] << " " <<
 	    //                     (xf->getTransform())[2][1] << " " <<
 	    //                     (xf->getTransform())[2][2] << " " <<
-	    //                     (xf->getTransform())[2][3] << " " << endreq;
+	    //                     (xf->getTransform())[2][3] << " " << endmsg;
 	
             //m_manager->addStation(xf,nm); //ss 19-02-2007 not needed anymore 
 	  }//end loop on positions 
@@ -966,24 +966,24 @@ namespace MuonGM {
         if (npos_ss >0) nstat_ss ++;
       }
 
-    log<<MSG::INFO<<" **************** MuonDetectorFactory001 ****************************"<<endreq
-       <<" *** The Muon Chamber Geometry Tree is built with "<<endreq
-       <<" *** "<<p4->getNChildVols()<<" child volumes "<<endreq
-       <<" *** "<<savemem->NDetectors()<<" independent elements and "<<endreq
-       <<" *** "<<savemem->NDetectorsReused()<<" elements cloned or shared "<<endreq
-       <<" *** "<<nstat_ss<<" kinds of stations"<<endreq
-       <<" *** "<<ntpos_ss<<" stations with alignable transforms"<<endreq
-       <<" *** "<<nAssemblies<<" stations are described as Assemblies"<<endreq
-       <<" *** "<<m_manager->nMuonStation()<<" MuonStations "<<endreq
+    log<<MSG::INFO<<" **************** MuonDetectorFactory001 ****************************"<<endmsg
+       <<" *** The Muon Chamber Geometry Tree is built with "<<endmsg
+       <<" *** "<<p4->getNChildVols()<<" child volumes "<<endmsg
+       <<" *** "<<savemem->NDetectors()<<" independent elements and "<<endmsg
+       <<" *** "<<savemem->NDetectorsReused()<<" elements cloned or shared "<<endmsg
+       <<" *** "<<nstat_ss<<" kinds of stations"<<endmsg
+       <<" *** "<<ntpos_ss<<" stations with alignable transforms"<<endmsg
+       <<" *** "<<nAssemblies<<" stations are described as Assemblies"<<endmsg
+       <<" *** "<<m_manager->nMuonStation()<<" MuonStations "<<endmsg
        <<" *** \t "<<m_manager->nMdtRE()<<" MDT Readout Elements \t "
-       <<m_manager->nMdtDE()<<" MDT Detector Elements "<<endreq
+       <<m_manager->nMdtDE()<<" MDT Detector Elements "<<endmsg
        <<" *** \t "<<m_manager->nCscRE()<<" CSC Readout Elements \t "
-       <<m_manager->nCscDE()<<" CSC Detector Elements "<<endreq
+       <<m_manager->nCscDE()<<" CSC Detector Elements "<<endmsg
        <<" *** \t "<<m_manager->nRpcRE()<<" RPC Readout Elements \t "
-       <<m_manager->nRpcDE()<<" RPC Detector Elements "<<endreq
+       <<m_manager->nRpcDE()<<" RPC Detector Elements "<<endmsg
        <<" *** \t "<<m_manager->nTgcRE()<<" TGC Readout Elements \t "
-       <<m_manager->nTgcDE()<<" TGC Detector Elements "<<endreq
-       <<" ********************************************************************"<<endreq;
+       <<m_manager->nTgcDE()<<" TGC Detector Elements "<<endmsg
+       <<" ********************************************************************"<<endmsg;
 
     if (m_dumpMemoryBreakDown)
       {
@@ -1024,10 +1024,10 @@ namespace MuonGM {
     
 
     log << MSG::INFO
-        << " *** Inert Material built according to DB switches and config. ****** "<< endreq;
+        << " *** Inert Material built according to DB switches and config. ****** "<< endmsg;
     log << MSG::INFO
-        << " *** The Muon Geometry Tree has " << p4->getNChildVols() << " child vol.s in total ********"<< endreq
-        << " ********************************************************************\n"<< endreq;
+        << " *** The Muon Geometry Tree has " << p4->getNChildVols() << " child vol.s in total ********"<< endmsg
+        << " ********************************************************************\n"<< endmsg;
   
     if (m_dumpMemoryBreakDown)
       {

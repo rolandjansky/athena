@@ -250,10 +250,10 @@ void MYSQL::setGeometryVersion(std::string s)
     if (m_geometry_version != "unknown") 
     {
         if (s == m_geometry_version) return;
-        reLog()<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endreq;
+        reLog()<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endmsg;
     }    
     m_geometry_version = s;
-    reLog()<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endreq;
+    reLog()<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endmsg;
 }
 
 std::string MYSQL::getGeometryVersion() const
@@ -270,7 +270,7 @@ int MYSQL::getCtbBisFlag() const
 void MYSQL::setNovaReadVersion(int i)
 {
     m_amdb_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endreq;
+    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endmsg;
 }
 
 int MYSQL::getNovaReadVersion() const
@@ -281,10 +281,10 @@ void MYSQL::setLayoutName(std::string s)
     if (m_layout_name != "unknown") 
     {
         if (s == m_layout_name) return;
-        reLog()<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endreq;
+        reLog()<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endmsg;
     }    
     m_layout_name = s;
-    reLog()<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endreq;
+    reLog()<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endmsg;
 }
 std::string MYSQL::getLayoutName() const 
 {return m_layout_name;}
@@ -302,7 +302,7 @@ int  MYSQL::getCutoutsBogFlag() const
 void MYSQL::setNovaVersion(int i)
 {
     m_nova_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endreq;
+    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endmsg;
 }
 int MYSQL::getNovaVersion() const
 {

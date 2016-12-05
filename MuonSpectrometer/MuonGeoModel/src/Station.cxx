@@ -22,7 +22,7 @@ Station::Station(std::string s):m_name(s)
 {
   m_msgSvc = Athena::getMessageSvc();
   MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<"creating station "<<m_name<<" "<<this<<" with name "<<s<<endreq;
+    //    log << MSG::DEBUG<<"creating station "<<m_name<<" "<<this<<" with name "<<s<<endmsg;
     m_thickness=m_width1=m_width2=m_length=0;
     m_amdbOrigine_along_length = 0;
     m_amdbOrigine_along_thickness = 0;
@@ -30,7 +30,7 @@ Station::Station(std::string s):m_name(s)
     MYSQL *mysql=MYSQL::GetPointer();
     m_hasMdts = false;
     mysql->StoreStation(this);
-    //    log << MSG::DEBUG<<" stored in MYSQL "<<mysql<<endreq;
+    //    log << MSG::DEBUG<<" stored in MYSQL "<<mysql<<endmsg;
 }
 
 Station::Station()
@@ -43,14 +43,14 @@ Station::Station()
     m_name = "unknown";
     m_hasMdts = false;
     MsgStream log(m_msgSvc, "MuonGeoModel");
-    log << MSG::DEBUG << "Creating a Station..." << endreq;
+    log << MSG::DEBUG << "Creating a Station..." << endmsg;
 }
 
 Station::Station(const Station& s)
 {
   m_msgSvc = Athena::getMessageSvc();
 	MsgStream log(m_msgSvc, "MuonGeoModel");
-	log << MSG::DEBUG << "Creating a Station..." << endreq;
+	log << MSG::DEBUG << "Creating a Station..." << endmsg;
 	m_thickness=m_width1=m_width2=m_length=0;
         m_amdbOrigine_along_length = 0;
         m_amdbOrigine_along_thickness = 0;
@@ -80,12 +80,12 @@ void Station::SetAlignPos(const AlignPos& p)
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
   if (FindAlignPos(p.zindex, p.phiindex) != m_alignpositions.end() && p.jobindex==0) {
-    log << MSG::WARNING<<" this alignposition already exists !!!"<<endreq;
+    log << MSG::WARNING<<" this alignposition already exists !!!"<<endmsg;
     log << MSG::WARNING<<" for station named "<<m_name
 	     <<" setting alignposition at z,phi, key "
 	     <<p.zindex<<" "
 	     <<p.phiindex<<" "
-	<<p.zindex*100+p.phiindex<<" and jobIndex = 0"<<endreq;
+	<<p.zindex*100+p.phiindex<<" and jobIndex = 0"<<endmsg;
     assert(0);
   }    
   int key=p.zindex*100+p.phiindex;
@@ -95,7 +95,7 @@ void Station::SetAlignPos(const AlignPos& p)
   /*
     log << MSG::DEBUG <<" setting position with key "<<
     p.zindex*100+p.phiindex<<" zi, phi = "
-    <<p.zindex<<" "<<p.phiindex<<endreq;
+    <<p.zindex<<" "<<p.phiindex<<endmsg;
   */
 }
 
@@ -157,12 +157,12 @@ void Station::SetPosition(Position p)
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
     if (FindPosition(p.zindex, p.phiindex) != end()) {
-        log << MSG::WARNING <<" this position already exists !!!"<<endreq;
+        log << MSG::WARNING <<" this position already exists !!!"<<endmsg;
         log << MSG::WARNING
 	    <<" for station named "<<m_name<<" setting position at z,phi, key "
                  <<p.zindex<<" "
                  <<p.phiindex<<" "
-                 <<p.zindex*100+p.phiindex<<endreq;
+                 <<p.zindex*100+p.phiindex<<endmsg;
         assert(0);
     }
     else
@@ -171,7 +171,7 @@ void Station::SetPosition(Position p)
         m_positions[p.zindex*100+p.phiindex]=p;
         //     log << MSG::DEBUG<<" setting position with key "
 	//         <<p.zindex*100+p.phiindex<<" zi, phi = "
-        //              <<p.zindex<<" "<<p.phiindex<<endreq;
+        //              <<p.zindex<<" "<<p.phiindex<<endmsg;
     }
     
 }
@@ -204,16 +204,16 @@ double Station::GetThickness() const
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
   std::string geov = MYSQL::GetPointer()->getGeometryVersion();
-  //    log << MSG::DEBUG<<" station thickness for stat = "<<m_name<<endreq;
+  //    log << MSG::DEBUG<<" station thickness for stat = "<<m_name<<endmsg;
     
   if (m_thickness) {
-//        log << MSG::DEBUG<<" Station::thickness already defined = "<<m_thickness<<" for station "<<m_name<<endreq;
+//        log << MSG::DEBUG<<" Station::thickness already defined = "<<m_thickness<<" for station "<<m_name<<endmsg;
     return m_thickness;
   }
     
   else 
     {
-      //            log << MSG::DEBUG<<"    not defined yet "<<endreq;
+      //            log << MSG::DEBUG<<"    not defined yet "<<endmsg;
       double thick=0;
       if (m_name[0]=='T')
 	{                    
@@ -234,7 +234,7 @@ double Station::GetThickness() const
 	      StandardComponent *s=(StandardComponent *)m_components[i];
 	      thick = thick > s->GetThickness()+s->posz ? thick : s->GetThickness()+s->posz;
 	      if (i==0 || s->posz < zstart) zstart = s->posz;
-              if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" calculating  Thinkness = "<<thick<<" and zstart = "<<zstart<<endreq;	
+              if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" calculating  Thinkness = "<<thick<<" and zstart = "<<zstart<<endmsg;	
               
             }
 	  if (fabs(zstart) > 0.001)
@@ -248,7 +248,7 @@ double Station::GetThickness() const
                   thick = thick - zstart;
                   m_amdbOrigine_along_thickness = -zstart;
                   if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining Thinkness = "<<thick<<" because zstart = "<<zstart
-                     <<"; then amdbOrigine_along_thickness = "<<m_amdbOrigine_along_thickness<<endreq;
+                     <<"; then amdbOrigine_along_thickness = "<<m_amdbOrigine_along_thickness<<endmsg;
               }                
             }
         }
@@ -256,9 +256,9 @@ double Station::GetThickness() const
       return thick;
     }
 }
-//                    //                log << MSG::DEBUG<<" component "<<s->m_name<<" found"<<endreq;
+//                    //                log << MSG::DEBUG<<" component "<<s->m_name<<" found"<<endmsg;
 //                     if ((s->m_name).substr(0,3) == "SUP") {
-//                         //log << MSG::DEBUG<<" thick "<<s->GetThickness()<<" posz "<<s->posz<<endreq;
+//                         //log << MSG::DEBUG<<" thick "<<s->GetThickness()<<" posz "<<s->posz<<endmsg;
 //                         //thick > s->GetThickness() ? thick : s->GetThickness();
 //                     }
 //                    else 
@@ -266,7 +266,7 @@ double Station::GetThickness() const
 //                        thick=
 //                            thick > s->GetThickness()+s->posz ? thick : s->GetThickness()+s->posz;
 //                    }
-//                     //log << MSG::DEBUG<<" thickness is now = "<<thick<<endreq;
+//                     //log << MSG::DEBUG<<" thickness is now = "<<thick<<endmsg;
 //                }
 //            }
 //            m_thickness=thick;
@@ -276,7 +276,7 @@ double Station::GetThickness() const
 double Station::GetExtraTopThickness() const
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<" GetExtraTopThickness for stat = "<<m_name<<endreq;
+    //    log << MSG::DEBUG<<" GetExtraTopThickness for stat = "<<m_name<<endmsg;
     if (m_name[0] != 'B') return 0.;
 
     return 0.;
@@ -295,21 +295,21 @@ double Station::GetExtraTopThickness() const
             deltaup = s->posz + s->topsizewrtAMDB0();
 //             log << MSG::DEBUG<<" deltaup: s->posz, s->topsizewrtAMDB0 "
 //                      <<s->posz<<" "
-//                      <<s->topsizewrtAMDB0()<<endreq;
+//                      <<s->topsizewrtAMDB0()<<endmsg;
             double pos = -m_thickness/2. + deltaup;
 //            log << MSG::DEBUG<<" pos, m_thickness/2., deltaup "<<pos<<" "
-//	    <<-m_thickness/2.<<" "<<deltaup<<endreq;
+//	    <<-m_thickness/2.<<" "<<deltaup<<endmsg;
             //xupsup > pos ? xupsup : pos;
             if (xupsup <= pos) xupsup=pos;
 //             log << MSG::DEBUG<<" SUP component named "<<s->m_name
-//                       <<" xupsup, m_thickness/2. ="<<xupsup<<" "<<m_thickness/2.<<endreq;
+//                       <<" xupsup, m_thickness/2. ="<<xupsup<<" "<<m_thickness/2.<<endmsg;
         }
     }
     double dtop=xupsup - m_thickness/2.;
-    //log << MSG::DEBUG<<" dtop = "<<dtop<<endreq;
+    //log << MSG::DEBUG<<" dtop = "<<dtop<<endmsg;
     if (dtop > 0.) {
       if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" GetExtraTopThickness for stat = "
-	  <<m_name<<" with "<<nsup<<" SUPs is "<<dtop<<endreq;
+	  <<m_name<<" with "<<nsup<<" SUPs is "<<dtop<<endmsg;
         return dtop;
     }
     
@@ -319,7 +319,7 @@ double Station::GetExtraTopThickness() const
 double Station::GetExtraBottomThickness() const
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<" GetExtraBottomThickness  for stat = "<<m_name<<endreq;
+    //    log << MSG::DEBUG<<" GetExtraBottomThickness  for stat = "<<m_name<<endmsg;
     if (m_name[0] != 'B') return 0.;
 
     return 0.;
@@ -338,20 +338,20 @@ double Station::GetExtraBottomThickness() const
             deltadown = s->posz - s->bottomsizewrtAMDB0();
 //             log << MSG::DEBUG<<" deltadown: s->posz, s->bottomsizewrtAMDB0 "
 //                      <<s->posz<<" "
-//                      <<s->bottomsizewrtAMDB0()<<endreq;
+//                      <<s->bottomsizewrtAMDB0()<<endmsg;
             double pos = -m_thickness/2. + deltadown;
             // log << MSG::DEBUG<<" pos, m_thickness/2., deltadown "<<pos
-	    //	    <<" "<<-m_thickness/2.<<" "<<deltadown<<endreq;
+	    //	    <<" "<<-m_thickness/2.<<" "<<deltadown<<endmsg;
             //xdownsup < pos ? xdownsup : pos;
             if (xdownsup >=pos ) xdownsup=pos;
 //             log << MSG::DEBUG<<" SUP component named "<<s->m_name
-//                      <<" xdownsup, -m_thickness/2. ="<<xdownsup<<" "<<-m_thickness/2.<<endreq;
+//                      <<" xdownsup, -m_thickness/2. ="<<xdownsup<<" "<<-m_thickness/2.<<endmsg;
         }
     }
     double dbottom = - xdownsup - m_thickness/2.;
     if (dbottom > 0.) {
       if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE <<" GetExtraBottomThickness for stat = "
-	  <<m_name<<" with "<<nsup<<" SUPs is "<<dbottom<<endreq;
+	  <<m_name<<" with "<<nsup<<" SUPs is "<<dbottom<<endmsg;
         return dbottom;
     }
     return 0.;
@@ -391,13 +391,13 @@ double Station::GetLength() const
                 StandardComponent *sc=(StandardComponent *)m_components[i];
                 //if (m_name == "EIL8" || m_name == "EIL9")
                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" *** comp "<<i<<" named "<<sc->name
-                       <<" posy "<<sc->posy<<" dy "<<sc->dy<<" len "<<len<<" ystart "<<ystart<<endreq;
+                       <<" posy "<<sc->posy<<" dy "<<sc->dy<<" len "<<len<<" ystart "<<ystart<<endmsg;
                 //if (m_name == "CSS1")std::cout<<" getLength() --- Station "<<m_name<<" *** comp "<<i<<" named "<<sc->m_name
                 //       <<" posy "<<sc->posy<<" dy "<<sc->dy<<" len "<<len<<" ystart "<<ystart<<std::endl;
                 if ((sc->dy + sc->posy) > len) len = sc->dy+sc->posy;
                 if (i==0 || sc->posy < ystart ) ystart = sc->posy;
                 //if (m_name == "EIL8" || m_name == "EIL9")
-                if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" now len = "<<len<<" ystart = "<<ystart<<endreq;
+                if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" now len = "<<len<<" ystart = "<<ystart<<endmsg;
                 //if (m_name == "CSS1")std::cout<<"Now length = "<<len<<" ystart = "<<ystart<<std::endl;
             }
             if (fabs(ystart) > 0.001)
@@ -412,13 +412,13 @@ double Station::GetLength() const
 		    m_amdbOrigine_along_length = -ystart;
                     //if (m_name == "EIL8" || m_name == "EIL9")
                     if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining len = "<<len<<" because ystart = "
-                       <<ystart<<endreq;
+                       <<ystart<<endmsg;
                 }
             }
         }
 //    else
 //    {
-//        //log << MSG::DEBUG<<" building length "<<endreq;        
+//        //log << MSG::DEBUG<<" building length "<<endmsg;        
 //        double len=0;
 //        //std::cerr<<"Station "<<m_name<<" calculating the length "<<std::endl;
 //        for (unsigned int i=0;i<m_components.size();i++)
@@ -487,7 +487,7 @@ double Station::GetWidth1() const
             double maxdxmin = -99999.;
             double ymin= getYMin();
             //double ymax= GetLength()-getAmdbOrigine_along_length();
-	  //            log << MSG::DEBUG<<" building m_width1"<<endreq;
+	  //            log << MSG::DEBUG<<" building m_width1"<<endmsg;
 	        double w=0;
 		for (unsigned int i=0;i<m_components.size();i++)
 		{
@@ -549,7 +549,7 @@ double Station::GetWidth1() const
                                     << " so should not determine"
                                     << " short width of endcap station "
                                     << m_name
-                                    <<  endreq;
+                                    <<  endmsg;
                             }
                             }*/
                     }
@@ -626,7 +626,7 @@ double Station::GetWidth2() const
 //         }
         if (m_name.substr(0,1)=="T") m_width2=w;
         else m_width2=maxdxmax;
-        //        log << MSG::DEBUG<<" it is "<<w<<endreq;
+        //        log << MSG::DEBUG<<" it is "<<w<<endmsg;
         //std::cout<<"Station m_name is "<<m_name<<" m_width2 = "<<m_width2<<std::endl;
         return m_width2;
     }
@@ -696,7 +696,7 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
 	  log << MSG::DEBUG << "For AMDB version " << amdbVersion
 		<< " a left-handed chamber coordinate system was used "
 		<< " for endcap side A so be very careful."
-		<< endreq;
+		<< endmsg;
     
     HepGeom::Transform3D nominalTransf;
     
@@ -728,7 +728,7 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
            <<GetThickness()<<" "
            <<getAmdbOrigine_along_thickness()<<" "
            <<GetLength()<<" "
-           <<getAmdbOrigine_along_length()+halfpitch<<endreq;
+           <<getAmdbOrigine_along_length()+halfpitch<<endmsg;
     }
     else
     {
@@ -742,12 +742,12 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
             HepGeom::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
                            GetLength()/2.-getAmdbOrigine_along_length());
-        if (vLvl)
-		log<<MSG::VERBOSE<<" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length "
+      if (vLvl)
+        log<<MSG::VERBOSE<<" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length "
            <<GetThickness()<<" "
            <<getAmdbOrigine_along_thickness()<<" "
            <<GetLength()<<" "
-           <<getAmdbOrigine_along_length()<<endreq;
+           <<getAmdbOrigine_along_length()<<endmsg;
     }
 
     // // define the rotations by alpha, beta, gamma
@@ -757,14 +757,14 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     // if (m_name[0]=='B' || p.isBarrelLike  || geov != "CTB2004") // pay attention here !!!!!!!!!
     // {
     //     rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
-    //     log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endreq;
+    //     log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     // }
     // else
     // {
-    //     log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endreq;
+    //     log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endmsg;
     //     rgamma = HepGeom::RotateY3D(-p.gamma*CLHEP::deg);  //WHY???
     // }
-    // log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endreq;
+    // log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
     // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
@@ -833,7 +833,7 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     }
     
 	if (pLvl)
-    log<<MSG::VERBOSE<<" translation according to "<<vec.x()<<" "<<vec.y()<<" "<<vec.z()<<endreq;
+    log<<MSG::VERBOSE<<" translation according to "<<vec.x()<<" "<<vec.y()<<" "<<vec.z()<<endmsg;
 
     /////// NEWEWEWWEWEWEWEWEWEWEWEWEW
     // // define the rotations by alpha, beta, gamma
@@ -844,16 +844,16 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     {
       rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
 	  if (pLvl)
-      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endreq;
+      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     }
     else
       {
 	if (pLvl)
-	log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endreq;
+	log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endmsg;
 	rgamma = HepGeom::RotateY3D(-p.gamma*CLHEP::deg);  //WHY???
       }
 	if (pLvl)
-    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endreq;
+    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
     // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
@@ -891,7 +891,7 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
                                             HepGeom::RotateZ3D(180*CLHEP::deg));
         }
 	else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
-		    <<p.z<<" "<<p.isMirrored<<endreq;
+		    <<p.z<<" "<<p.isMirrored<<endmsg;
     }
     return HepGeom::Translate3D(vec)*nominalTransf*abgRot;
 }
@@ -920,13 +920,13 @@ HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) co
     {
 	if (log.level()<=MSG::VERBOSE) 
 	{
-	    log << MSG::VERBOSE << "Setting corrections." << endreq;
+	    log << MSG::VERBOSE << "Setting corrections." << endmsg;
 	    log << MSG::VERBOSE << "For station " << m_name <<
 		" corrections sent are " << ap.tras << " " <<
 		ap.traz << " " << ap.trat << " " << ap.rots << " " << ap.rotz <<
-		" " << ap.rott << " isBarrel=" << ap.isBarrel << endreq;
+		" " << ap.rott << " isBarrel=" << ap.isBarrel << endmsg;
 	    log << MSG::VERBOSE << "length="<< GetLength()<<" m_thickness="
-		<<GetThickness()<<endreq;
+		<<GetThickness()<<endmsg;
 	}
     }
 
@@ -945,7 +945,7 @@ HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) co
 	log << MSG::DEBUG << "For AMDB version " << amdbVersion
 		  << " a left-handed chamber coordinate system was used " 
 		  << " for endcap side A, so s-axis flipped for corrections."
-		  << endreq;
+		  << endmsg;
 	  rots = HepGeom::RotateY3D(-(ap.rots));
 	  trans = HepGeom::TranslateY3D(-(ap.tras))*
 	    HepGeom::TranslateZ3D(ap.traz)*HepGeom::TranslateX3D(ap.trat);
@@ -954,20 +954,20 @@ HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) co
 
   HepGeom::Transform3D delta = trans*rots*rotz*rott;
   	
-  if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" delta transform in the tsz frame --------------"<<endreq
+  if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" delta transform in the tsz frame --------------"<<endmsg
       <<
       (delta)[0][0] << " " <<
       (delta)[0][1] << " " <<
       (delta)[0][2] << " " <<
-      (delta)[0][3] << " " << endreq <<
+      (delta)[0][3] << " " << endmsg <<
       (delta)[1][0] << " " <<
       (delta)[1][1] << " " <<
       (delta)[1][2] << " " <<
-      (delta)[1][3] << " " << endreq <<
+      (delta)[1][3] << " " << endmsg <<
       (delta)[2][0] << " " <<
       (delta)[2][1] << " " <<
       (delta)[2][2] << " " <<
-      (delta)[2][3] << " " << endreq;  
+      (delta)[2][3] << " " << endmsg;  
 
   // our delta transform must be applied in the tsz frame:
   return delta;
@@ -1014,7 +1014,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //     {
 //       log << MSG::INFO << "Calling obsolete getTransform(AlignPos) for "
 // 		<< m_name << "...  Better switch to getDeltaTransform!"
-// 		<< endreq;
+// 		<< endmsg;
 //     }
 //   float tras=0, traz=0, trat=0, rots=0, rotz=0, rott=0;
 //   bool isBarrel = false;
@@ -1027,13 +1027,13 @@ double Station::getAmdbOrigine_along_thickness() const
 //   rott = ap.rott;
 //   if (tras!=0 || trat!= 0 || traz!=0 || rots!=0 || rott!=0||rotz!=0)
 //     {
-//       log << MSG::DEBUG << "Setting corrections." << endreq;
+//       log << MSG::DEBUG << "Setting corrections." << endmsg;
 //       log << MSG::DEBUG << "For station " << m_name <<
 // 	" corrections sent are " << tras << " " <<
 // 	traz << " " << trat << " " << rots << " " << rotz <<
-// 	" " << rott << " isBarrel=" << isBarrel << endreq;
+// 	" " << rott << " isBarrel=" << isBarrel << endmsg;
 //       log << MSG::DEBUG << "length="<< GetLength()<<" m_thickness="
-// 		<<GetThickness()<<endreq;
+// 		<<GetThickness()<<endmsg;
 //     }
 
 //   if (ap.isBarrel && !(ap.isTrapezoid))
@@ -1091,7 +1091,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //             HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     }
 //   //log << MSG::VERBOSE<< "length = "<<GetLength()<<" m_thickness="<<GetThickness()
-//   //	    << endreq;
+//   //	    << endmsg;
 //   return AMDBorgTranslation;
 // }
 
@@ -1168,7 +1168,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //         }
 //           //log << MSG::DEBUG << "AMDB org is (" << GetLength()/2. << ", " << 0
 //           //<< ", " << GetThickness()/2.
-//           //<< ") which is (m_length/2, 0, m_thickness/2)" << endreq;
+//           //<< ") which is (m_length/2, 0, m_thickness/2)" << endmsg;
 //         const HepVector3D zaxis   = HepVector3D(0.,0.,1.);
 //         //const HepVector3D raxis   = HepVector3D(vec.x(), vec.y(), 0.);
 //         // imt redefine these to use vectors given by phi-direction only...
@@ -1222,7 +1222,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //                                                 HepGeom::RotateZ3D(180*CLHEP::deg));
 //             }
 //             else log << MSG::WARNING <<" AAAAAA problem here p.z, mirrored "
-// 	    <<p.z<<" "<<p.isMirrored<<endreq;
+// 	    <<p.z<<" "<<p.isMirrored<<endmsg;
 //         }
 //         HepGeom::Transform3D transf = HepGeom::Translate3D(vec)*AMDBorgTranslation.inverse()*rgamma*rbeta*ralpha*AMDBorgTranslation*nominalTransf;
 //         HepGeom::Transform3D dummyRot = rgamma*rbeta*ralpha;
@@ -1286,11 +1286,11 @@ double Station::getAmdbOrigine_along_thickness() const
 //         rbeta  = HepGeom::Rotate3D(p.beta*CLHEP::deg,  zaxis);
 //         if ( p.zindex<0 && !(m_name[0] == 'B') ) {
 //             rgamma = HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
-//             //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endreq;
+//             //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endmsg;
 //         }
 //         else {
 //             rgamma = HepGeom::Rotate3D(-p.gamma*CLHEP::deg, phiaxis);        
-//             //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endreq;
+//             //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endmsg;
 //         }        
 //         if (m_name[0]=='B' || p.isBarrelLike)
 //         {    
@@ -1309,7 +1309,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //                                                 HepGeom::RotateZ3D(180*CLHEP::deg));
 //             }
 //             else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
-// 		     <<p.z<<" "<<p.isMirrored<<endreq;
+// 		     <<p.z<<" "<<p.isMirrored<<endmsg;
 //         }
 //         HepGeom::Transform3D transf;
 //         if (m_name[0]!='C') transf = HepGeom::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
