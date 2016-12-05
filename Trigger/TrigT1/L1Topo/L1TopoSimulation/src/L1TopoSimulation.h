@@ -10,6 +10,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -74,6 +76,8 @@ namespace LVL1 {
       //! @}
 
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
+      BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
+
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
       StringProperty  m_topoCTPLocation { "" }; // input dump file
       int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms
