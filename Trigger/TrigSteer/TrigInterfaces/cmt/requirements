@@ -6,7 +6,6 @@ public
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*             External
 use AthenaBaseComps     AthenaBaseComps-*            Control
-use AtlasBoost          AtlasBoost-*                 External
 use AthenaMonitoring    AthenaMonitoring-*           Control
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
 use DataModel           DataModel-*		             Control

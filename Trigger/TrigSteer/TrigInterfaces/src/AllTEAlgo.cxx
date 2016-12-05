@@ -11,7 +11,7 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/GaudiException.h"
-#include "eformat/Issue.h"
+
 using namespace HLT;
 
 
