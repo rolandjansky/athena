@@ -3,10 +3,10 @@
 */
 
 #include "LUCID_GeoModel/LUCID_RDBAaccess.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -33,8 +33,8 @@ void LUCID_RDBAccess::ReadDB() {
   
   MsgStream log(Athena::getMessageSvc(), "LUCID_GeoModel::LUCID_RDBAaccess");
 
-  log << MSG::DEBUG << " Starting LUCID_GeoModel::LUCID_RDBAaccess " << endreq;
-  log << MSG::DEBUG << " LUCID_RDBAaccess::ReadDB "<< endreq;  
+  log << MSG::DEBUG << " Starting LUCID_GeoModel::LUCID_RDBAaccess " << endmsg;
+  log << MSG::DEBUG << " LUCID_RDBAaccess::ReadDB "<< endmsg;  
 
   svcLocator = Gaudi::svcLocator();
   IRDBAccessSvc* iAccessSvc = NULL;
@@ -43,20 +43,13 @@ void LUCID_RDBAccess::ReadDB() {
 
   if (result.isFailure() || iAccessSvc == NULL) {
 
-    log << MSG::FATAL << " Could not initialize RDBAccessSvc! " << endreq;
+    log << MSG::FATAL << " Could not initialize RDBAccessSvc! " << endmsg;
     
     throw GaudiException(" Could not initalize RDBAccessSvc ", "LUCID_GeoModel", StatusCode::FAILURE);
   }
 
-  IGeoModelSvc *geoModel = 0;
-  result = svcLocator->service ("GeoModelSvc",geoModel);
-  if (result.isFailure() || geoModel==0) {
-    log << MSG::FATAL << " Could not initialize GeoModelSvc! " << endreq;
-    
-    throw GaudiException(" Could not initalize GeoModelSvc ", "LUCID_GeoModel", StatusCode::FAILURE);
-  }
-
-  std::string AtlasVersion = geoModel->atlasVersion();
+  DecodeVersionKey atlasVersion("ATLAS");
+  std::string AtlasVersion = atlasVersion.tag();
   
   iAccessSvc->connect();
   
@@ -66,18 +59,18 @@ void LUCID_RDBAccess::ReadDB() {
 
   iAccessSvc->disconnect();
   
-  log << MSG::INFO << " LUCID data corresponding to " << AtlasVersion << " fetched " << endreq;
+  log << MSG::INFO << " LUCID data corresponding to " << AtlasVersion << " fetched " << endmsg;
 }
 
 void LUCID_RDBAccess::SetParameters() {
   
   MsgStream log(Athena::getMessageSvc(), "LUCID_GeoModel::LUCID_RDBAaccess");
   
-  log << MSG::DEBUG << " LUCID_RDBAaccess::SetParameters "<< endreq;
+  log << MSG::DEBUG << " LUCID_RDBAaccess::SetParameters "<< endmsg;
 
-  log << MSG::DEBUG << " Starting LUCID_GeoModel::LUCID_RDBAaccess " << endreq;
+  log << MSG::DEBUG << " Starting LUCID_GeoModel::LUCID_RDBAaccess " << endmsg;
   
-  log << MSG::DEBUG << " Watch-out: VESSELOUTERRADMIN and VESSELOUTERRADMAX are increased of 3mm to remove overlaps. " << endreq;
+  log << MSG::DEBUG << " Watch-out: VESSELOUTERRADMIN and VESSELOUTERRADMAX are increased of 3mm to remove overlaps. " << endmsg;
   
   IRDBRecordset::const_iterator AccessSvc_iter;
   
@@ -122,37 +115,37 @@ void LUCID_RDBAccess::Print() {
   
   MsgStream log(Athena::getMessageSvc(), "LUCID_GeoModel::LUCID_RDBAaccess");
 
-  log << MSG::DEBUG << " distanceToIP         [mm]: " << distanceToIP/CLHEP::mm           << endreq;
-  log << MSG::DEBUG << " vesselInnerRadius    [mm]: " << vesselInnerRadius/CLHEP::mm      << endreq;
-  log << MSG::DEBUG << " vesselInnerThickness [mm]: " << vesselInnerThickness/CLHEP::mm   << endreq;
-  log << MSG::DEBUG << " vesselOuterRadMin    [mm]: " << vesselOuterRadMin /CLHEP::mm     << endreq;
-  log << MSG::DEBUG << " vesselOuterRadMax    [mm]: " << vesselOuterRadMax/CLHEP::mm      << endreq;
-  log << MSG::DEBUG << " vesselOuterThickness [mm]: " << vesselOuterThickness/CLHEP::mm   << endreq;
-  log << MSG::DEBUG << " vesselLength         [mm]: " << vesselLength /CLHEP::mm          << endreq;
-  log << MSG::DEBUG << " bulkheadThickness    [mm]: " << bulkheadThickness/CLHEP::mm      << endreq;
-  log << MSG::DEBUG << " coolingRadius        [mm]: " << coolingRadius/CLHEP::mm          << endreq;
-  log << MSG::DEBUG << " coolingThickness     [mm]: " << coolingThickness/CLHEP::mm       << endreq;
-  log << MSG::DEBUG << " layerRadius1         [mm]: " << layerRadius1/CLHEP::mm           << endreq;
-  log << MSG::DEBUG << " layerRadius2         [mm]: " << layerRadius2/CLHEP::mm           << endreq;
-  log << MSG::DEBUG << " tubeRadius           [mm]: " << tubeRadius/CLHEP::mm             << endreq;
-  log << MSG::DEBUG << " tubeThickness        [mm]: " << tubeThickness/CLHEP::mm          << endreq;
-  log << MSG::DEBUG << " tubeLength           [mm]: " << tubeLength/CLHEP::mm             << endreq;
-  log << MSG::DEBUG << " pmtThickness         [mm]: " << pmtThickness/CLHEP::mm           << endreq;
-  log << MSG::DEBUG << " gasPressure         [bar]: " << gasPressure/CLHEP::bar           << endreq;
-  log << MSG::DEBUG << " gasDensity        [g/cm3]: " << gasDensity/(CLHEP::gram/CLHEP::cm3)     << endreq;
-  log << MSG::DEBUG << " gasTempearture   [kelvin]: " << gasTemperature/CLHEP::kelvin     << endreq;
-  log << MSG::DEBUG << " quartzDensity     [g/cm3]: " << quartzDensity/(CLHEP::gram/CLHEP::cm3)  << endreq;  
-  log << MSG::DEBUG << " tubePolish               : " << tubePolish                << endreq;
-  log << MSG::DEBUG << " waveLengthStep           : " << waveLengthStep            << endreq;
-  log << MSG::DEBUG << " waveLengthMin            : " << waveLengthMin             << endreq;
-  log << MSG::DEBUG << " waveLengthMax            : " << waveLengthMax             << endreq;
+  log << MSG::DEBUG << " distanceToIP         [mm]: " << distanceToIP/CLHEP::mm           << endmsg;
+  log << MSG::DEBUG << " vesselInnerRadius    [mm]: " << vesselInnerRadius/CLHEP::mm      << endmsg;
+  log << MSG::DEBUG << " vesselInnerThickness [mm]: " << vesselInnerThickness/CLHEP::mm   << endmsg;
+  log << MSG::DEBUG << " vesselOuterRadMin    [mm]: " << vesselOuterRadMin /CLHEP::mm     << endmsg;
+  log << MSG::DEBUG << " vesselOuterRadMax    [mm]: " << vesselOuterRadMax/CLHEP::mm      << endmsg;
+  log << MSG::DEBUG << " vesselOuterThickness [mm]: " << vesselOuterThickness/CLHEP::mm   << endmsg;
+  log << MSG::DEBUG << " vesselLength         [mm]: " << vesselLength /CLHEP::mm          << endmsg;
+  log << MSG::DEBUG << " bulkheadThickness    [mm]: " << bulkheadThickness/CLHEP::mm      << endmsg;
+  log << MSG::DEBUG << " coolingRadius        [mm]: " << coolingRadius/CLHEP::mm          << endmsg;
+  log << MSG::DEBUG << " coolingThickness     [mm]: " << coolingThickness/CLHEP::mm       << endmsg;
+  log << MSG::DEBUG << " layerRadius1         [mm]: " << layerRadius1/CLHEP::mm           << endmsg;
+  log << MSG::DEBUG << " layerRadius2         [mm]: " << layerRadius2/CLHEP::mm           << endmsg;
+  log << MSG::DEBUG << " tubeRadius           [mm]: " << tubeRadius/CLHEP::mm             << endmsg;
+  log << MSG::DEBUG << " tubeThickness        [mm]: " << tubeThickness/CLHEP::mm          << endmsg;
+  log << MSG::DEBUG << " tubeLength           [mm]: " << tubeLength/CLHEP::mm             << endmsg;
+  log << MSG::DEBUG << " pmtThickness         [mm]: " << pmtThickness/CLHEP::mm           << endmsg;
+  log << MSG::DEBUG << " gasPressure         [bar]: " << gasPressure/CLHEP::bar           << endmsg;
+  log << MSG::DEBUG << " gasDensity        [g/cm3]: " << gasDensity/(CLHEP::gram/CLHEP::cm3)     << endmsg;
+  log << MSG::DEBUG << " gasTempearture   [kelvin]: " << gasTemperature/CLHEP::kelvin     << endmsg;
+  log << MSG::DEBUG << " quartzDensity     [g/cm3]: " << quartzDensity/(CLHEP::gram/CLHEP::cm3)  << endmsg;  
+  log << MSG::DEBUG << " tubePolish               : " << tubePolish                << endmsg;
+  log << MSG::DEBUG << " waveLengthStep           : " << waveLengthStep            << endmsg;
+  log << MSG::DEBUG << " waveLengthMin            : " << waveLengthMin             << endmsg;
+  log << MSG::DEBUG << " waveLengthMax            : " << waveLengthMax             << endmsg;
 }
 
 void LUCID_RDBAccess::CloseDB() {
   
   MsgStream log(Athena::getMessageSvc(), "LUCID_GeoModel::LUCID_RDBAaccess");
   
-  log << MSG::DEBUG << " LUCID_RDBAaccess::CloseDB "<< endreq;
+  log << MSG::DEBUG << " LUCID_RDBAaccess::CloseDB "<< endmsg;
 
-  log << MSG::DEBUG << " ending LUCID_GeoModel::LUCID_RDBAaccess " << endreq;
+  log << MSG::DEBUG << " ending LUCID_GeoModel::LUCID_RDBAaccess " << endmsg;
 }
