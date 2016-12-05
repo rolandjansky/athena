@@ -149,7 +149,8 @@ def _getJetBuildTool(merge_param,
                      jet_calib,
                      cluster_calib,
                      do_minimalist_setup,
-                     name=''):
+                     name='',
+                     outputLabel=''):
     """Set up offline tools. do_minimalist_setup controls whether
     jetRecTool is set up with the minimum required jet modifiers.
     The code can be exercised with do_minimalist_setup=False to ensure
@@ -181,8 +182,10 @@ def _getJetBuildTool(merge_param,
     # with S Schramm very early 18/4/2016
     mymods = [jtm.jetens]
     if calib_str: mymods.append(calib_str)
-    mymods.extend([jtm.caloqual_cluster, jtm.clsmoms])
-    
+    mymods.append(jtm.caloqual_cluster)
+    if outputLabel!='triggerTowerjets': #towers don't have cluster moments
+        mymods.append(jtm.clsmoms)
+
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
         # to run with the extra modifiers, which may be required in the
@@ -706,6 +709,7 @@ class TrigHLTJetRecFromTriggerTower(
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            outputLabel='triggerTowerjets'
             )
 
         self.output_collection_label = output_collection_label
