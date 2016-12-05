@@ -443,6 +443,112 @@
 	<keepFilePattern>myAOD.pool.root</keepFilePattern>
       </jobTransform>
 
+      <jobTransform userJobId="fullchain_mc15_zee_valid_13tev_25ns_mu40">
+	<doc>Full chain (MC15 production setup)</doc>
+	<jobTransformJobName>fullchain_mc15_zee_valid_13tev_25ns_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.simul.HITS.e5112_s3005/HITS.09687582._000254.pool.root.1 --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputHighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152.*.pool.root.? --inputLowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147.*.pool.root.? --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.122680569785' --numberOfLowPtMinBias '39.8773194302'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":40.0, "endmu":41.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --ignoreErrors 'True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fullchain_mc15_zee_valid_13tev_25ns_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
+	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+	<keepFilePattern>myAOD.pool.root</keepFilePattern>
+      </jobTransform>
+
+      <jobTransform userJobId="fullchain_mc15_zmm_valid_13tev_25ns_mu40">
+	<doc>Full chain (MC15 production setup)</doc>
+	<jobTransformJobName>fullchain_mc15_zmm_valid_13tev_25ns_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.simul.HITS.e5112_s3005/HITS.09687588._000125.pool.root.1 --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputHighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152.*.pool.root.? --inputLowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147.*.pool.root.? --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.122680569785' --numberOfLowPtMinBias '39.8773194302'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":40.0, "endmu":41.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --ignoreErrors 'True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fullchain_mc15_zmm_valid_13tev_25ns_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
+	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+	<keepFilePattern>myAOD.pool.root</keepFilePattern>
+      </jobTransform>
+
+      <jobTransform userJobId="fullchain_mc15_wtn_valid_13tev_25ns_mu40">
+	<doc>Full chain (MC15 production setup)</doc>
+	<jobTransformJobName>fullchain_mc15_wtn_wtn_13tev_25ns_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.364184.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_CVetoBVeto.simul.HITS.e5340_s2726/HITS.09427687._009719.pool.root.1  --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputHighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152.*.pool.root.? --inputLowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147.*.pool.root.? --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.122680569785' --numberOfLowPtMinBias '39.8773194302'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":40.0, "endmu":41.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --ignoreErrors 'True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fullchain_mc15_wtn_valid_13tev_25ns_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
+	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+	<keepFilePattern>myAOD.pool.root</keepFilePattern>
+      </jobTransform>
+
+      <jobTransform userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu60">
+	<doc>Full chain (MC15 production setup)</doc>
+	<jobTransformJobName>fullchain_mc15_ttbar_valid_13tev_25ns_mu60</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e3698_s2726/HITS.06950958._003212.pool.root.1 --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputHighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152.*.pool.root.? --inputLowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147.*.pool.root.? --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.122680569785' --numberOfLowPtMinBias '39.8773194302'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":60.0, "endmu":61.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --ignoreErrors 'True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu60"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
+	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+	<keepFilePattern>myAOD.pool.root</keepFilePattern>
+      </jobTransform>
+
+
+
 
       <jobTransform userJobId="mp_fullchain_mc15_ttbar_valid_13tev_25ns_mu40">
 	<doc>Full chain (MC15 production setup)</doc>
