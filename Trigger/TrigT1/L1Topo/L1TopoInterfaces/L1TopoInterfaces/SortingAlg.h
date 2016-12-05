@@ -17,18 +17,27 @@ namespace TCS {
    public:
       
       SortingAlg(const  std::string & name) :
-         ConfigurableAlg(name, SORT)
+      ConfigurableAlg(name, SORT),
+      m_overflow(false)
       {};
 
       virtual ~SortingAlg();
 
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) = 0;
       virtual TCS::StatusCode sortBitCorrect(const InputTOBArray & input, TOBArray & output);
+      /**
+         @brief whether an overlflow occurred during the execution
+
+         In theory overflows should occur only for the '*Abbreviated' algorithms.
+         In practice they can happen in any of the *Select and *Sort algorithms,
+         since we apply a limit on the number of output tobs also there.
+       */
+      bool overflow() const { return m_overflow; }
 
    protected:
 
       virtual StatusCode doReset();
-      
+      bool m_overflow; ///< whether an overflow occurred during the current execution.
    };
 
 }
