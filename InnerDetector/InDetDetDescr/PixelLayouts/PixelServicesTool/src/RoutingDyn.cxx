@@ -990,7 +990,7 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
 		
 		const GeoMaterial* mat = basics->matMgr()->getMaterial(matName);
 		double density = mat->getDensity()/(CLHEP::g/CLHEP::cm3);
-		compWeight.push_back(tmp);                 // in g
+		compWeight.push_back(tmp);                 // in g/mm
 		totWeight += tmp;
 		compDensity.push_back(density);
 	      }
@@ -1008,15 +1008,15 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
 	    compName.push_back(coolingMat);
 	    const GeoMaterial* matCooling = basics->matMgr()->getMaterial(coolingMat);
 	    double density = matCooling->getDensity()/(CLHEP::g/CLHEP::cm3);
-	    compWeight.push_back(coolingArea*density);     // in g
-	    totWeight += coolingArea*density;              // in g
+	    compWeight.push_back(coolingArea*density*0.1);     // in g/mm
+	    totWeight += coolingArea*density*0.1;              // in g/mm
 	    compDensity.push_back(density);
 	    
 	    compName.push_back(pipeMat);
 	    const GeoMaterial* matPipe = basics->matMgr()->getMaterial(pipeMat);
 	    density = matPipe->getDensity()/(CLHEP::g/CLHEP::cm3);
-	    compWeight.push_back(pipeArea*density);        // in g
-	    totWeight += pipeArea*density;                 // in g
+	    compWeight.push_back(pipeArea*density*0.1);        // in g/mm
+	    totWeight += pipeArea*density*0.1;                 // in g/mm
 	    compDensity.push_back(density);
 	    
 	  }
