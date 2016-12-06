@@ -56,7 +56,7 @@ public:
   {
     IMessageSvc* msgSvc(Athena::getMessageSvc());
     MsgStream log(msgSvc, "AtlasHitsVector");
-    log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endreq;
+    log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endmsg;
 
     m_name = collectionName;
     m_hitvector.reserve(mySize);
@@ -163,11 +163,14 @@ protected:
 
 
 public:
+  // Hide from cling to avoid crash in 6.08.00.  cf. ROOT-8499.
+#ifndef __CLING__
   // Used to ensure that the DVLInfo gets registered
   // when the dictionary for this class is loaded.
   static const std::type_info* initHelper()
   { return DataModel_detail::DVLInfo<AtlasHitsVector<T> >::initHelper(); }
   static const std::type_info* s_info;
+#endif
 };
 
 
@@ -186,10 +189,12 @@ void dvl_makecontainer (size_t nreserve, AtlasHitsVector<T>*& cont)
 }
 
 
+#ifndef __CLING__
 // Ensure that the DVLInfo gets registered
 // when the dictionary for this class is loaded.
 template <class T>
 const std::type_info* AtlasHitsVector<T>::s_info = AtlasHitsVector<T>::initHelper();
+#endif
 
 
 #endif
