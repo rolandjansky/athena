@@ -33,7 +33,7 @@ def main():
       print "ERROR, no final Aux. in label for " + serializable_name
     
     file_types = TriggerSerializable[1].split(" ")
-    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM")
+    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM")
     for file_type in file_types:
       if not file_type in allowed_file_types:
         print "ERROR, unknown file type " + file_type + " for " + serializable_name
