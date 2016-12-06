@@ -106,6 +106,7 @@ class RunToTimestampDict(JobProperty):
         282420:1445073756, ##MC15c pp (beta*=90 m, ALFA)
         284500:1446539185, ##MC15c/MC16 pp (25 ns bunch spacing, nominal mu, 2015/2016)
         290000:1450000000, ##MC15c/MC16 pPb (2016)
+        295000:1475000000, ##MC15c/MC16 pPb at 8.16 TeV (2016)
         300000:1500000000, ##MC16 pp (25 ns bunch spacing, nominal mu, 2017)
         310000:1550000000  ##MC16 pp (25 ns bunch spacing, nominal mu, 2018)
         }
