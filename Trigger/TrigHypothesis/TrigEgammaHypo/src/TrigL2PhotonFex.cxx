@@ -45,7 +45,7 @@ TrigL2PhotonFex::~TrigL2PhotonFex()
 HLT::ErrorCode TrigL2PhotonFex::hltInitialize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initializing"   << endreq;
+    msg() << MSG::DEBUG << "Initializing"   << endmsg;
   }
   
   return HLT::OK;
@@ -55,7 +55,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltInitialize()
 HLT::ErrorCode TrigL2PhotonFex::hltFinalize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Finalizing" << endreq;
+    msg() << MSG::DEBUG << "Finalizing" << endmsg;
   }
 
   return HLT::OK;
@@ -112,7 +112,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   }
   else {
     if ( msgLvl() <= MSG::DEBUG){ 
-      msg() << MSG::DEBUG << "Failed to get TrigEMCluster" << endreq; 
+      msg() << MSG::DEBUG << "Failed to get TrigEMCluster" << endmsg; 
     }
     return HLT::MISSING_FEATURE;
   }
@@ -122,7 +122,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
 
   if(pClus == 0){
     if ( msgLvl() <= MSG::WARNING ){
-      msg() << MSG::WARNING << "Failed to retieve TrigEMCluster from ElementLink" << endreq;
+      msg() << MSG::WARNING << "Failed to retieve TrigEMCluster from ElementLink" << endmsg;
     }
     return HLT::MISSING_FEATURE;
   }
@@ -133,7 +133,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   dPhi = (dPhi < M_PI ? dPhi : 2*M_PI - dPhi );
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG  << "TrigPhoton will be built with: dEta=" << dEta
-	  << "  and dPhi= " << dPhi << endreq; 
+	  << "  and dPhi= " << dPhi << endmsg; 
   } 
 
   // create TrigPhoton from TrigEMCluster
@@ -150,7 +150,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   // REGTEST output
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "REGTEST: TrigPhotonContainer has " << m_trigPhotonContainer->size()
-	  << " element" << endreq;
+	  << " element" << endmsg;
     if (!m_trigPhotonContainer->empty()) {
       xAOD::TrigPhoton* p_tp = m_trigPhotonContainer->front();
       msg() << MSG::DEBUG  << "REGTEST: TrigPhoton: RoI=" << p_tp->roiWord()
@@ -161,7 +161,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
 	    << "; Had Et=" << p_tp->etHad() 
 	    << "; EnergyRatio=" << p_tp->eratio()
 	    << "; rCore=" << p_tp->rcore()
-	    << endreq;
+	    << endmsg;
     }
   }  
   
@@ -177,12 +177,12 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   
   if( status == HLT::OK ){
     if( msgLvl() <= MSG::DEBUG ){ 
-      msg() << MSG::DEBUG << "Attached TrigPhotonContainer to outputTE with ID: " << outputTE->getId() << endreq;    
+      msg() << MSG::DEBUG << "Attached TrigPhotonContainer to outputTE with ID: " << outputTE->getId() << endmsg;    
     }
   }
   else {
     if ( msgLvl() <= MSG::ERROR ){
-      msg() << MSG::ERROR << "Failed to attach TrigPhotonContainer!" << endreq;    
+      msg() << MSG::ERROR << "Failed to attach TrigPhotonContainer!" << endmsg;    
     }
     return status;
   }

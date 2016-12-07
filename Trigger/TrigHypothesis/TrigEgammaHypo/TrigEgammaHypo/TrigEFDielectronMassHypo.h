@@ -62,8 +62,9 @@ public:
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
 
 private:
-  bool checkAllMasses(const xAOD::TrigCompositeContainer* masses, 
-		      float mass_min, float mass_max);
+  bool checkMasses(const xAOD::TrigCompositeContainer* masses, 
+          const std::string &key, const float mass_min, const float mass_max);
+  bool checkComposites(const xAOD::TrigCompositeContainer* masses);
 
 private:
   bool m_useElectronElectron;

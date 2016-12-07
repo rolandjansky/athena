@@ -38,9 +38,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
-
-#include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/TrigPassFlags.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 using std::string;
 
@@ -160,8 +158,6 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareMonitoredStdContainer("IsEMRequiredBitsBeforeCut",m_IsEMRequiredBits);
   //Monitor isEM 32-Bit Pattern After Cuts
   declareMonitoredStdContainer("IsEMRequiredBitsAfterCut",m_IsEMRequiredBitsAfterCut); 
-  // Monitor impact parameter wrt beamspot
-  declareMonitoredStdContainer("A0",m_a0);
   // Monitor pileup 
   declareMonitoredStdContainer("mu",m_avgmu);
   // Monitor liekihood output 
@@ -216,8 +212,7 @@ TrigEFElectronHypo::~TrigEFElectronHypo()
 HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in initialize()" << endreq;
+    ATH_MSG_DEBUG( name() << " in initialize()");
 
   // Initialize timing service
   //------------------------------
@@ -239,66 +234,64 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   //------------------------------------------------------------------------------
   
   if (m_egammaElectronCutIDToolName=="") {
-    ATH_MSG_DEBUG("egammaElectronCutID PID is disabled, no tool specified "); 
-    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
-  } else {
-    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
-    if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve " << m_egammaElectronCutIDTool
-	    << " tool " << endreq;
-      return HLT::BAD_JOB_SETUP; 
-    } 
-    else {
-      msg()<<MSG::DEBUG<<"Tool " << m_egammaElectronCutIDTool << " retrieved"<<endreq; 
-      //timing
-      if (timerSvc()) m_timerPIDTool = addTimer("AsgElectronIsEMTool");
-    }
+      ATH_MSG_DEBUG("Electron IsEM PID is disabled, no tool specified "); 
+      m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
+  } 
+  else {
+      m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
+      if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
+          ATH_MSG_ERROR("Unable to retrieve " << m_egammaElectronCutIDTool<< " tool ");
+          return HLT::BAD_JOB_SETUP; 
+      } 
+      else {
+          ATH_MSG_DEBUG("Tool " << m_egammaElectronCutIDTool << " retrieved");
+          if (timerSvc()) m_timerPIDTool = addTimer("AsgElectronIsEMTool");
+      }
   }
   
   if (m_athElectronLHIDSelectorToolName=="") {
-      ATH_MSG_DEBUG("AthenaElectronLHIDSelectorTool is disabled, no tool specified  "); 
+      ATH_MSG_DEBUG("Electron LH PID is disabled, no tool specified  "); 
        m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
-  } else {
+  }
+  else {
       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_athElectronLHIDSelectorToolName);
-      // a priori this is not useful
       if(m_athElectronLHIDSelectorTool.retrieve().isFailure()) {
-	  msg() << MSG::ERROR << "Unable to retrieve " << m_athElectronLHIDSelectorTool<< endreq;
+	  ATH_MSG_ERROR("Unable to retrieve " << m_athElectronLHIDSelectorTool);
 	  return HLT::BAD_JOB_SETUP; 
       } 
       else{
-          msg()<<MSG::DEBUG<<"Tool " << m_athElectronLHIDSelectorTool << " retrieved"<<endreq; 
+          ATH_MSG_DEBUG("Tool " << m_athElectronLHIDSelectorTool << " retrieved");
           if (timerSvc()) m_timerPIDTool = addTimer("AsgElectronLHTool");
       }
   }
   // For now, just try to retrieve the lumi tool
   if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
-      // 244            return HLT::ERROR;
+      ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
   } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
   }
   //print summary info
-  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaElectronCutIDToolName << endreq;
-  msg() << MSG::INFO << "REGTEST: Athena LH Particle Identification tool: " << m_athElectronLHIDSelectorToolName << endreq;
+  ATH_MSG_INFO("REGTEST: Particle Identification tool: " << m_egammaElectronCutIDToolName);
+  ATH_MSG_INFO("REGTEST: Athena LH Particle Identification tool: " << m_athElectronLHIDSelectorToolName);
   //------------------------------------------------------------------------------
 
 
   //Check Isolation Cone Sizes
   if(m_applyIsolation){
     if ( m_EtConeCut.size() != m_EtConeSizes ) {
-      msg() << MSG::ERROR << " m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes << endreq;
+      ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
       return StatusCode::FAILURE;
     }
     if ( m_RelEtConeCut.size() != m_EtConeSizes ) {
-      msg() << MSG::ERROR << " m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes << endreq;
+      ATH_MSG_ERROR(" m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes);
       return StatusCode::FAILURE;
     }
     if ( m_PtConeCut.size() != m_PtConeSizes ) {
-      msg() << MSG::ERROR << " m_PtConeCut size is " <<  m_PtConeCut.size() << " but needs " << m_PtConeSizes<< endreq;
+      ATH_MSG_ERROR(" m_PtConeCut size is " <<  m_PtConeCut.size() << " but needs " << m_PtConeSizes);
       return StatusCode::FAILURE;
     }
     if ( m_RelPtConeCut.size() != m_PtConeSizes ) {
-      msg() << MSG::ERROR << " m_RelPtConeCut size is " <<  m_RelPtConeCut.size() << " but needs " << m_PtConeSizes << endreq;
+      ATH_MSG_ERROR(" m_RelPtConeCut size is " <<  m_RelPtConeCut.size() << " but needs " << m_PtConeSizes);
       return StatusCode::FAILURE;
     }
 
@@ -325,28 +318,21 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapRelPtCone.insert(std::pair<int, string>(4, "ptvarcone30/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(5, "ptvarcone40/ele_pt")); 
 
-  }//end of if(m_applyIsolation){
+  }//end of if(m_applyIsolation)
 
   //Print Out
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG
-	  << "Initialization of TrigEFElectronHypo completed successfully"
-	  << endreq;
+  ATH_MSG_INFO("Initialization of TrigEFElectronHypo completed successfully");
     
     // print cuts
-    if (m_acceptAll) {
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-	    << endreq;
-    } else {
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-	    << endreq;
-    }
+  if (m_acceptAll) 
+      ATH_MSG_INFO("AcceptAll property is set: taking all events");
+  else 
+      ATH_MSG_INFO("AcceptAll property not set: applying selection");
     
     ATH_MSG_INFO(" ApplyIsEM: "<< m_applyIsEM);
     ATH_MSG_INFO(" ApplyIsEMEt: "<< m_applyEtIsEM);
     ATH_MSG_INFO(" emEt: "<< m_emEt);
     ATH_MSG_INFO(" IsEMRequired: "<< m_IsEMrequiredBits);
-  }
   
   return HLT::OK;
  }
@@ -361,7 +347,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltBeginRun() {
 HLT::ErrorCode TrigEFElectronHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -375,7 +361,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   m_NofPassedCuts=-1;
   m_NofPassedCutsIsEM=-1;
   m_NofPassedCutsIsEMTrig=-1;
-  m_a0.clear();
   m_lhval.clear();
   m_avgmu.clear();
   // Time total TrigEFElectronHypo execution time.
@@ -383,8 +368,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   if (timerSvc()) m_totalTimer->start();    
 
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
+  ATH_MSG_DEBUG(name() << ": in execute()");
  
   // default value, it will be set to true if selection satisfied
   accepted=false;
@@ -398,21 +382,16 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   HLT::ErrorCode stat = getFeatures(outputTE, vectorEgammaContainers, "");
 
   if (stat != HLT::OK ) {
-    msg() << MSG::WARNING
-	  << " Failed to get egammaContainer's from the trigger element" 
-	  << endreq;
+    ATH_MSG_WARNING(" Failed to get egammaContainer's from the trigger element" );
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " Got " << vectorEgammaContainers.size() 
-	  << " egammaContainers's associated to the TE " << endreq;
+  ATH_MSG_DEBUG(" Got " << vectorEgammaContainers.size() 
+          << " egammaContainers's associated to the TE ");
 
   if (vectorEgammaContainers.size() < 1) {
-    msg() << MSG::DEBUG
-	  << " empty egammaContainer from the trigger element" 
-	  << endreq;
+    ATH_MSG_DEBUG(" empty egammaContainer from the trigger element" );
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
@@ -420,10 +399,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   m_EgammaContainer = vectorEgammaContainers.back();
 
   if(m_EgammaContainer == 0){
-    if ( msgLvl() <= MSG::ERROR )
-      msg() << MSG::ERROR
-	    << " REGTEST: Retrieval of egammaContainer from vector failed"
-	    << endreq;
+      ATH_MSG_ERROR(" REGTEST: Retrieval of egammaContainer from vector failed");
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
@@ -438,8 +414,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
-  TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(m_EgammaContainer);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::ElectronContainer>(m_EgammaContainer);
   //counters for each cut
   int Ncand[10];
   for(int i=0;i<10;i++) Ncand[i]=0;
@@ -479,8 +454,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
            
     Ncand[cutIndex++]++;
 
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[0]: " << Ncand[0] << endreq;
-      
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[0]: " << Ncand[0] << endmsg;
+    if(m_acceptAll){
+        xBits->markPassing(egIt,m_EgammaContainer,true);
+        continue;
+    }
     //-------------------------------------------------------------
     //Apply cut on IsEM bit pattern re-running the  Offline Builder
     if( m_applyIsEM){ 
@@ -525,9 +503,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
                 if (timerSvc()) m_timerPIDTool->stop(); //timer
             }
         }
-
         else  if (m_egammaElectronCutIDTool == 0) {
-            msg() << MSG::ERROR << m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
+            ATH_MSG_ERROR(m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied");
         }else{
             if (timerSvc()) m_timerPIDTool->start(); //timer
             if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) 
@@ -536,7 +513,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                 <<" isEMTrig = "
                     << std::hex << isEMTrig
-                    << endreq;
+                    << endmsg;
             unsigned int isEMbit=0;
             ATH_MSG_DEBUG("isEMVLoose " << egIt->selectionisEM(isEMbit,"isEMVLoose"));
             ATH_MSG_DEBUG("isEMVLoose " << std::hex << isEMbit);
@@ -564,11 +541,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         }
         //Apply cut on IsEMTrigCut bit pattern
         else {
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << m_egammaElectronCutIDTool 
-          << " AthenaSelectorTool configured, hypo continues with isEMTrig " << endreq;
+          ATH_MSG_DEBUG(m_egammaElectronCutIDTool << " AthenaSelectorTool configured, hypo continues with isEMTrig ");
             if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST IsEM = " << std::hex << isEMTrig 
-                    << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits << endreq;
+                ATH_MSG_DEBUG("REGTEST IsEM = " << std::hex << isEMTrig 
+                    << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits);
                 continue; 
             }
         } 
@@ -593,31 +569,16 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     //---------------------------------------------
     const xAOD::CaloCluster* clus = egIt->caloCluster();
     if(!clus) {
-      if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endreq;
+        ATH_MSG_DEBUG("REGTEST no cluster pointer in egamma object ");
       continue;
     }
     if( clus->et() < m_emEt) {
-      if(msgLvl() <= MSG::DEBUG) 
-        msg() << MSG::DEBUG << "REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt << endreq;
+        ATH_MSG_DEBUG("REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt);
       continue;
     }
     Ncand[cutIndex++]++;
     
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[1]: " << Ncand[1] << endreq;
-    
-    //--------------------------------------------------------------------------
-    //--Check that TrackParticle exists, if so monitor the impact parameter
-    //--------------------------------------------------------------------------
-    //xAOD not working yet
-    if(!(egIt->trackParticle())) {
-
-	if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "TrackParticle does NOT Exist, do NOT obtain impact parameter" << endreq; 
-    }else{
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrackParticle Exists, monitor impact parameter for electron" << endreq;
-	m_a0.push_back(findImpact(egIt->trackParticle()));
-    }
-
+    ATH_MSG_DEBUG("REGTEST Ncand[1]: " << Ncand[1]);
 
     //---------------------------------------------
     //Isolation Cuts
@@ -631,7 +592,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     }
     else{
       
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Isolation"  << endreq;	
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Isolation"  << endmsg;	
 	
 	//--Declare vectors of isolation variables for different cone sizes
 	std::vector<float>  EtCone, PtCone;	
@@ -660,17 +621,17 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	
 	//printout
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Absolute Calo Isolation (vector size = " << EtCone.size() << ") :" << endreq;	  
+	  msg() << MSG::DEBUG << "Absolute Calo Isolation (vector size = " << EtCone.size() << ") :" << endmsg;	  
 	  for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapEtCone[iConeSize]
 		  << ", Cut = " << m_EtConeCut[iConeSize] 		  
-		  << ", Value = " << EtCone[iConeSize] << endreq;
+		  << ", Value = " << EtCone[iConeSize] << endmsg;
 	  }
-	  msg() << MSG::DEBUG << "Absolute Track Isolation (vector size = " << PtCone.size()<< ") :" << endreq;
+	  msg() << MSG::DEBUG << "Absolute Track Isolation (vector size = " << PtCone.size()<< ") :" << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < PtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapPtCone[iConeSize] 
 		  << ", Cut = " << m_PtConeCut[iConeSize] 
-		  << ", Value = " << PtCone[iConeSize] << endreq;
+		  << ", Value = " << PtCone[iConeSize] << endmsg;
 	  }
 	}
 	
@@ -680,8 +641,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
 	  //NB: -ve values in cut means DO NOT CUT
 	  if( ( m_EtConeCut[iConeSize] > 0.) && (EtCone[iConeSize] > m_EtConeCut[iConeSize])) {
-	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "REGTEST Absolute Calo Isolation " << m_mapEtCone[iConeSize] << " NOT satisfied: "<< EtCone[iConeSize] << " > cut: " << m_EtConeCut[iConeSize] << endreq;
+	      ATH_MSG_DEBUG("REGTEST Absolute Calo Isolation " << m_mapEtCone[iConeSize] 
+                      << " NOT satisfied: "<< EtCone[iConeSize] 
+                      << " > cut: " << m_EtConeCut[iConeSize]);
 	    absEtConeCut_ispassed = false;
 	    break;//skip remaining etcone sizes if one fails
 	  }
@@ -697,8 +659,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	  
 	  //NB: -ve values in cut means DO NOT CUT
 	  if( ( m_PtConeCut[iConeSize] > 0.) && (PtCone[iConeSize] > m_PtConeCut[iConeSize])) {
-	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "REGTEST Absolute Track Isolation " << m_mapPtCone[iConeSize] << " NOT satisfied: "<< PtCone[iConeSize] << " > cut: " << m_PtConeCut[iConeSize] << endreq;
+	      ATH_MSG_DEBUG("REGTEST Absolute Track Isolation " << m_mapPtCone[iConeSize] 
+                      << " NOT satisfied: "<< PtCone[iConeSize] 
+                      << " > cut: " << m_PtConeCut[iConeSize]);
 	    absPtConeCut_ispassed = false;
 	    break;//skip remaining ptcone sizes if one fails
 	  }
@@ -723,9 +686,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	//--Check that TrackParticle exists, if so use track ET as Denonimator in Relative Isolation
 	if(!(egIt->trackParticle())) {
 	  
-	  if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "TrackParticle does NOT Exist, do NOT use Electron Track PT as Denominator in Relative Isolation"  << endreq;	
+	  ATH_MSG_DEBUG("TrackParticle does NOT Exist, do NOT use Electron Track PT as Denominator in Relative Isolation");
 	}else{
-	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrackParticle Exists, may use Electron Track PT as denominator in relative Isolation varariables"  << endreq;
+	  ATH_MSG_DEBUG("TrackParticle Exists, may use Electron Track PT as denominator in relative Isolation varariables");
 	  ele_trk_pt=egIt->trackParticle()->pt();
 	}
 
@@ -733,21 +696,19 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
  
 	if(m_useClusETforCaloIso) {
 	  caloIso_ele_pt=ele_clus_pt;	
-	  if(msgLvl() <= MSG::DEBUG) 
-	  msg() << MSG::DEBUG << "For Relative Calo Isolation use ele_clus_pt = " << caloIso_ele_pt << endreq;
+	  ATH_MSG_DEBUG("For Relative Calo Isolation use ele_clus_pt = " << caloIso_ele_pt);
 	}
 	else {
 	  caloIso_ele_pt=ele_trk_pt;
-	  if(msgLvl() <= MSG::DEBUG) 
-	  msg() << MSG::DEBUG << "For Relative Calo Isolation use ele_trk_pt = " << caloIso_ele_pt << endreq;
+	  ATH_MSG_DEBUG("For Relative Calo Isolation use ele_trk_pt = " << caloIso_ele_pt);
 	}
 	if(m_useClusETforTrackIso) {
 	  trkIso_ele_pt=ele_clus_pt;
-	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_clus_pt = " << trkIso_ele_pt << endreq;
+	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_clus_pt = " << trkIso_ele_pt << endmsg;
 	}
 	else {
 	  trkIso_ele_pt=ele_trk_pt;
-	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_trk_pt = " << trkIso_ele_pt << endreq;
+	  msg() << MSG::DEBUG << "For Relative Track Isolation use ele_trk_pt = " << trkIso_ele_pt << endmsg;
 	}
 
 	
@@ -768,17 +729,17 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	
 	//printout
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :"  << endreq;
+	  msg() << MSG::DEBUG << "Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :"  << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapRelEtCone[iConeSize] 
 		  << ", Cut = "   << m_RelEtConeCut[iConeSize]
-		  << ", Value = " << RelEtCone[iConeSize] << endreq;
+		  << ", Value = " << RelEtCone[iConeSize] << endmsg;
 	  }
-	  msg() << MSG::DEBUG << "Relative Track Isolation Cuts (vector size = " << RelPtCone.size()<< ") :"  << endreq;
+	  msg() << MSG::DEBUG << "Relative Track Isolation Cuts (vector size = " << RelPtCone.size()<< ") :"  << endmsg;
 	  for(std::size_t iConeSize = 0; iConeSize < RelPtCone.size(); iConeSize++) {
 	    msg() << MSG::DEBUG << "***   " << m_mapRelPtCone[iConeSize] 
 		  << ", Cut = "    << m_RelPtConeCut[iConeSize]
-		  << ", Value = "  << RelPtCone[iConeSize] << endreq;
+		  << ", Value = "  << RelPtCone[iConeSize] << endmsg;
 	  }
 	}
 	
@@ -787,8 +748,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
 	  //NB: -ve values in cut means DO NOT CUT
 	  if( ( m_RelEtConeCut[iConeSize] > 0.) && (RelEtCone[iConeSize] > m_RelEtConeCut[iConeSize])) {
-	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "REGTEST Relative Calo Isolation " << m_mapRelEtCone[iConeSize] << " NOT satisfied: "<< RelEtCone[iConeSize] << " > cut: " << m_RelEtConeCut[iConeSize] << endreq;
+	      ATH_MSG_DEBUG("REGTEST Relative Calo Isolation " << m_mapRelEtCone[iConeSize] 
+                      << " NOT satisfied: "<< RelEtCone[iConeSize] << " > cut: " 
+                      << m_RelEtConeCut[iConeSize]);
 	    relEtConeCut_ispassed = false;
 	    break;//skip remaining etcone sizes if one fails
 	  }
@@ -803,8 +765,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	for(std::size_t iConeSize = 0; iConeSize < RelPtCone.size(); iConeSize++) {
 	  //NB: -ve values in cut means DO NOT CUT
 	  if( ( m_RelPtConeCut[iConeSize] > 0.) && (RelPtCone[iConeSize] > m_RelPtConeCut[iConeSize])) {
-	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "REGTEST Relative Track Isolation " << m_mapRelPtCone[iConeSize] << " NOT satisfied: "<< RelPtCone[iConeSize] << " > cut: " << m_RelPtConeCut[iConeSize] << endreq;
+	      ATH_MSG_DEBUG("REGTEST Relative Track Isolation " << m_mapRelPtCone[iConeSize] 
+                      << " NOT satisfied: "<< RelPtCone[iConeSize] << " > cut: " 
+                      << m_RelPtConeCut[iConeSize]);
 	    relPtConeCut_ispassed = false;
 	    break;//skip remaining ptcone sizes if one fails
 	  }
@@ -821,9 +784,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     //-------------------------------------------------
     Ncand[cutIndex++]++;
     accepted=true;
-    //xAOD need to fix!!!! 
-    HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
-    //xBits->markPassing(egIt,m_EgammaContainer,true);
+    xBits->markPassing(egIt,m_EgammaContainer,true);
   }//end of loop over egamma container
   
   //Count No of Events passing individual cuts
@@ -832,17 +793,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   
   // print out Result     
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST Result = " <<(accepted ? "passed" : "failed")<< endreq;
-    msg() << MSG::DEBUG << "REGTEST AcceptAll= " <<(m_acceptAll ? "true (no cuts)" : "false (selection applied)")<< endreq;
-  }
+  ATH_MSG_DEBUG("REGTEST Result = " <<(accepted ? "passed" : "failed"));
+  ATH_MSG_DEBUG("REGTEST AcceptAll= " <<(m_acceptAll ? "true (no cuts)" : "false (selection applied)"));
 
-  // store TrigPassBits result
-  if ( attachBits(outputTE, passBits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
-  }
-  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------
@@ -871,7 +826,7 @@ double TrigEFElectronHypo::findImpact(const xAOD::TrackParticle* track) const
     m_trackToVertexTool->perigeeAtBeamspot(*track);
   
   if (perigee==0) {
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No perigee using beam spot; no d0 calculation"<<endreq;    
+    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No perigee using beam spot; no d0 calculation"<<endmsg;    
     perigee = m_trackToVertexTool->perigeeAtVertex(*track, m_primaryVertex);    
   }
 

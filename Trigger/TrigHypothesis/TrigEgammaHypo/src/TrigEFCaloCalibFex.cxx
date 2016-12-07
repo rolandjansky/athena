@@ -129,13 +129,13 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
     stat = getFeatures(inputTE, vectorClusterContainer);
     if ( stat!= HLT::OK ) {
-        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
+        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endmsg;
         return HLT::OK;
     }
     //debug message
     if ( msgLvl() <= MSG::VERBOSE)
         msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
-            << " CaloClusterContainers associated to the TE " << endreq;
+            << " CaloClusterContainers associated to the TE " << endmsg;
 
     // Check that there is only one ClusterContainer in the RoI
     if (vectorClusterContainer.size() != 1){
@@ -143,7 +143,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
             msg() << MSG::ERROR
                 << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
                 << vectorClusterContainer.size()
-                << endreq;
+                << endmsg;
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
@@ -154,13 +154,13 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
-                << endreq;
+                << endmsg;
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-        << clusContainer->size() << " calo clusters in container" << endreq;
+        << clusContainer->size() << " calo clusters in container" << endmsg;
 
     if(clusContainer->size() < 1){
         return HLT::OK;
@@ -169,17 +169,17 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     m_pCaloClusterContainer  = new xAOD::CaloClusterContainer();
     std::string clusterCollKey = "";
 
-    msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << m_persKey << endreq;
+    msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << m_persKey << endmsg;
 
-    //  msg() << MSG::DEBUG << store()->dump() << endreq;
+    //  msg() << MSG::DEBUG << store()->dump() << endmsg;
     HLT::ErrorCode sc = getUniqueKey( m_pCaloClusterContainer, clusterCollKey, m_persKey );
     if (sc != HLT::OK) {
-        msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endreq;
+        msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endmsg;
         return sc;
     }
 
     if (store()->record (m_pCaloClusterContainer, clusterCollKey).isFailure()) {
-        msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
+        msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
         delete m_pCaloClusterContainer;
         return HLT::TOOL_FAILURE;
     }
@@ -205,7 +205,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         if (vectorCellContainer.size() != 1){
             msg() << MSG::ERROR
                 << "REGTEST: Size of calo cell container vector is not 1 but " << vectorCellContainer.size()
-                << endreq;
+                << endmsg;
             return HLT::ERROR;
         }
         else{
@@ -294,13 +294,13 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         pass = true;
         if ( msgLvl() <= MSG::DEBUG ) {
             msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-                << endreq;
+                << endmsg;
         }
     } else {
         pass = false;
         if ( msgLvl() <= MSG::DEBUG ) {
             msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-                << endreq;
+                << endmsg;
         }
     }
 
@@ -308,11 +308,11 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
             clusterCollKey, msg());
 
     if ( !status ) { 
-        msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
+        msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
         return HLT::TOOL_FAILURE;
     } else {
         if(msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << " REGTEST: Recorded the cluster container in the RoI " << endreq;
+            msg() << MSG::DEBUG << " REGTEST: Recorded the cluster container in the RoI " << endmsg;
     }
     
     std::string aliasKey = "";
@@ -321,14 +321,14 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     if (stat != HLT::OK) {
         msg() << MSG::ERROR
             << "Write of RoI Cluster Container into outputTE failed"
-            << endreq;
+            << endmsg;
         return HLT::NAV_ERROR;
     }
 
     // set output TriggerElement unless acceptAll is set
     if (!m_acceptAll) pass = result;
 
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "acceptInput = " << pass << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "acceptInput = " << pass << endmsg;
 
     // Time total TrigEFCaloHypo execution time.
     // -------------------------------------
@@ -342,15 +342,15 @@ std::string TrigEFCaloCalibFex::retrieveCellContName( const HLT::TriggerElement*
     std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
     if( getFeatures(inputTE, vectorOfCellContainers, "") != HLT::OK) {
-        msg() << MSG::ERROR << "Failed to get TrigCells" << endreq;   
+        msg() << MSG::ERROR << "Failed to get TrigCells" << endmsg;   
         return "";
     }
 
-    msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endreq;
+    msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endmsg;
 
     // if no containers were found, just leave the vector empty and leave
     if ( vectorOfCellContainers.size() < 1) {
-        msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
+        msg() << MSG::ERROR << "No cells to analyse, leaving!" << endmsg;
         return "";
     }
 
@@ -360,13 +360,13 @@ std::string TrigEFCaloCalibFex::retrieveCellContName( const HLT::TriggerElement*
     // All this only to retrieve the key :
     std::string cellCollKey;
     if ( getStoreGateKey( theCellCont, cellCollKey) != HLT::OK) {
-        msg() << MSG::ERROR << "Failed to get key for TrigCells" << endreq;   
+        msg() << MSG::ERROR << "Failed to get key for TrigCells" << endmsg;   
         return "";
     }
 
     if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container in the RoI " << endreq;
-        msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container in the RoI " << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
     }
 
     return cellCollKey;

@@ -84,7 +84,7 @@ TrigEFTrackHypo::~TrigEFTrackHypo()
 //----------------------------------------------------------------------------
 HLT::ErrorCode TrigEFTrackHypo::hltBeginRun(){
 
-  msg() << MSG::INFO << "TrigEFTrackHypo::beginRun()" << endreq;
+  msg() << MSG::INFO << "TrigEFTrackHypo::beginRun()" << endmsg;
   return HLT::OK;
 
 }
@@ -94,11 +94,11 @@ HLT::ErrorCode TrigEFTrackHypo::hltBeginRun(){
 HLT::ErrorCode TrigEFTrackHypo::hltInitialize() {
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "TrigEFTrackHypo initialize()" << endreq;
+  msg() << MSG::INFO << "TrigEFTrackHypo initialize()" << endmsg;
 
   msg() << MSG::INFO
       << "Initialization of TrigEFTrackHypo completed successfully"
-      << endreq;
+      << endmsg;
 
   return HLT::OK;
 }
@@ -107,7 +107,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltInitialize() {
 HLT::ErrorCode TrigEFTrackHypo::hltFinalize() {
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "TrigEFTrackHypo finalize()" << endreq;
+  msg() << MSG::INFO << "TrigEFTrackHypo finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -124,19 +124,19 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   int outputLevel = msgLvl();
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
+    msg() << MSG::DEBUG << name() << ": in execute()" << endmsg;
 
   // AcceptAll property = true means selection cuts should not be applied
   if (m_acceptAll){
     if(outputLevel <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
     pass=true;
     return HLT::OK;
   }
   else {
     if(outputLevel <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-	    << endreq;
+	    << endmsg;
   }
 
 
@@ -147,18 +147,18 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   //const Rec::TrackParticleContainer* m_TrkParticleCont(0);
 
   if ( HLT::OK != getFeature(outputTE, m_TrkParticleCont) ) {
-    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element " << endreq;
+    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element " << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if ( !m_TrkParticleCont ) {
-    msg() << MSG::DEBUG << "No TrackParticleContainer present" << endreq;
+    msg() << MSG::DEBUG << "No TrackParticleContainer present" << endmsg;
     return HLT::OK;
   }
 
   if(outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << " REGTEST: Got " << m_TrkParticleCont->size() 
-	<< " TrackParticleContainer's associated to the TE " << endreq;
+	<< " TrackParticleContainer's associated to the TE " << endmsg;
   
   m_numTrkPart=m_TrkParticleCont->size();
 
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     // 	  << " TRTratio=" << trtratio
     // 	  << " D0=" << d0
     // 	  << " Pt=" << pt
-    // 	  << endreq;
+    // 	  << endmsg;
     // ---------------------------------------------------
     // At least one track passed cuts: accept the event:
     // ---------------------------------------------------
@@ -216,7 +216,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     
   } // end of loop in tracks
 
-  //  msg() << MSG::DEBUG << "Number of tracks found: " << ntracks << endreq;
+  //  msg() << MSG::DEBUG << "Number of tracks found: " << ntracks << endmsg;
   if (ntracks >= m_numTracks) accepted = true;
 
   if(accepted){
@@ -224,12 +224,12 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     pass =true;
     
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Event accepted ! " << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Event accepted ! " << endmsg;
     
   }
   else{
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: No track was found !! Event rejected " << endreq;
+      msg() << MSG::DEBUG << " REGTEST: No track was found !! Event rejected " << endmsg;
   }
   
   // Time total TrigEFTrackHypo execution time.

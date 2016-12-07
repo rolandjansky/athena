@@ -20,10 +20,8 @@
  **                 N.Berger Dec.06 - migrate to new steering (RG)
  **************************************************************************/ 
 
-//#include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
-//#include "xAODTrigger/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 class ISvcLocator;
 
@@ -153,16 +151,14 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   ATH_MSG_DEBUG("Got collection with " << trigElecColl->size() 
           << " TrigElectrons" );
 
-  // generate TrigPassBits mask to flag which TrigElectrons pass hypo cuts
-  TrigPassBits* passBits = HLT::makeTrigPassBits(trigElecColl);
-  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(trigElecColl);
 
   // if no electrons were found, just leave TrigElectronColl. empty and leave
   if ( trigElecColl->size() == 0 ) {
       ATH_MSG_DEBUG("No electrons to analyse, leaving!" );
-      return HLT::OK;
+      hasContainer=false; 
   }
-  hasContainer=true;
+  else 
+      hasContainer=true;
  // initialize counter after all error conditions checked
   m_egamma_container = trigElecColl;
   m_cutCounter=0;
@@ -173,11 +169,17 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   bool eTOverPtCut_hi=false;
   bool TRTRatioCut=false;
 
+  // generate TrigPassBits mask to flag which TrigElectrons pass hypo cuts
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigElectronContainer>(trigElecColl);
 
   // Now loop over electrons, see if at least one passes all cuts
   xAOD::TrigElectronContainer::const_iterator elecIter, elecEnd=trigElecColl->end();
   for (elecIter = trigElecColl->begin(); elecIter != elecEnd; ++elecIter) {    
-    //int algoId = (*elecIter)->trackAlgo();
+    
+      if(m_acceptAll){
+          xBits->markPassing((*elecIter),trigElecColl,true);
+          continue;
+      }
     const xAOD::TrackParticle* trkIter = (*elecIter)-> trackParticle();
     if (trkIter==NULL) continue; // disconsider candidates without track
     int algoId = 0;
@@ -269,8 +271,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
 		  // TrigElectron passed all cuts: set flags
 		  pass = true;  
-                  HLT::markPassing(passBits, (*elecIter), trigElecColl);
-                  //xBits->markPassing((*elecIter),trigElecColl,true);
+                  xBits->markPassing((*elecIter),trigElecColl,true);
 
                   ATH_MSG_DEBUG("Event accepted !" );	      
 
@@ -283,19 +284,10 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     }
   } // end of loop over electrons
    
-  //Check the bits
-  /*for(const auto &el:*trigElecColl)
-      ATH_MSG_DEBUG("Electron " << el->eta() << " " << el->phi() 
-              //<< " passBit " << HLT::isPassing(passBits,el,trigElecColl) 
-              << " xBit " << xBits->isPassing(el,trigElecColl));*/
   m_cutCounter=hasInput+hasContainer+pTcaloCut+dEtaCaloCut+dPhiCaloCut+eTOverPtCut_lo+eTOverPtCut_hi+TRTRatioCut;
-
   // store TrigPassBits result
-  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
-  if ( attachBits(outputTE, passBits) != HLT::OK ) {
-    ATH_MSG_ERROR("Could not store TrigPassBits!");
-  }
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   return HLT::OK;
 }

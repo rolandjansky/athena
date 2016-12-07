@@ -7,13 +7,37 @@
 from AthenaCommon.Logging import logging #AT
 import traceback #AT
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFPhotonHypo
-
-
 ###############################################################
-# Include EGammaPIDdefs for loose,medium,tight definitions
-from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton 
+from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
+from TrigEgammaHypo.TrigEgammaPidTools import PhotonToolName
+from TrigEgammaHypo.TrigEgammaPidTools import PhotonIsEMBits
 
 from AthenaCommon.SystemOfUnits import GeV
+
+class TrigEFPhotonIsoCutDefs ():
+    def __init__(self):
+        self.EtCone = {'ivloose':[-1.,-1.,-1.],
+                'iloose':[-1.,-1.,-1.],
+                'imedium':[-1.,-1.,-1.],
+                'itight':[-1.,-1.,-1.]
+                }
+        self.RelEtCone = {'ivloose':[0.1,0.,0.],
+                'iloose':[0.07,0.,0.],
+                'imedium':[0.,0.,0],
+                'itight':[0.,0.,0.03]
+                }
+        self.Offset = {'ivloose':[0.,0.,0.],
+                'iloose':[0.,0.,0.],
+                'imedium':[0.,0.,0],
+                'itight':[0.,0.,2.45*GeV]
+                }
+    def IsolationCuts(self,isoinfo):
+        return self.RelEtCone[isoinfo]
+    
+    def OffsetValue(self,isoinfo):
+        return self.Offset[isoinfo]
+            
+
 
 class TrigEFPhotonHypoBase (TrigEFPhotonHypo):
     __slots__ = []
@@ -29,8 +53,7 @@ class TrigEFPhotonHypoBase (TrigEFPhotonHypo):
         time = TrigTimeHistToolConfig("Time")
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
-
-
+        
         #-----------------------------------------------------------
         from AthenaCommon.AppMgr import ToolSvc
         mlog = logging.getLogger( 'TrigEFPhotonHypoBase:' )
@@ -52,7 +75,6 @@ class EFPhotonHypo_g_EtCut (TrigEFPhotonHypoBase):
         super( EFPhotonHypo_g_EtCut, self ).__init__( name ) 
         self.AcceptAll = True
         self.ApplyIsEM = False
-        self.usePhotonCuts = False
         self.emEt = float(threshold)*GeV
 
 class EFPhotonHypo_g_NoCut (TrigEFPhotonHypoBase):
@@ -61,7 +83,6 @@ class EFPhotonHypo_g_NoCut (TrigEFPhotonHypoBase):
         super( EFPhotonHypo_g_NoCut, self ).__init__( name )
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = True        
-        self.usePhotonCuts = False
 
 #-----------------------------------------------------------------------
 # --- gXX Particle ID selection
@@ -71,30 +92,21 @@ class EFPhotonHypo_g_ID_CaloOnly (TrigEFPhotonHypoBase):
     __slots__ = []
     def __init__(self, name, threshold, IDinfo):
         super( EFPhotonHypo_g_ID_CaloOnly, self ).__init__( name ) 
-        from AthenaCommon.AppMgr import ToolSvc
         self.AcceptAll = False
         self.ApplyIsEM = True
-        self.usePhotonCuts = False
         self.emEt = float(threshold)*GeV
-        
-        from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-        from TrigEgammaHypo.TrigEgammaPidTools import PhotonToolName
-        from TrigEgammaHypo.TrigEgammaPidTools import PhotonIsEMBits
-        PhotonPidTools()
         self.IsEMrequiredBits =  PhotonIsEMBits[IDinfo]
-        if IDinfo == 'loose1' or IDinfo == 'medium1':
-            self.egammaElectronCutIDToolName = PhotonToolName[IDinfo] 
-        if IDinfo == 'loose' or IDinfo == 'medium' or IDinfo == 'tight' or IDinfo == 'tight1':
-            self.usePhotonCuts = True
-            self.egammaPhotonCutIDToolName =  PhotonToolName[IDinfo] 
+        self.egammaPhotonCutIDToolName =  'AsgPhotonIsEMSelector/'+PhotonToolName[IDinfo] 
 
 class EFPhotonHypo_g_ID_CaloOnly_Iso (EFPhotonHypo_g_ID_CaloOnly):
     __slots__ = []
     def __init__(self, name, threshold, IDinfo, isoInfo):
         super( EFPhotonHypo_g_ID_CaloOnly_Iso, self ).__init__( name, threshold, IDinfo )
         #Isolation
+        isoCuts = TrigEFPhotonIsoCutDefs()
         self.ApplyIsolation = True
         #EtCone Size              =  20, 30, 40
         self.EtConeSizes = 3
-        self.RelEtConeCut       = [0.100, -1, -1]
         self.EtConeCut          = [-1, -1, -1]
+        self.RelEtConeCut = isoCuts.IsolationCuts(isoInfo)
+        self.IsoOffset = isoCuts.OffsetValue(isoInfo)

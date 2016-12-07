@@ -30,12 +30,11 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthLinks/ElementLink.h"
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 
 // trigger EDM
-#include "xAODTrigger/TrigComposite.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
 /* class StoreGateSvc; */
@@ -61,20 +60,13 @@ public:
   HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE);
     
 private:
-  void processElectronElectron(HLT::TEConstVec& inputTE, std::vector<float>& masses);
-  void processElectronCluster(HLT::TEConstVec& inputTE, std::vector<float>& masses);
+  void process(HLT::TEConstVec& inputTE, xAOD::TrigCompositeContainer *objs); 
 
 private:
   // cuts
-  bool m_useElectronElectron;
-  bool m_useElectronCluster;
   float m_lowerMassCut; //!<  lower inv mass cut (e-e pair)
   float m_upperMassCut; //!<  upper inv mass cut (e-e pair)
-
-  // output data
-  std::vector<float> m_massElectronElectron;
-  std::vector<float> m_massElectronCluster;
-  xAOD::TrigCompositeContainer *m_cont;
+  std::string m_key;
   // to set Accept-All mode: should be done with force-accept when possible
   bool m_acceptAll; //!<  true will accept all events
 

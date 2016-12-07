@@ -1,7 +1,6 @@
 #include "TrigEgammaHypo/TrigL2CaloHypo.h"
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
-#include "TrigEgammaHypo/TrigL2ElectronHypoMoni.h"
 #include "TrigEgammaHypo/TrigL2PhotonFex.h"
 #include "TrigEgammaHypo/TrigL2PhotonHypo.h"
 #include "TrigEgammaHypo/TrigL2DielectronMassHypo.h"
@@ -23,7 +22,6 @@
 DECLARE_ALGORITHM_FACTORY( TrigL2CaloHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2ElectronFex )
 DECLARE_ALGORITHM_FACTORY( TrigL2ElectronHypo )
-DECLARE_ALGORITHM_FACTORY( TrigL2ElectronHypoMoni )
 DECLARE_ALGORITHM_FACTORY( TrigL2PhotonFex )
 DECLARE_ALGORITHM_FACTORY( TrigL2PhotonHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2DielectronMassHypo )
@@ -42,7 +40,6 @@ DECLARE_FACTORY_ENTRIES( TrigEgammaHypo ) {
     DECLARE_ALGORITHM( TrigL2CaloHypo )
     DECLARE_ALGORITHM( TrigL2ElectronFex )
     DECLARE_ALGORITHM( TrigL2ElectronHypo )
-    DECLARE_ALGORITHM( TrigL2ElectronHypoMoni )
     DECLARE_ALGORITHM( TrigL2PhotonFex )
     DECLARE_ALGORITHM( TrigL2PhotonHypo )
     DECLARE_ALGORITHM( TrigL2DielectronMassHypo )

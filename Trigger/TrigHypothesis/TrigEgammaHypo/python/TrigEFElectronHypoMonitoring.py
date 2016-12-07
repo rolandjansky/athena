@@ -186,9 +186,6 @@ class TrigEFElectronHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=26, xmin=-0.5, xmax=25.5 ) ]
                                              
 
-
-        self.Histograms += [ defineHistogram('A0',	 type='TH1F', title="EFElectron Hypo Hypo A0; Impact Parameter",xbins=100, xmin=-1.0, xmax=1.0) ]        
-
         self.Histograms += [ defineHistogram('mu',	 type='TH1F', title="EFElectron Hypo mu; Pileup",xbins=100, xmin=0., xmax=100.0) ]        
 
         self.Histograms += [ defineHistogram('LikelihoodRatio',	 type='TH1F', title="EFElectron Hypo Likelihood Ratio; LR",xbins=100, xmin=-1.0, xmax=1.0) ]        
@@ -468,9 +465,7 @@ class TrigEFElectronHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('nTRTHitsOutliers', 	type='TH1F', title="EFElectron Hypo number of outliers TRT hits; Number of TRT outlier hits",
                                              xbins=26, xmin=-0.5, xmax=25.5 ) ]
                                              
-       
 
-        self.Histograms += [ defineHistogram('A0',	 type='TH1F', title="EFElectron Hypo Hypo A0; Impact Parameter",xbins=100, xmin=-1.0, xmax=1.0) ]        
         self.Histograms += [ defineHistogram('mu',	 type='TH1F', title="EFElectron Hypo mu; Pileup",xbins=100, xmin=0., xmax=100.0) ]        
 
         self.Histograms += [ defineHistogram('LikelihoodRatio',	 type='TH1F', title="EFElectron Hypo Likelihood Ratio; LR",xbins=100, xmin=-1.0, xmax=1.0) ]        
