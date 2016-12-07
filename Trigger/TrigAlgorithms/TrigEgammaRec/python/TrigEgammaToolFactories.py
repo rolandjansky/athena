@@ -14,6 +14,7 @@ __author__ = "Ryan Mackenzie White"
 import logging
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.SystemOfUnits import GeV,MeV,deg
 # New configuration for use in rel 19.X with xAOD
 # Adapted from egammaRec/egammaGetter.py
 # Factory tools, handles configuration of tools and dependencies
@@ -26,6 +27,12 @@ from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyVal
 # egammaOQFlagsBuilder
 # EMVertexBuilder
 
+mlog = logging.getLogger ('TrigEgammaToolFactories')
+# PID -- selectors added via TrigEgammaPIDTools in TrigEgammaHypo
+from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
+from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
+ElectronPidTools()
+PhotonPidTools()
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
@@ -125,3 +132,58 @@ TrigEMShowerBuilder = EMShowerBuilder.copy(
   Print = True,
 )
 
+from TrigEgammaRec.TrigEgammaFlags import jobproperties
+from egammaMVACalib import egammaMVACalibConf 
+mlog.info("MVA version version %s"%jobproperties.TrigEgammaFlags.calibMVAVersion() )
+mlog.info("Cluster Correction version %s"%jobproperties.TrigEgammaFlags.clusterCorrectionVersion() )
+TrigEgammaMVACalibTool = ToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
+        folder=jobproperties.TrigEgammaFlags.calibMVAVersion(),use_layer_corrected = False)
+
+from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
+
+def configureTrigCaloClusterMonitoring(tool):
+    from TrigCaloRec.TrigCaloClusterMakerMonitoring import TrigCaloClusterMakerValidationMonitoring, TrigCaloClusterMakerOnlineMonitoring, TrigCaloClusterMakerCosmicMonitoring
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    clvalidation = TrigCaloClusterMakerValidationMonitoring()
+    clonline = TrigCaloClusterMakerOnlineMonitoring()
+    clcosmic = TrigCaloClusterMakerCosmicMonitoring()
+    cltime = TrigTimeHistToolConfig("TrigCaloClusterMaker_Time")
+    tool.AthenaMonTools = [ clvalidation, clonline, cltime, clcosmic]
+
+def configureClusterBuilder(slwAlg):
+    slwName="trigslw"
+    if hasattr(slwAlg,slwName): 
+        return
+    from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
+    trigslw= make_CaloClusterBuilderSW (slwName,
+            tower_container = "LArTowerEM",
+            eta_size = 3,
+            phi_size = 5,
+            e_threshold = 2.5 * GeV,
+            FillClusterCells = False,
+            eta_Duplicate = 5,
+            phi_Duplicate = 5
+            )
+    #mlog.info("TrigCaloClusterMaker adding slw tool %s"%trigslw.getFullName())
+    slwAlg += trigslw
+    slwAlg.ClusterMakerTools=[ trigslw.getFullName() ]
+
+def configureClusterCorrections(slwAlg):
+    '''Add attributes ClusterCorrectionToolsXX to egammaSwTool object'''
+    if not hasattr(slwAlg,"ClusterCorrectionTools"):
+        return
+    from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections
+    clusterTypes = ("ele37","ele55")
+    for cl in clusterTypes:
+        clName = "CaloRunClusterCorrections"+cl
+        if hasattr(slwAlg,clName):
+            continue
+        for tool in make_CaloSwCorrections (cl,version=jobproperties.TrigEgammaFlags.clusterCorrectionVersion()):
+            #mlog.info("Correction tool %s"%tool.getFullName())
+            slwAlg += tool
+            slwAlg.ClusterCorrectionTools += [tool.getFullName()]
+
+TrigCaloClusterMaker_slw = Factory(TrigCaloClusterMaker,name='TrigCaloClusterMaker_slw',ClustersOutputName="TriggerClustersegSW",
+        postInit=[configureClusterBuilder,configureClusterCorrections,configureTrigCaloClusterMonitoring])
+
+del mlog
