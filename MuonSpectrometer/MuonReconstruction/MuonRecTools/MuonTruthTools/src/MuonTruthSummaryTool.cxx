@@ -112,7 +112,7 @@ namespace Muon {
     m_truthDataPerLevel.clear();
   }
 
-  void MuonTruthSummaryTool::init() {
+  void MuonTruthSummaryTool::init() const {
     getTruth(m_CSC_TruthName);
     getTruth(m_RPC_TruthName);
     getTruth(m_TGC_TruthName);
@@ -124,7 +124,7 @@ namespace Muon {
     ATH_MSG_DEBUG(" Total collected muon truth hits " << m_truthHits.size() ); 
   }
 
-  void MuonTruthSummaryTool::getTruth(std::string name ) {
+  void MuonTruthSummaryTool::getTruth(std::string name ) const {
     const PRD_MultiTruthCollection* col = 0;
 
     if( !evtStore()->contains<PRD_MultiTruthCollection>(name) ) return; 
@@ -146,14 +146,14 @@ namespace Muon {
     }
   }
 
-  int MuonTruthSummaryTool::getPdgId( int barcode ) {
+  int MuonTruthSummaryTool::getPdgId( int barcode ) const {
     if( !m_wasInit) init();
     auto pos = m_pdgIdLookupFromBarcode.find(barcode);
     if( pos == m_pdgIdLookupFromBarcode.end() ) return 0;
     return pos->second;    
   }
 
-  int MuonTruthSummaryTool::getBarcode( const Identifier& id ) {
+  int MuonTruthSummaryTool::getBarcode( const Identifier& id ) const {
     if( !m_wasInit) init();
     auto pos = m_truthHits.find(id);
     if( pos == m_truthHits.end() ) return -1;
