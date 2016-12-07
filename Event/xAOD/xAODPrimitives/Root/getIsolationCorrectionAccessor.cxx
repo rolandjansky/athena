@@ -49,7 +49,7 @@ namespace xAOD {
       assert (0 <= static_cast<int>(param) && static_cast<int>(param) < xAOD::Iso::NumCorrParameters);
       if (sAccessors.find(hash)==sAccessors.end()){                                                                   
         std::string name(Iso::toString(type));                                                                      
-        if (corr == Iso::coreCone)
+        if (corr == Iso::coreCone || corr == Iso::coreConeSC)
 	  name+=toString(corr); 
 	else
 	  name = toString(corr);
