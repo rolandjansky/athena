@@ -9,7 +9,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -34,28 +34,28 @@ StatusCode LArDetectorToolH62003::create(StoreGateSvc* detStore)
   MsgStream log(msgSvc(), name()); 
 
   // Get the detector configuration.
-  IGeoModelSvc *geoModel;
-  service ("GeoModelSvc",geoModel);
-  
-  std::string AtlasVersion = geoModel->atlasVersion();
-  std::string LArVersion   = geoModel->LAr_VersionOverride();
-  
+  IGeoDbTagSvc *geoDbTag;
+  service ("GeoDbTagSvc",geoDbTag);
+
+  std::string AtlasVersion = geoDbTag->atlasVersion();
+  std::string LArVersion   = geoDbTag->LAr_VersionOverride();
+
   IRDBAccessSvc *accessSvc;
   service("RDBAccessSvc",accessSvc);
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endreq;
+  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endmsg;
 
-  log << MSG::INFO  << "Creating the LAr " << endreq;
-  log << MSG::INFO  << "LAr Geometry Options:"   << endreq;
+  log << MSG::INFO  << "Creating the LAr " << endmsg;
+  log << MSG::INFO  << "LAr Geometry Options:"   << endmsg;
 
   // Locate the top level experiment node 
   DataHandle<GeoModelExperiment> theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
   { 
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -79,7 +79,7 @@ StatusCode LArDetectorToolH62003::create(StoreGateSvc* detStore)
 
     if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName())) 
       { 
-	log << MSG::ERROR << "Could not record" << endreq; 
+	log << MSG::ERROR << "Could not record" << endmsg; 
 	return (StatusCode::FAILURE); 
       } 
 

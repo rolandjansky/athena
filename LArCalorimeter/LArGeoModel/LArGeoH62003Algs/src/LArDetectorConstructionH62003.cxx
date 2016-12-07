@@ -49,7 +49,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -80,8 +80,7 @@ LArGeo::LArDetectorConstructionH62003::LArDetectorConstructionH62003():
 H62003EnvelopePhysical(NULL),
 _fcalVisLimit(-1),
 _axisVisState(false),
-pAccessSvc(NULL),
-geoModelSvc(NULL){}
+pAccessSvc(NULL){}
 
 LArGeo::LArDetectorConstructionH62003::~LArDetectorConstructionH62003() {}
 
@@ -117,22 +116,12 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
 
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-  }
-  
-  std::string AtlasVersion = geoModelSvc->atlasVersion();
-  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
+  DecodeVersionKey larVersion("LAr");
+  std::string detectorKey  = larVersion.tag();
+  std::string detectorNode = larVersion.node();
 
-  log << MSG::DEBUG << "AtlasVersion is " << AtlasVersion << endreq; 
-  log << MSG::DEBUG << "LArVersion is "   << LArVersion   << endreq;
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-
-  log << MSG::DEBUG << "detectorKey is "  << detectorKey << endreq; 
-  log << MSG::DEBUG << "detectorNode is " << detectorNode << endreq; 
+  log << MSG::DEBUG << "detectorKey is "  << detectorKey << endmsg; 
+  log << MSG::DEBUG << "detectorNode is " << detectorNode << endmsg; 
 
 
   // Get the materials from the material manager:----------------------//
@@ -256,9 +245,9 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	//	{CryoXPos = -18.0*cm;}
      
       log << MSG::DEBUG << "TB2003 Cryostat Position is " 
-	  << nickname << endreq;;
+	  << nickname << endmsg;;
       log << MSG::DEBUG << "CryoXPos = "  
-	  << CryoXPos << endreq;
+	  << CryoXPos << endmsg;
       
       //      double CryoXRot = 90.0*deg;
       double CryoXRot = -90.0*deg;
@@ -285,11 +274,11 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		yrot = (*larTBPos)[i]->getDouble("YROT")*deg;
 		zrot = (*larTBPos)[i]->getDouble("ZROT")*deg;
 		log << MSG::DEBUG << "xrot is " << xrot/deg << " degrees"
-		    << endreq; 
+		    << endmsg; 
 		log << MSG::DEBUG << "yrot is " << yrot/deg << " degrees"
-		    << endreq; 
+		    << endmsg; 
 		log << MSG::DEBUG << "zrot is " << zrot/deg << " degrees"
-		    << endreq; 
+		    << endmsg; 
 		// The rotation axis of the cryostat is now the z-axis.
 		xf->setDelta(Transform3D(RotateZ3D(yrot)));
 	      }
@@ -406,7 +395,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 
       // uses LArGeoFcal/FCALConstruction.cxx: */
       const IRDBRecordset* fcalMod = 
-	pAccessSvc->getRecordset("FCalMod", LArVersion,LArVersion);
+	pAccessSvc->getRecordset("FCalMod", detectorKey,detectorNode);
       if (fcalMod->size()==0) {
 	fcalMod=pAccessSvc->getRecordset("FCalMod", "FCalMod-00");
 	if (fcalMod->size()==0) {
@@ -882,7 +871,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  << "z =  " 
 		  << H62003EnvelopePhysical->getXToChildVol(i).getTranslation().z()
 		  << "\n"
-		  << endreq;
+		  << endmsg;
       }
 
   } // End if(ScintGeom.size()!=0)
