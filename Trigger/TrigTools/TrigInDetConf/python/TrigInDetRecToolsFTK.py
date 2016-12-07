@@ -7,7 +7,7 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetRecToolsFTK.py 786281 2016-11-24 12:48:17Z baines $"
+___version___ = "$Id: TrigInDetRecToolsFTK.py 788416 2016-12-07 14:18:16Z baines $"
 
 
 from AthenaCommon.AppMgr import ToolSvc
@@ -96,5 +96,5 @@ InDetTrigTrackFitterFTK = Trk__GlobalChi2Fitter(name = "InDetTrigTrackFitterFTK"
 
 ToolSvc += InDetTrigTrackFitterFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  printInDetTrigTrackFitterFTK
+  print InDetTrigTrackFitterFTK
   
