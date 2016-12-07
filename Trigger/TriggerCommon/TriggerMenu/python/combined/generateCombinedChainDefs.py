@@ -418,38 +418,45 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
 
     # =========================================================
-    # configure Hypo and jet/bjetTE    
+    # configure Hypo and jet/bjetTE
     from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
-
+    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import LeptonJetMatchAllTE
+ 
     dzmatching = False
     drmatching = False
     for topo in chainDicts[0]['topo']:
         if "dz" in topo: dzmatching = True
         if "dr" in topo: drmatching = True
-    
-        
+ 
+ 
     # obtain deltaR for Hypo configuration
     deltaR = -1
     for topo_item in chainDicts[0]['topo']:
         if 'dr' in topo_item:
             deltaR=float(topo_item.split('dr')[1])/10.
         if deltaR == -1: log.error("No DeltaR cut could be extracted!")
-
-    
+ 
+ 
     if dzmatching: # it's a bjet chain
         # obtain deltaZ for Hypo configuration
         deltaZ = -1
         for topo_item in chainDicts[0]['topo']:
             if 'dz' in topo_item:
                 deltaZ=float(topo_item.split('dz')[1]) # Need to modify this to be able to handle dZ values > 9...
-
+ 
         jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
         pos_sigCounter = -1
-        LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","RZ", hypoThresh)
+ 
+        if deltaZ==99:
+            LeptonJetFexAllTE = LeptonJetMatchAllTE("CloseBy","RZ", hypoThresh, name="LeptonJetMatchAllTE_CloseBy_RZ_"+str(hypoThresh)+'_dz'+str(int(deltaZ)) )
+        else:
+            LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","RZ", hypoThresh)
+ 
+ 
         LeptonJetFexAllTE.JetKey = "SplitJet"
         LeptonJetFexAllTE.DeltaRCut = deltaR
         LeptonJetFexAllTE.DeltaZCut = deltaZ
-        if ('_anti') in chnameAddPart: 
+        if ('_anti') in chnameAddPart:
             log.error("Matching functionality for this chain is not implemented yet: %s " % (chainDicts[0]['chainName']))
 
         
