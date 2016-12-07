@@ -199,9 +199,11 @@ namespace TrigCostRootAnalysis {
     kPatternsNoLumiWeight,
     kPatternsNoMuLumiWeight,
     kPatternsNoBunchLumiWeight,
+    kPatternsExpoMuLumiWeight,
     kListOfNoLumiWeightChains,
     kListOfNoMuLumiWeightChains,
     kListOfNoBunchLumiWeightChains,
+    kListOfExpoMuLumiWeightChains,
     kOutputPng,
     kOutputPdf,
     kOutputImage,
@@ -244,6 +246,8 @@ namespace TrigCostRootAnalysis {
     kUpgradeJetLargeWindow,
     kNoOnlineDeadtimeCorrection,
     kOnlineDeadtime,
+    kExpoRateScaleModifierL1,
+    kExpoRateScaleModifierHLT,
     kDeadtimeScalingFinal, // Final scaling factor used for online deadtime
     kDoUniqueRates,
     kRatesOnly,
@@ -255,7 +259,11 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiRunXML, // From the EB XML (prioirty 3)
     kPredictionLumiMenuXML, // From the prescales XML (priority 2)
     kPredictionLumiFinal, // The value actually chosen to be used
+    kPredictionLumiFinalExpoL1, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoHLT, // The final value with exponential mu extrapolation
     kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
+    kPredictionLumiFinalMuExpoL1Component, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoHLTComponent, // What mu extrapolation chains with an exponential mu dependence should get
     kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
     kEmptyBunchgroupExtrapolaion, // How much we extrapolate empty items
     kDoAdvancedLumiScaling,
@@ -265,11 +273,16 @@ namespace TrigCostRootAnalysis {
     kJIRA,
     kRunLumi,
     kRunLumiXML,
+    kDoExponentialMu,
+    kInvertHighMuRunVeto,
     kDebug, 
     kNPasses,
+    kUpgradeMergeTOBOverlap,
     kCurrentPass,
+    kPairedBunches,
     kMessageWait,
     kCleanAll,
+    kMultiRun,
     kMaxBunches,
     kMaxBCIDs,
     kSloppyExit,
@@ -334,6 +347,8 @@ namespace TrigCostRootAnalysis {
     kJetEtString,
     kEnergyString,
     kMissingEnergyString,
+    kHTString,
+    kMHTString,
     kROBINString,
     kROSString,
     kAlwaysPassString,
@@ -341,9 +356,18 @@ namespace TrigCostRootAnalysis {
     kEventsProcessed,
     kEventsSkipped,
     kRunNumber,
+    kFarmXML,
     kVersionString,
     kLBPerKeyset,
     kVarTime,     // Study Variable ENUMs
+    kVarSteeringTimeCPUType1,
+    kVarSteeringTimeCPUType2,
+    kVarSteeringTimeCPUType3,
+    kVarSteeringTimeCPUType4,
+    kVarEventsCPUType1,
+    kVarEventsCPUType2,
+    kVarEventsCPUType3,
+    kVarEventsCPUType4,
     kVarRerunTime,
     kVarPassTime,
     kVarTimeExec,
@@ -386,11 +410,21 @@ namespace TrigCostRootAnalysis {
     kVarEventsRunRawStat,
     kVarEventsPassedExpress,
     kVarEventsSlow,
+    kVarMu,
+    kVarBunchWeight,
     kVarTotalPrescale,
     kVarL1PassEvents,
     kVarHLTEvents,
     kVarHLTPassEvents,
     kVarHLTPUs,
+    kVarJetEta,
+    kVarMuEta,
+    kVarEmEta,
+    kVarTauEta,
+    kVarJetNThresh,
+    kVarMuNThresh,
+    kVarEmNThresh,
+    kVarTauNThresh,
     kVarROI,
     kVarType,
     kVarEta,
@@ -408,7 +442,7 @@ namespace TrigCostRootAnalysis {
     kDecROSString,
     kDecAlgClassName,
     kDecCounterClassification,
-    kDecChainName,
+    kDecChainName, 
     kDecSeqName,
     kDecLbLength,
     kDecType,
@@ -450,6 +484,7 @@ namespace TrigCostRootAnalysis {
     kMsgLumiScaling,
     kMsgNoTETOB,
     kMsgNoGroup,
+    kMsgTOBMerge,
     kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 
@@ -459,8 +494,12 @@ namespace TrigCostRootAnalysis {
   typedef IntStringMap_t::const_iterator      IntStringMapIt_t;
   typedef std::map< Int_t, Int_t>             IntIntMap_t;
   typedef IntIntMap_t::const_iterator         IntIntMapIt_t;
+  typedef std::map< UInt_t, UInt_t>           UIntUIntMap_t;
+  typedef UIntUIntMap_t::const_iterator       UIntUIntMapIt_t;
   typedef std::map< Int_t, Float_t>           IntFloatMap_t;
   typedef IntFloatMap_t::const_iterator       IntFloatMapIt_t;
+  typedef std::map< Int_t, Double_t>          IntDoubleMap_t;
+  typedef IntDoubleMap_t::const_iterator      IntDoubleMapIt_t;
   typedef std::map< Float_t, Int_t>           FloatIntMap_t;
   typedef FloatIntMap_t::const_iterator       FloatIntMapIt_t;
   typedef std::map< std::string, std::string> StringStringMap_t;
@@ -549,6 +588,7 @@ namespace TrigCostRootAnalysis {
   Bool_t checkPatternNoLumiWeight( const std::string& _counterName);
   Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName);
   Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternExponentialWithMu( const std::string& _counterName);
 
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);
@@ -563,8 +603,9 @@ namespace TrigCostRootAnalysis {
   Bool_t isZero(Float_t _float, Float_t _precision = 0.00000001);
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
-  Int_t stringToIntHash( std::string );
+  UInt_t stringToIntHash( std::string& s );
   const std::string& getLevelString(UInt_t _level);
+  Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
 
   class JsonExport {
   public:

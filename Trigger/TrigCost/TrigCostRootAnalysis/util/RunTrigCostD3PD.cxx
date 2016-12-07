@@ -184,6 +184,7 @@ int main(int argc, char* argv[]) {
           _config.set(kRunNumber, _HLTData.getRunNumber(), "RunNumber" );
           _onlineTime = _HLTData.getCostRunSec();
         }
+        TrigXMLService::trigXMLService().init();
         struct tm* _timeinfo = gmtime( &_onlineTime );
         char _buffer[80];
         strftime(_buffer,80,"%F %R UTC",_timeinfo);

@@ -47,7 +47,9 @@ namespace TrigCostRootAnalysis {
    * ProcessEvent constructor. Not much here.
    */
   ProcessEvent::ProcessEvent(const TrigCostData* _costData, UInt_t _level, const std::string& _name) 
-    : m_costData(_costData), m_level(_level), m_name(_name), 
+    : m_costData(_costData), m_level(_level), m_name(_name),
+      m_runNumber(0), 
+      m_invertHighMuRunVeto(kFALSE),
       m_threadTimer("Event", "Thread-Spawning"), 
       m_takeEventTimer("Event", "Classifying Event"),
       m_cacheAlgTimer("Event", "Alg Monitor Caching"),
@@ -57,7 +59,7 @@ namespace TrigCostRootAnalysis {
     m_costData->setParent(this);
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
-    m_ratesOnly = Config::config().getIsSet(kRatesOnly);
+    m_ratesOnly = Config::config().getInt(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_pass = 0;
   }
@@ -199,6 +201,18 @@ namespace TrigCostRootAnalysis {
     //Check for weights from energy extrapolation
     _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
 
+    if (m_runNumber == 0) {
+      m_runNumber = Config::config().getInt(kRunNumber);
+      m_invertHighMuRunVeto = Config::config().getInt(kInvertHighMuRunVeto);
+    }
+    // Special behaviour for the 2016 high mu run
+    if (m_runNumber == 310574) {
+      const UInt_t _bcid = m_costData->getBunchCrossingId();
+      const Bool_t _isolatedBunch = (_bcid == 11 || _bcid == 1247 || _bcid == 2430);
+      if (m_invertHighMuRunVeto == kFALSE && _isolatedBunch == kTRUE)  return false; // We normally veto on these isolated bunches
+      if (m_invertHighMuRunVeto == kTRUE  && _isolatedBunch == kFALSE) return false; // Of if inverted, we only keep the isolated bunches 
+    }
+
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
       _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi(), getPass() );
@@ -206,6 +220,10 @@ namespace TrigCostRootAnalysis {
 
     // For each active monitoring type, process event
     if ( isZero(_weight) == kTRUE) return false;
+
+
+    // HACK!
+    //if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) return kFALSE;
 
     // Do any monitors want to take this event?
     m_takeEventTimer.start();
@@ -229,6 +247,7 @@ namespace TrigCostRootAnalysis {
       m_cacheAlgTimer.stop();
       m_cacheROSTimer.start();
       MonitorROSCommon::collateROSRequests(getLevel(), m_costData);
+      //MonitorROBIN::collateROBINRequests(getLevel(), m_costData);
       m_cacheROSTimer.stop();
     }
 

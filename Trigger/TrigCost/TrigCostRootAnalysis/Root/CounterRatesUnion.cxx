@@ -283,7 +283,7 @@ namespace TrigCostRootAnalysis {
       Double_t _passRawOverPS = _L1->getPassRawOverPS();
       _w *= (1. - _passRawOverPS);
 
-      _lumiExtrapNumerator += _passRawOverPS * _L1->getLumiExtrapolationFactor();
+      _lumiExtrapNumerator += _passRawOverPS * _L1->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       _lumiExtrapDenominator += _passRawOverPS;
       //if (isZero(_w)) break; // If a PS=1 passes, NO due to lumi extrap mode
     }
@@ -309,7 +309,7 @@ namespace TrigCostRootAnalysis {
 
       _w *= (1. - (_passRawOverPSL2 * _L1->getPassRawOverPS()) );
 
-      _lumiExtrapNumerator += _passRawOverPSL2 * _L2->getLumiExtrapolationFactor();
+      _lumiExtrapNumerator += _passRawOverPSL2 * _L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       _lumiExtrapDenominator += _passRawOverPSL2;
 
       //if (isZero(_w)) break; // If a PS=1 passes, NO due to lumi extrap mode
@@ -333,7 +333,7 @@ namespace TrigCostRootAnalysis {
       Double_t _passRawOverPS = _L2->getPassRawOverPS(_includeExpress);
       _weightL2 *= (1. - _passRawOverPS);
       // Base the lumi extrap only on the L2s, L1s can be ignored here due to topology, they will give a common factor. (TODO check this)
-      _lumiExtrapNumerator += _passRawOverPS * _L2->getLumiExtrapolationFactor();
+      _lumiExtrapNumerator += _passRawOverPS * _L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       _lumiExtrapDenominator += _passRawOverPS;
       //if (isZero(_weightL2)) break; // If a PS=1 passes, NO, lumi weighting....
     }
@@ -381,7 +381,7 @@ namespace TrigCostRootAnalysis {
       for (ChainItemSetIt_t _L2It = _L1->getUpperStart(); _L2It != _L1->getUpperEnd(); ++_L2It) {
         if ( m_L2s.count( (*_L2It) ) == 0 ) continue;
         Double_t _w = (*_L2It)->getPassRawOverPS(_includeExpress);
-        _lumiExtrapNumerator += _w * _weightL1 * (*_L2It)->getLumiExtrapolationFactor();
+        _lumiExtrapNumerator += _w * _weightL1 * (*_L2It)->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
         _lumiExtrapDenominator += _w * _weightL1;
         _weightL2 *= (1. - _w);
       }
@@ -398,7 +398,7 @@ namespace TrigCostRootAnalysis {
           // Need to check if THIS ITEM IN THE CPS GROUP is also A MEMBER OF THE CURRENT GROUP
           if (m_myCPSChains.count( (*_L2It)->getName() ) == 0) continue; // This CPS group member is not in this rates group
           Double_t _w = (*_L2It)->getPassRawOverPS(_includeExpress);
-          _lumiExtrapNumerator += _w * _weightL1 * _cpsGroup->getCommonWeight() * (*_L2It)->getLumiExtrapolationFactor(); //TODO is it OK to include the common weight in the lumi extrapolation like this?
+          _lumiExtrapNumerator += _w * _weightL1 * _cpsGroup->getCommonWeight() * (*_L2It)->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation); //TODO is it OK to include the common weight in the lumi extrapolation like this?
           _lumiExtrapDenominator += _w * _weightL1 * _cpsGroup->getCommonWeight();
           _weightL2cps *= (1. - _w); 
         }
@@ -436,7 +436,7 @@ namespace TrigCostRootAnalysis {
         _shouldRun = kTRUE;
         // HACK! TODO replace this with the real calculation here (it's going to be awful....)
         // but this is also basically never used and will be "mostly" correct
-        m_eventLumiExtrapolation = (*_L2It)->getLumiExtrapolationFactor();
+        m_eventLumiExtrapolation = (*_L2It)->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
         break;
       }
     }

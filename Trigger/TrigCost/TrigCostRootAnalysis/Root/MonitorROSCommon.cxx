@@ -32,6 +32,7 @@ namespace TrigCostRootAnalysis {
   Int_t MonitorROSCommon::m_eventNumber = -1;
   UInt_t MonitorROSCommon::m_level = 0;
   std::vector< StringIntSetMap_t > MonitorROSCommon::m_ROSRequestStorage = std::vector< StringIntSetMap_t >();
+  std::vector< StringIntSetMap_t > MonitorROSCommon::m_ROBINRequestStorage = std::vector< StringIntSetMap_t >();
 
   /**
    * Get the cache data for a ROS request
@@ -39,6 +40,11 @@ namespace TrigCostRootAnalysis {
   StringIntSetMap_t& MonitorROSCommon::getROSMapping(UInt_t _robReq) {
     return m_ROSRequestStorage.at(_robReq);
   }
+  
+  StringIntSetMap_t& MonitorROSCommon::getROBINMapping(UInt_t _robReq) {
+    return m_ROBINRequestStorage.at(_robReq);
+  }
+
 
   /**
    * Each ROS request comes as a series of ROBIN IDs
@@ -65,10 +71,27 @@ namespace TrigCostRootAnalysis {
       scopedVector.swap( m_ROSRequestStorage );
     }
     // Out of scope, contents deleted
+    
+    for (UInt_t _n1 = 0; _n1 < m_ROBINRequestStorage.size(); ++_n1) {
+      for (StringIntSetMapNonConstIt_t _reqIt1 = m_ROBINRequestStorage.at(_n1).begin(); _reqIt1 != m_ROBINRequestStorage.at(_n1).end(); ++_reqIt1) {
+        (*_reqIt1).second.clear();
+      }
+      m_ROBINRequestStorage.at(_n1).clear();
+    }
+    {
+      std::vector< StringIntSetMap_t > scopedVector1;
+      scopedVector1.swap( m_ROBINRequestStorage );
+    }
+    // Out of scope, contents deleted
+
+
+    //Copied above for m_ROBINRequestStorage
+    
 
     // Store the per ROS request mappings
     for (UInt_t _rob = 0; _rob < _costData->getNROBs(); ++_rob) {
       StringIntSetMap_t _ROSNameToROBINLocs;
+      StringIntSetMap_t _ROBINMapping;
       for (UInt_t _robData = 0; _robData < _costData->getROBDataN( _rob ); ++_robData) {
 
         Int_t _robId = _costData->getROBDataID(_rob, _robData);
@@ -77,27 +100,11 @@ namespace TrigCostRootAnalysis {
 
         // Map the ROS name to the D3PD index of the ROBINs in this request which are associated to this ROS
         _ROSNameToROBINLocs[ _rosName ].insert( (Int_t) _robData );
+	      _ROBINMapping[ _robinName ].insert( (Int_t) _robData );
       }
       m_ROSRequestStorage.push_back( _ROSNameToROBINLocs );
+      m_ROBINRequestStorage.push_back( _ROBINMapping );
     }
-
-    // TEMP
-
-    // Info("MonitorROSCommon::collateROSRequests", "Called on event %i, rosReqStorage size %i", _costData->getEventNumber(), m_ROSRequestStorage.size()  );
-    //
-    //
-    // for (UInt_t _rob = 0; _rob < _costData->getNROBs(); ++_rob) {
-    //   std::cout << "  !!! NEW ROS REQ !!! " << _rob << " !!! " << std::endl;
-    //   StringIntSetMap_t _ROSMapping = getROSMapping(_rob);
-    //   for (StringIntSetMapIt_t _reqIt = _ROSMapping.begin(); _reqIt != _ROSMapping.end(); ++_reqIt) {
-    //     IntSet_t _ROBINs = _ROSMapping[ (*_reqIt).first ];
-    //     std::cout << "  ROS " << (*_reqIt).first << " : ";
-    //     for (IntSetIt_t _it = _ROBINs.begin(); _it != _ROBINs.end(); ++_it) {
-    //       std::cout << (*_it) << " ";
-    //     }
-    //     std::cout << std::endl;
-    //   }
-    // }
 
   }
 

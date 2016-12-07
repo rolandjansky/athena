@@ -706,8 +706,11 @@ namespace TrigCostRootAnalysis {
   std::vector<std::string> TrigConfInterface::getChainStreamNames(UInt_t _c) {
     std::vector<std::string> _streams;
     for (UInt_t _stream = 0; _stream < getTCT()->GetChainStreamNameSize(_c); ++_stream) {
-      std::string _streamName = getTCT()->GetChainStreamName(_c, _stream);
-      _streams.push_back(_streamName);
+      if (getTCT()->GetChainStreamName(_c, _stream) == "Main") continue; // These are handled on their own
+      if (getTCT()->GetChainStreamName(_c, _stream) == "express") continue;
+      std::stringstream _streamName;
+      _streamName << "STREAM_" << getTCT()->GetChainStreamName(_c, _stream);
+      _streams.push_back(_streamName.str());
     }
     return _streams;
   }

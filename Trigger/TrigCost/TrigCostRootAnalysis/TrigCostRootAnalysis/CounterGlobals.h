@@ -53,6 +53,7 @@ namespace TrigCostRootAnalysis {
     Float_t m_cpuTime; //!< CPU time of all algs in event - only used for debug output
     Int_t   m_rosCalls; //!< ROS calls of all algs in event - only used for debug output
     Int_t   m_algCalls; //!< N algorithm calls - only used for debug output
+    Bool_t  m_CPUBreakDown; //!< Do CPU breakdown per CPU type online
 
     std::map<UInt_t,UInt_t> m_processingUnits; //!< Keep track of processing units seen in this LB and how many events each processes
 

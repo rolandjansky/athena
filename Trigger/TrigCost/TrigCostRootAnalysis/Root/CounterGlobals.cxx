@@ -39,7 +39,8 @@ namespace TrigCostRootAnalysis {
     m_rosTime(0.),
     m_cpuTime(0.),
     m_rosCalls(0),
-    m_algCalls(0) {
+    m_algCalls(0),
+    m_CPUBreakDown(0) {
 
     m_dataStore.newVariable(kVarEventsActive).setSavePerCall();
 
@@ -80,6 +81,22 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarResultBuildingTime).setSavePerEvent("Time Taken by Result Builder Per Event;Time [ms];Events");
 
     m_dataStore.newVariable(kVarMonitoringTime).setSavePerEvent("Time Taken by Monitoring Tools Per Event;Time [ms];Events");
+
+    TrigXMLService::trigXMLService().parseHLTFarmXML();
+    const IntStringMap_t _comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
+    if (_comp.size() >= 4) {
+      m_dataStore.newVariable(kVarSteeringTimeCPUType1).setSavePerEvent(std::string("Steering Time Per Event by "+ _comp.at(1) +";Steering Time [ms];Events"));
+      m_dataStore.newVariable(kVarSteeringTimeCPUType2).setSavePerEvent(std::string("Steering Time Per Event by "+ _comp.at(2) +";Steering Time [ms];Events"));
+      m_dataStore.newVariable(kVarSteeringTimeCPUType3).setSavePerEvent(std::string("Steering Time Per Event by "+ _comp.at(3) +";Steering Time [ms];Events"));
+      m_dataStore.newVariable(kVarSteeringTimeCPUType4).setSavePerEvent(std::string("Steering Time Per Event by "+ _comp.at(4) +";Steering Time [ms];Events"));
+      m_dataStore.newVariable(kVarEventsCPUType1).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsCPUType2).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsCPUType3).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsCPUType4).setSavePerCall();
+      m_CPUBreakDown = kTRUE;
+    } else {
+      m_CPUBreakDown = kFALSE;
+    }
 
   }
 
@@ -204,6 +221,17 @@ namespace TrigCostRootAnalysis {
     // Did we encounter a new processing unit? Count unique PUs
     if (m_processingUnits.count( m_costData->getAppId() ) == 0) m_dataStore.store(kVarHLTPUs, 1.);
     m_processingUnits[ m_costData->getAppId() ] += 1;
+
+    if (m_CPUBreakDown == kTRUE) {
+      Int_t _computerType = TrigXMLService::trigXMLService().getComputerType( ((UInt_t)m_costData->getAppId()) );
+      switch (_computerType) {
+        case 1: m_dataStore.store(kVarSteeringTimeCPUType1, m_steeringTime, _weight); m_dataStore.store(kVarEventsCPUType1, 1., _weight); break;
+        case 2: m_dataStore.store(kVarSteeringTimeCPUType2, m_steeringTime, _weight); m_dataStore.store(kVarEventsCPUType2, 1., _weight); break;
+        case 3: m_dataStore.store(kVarSteeringTimeCPUType3, m_steeringTime, _weight); m_dataStore.store(kVarEventsCPUType3, 1., _weight); break;
+        case 4: m_dataStore.store(kVarSteeringTimeCPUType4, m_steeringTime, _weight); m_dataStore.store(kVarEventsCPUType4, 1., _weight); break;
+        default: Error("CounterGlobals::processEventCounter", "Unknown computer type ID %i", _computerType);
+      }
+    }
 
     // Misc event timers
     m_dataStore.store(kVarTrigCostTime, m_costData->getTimerTrigCost(), 1.); // Note unweighted as this correlates 100% with selected events to monitor 

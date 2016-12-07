@@ -102,14 +102,14 @@ namespace TrigCostRootAnalysis {
         _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
       }
 
-      m_eventLumiExtrapolation = _L2->getLumiExtrapolationFactor();
+      m_eventLumiExtrapolation = _L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       //if (getName() == "HLT_cscmon_L1All") Info("DEBUG", "WL1:%f, NL1:%s, 1-L1: %f, HLT:%f, total: %f, lumi%f", m_lowerRates->getLastWeight(), m_lowerRates->getName().c_str(),  1. - _L1Weight, _L2->getPSWeight(_includeExpress), _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight ),  _L2->getLumiExtrapolationFactor()  );
       m_cachedWeight = _L2->getPSWeight(_includeExpress) * ( 1. - _L1Weight );
 
     } else { // A L1Chain
 
       RatesChainItem* _L1 = (*m_L1s.begin());
-      m_eventLumiExtrapolation = _L1->getLumiExtrapolationFactor();
+      m_eventLumiExtrapolation = _L1->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       m_cachedWeight = _L1->getPassRawOverPS();
 
     }

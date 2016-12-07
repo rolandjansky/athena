@@ -132,6 +132,17 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * @return The bunch crossing identifier number.
+   */
+  UInt_t TrigCostData::getBunchCrossingId() const {
+    MUTEX_ON
+    Int_t _R = m_trigCostObject->bunchCrossingId();
+    MUTEX_OFF
+    return _R;
+  }
+
+
+  /**
    * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the D3PD.
    * Normally this will be done centally and distributed in this package.
    */
@@ -920,6 +931,7 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t TrigCostData::getIsROBDataRetrieved(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
+      //   std::cout << "_n    " << _n << " ||||   _r   " << _r << std::endl;
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isRetrieved()->at(_n).at(_r);
     MUTEX_OFF
     return _R;

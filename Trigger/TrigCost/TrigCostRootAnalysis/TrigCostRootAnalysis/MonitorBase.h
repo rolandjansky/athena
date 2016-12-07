@@ -147,6 +147,16 @@ namespace TrigCostRootAnalysis {
 
     Timer m_timer; //<! Every monitor gets a timer to see how long it took
 
+    Bool_t m_doKeySummary; //!< Cached for speed
+    Bool_t m_doLumiBlockSummary; //!< Cached for speed
+    Bool_t m_doAllSummary; //!< Cached for speed
+    Bool_t m_ratesOnly; //!< Cached for speed
+    std::string m_allString; //!< Cached for speed
+    std::string m_lumiBlockString; //!< Cached for speed
+    Int_t m_nLbFullSkip; //!< Cached for speed
+    Int_t m_nHLTConfigSummary; //!< Cached for speed
+    Int_t m_nLBPerHLTConfig; //!< Cached for speed
+
 
   }; //class MonitorBase
 

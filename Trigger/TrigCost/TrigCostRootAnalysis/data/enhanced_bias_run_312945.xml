@@ -1,0 +1,335 @@
+<?xml version="1.0" ?>
+<trigger>
+  <lumivalues>
+    <lumivalues_data>1.53e27</lumivalues_data>
+    <lumivalues_pred>5e+27</lumivalues_pred>
+    <deadtime>0.038</deadtime>
+    <peak_mu_av>0.000135</peak_mu_av>
+  </lumivalues>
+  <bunchgroups>
+    <bunchgroup id="0" name="BCRVeto">3543</bunchgroup>
+    <bunchgroup id="1" name="Paired">81</bunchgroup>
+    <bunchgroup id="2" name="CalReq">70</bunchgroup> 
+    <bunchgroup id="3" name="Empty">423</bunchgroup>
+    <bunchgroup id="4" name="IsolatedUnpaired">29</bunchgroup>
+    <bunchgroup id="5" name="NonIsolatedUnpaired">1059</bunchgroup>
+    <bunchgroup id="6" name="EmptyBeforeAfterPaired">342</bunchgroup>
+    <bunchgroup id="7" name="InTrain">0</bunchgroup>
+    <bunchgroup id="8" name="AbortGapNotCalReq">29</bunchgroup>
+    <bunchgroup id="9" name="AfterGlow">0</bunchgroup>
+    <bunchgroup id="10" name="ALFA">4</bunchgroup>
+    <bunchgroup id="11" name="EmptyBeforePaired">81</bunchgroup>
+    <bunchgroup id="12" name="AllWithoutCalreq">3473</bunchgroup>
+    <bunchgroup id="13" name="BG13">0</bunchgroup>
+    <bunchgroup id="14" name="BG14">0</bunchgroup>
+    <bunchgroup id="15" name="BG15">0</bunchgroup>
+  </bunchgroups>
+  <lb_list>
+    <lb id="4" lumi="0.001678" mu="0.000147" flag="bad">5231</lb>
+    <lb id="5" lumi="0.00167" mu="0.000147" flag="bad">5319</lb>
+    <lb id="6" lumi="0.001636" mu="0.000144">5521</lb>
+    <lb id="7" lumi="0.001641" mu="0.000144">11892</lb>
+    <lb id="8" lumi="0.001648" mu="0.000145">12019</lb>
+    <lb id="9" lumi="0.001634" mu="0.000144">11948</lb>
+    <lb id="10" lumi="0.001639" mu="0.000144">11827</lb>
+    <lb id="11" lumi="0.001649" mu="0.000145">11793</lb>
+    <lb id="12" lumi="0.001646" mu="0.000145">12146</lb>
+    <lb id="13" lumi="0.001636" mu="0.000144">12009</lb>
+    <lb id="14" lumi="0.001634" mu="0.000144">11747</lb>
+    <lb id="15" lumi="0.001629" mu="0.000143">11861</lb>
+    <lb id="16" lumi="0.001629" mu="0.000143">12001</lb>
+    <lb id="17" lumi="0.001637" mu="0.000144">12035</lb>
+    <lb id="18" lumi="0.001635" mu="0.000144">11995</lb>
+    <lb id="19" lumi="0.00163" mu="0.000143">11789</lb>
+    <lb id="20" lumi="0.001622" mu="0.000142">11745</lb>
+    <lb id="21" lumi="0.001625" mu="0.000143">11959</lb>
+    <lb id="22" lumi="0.001624" mu="0.000143">11805</lb>
+    <lb id="23" lumi="0.00162" mu="0.000142">11968</lb>
+    <lb id="24" lumi="0.001628" mu="0.000143">11846</lb>
+    <lb id="25" lumi="0.00162" mu="0.000142">12004</lb>
+    <lb id="26" lumi="0.001621" mu="0.000142">11683</lb>
+    <lb id="27" lumi="0.001619" mu="0.000142">11954</lb>
+    <lb id="28" lumi="0.001632" mu="0.000143">11725</lb>
+    <lb id="29" lumi="0.001601" mu="0.000141">11931</lb>
+    <lb id="30" lumi="0.001611" mu="0.000141">11614</lb>
+    <lb id="31" lumi="0.001612" mu="0.000142">11762</lb>
+    <lb id="32" lumi="0.001611" mu="0.000141">11632</lb>
+    <lb id="33" lumi="0.001607" mu="0.000141">11586</lb>
+    <lb id="34" lumi="0.001605" mu="0.000141">11810</lb>
+    <lb id="35" lumi="0.001603" mu="0.000141">11742</lb>
+    <lb id="36" lumi="0.001611" mu="0.000142">11827</lb>
+    <lb id="37" lumi="0.001603" mu="0.000141">11672</lb>
+    <lb id="38" lumi="0.001602" mu="0.000141">11782</lb>
+    <lb id="39" lumi="0.001612" mu="0.000142">11983</lb>
+    <lb id="40" lumi="0.001599" mu="0.00014">11623</lb>
+    <lb id="41" lumi="0.001603" mu="0.000141">11729</lb>
+    <lb id="42" lumi="0.001597" mu="0.00014">11517</lb>
+    <lb id="43" lumi="0.001598" mu="0.00014">11819</lb>
+    <lb id="44" lumi="0.001583" mu="0.000139">11578</lb>
+    <lb id="45" lumi="0.001607" mu="0.000141">11704</lb>
+    <lb id="46" lumi="0.001584" mu="0.000139">11768</lb>
+    <lb id="47" lumi="0.001594" mu="0.00014">11715</lb>
+    <lb id="48" lumi="0.001598" mu="0.00014">11548</lb>
+    <lb id="49" lumi="0.001596" mu="0.00014">11505</lb>
+    <lb id="50" lumi="0.001587" mu="0.000139">11656</lb>
+    <lb id="51" lumi="0.001595" mu="0.00014">11610</lb>
+    <lb id="52" lumi="0.001582" mu="0.000139">11560</lb>
+    <lb id="53" lumi="0.001594" mu="0.00014">11710</lb>
+    <lb id="54" lumi="0.001588" mu="0.000139">11500</lb>
+    <lb id="55" lumi="0.001583" mu="0.000139">11374</lb>
+    <lb id="56" lumi="0.001581" mu="0.000139">11493</lb>
+    <lb id="57" lumi="0.001576" mu="0.000138">11356</lb>
+    <lb id="58" lumi="0.001584" mu="0.000139">11811</lb>
+    <lb id="59" lumi="0.001581" mu="0.000139">11380</lb>
+    <lb id="60" lumi="0.001583" mu="0.000139">11346</lb>
+    <lb id="61" lumi="0.00158" mu="0.000139">11579</lb>
+    <lb id="62" lumi="0.00158" mu="0.000139">11534</lb>
+    <lb id="63" lumi="0.00157" mu="0.000138">11440</lb>
+    <lb id="64" lumi="0.001581" mu="0.000139">11910</lb>
+    <lb id="65" lumi="0.001575" mu="0.000138">11388</lb>
+    <lb id="66" lumi="0.001561" mu="0.000137">11172</lb>
+    <lb id="67" lumi="0.001554" mu="0.000136">11420</lb>
+    <lb id="68" lumi="0.001569" mu="0.000138">11513</lb>
+    <lb id="69" lumi="0.001566" mu="0.000138">11426</lb>
+    <lb id="70" lumi="0.001556" mu="0.000137">11507</lb>
+    <lb id="71" lumi="0.001552" mu="0.000136">11368</lb>
+    <lb id="72" lumi="0.001562" mu="0.000137">11277</lb>
+    <lb id="73" lumi="0.001564" mu="0.000137">11383</lb>
+    <lb id="74" lumi="0.001545" mu="0.000136">11216</lb>
+    <lb id="75" lumi="0.001558" mu="0.000137">11494</lb>
+    <lb id="76" lumi="0.001562" mu="0.000137">11392</lb>
+    <lb id="77" lumi="0.001554" mu="0.000136">11482</lb>
+    <lb id="78" lumi="0.001546" mu="0.000136">11252</lb>
+    <lb id="79" lumi="0.001553" mu="0.000136" flag="bad">9331</lb>
+    <lb id="80" lumi="0.001552" mu="0.000136" flag="bad">0</lb>
+    <lb id="81" lumi="0.001548" mu="0.000136" flag="bad">0</lb>
+    <lb id="82" lumi="0.00155" mu="0.000136" flag="bad">0</lb>
+    <lb id="83" lumi="0.001548" mu="0.000136" flag="bad">0</lb>
+    <lb id="84" lumi="0.001555" mu="0.000137">16063</lb>
+    <lb id="85" lumi="0.001549" mu="0.000136">16033</lb>
+    <lb id="86" lumi="0.001552" mu="0.000136">15599</lb>
+    <lb id="87" lumi="0.001539" mu="0.000135">15750</lb>
+    <lb id="88" lumi="0.001543" mu="0.000135">15740</lb>
+    <lb id="89" lumi="0.001551" mu="0.000136">16011</lb>
+    <lb id="90" lumi="0.00153" mu="0.000134">15787</lb>
+    <lb id="91" lumi="0.00154" mu="0.000135">15922</lb>
+    <lb id="92" lumi="0.001539" mu="0.000135">15520</lb>
+    <lb id="93" lumi="0.001524" mu="0.000134">15688</lb>
+    <lb id="94" lumi="0.001533" mu="0.000135">15765</lb>
+    <lb id="95" lumi="0.001534" mu="0.000135">15716</lb>
+    <lb id="96" lumi="0.00153" mu="0.000134">15757</lb>
+    <lb id="97" lumi="0.00152" mu="0.000134">5438</lb>
+    <lb id="98" lumi="0.001539" mu="0.000135">19925</lb>
+    <lb id="99" lumi="0.001531" mu="0.000135">19951</lb>
+    <lb id="100" lumi="0.001524" mu="0.000134">19994</lb>
+    <lb id="101" lumi="0.001521" mu="0.000134">19877</lb>
+    <lb id="102" lumi="0.001529" mu="0.000134">19824</lb>
+    <lb id="103" lumi="0.001527" mu="0.000134">19713</lb>
+    <lb id="104" lumi="0.001524" mu="0.000134">19576</lb>
+    <lb id="105" lumi="0.00152" mu="0.000133">19551</lb>
+    <lb id="106" lumi="0.001511" mu="0.000133">19686</lb>
+    <lb id="107" lumi="0.001521" mu="0.000134">19586</lb>
+    <lb id="108" lumi="0.001508" mu="0.000132">20006</lb>
+    <lb id="109" lumi="0.00152" mu="0.000134">19791</lb>
+    <lb id="110" lumi="0.00153" mu="0.000134">19960</lb>
+    <lb id="111" lumi="0.001525" mu="0.000134">20228</lb>
+    <lb id="112" lumi="0.001519" mu="0.000133">19286</lb>
+    <lb id="113" lumi="0.00152" mu="0.000134">19911</lb>
+    <lb id="114" lumi="0.001519" mu="0.000133">19587</lb>
+    <lb id="115" lumi="0.001511" mu="0.000133">19785</lb>
+    <lb id="116" lumi="0.001512" mu="0.000133">19619</lb>
+    <lb id="117" lumi="0.00152" mu="0.000134">19412</lb>
+    <lb id="118" lumi="0.001499" mu="0.000132">19760</lb>
+    <lb id="119" lumi="0.001514" mu="0.000133">20121</lb>
+    <lb id="120" lumi="0.001512" mu="0.000133">19428</lb>
+    <lb id="121" lumi="0.001502" mu="0.000132">19753</lb>
+    <lb id="122" lumi="0.001505" mu="0.000132">19719</lb>
+    <lb id="123" lumi="0.001492" mu="0.000131">19842</lb>
+    <lb id="124" lumi="0.001517" mu="0.000133">19617</lb>
+    <lb id="125" lumi="0.001512" mu="0.000133">19400</lb>
+    <lb id="126" lumi="0.001493" mu="0.000131">19266</lb>
+    <lb id="127" lumi="0.001502" mu="0.000132">19507</lb>
+    <lb id="128" lumi="0.001498" mu="0.000132">19479</lb>
+    <lb id="129" lumi="0.001494" mu="0.000131">19360</lb>
+    <lb id="130" lumi="0.001506" mu="0.000132">19748</lb>
+    <lb id="131" lumi="0.001487" mu="0.000131">19527</lb>
+    <lb id="132" lumi="0.001485" mu="0.00013">19412</lb>
+    <lb id="133" lumi="0.001489" mu="0.000131" flag="bad">1831</lb>
+    <lb id="134" lumi="0.001504" mu="0.000132" flag="bad">0</lb>
+    <lb id="135" lumi="0.001501" mu="0.000132" flag="bad">0</lb>
+    <lb id="136" lumi="0.001512" mu="0.000133" flag="bad">0</lb>
+    <lb id="137" lumi="0.001482" mu="0.00013">14651</lb>
+    <lb id="138" lumi="0.001478" mu="0.00013">14868</lb>
+    <lb id="139" lumi="0.00149" mu="0.000131">14702</lb>
+    <lb id="140" lumi="0.001501" mu="0.000132">14743</lb>
+    <lb id="141" lumi="0.001476" mu="0.00013">14730</lb>
+    <lb id="142" lumi="0.001475" mu="0.00013">14620</lb>
+    <lb id="143" lumi="0.001488" mu="0.000131">14747</lb>
+    <lb id="144" lumi="0.001487" mu="0.000131">14828</lb>
+    <lb id="145" lumi="0.001477" mu="0.00013">14676</lb>
+    <lb id="146" lumi="0.001483" mu="0.00013">14755</lb>
+    <lb id="147" lumi="0.00147" mu="0.000129">14670</lb>
+    <lb id="148" lumi="0.001499" mu="0.000132">8730</lb>
+    <lb id="149" lumi="0.001474" mu="0.000129">17761</lb>
+    <lb id="150" lumi="0.00148" mu="0.00013">17474</lb>
+    <lb id="151" lumi="0.001465" mu="0.000129">17722</lb>
+    <lb id="152" lumi="0.001471" mu="0.000129">18022</lb>
+    <lb id="153" lumi="0.001463" mu="0.000129">17785</lb>
+    <lb id="154" lumi="0.00148" mu="0.00013">17817</lb>
+    <lb id="155" lumi="0.001472" mu="0.000129">17623</lb>
+    <lb id="156" lumi="0.001473" mu="0.000129">17653</lb>
+    <lb id="157" lumi="0.001465" mu="0.000129">17667</lb>
+    <lb id="158" lumi="0.00146" mu="0.000128">9365</lb>
+    <lb id="159" lumi="0.001485" mu="0.00013">22885</lb>
+    <lb id="160" lumi="0.001468" mu="0.000129">22887</lb>
+    <lb id="161" lumi="0.00147" mu="0.000129">22544</lb>
+    <lb id="162" lumi="0.001457" mu="0.000128">22685</lb>
+    <lb id="163" lumi="0.001471" mu="0.000129">22508</lb>
+    <lb id="164" lumi="0.001464" mu="0.000129">22700</lb>
+    <lb id="165" lumi="0.001463" mu="0.000128">22902</lb>
+    <lb id="166" lumi="0.001464" mu="0.000129">23039</lb>
+    <lb id="167" lumi="0.001457" mu="0.000128">22967</lb>
+    <lb id="168" lumi="0.001455" mu="0.000128">22628</lb>
+    <lb id="169" lumi="0.001448" mu="0.000127">22803</lb>
+    <lb id="170" lumi="0.001469" mu="0.000129">22532</lb>
+    <lb id="171" lumi="0.001445" mu="0.000127">22494</lb>
+    <lb id="172" lumi="0.001451" mu="0.000127">22501</lb>
+    <lb id="173" lumi="0.001446" mu="0.000127">22287</lb>
+    <lb id="174" lumi="0.001455" mu="0.000128">22428</lb>
+    <lb id="175" lumi="0.001453" mu="0.000128">22331</lb>
+    <lb id="176" lumi="0.001449" mu="0.000127">22500</lb>
+    <lb id="177" lumi="0.001453" mu="0.000128">22384</lb>
+    <lb id="178" lumi="0.001444" mu="0.000127">22931</lb>
+    <lb id="179" lumi="0.001455" mu="0.000128">22678</lb>
+    <lb id="180" lumi="0.001447" mu="0.000127">22707</lb>
+    <lb id="181" lumi="0.001451" mu="0.000127">22947</lb>
+    <lb id="182" lumi="0.001444" mu="0.000127">22596</lb>
+    <lb id="183" lumi="0.001446" mu="0.000127">22603</lb>
+    <lb id="184" lumi="0.001435" mu="0.000126">22377</lb>
+    <lb id="185" lumi="0.001439" mu="0.000126">22408</lb>
+    <lb id="186" lumi="0.001443" mu="0.000127">22138</lb>
+    <lb id="187" lumi="0.001444" mu="0.000127">22280</lb>
+    <lb id="188" lumi="0.001449" mu="0.000127">22709</lb>
+    <lb id="189" lumi="0.001435" mu="0.000126">22443</lb>
+    <lb id="190" lumi="0.00145" mu="0.000127" flag="bad">5953</lb>
+    <lb id="191" lumi="0.001443" mu="0.000127" flag="bad">0</lb>
+    <lb id="192" lumi="0.001435" mu="0.000126" flag="bad">0</lb>
+    <lb id="193" lumi="0.001425" mu="0.000125" flag="bad">0</lb>
+    <lb id="194" lumi="0.00143" mu="0.000126" flag="bad">12276</lb>
+    <lb id="195" lumi="0.001435" mu="0.000126" flag="bad">7634</lb>
+  </lb_list>
+  <filters>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_A</filter_name>
+      <lv1_filter>L1_ZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_C</filter_name>
+      <lv1_filter>L1_ZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MBTS_2</filter_name>
+      <lv1_filter>L1_MBTS_2</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE5</filter_name>
+      <lv1_filter>L1_TE5</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE50</filter_name>
+      <lv1_filter>L1_TE50</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE120</filter_name>
+      <lv1_filter>L1_TE120</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE160</filter_name>
+      <lv1_filter>L1_TE160</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE10.0ETA24</filter_name>
+      <lv1_filter>L1_TE10.0ETA24</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE30.0ETA24</filter_name>
+      <lv1_filter>L1_TE30.0ETA24</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MU4</filter_name>
+      <lv1_filter>L1_MU4</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MU10</filter_name>
+      <lv1_filter>L1_MU10</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1EM5</filter_name>
+      <lv1_filter>L1_EM5</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1EM10</filter_name>
+      <lv1_filter>L1_EM10</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1J10</filter_name>
+      <lv1_filter>L1_J10</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1J30</filter_name>
+      <lv1_filter>L1_J30</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1J5_VZDC_C</filter_name>
+      <lv1_filter>L1_J5_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1J5_VZDC_A</filter_name>
+      <lv1_filter>L1_J5_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MU4_VZDC_C</filter_name>
+      <lv1_filter>L1_MU4_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MU4_VZDC_A</filter_name>
+      <lv1_filter>L1_MU4_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE5_VZDC_A</filter_name>
+      <lv1_filter>L1_TE5_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1TE5_VZDC_C</filter_name>
+      <lv1_filter>L1_TE5_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MBTS_2_A_VZDC_C</filter_name>
+      <lv1_filter>L1_MBTS_2_A_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MBTS_2_C_VZDC_A</filter_name>
+      <lv1_filter>L1_MBTS_2_C_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_A_VZDC_C</filter_name>
+      <lv1_filter>L1_ZDC_A_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_C_VZDC_A</filter_name>
+      <lv1_filter>L1_ZDC_C_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1EM3_VZDC_C</filter_name>
+      <lv1_filter>L1_EM3_VZDC_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1EM3_VZDC_A</filter_name>
+      <lv1_filter>L1_EM3_VZDC_A</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1RD1_FILLED</filter_name>
+      <lv1_filter>L1_RD1_FILLED</lv1_filter>
+    </filter>
+  </filters>
+</trigger>

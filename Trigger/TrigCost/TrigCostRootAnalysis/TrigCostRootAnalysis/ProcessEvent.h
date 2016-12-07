@@ -61,6 +61,8 @@ namespace TrigCostRootAnalysis {
     monitorMap_t m_monitorCollections; //!< Map monitoring modes to associated collections
     UInt_t m_level; //!< Trigger level (to be deprecated)
     const std::string m_name; //!< My name
+    UInt_t m_runNumber; //!< For special circumstances
+    Bool_t m_invertHighMuRunVeto; //!< Special circumstances
     Bool_t m_ratesOnly; //<! Don't do buffering if this is true
     UInt_t m_nThread; //!< Number of concurrent threads to spawn in multi thread mode
     Bool_t m_isCPUPrediction; //!< If we're predicting CPU useage then we want to skip events which _only_ pass the cost chain (after bookkeeping)

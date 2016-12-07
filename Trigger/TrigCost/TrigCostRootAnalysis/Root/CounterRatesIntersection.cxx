@@ -88,7 +88,7 @@ namespace TrigCostRootAnalysis {
       if ( _L2->getPassRaw() == kFALSE ) return 0.;
       _w *= _L2->getPSWeight(_includeExpress);
 
-      _lumiExtrapNumerator += _L2->getPassRawOverPS(_includeExpress) * _L2->getLumiExtrapolationFactor();
+      _lumiExtrapNumerator += _L2->getPassRawOverPS(_includeExpress) * _L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       _lumiExtrapDenominator += _L2->getPassRawOverPS(_includeExpress);
     }
 

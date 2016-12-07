@@ -55,6 +55,7 @@ namespace TrigCostRootAnalysis {
     void setRateReductionFactor(Double_t _reductionFactor);
     void setTriggerLogic(TriggerLogic* _tl);
     void setProxy(CounterBaseRates* _c) { m_proxy = _c; }
+    void fillHistograms(DataStore& _dataStore, Float_t _weight, Float_t _bunchWeight);
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
     void beginEvent(TOBAccumulator* _eventTOBs);
@@ -80,7 +81,7 @@ namespace TrigCostRootAnalysis {
     const std::string& getName();
     UInt_t getID();
     TriggerLogic* getTriggerLogic();
-    Double_t getLumiExtrapolationFactor();
+    Double_t getLumiExtrapolationFactor(UInt_t _lb, Bool_t _disableEventLumiExtrapolation);
 
    private:
    
@@ -97,8 +98,8 @@ namespace TrigCostRootAnalysis {
     UInt_t             m_ID; //!< ID number, sequential, used for random seed
     static UInt_t      s_chainCount; //!< Static counter of how many RatesChainItems have been made, used as random seed.
     EBBunchGroupType_t m_bunchGroupType; //!< If L1 chain, what bunch group I have been identified to. Used with EB weighting.
-    Double_t           m_lumiExtrapolationFactor; //!< What weighting factor do I need to extrapolate myself to the target lumi?
 
+    IntDoubleMap_t*    m_lumiExtrapolationMap; //!< Luminosity scaling varies per LB
 
     Bool_t        m_passRaw; //!< If this chain item passed in this event
     Bool_t        m_passPS; //!< If this chain item passed just the PS check in this event
@@ -118,6 +119,12 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates* m_proxy; //!< Only currently used by the "UNSEEDED" item, this exceptionally gets its weight from the L1 rates counter. m_proxy should point to this counter.
 
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
+
+    std::vector<Float_t> m_bufferJetRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferMuRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferEmRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferTauRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    Float_t              m_bufferMu;       //!< For upgrade rates, <mu> of the event
 
   }; // Class RatesChainItem
 

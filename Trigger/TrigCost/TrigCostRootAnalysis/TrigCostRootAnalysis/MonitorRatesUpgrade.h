@@ -45,8 +45,8 @@ namespace TrigCostRootAnalysis {
     ConfKey_t m_type; //!< RoI type specifier
     Float_t m_eta; //!< Eta coordinate of RoI
     Float_t m_phi; //!< Phi coordidate of RoI
-    Float_t m_et; //!< Energy/pT of RoI in counts
-    Float_t m_etLarge; //!< For jet RoIs, second energy type
+    mutable Float_t m_et; //!< Energy/pT of RoI in counts
+    mutable Float_t m_etLarge; //!< For jet RoIs, second energy type
     Int_t m_iso; //!< Isolation bits of RoI (5 bits, menu dependent)
     Int_t m_id; //!< Numeric ID 
   };
@@ -55,31 +55,76 @@ namespace TrigCostRootAnalysis {
   /**
    * @class TOBAccumulator
    * Holds multiple TOBs corresponding to a real event or a simulated high-pileup event with multiple event's worth of TOB overlay
-   * MET(HT) are re-calculated based on the vector(scalar) sums of energy TOBs (one per 'event').
+   * MET(TE) are re-calculated based on the vector(scalar) sums of energy TOBs (one per 'event').
    * TODO: Overlap removal?
    */
   class TOBAccumulator {
     std::set<TOB> m_TOBs; //!< List of TOBs in pseudo-event
     Float_t m_vX; //!< Vector energy in x axis
     Float_t m_vY; //!< Vector energy in y axis
-    Float_t m_HT; //!< Scalar total energy in GeV
+    Float_t m_TE; //!< Scalar total energy in GeV
+    Float_t m_vHX; //!< Vector HT in x
+    Float_t m_vHY; //!< Vector HT in y
+    Float_t m_HT; // Scalar HT
     Bool_t m_overflowMET;
-    Bool_t m_overflowHT;
+    Bool_t m_overflowTE;
+    Float_t m_mu;
    public:
-    TOBAccumulator() : m_vX(0), m_vY(0), m_HT(0), m_overflowMET(kFALSE), m_overflowHT(kFALSE) {}
-    Float_t HT() { return m_HT; }
+    TOBAccumulator() : m_vX(0), m_vY(0), m_TE(0), m_vHX(0), m_vHY(0), m_HT(0), m_overflowMET(kFALSE), m_overflowTE(kFALSE), m_mu(0.) {}
+    Float_t TE() { return m_TE; }
     Float_t vX() { return m_vX; }
     Float_t vY() { return m_vY; }
+    Float_t HT() { return m_HT; }
+    Float_t vHX() { return m_vHX; }
+    Float_t vHY() { return m_vHY; }
     Bool_t METOverflow() { return m_overflowMET; }
-    Bool_t HTOverflow() { return m_overflowHT; }
-    Float_t MET() { return TMath::Sqrt((m_vX * m_vX) + (m_vY * m_vY)); }
-    void set(Float_t _vX, Float_t _vY, Float_t _HT, Bool_t _ofX, Bool_t _ofY, Bool_t _ofHT) { 
-      m_vX = _vX; m_vY = _vY; m_HT = _HT; 
+    Bool_t TEOverflow() { return m_overflowTE; }
+    Float_t MET() { return TMath::Sqrt((m_vX  * m_vX)  + (m_vY  * m_vY)); }
+    Float_t MHT() { return TMath::Sqrt((m_vHX * m_vHX) + (m_vHY * m_vHY)); }
+    Float_t mu() { return m_mu; }
+    void set(Float_t _mu, Float_t _vX, Float_t _vY, Float_t _TE, Bool_t _ofX, Bool_t _ofY, Bool_t _ofTE) {
+      m_mu = _mu; 
+      m_vX = _vX; m_vY = _vY; m_TE = _TE; 
       m_overflowMET = (_ofX | _ofY);
-      m_overflowHT = _ofHT;
+      m_overflowTE = _ofTE;
     }
     std::set<TOB>& TOBs() { return m_TOBs; } 
-    void add(TOB _tob) { m_TOBs.insert( _tob ); }
+    void add(const TOB _tob) {  
+      static bool _merge = Config::config().getInt(kUpgradeMergeTOBOverlap);
+      if (_merge) {
+        checkMerge( _tob );
+      } else { 
+        m_TOBs.insert( _tob );
+      }
+      addToMHT(_tob); // merged or not - still count me in the HT if I'm a jet
+    }
+    void checkMerge(const TOB& _tob) {
+      bool _canMerge = false, _merged = false;
+      Float_t _minDR = 0.4;
+      if (_tob.m_type == kEmString || _tob.m_type == kTauString || _tob.m_type == kJetString) {
+        _canMerge = true; 
+        if (_tob.m_type == kJetString) _minDR = 0.6;
+      }
+
+      if (_canMerge) {
+        for (auto& _myTob : m_TOBs) {
+          if (_tob.m_type != _myTob.m_type) continue;
+          if (_tob.m_iso  != _myTob.m_iso) continue;
+          if (deltaR(_tob.m_phi, _myTob.m_phi, _tob.m_eta, _myTob.m_eta) > _minDR) continue;
+
+          // Same type, and close - merge
+          // I solemnly swear that I won't touch the weak ordering
+          //TOB* _nonConstTOB = const_cast<TOB*>(&_myTob);
+          _myTob.m_et += _tob.m_et;
+          _myTob.m_etLarge += _tob.m_etLarge;
+          _merged = true;
+          //if (Config::config().getDisplayMsg(kMsgTOBMerge) == kTRUE) Info("TOBAccumulator::checkMerge", "Merged %s TOBs", Config::config().getStr(_tob.m_type).c_str());
+          break;
+        }
+      }
+
+      if (!_merged) m_TOBs.insert( _tob );
+    }
     std::string print() {
       std::stringstream _ss;
       for (const auto& _tob : TOBs()) {
@@ -95,12 +140,24 @@ namespace TrigCostRootAnalysis {
      * Add another accumulator's TOBs and MET
      **/
     void add(const TOBAccumulator* _b) {
-      m_TOBs.insert( _b->m_TOBs.begin(), _b->m_TOBs.end() );
+      for (auto& _tob : _b->m_TOBs) add(_tob);
+      m_mu += _b->m_mu;
       m_vX += _b->m_vX;
       m_vY += _b->m_vY;
-      m_HT += _b->m_HT;
-      m_overflowHT |= _b->m_overflowHT;
+      m_TE += _b->m_TE;
+      m_overflowTE |= _b->m_overflowTE;
       m_overflowMET |= _b->m_overflowMET;
+    }
+    void addToMHT(const TOB& _tob) {
+      static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
+      if (_tob.m_type != kJetString) return;
+      if (TMath::Abs(_tob.m_eta) * 10 > 31) return; // eta too high
+      Float_t _et = _tob.m_et;
+      if (_largeJetWindow == kTRUE) _et = _tob.m_etLarge;
+      else Warning("TOBAccumulator::addMHT","Using small jet window size - really?");
+      m_vHX += _et * TMath::Cos( _tob.m_phi );
+      m_vHY += _et * TMath::Sin( _tob.m_phi );
+      m_HT += _et;
     }
   };
 
@@ -120,7 +177,7 @@ namespace TrigCostRootAnalysis {
   /**
    * @class TriggerLogic
    * Holds multiple TOBs corresponding to a real event or a simulated high-pileup event with multiple event's worth of TOB overlay
-   * MET(HT) are re-calculated based on the vector(scalar) sums of energy TOBs (one per 'event').
+   * MET(TE) are re-calculated based on the vector(scalar) sums of energy TOBs (one per 'event').
    * TODO: Overlap removal?
    */
   class TriggerLogic {
@@ -134,7 +191,9 @@ namespace TrigCostRootAnalysis {
       else if (_name == "TAU") _c.m_type = kTauString;
       else if (_name == "JET" || _name == "J") _c.m_type = kJetString;
       else if (_name == "XE")  _c.m_type = kMissingEnergyString;
-      else if (_name == "TE" || _name == "HT")  _c.m_type = kEnergyString;
+      else if (_name == "TE")  _c.m_type = kEnergyString;
+      else if (_name == "MHT")  _c.m_type = kMHTString;
+      else if (_name == "HT")  _c.m_type = kHTString;
       else Error("TriggerLogic::addAND", "Unknown TriggerCondition name %s", _name.c_str());
       _c.m_multi = _multi;
       _c.m_iso = _iso;
@@ -216,6 +275,7 @@ namespace TrigCostRootAnalysis {
     CounterBase* newCounter( const std::string &_name, Int_t _ID );
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
+    Float_t getCollidingBunchFactor() { return m_collidingBunchFactor; }
 
    private:
 
@@ -233,15 +293,15 @@ namespace TrigCostRootAnalysis {
     void validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print);
     void printEnergyTOBs();
 
-
     std::string m_scenario; //<! What scenario XML to load
     Bool_t m_upgradePileupScaling; //<! If we are doing two passes to do pileup scaling
     Bool_t m_upgradeBunchScaling; //<! If we are linearly scaling for more bunches
-
-
+    Bool_t m_doDeadtimeScaling; //!< If we are scaling for online deadtime 
+    
+    Int_t   m_targetPairedBunches; //!< How many colliding bunches we're scaling to
     Float_t m_collidingBunchFactor; //!< targetPairedBCID / EBPairedBCID, what fraction of bunches w.r.t. the EB data?
     Float_t m_pileupFactor; //<! targetPeakMuAv / EBPeakMuAv, how much more pileup do we want?
-    Float_t m_eventsToMix; //!< We can only mix an integer number of events, the floor of this.
+    Float_t m_collisionsToMix; //!< How many collisions we want to mix into this event
     Float_t m_upgradeDeadtimeScaling; //<! Scaling due to deadtime
 
     TRandom3 m_R3;
@@ -253,6 +313,12 @@ namespace TrigCostRootAnalysis {
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsL2;
     ChainItemMap_t m_chainItemsL3;
+
+    Float_t m_statsEventMu;
+    Float_t m_statsEventMu2;
+    Int_t   m_statsEventMuN;
+
+    TOBAccumulator* m_thisEventPtr;
 
     std::multiset<ChainInfo> m_upgradeChains; //<! Holds the set of chains to construct as read in from XML
     StringIntMap_t m_isoBits; //!< Holds isolation bit pattersn from the XML and assigns them names

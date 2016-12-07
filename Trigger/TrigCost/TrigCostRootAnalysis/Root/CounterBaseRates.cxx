@@ -46,14 +46,32 @@ namespace TrigCostRootAnalysis {
     m_doDirectPS(0),
     m_cachedWeight(0),
     m_alwaysDoExpressPS(kFALSE),
-    m_advancedLumiScaling(kTRUE),
     m_eventLumiExtrapolation(0.)
   {
 
-      if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
+      if (m_detailLevel == 0) {
+        m_dataStore.setHistogramming(kFALSE);
+        m_disableEventLumiExtrapolation = kFALSE;
+      } else { // this is UPGRADE RATES MODE
+        m_dataStore.newVariable(kVarJetEta).setSavePerCall("Jet ROI #eta Distribution;#eta;ROIs");
+        m_dataStore.newVariable(kVarMuEta).setSavePerCall("Muon ROI #eta Distribution;#eta;ROIs");
+        m_dataStore.newVariable(kVarEmEta).setSavePerCall("Electron ROI #eta Distribution;#eta;ROIs");
+        m_dataStore.newVariable(kVarTauEta).setSavePerCall("Tau ROI #eta Distribution;#eta;ROIs");
+
+        m_dataStore.newVariable(kVarJetNThresh).setSavePerEvent("Jet ROI N Pass Threshold;N RoIs;Events");
+        m_dataStore.newVariable(kVarMuNThresh).setSavePerEvent("Muon ROI N Pass Threshold;N RoIs;Events");
+        m_dataStore.newVariable(kVarEmNThresh).setSavePerEvent("Electron ROI N Pass Threshold;N RoIs;Events");
+        m_dataStore.newVariable(kVarTauNThresh).setSavePerEvent("Tau ROI N Pass Threshold;N RoIs;Events");
+
+        m_dataStore.newVariable(kVarMu).setSavePerEvent("Obtained <mu> Profile;<mu>;Events");
+        m_dataStore.newVariable(kVarBunchWeight).setSavePerEvent("Number of Bunch Extrapolation;Bunch Weight;Events");
+
+
+        m_disableEventLumiExtrapolation = kTRUE;
+      }
+
       m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
       m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales);
-      m_advancedLumiScaling = Config::config().getInt(kDoAdvancedLumiScaling);
       decorate(kDecDoExpressChain, 0); // this will be overwritten as needed
 
       if (m_doDirectPS == kTRUE) m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
@@ -68,6 +86,7 @@ namespace TrigCostRootAnalysis {
 
       if (_name == Config::config().getStr(kRateExpressString)) m_alwaysDoExpressPS = kTRUE;
       //m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerCall("Rate Per Lumi Block;Lumi Block;Rate [Hz]");
+
   }
 
   /**
@@ -106,26 +125,29 @@ namespace TrigCostRootAnalysis {
 
     // WEIGHTED Prescale
     Double_t _weightPS = runWeight(m_alwaysDoExpressPS); // alwaysDoExpressPS is *only* for the express group
-    Double_t _weightLumi = m_advancedLumiScaling == kTRUE ? m_eventLumiExtrapolation : 1.; // This is calculated by runWeight()
+    //m_eventLumiExtrapolation is calculated by runWeight()
+    if (m_disableEventLumiExtrapolation) m_eventLumiExtrapolation = 1;
+
     if (!isZero( _weightPS )) {
-      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
+      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
+      if (m_detailLevel > 0 && m_L1s.size() == 1) (**m_L1s.begin()).fillHistograms(m_dataStore, _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS, static_cast<MonitorRatesUpgrade*>(m_parent)->getCollidingBunchFactor());
     }
 
     // DIRECT Prescale
     if (m_doDirectPS == kTRUE) {
       Float_t _weightDirect = runDirect();
-      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * _weightLumi * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
+      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * m_eventLumiExtrapolation * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
     }
 
     if (getIntDecoration(kDecDoExpressChain) == 1) {
       Double_t _weightPSExpress = runWeight(/*doExpress =*/ kTRUE);
-      if (!isZero( _weightPSExpress )) m_dataStore.store(kVarEventsPassedExpress, 1., _weightPSExpress * _weight * _weightLumi * _scaleByPS); 
+      if (!isZero( _weightPSExpress )) m_dataStore.store(kVarEventsPassedExpress, 1., _weightPSExpress * _weight * m_eventLumiExtrapolation * _scaleByPS); 
     }
 
     Float_t _passBeforePS = runDirect(/*usePrescales =*/ kFALSE);
-    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * _weightLumi * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
-    m_dataStore.store(kVarEventsRun, 1., _weight * _weightLumi * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
+    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * m_eventLumiExtrapolation * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
+    m_dataStore.store(kVarEventsRun, 1., _weight * m_eventLumiExtrapolation * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
     m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
     m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
 
@@ -146,7 +168,8 @@ namespace TrigCostRootAnalysis {
    */
   void CounterBaseRates::endEvent(Float_t _weight) {
     UNUSED(_weight);
-    Error("CounterBaseRates::endEvent","Not expected to call this for a rates counter");
+    if (m_detailLevel == 0) Error("CounterBaseRates::endEvent","Not expected to call this for a rates counter with detail level = 0 (no histograms)");
+    m_dataStore.endEvent();
   }
 
   /**
@@ -251,7 +274,7 @@ namespace TrigCostRootAnalysis {
           static std::set<std::string> _toWarnAbout;
           if (_toWarnAbout.count(_toAdd->getName()) == 0) {
             _toWarnAbout.insert(_toAdd->getName());
-            Warning("CounterBaseRates::checkMultiSeed","Not including %s in RATE_GLOBAL/ESPRESS/UNIQUE calculations due to %u L1 seeds.",
+            Warning("CounterBaseRates::checkMultiSeed","Not including %s in RATE_GLOBAL/EXSPRESS/UNIQUE calculations due to %u L1 seeds.",
               _toAdd->getName().c_str(), (UInt_t) _toAdd->getLower().size());
           }
           return kFALSE;

@@ -66,7 +66,8 @@ namespace TrigCostRootAnalysis {
           // This lets the counter know it should ask its parent for the full set of ROBINs to collate
           if (_counter->getCalls() == 0) {
             _counter->decorate(kDecType, Config::config().getStr(kROSString));
-            _counter->decorate(kDecMyROS, (*_reqIt).first);
+	    _counter->decorate(kDecMyROS, (*_reqIt).first);
+            
           }
           _counter->processEventCounter( _robReq, UINT_MAX /*not used*/, _weight );
         }

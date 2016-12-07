@@ -33,7 +33,7 @@ namespace TrigCostRootAnalysis {
     m_level(_level),
     m_PS(_PS), // Integer prescale
     m_PSWeight(1./m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
-    m_PSReduced(1.), 
+    m_PSReduced(1.),  
     m_PSReducedWeight(1.),
     m_PSExpress(_PSExpress),
     m_PSExpressWeight(1./_PSExpress),
@@ -41,7 +41,7 @@ namespace TrigCostRootAnalysis {
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
     m_bunchGroupType(kBG_UNSET),
-    m_lumiExtrapolationFactor(0.),
+    m_lumiExtrapolationMap(nullptr),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
     m_inEvent(kFALSE),
@@ -50,7 +50,8 @@ namespace TrigCostRootAnalysis {
     m_advancedLumiScaling(kFALSE),
     m_iAmRandom(kFALSE),
     m_triggerLogic(nullptr),
-    m_proxy(nullptr)
+    m_proxy(nullptr),
+    m_bufferMu(0)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -127,57 +128,57 @@ namespace TrigCostRootAnalysis {
 
     if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
 
-      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear
+      m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorLinear); // Linear (including deadtime)
       
     } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
 
-      if (checkPatternNoLumiWeight(getName())) { // SPECIAL CASE #1
+      Bool_t _specialCase1 = kFALSE, _specialCase3 = kFALSE;
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+      if      (m_iAmRandom == kTRUE && m_level == 1) _specialCase1 = kTRUE;
+      else if (m_iAmRandom == kTRUE && m_level >  1) _specialCase3 = kTRUE;
+
+      if (checkPatternNoLumiWeight(getName()) || _specialCase1) { // SPECIAL CASE #1
+
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorDeadtimeOnly);
         Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
 
       } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent);
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorBunchOnly);
         Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
 
-      } else if (checkPatternNoBunchLumiWeight(getName())) { // SPECIAL CASE #3
+      } else if (checkPatternNoBunchLumiWeight(getName()) || _specialCase3) { // SPECIAL CASE #3
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorMuOnly);
         Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
 
-      } else if (m_iAmRandom == kTRUE && m_level == 1) {
+      } else if (checkPatternExponentialWithMu(getName())) { // SPECIAL CASE #4
 
-        // No extrapolation... except for the deadtime fraction. Still want this.
-        // Same as special case #1
-        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
-
-      } else if (m_iAmRandom == kTRUE && m_level > 1) {
-
-        // Only <mu> based extrapolation. Putting in the deadtime fraction too
-        // Same as special case #3
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        if (m_level == 1) { // We allow for different slopes at L1 and HLT
+          m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorExpoL1);
+        } else {
+          m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorExpoHLT);
+        }
+        Config::config().addVecEntry(kListOfExpoMuLumiWeightChains, getName());
 
       } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
 
         // For empty BG, we scale with the *inverse* number of bunches, i.e. more bunches is less empty hence less empty rate
         // Fist empty is a bit of a fudge - assumes that NBunch is proportional to NTrain
-        m_lumiExtrapolationFactor = Config::config().getFloat(kEmptyBunchgroupExtrapolaion); // No extra deadtime factor here (not physics item).
+        // No deadtime correction here
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorEmpty);
 
       } else if (m_bunchGroupType == kBG_UNPAIRED_ISO || m_bunchGroupType == kBG_UNPAIRED_NONISO || 
                  m_bunchGroupType == kBG_ABORTGAPNOTCALIB || m_bunchGroupType == kBG_CALREQ) {
 
         // We have no idea how the UNPAIRED items will change in the prediction - for now, zero extrapolation
         // Abort gap and calreq are always the same so again, no extrap here
-        m_lumiExtrapolationFactor = 1.; // No extra deadtime factor here (not physics item).
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorUnity);
 
       } else {
 
         // The vast majority of chains will get this. This already includes the deadtime weight
-        m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorLinear);
 
       }
     }
@@ -186,9 +187,12 @@ namespace TrigCostRootAnalysis {
   /**
    * @return What this item needs to be scaled by to extrapolate its lumi to the target
    * @see RatesChainItem::classifyRandom
+   * @param _lb The Lumi Block to return the extrapolation weight for
+   * @param _disableEventLumiExtrapolation if extrapolation is disabled e.g. for UpgradeRatesMonitor which does this via overlay
    */
-  Double_t RatesChainItem::getLumiExtrapolationFactor() {
-    return m_lumiExtrapolationFactor;
+  Double_t RatesChainItem::getLumiExtrapolationFactor(UInt_t _lb, Bool_t _disableEventLumiExtrapolation) {
+    if (_disableEventLumiExtrapolation) return 1.;
+    return m_lumiExtrapolationMap->at(_lb); //  Simple. One number per run | Advanced. Different strategies per chain, varying per lumi block
   }
 
   /**
@@ -382,6 +386,17 @@ namespace TrigCostRootAnalysis {
     m_inEvent = kTRUE;
     static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
 
+    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
+    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
+      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
+        m_passRaw = kFALSE;
+        m_inEvent = kFALSE;
+        return;
+      }
+    }
+
+    m_bufferMu = _eventTOBs->mu();
+
     // Loop over logic
     m_passRaw = kTRUE; // Assume we passed, see if we didn't
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
@@ -392,7 +407,17 @@ namespace TrigCostRootAnalysis {
           break;
         } 
       } else if (_condition.m_type == kEnergyString) {
-        if (_eventTOBs->HTOverflow() == kFALSE && _eventTOBs->HT() <= _condition.m_thresh) {
+        if (_eventTOBs->TEOverflow() == kFALSE && _eventTOBs->TE() <= _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break; 
+        }
+      } else if (_condition.m_type == kHTString) {
+        if (_eventTOBs->HT() <= _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break;
+        } 
+      } else if (_condition.m_type == kMHTString) {
+        if (_eventTOBs->MHT() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break; 
         }
@@ -400,7 +425,7 @@ namespace TrigCostRootAnalysis {
 
         UInt_t _tobsPassingCondition = 0;
         for (const auto& _tob : _eventTOBs->TOBs() ) {
-          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.)
+          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.). Don't discriminate on this one
           Float_t _et = _tob.m_et;
           if (_tob.m_type == kJetString && _largeJetWindow == kTRUE) _et = _tob.m_etLarge;
           // Energy too low ?
@@ -421,7 +446,12 @@ namespace TrigCostRootAnalysis {
             if (_pass == kFALSE) continue; // A required isolation bit was not found
           }
           ++_tobsPassingCondition; // All requirements met
-          if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
+          // Histogram
+          if (_tob.m_type == kJetString) m_bufferJetRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kMuonString) m_bufferMuRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kEmString) m_bufferEmRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kTauString) m_bufferTauRoIEta.push_back(_tob.m_eta);
+          //if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
         }
         if (_tobsPassingCondition < _condition.m_multi) {
           m_passRaw = kFALSE; // A condition was not satisfied :( all must be satisfied. We cannot accept this event.
@@ -431,15 +461,25 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f HT is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->HT());
+    //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f TE is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->TE());
+  }
 
-    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
-    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
-      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
-        m_passRaw = kFALSE;
-        m_inEvent = kFALSE;
-      }
-    }
+  /**
+   * Used in Upgrade Rates mode - we plot the eta distribution of the thresholds we pass and the multiplicity
+   */
+  void RatesChainItem::fillHistograms(DataStore& _dataStore, Float_t _weight, Float_t _bunchWeight) {
+    for (const Float_t _value : m_bufferJetRoIEta) _dataStore.store(kVarJetEta, _value, _weight);
+    for (const Float_t _value : m_bufferMuRoIEta)  _dataStore.store(kVarMuEta, _value, _weight);
+    for (const Float_t _value : m_bufferEmRoIEta)  _dataStore.store(kVarEmEta, _value, _weight);
+    for (const Float_t _value : m_bufferTauRoIEta) _dataStore.store(kVarTauEta, _value, _weight);
+
+    if (m_bufferJetRoIEta.size() > 0) _dataStore.store(kVarJetNThresh, m_bufferJetRoIEta.size(), _weight);
+    if (m_bufferMuRoIEta.size() > 0)  _dataStore.store(kVarMuNThresh, m_bufferMuRoIEta.size() , _weight);
+    if (m_bufferEmRoIEta.size() > 0)  _dataStore.store(kVarEmNThresh, m_bufferEmRoIEta.size() , _weight);
+    if (m_bufferTauRoIEta.size() > 0) _dataStore.store(kVarTauNThresh, m_bufferTauRoIEta.size(), _weight);
+
+    _dataStore.store(kVarMu, m_bufferMu, _weight);
+    _dataStore.store(kVarBunchWeight, _bunchWeight, _weight); // What part of the extrapolation was explicitly due to change in number of bunches
   }
 
 
@@ -450,6 +490,11 @@ namespace TrigCostRootAnalysis {
     m_passRaw = kFALSE;
     m_passPS = kFALSE;
     m_inEvent = kFALSE;
+
+    m_bufferJetRoIEta.clear();
+    m_bufferMuRoIEta.clear();
+    m_bufferEmRoIEta.clear();
+    m_bufferTauRoIEta.clear();
   }
 
   /**
