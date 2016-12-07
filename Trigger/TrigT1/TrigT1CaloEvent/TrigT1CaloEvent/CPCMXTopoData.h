@@ -53,13 +53,20 @@ namespace LVL1 {
    void setOverflow( bool overflow );
 
   private:
+   /** @brief count whether any transmission CPM -> CMX had too many TOBs
+
+       In which case toggle m_cpm_overflow
+    */
+    CPCMXTopoData& checkCpmOverflow();
     /** Data members */
     int m_crate;                             
     int m_cmx;
-    bool m_overflow;
+    bool m_overflow; ///< overflow on CMX -> L1Topo transmission
+    bool m_cpm_overflow; ///< overflow on CPM -> CMX transmission
     std::vector< uint32_t > m_tobWords;
     
     static const unsigned int s_maxTOBsPerLink = 30;
+    static const unsigned int s_maxTOBsPerCpm = 5; ///< as specified in BackplaneFormats_v3.xlsx
 
   }; // class CPCMXTopoData
 

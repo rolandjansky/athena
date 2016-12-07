@@ -51,12 +51,19 @@ namespace LVL1 {
    void setOverflow( bool overflow );
 
   private:
+    /** @brief count whether any transmission JEM -> CMX had too many TOBs
+
+       In which case toggle m_jem_overflow
+    */
+   JetCMXTopoData& checkJemOverflow();
     /** Data members */
     int m_crate;
-    bool m_overflow;
+    bool m_overflow; ///< overflow on CMX -> L1Topo transmission
+    bool m_jem_overflow; ///< overflow on JEM -> CMX transmission
     std::vector< uint32_t > m_tobWords;              
     
     static const unsigned int s_maxTOBsPerLink = 32;
+    static const unsigned int s_maxTOBsPerJem = 4; ///< as specified in BackplaneFormats_v3.xlsx
 
   }; // class JetCMXTopoData
 
