@@ -1,6 +1,24 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigMonitorBase.TrigMonitorBaseConf import TrigGenericMonitoringTool
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigGenericMonitoringToolConfig.py')
+
+#
+# For now, we use the thread-safe monitoring tool only if needed
+# Import the correct one and alias it as "TrigGenericMonitoringTool"
+#
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+if jp.ConcurrencyFlags.NumThreads()==0:
+    from TrigMonitorBase.TrigMonitorBaseConf import \
+        TrigGenericMonitoringTool_NoMutex_IMonitoredAlgo__IGetterp_ \
+        as TrigGenericMonitoringTool
+    log.info("Using regular TrigGenericMonitoringTool")
+else:
+    from TrigMonitorBase.TrigMonitorBaseConf import \
+        TrigGenericMonitoringTool_std__mutex_ContextGetter_IMonitoredAlgo__IGetter_s_ \
+        as TrigGenericMonitoringTool
+    log.info("Using thread-safe TrigGenericMonitoringTool")
+
 
 def defineHistogram(varname, type='TH1F', path='EXPERT',
                     title='Unspecified_title_for_the_histogram_is_truly_annoying,_because_this_default_is_long;unspecified_label;unspecified_label',

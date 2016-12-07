@@ -21,12 +21,12 @@
 TrigMonitorToolBase::TrigMonitorToolBase(const std::string & type, 
 					 const std::string & name,
 					 const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_histSvc("THistSvc", name), // there is somthing fish
     m_execs(0),
     m_lbnHistoryDepth(0)
 {
-  declareInterface<IMonitorToolBase>(this);
+  //  declareInterface<IMonitorToolBase>(this);
   declareProperty("Scaler", m_prescale=1, "Defines how often call the tool");
   declareProperty("LBNHistoryDepth", m_lbnHistoryDepth=2, "Defines after how many LBNs we should drop histogram");
   declareProperty("LBNHistoryGroup", m_lbnHistoryGroup=1, "Defines how many LBNs we should be grouped together in the histogram");
@@ -80,6 +80,7 @@ bool TrigMonitorToolBase::preSelector() {
   return true;
 }
 
+
 /////////////////////////////////////////////////////////////////////////
 // code form monitoring group
 // 
@@ -108,7 +109,6 @@ StatusCode TrigMonitorToolBase::TrigMonGroup::regHist(ITrigLBNHist* h) {
 StatusCode TrigMonitorToolBase::TrigMonGroup::deregHist(TH1* h) {
   return m_tool->m_histSvc->deReg(h);
 }
-
 
 
 
