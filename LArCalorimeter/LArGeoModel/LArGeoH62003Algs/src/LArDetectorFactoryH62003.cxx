@@ -90,21 +90,21 @@ void LArGeo::LArDetectorFactoryH62003::create( GeoPhysVol* a_container )
   {
     StoredPhysVol *fcal1,*fcal2, *fcal3;
     if (StatusCode::SUCCESS!=detStore->retrieve(fcal1,"FCAL1_NEG")) {
-      log << MSG::WARNING << "No volume created for FCAL 1 Neg" << endreq;
+      log << MSG::WARNING << "No volume created for FCAL 1 Neg" << endmsg;
     }
     else {
       FCALModule *detDescr = new FCALModule(fcal1->getPhysVol(),FCALModule::FCAL1,FCALModule::NEG);
       fcalDetectorManager->addModule(detDescr);
     }
     if (StatusCode::SUCCESS!=detStore->retrieve(fcal2,"FCAL2_NEG")) {
-      log << MSG::WARNING << "No volume created for FCAL 2 Neg" << endreq;
+      log << MSG::WARNING << "No volume created for FCAL 2 Neg" << endmsg;
     }
     else {
       FCALModule *detDescr = new FCALModule(fcal2->getPhysVol(),FCALModule::FCAL2,FCALModule::NEG);
       fcalDetectorManager->addModule(detDescr);
     }
     if (StatusCode::SUCCESS!=detStore->retrieve(fcal3,"FCAL3_NEG")) {
-      log << MSG::WARNING << "No volume created for FCAL 3 Neg" << endreq;
+      log << MSG::WARNING << "No volume created for FCAL 3 Neg" << endmsg;
     }
     else {
       FCALModule *detDescr = new FCALModule(fcal3->getPhysVol(),FCALModule::FCAL3,FCALModule::NEG);
