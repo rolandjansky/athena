@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/foreach.hpp>
 #include <cmath>
 
@@ -23,6 +22,8 @@
 #include "TH2I.h"
 #include "TH2F.h"
 #include "TH2D.h"
+#include "TProfile2D.h"
+
 namespace AllTrigLBNHists {
   static std::set<ITrigLBNHist*> s_lbnHistograms;
 }
@@ -114,14 +115,6 @@ Int_t TrigLBNHist<HTYPE>::Fill( Double_t x) {
   return 1;
 }
 
-
-
-
-
-
-
-
-
 template<class HTYPE> 
 Int_t TrigLBNHist<HTYPE>::Fill( const char* x, Double_t y ) {
   HTYPE::Fill(x, y);
@@ -164,22 +157,59 @@ struct fill_xyw<HTYPE, false>
 
 
 template<class HTYPE> 
-Int_t TrigLBNHist<HTYPE>::Fill(Double_t x, Double_t y, Double_t w) {
-  if ( boost::is_base_of<TH2, HTYPE>::value ) {
-    //    cerr << "will do 2D through fill_xyw" << endl;
-    
-    HTYPE *theHis = fetchHist();
-    if(theHis == 0)
-      return 0;
+Int_t TrigLBNHist<HTYPE>::Fill(Double_t x, Double_t y, Double_t w) 
+{   
+  HTYPE *theHis = fetchHist();
+  if(theHis == 0)
+    return 0;
+  if( boost::is_base_of<TH2, HTYPE>::value ){
     fill_xyw<HTYPE, boost::is_base_of<TH2, HTYPE>::value>::do_it(theHis, x, y, w);  
-    fill_xyw<HTYPE, boost::is_base_of<TH2, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);  
-    return 1;
+    fill_xyw<HTYPE, boost::is_base_of<TH2, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);
+  } else if ( boost::is_same<TProfile, HTYPE>::value ) {
+    fill_xyw<HTYPE, boost::is_same<TProfile, HTYPE>::value>::do_it(theHis, x, y, w);
+    fill_xyw<HTYPE, boost::is_same<TProfile, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);
+  } else if ( boost::is_same<TProfile2D, HTYPE>::value ) {
+    fill_xyw<HTYPE, boost::is_same<TProfile2D, HTYPE>::value>::do_it(theHis, x, y, w);
+    fill_xyw<HTYPE, boost::is_same<TProfile2D, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);    
+  } else {
+    return -1;  
   }
-  return -1;
+  return 1;
 }
 
 
+// variant of 2D histogram Fill - needed for 2dProfile
 
+template<class HTYPE, bool> struct fill_xyzw;
+
+template<class HTYPE> 
+struct fill_xyzw<HTYPE, true>
+{
+  static Int_t do_it(HTYPE* h, Double_t x, Double_t y, Double_t z, Double_t w) { return h->HTYPE::Fill(x,y,z,w); }
+}; 
+
+template<class HTYPE> 
+struct fill_xyzw<HTYPE, false>
+{
+  static Int_t do_it(HTYPE* , Double_t , Double_t , Double_t, Double_t ) { return -1; }
+}; 
+
+
+
+template<class HTYPE> 
+Int_t TrigLBNHist<HTYPE>::Fill(Double_t x, Double_t y, Double_t z, Double_t w) 
+{   
+  HTYPE *theHis = fetchHist();
+  if(theHis == 0)
+    return 0;
+  if ( boost::is_same<TProfile2D, HTYPE>::value ) {
+    fill_xyzw<HTYPE, boost::is_same<TProfile2D, HTYPE>::value>::do_it(theHis, x, y, z, w);
+    fill_xyzw<HTYPE, boost::is_same<TProfile2D, HTYPE>::value>::do_it((HTYPE*)this, x, y, z, w);    
+  } else {
+    return -1;  
+  }
+  return 1;
+}
 
 // another variant of 2D histogram Fill
 
@@ -213,7 +243,7 @@ Int_t TrigLBNHist<HTYPE>::Fill(Double_t x, const char* y, Double_t w) {
   return -1;
 }
 
-// another varain of 2D Fill
+// another variant of 2D Fill
 
 template<class HTYPE, bool> struct fill_namexyw;
 
@@ -231,17 +261,22 @@ struct fill_namexyw<HTYPE, false>
 
 
 template<class HTYPE> 
-Int_t TrigLBNHist<HTYPE>::Fill(const char* x, Double_t y, Double_t w) {
-  if ( boost::is_base_of<TH2, HTYPE>::value ) {
-    //    cerr << "will do 2D through fill_namexyw" << endl;
-    HTYPE *theHis = fetchHist();
-    if(theHis == 0)
-      return 0;
+Int_t TrigLBNHist<HTYPE>::Fill(const char* x, Double_t y, Double_t w) 
+{
+  HTYPE *theHis = fetchHist();
+  if(theHis == 0)
+    return 0;
+  
+  if ( boost::is_base_of<TH2, HTYPE>::value ) {  
     fill_namexyw<HTYPE, boost::is_base_of<TH2, HTYPE>::value>::do_it(theHis, x, y, w);  
     fill_namexyw<HTYPE, boost::is_base_of<TH2, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);  
-    return 1;
+  } else if ( boost::is_same<TProfile, HTYPE>::value ) {  
+    fill_namexyw<HTYPE, boost::is_base_of<TProfile, HTYPE>::value>::do_it(theHis, x, y, w);  
+    fill_namexyw<HTYPE, boost::is_base_of<TProfile, HTYPE>::value>::do_it((HTYPE*)this, x, y, w);  
+  } else {
+    return -1;
   }
-  return -1;
+  return 1;
 }
 
 
@@ -506,8 +541,12 @@ template <> Int_t TrigLBNHist<TH2F>::Fill(Double_t) { return -1; }
 template <> Int_t TrigLBNHist<TH2F>::Fill(const char*, Double_t) { return -1; }
 template <> Int_t TrigLBNHist<TH2D>::Fill(Double_t) { return -1; }
 template <> Int_t TrigLBNHist<TH2D>::Fill(const char*, Double_t) { return -1; } 
+template <> Int_t TrigLBNHist<TProfile2D>::Fill(Double_t) { return -1; }
+template <> Int_t TrigLBNHist<TProfile2D>::Fill(const char*, Double_t) { return -1; }
+template <> Int_t TrigLBNHist<TProfile2D>::Fill(Double_t, Double_t) { return -1; }
 
 template class TrigLBNHist<TH2I>;
 template class TrigLBNHist<TH2F>;
 template class TrigLBNHist<TH2D>;
+template class TrigLBNHist<TProfile2D>;
 
