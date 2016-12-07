@@ -1,0 +1,10 @@
+<lcgdict>
+  <!-- MN: adding coral::Attribute classes for ROOT6 -->
+  <class name="coral::Attribute" />
+  <!-- Selected via an iterator typedef from the patterns below.
+       <class name="coral::AttributeList" / -->
+  <class name="coral::AttributeList::iterator" />
+  <class name="coral::AttributeListSpecification" />
+  <class name="coral::AttributeSpecification" />
+
+</lcgdict>

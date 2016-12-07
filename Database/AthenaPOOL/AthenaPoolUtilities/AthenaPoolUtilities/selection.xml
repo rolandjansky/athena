@@ -6,14 +6,6 @@
   <class name="AthenaAttributeSpecification" />
   <class name="AthenaAttributeType" />
 
-  <!-- MN: adding coral::Attribute classes for ROOT6 -->
-  <class name="coral::Attribute" />
-  <!-- Selected via an iterator typedef from the patterns below.
-       <class name="coral::AttributeList" / -->
-  <class name="coral::AttributeList::iterator" />
-  <class name="coral::AttributeListSpecification" />
-  <class name="coral::AttributeSpecification" />
-
   <class name="CondMultChanCollImpl" id="1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA" >
     <field name="m_attrListColl" transient="true" />
     <!-- write out the IOVs
@@ -49,6 +41,7 @@
   <class name="std::vector<TPCnvToken_p1>" />
   <class name="TPCnvTokenList_p1" />
   <exclusion>
+    <class name="coral::AttributeList" />
     <class pattern="*iterator<const*AttributeList*::value_type"/>
     <class pattern="*iterator<const*AttributeList*::iterator_category"/>
     <class pattern="*iterator_category*"/>

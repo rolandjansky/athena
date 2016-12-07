@@ -61,7 +61,8 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
-from PyDumper.Dumpers import get_dumper_fct
+if not globals().has_key('get_dumper_fct'):
+    from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 class Dumper (PyAthena.Alg):
     def __init__ (self, name):

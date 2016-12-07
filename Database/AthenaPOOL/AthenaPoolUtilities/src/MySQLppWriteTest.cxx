@@ -96,15 +96,15 @@ int main( int argc, const char* argv[] )
     for (unsigned int i=1; i<=numRows; i++)
     {
       std::sprintf(countStr, "%u", i);
-      std::sprintf(boolStr, "%i", i%2);
-      std::sprintf(smallIntStr, "%i", i+1);
-      std::sprintf(intStr, "%i", i+2);
-      std::sprintf(bigIntStr, "%i", i+3);
-      std::sprintf(smallUIntStr, "%i", i+4);
-      std::sprintf(uIntStr, "%i", i+5);
-      std::sprintf(bigUIntStr, "%i", i+6);
-      std::sprintf(floatStr, "%d", i+7);
-      std::sprintf(doubleStr, "%d", i+8);
+      std::sprintf(boolStr, "%u", i%2);
+      std::sprintf(smallIntStr, "%u", i+1);
+      std::sprintf(intStr, "%u", i+2);
+      std::sprintf(bigIntStr, "%u", i+3);
+      std::sprintf(smallUIntStr, "%u", i+4);
+      std::sprintf(uIntStr, "%u", i+5);
+      std::sprintf(bigUIntStr, "%u", i+6);
+      std::sprintf(floatStr, "%u", i+7);
+      std::sprintf(doubleStr, "%u", i+8);
       testStr = "TestString" + std::string(countStr);
 
       values = "";

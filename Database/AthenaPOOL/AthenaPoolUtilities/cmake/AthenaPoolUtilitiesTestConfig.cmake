@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: AthenaPoolUtilitiesTestConfig.cmake 749558 2016-05-25 04:38:23Z krasznaa $
+# $Id: AthenaPoolUtilitiesTestConfig.cmake 780067 2016-10-24 14:39:09Z krasznaa $
 # @file AthenaPoolUtilities/share/AthenaPoolUtilitiesTestConfig.make
 # @author sss
 # @date May, 2016
@@ -19,8 +19,10 @@ function( run_tpcnv_test testName refName )
 
    # Find the test runner script:
    find_file( _testSkel run_tpcnv_test.sh.in
-      PATH_SUFFIXES scripts share
-      PATHS ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR} )
+      PATH_SUFFIXES share scripts
+      PATHS ${AthenaPoolUtilitiesTest_DIR}/..
+      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/cmake/modules
+      ${CMAKE_MODULE_PATH} )
    if( NOT _testSkel )
       message( WARNING "Couldn't find run_tpcnv_test.sh.in" )
       return()
