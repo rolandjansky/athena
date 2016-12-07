@@ -13,12 +13,17 @@
 # Release 21 Update
 # Remove Run1 selectors
 # Remove unused selectors
+# 21.0.12 -- Use TrigEgammaFlags to control version
+# Future plans:
+# Move all tools into TrigEgammaRec 
+# Ensure consistent initialize of Pid Tools in menu or in ToolFactories
+
 from PATCore.HelperUtils import *
 from AthenaCommon import CfgMgr
 
 import sys
 import cppyy
-
+import logging
 cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 from ROOT import egammaPID
@@ -33,8 +38,11 @@ from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import Configu
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
+mlog = logging.getLogger ('TrigEgammaPidTools')
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/rel21_20161021/"
+from TrigEgammaRec.TrigEgammaFlags import jobproperties
+mlog.info("TrigEgammaPidTools version %s"%jobproperties.TrigEgammaFlags.pidVersion())
+ConfigFilePath = jobproperties.TrigEgammaFlags.pidVersion() 
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
@@ -225,4 +233,4 @@ def PhotonPidTools():
         tool.isEMMask = PhotonIsEMBits[key]
         tool.ForceConvertedPhotonPID = True
         addToToolSvc( tool )
-
+del mlog
