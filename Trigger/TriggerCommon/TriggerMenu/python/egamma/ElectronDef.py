@@ -18,8 +18,9 @@ from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
                                            TrigCaloTowerMaker_eGamma,
-                                           TrigCaloClusterMaker_slw,
                                            TrigCaloCellMaker_eGamma_cells)
+
+from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)

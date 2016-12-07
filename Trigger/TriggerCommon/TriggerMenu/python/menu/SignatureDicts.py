@@ -87,7 +87,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm800',
                     'invm1000']
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
-AllowedTopos_comb = ['taumass', 'dr05', 'dz02', 'dz00']
+AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 

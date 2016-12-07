@@ -439,6 +439,7 @@ def defineMenu():
         #'L1_EM15VH_J15.23ETA49',
 #        'L1_EM15VH_JJ15.23ETA49',
         'L1_EM13VH_3J20',
+        'L1_EM18VH_3J20',
 
         # combined mu - jet
         'L1_MU4_J12',  'L1_MU4_J50_XE40', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
@@ -1055,6 +1056,7 @@ def defineMenu():
 
         'L1_DPHI-AJ20s2XE50' : 171,
         'L1_EM13VH_3J20' : 172,
+        'L1_EM18VH_3J20' : 295,
         'L1_MU10_3J20' : 173,
 
         'L1_2J50_XE40' : 175,

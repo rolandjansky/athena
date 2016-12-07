@@ -19,8 +19,9 @@ from TriggerMenu.menu.CleanMonitoring import *
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
 
-from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
+from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo, TrigCaloClusterMaker_topo
+from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
 from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
 from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All, TrigEFCaloHypo_EtCut, TrigEFCaloHypo_g_ID
 from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_EtCut, EFPhotonHypo_g_ID_CaloOnly, EFPhotonHypo_g_NoCut, EFPhotonHypo_g_ID_CaloOnly_Iso

@@ -23,8 +23,8 @@ try:
 
     from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
                                             TrigCaloTowerMaker_eGamma,
-                                            TrigCaloClusterMaker_slw,
                                             TrigCaloCellMaker_eGamma_cells)
+    from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
     
     # import BadImportWillFail
 except Exception, e:
