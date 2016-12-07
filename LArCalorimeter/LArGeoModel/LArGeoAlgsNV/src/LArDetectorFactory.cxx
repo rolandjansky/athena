@@ -27,7 +27,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
@@ -119,17 +118,13 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	throw std::runtime_error("Error in LArDetectorFactory, cannot access Material Manager");
       }
   
-      IGeoModelSvc *geoModel;
       IRDBAccessSvc* rdbAccess;
 
-      if(svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
-	throw std::runtime_error("Error in LArDetectorFactoryNV, cannot access GeoModelSvc");
-    
       if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
 	throw std::runtime_error("Error in BarrelCryostatConstruction, cannot access RDBAccessSvc");
     
-      DecodeVersionKey larVersionKey(geoModel, "LAr");
-      log << MSG::DEBUG << "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endreq;
+      DecodeVersionKey larVersionKey("LAr");
+      log << MSG::DEBUG << "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endmsg;
     
       IRDBRecordset_ptr larPosition =  rdbAccess->getRecordsetPtr("LArPosition",larVersionKey.tag(),larVersionKey.node());
 
@@ -351,12 +346,12 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  }
 	}
 	else
-	  log << MSG::DEBUG << " No Stored PV for " << fcalModName[e][m] << " in Detector Store" << endreq;
+	  log << MSG::DEBUG << " No Stored PV for " << fcalModName[e][m] << " in Detector Store" << endmsg;
       }
     }
   }
   catch (std::exception & ex) {
-   log << MSG::WARNING << "Unable to build FCAL detector manager. " << ex.what() << endreq;
+   log << MSG::WARNING << "Unable to build FCAL detector manager. " << ex.what() << endmsg;
   }
 
   try
@@ -386,13 +381,13 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  }
 	  else
 	    log << MSG::DEBUG << " No Stored PV for " << nameTag
-		<< " in Detector Store" << endreq;                                                 
+		<< " in Detector Store" << endmsg;                                                 
 	}
       }
     }
   }
   catch (std::exception & ex) {
-    log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endreq;
+    log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endmsg;
   }
   
   
@@ -487,7 +482,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
       else
 	log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMEC_OUTER_WHEEL_NEG" : "EMEC_OUTER_WHEEL_POS")
-	    << " in Detector Store" << endreq;
+	    << " in Detector Store" << endmsg;
 
       if(detStore->contains<StoredPhysVol>(e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")){
 	if (detStore->retrieve(sPhys,e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")==StatusCode::SUCCESS) 
@@ -514,7 +509,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
       else
       	log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")
-	    << " in Detector Store" << endreq;
+	    << " in Detector Store" << endmsg;
       
       StoredPhysVol *sPresamplerEnvelope; 
 
@@ -529,12 +524,12 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
       else      
 	log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "PRESAMPLER_EC_NEG":"PRESAMPLER_EC_POS")
-	    << " in Detector Store" << endreq;
+	    << " in Detector Store" << endmsg;
     }
     
   }
   catch (std::exception & ex) {
-    log << MSG::WARNING << "Unable to build EMEC detector manager. " << ex.what() << endreq;
+    log << MSG::WARNING << "Unable to build EMEC detector manager. " << ex.what() << endmsg;
   }
 
   try
@@ -568,7 +563,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS" )<< " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS" )<< " in Detector Store" << endmsg;
 	}
       // Sampling layer 2 region 0:
       if (1)
@@ -587,7 +582,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS" )<< " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS" )<< " in Detector Store" << endmsg;
 	}
       // Sampling layer 2 region 1:
       if (1)
@@ -605,7 +600,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endmsg;
 	}
       // Sampling layer 1 region 0:
       if (1)
@@ -623,7 +618,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endmsg;
 	}
       // Sampling layer 1 region 0:
       if (1)
@@ -641,7 +636,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endmsg;
 	}
       // Sampling layer 0 region 0:
       if (1)
@@ -659,12 +654,12 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    }
 	  }
 	  else
-	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endreq;
+	    log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMB_NEG" : "EMB_POS") << " in Detector Store" << endmsg;
 	}
     }
   }
   catch (std::exception & ex) {
-    log << MSG::WARNING << "Unable to build EMB detector manager. " << ex.what() << endreq;
+    log << MSG::WARNING << "Unable to build EMB detector manager. " << ex.what() << endmsg;
   }
 
   m_detectorManager = new LArDetectorManager(embDetectorManager,emecDetectorManager,hecDetectorManager,fcalDetectorManager);
@@ -678,28 +673,28 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   {
     sc = detStore->record(embDetectorManager,  embDetectorManager->getName());
     if(sc.isFailure())
-      log << MSG::ERROR << "Unable to record embDetectorManager" << endreq;
+      log << MSG::ERROR << "Unable to record embDetectorManager" << endmsg;
   }
 
   if (emecDetectorManager) 
   {
     sc = detStore->record(emecDetectorManager, emecDetectorManager->getName());
     if(sc.isFailure())
-      log << MSG::ERROR << "Unable to record emecDetectorManager" << endreq;
+      log << MSG::ERROR << "Unable to record emecDetectorManager" << endmsg;
   }
 
   if (hecDetectorManager)    
   {
     sc = detStore->record(hecDetectorManager,  hecDetectorManager->getName());
     if(sc.isFailure())
-      log << MSG::ERROR << "Unable to record hecDetectorManager" << endreq;
+      log << MSG::ERROR << "Unable to record hecDetectorManager" << endmsg;
   }
 
   if (fcalDetectorManager)     
   {
     sc = detStore->record(fcalDetectorManager, fcalDetectorManager->getName());
     if(sc.isFailure())
-      log << MSG::ERROR << "Unable to record fcalDetectorManager" << endreq;
+      log << MSG::ERROR << "Unable to record fcalDetectorManager" << endmsg;
   }
 }
 
