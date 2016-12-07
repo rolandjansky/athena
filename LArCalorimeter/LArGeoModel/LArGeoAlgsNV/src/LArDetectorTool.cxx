@@ -14,7 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -98,39 +98,39 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   m_detStore = detStore;
 
   if (StatusCode::SUCCESS != detStore->record(hvManager,"LArHVManager")) {
-     log << MSG::ERROR << "Unable to record LArHVManager in detector store " << endreq;
+     log << MSG::ERROR << "Unable to record LArHVManager in detector store " << endmsg;
      return StatusCode::FAILURE;
   }
   
 
   // Get the detector configuration.
-  IGeoModelSvc *geoModel;
-  if(StatusCode::FAILURE==service ("GeoModelSvc",geoModel))
+  IGeoDbTagSvc *geoDbTag;
+  if(StatusCode::FAILURE==service ("GeoDbTagSvc",geoDbTag))
   {
-    log << MSG::ERROR << "Unable to get GeoModel service" <<  endreq;
+    log << MSG::ERROR << "Unable to get GeoDbTag service" <<  endmsg;
     return StatusCode::FAILURE;
   }
-  
-  std::string AtlasVersion = geoModel->atlasVersion();
-  std::string LArVersion   = geoModel->LAr_VersionOverride();
-  
+
+  std::string AtlasVersion = geoDbTag->atlasVersion();
+  std::string LArVersion   = geoDbTag->LAr_VersionOverride();
+
   IRDBAccessSvc *accessSvc;
   if(StatusCode::FAILURE==service("RDBAccessSvc",accessSvc))
   {
-    log << MSG::ERROR << "Unable to get RDBAccess service" <<  endreq;
+    log << MSG::ERROR << "Unable to get RDBAccess service" <<  endmsg;
     return StatusCode::FAILURE;
   }
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endreq;
-  log << MSG::INFO << "Building LAr version " << geoModel->LAr_Version() 
-      << " while ATLAS version is " <<  AtlasVersion << endreq;
+  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endmsg;
+  log << MSG::INFO << "Building LAr version " << geoDbTag->LAr_Version()
+      << " while ATLAS version is " <<  AtlasVersion << endmsg;
 
   if(LArVersion=="CUSTOM") 
   {
     log << MSG::WARNING << "LArDetectorToolNV:  Detector Information coming from a custom configuration!!" 
-	<< endreq;
+	<< endmsg;
   } 
   else 
   {
@@ -150,20 +150,20 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
     }
     catch(std::exception& e)
     {
-      log << MSG::DEBUG << e.what() << endreq;
+      log << MSG::DEBUG << e.what() << endmsg;
     }
   }
 
-  log << MSG::INFO  << "LAr Geometry Options:"   << endreq;
-  log << MSG::INFO  << "  Sagging           = "  << (m_barrelSaggingOn ? "true" : "false") << endreq;
-  log << MSG::INFO  << "  Barrel            = "  << (m_buildBarrel ? "ON" : "OFF") << endreq;
-  log << MSG::INFO  << "  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF") << endreq;
+  log << MSG::INFO  << "LAr Geometry Options:"   << endmsg;
+  log << MSG::INFO  << "  Sagging           = "  << (m_barrelSaggingOn ? "true" : "false") << endmsg;
+  log << MSG::INFO  << "  Barrel            = "  << (m_buildBarrel ? "ON" : "OFF") << endmsg;
+  log << MSG::INFO  << "  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF") << endmsg;
 
   // Locate the top level experiment node 
   DataHandle<GeoModelExperiment> theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
   { 
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -206,7 +206,7 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
     if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),
 						theLArFactory.getDetectorManager()->getName())) 
       { 
-	log << MSG::ERROR << "Could not record" << endreq; 
+	log << MSG::ERROR << "Could not record" << endmsg; 
 	return (StatusCode::FAILURE); 
       } 
 
@@ -281,19 +281,19 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
  
   if(!m_applyAlignments)
   {
-    log << MSG::DEBUG << "LAr alignments switched OFF" << endreq;
+    log << MSG::DEBUG << "LAr alignments switched OFF" << endmsg;
     return false;
   }
 
   std::string folderName = "/LAR/Align";
 
   const DataHandle<DetCondKeyTrans> dckt;
-  log << MSG::DEBUG << "Registering callback on DetCondKeyTrans with folder " << folderName << endreq;
+  log << MSG::DEBUG << "Registering callback on DetCondKeyTrans with folder " << folderName << endmsg;
   StatusCode sc = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName); 
   if(sc.isSuccess())
-    log << MSG::DEBUG << " Successfully registered " << endreq;
+    log << MSG::DEBUG << " Successfully registered " << endmsg;
   else
-    log << MSG::DEBUG << " Registration failed " << endreq;
+    log << MSG::DEBUG << " Registration failed " << endmsg;
 
   return sc;
 }
@@ -304,7 +304,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 
   if(!m_applyAlignments)
   {
-    log << MSG::DEBUG << "LAr alignments switched OFF" << endreq;
+    log << MSG::DEBUG << "LAr alignments switched OFF" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -341,7 +341,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 
   if(0 == m_manager) 
   {
-    log << MSG::WARNING << " LArDetDescrManager not created yet, cannot align !" << endreq;
+    log << MSG::WARNING << " LArDetDescrManager not created yet, cannot align !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -352,17 +352,17 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   
     if(sc.isFailure())
     {
-      log << MSG::WARNING << " Could not retrieve LAr DetCondKeyTrans " << endreq;
+      log << MSG::WARNING << " Could not retrieve LAr DetCondKeyTrans " << endmsg;
       return sc;
     }
 
     if(0 == align) 
     {
-      log << MSG::WARNING <<" LAr DetCondKeyTrans ptr is 0" << endreq;
+      log << MSG::WARNING <<" LAr DetCondKeyTrans ptr is 0" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    log << MSG::DEBUG << " LAr DetCondKeyTrans retrieved " << endreq;
+    log << MSG::DEBUG << " LAr DetCondKeyTrans retrieved " << endmsg;
 
     // Special treatment for the HEC:
     StoredAlignX *hec1AlxPos=0;
@@ -371,22 +371,22 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     StoredAlignX *hec2AlxNeg=0;
     if (m_detStore->contains<StoredAlignX> ("HEC1_POS")) {
       if (m_detStore->retrieve(hec1AlxPos,"HEC1_POS")!=StatusCode::SUCCESS) {
-	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_POS" << endreq;
+	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_POS" << endmsg;
       }
     }
     if (m_detStore->contains<StoredAlignX> ("HEC1_NEG")) {
       if (m_detStore->retrieve(hec1AlxNeg,"HEC1_NEG")!=StatusCode::SUCCESS) {
-	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_NEG" << endreq;
+	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC1_NEG" << endmsg;
       }
     }
     if (m_detStore->contains<StoredAlignX> ("HEC2_POS")) {
       if (m_detStore->retrieve(hec2AlxPos,"HEC2_POS")!=StatusCode::SUCCESS) {
-	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_POS" << endreq;
+	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_POS" << endmsg;
       }
     }
     if (m_detStore->contains<StoredAlignX> ("HEC2_NEG")) {
       if (m_detStore->retrieve(hec2AlxNeg,"HEC2_NEG")!=StatusCode::SUCCESS) {
-	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_NEG" << endreq;
+	log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key HEC2_NEG" << endmsg;
       }
     }
     GeoAlignableTransform *hec1GatPos = hec1AlxPos ? hec1AlxPos->getAlignX(): NULL;
@@ -408,20 +408,20 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 
 	if(sc.isFailure())
 	{
-	  log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key " << alignName << endreq;
+	  log << MSG::WARNING << " Unable to retrieve StoredAlignX for the key " << alignName << endmsg;
 	  return sc;
 	}
 
 	if(!alignX)
 	{
-	  log << MSG::WARNING << " 0 pointer to StoredAlignX for the key " << alignName << endreq;
+	  log << MSG::WARNING << " 0 pointer to StoredAlignX for the key " << alignName << endmsg;
 	  return StatusCode::FAILURE;
 	}
 
 	GeoAlignableTransform* gat = alignX->getAlignX();
 	if(!gat)
 	{
-	  log << MSG::WARNING << " 0 pointer to GeoAlignableTransform for the key " << alignName << endreq;
+	  log << MSG::WARNING << " 0 pointer to GeoAlignableTransform for the key " << alignName << endmsg;
 	  return StatusCode::FAILURE;
 	}
 
@@ -465,11 +465,11 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 	}
       }
       else
-	log << MSG::DEBUG << " No StoredAlignX for the key " << alignName << endreq;
+	log << MSG::DEBUG << " No StoredAlignX for the key " << alignName << endmsg;
     } // for
   }
   else
-    log << MSG::DEBUG << " No LAr DetCondKeyTrans in SG, skipping align() " << endreq;
+    log << MSG::DEBUG << " No LAr DetCondKeyTrans in SG, skipping align() " << endmsg;
 
   
   // debug printout of global positions:
@@ -486,11 +486,11 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 	  const HepGeom::Transform3D& xf =  fullPV->getAbsoluteTransform();
 	  CLHEP::Hep3Vector trans=xf.getTranslation();
 	  CLHEP::HepRotation rot=xf.getRotation();
-	  log << MSG::DEBUG << "Dump Absolute Transform:" << endreq;
+	  log << MSG::DEBUG << "Dump Absolute Transform:" << endmsg;
 	  log << MSG::DEBUG << "Key " << alignName << " transl [" << trans.x()
                << "," << trans.y() << "," << trans.z() << "] rotation ("
                << rot.phi() << "," << rot.theta() << "," <<  rot.psi() << ")"
-               << endreq;
+               << endmsg;
 	}
     }
   }
