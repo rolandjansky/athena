@@ -49,7 +49,7 @@ namespace Muon {
 
   private:
     ToolHandle<Trk::ITrackFitter>                 m_slTrackFitter;  //<! fitter, always use straightline
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool; //!< Tool for ambiguity solving
+    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool; //!< Tool for ambiguity solving
     ToolHandle<IMuonTrackToSegmentTool>           m_trackToSegmentTool; //<! track to segment converter
     ToolHandle<MuonIdHelperTool>                  m_idHelperTool;   //<! Id helper tool
     ToolHandle<MuonEDMPrinterTool>                m_printer;   //<! Id helper tool
