@@ -60,6 +60,7 @@ namespace TrigCostRootAnalysis {
     Int_t              getInt( ConfKey_t _key );
     Long64_t           getLong( ConfKey_t _key );
     Float_t            getFloat( ConfKey_t _key );
+    const std::vector<Int_t>& getIntVec( ConfKey_t _key );
     UInt_t             getVecSize( ConfKey_t _key );
     const std::string& getVecEntry( ConfKey_t _key, UInt_t );
     Bool_t             getVecMatches( ConfKey_t _key, const std::string& _entry );

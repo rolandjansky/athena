@@ -58,6 +58,8 @@ namespace TrigCostRootAnalysis {
       m_unbiasedPerBGCounter(),
       m_weightsServiceEnabled(kFALSE),
       m_parsedRunXML(kFALSE),
+      m_minLB(INT_MAX),
+      m_maxLB(INT_MIN),
       m_computerUnknownID(0) {
   }
 
@@ -71,7 +73,18 @@ namespace TrigCostRootAnalysis {
   }
 
   void TrigXMLService::init() {
-    parseRunXML();
+    parseRunXML(Config::config().getInt(kRunNumber), kTRUE);
+    // Is this a "multi run"? If so - load details from the LB of the other runs
+    std::vector<Int_t> _multiRun = Config::config().getIntVec(kMultiRun);
+    for (Int_t _mr : _multiRun) {
+      if (_mr == Config::config().getInt(kRunNumber)) {
+        Fatal("TrigXMLService::TrigXMLService", "If doing MultiRun, provide the 'primary' run's inputs first, followed by the additional runs whose run numbers were speificed to --multiRun");
+        Bool_t _primaryRunOpenedFirstBeforeMultiRunInputFiles = kFALSE;
+        assert(_primaryRunOpenedFirstBeforeMultiRunInputFiles);
+      }
+      parseRunXML(_mr, kFALSE);
+    }
+
     if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE) parseXML(1);
     if ( Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE) parseXML(2);
     if (m_serviceEnabled == kFALSE) {
@@ -138,7 +151,6 @@ namespace TrigCostRootAnalysis {
    */
   Float_t  TrigXMLService::getLumiExtrapWeight() {
 
-
     // Do we know the effective L of the run? If not return 1.
     if ( !Config::config().getIsSet(kRunLumi) && !Config::config().getIsSet(kRunLumiXML) ) {
       Warning("TrigXMLService::getLumiExtrapWeight", "No run lumi set. No extrapolation.");
@@ -147,7 +159,6 @@ namespace TrigCostRootAnalysis {
     Float_t _runLumi;
     if (Config::config().getIsSet(kRunLumi)) _runLumi = Config::config().getFloat(kRunLumi); // Prefer user supplied
     else _runLumi = Config::config().getFloat(kRunLumiXML); // Fallbac on XML
-
 
     // If prediction lumi was not set by user or XML, then return 1.
     if ( !Config::config().getIsSet(kPredictionLumi)
@@ -195,6 +206,9 @@ namespace TrigCostRootAnalysis {
     Float_t _scalingFactor = _predictionLumi / _runLumi;
     _scalingFactor *= 1 + _onlineDeadtime;
 
+    Double_t _averageL = 0.;
+    Int_t    _averageLN = 0;
+
     // Do we have a target mu?
     if ( !isZero(Config::config().getFloat(kTargetPeakMuAverage)) && Config::config().getIsSet(kOnlinePeakMuAverage) ) {
       Bool_t _doExponentialMu =  Config::config().getInt(kDoExponentialMu);
@@ -218,19 +232,21 @@ namespace TrigCostRootAnalysis {
         _lumiMuScalingExpoHLT = _lumiMuScaling;
       }
 
-      Float_t _lumiScalingExpoL1  = _lumiBunchScaling * _lumiMuScalingExpoL1;
-      Float_t _lumiScalingExpoHLT = _lumiBunchScaling * _lumiMuScalingExpoHLT;
+      Float_t _lumiScalingExpoL1  = _lumiBunchScaling * _lumiMuScalingExpoL1  * (1 + _onlineDeadtime);
+      Float_t _lumiScalingExpoHLT = _lumiBunchScaling * _lumiMuScalingExpoHLT * (1 + _onlineDeadtime);
+      _lumiBunchScaling *= (1 + _onlineDeadtime);
+      _lumiMuScaling    *= (1 + _onlineDeadtime);
 
       Int_t _maxBunches = Config::config().getInt(kMaxBunches);
       Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);
       Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
+      Info("TrigXMLService::getLumiExtrapWeight", "PredictionLumi taken from %s.", _predFrom.c_str());
       Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Expo. L1 = %.2f. Expo. HLT = %.2f",
         _targetMu, _onlineMu, _targetMu, _lumiMuScaling, _lumiMuScalingExpoL1, _lumiMuScalingExpoHLT);
       Info("TrigXMLService::getLumiExtrapWeight", "Bunch scaling factor: %i->%i = %.2f",
         m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling);
-      Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the final lumi scaling factors are: linear = %.2f, expo. in <mu> L1 = %.2f, expo. in <mu> HLT = %.2f, bunch only = %.2f, mu only = %.2f",
-        _onlineDeadtime*100., _lumiScaling * (1 + _onlineDeadtime), _lumiScalingExpoL1 * (1 + _onlineDeadtime), _lumiScalingExpoHLT * (1 + _onlineDeadtime), _lumiBunchScaling * (1 + _onlineDeadtime), _lumiMuScaling * (1 + _onlineDeadtime) );
-      Info("TrigXMLService::getLumiExtrapWeight", "PredictionLumi taken from %s.", _predFrom.c_str());
+      Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the run averaged lumi scaling factors are: linear = %.2f, expo. in <mu> L1 = %.2f, expo. in <mu> HLT = %.2f, bunch only = %.2f, mu only = %.2f",
+        _onlineDeadtime*100., _scalingFactor, _lumiScalingExpoL1, _lumiScalingExpoHLT, _lumiBunchScaling, _lumiMuScaling);
       if (_targetBunches > _maxBunches + 15 /*allow wiggle room*/ || _targetBunches < 1) {
         Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is %i!",
           _predictionLumi, _targetMu, _targetBunches, _maxBunches);
@@ -254,12 +270,105 @@ namespace TrigCostRootAnalysis {
       Config::config().setFloat(kEmptyBunchgroupExtrapolaion, _emptyExtrap, "EmptyBunchgroupExtrapolation");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
 
+      // Even more fancy is to split these details per LB
+      Float_t _thisLBLumi      = _runLumi;
+      Float_t _thisLBMu        = _onlineMu;
+      Float_t _thisLBDeadtime  = _onlineDeadtime;
+      Int_t   _thisLBEmptyBnch = _currentEmptyBunches;
+      for (Int_t _lb = m_minLB; _lb <= m_maxLB; ++_lb) {
+
+        // If we miss data - then we take the previous LB's data or the run default
+        if (m_lumiPerLB.count(_lb) == 1)     _thisLBLumi     = m_lumiPerLB[_lb];
+        if (m_muPerLB.count(_lb) == 1)       _thisLBMu       = m_muPerLB[_lb];
+        if (m_deadtimePerLB.count(_lb) == 1) _thisLBDeadtime = m_deadtimePerLB[_lb];
+        if (m_pairedBunchesPerLB.count(_lb) == 1) _thisLBEmptyBnch = std::max(0, _maxBCIDs - m_pairedBunchesPerLB[_lb]);
+
+        Float_t _emptyExtrapPerLB = 0.;
+        if (_thisLBEmptyBnch > 0) _emptyExtrapPerLB = _targetEmptyBunches / (Float_t)_thisLBEmptyBnch;
+
+        Float_t _lumiScalingPerLB = _predictionLumi / _thisLBLumi;
+
+        Float_t _lumiMuScalingPerLB = _targetMu / _thisLBMu;
+        Float_t _lumiBunchScalingPerLB = _lumiScalingPerLB / _lumiMuScalingPerLB;
+
+        Float_t _lumiMuScalingExpoL1PerLB  = TMath::Exp((_targetMu - _thisLBMu) * _expoRateScaleModifierL1);
+        Float_t _lumiMuScalingExpoHLTPerLB = TMath::Exp((_targetMu - _thisLBMu) * _expoRateScaleModifierHLT);
+
+        if (_doExponentialMu == kFALSE) {
+          _lumiMuScalingExpoL1PerLB = _lumiMuScalingPerLB;
+          _lumiMuScalingExpoHLTPerLB = _lumiMuScalingPerLB;
+        }
+
+        Float_t _lumiScalingExpoL1PerLB  = _lumiBunchScalingPerLB * _lumiMuScalingExpoL1PerLB;
+        Float_t _lumiScalingExpoHLTPerLB = _lumiBunchScalingPerLB * _lumiMuScalingExpoHLTPerLB;
+
+        // Protect inf
+        if (isZero(_thisLBLumi)) {
+          _lumiScalingPerLB = 0;
+          _lumiScalingExpoL1PerLB = 0;
+          _lumiScalingExpoHLTPerLB = 0;
+          _lumiBunchScalingPerLB = 0;
+          _lumiMuScalingPerLB = 0;
+        } else {
+          _averageL += _thisLBLumi;
+          ++_averageLN;
+        }
+
+        m_lumiScalingFactorExpoL1[_lb]       = _lumiScalingExpoL1PerLB  * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorExpoHLT[_lb]      = _lumiScalingExpoHLTPerLB * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorLinear[_lb]       = _lumiScalingPerLB        * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorBunchOnly[_lb]    = _lumiBunchScalingPerLB   * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorMuOnly[_lb]       = _lumiMuScalingPerLB      * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorDeadtimeOnly[_lb] = 1.                       * (1 + _thisLBDeadtime);
+        m_lumiScalingFactorEmpty[_lb]        = _emptyExtrapPerLB;
+        m_lumiScalingFactorUnity[_lb]        = 1.;
+
+        Info("TrigXMLService::getLumiExtrapWeight", "  Per-LB scaling factors LB %i: Linear = %.2f | ExpInMuL1 = %.2f | ExpInMuHLT = %.2f | BunchOnly = %.2f | MuOnly = %.2f | DeadtimeOnly = %.2f | Empty = %.2f |",
+          _lb, m_lumiScalingFactorLinear[_lb], m_lumiScalingFactorExpoL1[_lb], m_lumiScalingFactorExpoHLT[_lb], m_lumiScalingFactorBunchOnly[_lb], m_lumiScalingFactorMuOnly[_lb], m_lumiScalingFactorDeadtimeOnly[_lb], m_lumiScalingFactorEmpty[_lb]);
+
+      }
+      if (_averageLN) _averageL /= _averageLN;
+
+
     } else {
 
+      // Build map per-LB
+      Float_t _thisLBLumi = _runLumi;
+      std::stringstream _perLBstr;
+      _perLBstr.precision(5);
+
+      for (Int_t _lb = m_minLB; _lb <= m_maxLB; ++_lb) {
+        // If we miss data - then we take the previous LB's data or the run default
+        if (m_lumiPerLB.count(_lb) == 1) _thisLBLumi = m_lumiPerLB[_lb];
+        Float_t _lumiScalingPerLB = _predictionLumi / _thisLBLumi;
+        if (isZero(_thisLBLumi)) {
+          _lumiScalingPerLB = 0;
+        } else {
+          _averageL += _thisLBLumi;
+          ++_averageLN;
+        }
+        m_lumiScalingFactorLinear[_lb] = _lumiScalingPerLB * (1 + _onlineDeadtime);
+        _averageL += _thisLBLumi;
+        ++_averageLN;
+        _perLBstr << "LB " << _lb << "=" << m_lumiScalingFactorLinear[_lb] << ", ";
+      }
+      if (_averageLN) _averageL /= _averageLN;
+
       // This is the old-style message, only show it now if doing basic extrapolation mode
-      Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
+      Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled on average by %.4f from EB RunLumi %.2e to "
         "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
-    
+      Info("TrigXMLService::getLumiExtrapWeight","Per-LB, the weights are: %s", _perLBstr.str().c_str());
+
+    }
+
+    // Do we need to update the average lumi of this processing?
+    if (!isZero(_averageL)) {
+      if (fabs(1. - (_runLumi/_averageL)) > 0.05) { // If these numbers are off by more than 5% (arbitrary threshold) 
+        Warning("TrigXMLService::getLumiExtrapWeight","Discrepancy in XML EB average run Lumi (%.4e) and calculated (%.4e). Probably due to restricted LB range.", 
+          _runLumi,
+          _averageL);
+      }
+      Config::config().setFloat(kRunLumiXML, _averageL, "EnhancedBiasOnlineLumi", kLocked);
     }
 
     Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
@@ -592,10 +701,12 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Try and parse the run XML if any - this contains EB run specifics
+   * @param _runNumber the run number of the XML to load
+   * @param _primaryRun if true, this is the primary & first input file's run. We take this run as the main set of parameters
    */
-  void TrigXMLService::parseRunXML() {
+  void TrigXMLService::parseRunXML(const Int_t _runNumber, const Bool_t _primaryRun) {
 
-    const std::string _file = std::string("enhanced_bias_run_") + intToString(Config::config().getInt(kRunNumber)) + std::string(".xml");
+    const std::string _file = std::string("enhanced_bias_run_") + intToString(_runNumber) + std::string(".xml");
     std::string _path;
 
     if (Config::config().getInt(kIsRootCore) == kTRUE) {
@@ -606,6 +717,15 @@ namespace TrigCostRootAnalysis {
       _path = PathResolverFindDataFile( _file );
 #endif // not ROOTCORE
     }
+
+
+    // 2016 high-<mu> run
+    // Here we account for the three v-high-mu-bunches: ~6% of the luminosity came from the three isolated fat bunches
+    Float_t _mod = 1.;
+    if (_runNumber == 310574) {
+      if (Config::config().getInt(kInvertHighMuRunVeto) == true) _mod = 0.06;
+      else _mod = 0.94;
+    }  
 
     // If file exists
     TXMLEngine* _xml = new TXMLEngine();
@@ -633,27 +753,50 @@ namespace TrigCostRootAnalysis {
         XMLNodePointer_t _node = _xml->GetChild( _listNode );
         while( _node != 0) {
           assert( _xml->GetNodeName(_node) == std::string("lb") );
-          Int_t _lb      = stringToInt( _xml->GetAttr(_node, "id") );
-          Int_t _nEvents = stringToInt( _xml->GetNodeContent(_node) );
+          Int_t _lb       = stringToInt( _xml->GetAttr(_node, "id") );
+          UInt_t _nEvents = stringToInt( _xml->GetNodeContent(_node) );
+          // Is LB to be vetoed? (like a GRL)
           std::string _flag;
           if ( _xml->HasAttr(_node, "flag") ) {
             _flag = _xml->GetAttr(_node, "flag");
           }
           if (_flag == "bad") m_badLumiBlocks.insert( _lb );
+          // Some runs have higher granularity data
+          Float_t _lumi = 0.;
+          if ( _xml->HasAttr(_node, "lumi") ) _lumi = stringToFloat( _xml->GetAttr(_node, "lumi") );
+          else                                _lumi = Config::config().getFloat( kRunLumiXML );
+          if (_lumi < 1e20) _lumi *= 1e30;          
+          //
+          Float_t _mu = 0.;
+          if ( _xml->HasAttr(_node, "mu") ) _mu = stringToFloat( _xml->GetAttr(_node, "mu") );
+          else                              _mu = Config::config().getFloat( kOnlinePeakMuAverage );
+          //
+          if (_lb < m_minLB) m_minLB = _lb;
+          if (_lb > m_maxLB) m_maxLB = _lb;
+
+          // We can only deal with one LB per processing, a current limitation of MultiRun
+          Int_t _multipleRunsWhichIncludeTheSameLB = m_totalEventsPerLB.count(_lb);
+          assert(_multipleRunsWhichIncludeTheSameLB == 0);
+
           m_totalEventsPerLB[_lb] = _nEvents;
+          m_lumiPerLB[_lb] = _lumi;
+          m_muPerLB[_lb] = _mu;
+          m_deadtimePerLB[_lb] = m_loadedDeadtime;
+          m_pairedBunchesPerLB[_lb] = m_loadedPairedBunches;
           _node = _xml->GetNext(_node);
         }
       } else if (_listName == "lumivalues") {
         XMLNodePointer_t _node = _xml->GetChild( _listNode );
         while( _node != 0) {
           if ( _xml->GetNodeName(_node) == std::string("lumivalues_data") ) {
-            Config::config().setFloat( kRunLumiXML, stringToFloat( _xml->GetNodeContent(_node) ), "EnhancedBiasOnlineLumi" );
+            if (_primaryRun) Config::config().setFloat( kRunLumiXML, stringToFloat( _xml->GetNodeContent(_node) ) * _mod, "EnhancedBiasOnlineLumi", kUnlocked );
           } else if ( _xml->GetNodeName(_node) == std::string("lumivalues_pred") ) {
-            Config::config().setFloat( kPredictionLumiRunXML, stringToFloat( _xml->GetNodeContent(_node) ), "PredictionLumiRunXML" );
+            if (_primaryRun) Config::config().setFloat( kPredictionLumiRunXML, stringToFloat( _xml->GetNodeContent(_node) ), "PredictionLumiRunXML" );
           } else if ( _xml->GetNodeName(_node) == std::string("deadtime") ) {
-            Config::config().setFloat( kOnlineDeadtime, stringToFloat( _xml->GetNodeContent(_node) ), "OnlineDeadtime" );
+            m_loadedDeadtime = stringToFloat( _xml->GetNodeContent(_node));
+            if (_primaryRun) Config::config().setFloat( kOnlineDeadtime, m_loadedDeadtime, "OnlineDeadtime" );
           } else if ( _xml->GetNodeName(_node) == std::string("peak_mu_av") ) {
-            Config::config().setFloat( kOnlinePeakMuAverage, stringToFloat( _xml->GetNodeContent(_node) ), "OnlinePeakMuAverage" );
+            if (_primaryRun) Config::config().setFloat( kOnlinePeakMuAverage, stringToFloat( _xml->GetNodeContent(_node) ) * _mod, "OnlinePeakMuAverage" );
           }
           _node = _xml->GetNext(_node);
         }
@@ -667,10 +810,23 @@ namespace TrigCostRootAnalysis {
           m_bunchGroupXML[ _id ] = std::pair<std::string,Int_t>(_name, _bunches);
           _node = _xml->GetNext(_node);
         }
+        m_loadedPairedBunches = m_bunchGroupXML[1].second;
+        if (_runNumber == 310574) {
+          if (Config::config().getInt(kInvertHighMuRunVeto) == true) m_loadedPairedBunches = 3;
+          else m_loadedPairedBunches -= 3;
+        }  
+        if (Config::config().getIsSet(kPairedBunches) == false) Config::config().set( kPairedBunches, m_loadedPairedBunches, "PairedBunches");
       }
 
       _listNode = _xml->GetNext(_listNode);
     }
+
+    const Int_t _lbBegin = Config::config().getInt(kLumiStart);
+    const Int_t _lbEnd   = Config::config().getInt(kLumiEnd);
+
+    // May want to restrict to a greater extent than in the run XML
+    if (_lbBegin != INT_MIN && _lbBegin > m_minLB && _lbBegin <= m_maxLB) m_minLB = _lbBegin;
+    if (_lbEnd   != INT_MAX && _lbEnd   < m_maxLB && _lbEnd   >= m_minLB) m_maxLB = _lbEnd;
 
     delete _xml;
     m_parsedRunXML = kTRUE;
@@ -883,14 +1039,17 @@ namespace TrigCostRootAnalysis {
    * Function to load into memory the enhanced bias weighting factors for a run.
    * These are calculated in advance for each EB run and stored in XML format with one entry for each event.
    * They are loaded into memory in a map which is used to fetch the weight.
+   * @param _runNumber Which run's XML to load into memory
    */
-  void TrigXMLService::parseEnhancedBiasXML() {
+  void TrigXMLService::parseEnhancedBiasXML(Int_t _runNumber) {
     TXMLEngine* _xml = new TXMLEngine();
 
-    Info("TrigXMLService::parseEnhancedBiasXML","Loading Enhanced Bias Weighting XML. This could take a little time.");
+    static Int_t _runLoadNumber = -1;
+    ++_runLoadNumber;
+    Info("TrigXMLService::parseEnhancedBiasXML","Loading Enhanced Bias Weighting XML for %i. This could take a little time. (Run #%i)", _runNumber, _runLoadNumber);
 
     // Try one. Use the external (AFS) data path
-    Config::config().set(kEBXMLName, "/EnhancedBiasWeights_" + intToString(Config::config().getInt(kRunNumber)) + ".xml", "EBXMLName");
+    Config::config().set(kEBXMLName, "/EnhancedBiasWeights_" + intToString(_runNumber) + ".xml", "EBXMLName", kUnlocked);
     Config::config().set(kEBXMLPath, Config::config().getStr(kAFSDataDir) + "/" + Config::config().getStr(kEBXMLName), "EBXMLPath", kUnlocked);
 
     XMLDocPointer_t _xmlDoc = _xml->ParseFile( Config::config().getStr(kEBXMLPath).c_str() );
@@ -899,7 +1058,7 @@ namespace TrigCostRootAnalysis {
     if (_xmlDoc == 0) {
       // No - then try loading locally
       if (Config::config().getInt(kIsRootCore) == kTRUE) {
-        Config::config().set(kEBXMLPath, Config::config().getStr(kDataDir) + "/" + Config::config().getStr(kEBXMLName), "EBXMLPath");
+        Config::config().set(kEBXMLPath, Config::config().getStr(kDataDir) + "/" + Config::config().getStr(kEBXMLName), "EBXMLPath", kUnlocked);
       } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
@@ -922,8 +1081,6 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    if (Config::config().debug()) Info("TrigXMLService::parseEnhancedBiasXML","Loading into memory the Enhanced Bias Weighting factors for run %i", Config::config().getInt(kRunNumber));
-
 
     // Navigate XML
     XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
@@ -938,10 +1095,14 @@ namespace TrigCostRootAnalysis {
       assert( _xml->GetNodeName(_weightNode) == std::string("weight")); //Event
 
       UInt_t _id = stringToInt(_xml->GetAttr(_weightNode, "id")); //Number
+
+      // In MultiRun, we need to apply an offset here
+      _id += _runLoadNumber * 1000;
+
       Float_t _weight = stringToFloat(_xml->GetAttr(_weightNode, "value")); //Weight
       std::string _bunchgroup = _xml->GetAttr(_weightNode, "bunchgroup"); //BG
       Bool_t _unbiased = kFALSE;
-      if (Config::config().getInt(kRunNumber) > 266000) _unbiased = stringToInt(_xml->GetAttr(_weightNode, "unbiased"));
+      if (_runNumber > 266000) _unbiased = stringToInt(_xml->GetAttr(_weightNode, "unbiased"));
 
       UInt_t _bunchgroupID = (UInt_t) kBG_UNSET;
       for (UInt_t _i = 0; _i < kEBBunchGroupType_SIZE; ++_i) {
@@ -972,11 +1133,15 @@ namespace TrigCostRootAnalysis {
       UInt_t _eventNumber = stringToInt(_xml->GetAttr(_eventNode, "n")); //Number
       UInt_t _eventWeightID = stringToInt(_xml->GetAttr(_eventNode, "w")); //Weight ID
 
+      // In MultiRun, we need to apply an offset here
+      _eventWeightID += _runLoadNumber * 1000;
+
+      assert(m_ebWeightingMap.count(_eventNumber) == 0); // Event numbers are unique
       m_ebWeightingMap[_eventNumber] = _eventWeightID;
       _eventNode = _xml->GetNext(_eventNode);
     }
 
-    Info("TrigXMLService::parseEnhancedBiasXML","Loaded %i event weights for run %i.", (Int_t) m_ebWeightingMap.size(), Config::config().getInt(kRunNumber));
+    Info("TrigXMLService::parseEnhancedBiasXML","Total of %i event weights loaded. Processed for run %i.", (Int_t) m_ebWeightingMap.size(), _runNumber);
     m_weightsServiceEnabled = kTRUE;
     return;
   }
@@ -985,37 +1150,43 @@ namespace TrigCostRootAnalysis {
    * Read (if not already imported) the XML rates and bunch groups for this run.
    * Return the weight for this event and store the event's  bunch group setting using the config service.
    * @param _pass Which pass through the file(s), only increment counters on first pass
+   * @param _bcid Current event BCID
    * @return The event weight from the EnhancedBias XML.
    */
   Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass) {
 
-    static Int_t _runNum = Config::config().getInt(kRunNumber);
-    static std::string _bgString = "BunchGroup";
-    static std::string _ebString = "EventEBWeight";
-    static std::string _rdString = "RandomOnline";
+    static const Int_t _runNum = Config::config().getInt(kRunNumber);
+    static const std::string _bgString = "BunchGroup";
+    static const std::string _ebString = "EventEBWeight";
+    static const std::string _rdString = "RandomOnline";
+    static const Bool_t _ignoreNonPhys = Config::config().getInt(kIgnoreNonPhysBunchGroups);
 
+    // Special case for pb-p
+    if (_runNum == 218048) {
+      Float_t _eventWeight = 0;
 
-    // // Special case for pb-p
-    // if (_runNum == 218048) {
-    //   Float_t _eventWeight = 0;
+      if      (_lb >= 1016) _eventWeight = 7650.;
+      else if (_lb >= 874) _eventWeight = 9560.;
+      else if (_lb >= 753) _eventWeight = 11500.;
+      else if (_lb >= 620) _eventWeight = 15300.;
+      else if (_lb >= 560) _eventWeight = 19100.;
+      else if (_lb >= 558) _eventWeight = 28700.;
+      else if (_lb >= 557) _eventWeight = 19100.;
+      else if (_lb >= 529) _eventWeight = 28700.;
 
-    //   if      (_lb >= 1016) _eventWeight = 7650.;
-    //   else if (_lb >= 874) _eventWeight = 9560.;
-    //   else if (_lb >= 753) _eventWeight = 11500.;
-    //   else if (_lb >= 620) _eventWeight = 15300.;
-    //   else if (_lb >= 560) _eventWeight = 19100.;
-    //   else if (_lb >= 558) _eventWeight = 28700.;
-    //   else if (_lb >= 557) _eventWeight = 19100.;
-    //   else if (_lb >= 529) _eventWeight = 28700.;
-
-    //   Config::config().set(kCurrentEventBunchGroupID, 1, _bgString, kUnlocked); // only filled
-    //   Config::config().setFloat(kCurrentEventEBWeight, _eventWeight, _ebString, kUnlocked);
-    //   Config::config().set(kCurrentEventWasRandomOnline, 1, _rdString, kUnlocked); // As "minbias"
-    // }
+      Config::config().set(kCurrentEventBunchGroupID, 1, _bgString, kUnlocked); // only filled
+      Config::config().setFloat(kCurrentEventEBWeight, _eventWeight, _ebString, kUnlocked);
+      Config::config().set(kCurrentEventWasRandomOnline, 1, _rdString, kUnlocked); // As "minbias"
+      return _eventWeight;
+    }
 
 
     // if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
-    if (m_weightsServiceEnabled == kFALSE) parseEnhancedBiasXML();
+    if (m_weightsServiceEnabled == kFALSE) {
+      parseEnhancedBiasXML( Config::config().getInt(kRunNumber) );
+      std::vector<Int_t> _multiRun = Config::config().getIntVec(kMultiRun);
+      for (Int_t _mr : _multiRun) parseEnhancedBiasXML(_mr);
+    }
 
     IntIntMapIt_t _ebIt = m_ebWeightingMap.find( _eventNumber );
     Int_t _weightID = 0;
@@ -1023,7 +1194,7 @@ namespace TrigCostRootAnalysis {
       if (Config::config().getDisplayMsg(kMsgXMLWeight) == kTRUE) {
         Warning("TrigXMLService::getEventWeight","Cannot find the weight for event %i in LB %i, will use weight = 0. !!", _eventNumber, _lb);
       }
-      Config::config().set(kCurrentEventBunchGroupID, (Int_t) kBG_UNSET, "BunchGroup", kUnlocked);
+      Config::config().set(kCurrentEventBunchGroupID, (Int_t) kBG_UNSET, _bgString, kUnlocked);
       return 0.;
     } else {
       _weightID = _ebIt->second;
@@ -1033,10 +1204,9 @@ namespace TrigCostRootAnalysis {
     UInt_t  _eventBG     = m_idToBGMap[_weightID];
 
     // Option to disable (weight = 0) events if they're not physics collisions
-    if (Config::config().getInt(kIgnoreNonPhysBunchGroups) == 1) {
+    if (_ignoreNonPhys == 1) {
       if (_eventBG != 1) _eventWeight = 0.;
     }
-
 
     // Store the event BG
     Config::config().set(kCurrentEventBunchGroupID, _eventBG, _bgString, kUnlocked);

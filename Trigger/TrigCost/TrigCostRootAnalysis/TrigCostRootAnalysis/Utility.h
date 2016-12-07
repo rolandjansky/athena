@@ -274,12 +274,15 @@ namespace TrigCostRootAnalysis {
     kRunLumi,
     kRunLumiXML,
     kDoExponentialMu,
+    kInvertHighMuRunVeto,
     kDebug, 
     kNPasses,
     kUpgradeMergeTOBOverlap,
     kCurrentPass,
+    kPairedBunches,
     kMessageWait,
     kCleanAll,
+    kMultiRun,
     kMaxBunches,
     kMaxBCIDs,
     kSloppyExit,
@@ -407,6 +410,8 @@ namespace TrigCostRootAnalysis {
     kVarEventsRunRawStat,
     kVarEventsPassedExpress,
     kVarEventsSlow,
+    kVarMu,
+    kVarBunchWeight,
     kVarTotalPrescale,
     kVarL1PassEvents,
     kVarHLTEvents,
@@ -493,6 +498,8 @@ namespace TrigCostRootAnalysis {
   typedef UIntUIntMap_t::const_iterator       UIntUIntMapIt_t;
   typedef std::map< Int_t, Float_t>           IntFloatMap_t;
   typedef IntFloatMap_t::const_iterator       IntFloatMapIt_t;
+  typedef std::map< Int_t, Double_t>          IntDoubleMap_t;
+  typedef IntDoubleMap_t::const_iterator      IntDoubleMapIt_t;
   typedef std::map< Float_t, Int_t>           FloatIntMap_t;
   typedef FloatIntMap_t::const_iterator       FloatIntMapIt_t;
   typedef std::map< std::string, std::string> StringStringMap_t;

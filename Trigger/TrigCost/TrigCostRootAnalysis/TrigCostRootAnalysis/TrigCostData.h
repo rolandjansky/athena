@@ -68,6 +68,7 @@ namespace TrigCostRootAnalysis {
     Float_t getTimerChainProcessed() const;
     Float_t getTimerResultBuilder() const;
     Float_t getTimerMonitoring() const;
+    UInt_t  getBunchCrossingId() const;
 
     //
     // CHAIN VARIABLES

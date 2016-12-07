@@ -47,7 +47,9 @@ namespace TrigCostRootAnalysis {
    * ProcessEvent constructor. Not much here.
    */
   ProcessEvent::ProcessEvent(const TrigCostData* _costData, UInt_t _level, const std::string& _name) 
-    : m_costData(_costData), m_level(_level), m_name(_name), 
+    : m_costData(_costData), m_level(_level), m_name(_name),
+      m_runNumber(0), 
+      m_invertHighMuRunVeto(kFALSE),
       m_threadTimer("Event", "Thread-Spawning"), 
       m_takeEventTimer("Event", "Classifying Event"),
       m_cacheAlgTimer("Event", "Alg Monitor Caching"),
@@ -199,6 +201,17 @@ namespace TrigCostRootAnalysis {
     //Check for weights from energy extrapolation
     _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
 
+    if (m_runNumber == 0) {
+      m_runNumber = Config::config().getInt(kRunNumber);
+      m_invertHighMuRunVeto = Config::config().getInt(kInvertHighMuRunVeto);
+    }
+    // Special behaviour for the 2016 high mu run
+    if (m_runNumber == 310574) {
+      const UInt_t _bcid = m_costData->getBunchCrossingId();
+      const Bool_t _isolatedBunch = (_bcid == 11 || _bcid == 1247 || _bcid == 2430);
+      if (m_invertHighMuRunVeto == kFALSE && _isolatedBunch == kTRUE)  return false; // We normally veto on these isolated bunches
+      if (m_invertHighMuRunVeto == kTRUE  && _isolatedBunch == kFALSE) return false; // Of if inverted, we only keep the isolated bunches 
+    }
 
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
