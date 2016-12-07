@@ -55,7 +55,7 @@ namespace TrigCostRootAnalysis {
     Double_t getExpressPrescaleInfo(const std::string& _name);
     std::string getChainComment(const std::string& _name);
 
-    void parseEnhancedBiasXML();
+    void parseEnhancedBiasXML(Int_t _runNumber);
     void exportEnhancedBiasXML(UInt_t _eventNumber, Float_t _weight, UInt_t _bunchGroup, Int_t _unbiased);
     void saveExportedEnhancedBiasXML();
 
@@ -76,7 +76,7 @@ namespace TrigCostRootAnalysis {
 
    private:
 
-    void parseRunXML();
+    void parseRunXML(const Int_t _runNumber, const Bool_t _primaryRun);
 
     void parseXML(UInt_t _xmlID);
 
@@ -153,11 +153,34 @@ namespace TrigCostRootAnalysis {
     Int_PairStringInt_Map_t m_bunchGroupXML; //!< Bunchgroup config, loaded from XML
     Bool_t                  m_parsedRunXML; //!< If we managed to read the run XML
     std::set<Int_t>         m_badLumiBlocks; //!< LBs flagged as bad by rate experts in the run XML
+    Int_t                   m_minLB; //!< Lower lumi block with information in the run XML
+    Int_t                   m_maxLB; //!< Upper lumi block with information in the run XML
+
 
     // For decoding a PUs location in the farm
     UIntUIntMap_t  m_PUHashToPUType; //!< Map of a PU's HASH to it's processor type
     IntStringMap_t m_computerTypeToNameMap; //!< Map of a processor type to its name
     UInt_t         m_computerUnknownID; //!< ID of the "UNKNOWN" type
+
+    Float_t m_loadedDeadtime; //!< Currently loaded deadtime from run XML (will change with time if doing MultiRun) 
+    Int_t   m_loadedPairedBunches; //!< Currently loaded number of colliding bunches from run XML (will change with time if doing MultiRun) 
+
+
+    // Maps which hold all the extrapolation data per lumi block
+   public:
+    IntFloatMap_t           m_lumiPerLB; //!< Map of lumi block number to the inst. lumi 
+    IntFloatMap_t           m_muPerLB; //!< Map of lumi block to the inst. <mu> 
+    IntFloatMap_t           m_deadtimePerLB; //!< Map of lumi block the deadtime (only changes for Multi Run)
+    IntIntMap_t             m_pairedBunchesPerLB; //!< Map of lumi block to number of paired colliding bunches (only changes for Multi Run)
+
+    IntDoubleMap_t m_lumiScalingFactorExpoL1;
+    IntDoubleMap_t m_lumiScalingFactorExpoHLT;
+    IntDoubleMap_t m_lumiScalingFactorLinear;
+    IntDoubleMap_t m_lumiScalingFactorBunchOnly;
+    IntDoubleMap_t m_lumiScalingFactorMuOnly;
+    IntDoubleMap_t m_lumiScalingFactorDeadtimeOnly;
+    IntDoubleMap_t m_lumiScalingFactorEmpty;
+    IntDoubleMap_t m_lumiScalingFactorUnity;
 
   }; //class TrigXMLService
 

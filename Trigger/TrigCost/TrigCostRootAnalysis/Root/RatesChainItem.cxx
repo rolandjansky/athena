@@ -41,7 +41,7 @@ namespace TrigCostRootAnalysis {
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
     m_bunchGroupType(kBG_UNSET),
-    m_lumiExtrapolationFactor(0.),
+    m_lumiExtrapolationMap(nullptr),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
     m_inEvent(kFALSE),
@@ -50,7 +50,8 @@ namespace TrigCostRootAnalysis {
     m_advancedLumiScaling(kFALSE),
     m_iAmRandom(kFALSE),
     m_triggerLogic(nullptr),
-    m_proxy(nullptr)
+    m_proxy(nullptr),
+    m_bufferMu(0)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -127,7 +128,7 @@ namespace TrigCostRootAnalysis {
 
     if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
 
-      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear (including deadtime)
+      m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorLinear); // Linear (including deadtime)
       
     } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
 
@@ -138,48 +139,46 @@ namespace TrigCostRootAnalysis {
 
       if (checkPatternNoLumiWeight(getName()) || _specialCase1) { // SPECIAL CASE #1
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal); // Only deadtime
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorDeadtimeOnly);
         Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
 
       } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent); // Bunch and deadtime
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorBunchOnly);
         Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
 
       } else if (checkPatternNoBunchLumiWeight(getName()) || _specialCase3) { // SPECIAL CASE #3
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent); // Mu and deadtime
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorMuOnly);
         Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
 
       } else if (checkPatternExponentialWithMu(getName())) { // SPECIAL CASE #4
 
         if (m_level == 1) { // We allow for different slopes at L1 and HLT
-          m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpoL1);
+          m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorExpoL1);
         } else {
-          m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpoHLT); 
+          m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorExpoHLT);
         }
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal); // Exponential mu, bunch and deadtime
         Config::config().addVecEntry(kListOfExpoMuLumiWeightChains, getName());
 
       } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
 
         // For empty BG, we scale with the *inverse* number of bunches, i.e. more bunches is less empty hence less empty rate
         // Fist empty is a bit of a fudge - assumes that NBunch is proportional to NTrain
-        m_lumiExtrapolationFactor = Config::config().getFloat(kEmptyBunchgroupExtrapolaion); // No extra deadtime factor here (not physics item).
+        // No deadtime correction here
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorEmpty);
 
       } else if (m_bunchGroupType == kBG_UNPAIRED_ISO || m_bunchGroupType == kBG_UNPAIRED_NONISO || 
                  m_bunchGroupType == kBG_ABORTGAPNOTCALIB || m_bunchGroupType == kBG_CALREQ) {
 
         // We have no idea how the UNPAIRED items will change in the prediction - for now, zero extrapolation
         // Abort gap and calreq are always the same so again, no extrap here
-        m_lumiExtrapolationFactor = 1.; // No extra deadtime factor here (not physics item).
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorUnity);
 
       } else {
 
         // The vast majority of chains will get this. This already includes the deadtime weight
-        m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+        m_lumiExtrapolationMap = &(TrigXMLService::trigXMLService().m_lumiScalingFactorLinear);
 
       }
     }
@@ -188,9 +187,12 @@ namespace TrigCostRootAnalysis {
   /**
    * @return What this item needs to be scaled by to extrapolate its lumi to the target
    * @see RatesChainItem::classifyRandom
+   * @param _lb The Lumi Block to return the extrapolation weight for
+   * @param _disableEventLumiExtrapolation if extrapolation is disabled e.g. for UpgradeRatesMonitor which does this via overlay
    */
-  Double_t RatesChainItem::getLumiExtrapolationFactor() {
-    return m_lumiExtrapolationFactor;
+  Double_t RatesChainItem::getLumiExtrapolationFactor(UInt_t _lb, Bool_t _disableEventLumiExtrapolation) {
+    if (_disableEventLumiExtrapolation) return 1.;
+    return m_lumiExtrapolationMap->at(_lb); //  Simple. One number per run | Advanced. Different strategies per chain, varying per lumi block
   }
 
   /**
@@ -393,6 +395,8 @@ namespace TrigCostRootAnalysis {
       }
     }
 
+    m_bufferMu = _eventTOBs->mu();
+
     // Loop over logic
     m_passRaw = kTRUE; // Assume we passed, see if we didn't
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
@@ -463,7 +467,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Used in Upgrade Rates mode - we plot the eta distribution of the thresholds we pass and the multiplicity
    */
-  void RatesChainItem::fillHistograms(DataStore& _dataStore, Float_t _weight) {
+  void RatesChainItem::fillHistograms(DataStore& _dataStore, Float_t _weight, Float_t _bunchWeight) {
     for (const Float_t _value : m_bufferJetRoIEta) _dataStore.store(kVarJetEta, _value, _weight);
     for (const Float_t _value : m_bufferMuRoIEta)  _dataStore.store(kVarMuEta, _value, _weight);
     for (const Float_t _value : m_bufferEmRoIEta)  _dataStore.store(kVarEmEta, _value, _weight);
@@ -473,6 +477,9 @@ namespace TrigCostRootAnalysis {
     if (m_bufferMuRoIEta.size() > 0)  _dataStore.store(kVarMuNThresh, m_bufferMuRoIEta.size() , _weight);
     if (m_bufferEmRoIEta.size() > 0)  _dataStore.store(kVarEmNThresh, m_bufferEmRoIEta.size() , _weight);
     if (m_bufferTauRoIEta.size() > 0) _dataStore.store(kVarTauNThresh, m_bufferTauRoIEta.size(), _weight);
+
+    _dataStore.store(kVarMu, m_bufferMu, _weight);
+    _dataStore.store(kVarBunchWeight, _bunchWeight, _weight); // What part of the extrapolation was explicitly due to change in number of bunches
   }
 
 

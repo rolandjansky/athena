@@ -68,8 +68,9 @@ namespace TrigCostRootAnalysis {
     Float_t m_HT; // Scalar HT
     Bool_t m_overflowMET;
     Bool_t m_overflowTE;
+    Float_t m_mu;
    public:
-    TOBAccumulator() : m_vX(0), m_vY(0), m_TE(0), m_vHX(0), m_vHY(0), m_HT(0), m_overflowMET(kFALSE), m_overflowTE(kFALSE) {}
+    TOBAccumulator() : m_vX(0), m_vY(0), m_TE(0), m_vHX(0), m_vHY(0), m_HT(0), m_overflowMET(kFALSE), m_overflowTE(kFALSE), m_mu(0.) {}
     Float_t TE() { return m_TE; }
     Float_t vX() { return m_vX; }
     Float_t vY() { return m_vY; }
@@ -80,7 +81,9 @@ namespace TrigCostRootAnalysis {
     Bool_t TEOverflow() { return m_overflowTE; }
     Float_t MET() { return TMath::Sqrt((m_vX  * m_vX)  + (m_vY  * m_vY)); }
     Float_t MHT() { return TMath::Sqrt((m_vHX * m_vHX) + (m_vHY * m_vHY)); }
-    void set(Float_t _vX, Float_t _vY, Float_t _TE, Bool_t _ofX, Bool_t _ofY, Bool_t _ofTE) { 
+    Float_t mu() { return m_mu; }
+    void set(Float_t _mu, Float_t _vX, Float_t _vY, Float_t _TE, Bool_t _ofX, Bool_t _ofY, Bool_t _ofTE) {
+      m_mu = _mu; 
       m_vX = _vX; m_vY = _vY; m_TE = _TE; 
       m_overflowMET = (_ofX | _ofY);
       m_overflowTE = _ofTE;
@@ -138,6 +141,7 @@ namespace TrigCostRootAnalysis {
      **/
     void add(const TOBAccumulator* _b) {
       for (auto& _tob : _b->m_TOBs) add(_tob);
+      m_mu += _b->m_mu;
       m_vX += _b->m_vX;
       m_vY += _b->m_vY;
       m_TE += _b->m_TE;
@@ -271,6 +275,7 @@ namespace TrigCostRootAnalysis {
     CounterBase* newCounter( const std::string &_name, Int_t _ID );
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
+    Float_t getCollidingBunchFactor() { return m_collidingBunchFactor; }
 
    private:
 
@@ -288,15 +293,15 @@ namespace TrigCostRootAnalysis {
     void validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print);
     void printEnergyTOBs();
 
-
     std::string m_scenario; //<! What scenario XML to load
     Bool_t m_upgradePileupScaling; //<! If we are doing two passes to do pileup scaling
     Bool_t m_upgradeBunchScaling; //<! If we are linearly scaling for more bunches
-
-
+    Bool_t m_doDeadtimeScaling; //!< If we are scaling for online deadtime 
+    
+    Int_t   m_targetPairedBunches; //!< How many colliding bunches we're scaling to
     Float_t m_collidingBunchFactor; //!< targetPairedBCID / EBPairedBCID, what fraction of bunches w.r.t. the EB data?
     Float_t m_pileupFactor; //<! targetPeakMuAv / EBPeakMuAv, how much more pileup do we want?
-    Float_t m_eventsToMix; //!< We can only mix an integer number of events, the floor of this.
+    Float_t m_collisionsToMix; //!< How many collisions we want to mix into this event
     Float_t m_upgradeDeadtimeScaling; //<! Scaling due to deadtime
 
     TRandom3 m_R3;
@@ -308,6 +313,12 @@ namespace TrigCostRootAnalysis {
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsL2;
     ChainItemMap_t m_chainItemsL3;
+
+    Float_t m_statsEventMu;
+    Float_t m_statsEventMu2;
+    Int_t   m_statsEventMuN;
+
+    TOBAccumulator* m_thisEventPtr;
 
     std::multiset<ChainInfo> m_upgradeChains; //<! Holds the set of chains to construct as read in from XML
     StringIntMap_t m_isoBits; //!< Holds isolation bit pattersn from the XML and assigns them names

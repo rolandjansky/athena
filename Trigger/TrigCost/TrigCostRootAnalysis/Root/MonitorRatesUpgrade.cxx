@@ -56,7 +56,10 @@ namespace TrigCostRootAnalysis {
    */
   MonitorRatesUpgrade::MonitorRatesUpgrade(const TrigCostData* _costData)
     : MonitorBase(_costData, "RateUpgrade"),
-      m_R3(0)
+      m_R3(0),
+      m_statsEventMu(0.),
+      m_statsEventMu2(0.),
+      m_statsEventMuN(0)
   {
     m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), 10));
     m_globalRateL1Counter = nullptr;
@@ -65,11 +68,12 @@ namespace TrigCostRootAnalysis {
     m_scenario = Config::config().getStr(kUpgradeScenario);
     m_upgradePileupScaling = !Config::config().getInt(kNoUpgradePileupScaling);
     m_upgradeBunchScaling = !Config::config().getInt(kNoUpgradeBunchScaling);
+    m_doDeadtimeScaling = Config::config().getIsSet(kOnlineDeadtime) == kTRUE && Config::config().getInt(kNoOnlineDeadtimeCorrection) == kFALSE;
     m_upgradeDeadtimeScaling = 1.;
-
+    m_targetPairedBunches = 0;
     m_collidingBunchFactor = 1.;
     m_pileupFactor = 1.;
-    m_eventsToMix = 0;
+    m_collisionsToMix = 0;
   }
 
   /**
@@ -94,33 +98,40 @@ namespace TrigCostRootAnalysis {
 
     // We scale up unbiased events due to pileup. But by how much?
     if (m_upgradePileupScaling == kTRUE) {
-      m_pileupFactor = Config::config().getFloat(kTargetPeakMuAverage) / (Float_t) Config::config().getFloat(kOnlinePeakMuAverage); // Should have been set by run XML
-      Info("MonitorRatesUpgrade::populateChainItemMaps","We will mix in to each event %.2fx extra unbiased event's TOBs (Pileup %.2f->%.2f = x%.2f)",
-        m_pileupFactor-1, Config::config().getFloat(kOnlinePeakMuAverage), Config::config().getFloat(kTargetPeakMuAverage), m_pileupFactor);
+      //m_pileupFactor = Config::config().getFloat(kTargetPeakMuAverage) / (Float_t) Config::config().getFloat(kOnlinePeakMuAverage); // Should have been set by run XML
+      m_pileupFactor = Config::config().getFloat(kTargetPeakMuAverage); // Should have been set by run XML
+
+      // Info("MonitorRatesUpgrade::populateChainItemMaps","We will mix in to each event %.2fx extra unbiased event's TOBs (Pileup %.2f->%.2f = x%.2f)",
+      //   m_pileupFactor-1, Config::config().getFloat(kOnlinePeakMuAverage), Config::config().getFloat(kTargetPeakMuAverage), m_pileupFactor);
+
+      Info("MonitorRatesUpgrade::populateChainItemMaps","We will mix in to each event extra overlay up to <mu> = %.2f ",
+        m_pileupFactor);
     } else {
       Warning("MonitorRatesUpgrade::populateChainItemMaps","Upgrade rates will not be scaled for extra pileup.");
     }
 
     if (m_upgradeBunchScaling == kTRUE) {
-      m_collidingBunchFactor = Config::config().getInt(kTargetPairedBunches) / (Float_t) TrigXMLService::trigXMLService().getBunchGroupSize(1); // Going to continue to assume that 1 is PAIRED
-      Info("MonitorRatesUpgrade::populateChainItemMaps","We will scale x%.2f for the number of bunches in the ring (%i->%i)",
-        m_collidingBunchFactor, TrigXMLService::trigXMLService().getBunchGroupSize(1), Config::config().getInt(kTargetPairedBunches));
+      m_targetPairedBunches = Config::config().getInt(kTargetPairedBunches);
+      Int_t _pairedBunches = Config::config().getInt(kPairedBunches);
+
+      m_collidingBunchFactor = m_targetPairedBunches / (Float_t) _pairedBunches; // Going to continue to assume that 1 is PAIRED
+      Info("MonitorRatesUpgrade::populateChainItemMaps","We will scale x%.2f for the number of bunches in the ring (%i->%i) (note this may change mid-processing if using MultiRun)",
+        m_collidingBunchFactor, _pairedBunches, m_targetPairedBunches);
     } else {
       Warning("MonitorRatesUpgrade::populateChainItemMaps","Upgrade rates will not be scaled for extra bunches.");
     }
 
-    if (Config::config().getIsSet(kOnlineDeadtime) == kTRUE && Config::config().getInt(kNoOnlineDeadtimeCorrection) == kFALSE) {
+    if (m_doDeadtimeScaling) {
       m_upgradeDeadtimeScaling = 1. + Config::config().getFloat(kOnlineDeadtime);
-      Info("MonitorRatesUpgrade::populateChainItemMaps","We will scale x%.2f for EB sample online deadtime", m_upgradeDeadtimeScaling);
+      Info("MonitorRatesUpgrade::populateChainItemMaps","We will scale x%.2f for EB sample online deadtime (note this may change mid-processing if using MultiRun)", m_upgradeDeadtimeScaling);
     } else {
       Warning("MonitorRatesUpgrade::populateChainItemMaps","Upgrade rates will not be scaled for online EB deadtime.");
     }
 
-    Float_t m_upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor * m_pileupFactor;
+    Float_t m_upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor * (m_pileupFactor / Config::config().getFloat(kOnlinePeakMuAverage));
     Info("MonitorRatesUpgrade::populateChainItemMaps", "*** THIS UPGRADE RATES PREDICTION IS PERFORMING A L EXTRAPOLATION OF %.2e -> %.2e ***",
       Config::config().getFloat(kRunLumiXML), m_upgradePredictionL);
     Config::config().setFloat(kPredictionLumiMenuXML, m_upgradePredictionL, "PredictionLumiMenuXML");
-
 
     if (Config::config().getInt(kDoUpgradeRatesScan) == kTRUE) {
       // Scan over a set of energies
@@ -432,7 +443,8 @@ namespace TrigCostRootAnalysis {
         //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type ENERGY");
         if (_tobs->TE() > 0 && m_costData->getRoIEt(_r) <= _tobs->TE()) continue; // Get the largest (full width)
         _hasE = kTRUE;
-        _tobs->set(m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r),
+        _tobs->set(TrigXMLService::trigXMLService().m_muPerLB.at(m_costData->getLumi()), 
+                   m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r),
                    m_costData->getRoIOverflowEX(_r), m_costData->getRoIOverflowEY(_r), m_costData->getRoIOverflowET(_r));
         continue;
       }
@@ -567,27 +579,61 @@ namespace TrigCostRootAnalysis {
       }
     }
 
+    // This is now a fn. of the LB as we may be running in MultiRun mode
+    // We always take the nPaired of the `primary' interaction
+    if (m_upgradeBunchScaling) {
+      assert(TrigXMLService::trigXMLService().m_pairedBunchesPerLB.count( m_costData->getLumi() ) == 1);
+      m_collidingBunchFactor = m_targetPairedBunches / (Float_t) TrigXMLService::trigXMLService().m_pairedBunchesPerLB[ m_costData->getLumi() ];
+    }
+
+    if (m_doDeadtimeScaling) {
+      m_upgradeDeadtimeScaling = 1. + TrigXMLService::trigXMLService().m_deadtimePerLB[ m_costData->getLumi() ];
+    }
+
     // We do all the weighting here ourselves
     Float_t _weightUpgrade = Config::config().getFloat(kCurrentEventEBWeight) * m_collidingBunchFactor * m_upgradeDeadtimeScaling;
 
     // SECOND PASS
-    static Int_t _tobDebug = 20;
-    if (++_tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " *******************************************");
-    TOBAccumulator* _thisEvent = getEventTOBs();
-    m_eventsToMix += m_pileupFactor - 1.; // -1 because the "main" event has pileup too
-    if ( fabs( m_eventsToMix - round(m_eventsToMix) ) <  0.1) m_eventsToMix = round(m_eventsToMix);
-    static Int_t _debug2 = 0;
-    if (++_debug2 < 20) Info("MonitorRatesUpgrade::newEvent", "Mixing %i events (f %f)", (Int_t) round(m_eventsToMix), m_eventsToMix);
-    // Add pileup
-    for (Int_t _pu = 0; _pu <  (Int_t) round(m_eventsToMix); ++_pu) { // Cast to int rounds down
-      UInt_t _pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
-      _thisEvent->add( m_pileupDatabase.at( _pileupLottery ) ); 
-    }
-    if (_tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " ### MIXING %i EVENTS, NOW HAEV %i TOBs ### MET:%f TE:%f\n%s", (Int_t) m_eventsToMix, (Int_t) _thisEvent->TOBs().size(), _thisEvent->MET(), _thisEvent->TE(),_thisEvent->print().c_str());
-    m_eventsToMix -= (Int_t)m_eventsToMix; // Remove whole integer events mixed. Leave fractional part to accumulate for next event.
+    static Int_t _tobDebug = 0;
+    // if (++_tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", " *******************************************");
 
-    for (const auto _chainItem : m_chainItemsL1) _chainItem.second->beginEvent( _thisEvent );
-    for (const auto _chainItem : m_chainItemsL2) _chainItem.second->beginEvent( _thisEvent );
+    TOBAccumulator* m_thisEventPtr = getEventTOBs();
+
+    if (m_upgradePileupScaling) {
+
+      m_collisionsToMix += m_pileupFactor; // Want another ~200 collisions
+
+      Int_t _eventsAdded = 0;
+      while (m_thisEventPtr->mu() < m_collisionsToMix) {
+        UInt_t _pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
+        m_thisEventPtr->add( m_pileupDatabase.at( _pileupLottery ) );
+        ++_eventsAdded; 
+      }
+
+      if (++_tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", "Target collisions: %.2f | Adding %i events, <mu> = %.2f", m_collisionsToMix, _eventsAdded, m_thisEventPtr->mu() );
+      m_collisionsToMix -= m_thisEventPtr->mu(); // Take this off so any excess is taken into account next time
+
+      m_statsEventMu += m_thisEventPtr->mu();
+      m_statsEventMu2 += pow(m_thisEventPtr->mu(), 2);
+      ++m_statsEventMuN;
+
+    }
+
+
+
+    //if ( fabs( m_eventsToMix - round(m_eventsToMix) ) <  0.1) m_eventsToMix = round(m_eventsToMix);
+    ////static Int_t _debug2 = 0;
+    // if (++_debug2 < 20) Info("MonitorRatesUpgrade::newEvent", "Mixing %i events (f %f)", (Int_t) round(m_eventsToMix), m_eventsToMix);
+    // // Add pileup
+    // for (Int_t _pu = 0; _pu <  (Int_t) round(m_eventsToMix); ++_pu) { // Cast to int rounds down
+    //   UInt_t _pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
+    //   m_thisEventPtr->add( m_pileupDatabase.at( _pileupLottery ) ); 
+    // }
+    // if (_tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " ### MIXING %i EVENTS, NOW HAEV %i TOBs ### MET:%f TE:%f\n%s", (Int_t) m_eventsToMix, (Int_t) m_thisEventPtr->TOBs().size(), m_thisEventPtr->MET(), m_thisEventPtr->TE(),m_thisEventPtr->print().c_str());
+    // m_eventsToMix -= (Int_t)m_eventsToMix; // Remove whole integer events mixed. Leave fractional part to accumulate for next event.
+
+    for (const auto _chainItem : m_chainItemsL1) _chainItem.second->beginEvent( m_thisEventPtr );
+    for (const auto _chainItem : m_chainItemsL2) _chainItem.second->beginEvent( m_thisEventPtr );
 
     //Now loop over the counter collections;
     for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
@@ -602,7 +648,7 @@ namespace TrigCostRootAnalysis {
         _it->second->processEventCounter(0, 1, _weightUpgrade);
         m_countersInEvent.insert( _it->second );
       }
-      //if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
+      //if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, m_thisEventPtr, kFALSE /*print*/);
 
       endEvent(0);
     }
@@ -610,7 +656,8 @@ namespace TrigCostRootAnalysis {
     for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();
     for (const auto _chainItem : m_chainItemsL2) _chainItem.second->endEvent();
 
-    delete _thisEvent;
+    delete m_thisEventPtr;
+    m_thisEventPtr = nullptr;
 
     m_timer.stop();
   }
@@ -699,6 +746,10 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorRatesUpgrade::saveOutput() {
     // Send finalise calls
+
+    Info("MonitorRatesUpgrade::saveOutput", "Target <mu> = %.4f, Obtained <mu> = %.4f", m_pileupFactor, m_statsEventMu / (Float_t)m_statsEventMuN );
+    Info("MonitorRatesUpgrade::saveOutput", "Sum(Collisions)=%.3e Sum(Collisions^2)=%.3e Events:%i", m_statsEventMu, m_statsEventMu2, m_statsEventMuN );
+
 
     for (CounterCollectionIt_t _collectionIt = m_counterCollections.begin(); _collectionIt != m_counterCollections.end(); ++_collectionIt) {
       const std::string _counterCollectionName = _collectionIt->first;

@@ -132,6 +132,17 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * @return The bunch crossing identifier number.
+   */
+  UInt_t TrigCostData::getBunchCrossingId() const {
+    MUTEX_ON
+    Int_t _R = m_trigCostObject->bunchCrossingId();
+    MUTEX_OFF
+    return _R;
+  }
+
+
+  /**
    * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the D3PD.
    * Normally this will be done centally and distributed in this package.
    */

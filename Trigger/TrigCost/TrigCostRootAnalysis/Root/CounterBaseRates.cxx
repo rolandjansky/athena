@@ -63,6 +63,10 @@ namespace TrigCostRootAnalysis {
         m_dataStore.newVariable(kVarEmNThresh).setSavePerEvent("Electron ROI N Pass Threshold;N RoIs;Events");
         m_dataStore.newVariable(kVarTauNThresh).setSavePerEvent("Tau ROI N Pass Threshold;N RoIs;Events");
 
+        m_dataStore.newVariable(kVarMu).setSavePerEvent("Obtained <mu> Profile;<mu>;Events");
+        m_dataStore.newVariable(kVarBunchWeight).setSavePerEvent("Number of Bunch Extrapolation;Bunch Weight;Events");
+
+
         m_disableEventLumiExtrapolation = kTRUE;
       }
 
@@ -127,7 +131,7 @@ namespace TrigCostRootAnalysis {
     if (!isZero( _weightPS )) {
       m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
-      if (m_detailLevel > 0 && m_L1s.size() == 1) (**m_L1s.begin()).fillHistograms(m_dataStore, _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS);
+      if (m_detailLevel > 0 && m_L1s.size() == 1) (**m_L1s.begin()).fillHistograms(m_dataStore, _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS, static_cast<MonitorRatesUpgrade*>(m_parent)->getCollidingBunchFactor());
     }
 
     // DIRECT Prescale

@@ -134,7 +134,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _useDefaultExponentialScalingList = kFALSE;
     static Int_t _upgradeMergeTOBOverlap = kFALSE;
     static Int_t _doExponentialMu = kFALSE;
-
+    static Int_t _invertHighMuRunVeto = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -169,9 +169,11 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-36";
+    std::string _version = "TrigCostRootAnalysis-00-10-05";
     std::string _upgradeScenario = "";
     std::string _jira = "";
+    std::string _multiRun = "";
+
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
@@ -198,8 +200,8 @@ namespace TrigCostRootAnalysis {
     Float_t _binMin = FLT_MIN;
     Float_t _binMax = FLT_MIN;
     Float_t _targetMu = 0.;
-    Float_t _expoRateScaleModifierL1 = 0.0615;
-    Float_t _expoRateScaleModifierHLT = 0.107;
+    Float_t _expoRateScaleModifierL1 = 0.105; // From high-mu run
+    Float_t _expoRateScaleModifierHLT = 0.111; // From high-mu run
 
     // Parse CLI
     Int_t _status = 0;
@@ -280,6 +282,7 @@ namespace TrigCostRootAnalysis {
         {"useDefaultExponentialScalingList", no_argument, &_useDefaultExponentialScalingList,1},
         {"upgradeMergeTOBOverlap", no_argument,       &_upgradeMergeTOBOverlap, 1},
         {"doExponentialMu",        no_argument,       &_doExponentialMu,        1},
+        {"invertHighMuRunVeto",    no_argument,       &_invertHighMuRunVeto,    1}, // Hidden option
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -341,6 +344,7 @@ namespace TrigCostRootAnalysis {
         {"expoRateScaleModifierL1",  required_argument, 0,                    '5'},
         {"expoRateScaleModifier",  required_argument, 0,                      '6'}, //alow either
         {"expoRateScaleModifierHLT",  required_argument, 0,                   '6'}, //alow either
+        {"multiRun",               required_argument, 0,                      '7'}, // Hidden option
         {0, 0, 0, 0}
       };
 
@@ -758,6 +762,10 @@ namespace TrigCostRootAnalysis {
         // Different tree name
         _treeName = std::string( optarg );
         break;
+      case '7':
+        // Multirun
+        _multiRun = std::string( optarg );
+        break;
       case 'm':
         // Specify upgrade scenario
         _upgradeScenario = std::string( optarg );
@@ -1114,6 +1122,10 @@ namespace TrigCostRootAnalysis {
       _doUniqueRates = kTRUE;
       Info("Config::parseCLI","Setting --doUniqueRates to TRUE because one or more --patternsUnique were supplied");
     }
+    if (_doUniqueRates && _doExponentialMu) {
+      Warning("Config::parseCLI","Forcing doExponentialMu flag to FALSE otherwise can get negative unique rates.");
+      _doExponentialMu = kFALSE;
+    }
 
     // Lumi block settings. Start, end, and number to fully summarise
     if ( _lbEnd < _lbBegin ) {
@@ -1259,6 +1271,13 @@ namespace TrigCostRootAnalysis {
     setFloat(kExpoRateScaleModifierHLT, _expoRateScaleModifierHLT, "ExpoRateScaleModifierHLT");
     set(kUpgradeMergeTOBOverlap, _upgradeMergeTOBOverlap, "UpgradeMergeTOBOverlap");
     set(kDoExponentialMu, _doExponentialMu, "DoExponentialMu");
+    set(kInvertHighMuRunVeto, _invertHighMuRunVeto, "InvertHighMuRunVeto");
+
+    std::stringstream _multiRunss(_multiRun); // Comma separated
+    std::string _tempStr;
+    std::vector<Int_t> _multRunInts;
+    while (std::getline(_multiRunss, _tempStr, ',')) _multRunInts.push_back(stringToInt(_tempStr));
+    set(kMultiRun, _multRunInts, "MultiRun");
 
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
@@ -1472,6 +1491,8 @@ namespace TrigCostRootAnalysis {
     set(kVarROBPrefetched, "ROBPrefetched");
     set(kVarROBUnclassified, "ROBUnclassified");
     set(kVarROBIgnored, "ROBIgnored");
+    set(kVarMu, "Mu");
+    set(kVarBunchWeight, "BunchExtrapolationWeight");
     set(kVarCalls, "Calls");
     set(kVarCallsRaw, "CallsRaw");
     set(kVarCallsSlow, "CallsSlow");
@@ -1916,6 +1937,22 @@ namespace TrigCostRootAnalysis {
     if ( std::find(m_settingsVecInt[_key].begin(), m_settingsVecInt[_key].end(), _entry) != m_settingsVecInt[_key].end()) return kTRUE;
     return kFALSE;
   }
+
+  /**
+   * @param _key enum key for this config.
+   * @return the vector of ints.
+   */
+  const std::vector<Int_t>& Config::getIntVec( ConfKey_t _key ) {
+    static std::vector<Int_t> _empty;
+    if ( m_settingsVecInt.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getIntVecMatches", "Unknown key %i %s", _key, _name.c_str() );
+      return _empty;
+    }
+    return m_settingsVecInt[_key];
+  }
+
 
   /**
    * Get if there is a setting stored with the given key. Regardless of type.
