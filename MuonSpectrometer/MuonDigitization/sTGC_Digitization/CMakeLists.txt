@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
+                          MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
                           Simulation/Tools/AtlasCLHEP_RandomGenerators
@@ -24,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
                           Tools/PathResolver
                           Tracking/TrkDetDescr/TrkDetDescrUtils
@@ -53,4 +53,5 @@ atlas_install_headers( sTGC_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )
+atlas_install_runtime( share/*.config )
 
