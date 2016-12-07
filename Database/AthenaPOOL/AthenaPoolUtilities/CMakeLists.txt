@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 749364 2016-05-24 12:10:40Z krasznaa $
+# $Id: CMakeLists.txt 758198 2016-06-28 15:18:49Z mnowak $
 ################################################################################
 # Package: AthenaPoolUtilities
 ################################################################################
@@ -27,6 +27,12 @@ atlas_add_library( AthenaPoolUtilities
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel DataModel SGTools DBDataModel
    PersistentDataModel )
+
+atlas_add_dictionary( AthenaPoolUtilitiesCoralDict
+   AthenaPoolUtilities/AthenaPoolUtilitiesCoralDict.h
+   AthenaPoolUtilities/selectionCoral.xml
+   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${CORAL_LIBRARIES} )
 
 atlas_add_dictionary( AthenaPoolUtilitiesDict
    AthenaPoolUtilities/AthenaPoolUtilitiesDict.h

@@ -211,15 +211,23 @@ PP="$PP"'|has a NULL data object ptr'
 
 PP="$PP"'|no dictionary for class|^loading|open Success'
 
-PP="$PP"'|^warn .*frontier'
+# Ignore frontier warnings.
+PP="$PP"'|^warn .*frontier|Retrying after system error'
 
 PP="$PP"'|^SetGeometryVersion.py obtained'
 PP="$PP"'|WARNING Unable to register callback|WARNING Unable to locate catalog'
 PP="$PP"'|^ImplicitCollection Info|^GeoModelSvc +WARNING.*does not match|^RootCollection Info|^RootCollectionSchemaEditor (Info|Warning)'
 PP="$PP"'|^Warning in material CabCoolEcD3'
 PP="$PP"'|has no streamer or dictionary'
-PP="$PP"'|^RootDatabase.open Always'
+PP="$PP"'|^RootDatabase.open (Info|Always)'
 PP="$PP"'|No valid proxy for object /Generation/Parameters'
+
+# Messages that differ between tests run in AtlasCore vs AtlasEvent.
+PP="$PP"'|^RalDatabaseSvc Info|^CoralApplication Info|^TRT_GeoModel +WARNING|Xtomo'
+
+# ubsan
+PP="$PP"'|bits/regex.h:1545'
+
 
 test=$1
 if [ -z "$testStatus" ]; then
