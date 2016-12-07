@@ -120,7 +120,7 @@ StatusCode Csc4dSegmentMaker::initialize(){
 //******************************************************************************
 
 MuonSegmentCombinationCollection*
-Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols)
+Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 {
 
   // Set dump flag.
@@ -162,7 +162,7 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols)
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /*gpos*/, const Amg::Vector3D& /*gdir*/,
                                                           const std::vector< const MdtDriftCircleOnTrack* > & ,
                                                           const std::vector< const MuonClusterOnTrack* > & pcots,
-                                                          bool, double) {
+                                                          bool, double) const {
 
   if( pcots.empty() ) return 0;
   const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(pcots.front());
@@ -227,7 +227,7 @@ std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Trk::TrackRoad& road,
                                                           const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& ,
                                                           const std::vector< std::vector< const MuonClusterOnTrack* > >& clusters,
-                                                          bool, double) {
+                                                          bool, double) const {
   
   // Here, according to give TrackRoad, I do re-estimate errors of each COT and repeat segment fit
   
@@ -262,19 +262,19 @@ StatusCode Csc4dSegmentMaker::finalize() {
 
 //************dummy function for interface******************************************************************
 
-MuonSegmentCombinationCollection* Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>& /*pcols*/){
+MuonSegmentCombinationCollection* Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>& /*pcols*/) const {
   return 0;
 }
 
-std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ ) {
+std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& /*rios*/ ) const {
   return 0;
 }
 
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const Trk::RIO_OnTrack*>& /*rios1*/,
-                                                          const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) {
+                                                          const std::vector<const Trk::RIO_OnTrack*>& /*rios2*/ ) const {
   return 0;
 }
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const std::vector<const MdtDriftCircleOnTrack*>& /*mdts*/,
-                                                          const std::vector<const MuonClusterOnTrack*>&  /*clusters*/){
+                                                          const std::vector<const MuonClusterOnTrack*>&  /*clusters*/) const {
   return 0;
 }

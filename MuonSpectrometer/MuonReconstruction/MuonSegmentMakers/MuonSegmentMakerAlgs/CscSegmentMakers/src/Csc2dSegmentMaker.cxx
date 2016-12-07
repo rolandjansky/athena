@@ -142,7 +142,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
 
 
 //******************************************************************************
-MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols)
+MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const
 {
 
   // Construct output segment collection.
@@ -181,7 +181,7 @@ MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<con
 
 //******************************************************************************
 
-MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepDataCollection& clus) {
+MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepDataCollection& clus) const {
 
   // check whether input not empty
   if( clus.empty() ) return 0;
@@ -330,7 +330,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 
   
 //******************************************************************************
-MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& )
+MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& ) const
 {
   return 0;
 
