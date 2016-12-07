@@ -20,6 +20,8 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigMonitorBase/IExtMonitorTool.h"
+
 //#include "AthViews/View.h"
 
 class FakeRoI : public AthAlgorithm {
@@ -42,6 +44,7 @@ private:
 	SingleFakeRoI parseInputRoI(const std::string& roi, unsigned lineNumber, unsigned roiNumber);
 
 	std::vector<TrigConf::TriggerThreshold*> m_emtauThresholds;
+	
 
 	SG::WriteHandle< TrigRoiDescriptorCollection > m_trigRoIs;
 	SG::WriteHandle< DataVector<LVL1::RecEmTauRoI> > m_recEMTauRoIs;
@@ -55,6 +58,7 @@ private:
 	std::string m_inputFilename;
 	std::vector<std::vector<FakeRoI::SingleFakeRoI>> m_inputData;
 	unsigned m_currentRowNumber;
+	ToolHandleArray<IExtMonitorTool> m_monTools;
 };
 
 #endif

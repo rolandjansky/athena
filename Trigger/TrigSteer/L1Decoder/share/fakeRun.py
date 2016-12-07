@@ -70,6 +70,19 @@ print svcMgr
 
 theApp.EvtMax = 10
 
+from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+
+mt = TrigGenericMonitoringToolConfig("CaloRoIsMonitor")
+mt.OutputLevel=VERBOSE
+mt.Histograms += [defineHistogram('roiCount', type='TH1F', title="RoIs count;#RoIs;events", xbins=30, xmin=0, xmax=30)]
+fakeRoI.monTools = [mt]
+
+
+
+from GaudiSvc.GaudiSvcConf import THistSvc
+svcMgr += THistSvc()
+svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
+
 
 print "topSequence dump:", topSequence
 #

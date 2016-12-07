@@ -70,16 +70,17 @@ StatusCode L1CaloDecoder::execute() {
   }
   
   // create view (BEN: for now don't do it until we've got the scheduling going)
-  /*m_view = CxxUtils::make_unique< std::vector<SG::View*>>();
+  /*  m_view = CxxUtils::make_unique< std::vector<SG::View*>>();
   IProxyDict * view = new SG::View("L1CaloDecoderView");
-  m_view->push_back(view);*/
+  m_view->push_back(view);
+  */
   IProxyDict * view = 0;
 
   // redirect handles to that view
-  CHECK( m_trigRoIs.setStore(view) );
-  CHECK( m_recEMTauRoIs.setStore(view) );
-  CHECK( m_decisions.setStore(view) );
-  CHECK( m_decisionsAux.setStore(view) );
+  CHECK( m_trigRoIs.setProxyDict(view) );
+  CHECK( m_recEMTauRoIs.setProxyDict(view) );
+  CHECK( m_decisions.setProxyDict(view) );
+  CHECK( m_decisionsAux.setProxyDict(view) );
 
   // define output
   m_trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
