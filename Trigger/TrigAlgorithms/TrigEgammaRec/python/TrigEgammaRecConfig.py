@@ -7,11 +7,6 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from TrigEgammaRec import TrigEgammaRecConf
 
-# PID -- selectors added via TrigEgammaPIDTools in TrigEgammaHypo
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-ElectronPidTools()
-PhotonPidTools()
 
 from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyValue 
 # The following tools use the offline configuration
@@ -45,7 +40,7 @@ from TrigEgammaRec.TrigEgammaToolFactories import (TrigCaloIsolationTool,
         )
 
 def configureTrigEgammaMonitoring(tool):
-  from RecExConfig.RecFlags import rec
+  # from RecExConfig.RecFlags import rec
   # Configure monitoring tools
   from TrigEgammaRec.TrigEgammaRecMonitoring import TrigEgammaRecValidationMonitoring, TrigEgammaRecOnlineMonitoring, TrigEgammaRecCosmicMonitoring
   validation = TrigEgammaRecValidationMonitoring()
