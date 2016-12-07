@@ -130,7 +130,7 @@ void MuonHoughPatternTool::useIPMuons()
   m_use_ip = true;
 }
 
-void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontainer)
+void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontainer) const
 {
   m_event = hitcontainer;
 
@@ -195,7 +195,7 @@ void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontaine
   ATH_MSG_VERBOSE("End makePatterns ");
 }
 
-void MuonHoughPatternTool::makePatterns(int id_number)
+void MuonHoughPatternTool::makePatterns(int id_number) const
 {
   ATH_MSG_DEBUG("makePatterns");
 
@@ -327,7 +327,7 @@ StatusCode MuonHoughPatternTool::initialize()
   return sc;
 }
 
-void MuonHoughPatternTool::init()
+void MuonHoughPatternTool::init() const
 {
   ATH_MSG_VERBOSE("init()");
 
@@ -336,7 +336,7 @@ void MuonHoughPatternTool::init()
 
 }
 
-void MuonHoughPatternTool::resetAssociation()
+void MuonHoughPatternTool::resetAssociation() const
 {
   for (unsigned int i=0; i<m_event->size(); i++)
     {
@@ -365,7 +365,7 @@ StatusCode MuonHoughPatternTool::finalize()
   return sc;
 }
 
-void MuonHoughPatternTool::reset()
+void MuonHoughPatternTool::reset() const
 {
   ATH_MSG_VERBOSE("reset()");
 
@@ -387,7 +387,7 @@ void MuonHoughPatternTool::reset()
     }
 }
 
-MuonHoughPatternContainerShip MuonHoughPatternTool::emptyHoughPattern()
+MuonHoughPatternContainerShip MuonHoughPatternTool::emptyHoughPattern() const
 {
   //  std::cout << "emptyHoughPattern() (start) "  << std::endl;
   MuonHoughPatternContainerShip houghpattern;
@@ -415,7 +415,7 @@ MuonHoughPatternContainerShip MuonHoughPatternTool::emptyHoughPattern()
   return houghpattern;
 } //emptyHoughPattern
 
-void MuonHoughPatternTool::fillHistos(int /*id_number*/, int level, const MuonHoughHitContainer* event_to_analyse, MuonHoughTransformSteering* houghtransform)
+void MuonHoughPatternTool::fillHistos(int /*id_number*/, int level, const MuonHoughHitContainer* event_to_analyse, MuonHoughTransformSteering* houghtransform) const
 {
   ATH_MSG_DEBUG("fillHistos , level: " << level);
 
@@ -434,7 +434,7 @@ void MuonHoughPatternTool::fillHistos(int /*id_number*/, int level, const MuonHo
   ATH_MSG_VERBOSE("fillHistos::end of filling, now analyse histo: ");
 }
 
-bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform)
+bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform) const
 {
   ATH_MSG_VERBOSE("analyseHisto MuonHoughPatternTool (start)");
 
@@ -526,7 +526,7 @@ bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughH
 
 } //analyseHisto
 
-void MuonHoughPatternTool::analyseTrack(int /*id_number*/,const MuonHoughHitContainer* /*event_to_analyse*/,MuonHoughTransformSteering* /*houghtransform*/)
+void MuonHoughPatternTool::analyseTrack(int /*id_number*/,const MuonHoughHitContainer* /*event_to_analyse*/,MuonHoughTransformSteering* /*houghtransform*/) const
 {
 } //analyseTrack
 
@@ -866,7 +866,7 @@ MuonHoughHitContainer* MuonHoughPatternTool::whichEventHough(int id_number,const
   return event_to_analyse;
 }
 
-MuonHoughTransformSteering* MuonHoughPatternTool::whichHoughTransform(int id_number)
+MuonHoughTransformSteering* MuonHoughPatternTool::whichHoughTransform(int id_number) const
 {
   // houghtransform already configured?
   if (m_houghtransforms[id_number]!=0) {return m_houghtransforms[id_number];}
@@ -999,7 +999,7 @@ void MuonHoughPatternTool::transformCoordsMaximum(std::pair <double,double> &coo
   coordsmaximum.second = theta_rec;
 } // transformCoordsMaximum
 
-MuonPrdPatternCollection* MuonHoughPatternTool::getPhiMuonPatterns()
+MuonPrdPatternCollection* MuonHoughPatternTool::getPhiMuonPatterns() const
 {
   MuonPrdPatternCollection* phipatterncollection = new MuonPrdPatternCollection();
   phipatterncollection->reserve(m_maximum_level * m_number_of_maxima);
@@ -1120,7 +1120,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getPhiMuonPatterns()
   return phipatterncollection;
 }
 
-MuonPrdPatternCollection* MuonHoughPatternTool::getEtaMuonPatterns()
+MuonPrdPatternCollection* MuonHoughPatternTool::getEtaMuonPatterns() const
 {
   MuonPrdPatternCollection* etapatterncollection = new MuonPrdPatternCollection();
   
@@ -1266,7 +1266,7 @@ MuonPrdPatternCollection* MuonHoughPatternTool::getEtaMuonPatterns()
   return etapatterncollection;
 } 
 
-MuonPrdPatternCollection* MuonHoughPatternTool::getCurvedMuonPatterns()
+MuonPrdPatternCollection* MuonHoughPatternTool::getCurvedMuonPatterns() const
 {
   MuonPrdPatternCollection* curvedpatterncollection = new MuonPrdPatternCollection();
   
@@ -1797,7 +1797,7 @@ double MuonHoughPatternTool::getThresholdHisto(int id_number)const
   return thresholdhisto;
 }
 
-void MuonHoughPatternTool::setWeightMdtCutValue(const MuonHoughHitContainer* event)
+void MuonHoughPatternTool::setWeightMdtCutValue(const MuonHoughHitContainer* event) const
 {
   if (m_use_cosmics == true) {
     m_weightmdt = 0.;

@@ -63,7 +63,7 @@ namespace Muon {
 						  const std::vector<const CscPrepDataCollection*>& cscCols,  
 						  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 						  const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-						  const MuonSegmentCombinationCollection* cscSegmentCombis );
+						  const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
 
   private:
 
@@ -72,35 +72,35 @@ namespace Muon {
 					     const std::vector<const CscPrepDataCollection*>& cscCols,  
 					     const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 					     const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-					     const MuonSegmentCombinationCollection* cscSegmentCombis );
+					     const MuonSegmentCombinationCollection* cscSegmentCombis ) const ;
 
     /** possibility to skip events, nothing implemented */
-    bool cut();
+    bool cut() const;
 
     /** clean up tool */
-    void cleanUp();
+    void cleanUp() const;
 
     /** analyse hits */
-    const MuonPatternCombinationCollection* analyse( const MuonHoughHitContainer& hitcontainer );
+    const MuonPatternCombinationCollection* analyse( const MuonHoughHitContainer& hitcontainer ) const;
 
 
   private:
 
     /** record patterncollection to storegate or deletes collection when m_recordAllOutput is false */
-    void record( const MuonPrdPatternCollection* patCol, std::string location );
+    void record( const MuonPrdPatternCollection* patCol, std::string location ) const;
 
 
     /** convert and add rpc preprawdata collection (1 chamber) */
-    void addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer);
+    void addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const;
     /** convert and add mdt preprawdata collection (1 chamber) */
-    void addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)const;
+    void addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const;
     /** convert and add csc preprawdata collection (1 chamber) */
-    void addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)const;
+    void addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const;
     /** convert and add tgc preprawdata collection (1 chamber) */
-    void addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer);
+    void addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const;
 
     /** construct and record csc asso map to storegate */
-    void storeCscAssMap(const MuonPatternCombinationCollection*)const;
+    void storeCscAssMap(const MuonPatternCombinationCollection*) const;
 
     /** finds best segment for given driftcircle vector (nl1/2 = number of dc's in ml 1 and 2, angledif is difference between angle of segment and chamberangle, sel is vector of selected hits (0 not selected, 1 selected) */
     void fastSegmentFinder(TrkDriftCircleMath::DCVec& dcs,int &nl1, int &nl2, double &angleDif, std::vector <int> &sel)const;
@@ -109,16 +109,16 @@ namespace Muon {
     int calculateStationCode(const Identifier)const;
 
     /** update station map for rpc chamber, with id of chamber, and size of hits in rpc chamber */
-    void updateRpcMdtStationMap(const Identifier rpcid, int hit_begin, int hit_end);
+    void updateRpcMdtStationMap(const Identifier rpcid, int hit_begin, int hit_end) const;
 
     /** map between mdt chamber identifiers and corresponding rpc hits (hit_no_begin and hit_no_end)*/
-    std::map<int,std::vector<std::pair<int, int> > > m_rpcmdtstationmap;
+    mutable std::map<int,std::vector<std::pair<int, int> > > m_rpcmdtstationmap;
 
     /** update station map for tgc chamber, with id of chamber, and size of hits in tgc chamber */
-    void updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end);
+    void updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end) const;
 
     /** map between mdt chamber identifiers and corresponding tgc hits (hit_no_begin and hit_no_end)*/
-    std::map<int,std::vector<std::pair<int, int> > > m_tgcmdtstationmap;
+    mutable std::map<int,std::vector<std::pair<int, int> > > m_tgcmdtstationmap;
 
     /** calculates an unique stationcode integer (own convention)*/
     int stationCode(Identifier id)const;
@@ -126,7 +126,7 @@ namespace Muon {
     /** calculates an unique stationcode integer (own convention)*/
     int stationCode(int stationname, int phi, int eta)const;
 
-    void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end);
+    void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end) const;
 
     /** Pointer to Detectormanager */
     const MuonGM::MuonDetectorManager*  m_detMgr;
@@ -141,7 +141,7 @@ namespace Muon {
     const MdtIdHelper*                  m_mdtIdHelper;
 
     ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool;    //!< Pointer to concrete tool
-    ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool;   //!< Pointer to concrete tool  
+    mutable ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool;   //!< Pointer to concrete tool  
     ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
@@ -157,7 +157,7 @@ namespace Muon {
     bool       m_mdt_tdc_cut;
 
     /** number of events counter, not in use */
-    int        m_count;
+    mutable int        m_count;
     /** use rpc preprawdata (true) */
     bool       m_use_rpc;
     /** use tgc preprawdata (true) */
@@ -184,16 +184,16 @@ namespace Muon {
     bool m_recordAllOutput;
 
     /** map for association between (csc) hits and their segments (only used when m_use_csc_segments is true), used for writing out a MuonSegPatAssMap */
-    std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*> m_cschitsegassociation;
+    mutable std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*> m_cschitsegassociation;
 
     /** storegate location for csc association map */
     std::string m_cscAssoOutputLocation;
 
     /** pointer to the CSC segment combination collection */
-    const MuonSegmentCombinationCollection* m_csc_segments;
+    // const MuonSegmentCombinationCollection* m_csc_segments;
 
     /** map for association between trigger eta hits (first) and phi hits (second) within the same gasgap, used for combining patterns in MuonCombinePatternTool */
-    std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phietahitassociation;
+    mutable std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phietahitassociation;
 
     /** histogram file for studies on weighting (only in use, when m_use_histos is true) */
     TFile* f_file;
