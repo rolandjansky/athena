@@ -111,7 +111,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
     declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
-    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo_fullscan_egamma");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TopoCaloClusterMaker_topo_FS");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
@@ -631,8 +631,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
     
         if ( stat!= HLT::OK ) {
-        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
-        //return HLT::OK; // If you did not get it, it is not a problem, continue!
+            ATH_MSG_ERROR(" REGTEST: No CaloTopoClusterContainers retrieved for the trigger element");
+            //return HLT::OK; // If you did not get it, it is not a problem, continue!
         }  
              
         //debug message
@@ -642,9 +642,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         }
         // Get the last ClusterContainer
         if ( !vectorClusterContainerTopo.empty() ) {
-        const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
-        if (clusContainerTopo->size() > 0) topoClusTrue = true;
-        std::cout << "REGTEST: Number of topo containers : " << clusContainerTopo->size() << std::endl;
+            const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
+            if (clusContainerTopo->size() > 0) topoClusTrue = true;
+            ATH_MSG_DEBUG("REGTEST: Number of topo containers : " << clusContainerTopo->size());
         } // vector of Cluster Container empty?!
     }
 
@@ -1056,8 +1056,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
-        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg,index)");
-        if(m_fourMomBuilder->hltExecute(eg,0)); // What is the index?
+        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
+        if(m_fourMomBuilder->hltExecute(eg)); // 
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
         if (timerSvc()) m_timerTool4->stop(); //timer
 
@@ -1143,8 +1143,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     for (const auto& eg : *m_photon_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
-        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg,index)");
-        if(m_fourMomBuilder->hltExecute(eg,0)); // What is the index?
+        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
+        if(m_fourMomBuilder->hltExecute(eg)); // 
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
         if (timerSvc()) m_timerTool4->stop(); //timer
 
