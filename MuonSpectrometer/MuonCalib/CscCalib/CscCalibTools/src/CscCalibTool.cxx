@@ -310,7 +310,7 @@ int CscCalibTool::stripStatusBit ( uint32_t stripHashId ) const {
 
 
 
-bool CscCalibTool::stripT0phase ( uint32_t stripHashId ) {
+bool CscCalibTool::stripT0phase ( uint32_t stripHashId ) const {
 
   bool t0phase = 0;
 
@@ -332,7 +332,7 @@ bool CscCalibTool::stripT0phase ( uint32_t stripHashId ) {
 }
 
 
-double CscCalibTool::stripT0base ( uint32_t stripHashId ) {
+double CscCalibTool::stripT0base ( uint32_t stripHashId ) const {
 
   float t0base = 0.0;
   if (! m_onlineHLT ) {
@@ -635,7 +635,7 @@ double CscCalibTool::signal_amplitude(const double driftTime, const double sampl
 
 
 // new schema starting from 09/2010...
-std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) {
+std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const {
   
   std::vector<float> result;
   if ( stripCharge0==0.0 ) {
@@ -663,7 +663,7 @@ std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTim
 std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
                                                       const double stripCharge0,
                                                       const double driftTime1,
-                                                      const double stripCharge1) {
+                                                      const double stripCharge1) const {
   
   std::pair<double,double> result;
   // To get a nomalization constant...
