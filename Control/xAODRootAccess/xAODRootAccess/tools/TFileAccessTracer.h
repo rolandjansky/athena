@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileAccessTracer.h 683789 2015-07-17 12:01:07Z krasznaa $
+// $Id: TFileAccessTracer.h 781356 2016-10-31 14:03:28Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 #define XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 
@@ -14,11 +14,15 @@
 
 // ROOT include(s):
 #include <TString.h>
+#include <TInetAddress.h>
 
 // Forward declaration(s):
 class TFile;
 
 namespace xAOD {
+
+   /// Forward declaration(s):
+   class ReadStats;
 
    /// Helper class keeping track of the files that got accessed
    ///
@@ -41,8 +45,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 683789 $
-   /// $Date: 2015-07-17 14:01:07 +0200 (Fri, 17 Jul 2015) $
+   /// $Revision: 781356 $
+   /// $Date: 2016-10-31 15:03:28 +0100 (Mon, 31 Oct 2016) $
    ///
    class TFileAccessTracer {
 
@@ -87,9 +91,14 @@ namespace xAOD {
 
       /// Address of the server to send monitoring information to
       std::string m_serverAddress;
+      /// Technical address of the server
+      ::TInetAddress m_serverInetAddress;
 
       /// Fraction of jobs that should send monitoring information
       ::Double_t m_monitoredFraction;
+
+      /// Object describing the job's xAOD access statistics
+      ReadStats* m_readStats;
 
       /// Global property for enabling data submission or not
       static ::Bool_t m_enableDataSumbission;

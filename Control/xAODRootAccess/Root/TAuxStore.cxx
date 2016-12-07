@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxStore.cxx 733711 2016-04-04 15:54:46Z krasznaa $
+// $Id: TAuxStore.cxx 783066 2016-11-08 19:39:32Z ssnyder $
 
 // System include(s):
 #include <string.h>
@@ -913,7 +913,7 @@ namespace xAOD {
       // Create the smart object holding this vector:
       if( isRegisteredType( auxid ) ) {
          m_vecs[ auxid ] =
-            SG::AuxTypeRegistry::instance().makeVector( auxid, 0, 0 );
+            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 );
          if( ! containerBranch ) {
             m_vecs[ auxid ]->resize( 1 );
          }
@@ -1120,7 +1120,7 @@ namespace xAOD {
       // Check if the variable exists already in memory:
       if( ! m_vecs[ auxid ] ) {
          m_vecs[ auxid ] =
-            SG::AuxTypeRegistry::instance().makeVector( auxid, 0, 0 );
+            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 );
          if( m_structMode == kObjectStore ) {
             m_vecs[ auxid ]->resize( 1 );
          }
@@ -1439,18 +1439,18 @@ namespace xAOD {
       // Get the registry:
       SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();
 
-      // If we couldn't get the type information of the branch, then fall
-      // back on the old implementation.
-      if( ! ti ) {
-         auxid_t auxid = registry.findAuxID( auxName );
-         // If this is not successful, then let's not even remember this
-         // variable, as we won't be able to access it later on anyway.
-         if( auxid == SG::null_auxid ) {
-            return TReturnCode::kSuccess;
-         }
-         // If it *was* found (strange...) then let's remember it:
-         m_auxIDs.insert( auxid );
+      // Check if the registry already knows this variable name. If yes, let's
+      // use the type known by the registry. To be able to deal with simple
+      // schema evolution in dynamic branches.
+      const auxid_t regAuxid = registry.findAuxID( auxName );
+      if( regAuxid != SG::null_auxid ) {
+         m_auxIDs.insert( regAuxid );
          ++m_tick;
+         return TReturnCode::kSuccess;
+      }
+
+      // If we didn't find a type_info for the branch, give up now...
+      if( ! ti ) {
          return TReturnCode::kSuccess;
       }
 
