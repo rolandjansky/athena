@@ -257,7 +257,7 @@ namespace Muon {
     return refit(trkCan.track());
   }
 
-  MuPatTrack* MooTrackBuilder::refine( MuPatTrack& track ) {
+  MuPatTrack* MooTrackBuilder::refine( MuPatTrack& track ) const {
     
     Trk::Track* finalTrack = m_hitRecoverTool->recover(track.track());
     if( !finalTrack ) {
@@ -1209,7 +1209,7 @@ namespace Muon {
     return m_helper->isSLTrack(track) || !m_magFieldSvc->toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);    
   }
 
-  std::vector<MuPatTrack*>* MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) {
+  std::vector<MuPatTrack*>* MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {
 
     // check whether we have segments
     if( segVec.empty() ) return 0;
@@ -1260,7 +1260,7 @@ namespace Muon {
       if( trkCan ) {
 
         if( !track ) {
-	  trkCan->addExcludedSegment(*sit);
+          trkCan->addExcludedSegment(*sit);
           continue;
         }
 
