@@ -35,7 +35,7 @@ apply_pattern athenarun_test name="ByteStreamTestMetaRead" pre_script="../test/p
 
 apply_pattern athenarun_test name="ByteStreamTestBadEvents" pre_script="../test/pre_check.sh CheckBadEvents " options="ByteStreamTest/BadEvents.py" post_script="../test/post_check_bs.sh ByteStreamTestBadEvents "
 
-apply_pattern athenarun_test name="ByteStreamTestSelectors" pre_script="../test/pre_check.sh CheckSelectors " options="ByteStreamTest/HelperToolTest.py" post_script="../test/post_check_bs.sh ByteStreamTestSelectors "
+apply_pattern athenarun_test name="ByteStreamTestSelectors" pre_script="../test/pre_check.sh CheckSelectors " options="ByteStreamTest/Selectors.py" post_script="../test/post_check_bs.sh ByteStreamTestSelectors "
 
 # Tests dependencies
 private

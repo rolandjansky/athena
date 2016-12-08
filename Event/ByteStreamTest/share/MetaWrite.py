@@ -37,6 +37,12 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    svcMgr.ByteStreamEventStorageOutputSvc.SimpleFileName = "metatest.data"
    svcMgr.ByteStreamEventStorageOutputSvc.AttributeListKeys = ['RunEventTag']
 
+   import os
+   try:
+      os.remove ('metatest.data')
+   except OSError:
+      pass
+
 svcMgr.EventSelector.Input = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
 
 # The piece which does the AttList conversion for WRITING
