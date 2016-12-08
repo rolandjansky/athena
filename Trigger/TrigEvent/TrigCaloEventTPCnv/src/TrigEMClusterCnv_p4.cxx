@@ -17,10 +17,10 @@ void TrigEMClusterCnv_p4::transToPers(const TrigEMCluster* trans,
                                      TrigEMCluster_p4* pers, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p4::tranToPers" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p4::tranToPers" << endmsg;
 
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "TrigEMClusterCnv_p4::trasnToPers with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "TrigEMClusterCnv_p4::trasnToPers with trans or pers == 0" << endmsg;
     return;
   }
 
@@ -51,10 +51,10 @@ void TrigEMClusterCnv_p4::persToTrans(const TrigEMCluster_p4* pers,
                                      TrigEMCluster* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p4::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p4::persToTrans" << endmsg;
 
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "TrigEMClusterCnv_p4::persToTrans with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "TrigEMClusterCnv_p4::persToTrans with trans or pers == 0" << endmsg;
     return;
   }
 

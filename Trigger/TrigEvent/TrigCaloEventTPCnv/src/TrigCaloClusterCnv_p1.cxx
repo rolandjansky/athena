@@ -14,7 +14,7 @@ void TrigCaloClusterCnv_p1 :: persToTrans( const TrigCaloCluster_p1 *persObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigCaloClusterCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigCaloClusterCnv_p1::persToTrans" << endmsg;
 
   transObj->m_rawEnergy           = persObj->m_rawEnergy                         ;
   transObj->m_rawEt               = persObj->m_rawEt                             ;
@@ -33,7 +33,7 @@ void TrigCaloClusterCnv_p1 :: transToPers( const TrigCaloCluster    *transObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigCaloClusterCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigCaloClusterCnv_p1::transToPers" << endmsg;
 
   persObj->m_rawEnergy           = transObj->m_rawEnergy          ;
   persObj->m_rawEt               = transObj->m_rawEt              ;

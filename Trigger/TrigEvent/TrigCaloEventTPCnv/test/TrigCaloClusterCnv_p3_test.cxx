@@ -14,6 +14,7 @@
 #include "TrigCaloEventTPCnv/TrigCaloClusterCnv_p3.h"
 #include "TrigCaloEventTPCnv/TrigCaloCluster_p3.h"
 #include "TrigCaloEvent/TrigCaloCluster.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 #include <cassert>
@@ -23,6 +24,7 @@ void test1()
 {
   MsgStream log (0, "test");
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   TrigCaloCluster cl (10000, 1.1, 2.2, 123);
   cl.setRawEt (9000);
   cl.setNCells (456);

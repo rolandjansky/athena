@@ -13,7 +13,7 @@ void TrigT2JetCnv_p3::persToTrans( const TrigT2Jet_p3 *persObj,
 					     TrigT2Jet    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigT2JetCnv_p3::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigT2JetCnv_p3::persToTrans called " << endmsg;
 
   transObj->setE	 (persObj->m_allTheFloats[0])	 ;
   transObj->setEhad0	 (persObj->m_allTheFloats[1])	 ;
@@ -37,7 +37,7 @@ void TrigT2JetCnv_p3::transToPers( const TrigT2Jet    *transObj,
 					     TrigT2Jet_p3 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigT2JetCnv_p3::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigT2JetCnv_p3::transToPers called " << endmsg;
 
   persObj->m_allTheFloats[0]  = transObj->e()	  ;
   persObj->m_allTheFloats[1]  = transObj->ehad0()	  ;

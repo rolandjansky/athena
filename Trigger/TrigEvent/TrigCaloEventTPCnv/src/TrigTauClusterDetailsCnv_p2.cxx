@@ -10,7 +10,7 @@ void TrigTauClusterDetailsCnv_p2 :: persToTrans( const TrigTauClusterDetails_p2 
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p2::persToTrans" << endmsg;
 
   for( int i=0; i<NUMEMSAMP; i++ ){
     transObj->setEMRadius       (i, persObj->m_allEMFloats[i]);
@@ -35,7 +35,7 @@ void TrigTauClusterDetailsCnv_p2 :: transToPers( const TrigTauClusterDetails    
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p1::transToPers" << endmsg;
 
 
   for( int i=0; i<NUMEMSAMP; i++ ){

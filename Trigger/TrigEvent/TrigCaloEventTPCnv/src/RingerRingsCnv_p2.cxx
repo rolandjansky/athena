@@ -10,7 +10,7 @@ void RingerRingsCnv_p2::transToPers(const RingerRings *trans,
                                     RingerRings_p2 *pers,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "RingerRingsCnv_p2::tranToPers" << endreq;
+  log << MSG::DEBUG << "RingerRingsCnv_p2::tranToPers" << endmsg;
   
   if ( (!trans) || (!pers) )
     return;
@@ -32,7 +32,7 @@ void RingerRingsCnv_p2::persToTrans(const RingerRings_p2 *pers,
                                     RingerRings *trans,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "RingerRingsCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "RingerRingsCnv_p2::persToTrans" << endmsg;
 
   if ( (!pers) || (!trans) )
     return;

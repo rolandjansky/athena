@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigCaloEventTPCnv/TrigRNNOutputCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -43,6 +44,9 @@ void testit (const TrigRNNOutput& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxy created outside of leak check.
+  ElementLink<TrigEMClusterContainer> foo ("foo", 10);
+  Athena_test::Leakcheck check;
 
   TrigRNNOutput trans1 (std::vector<float> {1.5, 2.5, 3.5});
   trans1.setCluster (ElementLink<TrigEMClusterContainer> ("foo", 10));

@@ -12,8 +12,8 @@ void TrigEMClusterCnv_p1::transToPers(const TrigEMCluster*,
                                      TrigEMCluster_p1*, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p1::tranToPers" << endreq;
-  log << MSG::WARNING << "TrigEMClusterCnv_p1::tranToPers : Trying to persist obsolete TrigEMClusterCnv_p1! I won't write anything!" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p1::tranToPers" << endmsg;
+  log << MSG::WARNING << "TrigEMClusterCnv_p1::tranToPers : Trying to persist obsolete TrigEMClusterCnv_p1! I won't write anything!" << endmsg;
 /*
   pers->m_Energy     = trans->m_Energy;
   pers->m_Et         = trans->m_Et;
@@ -39,7 +39,7 @@ void TrigEMClusterCnv_p1::persToTrans(const TrigEMCluster_p1* pers,
                                      TrigEMCluster* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p1::persToTrans" << endmsg;
 
   trans->m_Energy     = pers->m_Energy;
   trans->m_Et         = pers->m_Et;

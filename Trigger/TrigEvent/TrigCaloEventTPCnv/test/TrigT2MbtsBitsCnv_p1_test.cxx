@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigCaloEventTPCnv/TrigT2MbtsBitsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -43,6 +44,7 @@ void testit (const TrigT2MbtsBits& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigT2MbtsBits trans1 (std::vector<float> {1.5, 2.5, 3.5},
                          std::vector<float> {4.5, 5.5});

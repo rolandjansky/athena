@@ -16,10 +16,10 @@ void TrigEMClusterCnv_p2::transToPers(const TrigEMCluster* trans,
                                      TrigEMCluster_p2* pers, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p2::tranToPers" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p2::tranToPers" << endmsg;
 
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "TrigEMClusterCnv_p2::trasnToPers with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "TrigEMClusterCnv_p2::trasnToPers with trans or pers == 0" << endmsg;
     return;
   }
 
@@ -47,10 +47,10 @@ void TrigEMClusterCnv_p2::persToTrans(const TrigEMCluster_p2* pers,
                                      TrigEMCluster* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "TrigEMClusterCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigEMClusterCnv_p2::persToTrans" << endmsg;
 
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "RingerRingsCnv_p2::persToTrans with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "RingerRingsCnv_p2::persToTrans with trans or pers == 0" << endmsg;
     return;
   }
   
