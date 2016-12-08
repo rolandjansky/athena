@@ -79,7 +79,7 @@ fitMergedFile_IDAlignMonManager( std::string inFilename, bool /* isIncremental *
 	      while ((key_tracks=dynamic_cast<TKey*>(next_tracks() )) !=0) {
 		std::string tracks_name(key_tracks->GetName());
 		//std::cout<<"looking at tracks dir: "<<tracks_name<<std::endl;
-		if (tracks_name.find("Tracks")!=std::string::npos) {
+		if (tracks_name.find("Track")!=std::string::npos) {
 		    //std::cout<<"Found tracks name: "<<tracks_name<<std::endl;
 		  TObject *obj = key_tracks->ReadObj();
 		  TDirectory *tdir = dynamic_cast<TDirectory*>(obj);
@@ -97,6 +97,9 @@ fitMergedFile_IDAlignMonManager( std::string inFilename, bool /* isIncremental *
 		      if (module_name.find("TrackSegments")!=std::string::npos) {
 			  //std::cout<<"Find Module: "<<module_name<<std::endl;
 			fitMergedFile_IDAlignMonTrackSegments( f,run_dir,tracks_name );
+		      }
+                      if (module_name.find("GenericTracks")!=std::string::npos) {
+			fitMergedFile_IDAlignMonPVbiases( f,run_dir,tracks_name );
 		      }
 		      //This is not needed. The plots are already in the monitoring file
 		      //if (module_name.find("GenericTracks")!=std::string::npos) {
@@ -133,7 +136,7 @@ fitMergedFile_IDAlignMonManager( std::string inFilename, bool /* isIncremental *
 	  while ((key_tracks=dynamic_cast<TKey*>(next_tracks() )) !=0) {
 	    std::string tracks_name(key_tracks->GetName());
 	    //std::cout<<"looking at tracks dir: "<<tracks_name<<std::endl;
-	    if (tracks_name.find("AlignTracks")!=std::string::npos) {
+	    if (tracks_name.find("Tracks")!=std::string::npos) {
 		//std::cout<<"Found tracks name: "<<tracks_name<<std::endl;
 	      TObject *obj = key_tracks->ReadObj();
 	      TDirectory *tdir = dynamic_cast<TDirectory*>(obj);
@@ -1105,7 +1108,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   TH2F* m_pix_b1_xresvsmodetaphi_mean = new TH2F("pix_b1_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
   m_pix_b1_xresvsmodetaphi_mean->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b1_xresvsmodetaphi_mean->GetYaxis()->SetTitle("Module Phi-ID");
-  TH2F* m_pix_b2_xresvsmodetaphi_mean = new TH2F("pix_b1_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L2",13,-6.5,6.5,38,-0.5,37.5);
+  TH2F* m_pix_b2_xresvsmodetaphi_mean = new TH2F("pix_b2_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L2",13,-6.5,6.5,38,-0.5,37.5);
   m_pix_b2_xresvsmodetaphi_mean->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b2_xresvsmodetaphi_mean->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b3_xresvsmodetaphi_mean = new TH2F("pix_b3_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L3",13,-6.5,6.5,52,-0.5,51.5);
@@ -2168,6 +2171,440 @@ fitMergedFile_IDAlignMonGenericTracks (TFile* file, std::string run_dir, std::st
   }
   file->Write();
   
+}
+
+void 
+MonitoringFile::
+fitMergedFile_IDAlignMonPVbiases (TFile* file, std::string run_dir, std::string tracksName) 
+{
+  std::string path;
+  path= run_dir + "IDAlignMon/" + tracksName + "/GenericTracks";
+  //path= run_dir + "IDAlignMon/InDetTrackParticles_all/GenericTracks";
+  if(  file->cd(path.c_str())==0 ) {
+      //std::cerr << "MonitoringFile::fitMergedFile_IDAlignMonGenericTracks(): "
+      //      << "No such directory \"" << path << "\"\n";
+    return;
+  }
+
+
+  //Maps vs phi_vs_eta vs eta
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_positive", "map d0 vs phi_vs_eta 400MeV-600MeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_negative", "map d0 vs phi_vs_eta 400MeV-600MeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_400MeV_600MeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_positive", "map d0 vs phi_vs_eta 600MeV-1GeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_negative", "map d0 vs phi_vs_eta 600MeV-1GeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_600MeV_1GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_positive", "map d0 vs phi_vs_eta 1GeV-2GeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_negative", "map d0 vs phi_vs_eta 1GeV-2GeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_1GeV_2GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_positive", "map d0 vs phi_vs_eta 2GeV-5GeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_negative", "map d0 vs phi_vs_eta 2GeV-5GeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV_5GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_positive", "map d0 vs phi_vs_eta 5GeV-10GeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_negative", "map d0 vs phi_vs_eta 5GeV-10GeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_5GeV_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative").c_str()) ) {
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive").c_str())->Clone());
+	TH3F* m_trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative").c_str())->Clone());
+	
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_positive = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_positive", "map d0 vs phi_vs_eta >10GeV positive; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	TH2F* m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_negative = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_negative", "map d0 vs phi_vs_eta >10GeV negative; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_positive,m_trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive);
+	MakeMap(m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_negative,m_trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+  
+  //Profiles vs phi
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_positive", "profile d0 vs phi 400MeV-600MeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_negative", "profile d0 vs phi 400MeV-600MeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_positive,m_trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_negative,m_trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_400MeV_600MeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_600MeV_1GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_600MeV_1GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_600MeV_1GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_positive", "profile d0 vs phi 600MeV-1GeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_negative", "profile d0 vs phi 600MeV-1GeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_positive,m_trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_negative,m_trk_d0_wrtPV_vs_phi_600MeV_1GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_600MeV_1GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_1GeV_2GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_1GeV_2GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_1GeV_2GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_positive", "profile d0 vs phi 1GeV-2GeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_negative", "profile d0 vs phi 1GeV-2GeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_positive,m_trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_negative,m_trk_d0_wrtPV_vs_phi_1GeV_2GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_1GeV_2GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_2GeV_5GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_2GeV_5GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_2GeV_5GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_positive", "profile d0 vs phi 2GeV-5GeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_negative", "profile d0 vs phi 2GeV-5GeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_positive,m_trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_negative,m_trk_d0_wrtPV_vs_phi_2GeV_5GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_2GeV_5GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_5GeV_10GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_5GeV_10GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_5GeV_10GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_positive", "profile d0 vs phi 5GeV-10GeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_negative", "profile d0 vs phi 5GeV-10GeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_positive,m_trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_negative,m_trk_d0_wrtPV_vs_phi_5GeV_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_5GeV_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_10GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_phi_10GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_10GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_phi_10GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_10GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_10GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_phi_10GeV_positive", "profile d0 vs phi >10GeV positive; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_phi_10GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_phi_10GeV_negative", "profile d0 vs phi >10GeV negative; #phi; d0 [mm]" , 50, -3.1, 3.1 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_10GeV_positive,m_trk_d0_wrtPV_vs_phi_10GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_phi_10GeV_negative,m_trk_d0_wrtPV_vs_phi_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_phi_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_phi_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  //Profiles vs eta
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_positive", "profile d0 vs eta 400MeV-600MeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_negative", "profile d0 vs eta 400MeV-600MeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_positive,m_trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_negative,m_trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_400MeV_600MeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_600MeV_1GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_600MeV_1GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_600MeV_1GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_600MeV_1GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_600MeV_1GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_600MeV_1GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_positive", "profile d0 vs eta 600MeV-1GeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_negative", "profile d0 vs eta 600MeV-1GeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_positive,m_trk_d0_wrtPV_vs_eta_600MeV_1GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_negative,m_trk_d0_wrtPV_vs_eta_600MeV_1GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_600MeV_1GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_1GeV_2GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_1GeV_2GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_1GeV_2GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_1GeV_2GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_1GeV_2GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_1GeV_2GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_positive", "profile d0 vs eta 1GeV-2GeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_negative", "profile d0 vs eta 1GeV-2GeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_positive,m_trk_d0_wrtPV_vs_eta_1GeV_2GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_negative,m_trk_d0_wrtPV_vs_eta_1GeV_2GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_1GeV_2GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_2GeV_5GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_2GeV_5GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_2GeV_5GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_2GeV_5GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_2GeV_5GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_2GeV_5GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_positive", "profile d0 vs eta 2GeV-5GeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_negative", "profile d0 vs eta 2GeV-5GeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_positive,m_trk_d0_wrtPV_vs_eta_2GeV_5GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_negative,m_trk_d0_wrtPV_vs_eta_2GeV_5GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_2GeV_5GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_5GeV_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_5GeV_10GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_5GeV_10GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_5GeV_10GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_5GeV_10GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_5GeV_10GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_positive", "profile d0 vs eta 5GeV-10GeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_negative", "profile d0 vs eta 5GeV-10GeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_positive,m_trk_d0_wrtPV_vs_eta_5GeV_10GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_negative,m_trk_d0_wrtPV_vs_eta_5GeV_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_5GeV_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_10GeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_eta_10GeV_negative").c_str()) ) {
+	TH2F* m_trk_d0_wrtPV_vs_eta_10GeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_10GeV_positive").c_str())->Clone());
+	TH2F* m_trk_d0_wrtPV_vs_eta_10GeV_negative=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_eta_10GeV_negative").c_str())->Clone());
+	
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_10GeV_positive = new TH1F("trk_d0_wrtPV_profile_vs_eta_10GeV_positive", "profile d0 vs eta >10GeV positive; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	TH1F* m_trk_d0_wrtPV_profile_vs_eta_10GeV_negative = new TH1F("trk_d0_wrtPV_profile_vs_eta_10GeV_negative", "profile d0 vs eta >10GeV negative; #eta; d0 [mm]" , 50, -2.5, 2.5 );
+	
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_10GeV_positive,m_trk_d0_wrtPV_vs_eta_10GeV_positive);
+	Make1DProfile(m_trk_d0_wrtPV_profile_vs_eta_10GeV_negative,m_trk_d0_wrtPV_vs_eta_10GeV_negative);
+
+ 	m_trk_d0_wrtPV_profile_vs_eta_10GeV_positive->Write("",TObject::kOverwrite);
+	m_trk_d0_wrtPV_profile_vs_eta_10GeV_negative->Write("",TObject::kOverwrite);
+  }
+
+  file->Write();
+}
+
+void 
+MonitoringFile::
+Make1DProfile(TH1* output, TH2* histo) 
+{   
+   int nXbins = histo->GetXaxis()->GetNbins(); //NEED TO CHANGE THIS 
+   
+   double current_mu[nXbins];
+   double current_err_mu[nXbins];
+   double current_sigma[nXbins];
+   double current_err_sigma[nXbins];
+
+   for(int i=0;i<nXbins;i++) {
+   	TH1D * projection = histo->ProjectionY("projection",i+1,i+1);
+   	IterativeGaussFit(projection, current_mu[i], current_err_mu[i], current_sigma[i], current_err_sigma[i]);
+        
+ 	output->SetBinContent(i,current_mu[i]);
+        output->SetBinError(i,current_err_mu[i]);
+   }
+}
+
+void
+MonitoringFile::
+MakeMap(TH2* outputhist, TH3* hist) 
+{
+  int num_bins=1; //WHAT IS THIS AGAIN
+ 
+  int num_bins_x = hist->GetXaxis()->GetNbins();
+  int num_bins_y = hist->GetYaxis()->GetNbins();
+
+  TH1D* current_proj;
+
+  for (int i = 1; i < num_bins_x+(num_bins==1); i+=num_bins) {
+  	for (int j = 1; j < num_bins_y+(num_bins==1); j+=num_bins) {
+
+    		int index = i/num_bins;
+    		int index_y = j/num_bins;
+
+    		current_proj = hist->ProjectionZ(Form("%s_GaussProjection_%i_%i",hist->GetName(),index, index_y),i,i+num_bins-1,j,j+num_bins-1);
+    		current_proj->SetTitle(Form("%s - Bin %i x %i",hist->GetName(), index,index_y));
+
+		//Fit the gauss
+     		double current_mu,current_err_mu, current_sigma, current_err_sigma;
+ 		IterativeGaussFit(current_proj, current_mu, current_err_mu, current_sigma, current_err_sigma);
+
+               //Fill the maps
+	     	float x_coord = (hist->GetXaxis()->GetBinLowEdge(i) + hist->GetXaxis()->GetBinUpEdge(i+num_bins-1))/2;
+    		float y_coord = (hist->GetYaxis()->GetBinLowEdge(j) + hist->GetYaxis()->GetBinUpEdge(j+num_bins-1))/2;
+
+    		outputhist->Fill(x_coord,y_coord,current_mu);
+                
+                delete current_proj;
+    
+  	} //end loop on j (y)
+  } //end loop on i (x)
+}
+
+int
+MonitoringFile::
+IterativeGaussFit(TH1* hist, double &mu, double &mu_err, double &sigma, double &sigma_err) 
+{
+  //constants for fitting algorithm
+  const int iteration_limit = 20;
+  const float percent_limit = 0.01;
+  const float fit_range_multiplier = 1.5;
+  const int fDebug = 0;
+  
+  double last_mu;
+  double last_sigma;
+  double current_mu;
+  double current_sigma;
+  double mu_percent_diff;
+  double sigma_percent_diff;
+  
+  if (!hist) {
+    if (fDebug) std::cout<< "Error in  Anp::IterativeGaussFit(): Histogram to be fit is missing" <<std::endl;
+    return 1;
+  }  
+  
+  TF1* fit_func = new TF1("fit_func","gaus");
+
+  int bad_fit = hist->Fit(fit_func,"QN");
+
+  if (fDebug && bad_fit) std::cout <<"BAD INITIAL FIT: "<< hist->GetTitle() << std::endl;
+
+  last_mu = fit_func->GetParameter(1); 
+  last_sigma = fit_func->GetParameter(2);
+
+  if (bad_fit) last_mu = hist->GetMean();
+
+  // check as well that the last_mu is reasonable
+  if (fabs(last_mu - hist->GetMean()) > 5*hist->GetBinWidth(1)) last_mu =  hist->GetMean();  
+
+  fit_func->SetRange(last_mu-fit_range_multiplier*last_sigma,last_mu+fit_range_multiplier*last_sigma);
+
+  int iteration = 0;
+
+  while ( iteration < iteration_limit ) {
+
+    iteration++;
+
+    double FitRangeLower = last_mu-fit_range_multiplier*last_sigma;
+    double FitRangeUpper = last_mu+fit_range_multiplier*last_sigma;
+
+    // if range is to narrow --> broaden it
+    if ((FitRangeUpper-FitRangeLower)/hist->GetBinWidth(1) < 4) {
+      FitRangeLower -= hist->GetBinWidth(1);
+      FitRangeUpper += hist->GetBinWidth(1);
+    }
+
+    fit_func->SetRange(FitRangeLower, FitRangeUpper);
+
+    bad_fit = hist->Fit(fit_func, "RQN");
+
+    if (fDebug && bad_fit) std::cout<<" ** BAD FIT ** : bin "<< hist->GetTitle() <<"  iteration "<<iteration<<std::endl;
+
+    current_mu = fit_func->GetParameter(1); 
+    current_sigma = fit_func->GetParameter(2);
+
+    float average_mu = (last_mu+current_mu)/2;
+    float average_sigma = (last_sigma+current_sigma)/2;
+
+    if (average_mu == 0) {
+      if ( fDebug ) std::cout<<" Average mu = 0 in bin "<< hist->GetTitle() <<std::endl;
+      average_mu = current_mu;
+    } 
+
+    if (average_sigma == 0) {
+      if ( fDebug ) std::cout<<"Average sigma = 0; Fit Problem in "<< hist->GetTitle() <<". "<<last_sigma<<" "<<current_sigma<<std::endl;
+      average_sigma = current_sigma;
+    }
+
+    mu_percent_diff = fabs((last_mu-current_mu)/average_mu);
+    sigma_percent_diff = fabs((last_sigma-current_sigma)/average_sigma);
+
+    if ( mu_percent_diff < percent_limit && sigma_percent_diff < percent_limit ) break;
+
+    if (iteration != iteration_limit) { //necessary?
+      last_mu = current_mu;
+      last_sigma = current_sigma;
+    }    
+    // check as well that the last_mu is reasonable
+    if (fabs(last_mu - hist->GetMean()) > 5*hist->GetBinWidth(1)) {
+      last_mu =  hist->GetMean();  
+    } 
+  }
+
+  if (iteration == iteration_limit) {
+    if (fDebug ) std::cout<<"WARNING: Fit did not converge to < "<<percent_limit*100<<"% in "<< hist->GetTitle() <<" in "<<iteration_limit<<" iterations. Percent Diffs: "<<mu_percent_diff*100<<"% (Mu),"<<" "<<sigma_percent_diff*100<<"% (Sigma)"<<std::endl;
+    //possibly return a value other than 0 to indicate not converged?
+  }
+
+  mu = current_mu;
+  mu_err = fit_func->GetParError(1);
+  sigma = current_sigma;
+  sigma_err = fit_func->GetParError(2);
+  fit_func->SetLineColor(kRed);
+ 
+  hist->GetListOfFunctions()->Add(fit_func);
+
+  return 0;
 }
 
 void 

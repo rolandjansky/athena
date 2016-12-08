@@ -101,7 +101,7 @@ namespace dqutils {
       }else{
 	//std::cout<<"HI_PP_Flag :found "<<std::endl;
 	//std::cout<<"bin content "<<hHI_PP_Flag->GetBinContent(0)<<"/"<<hHI_PP_Flag->GetBinContent(1)<<"/"<<hHI_PP_Flag->GetBinContent(2)<<std::endl;
-	if(hHI_PP_Flag->GetBinContent(1)==0){
+	if(hHI_PP_Flag->GetBinContent(1) > 0){
 	  m_HI_pp_key = true;
 	}else{
 	  m_HI_pp_key = false;
@@ -487,7 +487,6 @@ namespace dqutils {
       // YY: pt range.
       int iSTDL;
       int iSTDH;
-
       if(m_HI_pp_key){
 	iSTDL = 45;  // 12 GeV
 	//iSTDL = 54;  // 15 GeV
@@ -1552,7 +1551,7 @@ namespace dqutils {
 		h1tmpg->SetMarkerStyle(20);
 		h1tmpg->SetMinimum(0.0);
 		h1tmpg->SetMaximum(1.05);
-		h1tmpg->BayesDivide(h1num, h1den);
+	        h1tmpg->BayesDivide(h1num, h1den);
 		h1tmpg->GetYaxis()->SetTitle("Efficiency");     				  
 		h1tmpg->GetXaxis()->SetTitle(h1den->GetXaxis()->GetTitle());     				  
 		ztpdir->cd();
@@ -2092,9 +2091,9 @@ namespace dqutils {
 
 	    double sumeff, sumerr;
 	    double sumn = h1numb->Integral(13, 25); // 12-25 GeV
-	    //double sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    if(m_HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    double sumd = h1denb->Integral(13, 25);
-	    //double sumd = h1denb->Integral(7, 10);
+	    if(m_HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2106,9 +2105,9 @@ namespace dqutils {
 	    h1sumL->SetBinError(1, sumerr);
 
 	    sumn = h1nume->Integral(13, 25);
-	    //sumn = h1nume->Integral(7, 10);
+	    if(m_HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    sumd = h1dene->Integral(13, 25);
-	    //sumd = h1dene->Integral(7, 10);
+	    if(m_HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;

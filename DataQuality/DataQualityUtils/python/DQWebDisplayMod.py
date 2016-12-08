@@ -14,6 +14,7 @@ import time
 from time import sleep
 from multiprocessing import Process, Queue, Manager
 from DataQualityUtils.dqu_subprocess import apply as _local_apply
+import re
 
 ## Needed to correct ROOT behavior; see below
 CWD = os.getcwd()
@@ -162,7 +163,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
     outputHanResultsDir = c.hanResultsDir + stream + '/run_' + `runid`
     outputHtmlDir = c.htmlDir + stream + "/"
     
-    if c.server != [] or c.webHandoffDir != "":
+    if c.server != [] or c.webHandoffDir != "" or c.eosResultsDir:
       print "Writing all output to \'./\'; will copy at the end to",
       if c.webHandoffDir != "":
           print "a handoff directory:", c.webHandoffDir
@@ -202,7 +203,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
         failures = 0
         for server in c.server:
           print "Transfering han files to server: ", server
-          success = transferFilesToServer( xferFileList, "./han_results/", c.hanResultsDir, server )
+          success = transferFilesToServer( xferFileList[:], "./han_results/", c.hanResultsDir, server )
           if success:
               print "Done."
               print ""
@@ -228,6 +229,26 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
             print "These are:", ', '.join(c.server)
             print "Will die so as to alert Tier-0 shifter"
             raise IOError('tarfile ssh transfer failed')
+    if c.eosResultsDir != "":
+        print "Transfering han files to EOS"
+        success_EOS = transferFilesToEOS( xferFileList[:], "./han_results/", c.eosResultsDir )
+        if success_EOS:
+            print "Done."
+            print ""
+        else:
+            print "FAILED!",
+            if c.emailWarnings:
+                email('The transfer of han files\n\n' +
+                      ''.join(xferFileList) +
+                      '\nto EOS failed.\n'
+                      'Please investigate as soon as possible!',
+                      'WARNING! File transfer from Tier-0 failed',
+                      FROMEMAIL,
+                      'hn-atlas-data-quality-operations@cern.ch'
+                      )
+                print "Email sent..."
+            else:
+                print ""
                         
 
     runNumber = runfile[1]
@@ -670,6 +691,7 @@ def transferFilesToServer( fileList, localDir, targetDir, server ):
       os.system( "chmod 664 " + xferFile )
       xferFile = xferFile.replace(localDir,"")
       t.write(xferFile)
+
     t.close()
     
     cmd = ""
@@ -684,6 +706,20 @@ def transferFilesToServer( fileList, localDir, targetDir, server ):
     #    raise IOError('tarfile ssh transfer failed')
     return rv == 0
 
+def transferFilesToEOS(fileList, localDir, eosResultsDir):
+    os.system('export XRD_REQUESTTIMEOUT=10')
+    run_eos = 0
+    for xferFile in fileList:
+      xferFile = xferFile.rstrip()
+      os.system( "chmod 664 " + xferFile )
+      file_name = xferFile.replace(localDir,"")
+      
+      eos = "xrdcp --force --path --silent " + xferFile + " "+ os.path.join(eosResultsDir, file_name)
+
+      print eos
+      run_eos += os.system( eos )
+    
+    return run_eos == 0
 
 def retrieveFileFromServer( filePath, localDir, remoteDir, server ):
     username = "atlasdqm"

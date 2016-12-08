@@ -59,15 +59,15 @@ def mergeFolder(path) :
             hname = hpath[hpath.find(":")+2:]+"/"+obj.GetName()
             print "Path: "+hname
             for tup in files:
-                if tup!=file:
-                    nextfile = ROOT.TFile(tup)
-                    h2 = nextfile.Get(hname)
-                    if not h2:
-                        error = "ERROR: Cannot find " + hname + " in file " + tup + ". Omitting."
-                        print error
-                        errors.append(error)
-                        continue
-                    h1.Add(h2)
+                if tup==files[1]: continue
+                nextfile = ROOT.TFile(tup)
+                h2 = nextfile.Get(hname)
+                if not h2:
+                    error = "ERROR: Cannot find " + hname + " in file " + tup + ". Omitting."
+                    print error
+                    errors.append(error)
+                    continue
+                h1.Add(h2)
             subfolder = f.Get(hpath[hpath.find(":")+2:])
             subfolder.cd()
             h1.Write()
