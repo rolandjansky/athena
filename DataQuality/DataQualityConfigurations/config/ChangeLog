@@ -1,3 +1,195 @@
+2016-11-28 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: added hitoccupancy histograms
+	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration
+	* SCT/cosmic_run.config: copied from collision_run.config for updating Cosmic configuration
+
+2016-11-24 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/heavyions_run.config: Symbolic link to collisions_run.config
+	* MDT/heavyions_minutes10.config: Symbolic link to collisions_minutes10.config
+	* MDT/cosmics_run.config: Symbolic link to collisions_run.config
+	* MDT/cosmics_minutes10.config: Symbolic link to collisions_minutes10.config
+
+2016-11-24 Alexander Tuna <tuna@cern.ch>
+	* MuonCombined/heavyions_run.config: Copied from collisions_run.config
+
+2016-11-23  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/MBTS/heavyions_run.config: modified to use centrally managed references
+	* Tile/heavyions_run.config: modified to use centrally managed references
+
+2016-11-22 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : corrected names of Muons
+	        plots (correctly this time)
+
+
+2016-11-20 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : corrected names of Muons
+	plots, set axis ranges for FCal sum Et to final 8TeV energy  
+
+2016-11-10 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: modified warning/error thresholds in NumberOfEventsVsLB and NoisyModulesTrigger_vsLB
+	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration
+
+2016-11-08 Xanthe Hoad <xhoad@cern.ch>
+	* Add HLT_Histogram_Not_Empty_with_Ref&GatherData algorithm for cosmics for HLTglobal
+	* Add HLTegamma cosmic config
+
+2016-11-03  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/collisions_run.config: updated Tile digital errors test configuration
+	* Tile/heavyions_run.config: updated Tile digital errors test configuration
+
+
+2016-11-03 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	        * Updated HLTjet heavyion config
+	
+
+2016-11-02 Xanthe Hoad <xhoad@cern.ch>
+	* HLTegamma adding HI config
+
+2016-11-02 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : correced directory name for
+	FCalSumEt plots 
+
+2016-10-25 Trocme Benjamin
+	* LArMonitoring: defining symlinks for cosmics/heavy ion han config
+
+2016-10-24  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/heavyions_run.config: updated references for Tile digital errors tests
+
+2016-10-19 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/heavyions_run.config: Copied from collisions_run.config
+
+2016-10-19 Aaron Webb <awebb@cern.ch>
+	* collisions_run.hcfg: Updated to reflect changes to .config file
+	* cosmics_run.hcfg: Updated to reflect changes to .config file
+	* h180: Created htag h180 to include recent config updates
+
+2016-10-18 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	* HLTjet/collisions_run.config: changed from CentrallyManagedReferences to CentrallyManagedReferences_Trigger
+
+2016-10-17 Xanthe Hoad <xanthe.hoad@cern.ch>
+	* HLTglobal/collisions_run.config: change of reference
+
+2016-10-17 Jason Barkeloo <jason.barkeloo@cern.ch>
+	* L1Calo/collisions_run.config: Added TagProbeEfficiency Plots
+	* L1Calo/cosmic_run.config: Added TagProbeEfficiency Plots
+	* L1Calo/heavyions_run.config: Added TagProbeEfficiency Plots
+
+2016-10-14 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/heavyions_*.config: copied from collisions_*.config
+
+2016-10-12 Radek Novotny <ranovotn@cern.ch>
+	* HLTbphys/collisions_run.config: revised L1Topo histograms to reflect
+	TrigBphysMonitoring changes
+
+2016-10-08 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: Added new L1Topo plots and removed
+	unused "Reco" folder
+	* L1Calo/cosmics_run.config: Added new L1Topo plots and removed unused
+	"Reco" folder
+	* L1Calo/heavyions_run.config: Added new L1Topo plots and removed
+	unused "Reco" folder
+
+2016-10-08 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/collisions_run.config: remove unused expert histogram mdt*_Occupancy
+
+2016-09-13 Trocme Benjamin
+	* LArMonitoring: increased MaxPublish for q factor plots
+
+2016-09-29 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: updated L1Topo plots in L1Interfaces
+	folder
+	* L1Calo/cosmics_run.config: updated L1Topo plots in L1Interfaces
+	folder
+	* L1Calo/heavyions_run.config: updated L1Topo lots in L1Interfaces
+	folder
+
+2016-09-28 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+        * HeavyIonGlobal/heavyions_run.config : update of the FCalSumEt range 	
+
+2016-09-23 David Dimond <david.paul.dimond@cern.ch>
+	* L1Calo/collisions_run.config: added support for all lumi ranges in GlobalSummary
+	* L1Calo/cosmics_run.config: added support for all lumi ranges in GlobalSummary
+	* L1Calo/heavyions_run.config: added support for all lumi ranges in GlobalSummary
+
+2016-09-23 Keisuke Koda <keisuke.koda@cern.ch>
+	* SCT/collisions_run.config: move "Ave. ROBFragment per LB in all region" histogram to SCT/Summary/BSErrVsLBs/RODLevel 
+	* SCT/collisions_run.config: move "Ave. MaskedLink per LB in all region" histogram to SCT/Summary/BSErrVsLBs
+	* SCT/collisions_run.config: add NOTrigger_vsLB and NoisyModulesTrigger*_vsLB histograms to SCT/Summary/Detail
+	* SCT/collisions_run.config: add SPNoise directory to each region directory	and each region detail directory and some histograms to the directory
+
+2016-09-19 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	* HLTjet: updated collisions and cosmic configuration with new HLT chains
+
+2016--09-15 Alexander Tuna
+	* MuonCombined: adjust the y-axis range of jpsi mass sigma.
+
+2016-09-13 Trocme Benjamin
+	* LArMonitoring: changing data integrity threshold and replace optimized flag by saturated flags
+
+2016-09-12 Uygar Sasmaz <uygar.sasmaz@cern.ch>
+	* TRT/collisions_run.config: add algorithm DriftTimeonTrkDist_Ar
+	* TRT/collisions_run.config: seperate options for xenon and argon
+	* TRT/collisions_run.config: changing thresholds
+
+2016-09-05  Thorsten Wengler  <thorsten.wengler@cern.ch>
+	* CTP/collisions_run.config: add histograms for CTP simulation comparison and MuCTPI/SectorLogic comparisons
+
+2016-09-02  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+	* Tile/collisions_run.config: updated references for Tile digital errors tests
+
+2016-08-29 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: udpate the histo names for endcaps
+
+2016-08-26 Minyu Feng <mifeng@cern.ch>
+	* HLT/HLTegamma/collisions_run.config: update the display for
+	TrigEgammaMonitoring-00-01-75 and TrigEgammaAnalysisTools-00-01-23
+
+2016-08-24 Tatjana Lenz <tlenz@cern.ch>
+	* JetTagging/collisions_run.config: rm some histograms, add IP plots
+	* JetTagging/collisions_minutes10.config: add IP plots
+
+2016-08-16 Alexander Tuna <tuna@cern.ch>
+        * TGC/collisions_run.config: update reference
+
+2016-08-14 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: added Link or ROD level plots
+	* SCT/collision_run.config: modified error/warning thresholds
+
+2016-08-12 Uygar Sasmaz <uygar.sasmaz@cern.ch>
+	* TRT/collisions_run.config: reference and checkreldev for AvgHLOcc
+
+2016-08-12 Alexander Tuna <tuna@cern.ch>
+        * TGC/collisions_run.config: moved MDTvsTGC to expert
+
+2016-08-12 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: added LVL1_Interfaces/CTP monitoring plots
+	* L1Calo/cosmics_run.config: added LVL1_Interfaces/CTP and L1Topo
+	plots
+	* L1Calo/heavyions_run.config: added LVL1_Interfaces/CTP and L1Topo
+	plots, and updated LVL1_Interfaces/Calorimeter configuration
+
+2016-08-07 Brianna Stamas <brianna.lynn.stamas@cern.ch>
+	* L1Calo/collisions_run.config: added L1Topo timing plots
+
+2016-08-07 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/*_run.config: added maskedROD, maskedLinkLink
+
+2016-07-25 David Dimond  <david.paul.dimond@cern.ch>
+	* L1Calo/cosmics_run.config: fixed typo and missing .Overflow folder
+
+2016-07-15 David Dimond  <david.paul.dimond@cern.ch>
+	* L1Calo/heavyions_run.config: added global summary and overflow folders
+	* L1Calo/cosmics_run.config: added global summary and overflow folders
+
+2016-07-15 David Dimond  <david.paul.dimond@cern.ch>
+	* L1Calo/collisions_run.config: added global summary and overflow folders
+
+2015-06-28 Giulio Cornelio Grossi  <giulio.cornelio.grossi@cern.ch>
+	* HLTjet/collisions_run.config: added 6j60 and j460 to monitoring
+
 2015-06-17 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
 	* Pixel/collisions_run.config: added hit occ vs BCID
 
@@ -10,7 +202,7 @@
 
 2016-06-13 Ryan White <ryan.white@cern.ch>
 	* Fix algorithm to add reference
-	
+
 2015-06-13 Tuna <tuna@cern.ch>
 	* MuonCombined/collisions_run.config: add avg hits for various MS detectors
 
