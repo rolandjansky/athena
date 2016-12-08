@@ -1,3 +1,100 @@
+2016-11-28 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: added hitoccupancy histograms
+	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration
+	* SCT/cosmic_run.config: copied from collision_run.config for updating Cosmic configuration
+
+2016-11-24 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/heavyions_run.config: Symbolic link to collisions_run.config
+	* MDT/heavyions_minutes10.config: Symbolic link to collisions_minutes10.config
+	* MDT/cosmics_run.config: Symbolic link to collisions_run.config
+	* MDT/cosmics_minutes10.config: Symbolic link to collisions_minutes10.config
+
+2016-11-24 Alexander Tuna <tuna@cern.ch>
+	* MuonCombined/heavyions_run.config: Copied from collisions_run.config
+
+2016-11-23  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/MBTS/heavyions_run.config: modified to use centrally managed references
+	* Tile/heavyions_run.config: modified to use centrally managed references
+
+2016-11-22 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : corrected names of Muons
+	        plots (correctly this time)
+
+
+2016-11-20 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : corrected names of Muons
+	plots, set axis ranges for FCal sum Et to final 8TeV energy  
+
+2016-11-10 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/collision_run.config: modified warning/error thresholds in NumberOfEventsVsLB and NoisyModulesTrigger_vsLB
+	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration
+
+2016-11-08 Xanthe Hoad <xhoad@cern.ch>
+	* Add HLT_Histogram_Not_Empty_with_Ref&GatherData algorithm for cosmics for HLTglobal
+	* Add HLTegamma cosmic config
+
+2016-11-03  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/collisions_run.config: updated Tile digital errors test configuration
+	* Tile/heavyions_run.config: updated Tile digital errors test configuration
+
+
+2016-11-03 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	        * Updated HLTjet heavyion config
+	
+
+2016-11-02 Xanthe Hoad <xhoad@cern.ch>
+	* HLTegamma adding HI config
+
+2016-11-02 Dominik Derendarz <dominik.karol.derendarz@cern.ch>
+	* HeavyIonGlobal/heavyions_run.config : correced directory name for
+	FCalSumEt plots 
+
+2016-10-25 Trocme Benjamin
+	* LArMonitoring: defining symlinks for cosmics/heavy ion han config
+
+2016-10-24  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/heavyions_run.config: updated references for Tile digital errors tests
+
+2016-10-19 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/heavyions_run.config: Copied from collisions_run.config
+
+2016-10-19 Aaron Webb <awebb@cern.ch>
+	* collisions_run.hcfg: Updated to reflect changes to .config file
+	* cosmics_run.hcfg: Updated to reflect changes to .config file
+	* h180: Created htag h180 to include recent config updates
+
+2016-10-18 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	* HLTjet/collisions_run.config: changed from CentrallyManagedReferences to CentrallyManagedReferences_Trigger
+
+2016-10-17 Xanthe Hoad <xanthe.hoad@cern.ch>
+	* HLTglobal/collisions_run.config: change of reference
+
+2016-10-17 Jason Barkeloo <jason.barkeloo@cern.ch>
+	* L1Calo/collisions_run.config: Added TagProbeEfficiency Plots
+	* L1Calo/cosmic_run.config: Added TagProbeEfficiency Plots
+	* L1Calo/heavyions_run.config: Added TagProbeEfficiency Plots
+
+2016-10-14 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/heavyions_*.config: copied from collisions_*.config
+
+2016-10-12 Radek Novotny <ranovotn@cern.ch>
+	* HLTbphys/collisions_run.config: revised L1Topo histograms to reflect
+	TrigBphysMonitoring changes
+
+2016-10-08 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: Added new L1Topo plots and removed
+	unused "Reco" folder
+	* L1Calo/cosmics_run.config: Added new L1Topo plots and removed unused
+	"Reco" folder
+	* L1Calo/heavyions_run.config: Added new L1Topo plots and removed
+	unused "Reco" folder
+
+2016-10-08 Samuel Webb <samuel.webb@cern.ch>
+	* MDT/collisions_run.config: remove unused expert histogram mdt*_Occupancy
+
 2016-09-13 Trocme Benjamin
 	* LArMonitoring: increased MaxPublish for q factor plots
 
@@ -22,6 +119,7 @@
 	* SCT/collisions_run.config: move "Ave. MaskedLink per LB in all region" histogram to SCT/Summary/BSErrVsLBs
 	* SCT/collisions_run.config: add NOTrigger_vsLB and NoisyModulesTrigger*_vsLB histograms to SCT/Summary/Detail
 	* SCT/collisions_run.config: add SPNoise directory to each region directory	and each region detail directory and some histograms to the directory
+
 2016-09-19 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
 	* HLTjet: updated collisions and cosmic configuration with new HLT chains
 
