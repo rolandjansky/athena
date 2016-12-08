@@ -20,4 +20,6 @@
 #pragma link C++ class dqutils::CoolMdt ;
 #pragma link C++ class dqutils::CoolTgc ;
 
+#pragma link C++ class map<TString,TString> ;
+
 #endif

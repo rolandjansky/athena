@@ -28,7 +28,7 @@ algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF',
 # Edit this to change thresholds
 thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
 
-def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', regex=None, startpath=None, hists=None):
+def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', displaystring2D='Draw=COLZ', regex=None, startpath=None, hists=None):
     import re
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
@@ -65,15 +65,22 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', rege
             dqpar = dqregion.newDQParameter( **dqpargs)
             drawstrs = []
             if not options.normalize: drawstrs.append('NoNorm')
-            if options.logy: drawstrs.append('LogY')
+            if options.logy and (cl.startswith('TH1') or cl.startswith('TProfile')): drawstrs.append('LogY')
+            if options.logy and cl.startswith('TH2'): drawstrs.append('LogZ')
             if cl.startswith('TH1'): drawstrs.append(displaystring)
+            if cl.startswith('TProfile'): drawstrs.append(displaystring)
+            if cl.startswith('TH2'): drawstrs.append(displaystring2D)
             if options.scaleref != 1: drawstrs.append('ScaleRef=%f' % options.scaleref)
+            if options.ratio: drawstrs.append('RatioPad')
+            #if options.ratio: drawstrs.append('Ref2DSignif')
+            if options.ratio2D: drawstrs.append('Ref2DRatio')
+
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
             
         elif rcl.InheritsFrom('TDirectory'):
             newregion = dqregion.newDQRegion( key.GetName(), algorithm=worst )
-            recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, regex, startpath, hists)
+            recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, displaystring2D, regex, startpath, hists)
 
 def prune(dqregion):
     """
@@ -131,6 +138,10 @@ def process(infname, confname, options, refs=None):
     displaystring = options.drawopt
     if options.refdrawopt:
         displaystring += ',' + (','.join('DrawRef=%s' % _ for _ in options.refdrawopt.split(',')))
+    displaystring2D = options.drawopt2D
+    if options.drawrefopt2D:
+        displaystring2D += ',' + (','.join('DrawRef2D=%s' % _ for _ in options.drawrefopt2D.split(',')))
+
     if options.startpath:
         topindir = f.Get(options.startpath)
         if not topindir:
@@ -145,7 +156,7 @@ def process(infname, confname, options, refs=None):
     if options.histlistfile:
         hists = [re.compile(line.rstrip('\n')) for line in open(options.histlistfile)]
         if options.pathregex: print "histlistfile given, pathregex is ignored"
-    recurse(topindir, top_level, topindirname, dqrs, displaystring,
+    recurse(topindir, top_level, topindirname, dqrs, displaystring, displaystring2D,
             re.compile(options.pathregex), startpath, hists)
     print 'Pruning dead branches...'
     prune(top_level)
@@ -256,10 +267,14 @@ if __name__=="__main__":
                       help='Normalize reference histograms for display')
     parser.add_option('--title', default='Summary',
                       help='Title for histograms being tested')
-    parser.add_option('--refdrawopt',
-                      help='ROOT Draw option for reference histograms (e.g. HIST)')
     parser.add_option('--drawopt', default='Draw=PE',
                       help='Draw options for tested histograms (only use if you know what you are doing)')
+    parser.add_option('--refdrawopt',
+                      help='ROOT Draw option for reference histograms (e.g. HIST)')
+    parser.add_option('--drawopt2D', default='Draw=COLZ',
+                      help='Draw options for tested TH2 histograms (only use if you know what you are doing)')
+    parser.add_option('--drawrefopt2D', default=None,
+                      help='Draw options for reference TH2 histograms. If nothing is specified, no 2D reference histograms are drawn. If you want to draw both test and reference histo, recommended settings are --drawopt2D="Draw=BOX" --drawrefopt2D="COLZ"')
     parser.add_option('--logy', action='store_true',
                       help='Display on log Y scale')
     parser.add_option('--pathregex', default='.*',
@@ -272,6 +287,10 @@ if __name__=="__main__":
                       help='Scale references by this value')
     parser.add_option('--Kolmogorov', default=False, action='store_true',
                       help='Run Kolmogorov test instead of Chi2 test')
+    parser.add_option('--ratio', default=False, action='store_true',
+                      help='Draw histograms with ratio plots')
+    parser.add_option('--ratio2D', default=False, action='store_true',
+                      help='Draw 2D histograms with ratio plots')
 
 
     options, args = parser.parse_args()
