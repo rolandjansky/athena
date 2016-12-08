@@ -3318,9 +3318,22 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 
 	    if (! m_materialAllocator.empty() && haveMaterial && ! haveLeadingMaterial)
 	    {
-		leadingTSOS	       	= m_materialAllocator->leadingSpectrometerTSOS(parameters);
+// protect the momentum to avoid excessive Eloss
+                Amg::VectorX parameterVector = parameters.parameters();
+                double Emax = 50000.;
+                if(parameterVector[Trk::qOverP]==0.) {
+                  parameterVector[Trk::qOverP] = 1./Emax;
+                } else {
+                  if(std::abs(parameterVector[Trk::qOverP])*Emax < 1) parameterVector[Trk::qOverP] = parameters.charge()/Emax;
+                }              
+                const Trk::TrackParameters* correctedParameters = parameters.associatedSurface().createTrackParameters(parameterVector[Trk::loc1],
+                                                                  parameterVector[Trk::loc2],parameterVector[Trk::phi],
+                                                                  parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+// 
+		leadingTSOS	       	= m_materialAllocator->leadingSpectrometerTSOS(*correctedParameters);
 		if (leadingTSOS && leadingTSOS->size() && leadingTSOS->front()->trackParameters())
 		    leadingParameters	= leadingTSOS->front()->trackParameters();
+                delete correctedParameters;
 	    }
 	}
 
@@ -3853,7 +3866,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
          if(entranceTSOS) {  
             double distance = (entranceTSOS->trackParameters()->position() - (**s).trackParameters()->position()).mag();
 //            std::cout << " Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl;; 
-            if(distance>2000) ATH_MSG_WARNING(" WRONG Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z()); 
+            if(distance>2000) ATH_MSG_DEBUG(" Added Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z()); 
             trackStateOnSurfaces->push_back(entranceTSOS);
          }
 //         std::cout << " end  perigeeAtSpectrometerEntrance " << std::endl; 
