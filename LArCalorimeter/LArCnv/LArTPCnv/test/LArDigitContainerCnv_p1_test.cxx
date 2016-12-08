@@ -15,6 +15,8 @@
 #include "LArTPCnv/LArDigitContainerCnv_p1.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
+#include "TestTools/leakcheck.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
 
@@ -54,6 +56,7 @@ void testit (const LArDigitContainer& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   CaloGain::CaloGain gains[CaloGain::LARNGAIN] =
     {CaloGain::LARHIGHGAIN, CaloGain::LARMEDIUMGAIN, CaloGain::LARLOWGAIN};

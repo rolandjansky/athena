@@ -8,7 +8,7 @@
 void LArNoisyROSummaryCnv_p2::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p2* pers, MsgStream & log) 
 {
   //typedef std::vector< std::pair<HWIdentifier, std::vector<int> > > PAcont;
-  log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p2::transToPers " << endreq;
+  log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p2::transToPers " << endmsg;
 
   size_t sfebs = trans->get_noisy_febs().size();
   pers->m_noisy_febs.reserve(sfebs);
@@ -33,7 +33,7 @@ void LArNoisyROSummaryCnv_p2::transToPers(const LArNoisyROSummary* trans, LArNoi
 
 void LArNoisyROSummaryCnv_p2::persToTrans(const LArNoisyROSummary_p2* pers, LArNoisyROSummary* trans, MsgStream & log ) 
 {
-  log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p2::persToTrans " << endreq;
+  log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p2::persToTrans " << endmsg;
   trans->clear();
 
   size_t sfebs =  pers->m_noisy_febs.size();

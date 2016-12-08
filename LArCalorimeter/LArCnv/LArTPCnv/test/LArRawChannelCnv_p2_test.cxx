@@ -13,6 +13,8 @@
 
 #undef NDEBUG
 #include "LArTPCnv/LArRawChannelCnv_p2.h"
+#include "TestTools/leakcheck.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
 
@@ -45,6 +47,7 @@ void testit (const LArRawChannel& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LArRawChannel trans1 (HWIdentifier (0x1234),
                         1000,

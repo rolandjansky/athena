@@ -13,7 +13,7 @@
 void LArRawChannelContainerCnv_p1::transToPers(const LArRawChannelContainer*, LArRawChannelContainer_p1*, MsgStream &log) 
 {
   //LArRawChannelContainer_Cnvp1_base_t::transToPers(trans,pers,log);
-  log << MSG::ERROR  << " ***  Writing LArRawChannelContainer_p1 not supported any more. Current version is LArRawChannelContainer_p3" << endreq;
+  log << MSG::ERROR  << " ***  Writing LArRawChannelContainer_p1 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
 }
 
 void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* pers, LArRawChannelContainer* trans, MsgStream &log) 
@@ -34,5 +34,5 @@ void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* 
       ++index;
     }
   }
-  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endreq;
+  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endmsg;
 }

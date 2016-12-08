@@ -13,6 +13,8 @@
 
 #undef NDEBUG
 #include "LArTPCnv/LArRawChannelContainerCnv_p4.h"
+#include "TestTools/leakcheck.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
 
@@ -54,6 +56,7 @@ void testit (const LArRawChannelContainer& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   CaloGain::CaloGain gains[CaloGain::LARNGAIN] =
     {CaloGain::LARHIGHGAIN, CaloGain::LARMEDIUMGAIN, CaloGain::LARLOWGAIN};
