@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_p1.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -97,6 +98,7 @@ std::unique_ptr<CaloEnergy> make_one (float offs)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MuonCaloEnergyContainer trans1;
   trans1.push_back (make_one (100));

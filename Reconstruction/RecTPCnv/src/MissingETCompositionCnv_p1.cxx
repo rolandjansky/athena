@@ -31,11 +31,11 @@ MissingETCompositionCnv_p1::transToPers(const MissingETComposition* transObj,
 					MissingETComposition_p1* persObj,
 					MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toPers()" << endreq;
+  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toPers()" << endmsg;
   
   navCnv.transToPers( transObj, &persObj->m_nav, reporter );
   
-  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toPers() done ..." << endreq;
+  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toPers() done ..." << endmsg;
 }
 
 void
@@ -43,10 +43,10 @@ MissingETCompositionCnv_p1::persToTrans(const MissingETComposition_p1* persObj,
 					MissingETComposition* transObj,
 					MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endreq;
+  reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endmsg;
   
   navCnv.persToTrans( &(persObj->m_nav), transObj, reporter );
   
-  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toTrans() done ..." << endreq;
+  reporter << MSG::DEBUG << "MissingETCompositionCnv_p1 toTrans() done ..." << endmsg;
 }
 

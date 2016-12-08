@@ -54,7 +54,7 @@ void MuonCnv_p5::persToTrans( const Muon_p5* pers,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
-//       << endreq;
+//       << endmsg;
   
   // base classes
   momCnv.persToTrans     ( &pers->m_momentum,     &trans->momentumBase(), msg );
@@ -160,7 +160,7 @@ void MuonCnv_p5::persToTrans( const Muon_p5* pers,
     trans->m_isMuonLikelihood = pers->m_isMuonLikelihood;
 
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -170,7 +170,7 @@ void MuonCnv_p5::transToPers( const Analysis::Muon* trans,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Muon..."
-//       << endreq;
+//       << endmsg;
 
   // base classes
   momCnv.transToPers     ( &trans->momentumBase(), &pers->m_momentum,     msg );
@@ -276,6 +276,6 @@ void MuonCnv_p5::transToPers( const Analysis::Muon* trans,
   pers->m_isMuonLikelihood = trans->m_isMuonLikelihood;
 
 //   msg << MSG::DEBUG << "Created persistent state of Muon [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

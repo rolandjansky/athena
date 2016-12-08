@@ -54,7 +54,7 @@ void MuonCnv_p3::persToTrans( const Muon_p3* pers,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
-//       << endreq;
+//       << endmsg;
   
   // base classes
   momCnv.persToTrans     ( &pers->m_momentum,     &trans->momentumBase(), msg );
@@ -153,7 +153,7 @@ void MuonCnv_p3::persToTrans( const Muon_p3* pers,
     trans->m_isCorrected = pers->m_isCorrected;
 
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -163,7 +163,7 @@ void MuonCnv_p3::transToPers( const Analysis::Muon* trans,
 			      MsgStream& msg ) 
 {
 
-  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p3 at " << pers << " Cannot write to Muon_p3" << endreq;
+  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p3 at " << pers << " Cannot write to Muon_p3" << endmsg;
   throw std::runtime_error("Writing to Muon_p3 is not supported - MuonCnv_p3::transToPers(...)");
   return;
 

@@ -34,7 +34,7 @@ void DepositInCaloCnv_p1::persToTrans( const DepositInCalo_p1* pers,
 				       MsgStream& /*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Loading DepositInCalo from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // calorimeter sampling identifier
   trans->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId);
@@ -49,7 +49,7 @@ void DepositInCaloCnv_p1::persToTrans( const DepositInCalo_p1* pers,
   trans->m_etDeposited = 0.0;
 
 //   msg << MSG::DEBUG << "Loaded DepositInCalo from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -60,7 +60,7 @@ void DepositInCaloCnv_p1::transToPers( const DepositInCalo* trans,
 {
 
   msg << MSG::ERROR << "DepositInCalo at " << trans << " Persistent DepositInCalo_p1 at " << pers 
-      << " Cannot write to DepositInCalo_p1" << endreq;
+      << " Cannot write to DepositInCalo_p1" << endmsg;
   throw std::runtime_error("Writing to DepositInCalo_p1 is not supported - DepositInCaloCnv_p1::transToPers(...)");
 
   return;

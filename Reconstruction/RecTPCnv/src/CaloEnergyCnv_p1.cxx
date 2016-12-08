@@ -44,7 +44,7 @@ void CaloEnergyCnv_p1::persToTrans( const CaloEnergy_p1* pers,
 				    MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CaloEnergy from persistent state..."
-//       << endreq;
+//       << endmsg;
   Trk::EnergyLoss_p1 energyLoss;
   energyLoss.m_deltaE           = pers->m_energyDeposit;
   energyLoss.m_sigmaMinusDeltaE = pers->m_energySigmaMinus;
@@ -74,7 +74,7 @@ void CaloEnergyCnv_p1::persToTrans( const CaloEnergy_p1* pers,
   }
 
 //   msg << MSG::DEBUG << "Loaded CaloEnergy from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -85,7 +85,7 @@ void CaloEnergyCnv_p1::transToPers( const CaloEnergy* trans,
 {
 
   msg << MSG::ERROR << "CaloEnergy at " << trans << " Persistent CaloEnergy_p1 at " 
-                    << pers << " Cannot write to CaloEnergy_p1" << endreq;
+                    << pers << " Cannot write to CaloEnergy_p1" << endmsg;
   throw std::runtime_error("Writing to CaloEnergy_p1 is not supported - CaloEnergyCnv_p1::transToPers(...)");
   return;
 

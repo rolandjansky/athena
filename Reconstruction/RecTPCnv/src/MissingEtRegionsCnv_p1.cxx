@@ -37,7 +37,7 @@ void MissingEtRegionsCnv_p1::persToTrans(  const MissingEtRegions_p1* pers,
 				           MissingEtRegions* trans, 
 				           MsgStream& /*msg*/ ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingEtRegions from persistent state..."  << endreq;
+//   msg << MSG::DEBUG << "Loading MissingEtRegions from persistent state..."  << endmsg;
 
   trans->m_exReg      = pers->m_exReg;  
   trans->m_eyReg      = pers->m_eyReg; 
@@ -54,7 +54,7 @@ void MissingEtRegionsCnv_p1::transToPers(  const MissingEtRegions* trans,
 				           MissingEtRegions_p1* pers, 
 				           MsgStream& /*msg*/ ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingEtRegions..."   << endreq;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingEtRegions..."   << endmsg;
 
   pers->m_exReg     = trans->m_exReg;  
   pers->m_eyReg     = trans->m_eyReg; 

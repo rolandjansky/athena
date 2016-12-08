@@ -54,7 +54,7 @@ void MuonCnv_p4::persToTrans( const Muon_p4* pers,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
-//       << endreq;
+//       << endmsg;
   
   // base classes
   momCnv.persToTrans     ( &pers->m_momentum,     &trans->momentumBase(), msg );
@@ -157,7 +157,7 @@ void MuonCnv_p4::persToTrans( const Muon_p4* pers,
 
     trans->m_allAuthors  = pers->m_allAuthors;
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -167,8 +167,8 @@ void MuonCnv_p4::transToPers( const Analysis::Muon* trans,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Muon..."
-//       << endreq;
-  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p4 at " << pers << " Cannot write to Muon_p4" << endreq;
+//       << endmsg;
+  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p4 at " << pers << " Cannot write to Muon_p4" << endmsg;
   throw std::runtime_error("Writing to Muon_p4 is not supported - MuonCnv_p4::transToPers(...)");
   return;
 }

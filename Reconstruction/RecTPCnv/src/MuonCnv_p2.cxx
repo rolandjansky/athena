@@ -55,7 +55,7 @@ void MuonCnv_p2::persToTrans( const Muon_p2* pers,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
-//       << endreq;
+//       << endmsg;
   
   // base classes
   momCnv.persToTrans     ( &pers->m_momentum,     &trans->momentumBase(), msg );
@@ -152,7 +152,7 @@ void MuonCnv_p2::persToTrans( const Muon_p2* pers,
     MuonCaloEnergyContainer * caloEnergyContainer = 0;
     if (m_storeGate->retrieve(caloEnergyContainer, m_muonCaloEnergyContainerName).isFailure() || caloEnergyContainer == NULL) {
       msg << MSG::WARNING << "Cannot retrieve MuonCaloEnergyContainer" << m_muonCaloEnergyContainerName
-          <<  endreq;
+          <<  endmsg;
     } else {
       float deltaE = pers->m_caloEnergyLoss.m_energyDeposit;
       float sigmaM = pers->m_caloEnergyLoss.m_energySigmaMinus;
@@ -182,7 +182,7 @@ void MuonCnv_p2::persToTrans( const Muon_p2* pers,
     }
 
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
     return;
 }
@@ -191,7 +191,7 @@ void MuonCnv_p2::transToPers( const Analysis::Muon* trans,
 			      Muon_p2* pers, 
 			      MsgStream& msg ) 
 {
-  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p2 at " << pers << " Cannot write to Muon_p2" << endreq;
+  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p2 at " << pers << " Cannot write to Muon_p2" << endmsg;
   throw std::runtime_error("Writing to Muon_p2 is not supported - MuonCnv_p2::transToPers(...)");
   return;
 
