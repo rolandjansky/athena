@@ -154,6 +154,8 @@ TriggerHLTList = [
     ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux.',  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+    ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
 
     ('xAOD::TrigElectronContainer#HLT_L2ElectronFex',            'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronFexAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'), 
@@ -237,8 +239,8 @@ TriggerHLTList = [
     ('xAOD::TauTrackAuxContainer#HLT_TrigTauRecCaloOnlyTracksAux.',    '', 'Tau'),
 
 
-    ('xAOD::JetContainer#HLT_TrigTauJet',                                          'BS ESD AODFULL AODSLIM', 'Tau'), 
-    ('xAOD::JetTrigAuxContainer#HLT_TrigTauJetAux.',                               'BS ESD AODFULL AODSLIM', 'Tau'), 
+    ('xAOD::JetContainer#HLT_TrigTauJet',                                          'BS ESD AODFULL', 'Tau'), 
+    ('xAOD::JetTrigAuxContainer#HLT_TrigTauJetAux.',                               'BS ESD AODFULL', 'Tau'), 
 
     #muons
     #L2 Muons
