@@ -31,13 +31,14 @@
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -96,13 +97,6 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   }
 
 
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-  }
-
-
   DataHandle<StoredMaterialManager> materialManager;
   if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return NULL; 
@@ -130,11 +124,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   
 
   
-  std::string AtlasVersion = geoModel->atlasVersion();
-  std::string LArVersion = geoModel->LAr_VersionOverride();
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+  DecodeVersionKey larVersionKey("LAr");
+  std::string detectorKey  =larVersionKey.tag();
+  std::string detectorNode = larVersionKey.node();
 
   const IRDBRecordset *hadronicEndcap       = pAccessSvc->getRecordset("HadronicEndcap",detectorKey, detectorNode); 
   const IRDBRecordset *hecLongitudinalBlock = pAccessSvc->getRecordset("HecLongitudinalBlock",detectorKey, detectorNode); 

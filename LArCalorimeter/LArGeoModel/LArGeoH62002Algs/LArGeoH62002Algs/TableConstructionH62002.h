@@ -11,16 +11,14 @@
 #define LARGEOH62002ALGS_TABLECONSTRUCTIONH62002_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-class IRDBAccessSvc;
-class IGeoModelSvc;
+
 class LArDetDescrManager;
 
 namespace LArGeo {
 
   class TableConstructionH62002 
-    {
-    public:
+  {
+  public:
     
     TableConstructionH62002();
     virtual ~TableConstructionH62002();
@@ -28,7 +26,7 @@ namespace LArGeo {
     // Get the envelope containing this detector.
     virtual GeoVPhysVol* GetEnvelope();
     void SetManager(LArDetDescrManager* /*mgr*/){}
-
+    
       
   private:
     GeoPhysVol          *m_H62002TablePhysical;
