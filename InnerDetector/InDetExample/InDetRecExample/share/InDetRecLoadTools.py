@@ -33,14 +33,6 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
         dataPathList.insert(0, os.curdir)
 
-        from AthenaCommon.Utils.unixtools import FindFile
-        calibFile = "NnClusteringCalibration_v3.root"
-        RefFileNnClustering = FindFile(calibFile, dataPathList, os.R_OK )
-        
-        if not RefFileNnClustering:
-            print 'WARNING: calibration file ',calibFile,' for new clustering calibration not available yet!! '
-            
-        svcMgr.THistSvc.Input  += ["RefFileNnClustering "+" DATAFILE='"+RefFileNnClustering+"' OPT='OLD'"]
 
         # --- neutral network tools
         from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool

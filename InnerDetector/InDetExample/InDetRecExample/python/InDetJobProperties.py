@@ -551,6 +551,13 @@ class doSlimming(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False 
 
+class doWriteTracksToESD(InDetFlagsJobProperty):
+    """ turn track slimming on/off """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 class doVertexFinding(InDetFlagsJobProperty):        
     """ Turn on the primary vertex reconstruction """
     statusOn     = True
@@ -2619,6 +2626,7 @@ _list_InDetJobProperties = [Enabled,
                             doTRTStandalone,
                             refitROT,
                             doSlimming,
+                            doWriteTracksToESD,
                             doVertexFinding,
                             primaryVertexSetup,
                             primaryVertexCutSetup,
