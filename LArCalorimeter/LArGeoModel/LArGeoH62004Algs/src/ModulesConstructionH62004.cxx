@@ -51,7 +51,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <string>
 #include <cmath>
 #include <iostream>

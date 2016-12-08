@@ -74,7 +74,7 @@ namespace LArG4 {
     if ( !result.isSuccess()  ||  detectorStore == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not access detector store - " << result << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not access detector store - " << result << endmsg;
         throw GaudiException("Could not get DetectorStore","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -84,7 +84,7 @@ namespace LArG4 {
     if ( !result.isSuccess()  ||  caloIdManager == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not access Calo ID manager" << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not access Calo ID manager" << endmsg;
         throw GaudiException("Could not get CaloIdManager","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -93,7 +93,7 @@ namespace LArG4 {
     if ( m_larEmID == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr EM ID helper" << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr EM ID helper" << endmsg;
         throw GaudiException("Invalid LAr EM ID helper","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -101,7 +101,7 @@ namespace LArG4 {
     if ( m_larFcalID == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr FCAL ID helper" << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr FCAL ID helper" << endmsg;
         throw GaudiException("Invalid LAr FCAL ID helper","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -109,7 +109,7 @@ namespace LArG4 {
     if ( m_larHecID == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr HEC ID helper" << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not get LAr HEC ID helper" << endmsg;
         throw GaudiException("Invalid LAr HEC ID helper","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -117,7 +117,7 @@ namespace LArG4 {
     if ( m_caloDmID == 0 )
       {
         MsgStream log (m_msgSvc,"LArGeoH62004Algs");
-        log << MSG::FATAL << "BuildH6HitCollections(): could not get Calo DM ID helper" << endreq;
+        log << MSG::FATAL << "BuildH6HitCollections(): could not get Calo DM ID helper" << endmsg;
         throw GaudiException("Invalid Calo DM ID helper","LArGeoH62004Algs",StatusCode::FAILURE);
       }
 
@@ -147,7 +147,7 @@ namespace LArG4 {
 	<< emecHitContainer->size()
 	<< " hits nad hec has "
 	<< hecHitContainer->size() << " hits "
-	<< endreq;
+	<< endmsg;
 #endif
 
 /*
@@ -167,7 +167,7 @@ namespace LArG4 {
 		    Identifier id;
 		    if(larG4Ident[1] == 1)  { // EMEC Module
 #ifdef DEBUG_HITS
-		          log << MSG::DEBUG << "BuildH6HitCollections: adding 20 to phi" << endreq;
+		          log << MSG::DEBUG << "BuildH6HitCollections: adding 20 to phi" << endmsg;
 #endif
                           LArG4Identifier idc;
                           idc<< larG4Ident[0]<<larG4Ident[1]<<larG4Ident[2]
@@ -201,7 +201,7 @@ namespace LArG4 {
 			log << MSG::VERBOSE
 			    << "BuildH6HitCollections: hit is valid - "
 			    << m_larEmID->show_to_string(id)
-			    << endreq;
+			    << endmsg;
 #endif
 			// Build the hit itself.  Note that we scale
 			// whatever internal units Geant4 uses to the
@@ -222,7 +222,7 @@ namespace LArG4 {
 			    if ( m_larEmID->is_em_endcap(id) )
 			      {
 #ifdef DEBUG_HITS
-				log << MSG::VERBOSE << "   Add to EMEC" << endreq;
+				log << MSG::VERBOSE << "   Add to EMEC" << endmsg;
 #endif
 				emecHitCollection->push_back( hit );
 			      }
@@ -230,14 +230,14 @@ namespace LArG4 {
 			else if ( m_larFcalID->is_lar_fcal( id ) )
 			  {
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to FCAL" << endreq;
+			    log << MSG::VERBOSE << "   Add to FCAL" << endmsg;
 #endif
 			    fcalHitCollection->push_back( hit );
 			  }
 			else if ( m_larHecID->is_lar_hec( id ) )
 			  {
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to HEC" << endreq;
+			    log << MSG::VERBOSE << "   Add to HEC" << endmsg;
 #endif
 			    hecHitCollection->push_back( hit );
 			  }
@@ -253,7 +253,7 @@ namespace LArG4 {
 			    << collection->GetName()
 			    << "' is invalid; id=" 
 			    << std::string(larG4Ident)
-			    << endreq;
+			    << endmsg;
 
 			// What do we do if we can't build the hit?  Keep running, or
 			// crash and burn?
@@ -288,7 +288,7 @@ namespace LArG4 {
 	<< runNumber
 	<< " Event "
 	<< eventNumber
-	<< endreq;
+	<< endmsg;
 #endif
 
     // Access the hits of this event.  First, get the pointer to the
@@ -339,7 +339,7 @@ namespace LArG4 {
 		    << "' has "
 		    << numberHits
 		    << " hits"
-		    << endreq;
+		    << endmsg;
 #endif
 
 		for (int i = 0; i < numberHits; i++)
@@ -403,11 +403,11 @@ namespace LArG4 {
 			    << i
 			    << " in collection '"
 			    << collectionName
-			    << "'" << endreq;
+			    << "'" << endmsg;
 			log << MSG::DEBUG
 			    << "***   LArG4 hit ID="
 			    << std::string(larG4Ident)
-			    << endreq;
+			    << endmsg;
 		      }
 
 
@@ -418,7 +418,7 @@ namespace LArG4 {
 			log << MSG::VERBOSE
 			    << "hit is valid - "
 			    << m_larEmID->show_to_string(id)
-			    << endreq;
+			    << endmsg;
 #endif
 			// Build the hit itself.  Note that we scale
 			// whatever internal units Geant4 uses to the
@@ -450,14 +450,14 @@ namespace LArG4 {
 			  {
 			    deadHitCollection->push_back( hit );
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to Dead" << endreq;
+			    log << MSG::VERBOSE << "   Add to Dead" << endmsg;
 #endif
 			  }
 			else if ( collectionName.contains("::Inactive") )
 			  {
 			    inactiveHitCollection->push_back( hit );
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to Inactive" << endreq;
+			    log << MSG::VERBOSE << "   Add to Inactive" << endmsg;
 #endif
 			  }
 			else if ( collectionName.contains("::Dead") )
@@ -474,7 +474,7 @@ namespace LArG4 {
 
 			    inactiveHitCollection->push_back( hit );
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to Inactive" << endreq;
+			    log << MSG::VERBOSE << "   Add to Inactive" << endmsg;
 #endif
 			  }
 			else
@@ -482,7 +482,7 @@ namespace LArG4 {
 			    // If it's not dead or inactive, then it's active.
 			    activeHitCollection->push_back( hit );
 #ifdef DEBUG_HITS
-			    log << MSG::VERBOSE << "   Add to Active" << endreq;
+			    log << MSG::VERBOSE << "   Add to Active" << endmsg;
 #endif
 			  }
 		      } // id is valid
@@ -497,7 +497,7 @@ namespace LArG4 {
 			    << collection->GetName()
 			    << "' is invalid; id=" 
 			    << std::string(larG4Ident)
-			    << endreq;
+			    << endmsg;
 
 			// What do we do if we can't build the hit?  Keep running, or
 			// crash and burn?
@@ -508,7 +508,7 @@ namespace LArG4 {
 			  {
 			  log << MSG::FATAL
 			  << "BuildH6HitCollections: Invalid hit identifier.  Aborting."
-			  << endreq;
+			  << endmsg;
 			  throw GaudiException("Could not convert hit","LArGeoH62004Algs",StatusCode::FAILURE);
 			  }
 			*/
@@ -565,7 +565,7 @@ namespace LArG4 {
       {
 	log << a_ident[f] << "/";
       }
-    log << endreq;
+    log << endmsg;
 #endif
 
     // Define a new Athena Identifier object.  Note
@@ -580,13 +580,13 @@ namespace LArG4 {
     if ( a_ident[0] == 4 )
       {
 #ifdef DEBUG_HITS
-	log << MSG::VERBOSE << "is_lar" << endreq;
+	log << MSG::VERBOSE << "is_lar" << endmsg;
 #endif
 
 	if (a_ident[1] == 1 )
 	  {
 #ifdef DEBUG_HITS
-	    log << MSG::VERBOSE  << "is_lar_em" << endreq;
+	    log << MSG::VERBOSE  << "is_lar_em" << endmsg;
 #endif
 	    // Use the Athena classes to create the
 	    // Identifier, handling any exceptions
@@ -604,14 +604,14 @@ namespace LArG4 {
 		log << MSG::ERROR
 		    << "BuildH6HitCollections: LArEM_ID error code " << e.code() << " "
 		    << (std::string) e
-		    << endreq;
+		    << endmsg;
 	      }
 
 	  }
 	else if ( a_ident[1] == 2 )
 	  {
 #ifdef DEBUG_HITS
-	    log << MSG::VERBOSE  << "is_em_hec" << endreq;
+	    log << MSG::VERBOSE  << "is_em_hec" << endmsg;
 #endif
 	    try {
 	      id = m_larHecID->channel_id(a_ident[2],  // zSide
@@ -626,14 +626,14 @@ namespace LArG4 {
 		log << MSG::ERROR
 		    << "BuildH6HitCollections: LArHEC_ID error code " << e.code() << " "
 		    << (std::string) e
-		    << endreq;
+		    << endmsg;
 	      }
 
 	  }
 	else if ( a_ident[1] == 3 )
 	  {
 #ifdef DEBUG_HITS
-	    log << MSG::VERBOSE  << "is_em_fcal" << endreq;
+	    log << MSG::VERBOSE  << "is_em_fcal" << endmsg;
 #endif
 	    try {
 	      id = m_larFcalID->channel_id(a_ident[2],  // zSide
@@ -647,7 +647,7 @@ namespace LArG4 {
 		log << MSG::ERROR
 		    << "BuildH6HitCollections: LArFCAL_ID error code " << e.code() << " "
 		    << (std::string) e
-		    << endreq;
+		    << endmsg;
 	      }
 	  }
       }
@@ -655,7 +655,7 @@ namespace LArG4 {
       {
 	// This is a dead-material identifier
 #ifdef DEBUG_HITS
-	log << MSG::VERBOSE  << "is_calo_dm" << endreq;
+	log << MSG::VERBOSE  << "is_calo_dm" << endmsg;
 #endif
 	try {
 	  id = m_caloDmID->zone_id(a_ident[1],  // zSide
@@ -671,7 +671,7 @@ namespace LArG4 {
 	    log << MSG::ERROR
 		<< "BuildH6HitCollections: CaloDM_ID error code " << e.code() << " "
 		<< (std::string) e
-		<< endreq;
+		<< endmsg;
 	  }
       }
 

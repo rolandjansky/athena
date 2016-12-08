@@ -78,7 +78,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62004::GetEnvelope()
   }
 
   MsgStream log(msgSvc, "LArGeo::FrontBeamConstructionH62004"); 
-  log << MSG::INFO << "+    HELLO from LArGeo::FrontBeamConstructionH62004       +" << endreq;
+  log << MSG::INFO << "+    HELLO from LArGeo::FrontBeamConstructionH62004       +" << endmsg;
 
 
   StoreGateSvc *detStore;
@@ -154,7 +154,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62004::GetEnvelope()
   // The beam sees the instrumentation in the following order:
   // W1, W2, B1, MWPC5
 
-  log << MSG::INFO << "Create Front Scintillators ..." << endreq;
+  log << MSG::INFO << "Create Front Scintillators ..." << endmsg;
   
   const double Wxy=  75.0*CLHEP::mm;
   const double Wz =   5.0*CLHEP::mm;
@@ -197,7 +197,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62004::GetEnvelope()
 
 
   //------ Now create MWPC5 
-  log << MSG::INFO << " Create MWPC5 " << endreq;
+  log << MSG::INFO << " Create MWPC5 " << endmsg;
   
   MWPCConstruction MWPC5 (2.*CLHEP::mm);
   GeoVPhysVol* MwpcPhysical = MWPC5.GetEnvelope();
@@ -211,7 +211,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62004::GetEnvelope()
   //----- Done with the MWPC
 
   //----- Now create BPC
-  log << MSG::INFO << " Create BPC 1&2 " << endreq;
+  log << MSG::INFO << " Create BPC 1&2 " << endmsg;
 
   BPCConstruction BPC (false);
   GeoVPhysVol* BPCPhysical = BPC.GetEnvelope();

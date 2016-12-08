@@ -83,7 +83,7 @@ void RadLenNtuple::BeginOfRunAction(const G4Run* aRun)
     }
   if ( ! ntdir )  
     {
-      log << MSG::ERROR << " failed to get ntuple directory" << endreq;
+      log << MSG::ERROR << " failed to get ntuple directory" << endmsg;
     }
   
   NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/RadLenNtuple/radlen");
@@ -94,7 +94,7 @@ void RadLenNtuple::BeginOfRunAction(const G4Run* aRun)
     if ( nt )    {
       
       
-      log << MSG::DEBUG << "booked ntuple " << endreq;
+      log << MSG::DEBUG << "booked ntuple " << endmsg;
 
       // WARNING!! Force limit to 50k tracks
       
@@ -116,7 +116,7 @@ void RadLenNtuple::BeginOfRunAction(const G4Run* aRun)
       
     } else {   // did not manage to book the N tuple....
       
-      log << MSG::ERROR << "Could not book ntuple!! " << endreq;
+      log << MSG::ERROR << "Could not book ntuple!! " << endmsg;
       
     }
   }   
@@ -150,7 +150,7 @@ void RadLenNtuple::SteppingAction(const G4Step* aStep)
       if(npos< volName.size()){
          has_cryo = true;
          m_cryo_y = preStep->GetPosition().y();
-         log << MSG::DEBUG <<" Has cryo: "<<m_cryo_y <<endreq;
+         log << MSG::DEBUG <<" Has cryo: "<<m_cryo_y <<endmsg;
       }
    }
    if(!has_em) {
@@ -160,7 +160,7 @@ void RadLenNtuple::SteppingAction(const G4Step* aStep)
       if(npos< volName.size()){
          has_em = true;
          m_em_y = preStep->GetPosition().y();
-         log << MSG::DEBUG <<" Has EMEC: "<<m_em_y <<endreq;
+         log << MSG::DEBUG <<" Has EMEC: "<<m_em_y <<endmsg;
       }
    }
    if(!has_hec) {
@@ -170,7 +170,7 @@ void RadLenNtuple::SteppingAction(const G4Step* aStep)
       if(npos< volName.size()){
          has_hec = true;
          m_hec_y = preStep->GetPosition().y();
-         log << MSG::DEBUG <<" Has HEC: "<<m_hec_y <<endreq;
+         log << MSG::DEBUG <<" Has HEC: "<<m_hec_y <<endmsg;
       }
    }
    if(!has_fcal) {
@@ -180,7 +180,7 @@ void RadLenNtuple::SteppingAction(const G4Step* aStep)
       if(npos< volName.size()){
          has_fcal = true;
          m_fcal_y = preStep->GetPosition().y();
-         log << MSG::DEBUG <<" Has FCAL: "<<m_fcal_y <<endreq;
+         log << MSG::DEBUG <<" Has FCAL: "<<m_fcal_y <<endmsg;
       }
    }
 }
