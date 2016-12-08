@@ -148,16 +148,16 @@ private:
     // configurables (tools and options)
     bool						m_aggregateMaterial;
     bool						m_asymmetricCaloEnergy;
-    bool						m_fastMatrixTreatment;
+    bool						m_eigenMatrixTreatment;
     bool						m_fullCombinedFit;
     bool						m_lineFit;
     double						m_lineMomentum;
-    ToolHandle<IMaterialAllocator>			m_materialAllocator;
-    ToolHandle<IIntersector>				m_rungeKuttaIntersector;
+    mutable ToolHandle<IMaterialAllocator>		m_materialAllocator;
+    mutable ToolHandle<IIntersector>			m_rungeKuttaIntersector;
     ToolHandle<IIntersector>				m_solenoidalIntersector;
+    ToolHandle<IPropagator>				m_stepPropagator;
     ToolHandle<IIntersector>				m_straightLineIntersector;
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
-    ToolHandle< IPropagator >                           m_stepPropagator;
 
     // configurable tolerances, warnings
     double						m_orderingTolerance;
@@ -166,8 +166,9 @@ private:
     // configurables for validation purposes
     bool						m_constrainedAlignmentEffects;
     bool						m_extendedDebug;
-    int  						m_useStepPropagator;
     int 						m_forcedRefitsForValidation;
+    int 						m_maxIterations;
+    int 						m_useStepPropagator;
     
     // constants 
     Trk::Volume*					m_calorimeterVolume;
