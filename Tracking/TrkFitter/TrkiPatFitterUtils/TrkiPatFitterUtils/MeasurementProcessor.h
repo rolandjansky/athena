@@ -32,12 +32,12 @@ class MeasurementProcessor
 {
 public:
     MeasurementProcessor (bool					asymmetricCaloEnergy,
-			  const ToolHandle<IIntersector>&    	intersector,
+			  ToolHandle<IIntersector>&		intersector,
 			  std::list<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
-			  const ToolHandle<IIntersector>&    	rungeKuttaIntersector,
+			  ToolHandle<IIntersector>&    		rungeKuttaIntersector,
 			  const ToolHandle<IPropagator>&    	stepPropagator,
-                          int                                   useStepPropagator);    
+			  int 					useStepPropagator);    
     ~MeasurementProcessor (void);
 
     // implicit copy constructor
