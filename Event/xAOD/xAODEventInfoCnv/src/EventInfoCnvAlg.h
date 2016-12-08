@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.h 727531 2016-03-03 17:44:38Z krasznaa $
+// $Id: EventInfoCnvAlg.h 751296 2016-06-01 08:00:25Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 
@@ -28,8 +28,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 727531 $
-    * $Date: 2016-03-03 18:44:38 +0100 (Thu, 03 Mar 2016) $
+    * $Revision: 751296 $
+    * $Date: 2016-06-01 10:00:25 +0200 (Wed, 01 Jun 2016) $
     */
    class EventInfoCnvAlg : public AthAlgorithm {
 
@@ -51,6 +51,9 @@ namespace xAODMaker {
       std::string m_aodKey;
       /// StoreGate key for the output object
       std::string m_xaodKey;
+
+      /// Force the overwrite of a possibly existing xAOD::EventInfo object
+      bool m_overwrite;
 
       /// Handle to the converter tool
       ToolHandle< IEventInfoCnvTool > m_cnvTool;

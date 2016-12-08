@@ -27,7 +27,7 @@ namespace xAODMaker {
    }
 
    //__________________________________________________________________________
-   StatusCode EventInfoSelectorTool::postNext() {
+   StatusCode EventInfoSelectorTool::postNext() const {
       ATH_MSG_DEBUG("EventInfoSelectorTool::postNext");
 
       // Check if anything needs to be done:
@@ -50,14 +50,14 @@ namespace xAODMaker {
       xaod->setStore( aux );
 
       // Do the translation:
-      CHECK( this->convert( aod, xaod ) );
+      CHECK( const_cast<EventInfoSelectorTool*>(this)->convert( aod, xaod ) );
       CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
       CHECK( evtStore()->record( xaod, m_xaodKey ) );
 
       return StatusCode::SUCCESS;
    }
    //__________________________________________________________________________
-   StatusCode EventInfoSelectorTool::preNext() {
+   StatusCode EventInfoSelectorTool::preNext() const {
       return(StatusCode::SUCCESS);
    }
    //__________________________________________________________________________

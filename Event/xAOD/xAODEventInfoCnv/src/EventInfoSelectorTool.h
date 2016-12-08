@@ -34,8 +34,8 @@ namespace xAODMaker {
       /// IAthenaSelectorTool Interface method implementations:
       virtual StatusCode initialize();
       virtual StatusCode postInitialize();
-      virtual StatusCode preNext();
-      virtual StatusCode postNext();
+      virtual StatusCode preNext() const;
+      virtual StatusCode postNext() const;
       virtual StatusCode preFinalize();
       virtual StatusCode finalize();
    private:
