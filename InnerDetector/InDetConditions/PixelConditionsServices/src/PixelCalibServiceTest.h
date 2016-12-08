@@ -60,11 +60,11 @@ class PixelCalibServiceTest:public AthAlgorithm {
   bool m_setup;                            //true for first event
 
   // algorithm parameters to be set in the jobOptions
-  std::string par_rfile;   //<! text file to read calibration data from
+  std::string m_par_rfile;   //<! text file to read calibration data from
   bool m_dummy;
   
-  TFile* par_histf;
-  TH1F*  _myhf[14];
+  TFile* m_par_histf;
+  TH1F*  m_myhf[14];
 
 }; 
 

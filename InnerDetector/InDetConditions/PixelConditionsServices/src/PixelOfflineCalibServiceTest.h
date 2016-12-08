@@ -56,9 +56,9 @@ class PixelOfflineCalibServiceTest:public AthAlgorithm {
   bool m_setup;                            //true for first event
 
   // algorithm parameters to be set in the jobOptions
-  std::string par_rfile1;   //<! text file to read calibration data from
-  std::string par_rfile2;   //<! text file to read calibration data from
-  std::string par_rfile3;   //<! text file to read calibration data from
+  std::string m_par_rfile1;   //<! text file to read calibration data from
+  std::string m_par_rfile2;   //<! text file to read calibration data from
+  std::string m_par_rfile3;   //<! text file to read calibration data from
 
 }; 
 
