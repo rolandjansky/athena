@@ -228,7 +228,7 @@ inline TH1* AthHistogramming::bookGetPointer( const TH1& hist, const std::string
   // We need to create a non-const clone
   TH1* histClone = dynamic_cast< TH1* >( hist.Clone() );
   if ( !histClone ) {
-    m_msg << MSG::ERROR << "Couldn't create a TH1 clone in bookGetPointer" << endreq;
+    m_msg << MSG::ERROR << "Couldn't create a TH1 clone in bookGetPointer" << endmsg;
     return 0;
   }
   return this->bookGetPointer( *histClone, tDir, stream );
@@ -238,7 +238,7 @@ inline TH1* AthHistogramming::bookGetPointer( const TH1& hist, const std::string
 inline TH1* AthHistogramming::bookGetPointer( TH1* hist, const std::string& tDir, const std::string& stream )
 {
   if ( !hist ) {
-    m_msg << MSG::ERROR << "Got a zero pointer to a TH1 in bookGetPointer" << endreq;
+    m_msg << MSG::ERROR << "Got a zero pointer to a TH1 in bookGetPointer" << endmsg;
     return 0;
   }
   return this->bookGetPointer( *hist, tDir, stream );
@@ -250,7 +250,7 @@ inline StatusCode AthHistogramming::book( const TH1& hist, const std::string& tD
   // We need to create a non-const clone
   TH1* histClone = dynamic_cast< TH1* >( hist.Clone() );
   if ( !histClone ) {
-    m_msg << MSG::ERROR << "Couldn't create a TH1 clone" << endreq;
+    m_msg << MSG::ERROR << "Couldn't create a TH1 clone" << endmsg;
     return StatusCode::FAILURE;
   }
   return this->book( *histClone, tDir, stream );
@@ -259,7 +259,7 @@ inline StatusCode AthHistogramming::book( const TH1& hist, const std::string& tD
 inline StatusCode AthHistogramming::book( TH1* hist, const std::string& tDir, const std::string& stream )
 {
   if ( !hist ) {
-    m_msg << MSG::ERROR << "Got a zero pointer to a TH1" << endreq;
+    m_msg << MSG::ERROR << "Got a zero pointer to a TH1" << endmsg;
     return StatusCode::FAILURE;
   }
   return this->book( *hist, tDir, stream );
@@ -271,7 +271,7 @@ inline StatusCode AthHistogramming::book( TH1& histRef, const std::string& tDir,
   // Call the other Book method and see if it returns a valid pointer
   TH1* histPointer = this->bookGetPointer( histRef, tDir, stream );
   if ( !histPointer ) {
-    m_msg << MSG::ERROR << "Couldn't book a TH1" << endreq;
+    m_msg << MSG::ERROR << "Couldn't book a TH1" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -287,7 +287,7 @@ inline TH2* AthHistogramming::hist2d( const std::string& histName, const std::st
     {
       m_msg << MSG::ERROR
             << "Cannot get a 2-d histogram with name " << histName
-            << "... will probably seg-fault!" << endreq;
+            << "... will probably seg-fault!" << endmsg;
       return NULL;
     }
   // If the TH1 pointer is valid, simply return the dynamic_cast
@@ -304,7 +304,7 @@ inline TH3* AthHistogramming::hist3d( const std::string& histName, const std::st
     {
       m_msg << MSG::ERROR
             << "Cannot get a 3-d histogram with name " << histName
-            << "... will probably seg-fault!" << endreq;
+            << "... will probably seg-fault!" << endmsg;
       return NULL;
     }
   // If the TH1 pointer is valid, simply return the dynamic_cast
