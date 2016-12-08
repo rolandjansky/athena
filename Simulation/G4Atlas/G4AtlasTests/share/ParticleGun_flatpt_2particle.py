@@ -1,7 +1,7 @@
 #! -*- python -*-
 
 include("GeneratorUtils/StdEvgenSetup.py")
-theApp.EvtMax = 10
+#theApp.EvtMax = 10
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
