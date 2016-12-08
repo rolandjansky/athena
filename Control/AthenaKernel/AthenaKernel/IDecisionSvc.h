@@ -25,6 +25,7 @@
 
 // fwd declares
 class INamedInterface;
+class EventContext;
 
 
 class IDecisionSvc  
@@ -57,19 +58,20 @@ public:
 
   // Get methods of Accept/Require/Veto algorithms for a given stream
   virtual 
-  const std::vector<std::string> * getAcceptAlgs(const std::string& stream) const = 0;
+  const std::vector<std::string> getAcceptAlgs(const std::string& stream) const = 0;
 
   virtual 
-  const std::vector<std::string> * getRequireAlgs(const std::string& stream) const = 0;
+  const std::vector<std::string> getRequireAlgs(const std::string& stream) const = 0;
   
   virtual 
-  const std::vector<std::string> * getVetoAlgs(const std::string& stream) const = 0;
+  const std::vector<std::string> getVetoAlgs(const std::string& stream) const = 0;
 
   // Get list of streams
-  virtual const std::vector<std::string>* getStreams() const = 0;
+  virtual const std::vector<std::string> getStreams() const = 0;
 
   /// Test whether this event should be output, of a given stream
   virtual bool isEventAccepted(const std::string& stream) const = 0;
+  virtual bool isEventAccepted(const std::string& stream, const EventContext&) const = 0;
 
 
   static const InterfaceID& interfaceID();
