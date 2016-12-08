@@ -1,0 +1,26 @@
+package JetJvtEfficiency
+
+public
+
+use AtlasPolicy     AtlasPolicy-*
+
+use AsgTools        AsgTools-*        Control/AthToolSupport
+use AtlasROOT       AtlasROOT-*       External
+use PATInterfaces   PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
+
+use xAODJet        xAODJet-*        Event/xAOD
+
+apply_pattern declare_calib files="../share/*.root"
+
+private
+
+use GaudiInterface  GaudiInterface-*  External
+use PathResolver    PathResolver-*    Tools
+
+apply_pattern dual_use_library files="../src/*.cxx ../Root/*.cxx"
+
+#end_private
+
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=JetJvtEfficiency selectionfile=selection.xml headerfiles="../JetJvtEfficiency/JetJvtEfficiencyDict.h"
+
