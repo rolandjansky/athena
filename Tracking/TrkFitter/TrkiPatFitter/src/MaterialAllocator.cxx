@@ -1062,7 +1062,21 @@ MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
     double mass = ParticleMasses().mass[Trk::muon];
     MsgStream log(msgSvc(), name());
     const TrackParameters* trackParameters = parameters.trackParameters(log, *measurements.back());
-    //    std::list<Trk::FitMeasurement*>::reverse_iterator start = measurements.rbegin();
+
+// protect the momentum to avoid excessive Eloss
+    Amg::VectorX parameterVector = trackParameters->parameters();
+    double Emax = 50000.;
+    if(parameterVector[Trk::qOverP]==0.) {
+       parameterVector[Trk::qOverP] = 1./Emax;
+    } else {
+       if(std::abs(parameterVector[Trk::qOverP])*Emax < 1) parameterVector[Trk::qOverP] = trackParameters->charge()/Emax;
+    }              
+
+// correct track parameters for high momentum track (otherwise Eloss is too large)
+    trackParameters = (trackParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
+                                                              parameterVector[Trk::loc2],parameterVector[Trk::phi],
+                                                              parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+
     for (std::list<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
 	 r != measurements.rend();
 	 ++r)
@@ -2514,8 +2528,8 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     }
 
 //    if(!m_allowReordering) {
-      if (reorderMS&&fabs(minDistanceMS)>-2.) ATH_MSG_WARNING( " reorder MS part of track with minimum distance " << minDistanceMS << " minRDistanceMS " << minRDistanceMS << " minZDistanceMS " << minZDistanceMS);
-      if (reorderID&&fabs(minDistanceID)>-2.) ATH_MSG_WARNING( " reorder ID part of track with minimum distance " << minDistanceID);
+      if (reorderMS&&fabs(minDistanceMS)>-2.) ATH_MSG_DEBUG( " reorder MS part of track with minimum distance " << minDistanceMS << " minRDistanceMS " << minRDistanceMS << " minZDistanceMS " << minZDistanceMS);
+      if (reorderID&&fabs(minDistanceID)>-2.) ATH_MSG_DEBUG( " reorder ID part of track with minimum distance " << minDistanceID);
 //    }
 
     if(reorderMS||reorderID) {
@@ -2651,6 +2665,22 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     double endSpectrometerDistance	= startDirection.dot(
 	measurements.back()->intersection(FittedTrajectory).position() - startPosition);
     const std::vector<const TrackStateOnSurface*>* spectrometerMaterial = 0;
+
+// protect the momentum to avoid excessive Eloss
+
+    Amg::VectorX parameterVector = endParameters->parameters();
+    double Emax = 50000.;
+    if(parameterVector[Trk::qOverP]==0.) {
+       parameterVector[Trk::qOverP] = 1./Emax;
+    } else {
+       if(std::abs(parameterVector[Trk::qOverP])*Emax < 1) parameterVector[Trk::qOverP] = endParameters->charge()/Emax;
+    }              
+
+// correct track parameters for high momentum track (otherwise Eloss is too large)
+    endParameters = (endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
+                                                              parameterVector[Trk::loc2],parameterVector[Trk::phi],
+                                                              parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+
     if (entranceParameters)
     {
 	const Surface& entranceSurface	= entranceParameters->associatedSurface();

@@ -131,14 +131,14 @@ private:
     
     // configurables (svc/tools then options)
     ToolHandle<IExtrapolator>				m_extrapolator;
-    ToolHandle<IIntersector>				m_intersector;
+    mutable ToolHandle<IIntersector>			m_intersector;
     ToolHandle<IExtrapolator>				m_spectrometerExtrapolator;
-    mutable ServiceHandle<ITrackingGeometrySvc>		m_trackingGeometrySvc;	// init with callback
+    mutable ServiceHandle<ITrackingGeometrySvc> 	m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
-    ToolHandle< IPropagator >                           m_stepPropagator;
+    ToolHandle<IPropagator>				m_stepPropagator;
     bool						m_aggregateMaterial;
     bool						m_allowReordering;
-    int                                                 m_useStepPropagator;
+    int 						m_useStepPropagator;
     unsigned						m_maxWarnings;
 
     // configurable parameters and tolerances (for aggregation rules and Coulomb scattering constants)

@@ -61,24 +61,26 @@ iPatFitter::iPatFitter (const std::string&	type,
 	m_parameters			(0),
 	m_aggregateMaterial		(true),
 	m_asymmetricCaloEnergy		(true),
-	m_fastMatrixTreatment		(false),
+	m_eigenMatrixTreatment		(true),
 	m_fullCombinedFit		(true),
 	m_lineFit			(false),
 	m_lineMomentum			(100.*Gaudi::Units::GeV),
 	m_materialAllocator		("Trk::MaterialAllocator/MaterialAllocator"),
 	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
 	m_solenoidalIntersector		("Trk::SolenoidalIntersector/SolenoidalIntersector"),
+	m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
 	m_straightLineIntersector	("Trk::StraightLineIntersector/StraightLineIntersector"),
 	m_trackingVolumesSvc		("TrackingVolumesSvc/TrackingVolumesSvc",name),
-        m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
  	m_orderingTolerance		(1.*Gaudi::Units::mm),
 	m_maxWarnings			(10),
 	m_constrainedAlignmentEffects	(false),
 	m_extendedDebug			(false),
-	m_useStepPropagator		(1),
 	m_forcedRefitsForValidation	(0),
+	m_maxIterations			(25),
+	m_useStepPropagator		(1),
 	m_calorimeterVolume		(0),
 	m_indetVolume			(0),
+	m_stepField			(Trk::MagneticFieldProperties(Trk::FullField)),
 	m_countFitAttempts		(0),
 	m_countGoodFits			(0),
 	m_countIterations		(0),
@@ -91,7 +93,7 @@ iPatFitter::iPatFitter (const std::string&	type,
     declareInterface<ITrackFitter>(this);
     declareProperty("AggregateMaterial",	       	m_aggregateMaterial);
     declareProperty("AsymmetricCaloEnergy",	       	m_asymmetricCaloEnergy);
-    declareProperty("FastMatrixTreatment",		m_fastMatrixTreatment);
+    declareProperty("EigenMatrixTreatment",		m_eigenMatrixTreatment);
     declareProperty("FullCombinedFit",			m_fullCombinedFit);
     declareProperty("LineFit",				m_lineFit);
     declareProperty("LineMomentum",			m_lineMomentum);
@@ -107,15 +109,14 @@ iPatFitter::iPatFitter (const std::string&	type,
     // validation options
     declareProperty("ConstrainedAlignmentEffects",	m_constrainedAlignmentEffects);
     declareProperty("ExtendedDebug",			m_extendedDebug);
+    declareProperty("ForcedRefitsForValidation",	m_forcedRefitsForValidation);
+    declareProperty("MaxIterations",			m_maxIterations);
 
     // m_useStepPropagator 0 means not used (so Intersector used)
     // 1 Intersector not used and StepPropagator used with FullField
     // 2 StepPropagator with FastField propagation 
     // 99 debug mode where both are ran with FullField
-
     declareProperty("UseStepPropagator",		m_useStepPropagator);
-
-    declareProperty("ForcedRefitsForValidation",	m_forcedRefitsForValidation);
 }
 
 iPatFitter::~iPatFitter (void)
@@ -132,7 +133,7 @@ iPatFitter::initialize()
     msg(MSG::INFO) << " with options: ";
     if (m_aggregateMaterial)		msg() << " AggregateMaterial";
     if (m_asymmetricCaloEnergy) 	msg() << " AsymmetricCaloEnergy";
-    if (m_fastMatrixTreatment)		msg() << " FastMatrixTreatment";
+    if (m_eigenMatrixTreatment)		msg() << " EigenMatrixTreatment";
     if (m_fullCombinedFit)		msg() << " FullCombinedFit";
     if (m_globalFit)			msg() << " GlobalFitter";
     if (m_lineFit)			msg() << " LineFit with p = "
@@ -141,6 +142,8 @@ iPatFitter::initialize()
     if (m_extendedDebug)		msg() << " ExtendedDebug";
     if (m_forcedRefitsForValidation)	msg() << " ForcedRefitsForValidation = "
 					      << m_forcedRefitsForValidation;
+    if (m_useStepPropagator)		msg() << " UseStepPropagator = "
+					      << m_useStepPropagator;
     msg() << endmsg;
   
     // fill WARNING messages
@@ -186,7 +189,7 @@ iPatFitter::initialize()
     if (m_rungeKuttaIntersector.retrieve().isFailure())
     {
 	ATH_MSG_FATAL( "Failed to retrieve tool " << m_rungeKuttaIntersector );
-        return StatusCode::FAILURE;
+	return StatusCode::FAILURE;
     }
     else
     {
@@ -195,11 +198,24 @@ iPatFitter::initialize()
     if (m_solenoidalIntersector.retrieve().isFailure())
     {
 	ATH_MSG_FATAL( "Failed to retrieve tool " << m_solenoidalIntersector );
-        return StatusCode::FAILURE;
+	return StatusCode::FAILURE;
     }
     else
     {
 	ATH_MSG_INFO( "Retrieved tool " << m_solenoidalIntersector );
+    }
+    if (m_useStepPropagator)
+    {
+	if (m_useStepPropagator == 2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
+	if (m_stepPropagator.retrieve().isFailure())
+	{
+	    ATH_MSG_FATAL( "Failed to retrieve tool " <<  m_stepPropagator );
+	    return StatusCode::FAILURE;
+	}
+	else
+	{
+	    ATH_MSG_INFO( "Retrieved tool " << m_stepPropagator );
+	}
     }
     if (m_straightLineIntersector.retrieve().isFailure())
     {
@@ -226,27 +242,18 @@ iPatFitter::initialize()
 	    m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
 
-    if ( m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve Svc " <<  m_stepPropagator );
-	return StatusCode::FAILURE;
-    } 
-
-// Field for StepPropagator
-    m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
-    if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
-
     // can now create FitProcedure class
     m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
 				      m_extendedDebug,
-				      m_fastMatrixTreatment,
+				      m_eigenMatrixTreatment,
 				      m_lineFit,
 				      m_rungeKuttaIntersector,
 				      m_solenoidalIntersector,
 				      m_straightLineIntersector,
 				      m_stepPropagator,
 				      m_indetVolume,
-                                      m_useStepPropagator);
+				      m_maxIterations,
+				      m_useStepPropagator);
     
     return StatusCode::SUCCESS;
 }
@@ -660,21 +667,23 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
     {
 	const TrackSurfaceIntersection* newIntersection = m_useStepPropagator>=1?
             m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                                      intersection,
-                                                      qOverP,
-                                                      m_stepField,
-                                                      Trk::muon):
+					       intersection,
+					       qOverP,
+					       m_stepField,
+					       Trk::muon):
 	    m_rungeKuttaIntersector->intersectSurface((**m).associatedSurface(),
 						      intersection,
 						      qOverP);
-        if(m_useStepPropagator==99&&newIntersection) {
+        if (m_useStepPropagator==99 && newIntersection)
+	{
             const TrackSurfaceIntersection* newIntersectionSTEP = 
-            m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                                      intersection,
-                                                      qOverP,
-                                                      m_stepField,
-                                                      Trk::muon);
-            if(newIntersectionSTEP) {
+		m_stepPropagator->intersectSurface((**m).associatedSurface(),
+						   intersection,
+						   qOverP,
+						   m_stepField,
+						   Trk::muon);
+            if (newIntersectionSTEP)
+	    {
 //              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
 //              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl; 
 //              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl; 
@@ -690,18 +699,26 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
 	    // check if ordering OK
 	    if (! reorder)
 	    {
-		double distance  = startDirection.dot(intersection->position() - startPosition);
-                Amg::Vector3D positionMst = (**m).globalPosition();
-                double distanceR          = sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
-                double distanceZ          = (positionMst.z() - startPosition.z());
-                if(startDirection.z()<0) distanceZ = -distanceZ;
-		if (distance < previousDistance&&distanceR < previousDistanceR&&distanceZ < previousDistanceZ) {
-                  reorder = true;
-                  ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance << " R distance " << distanceR - previousDistanceR << " Z distance " <<  distanceZ - previousDistanceZ ); 
+		double distance 		= startDirection.dot(
+		    intersection->position() - startPosition );
+		Amg::Vector3D positionMst	= (**m).globalPosition();
+		double distanceR		= sqrt(
+		    (positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) +
+		    (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()) );
+		double distanceZ		= (positionMst.z() - startPosition.z());
+		if (startDirection.z() < 0) distanceZ = -distanceZ;
+		if (distance < previousDistance
+		    && distanceR < previousDistanceR
+		    && distanceZ < previousDistanceZ)
+		{
+		    reorder = true;
+		    ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance
+				   << " R distance " << distanceR - previousDistanceR
+				   << " Z distance " << distanceZ - previousDistanceZ ); 
                 }
-		previousDistance = distance - m_orderingTolerance;
-		previousDistanceR = distanceR - m_orderingTolerance;
-		previousDistanceZ = distanceZ - m_orderingTolerance;
+		previousDistance	= distance - m_orderingTolerance;
+		previousDistanceR	= distanceR - m_orderingTolerance;
+		previousDistanceZ	= distanceZ - m_orderingTolerance;
 	    }
 	}
 	else
@@ -958,28 +975,30 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	{
 	    const TrackSurfaceIntersection* newIntersection = m_useStepPropagator>=1?
                 m_stepPropagator->intersectSurface(*surface,
-                                                 intersection,
-                                                 qOverP,
-                                                 m_stepField,
-                                                 Trk::muon):
+						   intersection,
+						   qOverP,
+						   m_stepField,
+						   Trk::muon):
 		m_rungeKuttaIntersector->intersectSurface(*surface,
 							  intersection,
 							  qOverP);
-            if(m_useStepPropagator==99&&newIntersection) {
-              const TrackSurfaceIntersection* newIntersectionSTEP = 
-              m_stepPropagator->intersectSurface(*surface,
-                                                 intersection,
-                                                 qOverP,
-                                                 m_stepField,
-                                                 Trk::muon);
-              if(newIntersectionSTEP) {
-//                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
-//                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl; 
-//                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist << std::endl; 
-                delete newIntersectionSTEP;
-//              } else {
-//                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
-              }
+            if (m_useStepPropagator == 99 && newIntersection)
+	    {
+		const TrackSurfaceIntersection* newIntersectionSTEP = 
+		    m_stepPropagator->intersectSurface(*surface,
+						       intersection,
+						       qOverP,
+						       m_stepField,
+						       Trk::muon);
+		if (newIntersectionSTEP)
+		{
+		    //                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
+		    //                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl; 
+		    //                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist << std::endl; 
+		    delete newIntersectionSTEP;
+		    //              } else {
+		    //                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
+		}
             }
 
 	    if (! newIntersection)
@@ -1026,20 +1045,28 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	// check if ordering OK
 	if (! reorder)
 	{
-	    double distance  = startDirection.dot(intersection->position() - startPosition);
-            Amg::Vector3D positionMst = startPosition;
-            if((**s).measurementOnTrack())  positionMst = (**s).measurementOnTrack()->globalPosition();
-            if((**s).materialEffectsOnTrack())  positionMst = (**s).materialEffectsOnTrack()->associatedSurface().center();
-            double distanceR          = sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
-            double distanceZ          = (positionMst.z() - startPosition.z());
-            if(startDirection.z()<0) distanceZ = -distanceZ;
-	    if(distance < previousDistance&&distanceR < previousDistanceR&&distanceZ < previousDistanceZ) {
+	    double distance		= startDirection.dot(intersection->position() - startPosition);
+	    Amg::Vector3D positionMst	= startPosition;
+	    if ((**s).measurementOnTrack()) positionMst = (**s).measurementOnTrack()->globalPosition();
+	    if ((**s).materialEffectsOnTrack())
+		positionMst = (**s).materialEffectsOnTrack()->associatedSurface().center();
+	    double distanceR		= sqrt(
+		(positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) +
+		(positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()) );
+	    double distanceZ		= (positionMst.z() - startPosition.z());
+	    if (startDirection.z() < 0) distanceZ = -distanceZ;
+	    if (distance < previousDistance
+		&& distanceR < previousDistanceR
+		&& distanceZ < previousDistanceZ)
+	    {
               reorder = true;
-              ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance << " R distance " << distanceR - previousDistanceR << " Z distance " <<  distanceZ - previousDistanceZ ); 
+              ATH_MSG_DEBUG( " reorder 3D distance " << distance - previousDistance
+			     << " R distance " << distanceR - previousDistanceR
+			     << " Z distance " << distanceZ - previousDistanceZ ); 
             }
-	    previousDistance  = distance - m_orderingTolerance;
-	    previousDistanceR = distanceR - m_orderingTolerance;
-            previousDistanceZ = distanceZ - m_orderingTolerance;
+	    previousDistance	= distance - m_orderingTolerance;
+	    previousDistanceR	= distanceR - m_orderingTolerance;
+	    previousDistanceZ	= distanceZ - m_orderingTolerance;
 	}
 	
 	// insert measurement(s) in list
