@@ -9,7 +9,7 @@
 /** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaHiveEventLoopMgr.h 749158 2016-05-23 17:46:48Z leggett $
+  * $Id: AthenaHiveEventLoopMgr.h 780883 2016-10-27 20:16:15Z leggett $
 */
 
 #include <string>
@@ -44,10 +44,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
-
-#ifdef REENTRANT_GAUDI
- #include "GaudiKernel/IAlgExecMgr.h"
-#endif
+#include "GaudiKernel/IAlgExecStateSvc.h"
 
 // Standard includes
 #include <functional>
@@ -200,12 +197,11 @@ protected:
   /// Reference to the Algorithm resource pool
   SmartIF<IAlgResourcePool>  m_algResourcePool;
 
+  /// Reference to the Algorithm Execution State Svc
+  SmartIF<IAlgExecStateSvc>  m_aess;
+
   /// Property interface of ApplicationMgr
   SmartIF<IProperty>        m_appMgrProperty;
-
-#ifdef REENTRANT_GAUDI
-  SmartIF<IAlgExecMgr>      m_algExecMgr;
-#endif
 
   /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;

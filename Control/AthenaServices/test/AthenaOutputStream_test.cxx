@@ -38,7 +38,7 @@ int main() {
   errorcheck::ReportMessage::hideErrorLocus();
   const std::string appName = "AthenaOutputStream_test";
   cout << "*** " << appName << " starts ***" <<endl;
-  ISvcLocator* pSvcLoc(0);
+  ISvcLocator* pSvcLoc(nullptr);
   if (!initGaudi("AthenaOutputStream_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
     return 0;
@@ -60,7 +60,7 @@ int main() {
   SmartIF<IAlgManager> algMan(IAlgManager::interfaceID(), pSvcLoc);
 #endif
   assert( algMan.isValid() );
-  IAlgorithm* pAlg(0);
+  IAlgorithm* pAlg(nullptr);
   assert( (algMan->createAlgorithm( "AthenaOutputStream", "AthenaOutputStream", pAlg)).isSuccess() );
 
   assert( (pAlg->sysInitialize()).isSuccess() );
@@ -90,6 +90,7 @@ int main() {
 
   for (DataObject* obj : *pStream->selectedObjects()) {
     DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (obj);
+    if (!dbb) std::abort();
     const SG::DataProxy* proxy = pStore->proxy (dbb->object());
     std::cout << dbb->clID() << " " << proxy->name() << "\n";
   }

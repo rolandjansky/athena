@@ -32,7 +32,7 @@ namespace {
   {
     if (display) {
       // fetch error
-      PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
+      PyObject* pytype = nullptr, *pyvalue = nullptr, *pytrace = nullptr;
       PyErr_Fetch (&pytype, &pyvalue, &pytrace);
       Py_XINCREF  (pytype);
       Py_XINCREF  (pyvalue);

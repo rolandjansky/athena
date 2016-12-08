@@ -143,15 +143,15 @@ AthenaOutputStreamTool::connectServices()
     if ( m_cnvSvc.type() == "AthenaPoolCnvSvc" ) {
       ATH_MSG_ERROR
 	("The use of AthenaOutputStreamTool for AthenaPool data is deprecated !"
-	 << endreq
+	 << endmsg
 	 << "   Please use AthenaPoolOutputStreamTool from OutputStreamAthenaPool instead." 
-	 << endreq
-	 << "      theApp.Dlls += [ \"OutputStreamAthenaPool\" ]" << endreq
+	 << endmsg
+	 << "      theApp.Dlls += [ \"OutputStreamAthenaPool\" ]" << endmsg
 	 << "      StreamExample = Algorithm( \"AthenaOutputStream/\" + streamName )" 
-	 << endreq
+	 << endmsg
 	 << "      StreamExample.WritingTool = \"AthenaPoolOutputStreamTool\"" 
-	 << endreq
-	 << "      ..." << endreq
+	 << endmsg
+	 << "      ..." << endmsg
 	 << "   Or, try importing 'AthenaPoolCnvSvc.WriteAthenaPool'");
       return (StatusCode::FAILURE);
     }
@@ -263,7 +263,7 @@ AthenaOutputStreamTool::streamObjects(const TypeKeyPairs& typeKeys )
 	  return( StatusCode::FAILURE);
 	}
 	
-	DataObject* dObj = 0;
+	DataObject* dObj = nullptr;
 	// Two options: no key or explicit key
 	if (key.size() == 0) {
 	    // No key
@@ -351,7 +351,7 @@ AthenaOutputStreamTool::streamObjects  (const DataObjectVec& dataObjects)
 	    }
 	    ATH_MSG_DEBUG ("Trying to write out DataObject twice (type/key): "
 			   << typeName << " " << dataObject->name()
-			   << endreq
+			   << endmsg
 			   << "    Skipping this one. ");
 	    continue;
 	}
@@ -359,7 +359,7 @@ AthenaOutputStreamTool::streamObjects  (const DataObjectVec& dataObjects)
 	    written.insert(dataObject);
 	}
 	// Write out object
-	IOpaqueAddress* addr(0);
+	IOpaqueAddress* addr(nullptr);
 	if ( (m_cnvSvc->createRep(dataObject, addr)).isSuccess() ) {
 	    dataObject->registry()->setAddress(addr);
         // SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataObject->registry());

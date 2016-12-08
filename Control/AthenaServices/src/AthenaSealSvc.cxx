@@ -300,7 +300,7 @@ AthenaSealSvc::show_member (const ReflexMember& m) const
             msg(MSG::VERBOSE) << " -- type: " << "[unknown]";
 	}
     }
-    msg(MSG::VERBOSE) << endreq;
+    msg(MSG::VERBOSE) << endmsg;
 }
 
 //----------------------------------------------------------------------------  
@@ -313,7 +313,7 @@ AthenaSealSvc::show_type (const ReflexType& t) const
         return;
 
     // show info of members
-    msg(MSG::VERBOSE) << "Members of class " << t.Name() << ":" << endreq;
+    msg(MSG::VERBOSE) << "Members of class " << t.Name() << ":" << endmsg;
     for (size_t i = 0; i < t.DataMemberSize(); ++i) {
 	ReflexMember m = t.DataMemberAt(i);
 	if (m) {
@@ -354,7 +354,7 @@ AthenaSealSvc::member_is_ok(const std::string& typeName,
     }
 #if ROOT_VERSION_CODE > ROOT_VERSION(6,0,0)
     if( typeName.find("DataVector<") == 0 && memberName == "m_pCont") {
-       msg(MSG::VERBOSE) << "**** Ignoring  " << typeName << "." << memberName << endreq;
+       msg(MSG::VERBOSE) << "**** Ignoring  " << typeName << "." << memberName << endmsg;
        return (true);
     }
 #endif
@@ -382,7 +382,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
 
     // check that types of the fields are defined
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Looking for members of type " << t.Name() << ":"
-                                                << "  newTypes size " << newTypes.size() << endreq;
+                                                << "  newTypes size " << newTypes.size() << endmsg;
     for (size_t i = 0; i < t.DataMemberSize(); ++i) {
 	ReflexMember m = t.DataMemberAt(i);
 	if (m) {
@@ -396,7 +396,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
 	        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
                                               << " Skipping check for transient member " << m.Name()
                                               << " of type " << t2.Name()
-                                              << endreq;
+                                              << endmsg;
 		continue;
 	    }
             // Also skip static members.
@@ -404,12 +404,12 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
 	        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
                                               << " Skipping check for static member " << m.Name()
                                               << " of type " << t2.Name()
-                                              << endreq;
+                                              << endmsg;
 		continue;
 	    }
 	    if (t2) {
 		newTypes.push_back(t2);
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found class " << t2.Name() << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found class " << t2.Name() << endmsg;
 	    }
 	}
     }
@@ -417,7 +417,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
     // Add in types for each superclass
     if (t.IsClass()) {
 	if(t.BaseSize()) {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "    Loop over superclass names " << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "    Loop over superclass names " << endmsg;
 	}
 	for (size_t i = 0; i < t.BaseSize(); ++i) {
 	    ReflexBase b = t.BaseAt(i);
@@ -431,7 +431,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
                         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << ". Type IS defined in dictionary. ";
                         newTypes.push_back(tb);
 		    }
-		    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
+		    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
 		}
 	    }
 	}
@@ -440,7 +440,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
     // Add in types for templates
     if (t.IsTemplateInstance()) {
         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Loop over template args of " << t.Name()<< " "
-                                                    << endreq;
+                                                    << endmsg;
 	for (size_t i = 0; i < t.TemplateArgumentSize(); ++i) {
 	    ReflexType ta = t.TemplateArgumentAt(i);
             
@@ -450,7 +450,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
                 std::string name = ta.Name(7);
                 // skip single digit strings
                 if (name.size() == 1 && isdigit(name[0])) {
-                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Skip template arg: " << name << " is digit " << endreq;
+                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Skip template arg: " << name << " is digit " << endmsg;
                     continue;
                 }
                 if ('*' == name[name.size()-1]) name = name.substr(0, name.size()-1);
@@ -467,7 +467,7 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
                                                             << name
                                                             << " ntypes before load " << ntypesBefore
                                                             << " ntypes loaded " << ReflexType::TypeSize() - ntypesBefore
-                                                            << " top level class " <<     m_currentClassName << endreq;
+                                                            << " top level class " <<     m_currentClassName << endmsg;
             }
 
 
@@ -476,31 +476,31 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
 	    
 	    if (ta) {
 		newTypes.push_back(ta);
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " name " << ta.Name()<< " " << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " name " << ta.Name()<< " " << endmsg;
 	    }
 	    else {
 	        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " type not found " << taname
-                                                            << " isnum: " << isnum(taname) << endreq;
+                                                            << " isnum: " << isnum(taname) << endmsg;
 		if (!(ignoreName(t) || ignoreName(ta) || isnum(taname) )) {
                     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) 
                                                   << "****> Missing type for template argument " << taname
                                                   << " of template " << t.Name()
-                                                  << endreq;
+                                                  << endmsg;
                     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) 
                                                   << "****> For the moment, we DO NOT return FAILURE - so expect abort if type is really missing!! "
-                                                  << endreq;
+                                                  << endmsg;
 		}
 	    }
 	    if (t.IsPointer()) {
-                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " type is pointer:  " << t.Name() << endreq;
+                if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " type is pointer:  " << t.Name() << endmsg;
 	    }
 
             // Check for pointers and add in simple class
 // 		msg(MSG::VERBOSE) << "Checking for pointer class: "
-// 		    <<((*it2)) << endreq;
+// 		    <<((*it2)) << endmsg;
 // 		    std::string nm = (*it2);
 // 		    nm = nm.substr(0, nm.size() - 1);
-// 		    msg(MSG::VERBOSE) << " try class " << nm << " " << endreq;
+// 		    msg(MSG::VERBOSE) << " try class " << nm << " " << endmsg;
 	}
     }
 
@@ -524,11 +524,11 @@ AthenaSealSvc::incorrect_guid (const ReflexType& t) const
 		if ('a' <= clid[i] && clid[i] <= 'z') {
 		    msg(MSG::ERROR)
                         << "----->  Found lower case letter in class guid: pos, value - "
-                        << i << ", " << clid[i] << endreq
+                        << i << ", " << clid[i] << endmsg
                         << "----->  For class, guid " 
-                        << t.Name() << ", " << clid << endreq
+                        << t.Name() << ", " << clid << endmsg
                         << "----->  The guid MUST be all upper case. "
-                        << endreq;
+                        << endmsg;
 		    result = true;
 		}
 	    }
@@ -575,9 +575,9 @@ AthenaSealSvc::missing_member_types (const ReflexType& t) const
                is_enum = true;
 #endif            
 
-	    msg(MSG::VERBOSE) << "Checking member: " << m.Name() << " of type " << t1.Name(7) << "::" << t2.Name(7) << endreq;
+	    msg(MSG::VERBOSE) << "Checking member: " << m.Name() << " of type " << t1.Name(7) << "::" << t2.Name(7) << endmsg;
 #ifndef ROOT6_MIGRATION_HAVE_REFLEX
-	    msg(MSG::VERBOSE) << "Trans:" << transient << " Static:" << is_static << " Enum:" << is_enum << " Const:" << m.IsConstant() << endreq;
+	    msg(MSG::VERBOSE) << "Trans:" << transient << " Static:" << is_static << " Enum:" << is_enum << " Const:" << m.IsConstant() << endmsg;
 #endif            
 	    if (!t2 && !member_is_ok(t1.Name(), m.Name())
                 && !transient && !is_static && !is_enum ) {
@@ -724,7 +724,7 @@ StatusCode AthenaSealSvc::checkClass(const std::string& typeName) const
     if (!clid.size()) {
         ATH_MSG_ERROR
             ("----->  MISSING GUID (id in selection file) for class " << t.Name()
-             << endreq
+             << endmsg
              << "----->  This is needed for ALL DataObjects ");
         return (StatusCode::FAILURE);
     }
@@ -801,7 +801,7 @@ StatusCode AthenaSealSvc::checkClass(const std::string& typeName) const
 
     ATH_MSG_DEBUG
         ("checkClass - NO MISSING FIELDS!!!"
-         << endreq
+         << endmsg
          << "checkClass - Number of types on exit " << ReflexType::TypeSize());
 
 //     ATH_MSG_VERBOSE ("Classes checked: ");
@@ -1002,18 +1002,18 @@ AthenaSealSvc::missingTypes(const ReflexType& t) const
                     else {
                       if (!ignoreName(bname)) {
 		        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-                                                  << endreq
+                                                  << endmsg
                                                   << "    ****> Missing base class not defined in dictionary!! " 
-                                                  << endreq
+                                                  << endmsg
                                                   << "    ****>   Looking for base class " 
                                                   << bname << " of type " << t.Name()
-                                                  << endreq;
+                                                  << endmsg;
 			isMissingTypes = true;
                       }
 		    }
 		}
 	    }
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
 	}
     }
 

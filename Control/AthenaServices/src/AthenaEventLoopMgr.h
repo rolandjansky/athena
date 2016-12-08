@@ -31,9 +31,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #endif
 
+#include "GaudiKernel/IChronoStatSvc.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/IEventSeek.h"
@@ -175,6 +178,10 @@ protected:
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();
 
+protected:
+  /// Reference to the Algorithm Execution State Svc
+  SmartIF<IAlgExecStateSvc>  m_aess;
+
 public:
   /// implementation of IAppMgrUI::initalize
   virtual StatusCode initialize();
@@ -221,7 +228,10 @@ private:
   bool m_useTools;
   StoreGateSvc* eventStore() const;
 
-  EventContext* m_eventContext;
+   EventContext* m_eventContext;
+   bool m_doChrono = false;
+   ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
+
 };
 
 #endif // STOREGATE_ATHENAEVENTLOOPMGR_H

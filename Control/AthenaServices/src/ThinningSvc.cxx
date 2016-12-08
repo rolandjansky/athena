@@ -83,9 +83,9 @@ StatusCode ThinningSvc::initialize()
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   // Set to be listener for beginning of event
-  IIncidentSvc* incSvc = 0;
+  IIncidentSvc* incSvc = nullptr;
   if ( !service("IncidentSvc",incSvc).isSuccess() ||
-       0 == incSvc ) {
+       nullptr == incSvc ) {
     ATH_MSG_ERROR ("Unable to get the IncidentSvc");
     return StatusCode::FAILURE;
   }
@@ -219,7 +219,7 @@ std::size_t
 ThinningSvc::index_impl( const SG::DataProxy* cproxy,
                          std::size_t idx ) const
 {
-  if ( 0 == cproxy ) {
+  if ( nullptr == cproxy ) {
     // this is now demoted to ::DEBUG as it may very well happen (even in
     // sound cases) that e.g. an ElementLink has no proxy (e.g. it points to
     // another file and BackNavigation was disabled)
@@ -243,7 +243,7 @@ ThinningSvc::index_impl( const SG::DataProxy* cproxy,
     if ( dbg ) {
       msg(MSG::VERBOSE)
 	<< idx << "] (no-thinning-occured)"
-	<< endreq;
+	<< endmsg;
     }
     return idx;
   }
@@ -255,7 +255,7 @@ ThinningSvc::index_impl( const SG::DataProxy* cproxy,
     if ( dbg ) {
       msg(MSG::VERBOSE)
 	<< idx << "] (obj-not-thinned)"
-	<< endreq;
+	<< endmsg;
     }
     return idx;
   }
@@ -265,7 +265,7 @@ ThinningSvc::index_impl( const SG::DataProxy* cproxy,
   if ( i == indexMap.end() ) {
     // element has been thinned away...
     if ( dbg ) {
-      msg(MSG::VERBOSE) << "<removed>" << "]" << endreq;
+      msg(MSG::VERBOSE) << "<removed>" << "]" << endmsg;
     }
     return IThinningSvc::RemovedIdx;
   }
@@ -276,7 +276,7 @@ ThinningSvc::index_impl( const SG::DataProxy* cproxy,
     } else {
       msg(MSG::VERBOSE) << "<removed>]";
     }
-    msg(MSG::VERBOSE) << endreq;
+    msg(MSG::VERBOSE) << endmsg;
   }
   return i->second;
 }
@@ -291,7 +291,7 @@ ThinningSvc::is_thinned_impl(const SG::DataProxy* p) const
     return false;
   }
 
-  if (0 == p) {
+  if (nullptr == p) {
     // this is now demoted to ::DEBUG as it may very well happen (even in
     // sound cases) that e.g. an ElementLink has no proxy (e.g. it points to
     // another file and BackNavigation was disabled)
@@ -310,8 +310,8 @@ ThinningSvc::is_thinned_impl(const SG::DataProxy* p) const
 
 void ThinningSvc::handle( const Incident& inc )
 {
-  ATH_MSG_DEBUG ("Entering handle(): "   << endreq
-		 << "  Incidence type: " << inc.type()   << endreq
+  ATH_MSG_DEBUG ("Entering handle(): "   << endmsg
+		 << "  Incidence type: " << inc.type()   << endmsg
 		 << "            from: " << inc.source());
   // Only clearing the store for BeginEvent incident
   if ( inc.type() == IncidentType::BeginEvent ) {
@@ -415,7 +415,7 @@ ThinningSvc::rollback()
   }
   if ( !allOk ) {
     ATH_MSG_WARNING ("some problem occurred while rolling-back thinning !" 
-		     << endreq
+		     << endmsg
 		     << " (trying nonetheless to revert slimming)...");
   } else {
     ATH_MSG_DEBUG 
@@ -438,7 +438,7 @@ ThinningSvc::rollback()
   }
   if ( !allOk ) {
     ATH_MSG_WARNING ("some problem occurred while rolling-back slimming !" 
-		     << endreq
+		     << endmsg
 		     << " (trying nonetheless to revert slimming)...");
   } else {
     ATH_MSG_DEBUG
@@ -453,7 +453,7 @@ ThinningSvc::handler( SG::DataProxy* proxy )
 {
   ThinningStore_t::iterator i = m_thinningStore.find( proxy );
   if ( i == m_thinningStore.end() ) {
-    return 0;
+    return nullptr;
   }
   return i->second.get<1>();
 }
@@ -463,11 +463,11 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
                           const Filter_t& filter,
                           const IThinningSvc::Operator::Type op )
 {
-  if ( 0 == proxy ) {
+  if ( nullptr == proxy ) {
     msg(MSG::WARNING)
       << "Received a null DataProxy ! "
       << "No thinning will occur for that 'object' !"
-      << endreq;
+      << endmsg;
     if (m_ownedHandlers.find(handler) == m_ownedHandlers.end())
       delete handler;
     return StatusCode::RECOVERABLE;
@@ -494,7 +494,7 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
 	if (mitr==m.end()) {
 	  ATH_MSG_ERROR ("could not apply filter for proxy [" << proxy->name()
 			 << "]"
-			 << endreq
+			 << endmsg
 			 << "indices do not match !");
 	  return StatusCode::FAILURE;
 	}
@@ -508,7 +508,7 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
 	if (mitr==m.end()) {
 	  ATH_MSG_ERROR ("could not apply filter for proxy [" << proxy->name()
 			 << "]"
-			 << endreq
+			 << endmsg
 			 << "indices do not match !");
 	  return StatusCode::FAILURE;
 	}
@@ -517,7 +517,7 @@ ThinningSvc::filter_impl( IThinningHdlr* handler, SG::DataProxy* proxy,
     } else {
       msg(MSG::ERROR)
         << "Unknown operator being passed for merging of filters !!"
-        << endreq;
+        << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -537,7 +537,7 @@ ThinningSvc::cleanupStore()
 	  iStoreEnd = m_slimmingStore.end();
 	iStore != iStoreEnd;
 	++iStore ) {
-    delete iStore->second; iStore->second = 0;
+    delete iStore->second; iStore->second = nullptr;
   }
   m_slimmingStore.clear();
 
@@ -548,7 +548,7 @@ ThinningSvc::cleanupStore()
 	iStore != iStoreEnd;
 	++iStore ) {
     IThinningHdlr* hdlr = iStore->second.get<1>();
-    delete hdlr; hdlr = 0;
+    delete hdlr; hdlr = nullptr;
   }
   m_thinningStore.clear();
   m_ownedHandlers.clear();
@@ -565,10 +565,10 @@ ThinningSvc::cleanupStore()
 StatusCode 
 ThinningSvc::register_slimmer (ISlimmingHdlr *handler)
 {
-  if (0==handler) {
+  if (nullptr==handler) {
     msg (MSG::ERROR)
       << "received null pointer to ISlimmingHdlr !"
-      << endreq;
+      << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -578,18 +578,18 @@ ThinningSvc::register_slimmer (ISlimmingHdlr *handler)
     msg (MSG::ERROR)
       << "A slimmer was already registered for object at [" << obj << "] of "
       << "type [" << System::typeinfoName (handler->type_id()) << "] !"
-      << endreq
+      << endmsg
       << "Previous slimmer was registered by ["
       << itr->second->requester()->name() << "]"
-      << endreq
+      << endmsg
       << "Current slimmer is being registered by ["
       << handler->requester()->name() << "]"
-      << endreq
+      << endmsg
       << "sorry: multi-pass slimming isn't supported !"
-      << endreq
+      << endmsg
       << " --- now deleting your slim-handler ---"
-      << endreq;
-    delete handler; handler = 0;
+      << endmsg;
+    delete handler; handler = nullptr;
     return StatusCode::FAILURE;
   }
 

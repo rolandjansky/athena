@@ -10,7 +10,7 @@ TestRandomSeqAlg::TestRandomSeqAlg(const std::string& name, ISvcLocator* pSvcLoc
   m_rndmSvc("AtRanluxGenSvc", name),
   m_streamName("TEST"),
   m_noOfNo(10),
-  m_pEng(0)
+  m_pEng(nullptr)
 {
   declareProperty("RndmSvc", m_rndmSvc, "the IAtRndmGenSvc we want to test (default AtRanluxGenSvc");
   declareProperty("StreamName", m_streamName, " random number stream to use (default TEST");

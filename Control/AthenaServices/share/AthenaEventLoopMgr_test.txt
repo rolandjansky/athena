@@ -1,0 +1,14 @@
+// job opts to activate AthenaEventLoopMgr
+
+// $Id$
+
+ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.ExtSvc += { "AthenaEventLoopMgr/AthenaEventLoopMgr1" };
+ApplicationMgr.ExtSvc += { "AthenaEventLoopMgr/AthenaEventLoopMgr2" };
+ApplicationMgr.ExtSvc += { "TestEvtSelector" };
+EventPersistencySvc.CnvServices += { "TestConversionSvc" };
+AthenaEventLoopMgr1.EvtSel = "TestEvtSelector";
+AthenaEventLoopMgr1.TopAlg += { "TestAlgorithm" };
+AthenaEventLoopMgr2.EvtSel = "TestEvtSelector2";
+AthenaEventLoopMgr2.TopAlg += { "TestAlgorithm/TestAlgorithm2" };
+

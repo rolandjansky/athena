@@ -62,7 +62,7 @@ namespace CoreDumpSvcHandler
   
   SigHandler_t oldSigHandler;       ///< old signal handlers
   bool callOldHandler(true);        ///< forward calls to old handlers?
-  CoreDumpSvc* coreDumpSvc(0);      ///< pointer to CoreDumpSvc
+  CoreDumpSvc* coreDumpSvc(nullptr);      ///< pointer to CoreDumpSvc
   
   /**
    * Signal handler for the CoreDumpSvc
@@ -106,9 +106,9 @@ namespace CoreDumpSvcHandler
 //================================================================================
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService( name, pSvcLocator ),
-  m_siginfo(0),
+  m_siginfo(nullptr),
   m_eventCounter(0),
-  m_abortTimer(0, NULL, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
+  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
 {
   // Set us as the current instance
   CoreDumpSvcHandler::coreDumpSvc = this;
@@ -160,7 +160,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
 
 CoreDumpSvc::~CoreDumpSvc()
 {
-  CoreDumpSvcHandler::coreDumpSvc = 0;
+  CoreDumpSvcHandler::coreDumpSvc = nullptr;
 }
 
 void CoreDumpSvc::propertyHandler(Property& p)
@@ -245,7 +245,7 @@ StatusCode CoreDumpSvc::finalize()
 
 StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 {
-  if ( ppvInterface==0 ) return StatusCode::FAILURE;
+  if ( ppvInterface==nullptr ) return StatusCode::FAILURE;
   
   if ( ICoreDumpSvc::interfaceID().versionMatch(riid) )
     *ppvInterface = static_cast<ICoreDumpSvc*>(this);
@@ -291,7 +291,7 @@ void CoreDumpSvc::print()
 std::string CoreDumpSvc::dump() const
 {
   std::ostringstream os;
-  const time_t now = time(0);
+  const time_t now = time(nullptr);
   
   os << "-------------------------------------------------------------------------------------" << "\n";
   os << "Core dump from " << name() << " on " << System::hostName()
@@ -365,7 +365,7 @@ std::string CoreDumpSvc::dump() const
   }
 
   // Check if the AlgContextSvc is running
-  IAlgContextSvc* algContextSvc(0);
+  IAlgContextSvc* algContextSvc(nullptr);
   if (service("AlgContextSvc", algContextSvc, /*createIf=*/ false).isSuccess() && algContextSvc) {
 
     IAlgorithm* alg = algContextSvc->currentAlg();
@@ -393,7 +393,7 @@ std::string CoreDumpSvc::dump() const
   os << "  atlasAddress2Line --file <logfile>\n";
   os << "-------------------------------------------------------------------------------------";
 
-  IAthenaSummarySvc *iass(0);
+  IAthenaSummarySvc *iass(nullptr);
   if (service("AthenaSummarySvc",iass,false).isSuccess() && iass) {
     iass->addSummary("CoreDumpSvc",os.str());
     iass->setStatus(1);
@@ -412,8 +412,8 @@ void CoreDumpSvc::handle(const Incident& incident)
 {
   m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
 
-  const EventIncident* eventInc(0);
-  if (0 != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
+  const EventIncident* eventInc(nullptr);
+  if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
     const EventID* eventID = eventInc->eventInfo().event_ID();
     if (eventID) {
       std::ostringstream oss;
@@ -428,6 +428,8 @@ void CoreDumpSvc::handle(const Incident& incident)
   else if (incident.type() == "StoreCleared") {
     // Try to force reallocation.
     std::string newstr = m_sysCoreDump["EventID"];
+    // Intentional:
+    // cppcheck-suppress selfAssignment
     newstr[0] = newstr[0];
     m_sysCoreDump["EventID"] = newstr;
   }
@@ -487,7 +489,7 @@ StatusCode CoreDumpSvc::uninstallSignalHandler()
   for ( iter=CoreDumpSvcHandler::oldSigHandler.begin();
         iter!=CoreDumpSvcHandler::oldSigHandler.end(); ++iter ) {
     
-    int ret = sigaction(iter->first, &(iter->second), 0);
+    int ret = sigaction(iter->first, &(iter->second), nullptr);
     if ( ret!=0 ) {
       sc = StatusCode::FAILURE;
       ATH_MSG_WARNING

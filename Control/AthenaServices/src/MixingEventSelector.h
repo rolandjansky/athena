@@ -23,6 +23,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/IConverter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Property.h" /*StringArrayProperty*/
@@ -64,9 +65,9 @@ namespace CLHEP {
  * will shuffle the first 100 events, then move to the second hundred, etc
  *   
  */
-class MixingEventSelector : virtual public AthService,
-			    virtual public IEvtSelector,
-			    virtual public IAddressProvider
+class MixingEventSelector 
+  : public extends<AthService, IEvtSelector, IConverter>,
+    virtual public IAddressProvider
 {
 public:
   /** @class Context 
@@ -80,39 +81,58 @@ public:
   } ;
   ///\name IEvtSelector implementation
   //@{
-  virtual StatusCode next(IEvtSelector::Context& refCtxt) const;
+  virtual StatusCode next(IEvtSelector::Context& refCtxt) const override;
   virtual StatusCode createAddress(const IEvtSelector::Context& refCtxt,
-                                   IOpaqueAddress*&) const;
+                                   IOpaqueAddress*&) const override;
 
-  virtual StatusCode createContext(IEvtSelector::Context*& refpCtxt) const;
-  virtual StatusCode last(IEvtSelector::Context&) const;
-  virtual StatusCode next(IEvtSelector::Context&, int) const;
-  virtual StatusCode previous(IEvtSelector::Context&) const;
-  virtual StatusCode previous(IEvtSelector::Context&,int) const;
-  virtual StatusCode rewind(IEvtSelector::Context& refCtxt) const;
-  virtual StatusCode releaseContext(IEvtSelector::Context*& refCtxt) const;
-  virtual StatusCode resetCriteria(const std::string& cr,IEvtSelector::Context& c) const;
+  virtual StatusCode createContext(IEvtSelector::Context*& refpCtxt) const override;
+  virtual StatusCode last(IEvtSelector::Context&) const override;
+  virtual StatusCode next(IEvtSelector::Context&, int) const override;
+  virtual StatusCode previous(IEvtSelector::Context&) const override;
+  virtual StatusCode previous(IEvtSelector::Context&,int) const override;
+  virtual StatusCode rewind(IEvtSelector::Context& refCtxt) const override;
+  virtual StatusCode releaseContext(IEvtSelector::Context*& refCtxt) const override;
+  virtual StatusCode resetCriteria(const std::string& cr,IEvtSelector::Context& c) const override;
   //@}
 
   ///\name IAddressProvider interface (forwarded to current Trigger)
   //@{
   virtual StatusCode preLoadAddresses(StoreID::type  storeID ,
-				      IAddressProvider::tadList& tads  );
+				      IAddressProvider::tadList& tads  ) override;
   virtual StatusCode loadAddresses(StoreID::type  storeID ,
-                                   IAddressProvider::tadList& tads  );
+                                   IAddressProvider::tadList& tads  ) override;
   virtual StatusCode updateAddress(StoreID::type  storeID ,
-				   SG::TransientAddress*  tad);
+				   SG::TransientAddress*  tad) override;
   //@}
 
   
-  /// IInterface implementation
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-				     void** ppvInterface );
+  /// \name IConverter implementation.
+  //@{
+  virtual const CLID& objType() const override;
+  virtual long repSvcType() const override;
+  virtual StatusCode createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) override;
+
+  // The rest of these are dummies.
+  virtual StatusCode setDataProvider(IDataProviderSvc* pService) override;
+  virtual SmartIF<IDataProviderSvc>& dataProvider() const override;
+  virtual StatusCode setConversionSvc(IConversionSvc* pService) override;
+  virtual SmartIF<IConversionSvc>& conversionSvc()    const override;
+  virtual StatusCode setAddressCreator(IAddressCreator* creator) override;
+  virtual SmartIF<IAddressCreator>& addressCreator()    const override;
+  virtual StatusCode fillObjRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
+  virtual StatusCode updateObj(IOpaqueAddress* pAddress, DataObject* refpObject) override;
+  virtual StatusCode updateObjRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
+  virtual StatusCode createRep(DataObject* pObject, IOpaqueAddress*& refpAddress) override;
+  virtual StatusCode fillRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
+  virtual StatusCode updateRep(IOpaqueAddress* pAddress, DataObject* pObject)  override;
+  virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
+  //@}
+
 
   /// \name Service implementation
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   //@}
 
   /// TriggerList property call-back. Decode TriggerList, obtain selector ptrs
@@ -139,7 +159,7 @@ private:
   IntegerProperty m_outputRunNumber;        
   UnsignedLongArrayProperty m_eventNumbers;///< use these as event numbers
   StringProperty      m_mergedEventInfoKey;///< SG key of MergedEventInfo
-  ToolHandleArray<IAthenaSelectorTool> m_helperTools;
+  mutable ToolHandleArray<IAthenaSelectorTool> m_helperTools;
 
   //@}
 
@@ -234,7 +254,6 @@ private:
   //@{
   ///setup and lookup m_evtsNotUsedSoFar. Returns next event no
   unsigned long getEventNo() const;
-  StatusCode addMergedEventInfo() const;
   mutable unsigned long m_eventPos;       ///< the internal event number
   //@}
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

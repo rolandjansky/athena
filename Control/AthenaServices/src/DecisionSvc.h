@@ -34,6 +34,7 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -82,35 +83,16 @@ public:
 
 
   /// Return list of AcceptAlg names
-  const std::vector<std::string> * getAcceptAlgs(const std::string& stream) const;
+  const std::vector<std::string> getAcceptAlgs(const std::string& stream) const;
   /// Return list of RequireAlg names
-  const std::vector<std::string> * getRequireAlgs(const std::string& stream) const;
+  const std::vector<std::string> getRequireAlgs(const std::string& stream) const;
   /// Return list of VetoAlg names
-  const std::vector<std::string> * getVetoAlgs(const std::string& stream) const;
+  const std::vector<std::string> getVetoAlgs(const std::string& stream) const;
   /// Return list of Streams
-  const std::vector<std::string> * getStreams() const;
+  const std::vector<std::string> getStreams() const;
 
 private:
   StatusCode interpretAlgMap();
-
-  /// Decode list of Algorithms that this stream accepts
-  //StatusCode decodeAcceptAlgs(const std::string& stream, 
-  // 	 	                const std::vector<std::string>& acceptNames, 
-  //			        std::map<std::string, std::vector<Algorithm*> > * theAlgMap );
-  /// Decode list of Algorithms that this stream requires
-  //StatusCode decodeRequireAlgs(const std::string& stream, 
-  //			         const std::vector<std::string>& requireNames,
-  //			         std::map<std::string, std::vector<Algorithm*> > * theAlgMap );
-  /// Decode list of Algorithms that this stream is vetoed by
-  //StatusCode decodeVetoAlgs(const std::string& stream, 
-  //			      const std::vector<std::string>& vetoNames,
-  //			      std::map<std::string, std::vector<Algorithm*> > * theAlgMap );
-
-
-  /// Decode specified list of Algorithms
-  StatusCode decodeAlgorithms(const std::string& stream, 
-			      const std::vector<std::string>& theNames,
-			      std::map<std::string, std::vector<Algorithm*> > * theAlgMap );
 
 
   /////////////////////////////////////////////////////////////////// 
@@ -120,6 +102,7 @@ private:
 public:
   /// Test whether this event should be output
   bool isEventAccepted(const std::string& stream ) const;
+  bool isEventAccepted(const std::string& stream, const EventContext& ) const;
 
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
 
@@ -130,24 +113,17 @@ private:
   std::map<std::string, std::vector<std::string> > m_stream_require;
   std::map<std::string, std::vector<std::string> > m_stream_veto;
 
-  /// Maps of streams -- Algorithms' object pointers' vectors 
-  std::map<std::string, std::vector<Algorithm*> > m_stream_acceptAlgs; 
-  std::map<std::string, std::vector<Algorithm*> > m_stream_requireAlgs; 
-  std::map<std::string, std::vector<Algorithm*> > m_stream_vetoAlgs; 
-
-  std::vector<std::string> * m_streamNames;
-  std::vector<std::string> * m_SacceptAlgNames;
-  std::vector<std::string> * m_SrequireAlgNames;
-  std::vector<std::string> * m_SvetoAlgNames;
+  std::vector<std::string> m_streamNames;
 
   bool m_calcStats;
   bool m_frozen;
   ServiceHandle<ICutFlowSvc> m_cutflowSvc;
+  ServiceHandle<IAlgExecStateSvc> m_algstateSvc;
 
-  std::map<std::string, std::vector<unsigned int> > m_stream2Counts;
+  //std::map<std::string, std::vector<unsigned int> > m_stream2Counts;
   unsigned int m_eventCount;
-  unsigned int m_badEvents;
-  std::map<unsigned int, unsigned int> m_overlapLevelCounts;
+  //unsigned int m_badEvents;
+  //std::map<unsigned int, unsigned int> m_overlapLevelCounts;
 
   void DeclareToCutFlowSvc();
   StatusCode fillMap(std::map<std::string, std::vector<std::string> >& streamsModeMap, 

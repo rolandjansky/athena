@@ -30,12 +30,12 @@ struct ShareEventHeader {
 AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : AthAlgTool(type, name, parent),
-		m_maxSize(16 * 1024 * 1024),
+		m_maxSize(32 * 1024 * 1024),
 		m_maxDataClients(256),
 		m_num(-1),
 		m_dataClients(),
-		m_payload(0),
-		m_status(0),
+		m_payload(nullptr),
+		m_status(nullptr),
 		m_fileSeqNumber(0),
 		m_isServer(false),
 		m_isClient(false),
@@ -46,8 +46,8 @@ AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 
 //___________________________________________________________________________
 AthenaSharedMemoryTool::~AthenaSharedMemoryTool() {
-   delete m_payload; m_payload = 0;
-   delete m_status; m_status = 0;
+   delete m_payload; m_payload = nullptr;
+   delete m_status; m_status = nullptr;
 }
 
 //___________________________________________________________________________
@@ -153,7 +153,7 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
       boost::interprocess::shared_memory_object shm(boost::interprocess::open_only,
 	      m_sharedMemory.value().c_str(),
 	      boost::interprocess::read_write);
-      if (m_payload == 0) {
+      if (m_payload == nullptr) {
          m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
          m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize + num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
       }
@@ -185,23 +185,26 @@ StatusCode AthenaSharedMemoryTool::putEvent(long eventNumber, const void* source
       ATH_MSG_DEBUG("Waiting for putEvent, eventNumber = " << eventNumber);
       return(StatusCode::RECOVERABLE);
    }
-   if (source == 0 && nbytes == 0) {
+   if (source == nullptr && nbytes == 0) {
       ATH_MSG_DEBUG("putEvent got last Event marker");
       evtH->evtSeqNumber = 0;
       evtH->fileSeqNumber = 0;
       evtH->evtSize = 0;
       evtH->evtOffset = 0;
+      m_status->flush(0, sizeof(ShareEventHeader));
       return(StatusCode::SUCCESS);
    }
    evtH->evtProcessStatus = ShareEventHeader::CLEARED;
-   if (source != 0 && source != m_payload->get_address()) {
+   if (source != nullptr && source != m_payload->get_address()) {
       std::memcpy(m_payload->get_address(), source, nbytes);
+      m_payload->flush(0, nbytes);
    }
    evtH->evtSeqNumber = eventNumber;
    evtH->fileSeqNumber = m_fileSeqNumber;
    evtH->evtSize = nbytes;
    evtH->evtOffset = 0;
    evtH->evtCoreStatusFlag = status;
+   m_status->flush(0, sizeof(ShareEventHeader));
    evtH->evtProcessStatus = ShareEventHeader::FILLED;
    return(StatusCode::SUCCESS);
 }
@@ -211,7 +214,7 @@ StatusCode AthenaSharedMemoryTool::getLockedEvent(void** target, unsigned int& s
    ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
    if (evtH->evtProcessStatus == ShareEventHeader::LOCKED) {
       const std::size_t nbytes = evtH->evtSize;
-      if (target != 0) {
+      if (target != nullptr) {
          char* buf = new char[nbytes];
          std::memcpy(buf, static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, nbytes);
          *target = buf;
@@ -264,19 +267,28 @@ StatusCode AthenaSharedMemoryTool::putObject(const void* source, size_t nbytes, 
       ATH_MSG_DEBUG("Waiting for CLEARED putObject, client = " << num);
       return(StatusCode::RECOVERABLE);
    }
-   if (source != 0 && source != m_payload->get_address()) {
-      std::memcpy(m_payload->get_address(), source, nbytes);
-      evtH->evtSize = nbytes;
+   if (source == nullptr) {
+      evtH->evtSize = evtH->evtOffset;
+      evtH->evtOffset = 0;
+      m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
+      evtH->evtProcessStatus = ShareEventHeader::FILLED;
    } else {
-      evtH->evtSize = 0;
+      if (evtH->evtOffset + sizeof(size_t) + nbytes > m_maxSize) {
+         ATH_MSG_ERROR("Object location = " << evtH->evtOffset << " greater than maximum for client = " << num);
+         return(StatusCode::FAILURE);
+      }
+      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, &nbytes, sizeof(size_t));
+      evtH->evtOffset += sizeof(size_t);
+      std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, source, nbytes);
+      evtH->evtOffset += nbytes;
+      m_payload->flush(evtH->evtOffset - sizeof(size_t) - nbytes, sizeof(size_t) + nbytes);
    }
-   evtH->evtProcessStatus = ShareEventHeader::FILLED;
    return(StatusCode::SUCCESS);
 }
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int num) {
-   if (target == 0) {
+   if (target == nullptr) {
       return(StatusCode::SUCCESS);
    }
    void* status = static_cast<char*>(m_status->get_address()) + num * sizeof(ShareEventHeader);
@@ -285,15 +297,19 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
       ATH_MSG_DEBUG("Waiting for FILLED getObject, client = " << num);
       return(StatusCode::RECOVERABLE);
    }
-   nbytes = evtH->evtSize;
-   if (nbytes > 0) {
+   if (evtH->evtOffset < evtH->evtSize) {
+      std::memcpy(&nbytes, static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, sizeof(size_t));
+      evtH->evtOffset += sizeof(size_t);
       char* buf = new char[nbytes];
-      std::memcpy(buf, static_cast<char*>(m_payload->get_address()), nbytes);
+      std::memcpy(buf, static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, nbytes);
       *target = buf;
-   } else {
-      *target = m_payload->get_address();
+      evtH->evtOffset += nbytes;
    }
-   evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
+   if (evtH->evtOffset == evtH->evtSize) {
+      evtH->evtOffset = 0;
+      m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
+      evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
+   }
    return(StatusCode::SUCCESS);
 }
 
@@ -305,7 +321,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) {
          ATH_MSG_DEBUG("Waiting for FILL clearObject");
          return(StatusCode::RECOVERABLE);
       }
-      if (*tokenString == 0) {
+      if (*tokenString == nullptr) {
          *tokenString = new char[maxTokenLength];
       }
       ATH_MSG_DEBUG("Getting Token in clearObject");
@@ -323,7 +339,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) {
          ATH_MSG_DEBUG("Waiting for LOCK clearObject, client = " << i);
          return(StatusCode::RECOVERABLE);
       } else if ((i == num || num < 0) && evtH->evtProcessStatus == ShareEventHeader::LOCKED) {
-         if (*tokenString == 0) {
+         if (*tokenString == nullptr) {
             *tokenString = new char[maxTokenLength];
          }
          ATH_MSG_DEBUG("Getting Token in clearObject, client = " << i);
@@ -358,6 +374,8 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) {
          num = -1;
          return(StatusCode::SUCCESS);
       }
+      evtH->evtSize = 0;
+      m_status->flush(0, sizeof(ShareEventHeader));
       evtH->evtProcessStatus = ShareEventHeader::CLEARED;
       return(StatusCode::SUCCESS);
    }
@@ -378,8 +396,11 @@ StatusCode AthenaSharedMemoryTool::lockObject(const char* tokenString, int num) 
    }
    strncpy(evtH->token, tokenString, maxTokenLength - 1); evtH->token[maxTokenLength - 1] = 0;
    if (m_isServer) {
+      evtH->evtSize = 0;
+      m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
       evtH->evtProcessStatus = ShareEventHeader::CLEARED;
    } else {
+      m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
       evtH->evtProcessStatus = ShareEventHeader::LOCKED;
    }
    return(StatusCode::SUCCESS);

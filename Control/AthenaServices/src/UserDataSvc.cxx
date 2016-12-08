@@ -12,7 +12,7 @@
 UserDataSvc::UserDataSvc(const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name,pSvcLocator),
   m_storeGateSvc("StoreGateSvc",name),
-  m_userData(0),
+  m_userData(nullptr),
   m_eventABC(IAthenaBarCode::UNDEFINEDBARCODE){
 
   declareProperty("StoreGateSvc",m_storeGateSvc);
@@ -24,14 +24,14 @@ UserDataSvc::~UserDataSvc() {}
 StatusCode UserDataSvc::initialize() {
 
   if (m_storeGateSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve StoreGateSvc" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve StoreGateSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
 
-  IIncidentSvc* incSvc = 0;
+  IIncidentSvc* incSvc = nullptr;
   if (service("IncidentSvc",incSvc).isFailure()) {
-    msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   incSvc->addListener( this, IncidentType::BeginEvent  );
@@ -48,7 +48,7 @@ StatusCode UserDataSvc::finalize() {
 
 void UserDataSvc::handle( const Incident& inc ) {
   ATH_MSG_DEBUG ("Incident handle. Incident type " << inc.type() << " from " << inc.source());
-  m_userData=NULL;
+  m_userData=nullptr;
   getUserDataStore();
   return;
 }
@@ -60,9 +60,9 @@ void UserDataSvc::getUserDataStore() {
     m_userData=new UserDataStore;
     StatusCode sc=m_storeGateSvc->record(m_userData,m_key);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to record UserDataStore with key " << m_key << endreq;
+      msg(MSG::ERROR) << "Failed to record UserDataStore with key " << m_key << endmsg;
       delete m_userData;
-      m_userData=NULL;
+      m_userData=nullptr;
       return;
     }
     ATH_MSG_DEBUG("Successfully created UserDataStore Object with key " << m_key);
@@ -76,8 +76,8 @@ void UserDataSvc::getUserDataStore() {
      const UserDataStore* cUDS;
      StatusCode sc=m_storeGateSvc->retrieve(cUDS,m_key);
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Failed to retrieve UserDataStore with key " << m_key << endreq;
-       m_userData=NULL;
+       msg(MSG::ERROR) << "Failed to retrieve UserDataStore with key " << m_key << endmsg;
+       m_userData=nullptr;
        return;
      }
      //Now cast away const'ness. This is necessary b/c data objects read from an input file 
@@ -148,7 +148,7 @@ StatusCode UserDataSvc::typeIDtoAny(const std::type_info &decoinfo, void* & deco
   else if (this->AnyFromType<std::vector<double> >(decoinfo,deco,out))
     return StatusCode::SUCCESS;
   else {
-    msg(MSG::ERROR) << "Unsupported type " << decoinfo.name() << endreq;
+    msg(MSG::ERROR) << "Unsupported type " << decoinfo.name() << endmsg;
     return StatusCode::FAILURE;
   }
 }
@@ -168,12 +168,12 @@ int UserDataSvc::vdecorateElement(const IAthenaBarCode &abc, const std::string& 
 int UserDataSvc::vgetElementDecoration(const IAthenaBarCode &abc, const std::string& label,
 					      const std::type_info &decoinfo, void *&deco) {
   
-  const boost::any* value=0;
+  const boost::any* value=nullptr;
   if (this->retrieveAny(abc,label,value).isFailure()) {
     return -1;
   }
   if (value->type()!=decoinfo) {
-    msg(MSG::ERROR) << "Typeid mismatch! " <<  value->type().name() << " vs " << decoinfo.name() << endreq;
+    msg(MSG::ERROR) << "Typeid mismatch! " <<  value->type().name() << " vs " << decoinfo.name() << endmsg;
     return -1;
   }
  
@@ -205,7 +205,7 @@ int UserDataSvc::vgetElementDecoration(const IAthenaBarCode &abc, const std::str
     deco=(void*)boost::any_cast<bool>(value);
   }
   else {
-    msg(MSG::ERROR) << "Unsupported/unknown type " << decoinfo.name() << ", label=" << label << endreq;
+    msg(MSG::ERROR) << "Unsupported/unknown type " << decoinfo.name() << ", label=" << label << endmsg;
     return -1;
   }
 

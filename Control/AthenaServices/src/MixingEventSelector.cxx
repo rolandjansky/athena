@@ -10,6 +10,7 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
 #include "SGTools/ClassID_traits.h"
+#include "SGTools/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -17,6 +18,7 @@
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/GenericAddress.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -40,14 +42,14 @@ ofstream outfile2("status.txt");
 #endif
 
 MixingEventSelector::MixingEventSelector(const string& name, ISvcLocator* svc) :
-  AthService(name,svc),
+  extends<AthService, IEvtSelector, IConverter>(name,svc),
   m_helperTools(this),
   m_trigList(), m_pCurrentTrigger(m_trigList.end()),
   m_eventPos(0), 
   m_pEventStore( "StoreGateSvc", name ),
   m_atRndmSvc("AtRndmGenSvc", name),
   m_randomStreamName("MixingEventSelectorStream"),
-  m_chooseRangeRand(0)
+  m_chooseRangeRand(nullptr)
 {
   declareProperty("TriggerList", m_triggerListProp,
 		  "list of triggers (streams) to be used. Format is SelectorType/SelectorName:firstEventToUse:lastEventToUse. One assumes events are consecutively numbered.");
@@ -79,7 +81,7 @@ MixingEventSelector::initialize() {
 
   //setup random stream
   CLHEP::HepRandomEngine* collEng(m_atRndmSvc->GetEngine(m_randomStreamName.value()));
-  if(0 == collEng ) {
+  if(nullptr == collEng ) {
     ATH_MSG_ERROR ("can not get random stream " << m_randomStreamName.value());
     return StatusCode::FAILURE;
   }
@@ -87,7 +89,7 @@ MixingEventSelector::initialize() {
   m_chooseRangeRand = new CLHEP::RandFlat(*(collEng), 0.0, 1.0);
 
   StatusCode sc= m_helperTools.retrieve();
-  std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator 
+  std::vector<ToolHandle<IAthenaSelectorTool> >::iterator 
     i(m_helperTools.begin()), iE(m_helperTools.end());
   while (sc.isSuccess() && (i != iE)) sc = (*i++)->postInitialize();
 
@@ -100,7 +102,7 @@ MixingEventSelector::finalize() {
 		 << " - package version " << PACKAGE_VERSION);
 
   StatusCode sc(StatusCode::SUCCESS);
-  std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator 
+  std::vector<ToolHandle<IAthenaSelectorTool> >::iterator 
     i(m_helperTools.begin()), iE(m_helperTools.end());
   while (i != iE) ((*i++)->preFinalize()).ignore();
 
@@ -141,10 +143,10 @@ MixingEventSelector::decodeTrigger(string triggDescr) {
       ListItem selTN(*iToken++);
       const bool CREATEIF(true);
       //get selector
-      IEvtSelector* pSelector(0);
+      IEvtSelector* pSelector(nullptr);
       if ((serviceLocator()->service(selTN.type(), selTN.name(), pSelector, CREATEIF)).isSuccess()) {
 	//must be an address provider
-	if (0 != dynamic_cast<IEvtSelector*>(pSelector) ) {
+	if (nullptr != dynamic_cast<IEvtSelector*>(pSelector) ) {
 	  //FIXME	  if (!pSelector.done()) {
 	    //try to add to trig list
 	    unsigned int firstEvt(boost::lexical_cast<unsigned int>(*iToken++));
@@ -152,7 +154,7 @@ MixingEventSelector::decodeTrigger(string triggDescr) {
 	    if (m_trigList.add(Trigger(pSelector, firstEvt, lastEvt))) {
 	      if (msgLvl(MSG::DEBUG)) {
 		INamedInterface *pNamed(dynamic_cast<INamedInterface*>(pSelector));
-		if (0 != pNamed) {
+		if (nullptr != pNamed) {
 		  msg() << "decodeTrigger: added selector " << pNamed->name() 
 			<< " first event to be read " << firstEvt
 			<< " last event to be read " << lastEvt << endmsg;
@@ -193,19 +195,6 @@ MixingEventSelector::decodeTrigger(string triggDescr) {
   } //can parse property string
 }
 
-StatusCode
-MixingEventSelector::queryInterface( const InterfaceID& riid, void** ppvInterface ) {
-  if ( IEvtSelector::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IEvtSelector*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
 #ifndef NDEBUG
 #define FORWARD___DEBUG( METHOD )\
   { ATH_MSG_VERBOSE ("forwarding " << #METHOD << " to service "\
@@ -215,7 +204,7 @@ MixingEventSelector::queryInterface( const InterfaceID& riid, void** ppvInterfac
 #endif
 
 StatusCode MixingEventSelector::createContext(IEvtSelector::Context*& pctxt) const {
-  pctxt=0;
+  pctxt=nullptr;
   if (!validTrigger()) return StatusCode::FAILURE;
   TriggerList::iterator iTr(m_trigList.begin());
   StatusCode sc(StatusCode::FAILURE);
@@ -241,7 +230,7 @@ MixingEventSelector::next(IEvtSelector::Context& /*c*/) const {
   } while ((sc.isFailure() || currentTrigger()->done()) &&  !m_trigList.empty() );
   // use !m_trigList.empty() to replace validTrigger(), which is not working well
 
-  std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator 
+  std::vector<ToolHandle<IAthenaSelectorTool> >::iterator 
     i(m_helperTools.begin()), iE(m_helperTools.end());
   while (i != iE) ((*i++)->preNext()).ignore();
 
@@ -264,12 +253,12 @@ MixingEventSelector::next(IEvtSelector::Context& /*c*/) const {
 StatusCode
 MixingEventSelector::createAddress(const IEvtSelector::Context& /*c*/, 
 				   IOpaqueAddress*& pAddr) const { 
-  pAddr=0;
+  pAddr=nullptr;
   if (!validTrigger()) return StatusCode::FAILURE;
 
   FORWARD___DEBUG( createAddress )
   return (currentTrigger()->createAddress(pAddr)).isSuccess() &&
-      pAddr != 0;
+      pAddr != nullptr;
 }
 
 StatusCode
@@ -279,8 +268,23 @@ MixingEventSelector::preLoadAddresses(StoreID::type /*storeID*/,
 }
 
 StatusCode
-MixingEventSelector::loadAddresses(StoreID::type  /*storeID*/, IAddressProvider::tadList& /*tads*/  ) {
-  return addMergedEventInfo();
+MixingEventSelector::loadAddresses(StoreID::type  storeID,
+                                   IAddressProvider::tadList& /*tads*/  )
+{
+  if (storeID != StoreID::EVENT_STORE)
+    return StatusCode::SUCCESS;
+
+  CLID mclid = ClassID_traits<MergedEventInfo>::ID();
+  auto addr = std::make_unique<GenericAddress> (0, mclid);
+  auto tad = std::make_unique<SG::TransientAddress> (mclid,
+                                                     m_mergedEventInfoKey,
+                                                     addr.release(),
+                                                     false);
+  auto dp = std::make_unique<SG::DataProxy> (tad.release(),
+                                             this,
+                                             true);
+  ATH_CHECK( m_pEventStore->addToStore (mclid, dp.release()) );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
@@ -289,29 +293,6 @@ MixingEventSelector::updateAddress(StoreID::type,SG::TransientAddress*) {
 }
 
 #undef FORWARD___DEBUG
-
-StatusCode MixingEventSelector::addMergedEventInfo() const {
-  const EventInfo* pEInfo(0);
-  if (!(m_pEventStore->retrieve(pEInfo)).isSuccess()) {
-    ATH_MSG_ERROR 
-      ("addMergedEventInfo: event store does not contains "\
-       "an EventInfo object!");
-    return StatusCode::RECOVERABLE;
-  }
-  //copy the original event into the MergedEventInfo and record it
-  if (!(m_pEventStore->record(new MergedEventInfo(*pEInfo, m_outputRunNumber,
-						  getEventNo()), 
-			      m_mergedEventInfoKey.value())).isSuccess()) {
-    ATH_MSG_ERROR 
-      ("addMergedEventInfo: could not record MergedEventInfo");
-    return StatusCode::RECOVERABLE;
-  }
-
-  //finally slam a new EventID in place of the old! HACK!!!
-  (const_cast<EventInfo*>(pEInfo))->setEventID(
-			         new EventID(m_outputRunNumber, getEventNo()));
-  return StatusCode::SUCCESS;
-}
 
 unsigned long MixingEventSelector::getEventNo() const {
   return ( (m_eventNumbers.value().size() > m_eventPos) ?
@@ -325,7 +306,7 @@ MixingEventSelector::setCurrentTrigger() const {
   //we look for the first trigger which is not done
   do {
     //if called before initialize, choose the last trigger in list
-    unsigned int iTrig = (0 != m_chooseRangeRand) ?
+    unsigned int iTrig = (nullptr != m_chooseRangeRand) ?
       (unsigned int)(m_chooseRangeRand->fire() * double(m_trigList.todo())) :
       m_trigList.todo();
     m_pCurrentTrigger = m_trigList.elementInRange(iTrig);
@@ -437,13 +418,13 @@ MixingEventSelector::Trigger::Trigger(IEvtSelector* pSel,
                                       unsigned int lastEvt): 
   m_pSelector(pSel), m_firstEvent(firstEvt), 
   m_toRead(lastEvt+1), m_todo(m_toRead-firstEvt), m_reads(0),
-  m_current(0)
+  m_current(nullptr)
   {   }
 
 IEvtSelector::Context& MixingEventSelector::Trigger::currentContext() const {
   //make sure we have a context!
-  if (0 == m_current) {
-    IEvtSelector::Context* pTmp(0);
+  if (nullptr == m_current) {
+    IEvtSelector::Context* pTmp(nullptr);
     if ((createContext(pTmp)).isFailure()) 
       throw GaudiException("MixingEventSelector::Trigger::currentContext(): can't create context",
 			   name(),StatusCode::FAILURE);
@@ -524,4 +505,107 @@ StatusCode MixingEventSelector::releaseContext(IEvtSelector::Context*&) const {
 StatusCode MixingEventSelector::resetCriteria(const std::string&,
 					      IEvtSelector::Context&)const {
   return StatusCode::FAILURE;
+}
+
+
+// IConverter implementation.
+const CLID& MixingEventSelector::objType() const
+{
+  return ClassID_traits<EventInfo>::ID();
+}
+long MixingEventSelector::repSvcType() const
+{
+  return 0;
+}
+
+
+/** Create the transient representation of an object.
+    The transient representation is created by loading the
+    persistent object using the source information
+    contained in the address.
+    @return    Status code indicating success or failure
+    @param     pAddress   Opaque address information to retrieve the
+    requested object from the store in order to
+    produce the transient object.
+    @param     refpObject Reference to location of pointer of the
+    created object.
+*/
+StatusCode MixingEventSelector::createObj(IOpaqueAddress* /*pAddress*/,
+                                          DataObject*& refpObject)
+{
+  const EventInfo* pEInfo(nullptr);
+  if (!(m_pEventStore->retrieve(pEInfo)).isSuccess()) {
+    ATH_MSG_ERROR 
+      ("addMergedEventInfo: event store does not contain "\
+       "an EventInfo object!");
+    return StatusCode::RECOVERABLE;
+  }
+
+  // copy the original event to a new MergedEventInfo
+  auto mei = std::make_unique<MergedEventInfo> (*pEInfo,
+                                                m_outputRunNumber,
+                                                getEventNo());
+  refpObject = SG::asStorable (std::move (mei));
+
+
+  //finally slam a new EventID in place of the old! HACK!!!  FIXME!!
+  (const_cast<EventInfo*>(pEInfo))->setEventID(
+			         new EventID(m_outputRunNumber, getEventNo()));
+
+  return StatusCode::SUCCESS;
+}
+
+
+// IConverter dummies.
+StatusCode MixingEventSelector::setDataProvider(IDataProviderSvc* /*pService*/)
+{
+  std::abort();
+}
+SmartIF<IDataProviderSvc>& MixingEventSelector::dataProvider() const
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::setConversionSvc(IConversionSvc* /*pService*/)
+{
+  std::abort();
+}
+SmartIF<IConversionSvc>& MixingEventSelector::conversionSvc()    const
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::setAddressCreator(IAddressCreator* /*creator*/)
+{
+  std::abort();
+}
+SmartIF<IAddressCreator>& MixingEventSelector::addressCreator()    const
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::fillObjRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::updateObj(IOpaqueAddress* /*pAddress*/, DataObject* /*refpObject*/)
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::updateObjRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::createRep(DataObject* /*pObject*/, IOpaqueAddress*& /*refpAddress*/)
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::fillRepRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::updateRep(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/) 
+{
+  std::abort();
+}
+StatusCode MixingEventSelector::updateRepRefs(IOpaqueAddress* /*pAddress*/, DataObject* /*pObject*/)
+{
+  std::abort();
 }

@@ -57,7 +57,7 @@ ITPCnvBase*
 AthTPCnvSvc::load_tpcnv(const std::string& cls)
 {
   ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls);
-  if (cnv == 0) {
+  if (cnv == nullptr) {
     ATH_MSG_INFO("could not load class [" << cls
                  << "] via Reflex::PluginService");
   }
@@ -76,9 +76,9 @@ AthTPCnvSvc::t2p_cnv(const std::string& transClassName,
 
 {
   ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + transClassName);
-  if (cnv == 0 && type != Athena::TPCnvType::Athena)
+  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return t2p_cnv (transClassName);
-  if (cnv == 0) {
+  if (cnv == nullptr) {
     ATH_MSG_WARNING("Could not load converter for transient class ["
                     << transClassName << "]");
   }
@@ -98,22 +98,22 @@ AthTPCnvSvc::t2p_cnv(const CLID& transClid,
   std::string trans_type;
   if (!m_clidSvc->getTypeNameOfID(transClid, trans_type).isSuccess()) {
     ATH_MSG_INFO("could not get a type-name for clid [" << transClid << "]");
-    return 0;
+    return nullptr;
   }
 
   ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
-  if (cnv == 0) {
+  if (cnv == nullptr) {
     // try a typeinfo-name before bailing out...
     if (!m_clidSvc->getTypeInfoNameOfID(transClid, trans_type).isSuccess()) {
       ATH_MSG_INFO("could not get a typeinfo-name for clid ["
                    << transClid << "]");
-      return 0;
+      return nullptr;
     }
     cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
   }
-  if (cnv == 0 && type != Athena::TPCnvType::Athena)
+  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return t2p_cnv (transClid);
-  if (cnv == 0) {
+  if (cnv == nullptr) {
     ATH_MSG_WARNING("could not load converter for transient CLID ["
                     << transClid << "] (" << trans_type << ")");
   }
@@ -131,9 +131,9 @@ AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
                      Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
 {
   ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_PERS_" + persClassName);
-  if (cnv == 0 && type != Athena::TPCnvType::Athena)
+  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
     return p2t_cnv (persClassName);
-  if (cnv == 0) {
+  if (cnv == nullptr) {
     ATH_MSG_WARNING("Could not load converter for persistent class ["
                     << persClassName << "]");
   }

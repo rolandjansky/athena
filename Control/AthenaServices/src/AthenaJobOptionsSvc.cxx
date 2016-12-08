@@ -40,7 +40,7 @@ JobOptionsSvc::JobOptionsSvc( const std::string& name,
 		      ISvcLocator* pSvcLocator ) : 
   ::AthService( name, pSvcLocator ),
   m_jobosvc("JobOptionsSvc/AthWrapped_JobOptionsSvc", name),
-  m_cat_fd (NULL)
+  m_cat_fd (nullptr)
 {
   //
   // Property declaration
@@ -94,7 +94,7 @@ StatusCode JobOptionsSvc::initialize()
     ATH_MSG_INFO("opening [" << m_cat_fname << "] to dump properties'"
                  " of all components");
     m_cat_fd = fopen(m_cat_fname.c_str(), "w+");
-    if (m_cat_fd == 0) {
+    if (m_cat_fd == nullptr) {
       ATH_MSG_ERROR("could not open the pythonized catalogue output file ["
                     << m_cat_fname << "] !");
       return StatusCode::FAILURE;
@@ -121,7 +121,7 @@ StatusCode JobOptionsSvc::finalize()
   //   return StatusCode::FAILURE;
   // }
 
-  if (m_cat_fd != NULL) {
+  if (m_cat_fd != nullptr) {
     fprintf(m_cat_fd,
             "%s",
             "\n"
@@ -206,7 +206,7 @@ JobOptionsSvc::setMyProperties( const std::string& client, IProperty* me )
   //ATH_MSG_INFO("::setMyProperties(" << client << ")... [done]");
 
   // no dumping was requested...
-  if (m_cat_fd == 0) {
+  if (m_cat_fd == nullptr) {
     return sc;
   }
 

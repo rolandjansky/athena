@@ -54,14 +54,14 @@ float testit (bool expectsig)
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
-  ISvcLocator* svcloc = 0;
+  ISvcLocator* svcloc = nullptr;
   if (!Athena_test::initGaudi("FPEControlSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  
   assert(svcloc);
 
-  IService *tmpsvc = 0;
+  IService *tmpsvc = nullptr;
   if (svcloc->service ("FPEControlSvc", tmpsvc).isFailure()) std::abort();
   Service* svc = dynamic_cast<Service*> (tmpsvc);
 

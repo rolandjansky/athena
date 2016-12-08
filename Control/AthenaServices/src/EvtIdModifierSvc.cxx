@@ -76,7 +76,7 @@ StatusCode EvtIdModifierSvc::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  std::vector<EventID::number_type>& val = m_evtNpletsProp;
+  std::vector<uint64_t>& val = m_evtNpletsProp;
   if (val.size()) {
     // they should be Nplets...
     if (val.size() % NPLETSZ == 0) {
@@ -99,7 +99,7 @@ StatusCode EvtIdModifierSvc::initialize()
     }
   }
   // free-up some memory
-  std::vector<EventID::number_type>(0).swap(val);
+  std::vector<uint64_t>(0).swap(val);
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "store being modified: ["
@@ -119,7 +119,7 @@ StatusCode EvtIdModifierSvc::initialize()
                       << ", mod_bit=0x" << std::hex << i.mod_bit << std::dec
                       << "], ";
     }
-    msg(MSG::DEBUG) << "]" << endreq;
+    msg(MSG::DEBUG) << "]" << endmsg;
   }
 
   // initialize our cursor
@@ -182,7 +182,7 @@ EvtIdModifierSvc::run_number() const
 
 /** @brief return the current evt-nbr (after modification)
  */
-number_type
+uint64_t
 EvtIdModifierSvc::event_number() const
 {
   return m_current.evtnbr;

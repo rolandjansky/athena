@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 747530 2016-05-16 19:27:00Z ssnyder $
+# $Id: CMakeLists.txt 771853 2016-09-05 19:26:14Z ssnyder $
 ################################################################################
 # Package: AthenaServices
 ################################################################################
@@ -62,9 +62,22 @@ atlas_add_test( FPEControlSvc_test
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( AthenaEventLoopMgr_test
+   SOURCES test/AthenaEventLoopMgr_test.cxx
+   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( RCUSvc_test
+   SOURCES test/RCUSvc_test.cxx
+   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 atlas_add_test( TestStopRun
    SCRIPT test/TestStopRun.sh
-   EXTRA_PATTERNS "SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO" )
+   EXTRA_PATTERNS "SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO"
+   PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( AthTPCnvSvc
    SCRIPT test/AthTPCnvSvc.sh
@@ -87,3 +100,7 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
    share/AthenaJobOptionsSvc_jobOptions.py
    share/test_tpcnvdb.py )
+
+# Need to make sure that python file installation happens before genconf
+# in order for our custom __init__.py to be installed correctly.
+add_dependencies( AthenaServicesConfigurables AthenaServicesPythonInstall )

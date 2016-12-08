@@ -48,7 +48,7 @@ namespace {
 // Outside access to the event loop manager
 //=========================================================================
 PyAthenaEventLoopMgr* PyAthenaEventLoopMgr::pointer() {
-   IEventProcessor* ep = 0;
+   IEventProcessor* ep = nullptr;
 
    static const bool CREATEIF( false );
    if ( ( Gaudi::svcLocator()->service( "PyAthenaEventLoopMgr", ep, CREATEIF ) ).isSuccess() ) {
@@ -56,7 +56,7 @@ PyAthenaEventLoopMgr* PyAthenaEventLoopMgr::pointer() {
       return dynamic_cast< PyAthenaEventLoopMgr* >( ep ); 
    }
 
-   return 0;
+   return nullptr;
 }
 
 
@@ -65,7 +65,7 @@ PyAthenaEventLoopMgr* PyAthenaEventLoopMgr::pointer() {
 //=========================================================================
 PyAthenaEventLoopMgr::PyAthenaEventLoopMgr( const std::string& name, 
                                             ISvcLocator* svcLoc )
-   : AthenaEventLoopMgr( name, svcLoc ), m_manager( 0 )
+   : AthenaEventLoopMgr( name, svcLoc ), m_manager( nullptr )
 {
   /// overrides the base-class default: for interactive use, it is mandatory
   /// to leave the store untouched at the end of the event (so people can
@@ -83,7 +83,7 @@ PyObject* PyAthenaEventLoopMgr::setManager( PyObject* mgr )
    if ( ! PyObject_HasAttrString( mgr, execalgs ) )
    {
       PyErr_SetString( PyExc_TypeError, "given object is not a manager" );
-      return 0;
+      return nullptr;
    }
 
 // set on ourselves
@@ -100,17 +100,17 @@ PyObject* PyAthenaEventLoopMgr::setManager( PyObject* mgr )
    }
 
 // hand the python side its interfaces
-   PyObject* pyself = PyCObject_FromVoidPtr( (void*)static_cast< IEventSeek* >( this ), 0 );
+   PyObject* pyself = PyCObject_FromVoidPtr( (void*)static_cast< IEventSeek* >( this ), nullptr );
    PyObject* method = PyString_FromString( "_installServices" );
    PyObject* result = PyObject_CallMethodObjArgs( mgr, method, pyself, 0 );
    Py_DECREF( method );
    Py_DECREF( pyself );
 
    if ( ! result )
-      return 0;
+      return nullptr;
 
 // return old value (with its refcount), if set previously; or None
-   if ( old != 0 )
+   if ( old != nullptr )
       return old;
 
    Py_INCREF( Py_None );
@@ -144,7 +144,7 @@ StatusCode PyAthenaEventLoopMgr::initialize()
 
       if ( pyelm ) {
          PyObject* args = PyTuple_New( 0 );
-         PyObject* self = PyObject_Call( pyelm, args, 0 );
+         PyObject* self = PyObject_Call( pyelm, args, nullptr );
          Py_DECREF( args );
          Py_DECREF( pyelm );
 
@@ -180,7 +180,7 @@ StatusCode PyAthenaEventLoopMgr::initialize()
 StatusCode PyAthenaEventLoopMgr::executeAlgorithms()
 {
 // forward to call to the python-side object
-   if ( m_manager != 0 )
+   if ( m_manager != nullptr )
    {
    // forward call, if python side manager available
       PyObject* result = PyObject_CallMethod( m_manager, execalgs, (char*)"" );
@@ -202,7 +202,7 @@ StatusCode PyAthenaEventLoopMgr::executeAlgorithms()
       MsgStream log( msgSvc(), name() );
       log << MSG::ERROR
 	  << "result from python event loop manager has unexpected type."
-	  << endreq;
+	  << endmsg;
       Py_DECREF( result );
       return StatusCode::FAILURE;
    }
