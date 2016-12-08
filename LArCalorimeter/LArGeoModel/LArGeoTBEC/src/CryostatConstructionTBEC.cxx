@@ -34,8 +34,6 @@
 // For units:
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"

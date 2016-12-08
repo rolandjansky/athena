@@ -13,7 +13,6 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 class IRDBAccessSvc;
-class IGeoModelSvc;
 namespace LArGeo {
 
   class LArDetectorConstructionTBEC 
@@ -49,7 +48,6 @@ namespace LArGeo {
     GeoPhysVol          *m_tbecEnvelopePhysical;
 
     IRDBAccessSvc       *m_pAccessSvc;
-    IGeoModelSvc        *m_geoModelSvc;
     
   };
 
