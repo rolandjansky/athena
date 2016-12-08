@@ -39,40 +39,46 @@ elif InDetFlags.writePRDs():
 #
 # this is a hack for validating the NewT Cosmics tracks!!!!
 if InDetFlags.doCosmics():
-   if InDetFlags.doNewTracking():
+   if InDetFlags.doNewTracking() and InDetFlags.doWriteTracksToESD():
       InDetESDList+=["TrackCollection#"+InDetKeys.UnslimmedTracks()]
 
-if InDetFlags.doStoreTrackSeeds():
+if InDetFlags.doStoreTrackSeeds() and ( InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() ) :
    InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
 
-if InDetKeys.AliasToTracks() == 'none':
-   InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
-else:
-   InDetESDList+=["TrackCollection#"+InDetKeys.AliasToTracks()]
+if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD() :
+   if InDetKeys.AliasToTracks() == 'none':
+      InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
+   else:
+      InDetESDList+=["TrackCollection#"+InDetKeys.AliasToTracks()]
 
 if InDetFlags.doTrackSegmentsPixel():
-   InDetESDList+=["TrackCollection#"+InDetKeys.PixelTracks()]
+   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelTracks()+'DetailedTruth']     
 if InDetFlags.doTrackSegmentsSCT():
-   InDetESDList+=["TrackCollection#"+InDetKeys.SCTTracks()]
+   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
+      InDetESDList+=["TrackCollection#"+InDetKeys.SCTTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.SCTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SCTTracks()+'DetailedTruth']
 if InDetFlags.doTrackSegmentsTRT():
-   InDetESDList+=["TrackCollection#"+InDetKeys.TRTTracks()]
+   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
+      InDetESDList+=["TrackCollection#"+InDetKeys.TRTTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.TRTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.TRTTracks()+'DetailedTruth']
 if InDetFlags.doPseudoTracking():
-   InDetESDList+=["TrackCollection#"+InDetKeys.PseudoTracks()]
+   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PseudoTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PseudoTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PseudoTracks()+'DetailedTruth']
 
 if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
-   InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
+   if InDetFlags.doWriteTracksToESD() or InDetFlags.doDBMstandalone() or not InDetFlags.doxAOD() :
+      InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
    if InDetFlags.doTruth(): 
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
@@ -83,7 +89,8 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
 
 # add the forward tracks for combined muon reconstruction
 if InDetFlags.doForwardTracks():
-   InDetESDList+=["TrackCollection#"+InDetKeys.ResolvedForwardTracks()]
+   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.ResolvedForwardTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.ResolvedForwardTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.ResolvedForwardTracks()+'DetailedTruth']
@@ -93,7 +100,8 @@ if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
 
 if InDetFlags.doTrackSegmentsPixelPrdAssociation():
-  InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
+  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
   if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
