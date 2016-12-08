@@ -10,8 +10,6 @@
 #include "LArGeoH62002Algs/ExcluderConstruction.h"
 #include "LArGeoH6Cryostats/WallsConstruction.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -128,9 +126,9 @@ void LArGeo::LArDetectorFactoryH62002::getSimulationParameters()
    (*log)<< MSG::WARNING << "LArDectorFactoryH62002:\tCan't access LArGeoTBH1GeoOptions, using default values\n";
   }
 
- (*log)<< MSG::INFO<< endreq;;
- (*log)<< MSG::INFO << " Use cryo X : " <<  m_cryoXpos << " CLHEP::mm" << endreq;
- (*log)<< MSG::INFO << " Use table Y : " <<  m_tableYpos << " CLHEP::mm" << endreq;
+ (*log)<< MSG::INFO<< endmsg;;
+ (*log)<< MSG::INFO << " Use cryo X : " <<  m_cryoXpos << " CLHEP::mm" << endmsg;
+ (*log)<< MSG::INFO << " Use table Y : " <<  m_tableYpos << " CLHEP::mm" << endmsg;
 
 
 }
@@ -236,7 +234,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
       expHallPhys->add(table);    
     }
   }
- (*log) << MSG::DEBUG << "Built Table Instrumentation " << endreq;
+ (*log) << MSG::DEBUG << "Built Table Instrumentation " << endmsg;
 
   //Add the front beam instrumentation:
   {
@@ -251,7 +249,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
       expHallPhys->add(front);    
     }
   }
- (*log) << MSG::DEBUG << "Built Frontbeam Instrumentation " << endreq;
+ (*log) << MSG::DEBUG << "Built Frontbeam Instrumentation " << endmsg;
 
 
 
@@ -260,7 +258,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
   GeoPhysVol* LArPhysical = H6CryoCons.GetLArPhysical();
 
- (*log) << MSG::DEBUG << "Got the Cryostat ready" << endreq;
+ (*log) << MSG::DEBUG << "Got the Cryostat ready" << endmsg;
 
 
   // For the moment it is still commented out until I have
@@ -282,7 +280,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
     }
   }
 
- (*log) << MSG::DEBUG << "Built Rohacell Excluder " << endreq;
+ (*log) << MSG::DEBUG << "Built Rohacell Excluder " << endmsg;
 
 
 
@@ -424,7 +422,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
     emecDetectorManager->addDetectorRegion(presamplerRegion);
   }
 
- (*log) << MSG::DEBUG << "Built EMEC and Presampler " << endreq;
+ (*log) << MSG::DEBUG << "Built EMEC and Presampler " << endmsg;
 
 
 
@@ -477,7 +475,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
     }  
   
 
- (*log) << MSG::DEBUG << "Built HEC " << endreq;
+ (*log) << MSG::DEBUG << "Built HEC " << endmsg;
 
 
 
