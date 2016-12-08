@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigEDMConfig.TriggerEDM import *
+from TriggerEDM import *
 from CLIDComps.clidGenerator import clidGenerator
 cgen = clidGenerator("", False)
 
@@ -15,6 +15,7 @@ def main():
   serializable_names_no_label = []
   TriggerList = TriggerL2List + TriggerEFList + TriggerResultsList + TriggerResultsRun1List + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
   for TriggerSerializable in TriggerList:
+    #print TriggerSerializable 
     serializable_name = TriggerSerializable[0]
     serializable_name_no_label = re.sub(r"\#.*", "", serializable_name)
     if not '#' in serializable_name:
@@ -32,7 +33,7 @@ def main():
       print "ERROR, no final Aux. in label for " + serializable_name
     
     file_types = TriggerSerializable[1].split(" ")
-    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM")
+    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM")
     for file_type in file_types:
       if not file_type in allowed_file_types:
         print "ERROR, unknown file type " + file_type + " for " + serializable_name
