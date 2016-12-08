@@ -708,6 +708,7 @@ def transferFilesToServer( fileList, localDir, targetDir, server ):
 
 def transferFilesToEOS(fileList, localDir, eosResultsDir):
     os.system('export XRD_REQUESTTIMEOUT=10')
+    run_eos = 0
     for xferFile in fileList:
       xferFile = xferFile.rstrip()
       os.system( "chmod 664 " + xferFile )
