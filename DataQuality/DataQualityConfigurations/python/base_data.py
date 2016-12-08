@@ -9,7 +9,8 @@ dqconfig.config         = "Collisions Data"
 dqconfig.hcfg           = os.environ.get('DQC_HCFG_COLLISIONS_RUN', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_run.current.hcfg")
 dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES10', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes10.current.hcfg")
 dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES30', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes30.current.hcfg")
-dqconfig.server         = ["atlasdqm.cern.ch"]
+dqconfig.server         = ["aiatlas039.cern.ch", "aiatlas035.cern.ch", "aiatlas133.cern.ch"]
+dqconfig.eosResultsDir  = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/han_results/tier0/collisions/"
 dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache"
 dqconfig.hanResultsDir  = "/dqmdisk0/han_results/tier0/collisions"
 dqconfig.doHandi        = False
@@ -26,7 +27,7 @@ dqconfig.filemap        = { 'RPCDQMFOFFLINE.db': '/afs/cern.ch/user/m/muoncali/w
                             'MDTDQMFOFFLINE_NOISY.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
                             }
 
-dqconfig.dbConnection  = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=COMP200;"
+dqconfig.dbConnection  = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=CONDBR2;"
 dqconfig.dqmfOfl       = "/GLOBAL/DETSTATUS/DQMFOFL"
 dqconfig.dbTagName    = "DetStatusDQMFOFL-%(stream)s-pass1"
 dqconfig.dbTagNameESn       = "DetStatusDQMFOFL-%(stream)s-ES%(procpass)s"

@@ -10,7 +10,8 @@ dqconfig.config         = "Cosmics"
 dqconfig.hcfg           = os.environ.get('DQC_HCFG_COSMICS_RUN', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_run.current.hcfg")
 dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COSMICS_MINUTES10', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes10.current.hcfg")
 dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COSMICS_MINUTES30', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes30.current.hcfg")
-dqconfig.server         = ["atlasdqm.cern.ch"] if isprod else []
+dqconfig.server         = ["aiatlas039.cern.ch", "aiatlas035.cern.ch", "aiatlas133.cern.ch"] if isprod else []
+dqconfig.eosResultsDir  = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/han_results/tier0/collisions/" if isprod else ""
 dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache" if isprod else ''
 dqconfig.hanResultsDir  = "/dqmdisk0/han_results/tier0/Cosmics08" if isprod else '/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/test'
 dqconfig.doHandi        = False
@@ -27,14 +28,10 @@ dqconfig.filemap        = { 'RPCDQMFOFFLINE.db': '/afs/cern.ch/user/m/muoncali/w
                             'MDTDQMFOFFLINE_NOISY.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
 }
 
-dqconfig.dbConnection  = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=COMP200;"
+dqconfig.dbConnection  = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=CONDBR2;"
 dqconfig.dqmfOfl       = "/GLOBAL/DETSTATUS/DQMFOFL"
 dqconfig.dbTagName    = "DetStatusDQMFOFL-%(stream)s-pass1"
 dqconfig.dbTagNameESn       = "DetStatusDQMFOFL-%(stream)s-ES%(procpass)s"
 dqconfig.shiftOfl       = "/GLOBAL/DETSTATUS/SHIFTOFL"
-
-#dqconfig.dbConnectionHisto = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=COMP200;"
-#dqconfig.dqmfOflHisto      = "/GLOBAL/DETSTATUS/DQMFOFLH"
-#dqconfig.dbTagNameH    = "DetStatusDQMFOFLH-L1Calo09-pass1"
 
 dqconfig.auth       = "/afs/cern.ch/atlas/project/tzero/var"
