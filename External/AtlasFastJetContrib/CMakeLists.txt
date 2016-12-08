@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 734319 2016-04-06 12:48:09Z krasznaa $
+# $Id: CMakeLists.txt 788627 2016-12-08 14:22:36Z elmsheus $
 #
 # Package building the FastJet contrib libraries as part of the offline
 # software build.
@@ -18,7 +18,7 @@ endif()
 # Set up the build of FastJetContrib for the build area:
 ExternalProject_Add( FastJetContrib
    PREFIX ${CMAKE_BINARY_DIR}
-   URL http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.022.tar.gz
+   URL http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.025.tar.gz
    INSTALL_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
    CONFIGURE_COMMAND ./configure
    --fastjet-config=${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/bin/fastjet-config
