@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p3.h"
 #include "TestTools/random.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -70,6 +71,7 @@ void testit (const TrigRoiDescriptor& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigRoiDescriptor trans1 (123, 234, 345,
                             2.5, 2.4, 2.6,
