@@ -26,6 +26,7 @@
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 
@@ -38,8 +39,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -75,8 +74,7 @@ m_hasPresampler(false),
 m_ModuleRotation(0),
 m_YShift(0),
 m_tbecEnvelopePhysical(NULL),
-m_pAccessSvc(NULL),
-m_geoModelSvc(NULL)
+m_pAccessSvc(NULL)
 {;}
 
 void LArGeo::LArDetectorConstructionTBEC::getSimulationParameters()
@@ -105,7 +103,7 @@ void LArGeo::LArDetectorConstructionTBEC::getSimulationParameters()
 		} else {
 			log << MSG::WARNING
 			    << "Can't access LArGeoTBGeometricOptions, using default values"
-				<< endreq;
+				<< endmsg;
 		}
 	} else {
 		throw std::runtime_error("LArDetectorConstructionTBEC: cannot initialize \
@@ -165,16 +163,9 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
 
-  sc = svcLocator->service ("GeoModelSvc",m_geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-  }
-  
-  std::string AtlasVersion = m_geoModelSvc->atlasVersion();
-  std::string LArVersion = m_geoModelSvc->LAr_VersionOverride();
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+  DecodeVersionKey larVersion("LAr");
+  std::string detectorKey  = larVersion.tag();
+  std::string detectorNode = larVersion.node();
 
   /*const IRDBRecordset *emecGeometry   =*/ m_pAccessSvc->getRecordset("EmecGeometry",detectorKey, detectorNode); 
 
@@ -195,12 +186,12 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
 	log << MSG::INFO << "LeadCompensator = ";
 	if(m_hasLeadCompensator) log << "true";
 	else log << "false";
-	log << endreq;
+	log << endmsg;
 
 	log << MSG::INFO << "Presampler = ";
 	if(m_hasPresampler) log << "true";
 	else log << "false";
-	log << endreq;
+	log << endmsg;
 
   // Retrieve simulation parameters from Storegate
   getSimulationParameters();
@@ -230,7 +221,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   }
 
 	MsgStream log(msgSvc, "LArGeo::LArDetectorConstructionTBEC"); 
-	log << MSG::DEBUG << "createEnvelope() started" << endreq;
+	log << MSG::DEBUG << "createEnvelope() started" << endmsg;
 
 
   StoreGateSvc *detStore;
@@ -252,12 +243,9 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   
   //                                                                                                 //
   //-------------------------------------------------------------------------------------------------//
-
-  std::string AtlasVersion = m_geoModelSvc->atlasVersion();
-  std::string LArVersion = m_geoModelSvc->LAr_VersionOverride();
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+  DecodeVersionKey larVersion("LAr");
+  std::string detectorKey  = larVersion.tag();
+  std::string detectorNode = larVersion.node();
 
 
   //////////////////////////////////////////////////////////////////
@@ -287,7 +275,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   if ( m_eta_pos > 5. ) m_eta_pos = 0.;
   else m_eta_pos = 2*atan( exp( -m_eta_pos ) );
   log << ", positioning cryostat with angle " << m_eta_pos*(1./CLHEP::deg) << " CLHEP::deg";
-  log << endreq;
+  log << endmsg;
   
   // Tubular axis, dummy
   
@@ -376,7 +364,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
 	    << "Module deviation: " << m_ModuleRotation * (1./CLHEP::deg) << " CLHEP::deg" << std::endl
             << "Phi position: " << m_phi_pos * (1./CLHEP::deg) << " CLHEP::deg" << std::endl
             << "Y shift: " << m_YShift * (1./CLHEP::mm) << " CLHEP::mm"
-            << endreq;
+            << endmsg;
   
   // z = 0 in emecMother is at active region's front face
   
