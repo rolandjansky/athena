@@ -34,39 +34,39 @@ StatusCode CscPrepDataContainerCnv::initialize() {
     if( !CscPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
     
-    // messageService()->setOutputLevel( "CscPrepDataContainerCnv", MSG::DEBUG );
+    // msgSvc()->setOutputLevel( "CscPrepDataContainerCnv", MSG::DEBUG );
 
    // Get the messaging service, print where you are
-    MsgStream log(messageService(), "CscPrepDataContainerCnv");
-    if (log.level() <= MSG::INFO) log << MSG::INFO << "CscPrepDataContainerCnv::initialize()" << endreq;
+    MsgStream log(msgSvc(), "CscPrepDataContainerCnv");
+    if (log.level() <= MSG::INFO) log << MSG::INFO << "CscPrepDataContainerCnv::initialize()" << endmsg;
 
     return StatusCode::SUCCESS;
 }
 
 CscPrepDataContainer_PERS*    CscPrepDataContainerCnv::createPersistent (Muon::CscPrepDataContainer* transCont) {
-    MsgStream log(messageService(), "CscPrepDataContainerCnv" );
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
+    MsgStream log(msgSvc(), "CscPrepDataContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
     CscPrepDataContainer_PERS *pers= m_TPConverter.createPersistent( transCont, log );
     // COMPRESS CscPrepDataContainer_PERS *pers= m_converter_p2.createPersistent( transCont, log );
     return pers;
 }
 
 Muon::CscPrepDataContainer* CscPrepDataContainerCnv::createTransient() {
-    MsgStream log(messageService(), "CscPrepDataContainerCnv" );
+    MsgStream log(msgSvc(), "CscPrepDataContainerCnv" );
     static pool::Guid   p0_guid("C48250B1-7575-DFA1-1313-01AAAF759AEA"); // before t/p split
     static pool::Guid   p1_guid("B941657D-1ABF-4A88-B23C-6C4212CD04B3"); // with CscPrepData_tlp1
     static pool::Guid   p2_guid("BF5DA875-6D5B-4DCA-9CD8-E0ABC4FD92F5"); // with CscPrepDataContainer_p2
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::CscPrepDataContainer* p_collection(0);
     if( compareClassGuid(p2_guid) ) {
-        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
+        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::unique_ptr< Muon::CscPrepDataContainer_p2 >  p_coll( poolReadObject< Muon::CscPrepDataContainer_p2 >() );
         p_collection = m_converter_p2.createTransient( p_coll.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
       CscPrepDataContainerCnv_tlp1 tpConvertor_p1;
       std::unique_ptr< Muon::CscPrepDataContainer_tlp1 > col_vect( poolReadObject< Muon::CscPrepDataContainer_tlp1 >() );
       p_collection = m_TPConverter.createTransient( col_vect.get(), log );
-      if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
+      if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p0_guid) ) {

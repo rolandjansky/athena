@@ -24,7 +24,7 @@ MdtCsmCnv_p1::persToTrans(const MdtCsm_p1* persColl, MdtCsm* transColl, MsgStrea
 void
 MdtCsmCnv_p1::transToPers(const MdtCsm* transColl, MdtCsm_p1* persColl, MsgStream &log) 
 {
-    // log <<  MSG::DEBUG << " ***  Writing out MdtCsm" << endreq;
+    // log <<  MSG::DEBUG << " ***  Writing out MdtCsm" << endmsg;
 
     persColl->m_Id       = transColl->identify().get_identifier32().get_compact();
     persColl->m_idHash   = transColl->identifyHash();
@@ -40,7 +40,7 @@ MdtCsmCnv_p1::transToPers(const MdtCsm* transColl, MdtCsm_p1* persColl, MsgStrea
 //   for(MdtCsm::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
 //      std::ostringstream ostr;
 //      ostr << **it;
-//      log <<  MSG::VERBOSE << "Wrote " << ostr.str() << endreq;
+//      log <<  MSG::VERBOSE << "Wrote " << ostr.str() << endmsg;
 //   }  
 }
 

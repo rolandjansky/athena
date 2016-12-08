@@ -60,7 +60,7 @@ public:
 
 friend class  CscRawDataCollectionCnv_p1;
   
-private:
+//private:
 
   // Identifier of this collection
   uint32_t m_id;

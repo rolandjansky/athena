@@ -36,16 +36,16 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
     if( !CscStripPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
 
-//    messageService()->setOutputLevel( "CscStripPrepDataContainerCnv", MSG::DEBUG );
+//    msgSvc()->setOutputLevel( "CscStripPrepDataContainerCnv", MSG::DEBUG );
 
    // Get the messaging service, print where you are
-    MsgStream log(messageService(), "CscStripPrepDataContainerCnv");
-    log << MSG::INFO << "CscStripPrepDataContainerCnv::initialize()" << endreq;
+    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv");
+    log << MSG::INFO << "CscStripPrepDataContainerCnv::initialize()" << endmsg;
 
    // get StoreGate service
     StatusCode sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -53,35 +53,35 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
     StoreGateSvc *detStore;
     sc = service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
 
     //m_converter_p0.initialize(log);
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
 
     return StatusCode::SUCCESS;
 }
 
 CscStripPrepDataContainer_PERS*    CscStripPrepDataContainerCnv::createPersistent (Muon::CscStripPrepDataContainer* transCont) {
-    MsgStream log(messageService(), "CscStripPrepDataContainerCnv" );
-    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
+    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv" );
+    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
     CscStripPrepDataContainer_PERS *pixdc_p= m_TPConverter.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient() {
-    MsgStream log(messageService(), "CscStripPrepDataContainerCnv" );
+    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv" );
     static pool::Guid   p0_guid("A41C9D99-F977-43B5-8DFC-819F057A9136"); // before t/p split
     static pool::Guid   p1_guid("6075244C-C6BB-4E24-B711-E7E4ED0F7462"); // with CscStripPrepData_tlp1
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::CscStripPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
-        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
+        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         usingTPCnvForReading( m_TPConverter );
         std::unique_ptr< CscStripPrepDataContainer_PERS >  p_coll( poolReadObject< CscStripPrepDataContainer_PERS >() );
         p_collection = m_TPConverter.createTransient( p_coll.get(), log );

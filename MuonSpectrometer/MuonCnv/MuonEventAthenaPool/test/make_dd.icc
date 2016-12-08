@@ -1,0 +1,47 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file MuonEventAthenaPool/test/make_dd.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2016
+ * @brief Helper for regression tests.
+ */
+
+
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "RPCcablingInterface/RDOindex.h"
+#include "IdDictParser/IdDictParser.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+
+
+void make_dd()
+{
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  StoreGateSvc* sg = 0;
+  assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
+
+  static IdDictParser parser;
+  parser.register_external_entity ("InnerDetector",
+                                   "IdDictInnerDetector.xml");
+  parser.register_external_entity ("MuonSpectrometer",
+                                   "IdDictMuonSpectrometer_S.02.xml");
+  parser.register_external_entity ("Calorimeter",
+                                   "IdDictCalorimeter_L1Onl.xml");
+  parser.register_external_entity ("LArCalorimeter",
+                                   "IdDictLArCalorimeter.xml");
+  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
+
+
+  auto rpc_id = std::make_unique<RpcIdHelper>();
+  rpc_id->initialize_from_dictionary (idd);
+  RDOindex::setRpcIdHelper (rpc_id.get());
+  assert ( sg->record (std::move (rpc_id), "RPCIDHELPER") );
+
+}
+
+

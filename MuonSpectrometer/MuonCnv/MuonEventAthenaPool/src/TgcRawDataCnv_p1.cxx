@@ -38,6 +38,6 @@ void TgcRawDataCnv_p1::persToTrans(const TgcRawData_p1* persObj,
 
 void TgcRawDataCnv_p1::transToPers(const TgcRawData*, TgcRawData_p1*, MsgStream &log) 
 {
-    log << MSG::ERROR << "TgcRawDataCnv_p1::transToPers should not be called. _p2 exists!" << endreq;
+    log << MSG::ERROR << "TgcRawDataCnv_p1::transToPers should not be called. _p2 exists!" << endmsg;
 }
 

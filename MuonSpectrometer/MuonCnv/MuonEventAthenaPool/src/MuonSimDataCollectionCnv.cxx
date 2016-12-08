@@ -24,14 +24,14 @@ MuonSimDataCollectionCnv::~MuonSimDataCollectionCnv() {
 }
 
 MuonSimDataCollection_PERS*    MuonSimDataCollectionCnv::createPersistent (MuonSimDataCollection* transCont) {
-    MsgStream log(messageService(), "MuonSimDataCollectionCnv" );
+    MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
     MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p1.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 MuonSimDataCollection* MuonSimDataCollectionCnv::createTransient() {
-    MsgStream log(messageService(), "MuonSimDataCollectionCnv" );
+    MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
     static pool::Guid   p0_guid("5B50C32E-A036-4B49-AC97-716E53210BE2");
     static pool::Guid   p1_guid("0605B4A3-3744-4486-B39D-F9C9E809D868");
     ATH_MSG_DEBUG("createTransient(): main converter");

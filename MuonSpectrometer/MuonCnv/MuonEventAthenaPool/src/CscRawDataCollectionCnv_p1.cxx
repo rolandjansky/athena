@@ -11,7 +11,7 @@
 void
 CscRawDataCollectionCnv_p1::persToTrans(const CscRawDataCollection_p1* persColl, CscRawDataCollection* transColl, MsgStream &log) 
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endmsg;
 
    transColl->setSamplingRate ( persColl->m_rate);
    transColl->setNumSamples ( persColl->m_numSamples );
@@ -59,7 +59,7 @@ CscRawDataCollectionCnv_p1::persToTrans(const CscRawDataCollection_p1* persColl,
    // for(CscRawDataCollection::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
    //    std::ostringstream ostr;
    //    ostr << **it;
-   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endreq;
+   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endmsg;
    // }  
 }
 

@@ -20,14 +20,14 @@ template <class T, class P, class CONV>
 P *
 MuonRdoContainerTPCnv<T,P, CONV >::createPersistent(T* rdoC)
 {
-  MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" );
+  MsgStream log(this->msgSvc(), "MuonRdoContainerTPCnv" );
   
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered  MuonRdoContainerTPCnv::createPersistent()" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered  MuonRdoContainerTPCnv::createPersistent()" << endmsg;
 
   P *persObj = m_TPconverter.createPersistent( rdoC, log );
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << persObj->size()
-      << endreq;
+      << endmsg;
 
   return persObj; 
 }
@@ -40,8 +40,8 @@ T*
 MuonRdoContainerTPCnv<T,P, CONV >
 ::createTransient()
 {
-   MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" ); 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << endreq;
+   MsgStream log(this->msgSvc(), "MuonRdoContainerTPCnv" ); 
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << endmsg;
    //std::cout << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << std::endl;
 
    return createTransientFrom_p0( this->poolReadObject(), log );
@@ -54,7 +54,7 @@ T*
 MuonRdoContainerTPCnv<T,P, CONV >
 ::createTransientFrom_p0(COLL_vector* col_vect, MsgStream &log)
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endmsg;
 
    std::unique_ptr<T> rdoC( new T );
    //COLL_vector	*col_vect = (COLL_vector*) colV;

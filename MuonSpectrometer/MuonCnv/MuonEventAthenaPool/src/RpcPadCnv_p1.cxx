@@ -11,7 +11,7 @@
 void
 RpcPadCnv_p1::transToPers(const RpcPad* transColl, RpcPad_p1* persColl, MsgStream &log) 
 {
-   //log <<  MSG::DEBUG << " ***  Writing out RpcPad" << endreq;
+   //log <<  MSG::DEBUG << " ***  Writing out RpcPad" << endmsg;
 
    persColl->m_id        = transColl->identify().get_identifier32().get_compact();
    persColl->m_idHash    = transColl->identifyHash();

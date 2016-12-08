@@ -25,8 +25,8 @@ inline
 MdtCsmContainer*
 MdtCsmContainerCnv::createTransient()
 {
-    MsgStream log(messageService(), "MdtCsmContainerCnv" );
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endreq;
+    MsgStream log(msgSvc(), "MdtCsmContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endmsg;
     
     // the use of auto pointers ensures that the persistent object is deleted
     // using the correct persistent type pointer

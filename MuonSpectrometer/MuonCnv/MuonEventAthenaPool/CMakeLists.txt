@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           DetectorDescription/Identifier
+                          DetectorDescription/IdDictParser
                           GaudiKernel
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibEvent
@@ -45,6 +46,14 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
                            INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                            LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment DataModel SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
 
+# We need to build a separate library for unit testing, since we can't link
+# against the PoolCnv library.
+atlas_add_library( MuonEventAthenaPoolTestLib
+                   src/*Cnv_p*.cxx
+                   NO_PUBLIC_HEADERS
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment DataModel SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
+
 atlas_add_dictionary( MuonRDOCnvDict
                       MuonEventAthenaPool/MuonRDOCnvDict.h
                       MuonEventAthenaPool/selection.xml
@@ -68,3 +77,41 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   
+
+
+# Helper variable for running the tests:
+set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
+set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
+set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
+
+# Set up the tests of the package:
+foreach( name
+    CscRawDataCnv_p1_test
+    CscRawDataCnv_p2_test
+    CscRawDataCnv_p3_test
+    CscRawDataCollectionCnv_p1_test
+    CscRawDataCollectionCnv_p2_test
+    CscRawDataCollectionCnv_p3_test
+    MdtAmtHitCnv_p1_test
+    MdtCsmCnv_p1_test
+    RpcCoinMatrixCnv_p1_test
+    RpcFiredChannelCnv_p1_test
+    RpcPadCnv_p1_test
+    RpcPadContainerCnv_p1_test
+    RpcPadContainerCnv_p2_test
+    RpcSectorLogicContainerCnv_p1_test
+    TgcRawDataCnv_p1_test
+    TgcRawDataCnv_p2_test
+    TgcRawDataCnv_p3_test
+    TgcRdoCnv_p1_test
+    TgcRdoCnv_p2_test
+    TgcRdoCnv_p3_test )
+
+   atlas_add_test( ${name}
+      SOURCES test/${name}.cxx
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment DataModel SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData MuonEventAthenaPoolTestLib IdDictParser
+      PROPERTIES TIMEOUT 300
+      ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
+
+endforeach()
+

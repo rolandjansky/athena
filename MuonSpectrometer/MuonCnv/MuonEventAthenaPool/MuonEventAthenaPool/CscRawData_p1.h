@@ -26,7 +26,7 @@ public:
     const std::vector<uint16_t>  getSamples() const { return m_amps; }
     
     friend class  CscRawDataCnv_p1;
-private:
+//private:
     
     /// persistent data members
     std::vector<uint16_t> m_amps;
