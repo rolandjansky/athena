@@ -132,45 +132,42 @@ private:
   float m_inact_gscin_Invisible;
   float m_inact_gscin_Escaped;
 
-  std::vector<float> *_m_Total;
-  std::vector<float> *_m_Em;
-  std::vector<float> *_m_NonEm;
-  std::vector<float> *_m_Invisible;
-  std::vector<float> *_m_Escaped;
-  std::vector<long>  *_m_subCalo;
-  std::vector<long>  *_m_section;
-  std::vector<long>  *_m_side;
-  std::vector<long>  *_m_module;
-  std::vector<long>  *_m_tower;
-  std::vector<long>  *_m_sample;
+  std::vector<float>* m_Total;
+  std::vector<float>* m_Em;
+  std::vector<float>* m_NonEm;
+  std::vector<float>* m_Invisible;
+  std::vector<float>* m_Escaped;
+  std::vector<long>* m_subCalo;
+  std::vector<long>* m_section;
+  std::vector<long>* m_side;
+  std::vector<long>* m_module;
+  std::vector<long>* m_tower;
+  std::vector<long>* m_sample;
 
-  std::vector<float> *_m_inact_Total;
-  std::vector<float> *_m_inact_Em;
-  std::vector<float> *_m_inact_NonEm;
-  std::vector<float> *_m_inact_Invisible;
-  std::vector<float> *_m_inact_Escaped;
-  std::vector<long>  *_m_inact_subCalo;
-  std::vector<long>  *_m_inact_section;
-  std::vector<long>  *_m_inact_side;
-  std::vector<long>  *_m_inact_module;
-  std::vector<long>  *_m_inact_tower;
-  std::vector<long>  *_m_inact_sample;
+  std::vector<float>* m_inact_Total;
+  std::vector<float>* m_inact_Em;
+  std::vector<float>* m_inact_NonEm;
+  std::vector<float>* m_inact_Invisible;
+  std::vector<float>* m_inact_Escaped;
+  std::vector<long>* m_inact_subCalo;
+  std::vector<long>* m_inact_section;
+  std::vector<long>* m_inact_side;
+  std::vector<long>* m_inact_module;
+  std::vector<long>* m_inact_tower;
+  std::vector<long>* m_inact_sample;
 
-  std::vector<float> *_m_dm_ene;
-  std::vector<float> *_m_dm_vis;
-  std::vector<long>  *_m_dm_subDet;
-  std::vector<long>  *_m_dm_type;
-  std::vector<long>  *_m_dm_sampling;
-  std::vector<long>  *_m_dm_region;
-  std::vector<long>  *_m_dm_eta;
-  std::vector<long>  *_m_dm_phi;
+  std::vector<float>* m_dm_ene;
+  std::vector<float>* m_dm_vis;
+  std::vector<long>* m_dm_subDet;
+  std::vector<long>* m_dm_type;
+  std::vector<long>* m_dm_sampling;
+  std::vector<long>* m_dm_region;
+  std::vector<long>* m_dm_eta;
+  std::vector<long>* m_dm_phi;
 
   std::string m_ActiveHitContainer;
   std::string m_InactiveHitContainer;
   std::string m_dmHitContainer;
-
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
 
   const CaloCell_ID* m_caloCell_ID;
   const CaloDM_ID*   m_caloDM_ID;
