@@ -7,7 +7,7 @@
 
 void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p3* pers, MsgStream & log) 
 {
-  log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p3::transToPers " << endreq;
+  log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p3::transToPers " << endmsg;
 
   size_t sfebs = trans->get_noisy_febs().size();
   pers->m_noisy_febs.reserve(sfebs);
@@ -36,7 +36,7 @@ void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoi
 
 void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArNoisyROSummary* trans, MsgStream & log ) 
 {
-  log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p3::persToTrans " << endreq;
+  log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p3::persToTrans " << endmsg;
   trans->clear();
 
   size_t sfebs =  pers->m_noisy_febs.size();

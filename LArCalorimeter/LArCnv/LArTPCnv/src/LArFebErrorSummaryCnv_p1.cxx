@@ -31,7 +31,7 @@ void LArFebErrorSummaryCnv_p1::persToTrans(const LArFebErrorSummary_p1* pers, LA
 
   if( pers->m_feb_errors.size()!= pers->m_feb_ids.size() )
     {
-      log<<MSG::ERROR<<" In LArFebErrorSummaryCnv_p1::persToTrans, size of ids and errors are not the same "<<endreq;
+      log<<MSG::ERROR<<" In LArFebErrorSummaryCnv_p1::persToTrans, size of ids and errors are not the same "<<endmsg;
       return ; 
     }
 
@@ -44,7 +44,7 @@ void LArFebErrorSummaryCnv_p1::persToTrans(const LArFebErrorSummary_p1* pers, LA
     if ( ! trans->set_feb_error(pers->m_feb_ids[i],pers->m_feb_errors[i]) )
       {
 	log<<MSG::ERROR<<" In LArFebErrorSummaryCnv_p1::persToTrans, failed to add a feb_id, and error "<<pers->m_feb_ids[i]
-	   <<" " << pers->m_feb_errors[i] <<endreq;
+	   <<" " << pers->m_feb_errors[i] <<endmsg;
       }
   }
 

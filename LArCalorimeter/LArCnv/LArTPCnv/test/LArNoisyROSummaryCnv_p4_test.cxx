@@ -13,6 +13,8 @@
 
 #undef NDEBUG
 #include "LArTPCnv/LArNoisyROSummaryCnv_p4.h"
+#include "TestTools/leakcheck.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
 
@@ -49,6 +51,7 @@ void testit (const LArNoisyROSummary& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LArNoisyROSummary trans1;
   trans1.add_noisy_feb (HWIdentifier (0x1234));

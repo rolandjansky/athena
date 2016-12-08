@@ -18,7 +18,7 @@
 void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*transCont*/, LArRawChannelContainer_p2* /*persCont*/, MsgStream &log) 
 {
 
-  log << MSG::ERROR << "Writing LArRawChannelContainer_p2 not supported any more. Current version is LArRawChannelContainer_p3" << endreq;
+  log << MSG::ERROR << "Writing LArRawChannelContainer_p2 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
   return;
 }
 
@@ -68,7 +68,7 @@ void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*t
     }
 
 
-  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer" << endreq;
+  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer" << endmsg;
 }
 
 */
@@ -99,5 +99,5 @@ void LArRawChannelContainerCnv_p2::persToTrans(const LArRawChannelContainer_p2* 
   for (std::size_t i=0;i<nChannels;++i)
     m_larRawChannelCnv_p1.persToTrans(&(persCont->m_channels[i]),&(transCont->at(i)),log);
 
-  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endreq;
+  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endmsg;
 }

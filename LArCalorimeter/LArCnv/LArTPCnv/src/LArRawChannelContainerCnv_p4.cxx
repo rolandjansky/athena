@@ -20,7 +20,7 @@ void LArRawChannelContainerCnv_p4::transToPers(const LArRawChannelContainer* tra
   for (std::size_t i=0;i<nChannels;++i)
     m_larRawChannelCnv_p2.transToPers(&(transCont->at(i)),&(persCont->m_channels[i]),log);
 
-  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer_p4" << endreq;
+  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer_p4" << endmsg;
 }
 
 void LArRawChannelContainerCnv_p4::persToTrans(const LArRawChannelContainer_p4* persCont, LArRawChannelContainer* transCont, MsgStream &log) 
@@ -31,6 +31,6 @@ void LArRawChannelContainerCnv_p4::persToTrans(const LArRawChannelContainer_p4* 
   for (std::size_t i=0;i<nChannels;++i)
     m_larRawChannelCnv_p2.persToTrans(&(persCont->m_channels[i]),&(transCont->at(i)),log);
 
-  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endreq;
+  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endmsg;
 }
  
