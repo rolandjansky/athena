@@ -38,7 +38,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -225,20 +224,20 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
 		GeoPara *pEx = new GeoPara(Zall,Yall,Xall,0*CLHEP::degree,bepo_Beta,0.*CLHEP::degree);
 		GeoCons *tEx = new GeoCons(0.,0.,Rmax,Rmax_1,Zall,0.,M_PI);
 		GeoBox  *box = new GeoBox(Yall,Xall,Zall);
-                CLHEP::HepRotation *Rot = new 	CLHEP::HepRotation();
-		Rot->rotateX(bepo_Beta);
+                CLHEP::HepRotation Rot;
+		Rot.rotateX(bepo_Beta);
 		CLHEP::Hep3Vector  trans1(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall) + Xall + Zall*tan(bepo_Beta),  0*CLHEP::mm);
-		HepGeom::Transform3D *offset = new HepGeom::Transform3D(*Rot, trans1);
-		const GeoShapeIntersection  &is = (*tEx).intersect(*box<<*offset);
+		HepGeom::Transform3D offset(Rot, trans1);
+		const GeoShapeIntersection  &is = (*tEx).intersect(*box<<offset);
 
-		CLHEP::HepRotation *Rot1 = new CLHEP::HepRotation();
-		Rot1->rotateY(bepo_ty);
-		Rot1->rotateZ(bepo_ty);
-		Rot1->rotateX(bepo_Beta);
+		CLHEP::HepRotation Rot1;
+		Rot1.rotateY(bepo_ty);
+		Rot1.rotateZ(bepo_ty);
+		Rot1.rotateX(bepo_Beta);
 //		G4ThreeVector  translation(0., (203.74-168.47/2.)*CLHEP::mm, 0.*CLHEP::mm);
 		CLHEP::Hep3Vector  translation(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall)-Xall+Zall*tan(bepo_Beta),0.*CLHEP::mm);
-		HepGeom::Transform3D *offset1 = new HepGeom::Transform3D(*Rot1, translation);
-		const GeoShapeUnion  &us = is.add(*pEx<<*offset1);  
+		HepGeom::Transform3D offset1(Rot1, translation);
+		const GeoShapeUnion  &us = is.add(*pEx<<offset1);  
 		std::string bExName = "LArGeoTB::FCAL::Excluder";
 	        logicEx = new GeoLogVol(bExName, &us,Rohacell);
 //	        logicEx = new GeoLogVol(bExName, &is,Rohacell);
@@ -263,8 +262,8 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
 		CLHEP::HepRotation Rot;
 //		Rot->rotateZ(-angle/2.);
 		CLHEP::Hep3Vector  trans1(0., 0.*CLHEP::mm, 0*CLHEP::mm);
-		HepGeom::Transform3D *offset = new HepGeom::Transform3D(Rot, trans1);
-		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(*offset));
+		HepGeom::Transform3D offset(Rot, trans1);
+		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(offset));
 //		G4UnionSolid *is = new G4UnionSolid("isEx",tEx,box,Rot,trans1);
 		std::string FrontExName = "LArGeoTB::Front::Excluder";
 	        logicEx = new GeoLogVol(FrontExName,&is,Rohacell);
@@ -284,11 +283,11 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
 
 		GeoTubs *tEx = new GeoTubs(0.,Rmax,Zall,0.,angle);
 		GeoBox  *box = new GeoBox(Xall,Yall,1.1*Zall);
-		CLHEP::HepRotation *Rot = new CLHEP::HepRotation();
-		Rot->rotateZ(angle/2.);
+		CLHEP::HepRotation Rot;
+		Rot.rotateZ(angle/2.);
 		CLHEP::Hep3Vector  trans1(0., 0.*CLHEP::mm,  0*CLHEP::mm);
-		HepGeom::Transform3D *offset = new HepGeom::Transform3D(*Rot, trans1);
-		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(*offset));
+		HepGeom::Transform3D offset(Rot, trans1);
+		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(offset));
 		std::string BackExName = "LArGeoTB::Back::Excluder";
 	        logicEx = new GeoLogVol(BackExName,&is,Rohacell);
 

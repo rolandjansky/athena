@@ -31,7 +31,6 @@
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelUtilities/GeoDBUtils.h"
@@ -81,13 +80,10 @@ LArGeo::FCALConstructionH62004::FCALConstructionH62004():
 {
   m_svcLocator = Gaudi::svcLocator();
   IRDBAccessSvc* rdbAccess;
-  IGeoModelSvc * geoModel;
   
-  if(m_svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in FCALConstructionH62004, cannot access GeoModelSvc");
   if(m_svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
     throw std::runtime_error("Error in FCALConstructionH62004, cannot access RDBAccessSvc");
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
+  DecodeVersionKey larVersionKey("LAr");
 //  std::cout<<"Asking: "<<larVersionKey.tag()<<" "<<larVersionKey.node()<<std::endl;
 //  m_fcalElectrode = rdbAccess->getRecordset("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
 

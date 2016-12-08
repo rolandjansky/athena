@@ -27,9 +27,9 @@
 #include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 
 // For transforms:
 #include "CLHEP/Geometry/Transform3D.h" 
@@ -76,24 +76,13 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
   }
 
   MsgStream log(msgSvc, "LArGeo::MiddleBeamConstructionH62004"); 
-  log << MSG::INFO << "+    HELLO from LArGeo::MiddleBeamConstructionH62004       +" << endreq;
+  log << MSG::INFO << "+    HELLO from LArGeo::MiddleBeamConstructionH62004       +" << endmsg;
 
 
   StoreGateSvc *detStore;
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in MiddleBeamConstructionH62004, cannot access DetectorStore");
   }
-
-
-  StatusCode sc;
-
-  IGeoModelSvc *geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-  }
-
-
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
@@ -107,12 +96,9 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
    //-------------------------------------------------------------------------------------------------//
 
 
-  
-  std::string AtlasVersion = geoModelSvc->atlasVersion();
-  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+  DecodeVersionKey larVersion("LAr");
+  std::string detectorKey  = larVersion.tag();
+  std::string detectorNode = larVersion.node();
 
 
   //////////////////////////////////////////////////////////////////
@@ -146,7 +132,7 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
 
 
   //----- Now create BPC
-  log << MSG::INFO << " Create BPC 1&2 " << endreq;
+  log << MSG::INFO << " Create BPC 1&2 " << endmsg;
 
   BPCConstruction *BPC = new BPCConstruction(true);
   GeoVPhysVol* BPCPhysical = BPC->GetEnvelope();

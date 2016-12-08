@@ -31,14 +31,14 @@ StatusCode LArTBH6TriggerTimeTool::initialize()
   {
     log << MSG::ERROR
         << "Unable to retrieve pointer to StoreGateSvc "
-        << endreq;
+        << endmsg;
     return sc;
   }
 
   IIncidentSvc* incsvc;
   if (StatusCode::SUCCESS!=service("IncidentSvc",incsvc))
   { 
-     log << MSG::FATAL << "Incident service not found" << endreq;
+     log << MSG::FATAL << "Incident service not found" << endmsg;
      return StatusCode::FAILURE ; 
   }  
 
@@ -47,7 +47,7 @@ StatusCode LArTBH6TriggerTimeTool::initialize()
 
   log << MSG::DEBUG
         << " LArTBH6TriggerTimeTool initialized "
-        << endreq;
+        << endmsg;
 
   return StatusCode::SUCCESS;  
 
@@ -59,7 +59,7 @@ void LArTBH6TriggerTimeTool::handle(const Incident& incident){
   MsgStream log( msgSvc(), name() );
   log << MSG::DEBUG
         << " handle called  "
-        << endreq;
+        << endmsg;
 
   m_newEvent = true ; 
   return ; 
@@ -105,7 +105,7 @@ double LArTBH6TriggerTimeTool::larTime(){
 
      if(StatusCode::SUCCESS!=m_sg->retrieve(cont,(*it) ) )
      { 
-      log<<MSG::ERROR<<" Failed to retrieve LArHitContainer  " <<*it<<endreq; 
+      log<<MSG::ERROR<<" Failed to retrieve LArHitContainer  " <<*it<<endmsg; 
       return StatusCode::FAILURE; 
      } 
      LArHitContainer::const_iterator hit_it = cont->begin(); 
@@ -119,16 +119,16 @@ double LArTBH6TriggerTimeTool::larTime(){
     } 
 
     if(n==0){ 
-	log<<MSG::INFO<<" no LArHit in this event" <<endreq; 
+	log<<MSG::INFO<<" no LArHit in this event" <<endmsg; 
         return 0 ;
     } 
     if(e==0){ 
-	 log<<MSG::INFO<<" no LArHit energy in this event" <<endreq; 
+	 log<<MSG::INFO<<" no LArHit energy in this event" <<endmsg; 
 	 return 0; 
     }
 
     double t = te/e; 
-    log<<MSG::DEBUG << " average time from LArHit =  " <<t <<endreq; 
+    log<<MSG::DEBUG << " average time from LArHit =  " <<t <<endmsg; 
 
     return t; 
 

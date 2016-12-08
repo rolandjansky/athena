@@ -343,11 +343,11 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
            std::cout<<"Added "<<hecDetManager->getNumDetectorRegions()<<" regions in HEC"<<std::endl;
         } 
         catch (std::exception & ex) {
-            //log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endreq;
+            //log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endmsg;
            std::cout << "Unable to build HEC detector manager. " << ex.what() << std::endl;
         }
      } else {
-        //log << MSG::DEBUG << " No Stored PV for MODULES_POS in Detector Store" << endreq;
+        //log << MSG::DEBUG << " No Stored PV for MODULES_POS in Detector Store" << endmsg;
         std::cout << " No Stored PV for HEC_POS in Detector Store" << std::endl;
      }
   }
@@ -397,7 +397,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
      std::cout<<"Added "<<fcalDetectorManager->getNumTreeTops()<<" modules in FCAL"<<std::endl;
      StatusCode sc = m_detectorStore->record(fcalDetectorManager,  fcalDetectorManager->getName());
      if(sc.isFailure())
-      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endreq;
+      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endmsg;
       std::cout << "Unable to record fcalDetectorManager" << std::endl;
   }
 
@@ -405,7 +405,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   {
     StatusCode sc = m_detectorStore->record(emecDetectorManager,  emecDetectorManager->getName());
     if(sc.isFailure())
-      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endreq;
+      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endmsg;
       std::cout << "Unable to record emecDetectorManager" << std::endl;
   }
 
@@ -413,7 +413,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   {
     StatusCode sc = m_detectorStore->record(hecDetManager,  hecDetManager->getName());
     if(sc.isFailure())
-      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endreq;
+      //log << MSG::ERROR << "Unable to record hecDetectorManager" << endmsg;
       std::cout << "Unable to record hecDetectorManager" << std::endl;
   }
 
