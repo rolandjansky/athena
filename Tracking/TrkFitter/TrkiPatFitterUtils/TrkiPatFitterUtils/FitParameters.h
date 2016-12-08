@@ -63,7 +63,8 @@ public:
     double			d0 (void) const;
     void			d0 (double value);
     double			difference (int param) const;
-    const AlVec&		differences (void) const;
+    const Amg::VectorX&  	differences (void) const;
+    const AlVec&		differences***REMOVED*** (void) const;
     Amg::Vector3D		direction (void) const;
     bool			extremeMomentum (void) const;
     void			extremeMomentum (bool value);
@@ -112,6 +113,7 @@ public:
 						 const FitMeasurement&	measurement,
 						 bool			withCovariance=false) const;
     void			update (const AlVec&			differences);
+    void			update (const Amg::VectorX&		differences);
     void			update (Amg::Vector3D			position,
 					Amg::Vector3D			direction,
 					double				qOverP,
@@ -133,7 +135,9 @@ private:
     mutable double		m_cosTheta1;
     double			m_cotTheta;
     double			m_d0;
-    AlVec*			m_differences;
+    Amg::VectorX*		m_differences;
+    AlVec*			m_differences***REMOVED***;
+    bool			m_eigen;
     bool			m_extremeMomentum;
     Amg::MatrixX*		m_finalCovariance;
     int				m_firstAlignmentParameter;
@@ -201,13 +205,25 @@ FitParameters::d0 (void) const
 inline double
 FitParameters::difference (int param) const
 {
-    if (! m_differences)  return 0.;
-    return (*m_differences)[param];
+    if (m_eigen)
+    {
+	// if (! m_differences)  return 0.;   // surely unnecessary?
+	return (*m_differences)(param);
+    }
+    else
+    {
+	// if (! m_differences***REMOVED***)  return 0.;
+	return (*m_differences***REMOVED***)[param];
+    }	
 }
 
-inline const AlVec&
+inline const Amg::VectorX&
 FitParameters::differences (void) const
 { return *m_differences; }
+
+inline const AlVec&
+FitParameters::differences***REMOVED*** (void) const
+{ return *m_differences***REMOVED***; }
 
 inline Amg::Vector3D
 FitParameters::direction (void) const

@@ -28,10 +28,10 @@ namespace Trk{
 
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
-					    const ToolHandle<IIntersector>&	intersector,
+					    ToolHandle<IIntersector>&		intersector,
 					    std::list<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
-					    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
+					    ToolHandle<IIntersector>&		rungeKuttaIntersector,
 					    const ToolHandle<IPropagator>&	stepPropagator,
                                             int useStepPropagator)
     :	m_asymmetricCaloEnergy		(asymmetricCaloEnergy),

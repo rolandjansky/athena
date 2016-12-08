@@ -49,13 +49,14 @@ namespace Trk{
 // constructor
 FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 			    bool				extendedDebug,
-			    bool				fastMatrixTreatment,
+			    bool				eigenMatrixTreatment,
 			    bool				lineFit,
-			    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
-			    const ToolHandle<IIntersector>&	solenoidalIntersector,
-			    const ToolHandle<IIntersector>&	straightLineIntersector,
+			    ToolHandle<IIntersector>&		rungeKuttaIntersector,
+			    ToolHandle<IIntersector>&		solenoidalIntersector,
+			    ToolHandle<IIntersector>&		straightLineIntersector,
                             const ToolHandle<IPropagator>&      stepPropagator,
 			    const Volume*			indetVolume,
+			    int					maxIterations,
                             int                                 useStepPropagator)
     :	m_chRatio1			(0.),
 	m_chRatio2			(0.),
@@ -73,7 +74,7 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_extendedDebug 		(extendedDebug),
 	m_extremeOneOverP		(1./(10.*Gaudi::Units::TeV)),
 	m_fitMatrices  			(new FitMatrices(constrainedAlignmentEffects,
-							 fastMatrixTreatment)),
+							 eigenMatrixTreatment)),
 	m_fitProbability		(0.),
 	m_fitQuality			(0),
 	m_indetVolume			(indetVolume),
@@ -81,7 +82,7 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_largeRadius			(1000.*Gaudi::Units::mm),
 	m_lineFit			(lineFit),
 	m_log				(0),
- 	m_maxIter			(25),
+ 	m_maxIter			(maxIterations),
  	m_minIter			(0),
 	m_minPt				(0.05*Gaudi::Units::GeV),
 	m_nCuts				(0),
@@ -423,7 +424,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     }
 	
     // choose appropriate intersector
-    const ToolHandle<IIntersector>& intersector = chooseIntersector(measurements,*parameters);
+    ToolHandle<IIntersector>& intersector = chooseIntersector(measurements,*parameters);
 
     // resize matrices
     int fitCode		= m_fitMatrices->setDimensions(measurements,parameters);
@@ -431,6 +432,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     {
 	delete m_fitQuality;
 	m_fitQuality	= new FitProcedureQuality(fitCode,m_fitMatrices->numberDoF());
+	if (m_debug) reportQuality(measurements,*parameters);
 	return *m_fitQuality;
     }
 
@@ -483,7 +485,13 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	else if (! m_cutStep)
 	{
 	    //  solve equations and update parameters
-	    if (m_verbose && ! m_iteration) m_fitMatrices->printDerivativeMatrix();
+	    if (! m_iteration)
+	    {
+		m_fitMatrices->refinePointers();
+		if (m_extendedDebug)	m_fitMatrices->checkPointers(*m_log);
+		if (m_verbose)		m_fitMatrices->printDerivativeMatrix();
+	    }
+	    
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -524,8 +532,12 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    parameters->printVerbose(*m_log);
 	}
 	
-	//  check for some error conditions
-	if (std::abs(parameters->ptInv0()) > ptInvCut)
+	//  check for some error conditions (if none found yet)
+	if (fitCode)
+	{
+	    // e.g. fitCode == 11 (singular matrix)
+	}
+	else if (std::abs(parameters->ptInv0()) > ptInvCut)
 	{
 	    fitCode = 8;           //  fail with pt below cutoff
 	}
@@ -993,14 +1005,14 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 //     }
 }
 
-const ToolHandle<IIntersector>&
+ToolHandle<IIntersector>&
 FitProcedure::chooseIntersector (std::list<FitMeasurement*>&	measurements,
 				 const FitParameters&		parameters) const
 {
     if (m_lineFit) return m_straightLineIntersector;
     
     // decide which intersector to use for curved tracks (default RungeKutta)
-    //const ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
+    // ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
 
     // solenoidal intersector must start close to origin with last measurement inside valid region
     for (std::list<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
@@ -1072,6 +1084,9 @@ FitProcedure::reportQuality(const std::list<FitMeasurement*>&	measurements,
 	case 11:
 	    *m_log << "  singular matrix fails inversion:"
 		   << "  at iteration# "<< m_fitQuality->iterations();
+	    break;
+	case 12:
+	    *m_log << "  maximum of one calorimeter permitted";
 	    break;	
 	default:
 	    break;
