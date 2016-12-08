@@ -89,6 +89,47 @@ private
 use TestTools            TestTools-*                AtlasTest -no_auto_imports
 
 
+apply_pattern UnitTest_run unit_test=RpcFiredChannelCnv_p1
+macro_append RpcFiredChannelCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=RpcCoinMatrixCnv_p1
+macro_append RpcCoinMatrixCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=RpcPadCnv_p1
+macro_append RpcPadCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=RpcPadContainerCnv_p1
+macro_append RpcPadContainerCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=RpcPadContainerCnv_p2
+macro_append RpcPadContainerCnv_p2_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=RpcSectorLogicContainerCnv_p1
+macro_append RpcSectorLogicContainerCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCnv_p1
+macro_append CscRawDataCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCnv_p2
+macro_append CscRawDataCnv_p2_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCnv_p3
+macro_append CscRawDataCnv_p3_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCollectionCnv_p1
+macro_append CscRawDataCollectionCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCollectionCnv_p2
+macro_append CscRawDataCollectionCnv_p2_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=CscRawDataCollectionCnv_p3
+macro_append CscRawDataCollectionCnv_p3_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRawDataCnv_p1
+macro_append TgcRawDataCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRawDataCnv_p2
+macro_append TgcRawDataCnv_p2_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRawDataCnv_p3
+macro_append TgcRawDataCnv_p3_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRdoCnv_p1
+macro_append TgcRdoCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRdoCnv_p2
+macro_append TgcRdoCnv_p2_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=TgcRdoCnv_p3
+macro_append TgcRdoCnv_p3_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=MdtCsmCnv_p1
+macro_append MdtCsmCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+apply_pattern UnitTest_run unit_test=MdtAmtHitCnv_p1
+macro_append MdtAmtHitCnv_p1_test_dependencies " MuonEventAthenaPoolPoolCnv "
+
 apply_pattern athenarun_test \
    name="MuonEventTPCnv_17.0.0" \
    options="MuonEventAthenaPool/MuonEventTPCnv_17.0.0_test.py" \

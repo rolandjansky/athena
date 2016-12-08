@@ -29,7 +29,8 @@
 #include "RPCcablingInterface/RpcPadIdHash.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 
-StatusCode RpcPadContainerCnv_p1::initialize(MsgStream &log) {
+StatusCode RpcPadContainerCnv_p1::initialize(MsgStream &log,
+                                             IRPCcablingSvc* cabling /*= nullptr*/) {
    // Do not initialize again:
     m_isInitialized=true;
 
@@ -37,23 +38,27 @@ StatusCode RpcPadContainerCnv_p1::initialize(MsgStream &log) {
     ISvcLocator* svcLocator = Gaudi::svcLocator();
 
 
-    // get RPC cablingSvc
-    const IRPCcablingServerSvc* RpcCabGet = 0;
-    StatusCode sc =  svcLocator->service("RPCcablingServerSvc", RpcCabGet);
-    if (sc.isFailure()) {
+    if (cabling)
+      m_rpcCabling = cabling;
+    else {
+      // get RPC cablingSvc
+      const IRPCcablingServerSvc* RpcCabGet = 0;
+      StatusCode sc =  svcLocator->service("RPCcablingServerSvc", RpcCabGet);
+      if (sc.isFailure()) {
         log<<MSG::FATAL << "Could not get RPCcablingServerSvc !" << endmsg;
         return StatusCode::FAILURE;
-    }
-    else log <<MSG::VERBOSE << " RPCcablingServerSvc retrieved" << endmsg;
+      }
+      else log <<MSG::VERBOSE << " RPCcablingServerSvc retrieved" << endmsg;
 
-    sc = RpcCabGet->giveCabling(m_rpcCabling);
-    if (sc.isFailure()) {
+      sc = RpcCabGet->giveCabling(m_rpcCabling);
+      if (sc.isFailure()) {
         log << MSG::FATAL << "Could not get RPCcablingSvc from the Server !" << endmsg;
         m_rpcCabling = 0;
         return StatusCode::FAILURE;
-    }
-    else {
+      }
+      else {
         log <<MSG::VERBOSE << " RPCcablingSvc obtained " << endmsg;
+      }
     }
 
     log << MSG::DEBUG << "Converter initialized." << endmsg;

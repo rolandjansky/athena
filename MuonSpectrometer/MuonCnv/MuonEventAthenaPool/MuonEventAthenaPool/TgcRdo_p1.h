@@ -40,7 +40,7 @@ public:
 
 friend class TgcRdoCnv_p1;
   
-private:
+//private:
  // ID of this instance
   uint16_t m_id;
 

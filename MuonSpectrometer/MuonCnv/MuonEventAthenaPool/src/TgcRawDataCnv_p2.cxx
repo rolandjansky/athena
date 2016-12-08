@@ -10,38 +10,21 @@ void TgcRawDataCnv_p2::persToTrans(const TgcRawData_p2* persObj,
                                    TgcRawData* transObj,
                                    MsgStream &/*log*/)
 {
-    
-	transObj-> m_bcTag = persObj->m_bcTag;
-	transObj-> m_subDetectorId = persObj->m_subDetectorId;
-	transObj-> m_rodId = persObj->m_rodId;
-	transObj-> m_l1Id = persObj->m_l1Id;
-	transObj-> m_bcId = persObj->m_bcId;
-	transObj-> m_strip = persObj->m_strip;
-	transObj-> m_forward = persObj->m_forward;
-	transObj-> m_sector = persObj->m_sector;
-	transObj-> m_chip = persObj->m_chip;
-	transObj-> m_index = persObj->m_index;
-	transObj-> m_hipt = persObj->m_hipt;
-	transObj-> m_hitId = persObj->m_hitId;
-	transObj-> m_hsub = persObj->m_hsub;
-	transObj-> m_delta = persObj->m_delta;
-	transObj-> m_inner = 0;
-	// m_inner
-	// *transObj = TgcRawData (persObj->m_bcTag,
-	//                             persObj->m_subDetectorId,
-	//                             persObj->m_rodId,
-	//                             persObj->m_l1Id,
-	//                             persObj->m_bcId,
-	//                             persObj->m_strip,
-	//                             persObj->m_forward,
-	//                             persObj->m_sector,
-	//                             persObj->m_chip,
-	//                             persObj->m_index,
-	//                             persObj->m_hipt,
-	//                             persObj->m_hitId,
-	//                             persObj->m_hsub,
-	//                             persObj->m_delta,
-	//                             0);
+    *transObj = TgcRawData (persObj->m_bcTag,
+                            persObj->m_subDetectorId,
+                            persObj->m_rodId,
+                            persObj->m_l1Id,
+                            persObj->m_bcId,
+                            persObj->m_strip,
+                            persObj->m_forward,
+                            persObj->m_sector,
+                            persObj->m_chip,
+                            persObj->m_index,
+                            persObj->m_hipt,
+                            persObj->m_hitId,
+                            persObj->m_hsub,
+                            persObj->m_delta,
+                            0);
 
     transObj->m_sswId         = persObj->m_sswId;
     transObj->m_slbId         = persObj->m_slbId;

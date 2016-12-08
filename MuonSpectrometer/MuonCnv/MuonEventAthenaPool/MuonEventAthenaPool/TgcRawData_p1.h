@@ -30,7 +30,7 @@ public:
 
     friend class TgcRawDataCnv_p1;
 
-private:
+    //private:
 
     /********** common attributes
      */

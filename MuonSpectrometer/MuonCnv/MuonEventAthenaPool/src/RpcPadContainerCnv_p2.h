@@ -29,8 +29,8 @@ public:
     virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
     virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
     virtual RpcPadContainer* createTransient(const RpcPadContainer_p2* persObj, MsgStream& log);
+    StatusCode initialize(MsgStream &log, IRPCcablingSvc* cabling = nullptr);
 private:
-    StatusCode initialize(MsgStream &log);
 
     const IRPCcablingSvc *m_rpcCabling;
     bool m_isInitialized;

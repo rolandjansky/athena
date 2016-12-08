@@ -55,7 +55,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
   persCont->m_slVariables[slVariableIndex++]=tCsize; // 1st element is number of SLs. Format is defined in RpcSectorLogicContainer_p1.h
   //std::cout<<"B"<<std::endl;
   
-  persCont->m_hasMoreThan2TriggerCand.resize(tCsize);
+  persCont->m_hasMoreThan2TriggerCand.reserve(tCsize);
   //unsigned int indexSL=0; 
   for (; it_Coll != it_CollEnd; it_Coll++)  {
     //std::cout<<"Processing SL :"<<indexSL++<<", slVariableIndex="<<slVariableIndex<<std::endl;

@@ -26,7 +26,7 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
      amps[i] = pers->m_amps[i] + 2048;
 
 
-  /** conversion of the chamnerLayer index into the new format */
+  /** conversion of the chamberLayer index into the new format */
   int stationName =  ( ( pers->m_address & 0x00010000) >> 16 ) + 50;
   int stationEta  =  ( ((pers->m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
   int stationPhi  =  ( ( pers->m_address & 0x0000E000) >> 13 ) + 1;
@@ -39,6 +39,8 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   uint32_t nameIndex    = uint32_t(stationName-50);
   uint32_t etaIndex     = (stationEta  == -1) ? 0 : 1;
   uint32_t phiIndex     = uint32_t (stationPhi-1);
+  /// ??? This looks wrong!  chamberLayer is either 1 or 2, but then this
+  ///      gets packed into a 1-bit field.  Should this be -1?
   uint32_t chamberIndex = uint32_t (chamberLayer-0);
   uint32_t layerIndex   = uint32_t (wireLayer-1);
   uint32_t stripType    = uint32_t (measuresPhi);
