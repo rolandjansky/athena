@@ -56,7 +56,7 @@ void MuonCnvARA_p1::persToTrans( const Muon_p1* pers,
 			      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Muon from persistent state..."
-//       << endreq;
+//       << endmsg;
   
   // base classes
   momCnv.persToTrans     ( &pers->m_momentum,     &trans->momentumBase(), msg );
@@ -164,7 +164,7 @@ void MuonCnvARA_p1::persToTrans( const Muon_p1* pers,
    trans->m_caloEnergyLoss.setElement (caloEnergy);
 
 //   msg << MSG::DEBUG << "Loaded Muon from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
     return;
 }
@@ -173,7 +173,7 @@ void MuonCnvARA_p1::transToPers( const Analysis::Muon* trans,
 			      Muon_p1* pers, 
 			      MsgStream& msg ) 
 {
-  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p1 at " << pers << " Cannot write to Muon_p1" << endreq;
+  msg << MSG::ERROR << "Analysis::Muon at " << trans << " Persistent Muon_p1 at " << pers << " Cannot write to Muon_p1" << endmsg;
   throw std::runtime_error("Writing to Muon_p1 is not supported - MuonCnvARA_p1::transToPers(...)");
   return;
 }

@@ -34,7 +34,7 @@ void DepositInCaloCnv_p2::persToTrans( const DepositInCalo_p2* pers,
 				       MsgStream& /*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Loading DepositInCalo from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // calorimeter sampling identifier
   trans->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId);
@@ -49,7 +49,7 @@ void DepositInCaloCnv_p2::persToTrans( const DepositInCalo_p2* pers,
   trans->m_etDeposited = pers->m_etDeposited;
 
 //   msg << MSG::DEBUG << "Loaded DepositInCalo from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -59,7 +59,7 @@ void DepositInCaloCnv_p2::transToPers( const DepositInCalo* trans,
 				       MsgStream& /*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of DepositInCalo..."
-//       << endreq;
+//       << endmsg;
 
   // calorimeter sampling identifier
   pers->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(trans->m_subCaloId);
@@ -74,6 +74,6 @@ void DepositInCaloCnv_p2::transToPers( const DepositInCalo* trans,
   pers->m_etDeposited = trans->m_etDeposited;
   
 //   msg << MSG::DEBUG << "Created persistent state of DepositInCalo [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

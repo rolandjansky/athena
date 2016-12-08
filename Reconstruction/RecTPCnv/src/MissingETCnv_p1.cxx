@@ -40,7 +40,7 @@ void MissingETCnv_p1::persToTrans(  const MissingET_p1* pers,
 				    MissingET* trans, 
 				    MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingET from persistent state..."  << endreq;
+//   msg << MSG::DEBUG << "Loading MissingET from persistent state..."  << endmsg;
 
   trans->m_ex      = pers->m_ex;
   trans->m_ey      = pers->m_ey;
@@ -68,7 +68,7 @@ void MissingETCnv_p1::transToPers(  const MissingET* trans,
 				    MissingET_p1* pers, 
 				    MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingET..."    << endreq;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingET..."    << endmsg;
 
   pers->m_ex     = trans->m_ex;	
   pers->m_ey     = trans->m_ey;	

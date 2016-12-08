@@ -42,7 +42,7 @@ void MissingEtCaloCnv_p1::persToTrans(  const MissingEtCalo_p1* pers,
 				        MissingEtCalo* trans, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingEtCalo from persistent state..."   << endreq;
+//   msg << MSG::DEBUG << "Loading MissingEtCalo from persistent state..."   << endmsg;
 
   trans->m_exCalo      = pers->m_exCalo;  
   trans->m_eyCalo      = pers->m_eyCalo; 
@@ -64,7 +64,7 @@ void MissingEtCaloCnv_p1::transToPers(  const MissingEtCalo* trans,
 				        MissingEtCalo_p1* pers, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingEtCalo..."  << endreq;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingEtCalo..."  << endmsg;
 
   pers->m_exCalo     = trans->m_exCalo;  
   pers->m_eyCalo     = trans->m_eyCalo; 

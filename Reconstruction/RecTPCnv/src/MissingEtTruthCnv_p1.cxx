@@ -42,7 +42,7 @@ void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,
 				        MissingEtTruth* trans, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingEtTruth from persistent state..."  << endreq;
+//   msg << MSG::DEBUG << "Loading MissingEtTruth from persistent state..."  << endmsg;
 
   trans->m_exTruth      = pers->m_exTruth;
   trans->m_eyTruth      = pers->m_eyTruth;
@@ -61,7 +61,7 @@ void MissingEtTruthCnv_p1::transToPers( const MissingEtTruth* trans,
 				        MissingEtTruth_p1* pers, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingEtTruth..."    << endreq;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingEtTruth..."    << endmsg;
 
   pers->m_exTruth     = trans->m_exTruth;
   pers->m_eyTruth     = trans->m_eyTruth;

@@ -15,6 +15,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "muonEvent/DepositInCalo.h"
 #include "muonEvent/CaloEnergy.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -79,6 +80,7 @@ void testit (const CaloEnergy& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::vector<DepositInCalo> deposits;
   deposits.emplace_back (CaloCell_ID::EMB2, 10.5, 11.5, 12.5);
