@@ -15,6 +15,7 @@
 #include "TrigSteeringEventTPCnv/Lvl1ResultCnv_p2.h"
 #include "TrigSteeringEventTPCnv/Lvl1Result_p2.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -46,6 +47,7 @@ void testit (const LVL1CTP::Lvl1Result& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1CTP::Lvl1Result trans1 (true);
   trans1.itemsPassed() = std::vector<uint32_t> { 1, 2 };

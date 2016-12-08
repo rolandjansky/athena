@@ -15,6 +15,7 @@
 #include "TrigSteeringEventTPCnv/HLTResultCnv_p1.h"
 #include "TrigSteeringEventTPCnv/HLTResult_p1.h"
 #include "TrigSteeringEvent/HLTResult.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -73,6 +74,7 @@ void testit (const HLT::HLTResult& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   HLT::HLTResult trans1;
   trans1.setLvl1Id (123);

@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -41,6 +42,7 @@ void testit (const TrigOperationalInfo& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigOperationalInfo trans1;
   trans1.set ("aaa", 4.5);

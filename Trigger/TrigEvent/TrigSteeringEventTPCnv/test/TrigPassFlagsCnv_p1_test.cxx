@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigSteeringEventTPCnv/TrigPassFlagsCnv_p1.h"
 #include "TestTools/random.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -44,6 +45,7 @@ void testit (const TrigPassFlags& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigPassFlags trans1 (10, 8, nullptr);
   for (int i=0; i < 10; i++) {
