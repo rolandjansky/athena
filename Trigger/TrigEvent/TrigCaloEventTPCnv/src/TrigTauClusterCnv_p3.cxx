@@ -15,7 +15,7 @@ void TrigTauClusterCnv_p3 :: persToTrans( const TrigTauCluster_p3 *persObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p3::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p3::persToTrans" << endmsg;
 
   transObj->setEMenergy          (persObj->m_allTheFloats[0]) ;
   transObj->setHADenergy	 (persObj->m_allTheFloats[1]) ;	    
@@ -44,7 +44,7 @@ void TrigTauClusterCnv_p3 :: transToPers( const TrigTauCluster    *transObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers" << endmsg;
 
   persObj->m_allTheFloats[0] = transObj->EMenergy()          ;
   persObj->m_allTheFloats[1] = transObj->HADenergy()         ;	    
@@ -60,14 +60,14 @@ void TrigTauClusterCnv_p3 :: transToPers( const TrigTauCluster    *transObj,
 //  persObj->m_numStripCells   = transObj->m_numStripCells ;
 //  persObj->m_numTotCells     = transObj->m_numTotCells   ;
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - fill EL" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - fill EL" << endmsg;
 
   m_ELinkTauClusterDetailsCnv.transToPers( &transObj->clusterDetailsLink(), &persObj->m_details, log );
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - fill trigcalocluster" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - fill trigcalocluster" << endmsg;
 
   trigCaloClusterCnv.transToPers(transObj,&persObj->m_trigCaloCluster,log);
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - filled" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers - filled" << endmsg;
 
 }

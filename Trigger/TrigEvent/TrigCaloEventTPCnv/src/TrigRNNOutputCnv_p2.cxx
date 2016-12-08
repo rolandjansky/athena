@@ -16,7 +16,7 @@ void TrigRNNOutputCnv_p2::transToPers(const TrigRNNOutput *trans,
                                     TrigRNNOutput_p2 *pers,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigRNNOutputCnv_p2::tranToPers" << endreq;
+  log << MSG::DEBUG << "TrigRNNOutputCnv_p2::tranToPers" << endmsg;
   
   if ( (!trans) || (!pers) )
     return;
@@ -33,7 +33,7 @@ void TrigRNNOutputCnv_p2::persToTrans(const TrigRNNOutput_p2 *pers,
                                     TrigRNNOutput *trans,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigRNNOutputCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigRNNOutputCnv_p2::persToTrans" << endmsg;
 
   if ( (!pers) || (!trans) )
     return;

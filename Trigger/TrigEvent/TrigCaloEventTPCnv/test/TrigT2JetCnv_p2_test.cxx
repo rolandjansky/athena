@@ -15,6 +15,7 @@
 #include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigCaloEventTPCnv/TrigT2JetCnv_p2.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <cassert>
@@ -72,6 +73,7 @@ void testit (const TrigT2Jet& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigT2Jet trans1;
   trans1.setE (100000);

@@ -11,7 +11,7 @@ void TrigTauClusterCnv_p2 :: persToTrans( const TrigTauCluster_p2 *persObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p2::persToTrans" << endmsg;
 
   transObj->setEMenergy       (persObj->m_EMenergy)      ;
   transObj->setHADenergy      (persObj->m_HADenergy)     ;	    
@@ -36,7 +36,7 @@ void TrigTauClusterCnv_p2 :: transToPers( const TrigTauCluster    *transObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p2::transToPers" << endmsg;
 
   persObj->m_EMenergy       = transObj->EMenergy()      ;
   persObj->m_HADenergy	    = transObj->HADenergy()     ;	    

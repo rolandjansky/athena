@@ -33,13 +33,13 @@ class TrigRNNOutputContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<TrigRNNOu
   virtual void persToTrans(const TrigRNNOutputContainer_p1 *persVect,
                            TrigRNNOutputContainer *transVect,
 			   MsgStream &log) {
-    log << MSG::DEBUG << "TrigRNNOutputContainerCnv::persToTrans" << endreq;
+    log << MSG::DEBUG << "TrigRNNOutputContainerCnv::persToTrans" << endmsg;
     if (!persVect) {
-      log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
       return;
     }
     if (!transVect) {
-      log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans cannot convert to NULL transVect" << endreq;
+      log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans cannot convert to NULL transVect" << endmsg;
       return;
     }
     
@@ -52,7 +52,7 @@ class TrigRNNOutputContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<TrigRNNOu
       TrigRNNOutput *p = createTransFromPStore(&m_elementCnv, *it, log); 
       transVect->push_back(p);
       if (!p)
-        log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans failed for an element " << endreq;
+        log << MSG::WARNING << "TrigRNNOutputContainerCnv::persToTrans failed for an element " << endmsg;
     }
   }
   
@@ -61,11 +61,11 @@ class TrigRNNOutputContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<TrigRNNOu
                            TrigRNNOutputContainer_p1 *persVect,
 			   MsgStream &log) {
     if (!persVect) {
-      log << MSG::WARNING << "TrigRNNOutputContainerCnv::transToPers cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "TrigRNNOutputContainerCnv::transToPers cannot convert NULL persVect" << endmsg;
       return;
     }
     if (!transVect) {
-      log << MSG::WARNING << "TrigRNNOutputContainerCnv::transToPers cannot convert to NULL transVect" << endreq;
+      log << MSG::WARNING << "TrigRNNOutputContainerCnv::transToPers cannot convert to NULL transVect" << endmsg;
       return;
     }
     
@@ -78,7 +78,7 @@ class TrigRNNOutputContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<TrigRNNOu
       persVect->push_back(a);
       if (a.isNull()) {
         log << MSG::WARNING << "TrigRNNOutputContainerCnv::transToPers failed for an element " << *it << " "
-	    << m_elementCnv << endreq;
+	    << m_elementCnv << endmsg;
       }
     } 
   }

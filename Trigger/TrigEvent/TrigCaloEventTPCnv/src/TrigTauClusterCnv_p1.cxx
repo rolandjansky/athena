@@ -11,7 +11,7 @@ void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p1::persToTrans" << endmsg;
 
   transObj->setEMenergy          (persObj->m_EMenergy)      ;
   transObj->setHADenergy         (persObj->m_HADenergy)     ;	    
@@ -57,8 +57,8 @@ void TrigTauClusterCnv_p1 :: transToPers( const TrigTauCluster */*transObj*/,
 					  MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigTauClusterCnv_p1::transToPers" << endreq;
-  log << MSG::WARNING << "Trying to write TrigTauCluster to obsolete persistent class TrigTauCluster_p1!" << endreq;
+  log << MSG::DEBUG << "TrigTauClusterCnv_p1::transToPers" << endmsg;
+  log << MSG::WARNING << "Trying to write TrigTauCluster to obsolete persistent class TrigTauCluster_p1!" << endmsg;
 /*
   persObj->m_EMenergy       = transObj->m_EMenergy      ;
   persObj->m_HADenergy	    = transObj->m_HADenergy     ;	    

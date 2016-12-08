@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigCaloEventTPCnv/TrigTauClusterDetailsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -54,6 +55,7 @@ void testit (const TrigTauClusterDetails& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigTauClusterDetails trans1;
   for (int i=0; i < NUMEMSAMP; i++) {

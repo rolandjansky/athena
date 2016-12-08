@@ -33,13 +33,13 @@ class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRings
   virtual void persToTrans(const RingerRingsContainer_p1 *persVect,
                            RingerRingsContainer *transVect,
 			   MsgStream &log) {
-    log << MSG::DEBUG << "RingerRingsContainerCnv::persToTrans" << endreq;
+    log << MSG::DEBUG << "RingerRingsContainerCnv::persToTrans" << endmsg;
     if (!persVect) {
-      log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
       return;
     }
     if (!transVect) {
-      log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans cannot convert to NULL transVect" << endreq;
+      log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans cannot convert to NULL transVect" << endmsg;
       return;
     }
     
@@ -52,7 +52,7 @@ class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRings
       RingerRings *p = createTransFromPStore(&m_elementCnv, *it, log); 
       transVect->push_back(p);
       if (!p)
-        log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans failed for an element " << endreq;
+        log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans failed for an element " << endmsg;
     }
   }
   
@@ -61,11 +61,11 @@ class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRings
                            RingerRingsContainer_p1 *persVect,
 			   MsgStream &log) {
     if (!persVect) {
-      log << MSG::WARNING << "RingerRingsContainerCnv::transToPers cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "RingerRingsContainerCnv::transToPers cannot convert NULL persVect" << endmsg;
       return;
     }
     if (!transVect) {
-      log << MSG::WARNING << "RingerRingsContainerCnv::transToPers cannot convert to NULL transVect" << endreq;
+      log << MSG::WARNING << "RingerRingsContainerCnv::transToPers cannot convert to NULL transVect" << endmsg;
       return;
     }
     
@@ -78,7 +78,7 @@ class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRings
       persVect->push_back(a);
       if (a.isNull()) {
         log << MSG::WARNING << "RingerRingsContainerCnv::transToPers failed for an element " << *it << " "
-	    << m_elementCnv << endreq;
+	    << m_elementCnv << endmsg;
       }
     } 
   }

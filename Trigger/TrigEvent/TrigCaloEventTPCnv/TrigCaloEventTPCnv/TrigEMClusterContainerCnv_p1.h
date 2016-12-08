@@ -34,7 +34,7 @@ class TrigEMClusterContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigEMCl
   //this part is implemented in T_AthenaPoolTPConverter.h. 
   //It is here temporarily to override and allow some extra debugging
   virtual void persToTrans(const  TrigEMClusterContainer_p1* persVect, TrigEMClusterContainer* transVect, MsgStream &log) {
-    log << MSG::DEBUG << "TrigEMClusterContainerCnv::persToTrans" << endreq;
+    log << MSG::DEBUG << "TrigEMClusterContainerCnv::persToTrans" << endmsg;
     if (persVect){
       transVect->clear();
       transVect->reserve( persVect->size() );
@@ -46,10 +46,10 @@ class TrigEMClusterContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigEMCl
 	TrigEMCluster *p = createTransFromPStore( &m_elementCnv, *it, log ); 
 	transVect->push_back( p);
 	if (!p)
-	  log << MSG::WARNING << "TrigEMClusterContainerCnv::persToTrans failed for an element " << endreq;
+	  log << MSG::WARNING << "TrigEMClusterContainerCnv::persToTrans failed for an element " << endmsg;
       }        
     } else {
-      log << MSG::WARNING << "TrigEMClusterContainerCnv::persToTrans cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "TrigEMClusterContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
     }
   }
   
@@ -67,7 +67,7 @@ class TrigEMClusterContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigEMCl
       persVect->push_back( a );
       if (a.isNull()){
 	log << MSG::WARNING << "TrigEMClusterContainerCnv::transToPers failed for an element " << *it << " "
-	    << m_elementCnv << endreq;
+	    << m_elementCnv << endmsg;
 	
       }
     }       

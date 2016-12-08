@@ -13,7 +13,7 @@ void TrigT2JetCnv_p1::persToTrans( const TrigT2Jet_p1 *persObj,
 					     TrigT2Jet    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigT2JetCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigT2JetCnv_p1::persToTrans called " << endmsg;
 
   transObj->setE	 (persObj->m_e)		 ;
   transObj->setEhad0	 (persObj->m_ehad0)	 ;
@@ -32,8 +32,8 @@ void TrigT2JetCnv_p1::transToPers( const TrigT2Jet    */*transObj*/,
                                          TrigT2Jet_p1 */*persObj*/,
 					 MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigT2JetCnv_p1::transToPers called " << endreq;
-  log << MSG::WARNING << "TrigT2JetCnv_p1::transToPers : Trying to persist obsolete TrigT2JetCnv_p1! I won't write anything!" << endreq;
+  log << MSG::DEBUG << "TrigT2JetCnv_p1::transToPers called " << endmsg;
+  log << MSG::WARNING << "TrigT2JetCnv_p1::transToPers : Trying to persist obsolete TrigT2JetCnv_p1! I won't write anything!" << endmsg;
 /*
   persObj->m_e		 = transObj->m_e	  ;
   persObj->m_ehad0	 = transObj->m_ehad0	  ;

@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigCaloEventTPCnv/RingerRingsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -41,6 +42,7 @@ void testit (const RingerRings& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   RingerRings trans1 (std::vector<float> {1.5, 2.5, 3.5, 4.5});
   testit (trans1);

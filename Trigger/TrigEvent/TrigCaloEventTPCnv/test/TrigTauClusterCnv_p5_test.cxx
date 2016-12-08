@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigCaloEventTPCnv/TrigTauClusterCnv_p5.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -76,6 +77,9 @@ void testit (const TrigTauCluster& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxy created outside of leak check.
+  ElementLink<TrigTauClusterDetailsContainer> foo ("foofoo", 10);
+  Athena_test::Leakcheck check;
 
   TrigTauCluster trans1 (100000, 2.2, 1.5, 12345);
   trans1.setRawEnergy (90000);

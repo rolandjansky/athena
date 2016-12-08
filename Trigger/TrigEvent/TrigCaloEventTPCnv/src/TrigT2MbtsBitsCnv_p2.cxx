@@ -9,7 +9,7 @@
 void TrigT2MbtsBitsCnv_p2::persToTrans( const TrigT2MbtsBits_p2 *persObj,
 					TrigT2MbtsBits    *transObj,
 					MsgStream& log ) {
-  log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p2::persToTrans" << endmsg;
   
   *transObj = TrigT2MbtsBits (persObj->m_triggerEnergies,
                               persObj->m_triggerTimes);
@@ -18,7 +18,7 @@ void TrigT2MbtsBitsCnv_p2::persToTrans( const TrigT2MbtsBits_p2 *persObj,
 void TrigT2MbtsBitsCnv_p2::transToPers( const TrigT2MbtsBits    *transObj,
 					TrigT2MbtsBits_p2 *persObj,
 					MsgStream& log ) {
-  log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p2::transToPers" << endmsg;
   
   persObj->m_triggerEnergies = transObj->triggerEnergies();
   persObj->m_triggerTimes = transObj->triggerTimes();
