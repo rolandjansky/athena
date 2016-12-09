@@ -107,8 +107,6 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //.......to reduce McEventCollection for pileup  particles
 //----------------------------------------------------------------
 //
-  StatusCode sc;
-
   // ....... Retrieve MC truht collection
   const McEventCollection* pMcEvtColl=0;
   ATH_CHECK( evtStore()->retrieve(pMcEvtColl,m_mcEventCollection) );
@@ -211,8 +209,6 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
 //.......to relink all Si hits to the new particle
 //--------------------------------------------------------
 //
-  StatusCode sc;
-
   std::vector <std::string> m_HitContainer;
   m_HitContainer.push_back("PixelHits");
   m_HitContainer.push_back("SCT_Hits");
@@ -227,8 +223,7 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
       ATH_CHECK( evtStore()->retrieve(pSiHitColl,m_HitContainer[iHitContainer] ) );
     } else {
       ATH_MSG_ERROR( "Could not find SiHitCollection containing " <<  m_HitContainer[iHitContainer] );
-      sc = StatusCode::FAILURE;
-      return sc;
+      return StatusCode::FAILURE;
     }
 
     SiHitCollection * pSiHitC = const_cast<SiHitCollection *> (&*pSiHitColl);
@@ -272,8 +267,6 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
 //.......to relink all TRT hits to the new particle
 //--------------------------------------------------------
 //
-  StatusCode sc;
-
   //.......retrive TRTUncompressedHitCollection collection
   m_HitName  = "TRTUncompressedHits";
   const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
@@ -282,8 +275,7 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
     ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
@@ -333,8 +325,6 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
 //.......to relink all MDT hits to the new particle
 //--------------------------------------------------------
 
-  StatusCode sc;
-
   m_HitName="MDT_Hits";
   const DataHandle<MDTSimHitCollection> pMDTHitColl;
 
@@ -342,8 +332,7 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
     ATH_CHECK( evtStore()->retrieve(pMDTHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find MDTSimHitCollection  containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
 
@@ -388,8 +377,6 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
 //.......to relink all CSC hits to the new particle
 //--------------------------------------------------------
 
-  StatusCode sc;
-
   m_HitName="CSC_Hits";
   const DataHandle<CSCSimHitCollection> pCSCHitColl;
 
@@ -397,8 +384,7 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
     ATH_CHECK( evtStore()->retrieve(pCSCHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find CSCSimHitCollection  containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
 
@@ -440,8 +426,6 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
 //.......to relink all RPC hits to the new particle
 //--------------------------------------------------------
 
-  StatusCode sc;
-
   m_HitName="RPC_Hits";
   const DataHandle<RPCSimHitCollection> pRPCHitColl;
 
@@ -449,8 +433,7 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
     ATH_CHECK( evtStore()->retrieve(pRPCHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find RPCSimHitCollection  containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
   RPCSimHitCollection* pRPCHitC = const_cast<RPCSimHitCollection*> (&*pRPCHitColl);
@@ -492,8 +475,6 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all TGC hits to the new particle
 //--------------------------------------------------------
-  StatusCode sc;
-
   m_HitName="TGC_Hits";
   const DataHandle<TGCSimHitCollection> pTGCHitColl;
 
@@ -501,8 +482,7 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
     ATH_CHECK( evtStore()->retrieve(pTGCHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find TGCSimHitCollection  containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
   TGCSimHitCollection* pTGCHitC = const_cast<TGCSimHitCollection*> (&*pTGCHitColl);
@@ -541,9 +521,6 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
 //--------------------------------------------------------
 StatusCode McEventCollectionFilter::FindTRTElectronHits(){
 //--------------------------------------------------------
-  StatusCode sc;
-
-
   //.......retrive TRTUncompressedHitCollection collection
   m_HitName  = "TRTUncompressedHits";
   const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
@@ -552,8 +529,7 @@ StatusCode McEventCollectionFilter::FindTRTElectronHits(){
     ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
   } else {
     ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
-    sc = StatusCode::FAILURE;
-    return sc;
+    return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
