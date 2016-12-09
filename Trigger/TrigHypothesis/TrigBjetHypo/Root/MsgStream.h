@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-std::ostream &endreq(std::ostream &);
+std::ostream &endmsg(std::ostream &);
 
 namespace MSG {
   enum Level {

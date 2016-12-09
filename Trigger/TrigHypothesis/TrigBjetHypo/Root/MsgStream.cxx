@@ -14,7 +14,7 @@ using std::left;
 NullBuf nullBuffer;
 MsgStream nullStream("", true);
 
-std::ostream &endreq(std::ostream &os) {
+std::ostream &endmsg(std::ostream &os) {
   return std::endl(os);
 }
 

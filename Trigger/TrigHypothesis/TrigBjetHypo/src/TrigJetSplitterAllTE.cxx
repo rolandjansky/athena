@@ -14,7 +14,6 @@
 
 #include "TrigBjetHypo/TrigJetSplitterAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "JetEvent/Jet.h"
@@ -40,7 +39,7 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
   declareProperty ("PhiHalfWidth",       m_phiHalfWidth       = 0.4);
   declareProperty ("ZHalfWidth",         m_zHalfWidth         = 20.0);// in mm?
   declareProperty ("JetMinEt",           m_minJetEt           = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
-  declareProperty ("JetMaxEta",          m_maxJetEta          = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("JetMaxEta",          m_maxJetEta          = 3.2);//2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 
 
@@ -50,19 +49,19 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
 HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigJetSplitterAllTE, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigJetSplitterAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endreq; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq;
-    msg() << MSG::DEBUG << " PriVtxKey    = " << m_priVtxKey    << endreq; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
-    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
-    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg;
+    msg() << MSG::DEBUG << " PriVtxKey    = " << m_priVtxKey    << endmsg; 
+    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endmsg; 
+    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endmsg; 
+    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endmsg; 
   }
 
   return HLT::OK;
@@ -80,24 +79,24 @@ TrigJetSplitterAllTE::~TrigJetSplitterAllTE(){}
 
 HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitterAllTE::hltExecute" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitterAllTE::hltExecute" << endmsg;
 
   beforeExecMonitors().ignore();
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endmsg;
  
   if (inputTEs.size() == 0) {
-    msg() << MSG::WARNING << "No input TEs" << endreq;
+    msg() << MSG::WARNING << "No input TEs" << endmsg;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
   if (inputTEs.size() == 1) {
-    msg() << MSG::DEBUG << "Only one input TE.  No z-position constraint will be applied!" << endreq;
+    msg() << MSG::DEBUG << "Only one input TE.  No z-position constraint will be applied!" << endmsg;
   }
 
   if (inputTEs.size() > 2) {
-    msg() << MSG::WARNING << "Too many TEs passed as input" << endreq;
+    msg() << MSG::WARNING << "Too many TEs passed as input" << endmsg;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
@@ -108,10 +107,10 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
   std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0); // jet TE
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endmsg;
 
   if (jetTE.size() == 0) {
-    msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endreq;
+    msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endmsg;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
@@ -121,12 +120,12 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
   HLT::ErrorCode statusJets = getFeature(jetTE.front(), jets);  // this should really be given a name - need to find out froim the jet guys what!
 
   if (statusJets != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (jets)" << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (jets)" << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if(jets==0) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets)." << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets)." << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
@@ -143,141 +142,59 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
     std::vector<HLT::TriggerElement*>& vtxTE = inputTEs.at(1); // vertex TE
 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " vtxTE.size() " << vtxTE.size() << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " vtxTE.size() " << vtxTE.size() << endmsg;
 
     if (vtxTE.size() == 0) {
-      msg() << MSG::WARNING << "Got an empty inputTE (vertex)" << endreq;
+      msg() << MSG::WARNING << "Got an empty inputTE (vertex)" << endmsg;
       afterExecMonitors().ignore();
       return HLT::MISSING_FEATURE; 
     }
 
     use_z_constraint = true;
 
-    const xAOD::VertexContainer* vertices = 0;
-    HLT::ErrorCode statusVertices = getFeature(vtxTE.front(), vertices, m_priVtxKey);  
-    
-    //
-    // Retrieve the vertiecies (Fallback to HistoPrmVtx if failure) 
-    //
-    if (statusVertices != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKey << endreq;
-      
-      //
-      // Try for HistoPrmVtx instead
-      //
-      if(m_usePriVtxKeyBackup){
-	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
-      
-	if(statusVertices != HLT::OK){
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
-	  return statusVertices;
-	}
-	
-      }else{
-	return HLT::NAV_ERROR;
+    // Get primary vertex 
+    const xAOD::VertexContainer* vertexes = nullptr;
+    const xAOD::Vertex* prmVtx            = nullptr;
+    bool usePVBackup = true;
+
+    if (getFeature(vtxTE.front(), vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endmsg;
+      prmVtx = getPrimaryVertex(vertexes);
+      if (prmVtx){
+	usePVBackup=false;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endmsg;
       }
-      
-    }
-    
-    //
-    //  Check pointer (Fallback to HistoPrmVtx if failure) 
-    //
-    if(vertices==0) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKey << endreq;
-
-      //
-      // Try for HistoPrmVtx instead
-      //
-      if(m_usePriVtxKeyBackup){
-	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
-      
-	if(statusVertices != HLT::OK){
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
-	  return statusVertices;
-	}
-	if(vertices==0) {
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
-	  return HLT::MISSING_FEATURE;
-	}
-      } else {
-	return HLT::MISSING_FEATURE;
-      }
-
-
     }
 
-    //
-    //  Check size (Fallback to HistoPrmVtx if failure) 
-    //
-    if(vertices->empty()) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKey << endreq;
 
-      //
-      // Try for HistoPrmVtx instead
-      //
-      if(m_usePriVtxKeyBackup){
-	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
-      
-	if(statusVertices != HLT::OK){
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
-	  return statusVertices;
+    if(m_usePriVtxKeyBackup && usePVBackup) {
+      vertexes = nullptr;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endmsg;
+      if (getFeature(vtxTE.front(), vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endmsg;
+	prmVtx = getPrimaryVertex(vertexes);	
+	if (prmVtx){
+	  usePVBackup=false;
+	  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endmsg;
 	}
-	if(vertices==0) {
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
-	  return HLT::MISSING_FEATURE;
-	}
-	if(vertices->empty()) {
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
-	  return HLT::MISSING_FEATURE;
-	}
-      } else {
-	return HLT::MISSING_FEATURE;
       }
-
-
     }
 
-    //
-    // Get the first primary vertex
-    //
-    const xAOD::Vertex* prmVtx = getPrimaryVertex(vertices);
 
-    //
-    // If no PV revert to the HistoPV
-    //
-    if(!prmVtx){
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices in " << m_priVtxKey << " checking HistoPV" << endreq;      
-
-      //
-      // Try for HistoPrmVtx instead
-      //
-      if(m_usePriVtxKeyBackup){
-	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
-	if(statusVertices != HLT::OK){
-	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
-	  return statusVertices;
-	}
-
-	const xAOD::Vertex* prmVtx = getPrimaryVertex(vertices);      
-	if(!prmVtx){
-	  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices in " << m_priVtxKeyBackup << " return HLT::OL" << endreq;      
-	  return HLT::OK;
-	}
-      } else{
-	return HLT::OK;
-      }
-
+    if(usePVBackup) {
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endmsg;
+      return HLT::MISSING_FEATURE;
     }
 
     prmVtx_z = prmVtx->z();
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Primary vertex z-position = " << prmVtx_z << endreq;
+      msg() << MSG::DEBUG << "Primary vertex z-position = " << prmVtx_z << endmsg;
   }
 
   // -----------------------
  
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
+    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
 
   HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
   
@@ -293,16 +210,16 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
     if (jetEt < m_minJetEt) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endmsg;
       continue;
     }
     if (fabs(jetEta) > m_maxJetEta) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
       continue;
     }
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
+      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endmsg;
 
     // Create an output TE seeded by an empty vector
     HLT::TriggerElement* outputTE = config()->getNavigation()->addNode( initialTE, output );
@@ -336,7 +253,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
     HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
     if ( hltStatus != HLT::OK ) {
-      msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endreq;
+      msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endmsg;
       return hltStatus;
     }
 
@@ -352,26 +269,9 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     jc->setStore(&trigJetTrigAuxContainer);
     jc->push_back ( new xAOD::Jet(**jetitr) );
     
-    // for checking Et and eta of jets in hypos later
-    TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-    trigInfoJetEt->set("EFJetEt", jetEt);
-    HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-    if (hltEtStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endreq;
-      return hltEtStatus;
-    }
-
-    TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-    trigInfoJetEta->set("EFJetEta", jetEta);
-    HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-    if (hltEtaStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
-      return hltEtaStatus;
-    }
-  
     hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
     if (hltStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endreq;
+      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
       return hltStatus;
     }
   }
@@ -388,7 +288,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 HLT::ErrorCode TrigJetSplitterAllTE::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -396,16 +296,16 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltFinalize() {
 
 
 HLT::ErrorCode TrigJetSplitterAllTE::getAndCheckHistoPrmVtx(HLT::TriggerElement* vtxTriggerElement , const xAOD::VertexContainer* vertices) {
-  //std::cout << "checking histoprmvtx " << std::endl;
+  //std::cout << "checking histoprmvtx " << m_priVtxKeyBackup << std::endl;
   HLT::ErrorCode statusHistoPrmVtx = getFeature(vtxTriggerElement, vertices, m_priVtxKeyBackup);
       
   if(statusHistoPrmVtx != HLT::OK){
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if(vertices == 0){
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
@@ -422,7 +322,7 @@ const xAOD::Vertex* TrigJetSplitterAllTE::getPrimaryVertex(const xAOD::VertexCon
       if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
       return vtx_itr;
     }
-  Warning("HelperFunctions::getPrimaryVertex()","No primary vertex was found! Returning nullptr");
+  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endmsg;
 
   return 0;
 }

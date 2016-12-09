@@ -163,7 +163,6 @@ class BjetHypoSplit (TrigBjetHypo):
             self.UseBeamSpotFlag = False
         
         if instance=="EF" :
-            print "GOOSEY: Phew, that hack worked!"
             from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
             validation = TrigEFBjetHypoValidationMonitoring()
             online     = TrigEFBjetHypoOnlineMonitoring()

@@ -16,7 +16,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
@@ -62,21 +62,21 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
   // Get message service 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigBjetHypo" << endreq;   
+    msg() << MSG::INFO << "Initializing TrigBjetHypo" << endmsg;   
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " AcceptAll = "       << m_acceptAll       << endreq; 
-    msg() << MSG::DEBUG << " MethodTag = "       << m_methodTag       << endreq; 
-    msg() << MSG::DEBUG << " Instance = "        << m_instance        << endreq; 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = " << m_useBeamSpotFlag << endreq; 
-    msg() << MSG::DEBUG << " JetKey = "          << m_jetKey          << endreq; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " AcceptAll = "       << m_acceptAll       << endmsg; 
+    msg() << MSG::DEBUG << " MethodTag = "       << m_methodTag       << endmsg; 
+    msg() << MSG::DEBUG << " Instance = "        << m_instance        << endmsg; 
+    msg() << MSG::DEBUG << " UseBeamSpotFlag = " << m_useBeamSpotFlag << endmsg; 
+    msg() << MSG::DEBUG << " JetKey = "          << m_jetKey          << endmsg; 
 
-    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endreq; 
-    if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endreq; 
-    if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endreq; 
-    if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endreq; 
-    if (m_xcutIP2D   != -20) msg() << MSG::DEBUG << " CutXIP2D  = "  << m_xcutIP2D   << endreq; 
+    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endmsg; 
+    if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endmsg; 
+    if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endmsg; 
+    if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endmsg; 
+    if (m_xcutIP2D   != -20) msg() << MSG::DEBUG << " CutXIP2D  = "  << m_xcutIP2D   << endmsg; 
   }
 
   return HLT::OK;
@@ -89,15 +89,15 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigBjetHypo" << endreq;
+    msg() << MSG::DEBUG << "Executing TrigBjetHypo" << endmsg;
 
   // AcceptAll declare property setting 
   if (m_acceptAll) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events and applying the selection only for saving the TrigPassBits" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" << endmsg;
   } else 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" << endmsg;
   
   // initialise monitoring variables 
   m_cutCounter = -1;
@@ -111,7 +111,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
     if (sc.isFailure() || m_iBeamCondSvc == 0) {
       
       if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
+	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
       
     } else {
 
@@ -137,14 +137,14 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   
   if (stat == HLT::OK) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Using outputTE: " << *roiDescriptor << endreq;
+      msg() << MSG::DEBUG << "Using outputTE: " << *roiDescriptor << endmsg;
       //<< "RoI id " << roiDescriptor->roiId()
       //    << ", Phi = " <<  roiDescriptor->phi()
-      //	    << ", Eta = " << roiDescriptor->eta() << endreq;
+      //	    << ", Eta = " << roiDescriptor->eta() << endmsg;
     }
   } else {
     if (msgLvl() <= MSG::WARNING) 
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
 
     return HLT::NAV_ERROR;
   }
@@ -152,32 +152,33 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   bool result = false;
 
   // Define TrigPassBits for b-jets 
-  TrigPassBits *bitsEF=0;
+  //TrigPassBits *bitsEF=0;
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
   if(getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) {
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endreq;
+      msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
     return HLT::OK;
   }
   if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
-    msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endreq;
+    msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endmsg;
   }
   if(trigBTaggingContainer->size() > 1) {
     if(msgLvl() <= MSG::ERROR)
-      msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endreq;
+      msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(trigBTaggingContainer->size() == 0) {
     if(msgLvl() <= MSG::ERROR)
-      msg() << MSG::ERROR << "No BTagging object to analyse: this should never happen" << endreq;
+      msg() << MSG::ERROR << "No BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
   }
 
   // Add TrigPassBits for EF b-jets 
-  bitsEF = HLT::makeTrigPassBits(trigBTaggingContainer);
-  
+  //bitsEF = HLT::makeTrigPassBits(trigBTaggingContainer);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::BTaggingContainer>(trigBTaggingContainer);
+
   // to separate bad input TE and true behaviour 
   m_cutCounter=1;
   
@@ -193,12 +194,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c20 x =  " << x;
       if(x>m_xcutMV2c20) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endreq;
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
   } 
@@ -209,12 +211,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w/(1+w)<1) x=-1.0*TMath::Log10(1-(w/(1+w)));
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "COMB x =  " << x;
       if(x>m_xcutCOMB) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endreq;
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
   } 
@@ -225,12 +228,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w>0) x=TMath::Log10(w);
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "IP3D x =  " << x;
       if(x>m_xcutIP3D) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endreq;
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
   } 
@@ -241,12 +245,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w>0) x=TMath::Log10(w);
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "IP2D x =  " << x;
       if(x>m_xcutIP2D) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endreq;
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
   }
@@ -257,10 +262,10 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   // Print trigger decision 
   if (m_acceptAll) {
     if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: Trigger decision is 1" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: Trigger decision is 1" << endmsg;
   } else {
     if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: Trigger decision is " << pass << endreq;
+      msg() << MSG::DEBUG << "REGTEST: Trigger decision is " << pass << endmsg;
   }
 
   // Monitoring of method used to perform the cut 
@@ -268,16 +273,25 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   else if (m_methodTag == "IP3D") m_monitorMethod = 2;
   else if (m_methodTag == "COMB") m_monitorMethod = 3;
 
-  // Print TrigPassBits to outputTE 
-  if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endreq;
-  }
- 
   if (m_acceptAll) {
     m_cutCounter = 2;
     pass = true;
-    return HLT::OK;
+    //xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+    //return HLT::OK;
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++)
+      xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
   }
+
+  // Print TrigPassBits to outputTE 
+  //if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
+  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endmsg;
+  //}
+   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+    ATH_MSG_ERROR("Could not store TrigPassBits! ");
+
+   if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "TrigPassBits was saved" << endmsg; 
+
 
   return HLT::OK;
 }
@@ -289,7 +303,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 HLT::ErrorCode TrigBjetHypo::hltFinalize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Finalizing TrigBjetHypo" << endreq;
+    msg() << MSG::INFO << "Finalizing TrigBjetHypo" << endmsg;
 
   return HLT::OK;
 }

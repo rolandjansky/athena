@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           Reconstruction/Particle
+			  Reconstruction/Jet/JetCalibTools
                           Tracking/TrkEvent/VxSecVertex
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigSteer/TrigInterfaces
@@ -25,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODJet
                           Event/xAOD/xAODMuon
+                          Event/xAOD/xAODTrigger
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           PhysicsAnalysis/JetTagging/JetTagAlgs/BTagging
                           Reconstruction/Jet/JetEvent

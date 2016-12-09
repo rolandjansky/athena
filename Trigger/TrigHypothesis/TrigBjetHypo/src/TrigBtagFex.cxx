@@ -13,7 +13,6 @@
 
 // ONLINE INFRASTRUCTURE
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h" // TO BE REMOVED
 
 // BEAMSPOT
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -99,77 +98,77 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
   // Get message service 
   if (msgLvl() <= MSG::INFO)
-    msg() << MSG::INFO << "Initializing TrigBtagFex, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigBtagFex, version " << PACKAGE_VERSION << endmsg;
 
   // declareProperty overview 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    // msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endreq;
-    // msg() << MSG::DEBUG << " Instance = "            << m_instance << endreq;
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    // msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg;
+    // msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endreq;
-    // msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endreq;
+    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg;
+    // msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
 
-    // msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endreq;
+    // msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endmsg;
 
-    // msg() << MSG::DEBUG << " Using Offline Tools = " << m_setupOfflineTools << endreq;
-    // msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endreq;
-    msg() << MSG::DEBUG << " Offline Taggers = "     << m_TaggerBaseNames << endreq;
-    // msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endreq;
-    // msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endreq;
-    // msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endreq;
-    // msg() << MSG::DEBUG << " TagHLTJets = "          << m_tagHLTJets << endreq;
-    // msg() << MSG::DEBUG << " HistoPrmVtxAtEF = "        << m_histoPrmVtxAtEF << endreq;
-    // msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endreq;
+    // msg() << MSG::DEBUG << " Using Offline Tools = " << m_setupOfflineTools << endmsg;
+    // msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg;
+    msg() << MSG::DEBUG << " Offline Taggers = "     << m_TaggerBaseNames << endmsg;
+    // msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg;
+    // msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endmsg;
+    // msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endmsg;
+    // msg() << MSG::DEBUG << " TagHLTJets = "          << m_tagHLTJets << endmsg;
+    // msg() << MSG::DEBUG << " HistoPrmVtxAtEF = "        << m_histoPrmVtxAtEF << endmsg;
+    // msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endmsg;
 
-    // msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endreq;
-    // msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endreq;
-    // msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endreq;
-    // msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endreq;
+    // msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endmsg;
+    // msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endmsg;
+    // msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endmsg;
+    // msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endmsg;
 
-    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endreq;
-    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endreq;
-    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endreq;
-    // msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endreq;
-    // msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endreq;
-    // msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endreq;
-    // msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endreq;
-    // msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endreq;
-    // msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endreq;
+    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg;
+    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg;
+    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg;
+    // msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endmsg;
+    // msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endmsg;
+    // msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endmsg;
+    // msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endmsg;
+    // msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endmsg;
+    // msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endmsg;
 
-    // msg() << MSG::DEBUG << " SizeIP1D_lowSiHits = "          << m_sizeIP1D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " bIP1D_lowSiHits = "             << m_bIP1D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " uIP1D_lowSiHits = "             << m_uIP1D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " SizeIP2D_lowSiHits = "          << m_sizeIP2D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " bIP2D_lowSiHits = "             << m_bIP2D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " uIP2D_lowSiHits = "             << m_uIP2D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " SizeIP3D_lowSiHits = "          << m_sizeIP3D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " bIP3D_lowSiHits = "             << m_bIP3D_lowSiHits << endreq;
-    // msg() << MSG::DEBUG << " uIP3D_lowSiHits = "             << m_uIP3D_lowSiHits << endreq;
+    // msg() << MSG::DEBUG << " SizeIP1D_lowSiHits = "          << m_sizeIP1D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " bIP1D_lowSiHits = "             << m_bIP1D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " uIP1D_lowSiHits = "             << m_uIP1D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " SizeIP2D_lowSiHits = "          << m_sizeIP2D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " bIP2D_lowSiHits = "             << m_bIP2D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " uIP2D_lowSiHits = "             << m_uIP2D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " SizeIP3D_lowSiHits = "          << m_sizeIP3D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " bIP3D_lowSiHits = "             << m_bIP3D_lowSiHits << endmsg;
+    // msg() << MSG::DEBUG << " uIP3D_lowSiHits = "             << m_uIP3D_lowSiHits << endmsg;
 
-    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endreq;
-    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endreq;
-    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endreq;
+    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg;
+    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg;
+    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg;
 
-    // msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endreq;
-    // msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endreq;
-    // msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endreq;
-    // msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endreq;
-    // msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endreq;
-    // msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endreq;
+    // msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endmsg;
+    // msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endmsg;
+    // msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endmsg;
+    // msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endmsg;
+    // msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endmsg;
+    // msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endmsg;
 
-    // msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endreq;
-    // msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endreq;
-    // msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endreq;
-    // msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endreq;
-    // msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endreq;
-    // msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endreq;
-    // msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endreq;
-    // msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endreq;
-    // msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endreq;
-    // msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endreq;
-    // msg() << MSG::DEBUG << " bSV = "            << m_bSV << endreq;
-    // msg() << MSG::DEBUG << " uSV = "            << m_uSV << endreq;
+    // msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endmsg;
+    // msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endmsg;
+    // msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endmsg;
+    // msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endmsg;
+    // msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endmsg;
+    // msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endmsg;
+    // msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endmsg;
+    // msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endmsg;
+    // msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endmsg;
+    // msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endmsg;
+    // msg() << MSG::DEBUG << " bSV = "            << m_bSV << endmsg;
+    // msg() << MSG::DEBUG << " uSV = "            << m_uSV << endmsg;
   }
 
   if(m_setupOfflineTools) {
@@ -177,26 +176,26 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
     // Retrieve the offline track association tool
     if(!m_bTagTrackAssocTool.empty()) {
       if(m_bTagTrackAssocTool.retrieve().isFailure()) {
-	msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTrackAssocTool << endreq;
+	msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTrackAssocTool << endmsg;
 	return HLT::BAD_JOB_SETUP;
       } else
-	msg() << MSG::INFO << "Retrieved tool " << m_bTagTrackAssocTool << endreq;
+	msg() << MSG::INFO << "Retrieved tool " << m_bTagTrackAssocTool << endmsg;
     } else if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No track association tool to retrieve" << endreq;
+      msg() << MSG::DEBUG << "No track association tool to retrieve" << endmsg;
 
     // Retrieve the bTagSecVtxTool
     if(m_bTagSecVtxTool.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagSecVtxTool << endreq;
+      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagSecVtxTool << endmsg;
       return HLT::BAD_JOB_SETUP;
     } else
-      msg() << MSG::INFO << "Retrieved tool " << m_bTagSecVtxTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_bTagSecVtxTool << endmsg;
 
     // Retrieve the main BTagTool
     if(m_bTagTool.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTool << endreq;
+      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTool << endmsg;
       return HLT::BAD_JOB_SETUP;
     } else
-      msg() << MSG::INFO << "Retrieved tool " << m_bTagTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_bTagTool << endmsg;
 
   }
 
@@ -209,61 +208,64 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
 HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBtagFex" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBtagFex" << endmsg;
 
   // RETRIEVE INPUT CONTAINERS
 
   // Get EF jet 
   const xAOD::JetContainer* jets = nullptr;
   if(getFeature(inputTE, jets, m_jetKey) == HLT::OK && jets != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endmsg;
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
   // Get primary vertex 
   const xAOD::VertexContainer* vertexes = nullptr;
+  const xAOD::Vertex* primaryVertex     = nullptr;
   bool usePVBackup=true;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endreq;
-    if (!(vertexes->empty()))
-      if ((*(vertexes->begin()))->vertexType()==xAOD::VxType::PriVtx) {
-	usePVBackup=false;
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endreq;
-      }
-  }
-  if(m_usePriVtxKeyBackup && usePVBackup) {
-    vertexes = nullptr;
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endreq;
-    if (getFeature(outputTE, vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endreq;
-      if (!(vertexes->empty()))
-	if ((*(vertexes->begin()))->vertexType()==xAOD::VxType::PriVtx) {
-	  usePVBackup=false;
-	  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endreq;
-	}
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endmsg;
+    primaryVertex = getPrimaryVertex(vertexes);
+    if (primaryVertex){
+      usePVBackup=false;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endmsg;
     }
   }
+
+  if(m_usePriVtxKeyBackup && usePVBackup) {
+    vertexes = nullptr;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endmsg;
+    if (getFeature(outputTE, vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endmsg;
+      primaryVertex = getPrimaryVertex(vertexes);	
+      if (primaryVertex){
+	usePVBackup=false;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endmsg;
+      }
+    }
+  }
+  
   if(usePVBackup) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
   // Get tracks 
   const xAOD::TrackParticleContainer* tracks = nullptr;
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endmsg;
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endreq;
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
   // PREPARE PROCESSING AND OUTPUT CONTAINERS
 
   // Prepare jet tagging - get primary vertex 
-  auto vtxitr = vertexes->begin();
-  const auto primaryVertex = *vtxitr;
+  //auto vtxitr = vertexes->begin();
+  //const auto primaryVertex = *vtxitr;
 
   // Prepare jet tagging - create temporary jet copy 
   auto jetitr=jets->begin();
@@ -302,29 +304,29 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(&jet);
-      if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "#BTAG# Track association tool is not empty" << endreq;
+      if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "#BTAG# Track association tool is not empty" << endmsg;
       // We must pass the tracks explicitly to the track associator
       jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
 
       if ( jetIsAssociated.isFailure() ) {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "#BTAG# Failed to associate tracks to jet" << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "#BTAG# Failed to associate tracks to jet" << endmsg;
 	return StatusCode::FAILURE;
       }
     }
     else {
-      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Empty track association tool" << endreq;
+      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Empty track association tool" << endmsg;
     }
 
     // Execute secondary vertexing 
     StatusCode sc = m_bTagSecVtxTool->BTagSecVtx_exec(jet, trigBTagging, trigVertexContainer, trigBTagVertexContainer, primaryVertex);
     if(sc.isFailure()) {
-      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed to reconstruct sec vtx" << endreq;
+      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed to reconstruct sec vtx" << endmsg;
     }
 
     // Tag jet 
     sc = m_bTagTool->tagJet(jet, trigBTagging, primaryVertex);
     if(sc.isFailure()) {
-      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endreq;
+      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }
   }
 
@@ -347,7 +349,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     msg() << MSG::DEBUG << "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
           << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
           << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
-          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") << endreq;
+          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") << endmsg;
 
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 
@@ -362,21 +364,21 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Attach BTagContainer as feature 
   if(attachFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endmsg;
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endreq;
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigVertexContainer, "HLT_BjetSecondaryVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::VertexContainer" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::VertexContainer" << endmsg;
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::VertexContainer" << endreq;
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::VertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigBTagVertexContainer, "HLT_BjetVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTagVertexContainer" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTagVertexContainer" << endmsg;
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endreq;
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
 
@@ -390,7 +392,22 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 HLT::ErrorCode TrigBtagFex::hltFinalize() {
 
   if (msgLvl() <= MSG::INFO)
-    msg() << MSG::INFO << "Finalizing TrigBtagFex" << endreq;
+    msg() << MSG::INFO << "Finalizing TrigBtagFex" << endmsg;
 
   return HLT::OK;
 }
+
+const xAOD::Vertex* TrigBtagFex::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer)
+{
+  // vertex types are listed on L328 of                                                                                                                                                                                              
+  // https://svnweb.cern.ch/trac/atlasoff/browser/Event/xAOD/xAODTracking/trunk/xAODTracking/TrackingPrimitives.h                                                                                                                    
+  for( auto vtx_itr : *vertexContainer )
+    {
+      if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
+      return vtx_itr;
+    }
+  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No primary vertex found." << endreq;
+
+  return 0;
+}
+

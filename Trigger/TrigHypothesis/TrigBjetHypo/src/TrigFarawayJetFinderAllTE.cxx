@@ -25,7 +25,6 @@
 #include "xAODJet/JetContainer.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
@@ -55,16 +54,16 @@ TrigFarawayJetFinderAllTE::~TrigFarawayJetFinderAllTE() {}
 HLT::ErrorCode TrigFarawayJetFinderAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO)
-    msg() << MSG::INFO << "Initializing TrigFarawayJetFinderAllTE" << endreq;
+    msg() << MSG::INFO << "Initializing TrigFarawayJetFinderAllTE" << endmsg;
 
   // declareProperty overview
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " MinDeltaRCut = " << m_minDeltaRCut << endreq; 
-    msg() << MSG::DEBUG << " JetInputKey  = " << m_jetInputKey  << endreq; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " MinDeltaRCut = " << m_minDeltaRCut << endmsg; 
+    msg() << MSG::DEBUG << " JetInputKey  = " << m_jetInputKey  << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
+    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
   }
   
   return HLT::OK;
@@ -89,29 +88,29 @@ float TrigFarawayJetFinderAllTE::phiCorr(float phi) {
 HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigFarawayJetFinderAllTE" << endreq;
+    msg() << MSG::DEBUG << "Executing TrigFarawayJetFinderAllTE" << endmsg;
 
   beforeExecMonitors().ignore();
 
   msg() << MSG::DEBUG 
         << "Number of input TEs is " <<  inputTE.size() 
         << " TE0: " << inputTE[0].size() 
-        << " TE1: " << inputTE[1].size() <<  endreq;  
+        << " TE1: " << inputTE[1].size() <<  endmsg;  
 
   if (inputTE.size() < 2) {
-    msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endreq;  
+    msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endmsg;  
     return HLT::MISSING_FEATURE;
   }
 
   if(inputTE[0].size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No muon TE found" << endreq;
+      msg() << MSG::DEBUG << "No muon TE found" << endmsg;
     return HLT::OK;
   }
 
   if(inputTE[1].size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No jet TE found" << endreq;
+      msg() << MSG::DEBUG << "No jet TE found" << endmsg;
     return HLT::OK;
   }
 
@@ -135,23 +134,23 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
     HLT::ErrorCode statJets = getFeature(inputTE[1][iJet], outJets, m_jetInputKey);
 
     if(statJets!=HLT::OK) {
-      msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+      msg() << MSG::WARNING << " Failed to get JetCollections " << endmsg;
       return HLT::OK;
     }
     //
     if( outJets == 0 ){
-      msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+      msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endmsg;
       return HLT::MISSING_FEATURE;
     }
     std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
        
     //check size of JetCollection
     if( theJets.size() == 0 ){
-      msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
+      msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endmsg;
       return HLT::OK;
     }
     else if( theJets.size() > 1 ){
-      msg()<< MSG::DEBUG << " Size of JetCollection is " << theJets.size() << ".  Expecting only one jet per TE!" << endreq;
+      msg()<< MSG::DEBUG << " Size of JetCollection is " << theJets.size() << ".  Expecting only one jet per TE!" << endmsg;
       return HLT::OK;
     }
 
@@ -170,7 +169,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	    << "Jet "   << iJet 
 	    << "; et "  << jetEt
 	    << "; eta " << jetEta 
-	    << "; phi " << jetPhi << endreq;
+	    << "; phi " << jetPhi << endmsg;
     
     // ==============================
     // Retrieve HLT muons
@@ -183,22 +182,22 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
       
       if (statusMuons != HLT::OK) {
 	if (msgLvl() <= MSG::WARNING)
-	  msg() << MSG::WARNING << "Failed to retrieve muons" << endreq;
+	  msg() << MSG::WARNING << "Failed to retrieve muons" << endmsg;
 	return HLT::NAV_ERROR;
       } 
       else if (theMuons==0) {
 	if (msgLvl() <= MSG::WARNING)
-	  msg() << MSG::WARNING << "Missing muon feature." << endreq;
+	  msg() << MSG::WARNING << "Missing muon feature." << endmsg;
 	return HLT::MISSING_FEATURE;
       } 
       else if (theMuons->size()==0) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Muon vector empty." << endreq;
+	  msg() << MSG::DEBUG << "Muon vector empty." << endmsg;
 	return HLT::OK;
       } 
       else {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Retrieved " << theMuons->size() << " muon." << endreq;
+	  msg() << MSG::DEBUG << "Retrieved " << theMuons->size() << " muon." << endmsg;
       } 
 
       // ================================================
@@ -223,7 +222,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 		<< "Muon "  << iMuon 
 		<< "; pt "  << muonPt
 		<< "; eta " << muonEta 
-		<< "; phi " << muonPhi << endreq;
+		<< "; phi " << muonPhi << endmsg;
 	
 	// Find the minimum dR between this jet and any muon
 	
@@ -233,7 +232,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	double dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
 	
 	if (msgLvl() <= MSG::DEBUG) 
-	  msg() << MSG::DEBUG << "deltaR = "<< dR <<  endreq; 
+	  msg() << MSG::DEBUG << "deltaR = "<< dR <<  endmsg; 
 	
 	if (dR < minimumDeltaR) minimumDeltaR = dR;
 	
@@ -241,7 +240,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
       
       if (minimumDeltaR > m_minDeltaRCut) {
 	
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet " << iJet << " not close to any muons. Keeping for b-tagging." <<  endreq; 
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet " << iJet << " not close to any muons. Keeping for b-tagging." <<  endmsg; 
 	
 	HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
 	
@@ -261,26 +260,9 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta,   etaMinus, etaPlus, 
 							jetPhi,   phiMinus, phiPlus);
 
-	// for checking Et and eta of jets in hypos later
-	TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-	trigInfoJetEt->set("EFJetEt", jetEt);
-	HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-	if (hltEtStatus != HLT::OK) {
-	  msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endreq;
-	  return hltEtStatus;
-	}
-	
-	TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-	trigInfoJetEta->set("EFJetEta", jetEta);
-	HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-	if (hltEtaStatus != HLT::OK) {
-	  msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
-	  return hltEtaStatus;
-	}
-	
 	HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
 	if ( hltStatus != HLT::OK ) {
-	  msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endreq;
+	  msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endmsg;
 	  return hltStatus;
 	}
 
@@ -294,13 +276,13 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
 	if (hltStatus != HLT::OK) {
 	  msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey 
-		<< ") as feature jet with ET =  " << jetEt << " eta = " << jetEta << " and phi = " << jetPhi << endreq;
+		<< ") as feature jet with ET =  " << jetEt << " eta = " << jetEta << " and phi = " << jetPhi << endmsg;
 	  return hltStatus;
 	}
 	
       }
       else {
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet " << iJet << " close to a muon.  Discard for b-tagging." <<  endreq; 
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet " << iJet << " close to a muon.  Discard for b-tagging." <<  endmsg; 
       }
     }
   }
@@ -316,7 +298,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 
 HLT::ErrorCode TrigFarawayJetFinderAllTE::hltFinalize() {
 
-  msg() << MSG::INFO << "Finalizing TrigFarawayJetFinderAllTE" << endreq;
+  msg() << MSG::INFO << "Finalizing TrigFarawayJetFinderAllTE" << endmsg;
 
   return HLT::OK;
 }

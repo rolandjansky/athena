@@ -2,6 +2,7 @@
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
 #include "TrigBjetHypo/TrigBtagFex.h"
+#include "TrigBjetHypo/TrigGSCFex.h"
 #include "TrigBjetHypo/TrigLeptonJetFexAllTE.h"
 #include "TrigBjetHypo/TrigLeptonJetMatchAllTE.h"
 #include "TrigBjetHypo/TrigEFBjetSequenceAllTE.h"
@@ -13,6 +14,7 @@
 DECLARE_ALGORITHM_FACTORY( TrigBjetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigBjetFex )
 DECLARE_ALGORITHM_FACTORY( TrigBtagFex )
+DECLARE_ALGORITHM_FACTORY( TrigGSCFex )
 DECLARE_ALGORITHM_FACTORY( TrigLeptonJetFexAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigLeptonJetMatchAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFBjetSequenceAllTE )
@@ -26,6 +28,7 @@ DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) {
     DECLARE_ALGORITHM( TrigBjetHypo )
     DECLARE_ALGORITHM( TrigBjetFex )
     DECLARE_ALGORITHM( TrigBtagFex )
+    DECLARE_ALGORITHM( TrigGSCFex )
     DECLARE_ALGORITHM( TrigLeptonJetFexAllTE )
     DECLARE_ALGORITHM( TrigLeptonJetMatchAllTE )
     DECLARE_ALGORITHM( TrigEFBjetSequenceAllTE )
