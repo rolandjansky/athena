@@ -6,7 +6,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 class ISvcLocator;
 
@@ -116,14 +116,17 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   }
 
   // make pass bits object to store the result per muon
-  TrigPassBits* passBits = HLT::makeTrigPassBits(muonContainer);
-  
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::MuonContainer>(muonContainer);
+
   // result of the hypo
   bool result = false;
   
   // loop over objects (muons) in the container
   for(auto muon : *muonContainer) {
     
+    const xAOD::Muon::MuonType muontype = muon->muonType();
+    if(muontype != xAOD::Muon::MuonType::Combined ) continue;
+
     float ptcone20(-1), ptcone30(-1);
     bool res = false; 
     if(m_useVarIso){
@@ -191,7 +194,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
     
     
     if(goodmu) {
-      HLT::markPassing(passBits, muon, muonContainer); // set bit for this muon in TrigPassBits mask
+      xBits->markPassing(muon, muonContainer,true); // set bit for this muon in TrigPassBits mask
       result=true;
     }//muon passed
   }//loop over isolation objects
@@ -203,7 +206,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   pass = result;
 
   // store TrigPassBits result
-  if ( attachBits(outputTE, passBits) != HLT::OK ) {
+  if ( attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK ) {
     msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
   }
 

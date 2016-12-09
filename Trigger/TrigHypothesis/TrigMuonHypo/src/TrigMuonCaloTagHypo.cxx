@@ -14,7 +14,7 @@ TrigMuonCaloTagHypo::TrigMuonCaloTagHypo(const std::string& name, ISvcLocator* p
   m_acceptAll(false),
   m_storeGate(nullptr),
   m_ptThresholds(),
-  m_etaMax(3.0),
+  m_etaMax(0.1),
   m_doLH(true),
   m_lhCut(0.95),
   m_doTight(true),
@@ -46,6 +46,13 @@ HLT::ErrorCode TrigMuonCaloTagHypo::hltInitialize()
     thrsh_str = std::to_string(t) + "GeV, ";
 
   ATH_MSG_INFO("Initialized TrigMuonCaloTagHypo with thresholds " << thrsh_str);
+  ATH_MSG_DEBUG("AcceptAll: "<<m_acceptAll);
+  ATH_MSG_DEBUG("EtaMax: "<<m_etaMax);
+  ATH_MSG_DEBUG("UseLH: "<<m_doLH);
+  ATH_MSG_DEBUG("LHCut: "<<m_lhCut);
+  ATH_MSG_DEBUG("TightCaloTag: "<<m_doTight);
+  ATH_MSG_DEBUG("MaxMissingCells: "<<m_maxMissedCells);
+  ATH_MSG_DEBUG("TrackContainerName: "<<m_ctTrackContName);
   ATH_MSG_INFO("Completed intialization successfully");
   return HLT::OK;
 }

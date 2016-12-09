@@ -88,6 +88,7 @@ efCombinerThresholds = {
     '13GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 12.80, 12.67, 12.43, 12.38] ],
     '14GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 13.75, 13.62, 13.38, 13.36] ],
     '15GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 14.63, 14.49, 14.42, 14.38] ],
+    '16GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 15.65, 15.50, 15.39, 15.37] ], # Lidia - extrapolated not optimized 			
     '18GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 17.68, 17.51, 17.34, 17.34] ],
     '20GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 19.65, 19.42, 19.16, 19.19] ],
     '22GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 21.57, 21.32, 21.07, 21.11] ],
@@ -98,6 +99,7 @@ efCombinerThresholds = {
     '30GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 29.17, 29.03, 29.00, 28.92] ],
     '32GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 31.10, 30.96, 30.91, 30.84] ],
     '34GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 33.04, 32.88, 32.81, 32.74] ],
+    '35GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 34.14, 33.82, 33.65, 33.65] ], # Lidia - extrapolated not optimized 			
     '36GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 35.23, 34.75, 34.48, 34.55] ],
     '38GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 36.87, 36.67, 36.55, 36.48] ],
     '40GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 38.76, 38.54, 38.38, 38.31] ],
@@ -183,6 +185,7 @@ muCombThresholds = {
     '13GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 12.62, 12.48, 12.24, 11.88] ],
     '14GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 13.57, 13.44, 13.21, 12.77] ],
     '15GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 14.5, 14.0, 14.0, 14.5] ],
+    '16GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 15.47, 15.09, 14.98, 15.08] ], # Lidia - extrapolated not optimized 			
     '18GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 17.41, 17.27, 16.95, 16.25] ],
     '20GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 19.31, 19.19, 18.80, 17.95] ],
     '22GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 21.19, 21.07, 20.68, 19.71] ],
@@ -663,10 +666,16 @@ class MuisoHypoConfig(MuisoHypo):
                 self.AcceptAll = True
                 print 'MuisoHypoConfig configured in pasthrough mode'
 
-        self.IDConeSize   = 2;
-        self.MaxIDIso_1   = 0.1
-        self.MaxIDIso_2   = 0.1
-        self.MaxIDIso_3   = 0.1
+        if "FTK" in MuisoHypo: # allows us to use different working points in FTK mode
+            self.IDConeSize   = 2;
+            self.MaxIDIso_1   = 0.12
+            self.MaxIDIso_2   = 0.12
+            self.MaxIDIso_3   = 0.12  
+        else:
+            self.IDConeSize   = 2;
+            self.MaxIDIso_1   = 0.1
+            self.MaxIDIso_2   = 0.1
+            self.MaxIDIso_3   = 0.1
 
         print 'MuisoHypoConfig configuration done'
 
@@ -1518,7 +1527,7 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
 
     self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
     self.UseLH = False
-    self.TightCaloTag = False
+    self.TightCaloTag = True
     self.MaxMissingCells = 3
 
 

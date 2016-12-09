@@ -36,3 +36,4 @@ use TrigT1Result                TrigT1Result-*                  Trigger/TrigT1
 
 use xAODMuon			xAODMuon-*			Event/xAOD
 use xAODTracking                xAODTracking-*                  Event/xAOD
+use xAODTrigger                 xAODTrigger-*                   Event/xAOD

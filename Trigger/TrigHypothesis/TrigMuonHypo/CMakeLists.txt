@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODTrigger
                           GaudiKernel
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils

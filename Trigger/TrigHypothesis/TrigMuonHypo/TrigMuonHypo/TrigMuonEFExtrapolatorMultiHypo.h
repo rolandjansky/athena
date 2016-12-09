@@ -33,6 +33,8 @@ class TrigMuonEFExtrapolatorMultiHypo: public HLT::HypoAlgo {
       std::vector<float> m_ptBins;
       std::vector<float> m_ptThresholds;
       std::vector<unsigned int> m_ptMultiplicity;  // muon multiplicity id, eg. {1,1,1,1,2,2,2,2,3,3,3,3}
+      bool m_nscan;
+      double m_conesize;
       BooleanProperty m_acceptAll;
   
       // Other members:   
@@ -46,8 +48,11 @@ class TrigMuonEFExtrapolatorMultiHypo: public HLT::HypoAlgo {
       std::vector<unsigned int> m_masks;                // bit mask to verify hypo
       std::vector<float>::size_type m_mult;
 
+      std::vector<float> m_tmp_eta;
+      std::vector<float> m_tmp_phi;
       // Functions
       int bitsum(unsigned long il);
+      float getdphi(float phi1, float phi2);
 };
 
 #endif
