@@ -16,6 +16,8 @@ use xAODEgamma         xAODEgamma-*         Event/xAOD
 use xAODPrimitives     xAODPrimitives-*     Event/xAOD
 use xAODMuon           xAODMuon-*           Event/xAOD
 use CaloEvent          CaloEvent-*          Calorimeter
+use IsolationCorrections IsolationCorrections-*   PhysicsAnalysis/ElectronPhotonID   
+
 ##
 
 branches src src/components doc python share
