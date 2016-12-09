@@ -15,8 +15,7 @@ from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
 IsoCorrectionTool = ToolFactory(ICT,
-                                name = "NewLeakageCorrTool",
-                                IsMC = isMC)
+                                name = "NewLeakageCorrTool")
 
 doPFlow = False
 PFlowObjectsInConeTool = None
@@ -73,7 +72,7 @@ def configureEDCorrection(tool):
   try:
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AlgSequence import AlgSequence
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from JetRec.JetRecStandard import jtm
     topSequence = AlgSequence()
     if not hasattr(topSequence,'EDtpIsoCentralAlg'):
@@ -85,7 +84,7 @@ def configureEDCorrection(tool):
                                     OutputLevel     = OutputLevel
                                     )
       ToolSvc += tccc
-      topSequence += EventDensityAlg("EDtpIsoCentralAlg", EventDensityTool = tccc)
+      topSequence += EventDensityAthAlg("EDtpIsoCentralAlg", EventDensityTool = tccc)
 
     if not hasattr(topSequence,'EDtpIsoForwardAlg'):
       tfcc = configEventDensityTool("EDtpIsoForwardTool", jtm.emget,
@@ -96,7 +95,18 @@ def configureEDCorrection(tool):
                                     OutputLevel     = OutputLevel
                                     )
       ToolSvc += tfcc
-      topSequence += EventDensityAlg("EDtpIsoForwardAlg", EventDensityTool = tfcc)
+      topSequence += EventDensityAthAlg("EDtpIsoForwardAlg", EventDensityTool = tfcc)
+
+    if not hasattr(topSequence,'EDtpIsoVeryForwardAlg'):
+      tvfcc = configEventDensityTool("EDtpIsoVeryForwardTool", jtm.emget,
+                                     radius          = 0.5,
+                                     AbsRapidityMin  = 2.5,
+                                     AbsRapidityMax  = 4.5,
+                                     OutputContainer = "TopoClusterIsoVeryForwardEventShape",
+                                     OutputLevel     = OutputLevel
+                                   )
+      ToolSvc += tvfcc
+      topSequence += EventDensityAthAlg("EDtpIsoVeryForwardAlg", EventDensityTool = tvfcc)
 
     if doPFlow:
       if not hasattr(topSequence,'EDpfIsoCentralAlg'):
@@ -108,7 +118,7 @@ def configureEDCorrection(tool):
                                       OutputLevel     = OutputLevel
                                       )
         ToolSvc += tcpf
-        topSequence += EventDensityAlg("EDpfIsoCentralAlg", EventDensityTool = tcpf)
+        topSequence += EventDensityAthAlg("EDpfIsoCentralAlg", EventDensityTool = tcpf)
 
       if not hasattr(topSequence,'EDpfIsoForwardAlg'):
         tfpf = configEventDensityTool("EDpfIsoForwardTool", jtm.empflowget,
@@ -119,7 +129,7 @@ def configureEDCorrection(tool):
                                       OutputLevel     = OutputLevel
                                       )
         ToolSvc += tfpf
-        topSequence += EventDensityAlg("EDpfIsoForwardAlg", EventDensityTool = tfpf)
+        topSequence += EventDensityAthAlg("EDpfIsoForwardAlg", EventDensityTool = tfpf)
 
       ## Try a neutral density
       if not hasattr(topSequence,'EDnpfIsoCentralAlg'):
@@ -131,7 +141,7 @@ def configureEDCorrection(tool):
                                        OutputLevel     = OutputLevel
                                        )
         ToolSvc += tcnpf
-        topSequence += EventDensityAlg("EDnpfIsoCentralAlg", EventDensityTool = tcnpf)
+        topSequence += EventDensityAthAlg("EDnpfIsoCentralAlg", EventDensityTool = tcnpf)
 
       if not hasattr(topSequence,'EDnpfIsoForwardAlg'):
         tfnpf = configEventDensityTool("EDnpfIsoForwardTool", jtm.emnpflowget,
@@ -142,7 +152,7 @@ def configureEDCorrection(tool):
                                        OutputLevel     = OutputLevel
                                        )
         ToolSvc += tfnpf
-        topSequence += EventDensityAlg("EDnpfIsoForwardAlg", EventDensityTool = tfnpf)
+        topSequence += EventDensityAthAlg("EDnpfIsoForwardAlg", EventDensityTool = tfnpf)
 
   except Exception:
     print '\nERROR: could not get handle to ED'
@@ -186,6 +196,12 @@ IsoTypes =  [
     isoPar.ptcone30,
     isoPar.ptcone20 ]
   ]
+IsoTypesFe =  [
+  [ isoPar.topoetcone20, 
+    isoPar.topoetcone30,
+    isoPar.topoetcone40 ]
+  ]
+
 # The Default corrections : have to follow exactly the order of the iso var.
 IsoCorEg = [
   [ isoPar.core57cells, isoPar.ptCorrection ],
@@ -197,6 +213,9 @@ IsoCorMu = [
   [ isoPar.coreMuon ],
   [ isoPar.coreCone, isoPar.pileupCorrection ],
   [ isoPar.coreTrackPtr ] #still hard-coded
+  ]
+IsoCorFe = [
+  [ isoPar.coreCone, isoPar.pileupCorrection ] 
   ]
 
 if doPFlow:
@@ -214,31 +233,34 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         CaloTopoIsolationTool = CaloIsolationTool,
                         PFlowIsolationTool    = CaloIsolationTool,
                         TrackIsolationTool    = TrackIsolationTool, 
+                        FeIsoTypes            = [[]] if not rec.doEgamma() else IsoTypesFe,
+                        FeCorTypes            = IsoCorFe,
 			EgIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
                         EgCorTypes            = IsoCorEg,
 			MuIsoTypes            = [[]] if not rec.doMuon() else IsoTypes,
                         MuCorTypes            = IsoCorMu,
+                        LeakageTool           = None,
                         OutputLevel           = 3)
 
 from RecExConfig.Configured import Configured
 class isoGetter ( Configured ) :
  
-    def configure(self):
-        mlog = logging.getLogger ('isoGetter.py::configure:')
-        mlog.info('entering')        
-        
-         # configure iso here:
-        try:
-            self._isoBuilderHandle = isoBuilder()
-        except Exception:
-            mlog.error("could not get handle to IsolationBuilder")
-            import traceback
-            print traceback.format_exc()
-            return False
-         
-        #print self._isoBuilderHandle
-        return True
- 
-    def isoBuilderHandle(self):
-        return self._BuilderHandle
+  def configure(self):
+    mlog = logging.getLogger ('isoGetter.py::configure:')
+    mlog.info('entering')        
+    
+    # configure iso here:
+    try:
+      self._isoBuilderHandle = isoBuilder()
+    except Exception:
+      mlog.error("could not get handle to IsolationBuilder")
+      import traceback
+      print traceback.format_exc()
+      return False
+    
+    #print self._isoBuilderHandle
+    return True
+
+  def isoBuilderHandle(self):
+    return self._BuilderHandle
 

@@ -10,6 +10,8 @@ if rec.doWriteAOD() or rec.doWriteESD():
         IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux."]
         IsoAODESList += ["xAOD::EventShape#TopoClusterIsoForwardEventShape"]
         IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux."]
+        IsoAODESList += ["xAOD::EventShape#TopoClusterIsoVeryForwardEventShape"]
+        IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoVeryForwardEventShapeAux."]
         if recAlgs.doEFlow():
             IsoAODESList += ["xAOD::EventShape#ParticleFlowIsoCentralEventShape"]
             IsoAODESList += ["xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux."]

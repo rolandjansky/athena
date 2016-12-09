@@ -22,6 +22,8 @@
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
 
+#include "IsolationCorrections/IIsolationCorrectionTool.h"
+
 namespace xAOD {
   class INeutralEFlowIsolationTool;
   class ICaloTopoClusterIsolationTool;
@@ -70,6 +72,7 @@ class IsolationBuilder
 
   /// Containers
   std::string m_ElectronContainerName;
+  std::string m_FwdElectronContainerName;
   std::string m_PhotonContainerName;
   std::string m_MuonContainerName;
 
@@ -92,28 +95,46 @@ class IsolationBuilder
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
   std::vector<std::vector<double> > m_egisoInts, m_muisoInts;
   std::vector<std::vector<double> > m_egcorInts, m_mucorInts;
+  std::vector<std::vector<double> > m_fecorInts, m_feisoInts;
 
   struct CaloIsoHelp {
     std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
+    std::vector<SG::AuxElement::Decorator<float>*> nonecoreCorisoDeco;
+    SG::AuxElement::Decorator<float>* coreCorisoDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
   };
-  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp> m_egCaloIso, m_muCaloIso;
+  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp> m_egCaloIso, m_feCaloIso, m_muCaloIso;
 
   struct TrackIsoHelp {
     std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
+    SG::AuxElement::Decorator<float>* coreCorisoDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::TrackCorrection CorrList;
   };
   std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp> m_egTrackIso, m_muTrackIso;
 
+  // individual flags to run or not computation on electron or photon
+  bool m_isolateEl, m_isolatePh;
+  
   // Compute the isolation variables
   StatusCode IsolateEgamma(std::string egType);
   StatusCode IsolateMuon();
 
   std::string m_customConfig;
+  std::string m_customConfigEl, m_customConfigPh, m_customConfigFwd, m_customConfigMu; // for the time being, only mu vs eg, no separation in eg
   StatusCode DecorateEgamma(std::string egType);
   StatusCode DecorateMuon();
+
+  // For an AODFix
+  bool m_isAODFix;
+  bool m_allTrackRemoval;
+  ToolHandle<CP::IIsolationCorrectionTool> m_leakTool;
+  StatusCode runLeakage();
+  // From Attila, for a deep copy
+  template< class CONTAINER, class AUXSTORE > StatusCode deepCopy( const std::string& key ) const;
+  template< class CONTAINER, class AUXSTORE > StatusCode deepCopyImp( const std::string& key ) const;
+
   
 }; 
 
