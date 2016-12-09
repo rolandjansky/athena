@@ -30,19 +30,19 @@ namespace Overlay {
       first_time = false;
       parent->msg(MSG::WARNING)<<"Overlay::mergeChannelData(): Merging of hits on the same channel is not implemented for "
 			       <<typeid(Datum).name()
-			       <<endreq;
+			       <<endmsg;
     }
   }
 
 
   //================================================================
   template<class Collection>
-  void mergeCollectionsNew(Collection *mc_coll, Collection *data_coll, IDC_OverlayBase *parent) {
+  void mergeCollectionsNew(Collection *mc_coll, Collection *data_coll, Collection *out_coll, IDC_OverlayBase *parent) {
     
     if(mc_coll->identify() != data_coll->identify()) {
       std::ostringstream os;
       os<<"mergeCollectionsNew<generic>(): collection Id mismatch";
-      parent->msg(MSG::FATAL)<<os.str()<<endreq;
+      parent->msg(MSG::FATAL)<<os.str()<<endmsg;
       throw std::runtime_error(os.str());
     }
 
@@ -56,7 +56,7 @@ namespace Overlay {
       parent->msg(MSG::INFO)<<"IDC_OverlayBase::mergeCollectionsNew(): "
 			    <<"generic code is called for "
 			    <<typeid(*mc_coll).name() 
-			    <<endreq;
+			    <<endmsg;
     }
   
     // ----------------------------------------------------------------
@@ -71,9 +71,6 @@ namespace Overlay {
     mc.setIdentifier(idColl);
     mc_coll->swap(mc);
 
-    // Just an alias
-    Collection *output = mc_coll;
-  
     //################################################################
     // Merge by copying ptrs from data and mc to mc_coll
 
@@ -112,7 +109,7 @@ namespace Overlay {
 	}
       }
 
-      output->push_back(p_rdo);
+      out_coll->push_back(p_rdo);
     } // <= while
   }
 
@@ -122,16 +119,14 @@ namespace Overlay {
 //================================================================
 template<class Collection>
 void IDC_OverlayBase::mergeCollections(Collection *mc_coll, 
-				       Collection *data_coll)
+				       Collection *data_coll,
+				       Collection *out_coll)
 {
   DataVector<typename Collection::base_value_type> data;
   data_coll->swap(data);
 
   DataVector<typename Collection::base_value_type> mc;
   mc_coll->swap(mc);
-
-  // Just an alias
-  Collection *output = mc_coll;
   
   //################################################################
   // Merge by copying ptrs from data and mc to mc_coll
@@ -171,7 +166,7 @@ void IDC_OverlayBase::mergeCollections(Collection *mc_coll,
       }
     }
 
-    output->push_back(p_rdo);
+    out_coll->push_back(p_rdo);
   } // <= while
 }
 

@@ -28,28 +28,32 @@ class IDC_OverlayBase;
 
 namespace Overlay {
 
+  template<class Collection> void copyCollection(const Collection *input_coll, Collection *copy_coll);
+
   //Forward decl for compiling ...
-  template<class Collection> void mergeCollectionsNew(Collection*, Collection*, IDC_OverlayBase*);
+  template<class Collection> void mergeCollectionsNew(Collection*, Collection*, Collection*, IDC_OverlayBase*);
 
   /**
    *  Transfers all collection from the second argument the first merging where necessary.
    *  After this call the "data" container contains all information, and the "mc" 
    *  container is empty.
    */
-  template<class IDC_Container, class OvlAlg> void overlayContainer(IDC_Container* data, IDC_Container* mc, OvlAlg *parent);
+  template<class IDC_Container, class OvlAlg> void overlayContainer(const IDC_Container* data, const IDC_Container* mc,  IDC_Container* out, OvlAlg *parent);
   template<class IDC_Container, class OvlAlg> void overlayContainer(const std::auto_ptr<IDC_Container>& data,
 								    const std::auto_ptr<IDC_Container>& mc, 
+								    const std::auto_ptr<IDC_Container>& out, 
 								    OvlAlg *parent)
   {
-    overlayContainer(data.get(), mc.get(), parent);
+    overlayContainer(data.get(), mc.get(), out.get(), parent);
   }
 
-  template<class IDC_Container, class OvlAlg> void overlayContainerNew(IDC_Container* data, IDC_Container* mc, OvlAlg *parent);
+  template<class IDC_Container, class OvlAlg> void overlayContainerNew(const IDC_Container* dataContainer, const IDC_Container* mcContainer, IDC_Container* outputContainer, OvlAlg *parent);
   template<class IDC_Container, class OvlAlg> void overlayContainerNew(const std::auto_ptr<IDC_Container>& data,
-								    const std::auto_ptr<IDC_Container>& mc, 
+								    const std::auto_ptr<IDC_Container>& mc,
+								     const std::auto_ptr<IDC_Container>& out, 
 								    OvlAlg *parent)
   {
-    overlayContainerNew(data.get(), mc.get(), parent);
+    overlayContainerNew(data.get(), mc.get(),  out.get(), parent);
   }
 
   /** Diagnostic output */

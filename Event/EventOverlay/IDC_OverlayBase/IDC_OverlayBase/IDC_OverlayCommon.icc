@@ -9,6 +9,11 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
+ 
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "DataModel/DataVector.h"
@@ -40,170 +45,151 @@ namespace Overlay {
 
   //================================================================
   template<class IDC_Container, class OvlAlg>
-  void overlayContainerNew(IDC_Container *dataContainer,
-			IDC_Container *mcContainer,
+  void overlayContainerNew(const IDC_Container *dataContainer,
+			const IDC_Container *mcContainer,
+                        IDC_Container *outputContainer,       
 			OvlAlg *parent)
   {
     typedef typename IDC_Container::base_value_type Collection;
+std::cout<<"start overlayContainer"<<std::endl;
+    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
 
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endreq; }
-    
-    // The  MC signal container should typically be smaller than
-    // dataContainer, because the latter contains all the noise,
-    // min bias and pile up.   Thus we loop other MC inputs.
+   /** Add data from the data container to the output one */
+   typename IDC_Container::const_iterator p_data = dataContainer->begin();
+   typename IDC_Container::const_iterator p_data_end = dataContainer->end();
 
-    // We are modifying both mcContainer and dataContainer in the loop.
-    // That invalidates iterators.  Therefore we prepare a list of
-    // hashIds to work with and keep it in a separate container that is 
-    // not modified during the loop.
+   for(; p_data != p_data_end; ++p_data) {
+   IdentifierHash hashId = p_data.hashId();
+   Collection *coll_data=new Collection(hashId); 
+   copyCollection(p_data->cptr(),coll_data);
+   
+   if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
+      parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; //" collectionNo "<<collectionNo<<endmsg; 
+      }
+   }     
 
-    std::vector<IdentifierHash> mc_hashIds;
-    mc_hashIds.reserve(mcContainer->numberOfCollections());
-    for(typename IDC_Container::const_iterator p = mcContainer->begin(); 
-	p != mcContainer->end();
-	++p)
-      {
-	mc_hashIds.push_back( p.hashId() );
+  /** Add data from the ovl container to the output one */
+  typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
+  typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
+
+  for(; p_ovl != p_ovl_end; ++p_ovl) {
+ 
+  IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
+  Collection *coll_ovl=new Collection(coll_id); 
+  copyCollection(p_ovl->cptr(),coll_ovl);
+
+   /** The newly created stuff will go to the output EventStore SG */
+   Collection *out_coll = new Collection( coll_id );
+   out_coll->setIdentifier((*p_ovl)->identify());
+
+/** Look for the same ID in the main StoreGate EventStore */ 
+    typename IDC_Container::const_iterator q = outputContainer->indexFind( coll_id );
+    if( q != outputContainer->end() ) {
+      /** Need to merge the collections
+          Retrieve q */
+
+      Collection *coll_data = (Collection *) q->cptr();
+      mergeCollectionsNew(coll_data,coll_ovl, out_coll,parent);
+
+      outputContainer->removeCollection(p_ovl.hashId());
+      if (outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
+	parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
       }
 
-    for(std::vector<IdentifierHash>::const_iterator ph = mc_hashIds.begin(); 
-	ph != mc_hashIds.end();
-	++ph)
-      {
-      
-	IdentifierHash hashId = *ph;
-
-	// Take possession of the MC store collection
-	// If there is no matching collection in dataContainer we just transfer
-	// this whole collection to the "data" container.
-	Collection *c_mc = mcContainer->removeCollection(hashId);
-      
-	// Look for the same ID in the dataContainer SG
-
-	// FIXME: removeCollection() should not need this protection.
-	// But without it, just using
-	// 
-	//       Collection *c_data = dataContainer->removeCollection(hashId);
-	//
-	// we get
-	//
-	//  InDetOverlay                                   DEBUG TRT MC   =  * 2 1 1 1 1 * 1 * * * * * 1 * * * 1 1 * 2 1 * 1 1
-	//  InDetOverlay                                   DEBUG overlayContainerNew<>() begin
-	//  IDC_OverlayBase::overlayContainerNew() line= 163
-	//  IDC_OverlayBase::overlayContainerNew() line= 169
-	//  InDetOverlay.sysExecute()                      FATAL  Standard std::exception is caught
-	//  InDetOverlay.sysExecute()                      ERROR dereferencing invalid DataLink
-	//
-	// So use the following for now:
-      
-	Collection *c_data =
-	  (dataContainer->indexFind(hashId) != dataContainer->end()) ? dataContainer->removeCollection(hashId) : 0;
-
-	if(c_data) {
-	  // Need to merge the collections
-	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endreq; }
-
-          //parent->mergeCollections(c_mc, c_data);
-	  mergeCollectionsNew(c_mc, c_data, parent);
-	}
-	else {
-	  if(parent->msgLvl(MSG::VERBOSE)) {
-	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endreq;
-	  }
-	}
-
-	if(dataContainer->addCollection(c_mc, hashId).isFailure()) {
-	  if(parent->msgLvl(MSG::WARNING)) {
-	    parent->msg(MSG::WARNING)<<"overlayContainerNew(): Problem in dataContainer->addCollection(hash) for ovl collection="
-				     <<c_mc<<endreq;
-	  }
-	}
-
       }
+    else {
+      /** Copy the complete collection from ovl to output, 
+          hopefully preserving the "most derived" type of its raw data */ 
+       if ( outputContainer->addCollection(coll_ovl, coll_id).isFailure() ) {
+        	parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
+      }
+  
+  }
+   }
+
   }
 
 
   //================================================================
   template<class IDC_Container, class OvlAlg>
-  void overlayContainer(IDC_Container *dataContainer,
-			IDC_Container *mcContainer,
+  void overlayContainer(const IDC_Container *dataContainer,
+			const IDC_Container *mcContainer,
+			IDC_Container *outputContainer,	      
 			OvlAlg *parent)
   {
     typedef typename IDC_Container::base_value_type Collection;
-
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainer<>() begin"<<endreq; }
+    typedef typename Collection::base_value_type Datum;		
+ 
+    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainer<>() begin"<<endmsg; }
     
     // The  MC signal container should typically be smaller than
     // dataContainer, because the latter contains all the noise,
-    // min bias and pile up.   Thus we loop other MC inputs.
+    // min bias and pile up.   Thus we firstly copy data collection to the 
+    // output and then merge with MC inputs.
 
-    // We are modifying both mcContainer and dataContainer in the loop.
-    // That invalidates iterators.  Therefore we prepare a list of
-    // hashIds to work with and keep it in a separate container that is 
-    // not modified during the loop.
+   /** Add data from the data container to the output one */
+   typename IDC_Container::const_iterator p_data = dataContainer->begin();
+   typename IDC_Container::const_iterator p_data_end = dataContainer->end();
+ 
+   for(; p_data != p_data_end; ++p_data) {
+     IdentifierHash hashId = p_data.hashId();
+     Identifier ident = p_data->cptr()->identify();	
+     Collection *coll_data=new Collection(ident, hashId); 
 
-    std::vector<IdentifierHash> mc_hashIds;
-    mc_hashIds.reserve(mcContainer->numberOfCollections());
-    for(typename IDC_Container::const_iterator p = mcContainer->begin(); 
-	p != mcContainer->end();
-	++p)
-      {
-	mc_hashIds.push_back( p.hashId() );
+     typename Collection::const_iterator firstData = p_data->cptr()->begin();
+     typename Collection::const_iterator lastData = p_data->cptr()->end();    
+     for (; firstData != lastData; ++firstData) {		       
+        Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
+        coll_data->push_back(newData);
+    }	
+   
+   if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
+     parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; 
+      }
+   }     
+
+   /** Add data from the ovl container to the output one */
+   typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
+   typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
+
+   for(; p_ovl != p_ovl_end; ++p_ovl) {
+    IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
+    Identifier elemId = p_ovl->cptr()->identify();
+    Collection *coll_ovl=new Collection(elemId, coll_id); 
+
+    typename Collection::const_iterator firstData = p_ovl->cptr()->begin();
+    typename Collection::const_iterator lastData = p_ovl->cptr()->end();    
+    for (; firstData != lastData; ++firstData) {		       
+        Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
+        coll_ovl->push_back(newData);
+    }	
+   	
+   /** The newly created stuff will go to the output EventStore SG */
+   Collection *out_coll = new Collection(elemId, coll_id);
+
+   /** Look for the same ID in the main StoreGate EventStore */ 
+   typename IDC_Container::const_iterator q = outputContainer->indexFind(coll_id);
+   if( q != outputContainer->end() ) {
+      /** Need to merge the collections
+          Retrieve q */
+
+      Collection *coll_data = (Collection *) q->cptr();
+      parent->mergeCollections(coll_data,coll_ovl, out_coll);
+
+      outputContainer->removeCollection(p_ovl.hashId());
+      if (outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
+	parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
       }
 
-    for(std::vector<IdentifierHash>::const_iterator ph = mc_hashIds.begin(); 
-	ph != mc_hashIds.end();
-	++ph)
-      {
-      
-	IdentifierHash hashId = *ph;
-
-	// Take possession of the MC store collection
-	// If there is no matching collection in dataContainer we just transfer
-	// this whole collection to the "data" container.
-	Collection *c_mc = mcContainer->removeCollection(hashId);
-      
-	// Look for the same ID in the dataContainer SG
-
-	// FIXME: removeCollection() should not need this protection.
-	// But without it, just using
-	// 
-	//       Collection *c_data = dataContainer->removeCollection(hashId);
-	//
-	// we get
-	//
-	//  InDetOverlay                                   DEBUG TRT MC   =  * 2 1 1 1 1 * 1 * * * * * 1 * * * 1 1 * 2 1 * 1 1
-	//  InDetOverlay                                   DEBUG overlayContainer<>() begin
-	//  IDC_OverlayBase::overlayContainer() line= 163
-	//  IDC_OverlayBase::overlayContainer() line= 169
-	//  InDetOverlay.sysExecute()                      FATAL  Standard std::exception is caught
-	//  InDetOverlay.sysExecute()                      ERROR dereferencing invalid DataLink
-	//
-	// So use the following for now:
-      
-	Collection *c_data =
-	  (dataContainer->indexFind(hashId) != dataContainer->end()) ? dataContainer->removeCollection(hashId) : 0;
-
-	if(c_data) {
-	  // Need to merge the collections
-	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endreq; }
-
-          parent->mergeCollections(c_mc, c_data);
-	}
-	else {
-	  if(parent->msgLvl(MSG::VERBOSE)) {
-	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endreq;
-	  }
-	}
-
-	if(dataContainer->addCollection(c_mc, hashId).isFailure()) {
-	  if(parent->msgLvl(MSG::WARNING)) {
-	    parent->msg(MSG::WARNING)<<"overlayContainer(): Problem in dataContainer->addCollection(hash) for ovl collection="
-				     <<c_mc<<endreq;
-	  }
-	}
-
       }
+    else {
+      /** Copy the complete collection from ovl to output, 
+          hopefully preserving the "most derived" type of its raw data */ 
+       if ( outputContainer->addCollection(coll_ovl, coll_id).isFailure() ) {
+        parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
+      }  
+    }   
+   }
   }
 
 } // namespace Overlay
