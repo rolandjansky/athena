@@ -32,8 +32,7 @@ TrackTruthLookup::getTracks(const xAOD::TruthParticle* truth) const{
     return m_mapTruth.at(truth);
   } catch (const std::out_of_range& oor) {
     throw std::out_of_range("Truth particle was not found in lookup map. Did you remember to call TrackTruthLookup::cache?");
-    }
-  return {};
+  }
 }
 
 const xAOD::TruthParticle* 
@@ -45,7 +44,6 @@ TrackTruthLookup::getTruth(const xAOD::TrackParticle* track) const{
   } catch (const std::out_of_range& oor) {
     throw std::out_of_range("Track particle was not found in lookup map. Did you remember to call TrackTruthLookup::cache?");
   }
-  return nullptr;
 }
 
 void 

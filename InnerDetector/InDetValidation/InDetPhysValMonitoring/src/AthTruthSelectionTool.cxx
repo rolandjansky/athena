@@ -15,6 +15,10 @@
 #include <vector>
 #include <cmath>
 
+namespace{
+  constexpr int electronId(11);
+  constexpr int gammaId(22);
+}
 
 
 AthTruthSelectionTool::AthTruthSelectionTool(const std::string &type, const std::string &name,
@@ -33,7 +37,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string &type, const std:
     declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.); 
     declareProperty("pdgId", m_pdgId = -1);
     declareProperty("hasNoGrandparent", m_grandparent = false); 
-    
+    declareProperty("poselectronfromgamma", m_poselectronfromgamma = false);
 } 
 
 StatusCode
@@ -58,6 +62,7 @@ AthTruthSelectionTool::initialize(){
   if (m_requireStatus1) m_cutFlow.add(Accept_t([](const P_t &p){ return(p.status()==1);},"status1"));
   if (m_pdgId > 0) m_cutFlow.add(Accept_t([this](const P_t &p){ return (std::abs(p.pdgId())==m_pdgId);},"pdgId"));
   if (m_grandparent) m_cutFlow.add(Accept_t([](const P_t &p){ return ((p.nParents() == 0) || ( (p.nParents() == 1) and ((p.parent(0))->nParents() == 0)) ); }, "hasNoGrandparent"));
+  if (m_poselectronfromgamma) m_cutFlow.add(Accept_t([](const P_t &p){ return ((p.absPdgId() == electronId) and (p.nParents() >= 1) and (p.parent(0)) and (p.parent(0)->pdgId() == gammaId)); }, "poselectronfromgamma"));
   m_counters=std::vector<unsigned int>(m_cutFlow.size(),0);
   std::string msg=std::to_string(m_cutFlow.size())+" truth acceptance cuts are used:\n";
   for (const auto & i:m_cutFlow.names()){

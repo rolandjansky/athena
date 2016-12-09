@@ -49,6 +49,7 @@ private:
   double m_maxProdVertRadius;
   int    m_pdgId;
   bool   m_grandparent;
+  bool   m_poselectronfromgamma;
   std::vector<unsigned int> m_counters;
 };
 

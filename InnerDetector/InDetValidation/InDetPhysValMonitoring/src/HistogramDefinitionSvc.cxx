@@ -66,9 +66,11 @@ HistogramDefinitionSvc::initialize() {
     }
   }
   if (ok and(not allDefsOk)) {
+    ATH_MSG_WARNING("Some histogram definitions were bad.");
     return StatusCode::RECOVERABLE;
   }
   if (not ok) {
+    ATH_MSG_ERROR("The definition reader failed to read the histogram definitions.");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -172,7 +174,6 @@ std::string
 HistogramDefinitionSvc::yTitle(const std::string &name, const std::string &dirName) const {
   std::string result {};
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
-
   if (pthisHistoPair != m_histoDefMap.end()) {
     result = pthisHistoPair->second.yTitle;
   }

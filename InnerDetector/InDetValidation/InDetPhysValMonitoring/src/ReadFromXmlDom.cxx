@@ -45,7 +45,6 @@ ReadFromXmlDom::format() const {
 bool
 ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition> &usersmap) const {
   bool ok(true);
-
   for (auto i:m_vectorOfDefinitions) {
     if (i.empty()) {
       continue;
@@ -53,7 +52,12 @@ ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefiniti
     if (not i.validType()) {
       continue;
     }
-    ok &= (usersmap.insert(std::pair<std::string, SingleHistogramDefinition>(i.stringIndex(), i))).second;
+    bool thisIsOk= (usersmap.insert(std::pair<std::string, SingleHistogramDefinition>(i.stringIndex(), i))).second;
+    if (not thisIsOk){
+      ok &=thisIsOk;
+      std::string msg = "You have attempted to add a duplicate histogram definition: "+i.stringIndex();
+      throw std::runtime_error(msg);
+    }
   }
   return(ok and(not usersmap.empty()));
 }

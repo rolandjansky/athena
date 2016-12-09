@@ -25,7 +25,7 @@ InDetPerfPlot_Pt::initializePlots() {
 
 void
 InDetPerfPlot_Pt::fill(const xAOD::IParticle &particle) {
-  const float pt(particle.pt() / 1000.);
+  const float pt(particle.pt() *.001);
 
   fillHisto(m_recPt,pt);
   fillHisto(m_recPtLow,pt);
@@ -33,7 +33,7 @@ InDetPerfPlot_Pt::fill(const xAOD::IParticle &particle) {
 
 void
 InDetPerfPlot_Pt::fill(const xAOD::TruthParticle &particle) {
-  const float pt(particle.pt() / 1000.);
+  const float pt(particle.pt() *0.001);
 
   fillHisto(m_recPt,pt);
   fillHisto(m_recPtLow,pt);

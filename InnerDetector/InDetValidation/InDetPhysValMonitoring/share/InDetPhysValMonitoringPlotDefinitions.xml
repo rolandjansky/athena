@@ -35,10 +35,6 @@
   <x title="#eta" n="20" lo="-50" hi="50"/>
   <y title="Entries" lo="0" hi="200"/>
 </h>
-<h id="testEfficiency" type="TEfficiency" title="Test of TEff">
-  <x title="#eta" n="50" lo="0" hi="50"/>
-  <y title="Entries"/>
-</h>
 <!--  -->
 <!-- pT -->
 <h id="recpT" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
@@ -51,6 +47,14 @@
 </h>
 <!--  -->
 <!-- basic plots -->
+<h id="basicpt" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
+  <y title="Entries"/>
+</h>
+<h id="basicptLow" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="20"/>
+  <y title="Entries"/>
+</h>
 <h id="basicd0" type="TH1F" title="d_{0} of selected tracks (in mm)">
   <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
   <y title="Entries"/>
@@ -109,6 +113,10 @@
 </h>
 <h id="truthprodZ" type="TH1F" title="Longitudinal (z) distance of truth vtx parameter from origin">
   <x title="(mm)" n="100" lo="0" hi="300"/>
+  <y title="Entries"/>
+</h>
+<h id="truthpt" type="TH1F" title="p_{T} of selected rec tracks (in GeV)">
+  <x title="p_{T} (GeV/c)" n="200" lo="0." hi="200"/>
   <y title="Entries"/>
 </h>
 <!--  -->
@@ -282,7 +290,7 @@
 </h>
 
 <!-- Layer-by-Layer Efficiencies -->
-<h id="eff_hit_vs_eta_ibl_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
+<h id="eff_hit_vs_eta_l0pix_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
   <x title="#eta" n="10" lo="0" hi="2.5"/>
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
@@ -694,15 +702,15 @@
   <x title="x residual(#mum)" n="120" lo="-70" hi="70"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel" type="TH1F" title="Residual: IBL Barrel X">
+<h id="residualx_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel X">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
+<h id="residualx_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel X   1 hit">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualx_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
+<h id="residualx_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel X   &gt;=2 hits">
   <x title="x residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -784,15 +792,15 @@
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel" type="TH1F" title="Residual: IBL Barrel Y">
+<h id="residualy_l0pix_barrel" type="TH1F" title="Residual: IBL Barrel Y">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
+<h id="residualy_l0pix_barrel_1hit" type="TH1F" title="Residual: IBL Barrel Y   1 hit">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
-<h id="residualy_ibl_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
+<h id="residualy_l0pix_barrel_2ormorehits" type="TH1F" title="Residual: IBL Barrel Y   &gt;=2 hits">
   <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
   <y title="Entries"/>
 </h>
@@ -851,7 +859,7 @@
 </h>
 <!-- pulls -->
 <!-- barrel, x -->
-<h id="residualpullx_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
+<h id="residualpullx_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -872,7 +880,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap, x -->
-<h id="residualpullx_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
+<h id="residualpullx_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap X">
   <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -893,7 +901,7 @@
   <y title="Entries"/>
 </h>
 <!-- barrel, y -->
-<h id="residualpully_ibl_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
+<h id="residualpully_l0pix_barrel" type="TH1F" title="Residualpull: B-Layer Barrel Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -914,7 +922,7 @@
   <y title="Entries"/>
 </h>
 <!-- endcap,y -->
-<h id="residualpully_ibl_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
+<h id="residualpully_l0pix_endcap" type="TH1F" title="Residualpull: B-Layer Endcap Y">
   <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
   <y title="Entries"/>
 </h>
@@ -1535,6 +1543,10 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 
+<h id="testEfficiency" type="TEfficiency" title="Eff. Test Case: Visible E_{T} (GeV)">
+    <x title="x variable" n="75" lo="0" hi="75"/>
+    <y title="Efficiency"/>
+</h>
 
 <!-- -->
 

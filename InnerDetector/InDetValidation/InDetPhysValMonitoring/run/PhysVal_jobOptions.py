@@ -1,18 +1,23 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 785412 2016-11-20 15:01:26Z sroe $
+# $Id: PhysVal_jobOptions.py 788969 2016-12-09 15:03:08Z sroe $
 
 # Set up the reading of the input xAOD:
 import getpass
 FNAME = "AOD.pool.root"
+mode = "Fwd" #Set this to "Back" for backtracking
+usingTrackSelection = False
+#
+#options for Max to explore backtracking
 if (getpass.getuser())=="mbaugh":
+  mode="Back"
   FNAME = "../command/target.pool.root"
   '''
   The following sets an environment variable to enable backtracking debug messages.
   To use in C++:
   const char * debugBacktracking = std::getenv("BACKTRACKDEBUG");
   '''
-  os.environ["BACKTRACKDEBUG"] = "0"
+  os.environ["BACKTRACKDEBUG"] = "1"
   #
 include( "AthenaPython/iread_file.py" )
 
@@ -67,8 +72,13 @@ InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelect
 
 ToolSvc += InDetTrackSelectorTool
 '''
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+InDetTrackSelectorTool=InDet__InDetTrackSelectionTool()
+ToolSvc += InDetTrackSelectorTool
+InDetTrackSelectorTool.CutLevel = "TightPrimary"
+
 #This section should control TTST  7-12-16                                                        
-mode = "Fwd" #Set this to "Back" for backtracking
+
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import AthTruthSelectionTool
 AthTruthSelectionTool = AthTruthSelectionTool()
 
@@ -78,7 +88,7 @@ if mode=="Back":
   AthTruthSelectionTool.maxProdVertRadius = 4000 
   AthTruthSelectionTool.maxBarcode = -1
   AthTruthSelectionTool.hasNoGrandparent = True
-
+  AthTruthSelectionTool.poselectronfromgamma = True
   os.environ["BACKTRACKDEBUG"] = "1"
 
 print AthTruthSelectionTool
@@ -87,8 +97,8 @@ ToolSvc += AthTruthSelectionTool
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
 tool1.TruthSelectionTool = AthTruthSelectionTool
-tool1.useTrackSelection = False
-#tool1.TrackSelectionTool=InDetTrackSelectorTool
+tool1.useTrackSelection = usingTrackSelection
+tool1.TrackSelectionTool=InDetTrackSelectorTool
 tool1.FillTrackInJetPlots = False
 print tool1
 ToolSvc += tool1
@@ -110,4 +120,4 @@ ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
 if (getpass.getuser())=="sroe":
-  theApp.EvtMax = -1
+  theApp.EvtMax = 10

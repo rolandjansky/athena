@@ -10,9 +10,8 @@
  **/
 
 
-// std includes
-#include <string>
-#include "TProfile.h"
+
+
 
 // local includes
 
@@ -21,6 +20,12 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
+
+// std includes
+#include <string>
+
+class TProfile;
+class TEfficiency;
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_hitEff: public InDetPlotBase {
@@ -34,7 +39,7 @@ public:
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
   enum Subdetector {
-    INVALID_DETECTOR=-1, IBL, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
+    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
   };
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
@@ -43,6 +48,7 @@ private:
   void initializePlots();
 
   TProfile *m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
+  TEfficiency * m_testEff;
   bool m_debug;
 };
 

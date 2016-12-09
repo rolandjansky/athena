@@ -42,6 +42,7 @@
 #include <vector>
 
 
+
 namespace { // utility functions used here
   // sort method for prospects
   bool
@@ -65,30 +66,68 @@ namespace { // utility functions used here
     std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
     return patternInfo.test(0);
   }
-
+  template <class T>
+  inline float
+  safelyGetEta(const T & pTrk, const float safePtThreshold=0.1){
+    return (pTrk->pt() > safePtThreshold) ? (pTrk->eta()) : std::nan("");
+  }
+  
+  //Convert to GeV from the default MeV
+  constexpr float 
+  operator"" _GeV(long double energy){
+    return energy*0.001;
+  }
+  constexpr float 
+  operator"" _GeV(unsigned long long energy){
+    return energy*0.001;
+  }
+  //general utility function to check value is in range
+  template <class T>
+  inline bool 
+  inRange( const T & value, const T & minVal, const T & maxVal){
+    return not (( value < minVal) or (value > maxVal));
+  }
+  template<class T>
+  inline bool
+  inRange( const T & value, const T & absoluteMax){
+    return not (std::abs(value) > absoluteMax);
+  }
+  // Cuts on various objects
   bool
   passJetCuts(const xAOD::Jet &jet) {
-    float etaMin = -2.5;
-    float etaMax = 2.5;
-    float jetPtMin = 100;  // in GeV
-    float jetPtMax = 1000; // in GeV
-    float jetPt = jet.pt() / 1e3; // GeV
-
-    if (jetPt < jetPtMin) {
-      return false;
-    }
-    if (jetPt > jetPtMax) {
-      return false;
-    }
-    float eta = jet.eta();
-    if (eta < etaMin) {
-      return false;
-    }
-    if (eta > etaMax) {
-      return false;
-    }
-    return true;
+    const float absEtaMax = 2.5;
+    const float jetPtMin = 100;  // in GeV
+    const float jetPtMax = 1000; // in GeV
+    const float jetPt = jet.pt() * 1_GeV; // GeV
+    const float jetEta = jet.eta();
+    return inRange(jetPt, jetPtMin, jetPtMax) and inRange(jetEta,absEtaMax);
   }
+  
+  //general utility function to return bin index given a value and the upper endpoints of each bin
+  template <class T>
+  unsigned int
+  binIndex(const T & val, const std::vector<T> & partitions){ //signature should allow other containers
+      unsigned int i(0);
+      bool nf=true;
+      while (nf and i!=partitions.size()){
+          nf=(val>partitions[i++]);
+      }
+      return nf?i:i-1;
+  }
+  
+  bool
+  acceptVertex(const xAOD::Vertex * vtx){
+    return (vtx->vertexType() != xAOD::VxType::NoVtx);
+  }
+  
+  bool
+  acceptTruthVertex(const xAOD::TruthVertex *vtx){
+    const float x(vtx->x()), y(vtx->y()), z(vtx->z()); 
+    const float vrtR2 = (x * x + y * y); //radial distance squared
+    return inRange(z,500.f) and not(vrtR2 > 1); //units?
+  }
+  const std::vector<float> ETA_PARTITIONS={2.7,3.5,std::numeric_limits<float>::infinity()};
+  
 }// namespace
 
 ///Parametrized constructor
@@ -177,24 +216,15 @@ InDetPhysValMonitoringTool::fillHistograms() {
     evtStore()->retrieve( truthPileupEventContainer, truthPUEventCollName );
     nMuEvents = (int)truthPileupEventContainer->size();
   }
-
   ATH_MSG_DEBUG("Filling vertex plots");
   const xAOD::VertexContainer *pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
   const xAOD::Vertex *pvtx = nullptr;
   if (pvertex and not pvertex->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event "<<pvertex->size());
     const auto & stdVertexContainer= pvertex->stdcont();
-    auto predicate = [](const xAOD::Vertex * vtx) { return (vtx->vertexType() != xAOD::VxType::NoVtx);};
     //find last non-dummy vertex; note *usually* there is only one (or maybe zero)
-    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), predicate);
+    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptVertex);
     pvtx= (findVtx==stdVertexContainer.rend()) ? nullptr: *findVtx;
-    /**
-    for (const auto &vtx : pvertex->stdcont()) {
-	      if (vtx->vertexType() == xAOD::VxType::NoVtx) {
-	        continue; // skip dummy vertex
-	      }
-	      pvtx = vtx;
-	  }**/
     m_monPlots->fill(*pvertex);
   } else {
     ATH_MSG_WARNING("Skipping vertexing plots.");
@@ -204,8 +234,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   if (pei and pvertex) {
       m_monPlots->fill(*pvertex, *pei);
   } else {
-    ATH_MSG_WARNING(
-      "Skipping vertexing plots using EventInfo.");
+    ATH_MSG_WARNING("Skipping vertexing plots using EventInfo.");
   }
 
   // get truth vertex container name - m_truthVertexContainerName
@@ -215,23 +244,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
     if (!m_TrkSelectPV) {
       ATH_MSG_VERBOSE("size of TruthVertex container = " << truthVrt->size());
     }
-
-    for (const auto &vtx : truthVrt->stdcont()) {
-      if (!m_TrkSelectPV) {
-	//        ATH_MSG_INFO("TruthVertex XYZ = " << vtx->x() << "," << vtx->y() << "," << vtx->z());
-      }
-      float vrtR = std::sqrt(vtx->x() * vtx->x() + vtx->y() * vtx->y());
-      if (vrtR > 1 || std::abs(vtx->z()) > 500) {
-        continue;
-      }
-      truthVertex = vtx;
-    }
+    const auto & stdVertexContainer= truthVrt->stdcont();
+    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptTruthVertex);
+    truthVertex = (findVtx==stdVertexContainer.rend()) ? nullptr: *findVtx;
   }else {
     ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName << " truth vertex container");
   }
-
   unsigned int num_truth_selected(0), nSelectedTracks(0), num_truthmatch_match(0);
-
   // the truth matching probability must not be <= 0., otherwise the tool will seg fault in case of missing truth (e.g.
   // data):
   const float minProbEffLow(0.50); // if the probability of a match is less than this, we call it a fake
@@ -279,10 +298,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ++nSelectedTracks;                                                    // increment number of selected tracks
     m_monPlots->fill(*thisTrack);                                         // Make all the plots requiring only
                                                                           // trackParticle
-    const float absTrackEta = (thisTrack->pt() >1e-7) ? std::abs(thisTrack->eta()) : std::nan("");
+    //const float absTrackEta = (thisTrack->pt() >1e-7) ? std::abs(thisTrack->eta()) : std::nan("");
+    const float absTrackEta = std::abs(safelyGetEta(thisTrack));
+    const unsigned int idx=binIndex(absTrackEta,ETA_PARTITIONS);
+    if (idx < incTrkNum.size()) ++ incTrkNum[idx];
+    /**
     if(absTrackEta < 2.7) ++incTrkNum[0];
     else if(absTrackEta >= 2.7 && absTrackEta < 3.5) ++incTrkNum[1];
-    else ++incTrkNum[2];
+    else ++incTrkNum[2]; **/
 
     // This is where the BMR, Fake, and Really Fake fillers need to go.
     float BMR_w(0), RF_w(0); // weights for filling the Bad Match & Fake Rate plots
@@ -304,11 +327,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
     base += 1;
     if (associatedTruth) {
       hasTruth += 1;
-      if ((prob < minProbEffLow) and (not std::isnan(prob))) {
+      if (prob < minProbEffLow) { //nan will also fail this test
         const bool isFake = (prob < minProbEffLow);
         m_monPlots->fillFakeRate(*thisTrack, isFake);
-	       if((associatedTruth->barcode() < 200e3) and (associatedTruth->barcode() != 0)) Prim_w = 1; //Fake Primary, set weight to 1
-	       if(associatedTruth->barcode() >= 200e3) Sec_w = 1;                                         //Fake Secondary, set weight to 1
+	      if((associatedTruth->barcode() < 200e3) and (associatedTruth->barcode() != 0)) Prim_w = 1; //Fake Primary, set weight to 1
+	      if(associatedTruth->barcode() >= 200e3) Sec_w = 1;                                         //Fake Secondary, set weight to 1
       }
       if (prob > minProbEffLow) hashighprob += 1;
       if (m_truthSelectionTool->accept(associatedTruth)) passtruthsel += 1;
@@ -316,7 +339,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make all plots requiring both truth & track (meas, res, &
                                                         // pull)
       }
-      
     }
     
     m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w);
@@ -347,10 +369,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
     if (accept) {
       ++m_truthCounter; // total number of truth tracks which pass cuts
       ++num_truth_selected; // total number of truth which pass cuts per event
-      const float absTruthEta=(thisTruth->pt() >0.1) ? std::abs(thisTruth->eta()) : std::nan("");
+      const float absTruthEta=std::abs(safelyGetEta(thisTruth));
+      const unsigned int idx=binIndex(absTruthEta,ETA_PARTITIONS);
+      if (idx < incTrkNum.size()) ++ incTrkNum[idx];
+      /**
       if(absTruthEta < 2.7) ++incTrkDenom[0];
       else if(absTruthEta >= 2.7 && absTruthEta < 3.5) ++incTrkDenom[1];
       else ++incTrkDenom[2];
+      **/
       // LMTODO add this Jain/Swift
       float PF_w(1); // weight for the trackeff histos
       float bestMatch = 0;
@@ -377,8 +403,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
         std::cout<<"Px: "<<Px<<"\n";
         std::cout<<"Py: "<<Py<<"\n";
         std::cout<<"Pz: "<<thisTruth->pz()<<"\n";
-
-        if(thisTruth->absPdgId() == 11){
+        constexpr int electronId=11;
+        if(thisTruth->absPdgId() == electronId){
           double Pt = std::sqrt((Px * Px) + (Py * Py));
           if(Pt < 3000){
             lepton_w = 1;
@@ -517,6 +543,13 @@ InDetPhysValMonitoringTool::bookHistograms() {
   for (auto hist : hists) {
     ATH_CHECK(regHist(hist.first, hist.second, all)); // ??
   }
+  //do the same for Efficiencies, but there's a twist:
+  std::vector<EfficiencyData> effs = m_monPlots->retrieveBookedEfficiencies();
+  for (auto & eff : effs) {
+    //reg**** in the monitoring baseclass doesnt have a TEff version, but TGraph *
+    //pointers just get passed through, so we use that method after an ugly cast
+    ATH_CHECK(regGraph(reinterpret_cast<TGraph*>(eff.first), eff.second, all)); // ??
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -572,7 +605,6 @@ InDetPhysValMonitoringTool::getTruthParticles() {
     std::string m_truthContainerName = "TruthParticles";
     const xAOD::TruthParticleContainer *truthParticleContainer =
       (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
-      if (not truthParticleContainer) return tempVec;
     tempVec.insert(tempVec.begin(), truthParticleContainer->begin(), truthParticleContainer->end());
   } else {
     if (m_pileupSwitch == "HardScatter") {

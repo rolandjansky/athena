@@ -96,7 +96,7 @@ TProfile trackeff_vs_prodZ "Track Efficiency vs Production Vertex Z" 100 0 2000 
 TProfile low_Pt_lepton_frac "Fraction of Primary Leptons with Pt below 3 GeV" 100 0 1500 0 2 "prod_R" "Efficiency" default
 
 #layer-by-layer efficiencies
-TProfile eff_hit_vs_eta_ibl_barrel "Cluster Efficiency: Pixel Barrel IBL" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
+TProfile eff_hit_vs_eta_l0pix_barrel "Cluster Efficiency: Pixel Barrel IBL" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
 TProfile eff_hit_vs_eta_pix_barrel "Cluster Efficiency: Pixel Barrel" 10 0 2.5 0 2 "#eta" "Cluster Efficiency" default
 TProfile eff_hit_vs_eta_pix_endcap "Cluster Efficiency: Pixel Endcap" 4 1.5 2.5 0 2 "#eta" "Cluster Efficiency" default
 TProfile eff_hit_vs_eta_sct_barrel "Cluster Efficiency: SCT Barrel" 7 0 1.75 0 2 "#eta" "Cluster Efficiency" default

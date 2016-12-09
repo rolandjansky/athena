@@ -10,6 +10,8 @@
 #include "InDetPerfPlot_hitEff.h"
 #include "InDetPhysHitDecoratorTool.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TProfile.h"
+#include "TEfficiency.h"
 #include <vector>
 #include <cmath> //for std::fabs
 
@@ -18,16 +20,16 @@
 
 InDetPerfPlot_hitEff::InDetPerfPlot_hitEff(InDetPlotBase *pParent, const std::string &sDir)  : InDetPlotBase(pParent,
                                                                                                              sDir),
-  m_eff_hit_vs_eta{}, m_debug{false} {
+  m_eff_hit_vs_eta{}, m_testEff{},m_debug{false} {
   //
 }
 
 void
 InDetPerfPlot_hitEff::initializePlots() {
   // const bool prependDirectory(false);
-  // eff plots for IBL, PIXEL, SCT, TRT
+  // eff plots for L0PIXBARR, PIXEL, SCT, TRT
   // Barrel
-  book(m_eff_hit_vs_eta[IBL][BARREL], "eff_hit_vs_eta_ibl_barrel");
+  book(m_eff_hit_vs_eta[L0PIXBARR][BARREL], "eff_hit_vs_eta_l0pix_barrel");
   book(m_eff_hit_vs_eta[PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel");
   book(m_eff_hit_vs_eta[SCT][BARREL], "eff_hit_vs_eta_sct_barrel");
   book(m_eff_hit_vs_eta[TRT][BARREL], "eff_hit_vs_eta_trt_barrel");
@@ -35,6 +37,7 @@ InDetPerfPlot_hitEff::initializePlots() {
   book(m_eff_hit_vs_eta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
   book(m_eff_hit_vs_eta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
   book(m_eff_hit_vs_eta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
+  book(m_testEff,"testEfficiency");
 }
 
 void
@@ -60,14 +63,17 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle &trkprt) {
       for (unsigned int idx = 0; idx < result_region.size(); ++idx) {
         const int measureType = result_measureType[idx];
         const bool isHit((measureType == 0) or (measureType == 4));
-        const int det = result_det[idx]; // LAYER TYPE IBL / PIXEL / ...
+        const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
         float eta = std::fabs(trkprt.eta());
-        if ((det == IBL && region == ENDCAP) || det == DBM) {
-          continue; // IBL have no endcaps! and ignore DBM
-        }
+        if (det == DBM) 
+          continue; //ignore DBM
         fillHisto(m_eff_hit_vs_eta[det][region],eta, int(isHit));
       }
     }
   }
+  //for testing
+  const float binValue=std::rand() % 75;
+  const bool passed = (binValue-5+(std::rand() % 10)) >30;
+  fillHisto(m_testEff,passed, binValue);
 }

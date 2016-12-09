@@ -33,8 +33,10 @@ namespace Trk {
 // class to decorate xAOD::TruthParticles with additional information required by validation
 class InDetPhysHitDecoratorTool: virtual public IInDetPhysValDecoratorTool, public AthAlgTool {
 public:
+  // L0PIXBARR : layer0 of pixel barrel (IBL in Run2)
+  // PIXEL : in barrel all layers appart from layer0. In end-caps all disks/rings.
   enum Subdetector {
-    INVALID_DETECTOR=-1, IBL, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
+    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
   };
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP

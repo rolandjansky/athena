@@ -173,10 +173,10 @@ InDetRttPlots::fill(const xAOD::TrackParticle &particle) {
   m_hitResidualPlot.fill(particle);
   m_hitEffPlot.fill(particle);
   // fill pt plots
-  m_ptPlot.fill(particle);
+  m_ptPlot.fill(particle); //to maintain correspondence with old InDetPerformanceRTT
   m_basicPlot.fill(particle);
-  m_PtEtaPlots.fill(particle);
-  m_IPPlots.fill(particle);
+  //m_PtEtaPlots.fill(particle);
+  //m_IPPlots.fill(particle);
   m_TrackRecoInfoPlots.fill(particle);
   m_hitsPlots.fill(particle);
   m_hitsDetailedPlots.fill(particle);
