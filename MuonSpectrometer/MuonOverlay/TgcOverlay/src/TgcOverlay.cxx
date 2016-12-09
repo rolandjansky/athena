@@ -12,6 +12,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -131,41 +134,33 @@ StatusCode TgcOverlay::overlayExecute() {
   if ( m_copyObjects )
      this->copyMuonIDCobject<TgcDigitContainer,TgcDigit>(&*m_storeGateMC,&*m_storeGateTemp);
 
-  std::auto_ptr<TgcDigitContainer> tgc(m_storeGateData->retrievePrivateCopy<TgcDigitContainer>(m_mainInputTGC_Name));
-  if ( !tgc.get() ) {
+  SG::ReadHandle<TgcDigitContainer> dataContainer(m_mainInputTGC_Name, m_storeGateData->name());
+  if ( !dataContainer.isValid() ) {
     msg( MSG::ERROR ) << "Could not get data TGC container " << m_mainInputTGC_Name << endmsg;
     return StatusCode::FAILURE;
   }
-
-  //log << MSG::DEBUG << "TGC Data   = " << this->shortPrint(cdata) << endmsg;
+  ATH_MSG_INFO("TGC Data   = "<<shortPrint(dataContainer.cptr()));
 
   msg( MSG::VERBOSE ) << "Retrieving MC input TGC container" << endmsg;
-  std::auto_ptr<TgcDigitContainer> ovl_input_TGC(m_storeGateMC->retrievePrivateCopy<TgcDigitContainer>(m_overlayInputTGC_Name));
-  if(!ovl_input_TGC.get() ) {
+  SG::ReadHandle<TgcDigitContainer> mcContainer(m_overlayInputTGC_Name, m_storeGateMC->name()); 
+  if(!mcContainer.isValid() ) {
     msg( MSG::ERROR ) << "Could not get overlay TGC container " << m_overlayInputTGC_Name << endmsg;
     return StatusCode::FAILURE;
   }
-  //log << MSG::DEBUG << "TGC MC     = " << this->shortPrint(ovl_input_TGC) << endmsg;
+  ATH_MSG_INFO("TGC MC   = "<<shortPrint(mcContainer.cptr()));
 
-  TgcDigitContainer *tgc_temp_bkg = copyMuonDigitContainer<TgcDigitContainer,TgcDigit>(tgc.get());
-
+  /*  TgcDigitContainer *tgc_temp_bkg = copyMuonDigitContainer<TgcDigitContainer,TgcDigit>(dataContainer.cptr());
   if ( m_storeGateTempBkg->record(tgc_temp_bkg, m_mainInputTGC_Name).isFailure() ) {
      msg( MSG::WARNING ) << "Failed to record background TgcDigitContainer to temporary background store " << endmsg;
+     }*/
+
+  SG::WriteHandle<TgcDigitContainer> outputContainer(m_mainInputTGC_Name, m_storeGateOutput->name());
+  outputContainer = CxxUtils::make_unique<TgcDigitContainer>(dataContainer->size());
+  //Do the actual overlay
+  if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) { 
+    this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
   }
-
-  this->overlayContainer(tgc, ovl_input_TGC);
-  //log << MSG::DEBUG << "TGC Result = " << this->shortPrint(cdata) << endmsg;
-
-  if ( m_storeGateOutput->record(tgc, m_mainInputTGC_Name).isFailure() )
-    msg( MSG::WARNING ) << "Failed to record TGC overlay container to output store " << endmsg;
-
-  //----------------
-  // This kludge is a work around for problems created by another kludge:
-  // Digitization algs keep a pointer to their output Identifiable Container and reuse
-  // the same object over and other again.   So unlike any "normal" per-event object
-  // this IDC is not a disposable one, and we should not delete it.
-  ovl_input_TGC.release();
-  tgc.release();
+  ATH_MSG_INFO("TGC Result   = "<<shortPrint(outputContainer.cptr()));
 
   //----------------------------------------------------------------
   msg(MSG::DEBUG ) <<"Processing MC truth data"<<endmsg;

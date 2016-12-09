@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonOverlay/MuonOverlayBase
                           PRIVATE
                           Control/AthenaKernel
+			  Control/CxxUtils  
                           Control/StoreGate
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
@@ -22,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TgcOverlay
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase AthenaKernel StoreGateLib SGtests GeneratorObjects MuonIdHelpersLib MuonSimData )
+                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase AthenaKernel StoreGateLib SGtests CxxUtils GeneratorObjects MuonIdHelpersLib MuonSimData )
 
 # Install files from the package:
 atlas_install_headers( TgcOverlay )
