@@ -12,6 +12,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "CxxUtils/make_unique.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -128,39 +131,34 @@ StatusCode RpcOverlay::overlayExecute() {
   if ( m_copyObjects ) 
      this->copyMuonIDCobject<RpcDigitContainer,RpcDigit>(&*m_storeGateMC,&*m_storeGateTemp);
 
-  std::auto_ptr<RpcDigitContainer> rpc(m_storeGateData->retrievePrivateCopy<RpcDigitContainer>(m_mainInputRPC_Name));
-  if ( !rpc.get() ) {
+  SG::ReadHandle<RpcDigitContainer> dataContainer(m_mainInputRPC_Name, m_storeGateData->name());
+   if ( !dataContainer.isValid() ) {
      msg( MSG::ERROR ) << "Could not get data RPC container " << m_mainInputRPC_Name << endmsg;
      return StatusCode::FAILURE;
   }
+   ATH_MSG_INFO("RPC Data   = "<<shortPrint(dataContainer.cptr()));
 
   msg( MSG::VERBOSE ) << "Retrieving MC input RPC container" << endmsg;
-  std::auto_ptr<RpcDigitContainer> ovl_input_RPC(m_storeGateMC->retrievePrivateCopy<RpcDigitContainer>(m_overlayInputRPC_Name));
-  if(!ovl_input_RPC.get()) {
+  SG::ReadHandle<RpcDigitContainer> mcContainer(m_overlayInputRPC_Name, m_storeGateMC->name());
+  if(!mcContainer.isValid()) {
     msg( MSG::ERROR ) << "Could not get overlay RPC container " << m_overlayInputRPC_Name << endmsg;
     return StatusCode::FAILURE;
   }
-  //log << MSG::DEBUG << "RPC MC     = " << this->shortPrint(ovl_input_RPC) << endmsg;
+  ATH_MSG_INFO("RPC MC   = "<<shortPrint(mcContainer.cptr()));
 
-  RpcDigitContainer *rpc_temp_bkg = copyMuonDigitContainer<RpcDigitContainer,RpcDigit>(rpc.get());
+  /* RpcDigitContainer *rpc_temp_bkg = copyMuonDigitContainer<RpcDigitContainer,RpcDigit>(dataContainer.cptr());
 
   if ( m_storeGateTempBkg->record(rpc_temp_bkg, m_mainInputRPC_Name).isFailure() ) {
      msg( MSG::WARNING ) << "Failed to record background RpcDigitContainer to temporary background store " << endmsg;
+     }*/
+
+  SG::WriteHandle<RpcDigitContainer> outputContainer(m_mainInputRPC_Name, m_storeGateOutput->name());
+  outputContainer = CxxUtils::make_unique<RpcDigitContainer>(dataContainer->size());
+  //Do the actual overlay
+  if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) { 
+    this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
   }
-
-  this->overlayContainer(rpc, ovl_input_RPC);
-  //log << MSG::DEBUG << "RPC Result = " << this->shortPrint(cdata) << endmsg;
-
-  if ( m_storeGateOutput->record(rpc, m_mainInputRPC_Name).isFailure() )
-    msg( MSG::WARNING ) << "Failed to record RPC overlay container to output store " << endmsg;
-
-  //----------------
-  // This kludge is a work around for problems created by another kludge:
-  // Digitization algs keep a pointer to their output Identifiable Container and reuse
-  // the same object over and other again.   So unlike any "normal" per-event object
-  // this IDC is not a disposable one, and we should not delete it.
-  ovl_input_RPC.release();
-  rpc.release();
+  ATH_MSG_INFO("RPC Result   = "<<shortPrint(outputContainer.cptr()));
 
   //----------------------------------------------------------------
   msg( MSG::DEBUG ) <<"Processing MC truth data"<<endmsg;
@@ -174,7 +172,7 @@ StatusCode RpcOverlay::overlayExecute() {
 
   // Now copy RPC-specific MC truth objects to the output.
   if ( m_copySDO )
-     this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
+      this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   msg( MSG::DEBUG ) << "RpcOverlay::execute() end"<< endmsg;
