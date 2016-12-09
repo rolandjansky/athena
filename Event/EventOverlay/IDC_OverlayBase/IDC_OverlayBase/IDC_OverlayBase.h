@@ -41,9 +41,8 @@ namespace Overlay {
   template<class Datum> void mergeChannelData(Datum& r1, const Datum& r2, IDC_OverlayBase* parent);
 
   /**
-   *  Adds data from the second collection to the first merging where necessary.
-   *  After this call the "data" collection contains all information, and the "mc"
-   *  collection is empty.
+   *  Adds data and mc from the second collection to the output one merging where necessary.
+   *  After this data and mc collections stay unchanged and output collection contains all information
    * 
    *  A generic implementation in the .icc file can be overriden by a
    *  specialization, see above.
@@ -61,16 +60,14 @@ public:
   {}
 
   /**
-   *  Transfers all collection from the second argument the first merging where necessary.
-   *  After this call the "data" container contains all information, and the "mc" 
-   *  container is empty.
+   *  Transfers all collections from the first and second arguments to the output the first merging where necessary.
    */
-  template<class IDC_Container> void overlayContainer(IDC_Container* data, IDC_Container* mc ) {
-    Overlay::overlayContainer(data, mc, this);
+  template<class IDC_Container> void overlayContainer(const IDC_Container* data, const IDC_Container* mc, IDC_Container* out ) {
+    Overlay::overlayContainer(data, mc, out, this);
   }
 
-  template<class IDC_Container> void overlayContainer(const std::auto_ptr<IDC_Container>& data, const std::auto_ptr<IDC_Container>& mc) {
-    this->overlayContainer(data.get(), mc.get());
+  template<class IDC_Container> void overlayContainer(const std::auto_ptr<IDC_Container>& data, const std::auto_ptr<IDC_Container>& mc, std::auto_ptr<IDC_Container>& out) {
+    this->overlayContainer(data.get(), mc.get(), out.get());
   }
 
   template<class IDC_Container> void overlayContainerNew(const IDC_Container* data, const IDC_Container* mc, IDC_Container* out ) {
@@ -90,11 +87,10 @@ public:
   }
 
   /**
-   *  Adds data from the second collection to the first merging where necessary.
-   *  After this call the "mc" collection contains all information, and the "data"
-   *  collection is empty.
+   *  Adds data and mc from the second collection to the output one merging where necessary.
+   *  After this data and mc collections stay unchanged and output collection contains all information
    */
-  template<class Collection> void mergeCollections(Collection *mc_coll, Collection *data_coll);
+  template<class Collection> void mergeCollections(Collection *mc_coll, Collection *data_coll, Collection *out_coll);
 
 };
 
