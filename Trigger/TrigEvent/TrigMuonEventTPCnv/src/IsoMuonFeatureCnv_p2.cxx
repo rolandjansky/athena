@@ -12,7 +12,7 @@ void IsoMuonFeatureCnv_p2::persToTrans( const IsoMuonFeature_p2 *persObj,
 					     IsoMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p2::persToTrans called " << endmsg;
 
   transObj->m_EtInnerConeEC    = persObj->m_allTheFloats[0]    ;
   transObj->m_EtOuterConeEC    = persObj->m_allTheFloats[1]    ;
@@ -41,7 +41,7 @@ void IsoMuonFeatureCnv_p2::transToPers( const IsoMuonFeature    *transObj,
 					     IsoMuonFeature_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p1::transToPers called " << endmsg;
 
   persObj->m_allTheFloats[0]  = transObj->m_EtInnerConeEC    ;
   persObj->m_allTheFloats[1]  = transObj->m_EtOuterConeEC    ;

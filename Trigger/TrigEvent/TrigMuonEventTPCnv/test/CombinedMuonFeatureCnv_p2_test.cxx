@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -51,6 +52,10 @@ void testit (const CombinedMuonFeature& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak checking.
+  ElementLink<MuonFeatureContainer> foo ("foo", 1);
+  ElementLink<TrigInDetTrackCollection> bar ("bar", 2);
+  Athena_test::Leakcheck check;
 
   CombinedMuonFeature trans1 (80000, 8000, 800, 3, 4, 5,
                               ElementLink<MuonFeatureContainer> ("foo", 1),

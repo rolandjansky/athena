@@ -11,7 +11,7 @@ void TrigMuonEFInfoCnv_p4::persToTrans(const TrigMuonEFInfo_p4* persObj,
 		TrigMuonEFInfo* transObj,
 		MsgStream &log)
 {
-	log << MSG::DEBUG << "TrigMuonEFInfoCnv_p4::persToTrans called " << endreq;
+	log << MSG::DEBUG << "TrigMuonEFInfoCnv_p4::persToTrans called " << endmsg;
   std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks
     (createTransFromPStore( &m_trackContainerCnv, persObj->m_trackContainer, log));
   std::unique_ptr<TrigMuonEFTrack> spectrometerTrack
@@ -41,7 +41,7 @@ void TrigMuonEFInfoCnv_p4::transToPers(const TrigMuonEFInfo* transObj,
 		TrigMuonEFInfo_p4* persObj,
 		MsgStream &log)
 {
-	log << MSG::DEBUG << "TrigMuonEFInfoCnv_p3::transToPers called " << endreq;
+	log << MSG::DEBUG << "TrigMuonEFInfoCnv_p3::transToPers called " << endmsg;
 
 	persObj->m_roi               = transObj->RoINum();
 	persObj->m_nSegments         = transObj->NSegments();
@@ -54,7 +54,7 @@ void TrigMuonEFInfoCnv_p4::transToPers(const TrigMuonEFInfo* transObj,
 
 	// check for legacy
 	if (transObj->hasLegacyTrack()) {
-		log << MSG::DEBUG << "TrigMuonEFInfoCnv_p3::transToPers: has legacy track " << endreq;
+		log << MSG::DEBUG << "TrigMuonEFInfoCnv_p3::transToPers: has legacy track " << endmsg;
 		// has a legacy track.
 		// this situation occurs if old BS files are read.
 		// make a tmp track container to safeguard const correctness of transObj.

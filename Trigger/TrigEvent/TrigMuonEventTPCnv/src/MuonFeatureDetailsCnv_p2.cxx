@@ -7,7 +7,7 @@
 #include "TrigMuonEventTPCnv/MuonFeatureDetailsCnv_p2.h"
 
 void MuonFeatureDetailsCnv_p2::persToTrans(const MuonFeatureDetails_p2* persObj, MuonFeatureDetails* transObj, MsgStream &log) {
-   log << MSG::DEBUG << "MuonFeatureDetailsCnv_p2::persToTrans called " << endreq;
+   log << MSG::DEBUG << "MuonFeatureDetailsCnv_p2::persToTrans called " << endmsg;
 
     *transObj = MuonFeatureDetails (persObj->m_id,
                                     persObj->m_allTheUInts[0], // m_te_id
@@ -200,7 +200,7 @@ void MuonFeatureDetailsCnv_p2::persToTrans(const MuonFeatureDetails_p2* persObj,
 
 
 void MuonFeatureDetailsCnv_p2::transToPers(const MuonFeatureDetails* transObj, MuonFeatureDetails_p2* persObj, MsgStream &log) {
-   log << MSG::DEBUG << "MuonFeatureDetailsCnv_p2::transToPers called " << endreq;
+   log << MSG::DEBUG << "MuonFeatureDetailsCnv_p2::transToPers called " << endmsg;
    
     persObj->m_id      = transObj->id();
     persObj->m_Address = transObj->Address();

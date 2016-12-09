@@ -13,7 +13,7 @@ void TrigMuonClusterFeatureCnv_p1::persToTrans( const TrigMuonClusterFeature_p1 
 					     TrigMuonClusterFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigMuonClusterFeatureCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigMuonClusterFeatureCnv_p1::persToTrans called " << endmsg;
 
   *transObj = TrigMuonClusterFeature (persObj->m_eta,
                                       persObj->m_phi,
@@ -29,7 +29,7 @@ void TrigMuonClusterFeatureCnv_p1::transToPers( const TrigMuonClusterFeature    
 					     TrigMuonClusterFeature_p1 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigMuonClusterFeatureCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigMuonClusterFeatureCnv_p1::transToPers called " << endmsg;
 
   persObj->m_eta    = transObj->eta()    ;
   persObj->m_phi    = transObj->phi()    ;

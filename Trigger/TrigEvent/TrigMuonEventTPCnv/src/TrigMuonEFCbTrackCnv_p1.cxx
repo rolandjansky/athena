@@ -11,7 +11,7 @@ void TrigMuonEFCbTrackCnv_p1::persToTrans(const TrigMuonEFCbTrack_p1* persObj,
 					  TrigMuonEFCbTrack* transObj,
 					  MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFCbTrackCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFCbTrackCnv_p1::persToTrans called " << endmsg;
 
    transObj->setMatchChi2 (persObj->m_matchChi2);
 
@@ -24,7 +24,7 @@ void TrigMuonEFCbTrackCnv_p1::transToPers(const TrigMuonEFCbTrack* /*transObj*/,
 					  TrigMuonEFCbTrack_p1* /*persObj*/,
 					  MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFCbTrackCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFCbTrackCnv_p1::transToPers called " << endmsg;
 //
 //  persObj->m_matchChi2 = transObj->m_matchChi2;
 //

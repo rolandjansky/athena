@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TileMuFeatureCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -46,6 +47,7 @@ void testit (const TileMuFeature& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TileMuFeature trans1 (2.5, 1.5,
                         std::vector<float> {3.5, 4.5, 5.5, 6.5},

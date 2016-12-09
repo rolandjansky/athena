@@ -17,6 +17,7 @@
 #include "CxxUtils/make_unique.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -153,6 +154,9 @@ void testit (const TrigMuonEFInfo& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxy created outside of leak checking.
+  ElementLink<Rec::TrackParticleContainer> foo ("foo", 10);
+  Athena_test::Leakcheck check;
 
   TrigMuonEFInfo trans1 (123);
   trans1.setRoINum (234);

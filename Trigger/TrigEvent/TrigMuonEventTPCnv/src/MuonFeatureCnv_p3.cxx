@@ -10,7 +10,7 @@ void MuonFeatureCnv_p3::persToTrans(const MuonFeature_p3* persObj,
 				          MuonFeature* transObj, 
 				          MsgStream &log)
 {
-   log << MSG::DEBUG << "MuonFeatureCnv_p3::persToTrans called " << endreq;
+   log << MSG::DEBUG << "MuonFeatureCnv_p3::persToTrans called " << endmsg;
 
    *transObj = MuonFeature (persObj->m_allTheInts[1], // saddress
                             persObj->m_allTheFloats[0], // pt
@@ -45,7 +45,7 @@ void MuonFeatureCnv_p3::transToPers(const MuonFeature* transObj,
 				          MuonFeature_p3* persObj, 
 				          MsgStream &log)
 {
-   log << MSG::DEBUG << "MuonFeatureCnv_p3::transToPers called " << endreq;
+   log << MSG::DEBUG << "MuonFeatureCnv_p3::transToPers called " << endmsg;
 
    persObj->m_algoId           = transObj->algoId()    ; 
    persObj->m_allTheInts[0]    = transObj->roiId()     ; 

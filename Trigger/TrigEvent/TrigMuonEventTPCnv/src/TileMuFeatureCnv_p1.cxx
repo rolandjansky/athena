@@ -10,7 +10,7 @@ void TileMuFeatureCnv_p1::persToTrans(const TileMuFeature_p1* persObj,
                                             TileMuFeature* transObj,
                                             MsgStream &log)
 {
-   log << MSG::DEBUG << "TileMuFeatureCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TileMuFeatureCnv_p1::persToTrans called " << endmsg;
 
    *transObj = TileMuFeature (persObj->m_eta,
                               persObj->m_phi,
@@ -22,7 +22,7 @@ void TileMuFeatureCnv_p1::transToPers(const TileMuFeature* transObj,
                                             TileMuFeature_p1* persObj,
                                             MsgStream &log)
 {
-   log << MSG::DEBUG << "TileMuFeatureCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TileMuFeatureCnv_p1::transToPers called " << endmsg;
 
    persObj->m_eta      = transObj->eta();
    persObj->m_phi      = transObj->phi();

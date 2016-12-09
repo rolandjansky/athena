@@ -12,7 +12,7 @@
  */
 void TrigMuonEFIsolationCnv_p1::persToTrans(const TrigMuonEFIsolation_p1* persObj, TrigMuonEFIsolation* transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p1::persToTrans" << endmsg;
 
   transObj->setSumTrkPtCone02 (persObj->allTheFloats[0]);
   transObj->setSumTrkPtCone03 (persObj->allTheFloats[1]);
@@ -26,7 +26,7 @@ void TrigMuonEFIsolationCnv_p1::persToTrans(const TrigMuonEFIsolation_p1* persOb
  */
 void TrigMuonEFIsolationCnv_p1::transToPers(const TrigMuonEFIsolation* transObj, TrigMuonEFIsolation_p1* persObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p1::transToPers" << endmsg;
 
   persObj->allTheFloats[0] = transObj->sumTrkPtCone02();
   persObj->allTheFloats[1] = transObj->sumTrkPtCone03();

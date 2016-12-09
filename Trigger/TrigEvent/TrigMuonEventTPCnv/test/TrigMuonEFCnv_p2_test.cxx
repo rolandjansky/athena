@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TrigMuonEFCnv_p2.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -57,6 +58,7 @@ void testit (const TrigMuonEF& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigMuonEF trans1 (1./80000, 1.5, 2.5, 5000);
   trans1.set_muonCode (123);

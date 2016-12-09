@@ -13,7 +13,7 @@ void TileTrackMuFeatureCnv_p2::persToTrans( const TileTrackMuFeature_p2 *persObj
 					     TileTrackMuFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::persToTrans called " << endmsg;
 
   ElementLink< TileMuFeatureContainer> tileMuOutput;
   m_ELink_TileMuCnv.persToTrans( &persObj->m_TileMu, &tileMuOutput, log);
@@ -36,7 +36,7 @@ void TileTrackMuFeatureCnv_p2::transToPers( const TileTrackMuFeature    *transOb
 					     TileTrackMuFeature_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::transToPers called " << endmsg;
 
   persObj->m_PtTR_Trk   = transObj->PtTR_Trk();
   persObj->m_EtaTR_Trk  = transObj->EtaTR_Trk();
