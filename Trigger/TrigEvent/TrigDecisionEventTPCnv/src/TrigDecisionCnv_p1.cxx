@@ -13,7 +13,7 @@ void TrigDecisionCnv_p1::transToPers(const TrigDec::TrigDecision* trans,
                                      TrigDecision_p1* pers, MsgStream &log)
 {
 
-  log << MSG::DEBUG << "TrigDecisionCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p1::transToPers called " << endmsg;
 
   pers->m_configMasterKey = trans->masterKey();
 
@@ -26,7 +26,7 @@ void TrigDecisionCnv_p1::transToPers(const TrigDec::TrigDecision* trans,
 void TrigDecisionCnv_p1::persToTrans(const TrigDec::TrigDecision_p1* pers, 
                                      TrigDecision* trans, MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigDecisionCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p1::persToTrans called " << endmsg;
 
   trans->m_configMasterKey = pers->m_configMasterKey;
 
