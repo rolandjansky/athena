@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<unifiedTestConfiguration>
+    <atn>
+        <TEST name="WorkerTopDir" type="athena" suite="athenamp">
+            <package_atn>AtlasTest/AthenaMPTest</package_atn>
+            <options_atn>--nprocs=2 -c "jp.AthenaCommonFlags.EvtMax=8; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.WorkerTopDir='MPWorkers'; jps.AthenaMPFlags.CollectSubprocessLogs=True" RecExRecoTest/RecExRecoTest_RTT_id.py</options_atn>
+            <timelimit>30</timelimit>
+            <author> Vakho Tsulaia </author>
+            <mailto> tsulaia@cern.ch </mailto>
+            <prescript>RecExCommon_links.sh</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="OutputReportFile" type="athena" suite="athenamp">
+            <package_atn>AtlasTest/AthenaMPTest</package_atn>
+            <options_atn>--nprocs=2 -c "jp.AthenaCommonFlags.EvtMax=8; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.OutputReportFile='MPOutputs'; jps.AthenaMPFlags.CollectSubprocessLogs=True" RecExRecoTest/RecExRecoTest_RTT_id.py</options_atn>
+            <timelimit>30</timelimit>
+            <author> Vakho Tsulaia </author>
+            <mailto> tsulaia@cern.ch </mailto>
+            <prescript>RecExCommon_links.sh</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="1proc_RTT_id" type="athena" suite="athenamp">
+            <package_atn>AtlasTest/AthenaMPTest</package_atn>
+            <options_atn>--nprocs=1 -c "jp.AthenaCommonFlags.EvtMax=8; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" RecExRecoTest/RecExRecoTest_RTT_id.py</options_atn>
+            <timelimit>30</timelimit>
+            <author> Vakho Tsulaia </author>
+            <mailto> tsulaia@cern.ch </mailto>
+            <prescript>RecExCommon_links.sh</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+    </atn>
+
+</unifiedTestConfiguration>

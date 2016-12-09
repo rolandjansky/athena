@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<unifiedTestConfiguration>
+  <atn>
+
+    <TEST name="G4AtlasMP" type="athena" suite="AthenaMPSimJobOpt">
+      <doc>Tests standard simu job</doc>
+      <options_atn>--nprocs=2 -c "from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" G4AtlasApps/jobOptions.G4Atlas.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Vakho Tsulaia </author>
+      <mailto> tsulaia@cern.ch</mailto>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+   <TEST name="AtlasG4_tfMP" type="script" suite="AthenaMPSim">
+      <package_atn>AtlasTest/AthenaMPTest</package_atn>
+      <doc>Tests MP simulation in TF with ATHENA_PROC_NUMBER</doc>
+      <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'HITSMPSim.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False'</options_atn>
+      <timelimit>30</timelimit>
+      <author>Vakho Tsulaia</author>
+      <mailto>tsulaia@cern.ch</mailto>
+      <expectations>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+   <TEST name="AtlasG4_tfMP-SharedReader" type="script" suite="AthenaMPSimSharedReader">
+      <package_atn>AtlasTest/AthenaMPTest</package_atn>
+      <doc>Tests MP simulation in TF with the Shared Reader process</doc>
+      <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'HITSMPSimSharedReader.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;from AthenaMP.AthenaMPFlags import jobproperties as jps;jps.AthenaMPFlags.UseSharedReader=True'</options_atn>
+      <timelimit>30</timelimit>
+      <author>Vakho Tsulaia</author>
+      <mailto>tsulaia@cern.ch</mailto>
+      <expectations>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <TEST name="DigiTfPileUpMP" type="script" suite="AthenaMPDigi">
+      <package_atn>AtlasTest/AthenaMPTest</package_atn>
+      <doc>Tests MP pile-up digitization</doc>
+      <options_atn>ATHENA_PROC_NUMBER=4 Digi_tf.py @/afs/cern.ch/user/t/tsulaia/public/DigiTfPileUpMP/HitsFile --conditionsTag default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1 170 --digiSeedOffset2 170 --geometryVersion ATLAS-R2-2015-03-01-00 @/afs/cern.ch/user/t/tsulaia/public/DigiTfPileUpMP/HighPtMinbiasHitsFile @/afs/cern.ch/user/t/tsulaia/public/DigiTfPileUpMP/LowPtMinbiasHitsFile --jobNumber 1 --maxEvents 12 --numberOfCavernBkg 0 --numberOfHighPtMinBias 0.12268057 --numberOfLowPtMinBias 39.8773194 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon.CfgGetter import getPublicTool;getPublicTool("MergeMcEventCollTool").OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1' --postInclude 'default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch 6 --preExec    'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' --skipEvents 0</options_atn>
+      <timelimit>30</timelimit>
+      <author>Vakho Tsulaia</author>
+      <mailto>tsulaia@cern.ch</mailto>
+      <expectations>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    </atn>
+
+</unifiedTestConfiguration>
