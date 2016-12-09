@@ -12,7 +12,7 @@ void IsoMuonFeatureCnv_p3::persToTrans( const IsoMuonFeature_p3 *persObj,
 					     IsoMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p3::persToTrans called " << endreq;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p3::persToTrans called " << endmsg;
 
   transObj->m_sumet01    = persObj->m_allTheFloats[0]    ;
   transObj->m_sumet02    = persObj->m_allTheFloats[1]    ;
@@ -41,7 +41,7 @@ void IsoMuonFeatureCnv_p3::transToPers( const IsoMuonFeature    *transObj,
 					     IsoMuonFeature_p3 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p3::transToPers called " << endreq;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p3::transToPers called " << endmsg;
 
   persObj->m_allTheFloats[0]  = transObj->m_sumet01 ;
   persObj->m_allTheFloats[1]  = transObj->m_sumet02 ;

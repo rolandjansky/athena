@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/IsoMuonFeatureCnv_p3.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -58,6 +59,7 @@ void testit (const IsoMuonFeature& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   IsoMuonFeature trans1;
   trans1.setCaloInfos (10000, 10010, 10020, 10030);

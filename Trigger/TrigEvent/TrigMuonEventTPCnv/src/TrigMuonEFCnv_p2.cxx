@@ -11,7 +11,7 @@ void TrigMuonEFCnv_p2::persToTrans(const TrigMuonEF_p2* persObj,
 				    TrigMuonEF* transObj, 
 				    MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMuonEFCnv_p2::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigMuonEFCnv_p2::persToTrans called " << endmsg;
 
    transObj->set_muonCode (persObj->m_muonCode); 
    transObj->set_RoINum   (persObj->m_roi);
@@ -26,7 +26,7 @@ void TrigMuonEFCnv_p2::transToPers(const TrigMuonEF* transObj,
 				       TrigMuonEF_p2* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMuonEFCnv_p2::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigMuonEFCnv_p2::transToPers called " << endmsg;
 
    persObj->m_muonCode = transObj->MuonCode(); 
    persObj->m_roi      = transObj->RoINum();

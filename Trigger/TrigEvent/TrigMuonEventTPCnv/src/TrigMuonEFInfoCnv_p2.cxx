@@ -13,7 +13,7 @@ void TrigMuonEFInfoCnv_p2::persToTrans(const TrigMuonEFInfo_p2* persObj,
 				       TrigMuonEFInfo* transObj,
 				       MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFInfoCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFInfoCnv_p2::persToTrans called " << endmsg;
 
   std::unique_ptr<TrigMuonEFTrack> spectrometerTrack
     (createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log));
@@ -34,7 +34,7 @@ void TrigMuonEFInfoCnv_p2::transToPers(const TrigMuonEFInfo* /*transObj*/,
 				       TrigMuonEFInfo_p2* /*persObj*/,
 				       MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFInfoCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFInfoCnv_p2::transToPers called " << endmsg;
 
 //  persObj->m_roi               = transObj->m_roi;
 //  persObj->m_spectrometerTrack = toPersistent( &m_trackCnv, transObj->m_spectrometerTrack, log);

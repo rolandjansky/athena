@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -48,6 +49,10 @@ void testit (const TileTrackMuFeature& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak checking.
+  ElementLink< TileMuFeatureContainer> foo ("foo", 10);
+  ElementLink< TrigInDetTrackCollection> bar ("bar", 20);
+  Athena_test::Leakcheck check;
 
   TileTrackMuFeature trans1 (2.5, 1.5, 3.5, 5,
                              ElementLink< TileMuFeatureContainer>("foo", 10),

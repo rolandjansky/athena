@@ -17,7 +17,7 @@ static InfoEleLinkCnv_t infoEleLinkCnv;
  */
 void TrigMuonEFIsolationCnv_p2::persToTrans(const TrigMuonEFIsolation_p2* persObj, TrigMuonEFIsolation* transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p2::persToTrans" << endmsg;
 
   transObj->setSumTrkPtCone02 (persObj->allTheFloats[0]);
   transObj->setSumTrkPtCone03 (persObj->allTheFloats[1]);
@@ -39,7 +39,7 @@ void TrigMuonEFIsolationCnv_p2::persToTrans(const TrigMuonEFIsolation_p2* persOb
  */
 void TrigMuonEFIsolationCnv_p2::transToPers(const TrigMuonEFIsolation* transObj, TrigMuonEFIsolation_p2* persObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "Called TrigMuonEFIsolationCnv_p2::transToPers" << endmsg;
 
   persObj->allTheFloats[0] = transObj->sumTrkPtCone02();
   persObj->allTheFloats[1] = transObj->sumTrkPtCone03();

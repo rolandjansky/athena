@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/MuonFeatureDetailsCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -218,6 +219,7 @@ void testit (const MuonFeatureDetails& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MuonFeatureDetails trans1 (MuonFeatureDetails::MUONID,
                              1, // te_id

@@ -13,7 +13,7 @@ void CombinedMuonFeatureCnv_p4::persToTrans( const CombinedMuonFeature_p4 *persO
 					     CombinedMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::persToTrans called " << endreq;
+  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::persToTrans called " << endmsg;
 
   ElementLink< MuonFeatureContainer> muFastTrack;  
   m_elementLinkMuFeatCnv.persToTrans( &persObj->m_muFastTrack, &muFastTrack, log );
@@ -36,7 +36,7 @@ void CombinedMuonFeatureCnv_p4::transToPers( const CombinedMuonFeature    *trans
 					     CombinedMuonFeature_p4 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::transToPers called " << endreq;
+  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::transToPers called " << endmsg;
 
   persObj->m_pt           = transObj->pt();
   persObj->m_sigma_pt     = transObj->sigma_pt_raw();

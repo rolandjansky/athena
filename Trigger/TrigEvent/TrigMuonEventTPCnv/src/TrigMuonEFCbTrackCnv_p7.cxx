@@ -14,7 +14,7 @@ static TrackLinkCnv_t         trackCnv;
 void TrigMuonEFCbTrackCnv_p7::persToTrans(const TrigMuonEFCbTrack_p7* persObj, TrigMuonEFCbTrack* transObj, MsgStream &log){
     // std::cout << "TrigMuonEFCbTrackCnv_p7::persToTrans called " <<std::endl;
 
-  //log << MSG::DEBUG << "Called TrigMuonEFCbTrackCnv_p7::persToTrans" << endreq;
+  //log << MSG::DEBUG << "Called TrigMuonEFCbTrackCnv_p7::persToTrans" << endmsg;
   transObj->setMatchChi2    (persObj->m_matchChi2);
   transObj->setNIdSctHits   (persObj->m_nIdSctHits);
   transObj->setNIdPixelHits (persObj->m_nIdPixelHits);
@@ -31,7 +31,7 @@ void TrigMuonEFCbTrackCnv_p7::persToTrans(const TrigMuonEFCbTrack_p7* persObj, T
 void TrigMuonEFCbTrackCnv_p7::transToPers(const TrigMuonEFCbTrack* transObj, TrigMuonEFCbTrack_p7* persObj, MsgStream &log) {
     // std::cout << "TrigMuonEFCbTrackCnv_p7::transToPers called " << std::endl;
 
-  //log << MSG::DEBUG << "Called TrigMuonEFCbTrackCnv_p7::transToPers" << endreq;
+  //log << MSG::DEBUG << "Called TrigMuonEFCbTrackCnv_p7::transToPers" << endmsg;
   persObj->m_matchChi2    = transObj->matchChi2();
   persObj->m_nIdSctHits   = transObj->NIdSctHits();
   persObj->m_nIdPixelHits = transObj->NIdPixelHits();

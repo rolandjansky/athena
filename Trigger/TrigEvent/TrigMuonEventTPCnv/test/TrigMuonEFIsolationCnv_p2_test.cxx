@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolationCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -49,6 +50,9 @@ void testit (const TrigMuonEFIsolation& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxy created outside of leak checking.
+  ElementLink<TrigMuonEFInfoContainer> foo ("foo", 10);
+  Athena_test::Leakcheck check;
 
   TrigMuonEFIsolation trans1;
   trans1.setSumTrkPtCone02 (1.5);

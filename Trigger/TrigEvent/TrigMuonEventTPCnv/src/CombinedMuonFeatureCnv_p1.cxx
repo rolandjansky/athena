@@ -13,7 +13,7 @@ void CombinedMuonFeatureCnv_p1::persToTrans( const CombinedMuonFeature_p1 *persO
 					     CombinedMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p1::persToTrans called " << endmsg;
 
   //need to get the ElementLink from the pointer...
   //  transObj->m_muFastTrack = createTransFromPStore( &m_mfCnv, persObj->m_muFastTrack, log );
@@ -34,7 +34,7 @@ void CombinedMuonFeatureCnv_p1::transToPers( const CombinedMuonFeature    */*tra
 					     CombinedMuonFeature_p1 */*persObj*/,
 					     MsgStream       &log )
 {
-  log << MSG::WARNING << "CombinedMuonFeatureCnv_p1::transToPers called but CombinedMuonFeatureCnv_p2 exists!! " << endreq;
+  log << MSG::WARNING << "CombinedMuonFeatureCnv_p1::transToPers called but CombinedMuonFeatureCnv_p2 exists!! " << endmsg;
 
   //persObj->m_pt           = transObj->m_pt;
   //persObj->m_sigma_pt     = transObj->m_sigma_pt;

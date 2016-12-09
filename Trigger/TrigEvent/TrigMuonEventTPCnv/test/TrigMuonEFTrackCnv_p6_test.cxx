@@ -16,6 +16,7 @@
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainerCnv_tlp2.h"
 #include "TestTools/FLOATassert.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -73,6 +74,7 @@ void testit (const TrigMuonEFTrack& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigMuonEFTrack trans1 (1./80000, 1.5, 2.5, 5000);
   trans1.setCharge (3.5);

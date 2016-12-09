@@ -11,7 +11,7 @@ void TrigMuonEFTrackCnv_p4::persToTrans(const TrigMuonEFTrack_p4* persObj,
 					TrigMuonEFTrack* transObj,
 					MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFTrackCnv_p4::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFTrackCnv_p4::persToTrans called " << endmsg;
 
    transObj->setCharge      (persObj->m_charge);
    transObj->setD0          (persObj->m_d0);
@@ -36,7 +36,7 @@ void TrigMuonEFTrackCnv_p4::transToPers(const TrigMuonEFTrack* /*transObj*/,
 					TrigMuonEFTrack_p4* /*persObj*/,
 					MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigMuonEFTrackCnv_p4::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigMuonEFTrackCnv_p4::transToPers called " << endmsg;
 //
 //  persObj->m_charge      = transObj->m_charge;
 //  persObj->m_d0          = transObj->m_d0;
