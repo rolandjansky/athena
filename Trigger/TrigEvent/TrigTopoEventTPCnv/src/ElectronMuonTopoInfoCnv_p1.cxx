@@ -11,7 +11,7 @@ void ElectronMuonTopoInfoCnv_p1::persToTrans(const ElectronMuonTopoInfo_p1* pers
 				       ElectronMuonTopoInfo* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "ElectronMuonTopoInfoCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "ElectronMuonTopoInfoCnv_p1::persToTrans called " << endmsg;
 
    transObj->SetRoiWord        (persObj->m_roiWord)        ;
    transObj->SetDeltaPhi       (persObj->m_DeltaPhi)       ;
@@ -28,7 +28,7 @@ void ElectronMuonTopoInfoCnv_p1::transToPers(const ElectronMuonTopoInfo* transOb
 				       ElectronMuonTopoInfo_p1* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "ElectronMuonTopoInfoCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "ElectronMuonTopoInfoCnv_p1::transToPers called " << endmsg;
 
    persObj->m_roiWord        = transObj->RoiWord()        ;
    persObj->m_DeltaPhi       = transObj->DeltaPhi()       ;
