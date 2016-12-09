@@ -16,11 +16,11 @@ use StoreGate            StoreGate-*                Control
 #use DataModelAthenaPool  DataModelAthenaPool-*      Control
 use RootConversions      RootConversions-*          Database/AthenaPOOL
 
-use Identifier           Identifier-*               DetectorDescription
+# use Identifier           Identifier-*               DetectorDescription
 
 
 # use statements for data packages
-use FourMom              FourMom-*               Event
+# use FourMom              FourMom-*               Event
 use TrigInDetEvent	 TrigInDetEvent-*	 Trigger/TrigEvent
 use TrigCaloEventTPCnv	 TrigCaloEventTPCnv-*	 Trigger/TrigEvent
 

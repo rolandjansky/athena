@@ -12,7 +12,7 @@ void TrigInDetTrackCollectionCnv_p1::persToTrans(const TrigInDetTrackCollection_
 				       TrigInDetTrackCollection* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigInDetTrackCollectionCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigInDetTrackCollectionCnv_p1::persToTrans called " << endmsg;
 
    transObj->RoI_ID (persObj->m_RoI_ID);
 
@@ -24,7 +24,7 @@ void TrigInDetTrackCollectionCnv_p1::transToPers(const TrigInDetTrackCollection*
 				       TrigInDetTrackCollection_p1* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigInDetTrackCollectionCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigInDetTrackCollectionCnv_p1::transToPers called " << endmsg;
 
    persObj->m_RoI_ID = transObj->RoI_ID();
 

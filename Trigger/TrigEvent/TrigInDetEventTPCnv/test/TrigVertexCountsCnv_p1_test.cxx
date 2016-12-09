@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigVertexCountsCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -42,6 +43,7 @@ void testit (const TrigVertexCounts& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigVertexCounts trans1 (std::vector<unsigned int> {1, 2, 3},
                            std::vector<float> {6.5, 7.5});

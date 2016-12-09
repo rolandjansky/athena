@@ -21,9 +21,6 @@
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include <vector>
-// #include "Identifier/Identifier.h" 
-
-#include "TrigInDetEvent/TrigInDetTrack.h"
 
 class TrigInDetTrack_p4 
 {

@@ -24,6 +24,8 @@
 #include "TrigCaloEventTPCnv/TrigEMClusterCnv_p1.h"
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
 
+#include "TrigInDetEvent/TrigTauTracksInfo.h"
+
 class MsgStream;
 
 class TrigTauTracksInfoCnv_p2 : public T_AthenaPoolTPCnvBase<TrigTauTracksInfo, TrigTauTracksInfo_p2> 

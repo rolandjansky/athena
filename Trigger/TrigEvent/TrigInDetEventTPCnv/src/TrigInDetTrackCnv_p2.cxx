@@ -14,9 +14,9 @@ void TrigInDetTrackCnv_p2::persToTrans( const TrigInDetTrack_p2 *persObj,
 			       MsgStream       &log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackCnv_p2::persToTrans called " << endmsg;
 
-  transObj->algorithmId (persObj->m_algId)      ;
+  transObj->algorithmId( ( TrigInDetTrack::AlgoId)persObj->m_algId );
   transObj->chi2        (persObj->m_chi2)       ;
   transObj->StrawHits   (persObj->m_NStrawHits) ;
   transObj->Straw       (persObj->m_NStraw)     ;
@@ -40,7 +40,7 @@ void TrigInDetTrackCnv_p2::transToPers( const TrigInDetTrack    *transObj,
 			       MsgStream       &log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackCnv_p2::transToPers called " << endmsg;
 
   persObj->m_algId       = transObj->algorithmId()      ;
   persObj->m_chi2        = transObj->chi2()       ;

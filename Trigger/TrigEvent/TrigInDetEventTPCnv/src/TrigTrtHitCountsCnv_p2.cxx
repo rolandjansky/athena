@@ -9,7 +9,7 @@
 void TrigTrtHitCountsCnv_p2::persToTrans( const TrigTrtHitCounts_p2 *persObj,
 					  TrigTrtHitCounts    *transObj,
 					  MsgStream& log ) {
-  log << MSG::DEBUG << "TrigTrtHitCountsCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigTrtHitCountsCnv_p2::persToTrans" << endmsg;
   
   TrigHisto1D endcapC;
   m_trigHistoCnv.persToTrans(&persObj->m_endcapC, &endcapC, log);
@@ -26,7 +26,7 @@ void TrigTrtHitCountsCnv_p2::persToTrans( const TrigTrtHitCounts_p2 *persObj,
 void TrigTrtHitCountsCnv_p2 :: transToPers( const TrigTrtHitCounts *transObj,
 					    TrigTrtHitCounts_p2 *persObj,
 					    MsgStream& log ) {
-  log << MSG::DEBUG << "TrigTrtHitCountsCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigTrtHitCountsCnv_p2::transToPers" << endmsg;
   
   m_trigHistoCnv.transToPers(&transObj->endcapC(), &persObj->m_endcapC, log);
   m_trigHistoCnv.transToPers(&transObj->barrel(),  &persObj->m_barrel,  log);

@@ -18,8 +18,6 @@
 #ifndef TRIGINDETEVENTTPCNV_TRIGINDETTRACKFITPAR_P3_H
 #define TRIGINDETEVENTTPCNV_TRIGINDETTRACKFITPAR_P3_H
 
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-
 
 class TrigInDetTrackFitPar_p3 {
    
@@ -34,7 +32,7 @@ class TrigInDetTrackFitPar_p3 {
      // double m_surfaceCoordinate;
      double m_allDoubles[6]; // all the variables above in the same order.
      float m_cov[15];
-     TrigInDetTrackFitPar::TrigSurfaceType m_surfaceType;
+     int m_surfaceType;  //TrigInDetTrackFitPar::TrigSurfaceType
 
 };
 

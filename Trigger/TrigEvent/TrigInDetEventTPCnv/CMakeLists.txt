@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 730286 2016-03-16 09:14:40Z krasznaa $
+# $Id: CMakeLists.txt 760059 2016-07-06 16:13:46Z mnowak $
 ################################################################################
 # Package: TrigInDetEventTPCnv
 ################################################################################
@@ -13,9 +13,7 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolCnvSvc
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AthenaPOOL/RootConversions
-   DetectorDescription/Identifier
    Event/EventCommonTPCnv
-   Event/FourMom
    InnerDetector/InDetDetDescr/InDetIdentifier
    Trigger/TrigEvent/TrigCaloEventTPCnv
    Trigger/TrigEvent/TrigInDetEvent

@@ -16,11 +16,10 @@
 #ifndef TRIGINDETEVENTTPCNV_TRIGTAUTRACKSINFO_P1_H
 #define TRIGINDETEVENTTPCNV_TRIGTAUTRACKSINFO_P1_H
 
-#include <stdint.h>
-#include <string>
-#include "FourMom/P4PtEtaPhiM.h"
-#include "TrigInDetEvent/TrigTauTracksInfo.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
+
+#include "EventCommonTPCnv/P4PtEtaPhiM_p1.h"
+
 
 class TrigTauTracksInfo_p1 
 {

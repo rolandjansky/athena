@@ -12,7 +12,7 @@
 void TrigInDetTrackCnv_p5::persToTrans( const TrigInDetTrack_p5 *persObj, TrigInDetTrack *transObj, MsgStream  &log  )
 {
 
-  // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::persToTrans called " << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::persToTrans called " << endmsg;
 
   transObj->algorithmId       ((TrigInDetTrack::AlgoId) persObj->m_allIntegers[0]);
   transObj->StrawHits         (persObj->m_allIntegers[1]);
@@ -40,7 +40,7 @@ void TrigInDetTrackCnv_p5::persToTrans( const TrigInDetTrack_p5 *persObj, TrigIn
 void TrigInDetTrackCnv_p5::transToPers( const TrigInDetTrack *transObj, TrigInDetTrack_p5 *persObj, MsgStream &log )
 {
 
-  // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::transToPers called " << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::transToPers called " << endmsg;
   persObj->m_allIntegers[0]= transObj->algorithmId()      ;
   persObj->m_allIntegers[1]= transObj->NStrawHits() ;
   persObj->m_allIntegers[2]= transObj->NStraw()     ;

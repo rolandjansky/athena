@@ -12,7 +12,7 @@
 void TrigInDetTrackCnv_p4::persToTrans( const TrigInDetTrack_p4 *persObj, TrigInDetTrack *transObj, MsgStream  &log  )
 {
 
-  // log << MSG::DEBUG << "TrigInDetTrackCnv_p4::persToTrans called " << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackCnv_p4::persToTrans called " << endmsg;
 
   transObj->algorithmId       ((TrigInDetTrack::AlgoId) persObj->m_allIntegers[0]);
   transObj->StrawHits         (persObj->m_allIntegers[1]);
@@ -32,7 +32,7 @@ void TrigInDetTrackCnv_p4::persToTrans( const TrigInDetTrack_p4 *persObj, TrigIn
 
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize TrigInDetTrackCnv_p4 " << endreq;
+      log << MSG::FATAL << "Could not initialize TrigInDetTrackCnv_p4 " << endmsg;
     }
   }
 
@@ -55,7 +55,7 @@ void TrigInDetTrackCnv_p4::persToTrans( const TrigInDetTrack_p4 *persObj, TrigIn
 //-----------------------------------------------------------------------------
 void TrigInDetTrackCnv_p4::transToPers( const TrigInDetTrack *transObj, TrigInDetTrack_p4 *persObj, MsgStream &log )
 {
-  // log << MSG::DEBUG << "TrigInDetTrackCnv_p4::transToPers called " << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackCnv_p4::transToPers called " << endmsg;
   persObj->m_allIntegers[0]= transObj->algorithmId()      ;
   persObj->m_allIntegers[1]= transObj->NStrawHits() ;
   persObj->m_allIntegers[2]= transObj->NStraw()     ;
@@ -87,7 +87,7 @@ StatusCode TrigInDetTrackCnv_p4::initialize(MsgStream &log) {
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -95,22 +95,22 @@ StatusCode TrigInDetTrackCnv_p4::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
    // Get the sct helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+      log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
 
 
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }
 

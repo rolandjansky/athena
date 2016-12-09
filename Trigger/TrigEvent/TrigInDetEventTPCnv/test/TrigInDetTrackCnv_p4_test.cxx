@@ -20,6 +20,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -174,6 +175,9 @@ void test1()
   std::vector<Identifier> rdolist {Identifier(123), Identifier(234)};
   trans1.rdoList (std::move(rdolist));
 
+  // Run once outside of leak check to get services initialized.
+  testit (trans1);
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 

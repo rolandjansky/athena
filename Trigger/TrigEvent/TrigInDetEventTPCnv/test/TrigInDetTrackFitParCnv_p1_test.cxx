@@ -15,6 +15,7 @@
 #include "TrigInDetEventTPCnv/TrigInDetTrackFitParCnv_p1.h"
 #include "CxxUtils/make_unique.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -59,6 +60,7 @@ void testit (const TrigInDetTrackFitPar& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::vector<double> cov1
   { 201.5*201.5, 202.5, 203.5, 204.5, 205.5,

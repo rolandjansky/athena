@@ -11,7 +11,7 @@ void TrigSpacePointCountsCnv_p2::persToTrans(const TrigSpacePointCounts_p2* pers
 				    TrigSpacePointCounts* transObj, 
 				    MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p2::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p2::persToTrans called " << endmsg;
 
    TrigHisto2D pixelClusEndcapC;
    m_trigHistoCnv.persToTrans(&persObj->m_pixelClusEndcapC, &pixelClusEndcapC, log);
@@ -37,7 +37,7 @@ void TrigSpacePointCountsCnv_p2::transToPers(const TrigSpacePointCounts* transOb
 				       TrigSpacePointCounts_p2* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p2::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p2::transToPers called " << endmsg;
 
    m_trigHistoCnv.transToPers(&transObj->pixelClusEndcapC(), &persObj->m_pixelClusEndcapC, log);
    m_trigHistoCnv.transToPers(&transObj->pixelClusBarrel(), &persObj->m_pixelClusBarrel, log);

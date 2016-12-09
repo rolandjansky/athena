@@ -11,7 +11,7 @@ void TrigSpacePointCountsCnv_p1::persToTrans(const TrigSpacePointCounts_p1* pers
 				             TrigSpacePointCounts* transObj, 
 				             MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p1::persToTrans called " << endmsg;
 
    *transObj = TrigSpacePointCounts (TrigHisto2D(),
                                      TrigHisto2D(),
@@ -28,7 +28,7 @@ void TrigSpacePointCountsCnv_p1::transToPers(const TrigSpacePointCounts* transOb
 				       TrigSpacePointCounts_p1* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigSpacePointCountsCnv_p1::transToPers called " << endmsg;
 
    persObj->m_pixSPcnt     = 0; 
    persObj->m_sctSPcnt     = transObj->sctSpBarrel() + transObj->sctSpEndcapA() + transObj->sctSpEndcapC();

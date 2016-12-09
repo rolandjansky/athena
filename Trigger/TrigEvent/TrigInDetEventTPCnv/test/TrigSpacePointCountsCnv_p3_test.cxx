@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCnv_p3.h"
 #include "TestTools/random.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -83,6 +84,7 @@ void testit (const TrigSpacePointCounts& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigHisto2D pixelClusEndcapC (20, 0, 10, 20, 0, 10);
   for (int i=0; i < 1000; i++)

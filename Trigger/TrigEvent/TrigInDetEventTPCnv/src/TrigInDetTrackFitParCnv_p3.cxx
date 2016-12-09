@@ -121,7 +121,7 @@ bool TrigInDetTrackFitParCnv_p3 :: CholeskyDecomposition(double a[5][5], float L
 void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *persObj, TrigInDetTrackFitPar *transObj, MsgStream& //log 
 ) {
 
-  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::persToTrans" << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::persToTrans" << endmsg;
   
   std::unique_ptr<std::vector<double> > cov  (restoreCovariance(persObj));
 
@@ -144,7 +144,7 @@ void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *p
                                     persObj->m_allDoubles[3], // eta
                                     persObj->m_allDoubles[4], // pT
                                     ea0, ephi0, ez0, eeta, epT,
-                                    persObj->m_surfaceType,
+                                    (TrigInDetTrackFitPar::TrigSurfaceType) persObj->m_surfaceType,
                                     persObj->m_allDoubles[5], // surfaceCoordinate
                                     cov.release());
 }
@@ -154,7 +154,7 @@ void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *p
 void TrigInDetTrackFitParCnv_p3 :: transToPers( const TrigInDetTrackFitPar    *transObj, TrigInDetTrackFitPar_p3 *persObj, MsgStream& //log 
 ) {
 
-  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::transToPers" << endreq;
+  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::transToPers" << endmsg;
 
 
   persObj->m_allDoubles[0] = transObj->a0()    ;

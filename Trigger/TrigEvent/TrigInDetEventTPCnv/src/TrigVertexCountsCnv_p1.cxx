@@ -9,7 +9,7 @@
 void TrigVertexCountsCnv_p1::persToTrans( const TrigVertexCounts_p1 *persObj,
 					TrigVertexCounts    *transObj,
 					MsgStream& log ) {
-  log << MSG::DEBUG << "TrigVertexCountsCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigVertexCountsCnv_p1::persToTrans" << endmsg;
 
   *transObj = TrigVertexCounts (persObj->m_vtxNtrks,
                                 persObj->m_vtxTrkPtSqSum);
@@ -18,7 +18,7 @@ void TrigVertexCountsCnv_p1::persToTrans( const TrigVertexCounts_p1 *persObj,
 void TrigVertexCountsCnv_p1 :: transToPers( const TrigVertexCounts    *transObj,
 					  TrigVertexCounts_p1 *persObj,
 					  MsgStream& log ) {
-  log << MSG::DEBUG << "TrigVertexCountsCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigVertexCountsCnv_p1::transToPers" << endmsg;
   
   persObj->m_vtxNtrks = transObj->vtxNtrks();
   persObj->m_vtxTrkPtSqSum = transObj->vtxTrkPtSqSum();

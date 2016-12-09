@@ -10,7 +10,7 @@ void TrigInDetTrackFitParCnv_p1 :: persToTrans( const TrigInDetTrackFitPar_p1 *p
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p1::persToTrans" << endmsg;
   
 
   *transObj = TrigInDetTrackFitPar (persObj->m_a0,
@@ -23,7 +23,7 @@ void TrigInDetTrackFitParCnv_p1 :: persToTrans( const TrigInDetTrackFitPar_p1 *p
                                     persObj->m_ez0,
                                     persObj->m_eeta,
                                     persObj->m_epT,
-                                    persObj->m_surfaceType,
+                                    (TrigInDetTrackFitPar::TrigSurfaceType) persObj->m_surfaceType,
                                     persObj->m_surfaceCoordinate,
                                     new std::vector<double> (*persObj->m_cov));
 }
@@ -33,7 +33,7 @@ void TrigInDetTrackFitParCnv_p1 :: transToPers( const TrigInDetTrackFitPar    *t
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p1::transToPers" << endmsg;
   
   persObj->m_a0                = transObj->a0()    ;
   persObj->m_phi0              = transObj->phi0()  ;

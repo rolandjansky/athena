@@ -10,7 +10,7 @@ void TrigTrackCountsCnv_p2::persToTrans( const TrigTrackCounts_p2 *persObj,
                                          TrigTrackCounts *transObj, 
 					 MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigTrackCountsCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigTrackCountsCnv_p2::persToTrans called " << endmsg;
 
   TrigHisto2D z0_pt;
   m_trigHistoCnv.persToTrans(&persObj->m_z0_pt, &z0_pt, log);
@@ -24,7 +24,7 @@ void TrigTrackCountsCnv_p2::transToPers(const TrigTrackCounts* transObj,
 	 			        TrigTrackCounts_p2* persObj, 
 				        MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigTrackCountsCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigTrackCountsCnv_p2::transToPers called " << endmsg;
  
   m_trigHistoCnv.transToPers(&transObj->z0_pt(), &persObj->m_z0_pt, log);
   m_trigHistoCnv.transToPers(&transObj->eta_phi(), &persObj->m_eta_phi, log); 
