@@ -9,6 +9,7 @@ use MuonDigitContainer	MuonDigitContainer-*	MuonSpectrometer
 use MuonOverlayBase	MuonOverlayBase-*	MuonSpectrometer/MuonOverlay
 
 private
+use CxxUtils            CxxUtils-*              Control
 use GeneratorObjects	GeneratorObjects-*	Generators
 use MuonDigToolInterfaces       MuonDigToolInterfaces-* MuonSpectrometer/MuonDigitization
 use MuonIdHelpers	MuonIdHelpers-*		MuonSpectrometer
