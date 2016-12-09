@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonOverlay/MuonOverlayBase
                           PRIVATE
                           Control/StoreGate
+			  Control/CxxUtils          
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonIdHelpers
@@ -21,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MdtOverlay
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase StoreGateLib SGtests GeneratorObjects MuonIdHelpersLib MuonSimData )
+                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase StoreGateLib SGtests CxxUtils GeneratorObjects MuonIdHelpersLib MuonSimData )
 
 # Install files from the package:
 atlas_install_headers( MdtOverlay )
