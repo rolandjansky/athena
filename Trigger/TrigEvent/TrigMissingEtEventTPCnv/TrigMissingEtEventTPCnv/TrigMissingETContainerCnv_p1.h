@@ -33,7 +33,7 @@ class TrigMissingETContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigMiss
   //this part is implemented in T_AthenaPoolTPConverter.h. 
   //It is here temporarily to override and allow some extra debugging
   virtual void persToTrans(const  TrigMissingETContainer_p1* persVect, TrigMissingETContainer* transVect, MsgStream &log) {
-    log << MSG::DEBUG << "TrigMissingETContainerCnv::persToTrans" << endreq;
+    log << MSG::DEBUG << "TrigMissingETContainerCnv::persToTrans" << endmsg;
     transVect->clear();
     if (persVect){
       transVect->reserve( persVect->size() );
@@ -45,10 +45,10 @@ class TrigMissingETContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigMiss
 	TrigMissingET *p = createTransFromPStore( &m_elementCnv, *it, log ); 
 	transVect->push_back( p);
 	if (!p)
-	  log << MSG::WARNING << "TrigMissingETContainerCnv::persToTrans failed for an element " << endreq;
+	  log << MSG::WARNING << "TrigMissingETContainerCnv::persToTrans failed for an element " << endmsg;
       }        
     } else {
-      log << MSG::WARNING << "TrigMissingETContainerCnv::persToTrans cannot convert NULL persVect" << endreq;
+      log << MSG::WARNING << "TrigMissingETContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
 
       return;
     }
@@ -68,7 +68,7 @@ class TrigMissingETContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigMiss
       persVect->push_back( a );
       if (a.isNull()){
 	log << MSG::WARNING << "TrigMissingETContainerCnv::transToPers failed for an element " << *it << " "
-	    << m_elementCnv << endreq;
+	    << m_elementCnv << endmsg;
 	
       }
     }       

@@ -11,7 +11,7 @@ void TrigMissingETCnv_p1::persToTrans(const TrigMissingET_p1* persObj,
 				    TrigMissingET* transObj, 
 				    MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMissingETCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigMissingETCnv_p1::persToTrans called " << endmsg;
 
    // Clear auxiliary info.
    *transObj = TrigMissingET(0);
@@ -32,8 +32,8 @@ void TrigMissingETCnv_p1::transToPers(const TrigMissingET* /*transObj*/,
                                       TrigMissingET_p1* /*persObj*/, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMissingETCnv_p1::transToPers called " << endreq;
-   log << MSG::WARNING << "should call new converter!  Skipping..." << endreq;
+   log << MSG::DEBUG << "TrigMissingETCnv_p1::transToPers called " << endmsg;
+   log << MSG::WARNING << "should call new converter!  Skipping..." << endmsg;
 
 //    persObj->m_ex        = transObj->m_ex       ; 
 //    persObj->m_ey        = transObj->m_ey       ;

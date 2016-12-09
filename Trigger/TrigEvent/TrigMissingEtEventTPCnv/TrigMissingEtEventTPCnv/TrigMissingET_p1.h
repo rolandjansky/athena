@@ -32,10 +32,10 @@ class TrigMissingET_p1
   virtual ~TrigMissingET_p1(){}
   
   //private:
-  double m_ex;
-  double m_ey;
-  double m_sum_et;
-  long   m_roiWord;
+  double m_ex = 0;
+  double m_ey = 0;
+  double m_sum_et = 0;
+  long   m_roiWord = 0;
 
 };
 
