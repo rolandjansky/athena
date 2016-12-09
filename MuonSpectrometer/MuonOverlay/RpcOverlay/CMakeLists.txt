@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonOverlay/MuonOverlayBase
                           PRIVATE
+			  Control/CxxUtils  	  
                           Control/StoreGate
                           Generators/GeneratorObjects
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
@@ -21,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( RpcOverlay
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase StoreGateLib SGtests GeneratorObjects MuonIdHelpersLib MuonSimData )
+                     LINK_LIBRARIES GaudiKernel MuonDigitContainer MuonOverlayBase StoreGateLib SGtests CxxUtils GeneratorObjects MuonIdHelpersLib MuonSimData )
 
 # Install files from the package:
 atlas_install_headers( RpcOverlay )
