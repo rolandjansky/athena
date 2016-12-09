@@ -18,7 +18,6 @@
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TProfile.h"
-#include "TEfficiency.h"
 #include <algorithm>
 
 PlotBase::PlotBase(PlotBase *pParent, const std::string &sDir) {
@@ -54,9 +53,9 @@ PlotBase::setDetailLevel(int iDetailLevel) {
   m_iDetailLevel = iDetailLevel;
 }
 
-std::vector<HistData> PlotBase::retrieveBookedHistograms() {
+std::vector<HistData> 
+PlotBase::retrieveBookedHistograms() {
   std::vector<HistData> vBookedHistograms = m_vBookedHistograms;
-
   for (const auto &subNode: m_vSubNodes) {
     std::vector<HistData> subNodeHists = subNode->retrieveBookedHistograms();
     vBookedHistograms.insert(vBookedHistograms.end(), subNodeHists.begin(), subNodeHists.end());
@@ -64,15 +63,26 @@ std::vector<HistData> PlotBase::retrieveBookedHistograms() {
   return vBookedHistograms;
 }
 
-std::vector<TreeData> PlotBase::retrieveBookedTrees() {
+std::vector<TreeData> 
+PlotBase::retrieveBookedTrees() {
   std::vector<TreeData> vBookedTrees = m_vBookedTrees;
-
   for (auto subNode: m_vSubNodes) {
     std::vector<TreeData> subNodeTrees = subNode->retrieveBookedTrees();
     vBookedTrees.insert(vBookedTrees.end(), subNodeTrees.begin(), subNodeTrees.end());
   }
   return vBookedTrees;
 }
+
+std::vector<EfficiencyData> 
+PlotBase::retrieveBookedEfficiencies() {
+  std::vector<EfficiencyData> vBookedEfficiencies = m_vBookedEfficiencies;
+  for (const auto &subNode: m_vSubNodes) {
+    std::vector<EfficiencyData> subNodeHists = subNode->retrieveBookedEfficiencies();
+    vBookedEfficiencies.insert(vBookedEfficiencies.end(), subNodeHists.begin(), subNodeHists.end());
+  }
+  return vBookedEfficiencies;
+}
+
 
 TH1F *
 PlotBase::Book1D(const std::string &name, const std::string &labels, int nBins, float start, float end,
@@ -168,16 +178,16 @@ PlotBase::Book3D(const std::string &name, TH3 *refHist, const std::string &label
 
 TProfile *
 PlotBase::BookTProfile(const std::string &name, const std::string &labels, int nBinsX, float startX, float endX,
-                       float startY, float endY, bool prependDir) {
+                       float startY, float endY, bool prependDir, bool useRMS) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
   TProfile *hist(0);
   Bool_t oldstat = TProfile::AddDirectoryStatus();
   TProfile::AddDirectory(false);
-
-  if (startY == -1 and endY == -1) {
-    hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX);
+  std::string opt = useRMS ? "S" : "";
+  if ((startY == -1) and (endY == -1)) {
+    hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, opt.c_str());
   } else {
-    hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, startY, endY);
+    hist = new TProfile((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, startY, endY, opt.c_str());
   }
   TProfile::AddDirectory(oldstat);
   m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
@@ -214,13 +224,26 @@ PlotBase::BookTProfileRangeY(const std::string &name, const std::string &labels,
 TProfile2D *
 PlotBase::BookTProfile2D(const std::string &name, const std::string &labels, const int nBinsX,
                          const double xlo, const double xhi, const int nBinsY, const double ylo, const double yhi,
-                         bool prependDir) {
+                         bool prependDir, bool useRMS) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
   Bool_t oldstat = TProfile2D::AddDirectoryStatus();
   TProfile2D::AddDirectory(false);
-  TProfile2D *hist = new TProfile2D((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi, nBinsY, ylo, yhi);
+  std::string opt = useRMS ? "S" : "";
+  TProfile2D *hist = new TProfile2D((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi, nBinsY, ylo, yhi, opt.c_str());
   TProfile2D::AddDirectory(oldstat);
+  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  return hist;
+}
 
+TProfile2D *
+PlotBase::BookTProfile2D(const std::string &name, const std::string &labels, const int nBinsX, double* binsX, const int nBinsY, double* binsY, bool prependDir, bool useRMS) {
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+  Bool_t oldstat = TProfile2D::AddDirectoryStatus();
+  TProfile2D::AddDirectory(false);
+  std::string opt = useRMS ? "S" : "";
+  TProfile2D *hist = new TProfile2D((prefix + name).c_str(), labels.c_str(), nBinsX, binsX, nBinsY, binsY, opt.c_str());
+  TProfile2D::AddDirectory(oldstat);
+  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
   return hist;
 }
 
@@ -229,6 +252,10 @@ PlotBase::BookTEfficiency(const std::string &name, const std::string & labels, c
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
   //Bool_t oldstat = TEfficiency::AddDirectoryStatus();
   TEfficiency *hist = new TEfficiency((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi);
+  //hist->SetAutoSave(0);
+  //hist->SetAtoFlush(0);
+  hist->SetDirectory(0);
+  m_vBookedEfficiencies.push_back(EfficiencyData(hist, m_sDirectory));
   //TEfficiency::AddDirectory(oldstat);
   return hist;
 }
