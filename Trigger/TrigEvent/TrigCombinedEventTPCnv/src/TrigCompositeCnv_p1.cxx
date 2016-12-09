@@ -12,10 +12,10 @@ void TrigCompositeCnv_p1::transToPers(const TrigComposite* trans,
 				      TrigComposite_p1* pers, MsgStream &log )
 {
   
-  log << MSG::DEBUG << "TrigCompositeCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigCompositeCnv_p1::transToPers" << endmsg;
   
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "TrigCompositeCnv_p1::transToPers with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "TrigCompositeCnv_p1::transToPers with trans or pers == 0" << endmsg;
   }
   else{
 
@@ -80,7 +80,7 @@ void TrigCompositeCnv_p1::transToPers(const TrigComposite* trans,
 template<class T>
 void copyDetails2Trans(const std::vector<std::string>& keys, const std::vector<T>& values, TrigComposite* trans, MsgStream &log) {
   if (values.size() != keys.size() ) {
-    log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans: The number of values and names for do not match, problem with the stored data, while" << __PRETTY_FUNCTION__ << endreq;    
+    log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans: The number of values and names for do not match, problem with the stored data, while" << __PRETTY_FUNCTION__ << endmsg;    
     // the __PREETY_FUNCTION__ should give actual function name with the template so we know if this is about floats, ints ....
   }
   typename std::vector<T>::const_iterator vi = values.begin();
@@ -94,10 +94,10 @@ void TrigCompositeCnv_p1::persToTrans(const TrigComposite_p1* pers,
 				      TrigComposite* trans, MsgStream &log )
 {
   
-  log << MSG::DEBUG << "TrigCompositeCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigCompositeCnv_p1::persToTrans" << endmsg;
   
   if ( (!trans) || (!pers) ) {
-    log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans with trans or pers == 0" << endreq;
+    log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans with trans or pers == 0" << endmsg;
   }else{
     *trans = TrigComposite (pers->m_instance);
 
@@ -123,7 +123,7 @@ void TrigCompositeCnv_p1::persToTrans(const TrigComposite_p1* pers,
 	trans->addObject(*labelIt, TrigFeatureLink(*clidIt, *colIt, *indexIt));      
       }  	
     }else{
-      log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans: The number of TrigFeatureLink labels, CLIDs, types and indexes does not match, problem with the stored data" << endreq;  
+      log << MSG::ERROR << "TrigCompositeCnv_p1::persToTrans: The number of TrigFeatureLink labels, CLIDs, types and indexes does not match, problem with the stored data" << endmsg;  
     }	
     
     //  trans->m_locked=pers->m_f_locked;

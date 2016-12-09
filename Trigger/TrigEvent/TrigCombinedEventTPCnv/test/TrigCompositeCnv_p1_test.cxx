@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigCombinedEventTPCnv/TrigCompositeCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -65,6 +66,7 @@ void testit (const TrigComposite& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigComposite trans1 ("comp");
   trans1.addDetail ("i1", 1);
