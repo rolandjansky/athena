@@ -17,6 +17,7 @@
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -61,6 +62,10 @@ void testit (const TrigDec::TrigDecision& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak check.
+  DataLink<HLT::HLTResult> l2link ("l2result");
+  DataLink<HLT::HLTResult> eflink ("efresult");
+  Athena_test::Leakcheck check;
 
   LVL1CTP::Lvl1Result l1result (true);
   l1result.itemsBeforePrescale().assign ({1, 2, 3});
@@ -68,8 +73,7 @@ void test1()
   l1result.itemsAfterVeto().assign ({6, 7, 8});
   
   TrigDec::TrigDecision trans1 (l1result,
-                                DataLink<HLT::HLTResult> ("l2result"),
-                                DataLink<HLT::HLTResult> ("efresult"),
+                                l2link, eflink,
                                 12345,
                                 10);
   

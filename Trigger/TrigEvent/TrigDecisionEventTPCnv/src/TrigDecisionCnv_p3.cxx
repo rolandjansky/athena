@@ -17,13 +17,13 @@ void TrigDecisionCnv_p3::transToPers(const TrigDec::TrigDecision* trans,
                                      TrigDecision_p3* pers, MsgStream &log)
 {
 
-  log << MSG::DEBUG << "TrigDecisionCnv_p3::transToPers called " << trans << " " << pers << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p3::transToPers called " << trans << " " << pers << endmsg;
 
   pers->m_configMasterKey = trans->masterKey();
 
 
   m_lvl1ResultCnv.transToPers(&trans->getL1Result(), &pers->m_l1_result, log);
-  //     log << MSG::ERROR << "TrigDecisionCnv_p3::done L1 " << &trans->m_l1_result << " " << &pers->m_l1_result << endreq;
+  //     log << MSG::ERROR << "TrigDecisionCnv_p3::done L1 " << &trans->m_l1_result << " " << &pers->m_l1_result << endmsg;
 
 
   DataLink<HLT::HLTResult> l2_result = trans->getL2ResultLink();
@@ -36,7 +36,7 @@ void TrigDecisionCnv_p3::transToPers(const TrigDec::TrigDecision* trans,
 void TrigDecisionCnv_p3::persToTrans(const TrigDec::TrigDecision_p3* pers,
                                      TrigDecision* trans, MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigDecisionCnv_p3::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p3::persToTrans called " << endmsg;
 
   LVL1CTP::Lvl1Result l1_result;  
   m_lvl1ResultCnv.persToTrans(&pers->m_l1_result, &l1_result, log);

@@ -17,7 +17,7 @@ void TrigDecisionCnv_p5::transToPers(const TrigDec::TrigDecision* trans,
                                      TrigDecision_p5* pers, MsgStream &log)
 {
 
-  log << MSG::DEBUG << "TrigDecisionCnv_p5::transToPers called " << trans << " " << pers << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p5::transToPers called " << trans << " " << pers << endmsg;
 
   pers->m_configMasterKey = trans->masterKey();
   pers->m_bgCode          = trans->BGCode();
@@ -34,7 +34,7 @@ void TrigDecisionCnv_p5::transToPers(const TrigDec::TrigDecision* trans,
 void TrigDecisionCnv_p5::persToTrans(const TrigDec::TrigDecision_p5* pers,
                                      TrigDecision* trans, MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigDecisionCnv_p5::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigDecisionCnv_p5::persToTrans called " << endmsg;
 
   LVL1CTP::Lvl1Result l1_result;  
   m_lvl1ResultCnv.persToTrans(&pers->m_l1_result, &l1_result, log);
