@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigTrtCountsCnv_p2.h"
 #include "TestTools/random.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -77,6 +78,7 @@ void testit (const TrigTrtCounts& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigHisto2D z0_pt (20, 0, 10, 20, 0, 10);
   for (int i=0; i < 1000; i++)

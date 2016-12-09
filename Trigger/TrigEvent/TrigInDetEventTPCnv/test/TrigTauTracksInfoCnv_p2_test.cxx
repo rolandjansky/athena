@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigTauTracksInfoCnv_p2.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -65,6 +66,7 @@ void testit (const TrigTauTracksInfo& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigTauTracksInfo trans1;
   trans1.setPt (100000);

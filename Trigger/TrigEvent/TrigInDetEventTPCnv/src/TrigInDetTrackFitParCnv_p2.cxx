@@ -123,7 +123,7 @@ void TrigInDetTrackFitParCnv_p2 :: persToTrans( const TrigInDetTrackFitPar_p2 *p
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p2::persToTrans" << endmsg;
   
   //restore param errors from the cov matrix
   std::unique_ptr<std::vector<double> > cov  (restoreCovariance(persObj));
@@ -157,7 +157,7 @@ void TrigInDetTrackFitParCnv_p2 :: transToPers( const TrigInDetTrackFitPar    *t
                                             MsgStream& log )
 {
 
-  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p2::transToPers" << endmsg;
 
   persObj->m_a0                = transObj->a0()    ;
   persObj->m_phi0              = transObj->phi0()  ;

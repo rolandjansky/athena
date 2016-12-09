@@ -13,7 +13,7 @@ void TrigTauTracksInfoCnv_p1::persToTrans( const TrigTauTracksInfo_p1 *persObj,
 					   TrigTauTracksInfo    *transObj,
 					   MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigTauTracksInfoCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigTauTracksInfoCnv_p1::persToTrans called " << endmsg;
 
   transObj->setRoiId                 (persObj->m_roiID)        ;
   transObj->setNCoreTracks           (persObj->m_nCoreTracks)    ;
@@ -44,7 +44,7 @@ void TrigTauTracksInfoCnv_p1::transToPers( const TrigTauTracksInfo    *transObj,
 					     TrigTauTracksInfo_p1 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigTauTracksInfoCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigTauTracksInfoCnv_p1::transToPers called " << endmsg;
 
   persObj->m_roiID                 = transObj->roiId()        ;
   persObj->m_nCoreTracks           = transObj->nCoreTracks()    ;

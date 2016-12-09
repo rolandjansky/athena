@@ -16,6 +16,7 @@
 #include "TrigInDetEventTPCnv/TrigVertexCollectionCnv_tlp1.h"
 #include "TestTools/FLOATassert.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -177,6 +178,7 @@ TrigInDetTrack makeTrack (int offs)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   auto tracks = CxxUtils::make_unique<TrackInVertexList>();
   TrigInDetTrack track1 = makeTrack(0);

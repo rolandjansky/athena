@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigInDetEventTPCnv/TrigInDetTrackCollectionCnv_p1.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrackCollectionCnv_tlp4.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -45,6 +46,7 @@ void testit (const TrigInDetTrackCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigInDetTrackCollection trans1;
   trans1.RoI_ID (12345);

@@ -14,7 +14,7 @@ void TrigVertexCnv_p2::persToTrans( const TrigVertex_p2 *persObj,
 				    TrigVertex    *transObj,
 				    MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigVertexCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigVertexCnv_p2::persToTrans called " << endmsg;
   
   transObj->m_x                 = persObj->m_allFloats[0];
   transObj->m_y                 = persObj->m_allFloats[1];
@@ -59,7 +59,7 @@ void TrigVertexCnv_p2::persToTrans( const TrigVertex_p2 *persObj,
 
     }
   } else {
-    log << MSG::DEBUG << "TrigVertexCnv_p2::persToTrans: No tracks associated to the vertex" << endreq;
+    log << MSG::DEBUG << "TrigVertexCnv_p2::persToTrans: No tracks associated to the vertex" << endmsg;
   }
   
 }
@@ -71,7 +71,7 @@ void TrigVertexCnv_p2::transToPers( const TrigVertex    *transObj,
 				    TrigVertex_p2 *persObj ,
 				    MsgStream     &log      )
 {
-  log << MSG::DEBUG << "TrigVertexCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigVertexCnv_p2::transToPers called " << endmsg;
 
   persObj->m_allFloats[0]      = transObj->m_x                 ;
   persObj->m_allFloats[1]      = transObj->m_y                 ;
@@ -109,7 +109,7 @@ void TrigVertexCnv_p2::transToPers( const TrigVertex    *transObj,
     m_TrigInDetTrackVectorCnv.transToPers( &m_trackInVertexVector, &(persObj->m_tracks), log);
     
   } else {
-    log << MSG::DEBUG << "TrigVertexCnv_p2::transToPers: No tracks associated to the vertex" << endreq;
+    log << MSG::DEBUG << "TrigVertexCnv_p2::transToPers: No tracks associated to the vertex" << endmsg;
   }
   
 }

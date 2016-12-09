@@ -9,7 +9,7 @@
 void TrigHisto2DCnv_p1::persToTrans(const TrigHisto2D_p1 *persObj,
 				    TrigHisto2D *transObj,
 				    MsgStream& log) {
-  log << MSG::DEBUG << "TrigHisto2DCnv_p1::persToTrans" << endreq;
+  log << MSG::DEBUG << "TrigHisto2DCnv_p1::persToTrans" << endmsg;
 
   *transObj = TrigHisto2D (persObj->m_nbins_x,
                            persObj->m_min_x,
@@ -25,7 +25,7 @@ void TrigHisto2DCnv_p1::persToTrans(const TrigHisto2D_p1 *persObj,
 void TrigHisto2DCnv_p1::transToPers(const TrigHisto2D *transObj,
 				    TrigHisto2D_p1 *persObj,
 				    MsgStream& log) {
-  log << MSG::DEBUG << "TrigHisto2DCnv_p1::transToPers" << endreq;
+  log << MSG::DEBUG << "TrigHisto2DCnv_p1::transToPers" << endmsg;
 
   persObj->m_nbins_x = transObj->nbins_x();
   persObj->m_min_x = transObj->min_x();

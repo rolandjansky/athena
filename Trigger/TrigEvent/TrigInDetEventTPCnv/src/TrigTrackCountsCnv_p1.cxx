@@ -10,7 +10,7 @@ void TrigTrackCountsCnv_p1::persToTrans( const TrigTrackCounts_p1*,
                                          TrigTrackCounts*, 
 					 MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigTrackCountsCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigTrackCountsCnv_p1::persToTrans called " << endmsg;
 
    // No longer meaningful following EDM change.
 }
@@ -20,7 +20,7 @@ void TrigTrackCountsCnv_p1::transToPers(const TrigTrackCounts*,
 	 			        TrigTrackCounts_p1*, 
 				        MsgStream &log)
 {
-  log << MSG::DEBUG << "TrigTrackCountsCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigTrackCountsCnv_p1::transToPers called " << endmsg;
 
   // No longer meaningful following EDM change.
 }
