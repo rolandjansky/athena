@@ -1,0 +1,8 @@
+#for running on Base,2.4.23
+#
+atlasoff/PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections/tags/MuonEfficiencyCorrections-04-00-05
+#
+# No packages!  Packages listed here should be listed like:
+#atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-22
+#
+#
