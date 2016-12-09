@@ -38,12 +38,13 @@ namespace Overlay {
    *  After this call the "data" container contains all information, and the "mc" 
    *  container is empty.
    */
-  template<class IDC_Container, class OvlAlg> void overlayContainer(IDC_Container* data, IDC_Container* mc, OvlAlg *parent);
+  template<class IDC_Container, class OvlAlg> void overlayContainer(const IDC_Container* data, const IDC_Container* mc,  IDC_Container* out, OvlAlg *parent);
   template<class IDC_Container, class OvlAlg> void overlayContainer(const std::auto_ptr<IDC_Container>& data,
 								    const std::auto_ptr<IDC_Container>& mc, 
+								    const std::auto_ptr<IDC_Container>& out, 
 								    OvlAlg *parent)
   {
-    overlayContainer(data.get(), mc.get(), parent);
+    overlayContainer(data.get(), mc.get(), out.get(), parent);
   }
 
   template<class IDC_Container, class OvlAlg> void overlayContainerNew(const IDC_Container* dataContainer, const IDC_Container* mcContainer, IDC_Container* outputContainer, OvlAlg *parent);

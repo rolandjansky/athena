@@ -119,16 +119,14 @@ namespace Overlay {
 //================================================================
 template<class Collection>
 void IDC_OverlayBase::mergeCollections(Collection *mc_coll, 
-				       Collection *data_coll)
+				       Collection *data_coll,
+				       Collection *out_coll)
 {
   DataVector<typename Collection::base_value_type> data;
   data_coll->swap(data);
 
   DataVector<typename Collection::base_value_type> mc;
   mc_coll->swap(mc);
-
-  // Just an alias
-  Collection *output = mc_coll;
   
   //################################################################
   // Merge by copying ptrs from data and mc to mc_coll
@@ -168,7 +166,7 @@ void IDC_OverlayBase::mergeCollections(Collection *mc_coll,
       }
     }
 
-    output->push_back(p_rdo);
+    out_coll->push_back(p_rdo);
   } // <= while
 }
 
