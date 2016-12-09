@@ -16,7 +16,7 @@ void TrigMissingETCnv_p3::persToTrans(const TrigMissingET_p3* persObj,
 				    TrigMissingET* transObj, 
 				    MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMissingETCnv_p3::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigMissingETCnv_p3::persToTrans called " << endmsg;
 
    // auxiliary info
    std::vector<TrigMissingEtComponent> compVec;
@@ -60,7 +60,7 @@ void TrigMissingETCnv_p3::transToPers(const TrigMissingET* transObj,
 				       TrigMissingET_p3* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigMissingETCnv_p3::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigMissingETCnv_p3::transToPers called " << endmsg;
 
    // basic info
    persObj->m_allTheFloats[0] = transObj->ex(); 

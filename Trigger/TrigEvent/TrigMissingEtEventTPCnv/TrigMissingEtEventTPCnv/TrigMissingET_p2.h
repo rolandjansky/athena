@@ -33,10 +33,10 @@ class TrigMissingET_p2
   
   //private:
   /** Basic information **/
-  float m_ex, m_ey, m_ez;  //<! components of the missing energy vector
-  float m_sum_et, m_sum_e; //<! sums of |Et| and |E|
-  int   m_flag;            //<! event flag: 0 (default) means OK
-  long  m_roiWord;         //<! RoI word
+  float m_ex = 0, m_ey = 0, m_ez = 0;  //<! components of the missing energy vector
+  float m_sum_et = 0, m_sum_e = 0; //<! sums of |Et| and |E|
+  int   m_flag = 0;            //<! event flag: 0 (default) means OK
+  long  m_roiWord = 0;         //<! RoI word
 
   /** Auxiliary information **/
   /// transient class contains std::vector< TrigMissingEtComponent > m_compVec;

@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigMissingEtEventTPCnv/TrigMissingETCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -62,6 +63,7 @@ void testit (const TrigMissingET& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigMissingET trans1 (4);
   trans1.setEx (40000);
