@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigTopoEventTPCnv/ElectronMuonTopoInfoCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <cassert>
@@ -48,6 +49,7 @@ void testit (const ElectronMuonTopoInfo& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ElectronMuonTopoInfo trans1 (123, 1.5, 2.5, 5000,
                                true, false, 321);
