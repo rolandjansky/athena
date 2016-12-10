@@ -572,6 +572,7 @@ InDetPhysValMonitoringTool::getTruthParticles() {
     std::string m_truthContainerName = "TruthParticles";
     const xAOD::TruthParticleContainer *truthParticleContainer =
       (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
+      if (not truthParticleContainer) return tempVec;
     tempVec.insert(tempVec.begin(), truthParticleContainer->begin(), truthParticleContainer->end());
   } else {
     if (m_pileupSwitch == "HardScatter") {
