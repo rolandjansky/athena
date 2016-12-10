@@ -251,7 +251,6 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
    // calculate the seed cluster kinematics.
    CaloClusterKineHelper::calculateKine(newCluster, true, true);
    //
-
    //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
    if (!newCluster->hasSampling(CaloSampling::EMB2) &&  !newCluster->hasSampling(CaloSampling::EME2)) {
      ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
@@ -259,8 +258,12 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
        return nullptr;     
    }
    //Set the eta0/phi0 based on the 2nd layer of the seed cluster above 
-   newCluster->setEta0(newCluster->etaBE(2));
-   newCluster->setPhi0(newCluster->phiBE(2));
+   newCluster->setEta0(newCluster->eta());
+   newCluster->setPhi0(newCluster->phi());
+   ATH_MSG_DEBUG("========== Seed  ==== ");
+   ATH_MSG_DEBUG("Seed eta : "<<newCluster->eta0());
+   ATH_MSG_DEBUG("Seed phi : "<<newCluster->phi0());
+   //
    //
    // Now continue with the remaining clusters
    for (size_t i = 1; i < acSize; i++) {
@@ -293,7 +296,7 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
    }
    ///Calculate the kinematics of the new cluster, after all cells are added
    CaloClusterKineHelper::calculateKine(newCluster, true, true);
-
+   //
    //If adding all EM cells I am somehow below the seed threshold then remove 
    //this one
    if(newCluster->et()<m_EtThresholdCut ){
@@ -328,30 +331,46 @@ StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster     
       if (!cell){
 	continue;
       }    
+
       if (isBarrel) {
-	if (fabs(ref->eta()-cell->eta()) > m_addCellsWindowEtaBarrel)
+	if (fabs(ref->eta()-cell->eta()) > m_addCellsWindowEtaBarrel){
 	  continue;
-	if (fabs(P4Helpers::deltaPhi(ref->phi(),cell->phi())) > m_addCellsWindowPhiBarrel)
+	}
+	if (fabs(P4Helpers::deltaPhi(ref->phi(),cell->phi())) > m_addCellsWindowPhiBarrel){
 	  continue;
+	}
       } else {
-	if (fabs(ref->eta()-cell->eta()) > m_addCellsWindowEtaEndcap)
+	if (fabs(ref->eta()-cell->eta()) > m_addCellsWindowEtaEndcap){
 	  continue;
-	if (fabs(P4Helpers::deltaPhi(ref->phi(),cell->phi())) > m_addCellsWindowPhiEndcap)
+	}
+	if (fabs(P4Helpers::deltaPhi(ref->phi(),cell->phi())) > m_addCellsWindowPhiEndcap){
 	  continue;
-      }      
+	}
+      }   
       //Add all LAR EM
-      if (cell->caloDDE()->getSubCalo() == CaloCell_ID::LAREM) {
-	newCluster->addCell(cell_itr.index(), cell_itr.weight());
-	cellsInWindow.push_back(cell);
+      const CaloDetDescrElement *dde = cell->caloDDE();
+      if(!dde){
+	continue;
       }
+
+      if (dde->getSubCalo() == CaloCell_ID::LAREM) {
+	//Avoid summing inner wheel Endcap cells 
+	//for the Lar (i.e the ones with worse granularity) 
+	if(! (dde->is_lar_em_endcap_inner()) ){
+	  newCluster->addCell(cell_itr.index(), cell_itr.weight());
+	  cellsInWindow.push_back(cell);
+	}
+      }
+
       //Add TileGap3. Consider only E4 cell
-      if (CaloCell_ID::TileGap3 == cell->caloDDE()->getSampling()) {
+      if (CaloCell_ID::TileGap3 == dde->getSampling()) {
 	if( fabs(cell->eta()) >1.4 && fabs(cell->eta()) < 1.6 ){
 	  newCluster->addCell(cell_itr.index(), cell_itr.weight());
 	  cellsInWindow.push_back(cell);
 	}
       }//TileGap
     }//Loop over cells
+
     if (newCluster->size()==0){
       return StatusCode::FAILURE;
     }
@@ -510,7 +529,7 @@ StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* clus
 StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster,    
 						      const CaloSampling::CaloSample sample) const {
 
-  //Some protections.
+  //Protections.
   ATH_MSG_DEBUG("Hottest cell in layer 1 ATLAS co-ordinates (eta,phi): (" << cluster->etamax(sample) << " , " << cluster->phimax(sample) << ")");
   if (cluster->etamax(sample)==-999. || cluster->phimax(sample)==-999.) {
     return StatusCode::SUCCESS;
