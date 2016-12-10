@@ -34,7 +34,7 @@ StatusCode HIClusterMaker::execute()
   {
     msg(MSG::WARNING) << " Could not retrieve tower container with key "
 		      << m_tower_container_key
-		      << endreq;
+		      << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -43,7 +43,7 @@ StatusCode HIClusterMaker::execute()
   {
     msg(MSG::WARNING) << " Could not retrieve cell container with key "
 		      << m_cell_container_key
-		      << endreq;
+		      << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -51,7 +51,7 @@ StatusCode HIClusterMaker::execute()
   //HIPseudoJetContainer cl_container=new HIPseudoJetContainer();
   // if(evtStore()->record(shape,m_output_key).isFailure())
   // {
-  //   msg(MSG::ERROR) << "Could not record PseudoJet " << m_output_key << endreq;
+  //   msg(MSG::ERROR) << "Could not record PseudoJet " << m_output_key << endmsg;
   //   return StatusCode::FAILURE;
   // }
 
@@ -77,14 +77,15 @@ StatusCode HIClusterMaker::execute()
     // std::vector<float> eta_sampling(NUMSAMPLES,0);
     // std::vector<float> phi_sampling(NUMSAMPLES,0);
 
-    // //Make the cluster:
-    xAOD::CaloCluster* cl=CaloClusterStoreHelper::makeCluster(cellColl);
-
     //navigate back to cells
     //Default is to sort the cells by either pointer values leading to irreproducible output
     //CaloCellIDFcn ensures cells are ordered by their IDs
     NavigationToken<CaloCell,double,CaloCellIDFcn> cellToken;
     (*towerItr)->fillToken(cellToken,double(1.));
+
+    // Make the cluster:
+    std::unique_ptr<xAOD::CaloCluster> cl(CaloClusterStoreHelper::makeCluster(cellColl));
+
     if ( cellToken.size() == 0 ) continue;
     for(NavigationToken<CaloCell,double,CaloCellIDFcn>::const_iterator cellItr = cellToken.begin();
 	cellItr != cellToken.end(); cellItr++ )
@@ -165,13 +166,14 @@ StatusCode HIClusterMaker::execute()
     //extra info
     cl->setTime(time_cl);
     cl->setSamplingPattern(samplingPattern);
-    cl_container->push_back(cl);
 
     msg(MSG::VERBOSE) << std::setw(20) << "PUSHING CLUSTER"
 		      << std::setw(15) << cl->e()
 		      << std::setw(15) << cl->eta()
 		      << std::setw(15) << cl->phi()
-		      << endreq;
+		      << endmsg;
+
+    cl_container->push_back(std::move(cl));
   }//end tower loop
   return StatusCode::SUCCESS;
 }
@@ -184,7 +186,7 @@ StatusCode HIClusterMaker::finalize()
 
 StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
 {
-  msg(MSG::INFO) << "Dumping PseudoJets" << endreq;
+  msg(MSG::INFO) << "Dumping PseudoJets" << endmsg;
   for(xAOD::CaloClusterContainer::iterator clusCollIter= clusColl->begin();
       clusCollIter!= clusColl->end(); clusCollIter++)
   {
@@ -198,7 +200,7 @@ StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
     
     if (!cellLinks)
     {
-      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endreq;
+      msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -237,7 +239,7 @@ StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
 		   << std::setw(15) << phi_cl
 		   << std::setw(15) << ncells
 		   << std::setw(15) << sumw
-		   << endreq;
+		   << endmsg;
     
 
   }

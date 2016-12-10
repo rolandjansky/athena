@@ -17,9 +17,8 @@ HIJetCellSubtractorTool::HIJetCellSubtractorTool(const std::string& myname) : HI
   
 }
 
-void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator)
+void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const
 { 
-
   //if( cl_in->type() == xAOD::Type::CaloCluster )
   //use static cast, derived type of IParticle checked explicitly upstream
   const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(cl_in);
@@ -27,8 +26,10 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
   float eta_cl=0;
   float phi_cl=0;
 
-  float eta0=cl->eta0();
-  float phi0=cl->phi0();
+  const float eta0=cl->eta0();
+  const float phi0=cl->phi0();
+
+  float mod=modulator->getModulation(phi0, eshape);
 
   //unsigned int eta_phi_index=HICaloCellHelper::FindEtaPhiBin(cl->eta0(),cl->phi0());
   xAOD::CaloCluster::const_cell_iterator cellIterEnd = cl->cell_end();
@@ -43,7 +44,6 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
     float nCells=index->getShape(eta0,sample,shape)->nCells();
     float rho=0;
     if(nCells!=0.) rho=index->getShape(eta0,sample,shape)->rho()/nCells;
-    float mod=modulator->getModulation(phi0);
     rho*=mod;
     float geoWeight=cellIter.weight();
     float cell_E_w=(*cellIter)->energy()*geoWeight;
@@ -62,12 +62,13 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
   }
   //rare case E_cl==0 is also handled by setSubtractedEtaPhi
   float E_unsubtr=cl->e(HIJetRec::unsubtractedClusterState());
-  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/E_unsubtr);
+  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl
+,eta0,phi0,E_cl/E_unsubtr);
   float ET_cl=E_cl/std::cosh(eta_cl);
   subtr_mom.SetPxPyPzE(ET_cl*std::cos(phi_cl),ET_cl*std::sin(phi_cl),ET_cl*std::sinh(eta_cl),E_cl);
 }
 
-void HIJetCellSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl)
+void HIJetCellSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const
 {
   float eta0=cl->eta0();
   float phi0=cl->phi0();
@@ -112,9 +113,8 @@ void HIJetCellSubtractorTool::UpdateShape(xAOD::HIEventShapeContainer* shape, co
   
 }
 
-void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator)
+void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const
 { 
-
   //if( cl_in->type() == xAOD::Type::CaloCluster )
   //use static cast, derived type of IParticle checked explicitly upstream
 
@@ -122,8 +122,10 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
   float eta_cl=0;
   float phi_cl=0;
 
-  float eta0=cl->eta0();
-  float phi0=cl->phi0();
+  const float eta0=cl->eta0();
+  const float phi0=cl->phi0();
+
+  float mod=modulator->getModulation(phi0, eshape);
 
   std::vector<float> E_sample(CaloSampling::Unknown,0);
   uint32_t samplingPattern=0;
@@ -141,7 +143,6 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
     float nCells=index->getShape(eta0,sample,shape)->nCells();
     float rho=0;
     if(nCells!=0.) rho=index->getShape(eta0,sample,shape)->rho()/nCells;
-    float mod=modulator->getModulation(phi0);
 
     rho*=mod;
     float geoWeight=cellIter.weight();
