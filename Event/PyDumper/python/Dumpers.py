@@ -22,6 +22,7 @@ __author__ = "Scott Snyder, Sebastien Binet"
 from contextlib import contextmanager
 import math
 import sys
+import cStringIO
 from math import \
      log as math_log,\
      sqrt as math_sqrt,\
@@ -115,6 +116,13 @@ def daz(f):
         return 0.0
     return f
 
+
+# For root 6.08, need to use __cppname__ rather than __name__
+# for the name of a type.
+if hasattr(ROOT.TH1, '__cppname__'):
+    def typename(t): return t.__cppname__
+else:
+    def typename(t): return t.__name__
 
 ### library methods ------------------------------------------------------------
 
@@ -235,7 +243,7 @@ def dump_AmgMatrix (m, f, thresh=1e-38):
 
 def dump_AmgVector (m, f, thresh=1e-38):
     if not m:
-        print '(null vector)',
+        print >> f, '(null vector)',
         return
     print >> f, '[',
     for r in range(m.rows()):
@@ -247,7 +255,7 @@ def dump_AmgVector (m, f, thresh=1e-38):
 
 
 def dump_EL (l, f):
-    nm = l.__class__.__name__
+    nm = typename(l.__class__)
     pos1 = nm.find('<')
     pos2 = nm.rfind ('>')
     nm = nm[pos1+1:pos2].strip()
@@ -501,7 +509,10 @@ def dump_egamma (e, f):
                 print >> f, d,
         else:
             print >> f, '\n      Detail link %d not valid; skipped.' % i,
-    pid = PyAthena.egammaPID
+    try:
+        pid = PyAthena.egammaPIDObs
+    except TypeError:
+        pid = PyAthena.egammaPID
     print >> f, '\n      pid: %g %g %f %g %f %f' % \
           (e.egammaID(pid.ElectronWeight), e.egammaID(pid.BgWeight),
            e.egammaID(pid.NeuralNet), e.egammaID(pid.Hmatrix),
@@ -1366,11 +1377,11 @@ def dump_TrackSummary (info, f):
 
 
 def dump_Surface (info, f):
-    print >> f, info.__class__.__name__ + ':',
+    print >> f, typename(info.__class__) + ':',
     dump_Threevec (info.center(), f)
     dump_Threevec (info.normal(), f)
     if (isinstance (info, PyAthena.Trk.DiscSurface) and
-        info.bounds().__class__.__name__.find ('NoBounds') >= 0):
+        typename(info.bounds().__class__).find ('NoBounds') >= 0):
         print >>f, '(no bounds)',
     elif (isinstance (info, PyAthena.Trk.CylinderSurface) and
           not info.bounds()):
@@ -1383,7 +1394,7 @@ def dump_Surface (info, f):
     dump_AmgMatrix (info.transform().matrix(), f, thresh=1e-8)
 #    print >> f, '\n          de', info.associatedDetectorElement(),
     print >> f, '\n          ly', tonone (info.associatedLayer()),
-    print >> f, '\n          bd', info.bounds().__class__.__name__,
+    print >> f, '\n          bd', typename(info.bounds().__class__),
     print >> f, '\n          id', \
           info.associatedDetectorElementIdentifier().getString(),
     return
@@ -1472,22 +1483,25 @@ def dump_CurvilinearParameters (info, f):
     dump_ParametersBase (info, f)
     print >> f, '\n          curvilinear',
     print >> f, info.cIdentifier(),
-    frame = info.curvilinearFrame()
-    dump_AmgVector (frame.curvU(), f)
-    dump_AmgVector (frame.curvV(), f)
-    dump_AmgVector (frame.curvT(), f)
+    mat = info.measurementFrame()
+    dump_AmgVector (mat.col(0), f)
+    dump_AmgVector (mat.col(1), f)
+    dump_AmgVector (mat.col(2), f)
     return
 
 
 def dump_parameters (p, f):
-    if p.__class__.__name__.startswith ('DataModel_detail::ElementProxy<'):
+    if not p:
+        print >> f, '(nil)',
+        return
+    if typename(p.__class__).startswith ('DataModel_detail::ElementProxy<'):
         p = p.__follow__()
     if not p:
         print >> f, '(nil)',
-    elif (p.__class__.__name__.startswith ('Trk::ParametersT<') or
-        p.__class__.__name__.startswith ('Trk::ParametersBase<')):
+    elif (typename(p.__class__).startswith ('Trk::ParametersT<') or
+        typename(p.__class__).startswith ('Trk::ParametersBase<')):
         dump_ParametersBase (p, f)
-    elif p.__class__.__name__.startswith ('Trk::CurvilinearParametersT<'):
+    elif typename(p.__class__).startswith ('Trk::CurvilinearParametersT<'):
         dump_CurvilinearParameters (p, f)
     else:
         print >> f, p,
@@ -1496,7 +1510,10 @@ def dump_parameters (p, f):
 
 def dump_TrackParticle (p, f):
     dump_Fourvec (p, f)
-    if p.definingParameters():
+    dp = None
+    if p.trackParameters().size() > 0 and p.trackParameters()[-1]:
+        dp = p.definingParameters()
+    if dp:
         print >> f, "%f" % p.charge(),
     else:
         print >> f, "(nil)",
@@ -1517,7 +1534,7 @@ def dump_TrackParticle (p, f):
         print >> f, '\n        ts',
         dump_TrackSummary (p.trackSummary(), f)
     print >> f, '\n        df',
-    dump_parameters (p.definingParameters(), f)
+    dump_parameters (dp, f)
     print >> f, '\n        pm',
     for x in p.trackParameters():
         print >> f, '\n'
@@ -1651,7 +1668,7 @@ def dump_measurement (p, f):
     if not p:
         print >> f, '(null)',
         return
-    nm = p.__class__.__name__
+    nm = typename(p.__class__)
     print >> f, nm + ': ',
     if nm == 'InDet::PixelClusterOnTrack':
         dump_PixelClusterOnTrack (p, f)
@@ -1704,7 +1721,7 @@ def dump_materialeffects (p, f):
     if not p:
         print >> f, '(null)',
         return
-    nm = p.__class__.__name__
+    nm = typename(p.__class__)
     print >> f, nm + ': ',
     if nm == 'Trk::MaterialEffectsOnTrack':
         dump_MaterialEffectsOnTrack (p, f)
@@ -2117,7 +2134,7 @@ def dump_MVFVxTrackAtVertex (t, f):
 def dump_VxCandidate1 (v, f):
     dump_RecVertex (v.recVertex(), f)
     for t in v.vxTrackAtVertex():
-        print >> f, '\n    ', t.__class__.__name__,
+        print >> f, '\n    ', typename(t.__class__),
         if isinstance (t, PyAthena.Trk.MVFVxTrackAtVertex):
             dump_MVFVxTrackAtVertex (t, f)
         elif t.__class__ == PyAthena.Trk.VxTrackAtVertex:
@@ -2142,7 +2159,7 @@ def dump_MVFVxCandidate (v, f):
 
 
 def dump_VxCandidate (v, f):
-    print >> f, v.__class__.__name__,
+    print >> f, typename(v.__class__),
     if isinstance (v, PyAthena.Trk.MVFVxCandidate):
         dump_MVFVxCandidate (v, f)
     elif (v.__class__ == PyAthena.Trk.VxCandidate or
@@ -2200,6 +2217,19 @@ def dump_PileUpEventInfo (e, f):
     dump_EventInfo (e, f)
     for (i,s) in enumerate (toiter (e.beginSubEvt(), e.endSubEvt())):
         print >> f, '\n   subevt', i, s.time(), s.index(), s.BCID(), s.type(),
+    return
+
+
+@nolist
+def dump_EventStreamInfo (e, f):
+    print >> f, 'nevents: ', e.getNumberOfEvents(),
+    print >> f, '\nrun numbers: ', list(e.getRunNumbers()),
+    print >> f, '\nlb numbers: ', list(e.getLumiBlockNumbers()),
+    print >> f, '\nproc tags: ', list(e.getProcessingTags()),
+    print >> f, '\nitem list: ', [(p.first, p.second) for p in e.getItemList()],
+    for typ in list(e.getEventTypes()):
+        print >> f, '\n  ',
+        dump_EventType (typ, f)
     return
 
 
@@ -2779,11 +2809,11 @@ def dump_Assocs (a, f, colltype):
     l.sort (cmp=lambda a, b: cmp(b[0].pt(), a[0].pt()))
 
     for obj, coll, errflag in l:
-        print >> f, '\n', obj.__class__.__name__,
+        print >> f, '\n', typename(obj.__class__),
         dump_Fourvec (obj, f)
         print >> f, '->',
         for p in coll:
-            print >> f, p.__class__.__name__,
+            print >> f, typename(p.__class__),
             dump_Fourvec (p, f),
         if errflag:
             print >> f, '  [Got invalid EL error]',
@@ -2936,7 +2966,7 @@ def dump_Jet (j, f):
                 print >> f, '\n      (null)',
                 continue
             print >> f, '\n      %s %s: %f: ' \
-                  % (info.infoType(), info.__class__.__name__, j.getFlavourTagWeight (info.infoType())),
+                  % (info.infoType(), typename(info.__class__), j.getFlavourTagWeight (info.infoType())),
             if isinstance (info, PyAthena.Analysis.TruthInfo):
                 dump_TruthInfo (info, f)
             elif isinstance (info, PyAthena.Analysis.SoftLeptonTruthInfo):
@@ -2981,7 +3011,7 @@ def dump_Jet (j, f):
             if not c:
                 print >> f, tonone(c),
             else:
-                print >> f, c.__class__.__name__,
+                print >> f, typename(c.__class__),
                 print >> f, j.getWeight (c),
                 dump_Fourvec (c, f)
     return
@@ -3762,7 +3792,7 @@ def dump_RawInfoSummaryForTag (p, f):
 @nolist
 def dump_MissingETComposition (m, f):
     for p in toiter1 (m):
-        print >> f, '  ', p.__class__.__name__,
+        print >> f, '  ', typename(p.__class__),
         if not p:
             print >> f, '(null)',
             continue
@@ -3908,11 +3938,14 @@ def dump_TgcCoinData (p, f):
     print >> f, p.isAside(), p.phi(), p.isInner(), p.isForward(), p.isStrip(), p.trackletId(), p.trackletIdStrip(),
     print >> f, p.widthIn(), p.widthOut(),
     print >> f, p.delta(), p.roi(), p.pt(), p.veto(), p.sub(), p.inner(), p.isPositiveDeltaR(),
-    dump_AmgVector (p.posIn(), f, thresh=1e-8)
-    dump_AmgVector (p.posOut(), f, thresh=1e-8)
-    dump_AmgVector (p.globalposIn(), f, thresh=1e-8)
-    dump_AmgVector (p.globalposOut(), f, thresh=1e-8)
-    dump_AmgMatrix (p.errMat(), f)
+    if p.channelIdIn().get_compact() != 0:
+        dump_AmgVector (p.posIn(), f, thresh=1e-8)
+        dump_AmgVector (p.globalposIn(), f, thresh=1e-8)
+    if p.channelIdOut().get_compact() != 0:
+        dump_AmgVector (p.posOut(), f, thresh=1e-8)
+        dump_AmgVector (p.globalposOut(), f, thresh=1e-8)
+    if p.hasErrMat():
+        dump_AmgMatrix (p.errMat(), f)
     if p.detectorElementIn():
         print >> f, p.detectorElementIn().identifyHash().value(),
     else:
@@ -4538,7 +4571,7 @@ def format_obj (x, name=None):
         return format_float (x)
     if type(x) == type(1):
         return format_int (x)
-    tname = type(x).__name__
+    tname = typename(type(x))
     if tname.startswith ('ROOT.'):
         tname = tname[5:]
     if tname.startswith ('ElementLink<'):
@@ -4560,6 +4593,13 @@ def format_obj (x, name=None):
         acls=getattr(PyAthena, 'PyDumper::PySTLAdaptor<std::set<unsigned int>')
         if acls:
             return str(list(toiter1(acls(x))))
+
+    if tname == 'Trk::VxTrackAtVertex':
+        fout = cStringIO.StringIO()
+        dump_VxTrackAtVertex (x, fout)
+        out = fout.getvalue()
+        return '{' + out.replace('\n', '; ') + '}'
+    
     return str(x)
 
 
@@ -4637,7 +4677,7 @@ def dump_auxdata (x, exclude=[], f = sys.stdout):
 
 
 def dump_xAOD(o, f):
-    print >> f, o.__class__.__name__, '\n    ',
+    print >> f, typename(o.__class__), '\n    ',
     dump_auxdata (o, f=f)
     return
 
@@ -4683,6 +4723,7 @@ dumpspecs = [
     ["VxContainer",                          dump_VxCandidate],
     ["EventInfo",                            dump_EventInfo],
     ["PileUpEventInfo",                      dump_PileUpEventInfo],
+    ["EventStreamInfo",                      dump_EventStreamInfo],
     ["McEventCollection",                    dump_GenEvent],
     ["CTP_Decision",                         dump_CTP_Decision],
     ["LVL1_ROI",                             dump_LVL1_ROI],
@@ -4886,6 +4927,7 @@ dumpspecs = [
     ['DataVector<xAOD::TrigRNNOutput_v2>',   dump_xAOD],
     ['xAOD::TrigRNNOutputContainer',         dump_xAOD],
     ['DataVector<xAOD::TrigRingerRings_v1>', dump_xAOD],
+    ['DataVector<xAOD::TrigRingerRings_v2>', dump_xAOD],
     ['xAOD::TrigRingerRingsContainer',       dump_xAOD],
     ['DataVector<xAOD::TrigSpacePointCounts_v1>',dump_xAOD],
     ['xAOD::TrigSpacePointCountsContainer',  dump_xAOD],
@@ -4918,6 +4960,16 @@ dumpspecs = [
     ['xAOD::TrackParticleClusterAssociationContainer', dump_xAOD],
     ['DataVector<xAOD::TruthPileupEvent_v1>',dump_xAOD],
     ['xAOD::TruthPileupEventContainer_v1',   dump_xAOD],
+    ['DataVector<xAOD::CaloRings_v1>',       dump_xAOD],
+    ['xAOD::CaloRingsContainer',             dump_xAOD],
+    ['DataVector<xAOD::RingSet_v1>',         dump_xAOD],
+    ['xAOD::RingSetContainer',               dump_xAOD],
+    ['DataVector<xAOD::ForwardEventInfo_v1>',dump_xAOD],
+    ['xAOD::ForwardEventInfoContainer',      dump_xAOD],
+    ['DataVector<xAOD::MBTSModule_v1>',      dump_xAOD],
+    ['xAOD::MBTSModuleContainer',            dump_xAOD],
+    ['DataVector<xAOD::ZdcModule_v1>',       dump_xAOD],
+    ['xAOD::ZdcModuleContainer',             dump_xAOD],
     ['xAOD::MissingETContainer_v1',          dump_xAOD],
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
@@ -4960,10 +5012,12 @@ def get_dumper_fct(klass, ofile=sys.stdout, nmax = None):
     else:
         raise TypeError('expected a type or a string')
     global dumpspecs
-    dumpers = [ i for i in dumpspecs if i[0] == klass.__name__ ]
+
+    klname = typename(klass)
+    dumpers = [ i for i in dumpspecs if i[0] == klname ]
     if len(dumpers) != 1:
         raise RuntimeError('no suitable dumper function for class [%s]'%
-                           klass.__name__)
+                           klname )
     fct = dumpers[0][1]
     nolist = hasattr (fct, 'nolist') and fct.nolist
     from functools import partial as _partial
