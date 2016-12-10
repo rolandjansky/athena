@@ -17,7 +17,7 @@ void TrigElectronCnv_p3::persToTrans(const TrigElectron_p3* persObj,
 				       TrigElectron* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p3::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p3::persToTrans called " << endmsg;
 
    ElementLink< TrigInDetTrackCollection > track;
    ELinkIDTrackCnv.persToTrans( &persObj->m_track,     &track,   log );
@@ -52,7 +52,7 @@ void TrigElectronCnv_p3::persToTrans(const TrigElectron_p3* persObj,
    m_p4PtEtaPhiMCnv.persToTrans(&(persObj->m_P4PtEtaPhiM), transObj, log);
    //fillTransFromPStore( &m_p4PtEtaPhiMCnv, persObj->m_p4PtEtaPhiM, transObj, log );
 
-   log << MSG::DEBUG << "TrigElectronCnv_p3::persToTrans done" << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p3::persToTrans done" << endmsg;
 }
 
 
@@ -63,7 +63,7 @@ void TrigElectronCnv_p3::transToPers(const TrigElectron* transObj,
 				       TrigElectron_p3* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers called " << endmsg;
 
    persObj->m_roiWord        = transObj->roiId()   ; 
    persObj->m_valid          = transObj->isValid()     ; 
@@ -85,14 +85,14 @@ void TrigElectronCnv_p3::transToPers(const TrigElectron* transObj,
    persObj->m_allTheFloats[11] = transObj->F2()  ;
    persObj->m_allTheFloats[12] = transObj->F3()  ;
 
-   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers calling e-link persToTrabs(track) " << endreq;   
+   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers calling e-link persToTrabs(track) " << endmsg;   
    ELinkIDTrackCnv.transToPers( &transObj->trackLink(),     &persObj->m_track,   log );
-   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers calling e-link persToTrabs(cluster) " << endreq;   
+   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers calling e-link persToTrabs(cluster) " << endmsg;   
    m_ELinkEMclusterCnv.transToPers( &transObj->clusterLink(), &persObj->m_cluster, log );
 
-   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers persistifying 4-mom. base class" << endreq;   
+   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers persistifying 4-mom. base class" << endmsg;   
    m_p4PtEtaPhiMCnv.transToPers(transObj, &(persObj->m_P4PtEtaPhiM), log);
    //persObj->m_p4PtEtaPhiM = baseToPersistent( &m_p4PtEtaPhiMCnv, transObj, log );
 
-   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers done" << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p3::transToPers done" << endmsg;
 }

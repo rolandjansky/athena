@@ -13,7 +13,7 @@ void TrigPhotonCnv_p1::persToTrans( const TrigPhoton_p1 *persObj,
 					     TrigPhoton    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigPhotonCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigPhotonCnv_p1::persToTrans called " << endmsg;
 
   *transObj = TrigPhoton (0, 0, 0,
                           persObj->m_roiID,
@@ -32,7 +32,7 @@ void TrigPhotonCnv_p1::persToTrans( const TrigPhoton_p1 *persObj,
                           0  // F3
                           );
 
-  log << MSG::WARNING << "TrigPhoton->m_cluster being set to NULL because you are trying to read TrigPhoton_p1" << endreq;
+  log << MSG::WARNING << "TrigPhoton->m_cluster being set to NULL because you are trying to read TrigPhoton_p1" << endmsg;
 
   fillTransFromPStore( &m_P4PtEtaPhiMCnv, persObj->m_P4PtEtaPhiM, transObj, log );     
 }
@@ -44,7 +44,7 @@ void TrigPhotonCnv_p1::transToPers( const TrigPhoton*,
 					     TrigPhoton_p1*,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigPhotonCnv_p1::transToPers called " << endreq;
-  log << MSG::WARNING << "TrigPhotonCnv_p1::transToPers should not be called anymore! " << endreq;
+  log << MSG::DEBUG << "TrigPhotonCnv_p1::transToPers called " << endmsg;
+  log << MSG::WARNING << "TrigPhotonCnv_p1::transToPers should not be called anymore! " << endmsg;
     
 }

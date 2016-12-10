@@ -14,7 +14,7 @@
  * @author Ricardo Goncalo  <r.goncalo@rhul.ac.uk>     - Royal Holloway 
  *
  * File and Version Information:
- * $Id: TrigElectron_p3.h 724426 2016-02-16 23:38:10Z ssnyder $
+ * $Id: TrigElectron_p3.h 724425 2016-02-16 23:37:59Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGPARTICLETPCNV_TRIGELECTRON_P3_H
 #define TRIGPARTICLETPCNV_TRIGELECTRON_P3_H

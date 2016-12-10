@@ -15,6 +15,7 @@
 #include "TrigParticleTPCnv/TrigTauCnv_p1.h"
 #include "TrigParticleTPCnv/TrigTauCnv_tlp2.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -71,6 +72,7 @@ void testit (const TrigTau& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigTau trans1 (123, //roi
                   1.5, 2.5, 8.5, 80000,

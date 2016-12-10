@@ -15,6 +15,7 @@
 #include "TrigParticleTPCnv/TrigElectronCnv_p3.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -75,6 +76,10 @@ void testit (const TrigElectron& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak check.
+  ElementLink< TrigEMClusterContainer > foo ("foo", 10);
+  ElementLink< TrigInDetTrackCollection > bar ("bar", 20);
+  Athena_test::Leakcheck check;
 
   TrigElectron trans1 (80000, 1.5, 2.5,
                        123, //roi

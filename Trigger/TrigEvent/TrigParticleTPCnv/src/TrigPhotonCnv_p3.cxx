@@ -15,7 +15,7 @@ void TrigPhotonCnv_p3::persToTrans( const TrigPhoton_p3 *persObj,
 				    TrigPhoton    *transObj,
 				    MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigPhotonCnv_p3::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigPhotonCnv_p3::persToTrans called " << endmsg;
 
   ElementLink< TrigEMClusterContainer > cluster;
   eLinkEMClusterCnv.persToTrans( &persObj->m_cluster, &cluster, log ); 
@@ -47,7 +47,7 @@ void TrigPhotonCnv_p3::transToPers( const TrigPhoton    *transObj,
 				    TrigPhoton_p3 *persObj,
 				    MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigPhotonCnv_p3::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigPhotonCnv_p3::transToPers called " << endmsg;
 
   persObj->m_roiID        = transObj->roiId();
 

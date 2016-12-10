@@ -13,7 +13,7 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigPhoton_p3.h 724426 2016-02-16 23:38:10Z ssnyder $
+ * $Id: TrigPhoton_p3.h 724425 2016-02-16 23:37:59Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGPARTICLETPCNV_TRIGPHOTON_P3_H
 #define TRIGPARTICLETPCNV_TRIGPHOTON_P3_H

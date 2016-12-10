@@ -16,7 +16,7 @@ void TrigEFBphysCnv_p2::persToTrans( const TrigEFBphys_p2 *persObj,
 					     TrigEFBphys    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p2::persToTrans called " << endmsg;
 
   ElementLink<TrigEFBphysContainer> secondaryDecay;
   m_elementLinkEFBphysCnv.persToTrans(&persObj->m_secondaryDecay, &secondaryDecay, log);
@@ -47,7 +47,7 @@ void TrigEFBphysCnv_p2::transToPers( const TrigEFBphys    *transObj,
 					     TrigEFBphys_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p2::transToPers called " << endmsg;
 
   persObj->m_roiID    = transObj->roiId()    ;
   persObj->m_eta      = transObj->eta()      ;

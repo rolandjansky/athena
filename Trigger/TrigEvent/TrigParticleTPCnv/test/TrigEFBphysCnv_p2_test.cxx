@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigParticleTPCnv/TrigEFBphysCnv_p2.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -54,6 +55,11 @@ void testit (const TrigEFBphys& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak check.
+  ElementLink<TrigEFBphysContainer> foo ("foo", 10);
+  ElementLink<Rec::TrackParticleContainer> bar1 ("bar1", 1);
+  ElementLink<Rec::TrackParticleContainer> bar2 ("bar2", 2);
+  Athena_test::Leakcheck check;
 
   TrigEFBphys trans1 (123, 2.5, 1.5,
                       TrigEFBphys::BMUMU,
