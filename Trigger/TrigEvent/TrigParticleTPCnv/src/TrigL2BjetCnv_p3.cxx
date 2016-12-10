@@ -10,7 +10,7 @@
 //* Persistent to transient *//
 void TrigL2BjetCnv_p3::persToTrans(const TrigL2Bjet_p3 *persObj, TrigL2Bjet *transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigL2BjetCnv_p3::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigL2BjetCnv_p3::persToTrans called " << endmsg;
 
   *transObj = TrigL2Bjet (persObj->m_roiID,
                           0,        // eta
@@ -40,12 +40,12 @@ void TrigL2BjetCnv_p3::persToTrans(const TrigL2Bjet_p3 *persObj, TrigL2Bjet *tra
 //* Transient to persistent *//
 void TrigL2BjetCnv_p3::transToPers(const TrigL2Bjet *transObj, TrigL2Bjet_p3 *persObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigL2BjetCnv_p3::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigL2BjetCnv_p3::transToPers called " << endmsg;
    
   persObj->m_valid  = transObj->isValid();
   persObj->m_roiID  = transObj->roiId();
 
-  log << MSG::DEBUG << "TrigL2BjetCnv_p3::transToPers Integers done! " << endreq;
+  log << MSG::DEBUG << "TrigL2BjetCnv_p3::transToPers Integers done! " << endmsg;
 
   persObj->m_allTheFloats[0] = transObj->prmVtx();
   persObj->m_allTheFloats[1] = transObj->xComb();

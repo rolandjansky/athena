@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigParticleTPCnv/TrigL2BjetCnv_p3.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -66,6 +67,7 @@ void testit (const TrigL2Bjet& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigL2Bjet trans1 (123, 2.5, 1.5,
                      nullptr,

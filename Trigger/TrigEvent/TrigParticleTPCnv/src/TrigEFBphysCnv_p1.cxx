@@ -27,7 +27,7 @@ void TrigEFBphysCnv_p1::persToTrans( const TrigEFBphys_p1 *persObj,
 					     TrigEFBphys    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p1::persToTrans called " << endmsg;
 
   *transObj = TrigEFBphys (persObj->m_roiID,
                            persObj->m_eta,
@@ -43,7 +43,7 @@ void TrigEFBphysCnv_p1::transToPers( const TrigEFBphys    *transObj,
 					     TrigEFBphys_p1 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p1::transToPers called " << endmsg;
 
   persObj->m_roiID    = transObj->roiId()    ;
 

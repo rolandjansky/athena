@@ -11,7 +11,7 @@ void TrigTauCnv_p3::persToTrans(const TrigTau_p3* persObj,
 				       TrigTau* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigTauCnv_p3::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigTauCnv_p3::persToTrans called " << endmsg;
 
    transObj->setRoiId	       (persObj->m_roiID); 
    transObj->setZvtx 	       (persObj->m_Zvtx);
@@ -36,7 +36,7 @@ void TrigTauCnv_p3::transToPers(const TrigTau* transObj,
 				       TrigTau_p3* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigTauCnv_p3::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigTauCnv_p3::transToPers called " << endmsg;
 
    persObj->m_roiID	      = transObj->roiId();
    persObj->m_Zvtx 	      = transObj->Zvtx();

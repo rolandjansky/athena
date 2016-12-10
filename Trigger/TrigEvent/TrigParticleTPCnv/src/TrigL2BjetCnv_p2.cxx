@@ -10,7 +10,7 @@
 //* Persistent to transient *//
 void TrigL2BjetCnv_p2::persToTrans(const TrigL2Bjet_p2 *persObj, TrigL2Bjet *transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigL2BjetCnv_p2::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigL2BjetCnv_p2::persToTrans called " << endmsg;
 
   *transObj = TrigL2Bjet (persObj->m_roiID,
                           0,        // eta
@@ -37,7 +37,7 @@ void TrigL2BjetCnv_p2::persToTrans(const TrigL2Bjet_p2 *persObj, TrigL2Bjet *tra
 //* Transient to persistent *//
 void TrigL2BjetCnv_p2::transToPers(const TrigL2Bjet *transObj, TrigL2Bjet_p2 *persObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigL2BjetCnv_p2::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigL2BjetCnv_p2::transToPers called " << endmsg;
    
   persObj->m_valid  = transObj->isValid();
   persObj->m_roiID  = transObj->roiId();

@@ -15,6 +15,7 @@
 #include "TrigParticleTPCnv/TrigEFBjetCnv_p1.h"
 #include "TrigParticleTPCnv/TrigEFBjetContainerCnv_tlp2.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <cassert>
@@ -71,6 +72,7 @@ void testit (const TrigEFBjet& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigEFBjet trans1 (123, 2.5, 1.5,
                      nullptr,

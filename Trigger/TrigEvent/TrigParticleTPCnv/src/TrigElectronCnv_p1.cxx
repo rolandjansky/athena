@@ -11,7 +11,7 @@ void TrigElectronCnv_p1::persToTrans(const TrigElectron_p1* persObj,
 				     TrigElectron* transObj, 
 				     MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p1::persToTrans called " << endmsg;
 
 //    transObj->m_trackAlgo = persObj->m_trackAlgo; 
 //    transObj->m_roiID     = persObj->m_roiID    ; 
@@ -66,8 +66,8 @@ void TrigElectronCnv_p1::transToPers(const TrigElectron* /*transObj*/,
                                      TrigElectron_p1* /*persObj*/, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p1::transToPers called " << endreq;
-   log << MSG::WARNING << "Trying to write TrigElectron to obsolete persistent class TrigElectron_p1!" << endreq;
+   log << MSG::DEBUG << "TrigElectronCnv_p1::transToPers called " << endmsg;
+   log << MSG::WARNING << "Trying to write TrigElectron to obsolete persistent class TrigElectron_p1!" << endmsg;
 
 //    persObj->m_trackAlgo = transObj->m_trackAlgo; 
 //    persObj->m_roiID     = transObj->m_roiID    ; 

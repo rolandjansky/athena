@@ -15,6 +15,7 @@
 #include "TrigParticleTPCnv/TrigL2BphysCnv_p1.h"
 #include "TrigParticle/TrigL2BphysContainer.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -62,6 +63,11 @@ void testit (const TrigL2Bphys& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak check.
+  ElementLink<TrigL2BphysContainer> foo ("foo", 10);
+  ElementLink<TrigInDetTrackCollection> bar1 ("bar1", 1);
+  ElementLink<TrigInDetTrackCollection> bar2 ("bar2", 2);
+  Athena_test::Leakcheck check;
 
   TrigL2Bphys trans1 (123, 2.5, 1.5,
                       TrigL2Bphys::BMUMU,
