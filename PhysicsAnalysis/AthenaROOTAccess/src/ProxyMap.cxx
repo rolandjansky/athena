@@ -54,7 +54,7 @@ ProxyMap::payload_t ProxyMap::s_invalid_data;
 ProxyMap::ProxyMap (AthenaROOTAccess::TTreeBranchMap* trans_tree,
                     TTree* pers_tree)
   : m_trans_tree (trans_tree),
-    m_trans_tree_dict (dynamic_cast<IProxyDictWithPool*> (trans_tree)),
+    m_trans_tree_dict (dynamic_cast<IProxyDict*> (trans_tree)),
     m_pers_tree (pers_tree),
     m_dh_br (0),
     m_dh_ver (0),

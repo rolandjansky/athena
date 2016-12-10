@@ -23,10 +23,10 @@
 
 #include "AthenaROOTAccess/TTreeBranchMap.h"
 #include "SGTools/StringPool.h"
-#include "SGTools/IProxyDictWithPool.h"
-#include "CxxUtils/unordered_map.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "GaudiKernel/StatusCode.h"
 #include "Rtypes.h"
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -439,7 +439,7 @@ private:
   /// Type for the proxy map.
   /// We hold payload_t via pointers because we want entries
   /// corresponding to symlinks to point at the same entry.
-  typedef SG::unordered_map<sgkey_t, payload_t*, keyhash> proxymap_t;
+  typedef std::unordered_map<sgkey_t, payload_t*, keyhash> proxymap_t;
 
   /// The actual proxy map.
   proxymap_t m_proxymap;
@@ -453,8 +453,8 @@ private:
   /// Transient tree.
   TTreeBranchMap* m_trans_tree;
 
-  /// Transient tree, cast to IProxyDictWithPool.
-  IProxyDictWithPool* m_trans_tree_dict;
+  /// Transient tree, cast to IProxyDict.
+  IProxyDict* m_trans_tree_dict;
 
   /// Persistent tree.
   TTree* m_pers_tree;
@@ -494,19 +494,19 @@ private:
   {
     std::size_t operator() (const redirect_key_t& key) const
     {
-      SG::hash<std::string> h;
+      std::hash<std::string> h;
       return h (key.m_dbid) + h (key.m_container);
     }
   };
 
-  typedef SG::unordered_map<redirect_key_t, size_t, redirect_key_hash>
+  typedef std::unordered_map<redirect_key_t, size_t, redirect_key_hash>
     redirect_map_t;
 
   /// The redirection map.
   redirect_map_t m_redirectMap;
 
   /// Map from transient objects to pointers.
-  typedef SG::unordered_map<const void*, SG::DataProxy*> transient_map_t;
+  typedef std::unordered_map<const void*, SG::DataProxy*> transient_map_t;
   transient_map_t m_transientMap;
 };
 

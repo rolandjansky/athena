@@ -179,7 +179,7 @@ void TTreeTrans::resetBranch (sgkey_t sgkey)
  * The current tree is the one which gets installed as the source
  * when @c ElementLink's are constructed.
  */
-IProxyDictWithPool* TTreeTrans::setCurTree (IProxyDictWithPool* tree)
+IProxyDict* TTreeTrans::setCurTree (IProxyDict* tree)
 {
   return SG::CurrentEventStore::setStore (tree);
 }

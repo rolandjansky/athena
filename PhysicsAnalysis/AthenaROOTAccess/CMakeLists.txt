@@ -9,13 +9,13 @@ atlas_subdir( AthenaROOTAccess )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainersInterfaces
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/SGTools
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthAllocators
                           Control/AthContainers
+                          Control/AthContainersRoot
                           Control/AthLinks
                           Control/RootUtils
                           Database/AthenaPOOL/AthenaPoolCnvSvc
@@ -33,32 +33,32 @@ atlas_add_library( AthenaROOTAccess
                    src/*.cxx
                    PUBLIC_HEADERS AthenaROOTAccess
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel CxxUtils SGTools GaudiKernel RootUtilsPyROOT AthenaPoolCnvSvcLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthAllocators AthContainers AthLinks RootUtils PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking )
+                   LINK_LIBRARIES AthenaKernel SGTools GaudiKernel RootUtilsPyROOT AthenaPoolCnvSvcLib
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking )
 
 atlas_add_dictionary( AthenaROOTAccessDict
                       AthenaROOTAccess/AthenaROOTAccessDict.h
                       AthenaROOTAccess/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools GaudiKernel TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
 
 atlas_add_dictionary( AthenaROOTAccessTestDict
                       AthenaROOTAccess/AthenaROOTAccessTestDict.h
                       AthenaROOTAccess/test_selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools GaudiKernel TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
 
 atlas_add_test( DVCollectionProxy_test
                 SOURCES
                 test/DVCollectionProxy_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools GaudiKernel TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
 
 atlas_add_test( DataBucketVoid_test
                 SOURCES
                 test/DataBucketVoid_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthAllocators AthContainers AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools GaudiKernel TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
