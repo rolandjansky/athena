@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.cxx 784763 2016-11-17 04:47:21Z wsfreund $
+// $Id: CaloRingsBuilder.cxx 787812 2016-12-02 05:42:32Z ssnyder $
 // =================================================================================
 #include "CaloRingsBuilder.h"
 
@@ -66,9 +66,9 @@ CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
       "Each RingSet ring eta width");
   declareProperty("PhiWidth", m_phiWidth,
       "Each RingSet ring phi width");
-  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist,
+  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist = 0,
       "Maximum cell distance in eta to seed");
-  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist,
+  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist = 0,
       "Maximum cell distance in phi to seed");
   declareProperty("NRings", m_nRings,
       "Each RingSet number of rings");

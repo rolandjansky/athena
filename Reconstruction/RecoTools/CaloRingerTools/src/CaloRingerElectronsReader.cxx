@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerElectronsReader.cxx 752385 2016-06-03 15:44:20Z ssnyder $
+// $Id: CaloRingerElectronsReader.cxx 786306 2016-11-24 13:40:42Z wsfreund $
 // =============================================================================
 #include "CaloRingerElectronsReader.h"
 
@@ -94,14 +94,20 @@ StatusCode CaloRingerElectronsReader::execute()
 
   ATH_MSG_DEBUG("Entering " << name() << " execute.");
 
+  xAOD::ElectronAuxContainer* crAux{nullptr};
+
   // Retrieve electrons
   if ( m_builderAvailable ) {
+
     if ( evtStore()->retrieve( m_container, m_inputKey).isFailure() )
     {
       ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
       return StatusCode::FAILURE;
     }
   } else {
+
+    ATH_MSG_DEBUG("No builder available, will work on copies!");
+
     if ( evtStore()->retrieve( m_constContainer, m_inputKey).isFailure() ){
       ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
       return StatusCode::FAILURE;
@@ -112,7 +118,7 @@ StatusCode CaloRingerElectronsReader::execute()
     m_container->reserve( m_constContainer->size() );
 
     // Create its aux container and set it:
-    auto* crAux = new xAOD::ElectronAuxContainer();
+    crAux = new xAOD::ElectronAuxContainer();
     crAux->reserve( m_constContainer->size() );
     m_container->setStore( crAux );
 
@@ -121,14 +127,6 @@ StatusCode CaloRingerElectronsReader::execute()
       auto elCopy = new xAOD::Electron(*el);
       m_container->push_back( elCopy );
     }
-
-    // Overwrite container and set it to be const:
-    CHECK( evtStore()->overwrite( crAux, 
-          m_inputKey + "Aux.", 
-          /*allowMods = */ false) );
-    CHECK( evtStore()->overwrite( m_container, 
-          m_inputKey, 
-          /*allowMods = */ false) );
   }
 
   // Check if requested to run CaloRings Builder:
@@ -191,6 +189,17 @@ StatusCode CaloRingerElectronsReader::execute()
           selector->name() + std::string("_output")
         );
     }
+  }
+
+  if ( ! m_builderAvailable ) {
+    // In case we worked on copies, place the container on EventStore and set
+    // it to be const:
+    CHECK( evtStore()->overwrite( crAux, 
+          m_inputKey + "Aux.", 
+          /*allowMods = */ false) );
+    CHECK( evtStore()->overwrite( m_container, 
+          m_inputKey, 
+          /*allowMods = */ false) );
   }
 
   return sc;

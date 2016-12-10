@@ -77,10 +77,10 @@ class AsymRings( object ):
     self.doPhiAxesDivision = doPhiAxesDivision
 
   def resizeNRingsAsymRings(self, obj):
-    if ( (obj.doEtaAxesDivision == True) and (obj.doPhiAxesDivision == True)):
-      return [(rings-1)*4+1 for rings in obj.NRings]
+    if ((obj.doEtaAxesDivision == True) and (obj.doPhiAxesDivision == True)):
+      obj.NRings = [(rings-1)*4+1 for rings in obj.NRings]
     else:
-      return [(rings-1)*2+1 for rings in obj.NRings]
+      obj.NRings = [(rings-1)*2+1 for rings in obj.NRings]
 
   def __call__(self, crBuilder):
     for item, val in self.__dict__.iteritems():
