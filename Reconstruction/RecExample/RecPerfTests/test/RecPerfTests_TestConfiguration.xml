@@ -177,6 +177,7 @@
 	      grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
 	      for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	      checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	      checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	      export userJobId="rawtoall_tier0_reco_data16_main"; 
 	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
 	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
@@ -432,6 +433,7 @@
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -458,6 +460,7 @@
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -484,6 +487,7 @@
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -510,6 +514,7 @@
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -536,6 +541,7 @@
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz ntuple*             ${OutputDestination}/. ; 
