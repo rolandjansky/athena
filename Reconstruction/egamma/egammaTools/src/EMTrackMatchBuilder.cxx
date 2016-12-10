@@ -247,7 +247,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackPar
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve (trkMatches.size());
     std::string key = EL(*trackPC, 0).dataID();
-    IProxyDictWithPool* sg = SG::CurrentEventStore::store();
+    IProxyDict* sg = SG::CurrentEventStore::store();
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: "<< m.dR
 		    <<" second  dR: "<< m.seconddR

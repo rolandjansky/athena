@@ -63,7 +63,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool"),
   m_summaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
   m_extrapolationTool("EMExtrapolationTools"),
-  m_trackTES(0),
   m_finalTracks(0),
   m_finalTrkPartContainer(0)
 {
@@ -104,9 +103,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   declareProperty("narrowDeltaPhiRescaleBrem",               m_narrowRescaleBrem =0.1,
 		  "Value of the narrow cut for delta phi Rescale Brem");
 
-  //Switch to turn on-off saving of brem points found by GSF.
-  declareProperty("UseBremFinder", m_useBremFinder = false);
-
   m_AllClusters=0;
   m_AllTracks=0;
   m_AllTRTTracks=0;
@@ -118,7 +114,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   m_FailedSiliconRequirFit=0;
   m_RefittedTracks=0;
 
-  
   declareInterface<IEMBremCollectionBuilder>(this);
 }
 // ===================================================================
@@ -192,7 +187,7 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
   ATH_MSG_INFO ("Not refitted due to Silicon Requirements " << m_FailedSiliconRequirFit);
   ATH_MSG_INFO ("Failed Fit Tracks " << m_FailedFitTracks);
   ATH_MSG_INFO ("RefittedTracks " << m_RefittedTracks);
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -201,40 +196,17 @@ StatusCode EMBremCollectionBuilder::contExecute()
   //======================================================================================================
   StatusCode sc;
   
-  //======================================================================================================
-  //Initialize list of track to truth  associations
-  //m_tpTruthMap.clear();
-
-  //
-  // Get the Cluster particle truth collection  from TES -/
-  const xAOD::CaloClusterContainer* clusterTES(0);
-  sc = evtStore()->retrieve( clusterTES, m_clusterContainerName);
-  if( sc.isFailure()  ||  !clusterTES ) {
-    ATH_MSG_ERROR(" No Cluster collection with key " << m_clusterContainerName <<" found in TES") ;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG( "Cluster container successfully retrieved");
-  //
-  // Get the Track particle collection  from TES -/
-  sc=evtStore()->retrieve( m_trackTES, m_trackParticleContainerName );
-  if( sc.isFailure()  ||  !m_trackTES ) {
-    ATH_MSG_ERROR("No AOD TrackParticle container found in TES: StoreGate Key = " <<m_trackParticleContainerName);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
-  
   // Record the final Track Particle container in StoreGate
+  //
   m_finalTrkPartContainer = new xAOD::TrackParticleContainer();
   xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
   m_finalTrkPartContainer->setStore( aux );
-
   sc = evtStore()->record(m_finalTrkPartContainer, m_OutputTrkPartContainerName);
   if(sc.isFailure()){
     ATH_MSG_ERROR("Unable to create new container " << m_OutputTrkPartContainerName);
     return sc;
   }
   CHECK( evtStore()->record( aux, m_OutputTrkPartContainerName + "Aux." ) );  
-
   //
   //create container for slimmed tracks
   m_finalTracks = new TrackCollection(0);
@@ -243,6 +215,30 @@ StatusCode EMBremCollectionBuilder::contExecute()
     ATH_MSG_ERROR("Unable to create new track container " << m_OutputTrackContainerName);
     return sc;
   }
+  //
+  //if no input return gracefully
+  if( ! evtStore()->contains<xAOD::CaloClusterContainer>(m_clusterContainerName) || 
+      ! evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleContainerName )){
+    return StatusCode::SUCCESS;
+  }
+  //
+  //
+  const xAOD::CaloClusterContainer* clusterTES(0);
+  sc = evtStore()->retrieve( clusterTES, m_clusterContainerName);
+  if( sc.isFailure()  ||  !clusterTES ) {
+    ATH_MSG_ERROR(" No Cluster collection with key " << m_clusterContainerName <<" found in TES") ;
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG( "Cluster container successfully retrieved");
+  //
+  const xAOD::TrackParticleContainer*  trackTES(0);
+  sc=evtStore()->retrieve( trackTES, m_trackParticleContainerName );
+  if( sc.isFailure()  ||  !trackTES ) {
+    ATH_MSG_ERROR("No AOD TrackParticle container found in TES: StoreGate Key = " <<m_trackParticleContainerName);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
+  //
   //======================================================================================================
   //Here is the new Logic
   //Loop over tracks and clusters 
@@ -250,13 +246,13 @@ StatusCode EMBremCollectionBuilder::contExecute()
   //
   xAOD::TrackParticleContainer::const_iterator track_iter;
   xAOD::CaloClusterContainer::const_iterator clus_iter;  
-  xAOD::TrackParticleContainer::const_iterator track_iter_end=m_trackTES->end();
+  xAOD::TrackParticleContainer::const_iterator track_iter_end=trackTES->end();
   xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusterTES->end();
 
   ATH_MSG_DEBUG ("Cluster container size: "  << clusterTES->size() );
-  ATH_MSG_DEBUG ("Track   container  size: "  << m_trackTES->size() );
+  ATH_MSG_DEBUG ("Track   container  size: "  <<trackTES->size() );
 
-  track_iter = m_trackTES->begin();
+  track_iter = trackTES->begin();
   for(unsigned int trackNumber = 0; track_iter !=  track_iter_end; ++track_iter,++trackNumber){
     ATH_MSG_DEBUG ("Check Track with Eta "<< (*track_iter)->eta()<< " Phi " << (*track_iter)->phi()<<" Pt " <<(*track_iter)->pt());
 
@@ -282,18 +278,19 @@ StatusCode EMBremCollectionBuilder::contExecute()
     //inner loop on clusters
     clus_iter = clusterTES->begin();
     for( ;clus_iter !=clus_iter_end;  ++clus_iter){
-
+      
       if(Select((*clus_iter), isTRT, (*track_iter))){
-        ATH_MSG_DEBUG ("Track Matched");
+        
+	ATH_MSG_DEBUG ("Track Matched");
         sc = refitTrack(*track_iter);	    
-	
 	if(sc.isFailure()) {
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
-        } 
+        }
+	
 	else { 	
 	  // Add Auxiliary decorations to the GSF Track Particle
 	  // Set Element link to original Track Particle	  
-          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*m_trackTES,trackNumber);
+          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*trackTES,trackNumber);
 	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
 	  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> >  tP ("originalTrackParticle");
 	  tP(*gsfTrack)= linkToOriginal;
@@ -308,8 +305,7 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	      if(!linkToTruth.isValid()){
 		ATH_MSG_DEBUG("Cannot create Valid Link to Truth Particle for GSFTrackParticle");
 	      }
-	    }
-	 
+	    }	 
 	    static const SG::AuxElement::Accessor<float >  tMP ("truthMatchProbability");
 	    if(tMP.isAvailable(*(*track_iter))){
 	      float originalProbability = tMP(*(*track_iter));
@@ -328,10 +324,10 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	    } 
 	  }
 	}
-
         m_SelectedTracks++;
-        if(isTRT) m_SelectedTRTTracks++;
-        else m_SelectedSiTracks++;
+        if(isTRT) {m_SelectedTRTTracks++;}
+        else {m_SelectedSiTracks++;}
+	//The particular track got refitted the moment it matched any cluster break here
         break;
       }
       else{
@@ -340,7 +336,6 @@ StatusCode EMBremCollectionBuilder::contExecute()
     }//Loop on clusters
   }//Loop on tracks
   
-
   ATH_MSG_DEBUG ("Final Track container size: "  << m_finalTrkPartContainer->size() );
   // Make readable from INav4mom
   const INavigable4MomentumCollection* theNav4s(0);
@@ -348,9 +343,6 @@ StatusCode EMBremCollectionBuilder::contExecute()
   if (sc.isFailure()){
     ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
   }  
-
-  //evtStore()->setConst(m_finalTrkPartContainer).ignore();  
-  //evtStore()->setConst(m_finalTracks).ignore();
   //======================================================================================================
   return StatusCode::SUCCESS;
 }
@@ -358,19 +350,21 @@ StatusCode EMBremCollectionBuilder::contExecute()
 // ====================================================================
 StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart){
 
-  int nSiliconHits_trk =0;
-  
+  int nSiliconHits_trk =0; 
   uint8_t dummy(0); 
-  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfSCTHits) )
+  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfSCTHits) ){
     nSiliconHits_trk += dummy;
-  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfPixelHits) )
+  }
+  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfPixelHits) ){
     nSiliconHits_trk += dummy;
-  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfSCTOutliers) )
+  }
+  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfSCTOutliers) ){
     nSiliconHits_trk += dummy;
-  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfPixelOutliers) )
+  }
+  if( tmpTrkPart->summaryValue(dummy,xAOD::numberOfPixelOutliers) ){
     nSiliconHits_trk += dummy;
-  ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);
-    
+  }
+  ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);    
   //Get the original track that the track particle points to. Clone it in order to assume ownership
   const Trk::Track* tmpTrk(0);
   if ( tmpTrkPart->trackLink().isValid() ){
@@ -378,7 +372,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   else{
     ATH_MSG_ERROR ("TrackParticle has not Track --  are you running on AOD?");
-      return StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
   
   Trk::Track* trk_refit = 0;
@@ -405,28 +399,34 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     trk_refit = new Trk::Track(*tmpTrk);
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  //Try looking for hard brem points after using BremFinder tool.
-  std::vector<const Trk::TrackStateOnSurface*> bremTSOS;
-  if (m_useBremFinder) {
-    if (trk_refit) {
-      auto tsos = trk_refit->trackStateOnSurfaces()->begin();
-      for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
-	if ((*tsos)->type(Trk::TrackStateOnSurface::BremPoint) && (*tsos)->trackParameters()!=0) {
-	  Trk::EstimatedBremOnTrack *estimatedBremOnTrack(0);
-	  if ((*tsos)->materialEffectsOnTrack()) {
-	    estimatedBremOnTrack = (Trk::EstimatedBremOnTrack*)((*tsos)->materialEffectsOnTrack());
-	  } 
-	
-	  if (estimatedBremOnTrack) {
-	    bremTSOS.push_back((**tsos).clone());
-	  }
+  //Save perigee eta, phi for later usage in supercluster algorithm.
+  float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
+  if (trk_refit) {
+    auto tsos = trk_refit->trackStateOnSurfaces()->begin();
+    for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
+
+      if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
+
+	float extrapEta(-999.), extrapPhi(-999.);
+	const Trk::TrackParameters      *perigeeTrackParams(0);
+      
+	perigeeTrackParams = (*tsos)->trackParameters();
+      
+	const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
+	std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+
+	//Do the straight-line extrapolation.	  
+	bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
+	if (hitEM2) {
+	  perigeeExtrapEta = extrapEta;
+	  perigeeExtrapPhi = extrapPhi;
+	} else {
+	  ATH_MSG_WARNING("Extrapolation to EM2 failed!");
 	}
+	break;
       }
     }
   }
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  
   //Slim the tracks   
   Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
   if(!slimmed){
@@ -452,11 +452,11 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     aParticle->setTrackLink( trackLink );     
     aParticle->setVertexLink(tmpTrkPart->vertexLink());     
 
-    //If requested, save list of brem points.
-    if (m_useBremFinder) {
-      static const SG::AuxElement::Accessor< std::vector<const Trk::TrackStateOnSurface*> > bremPoints("bremPoints");
-      bremPoints(*aParticle) = bremTSOS;
-    }
+    static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
+    pgExtrapEta(*aParticle) = perigeeExtrapEta;    
+
+    static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
+    pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
     
     //Add qoverP for the last measurement
     static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");

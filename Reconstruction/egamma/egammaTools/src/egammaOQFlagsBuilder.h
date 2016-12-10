@@ -18,7 +18,7 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -79,7 +79,7 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   double m_LArQCut;
   double m_TCut;
   double m_TCutVsE;
-
+  double m_RcellCut;
 };
 
 #endif

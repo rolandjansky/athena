@@ -34,8 +34,10 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
     "Name of the input electron container");
   declareProperty("PhotonContainerName", m_photonContainerName, 
     "Name of the input photon container");
-  declareProperty("doSuperCluster", m_doSuperClusters = false, 
+  declareProperty("doSuperCluster", m_doSuperClusters = true, 
     "Do Super Cluster Reco");
+  declareProperty("applyMVAToSuperCluster", m_applySuperClusters = true, 
+    "Protection to not do anything for superClusters");
 
 
   declareInterface<IEMClusterTool>(this);
@@ -101,8 +103,9 @@ StatusCode EMClusterTool::contExecute()
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
   // Only if they differ from the main output cluster container
+  // and if we do not do supercluster
   xAOD::CaloClusterContainer* outputTopoSeededClusterContainer = outputClusterContainer;
-  bool doTopoSeededContainer= (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName);
+  bool doTopoSeededContainer= (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName && !m_doSuperClusters);
   if(doTopoSeededContainer){
     outputTopoSeededClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
 									     m_outputTopoSeededClusterContainerName, 
@@ -146,7 +149,7 @@ StatusCode EMClusterTool::contExecute()
 // ==========================================================================
 void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
                                   xAOD::CaloClusterContainer *outputClusterContainer,
-                                  xAOD::EgammaParameters::EgammaType egType) const
+                                  xAOD::EgammaParameters::EgammaType egType)
 {
   if (!eg) {return;}
 
@@ -164,7 +167,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
   } // Doing superClusters
   else if ( m_doSuperClusters){
     //copy over for super clusters 
-    cluster = makeNewSuperCluster(*(eg->caloCluster()));
+    cluster = makeNewSuperCluster(*(eg->caloCluster()),eg);
   }
   else {
     cluster = makeNewCluster(*(eg->caloCluster()), eg, egType);
@@ -180,7 +183,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
 
 // ==========================================================================
 xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, 
-						 xAOD::EgammaParameters::EgammaType egType) const{
+						 xAOD::EgammaParameters::EgammaType egType) {
   //
   // Create new cluster based on an existing one
   // const CaloCluster* cluster : input cluster
@@ -217,7 +220,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
 // ==========================================================================
 xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, 
-						 const xAOD::CaloCluster::ClusterSize& cluSize) const {
+						 const xAOD::CaloCluster::ClusterSize& cluSize) {
 
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
 								   cluster.eta0(),cluster.phi0(),
@@ -242,28 +245,17 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
   return newClus;
 }
-xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster) const {
+xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) {
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
-  //
-  //Here we could apply corrections
-  //
-  //Fill position in calo frame
-  // fillPositionsInCalo(newClus);
-  //Fill the raw state using the original super cluster
-  // newClus->setRawE(cluster.e());
-  // newClus->setRawEta(cluster.eta());
-  // newClus->setRawPhi(cluster.phi());
-  // Now we decided that Alt* values are the seed values, and they are already set
-  // by the supercluster builder, so don't overwrite
-  // newClus->setAltE(cluster.e());
-  // newClus->setAltEta(cluster.eta());
-  // newClus->setAltPhi(cluster.phi());
-  //Here is should be a call to MVA calib, now again copy over
-  // newClus->setCalE(cluster.e());
-  // newClus->setCalEta(cluster.eta());
-  // newClus->setCalPhi(cluster.phi());
-  ////
+  if(m_applySuperClusters){ 
+    if (newClus && m_MVACalibTool->execute(newClus,eg).isFailure()){
+      ATH_MSG_ERROR("Problem executing MVA cluster tool");
+    }
+  }
+ 
+  ATH_MSG_DEBUG("Cluster Energy after final calibration: "<<newClus->e());
+
   return newClus;
 }
 // ==========================================================================

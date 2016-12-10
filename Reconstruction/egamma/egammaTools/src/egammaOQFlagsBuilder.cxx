@@ -5,13 +5,14 @@
 // INCLUDE HEADER FILES:
 #include "egammaOQFlagsBuilder.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include <algorithm> 
 #include <math.h> 
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -55,6 +56,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   declareProperty("LArQCut", m_LArQCut = 0.8);
   declareProperty("TCut", m_TCut = 10.0);
   declareProperty("TCutVsE", m_TCutVsE = 2.0);
+  declareProperty("RcellCut", m_RcellCut = 0.8);
   m_affRegVec = 0;
   m_calocellId = 0;
 }
@@ -82,56 +84,56 @@ StatusCode egammaOQFlagsBuilder::initialize()
   //StoreGateSvc* detStore;
   sc=service("DetectorStore",m_detStore);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "DetectorStore service not found !" << endreq;
+    msg(MSG::ERROR) << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found DetectorStore" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found DetectorStore" << endmsg;
   }
 
   // Get BadChannelTool
   sc=m_badChannelTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endmsg;
   }
   
 
   //Get CaloAffectedTool
   sc = m_affectedTool.retrieve();
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve CaloAffectedTool " << m_affectedTool << endreq;
+    msg(MSG::ERROR) << "Could not retrieve CaloAffectedTool " << m_affectedTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloAffectedTool" << m_affectedTool << " retrieved" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloAffectedTool" << m_affectedTool << " retrieved" << endmsg;
   }
 
 
   //Get LArCablingService
   sc=m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService " << m_larCablingSvc << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService " << m_larCablingSvc << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArCablingService" << m_larCablingSvc << " retrieved" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArCablingService" << m_larCablingSvc << " retrieved" << endmsg;
   }
 
 
   sc=m_detStore->retrieve(m_calocellId, "CaloCell_ID"); 
   if(sc.isFailure()){
-    msg(MSG::WARNING) <<  "Cannot retrieve online_id" << endreq;
+    msg(MSG::WARNING) <<  "Cannot retrieve online_id" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloCell_ID" << m_calocellId << " retrieved" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloCell_ID" << m_calocellId << " retrieved" << endmsg;
   }
   
   sc=m_detStore->retrieve(m_emHelper); 
   if(sc.isFailure()){
-    msg(MSG::WARNING) <<   "Cannot retrieve online_id" << endreq;
+    msg(MSG::WARNING) <<   "Cannot retrieve online_id" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloCell_ID  retrieved" << endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloCell_ID  retrieved" << endmsg;
   }
 
 
@@ -203,12 +205,35 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   if (eg==0) return StatusCode::SUCCESS;
   const xAOD::CaloCluster* cluster = eg->caloCluster(); 
   if (!cluster) return StatusCode::SUCCESS; 
-  if (cluster->size()<=0) return StatusCode::SUCCESS; 
-  
-  unsigned int iflag = 0;
+  if (cluster->size()==0) return StatusCode::SUCCESS; 
+
+  //
   const float clusterEta = cluster->eta();
   const float clusterPhi = cluster->phi();
-
+  //
+  //In case we have the sizes set during the cluster construction.
+  int etaSize=cluster->getClusterEtaSize();
+  int phiSize=cluster->getClusterPhiSize();
+  //If no proper size could be found automatically, deduce by hand
+  //for the known std cases
+  if (etaSize==0 && phiSize==0) {
+    bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);  
+    if (xAOD::EgammaHelpers::isElectron(eg)){
+      etaSize= (isBarrel ? 3 : 5);
+      phiSize= (isBarrel ? 7 : 5);
+    }
+    else if (xAOD::EgammaHelpers::isConvertedPhoton(eg)){
+      etaSize= (isBarrel ? 3 : 5);
+      phiSize= (isBarrel ? 7 : 5);
+    }
+    else{//unconverted photons
+      etaSize= (isBarrel ? 3 : 5);
+      phiSize= (isBarrel ? 7 : 5);
+    }
+  }
+  
+  unsigned int iflag = 0;
+  
   //Find the central cell in the middle layer 
   bool foundCentralCell = egammaOQFlagsBuilder::findCentralCell(cluster);
   
@@ -222,6 +247,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   //Declare totE and badE for LarQ cleaning
   double totE=0;
   double badE=0;
+  double energyCellMax=0;
 
   if (foundCentralCell) {
     //Find the list of neighbours cells, to define the 3x3 cluster core
@@ -242,6 +268,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       //Calculate badE et totE    
       if( (cell->provenance()  & 0x2000) &&!(cell->provenance()  & 0x0800 )) {
 	totE += cell->e();
+	if(cell->e() > energyCellMax ) energyCellMax = cell->e();
 	if(cell->quality() > m_QCellCut ) badE += cell->e(); 
       }       
 
@@ -335,16 +362,24 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       iflag |= (0x1 << xAOD::EgammaParameters::LArQCleaning);
     }
     //=========================================//
+    //==== Set HighRcell bit ===============//
+    double ratioCell=0;
+    if(totE !=0) ratioCell=energyCellMax/totE;
+    if(ratioCell>m_RcellCut){
+      iflag |= (0x1 << xAOD::EgammaParameters::HighRcell);
+    }
+    //=========================================//
+    
   } //close if found central cell
-
+  
   //========================= Check the HV components ===================================================//
   float deta=0;
   float dphi=0;
   CaloSampling::CaloSample layer;
 
   //--------------> PRE SAMPLER
-  deta=0.5*0.025*cluster->getClusterEtaSize();
-  dphi=0.5*0.025*cluster->getClusterPhiSize();
+  deta=0.5*0.025*etaSize;
+  dphi=0.5*0.025*phiSize;
   layer=CaloSampling::PreSamplerE;
 
   bool checkNNHV_PSE   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
@@ -369,8 +404,8 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   if(checkDEADHV_CORE_B || checkDEADHV_CORE_E)  iflag |= ( 0x1 << xAOD::EgammaParameters::DeadHVS1S2S3Core); 
 
   //----------------> SAMPLINGS 1,2,3 : CLUSTER EDGE
-  deta=0.5*0.025*cluster->getClusterEtaSize();
-  dphi=0.5*0.025*cluster->getClusterPhiSize();
+  deta=0.5*0.025*etaSize;
+  dphi=0.5*0.025*phiSize;
   layer=CaloSampling::EMB1;
 
   bool checkNNHV_EMB1   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS

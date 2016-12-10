@@ -67,7 +67,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * with a link to the old one **/
   void setNewCluster(xAOD::Egamma *eg,
                      xAOD::CaloClusterContainer *outputClusterContainer,
-                     xAOD::EgammaParameters::EgammaType egType) const;
+                     xAOD::EgammaParameters::EgammaType egType);
   
   /** @brief creation of new cluster based on existing one 
     * Return a new cluster using the seed eta0, phi0 from the existing one, 
@@ -75,7 +75,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * The cluster size depends on the given EgammaType
     */
   virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, 
-					    xAOD::EgammaParameters::EgammaType) const;
+					    xAOD::EgammaParameters::EgammaType);
 
   /** @brief creation of new cluster based on existing one 
     * Return a new cluster with the given size using the seed eta0, phi0 from the
@@ -84,10 +84,10 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * and set the raw one to the cal e,eta,phi from the existing cluster
     */
   virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, 
-                                            const xAOD::CaloCluster::ClusterSize&) const ;
+                                            const xAOD::CaloCluster::ClusterSize&);
 
   /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster) const ;  
+  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg);  
 
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
@@ -110,8 +110,11 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Name of tool for cluster corrections */
   std::string            m_ClusterCorrectionToolName;
   
-  /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
+  /** @brief do super clusters **/ 
   bool m_doSuperClusters;
+
+  /** @brief flag to protect against applying the MVA to super Clusters **/ 
+  bool m_applySuperClusters;
 
   /** @brief Position in Calo frame**/  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;

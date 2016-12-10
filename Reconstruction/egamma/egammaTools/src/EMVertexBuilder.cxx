@@ -15,20 +15,14 @@ changes :
 
 ***************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
-
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "egammaUtils/EMConversionUtils.h"
-
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-
 #include "EMVertexBuilder.h"
 
 EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& name, const IInterface* parent) :

@@ -56,7 +56,7 @@ class EMFourMomBuilder : public egammaBaseTool, virtual public IEMFourMomBuilder
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma* eg);
   /** @brief execute method*/
-  virtual StatusCode hltExecute(xAOD::Egamma* eg, unsigned int index);
+  virtual StatusCode hltExecute(xAOD::Egamma* eg);
 
 private:
  

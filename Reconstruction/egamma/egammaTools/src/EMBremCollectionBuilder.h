@@ -81,12 +81,10 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
 	double                m_narrowDeltaPhiBrem;
 	double                m_narrowRescale;
 	double                m_narrowRescaleBrem;
-	bool                  m_useBremFinder;
-
+	//bool                  m_useBremFinder;
 	//collections
-	const xAOD::TrackParticleContainer*  m_trackTES;
 	TrackCollection*                    m_finalTracks;
-	xAOD::TrackParticleContainer*        m_finalTrkPartContainer;
+	xAOD::TrackParticleContainer*       m_finalTrkPartContainer;
 	//counters
 	unsigned int m_AllClusters;
 	unsigned int m_AllTracks;
