@@ -27,7 +27,6 @@ HIJetConstituentSubtractionTool::HIJetConstituentSubtractionTool(const std::stri
 
 int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 {
-
   float E_min=m_subtractor_tool->MinEnergyForMoments();
   //const jet::cellset_t & badcells = badCellMap.cells() ;
 
@@ -52,13 +51,14 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     h->setBinning(shape);
     es_index=HIEventShapeMap::insert(EventShapeKey(),*h);
   }
-  
-  if(m_modulator_tool->retrieveShape().isFailure())
+
+  const xAOD::HIEventShape* eshape = nullptr;
+  if(m_modulator_tool->getShape(eshape).isFailure())
   {
     ATH_MSG_ERROR("Could not retrieve output shape w/ modulator tool");
     return StatusCode::FAILURE;
   }
-
+  
   //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
@@ -70,7 +70,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr) 
     {
-      m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool); //modifies p4_cl to be constituent 4-vector AFTER subtraction
+      m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool, eshape); //modifies p4_cl to be constituent 4-vector AFTER subtraction
       p4_subtr+=p4_cl;
       if( msgLvl(MSG::DEBUG) ) 
       {

@@ -57,16 +57,17 @@ int HIClusterSubtraction::execute() const
     ATH_MSG_ERROR("Could not retrieve input HIEventShape " << m_cluster_key );
     return 1;
   }
-  CHECK(m_modulator_tool->retrieveShape());
+  const xAOD::HIEventShape* eshape = nullptr;
+  CHECK(m_modulator_tool->getShape(eshape));
 
   for(xAOD::CaloClusterContainer::iterator itr=ccl->begin(); itr!=ccl->end(); itr++) 
   {
     xAOD::CaloCluster* cl=*itr;
     xAOD::IParticle::FourMom_t p4;
-    if(m_set_moments) m_subtractor_tool->SubtractWithMoments(cl,shape,es_index,m_modulator_tool);
+    if(m_set_moments) m_subtractor_tool->SubtractWithMoments(cl,shape,es_index,m_modulator_tool,eshape);
     else
     {
-      m_subtractor_tool->Subtract(p4,cl,shape,es_index,m_modulator_tool);
+      m_subtractor_tool->Subtract(p4,cl,shape,es_index,m_modulator_tool,eshape);
       HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
     }
         
@@ -75,7 +76,7 @@ int HIClusterSubtraction::execute() const
       toolIt!=m_clusterCorrectionTools.end();toolIt++) 
   {
     ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
-    CHECK((*toolIt)->execute(ccl));
+    CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), ccl));
   }//End loop over correction tools
   return 0;
 }

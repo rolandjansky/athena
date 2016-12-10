@@ -95,7 +95,7 @@ int HIJetClusterIndexAssociationTool::modify(xAOD::JetContainer& jets) const
   }
   // return 1;
 
-  // msg(MSG::INFO) << std::setw(20) << "ASG_CHECKING ASSOCIATIONS" << endreq;
+  // msg(MSG::INFO) << std::setw(20) << "ASG_CHECKING ASSOCIATIONS" << endmsg;
   // for (xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ijet++)
   // {
   //   xAOD::Jet* theJet=(*ijet);
@@ -104,7 +104,7 @@ int HIJetClusterIndexAssociationTool::modify(xAOD::JetContainer& jets) const
   // 		   << std::setw(15) << theJet->eta()
   // 		   << std::setw(15) << theJet->phi()
   // 		   << std::setw(15) << theJet->pt()
-  // 		   << endreq;
+  // 		   << endmsg;
     
   //   std::vector<const xAOD::IParticle*> theParticles=theJet->getAssociatedObjects<xAOD::IParticle>(m_assoc_name);
   //   unsigned int ip=0;
@@ -115,7 +115,7 @@ int HIJetClusterIndexAssociationTool::modify(xAOD::JetContainer& jets) const
   // 		     << std::setw(15) << (*pItr)->eta()
   // 		     << std::setw(15) << (*pItr)->phi()
   // 		     << std::setw(15) << (*pItr)->pt()
-  // 		     << endreq;
+  // 		     << endmsg;
   //   }
   // }
   return 1;

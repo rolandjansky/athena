@@ -11,7 +11,6 @@
 #include "xAODCore/ShallowCopy.h"
 
 
-
 namespace
 {
   struct SelectByList{
@@ -235,13 +234,6 @@ StatusCode HIEventShapeJetIteration::fillModulatorShape(xAOD::HIEventShape* ms, 
 
 StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* output_shape, const xAOD::HIEventShape* ms, const std::set<unsigned int>& used_indices) const
 {
-  ATH_CHECK(m_modulator_tool->setEventShapeForModulation(ms));
-  return remodulate(output_shape,used_indices);
-}
-
-StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices) const
-{
-
   std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
   std::vector<float> mod_counts(HI::TowerBins::numEtaBins(),0);
   
@@ -250,7 +242,7 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
     unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
     unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
     mod_counts[eta_bin]++;
-    mod_factors[eta_bin]+=m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin));
+    mod_factors[eta_bin]+=m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin), ms);
   }
   double nphibins=HI::TowerBins::numPhiBins();
   //now loop on shape and correct;

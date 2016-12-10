@@ -4,8 +4,8 @@
 
 // IHIUEModulatorTool.h
 
-#ifndef __HIJETREC_IHIUEMODULATORTOOL_H__
-#define __HIJETREC_IHIUEMODULATORTOOL_H__
+#ifndef HIJETREC_IHIUEMODULATORTOOL_H
+#define HIJETREC_IHIUEMODULATORTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODHIEvent/HIEventShape.h"
@@ -29,13 +29,14 @@ class IHIUEModulatorTool : virtual public asg::IAsgTool {
 
   virtual ~IHIUEModulatorTool() { };
 
-  virtual float getModulation(float) const = 0;
+  virtual float getModulation(float, const xAOD::HIEventShape* shape = nullptr) const = 0;
 
   virtual StatusCode setEventShapeForModulation(const xAOD::HIEventShape*) = 0;
 
   virtual void setHarmonics(const std::vector<unsigned int>&) = 0;
 
   virtual StatusCode retrieveShape() = 0;
+  virtual StatusCode getShape(const xAOD::HIEventShape* & shape) const = 0;
   
   
 };
