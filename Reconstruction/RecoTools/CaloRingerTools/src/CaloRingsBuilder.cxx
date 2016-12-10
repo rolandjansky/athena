@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.cxx 752385 2016-06-03 15:44:20Z ssnyder $
+// $Id: CaloRingsBuilder.cxx 787812 2016-12-02 05:42:32Z ssnyder $
 // =================================================================================
 #include "CaloRingsBuilder.h"
 
@@ -66,9 +66,9 @@ CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
       "Each RingSet ring eta width");
   declareProperty("PhiWidth", m_phiWidth,
       "Each RingSet ring phi width");
-  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist,
+  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist = 0,
       "Maximum cell distance in eta to seed");
-  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist,
+  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist = 0,
       "Maximum cell distance in phi to seed");
   declareProperty("NRings", m_nRings,
       "Each RingSet number of rings");
@@ -209,7 +209,7 @@ StatusCode CaloRingsBuilder::execute(const xAOD::CaloCluster &cluster,
     const double cosheta = std::cosh(eta2);
     et = (cosheta != 0.) ? energy /cosheta : 0.;
   }
-  if ( et * 0.001 > m_minEnergy )
+  if ( et > m_minEnergy )
   {
     return executeTemp(cluster, clRings);
   } else {
@@ -224,7 +224,7 @@ StatusCode CaloRingsBuilder::execute(
     ElementLink<xAOD::CaloRingsContainer> &clRings)
 {
   double et = particle.pt();
-  if ( et * 0.001 > m_minEnergy )
+  if ( et > m_minEnergy )
   {
     return executeTemp(particle, clRings);
   } else {

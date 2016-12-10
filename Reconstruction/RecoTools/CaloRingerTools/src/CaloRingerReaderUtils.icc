@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerReaderUtils.icc 732386 2016-03-25 03:21:48Z ssnyder $
+// $Id: CaloRingerReaderUtils.icc 786306 2016-11-24 13:40:42Z wsfreund $
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 
@@ -29,12 +29,12 @@ namespace Ringer {
 template<typename particle_t>
 void BuildCaloRingsFctor<particle_t>::displayLoopingMessage() const {
   if (m_msg.level() <= MSG::DEBUG ){
-    std::string str = ((m_particle_has_cluster)?" (with cluster access) ":
-                                                " (without cluster access) ");
+    std::string str = ((m_particle_has_cluster)?"(with cluster access)":
+                                                "(without cluster access)");
     m_msg << MSG::DEBUG << " ---------- Reading " 
-        << m_particle_name << str << " candidate"
+        << m_particle_name << " " << str << " candidate "
         << ++this->m_part_counter << "/" << this->m_part_size
-        << " ----------- " << endreq;
+        << " ----------- " << endmsg;
   }
 }
 
@@ -64,7 +64,7 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
     for ( const auto& clusLink : clustersLinks) {
 
       m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/" 
-        << clustersLinks.size() << endreq;
+        << clustersLinks.size() << endmsg;
 
       // This cluster CaloRings:
       ElementLink<xAOD::CaloRingsContainer> ringsEL;

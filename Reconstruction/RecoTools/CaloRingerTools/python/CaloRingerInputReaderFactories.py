@@ -6,15 +6,14 @@ from egammaRec.Factories import ToolFactory, FcnWrapper
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray
 
 from CaloRingerAlgs import CaloRingerKeys
-from CaloRingerAlgs.CaloRingerFlags import jobproperties
-CaloRingerFlags = jobproperties.CaloRingerFlags
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 
 def getElectronCaloRingsBuilder():
   "Return the electrons CaloRings builder "
-  if CaloRingerFlags.buildElectronCaloRings:
+  if caloRingerFlags.buildElectronCaloRings():
     from CaloRingerTools.CaloRingerBuilderFactories import ElectronCaloRingsBuilder, \
                                                            ElectronCaloAsymRingsBuilder
-    if CaloRingerFlags.useAsymBuilder:
+    if caloRingerFlags.useAsymBuilder():
       return ElectronCaloAsymRingsBuilder()
     else:
       return ElectronCaloRingsBuilder()
@@ -23,10 +22,10 @@ def getElectronCaloRingsBuilder():
 
 def getPhotonCaloRingsBuilder():
   "Return the photon CaloRings builder "
-  if CaloRingerFlags.buildPhotonCaloRings:
+  if caloRingerFlags.buildPhotonCaloRings():
     from CaloRingerTools.CaloRingerBuilderFactories import PhotonCaloRingsBuilder, \
                                                            PhotonCaloAsymRingsBuilder
-    if CaloRingerFlags.useAsymBuilder:
+    if caloRingerFlags.useAsymBuilder():
       return PhotonCaloAsymRingsBuilder()
     else:
       return PhotonCaloRingsBuilder()
@@ -35,7 +34,7 @@ def getPhotonCaloRingsBuilder():
 
 def getCaloRingerElectronSelectorsBuilder():
   "Return the Electron Selectors"
-  if CaloRingerFlags.doElectronIdentification:
+  if caloRingerFlags.doElectronIdentification():
     from CaloRingerTools.CaloRingerSelectorsBuilders import CaloRingerElectronSelectorsBuilder
     return CaloRingerElectronSelectorsBuilder().getAllSelectorHandles()
   else:
@@ -43,7 +42,7 @@ def getCaloRingerElectronSelectorsBuilder():
 
 def getCaloRingerPhotonSelectorsBuilder():
   "Return the Photon Selectors"
-  #if CaloRingerFlags.doPhotonIdentification:
+  #if caloRingerFlags.doPhotonIdentification:
   #  from CaloRingerTools.CaloRingerSelectorsBuilders import CaloRingerPhotonSelectorsBuilder
   #  return CaloRingerPhotonSelectorBuilder().getAllSelectorHandles()
   #else:
@@ -57,7 +56,7 @@ CaloRingerElectronsReaderTool = ToolFactory(CaloRingerToolsConf.Ringer__CaloRing
                                             crBuilder = FcnWrapper(getElectronCaloRingsBuilder),
                                             builderAvailable = FcnWrapper(checkBuildElectronCaloRings),
                                             ElectronSelectors = FcnWrapper(getCaloRingerElectronSelectorsBuilder),
-                                            selectorsAvailable = FcnWrapper(checkDoElectronIdentification)
+                                            selectorsAvailable = FcnWrapper(checkDoElectronIdentification),
                                            )
 
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkBuildPhotonCaloRings
