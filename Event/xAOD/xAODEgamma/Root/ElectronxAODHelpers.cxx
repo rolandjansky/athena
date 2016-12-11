@@ -9,8 +9,8 @@
 
 // ==================================================================
 const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticle(const xAOD::Electron* el){
-
- if(el){
+  
+  if(el){
     const xAOD::TrackParticle* trkPar= el->trackParticle();
     if(trkPar){
       return getOriginalTrackParticleFromGSF(trkPar);
@@ -20,18 +20,16 @@ const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticle(const x
 }
 // ==================================================================
 const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(const xAOD::TrackParticle* trkPar){
-
+  
   if(! trkPar) {return 0;}
-  const static SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > orig ("originalTrackParticle");
-
-  if (!orig.isAvailable(*trkPar) || !orig(*trkPar).isValid()) return 0;
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > orig ("originalTrackParticle");
+  if (!orig.isAvailable(*trkPar) || !orig(*trkPar).isValid()) {return 0;}
 
   return (*orig(*trkPar));
 }
 // ==================================================================
 float xAOD::EgammaHelpers::getLastMeasurementQoverP(const xAOD::TrackParticle *tp){
- 
-  const static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
   if(tp && QoverPLM.isAvailable(*tp)){
     return QoverPLM(*tp);
   }
@@ -41,7 +39,6 @@ float xAOD::EgammaHelpers::getLastMeasurementQoverP(const xAOD::TrackParticle *t
 const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Electron* el, 
 										  bool useBremAssoc /* = true */, 
 										  bool allParticles /* = true */){
-
   std::set<const xAOD::TrackParticle*> tps;
   for (unsigned int i = 0; i < el->nTrackParticles(); ++i){
     const xAOD::TrackParticle* tp = el->trackParticle(i);
@@ -53,8 +50,8 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
 }
 // ==================================================================
 const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Electron* el, 
-										     bool useBremAssoc /* = true */, 
-										     bool allParticles /* = true */){
+											bool useBremAssoc /* = true */, 
+											bool allParticles /* = true */){
 
   std::vector<const xAOD::TrackParticle*> tps;
   for (unsigned int i = 0; i < el->nTrackParticles(); ++i){
@@ -67,7 +64,6 @@ const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParti
 }
 // ==================================================================
 std::size_t xAOD::EgammaHelpers::numberOfSiHits(const xAOD::TrackParticle *tp){
-
   if (!tp) return 0;
   uint8_t dummy(0), nSiHits(0);
   if (tp->summaryValue(dummy, xAOD::numberOfPixelHits)){

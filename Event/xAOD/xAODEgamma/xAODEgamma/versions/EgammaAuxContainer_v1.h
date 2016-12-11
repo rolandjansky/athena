@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAuxContainer_v1.h 600675 2014-06-06 17:19:57Z christos $
+// $Id: EgammaAuxContainer_v1.h 744495 2016-05-03 14:33:11Z krasznaa $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMAAUXCONTAINER_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMAAUXCONTAINER_V1_H
 
@@ -33,8 +33,8 @@ namespace xAOD {
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   /// @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
   ///
-  /// $Revision: 600675 $
-  /// $Date: 2014-06-06 19:19:57 +0200 (Fri, 06 Jun 2014) $
+  /// $Revision: 744495 $
+  /// $Date: 2016-05-03 16:33:11 +0200 (Tue, 03 May 2016) $
   ///
 
   class EgammaAuxContainer_v1 : public AuxContainerBase {
@@ -240,12 +240,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EgammaAuxContainer_v1 , 1239597298 , 1 )
-#include "SGTools/BaseInfo.h"
+// Set up the StoreGate inheritance for the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::EgammaAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEGAMMA_VERSIONS_EGAMMAAUXCONTAINER_V1_H

@@ -4,10 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronxAODHelpers.h 673480 2015-06-08 18:14:25Z christos $
+// $Id: ElectronxAODHelpers.h 768704 2016-08-18 23:43:08Z christos $
 #ifndef XAOD_ELECTRONXAODHELPERS_H
 #define XAOD_ELECTRONXAODHELPERS_H
-
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include <cstddef>

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEgammaDict.h 645853 2015-02-10 20:40:06Z blenzi $
+// $Id: xAODEgammaDict.h 789134 2016-12-11 02:15:53Z christos $
 #ifndef XAODEGAMMA_XAODEGAMMADICT_H
 #define XAODEGAMMA_XAODEGAMMADICT_H
 
@@ -44,6 +44,7 @@
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaDefs.h"
+#include "AthContainers/tools/AuxTypeVectorFactory.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODEGAMMA {
@@ -54,6 +55,7 @@ namespace {
       std::vector< DataLink< xAOD::EgammaContainer_v1 > > eg_l4;
       std::vector< ElementLink< xAOD::EgammaContainer_v1 > > eg_l5;
       std::vector< ElementLinkVector< xAOD::EgammaContainer_v1 > > eg_l6;
+      SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > > eg_l7;
 
       xAOD::ElectronContainer_v1 el_c1;
       DataLink< xAOD::ElectronContainer_v1 > el_l1;

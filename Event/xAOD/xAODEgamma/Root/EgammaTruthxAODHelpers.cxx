@@ -46,12 +46,12 @@ bool xAOD::EgammaHelpers::isTrueConvertedPhoton(const xAOD::TruthParticle* truth
 
 // ==================================================================
 
-const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::Electron* el,const  int barcodecut/*=0*/){ 
+const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::Electron* el,  const int barcodecut/*=0*/){ 
   const xAOD::TruthParticle *truthel = xAOD::TruthHelpers::getTruthParticle(*el);
   return getBkgElectronMother(truthel,barcodecut);
 }
 
-const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::TruthParticle* truthel,const  int barcodecut/*=0*/){
+const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::TruthParticle* truthel, const  int barcodecut/*=0*/){
 
   std::vector<const xAOD::TruthParticle*>  vec = xAOD::EgammaHelpers::getBkgElectronLineage(truthel,barcodecut);
   if(vec.size()>0){ 
@@ -61,14 +61,14 @@ const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD:
 }
 
 std::vector<const xAOD::TruthParticle*> 
-xAOD::EgammaHelpers::getBkgElectronLineage(const xAOD::Electron* el,const unsigned int barcodecut/*=0*/){
+xAOD::EgammaHelpers::getBkgElectronLineage(const xAOD::Electron* el,const int barcodecut/*=0*/){
   const xAOD::TruthParticle *truthel = xAOD::TruthHelpers::getTruthParticle(*el);
   return getBkgElectronLineage(truthel,barcodecut);
 }
 
 //The actual implementation code 
 std::vector<const xAOD::TruthParticle*> 
-xAOD::EgammaHelpers::getBkgElectronLineage(const xAOD::TruthParticle* truthel,const unsigned int barcodecut/*=0*/){
+xAOD::EgammaHelpers::getBkgElectronLineage(const xAOD::TruthParticle* truthel,const int barcodecut/*=0*/){
   std::vector<const xAOD::TruthParticle*> vec;
   //Truth must exist and be an electron
   if (!truthel || truthel->absPdgId()!=11){ 
