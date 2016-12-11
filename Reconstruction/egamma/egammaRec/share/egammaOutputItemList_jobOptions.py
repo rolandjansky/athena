@@ -9,11 +9,11 @@ def getItem(cType, cKey):
   "getItem(cType, cKey) -> Return item to be added to the output list: <cType>#<cKey>"
   return '%s#%s' % (cType, cKey)
 
-def getAuxItem(cType, cKey, auxOption=''):
+def getAuxItem(cType, cKey, auxOptionAll='',auxOptionAOD=''):
   "getAuxItem(cType, cKey, auxOption='') -> <cType>#<cKey>Aux.<auxOption>"
   auxType = cType.replace('Container', 'AuxContainer')
   auxKey =  cKey + 'Aux.'
-  return '%s#%s%s' % (auxType, auxKey, auxOption)
+  return '%s#%s%s%s' % (auxType, auxKey, auxOptionAll,auxOptionAOD)
 
 def addContainer(outputList, cType, cKey):
   "addContainer(outputList, cType, cKey) -> Add container to outputList"
@@ -22,9 +22,9 @@ def addContainer(outputList, cType, cKey):
   if item not in outputList:
     outputList.append( item )
   
-def addAuxContainer(outputList, cType, cKey, auxOption=''):
+def addAuxContainer(outputList, cType, cKey, auxOptionAll='',auxOptionAOD=''):
   "addAux(outputList, cType, cKey, auxOption='') -> Add aux container to outputList"
-  item = getAuxItem(cType, cKey, auxOption)
+  item = getAuxItem(cType, cKey, auxOptionAll,auxOptionAOD)
   if item not in outputList:
     outputList.append( item )
 
@@ -37,8 +37,9 @@ AOD_outputs = [i for i,j in egammaKeysDict.outputs.items()
 # Define egammaAODList in the proper format (<type>#<key><option>),
 # including aux containers
 egammaAODList = []
+egammaESDList = []
 for i in AOD_outputs:
-  cType, cKey, auxOption = egammaKeysDict.outputs[i]
+  cType, cKey, auxOptionAll, auxOptionAOD = egammaKeysDict.outputs[i]
 
   # Skip truth if doTruth = False
   if not rec.doTruth() and 'Truth' in cKey:
@@ -49,24 +50,19 @@ for i in AOD_outputs:
     continue
   
   addContainer(egammaAODList, cType, cKey)
+  addContainer(egammaESDList, cType, cKey)
+
   # Add aux containers for xAOD containers
   if 'xAOD::' in cType:
-    addAuxContainer(egammaAODList, cType, cKey, auxOption)
+    addAuxContainer(egammaAODList, cType, cKey, auxOptionAll, auxOptionAOD)
+    addAuxContainer(egammaESDList, cType, cKey, auxOptionAll)
 
-# List for ESD: same as AOD but for tracks and links from topo-seeded clusters to cells 
-egammaESDList = list(egammaAODList)
+# Add the non xAOD kind of  collection in the ESD 
 egammaESDList.append( getItem(egammaKeys.outputTrackType(), egammaKeys.outputTrackKey()) )
 egammaESDList.append( getItem(egammaKeys.outputFwdClusterCellLinkType(), egammaKeys.outputFwdClusterCellLinkKey()) )
 egammaESDList.append( getItem(egammaKeys.outputTopoSeededCellLinkType(), egammaKeys.outputTopoSeededCellLinkKey()))
 
-# Remove auxOption from TopoSeeded and Forward Clusters ==> keep cellLink 
-for index, item in enumerate(egammaESDList):
-  if egammaKeys.outputTopoSeededClusterKey() + 'Aux' in item:
-    egammaESDList[index] = getAuxItem( egammaKeys.outputTopoSeededClusterType(), egammaKeys.outputTopoSeededClusterKey() )  
-  if egammaKeys.outputFwdClusterKey() + 'Aux' in item:
-    egammaESDList[index] = getAuxItem( egammaKeys.outputFwdClusterType(), egammaKeys.outputFwdClusterKey() )
-
-logEgammaOutputItemList_jobOptions = logging.getLogger( 'py:egammaOutputItemList_jobOptions' )
+logEgammaOutputItemList_jobOptions = logging.getLogger( 'egammaOutputItemList_jobOptions' )
 logEgammaOutputItemList_jobOptions.info('egammaESDList: %s',  egammaESDList)        
 logEgammaOutputItemList_jobOptions.info('egammaAODList: %s',  egammaAODList)        
 

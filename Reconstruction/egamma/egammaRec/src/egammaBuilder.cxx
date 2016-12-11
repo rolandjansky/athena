@@ -550,17 +550,17 @@ StatusCode egammaBuilder::execute(){
     CHECK( addTopoSeededPhotons(photonContainer, clusters) );
   
   // Call tools
-  for (const auto& tool : m_egammaTools)
+  for (auto& tool : m_egammaTools)
   {
     CHECK( CallTool(tool, electronContainer, photonContainer) );
   }
 
-  for (const auto& tool : m_electronTools)
+  for (auto& tool : m_electronTools)
   {
     CHECK( CallTool(tool, electronContainer, 0) );
   }
 
-  for (const auto& tool : m_photonTools)
+  for (auto& tool : m_photonTools)
   {
     CHECK( CallTool(tool, 0, photonContainer) );
   }
@@ -570,7 +570,7 @@ StatusCode egammaBuilder::execute(){
 }
 
 // =====================================================
-StatusCode egammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
                                    xAOD::ElectronContainer *electronContainer /* = 0*/, 
                                    xAOD::PhotonContainer *photonContainer /* = 0*/)
 {
@@ -754,6 +754,11 @@ StatusCode egammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photonCont
     
     ClusterLink_t link(topoCluster, *topoSeededClusters );
     photon->setCaloClusterLinks( std::vector< ClusterLink_t>{ link } );
+    //
+    //Add the dummy to all new photons created here
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+    ElementLink<xAOD::EgammaContainer> dummylink;
+    ELink(*photon)=dummylink;
   }
   ATH_MSG_DEBUG("Number of photons (after topo-clusters): " << photonContainer->size() );
   

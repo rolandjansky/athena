@@ -586,15 +586,15 @@ StatusCode topoEgammaBuilder::execute(){
   
   //-----------------------------------------------------------------
   // Call tools
-  for (const auto& tool : m_egammaTools){
+  for (auto& tool : m_egammaTools){
     CHECK( CallTool(tool, electronContainer, photonContainer) );
   }
   
-  for (const auto& tool : m_electronTools){
+  for (auto& tool : m_electronTools){
     CHECK( CallTool(tool, electronContainer, 0) );
   }
   
-  for (const auto& tool : m_photonTools){
+  for (auto& tool : m_photonTools){
     CHECK( CallTool(tool, 0, photonContainer) );
   }
   
@@ -668,7 +668,7 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
 //-----------------------------------------------------------------
 
 // =====================================================
-StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+StatusCode topoEgammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
 				       xAOD::ElectronContainer *electronContainer /* = 0*/, 
 				       xAOD::PhotonContainer *photonContainer /* = 0*/){
   

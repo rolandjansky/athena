@@ -119,9 +119,12 @@ StatusCode egammaTruthAssociationAlg::execute() {
 }
 
 // ==========================================================================
-StatusCode egammaTruthAssociationAlg::decorateWithTruthInfo(xAOD::IParticle *part, MCTruthInfo_t &info) const{
+StatusCode
+egammaTruthAssociationAlg::decorateWithTruthInfo(xAOD::IParticle *part,
+                                                 const MCTruthInfo_t& info)
+{
 
-  const xAOD::TruthParticle *truthParticle = m_mcTruthClassifier->getGenPart();
+  const xAOD::TruthParticle* truthParticle = info.genPart;
   const xAOD::TruthParticleContainer *truthContainer;
   ATH_CHECK(evtStore()->retrieve(truthContainer, m_truthParticleContainerName) ); 
 
@@ -141,14 +144,14 @@ StatusCode egammaTruthAssociationAlg::decorateWithTruthInfo(xAOD::IParticle *par
 }
 
 // ==========================================================================
-bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle *truth) const{
+bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle *truth) {
 
   if ((truth->pdgId() != 22 && abs(truth->pdgId()) != 11) || 
       truth->status() == 2 || truth->status() == 3 ||
       truth->barcode() > m_barcodeOffset ||
       truth->pt() < m_minPt) return false;
   
-  MCTruthInfo_t type = m_mcTruthClassifier->particleTruthClassifier(truth);
+  auto type = m_mcTruthClassifier->particleTruthClassifier(truth);
 
   // Isolated electron or photon
   if(type.first==MCTruthPartClassifier::IsoElectron ||
@@ -164,7 +167,7 @@ bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle
     
 // ==========================================================================
 void egammaTruthAssociationAlg::getNewTruthParticle(const xAOD::TruthParticle *truth, 
-						    const xAOD::TruthParticleContainer *oldContainer) const{
+						    const xAOD::TruthParticleContainer *oldContainer) {
   xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
   m_egammaTruthContainer->push_back( truthParticle ); 
   truthParticle->setPdgId(truth->pdgId());
@@ -188,14 +191,14 @@ void egammaTruthAssociationAlg::getNewTruthParticle(const xAOD::TruthParticle *t
   ATH_MSG_DEBUG("Decorating truth particle with link to old truth, index = " 
 		<< truthParticle->auxdata< TruthLink_t >("truthParticleLink").index() );
   // MCTruthClassifier info
-  MCTruthInfo_t info = m_mcTruthClassifier->particleTruthClassifier(truth);
+  auto info = m_mcTruthClassifier->particleTruthClassifier(truth);
   truthParticle->auxdata<int>("truthType") = static_cast<int>( info.first );
   truthParticle->auxdata<int>("truthOrigin") = static_cast<int>( info.second );
 }
 
 // ==========================================================================
 template<class T> bool egammaTruthAssociationAlg::decorateWithRecoLink(T* part, const DataVector<T>* container, 
-								       const std::string& name) const{
+								       const std::string& name) {
   const xAOD::TruthParticle *truth = xAOD::TruthHelpers::getTruthParticle(*part);
   if (!truth){
     ATH_MSG_DEBUG("No truth particle associated to " << name);
@@ -243,7 +246,7 @@ xAOD::TruthParticle* egammaTruthAssociationAlg::getEgammaTruthParticle(const xAO
 }
 // ==========================================================================   
 template<class T> StatusCode egammaTruthAssociationAlg::match(std::string containerName, 
-							      const std::string& typeName) const{
+							      const std::string& typeName) {
 
   ATH_MSG_DEBUG("Truth matching for container " << containerName);
   DataVector<T> *container;
@@ -265,18 +268,46 @@ template<class T> StatusCode egammaTruthAssociationAlg::match(std::string contai
 
 // ==========================================================================   
 template<class T> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier(const T* particle) const{
-  return m_mcTruthClassifier->particleTruthClassifier(particle);
+egammaTruthAssociationAlg::particleTruthClassifier(const T* particle) {
+  MCTruthInfo_t info;
+#ifdef MCTRUTHCLASSIFIER_CONST
+  IMCTruthClassifier::Info mcinfo;
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
+  info.genPart = mcinfo.genPart;
+#else
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(particle);
+  info.genPart = m_mcTruthClassifier->getGenPart();
+#endif
+  info.first = ret.first;
+  info.second = ret.second;
+  return info;
 }
 /** Template specialisation for electrons: 
  * second pass based on the cluster to find true photons **/
 template<> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron) const{
-  MCTruthInfo_t info = m_mcTruthClassifier->particleTruthClassifier(electron);
-  if (info.first == MCTruthPartClassifier::Unknown &&
+egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron) {
+  MCTruthInfo_t info;
+#ifdef MCTRUTHCLASSIFIER_CONST
+  IMCTruthClassifier::Info mcinfo;
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
+#else
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(electron);
+#endif
+  if (ret.first == MCTruthPartClassifier::Unknown &&
       !xAOD::EgammaHelpers::isFwdElectron(electron) && electron->caloCluster()){
     ATH_MSG_DEBUG("Trying cluster-based truth classification for electron");
-    info = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster() );
+#ifdef MCTRUTHCLASSIFIER_CONST
+    ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster(), &mcinfo);
+#else
+    ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster() );
+#endif
   }
+#ifdef MCTRUTHCLASSIFIER_CONST
+  info.genPart = mcinfo.genPart;
+#else
+  info.genPart = m_mcTruthClassifier->getGenPart();
+#endif
+  info.first = ret.first;
+  info.second = ret.second;
   return info;
 }
