@@ -41,7 +41,7 @@ void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgSt
           << " l2=" << l2
           << " l3=" << l3
           << " l4=" << l4
-          << endreq;
+          << endmsg;
       persObj->m_ID = (transObj->m_ID & 0xFFFF);
       return;
   }
@@ -95,7 +95,7 @@ void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgSt
           << "," << transObj->m_enemu1.size()
           << "," << transObj->m_enemu2.size()
           << ")  f_size=" << persObj->m_fval.size()
-          << endreq;
+          << endmsg;
     }
   }
   
@@ -142,7 +142,7 @@ void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgSt
           << " id=0x" << MSG::hex << l0 << MSG::dec 
           << " f_size=" << persObj->m_fval.size()
           << " i_size=" << persObj->m_ival.size()
-          << endreq;
+          << endmsg;
       return;
   }
   
@@ -161,7 +161,7 @@ void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgSt
           << " l2="<<l2
           << " l3="<<l3
           << " l4="<<l4
-          << endreq;
+          << endmsg;
     }
 
     transObj->m_sumE.resize(1,0.0);

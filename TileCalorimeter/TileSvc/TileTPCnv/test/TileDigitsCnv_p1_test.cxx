@@ -17,6 +17,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -70,6 +71,7 @@ void testit (const TileDigits& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::vector<float> digits {4.5, 7.5, 10.5, 12.5, 3.5 };
   TileDigits trans1 (hwid.adc_id (1, 2, 3, 0), digits);
