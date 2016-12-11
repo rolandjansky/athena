@@ -52,8 +52,12 @@ namespace xAOD {
       CaloIsolationTool(const std::string& name);
       ~CaloIsolationTool(void); // destructor
       
-      StatusCode initialize() override;
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      StatusCode finalize()
+#ifndef XAOD_ANALYSIS
+        override
+#endif
+        ;
       
       /**ICaloTopoClusterIsolationTool interface: */    
       bool caloTopoClusterIsolation( CaloIsolation& result, 
@@ -215,6 +219,7 @@ namespace xAOD {
       //JB
       /** to know what type of electrons */
       const CaloCluster *m_fwdClus;
+      const Egamma *m_egObj; 
 
 #ifndef XAOD_ANALYSIS
       ToolHandle<Rec::IParticleCaloCellAssociationTool>        m_assoTool;
@@ -275,7 +280,9 @@ namespace xAOD {
       std::string m_efEDForward;
 
       /** Property: The size of the coneCore core energy calculation. */
-      double m_coneCoreSize; 
+      double m_coneCoreSize;
+      double m_coneCoreSizeEg;
+      double m_coneCoreSizeMu;
 
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
