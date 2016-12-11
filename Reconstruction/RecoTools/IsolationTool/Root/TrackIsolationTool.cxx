@@ -20,11 +20,6 @@
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "xAODMuon/Muon.h"
 
-#ifndef XAOD_ANALYSIS
-#include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/SmartIF.h"
-#endif // XAOD_ANALYSIS
 #include <iomanip>
 
 namespace xAOD {
@@ -189,7 +184,7 @@ namespace xAOD {
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
           msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << input.coneSizesSquared[i] << " value " << result.ptcones[i];
         }
-        msg(MSG::DEBUG) << endreq;
+        msg(MSG::DEBUG) << endmsg;
       }
     }
     return success;

@@ -7,7 +7,7 @@
 // #include "xAODTracking/TrackingPrimitives.h"
 // #include "xAODTracking/TrackParticleContainer.h"
 
-static int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
+static const int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
 
 IsolationTool_AthTest::IsolationTool_AthTest( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ),
 m_trackIsolationTool(),
