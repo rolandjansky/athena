@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TileTPCnv/TileCosmicMuonCnv_p2.h"
 #include "TestTools/initGaudi.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -68,6 +69,7 @@ void testit (const TileCosmicMuon& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TileCosmicMuon trans1;
   trans1.SetTime (1.5);

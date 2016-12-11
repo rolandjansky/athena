@@ -17,6 +17,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -80,6 +81,7 @@ void testit (const TileRawChannel& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TileRawChannel trans1 (hwid.adc_id (1, 2, 3, 0),
                          std::vector<float> {1.5},

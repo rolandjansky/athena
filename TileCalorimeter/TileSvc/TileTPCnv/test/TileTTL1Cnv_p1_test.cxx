@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TileTPCnv/TileTTL1Cnv_p1.h"
 #include "TestTools/initGaudi.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -44,6 +45,7 @@ void testit (const TileTTL1& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TileTTL1 trans1 (Identifier (0x1234), std::vector<float> { 1.5, 2.5, 3.5} );
   testit (trans1);
