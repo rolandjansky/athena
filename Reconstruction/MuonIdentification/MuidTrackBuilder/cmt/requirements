@@ -4,6 +4,7 @@ author			Alan Poppleton <Alan.Poppleton@cern.ch>
 
 private
 use AtlasCLHEP			AtlasCLHEP-*			External
+use AthenaKernel                AthenaKernel-*                  Control
 use InDetRIO_OnTrack		InDetRIO_OnTrack-*		InnerDetector/InDetRecEvent
 use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*    Reconstruction/MuonIdentification
 use MuonCompetingRIOsOnTrack	MuonCompetingRIOsOnTrack-*	\

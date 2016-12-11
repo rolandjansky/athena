@@ -76,7 +76,7 @@ namespace Rec
 	/**ICombinedMuonTrackBuilder interface:
 	   propagate to perigee adding calo energy-loss and material to MS track */
 	Trk::Track*		standaloneFit	(const Trk::Track&	spectrometerTrack,
-						 const Trk::Vertex*	vertex, 
+						 const Trk::Vertex*	vertex,
                                                  float bs_x, float bs_y, float bs_z ) const;
 
 	/**ICombinedMuonTrackBuilder interface:

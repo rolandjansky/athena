@@ -222,7 +222,8 @@ namespace Rec
 	    const Trk::RecVertex*					vertex) const;
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
-        void countAEOTs(const Trk::Track* track, std::string txt ) const;
+        int countAEOTs(const Trk::Track* track, std::string txt ) const;
+        bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
@@ -238,8 +239,7 @@ namespace Rec
 	ServiceHandle<MagField::IMagFieldSvc>		m_magFieldSvc;
 	ToolHandle<Trk::IMaterialAllocator>		m_materialAllocator;
 	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator;
-	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonScaledErrorOptimizer;
-	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonAlignmentErrorOptimizer;
+	ToolHandle<Muon::IMuonErrorOptimisationTool>	m_muonErrorOptimizer;
 	ToolHandle<Muon::IMuonHoleRecoveryTool>		m_muonHoleRecovery;
 	ToolHandle<Trk::IPropagator>        		m_propagator;
 	ToolHandle<Trk::IPropagator>        		m_propagatorSL;

@@ -10,11 +10,13 @@
 #include <cmath>
 #include <iomanip>
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuidTrackBuilder/MuonMatchQuality.h"
 #include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "TrkTrack/Track.h"
+#include "AthenaKernel/Units.h"
+
+namespace Units = Athena::Units;
 
 namespace Rec
 {
@@ -25,8 +27,15 @@ MuonMatchQuality::MuonMatchQuality (const std::string&	type,
     :	AthAlgTool		(type, name, parent),
 	m_tagTool		(""),
 	m_trackQuery		("Rec::MuonTrackQuery/MuonTrackQuery"),
+	m_alignmentUncertainty  (0),
 	m_directionUncertainty	(0.000001),	                // not used anymore angle ID and MS: done by m_addIDMSerrors
-	m_positionUncertainty	(0.01*Gaudi::Units::mm),	// not used anymore shift ID and MS: done by m_addIDMSerrors
+	m_positionUncertainty	(0.01*Units::mm),	// not used anymore shift ID and MS: done by m_addIDMSerrors
+	m_innerMatchChi2        (999999.),
+	m_innerMatchDOF         (0),
+	m_innerMatchProbability (0),
+	m_outerMatchChi2        (999999.),
+	m_outerMatchProbability (0),
+	m_simpleChi2            (999999.),
 	m_track1		(0),
 	m_track2		(0)
 {
@@ -274,10 +283,10 @@ MuonMatchQuality::setCache (const Trk::Track& track1, const Trk::Track& track2) 
     }
     else
     {
-	deltaQoverP /= Gaudi::Units::TeV;
-	for (int i = 0; i != Trk::qOverP; ++i) covariance(i,Trk::qOverP) /= Gaudi::Units::TeV;
-	for (int i = 0; i != Trk::qOverP; ++i) covariance(Trk::qOverP,i) /= Gaudi::Units::TeV;
-	covariance(Trk::qOverP,Trk::qOverP) /= (Gaudi::Units::TeV*Gaudi::Units::TeV);
+        deltaQoverP /= Units::TeV;
+	for (int i = 0; i != Trk::qOverP; ++i) covariance(i,Trk::qOverP) /= Units::TeV;
+	for (int i = 0; i != Trk::qOverP; ++i) covariance(Trk::qOverP,i) /= Units::TeV;
+       covariance(Trk::qOverP,Trk::qOverP) /= (Units::TeV*Units::TeV);
     }	
     //     }
 
