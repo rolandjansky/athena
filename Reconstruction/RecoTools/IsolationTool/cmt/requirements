@@ -28,9 +28,6 @@ use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use  xAODCore					xAODCore-*						Event/xAOD
-# use_ifndef pplist="XAOD_STANDALONE" pkg="PhysicsAnalysis/AnalysisCommon/IsolationSelection"
-# use  IsolationSelection         IsolationSelection-*            PhysicsAnalysis/AnalysisCommon
-use_if pkg=IsolationSelection tag=AthAnalysisBase ver=IsolationSelection-* root=PhysicsAnalysis/AnalysisCommon
 
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
