@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 671120 2015-05-30 18:53:01Z christos $ -->
+<!-- $Id: selection.xml 789134 2016-12-11 02:15:53Z christos $ -->
 <lcgdict>
 
   <!-- Egamma_v1 dictionaries: -->
@@ -25,7 +25,7 @@
   <class name="std::vector<ElementLink<xAOD::EgammaContainer_v1> >" />
   <class name="ElementLinkVector<xAOD::EgammaContainer_v1>" />
   <class name="std::vector<ElementLinkVector<xAOD::EgammaContainer_v1> >" />
-
+  <class name="SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > >"/>  
 
   <!-- Electron_v1 dictionaries: -->
   <class name="xAOD::Electron_v1" >
