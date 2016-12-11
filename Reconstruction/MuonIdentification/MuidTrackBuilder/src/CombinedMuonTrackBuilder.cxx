@@ -944,22 +944,27 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	return 0;
     }
 
-    countAEOTs(combinedTrack, " combinedTrack before addIDMSerrors ");
+//    countAEOTs(combinedTrack, " combinedTrack before updateCaloTSOS ");
+
+    if(m_refineELossCombinedTrackFit) {
+      ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in Muon Combined Fit ..." );
+      m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *combinedTrack ));
+    }
+
+//    countAEOTs(combinedTrack, " combinedTrack before addIDMSerrors ");
+
 //  adds uncertainties and removes AEOTs
+
     Trk::Track* newTrack = addIDMSerrors(combinedTrack);
 
     // recollect eloss for combined track and refit
     if(newTrack) { 
-      if(m_refineELossCombinedTrackFit) {
         countAEOTs(newTrack, " combinedTrack after addIDMSerrors ");
-
-        ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in Muon Combined Fit ..." );
-        m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *newTrack ));
-        countAEOTs(newTrack, " combinedTrack updateCaloTSOS ");
-
-        ATH_MSG_VERBOSE( "Refitting combined track with refined Calorimeter TSOS" );
       // Don't run the outliers anymore at this stage
+        dumpCaloEloss(newTrack, "CB input TSOS after refine IDMS "); 
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
+        if(refittedTrack) countAEOTs(refittedTrack," CB fit after refit ");
+        if(refittedTrack) dumpCaloEloss(refittedTrack, "CB refit after refine IDMS "); 
 	if(newTrack != combinedTrack)
 	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit",refittedTrack,combinedTrack)) {
@@ -968,7 +973,6 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
         }else{
 	  if(refittedTrack) delete refittedTrack;
         }
-      }
     }
     
     // hole recovery, error optimization, attach TrackSummary
@@ -1889,18 +1893,25 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	    return 0;
 	}   
 
-//  adds uncertainties and removes AEOTs
-    countAEOTs(track," SA fit before IDMSerrors ");
+//    countAEOTs(track," SA track before updateCaloTSOS ");
+
+    if(m_refineELossStandAloneTrackFit) {
+      ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in StandAlone Fit ..." );
+      m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *track ));
+    }
+
+//    countAEOTs(track," SA track before addIDMSerrors ");
+
+//  adds uncertainties
     Trk::Track* newTrack = addIDMSerrors(track);
-    countAEOTs(newTrack," SA fit after IDMSerrors ");
 
     if(newTrack) { 
-      if(m_refineELossStandAloneTrackFit) {
+        countAEOTs(newTrack, " SA track after addIDMSerrors ");
+        dumpCaloEloss(newTrack, "SA input TSOS after refine IDMS "); 
       // Don't run the outliers anymore at this stage
-        ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in StandAlone Fit ..." );
-        m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *newTrack ));
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
-        if(refittedTrack) countAEOTs(newTrack," SA fit after refit ");
+        if(refittedTrack) countAEOTs(refittedTrack," SA track after refit ");
+        if(refittedTrack) dumpCaloEloss(refittedTrack, " SA refit after refine IDMS "); 
 	if(newTrack != track)
 	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality()&& checkTrack("standaloneFit",refittedTrack,track)) {
@@ -1909,7 +1920,6 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
         }else {
 	  if(refittedTrack) delete refittedTrack;
         }
-      }
     }
 
     // hole recovery, error optimization, attach TrackSummary
@@ -4938,7 +4948,7 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
                pcalo = m->trackParameters()->momentum().mag();
                double pullPhi = scatAngles->deltaPhi()/scatAngles->sigmaDeltaPhi();
                double pullTheta = scatAngles->deltaTheta()/scatAngles->sigmaDeltaTheta();
-               ATH_MSG_DEBUG(" Calorimeter scatterer deltaPhi " << scatAngles->deltaPhi() << " pull " << pullPhi << " deltaTheta " << scatAngles->deltaTheta() << " pull " << pullTheta  );
+               ATH_MSG_DEBUG(" Calorimeter scatterer deltaPhi (mrad) " << 1000*scatAngles->deltaPhi() << " sigma " << 1000*scatAngles->sigmaDeltaPhi() << " pull " << pullPhi << " deltaTheta (mrad) " << 1000*scatAngles->deltaTheta() << " sigma " << 1000*scatAngles->sigmaDeltaTheta() << " pull " << pullTheta  );
              } 
           } 
           const Trk::EnergyLoss* energyLoss = meot->energyLoss();
