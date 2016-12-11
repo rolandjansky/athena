@@ -4,16 +4,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaxAODHelpers.h 768704 2016-08-18 23:43:08Z christos $
+// $Id: EgammaxAODHelpers.h 788453 2016-12-07 15:40:30Z christos $
 #ifndef XAOD_EGAMMAXAODHELPERS_H
 #define XAOD_EGAMMAXAODHELPERS_H
+
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
 // Include all other helpers: The user only needs to include this file
-
 #include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"

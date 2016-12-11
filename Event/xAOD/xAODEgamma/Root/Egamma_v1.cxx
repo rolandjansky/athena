@@ -12,9 +12,37 @@
 #include "EgammaAccessors_v1.h"
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h" 
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include <stdexcept>
 
 namespace xAOD {
+
+namespace MatrixHelpers{
+  //Can not use the template in the EventPrimitiveHelpers
+  //Too specialized (i.e only double cov matrices not float)
+  //Write a more "general" one (hopefully will makes its way).
+
+  template <int N>
+
+  void compress(const Eigen::Matrix<float,N,N,0,N,N>& covMatrix, std::vector<float>& vec ) {
+    vec.reserve(Amg::CalculateCompressedSize<N>::value);
+    for (unsigned int i = 0; i < N ; ++i){
+      for (unsigned int j = 0; j <= i; ++j){
+	vec.push_back(covMatrix(i,j));
+      }
+    }
+  }
+  template <int N>
+  void expand(std::vector<float>::const_iterator it,
+	      std::vector<float>::const_iterator, Eigen::Matrix<float,N,N,0,N,N>& covMatrix) {
+    for (unsigned int i = 0; i < N; ++i) {
+      for (unsigned int j = 0; j <= i; ++j) {
+	covMatrix.fillSymmetric(i,j, *it);
+	++it;
+      }
+    }
+  }
+}
 
   Egamma_v1::Egamma_v1()
     : IParticle(), m_p4(), m_p4Cached( false ) {
@@ -26,7 +54,6 @@ namespace xAOD {
  Egamma_v1& Egamma_v1::operator=(const Egamma_v1& eg ){
 
     if (this != &eg){ // protect against invalid self-assignment      
-
       if (!this->container() && !this->hasStore() ) {      
 	  makePrivateStore();
       }
@@ -117,21 +144,33 @@ namespace xAOD {
   }
 
   Egamma_v1::EgammaCovMatrix_t Egamma_v1::covMatrix() const{
+
     static const Accessor< std::vector<float> > acc( "EgammaCovarianceMatrix" );
+    EgammaCovMatrix_t cov;
+    cov.setZero();
+   
     if(!acc.isAvailable( *this) ) { 
-      EgammaCovMatrix_t dummy;
-      dummy.setZero();
-      return dummy;
+      return cov;
     }
-    const std::vector<float>& v = acc(*this);
-    return Eigen::Map<const EgammaCovMatrix_t> (v.data());
+    const std::vector<float>& v = acc(*this);   
+    size_t size= v.size();    
+    if(size==16){
+      //up to 21.0.11
+      cov = Eigen::Map<const EgammaCovMatrix_t> (v.data());
+    }   
+    else {
+      //from >21.0.11
+      EgammaCovMatrix_t cov;
+      MatrixHelpers::expand(v.begin(),v.end(),cov );
+    }
+    return cov;
   }
 
   void Egamma_v1::setCovMatrix(const Egamma_v1::EgammaCovMatrix_t& cov){
     //The internal storage is an std::vector
     static const Accessor< std::vector < float > > acc( "EgammaCovarianceMatrix" );
-    const std::vector<float> v(cov.data(),cov.data()+16);
-    acc(*this)=v;
+    //from >21.0.11
+    MatrixHelpers::compress(cov,acc(*this));
   }
   
   ////egamma author 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 772353 2016-09-09 00:44:09Z christos $
+// $Id: Egamma_v1.h 788131 2016-12-05 16:24:11Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
@@ -47,8 +47,8 @@ namespace xAOD {
   /// @author Anthony Morley
   /// @author Jovan Mitrevski
   ///
-  /// $Revision: 772353 $
-  /// $Date: 2016-09-09 02:44:09 +0200 (Fri, 09 Sep 2016) $
+  /// $Revision: 788131 $
+  /// $Date: 2016-12-05 17:24:11 +0100 (Mon, 05 Dec 2016) $
   ///
   class Egamma_v1 :public IParticle {
 
@@ -136,7 +136,7 @@ namespace xAOD {
     /// @{ 
 
     ///4x4 Covariance Matrix in EtEtaPhiM (needs decision)
-    typedef Eigen::Matrix<float,4,4>    EgammaCovMatrix_t;
+    typedef Eigen::Matrix<float,4,4>  EgammaCovMatrix_t;
 
     /// Returns the 4x4 symmetric covariance matrix .
     EgammaCovMatrix_t covMatrix() const;  
