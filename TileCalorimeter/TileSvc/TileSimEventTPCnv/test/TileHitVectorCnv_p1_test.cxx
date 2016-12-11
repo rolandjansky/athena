@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TileSimEventTPCnv/TileHitVectorCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -57,6 +58,11 @@ void testit (const TileHitVector& trans1)
 void test1()
 {
   std::cout << "test1\n";
+
+  // Get dvlinfo created outside of leak checking.
+  TileHitVector tmp ("vec");
+
+  Athena_test::Leakcheck check;
 
   TileHitVector trans1 ("vec");
   for (int i = 0; i < 10; i++) {
