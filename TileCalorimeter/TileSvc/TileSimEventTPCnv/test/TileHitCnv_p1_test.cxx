@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TileSimEventTPCnv/TileHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -46,6 +47,7 @@ void testit (const TileHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TileHit trans1 (Identifier (0x1234), 3.5, 13.5);
   trans1.add (4.5, 14.5);
