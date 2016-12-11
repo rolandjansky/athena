@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "egammaRec/topoEgammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -41,6 +42,28 @@
 using CLHEP::MeV;
 using CLHEP::GeV;
 
+namespace{
+  class smallChrono{
+  public:
+    smallChrono(IChronoStatSvc* timingProfile, const std::string& name): 
+      m_time(timingProfile),
+      m_name(name){
+      if(m_time){
+	m_time->chronoStart(m_name);
+      }
+    }
+    ~smallChrono(){
+      if(m_time){
+	m_time->chronoStop(m_name);
+      }
+    }
+  private:
+    IChronoStatSvc* m_time;
+    const std::string m_name;
+  };
+}
+
+
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
 				     ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
@@ -60,7 +83,6 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
   declareProperty("InputTopoClusterContainerName",
 		  m_inputTopoClusterContainerName = "egammaTopoCluster",
 		  "Name of input cluster container");
-
 
   declareProperty("egammaRecContainer",
 		  m_egammaRecContainerName="egammaRecCollection",
@@ -84,7 +106,6 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
 
   declareProperty("PhotonTools", m_photonTools,
 		  "Tools for dressing ONLY photons");
-
 
   // Tool handles to build superclusters
   declareProperty("TopoClusterCopier",
@@ -128,6 +149,10 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
   declareProperty("doTrackMatching",m_doTrackMatching= true,
 		  "Boolean to do track matching (and conversion building)");
 
+  // Boolean to do the conversion vertex collection Building
+  declareProperty("doVertexCollection",m_doVertexCollection= true,
+		  "Boolean to do conversion vertex collection building");
+
   // Boolean to do conversion reconstruction
   declareProperty("doConversions",m_doConversions= true,
 		  "Boolean to do conversion building / matching");
@@ -155,7 +180,6 @@ StatusCode topoEgammaBuilder::initialize()
   CHECK(RetrieveEGammaTopoClusterCopier());
   CHECK(RetrieveElectronSuperClusterBuilder());
   CHECK(RetrievePhotonSuperClusterBuilder());
-
   //
   //////////////////////////////////////////////////
   // retrieve track match builder
@@ -168,7 +192,6 @@ StatusCode topoEgammaBuilder::initialize()
   CHECK( RetrieveVertexBuilder() );
   // retrieve ambiguity tool
   CHECK( RetrieveAmbiguityTool() );
-  
   ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
   CHECK( RetrieveTools(m_egammaTools) );
   ATH_MSG_DEBUG("Retrieving " << m_electronTools.size() << " tools for electrons");
@@ -235,9 +258,7 @@ StatusCode topoEgammaBuilder::RetrievePhotonSuperClusterBuilder(){
   else ATH_MSG_DEBUG("Retrieved Tool " << m_photonSuperClusterBuilder); 
   
   return StatusCode::SUCCESS;  
-
 }
-
 // ====================================================================
 StatusCode topoEgammaBuilder::RetrieveAmbiguityTool(){
   // retrieve Ambiguity tool
@@ -276,54 +297,57 @@ StatusCode topoEgammaBuilder::RetrieveEMTrackMatchBuilder(){
 }
 // ====================================================================
 StatusCode topoEgammaBuilder::RetrieveEMConversionBuilder(){
-
-  if (!m_doTrackMatching || !m_doConversions) {
+  //
+  // retrieve EMConversionBuilder tool
+  //  
+  if (!m_doConversions) {
     return StatusCode::SUCCESS;
   }
-
   if (m_conversionBuilder.empty()) {
     ATH_MSG_ERROR("EMConversionBuilder is empty");
     return StatusCode::FAILURE;
   } 
-  
   if(m_conversionBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_conversionBuilder);
     return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder); 
-  
+
   return StatusCode::SUCCESS;
 }
 
+// ====================================================================
 StatusCode topoEgammaBuilder::RetrieveBremCollectionBuilder(){
+  //
+  // retrieve bremfitter tool
+  //
   if (!m_doBremCollection ) {
     return StatusCode::SUCCESS;
   }
-
+  
   if (m_BremCollectionBuilderTool.empty()) {
     ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
     return StatusCode::FAILURE;
   }
-
   if(m_BremCollectionBuilderTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_BremCollectionBuilderTool);
     return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);  
-  
   return StatusCode::SUCCESS;
 }
-// ====================================================================
+ // ====================================================================
 StatusCode topoEgammaBuilder::RetrieveVertexBuilder(){
-  if (!m_doConversions){
+  //
+  // retrieve vertex builder for ID conversions
+  //
+  if (!m_doVertexCollection){ 
     return StatusCode::SUCCESS;
   }
-
   if (m_vertexBuilder.empty()) {
     ATH_MSG_ERROR("VertexBuilder is empty");
     return StatusCode::FAILURE;
   }
-  
   if(m_vertexBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_vertexBuilder);
     return StatusCode::FAILURE;
@@ -332,18 +356,14 @@ StatusCode topoEgammaBuilder::RetrieveVertexBuilder(){
   
   return StatusCode::SUCCESS;
 }
-
-
 // ====================================================================
-StatusCode topoEgammaBuilder::finalize()
-{
+StatusCode topoEgammaBuilder::finalize(){
   // finalize method
   return StatusCode::SUCCESS;
 }
 
 // ======================================================================
-StatusCode topoEgammaBuilder::execute()
-{
+StatusCode topoEgammaBuilder::execute(){
   // athena execute method
 
   ATH_MSG_DEBUG("Executing topoEgammaBuilder");
@@ -356,8 +376,7 @@ StatusCode topoEgammaBuilder::execute()
   electronContainer->setStore( electronAuxContainer );
   
   if ( evtStore()->record(electronContainer, m_electronOutputName).isFailure() ||
-       evtStore()->record(electronAuxContainer, m_electronOutputName + "Aux.").isFailure())
-    {
+       evtStore()->record(electronAuxContainer, m_electronOutputName + "Aux.").isFailure()){
       ATH_MSG_ERROR("Could not record electron container or its aux container");
       return StatusCode::FAILURE;
     }       
@@ -373,12 +392,10 @@ StatusCode topoEgammaBuilder::execute()
   }       
     
   //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
-  chronoName = this->name()+"_"+m_egammaTopoClusterCopier->name();         
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-  //
-  CHECK(m_egammaTopoClusterCopier->contExecute());
-  //
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  {
+    smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
+    CHECK(m_egammaTopoClusterCopier->contExecute());
+  }
   
   //Then retrieve them 
   const xAOD::CaloClusterContainer *topoclusters = 0;
@@ -404,100 +421,76 @@ StatusCode topoEgammaBuilder::execute()
     egammaRecs->push_back( egRec );
   }
   
-
   //Do the track refitting.
   if (m_doBremCollection){ 
     ATH_MSG_DEBUG("Running BremCollectionBuilder");  
     //
-    std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
+    smallChrono timer(m_timingProfile, this->name()+"_"+m_BremCollectionBuilderTool->name());
     if (m_BremCollectionBuilderTool->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
       return StatusCode::FAILURE;  
     }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
   ///Append track Matching information
-  chronoName = this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters";         
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-  for (auto egRec : *egammaRecs) {
-    if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-      ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-      return StatusCode::FAILURE;
-    }
-  }
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-
-  ///Append vertex matching /conversion information 
-  if (m_doConversions) {
-    ATH_MSG_DEBUG("Running VertexBuilder");  
-    //
-    std::string chronoName = this->name()+"_"+m_vertexBuilder->name()+"_AllClusters";         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    if (m_vertexBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
-      return StatusCode::FAILURE;  
-    }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-
-    ATH_MSG_DEBUG("Running ConversionBuilder");  
-    //
-    chronoName = this->name()+"_"+m_conversionBuilder->name()+"_AllClusters";         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    if (m_conversionBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-      return StatusCode::FAILURE;  
-    }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  }
-
-
-  ////////////////////////////////////////////////
-  //Now all info should be added  the initial topoClusters
-  //Build SuperClusters
-  
-  //Electron superclusters Builder
-  chronoName = this->name()+"_"+m_electronSuperClusterBuilder->name();         
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-  //
-  CHECK(m_electronSuperClusterBuilder->execute());
-  //
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-
-  //Track Match the final electron SuperClusters
-  EgammaRecContainer *electronSuperRecs(0);
-  if( evtStore()->contains<EgammaRecContainer>( m_electronSuperClusterRecContainerName)) { 
-    //Else retrieve them 
-    CHECK(evtStore()->retrieve(electronSuperRecs,  m_electronSuperClusterRecContainerName));
-    ATH_MSG_DEBUG("Size of "  <<m_electronSuperClusterRecContainerName << " : " << electronSuperRecs->size());
-
-    //Redo track matching given the super cluster
-    chronoName = this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters";         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    for (auto egRec : *electronSuperRecs) {
+  if (m_doTrackMatching){
+    smallChrono timer(m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters");
+    for (auto egRec : *egammaRecs) {
       if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
 	return StatusCode::FAILURE;
       }
     }
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);    
   }
-  ////END OF ELECTRONS
+  ///Append vertex matching /conversion information 
+  if (m_doVertexCollection){ 
+    ATH_MSG_DEBUG("Running VertexBuilder");  
+    //
+    smallChrono timer(m_timingProfile, this->name()+"_"+m_vertexBuilder->name()+"_AllClusters");
+    if (m_vertexBuilder->contExecute().isFailure()){
+      ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
+      return StatusCode::FAILURE;  
+    }
+  }
+  //Do the conversion matching
+  if (m_doConversions){
+    ATH_MSG_DEBUG("Running ConversionBuilder");  
+    smallChrono timer(m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters");
+    if (m_conversionBuilder->contExecute().isFailure()){
+      ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
+      return StatusCode::FAILURE;  
+    }
+  }
+  //
+  ////////////////////////////////////////////////
+  //Now all info should be added  the initial topoClusters build SuperClusters
+  //Electron superclusters Builder
+  {
+    smallChrono timer(m_timingProfile, this->name()+"_"+m_electronSuperClusterBuilder->name());
+    CHECK(m_electronSuperClusterBuilder->execute());
+  }
 
+  //Track Match the final electron SuperClusters
+  EgammaRecContainer *electronSuperRecs(0);
+  if( evtStore()->contains<EgammaRecContainer>( m_electronSuperClusterRecContainerName)) { 
+    CHECK(evtStore()->retrieve(electronSuperRecs,  m_electronSuperClusterRecContainerName));
+    ATH_MSG_DEBUG("Size of "  <<m_electronSuperClusterRecContainerName << " : " << electronSuperRecs->size());
+    
+    if (m_doTrackMatching){
+      smallChrono timer(m_timingProfile,this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters");
+      for (auto egRec : *electronSuperRecs) {
+	if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+	  ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+	  return StatusCode::FAILURE;
+	}
+      }      
+    }
+  }
   //Photon superclusters Builder
-  chronoName = this->name()+"_"+m_photonSuperClusterBuilder->name();         
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-  //
+  {
+  smallChrono timer(m_timingProfile,this->name()+"_"+m_photonSuperClusterBuilder->name());  
   CHECK(m_photonSuperClusterBuilder->execute());
-  //
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-
+  }
+  
   EgammaRecContainer *photonSuperRecs(0);
   if( evtStore()->contains<EgammaRecContainer>( m_photonSuperClusterRecContainerName)) { 
     //Else retrieve them 
@@ -506,42 +499,37 @@ StatusCode topoEgammaBuilder::execute()
 
     //Redo conversion matching given the super cluster
     if (m_doConversions) {
-      chronoName = this->name()+"_"+m_conversionBuilder->name()+"_FinalClusters";         
-      if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+      smallChrono timer(m_timingProfile,this->name()+"_"+m_conversionBuilder->name()+"_FinalClusters");
       for (auto egRec : *photonSuperRecs) {
 	if (m_conversionBuilder->executeRec(egRec).isFailure()){
 	  ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
 	  return StatusCode::FAILURE;
 	}
       }
-      if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
     }
   }
-  ///END OF PHOTONS
-
+  //
+  //
   //For now naive double loops bases on the seed (constituent at position 0)
   //For ambiguity. Probably we could mark in one pass , for now naive solution
-  
   //These should be the CaloCalTopo links for the clustes. the 0 should be the seed (always there) 
-  const static SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   
   ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters"); 
   ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters"); 
-
-
-  //-----------------------------------------------------------------
-  //Build xAOD::Electron objects
+  //
   //Look at the constituents , for ambiguity resolution, for now based on the seed only
   //We could add secondaries cluster in this logic.
   //Also probably we could factor some common code.
-
+  //-----------------------------------------------------------------
+  //Build xAOD::Electron objects
   for (const auto& electronRec : *electronSuperRecs) {
-
+    
     unsigned int author = xAOD::EgammaParameters::AuthorElectron;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
-
+    
     for (const auto& photonRec : *photonSuperRecs) {
-
+      
       //See if the same seed (0 element in the constituents) seed also a photon
       if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
 	 caloClusterLinks(*(photonRec->caloCluster())).at(0)){
@@ -552,14 +540,13 @@ StatusCode topoEgammaBuilder::execute()
 						   electronRec->trackParticle(),
 						   type);
 	
-
+	
 	break;
       }
     }
-
     //Fill each electron
     if (author == xAOD::EgammaParameters::AuthorElectron || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous){
+	author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getElectron");
       if ( !getElectron(electronRec, electronContainer, author,type) ){
 	return StatusCode::FAILURE;
@@ -572,25 +559,24 @@ StatusCode topoEgammaBuilder::execute()
   for (const auto& photonRec : *photonSuperRecs) {
     unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
-
+    
     //See if the same seed (0 element in the constituents) seed also an electron
     for (const auto& electronRec : *electronSuperRecs) {
-
-      if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
-	 caloClusterLinks(*(electronRec->caloCluster())).at(0)){
-	ATH_MSG_DEBUG("Running AmbiguityTool for photon");
-  
-	author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
-						   photonRec->vertex(),
-						   electronRec->trackParticle(),
-						   type);
-	break;
-      }
+      
+    if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
+       caloClusterLinks(*(electronRec->caloCluster())).at(0)){
+      ATH_MSG_DEBUG("Running AmbiguityTool for photon");
+      
+      author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
+						 photonRec->vertex(),
+						 electronRec->trackParticle(),
+						 type);
+      break;
     }
-
+    }
     //Fill each photon
     if (author == xAOD::EgammaParameters::AuthorPhoton || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous){
+	author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getPhoton");
       if ( !getPhoton(photonRec, photonContainer, author,type) ){
 	return StatusCode::FAILURE;
@@ -600,22 +586,36 @@ StatusCode topoEgammaBuilder::execute()
   
   //-----------------------------------------------------------------
   // Call tools
-  for (const auto& tool : m_egammaTools){
+  for (auto& tool : m_egammaTools){
     CHECK( CallTool(tool, electronContainer, photonContainer) );
   }
   
-  for (const auto& tool : m_electronTools){
+  for (auto& tool : m_electronTools){
     CHECK( CallTool(tool, electronContainer, 0) );
   }
   
-  for (const auto& tool : m_photonTools){
+  for (auto& tool : m_photonTools){
     CHECK( CallTool(tool, 0, photonContainer) );
   }
-
+  
+  //---------------------------------------
+  //Do the ambiguity Links
   //-----------------------------------------------------------------
-  //Set the ambiguity link
+  CHECK(doAmbiguityLinks (electronContainer,photonContainer));
+  
+  ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
+  ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 
+  ATH_MSG_DEBUG("execute completed successfully");
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
+					       xAOD::PhotonContainer *photonContainer){
+  
   ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
-  const static SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityLink");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   ElementLink<xAOD::EgammaContainer> dummylink;
   for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
     
@@ -641,7 +641,6 @@ StatusCode topoEgammaBuilder::execute()
       }
     }
   }
-
   for (size_t electronIndex=0; electronIndex < electronContainer->size() ; ++electronIndex) {    
 
     xAOD::Electron* electron = electronContainer->at(electronIndex); 
@@ -664,29 +663,18 @@ StatusCode topoEgammaBuilder::execute()
       }
     }
   }
-  //-----------------------------------------------------------------
-
-  ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
-  ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 
-
-
-
-  ATH_MSG_DEBUG("execute completed successfully");
-
   return StatusCode::SUCCESS;
 }
+//-----------------------------------------------------------------
 
 // =====================================================
-StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+StatusCode topoEgammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
 				       xAOD::ElectronContainer *electronContainer /* = 0*/, 
-				       xAOD::PhotonContainer *photonContainer /* = 0*/)
-{
+				       xAOD::PhotonContainer *photonContainer /* = 0*/){
   
 
-  ATH_MSG_DEBUG("Executing tool on containers: " << tool );
-  std::string chronoName = this->name()+"_"+tool->name();         
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-  
+  ATH_MSG_DEBUG("Executing tool on containers: " << tool );  
+  smallChrono timer(m_timingProfile,this->name()+"_"+tool->name());  
   if ( tool->contExecute().isFailure() )
     {
       ATH_MSG_ERROR("Problem executing tool on containers: " << tool);
@@ -702,7 +690,6 @@ StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool,
       }
     }
   }
-  
   if (photonContainer){
     ATH_MSG_DEBUG("Executing tool on photons: " << tool );
     for (const auto& photon : *photonContainer){
@@ -711,25 +698,22 @@ StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool,
 	return StatusCode::FAILURE;
       }
     }
-  }
-  
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  }  
   return StatusCode::SUCCESS;
 }
 // =====================================================
 bool topoEgammaBuilder::getElectron(const egammaRec* egRec, 
 				    xAOD::ElectronContainer *electronContainer,
 				    const unsigned int author,
-				    const uint8_t type)
-{  
- 
+				    const uint8_t type){  
+  
   if (!egRec || !electronContainer) return false;
   
   xAOD::Electron *electron = new xAOD::Electron();
   electronContainer->push_back( electron );
   electron->setAuthor( author );
 
-  const static SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
   acc(*electron) = type;
 
   std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
@@ -784,8 +768,7 @@ bool topoEgammaBuilder::getElectron(const egammaRec* egRec,
 bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
 				  xAOD::PhotonContainer *photonContainer,
 				  const unsigned int author,
-				  const uint8_t type)
-{
+				  const uint8_t type){
   if (!egRec || !photonContainer) return false;
   
   xAOD::Photon *photon = new xAOD::Photon();

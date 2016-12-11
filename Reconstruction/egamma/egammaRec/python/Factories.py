@@ -2,6 +2,12 @@
 
 __doc__ = "Factories to instantiate Tools and Algorithms"
 __author__ = "Bruno Lenzi"
+from AthenaCommon.Logging import logging
+from AthenaCommon.Resilience import treatException
+
+def factoriesInfo ( log):
+  logFactories = logging.getLogger( 'Factories' )
+  logFactories.info(log)        
 
 def isAlreadyInToolSvc( name ):
   "isAlreadyInToolSvc ( mane of the tool ) --> check if the tool with name is already in the service"
@@ -96,7 +102,7 @@ class Factory:
   
   tool2a = MyTool2('myTool2a') # create another instance with default properties set above ('x')
   tool3a = MyTool3('myTool3a', Tool1 = MyTool1('myTool1a', propertyA = 'B'),
-    NameOfTool2 = 'myTool2a') # create another instance overriding defaults of both properties set above
+  NameOfTool2 = 'myTool2a') # create another instance overriding defaults of both properties set above
   """
 
   def __init__(self, iclass, **defaults ):
@@ -107,7 +113,7 @@ class Factory:
     - preInit: list of functions to be called before tool/alg instantiation, take no arguments
     - preInit: list of functions to be called after tool/alg instantiation, take tool/alg as argument
     - doAdd: add tool (alg) to ToolSvc (TopSequence) (default: True)
-    - doPrint: print tool/alg after instantiation (default: True)
+    - doPrint: print tool/alg after instantiation (default: False)
     """
     self.iclass = iclass
     self.defaults = defaults
@@ -135,9 +141,8 @@ class Factory:
       try:
         fcn()
       except:
-        print '\nERROR calling preInit function %s on %s instantiation\n' % \
-          (fcn.__name__, params['name'])
-        raise
+       treatException('calling preInit function %s on %s instantiation\n' %  (fcn.__name__, params['name']))
+       raise
     
     # Call FcnWrapper or ToolFactory parameters 
     # (or if they are inside a list, for ToolHandleArray)
@@ -149,14 +154,14 @@ class Factory:
           params[paramName] = value() if not isinstance(value, list) else \
             [v() if isinstance(v, classes) else v for v in value]
         except:
-          print '\nERROR setting property %s :: %s\n' % (params['name'], paramName)
+          treatException('setting property %s :: %s\n' % (params['name'], paramName))
           raise
     
     # Instantiate tool / alg
     try:
       obj = self.iclass(**params)
     except Exception:
-      print '\nERROR instantiating %s, args: %s\n' % (self.iclass.__name__, params)
+      treatException( 'instantiating %s, args: %s\n' % (self.iclass.__name__, params))
       raise
     
     # Call postInit methods
@@ -164,14 +169,16 @@ class Factory:
       try:
         fcn(obj)
       except:
-        print '\nERROR calling postInit function %s on %s instantiation\n' % (fcn.__name__, params['name'])
+        treatException('calling postInit function %s on %s instantiation\n' % (fcn.__name__, params['name']))
         raise    
 
     # Add to ToolSvc or TopSequence
     if doAdd:
       self.add(obj)
+    
     if doPrint:
       print obj
+    
     return obj  
 
   def add(self,obj):
@@ -181,15 +188,15 @@ class ToolFactory( Factory ):
   """ToolFactory: to instantiate tools and add them to TopSequence. See Factory"""
   def add(self, obj):
     if not isAlreadyInToolSvc(obj.getName()):
-      print "Egamma/Factories: Adding new Tool ==>  ", obj.getFullName()
+      factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
       addToToolSvc(obj)
     else :
-      print "Egamma/Factories:  Tool with name ==> ", obj.getFullName() , " already in ToolSvc, use existing instance"
+      factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""
   def add(self, obj):
-    print "Egamma/Factories: Adding new Algorithm ==>  ", obj.getFullName()
+    factoriesInfo("Adding new Algorithm ==> %s " %obj.getFullName())
     addToTopSequence(obj)
 
 def instantiateAll(module = None):

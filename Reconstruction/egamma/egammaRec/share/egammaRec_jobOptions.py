@@ -12,6 +12,8 @@ from egammaRec.egammaKeys import egammaKeysDict
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+###############Print Egamma JobProperties#############
+jobproperties.egammaRecFlags.print_JobProperties()
 #####################################################################
 # Run calo-based (egamma) algorithm, includes topo-seeded
 # It requires either to read ESD
@@ -77,6 +79,19 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
 ####################################################################
 # Lock egamma containers
 if rec.doESD():
+
+    #Decorate cluster with links to Topo clusters (when not superclusters)
+    if not jobproperties.egammaRecFlags.doSuperclusters:
+        try:
+            topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
+                                                                         ClustersToDecorate=egammaKeys.outputClusterKey())
+            topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
+                                                                         ClustersToDecorate=egammaKeys.outputTopoSeededClusterKey())
+            
+        except:
+            treatException("Could not set up ClusterMatching tool! Switched off")
+
+    #Finalize clusters 
     try:
         from egammaRec.egammaRecConf import egammaFinalizeClusters
         topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",

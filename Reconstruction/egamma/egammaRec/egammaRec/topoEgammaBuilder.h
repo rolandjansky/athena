@@ -41,7 +41,6 @@ class IegammaBaseTool;
 class IEGammaAmbiguityTool;
 class IEMTrackMatchBuilder;
 class IEMConversionBuilder;
-//C.A
 class IEMBremCollectionBuilder;
 class IEMVertexBuilder;
 
@@ -70,20 +69,6 @@ class topoEgammaBuilder : public AthAlgorithm
   /** @brief execute method*/
   StatusCode execute();
   
-  /** Given an egammaRec object, a pointer to the electron container and the author, 
-    * create and dress an electron, pushing it back to the container and 
-    * calling the relevant tools **/
-
-  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-		   const unsigned int author, const uint8_t type);
-
-  /** Given an egammaRec object, a pointer to the photon container and the author, 
-    * create and dress a photon, pushing it back to the container and 
-    * calling the relevant tools **/
-  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-		 const unsigned int author, uint8_t type);
-  
-
  private:
 
   /** @brief Vector of tools for dressing electrons and photons **/
@@ -97,9 +82,27 @@ class topoEgammaBuilder : public AthAlgorithm
 
   /** @brief Retrieve each tool in the given vector **/
   StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
+
+  /** Given an egammaRec object, a pointer to the electron container and the author, 
+   * create and dress an electron, pushing it back to the container and 
+   * calling the relevant tools **/
   
+  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
+		   const unsigned int author, const uint8_t type);
+
+  /** Given an egammaRec object, a pointer to the photon container and the author, 
+   * create and dress a photon, pushing it back to the container and 
+   * calling the relevant tools **/
+  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
+		 const unsigned int author, uint8_t type);
+  
+
+  /** @brief Do the final ambiguity **/  
+  StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
+			      xAOD::PhotonContainer *photonContainer);
+
   /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-  StatusCode CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+  StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
 
@@ -151,6 +154,8 @@ class topoEgammaBuilder : public AthAlgorithm
   //
   /** @brief Boolean to do Brem collection building */
   bool         m_doBremCollection;    
+  /** @brief Boolean to do Vertex collection building */
+  bool         m_doVertexCollection;
   /** @brief private member flag to do the TrackMatching (and conversion building)*/
   bool         m_doTrackMatching;
   /** @brief private member flag to do the conversion building and matching */

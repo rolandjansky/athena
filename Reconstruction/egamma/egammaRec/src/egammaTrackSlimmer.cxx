@@ -123,10 +123,11 @@ StatusCode egammaTrackSlimmer::execute() {
   //Track Particles
   // The vector that we'll use to filter the track particles:
   IThinningSvc::VecFilter_t keptTrackParticles;
-  const xAOD::TrackParticleContainer* trackPC = evtStore()->retrieve< const xAOD::TrackParticleContainer >(m_TrackParticlesName );
-  if( ! trackPC ) {
-    ATH_MSG_WARNING( "Couldn't retrieve TrackParticle container with key: "<< m_TrackParticlesName);    
-    ATH_MSG_WARNING( "Disable Thinning ");
+  const xAOD::TrackParticleContainer* trackPC(0);
+  if(evtStore()->contains<xAOD::TrackParticleContainer >(m_TrackParticlesName)){
+    ATH_CHECK(evtStore()->retrieve(trackPC,m_TrackParticlesName ));
+  }
+  else{
     m_doThinning= false;
     return StatusCode::SUCCESS;
   }
@@ -139,15 +140,15 @@ StatusCode egammaTrackSlimmer::execute() {
   //Vertices
   //The vector that we'll use to filter the vertices:
   IThinningSvc::VecFilter_t keptVertices;
-  
-  const xAOD::VertexContainer* vertices = evtStore()->retrieve< const xAOD::VertexContainer >(m_VertexName );
-  if( ! vertices ) {
-    ATH_MSG_WARNING( "Couldn't retrieve Vertex container with key: "<< m_VertexName);
-    ATH_MSG_WARNING( "Disable Thinning ");
+  const xAOD::VertexContainer* vertices(0);
+  if(evtStore()->contains<xAOD::VertexContainer >(m_VertexName )){
+    ATH_CHECK(evtStore()->retrieve(vertices,m_VertexName ));
+  }
+  else{
     m_doThinning= false;
     return StatusCode::SUCCESS;
   }
-  
+
   ATH_MSG_DEBUG("Number of Vertices "<< vertices->size());
   if( keptVertices.size() < vertices->size() ) {
     keptVertices.resize( vertices->size(), false );

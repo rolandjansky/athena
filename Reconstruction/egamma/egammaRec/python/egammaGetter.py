@@ -14,26 +14,32 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
+#Some handy flags
 def doSuperclusters():
   return egammaRecFlags.doSuperclusters()
 
 def doBremFinding():
-  return egammaRecFlags.doBremFinding()
+  return DetFlags.detdescr.ID_on() and egammaRecFlags.doBremFinding()
 
+def doConversions() :
+  return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
+################
+
+# Import the tool factories
 from egammaTools.egammaToolsFactories import \
     EMBremCollectionBuilder, EMTrackMatchBuilder,\
     EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
 
+# Extra tool when we do the superclustering approach
 if doSuperclusters() : 
   from egammaTools.egammaToolsFactories import \
-      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder,\
-      egammaTopoClusterMap
+      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder
 
-def doConversions() :
-  return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
-
+#
+#Topo seeded fixed size clusters, related configurations
+#Create and return the TopoSeededCollection
 def getTopoSeededCollectionName():
   if egammaRecFlags.doTopoCaloSeeded():
     from CaloRec import CaloRecFlags
@@ -44,10 +50,12 @@ def getTopoSeededCollectionName():
     return theCaloClusterTopoEMFixedSizeGetter.outputKey()
   else:
     return ""
-
 def doTopoCaloSeeded():
-  return egammaRecFlags.doTopoCaloSeeded() and getTopoSeededCollectionName()
+  return egammaRecFlags.doTopoCaloSeeded() and not egammaRecFlags.doSuperclusters() and getTopoSeededCollectionName() 
+#
 
+#
+#The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
   return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
@@ -59,6 +67,7 @@ def electronDecorationTools():
 def photonDecorationTools():
   "Return a list with the tools that decorate only photons"
   return [ PhotonPIDBuilder() ]
+#
 
 class egammaGetter ( Configured ) :
 
@@ -70,57 +79,53 @@ class egammaGetter ( Configured ) :
           egammaBuilder = AlgFactory(egammaRecConf.topoEgammaBuilder, name = 'egamma',
                                      # Keys
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
-                                     PhotonOutputName = egammaKeys.outputPhotonKey(),
-                                     
+                                     PhotonOutputName = egammaKeys.outputPhotonKey(),                                     
                                      #Super Cluster Tools
                                      TopoClusterCopier = egammaTopoClusterCopier,
                                      electronSuperClusterBuilder = electronSuperClusterBuilder,
                                      photonSuperClusterBuilder = photonSuperClusterBuilder,
-                                     InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),
-                                           
+                                     InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),                                           
                                      # Builder tools
                                      BremCollectionBuilderTool = EMBremCollectionBuilder,
                                      TrackMatchBuilderTool = EMTrackMatchBuilder,
                                      VertexBuilder = EMVertexBuilder if doConversions() else None,
                                      ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-                                     AmbiguityTool = EGammaAmbiguityTool,
-                                     
+                                     AmbiguityTool = EGammaAmbiguityTool,                                     
                                      # Decoration tools
                                      egammaTools = FcnWrapper(egammaDecorationTools),
                                      ElectronTools = FcnWrapper(electronDecorationTools),
-                                     PhotonTools = FcnWrapper(photonDecorationTools),
-                                     
+                                     PhotonTools = FcnWrapper(photonDecorationTools),                                     
                                      # Flags and other properties
-                                     # Brem Collection building and track matching depending if ID is on/off
-                                     doBremCollection= DetFlags.detdescr.ID_on(), 
+                                     # Track matching depending if ID is on/off
                                      doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     doConversions = doConversions(), # conversions building/matching depending if ID is on/off
+                                     # conversions building/matching depending if ID is on/off
+                                     doVertexCollection=doConversions(),
+                                     doConversions = doConversions()
                                      )
         else : 
           egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',
                                      # Keys
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
                                      PhotonOutputName = egammaKeys.outputPhotonKey(),
-                                     TopoSeededClusterContainerName = getTopoSeededCollectionName(),
-                                     
+                                     TopoSeededClusterContainerName = getTopoSeededCollectionName(),                                     
                                      # Builder tools
                                      BremCollectionBuilderTool = EMBremCollectionBuilder,
                                      TrackMatchBuilderTool = EMTrackMatchBuilder,
                                      VertexBuilder = EMVertexBuilder if doConversions() else None,
                                      ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-                                     AmbiguityTool = EGammaAmbiguityTool,
-                                     
+                                     AmbiguityTool = EGammaAmbiguityTool,                                     
                                      # Decoration tools
                                      egammaTools = FcnWrapper(egammaDecorationTools),
                                      ElectronTools = FcnWrapper(electronDecorationTools),
-                                     PhotonTools = FcnWrapper(photonDecorationTools),
-                                     
+                                     PhotonTools = FcnWrapper(photonDecorationTools),                                     
                                      # Flags and other properties
-                                     # Brem Collection building and track matching depending if ID is on/off
-                                     doBremCollection= DetFlags.detdescr.ID_on(), 
+                                     # Track matching depending if ID is on/off
                                      doTrackMatching = DetFlags.detdescr.ID_on(),
+                                     # conversions building/matching depending if ID is on/off
+                                     doVertexCollection=doConversions(),
+                                     doConversions = doConversions(),
+                                     #
                                      clusterEnergyCut = 10*MeV,
-                                     doConversions = doConversions(), # conversions building/matching depending if ID is on/off
                                      doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded()
                                      )          
 

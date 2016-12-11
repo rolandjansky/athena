@@ -42,31 +42,37 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   
  private:
  
-  typedef std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> MCTruthInfo_t;
+  struct MCTruthInfo_t {
+    MCTruthPartClassifier::ParticleType first;
+    MCTruthPartClassifier::ParticleOrigin second;
+    const xAOD::TruthParticle* genPart;
+  };
   
   /** @brief Loop over elements in the reco container, decorate them with truth info and
     * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
   template<class T> StatusCode match(std::string containerName, 
-				     const std::string& typeName) const;
+				     const std::string& typeName) ;
+
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
-  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) const;
+  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) ;
    
   /** @brief Decorate IParticle (cluster or egamma) object with truth information **/
-  StatusCode decorateWithTruthInfo(xAOD::IParticle*, MCTruthInfo_t&) const;
+  StatusCode decorateWithTruthInfo(xAOD::IParticle*, const MCTruthInfo_t&);
   
   /** @brief Decorate truth object with link to reco as recoNameLink **/
   template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, 
-					      const std::string& name) const;
+					      const std::string& name) ;
   
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
   void getNewTruthParticle(const xAOD::TruthParticle *truth, 
-                           const xAOD::TruthParticleContainer *oldContainer) const;
+                           const xAOD::TruthParticleContainer *oldContainer) ;
 
   /** @brief Return true if the truth particle is a prompt electron or photon **/  
-  bool isPromptEgammaParticle(const xAOD::TruthParticle *truth) const;
+  bool isPromptEgammaParticle(const xAOD::TruthParticle *truth) ;
+
   
   /** @brief Return the truth particle in the egamma truth container that corresponds
     * to the given truth particle **/ 

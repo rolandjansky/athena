@@ -28,6 +28,7 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -141,6 +142,10 @@ egammaBuilder::egammaBuilder(const std::string& name,
   // Boolean to do Brem collection Building
   declareProperty("doBremCollection",m_doBremCollection= true,
 		  "Boolean to do Brem collection building");
+
+  // Boolean to do the conversion vertex collection Building
+  declareProperty("doVertexCollection",m_doVertexCollection= true,
+		  "Boolean to do conversion vertex collection building");
 
   // Boolean to do track matching
   declareProperty("doTrackMatching",m_doTrackMatching= true,
@@ -263,12 +268,10 @@ StatusCode egammaBuilder::RetrieveAmbiguityTool()
 }
 
 // ====================================================================
-StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder()
-{
+StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder(){
   //
   // retrieve EMTrackMatchBuilder tool
   //
-
   if (!m_doTrackMatching) {
     return StatusCode::SUCCESS;
   }
@@ -289,13 +292,12 @@ StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder()
 }
 
 // ====================================================================
-StatusCode egammaBuilder::RetrieveEMConversionBuilder()
-{
+StatusCode egammaBuilder::RetrieveEMConversionBuilder(){
   //
   // retrieve EMConversionBuilder tool
   //
-
-  if (!m_doTrackMatching || !m_doConversions) {
+  
+  if (!m_doConversions) {
     return StatusCode::SUCCESS;
   }
 
@@ -304,7 +306,6 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder()
     return StatusCode::FAILURE;
   } 
 
-  
   if(m_conversionBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_conversionBuilder);
     return StatusCode::FAILURE;
@@ -314,17 +315,15 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder()
   return StatusCode::SUCCESS;
 }
 
-//C.A New Brem based Rec
 // ====================================================================
-StatusCode egammaBuilder::RetrieveBremCollectionBuilder()
-{
+StatusCode egammaBuilder::RetrieveBremCollectionBuilder(){
   //
   // retrieve bremfitter tool
   //
   if (!m_doBremCollection ) {
     return StatusCode::SUCCESS;
   }
-
+  
   if (m_BremCollectionBuilderTool.empty()) {
     ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
     return StatusCode::FAILURE;
@@ -339,12 +338,11 @@ StatusCode egammaBuilder::RetrieveBremCollectionBuilder()
   return StatusCode::SUCCESS;
 }
  // ====================================================================
-StatusCode egammaBuilder::RetrieveVertexBuilder()
-{
+StatusCode egammaBuilder::RetrieveVertexBuilder(){
   //
   // retrieve vertex builder for ID conversions
   //
-  if (!m_doConversions){
+  if (!m_doVertexCollection){ 
     return StatusCode::SUCCESS;
   }
 
@@ -361,21 +359,16 @@ StatusCode egammaBuilder::RetrieveVertexBuilder()
   
   return StatusCode::SUCCESS;
 }
-
-
 // ====================================================================
-StatusCode egammaBuilder::finalize()
-{
+StatusCode egammaBuilder::finalize(){
   //
   // finalize method
   //
-
   return StatusCode::SUCCESS;
 }
 
 // ======================================================================
-StatusCode egammaBuilder::execute()
-{
+StatusCode egammaBuilder::execute(){
   //
   // athena execute method
   //
@@ -433,8 +426,8 @@ StatusCode egammaBuilder::execute()
     egammaRecs->push_back( egRec );
   }
 
+  //////////////////////////////////////////////////////////////////////
   if (m_doBremCollection){ 
-   
     ATH_MSG_DEBUG("Running BremCollectionBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
@@ -443,13 +436,12 @@ StatusCode egammaBuilder::execute()
     if (m_BremCollectionBuilderTool->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
       return StatusCode::FAILURE;  
-    }
+    }     
     //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);  
   }
-  
-  if (m_doConversions){
-
+  //
+  if (m_doVertexCollection){ 
     ATH_MSG_DEBUG("Running VertexBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_vertexBuilder->name();         
@@ -461,7 +453,25 @@ StatusCode egammaBuilder::execute()
     }
     //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  
+  }
+  //
+  if (m_doTrackMatching){    
+    ATH_MSG_DEBUG("Running TrackMatchBuilder");  
+    //
+    std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
+    for (auto egRec : *egammaRecs){
+      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+	  ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+	  return StatusCode::FAILURE;
+      }
+    }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  }
+  //
+  if (m_doConversions){
     ATH_MSG_DEBUG("Running ConversionBuilder");  
     //
     chronoName = this->name()+"_"+m_conversionBuilder->name();         
@@ -474,77 +484,93 @@ StatusCode egammaBuilder::execute()
     //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
-  
-  if (m_doTrackMatching){
-   
-    ATH_MSG_DEBUG("Running TrackMatchBuilder");  
-    //
-    std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    for (auto egRec : *egammaRecs){
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-        ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-        return StatusCode::FAILURE;
-      }
-    }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  }
+  ////////////////////////////
   
   // Run the ambiguity resolving to decide if we should create electron and/or photon
+  static const  SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+  ElementLink<xAOD::EgammaContainer> dummylink;
+
   for (const auto& egRec : *egammaRecs){
+
+    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::unknown;
+
     ATH_MSG_DEBUG("Running AmbiguityTool");
     unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
                                                             egRec->vertex(),
-                                                            egRec->trackParticle());
-    
+                                                            egRec->trackParticle(),
+							    type);
+   
     ATH_MSG_DEBUG("...author: " << author);
-    if (author == xAOD::EgammaParameters::AuthorUnknown) continue;
-    
-    if (author == xAOD::EgammaParameters::AuthorElectron || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous)
-      {
+    if (author == xAOD::EgammaParameters::AuthorUnknown) {
+      continue;
+    }
+    //Electron
+    if (author == xAOD::EgammaParameters::AuthorElectron){
 	ATH_MSG_DEBUG("getElectron");
-	if ( !getElectron(egRec, electronContainer, author) )
+	if ( !getElectron(egRec, electronContainer, author) ){
 	  return StatusCode::FAILURE;
+	}
+	acc(*(electronContainer->back())) = type;
+	ELink(*(electronContainer->back()))=dummylink;
+    }
+    //Photon
+    if (author == xAOD::EgammaParameters::AuthorPhoton ){
+      ATH_MSG_DEBUG("getPhoton");
+      if ( !getPhoton(egRec, photonContainer, author) ){
+	return StatusCode::FAILURE;
       }
-    if (author == xAOD::EgammaParameters::AuthorPhoton || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous)
-      {
-	ATH_MSG_DEBUG("getPhoton");
-	if ( !getPhoton(egRec, photonContainer, author) )
-	  return StatusCode::FAILURE;
+	acc(*(photonContainer->back())) = type;
+	ELink(*(photonContainer->back()))=dummylink;
+    }
+    //Both Electron and Photon
+    if(author == xAOD::EgammaParameters::AuthorAmbiguous){
+   
+      ATH_MSG_DEBUG("get Electron and Photon");
+      
+      if ( !getPhoton(egRec, photonContainer, author) || 
+	   !getElectron(egRec, electronContainer, author)){
+	return StatusCode::FAILURE;
       }
+      
+      acc(*(electronContainer->back())) = type;
+      size_t photonIndex=photonContainer->size()-1;
+      ElementLink<xAOD::EgammaContainer> linktoPhoton (*photonContainer,photonIndex);
+      ELink(*(electronContainer->back()))=linktoPhoton;
+      
+      acc(*(photonContainer->back())) = type;
+      size_t electronIndex=electronContainer->size()-1;
+      ElementLink<xAOD::EgammaContainer> linktoElectron (*electronContainer,electronIndex);
+      ELink(*(photonContainer->back()))=linktoElectron;
+    }
   }
-  
+ 
   // Add topo-seeded clusters to the photon collection
   if (m_doTopoSeededPhotons)
     CHECK( addTopoSeededPhotons(photonContainer, clusters) );
   
   // Call tools
-  for (const auto& tool : m_egammaTools)
+  for (auto& tool : m_egammaTools)
   {
     CHECK( CallTool(tool, electronContainer, photonContainer) );
   }
 
-  for (const auto& tool : m_electronTools)
+  for (auto& tool : m_electronTools)
   {
     CHECK( CallTool(tool, electronContainer, 0) );
   }
 
-  for (const auto& tool : m_photonTools)
+  for (auto& tool : m_photonTools)
   {
     CHECK( CallTool(tool, 0, photonContainer) );
   }
-
   ATH_MSG_DEBUG("execute completed successfully");
 
   return StatusCode::SUCCESS;
 }
 
 // =====================================================
-StatusCode egammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
                                    xAOD::ElectronContainer *electronContainer /* = 0*/, 
                                    xAOD::PhotonContainer *photonContainer /* = 0*/)
 {
@@ -728,6 +754,11 @@ StatusCode egammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photonCont
     
     ClusterLink_t link(topoCluster, *topoSeededClusters );
     photon->setCaloClusterLinks( std::vector< ClusterLink_t>{ link } );
+    //
+    //Add the dummy to all new photons created here
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+    ElementLink<xAOD::EgammaContainer> dummylink;
+    ELink(*photon)=dummylink;
   }
   ATH_MSG_DEBUG("Number of photons (after topo-clusters): " << photonContainer->size() );
   

@@ -102,7 +102,7 @@ class egammaBuilder : public AthAlgorithm
   StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
   
   /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-  StatusCode CallTool(const ToolHandle<IegammaBaseTool>& tool, 
+  StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
 
@@ -144,26 +144,23 @@ class egammaBuilder : public AthAlgorithm
   ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
   /** @brief Tool to retrieve the conversions*/
   ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
-  //C.A
   /** @brief Pointer to the BremCollectionBuilder tool*/
   ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
-  //C.A
   /** @brief Pointer to the VertexBuilder*/
   ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
-  
   //
   // All booleans
   //
-
   /** @brief Boolean to do Brem collection building */
   bool         m_doBremCollection;    
+  /** @brief Boolean to do Vertex collection building */
+  bool        m_doVertexCollection;
   /** @brief private member flag to do the TrackMatching (and conversion building)*/
   bool         m_doTrackMatching;
-  /** @brief private member flag to do the conversion building and matching */
+  /** @brief private member flag to do the conversion matching */
   bool         m_doConversions;
   /** @brief add topo-seeded photons */
   bool         m_doTopoSeededPhotons;
-  
   //
   // Other properties.
   //
