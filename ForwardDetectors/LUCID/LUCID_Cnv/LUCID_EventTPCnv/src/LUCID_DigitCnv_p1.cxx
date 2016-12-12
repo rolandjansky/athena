@@ -8,7 +8,7 @@
 
 void LUCID_DigitCnv_p1::persToTrans(const LUCID_Digit_p1* persObj, LUCID_Digit* transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << " In LUCID_DigitCnv_p1::persToTrans " << endreq;
+  log << MSG::DEBUG << " In LUCID_DigitCnv_p1::persToTrans " << endmsg;
   
   *transObj = LUCID_Digit (persObj->m_tubeID,
                            persObj->m_npe,
@@ -21,7 +21,7 @@ void LUCID_DigitCnv_p1::persToTrans(const LUCID_Digit_p1* persObj, LUCID_Digit* 
 
 void LUCID_DigitCnv_p1::transToPers(const LUCID_Digit* transObj, LUCID_Digit_p1* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << " In LUCID_DigitCnv_p1::transToPers " << endreq;
+  log << MSG::DEBUG << " In LUCID_DigitCnv_p1::transToPers " << endmsg;
   
   persObj->m_tubeID = transObj->getTubeID();
   persObj->m_npe    = transObj->getNpe();

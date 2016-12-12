@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "LUCID_EventTPCnv/LUCID_SimHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -54,6 +55,7 @@ void testit (const LUCID_SimHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LUCID_SimHit trans1 (1, 2, 3, 4,
                        5.5, 6.5, 7.5,

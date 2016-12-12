@@ -9,7 +9,7 @@ static LUCID_DigitCnv_p2 digitConv_p2;
 
 void LUCID_DigitContainerCnv_p2::transToPers(const LUCID_DigitContainer* transObj, LUCID_DigitContainer_p2* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::transToPers" << endreq;
+  log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::transToPers" << endmsg;
   
   persObj->resize(transObj->size());
   
@@ -23,7 +23,7 @@ void LUCID_DigitContainerCnv_p2::transToPers(const LUCID_DigitContainer* transOb
 
 void LUCID_DigitContainerCnv_p2::persToTrans(const LUCID_DigitContainer_p2* persObj, LUCID_DigitContainer* transObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::persToTrans" << endreq;
+  log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::persToTrans" << endmsg;
 
   transObj->reserve(persObj->size());
   

@@ -9,7 +9,7 @@
 
 void LUCID_SimHitCnv_p1::persToTrans(const LUCID_SimHit_p1* persObj, LUCID_SimHit* transObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "LUCID_SimHitCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "LUCID_SimHitCnv_p1::persToTrans called " << endmsg;
   
   // redundant with m_track.
   //HepMcParticleLinkCnv_p1 HepMcPLCnv;
@@ -32,7 +32,7 @@ void LUCID_SimHitCnv_p1::persToTrans(const LUCID_SimHit_p1* persObj, LUCID_SimHi
 
 void LUCID_SimHitCnv_p1::transToPers(const LUCID_SimHit* transObj, LUCID_SimHit_p1* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "LUCID_SimHitCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "LUCID_SimHitCnv_p1::transToPers called " << endmsg;
   
   HepMcParticleLinkCnv_p1 HepMcPLCnv;
   

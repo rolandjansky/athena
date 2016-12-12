@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "LUCID_EventTPCnv/LUCID_DigitCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -46,6 +47,7 @@ void testit (const LUCID_Digit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LUCID_Digit trans1 (1, 2.5, 3, 4, 5, 6, true);
     

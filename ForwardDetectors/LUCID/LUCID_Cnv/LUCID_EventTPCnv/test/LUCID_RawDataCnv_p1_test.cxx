@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "LUCID_EventTPCnv/LUCID_RawDataCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -55,6 +56,7 @@ void testit (const LUCID_RawData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LUCID_RawData trans1 (1, 2, 3, 4,
                         5, 6, 7, 8,

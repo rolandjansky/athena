@@ -9,7 +9,7 @@
 
 void LUCID_RawDataCnv_p1::persToTrans(const LUCID_RawData_p1* persObj, LUCID_RawData* transObj, MsgStream &log) {
 
-  log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:persToTrans" << endreq;
+  log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:persToTrans" << endmsg;
   
   transObj->setWord0  (persObj->m_word0);
   transObj->setWord1  (persObj->m_word1);
@@ -31,7 +31,7 @@ void LUCID_RawDataCnv_p1::persToTrans(const LUCID_RawData_p1* persObj, LUCID_Raw
 
 void LUCID_RawDataCnv_p1::transToPers(const LUCID_RawData* transObj, LUCID_RawData_p1* persObj, MsgStream &log) {
   
-  log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:transToPers" << endreq;
+  log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:transToPers" << endmsg;
   
   persObj->m_word0  = transObj->getWord0();
   persObj->m_word1  = transObj->getWord1();
