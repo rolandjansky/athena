@@ -38,7 +38,7 @@ namespace Trk {
      */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) = 0;
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const = 0;
   };
   
 } // namespace Trk

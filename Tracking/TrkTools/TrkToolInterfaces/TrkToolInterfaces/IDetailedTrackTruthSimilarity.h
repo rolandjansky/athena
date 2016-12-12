@@ -37,7 +37,7 @@ namespace Trk {
      * The range of return values is [0., 1.], with larger values corresponding
      * to better matches.
      */
-    virtual double trackTruthSimilarity(const DetailedTrackTruth& dtt) = 0;
+    virtual double trackTruthSimilarity(const DetailedTrackTruth& dtt) const = 0;
 
   };
   

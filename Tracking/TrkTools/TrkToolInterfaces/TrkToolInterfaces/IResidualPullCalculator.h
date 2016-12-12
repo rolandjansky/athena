@@ -64,7 +64,7 @@ public:
              const Trk::TrackParameters* ,
              const Trk::ResidualPull::ResidualType ,
              const Trk::TrackState::MeasurementType, 
-             const std::vector<Trk::AlignmentEffectsOnTrack*>& ) const { return (Trk::ResidualPull*) 0; }
+             const std::vector<const Trk::AlignmentEffectsOnTrack*>& ) const { return (Trk::ResidualPull*) 0; }
 
      /** This function is a light-weight version of the function above, designed for track fitters
       * where speed is critical. The user has to provide a std::vector of size 5, which gets 
