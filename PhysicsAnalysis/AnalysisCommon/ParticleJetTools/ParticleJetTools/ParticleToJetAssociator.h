@@ -195,7 +195,9 @@ template<typename ConstituentType, typename coll>
             for (; tpItr!=particleContainer->end() ; tpItr++) {
                 double pt = (*tpItr)->pt();
                 double deltaRMatch(1000);
-                ATH_MSG_VERBOSE("Particle-Jet association (no sharing). Jet pT= " << pt);
+                // BUG: this used to claim it was printing the jet
+                // pt...
+                ATH_MSG_VERBOSE("Particle-Jet association (no sharing). TRACK pT= " << pt);
                 bool findAMatch = false;
                 int i(0);
                 xAOD::Jet *theJet = 0;
@@ -213,7 +215,9 @@ template<typename ConstituentType, typename coll>
                 ATH_MSG_VERBOSE(" matching: find= " << findAMatch << " dR=" << deltaRMatch);
                 double trackCone = m_trackCone;
                 if( m_useVariableSizedTrackCone ) {
-                    if(0 != theJet) trackCone = getConeSize(theJet->pt());
+                    if(0 != theJet)
+                        trackCone = getConeSize(theJet->pt());
+
                     ATH_MSG_VERBOSE("Using Variable Sized Cone of " << trackCone); 
                 } else {
                     ATH_MSG_VERBOSE("Using Fixed Sized Cone of " << trackCone);
