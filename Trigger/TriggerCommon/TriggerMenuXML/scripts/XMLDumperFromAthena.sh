@@ -66,7 +66,7 @@ if [ -n "${AtlasTrigger_PLATFORM}" ]; then   # CMAKE
 else  # CMT
     platform=${CMTCONFIG}
 fi
-echo "XMLDumperFromAthena: *** Building menu: ${menu} for ${release} ***"
+echo "XMLDumperFromAthena: Building menu: ${menu} for ${release}"
 logfiletopo=topo${menu}.log
 logfile=${menu}.log
 cd $rundir
@@ -89,9 +89,9 @@ fi
 
 cp $logfile $logfiletopo ${dest}
 if [ $athena_exit -eq 0 ]; then
-    echo "XMLDumperFromAthena: *** $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile ***"
+    echo "XMLDumperFromAthena: $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile"
 else
-    echo "XMLDumperFromAthena: *** $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile ***"
+    echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
 fi
 
 
