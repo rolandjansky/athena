@@ -28,6 +28,7 @@ TCS::JetSort::JetSort(const std::string & name) :
    defineParameter( "JetSize", 2 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
+   defineParameter( "DoEtaCut", 1);
    m_jetsize = JetTOB::JS1;
 }
 
@@ -43,6 +44,7 @@ TCS::JetSort::initialize() {
    m_jsize = parameter("JetSize").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
+   m_doEtaCut = parameter("DoEtaCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -55,8 +57,8 @@ TCS::JetSort::sort(const InputTOBArray & input, TOBArray & output) {
    
    // fill output array with GenericTOBs builds from jets
    for(JetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
-     if (parType_t(fabs((*cl)-> eta())) < m_minEta) continue; 
-     if (parType_t(fabs((*cl)-> eta())) > m_maxEta) continue;
+     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) < m_minEta)) continue; 
+     if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) > m_maxEta)) continue;      	
      output.push_back( GenericTOB(**cl, m_jetsize)  );
    }
 

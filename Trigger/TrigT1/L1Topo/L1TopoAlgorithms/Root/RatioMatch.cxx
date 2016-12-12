@@ -135,22 +135,17 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
                if (((*tob1)->eta() != (*tob2)->eta()) || ((*tob1)->phi() != (*tob2)->phi()) ) continue; // EM does not matches TAU
                //
 	       //
-               bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                   accept[i] =  10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
-//                   accept[i] = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
-                   if( accept[i] ) {
+                   bool accept = false;
+                   accept =  10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+//                   accept = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+                   if( accept ) {
                        decision.setBit(i, true);
                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                    }
-                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2  );
-
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2  );
                }
-
             }
-
         }
-
-
    return TCS::StatusCode::SUCCESS;
 }

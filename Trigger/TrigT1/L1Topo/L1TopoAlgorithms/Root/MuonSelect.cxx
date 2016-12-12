@@ -49,8 +49,8 @@ TCS::MuonSelect::sort(const InputTOBArray & input, TOBArray & output) {
       if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
 
       // eta cut
-      if (parType_t(fabs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(fabs((*cl)-> eta())) > m_maxEta) continue;  
+      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
+      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;  
       
       output.push_back( gtob );
    }

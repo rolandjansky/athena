@@ -126,27 +126,19 @@ TCS::DisambiguationIncl2::processBitCorrect( const std::vector<TCS::TOBArray con
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                
-	       bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                  accept[i] = deltaR2 > p_DisambDR[i] ;
-                  if( accept[i] ) {
-                     decision.setBit(i, true);
-                     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2);
-
+                   bool accept = false;
+                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                   accept = deltaR2 > p_DisambDR[i] ;
+                   if( accept ) {
+                       decision.setBit(i, true);
+                       output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                }
-
             }
-
-
-
          }
-
-
    } else {
 
       TCS_EXCEPTION("DisambiguationIncl2 alg must have  2 inputs, but got " << input.size());
@@ -180,27 +172,19 @@ TCS::DisambiguationIncl2::process( const std::vector<TCS::TOBArray const *> & in
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
                
-	       bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                  accept[i] = deltaR2 > p_DisambDR[i] ;
-                  if( accept[i] ) {
-                     decision.setBit(i, true);
-                     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2);
-
+                   bool accept = false;
+                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                   accept = deltaR2 > p_DisambDR[i] ;
+                   if( accept ) {
+                       decision.setBit(i, true);
+                       output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                }
-
             }
-
-
-
          }
-
-
    } else {
 
       TCS_EXCEPTION("DisambiguationIncl2 alg must have  2 inputs, but got " << input.size());

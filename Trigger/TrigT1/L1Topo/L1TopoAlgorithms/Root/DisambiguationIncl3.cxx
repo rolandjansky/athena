@@ -147,18 +147,18 @@ TCS::DisambiguationIncl3::processBitCorrect( const std::vector<TCS::TOBArray con
                   unsigned int deltaR13 = calcDeltaR2BW( *tob1, *tob3 );
                   unsigned int deltaR23 = calcDeltaR2BW( *tob2, *tob3 );
 
-                  bool accept[3];
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                      bool accept = false;
+                      if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                      if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                      if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
 
-                     accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
-                     if( accept[i] ) {
+                     accept = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
+                     if( accept ) {
                         decision.setBit(i, true);
                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                      }
-                     TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
+                     TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
 
                   }
 
@@ -212,19 +212,17 @@ TCS::DisambiguationIncl3::process( const std::vector<TCS::TOBArray const *> & in
                   unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
                   unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
 
-                  bool accept[3];
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-                     if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-                     if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
-
-                     accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
-                     if( accept[i] ) {
-                        decision.setBit(i, true);
-                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                     }
-                     TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
-
+                      bool accept = false;
+                      if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                      if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                      if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
+                      accept = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
+                      if( accept ) {
+                          decision.setBit(i, true);
+                          output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                      }
+                      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
                   }
 
                }

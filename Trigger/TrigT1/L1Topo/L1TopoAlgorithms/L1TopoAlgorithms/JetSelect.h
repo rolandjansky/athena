@@ -32,7 +32,7 @@ namespace TCS {
       parType_t      m_maxEta = { 0 };
       parType_t      m_et = { 0 };
       parType_t      m_jsize = { 0 };   
-    
+      parType_t      m_doEtaCut = { 0 };
 
    protected:
     

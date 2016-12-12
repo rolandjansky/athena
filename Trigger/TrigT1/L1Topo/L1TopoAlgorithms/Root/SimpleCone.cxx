@@ -1,5 +1,5 @@
 /*********************************
- * JetSimpleCone.cpp
+ * SimpleCone.cpp
  *
  * @brief algorithm calculates the sum of jets ET around each jet within radius R, makes cut on leading sum ET
  *
@@ -14,12 +14,12 @@
 #include <algorithm>
 #include "TH1F.h"
 
-#include "L1TopoAlgorithms/JetSimpleCone.h"
+#include "L1TopoAlgorithms/SimpleCone.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
 
-REGISTER_ALG_TCS(JetSimpleCone)
+REGISTER_ALG_TCS(SimpleCone)
 
 using namespace std;
 
@@ -27,56 +27,56 @@ using namespace std;
 #define LOG cout << name() << ":     "
 
 
-TCS::JetSimpleCone::JetSimpleCone(const std::string & name) : DecisionAlg(name)
+TCS::SimpleCone::SimpleCone(const std::string & name) : DecisionAlg(name)
 {  
    defineParameter("InputWidth", 0);
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits",6);
    defineParameter("NumRegisters", 2); 
-   defineParameter("Radius",10);
+   defineParameter("MaxRSqr",10*10);
    defineParameter("MinET",0);
    defineParameter("MinEta",0);
    defineParameter("MaxEta",31);
-   defineParameter("MinHt",0,0);
-   defineParameter("MinHt",0,1);
-   defineParameter("MinHt",0,2);
-   defineParameter("MinHt",0,3);
-   defineParameter("MinHt",0,4);
-   defineParameter("MinHt",0,5);
+   defineParameter("MinSumET",0,0);
+   defineParameter("MinSumET",0,1);
+   defineParameter("MinSumET",0,2);
+   defineParameter("MinSumET",0,3);
+   defineParameter("MinSumET",0,4);
+   defineParameter("MinSumET",0,5);
    setNumberOutputBits(6);
 }
 
-TCS::JetSimpleCone::~JetSimpleCone()
+TCS::SimpleCone::~SimpleCone()
 {}
 
 
 TCS::StatusCode
-TCS::JetSimpleCone::initialize() {
+TCS::SimpleCone::initialize() {
    p_NumberLeading1 = parameter("InputWidth").value();
    if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
-   p_R = parameter("Radius").value();
+   p_R2 = parameter("MaxRSqr").value();
    p_MinET  = parameter("MinET").value();
    p_EtaMin = parameter("MinEta").value();
    p_EtaMax = parameter("MaxEta").value();
 
    TRG_MSG_INFO("MaxTob          : " << p_NumberLeading1);
-   TRG_MSG_INFO("Radius         : " << p_R);
+   TRG_MSG_INFO("MaxRSqr         : " << p_R2);
    TRG_MSG_INFO("MinET          : " << p_MinET);
    TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
    TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-      p_SimpleCone[i] = parameter("MinHt", i).value();
-      TRG_MSG_INFO("SimpleCone " << i << " : " << p_SimpleCone[i]);
+      p_MinSumET[i] = parameter("MinSumET", i).value();
+      TRG_MSG_INFO("SimpleCone " << i << " : " << p_MinSumET[i]);
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
    // create strings for histogram names
-   vector<ostringstream> MyAcceptHist(numberOutputBits());
-   vector<ostringstream> MyRejectHist(numberOutputBits());
+   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
+   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_SimpleCone[i] << "SimpleCone"; 
-     MyRejectHist[i] << "Reject" << p_SimpleCone[i] << "SimpleCone";
+     MyAcceptHist[i] << "Accept" << p_MinSumET[i] << "SimpleCone"; 
+     MyRejectHist[i] << "Reject" << p_MinSumET[i] << "SimpleCone";
    }
 
    for (unsigned int i=0; i<numberOutputBits();i++) {
@@ -84,8 +84,8 @@ TCS::JetSimpleCone::initialize() {
      const std::string& MyTitle1 = MyAcceptHist[i].str();
      const std::string& MyTitle2 = MyRejectHist[i].str();
      
-     registerHist(m_histAcceptSimpleCone[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,p_SimpleCone[i]*2));
-     registerHist(m_histRejectSimpleCone[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,p_SimpleCone[i]*2));
+     registerHist(m_histAcceptSimpleCone[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,p_MinSumET[i]*2));
+     registerHist(m_histRejectSimpleCone[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,p_MinSumET[i]*2));
    }
 
 
@@ -93,7 +93,7 @@ TCS::JetSimpleCone::initialize() {
 }
 
 TCS::StatusCode
-TCS::JetSimpleCone::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+TCS::SimpleCone::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                      const std::vector<TCS::TOBArray *> & output,
                      Decision & decision )
 
@@ -103,13 +103,13 @@ TCS::JetSimpleCone::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 
 
 TCS::StatusCode
-TCS::JetSimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
 			     const std::vector<TCS::TOBArray *> & output,
 			     Decision & decision )
 {
 
   if(input.size()!=1) {
-    TCS_EXCEPTION("JetSimpleCone alg must have exactly 1 input list, but got " << input.size());
+    TCS_EXCEPTION("SimpleCone alg must have exactly 1 input list, but got " << input.size());
   }
 
   unsigned int leadingET = 0;
@@ -141,7 +141,7 @@ TCS::JetSimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
       if(dphi>M_PI)
 	dphi = 2*M_PI - dphi;
       
-      if ( 100 * ((dphi)*(dphi) + (deta)*(deta) ) > p_R*p_R) continue; // Exclude jets outside cone
+      if ( 100 * ((dphi)*(dphi) + (deta)*(deta) ) > p_R2) continue; // Exclude jets outside cone
       
       tmp_SumET += (*tob1)->Et();
     }
@@ -151,7 +151,7 @@ TCS::JetSimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
 
   for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
-    bool accept = leadingET > p_SimpleCone[i];
+    bool accept = leadingET > p_MinSumET[i];
     
     decision.setBit( i, accept );
     

@@ -93,8 +93,8 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
 
    // create strings for histogram names
-   vector<ostringstream> MyAcceptHist(numberOutputBits());
-   vector<ostringstream> MyRejectHist(numberOutputBits());
+   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
+   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i< numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 
@@ -163,27 +163,19 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
             }
          }
 
-      bool accept[3];
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
-         accept[i] = mindphi > p_DeltaPhiMin[i] ;
-         if( accept[i] ) {
-            decison.setBit(i, true);
-            output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
-	    m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
-
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
-         }
-	 else
-	   m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
-
-         TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail"));
-      }
-
-
+          bool accept = mindphi > p_DeltaPhiMin[i] ;
+          if( accept ) {
+              decison.setBit(i, true);
+              output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
+              m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
+              TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
+          } else
+              m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
+          TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
+      } // for(i)
    } else {
-
       TCS_EXCEPTION("MinDeltaPhiIncl2 alg must have 2 inputs, but got " << input.size());
-
    }
 
    return TCS::StatusCode::SUCCESS;

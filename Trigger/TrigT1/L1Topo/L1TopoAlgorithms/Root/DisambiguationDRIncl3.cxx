@@ -147,48 +147,34 @@ TCS::DisambiguationDRIncl3::processBitCorrect( const std::vector<TCS::TOBArray c
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2Cut = calcDeltaR2BW( *tob1, *tob2 );
                
-	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
-                 tob3 != input[2]->end() ;
-                 ++tob3) {
-
-               
-		    unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
-		    unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
-
-                    bool accept[3];
-                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-   		       if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
- 	   	       if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+               for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
+                    tob3 != input[2]->end() ;
+                    ++tob3) {
+                   unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
+                   unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
+                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                       bool accept = false;
+                       if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                       if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                        if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
-
-		       // test DeltaR2Min, DeltaR2Max
-		       if (deltaR2Cut > p_DRCutMax[i]) continue;
-		       if (deltaR2Cut <= p_DRCutMin[i]) continue;
-		       //
-                       accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
-                       if( accept[i] ) {
-                         decision.setBit(i, true);
-                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                       // test DeltaR2Min, DeltaR2Max
+                       if (deltaR2Cut > p_DRCutMax[i]) continue;
+                       if (deltaR2Cut <= p_DRCutMin[i]) continue;
+                       //
+                       accept = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
+                       if( accept ) {
+                           decision.setBit(i, true);
+                           output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                        }
-	               TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
-
-                    }
-
+                       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
+                   }
                }
- 
-
-
-
             }
-      }
-
+         }
    } else {
-
-      TCS_EXCEPTION("DisambiguationDRIncl3 alg must have  3 inputs, but got " << input.size());
-
+       TCS_EXCEPTION("DisambiguationDRIncl3 alg must have  3 inputs, but got " << input.size());
    }
    return TCS::StatusCode::SUCCESS;
-
 }
 
 TCS::StatusCode
@@ -215,45 +201,32 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
                
-	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
-                 tob3 != input[2]->end() ;
-                 ++tob3) {
-
-               
-		    unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
-		    unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
-
-                    bool accept[3];
-                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-   		       if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
- 	   	       if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+               for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
+                    tob3 != input[2]->end() ;
+                    ++tob3) {
+                   unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
+                   unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
+                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                       bool accept = false;
+                       if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                       if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                        if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
-
-		       // test DeltaR2Min, DeltaR2Max
-		       if (deltaR2Cut > p_DRCutMax[i]) continue;
-		       if (deltaR2Cut <= p_DRCutMin[i]) continue;
-		       //
-                       accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
-                       if( accept[i] ) {
-                         decision.setBit(i, true);
-                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                       // test DeltaR2Min, DeltaR2Max
+                       if (deltaR2Cut > p_DRCutMax[i]) continue;
+                       if (deltaR2Cut <= p_DRCutMin[i]) continue;
+                       //
+                       accept = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
+                       if( accept ) {
+                           decision.setBit(i, true);
+                           output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                        }
-	               TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
-
-                    }
-
+                       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
+                   }
                }
- 
-
-
-
             }
-      }
-
+         }
    } else {
-
       TCS_EXCEPTION("DisambiguationDRIncl3 alg must have  3 inputs, but got " << input.size());
-
    }
    return TCS::StatusCode::SUCCESS;
 }

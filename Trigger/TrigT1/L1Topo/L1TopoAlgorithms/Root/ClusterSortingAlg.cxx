@@ -44,8 +44,8 @@ TCS::ClusterSortingAlg::sort(const InputTOBArray & input, TOBArray & output) {
    for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
       const GenericTOB gtob(**cl);
 
-      if (parType_t(fabs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
-      if (parType_t(fabs((*cl)-> eta())) > parameter("MaxEta").value()) continue;
+      if (parType_t(std::abs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
+      if (parType_t(std::abs((*cl)-> eta())) > parameter("MaxEta").value()) continue;
 
       // isolation cut
       if(parType_t((*cl)->isolation()) < parameter("MinIsolation").value()) continue;

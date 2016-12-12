@@ -41,8 +41,8 @@ TCS::JetAbbreviated::sort(const InputTOBArray & input, TOBArray & output) {
    // fill output array with GenericTOBs builds from jets
    for(JetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
      
-     if (parType_t(fabs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
-     if (parType_t(fabs((*cl)-> eta())) > parameter("MaxEta").value()) continue;      	
+     if (parType_t(std::abs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
+     if (parType_t(std::abs((*cl)-> eta())) > parameter("MaxEta").value()) continue;      	
 
      output.push_back( GenericTOB(**cl, m_jetsize) );
    }

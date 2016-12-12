@@ -26,7 +26,7 @@ TCS::EtCut::EtCut(const std::string & name) : DecisionAlg(name)
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 1);
-   defineParameter("MinEt",1);
+   defineParameter("MinET",1);
    setNumberOutputBits(1);
 }
 
@@ -37,10 +37,10 @@ TCS::StatusCode
 TCS::EtCut::initialize() {
    p_NumberLeading1 = parameter("InputWidth").value();
    if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
-   p_MinET = parameter("MinEt").value();
+   p_MinET = parameter("MinET").value();
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
-   TRG_MSG_INFO("MinEt          : " << p_MinET);
+   TRG_MSG_INFO("MinET          : " << p_MinET);
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
    
    return StatusCode::SUCCESS;

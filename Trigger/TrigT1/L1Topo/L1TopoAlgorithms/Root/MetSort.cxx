@@ -8,11 +8,15 @@
 #include "L1TopoEvent/MetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
+#include <cmath>
 
 // Bitwise implementation utils
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
+
+using std::sqrt;
+using std::round;
 
 //
 REGISTER_ALG_TCS(MetSort)

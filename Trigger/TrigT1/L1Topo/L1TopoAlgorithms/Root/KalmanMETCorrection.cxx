@@ -104,8 +104,8 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
 
        corrfactor = LUTobj.getcorrKF(ipt,jeta);   
 
-       auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(parType_t((*tob)->phi()))));
-       auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at(abs(parType_t((*tob)->phi()))));
+       auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(/*abs*/(parType_t((*tob)->phi()))));
+       auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at(/*abs*/(parType_t((*tob)->phi()))));
 
        summetx += (-1.)*(*tob)->Et()*float(cosphi)*corrfactor ;
        summety += (-1.)*(*tob)->Et()*float(sinphi)*corrfactor ;
