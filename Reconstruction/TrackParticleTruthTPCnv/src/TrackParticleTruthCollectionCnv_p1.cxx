@@ -28,7 +28,7 @@ void TrackParticleTruthCollectionCnv_p1::persToTrans( const Rec::TrackParticleTr
 {
     trans->clear();
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans(): PERS size = " << pers->m_entries.size() << endreq;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans(): PERS size = " << pers->m_entries.size() << endmsg;
 
     dataLinkConverter.persToTrans(pers->m_trackCollectionLink, TrackParticleTruthCollectionAccessor::trackParticleContainerLink(trans), msg);
 
@@ -40,7 +40,7 @@ void TrackParticleTruthCollectionCnv_p1::persToTrans( const Rec::TrackParticleTr
         trans->insert(trans->end(), std::make_pair(el, TrackParticleTruth(link, i->probability)) );
     }
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans() DONE" << endreq;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans() DONE" << endmsg;
 }
 
 void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCollection* trans, 
@@ -48,8 +48,8 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
                                                       MsgStream& msg ) 
 {
     if (msg.level() <= MSG::DEBUG) {
-        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers()" << endreq;
-        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers(): input size = " << trans->size() << endreq;
+        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers()" << endmsg;
+        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers(): input size = " << trans->size() << endmsg;
     }
   
     dataLinkConverter.transToPers(trans->trackParticleContainerLink(), pers->m_trackCollectionLink, msg);
@@ -76,5 +76,5 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
         }
     }
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers() DONE" << endreq;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers() DONE" << endmsg;
 }

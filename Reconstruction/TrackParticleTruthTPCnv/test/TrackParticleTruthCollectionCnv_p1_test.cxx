@@ -16,6 +16,7 @@
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -51,6 +52,9 @@ void testit (const TrackParticleTruthCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxy created outside of leak checking.
+  DataLink<Rec::TrackParticleContainer> dldum ("tpc");
+  Athena_test::Leakcheck check;
 
   TrackParticleTruthCollection trans1 (DataLink<Rec::TrackParticleContainer>("tpc"));
   for (int i=0; i<10; i++) {
