@@ -49,7 +49,6 @@ find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread Table 
 # Component(s) in the package:
 atlas_add_library( MuGirlStauLib
                    src/*.cxx
-                   src/components/*.cxx
                    PUBLIC_HEADERS MuGirlStau
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

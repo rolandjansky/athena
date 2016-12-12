@@ -27,7 +27,7 @@ MuGirlNS::StauFcn::~StauFcn()
 
 double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
 {
-    LOG_VERBOSE << "technology " << technologyName(eTech) << endreq;
+    LOG_VERBOSE << "technology " << technologyName(eTech) << endmsg;
 
     //allocate memory for the data of a new step
     FcnStepData* pFcnStep = new FcnStepData();
@@ -52,7 +52,7 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
                 << " doMdtt=" << doMdtt
                 << " doRpc=" << doRpc
                 << " doTile=" << doTile
-                << endreq;
+                << endmsg;
 
     double fcnStepChi2 = 0;
     double fcnStepDoF = 0;

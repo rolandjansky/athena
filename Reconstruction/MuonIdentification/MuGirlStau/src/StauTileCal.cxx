@@ -37,7 +37,7 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
                 m_pCalibration(NULL),
                 m_randEngine (randEngine)
 {
-    LOG_DEBUG << "trkParticle=" << trkParticle << endreq;
+    LOG_DEBUG << "trkParticle=" << trkParticle << endmsg;
     //std::vector<const CaloCell*> cellsOnTrack = m_pToCalo->getCellsOnTrack(m_pTrkParticle,tile1,tile3,true);
     /*
      std::vector<const CaloCell*> cellsOnTrack = m_pToCalo->getCellsOnTrack(m_pTrkParticle,em1,hec3,true);
@@ -63,13 +63,13 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
             LOG_DEBUG << "total cells: " << association->data().size()
                       << ", intersected cells: " << intersected
                       << ", passed energy cut " << energy_cut << ": " << passed_enery_cut
-                      << endreq;
+                      << endmsg;
             initCaloCells(association);
         }
         else
-            LOG_DEBUG << "failed to get Calo cells" << endreq;
+            LOG_DEBUG << "failed to get Calo cells" << endmsg;
     }
-    LOG_DEBUG << "done" << endreq;
+    LOG_DEBUG << "done" << endmsg;
 }
 
 MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
@@ -121,7 +121,7 @@ void MuGirlNS::StauTileCal::initCaloCells(const Rec::ParticleCellAssociation* as
             auto dde = caloCell->caloDDE();
             if (dde == NULL) // No cell location
             {
-                LOG_DEBUG << "could not find CaloDet Description Element for track cell " << hex << id << endreq;
+                LOG_DEBUG << "could not find CaloDet Description Element for track cell " << std::hex << id << endmsg;
                 continue;
             }
             int layer = LayerFromSampling(dde->getSampling());
@@ -132,7 +132,7 @@ void MuGirlNS::StauTileCal::initCaloCells(const Rec::ParticleCellAssociation* as
             {
                 LOG_DEBUG << "(layer,bin)=(" << layer << "," << ebin << ") not in calibration map"
                           << ", cell energy: " << caloCell->e()
-                          << endreq;
+                          << endmsg;
                 continue;
             }
             error = (itCalib->second.error > 0) ? itCalib->second.error : TILECALRESOLUTION;
@@ -190,7 +190,7 @@ void MuGirlNS::StauTileCal::initStepData(TileCalStepData* tileCalStepData, doubl
 void MuGirlNS::StauTileCal::processTileCalWithBeta(double currentBeta,
         TileCalStepData* tileCalStepData)
 {
-    LOG_VERBOSE << "currentBeta=" << currentBeta << endreq;
+    LOG_VERBOSE << "currentBeta=" << currentBeta << endmsg;
     double chi2 = 0.;
     for (auto cell : *m_pCaloCells)
     {
@@ -214,7 +214,7 @@ void MuGirlNS::StauTileCal::printStepData(TileCalStepData* tileCalStepData)
 {
     if (tileCalStepData != NULL)
         LOG_VERBOSE << "tileCal data: beta=" << tileCalStepData->beta << " chi2="
-                    << tileCalStepData->chi2 << " #cells=" << tileCalStepData->numOfCells << endreq;
+                    << tileCalStepData->chi2 << " #cells=" << tileCalStepData->numOfCells << endmsg;
 }
 
 void MuGirlNS::StauTileCal::clear()
@@ -276,7 +276,7 @@ void MuGirlNS::StauTileCal::averageBeta()
 void MuGirlNS::StauTileCal::processTileCalWithTTrack(double tTrack,
         TileCalStepData* tileCalStepData, double beta)
 {
-    LOG_VERBOSE << "tTrack=" << tTrack << endreq;
+    LOG_VERBOSE << "tTrack=" << tTrack << endmsg;
     double currentBeta = beta;
     double stauToF;
     double muonToF;

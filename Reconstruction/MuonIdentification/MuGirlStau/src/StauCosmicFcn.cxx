@@ -28,7 +28,7 @@ double MuGirlNS::StauCosmicFcn::function(double tTrack, StauTechnology eTech)
 {
 
     std::cout << "E123: " << __LINE__ << " " << __FILE__ << std::endl;
-    LOG_VERBOSE << "technology " << technologyName(eTech) << endreq;
+    LOG_VERBOSE << "technology " << technologyName(eTech) << endmsg;
 //    dbgE
     //allocate memory for the data of a new step
     double beta = m_beta;

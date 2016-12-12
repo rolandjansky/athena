@@ -77,7 +77,7 @@ bool StauMDTT::initialize(const Trk::Track* pTrack)
 
         LOG_VERBOSE << "after correct " << mdcot->globalPosition()
                     << " time " << mdcot->driftTime()
-                    << endreq;
+                    << endmsg;
         //calibration
         double t0Shift = 0;
         double error = MDTTRESOLUTION;
@@ -161,13 +161,13 @@ void StauMDTT::printStepData(MdttStepData* mdttData)
                     << " beta=" << mdttData->beta
                     << " chi2=" << mdttData->chi2
                     << " dof=" << mdttData->dof
-                    << endreq;
+                    << endmsg;
 }
 
 void StauMDTT::processWithBeta(double currentBeta, MdttStepData* mdttData)
 {
     if (mdttData == NULL) return;
-    LOG_VERBOSE << "beta=" << currentBeta << endreq;
+    LOG_VERBOSE << "beta=" << currentBeta << endmsg;
 
     mdttData->chi2 = 0.0;
     for (auto pMdtt : m_mdtts)
@@ -178,7 +178,7 @@ void StauMDTT::processWithBeta(double currentBeta, MdttStepData* mdttData)
     }
     mdttData->dof = m_mdtts.size();
 
-    LOG_VERBOSE << "done chi2=" << mdttData->chi2 << " dof=" << mdttData->dof << endreq;
+    LOG_VERBOSE << "done chi2=" << mdttData->chi2 << " dof=" << mdttData->dof << endmsg;
 }
 
 void MuGirlNS::StauMDTT::averageBeta()

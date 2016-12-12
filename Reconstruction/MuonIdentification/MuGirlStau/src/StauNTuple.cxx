@@ -17,7 +17,7 @@ MuGirlNS::StauNTuple::StauNTuple(MsgStream& log) :
 
 StatusCode MuGirlNS::StauNTuple::book(NTuple::Tuple* pNTuple)
 {
-    LOG_DEBUG << "entered" << endreq;
+    LOG_DEBUG << "entered" << endmsg;
 
     if (pNTuple->addItem("MUGIRL/StauBeta", m_beta).isFailure()
             || pNTuple->addItem("MUGIRL/StauMass", m_mass).isFailure()
@@ -28,7 +28,7 @@ StatusCode MuGirlNS::StauNTuple::book(NTuple::Tuple* pNTuple)
             || pNTuple->addItem("MUGIRL/StauBetaAvgTileCal", m_betaAvgTileCal).isFailure()
             || pNTuple->addItem("MUGIRL/StauIsBarrel", m_fcnType).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<stau summary>" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<stau summary>" << endmsg;
         return StatusCode::RECOVERABLE;
     }
 
@@ -86,17 +86,17 @@ StatusCode MuGirlNS::StauNTuple::book(NTuple::Tuple* pNTuple)
             || pNTuple->addItem("MUGIRL/StauRpcZ", m_rpcHits, m_rpcHitZ).isFailure()
             || pNTuple->addItem("MUGIRL/StauRpcHitsIsEta", m_rpcHits, m_rpcHitIsEta).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<stau step data>" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<stau step data>" << endmsg;
         return StatusCode::RECOVERABLE;
     }
-    LOG_DEBUG << "done" << endreq;
+    LOG_DEBUG << "done" << endmsg;
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode MuGirlNS::StauNTuple::fillStau(StauTool* pStau)
 {
-    LOG_DEBUG << "entered" << endreq;
+    LOG_DEBUG << "entered" << endmsg;
 
     m_beta = (float) pStau->beta();
     m_mass = (float) pStau->mass();
@@ -206,15 +206,15 @@ StatusCode MuGirlNS::StauNTuple::fillStau(StauTool* pStau)
             if (m_maxStationNsteps - 5 < m_mdtStationNsteps || m_maxSteps - 5 < m_steps
                     || m_maxRpcHits - 5 < m_rpcStationNsteps)
             {
-                LOG_INFO << "has too many steps, stop writing them" << endreq;
+                LOG_INFO << "has too many steps, stop writing them" << endmsg;
                 return StatusCode::SUCCESS;
             }
 
         }
     }
     else
-        LOG_INFO << "got NULL list of fcn steps" << endreq;
-    LOG_DEBUG << "done" << endreq;
+        LOG_INFO << "got NULL list of fcn steps" << endmsg;
+    LOG_DEBUG << "done" << endmsg;
 
     return StatusCode::SUCCESS;
 }

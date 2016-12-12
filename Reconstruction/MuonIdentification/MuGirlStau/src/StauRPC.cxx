@@ -44,13 +44,13 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
         {
             const Muon::RpcClusterOnTrack* pRpcRIO = dynamic_cast<const Muon::RpcClusterOnTrack*>(pRIO);
             if( !pRpcRIO ) {
-                LOG_DEBUG << "Cannot dynamic_cast ROT to const Muon::RpcClusterOnTrack* - continuing" << endreq; 
+                LOG_DEBUG << "Cannot dynamic_cast ROT to const Muon::RpcClusterOnTrack* - continuing" << endmsg; 
                 continue; 
             }
             auto pPrepData = pRpcRIO->prepRawData();
             auto pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
             if (pRpcPrepData == NULL){ 
-              LOG_DEBUG << "Cannot convert PrepRawData to RpcPrepData - continuing" << endreq; 
+              LOG_DEBUG << "Cannot convert PrepRawData to RpcPrepData - continuing" << endmsg; 
               continue; 
             } 
             bool b_isEta = !pIdHelper->measuresPhi(pRpcRIO->identify());
@@ -66,7 +66,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                       << ", pRpcPrepData->time(): " << pRpcPrepData->time()
                       << ", timeShift: " << timeShift
                       << " -> measuredTime: " << measuredTime
-                      << endreq;
+                      << endmsg;
             if (m_pStau->doCalibration())
             { //Use external calibration files
 	      int id = pRpcRIO->identify().get_identifier32().get_compact();
@@ -191,7 +191,7 @@ void MuGirlNS::StauRPC::printStepData(RpcStepData* rpcData)
     LOG_VERBOSE << "rpc data: beta=" << rpcData->beta
                 << " chi2=" << rpcData->chi2
                 << " dof=" << rpcData->totNumHits
-                << endreq;
+                << endmsg;
     auto pRpcStationDataList = rpcData->pStationDataList;
 
     int j = 0;
@@ -204,14 +204,14 @@ void MuGirlNS::StauRPC::printStepData(RpcStepData* rpcData)
 //                    << ": distance=" << rpcStepStation->distance
                     << " chi2=" << rpcStepStation->chi2
                     << " #hits=" << rpcStepStation->numHits
-                    << endreq;
+                    << endmsg;
         }
     }
 }
 
 void MuGirlNS::StauRPC::processRpcWithBeta(double currentBeta, RpcStepData* pRpcStepData)
 {
-    LOG_VERBOSE << "beta=" << currentBeta << endreq;
+    LOG_VERBOSE << "beta=" << currentBeta << endmsg;
 
     pRpcStepData->beta = currentBeta;
     pRpcStepData->chi2 = 0.;
@@ -231,7 +231,7 @@ void MuGirlNS::StauRPC::processRpcWithBeta(double currentBeta, RpcStepData* pRpc
     pRpcStepData->dof = pRpcStepData->totNumHits;
 
     printStepData(pRpcStepData);
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 double MuGirlNS::StauRPC::rpcStationChi2(double currentBeta, StauRpcHitsList* pHitsList, int& dof,
@@ -362,7 +362,7 @@ unsigned int MuGirlNS::StauRPC::rpcMinIsAt()
 
 void MuGirlNS::StauRPC::processRpcWithTTrack(double tTrack, RpcStepData* pRpcStepData, double beta)
 {
-    LOG_VERBOSE << "tTrack=" << tTrack << endreq;
+    LOG_VERBOSE << "tTrack=" << tTrack << endmsg;
     //double currentBeta = 1.0;
     pRpcStepData->beta = beta;
     pRpcStepData->tTrack = tTrack;
@@ -383,7 +383,7 @@ void MuGirlNS::StauRPC::processRpcWithTTrack(double tTrack, RpcStepData* pRpcSte
     pRpcStepData->dof = pRpcStepData->totNumHits;
 
     printStepData(pRpcStepData);
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 MuGirlNS::StauRpcHitsLists* MuGirlNS::StauRPC::copyStauRpcHitsLists()

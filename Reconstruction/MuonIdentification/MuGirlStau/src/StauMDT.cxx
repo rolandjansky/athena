@@ -105,7 +105,7 @@ void MuGirlNS::StauMDT::printStepData(MdtStepData* mdtData)
                 << " chi2=" << mdtData->chi2
                 << " dof=" << mdtData->dof
                 << " numOfHits=" << mdtData->totNumHits
-                << endreq;
+                << endmsg;
     auto pStationDataList = mdtData->pStationDataList;
     int i = 0;
     if (pStationDataList != NULL)
@@ -118,14 +118,14 @@ void MuGirlNS::StauMDT::printStepData(MdtStepData* mdtData)
                         << " dof="<< pMdtStepStation->dof
                         << " #hits=" << pMdtStepStation->numHits
                         << " #segs="<< pMdtStepStation->numSegs
-                        << endreq;
+                        << endmsg;
         }
     }
 }
 
 void MuGirlNS::StauMDT::findNewSegments(double beta)
 {
-    LOG_VERBOSE << "beta=" << beta << endreq;
+    LOG_VERBOSE << "beta=" << beta << endmsg;
 
     //clear new mdt segments
     m_pStau->clearNewMdtSegments();
@@ -171,12 +171,12 @@ void MuGirlNS::StauMDT::findNewSegments(double beta)
 
         if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber++;
     }
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 void MuGirlNS::StauMDT::processMdtWithBeta(double currentBeta, MdtStepData* mdtData)
 {
-    LOG_VERBOSE << "beta=" << currentBeta << endreq;
+    LOG_VERBOSE << "beta=" << currentBeta << endmsg;
 
     //Set the correct beta in the ToF tool
     m_pStau->tofTool()->setBeta(currentBeta);
@@ -224,7 +224,7 @@ void MuGirlNS::StauMDT::processMdtWithBeta(double currentBeta, MdtStepData* mdtD
 //    mdtData->dof = mdtData->totNumHits - 2*mdtData->pStationDataList->size();
     printStepData(mdtData);
 
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 void MuGirlNS::StauMDT::fillStationData(MdtStepData* mdtData, MdtSegments* pSegments)
@@ -275,7 +275,7 @@ int MuGirlNS::StauMDT::recreateMdcots(MDCOTLists& mdts, MDCOTLists* pMdocotLists
             const Trk::RIO_OnTrack* pRio = this->recreateRio(pMdcot);
             if (pRio == NULL)
             {
-                LOG_VERBOSE << "createRIO_OnTrack failed" << endreq;
+                LOG_VERBOSE << "createRIO_OnTrack failed" << endmsg;
                 continue;
             }
             NewMdcotList.push_back(dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(pRio));
@@ -315,11 +315,11 @@ void MuGirlNS::StauMDT::bestMdtSegment(MdtSegments* pSegments,
     pBestSegment = NULL;
     if (pSegments == NULL)
     {
-        LOG_VERBOSE << "got NULL segment list from MdtSegmentMaker" << endreq;
+        LOG_VERBOSE << "got NULL segment list from MdtSegmentMaker" << endmsg;
         return;
     }
 
-    LOG_VERBOSE << "got " << pSegments->size() << " MDT segments" << endreq;
+    LOG_VERBOSE << "got " << pSegments->size() << " MDT segments" << endmsg;
 
     double numHits = 0;
 
@@ -327,7 +327,7 @@ void MuGirlNS::StauMDT::bestMdtSegment(MdtSegments* pSegments,
     {
         LOG_VERBOSE << "numHits: " << pMuonSegment->numberOfContainedROTs()
                     << " chi2: " << pMuonSegment->fitQuality()->chiSquared()
-                    << endreq;
+                    << endmsg;
 
         if (!ignoreNumHits && 4 >= pMuonSegment->numberOfContainedROTs()) continue;
         if (pMuonSegment->numberOfContainedROTs() > numHits)
@@ -343,7 +343,7 @@ void MuGirlNS::StauMDT::bestMdtSegment(MdtSegments* pSegments,
                     <= pBestSegment->fitQuality()->chiSquared()) pBestSegment = pMuonSegment;
             }
             else
-              m_log << MSG::WARNING << "There is no best Segment to compare with - doing nothing." << endreq;
+              m_log << MSG::WARNING << "There is no best Segment to compare with - doing nothing." << endmsg;
         }
     }
 
@@ -352,9 +352,9 @@ void MuGirlNS::StauMDT::bestMdtSegment(MdtSegments* pSegments,
                     << " numHits " << pBestSegment->numberOfContainedROTs()
                     << " chi2 " << pBestSegment->fitQuality()->chiSquared()
                     << " dof " << pBestSegment->fitQuality()->numberDoF()
-                    << endreq;
+                    << endmsg;
     else
-        LOG_VERBOSE << "bestMdtSegment found no best segment" << endreq;
+        LOG_VERBOSE << "bestMdtSegment found no best segment" << endmsg;
 
     return;
 }
@@ -366,7 +366,7 @@ void MuGirlNS::StauMDT::clear()
 
 void MuGirlNS::StauMDT::processMdtWithTTrack(double tTrack, MdtStepData* mdtData, double beta)
 {
-    LOG_VERBOSE << "entered" << endreq;
+    LOG_VERBOSE << "entered" << endmsg;
 
     //Set the tTrack in the ToF tool
     m_pStau->tofTool()->setBeta(beta);
@@ -411,7 +411,7 @@ void MuGirlNS::StauMDT::processMdtWithTTrack(double tTrack, MdtStepData* mdtData
     //mdtData->dof = mdtData->totNumHits - 2*mdtData->pStationDataList->size();
     printStepData(mdtData);
 
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 //const Trk::RIO_OnTrack* MuGirlNS::StauMDT::processWithTTrackRT(const Muon::MdtDriftCircleOnTrack* pMdcot)
