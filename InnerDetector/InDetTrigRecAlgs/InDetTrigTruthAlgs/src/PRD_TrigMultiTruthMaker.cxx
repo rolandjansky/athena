@@ -43,22 +43,22 @@ PRD_TrigMultiTruthMaker::PRD_TrigMultiTruthMaker(const std::string &name, ISvcLo
 HLT::ErrorCode PRD_TrigMultiTruthMaker::hltInitialize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endreq;
+    msg() << MSG::INFO << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
 
-  msg() << MSG::INFO << "PRD_TrigMultiTruthMaker::initialize()" << endreq;
+  msg() << MSG::INFO << "PRD_TrigMultiTruthMaker::initialize()" << endmsg;
   
   //StatusCode sc;
 
   //----------------
   if (m_PRDTruthTool.retrieve().isFailure()) {
-    msg() << MSG::ERROR << "Cannot retrieve InDet::PRD_MultiTruthBuilder Tool!" << endreq;
+    msg() << MSG::ERROR << "Cannot retrieve InDet::PRD_MultiTruthBuilder Tool!" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
   
-  msg() << MSG::INFO << "PRD_MultiTurthMaker initialized successfully !" << endreq;
+  msg() << MSG::INFO << "PRD_MultiTurthMaker initialized successfully !" << endmsg;
 
   //----------------
   return HLT::OK;
@@ -68,11 +68,11 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltInitialize() {
 HLT::ErrorCode PRD_TrigMultiTruthMaker::hltFinalize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endreq;
+    msg() << MSG::INFO << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
 
-  msg() << MSG::INFO << "PRD_TrigMultiTruthMaker finalized" << endreq;
+  msg() << MSG::INFO << "PRD_TrigMultiTruthMaker finalized" << endmsg;
 
   return HLT::OK;
 }
@@ -88,13 +88,13 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
 
   if(!m_doTruth) {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endreq;
+      msg() << MSG::DEBUG << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
  
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "PRD_TrigMultiTruthMaker::execute()" << endreq;
+    msg() << MSG::DEBUG << "PRD_TrigMultiTruthMaker::execute()" << endmsg;
 
   StatusCode sc;
 
@@ -108,11 +108,11 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
     if (sc.isFailure() || !prdContainer){
 
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Pixel Cluster Container NOT found"<< endreq;
+	msg() << MSG::DEBUG << "Pixel Cluster Container NOT found"<< endmsg;
     } 
     else {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Pixel Cluster Container found" <<endreq;
+	msg() << MSG::DEBUG << "Pixel Cluster Container found" <<endmsg;
 
       // Retrieve the Pixel SDO map for this event
       const InDetSimDataCollection*    simDataMap=0;
@@ -120,10 +120,10 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
 
       if (sc.isFailure() || !simDataMap ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataPixel map"<< endreq;
+	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataPixel map"<< endmsg;
       }	else {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Found InDetSimDataPixel, do association" << endreq;
+	  msg() << MSG::DEBUG << "Found InDetSimDataPixel, do association" << endmsg;
 
 	// Create and fill the PRD truth structure
 	PRD_MultiTruthCollection *prdt_pixels = new PRD_MultiTruthCollection;
@@ -133,11 +133,11 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
 	//bool allow_modifications;
 
 	if ( HLT::OK !=  attachFeature(outputTE, prdt_pixels, "PRDTPixels") ) {
-	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endreq;
+	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endmsg;
 	}
 	m_prdPIXsize = prdt_pixels->size();
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "PRD Pixel truth structure is registered in StoreGate, size="<< m_prdPIXsize << endreq;
+	  msg() << MSG::DEBUG << "PRD Pixel truth structure is registered in StoreGate, size="<< m_prdPIXsize << endmsg;
 
       }
     }
@@ -150,31 +150,31 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
     sc = store()->retrieve(prdContainer, m_SCTClustersName);
     if (sc.isFailure() || !prdContainer){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "SCT Cluster Container NOT found"<< endreq;
+	msg() << MSG::DEBUG << "SCT Cluster Container NOT found"<< endmsg;
     } else{
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "SCT Cluster Container found" <<endreq;
+	msg() << MSG::DEBUG << "SCT Cluster Container found" <<endmsg;
     
       // Retrieve the SCT SDO map for this event
       const InDetSimDataCollection*    simDataMap=0;
       sc = store()->retrieve(simDataMap, m_simDataMapNameSCT);
       if (sc.isFailure() || !simDataMap ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataSCT map"<< endreq;
+	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataSCT map"<< endmsg;
       }	else {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Found InDetSimDataSCT, do association" << endreq;
+	  msg() << MSG::DEBUG << "Found InDetSimDataSCT, do association" << endmsg;
       
 	// Create and fill the PRD truth structure
 	PRD_MultiTruthCollection *prdt_sct = new PRD_MultiTruthCollection;
 	addPRDCollections(prdt_sct, prdContainer->begin(), prdContainer->end(), simDataMap, false);
 
 	if ( HLT::OK !=  attachFeature(outputTE, prdt_sct, "PRDTSCT") ) {
-	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endreq;
+	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endmsg;
 	}
 	m_prdSCTsize = prdt_sct->size();
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "PRD SCT truth structure is registered in StoreGate, size="<< m_prdSCTsize << endreq;
+	  msg() << MSG::DEBUG << "PRD SCT truth structure is registered in StoreGate, size="<< m_prdSCTsize << endmsg;
 
       }
     } 
@@ -189,31 +189,31 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
     }
     if (sc.isFailure() || !trtContainer){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "TRT DriftCircle Container NOT found"<< endreq;
+	msg() << MSG::DEBUG << "TRT DriftCircle Container NOT found"<< endmsg;
     } else{
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "TRT DriftCircle Container found" <<endreq;
+	msg() << MSG::DEBUG << "TRT DriftCircle Container found" <<endmsg;
      
       // Retrieve the TRT SDO map for this event
       const InDetSimDataCollection*    simDataMap=0;
       sc = store()->retrieve(simDataMap, m_simDataMapNameTRT);
       if (sc.isFailure() || !simDataMap ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataTRT map"<< endreq;
+	  msg() << MSG::DEBUG << "Could NOT find the InDetSimDataTRT map"<< endmsg;
       } else {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Found InDetSimDataTRT, do association" << endreq;
+	  msg() << MSG::DEBUG << "Found InDetSimDataTRT, do association" << endmsg;
 
 	// Fill the PRD truth structure
 	PRD_MultiTruthCollection *prdt_trt = new PRD_MultiTruthCollection;
 	addPRDCollections(prdt_trt, trtContainer->begin(), trtContainer->end(), simDataMap, false);
 
 	if ( HLT::OK !=  attachFeature(outputTE, prdt_trt, "PRDTTRT") ) {
-	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endreq;
+	  msg() << MSG::WARNING << "Could not attach feature to the TE" << endmsg;
 	}
 	m_prdTRTsize = prdt_trt->size();
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "PRD TRT truth structure is registered in StoreGate, size="<< m_prdTRTsize << endreq;
+	  msg() << MSG::DEBUG << "PRD TRT truth structure is registered in StoreGate, size="<< m_prdTRTsize << endmsg;
 	
       }
     }

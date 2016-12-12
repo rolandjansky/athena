@@ -44,14 +44,14 @@ TrigTrackParticleTruthMaker::TrigTrackParticleTruthMaker(const std::string
 HLT::ErrorCode TrigTrackParticleTruthMaker::hltInitialize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endreq;
+    msg() << MSG::INFO << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
 
-  msg() << MSG::INFO << "TrigTrackParticleTruthMaker::initialize()" << endreq;
+  msg() << MSG::INFO << "TrigTrackParticleTruthMaker::initialize()" << endmsg;
 
 
-  msg() << MSG::INFO << "Initialization successful" << endreq;
+  msg() << MSG::INFO << "Initialization successful" << endmsg;
   
   return HLT::OK;
 }
@@ -68,13 +68,13 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
 
   if(!m_doTruth) {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endreq;
+      msg() << MSG::DEBUG << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
 
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+    msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
   
 
   //----------------------------------------------------------------------
@@ -85,19 +85,19 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
   const TrackCollection* myTracks(0);
  
   if ( HLT::OK != getFeature(outputTE, myTracks) ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if ( !myTracks ) {
-    msg() << MSG::DEBUG << "No Input track collection present" << endreq; 
+    msg() << MSG::DEBUG << "No Input track collection present" << endmsg; 
     return HLT::OK; 
   }
 
   m_numTracks = myTracks->size();
   if (outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Retrieved input track collection with "
-          << m_numTracks << " tracks. " << endreq;
+          << m_numTracks << " tracks. " << endmsg;
 
   //----------------------------------------------------------------------
   // Trigger specific part: navigate throw the trigger element to get the
@@ -107,19 +107,19 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
   const TrackTruthCollection* simTrackMap(0);
 
   if ( HLT::OK != getFeature(outputTE, simTrackMap) && !simTrackMap) {
-    msg() << MSG::ERROR << "Failed to get TrackTruthCollections from the trigger element" << endreq;
+    msg() << MSG::ERROR << "Failed to get TrackTruthCollections from the trigger element" << endmsg;
     return HLT::NAV_ERROR;
   }
 
   if ( !simTrackMap ) {
-    msg() << MSG::DEBUG << "No TrackTruthCollections present" << endreq; 
+    msg() << MSG::DEBUG << "No TrackTruthCollections present" << endmsg; 
     return HLT::OK; 
   }
   
   m_numTracksTruth = simTrackMap->size();
   if (outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Retrieved input track truth collection with "
-	  << m_numTracksTruth << " tracks. " << endreq;
+	  << m_numTracksTruth << " tracks. " << endmsg;
   
   //----------------------------------------------------------------------
   // Trigger specific part: navigate throw the trigger element to get the
@@ -128,19 +128,19 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
   const Rec::TrackParticleContainer* origTrackPC(0);
 
   if ( HLT::OK != getFeature(outputTE, origTrackPC)) {
-    msg() << MSG::ERROR << "Failed to get TrackContainer from the trigger element" << endreq; 
+    msg() << MSG::ERROR << "Failed to get TrackContainer from the trigger element" << endmsg; 
     return HLT::NAV_ERROR;
   }
   
   if ( !origTrackPC ) {
-    msg() << MSG::DEBUG << "No TrackContainer present" << endreq; 
+    msg() << MSG::DEBUG << "No TrackContainer present" << endmsg; 
     return HLT::OK; 
   }
 
   m_numParticleTracks =  origTrackPC->size();
   if (outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Retrieved input track particle container with "  
-	  << m_numParticleTracks << " tracks. " << endreq;
+	  << m_numParticleTracks << " tracks. " << endmsg;
 
   TrackParticleTruthCollection* tpTruthColl = new TrackParticleTruthCollection;
   
@@ -156,7 +156,7 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
     if (tempTrackTruthItr != simTrackMap->end()) 
       {    
 	msg() << MSG::VERBOSE << "Barcode: " << (*tempTrackTruthItr).second.particleLink().barcode()
-	      << "\t Probability: " << (*tempTrackTruthItr).second.probability() << endreq;
+	      << "\t Probability: " << (*tempTrackTruthItr).second.probability() << endmsg;
 	ElementLink< Rec::TrackParticleContainer > myLink;
 	myLink.setElement(const_cast<Rec::TrackParticle*>(*i));
 	myLink.setStorableObject(*origTrackPC);
@@ -167,12 +167,12 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
   } 
 
   if ( HLT::OK !=  attachFeature(outputTE, tpTruthColl, name() ) ) {
-    msg() << MSG::ERROR << "Could not attache feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attache feature to the TE" << endmsg;
   }
   
   m_numParticleTracksTruth = tpTruthColl->size();
   msg() << MSG::DEBUG << "REGTEST: Container TrackParticleTruth has size :" 
-	<< m_numParticleTracksTruth << endreq;
+	<< m_numParticleTracksTruth << endmsg;
 
   return HLT::OK;
 }
@@ -181,12 +181,12 @@ HLT::ErrorCode TrigTrackParticleTruthMaker::hltExecute(const HLT::TriggerElement
 HLT::ErrorCode TrigTrackParticleTruthMaker::hltFinalize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endreq;
+    msg() << MSG::INFO << "TrigTrackParticleTruthMaker is skipped: doTruth = False" << endmsg;
     return HLT::OK;
   }
 
   // Get the messaging service, print where you are
-  msg() << MSG::INFO << "TrigTrackParticleTruthMaker::finalize()" << endreq;
+  msg() << MSG::INFO << "TrigTrackParticleTruthMaker::finalize()" << endmsg;
   return HLT::OK;
 }
 
