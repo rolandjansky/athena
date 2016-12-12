@@ -22,7 +22,7 @@ CMMJetHitsCnv_p1::CMMJetHitsCnv_p1()
 
 void CMMJetHitsCnv_p1::persToTrans( const CMMJetHits_p1* persObj, CMMJetHits* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMMJetHits from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMMJetHits from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -35,7 +35,7 @@ void CMMJetHitsCnv_p1::persToTrans( const CMMJetHits_p1* persObj, CMMJetHits* tr
                           persObj->m_errors,
                           persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMJetHits from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMJetHits from persistent state [OK]" << endmsg;
 
   return;
 
@@ -43,7 +43,7 @@ void CMMJetHitsCnv_p1::persToTrans( const CMMJetHits_p1* persObj, CMMJetHits* tr
 
 void CMMJetHitsCnv_p1::transToPers( const CMMJetHits* transObj, CMMJetHits_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMMJetHits..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMMJetHits..." << endmsg;
 
   persObj->m_crate    = transObj->crate();
   persObj->m_dataID   = transObj->dataID();
@@ -51,7 +51,7 @@ void CMMJetHitsCnv_p1::transToPers( const CMMJetHits* transObj, CMMJetHits_p1* p
   persObj->m_hits     = transObj->HitsVec();
   persObj->m_errors   = transObj->ErrorVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMJetHits [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMJetHits [OK]" << endmsg;
 
   return;
 

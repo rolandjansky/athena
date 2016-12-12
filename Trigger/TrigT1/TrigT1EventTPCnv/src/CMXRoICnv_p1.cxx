@@ -23,7 +23,7 @@ CMXRoICnv_p1::CMXRoICnv_p1()
 
 void CMXRoICnv_p1::persToTrans( const CMXRoI_p1* persObj, CMXRoI* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMXRoI from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMXRoI from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -37,7 +37,7 @@ void CMXRoICnv_p1::persToTrans( const CMXRoI_p1* persObj, CMXRoI* transObj, MsgS
                       persObj->m_roiWords[4],
                       persObj->m_roiWords[5]);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXRoI from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXRoI from persistent state [OK]" << endmsg;
 
   return;
 
@@ -45,13 +45,13 @@ void CMXRoICnv_p1::persToTrans( const CMXRoI_p1* persObj, CMXRoI* transObj, MsgS
 
 void CMXRoICnv_p1::transToPers( const CMXRoI* transObj, CMXRoI_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMXRoI..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMXRoI..." << endmsg;
 
   persObj->m_roiWords.resize(6);
   for (int i=0; i < 6; i++)
     persObj->m_roiWords[i] = transObj->roiWord(i);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXRoI [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXRoI [OK]" << endmsg;
 
   return;
 

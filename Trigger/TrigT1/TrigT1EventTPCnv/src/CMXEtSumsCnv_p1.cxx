@@ -23,7 +23,7 @@ CMXEtSumsCnv_p1::CMXEtSumsCnv_p1()
 
 void CMXEtSumsCnv_p1::persToTrans( const CMXEtSums_p1* persObj, CMXEtSums* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMXEtSums from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMXEtSums from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -40,7 +40,7 @@ void CMXEtSumsCnv_p1::persToTrans( const CMXEtSums_p1* persObj, CMXEtSums* trans
                          persObj->m_EyError,
                          persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXEtSums from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXEtSums from persistent state [OK]" << endmsg;
 
   return;
 
@@ -48,7 +48,7 @@ void CMXEtSumsCnv_p1::persToTrans( const CMXEtSums_p1* persObj, CMXEtSums* trans
 
 void CMXEtSumsCnv_p1::transToPers( const CMXEtSums* transObj, CMXEtSums_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMXEtSums..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMXEtSums..." << endmsg;
 
   persObj->m_crate    = transObj->crate();
   persObj->m_source   = transObj->source();
@@ -60,7 +60,7 @@ void CMXEtSumsCnv_p1::transToPers( const CMXEtSums* transObj, CMXEtSums_p1* pers
   persObj->m_ExError  = transObj->ExErrorVec();
   persObj->m_EyError  = transObj->EyErrorVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXEtSums [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXEtSums [OK]" << endmsg;
 
   return;
 

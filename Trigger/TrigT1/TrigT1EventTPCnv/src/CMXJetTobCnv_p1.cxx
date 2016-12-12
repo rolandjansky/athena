@@ -23,7 +23,7 @@ CMXJetTobCnv_p1::CMXJetTobCnv_p1()
 
 void CMXJetTobCnv_p1::persToTrans( const CMXJetTob_p1* persObj, CMXJetTob* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMXJetTob from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMXJetTob from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -40,7 +40,7 @@ void CMXJetTobCnv_p1::persToTrans( const CMXJetTob_p1* persObj, CMXJetTob* trans
                          persObj->m_presenceMap,
                          persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXJetTob from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXJetTob from persistent state [OK]" << endmsg;
 
   return;
 
@@ -48,7 +48,7 @@ void CMXJetTobCnv_p1::persToTrans( const CMXJetTob_p1* persObj, CMXJetTob* trans
 
 void CMXJetTobCnv_p1::transToPers( const CMXJetTob* transObj, CMXJetTob_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMXJetTob..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMXJetTob..." << endmsg;
 
   persObj->m_crate       = transObj->crate();
   persObj->m_jem         = transObj->jem();
@@ -60,7 +60,7 @@ void CMXJetTobCnv_p1::transToPers( const CMXJetTob* transObj, CMXJetTob_p1* pers
   persObj->m_error       = transObj->errorVec();
   persObj->m_presenceMap = transObj->presenceMapVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXJetTob [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXJetTob [OK]" << endmsg;
 
   return;
 

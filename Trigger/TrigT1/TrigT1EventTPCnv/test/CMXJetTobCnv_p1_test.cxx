@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/CMXJetTobCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -49,6 +50,7 @@ void testit (const LVL1::CMXJetTob& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1::CMXJetTob trans1 (1, 2, 3, 4,
                           std::vector<int> {10, 11, 12},

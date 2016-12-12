@@ -23,7 +23,7 @@ CPMHitsCnv_p1::CPMHitsCnv_p1()
 
 void CPMHitsCnv_p1::persToTrans( const CPMHits_p1* persObj, CPMHits* transObj, MsgStream &log ) {
 
-  //log << MSG::DEBUG << "Converting CPMHits from persistent state..." << endreq;
+  //log << MSG::DEBUG << "Converting CPMHits from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -36,7 +36,7 @@ void CPMHitsCnv_p1::persToTrans( const CPMHits_p1* persObj, CPMHits* transObj, M
                        persObj->m_Hits1,
                        persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMHits from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMHits from persistent state [OK]" << endmsg;
 
   return;
 
@@ -44,7 +44,7 @@ void CPMHitsCnv_p1::persToTrans( const CPMHits_p1* persObj, CPMHits* transObj, M
 
 void CPMHitsCnv_p1::transToPers( const CPMHits* transObj, CPMHits_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CPMHits..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CPMHits..." << endmsg;
 
   persObj->m_crate    = transObj->crate();
   persObj->m_module   = transObj->module();
@@ -52,7 +52,7 @@ void CPMHitsCnv_p1::transToPers( const CPMHits* transObj, CPMHits_p1* persObj, M
   persObj->m_Hits0    = transObj->HitsVec0();
   persObj->m_Hits1    = transObj->HitsVec1();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMHits [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMHits [OK]" << endmsg;
 
   return;
 

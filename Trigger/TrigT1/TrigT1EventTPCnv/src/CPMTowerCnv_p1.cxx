@@ -22,7 +22,7 @@ CPMTowerCnv_p1::CPMTowerCnv_p1()
 
 void CPMTowerCnv_p1::persToTrans( const CPMTower_p1* persObj, CPMTower* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CPMTower from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CPMTower from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -37,7 +37,7 @@ void CPMTowerCnv_p1::persToTrans( const CPMTower_p1* persObj, CPMTower* transObj
                         persObj->m_had_error,
                         persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMTower from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMTower from persistent state [OK]" << endmsg;
 
   return;
 
@@ -45,7 +45,7 @@ void CPMTowerCnv_p1::persToTrans( const CPMTower_p1* persObj, CPMTower* transObj
 
 void CPMTowerCnv_p1::transToPers( const CPMTower* transObj, CPMTower_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CPMTower..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CPMTower..." << endmsg;
 
   persObj->m_phi          = transObj->phi();
   persObj->m_eta          = transObj->eta();
@@ -56,7 +56,7 @@ void CPMTowerCnv_p1::transToPers( const CPMTower* transObj, CPMTower_p1* persObj
   persObj->m_em_error     = transObj->emErrorVec();
   persObj->m_had_error    = transObj->hadErrorVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMTower [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMTower [OK]" << endmsg;
 
   return;
 

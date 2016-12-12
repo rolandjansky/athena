@@ -22,7 +22,7 @@ TriggerTowerCnv_p1::TriggerTowerCnv_p1()
 
 void TriggerTowerCnv_p1::persToTrans( const TriggerTower_p1* persObj, TriggerTower* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting TriggerTower from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting TriggerTower from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -47,7 +47,7 @@ void TriggerTowerCnv_p1::persToTrans( const TriggerTower_p1* persObj, TriggerTow
                             persObj->m_had_peak,
                             persObj->m_had_adc_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted TriggerTower from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted TriggerTower from persistent state [OK]" << endmsg;
 
   return;
 
@@ -55,7 +55,7 @@ void TriggerTowerCnv_p1::persToTrans( const TriggerTower_p1* persObj, TriggerTow
 
 void TriggerTowerCnv_p1::transToPers( const TriggerTower* transObj, TriggerTower_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of TriggerTower..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of TriggerTower..." << endmsg;
 
   persObj->m_em_energy    = transObj->emLUT();
   persObj->m_had_energy   = transObj->hadLUT();
@@ -75,7 +75,7 @@ void TriggerTowerCnv_p1::transToPers( const TriggerTower* transObj, TriggerTower
   persObj->m_had_peak     = transObj->hadPeak();
   persObj->m_had_adc_peak = transObj->hadADCPeak();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of TriggerTower [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of TriggerTower [OK]" << endmsg;
 
   return;
 

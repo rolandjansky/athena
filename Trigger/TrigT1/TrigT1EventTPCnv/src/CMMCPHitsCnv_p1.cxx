@@ -23,7 +23,7 @@ CMMCPHitsCnv_p1::CMMCPHitsCnv_p1()
 
 void CMMCPHitsCnv_p1::persToTrans( const CMMCPHits_p1* persObj, CMMCPHits* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMMCPHits from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMMCPHits from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -38,7 +38,7 @@ void CMMCPHitsCnv_p1::persToTrans( const CMMCPHits_p1* persObj, CMMCPHits* trans
                          persObj->m_error1,
                          persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMCPHits from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMCPHits from persistent state [OK]" << endmsg;
 
   return;
 
@@ -46,7 +46,7 @@ void CMMCPHitsCnv_p1::persToTrans( const CMMCPHits_p1* persObj, CMMCPHits* trans
 
 void CMMCPHitsCnv_p1::transToPers( const CMMCPHits* transObj, CMMCPHits_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMMCPHits..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMMCPHits..." << endmsg;
 
   persObj->m_crate    = transObj->crate();
   persObj->m_dataID   = transObj->dataID();
@@ -56,7 +56,7 @@ void CMMCPHitsCnv_p1::transToPers( const CMMCPHits* transObj, CMMCPHits_p1* pers
   persObj->m_error0   = transObj->ErrorVec0();
   persObj->m_error1   = transObj->ErrorVec1();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMCPHits [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMCPHits [OK]" << endmsg;
 
   return;
 

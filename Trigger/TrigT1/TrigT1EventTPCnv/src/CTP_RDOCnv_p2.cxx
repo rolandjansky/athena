@@ -24,12 +24,12 @@ CTP_RDOCnv_p2::CTP_RDOCnv_p2()
 void CTP_RDOCnv_p2::persToTrans( const CTP_RDO_p2* persObj, CTP_RDO* transObj,
                                  MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endmsg;
 
    *transObj = CTP_RDO (0, persObj->m_dataWords);
    transObj->setL1AcceptBunchPosition (persObj->m_l1AcceptPosition);
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endmsg;
 
    return;
 
@@ -42,7 +42,7 @@ void CTP_RDOCnv_p2::persToTrans( const CTP_RDO_p2* persObj, CTP_RDO* transObj,
 void CTP_RDOCnv_p2::transToPers( const CTP_RDO* transObj, CTP_RDO_p2* persObj,
                                  MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO..." << endmsg;
 
    // not needed, will be recalculated
    // persObj->m_numberOfBunches = transObj->m_numberOfBunches;
@@ -52,7 +52,7 @@ void CTP_RDOCnv_p2::transToPers( const CTP_RDO* transObj, CTP_RDO_p2* persObj,
    persObj->m_l1AcceptPosition = transObj->getL1AcceptBunchPosition();
    persObj->m_dataWords        = transObj->getDataWords();
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO [OK]" << endmsg;
 
    return;
 
