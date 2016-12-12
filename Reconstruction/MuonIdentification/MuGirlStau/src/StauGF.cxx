@@ -40,20 +40,20 @@ void MuGirlNS::StauGF::printStepData(GlobalFitData* gfData)
 {
     if (gfData == NULL)
     {
-        LOG_VERBOSE << "gf data is NULL" << endreq;
+        LOG_VERBOSE << "gf data is NULL" << endmsg;
         return;
     }
     LOG_VERBOSE << "gf data: beta=" << gfData->beta
                 << " chi2=" << gfData->chi2
                 << " dof="<< gfData->hitsOnTrk
-                << endreq;
+                << endmsg;
 }
 
 void MuGirlNS::StauGF::processGlobalFitWithBeta(double currentBeta, GlobalFitData* gfData)
 {
     LOG_VERBOSE << "beta=" << currentBeta
                 << " gfData=" << gfData
-                << endreq;
+                << endmsg;
 
     RIO_OnTrackLists* pTriggerHitsInSegments = new RIO_OnTrackLists();
     std::vector<const Muon::MdtDriftCircleOnTrack*>* pMdtHits = new std::vector<
@@ -103,13 +103,13 @@ void MuGirlNS::StauGF::processGlobalFitWithBeta(double currentBeta, GlobalFitDat
     //  }
 
     printStepData(gfData);
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 void MuGirlNS::StauGF::prepareForGlobalFit(RIO_OnTrackLists* pTriggerHitsInSegments,
         std::vector<const Muon::MdtDriftCircleOnTrack*>* pMdtHits)
 {
-    LOG_VERBOSE << "entered" << endreq;
+    LOG_VERBOSE << "entered" << endmsg;
     if (m_pStau->rpcHitsInSegments() != NULL)
         std::copy(m_pStau->rpcHitsInSegments()->begin(), m_pStau->rpcHitsInSegments()->end(),
                 std::back_inserter(*pTriggerHitsInSegments));
@@ -130,7 +130,7 @@ void MuGirlNS::StauGF::prepareForGlobalFit(RIO_OnTrackLists* pTriggerHitsInSegme
             }
         }
     }
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 void MuGirlNS::StauGF::prepareForGlobalFit(MuGirlNS::MuonSegmentList& muonSegments)
@@ -190,7 +190,7 @@ double MuGirlNS::StauGF::stauMomentum()
 void MuGirlNS::StauGF::processGlobalFitWithTTrack(double /* tTrack */, GlobalFitData* gfData,
         double /*beta*/)
 {
-    LOG_VERBOSE << "entered" << endreq;
+    LOG_VERBOSE << "entered" << endmsg;
     RIO_OnTrackLists* pTriggerHitsInSegments = new RIO_OnTrackLists();
     std::vector<const Muon::MdtDriftCircleOnTrack*>* pMdtHits = new std::vector<
             const Muon::MdtDriftCircleOnTrack*>;
@@ -282,7 +282,7 @@ void MuGirlNS::StauGF::processGlobalFitWithTTrack(double /* tTrack */, GlobalFit
     //  }
 
     printStepData(gfData);
-    LOG_VERBOSE << "done" << endreq;
+    LOG_VERBOSE << "done" << endmsg;
 }
 
 void MuGirlNS::StauGF::setInitialTrackParameters(const Trk::Perigee* trk0)

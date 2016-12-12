@@ -30,7 +30,7 @@
 #include <map>
 #include <boost/regex.hpp>
 #include "TFile.h"
-inline std::vector<std::string> split(const string& input, const string& delim)
+inline std::vector<std::string> split(const std::string& input, const std::string& delim)
 {
 //    boost::regex re_delim(delim);
     boost::sregex_token_iterator first(input.begin(), input.end(), boost::regex(delim), -1), last;
@@ -194,6 +194,10 @@ public:
     {
         return m_pMdtSegmentMakerInfoList;
     }
+    ToolHandle<Muon::IMuonSegmentMaker>& mdtSegmentMaker()
+    {
+        return m_pMdtSegmentMaker;
+    }
     const ToolHandle<Muon::IMuonSegmentMaker>& mdtSegmentMaker() const
     {
         return m_pMdtSegmentMaker;
@@ -202,9 +206,17 @@ public:
     {
         return m_pMdtDriftCircleCreator;
     }
+    ToolHandle<IStauBetaTofTool>& tofTool()
+    {
+        return m_pTofTool;
+    }
     const ToolHandle<IStauBetaTofTool>& tofTool() const
     {
         return m_pTofTool;
+    }
+    ToolHandle<MuGirlNS::IGlobalFitTool>& globalFitTool()
+    {
+        return m_pGlobalFitTool;
     }
     const ToolHandle<MuGirlNS::IGlobalFitTool>& globalFitTool() const
     {
