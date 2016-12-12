@@ -7,6 +7,7 @@
 #include "L1TopoAlgorithms/MuonSort_1BC.h"
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/MuonTOBArray.h"
+#include "L1TopoEvent/LateMuonTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -44,11 +45,11 @@ TCS::MuonSort_1BC::sort(const InputTOBArray & input, TOBArray & output) {
 
   TRG_MSG_DEBUG("MuonSort_1BC");
 
-  const MuonTOBArray & muons = dynamic_cast<const MuonTOBArray&>(input);
+  const LateMuonTOBArray & muons = dynamic_cast<const LateMuonTOBArray&>(input);
 
   // fill output array with GenericTOB built from late muons
   int ii=0;
-  for(MuonTOBArray::const_iterator lm = muons.begin(); lm!= muons.end(); ++lm ) {
+  for(LateMuonTOBArray::const_iterator lm = muons.begin(); lm!= muons.end(); ++lm ) {
 
     const GenericTOB gtob(**lm);
     ++ii;
