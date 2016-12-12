@@ -34,12 +34,7 @@ JetQuarkLabel::JetQuarkLabel(const std::string& name)
       m_deltaRCut(0.3),
       m_ptCut(5.*GeVtoMeV),
       m_noDoc(true),
-      m_inTime(-1),
-      m_jetLabel(0),
-      m_pdg(0),
-      m_barcode(0),
-      m_Bpdg(0),
-      m_NEventInCollection(0)
+      m_inTime(-1)
 {
     declareProperty("McEventCollection", m_mcEventCollection);
     declareProperty("deltaRCut",    m_deltaRCut);
@@ -58,9 +53,11 @@ StatusCode JetQuarkLabel::finalize() {
   return StatusCode::SUCCESS;
 }
 
-  bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet) 
+bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
+                             MatchInfo* info /*= nullptr*/) const
 {
-  m_jetLabel = 0;
+  if (info)
+    *info = MatchInfo();
 
   /* ----------------------------------------------------------------------------------- */
   /*                     Retrieve McEventCollection                                      */
@@ -72,7 +69,7 @@ StatusCode JetQuarkLabel::finalize() {
     ATH_MSG_DEBUG(m_mcEventCollection << " not found in StoreGate.");
     return false;
   }
-  return m_testJet(myJet,myMcEventCollection);
+  return testJet(myJet,myMcEventCollection);
 */
 
 //retrieve xAOD::TruthEvent
@@ -82,12 +79,13 @@ StatusCode JetQuarkLabel::finalize() {
     ATH_MSG_DEBUG(m_mcEventCollection << " not found in StoreGate.");
     return false;
   }
-  return m_testJet(myJet,truthEventContainer);
+  return testJet(myJet,truthEventContainer, info);
 
 }
 
-  bool JetQuarkLabel::m_testJet(const xAOD::Jet& myJet, 
-				const xAOD::TruthEventContainer* truthEventContainer) 
+  bool JetQuarkLabel::testJet(const xAOD::Jet& myJet, 
+                              const xAOD::TruthEventContainer* truthEventContainer,
+                              MatchInfo* info)  const
 {
 
   TLorentzVector jet_hlv = myJet.p4();
@@ -96,13 +94,10 @@ StatusCode JetQuarkLabel::finalize() {
 
 
 
-  m_NEventInCollection = truthEventContainer->size();
+  int NEventInCollection = truthEventContainer->size();
+  if (info)
+    info->NEventInCollection =NEventInCollection;
 
-  m_barcode = 0;
-  m_pdg     = 0;
-  m_Bpdg    = 0;
-  m_BDecVtx = Eigen::Vector3d();
-  m_distanceToQuarks.clear();
   // Tag only jet in the ID acceptance : not anymore...
   // Labelling might be usefull also outside ID acceptance if (fabs(myJet.eta()) > 2.5) return false;
   //
@@ -220,17 +215,21 @@ StatusCode JetQuarkLabel::finalize() {
     }
     nLab++;
   }
-  ATH_MSG_DEBUG("Number of events in the EventCollection : " <<  m_NEventInCollection << " and used for labelling " << nLab);
+  ATH_MSG_DEBUG("Number of events in the EventCollection : " <<  NEventInCollection << " and used for labelling " << nLab);
 
-  m_distanceToQuarks.insert(std::make_pair("B",deltaRB));
-  m_distanceToQuarks.insert(std::make_pair("C",deltaRC));
-  m_distanceToQuarks.insert(std::make_pair("T",deltaRT)); //it is not a quark !
+  if (info) {
+    info->distanceToQuarks.insert(std::make_pair("B",deltaRB));
+    info->distanceToQuarks.insert(std::make_pair("C",deltaRC));
+    info->distanceToQuarks.insert(std::make_pair("T",deltaRT)); //it is not a quark !
+  }
   ATH_MSG_VERBOSE("DeltaR " << deltaRB << " " << deltaRC << " " << deltaRT);
   if (deltaRB < m_deltaRCut) {
-    m_pdg      = 5;
-    m_barcode  = barcb;
-    m_jetLabel = 5;
-    ATH_MSG_VERBOSE("Jet matched with a b "<<m_barcode<<" after FSR, dR: " << deltaRB);
+    if (info) {
+      info->pdg      = 5;
+      info->barcode  = barcb;
+      info->jetLabel = 5;
+    }
+    ATH_MSG_VERBOSE("Jet matched with a b "<<barcb<<" after FSR, dR: " << deltaRB);
     //JBdV Try  Herwig !!! If Bhadron --> quark, the corresponding decay vertex is the primary !! 
     //                     (but the the following Hadron vertices are OK)
     if (LabellingParticle == 0) {
@@ -274,10 +273,12 @@ StatusCode JetQuarkLabel::finalize() {
 	    ATH_MSG_VERBOSE("b quark child " << pdg << " barcode = " << (*thisChild)->barcode()); 
 	    if (deltaRbB < deltaRbBmin) {
 	      if ((*thisChild)->hasDecayVtx()) {
-		m_BDecVtx[0] = (*thisChild)->decayVtx()->position().x();
-		m_BDecVtx[1] = (*thisChild)->decayVtx()->position().y();
-		m_BDecVtx[2] = (*thisChild)->decayVtx()->position().z();
-		m_Bpdg    = pdg;
+                if (info) {
+  		  info->BDecVtx[0] = (*thisChild)->decayVtx()->position().x();
+		  info->BDecVtx[1] = (*thisChild)->decayVtx()->position().y();
+		  info->BDecVtx[2] = (*thisChild)->decayVtx()->position().z();
+		  info->Bpdg    = pdg;
+                }
 		std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator goodChildEL = (*thisChild)->decayVertex()->outgoingParticles().begin();
 		std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator goodChildE = (*thisChild)->decayVertex()->outgoingParticles().begin();
 		//HepMC::GenVertex::particle_iterator goodChild  = (*thisChild)->end_vertex()->particles_begin(HepMC::children);
@@ -296,11 +297,13 @@ StatusCode JetQuarkLabel::finalize() {
 			}
 		      }
 		      if ((*goodbChild)->end_vertex()) {
-			m_BDecVtx[0] = (*goodbChild)->end_vertex()->position().x();
-			m_BDecVtx[1] = (*goodbChild)->end_vertex()->position().y();
-			m_BDecVtx[2] = (*goodbChild)->end_vertex()->position().z();
-			ATH_MSG_VERBOSE( "Trying to recover pdg Good Child = " << (*goodbChild)->pdg_id() 
-			     << " Decay vertex " << m_BDecVtx[0] << " " << m_BDecVtx[1] << " " << m_BDecVtx[2] );
+                        if (info) {
+			  info->BDecVtx[0] = (*goodbChild)->end_vertex()->position().x();
+			  info->BDecVtx[1] = (*goodbChild)->end_vertex()->position().y();
+			  info->BDecVtx[2] = (*goodbChild)->end_vertex()->position().z();
+			  ATH_MSG_VERBOSE( "Trying to recover pdg Good Child = " << (*goodbChild)->pdg_id() 
+			       << " Decay vertex " << info->BDecVtx[0] << " " << info->BDecVtx[1] << " " << info->BDecVtx[2] );
+                        }
 			break;
 		      }
 		    }
@@ -321,10 +324,12 @@ StatusCode JetQuarkLabel::finalize() {
 		    " px = " << theBHad->momentum().px() 
 		 << " py = " << theBHad->momentum().py() 
 		 << " pz = " << theBHad->momentum().pz() );
-	    ATH_MSG_VERBOSE(
-		    " vx = " << m_BDecVtx[0] 
-		 << " vy = " << m_BDecVtx[1] 
-		 << " vz = " << m_BDecVtx[2] );
+            if (info) {
+	      ATH_MSG_VERBOSE(
+		      " vx = " << info->BDecVtx[0] 
+		   << " vy = " << info->BDecVtx[1] 
+		   << " vz = " << info->BDecVtx[2] );
+            }
 	  }
 	}
 	}
@@ -333,34 +338,32 @@ StatusCode JetQuarkLabel::finalize() {
     //
     return true;
   } else if (deltaRC < m_deltaRCut) {
-    m_pdg      = 4;
-    m_barcode  = barcc;
-    m_jetLabel = 4;
-    ATH_MSG_VERBOSE("Jet matched with a c "<<m_barcode<<" after FSR, dR: " << deltaRC);
+    if (info) {
+      info->pdg      = 4;
+      info->barcode  = barcc;
+      info->jetLabel = 4;
+    }
+    ATH_MSG_VERBOSE("Jet matched with a c "<<barcc<<" after FSR, dR: " << deltaRC);
     return true;
   } else if (deltaRT < m_deltaRCut) {
     ATH_MSG_VERBOSE("Jet matched with a tau dR: " << deltaRT);
-    m_pdg      = 15;
-    m_jetLabel = 15;
+    if (info) {
+      info->pdg      = 15;
+      info->jetLabel = 15;
+    }
     return true;
   } else {
-    m_pdg      = 0;
-    m_barcode  = 0;
-    m_jetLabel = 0;
+    if (info) {
+      info->pdg      = 0;
+      info->barcode  = 0;
+      info->jetLabel = 0;
+    }
     return true;
   }
   return false;
 }
 
-void JetQuarkLabel::m_printParameterSettings() {
+void JetQuarkLabel::printParameterSettings() const {
 }
 
-double JetQuarkLabel::deltaRMinTo(const std::string& key) const {
-  double dR = 9999.;
-  std::map<std::string, double>::const_iterator posI = m_distanceToQuarks.find(key);
-  std::map<std::string, double>::const_iterator posE = m_distanceToQuarks.end();
-  if(posI!=posE) dR = posI->second;
-  return dR;
-}
-
-}
+} // namespace Analysis

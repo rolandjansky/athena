@@ -10,6 +10,7 @@ use JetInterface	    JetInterface-*	        Reconstruction/Jet
 use EventPrimitives     EventPrimitives-*       Event
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTruth           xAODTruth-*             Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use AtlasReflex         AtlasReflex-*           External
 
@@ -19,12 +20,13 @@ private
 use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
 use AthContainers        AthContainers-*        Control
 use TruthUtils           TruthUtils-*           Generators
-
+use AtlasROOT		 AtlasROOT-*		External
+		
 end_private
 
 
 #library ParticleJetTools *.cxx components/*.cxx
-apply_pattern dual_use_library files="HadronUtils.cxx ../Root/JetQuarkLabel.cxx ../Root/JetConeLabeling.cxx ../Root/ParticleToJetAssociator.cxx ../Root/JetPartonTruthLabel.cxx ../Root/CopyTruthParticles.cxx ../Root/CopyFlavorLabelTruthParticles.cxx ../Root/CopyBosonTopLabelTruthParticles.cxx ../Root/CopyTruthPartons.cxx ../Root/CopyTruthJetParticles.cxx ../Root/JetFlavourInfo.cxx ../Root/ParticleJetDeltaRLabelTool.cxx"
+apply_pattern dual_use_library files="HadronUtils.cxx ../Root/JetQuarkLabel.cxx ../Root/JetConeLabeling.cxx ../Root/ParticleToJetAssociator.cxx ../Root/JetPartonTruthLabel.cxx ../Root/CopyTruthParticles.cxx ../Root/CopyFlavorLabelTruthParticles.cxx ../Root/CopyBosonTopLabelTruthParticles.cxx ../Root/CopyTruthPartons.cxx ../Root/CopyTruthJetParticles.cxx ../Root/JetFlavourInfo.cxx ../Root/ParticleJetDeltaRLabelTool.cxx ../Root/JetParticleAssociation.cxx ../Root/JetParticleCenterOfMassAssociation.cxx ../Root/JetParticleShrinkingConeAssociation.cxx"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
 apply_pattern lcgdict dict=ParticleJetTools \

@@ -19,6 +19,8 @@ def declareDefaultTools():
     from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
     from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
 
+  ghostScaleFactor = 1e-40
+
   #--------------------------------------------------------------
   # Truth selection.
   #--------------------------------------------------------------
@@ -32,7 +34,7 @@ def declareDefaultTools():
                                    MCTruthClassifier=truthClassifier)
       jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
                                    MCTruthClassifier=truthClassifier,
-                                   IncludeWZLeptons=False, #IncludeTauLeptons=False,
+                                   IncludePromptLeptons=False,
                                    IncludeMuons=True,IncludeNeutrinos=True)
 
   # Truth.
@@ -56,6 +58,7 @@ def declareDefaultTools():
     jtm += ParticleJetDeltaRLabelTool(
       "jetdrlabeler",
       LabelName = "HadronConeExclTruthLabelID",
+      DoubleLabelName = "HadronConeExclTruthLabelID",
       BLabelName = "ConeExclBHadronsFinal",
       CLabelName = "ConeExclCHadronsFinal",
       TauLabelName = "ConeExclTausFinal",
@@ -72,6 +75,7 @@ def declareDefaultTools():
     jtm += ParticleJetDeltaRLabelTool(
       "trackjetdrlabeler",
       LabelName = "HadronConeExclTruthLabelID",
+      DoubleLabelName = "HadronConeExclTruthLabelID",
       BLabelName = "ConeExclBHadronsFinal",
       CLabelName = "ConeExclCHadronsFinal",
       TauLabelName = "ConeExclTausFinal",
@@ -107,7 +111,7 @@ def declareDefaultTools():
       Label = "GhostTruth",
       InputContainer = jtm.truthpartcopy.OutputName,
       OutputContainer = "PseudoJetGhostTruth",
-      GhostScale = 1.e-20,
+      GhostScale = ghostScaleFactor,
       SkipNegativeEnergy = True,
     )
 
@@ -119,7 +123,7 @@ def declareDefaultTools():
         Label = "Ghost" + ptype,
         OutputContainer = "PseudoJetGhost" + ptype,
         SkipNegativeEnergy = True,
-        GhostScale = 1e-20
+        GhostScale = ghostScaleFactor,
       )
 
 

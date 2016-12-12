@@ -40,6 +40,9 @@ private:
   bool m_includeMu; //!< Include muons in particles
   bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons
   //  bool m_includeTau; //!< Include particles from tau decays
+  // -- added for dark jet clustering -- //
+  bool m_includeSM; //!< Include SM particles
+  bool m_includeDark; //!< Include dark hadrons
 
   bool isPrompt( const xAOD::TruthParticle* tp,
 		 std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;

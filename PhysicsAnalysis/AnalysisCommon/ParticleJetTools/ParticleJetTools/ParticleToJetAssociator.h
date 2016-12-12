@@ -57,10 +57,10 @@ class ParticleToJetAssociator : public asg::AsgTool {
         static const InterfaceID& interfaceID() { return IID_ParticleToJetAssociator; };
 #endif
 
-        /** AlgTool initailize method */
-        StatusCode initialize();
+        /** AlgTool initialize method */
+        virtual StatusCode initialize() override;
         /** AlgTool finalize method */
-        StatusCode finalize();
+        virtual StatusCode finalize() override;
 
         // template<typename ConstituentType, typename coll> void associateParticlesToJets(
         //                       JetCollection* SGParticleJetContainer,
@@ -74,9 +74,9 @@ class ParticleToJetAssociator : public asg::AsgTool {
             std::vector<ConstituentType*>
             associateParticlesToJets(jetcollection_t* theJets,
                     const coll* particleContainer,
-                    const std::string& constituentName);
+                    const std::string& constituentName) const;
 
-        inline double getConeSize(double pt) {	    //!< helper method to get the cone size for a given jet pT
+        inline double getConeSize(double pt) const {	    //!< helper method to get the cone size for a given jet pT
             return (m_coneSizeFitPar1 + exp(m_coneSizeFitPar2 + m_coneSizeFitPar3*pt));
         }
 
@@ -175,7 +175,7 @@ template<typename ConstituentType, typename coll>
     inline std::vector<ConstituentType*>
     ParticleToJetAssociator::associateParticlesToJets(jetcollection_t* theJets,
             const coll* particleContainer,
-            const std::string& constituentName) {
+            const std::string& constituentName) const {
 
         std::vector<ConstituentType*> vecTrackConst;
         ATH_MSG_VERBOSE("Number of Jets      : " << theJets->size());
@@ -195,7 +195,9 @@ template<typename ConstituentType, typename coll>
             for (; tpItr!=particleContainer->end() ; tpItr++) {
                 double pt = (*tpItr)->pt();
                 double deltaRMatch(1000);
-                ATH_MSG_VERBOSE("Particle-Jet association (no sharing). Jet pT= " << pt);
+                // BUG: this used to claim it was printing the jet
+                // pt...
+                ATH_MSG_VERBOSE("Particle-Jet association (no sharing). TRACK pT= " << pt);
                 bool findAMatch = false;
                 int i(0);
                 xAOD::Jet *theJet = 0;
@@ -213,7 +215,9 @@ template<typename ConstituentType, typename coll>
                 ATH_MSG_VERBOSE(" matching: find= " << findAMatch << " dR=" << deltaRMatch);
                 double trackCone = m_trackCone;
                 if( m_useVariableSizedTrackCone ) {
-                    if(0 != theJet) trackCone = getConeSize(theJet->pt());
+                    if(0 != theJet)
+                        trackCone = getConeSize(theJet->pt());
+
                     ATH_MSG_VERBOSE("Using Variable Sized Cone of " << trackCone); 
                 } else {
                     ATH_MSG_VERBOSE("Using Fixed Sized Cone of " << trackCone);

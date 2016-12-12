@@ -33,6 +33,12 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
   declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons from prompt decays (i.e. not from hadron decays) in the output collection");
   //  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
+
+  // -- added for dark jet clustering -- //
+  declareProperty("IncludeSMParts", m_includeSM=true, "Include SM particles in the output collection");
+  declareProperty("IncludeDarkHads", m_includeDark=false, "Include dark hadrons in the output collection");
+  // ----------------------------------- //
+  
   declareProperty("MaxAbsEta", m_maxAbsEta);
   declareProperty("BarCodeOffset", m_barcodeOffset);
   declareProperty("BarCodeFromMetadata", m_barcodeFromMetadata);
@@ -51,7 +57,11 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   if (tp->barcode()>=barcodeOffset) return false; // Particle is from G4
   int pdgid = tp->pdgId();
   if (pdgid==21 && tp->e()==0) return false; // Work around for an old generator bug
-  if ( tp->status() %1000 !=1 ) return false; // Stable!
+
+  // -- changed for dark jet clustering -- //
+  //if ( tp->status() %1000 !=1 ) return false; // Stable!
+  if ( tp->status()%1000!=1 && !m_includeDark ) return false; // dark hadrons will not be status 1
+  // ----------------------------------- //
   
   // Easy classifiers by PDG ID
   if (!m_includeNu && MC::isNonInteracting(pdgid)) return false;
@@ -71,6 +81,18 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     //   return false;
     // }
   }
+
+  // -- added for dark jet clustering -- //
+  // new classifiers to account for dark particles
+  // for dark jets: ignore SM particles; include only "stable" dark hadrons
+  if (!m_includeSM && abs(tp->pdgId()) < 4.9e6) return false;
+  if (m_includeDark) {
+    if (abs(tp->pdgId()) <= 4900101) return false; // ignore Xd, qd, gd
+    if (abs(tp->child()->pdgId()) >= 4.9e6) return false; // ignore "non-stable" dark hadrons (decaying to dark sector) -- "stable" if decaying to SM
+  }
+  // for SM jets: ignore dark particles - probably unnecessary bc of status requirement above
+  if (!m_includeDark && abs(tp->pdgId()) >= 4.9e6) return false;
+  // ----------------------------------- //
 
   if(!m_includePromptLeptons && abs(pdgid)==22 && ( isPrompt( tp, originMap ) || getPartOrigin( tp, originMap )==FSRPhot ) ) {
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
@@ -206,6 +228,7 @@ int CopyTruthJetParticles::execute() const {
   size_t numCopied = 0;
   for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
     const xAOD::TruthParticle* tp = evt->truthParticle(ip);
+    if(tp == NULL) continue;
     if (tp->pt() < m_ptmin)
         continue;
 
