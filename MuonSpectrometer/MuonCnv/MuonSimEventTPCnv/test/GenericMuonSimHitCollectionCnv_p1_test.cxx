@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -62,6 +63,9 @@ void testit (const GenericMuonSimHitCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get dvlinfo created outside of leak check.
+  GenericMuonSimHitCollection dum1 ("coll");
+  Athena_test::Leakcheck check;
 
   GenericMuonSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
