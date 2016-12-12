@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "InDetSimEventTPCnv/InDetHits/SiHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -45,6 +46,7 @@ void testit (const SiHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   SiHit trans1 (HepGeom::Point3D<double> (10.5, 11.5, 12.5),
                 HepGeom::Point3D<double> (13.5, 14.5, 15.5),

@@ -39,7 +39,7 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
   static const double dRcut = 1.0e-7;
   static const double dTcut = 1.0;
 
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::transToPers()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::transToPers()" << endmsg;
 
   int lastBarcode = -1;
   int lastId = -1;
@@ -128,7 +128,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p2::createTransient(const TRT
 
 void TRT_HitCollectionCnv_p2::persToTrans(const TRT_HitCollection_p2* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::persToTrans()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::persToTrans()" << endmsg;
 
   unsigned int hitCount = 0;
   unsigned int idxBC = 0;
