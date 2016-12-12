@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p3.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 #include <cmath>
@@ -81,6 +82,9 @@ void testit (const TRTUncompressedHitCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Create DVL info outside of leak check.
+  TRTUncompressedHitCollection dum ("coll");
+  Athena_test::Leakcheck check;
 
   TRTUncompressedHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {

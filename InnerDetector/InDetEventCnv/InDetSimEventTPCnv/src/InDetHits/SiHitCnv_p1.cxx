@@ -36,7 +36,7 @@ void
 SiHitCnv_p1::transToPers(const SiHit* transObj, SiHit_p1* persObj, 
 MsgStream &log)
 {
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p1::transToPers called " << endreq;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p1::transToPers called " << endmsg;
    HepMcParticleLinkCnv_p1 HepMcPLCnv;
 
    HepGeom::Point3D<double> st = transObj->localStartPosition();

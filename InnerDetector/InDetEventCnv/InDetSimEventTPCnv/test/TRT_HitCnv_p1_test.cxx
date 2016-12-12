@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -51,6 +52,7 @@ void testit (const TRTUncompressedHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TRTUncompressedHit trans1 (101, 102, 103,
                              104.5, 105.5,

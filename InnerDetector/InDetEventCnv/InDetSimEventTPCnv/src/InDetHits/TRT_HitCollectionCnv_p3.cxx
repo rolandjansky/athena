@@ -47,7 +47,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
   static const double dRcut = 1.0e-7*CLHEP::mm;
   static const double dTcut = 1.0*CLHEP::ns; // redundant?
 
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endmsg;
 
   int lastBarcode = -1;
   int lastId = -1;
@@ -108,7 +108,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
       persCont->m_strawId1b.push_back(  (unsigned char)(strawId % 256) ); //  8 bits
       persCont->m_strawId2b.push_back( (unsigned short)(strawId / 256) ); // 16 bits
       if ( strawId>16777215 )
-        log << MSG::WARNING << "TRT_HitCollectionCnv: strawId > 2^24-1 cannot be persistified correctly! " << endreq;
+        log << MSG::WARNING << "TRT_HitCollectionCnv: strawId > 2^24-1 cannot be persistified correctly! " << endmsg;
 
       //
       // Persistify string start radius using 1 bit (istartRflag) or 8 bits (startR)
@@ -288,7 +288,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p3::createTransient(const TRT
 void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
 
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endmsg;
 
   // some values are read less than once per hit, these need counters.
   unsigned int meanTimeofCount=0, startRCount=0, endRCount=0, hitEneCount=0;

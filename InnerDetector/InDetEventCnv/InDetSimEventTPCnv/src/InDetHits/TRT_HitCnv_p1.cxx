@@ -37,7 +37,7 @@ void
 TRT_HitCnv_p1::transToPers(const TRTUncompressedHit* transObj, TRT_Hit_p1* persObj, 
 MsgStream &log)
 {
-//    if (log.level() <= MSG::DEBUG)  log << MSG::DEBUG << "TRT_HitCnv_p1::transToPers called " << endreq;
+//    if (log.level() <= MSG::DEBUG)  log << MSG::DEBUG << "TRT_HitCnv_p1::transToPers called " << endmsg;
    HepMcParticleLinkCnv_p1 HepMcPLCnv;
    persObj->hitID         = transObj-> GetHitID();
    HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);   
