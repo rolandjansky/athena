@@ -40,5 +40,5 @@ def toolMultivariateFlipTagManager(name, useBTagFlagsDefaults = True, **options)
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__MultivariateFlipTagManager
-    return Analysis__MultivariateFlipTagManager(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__MultivariateTagManager
+    return Analysis__MultivariateTagManager(**options)

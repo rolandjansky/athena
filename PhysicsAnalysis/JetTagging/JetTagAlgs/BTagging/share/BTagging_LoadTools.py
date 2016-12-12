@@ -26,11 +26,6 @@ if jobproperties.BField.solenoidOn() == False:
 
 # -- for reference mode:
 if BTaggingFlags.Runmodus == 'reference':
-  BTaggingFlags.lifetime1D  = False
-  BTaggingFlags.lifetime2D  = False
-  BTaggingFlags.lifetime3D  = False
-  BTaggingFlags.secVtxFitTD = False
-  BTaggingFlags.secVtxFitBU = False
   BTaggingFlags.JetProbFlip = False
   BTaggingFlags.IP2DFlip = False
   BTaggingFlags.IP2DPos = False
@@ -48,8 +43,6 @@ if BTaggingFlags.Runmodus == 'reference':
   BTaggingFlags.SV2Flip = False
   BTaggingFlags.TrackCountingFlip = False
   BTaggingFlags.MultiSVTag = False
-  BTaggingFlags.GbbNNTag = False
-  BTaggingFlags.NewGbbNNTag = False
   BTaggingFlags.QGTag = False
   BTaggingFlags.MV1 = False
   BTaggingFlags.MV1c = False
@@ -57,22 +50,12 @@ if BTaggingFlags.Runmodus == 'reference':
   BTaggingFlags.MV2c00 = False
   BTaggingFlags.MV2c10 = False
   BTaggingFlags.MV2c20 = False
-  BTaggingFlags.MV3_bVSu = False
-  BTaggingFlags.MV3_bVSc = False
-  BTaggingFlags.MV3_cVSu = False
-  BTaggingFlags.MV3_bVSuFlip = False
-  BTaggingFlags.MV3_bVScFlip = False
-  BTaggingFlags.MV3_cVSuFlip = False
   BTaggingFlags.MV1Flip = False
   BTaggingFlags.MV1cFlip = False
   BTaggingFlags.MV2Flip = False
   BTaggingFlags.MV2c00Flip = False
   BTaggingFlags.MV2c10Flip = False
   BTaggingFlags.MV2c20Flip = False
-  BTaggingFlags.MVb = False
-  BTaggingFlags.MVbFlip = False
-  BTaggingFlags.MVbPrime = False
-  BTaggingFlags.MVbPrimeFlip = False
   
 
 # -- disable taggers accordingly to reconstruction scoping levels:
@@ -443,22 +426,7 @@ if BTaggingFlags.Active:
   print thisBTagRemoving.listOfSvxToRemove
 
   # -- load all the taggers ! :
-  if BTaggingFlags.lifetime1D:
-    include( "BTagging/BTagging_LifetimeTag1D.py" )
-    myBTagTool.TagToolList += [ Z0LifetimeTagTool ]
-  if BTaggingFlags.lifetime2D:
-    include( "BTagging/BTagging_LifetimeTag2D.py" )
-    myBTagTool.TagToolList += [ D0LifetimeTagTool ]
-  if BTaggingFlags.lifetime3D:
-    include( "BTagging/BTagging_LifetimeTag3D.py" )
-    myBTagTool.TagToolList += [ A0LifetimeTagTool ]
 
-  if BTaggingFlags.secVtxFitBU:
-    include( "BTagging/BTagging_SecVtxTagBU.py" )
-    myBTagTool.TagToolList += [ BUSecVtxTagTool ]
-  if BTaggingFlags.secVtxFitTD:
-    include( "BTagging/BTagging_SecVtxTagTD.py" )
-    myBTagTool.TagToolList += [ TDSecVtxTagTool ]
 
   if BTaggingFlags.IP1D:
     include( "BTagging/BTagging_IP1DTag.py" )
@@ -567,17 +535,6 @@ if BTaggingFlags.Active:
     if BTaggingFlags.IP3D:
       include( "BTagging/BTagging_JetFitterCOMBNN.py" )
       myBTagTool.TagToolList += [ JetFitterCOMBNN ]
-  if BTaggingFlags.JetFitterCharm: 
-    if not BTaggingFlags.SV1 or not BTaggingFlags.IP3D: 
-      raise ValueError('You must enable SV1 and IP3D to use JetFitterCharm')
-    include("BTagging/BTagging_JetFitterCharm.py")
-    myBTagTool.TagToolList += [ JetFitterCharm ]
-  if BTaggingFlags.JetFitterCharmNeg: 
-    if not BTaggingFlags.SV1Flip or not BTaggingFlags.IP3DNeg: 
-      raise ValueError('You must enable SV1Flip and IP3DNeg to use '
-                       'JetFitterCharmNeg')
-    include('BTagging/BTagging_JetFitterCharmNeg.py')
-    myBTagTool.TagToolList += [ JetFitterCharmNeg ]
 
   if BTaggingFlags.JetFitterTagFlip:
     include( "BTagging/BTagging_NewJetFitterTagNeg.py" )
@@ -600,56 +557,12 @@ if BTaggingFlags.Active:
       ToolSvc, BTagCalibrationBrokerTool, BTaggingFlags, 
       BTagTrackToVertexTool, BTagTrackToVertexIPEstimator)
     myBTagTool.TagToolList += [ipfordg]
-
-  if BTaggingFlags.Gaia: 
-    required = [
-      BTaggingFlags.JetFitterCharm, 
-      BTaggingFlags.JetFitterNN, 
-      BTaggingFlags.SV0, 
-      BTaggingFlags.SV1, 
-      BTaggingFlags.IP3D, 
-      ]
-    if not all(required): 
-      raise ValueError('Gaia is missing required upstream taggers')
-    from BTagging.Gaia import get_gaia
-    Gaia = get_gaia(
-        jet_collection_list = BTaggingFlags.Jets, 
-        calibration_tool = BTagCalibrationBrokerTool, 
-        output_level = BTaggingFlags.OutputLevel)
-    myBTagTool.TagToolList += [Gaia]
-
-  if BTaggingFlags.GaiaNeg: 
-    required = [
-      BTaggingFlags.JetFitterCharmNeg, 
-      BTaggingFlags.JetFitterNNFlip, 
-      BTaggingFlags.SV0Neg, 
-      BTaggingFlags.SV1Neg, 
-      BTaggingFlags.IP3DNeg, 
-      ]
-    if not all(required): 
-      raise ValueError('GaiaNeg is missing required upstream taggers')
-    from BTagging.Gaia import get_gaia
-    GaiaNeg = get_gaia(
-        jet_collection_list = BTaggingFlags.Jets, 
-        calibration_tool = BTagCalibrationBrokerTool, 
-        output_level = BTaggingFlags.OutputLevel, 
-        do_neg = True)
-    myBTagTool.TagToolList += [GaiaNeg]
-
   if BTaggingFlags.TrackCounting:
     include( "BTagging/BTagging_TrackCounting.py" )
     myBTagTool.TagToolList += [ TrackCountingTool ]      
   if BTaggingFlags.TrackCountingFlip:
     include( "BTagging/BTagging_TrackCountingFlip.py" )
     myBTagTool.TagToolList += [ TrackCountingFlipTool ]
-
-  if BTaggingFlags.GbbNNTag:
-    include( "BTagging/BTagging_GbbNNTag.py" )
-    myBTagTool.TagToolList += [ GbbNNTag ]
-
-  if BTaggingFlags.NewGbbNNTag:
-    include( "BTagging/BTagging_NewGbbNNTag.py" )
-    myBTagTool.TagToolList += [ NewGbbNNTag ]
 
   if BTaggingFlags.QGTag:
     include( "BTagging/BTagging_QGTag.py" )
@@ -691,36 +604,6 @@ if BTaggingFlags.Active:
   if BTaggingFlags.MV2c20Flip:
     include( "BTagging/BTagging_MV2c20FlipTag.py" )
     myBTagTool.TagToolList += [ MV2c20FlipTagTool ]
-  if BTaggingFlags.MV3_bVSu:
-    include( "BTagging/BTagging_MV3_bVSuTag.py" )
-    myBTagTool.TagToolList += [ MV3_bVSuTagTool ]
-  if BTaggingFlags.MV3_bVSc:
-    include( "BTagging/BTagging_MV3_bVScTag.py" )
-    myBTagTool.TagToolList += [ MV3_bVScTagTool ]
-  if BTaggingFlags.MV3_cVSu:
-    include( "BTagging/BTagging_MV3_cVSuTag.py" )
-    myBTagTool.TagToolList += [ MV3_cVSuTagTool ]
-  if BTaggingFlags.MV3_bVSuFlip:
-    include( "BTagging/BTagging_MV3_bVSuFlipTag.py" )
-    myBTagTool.TagToolList += [ MV3_bVSuFlipTagTool ]
-  if BTaggingFlags.MV3_bVScFlip:
-    include( "BTagging/BTagging_MV3_bVScFlipTag.py" )
-    myBTagTool.TagToolList += [ MV3_bVScFlipTagTool ]
-  if BTaggingFlags.MV3_cVSuFlip:
-     include( "BTagging/BTagging_MV3_cVSuFlipTag.py" )
-     myBTagTool.TagToolList += [ MV3_cVSuFlipTagTool ]
-  if BTaggingFlags.MVb:
-     include( "BTagging/BTagging_MVbTag.py" )
-     myBTagTool.TagToolList += [ MVbTagTool ]
-  if BTaggingFlags.MVbFlip:
-     include( "BTagging/BTagging_MVbFlipTag.py" )
-     myBTagTool.TagToolList += [ MVbFlipTagTool ]
-  if BTaggingFlags.MVbPrime:
-     include( "BTagging/BTagging_MVbPrimeTag.py" )
-     myBTagTool.TagToolList += [ MVbPrimeTagTool ]
-  if BTaggingFlags.MVbPrimeFlip:
-     include( "BTagging/BTagging_MVbPrimeFlipTag.py" )
-     myBTagTool.TagToolList += [ MVbPrimeFlipTagTool ]
 
 
 

@@ -8,13 +8,16 @@ metaSoftMuonTag = { 'IsATagger'            : True,
                     'NeedsMuonAssociator'  : True,
                     'DependsOn'            : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
+					      'BTagCalibrationBrokerTool',
                                               'BTagFullLinearizedTrackFactory',
                                               'BTagTrackToVertexIPEstimator',
                                               'SoftMuonTagNewLikelihoodTool',
                                                'MuonSelectorTool'],
                     'PassByPointer'        : {'LikelihoodTool'    : 'SoftMuonTagNewLikelihoodTool',
                                               'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
-                                              'muonSelectorTool': 'MuonSelectorTool'},
+                                              'muonSelectorTool': 'MuonSelectorTool',
+					      'calibrationTool' : 'BTagCalibrationBrokerTool'
+										   },
 #                                              'TrackToVertexTool' : 'BTagTrackToVertexTool'},
                     'JetCollectionList'    : 'jetCollectionList',
                     'ToolCollection'       : 'SoftMuonTag' }
@@ -51,7 +54,7 @@ def toolSoftMuonTag(name, useBTagFlagsDefaults = True, **options):
 
 #----------------------------------------------------------------------
 
-metaSoftMuonTagNewLikelihoodTool = { 'CalibrationFolders' : ['SoftMu',],
+metaSoftMuonTagNewLikelihoodTool = { 'CalibrationFolders' : ['SMT',],
                                      'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                      'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                      'ToolCollection'     : 'SoftMuonTag' }
@@ -62,7 +65,7 @@ def toolSoftMuonTagNewLikelihoodTool(name, useBTagFlagsDefaults = True, **option
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
-    taggerName                          default: "SoftMu"
+    taggerName                          default: "SMT"
     smoothNTimes                        default: 0 (1 if BTaggingFlags.Runmodus == 'reference')
     normalizedProb                      default: True
     interpolate                         default: True
@@ -73,7 +76,7 @@ def toolSoftMuonTagNewLikelihoodTool(name, useBTagFlagsDefaults = True, **option
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel,
-                     'taggerName'                          : 'SoftMu',
+                     'taggerName'                          : 'SMT',
                      'smoothNTimes'                        : 0,
                      'normalizedProb'                      : True,
                      'interpolate'                         : True }

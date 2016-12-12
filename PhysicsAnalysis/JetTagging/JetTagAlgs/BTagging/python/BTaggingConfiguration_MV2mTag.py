@@ -29,6 +29,9 @@ def toolMV2mTag(name, useBTagFlagsDefaults = True, **options):
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    from BTagging.MV2defaultValues import default_values
+    from BTagging.MV2defaultValues import MVTM_varNames
+
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
@@ -36,6 +39,8 @@ def toolMV2mTag(name, useBTagFlagsDefaults = True, **options):
                      'taggerNameBase'                   : 'MV2m',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
+                     'defaultvals'                      : default_values,
+                     'MVTMvariableNames'                : MVTM_varNames,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

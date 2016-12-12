@@ -140,18 +140,18 @@ def toolRNNIPTag(name, useBTagFlagsDefaults = True, **options):
                   "Good"]
         if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
 
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
-                     'trackGradePartitions'             : grades ,
-                     'RejectBadTracks'                  : True,
-                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
-                     'NetworkConfig'                    : BTaggingFlags.RNNIPConfig,
-#                     'SecVxFinderNameForV0Removal'      : "InDetVKalVxInJetTool",
-#                     'SecVxFinderNameForIPSign'         : "InDetVKalVxInJetTool",
-                     'unbiasIPEstimation'               : False,
-                     #'trackAssociation'                 : "Tracks" }
-                     'SecVxFinderName'                  : 'SV1',
-                     'calibration_directory'            : 'RNNIP'
-                     }
+        defaults = {
+            'OutputLevel'               : BTaggingFlags.OutputLevel,
+            'trackGradePartitions'      : grades ,
+            'RejectBadTracks'           : True,
+            'originalTPCollectionName'  : BTaggingFlags.TrackParticleCollectionName,
+            'NetworkConfig'             : BTaggingFlags.RNNIPConfig,
+            'unbiasIPEstimation'        : False,
+            #'trackAssociation'          : "Tracks" }
+            'SecVxFinderName'           : 'SV1',
+            'calibration_directory'     : 'RNNIP',
+            'writeInputsToBtagObject': BTaggingFlags.WriteRNNInputs
+        }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

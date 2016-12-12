@@ -23,7 +23,7 @@ namespace Analysis {
 
     virtual StatusCode initialize() = 0;
     virtual StatusCode finalize() = 0;
-    virtual StatusCode BTagJetPtScaling_exec(xAOD::JetContainer& jets) = 0;
+    virtual StatusCode BTagJetPtScaling_exec(xAOD::JetContainer& jets) const = 0;
   };
 
 } // End namespace
