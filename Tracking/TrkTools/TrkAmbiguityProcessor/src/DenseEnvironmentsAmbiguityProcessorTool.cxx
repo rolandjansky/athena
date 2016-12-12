@@ -43,7 +43,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
                                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_incidentSvc("IncidentSvc", n),
+  m_particleHypothesis{undefined},
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
@@ -59,8 +59,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_Naccepted(4),m_NsubTrack(4),m_NnoSubTrack(4),m_NacceptedBrem(4),
   m_NbremFits(4),m_Nfits(4),m_NrecoveryBremFits(4),m_NgoodFits(4),m_NfailedFits(4),
   m_monitorTracks(false),
-  m_splitClusterMap(0),
-  m_splitClusterMapName("SplitClusterAmbiguityMap")
+  m_splitClusterMapName("SplitClusterAmbiguityMap") //Unused Remove later
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   ,m_truthToTrack(0)//the comma in front of m_truthToTrack is necessary  
 #endif
@@ -76,7 +75,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("RefitPrds"            , m_refitPrds          = true); //  True to allow for updated NN information to be taken into account
   declareProperty("applydRcorrection"    , m_applydRcorrection  = false);
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
-  declareProperty("IncidentService"      , m_incidentSvc );
   declareProperty("ScoringTool"          , m_scoringTool);
   declareProperty("ObserverTool"         , m_observerTool);
   declareProperty("SelectionTool"        , m_selectionTool);
@@ -92,8 +90,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("etaBounds"            , m_etabounds,"eta intervals for internal monitoring");
   declareProperty("sharedProbCut"        , m_sharedProbCut           = 0.3);
   declareProperty("sharedProbCut2"       , m_sharedProbCut2          = 0.3);
-  declareProperty("SplitClusterAmbiguityMap" , m_splitClusterMapName);
-  declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
+  declareProperty("SplitClusterAmbiguityMap" , m_splitClusterMapName);//Unused Remove later
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -121,71 +118,25 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::~DenseEnvironmentsAmbiguityProcess
 
 StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
 {
+  StatusCode sc = StatusCode::SUCCESS;
 
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL( "AlgTool::initialise failed" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_scoringTool.retrieve());
 
-
-  if (m_incidentSvc.retrieve().isFailure()){
-    ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-    return StatusCode::FAILURE;
-  }
-
-  // register to the incident service: EndEvent needed for memory cleanup
-  m_incidentSvc->addListener( this, "BeginEvent");
-  m_incidentSvc->addListener( this, "EndEvent");
-  
-  
-  sc = m_scoringTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_scoringTool );
-    return StatusCode::FAILURE;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_scoringTool );
-  
   if (m_monitorTracks) {
     sc = m_observerTool.retrieve(); //Dot, not asterik! This is a method of the observerTool, not of the tool it holds.
     if (sc.isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_observerTool);
+      ATH_MSG_WARNING("Failed to retrieve AlgTool " << m_observerTool);
       m_monitorTracks = false;
+      sc=StatusCode::RECOVERABLE;
       //return sc;		// continue without observer tool
     }
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
   }
   
-  sc = m_selectionTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_selectionTool );
-    return StatusCode::FAILURE;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_selectionTool );
-  
-  sc = m_fitterTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_fitterTool );
-    return sc;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_fitterTool );
-
-  sc = m_extrapolatorTool.retrieve();
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolatorTool );
-    return sc;
-  } 
-  else 
-    ATH_MSG_INFO( "Retrieved tool " << m_extrapolatorTool );
+  ATH_CHECK( m_selectionTool.retrieve());
+  ATH_CHECK( m_fitterTool.retrieve());
+  ATH_CHECK( m_extrapolatorTool.retrieve());
   
   if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not retrieve the split probability tool " << m_splitProbTool << "'.");
@@ -194,13 +145,7 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_splitProbTool );  
   }   
   
-  if (m_assoTool.retrieve().isFailure()) 
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_assoTool );
-    return StatusCode::FAILURE;
-  } 
-  else
-    ATH_MSG_INFO( "Retrieved tool " << m_assoTool );
+  ATH_CHECK(m_assoTool.retrieve()) ;
    
   // suppress refit overwrites force refit
   if (m_forceRefit && m_suppressTrackFit ) 
@@ -244,8 +189,9 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     m_NgoodFits[i]        = 0;
     m_NfailedFits[i]      = 0;
   }
-
-
+  if(!m_dRMap.key().empty()){
+     ATH_CHECK(m_dRMap.initialize() );
+  }
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   // to get the brem truth
   IToolSvc* toolSvc;
@@ -493,7 +439,7 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   
   if(m_applydRcorrection)
   {
-      TrackCollection refit_tracks;
+      std::vector<const Trk::Track*> refit_tracks;
       // create map of track dRs
       storeTrkDistanceMapdR(*m_finalTracks,refit_tracks);
       for(const Trk::Track* track : refit_tracks)
@@ -720,6 +666,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
       // clean up
       delete(track);
+      track=nullptr;
 
     }
     else
@@ -731,7 +678,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
       }
 
       // clean up
-      delete(track);
+      //delete(track); <- too early; still want to use track further down...
 
       // statistic
       increment_by_eta(m_NgoodFits,bremTrack);
@@ -743,6 +690,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
         // Update observed track score
         m_observerTool->updateScore(*track, static_cast<double>(score));	
       }
+      delete(track);
+      track=nullptr;
 
       // do we accept the track ?
       if (score!=0)
@@ -939,13 +888,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformationFo
                                                                                          const Trk::TrackParameters*> & clusterTrkPara )
   
 {  
-	if (!m_splitClusterMap){
-    ATH_MSG_ERROR("No splitClusterMap");
-    return;
-  }
-  if (m_splitClusterMap->find( clusterTrkPara.first) != m_splitClusterMap->end() ){
-    return;
-  }
+
   // Recalculate the split prob with the use of the track parameters
   InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
   // update the split prob information on the cluster --  the use of the split flag is now questionable -- possible it will now indicate if the cluster is shared between multiple tracks
@@ -967,20 +910,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformationFo
     pixelCluster->setTooBigToBeSplit( false );    
   }
   
-  // This is a very hacky & backward compatible way of passing information to the PixelClusterOnTrackTool 
-  // that the cluster has been split 
-  /** if (!m_splitClusterMap){ //m_splitClusterMap has already been dereferenced
-    ATH_MSG_ERROR("No splitClusterMap");
-    return;
-  }
-  **/
 
-  if(  pixelCluster->splitProbability2()  >=  m_sharedProbCut2){
-    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-  } else if ( pixelCluster->splitProbability1()  >=  m_sharedProbCut ){  
-    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-  }
+
 
 }
 
@@ -991,15 +922,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformation(s
 {
 	
   ATH_MSG_DEBUG ("---> Updating " << setOfClustersOnTrack.size() << " pixel clusters");
-  if (!m_splitClusterMap){
-      ATH_MSG_WARNING("No splitClusterMap");
-      return;
-  }
   for( auto clusterTrkPara : setOfClustersOnTrack){
     // Check to see if this cluster has been updated using an earlier instance of the AmbiguityProcessor
     // If it has already been updated dont do it again 
-    if( m_splitClusterMap->find( clusterTrkPara.first ) !=  m_splitClusterMap->end() )
-      continue;
 		
     // Recaculate the split prob with the use of the track parameters
     InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
@@ -1017,19 +942,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformation(s
       pixelCluster->setTooBigToBeSplit( false );    
     }
     
-    // This is a very hacky & backward compatible way of passing information to the PixelClusterOnTrackTool 
-    // that the cluster has been split 
-    if (!m_splitClusterMap){
-      ATH_MSG_ERROR("No splitClusterMap");
-      continue;
-    }
 
-    if(  pixelCluster->splitProbability2()  >=  m_sharedProbCut2){
-      m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-      m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-    } else if ( pixelCluster->splitProbability1()  >=  m_sharedProbCut ){  
-      m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
-    }
   }
 }
 
@@ -1467,15 +1380,15 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::dumpTracks( const TrackCollec
 
 //==================================================================================================
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks, TrackCollection &refit_tracks_out )
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks, std::vector<const Trk::Track*> &refit_tracks_out )
 {
   ATH_MSG_VERBOSE ("Creating track Distance dR map");
-  m_dRMap = new InDet::DRMap;
-  if ( evtStore()->record(m_dRMap,m_dRMapName).isFailure()){
+  SG::WriteHandle<InDet::DRMap> dRMapHandle (m_dRMap);
+  dRMapHandle = std::make_unique<InDet::DRMap>();
+  if ( !dRMapHandle.isValid() ){
     ATH_MSG_WARNING("Could not record Distance dR map.");
-    delete m_dRMap; m_dRMap = 0;
   } else{
-    ATH_MSG_VERBOSE("Distance dR map recorded as '" << m_dRMapName <<"'.");
+    ATH_MSG_VERBOSE("Distance dR map recorded as '" << m_dRMap.key() <<"'.");
   }
 
   for (auto track : tracks){
@@ -1553,11 +1466,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const 
          refit = true;
          std::pair<InDet::DRMap::iterator,bool> ret;
          std::pair<float,float> min (mindX, mindZ);
-         ret = m_dRMap->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
+         ret = dRMapHandle->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
          // if we already have a dR for this prd, we update it, if current value is smaller
          if (ret.second==false) {
             InDet::DRMap::iterator it;
-            it = m_dRMap->find(pixel);
+            it = dRMapHandle->find(pixel);
             if(sqrt(pow((*it).second.first,2)+pow((*it).second.second,2)) > (float)mindR) {
                 (*it).second.first  = (float)mindX;
                 (*it).second.second = (float)mindZ;
@@ -1567,60 +1480,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const 
       if(refit) refit_tracks_out.push_back(track);
   }
   return;
-}
-
-//==================================================================================================
-
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::handle(const Incident& inc) 
-{
-
-  // the cluster ambiguity map
-  if ( inc.type() == IncidentType::BeginEvent ){
-    // record the Split ambiguity map
-    if (!m_splitClusterMap){  
-      
-      SG::DataProxy* dp = evtStore()->proxy(ClassID_traits<InDet::PixelGangedClusterAmbiguities>::ID(), m_splitClusterMapName);
-
-      const bool alreadyHaveDPMap(dp); 
-      
-      if(alreadyHaveDPMap && dp->isConst()){
-	ATH_MSG_VERBOSE("Only const retrieve of split cluster ambiguity map possible - therefore overwrite with non-const map");
-	const InDet::PixelGangedClusterAmbiguities * constSplitClusterMap = nullptr;
-	if (evtStore()->retrieve( constSplitClusterMap,m_splitClusterMapName).isFailure() )  ATH_MSG_ERROR("Could not retrive const split cluster ambiguity map. from StoreGate"); 
-	else{
-	  m_splitClusterMap = new InDet::PixelGangedClusterAmbiguities;
-	  for(std::pair<const InDet::SiCluster* const, const InDet::SiCluster*> it : *constSplitClusterMap ) {
-	    m_splitClusterMap->insert(it);
-	   
-	  }
-	  if ( evtStore()->overwrite(m_splitClusterMap,m_splitClusterMapName,true, false).isFailure()){ 
-	    ATH_MSG_WARNING("Could not overwrite split cluster ambiguity map.");
-	  }
-	}
-      }
-      //Not sure why this is necessary in addition to the dataProxy, but it seems to work differently somehow...
-      const bool alreadyHaveMap(evtStore()->contains<InDet::PixelGangedClusterAmbiguities>(m_splitClusterMapName));
-
-      if(alreadyHaveMap && evtStore()->retrieve(m_splitClusterMap,m_splitClusterMapName).isFailure() )  
-	ATH_MSG_ERROR("Could not retrive split cluster ambiguity map. from StoreGate"); 
-
-      if(!m_splitClusterMap){ 
-	m_splitClusterMap = new InDet::PixelGangedClusterAmbiguities; 
-	if ( evtStore()->record(m_splitClusterMap,m_splitClusterMapName).isFailure()){ 
-	  ATH_MSG_WARNING("Could not record split cluster ambiguity map.");  
-	  delete m_splitClusterMap; m_splitClusterMap = 0; 
-	} else 
-	  ATH_MSG_VERBOSE("Cluster split ambiguity map recorded as '" << m_splitClusterMapName <<"'."); 
-      } 
-    }  
-  }
-  
-  if ( inc.type() == IncidentType::EndEvent ){
-    ATH_MSG_VERBOSE("'EndEvent' incident caught. Refreshing Cache.");
-
-    m_splitClusterMap = 0;   
-    m_dRMap = 0;
-  }     
 }
 
 
