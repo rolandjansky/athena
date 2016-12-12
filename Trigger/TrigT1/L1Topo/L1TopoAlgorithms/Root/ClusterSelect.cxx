@@ -21,6 +21,7 @@ TCS::ClusterSelect::ClusterSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "IsoMask", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
+   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -34,6 +35,7 @@ TCS::ClusterSelect::initialize() {
    m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
+   m_doIsoCut = parameter("DoIsoCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -48,7 +50,7 @@ TCS::ClusterSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
       if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
       // isolation cut
-      if (m_iso != 0 ) {
+      if (m_doIsoCut && (m_iso != 0 )) {
           if((parType_t((*cl)->isolation()) & m_iso) != m_iso ) continue;
       }
       // eta cut

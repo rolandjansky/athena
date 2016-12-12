@@ -32,7 +32,6 @@ namespace TCS {
       parType_t      m_maxEta = { 0 };
       parType_t      m_iso = { 0 };   
       parType_t      m_doIsoCut = { 0 };
-      parType_t      m_doEtaCut = { 0 };
    };
 
 } // end of namespace TCS
