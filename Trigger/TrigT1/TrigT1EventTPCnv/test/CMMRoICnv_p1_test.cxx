@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/CMMRoICnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -44,6 +45,7 @@ void testit (const LVL1::CMMRoI& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1::CMMRoI trans1 (1, 2, 3, 4);
   testit (trans1);

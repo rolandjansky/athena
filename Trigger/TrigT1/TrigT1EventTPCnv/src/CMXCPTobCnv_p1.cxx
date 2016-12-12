@@ -23,7 +23,7 @@ CMXCPTobCnv_p1::CMXCPTobCnv_p1()
 
 void CMXCPTobCnv_p1::persToTrans( const CMXCPTob_p1* persObj, CMXCPTob* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMXCPTob from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMXCPTob from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -41,7 +41,7 @@ void CMXCPTobCnv_p1::persToTrans( const CMXCPTob_p1* persObj, CMXCPTob* transObj
                         persObj->m_presenceMap,
                         persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXCPTob from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMXCPTob from persistent state [OK]" << endmsg;
 
   return;
 
@@ -49,7 +49,7 @@ void CMXCPTobCnv_p1::persToTrans( const CMXCPTob_p1* persObj, CMXCPTob* transObj
 
 void CMXCPTobCnv_p1::transToPers( const CMXCPTob* transObj, CMXCPTob_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMXCPTob..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMXCPTob..." << endmsg;
 
   persObj->m_crate       = transObj->crate();
   persObj->m_cmx         = transObj->cmx();
@@ -62,7 +62,7 @@ void CMXCPTobCnv_p1::transToPers( const CMXCPTob* transObj, CMXCPTob_p1* persObj
   persObj->m_error       = transObj->errorVec();
   persObj->m_presenceMap = transObj->presenceMapVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXCPTob [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMXCPTob [OK]" << endmsg;
 
   return;
 

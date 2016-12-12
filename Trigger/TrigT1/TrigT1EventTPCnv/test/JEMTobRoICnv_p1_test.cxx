@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/JEMTobRoICnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -41,6 +42,7 @@ void testit (const LVL1::JEMTobRoI& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1::JEMTobRoI trans1 (123345);
   testit (trans1);

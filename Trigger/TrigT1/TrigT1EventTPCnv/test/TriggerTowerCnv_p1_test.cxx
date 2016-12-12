@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/TriggerTowerCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -57,6 +58,7 @@ void testit (const LVL1::TriggerTower& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1::TriggerTower trans1 (1, 2, 3,
                              std::vector<int> {3, 4, 5},

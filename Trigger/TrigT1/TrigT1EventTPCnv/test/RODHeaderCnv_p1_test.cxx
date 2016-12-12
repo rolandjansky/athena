@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/RODHeaderCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -49,6 +50,7 @@ void testit (const LVL1::RODHeader& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LVL1::RODHeader trans1 (1, 2, 3, 4, 5, 6, 7,
                            std::vector<unsigned int> {20, 21, 22},

@@ -22,7 +22,7 @@ JetElementCnv_p1::JetElementCnv_p1()
 
 void JetElementCnv_p1::persToTrans( const JetElement_p1* persObj, JetElement* transObj, MsgStream &log ) {
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting JetElement from persistent state..." << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting JetElement from persistent state..." << endmsg;
 
   //
   // Translate the JetElement
@@ -37,7 +37,7 @@ void JetElementCnv_p1::persToTrans( const JetElement_p1* persObj, JetElement* tr
                           persObj->m_link_error,
                           persObj->m_peak);
   
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JetElement from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JetElement from persistent state [OK]" << endmsg;
 
   return;
 
@@ -45,7 +45,7 @@ void JetElementCnv_p1::persToTrans( const JetElement_p1* persObj, JetElement* tr
 
 void JetElementCnv_p1::transToPers( const JetElement* transObj, JetElement_p1* persObj, MsgStream &log ) {
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of JetElement..." << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of JetElement..." << endmsg;
 
   persObj->m_eta        = transObj->eta();
   persObj->m_phi        = transObj->phi();
@@ -57,7 +57,7 @@ void JetElementCnv_p1::transToPers( const JetElement* transObj, JetElement_p1* p
   persObj->m_had_error  = transObj->hadErrorVec();
   persObj->m_link_error = transObj->linkErrorVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JetElement [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JetElement [OK]" << endmsg;
 
   return;
 

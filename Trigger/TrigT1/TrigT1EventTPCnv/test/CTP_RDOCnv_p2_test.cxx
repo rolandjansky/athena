@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/CTP_RDOCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -116,6 +117,7 @@ void testit (const CTP_RDO& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::vector<unsigned int> data (2 + 3*(6+8+8+8));
   for (size_t i=0; i < data.size(); i++)

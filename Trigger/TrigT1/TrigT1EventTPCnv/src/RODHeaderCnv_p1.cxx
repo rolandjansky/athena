@@ -22,7 +22,7 @@ RODHeaderCnv_p1::RODHeaderCnv_p1()
 
 void RODHeaderCnv_p1::persToTrans( const RODHeader_p1* persObj, RODHeader* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting RODHeader from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting RODHeader from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -39,7 +39,7 @@ void RODHeaderCnv_p1::persToTrans( const RODHeader_p1* persObj, RODHeader* trans
                          persObj->m_statusWords,
                          persObj->m_payloadSize);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted RODHeader from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted RODHeader from persistent state [OK]" << endmsg;
 
   return;
 
@@ -47,7 +47,7 @@ void RODHeaderCnv_p1::persToTrans( const RODHeader_p1* persObj, RODHeader* trans
 
 void RODHeaderCnv_p1::transToPers( const RODHeader* transObj, RODHeader_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of RODHeader..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of RODHeader..." << endmsg;
 
   persObj->m_version     = transObj->version();
   persObj->m_sourceId    = transObj->sourceID();
@@ -59,7 +59,7 @@ void RODHeaderCnv_p1::transToPers( const RODHeader* transObj, RODHeader_p1* pers
   persObj->m_statusWords = transObj->statusWords();
   persObj->m_payloadSize = transObj->payloadSize();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of RODHeader [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of RODHeader [OK]" << endmsg;
 
   return;
 

@@ -23,7 +23,7 @@ JEMEtSumCnv_p1::JEMEtSumCnv_p1()
 
 void JEMEtSumsCnv_p1::persToTrans( const JEMEtSums_p1* persObj, JEMEtSums* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting JEMEtSum from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting JEMEtSum from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -37,7 +37,7 @@ void JEMEtSumsCnv_p1::persToTrans( const JEMEtSums_p1* persObj, JEMEtSums* trans
                          persObj->m_Ey,
                          persObj->m_peak);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JEMEtSum from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JEMEtSum from persistent state [OK]" << endmsg;
 
   return;
 
@@ -45,7 +45,7 @@ void JEMEtSumsCnv_p1::persToTrans( const JEMEtSums_p1* persObj, JEMEtSums* trans
 
 void JEMEtSumsCnv_p1::transToPers( const JEMEtSums* transObj, JEMEtSums_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of JEMEtSum..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of JEMEtSum..." << endmsg;
 
   persObj->m_crate    = transObj->crate();
   persObj->m_module   = transObj->module();
@@ -54,7 +54,7 @@ void JEMEtSumsCnv_p1::transToPers( const JEMEtSums* transObj, JEMEtSums_p1* pers
   persObj->m_Ex       = transObj->ExVec();
   persObj->m_Ey       = transObj->EyVec();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JEMEtSum [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JEMEtSum [OK]" << endmsg;
 
   return;
 

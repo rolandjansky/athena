@@ -24,7 +24,7 @@ RoIBResultCnv_p1::RoIBResultCnv_p1()
 void RoIBResultCnv_p1::persToTrans( const RoIBResult_p1* persObj, ROIB::RoIBResult* transObj,
                                     MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state..." << endmsg;
 
    ROIB::MuCTPIResult muc (ROIB::Header (persObj->m_muctpi.m_header),
                            ROIB::Trailer (persObj->m_muctpi.m_trailer),
@@ -58,7 +58,7 @@ void RoIBResultCnv_p1::persToTrans( const RoIBResult_p1* persObj, ROIB::RoIBResu
                                  std::move(jetvec),
                                  std::move(emtauvec));
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state [OK]" << endmsg;
 
    return;
 
@@ -71,7 +71,7 @@ void RoIBResultCnv_p1::persToTrans( const RoIBResult_p1* persObj, ROIB::RoIBResu
 void RoIBResultCnv_p1::transToPers( const ROIB::RoIBResult* transObj, RoIBResult_p1* persObj,
                                     MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of ROIB::RoIBResult..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of ROIB::RoIBResult..." << endmsg;
 
    /////////////////////////////////////////////////////////////////
    //                                                             //
@@ -129,7 +129,7 @@ void RoIBResultCnv_p1::transToPers( const ROIB::RoIBResult* transObj, RoIBResult
 	persObj->m_emtau.back().m_roiWords.push_back( r.roIWord() );
    }
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of ROIB::RoIBResult [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of ROIB::RoIBResult [OK]" << endmsg;
 
    return;
 

@@ -24,12 +24,12 @@ MuCTPI_RDOCnv_p1::MuCTPI_RDOCnv_p1()
 void MuCTPI_RDOCnv_p1::persToTrans( const MuCTPI_RDO_p1* persObj, MuCTPI_RDO* transObj,
                                     MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state..." << endmsg;
 
    *transObj = MuCTPI_RDO (persObj->m_candidateMultiplicity,
                            persObj->m_dataWord);
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state [OK]" << endmsg;
 
    return;
 
@@ -42,12 +42,12 @@ void MuCTPI_RDOCnv_p1::persToTrans( const MuCTPI_RDO_p1* persObj, MuCTPI_RDO* tr
 void MuCTPI_RDOCnv_p1::transToPers( const MuCTPI_RDO* transObj, MuCTPI_RDO_p1* persObj,
                                     MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO..." << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO..." << endmsg;
 
    persObj->m_candidateMultiplicity = transObj->getAllCandidateMultiplicities();
    persObj->m_dataWord = transObj->dataWord();
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO [OK]" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO [OK]" << endmsg;
 
    return;
 

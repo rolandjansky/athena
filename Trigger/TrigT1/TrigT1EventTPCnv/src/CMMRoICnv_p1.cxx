@@ -23,7 +23,7 @@ CMMRoICnv_p1::CMMRoICnv_p1()
 
 void CMMRoICnv_p1::persToTrans( const CMMRoI_p1* persObj, CMMRoI* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CMMRoI from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CMMRoI from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -35,7 +35,7 @@ void CMMRoICnv_p1::persToTrans( const CMMRoI_p1* persObj, CMMRoI* transObj, MsgS
                       persObj->m_energyRoiWord1,
                       persObj->m_energyRoiWord2);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMRoI from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CMMRoI from persistent state [OK]" << endmsg;
 
   return;
 
@@ -43,14 +43,14 @@ void CMMRoICnv_p1::persToTrans( const CMMRoI_p1* persObj, CMMRoI* transObj, MsgS
 
 void CMMRoICnv_p1::transToPers( const CMMRoI* transObj, CMMRoI_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CMMRoI..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CMMRoI..." << endmsg;
 
   persObj->m_jetEtRoiWord    = transObj->jetEtRoiWord();
   persObj->m_energyRoiWord0   = transObj->energyRoiWord0();
   persObj->m_energyRoiWord1     = transObj->energyRoiWord1();
   persObj->m_energyRoiWord2    = transObj->energyRoiWord2();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMRoI [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CMMRoI [OK]" << endmsg;
 
   return;
 

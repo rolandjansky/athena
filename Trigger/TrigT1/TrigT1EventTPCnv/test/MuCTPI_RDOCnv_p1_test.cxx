@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigT1EventTPCnv/MuCTPI_RDOCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -42,6 +43,7 @@ void testit (const MuCTPI_RDO& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MuCTPI_RDO trans1 (std::vector<unsigned int> {1, 2, 3},
                      std::vector<unsigned int> {7, 8, 9});

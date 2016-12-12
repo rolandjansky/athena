@@ -23,7 +23,7 @@ JEMRoICnv_p1::JEMRoICnv_p1()
 
 void JEMRoICnv_p1::persToTrans( const JEMRoI_p1* persObj, JEMRoI* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting JEMRoI from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting JEMRoI from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -32,7 +32,7 @@ void JEMRoICnv_p1::persToTrans( const JEMRoI_p1* persObj, JEMRoI* transObj, MsgS
   // 
   *transObj = JEMRoI (persObj->m_roiWord);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JEMRoI from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JEMRoI from persistent state [OK]" << endmsg;
 
   return;
 
@@ -40,11 +40,11 @@ void JEMRoICnv_p1::persToTrans( const JEMRoI_p1* persObj, JEMRoI* transObj, MsgS
 
 void JEMRoICnv_p1::transToPers( const JEMRoI* transObj, JEMRoI_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of JEMRoI..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of JEMRoI..." << endmsg;
 
   persObj->m_roiWord    = transObj->roiWord();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JEMRoI [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JEMRoI [OK]" << endmsg;
 
   return;
 

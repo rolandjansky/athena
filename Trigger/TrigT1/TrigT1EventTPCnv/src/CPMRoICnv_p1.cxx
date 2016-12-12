@@ -23,7 +23,7 @@ CPMRoICnv_p1::CPMRoICnv_p1()
 
 void CPMRoICnv_p1::persToTrans( const CPMRoI_p1* persObj, CPMRoI* transObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Converting CPMRoI from persistent state..." << endreq;
+  //log << MSG::INFO << "Converting CPMRoI from persistent state..." << endmsg;
 
   //transObj->clear(); // see if I actually need one of these
 
@@ -32,7 +32,7 @@ void CPMRoICnv_p1::persToTrans( const CPMRoI_p1* persObj, CPMRoI* transObj, MsgS
   // 
   *transObj = CPMRoI (persObj->m_roiWord);
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMRoI from persistent state [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted CPMRoI from persistent state [OK]" << endmsg;
 
   return;
 
@@ -40,11 +40,11 @@ void CPMRoICnv_p1::persToTrans( const CPMRoI_p1* persObj, CPMRoI* transObj, MsgS
 
 void CPMRoICnv_p1::transToPers( const CPMRoI* transObj, CPMRoI_p1* persObj, MsgStream &log ) {
 
-  //log << MSG::INFO << "Creating persistent state of CPMRoI..." << endreq;
+  //log << MSG::INFO << "Creating persistent state of CPMRoI..." << endmsg;
 
   persObj->m_roiWord    = transObj->roiWord();
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMRoI [OK]" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of CPMRoI [OK]" << endmsg;
 
   return;
 
