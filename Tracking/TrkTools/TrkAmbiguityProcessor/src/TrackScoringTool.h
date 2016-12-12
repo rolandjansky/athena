@@ -26,13 +26,13 @@ class TrackSummary;
    public:
 	TrackScoringTool(const std::string&,const std::string&,const IInterface*);
 	virtual ~TrackScoringTool ();
-	virtual StatusCode initialize();
-	virtual StatusCode finalize  ();
+	virtual StatusCode initialize() override;
+	virtual StatusCode finalize  () override;
 	/** create a score based on how good the passed track is*/
-	TrackScore score( const Track& track, const bool suppressHoleSearch );
+	TrackScore score( const Track& track, const bool suppressHoleSearch ) const override;
 
 	/** create a score based on how good the passed TrackSummary is*/
-	TrackScore simpleScore( const Track& track, const TrackSummary& trackSummary );
+	TrackScore simpleScore( const Track& track, const TrackSummary& trackSummary ) const override;
 
    private:
 

@@ -67,11 +67,11 @@ StatusCode Trk::TrackScoringTool::initialize()
 	sc = m_trkSummaryTool.retrieve();
 	if (sc.isFailure()) 
 	  {
-	    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+	    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
 	    return sc;
 	  } 
 	else 
-	  msg(MSG::INFO)<< "Retrieved tool " << m_trkSummaryTool << endreq;
+	  msg(MSG::INFO)<< "Retrieved tool " << m_trkSummaryTool << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -82,7 +82,7 @@ StatusCode Trk::TrackScoringTool::finalize()
 	return sc;
 }
 
-Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch )
+Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const
 {
 	const TrackSummary* summary = 0;
 	if (suppressHoleSearch)
@@ -95,13 +95,13 @@ Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool sup
 	return score;
 }
 
-Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary )
+Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const
 {
 	
 	
 	// --- reject bad tracks
 	if (track.fitQuality() && track.fitQuality()->numberDoF() < 0) {
-	  msg(MSG::VERBOSE)<<"numberDoF < 0, reject it"<<endreq;
+	  msg(MSG::VERBOSE)<<"numberDoF < 0, reject it"<<endmsg;
 	  return TrackScore(0);
 	}
 	 
@@ -120,7 +120,7 @@ Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const Tr
 		//value is -1 if undefined.
 		if (value>0) { 
 		  score+=m_summaryTypeScore[i]*value; 
-		  msg(MSG::VERBOSE)<<"\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score<<endreq;
+		  msg(MSG::VERBOSE)<<"\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score<<endmsg;
 		}
 	}
 	return score;
