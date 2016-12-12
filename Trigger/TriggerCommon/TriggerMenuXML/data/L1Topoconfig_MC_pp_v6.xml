@@ -31,7 +31,7 @@
     <Output algname="0DETA20-0DPHI20-TAU20abi-TAU12abi" triggerline="0DETA20-0DPHI20-TAU20abi-TAU12abi" algoId="54" module="0" fpga="1" firstbit="12" clock="0"/>
     <Output algname="DISAMB-0DR28-EM15his2-TAU12abi" triggerline="DISAMB-0DR28-EM15his2-TAU12abi" algoId="76" module="0" fpga="1" firstbit="15" clock="0"/>
     <Output algname="DISAMB-30INVM-EM20his2-TAU12ab" triggerline="DISAMB-30INVM-EM20his2-TAU12ab" algoId="81" module="0" fpga="1" firstbit="0" clock="1"/>
-    <Output algname="400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49" triggerline="400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49" algoId="82" module="0" fpga="1" firstbit="1" clock="1"/>
+    <Output algname="400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49" triggerline="400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49" algoId="82" module="0" fpga="0" firstbit="15" clock="0"/>
     <Output algname="0DR22-2MU6ab" triggerline="0DR22-2MU6ab" algoId="17" module="0" fpga="1" firstbit="4" clock="1"/>
     <Output algname="7INVM15-2MU4ab" triggerline="7INVM15-2MU4ab" algoId="9" module="0" fpga="1" firstbit="5" clock="1"/>
     <Output algname="0DR22-MU6ab-MU4ab" triggerline="0DR22-MU6ab-MU4ab" algoId="18" module="0" fpga="1" firstbit="6" clock="1"/>
@@ -40,7 +40,7 @@
     <Output algname="0DR15-2MU6ab" triggerline="0DR15-2MU6ab" algoId="19" module="0" fpga="1" firstbit="9" clock="1"/>
     <Output algname="2INVM9-2MU4ab" triggerline="2INVM9-2MU4ab" algoId="3" module="0" fpga="1" firstbit="10" clock="1"/>
     <Output algname="2INVM9-MU6ab-MU4ab" triggerline="2INVM9-MU6ab-MU4ab" algoId="6" module="0" fpga="1" firstbit="11" clock="1"/>
-    <Output algname="INVM_EMs6" triggerline="1INVM5-EMs1-EMs6,1INVM5-EM7s1-EMs6,1INVM5-EM12s1-EMs6" algoId="31" module="0" fpga="1" firstbit="12" clock="1"/>
+    <Output algname="INVM_EMs6" triggerline="1INVM5-EMs1-EMs6,1INVM5-EM7s1-EMs6,1INVM5-EM12s1-EMs6" algoId="31" module="0" fpga="0" firstbit="11" clock="0"/>
     <Output algname="05MINDPHI-AJj10s6-XE0" triggerline="05MINDPHI-AJj10s6-XE0" algoId="32" module="1" fpga="0" firstbit="0" clock="0"/>
     <Output algname="10MINDPHI-AJj10s6-XE0" triggerline="10MINDPHI-AJj10s6-XE0" algoId="33" module="1" fpga="0" firstbit="1" clock="0"/>
     <Output algname="15MINDPHI-AJj10s6-XE0" triggerline="15MINDPHI-AJj10s6-XE0" algoId="34" module="1" fpga="0" firstbit="2" clock="0"/>
@@ -57,19 +57,19 @@
     <Output algname="0DETA04-0DPHI03-EM15abi-MUab" triggerline="0DETA04-0DPHI03-EM15abi-MUab" algoId="53" module="1" fpga="0" firstbit="4" clock="1"/>
     <Output algname="0DR24-CMU4ab-MU4ab" triggerline="0DR24-CMU4ab-MU4ab" algoId="51" module="1" fpga="0" firstbit="5" clock="1"/>
     <Output algname="2INVM8-CMU4ab-MU4ab" triggerline="2INVM8-CMU4ab-MU4ab" algoId="48" module="1" fpga="0" firstbit="7" clock="1"/>
-    <Output algname="0DR25-TAU20abi-TAU12abi" triggerline="0DR25-TAU20abi-TAU12abi" algoId="24" module="1" fpga="0" firstbit="8" clock="1"/>
+    <Output algname="0DR25-TAU20abi-TAU12abi" triggerline="0DR25-TAU20abi-TAU12abi" algoId="24" module="1" fpga="1" firstbit="10" clock="1"/>
     <Output algname="10MINDPHI-AJ20s2-XE50" triggerline="10MINDPHI-AJ20s2-XE50" algoId="77" module="1" fpga="0" firstbit="9" clock="1"/>
     <Output algname="LATE-MU10s1" triggerline="LATE-MU10s1" algoId="78" module="1" fpga="0" firstbit="10" clock="1"/>
-    <Output algname="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" triggerline="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" algoId="69" module="1" fpga="0" firstbit="13" clock="1"/>
-    <Output algname="10MINDPHI-J20s2-XE30" triggerline="10MINDPHI-J20s2-XE30" algoId="42" module="1" fpga="0" firstbit="14" clock="1"/>
+    <Output algname="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" triggerline="1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi" algoId="69" module="1" fpga="1" firstbit="11" clock="1"/>
+    <Output algname="10MINDPHI-J20s2-XE30" triggerline="10MINDPHI-J20s2-XE30" algoId="42" module="0" fpga="0" firstbit="5" clock="1"/>
     <Output algname="KF-XE-AJall" triggerline="KF-XE40-AJall,KF-XE50-AJall,KF-XE55-AJall,KF-XE60-AJall,KF-XE65-AJall,KF-XE75-AJall" algoId="72" module="1" fpga="1" firstbit="0" clock="0"/>
     <Output algname="0MATCH-4AJ20.ETA31-4AJj15.ETA31" triggerline="0MATCH-4AJ20.ETA31-4AJj15.ETA31" algoId="55" module="1" fpga="1" firstbit="6" clock="0"/>
     <Output algname="HT190-AJ15all.ETA21" triggerline="HT190-AJ15all.ETA21" algoId="27" module="1" fpga="1" firstbit="7" clock="0"/>
     <Output algname="HT150-AJ20all.ETA31" triggerline="HT150-AJ20all.ETA31" algoId="28" module="1" fpga="1" firstbit="8" clock="0"/>
     <Output algname="HT150-AJj15all.ETA49" triggerline="HT150-AJj15all.ETA49" algoId="29" module="1" fpga="1" firstbit="9" clock="0"/>
     <Output algname="HT20-AJj15all.ETA49" triggerline="HT20-AJj15all.ETA49" algoId="30" module="1" fpga="1" firstbit="10" clock="0"/>
-    <Output algname="SC111-CJ15ab.ETA26" triggerline="SC111-CJ15ab.ETA26" algoId="79" module="1" fpga="1" firstbit="11" clock="0"/>
-    <Output algname="SC85-CJ15ab.ETA26" triggerline="SC85-CJ15ab.ETA26" algoId="80" module="1" fpga="1" firstbit="12" clock="0"/>
+    <Output algname="SC111-CJ15ab.ETA26" triggerline="SC111-CJ15ab.ETA26" algoId="79" module="1" fpga="0" firstbit="11" clock="1"/>
+    <Output algname="SC85-CJ15ab.ETA26" triggerline="SC85-CJ15ab.ETA26" algoId="80" module="1" fpga="0" firstbit="12" clock="1"/>
     <Output algname="05RATIO-XE0-HT0-AJj15all.ETA49" triggerline="05RATIO-XE0-HT0-AJj15all.ETA49" algoId="57" module="1" fpga="1" firstbit="13" clock="0"/>
     <Output algname="90RATIO2-XE0-HT0-AJj15all.ETA49" triggerline="90RATIO2-XE0-HT0-AJj15all.ETA49" algoId="58" module="1" fpga="1" firstbit="15" clock="0"/>
     <Output algname="250RATIO2-XE0-HT0-AJj15all.ETA49" triggerline="250RATIO2-XE0-HT0-AJj15all.ETA49" algoId="59" module="1" fpga="1" firstbit="0" clock="1"/>
@@ -110,6 +110,7 @@
       <Generic name="InputWidth" value=":InputWidthTAU:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectTAU:"/>
       <Generic name="OutputWidth" value=":OutputWidthSelectTAU:"/>
+      <Generic name="DoIsoCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET" value="24"/>
@@ -126,6 +127,7 @@
       <Generic name="InputWidth" value=":InputWidthEM:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectEM:"/>
       <Generic name="OutputWidth" value=":OutputWidthSelectEM:"/>
+      <Generic name="DoIsoCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET" value="16"/>
@@ -142,6 +144,7 @@
       <Generic name="InputWidth" value=":InputWidthTAU:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectTAU:"/>
       <Generic name="OutputWidth" value=":OutputWidthSelectTAU:"/>
+      <Generic name="DoIsoCut" value="0"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET" value="24"/>
@@ -158,13 +161,12 @@
       <Generic name="InputWidth" value=":InputWidthEM:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortEM:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortEM:"/>
+      <Generic name="DoIsoCut" value="0"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="IsoMask" value="0"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
-      <Parameter pos="3" name="DoIsoCut" value="1"/>
-      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -175,13 +177,12 @@
       <Generic name="InputWidth" value=":InputWidthEM:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortEM:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortEM:"/>
+      <Generic name="DoIsoCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="IsoMask" value="3"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
-      <Parameter pos="3" name="DoIsoCut" value="1"/>
-      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -192,13 +193,12 @@
       <Generic name="InputWidth" value=":InputWidthTAU:"/>
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortTAU:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortTAU:"/>
+      <Generic name="DoIsoCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="IsoMask" value="2"/>
       <Parameter pos="1" name="MinEta" value="0"/>
       <Parameter pos="2" name="MaxEta" value="49"/>
-      <Parameter pos="3" name="DoIsoCut" value="1"/>
-      <Parameter pos="4" name="DoEtaCut" value="1"/>
     </Variable>
   </SortAlgo>
 
@@ -248,6 +248,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSelectJET:"/>
       <Generic name="JetSize" value="2"/>
+      <Generic name="DoEtaCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET" value="20"/>
@@ -264,6 +265,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSelectJET:"/>
       <Generic name="JetSize" value="2"/>
+      <Generic name="DoEtaCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET" value="15"/>
@@ -280,6 +282,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
       <Generic name="JetSize" value="1"/>
+      <Generic name="DoEtaCut" value="0"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinEta" value="0"/>
@@ -295,6 +298,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
       <Generic name="JetSize" value="2"/>
+      <Generic name="DoEtaCut" value="0"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinEta" value="0"/>
@@ -310,6 +314,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
       <Generic name="JetSize" value="2"/>
+      <Generic name="DoEtaCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinEta" value="0"/>
@@ -371,7 +376,7 @@
 
   <SortAlgo type="MuonSort_1BC" name="LMUs" output="LMUs" algoId="20">
     <Fixed>
-      <Input name="MuonTobArray" value="MuonTobArray"/>
+      <Input name="LateMuonTobArray" value="LateMuonTobArray"/>
       <Output name="TobArrayOut" value="LMUs"/>
       <Generic name="InputWidth" value=":InputWidthMU:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortMU:"/>
