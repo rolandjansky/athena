@@ -78,6 +78,7 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -241,6 +242,7 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -255,6 +257,8 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 {
     if (dynamic_cast<const CylinderSurface*>(m_surface)
 	|| std::abs(m_surface->normal()(2)) < 0.5) m_type = barrelScatterer;
+
+    if(calo) m_type = calorimeterScatterer;
 
     for (int typ = 0; typ != ExtrapolationTypes; ++typ)
     {
@@ -307,6 +311,8 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
     {
 	m_scatterPhi	=  scattering->deltaPhi();
 	m_scatterTheta	=  scattering->deltaTheta();
+        if(calo) m_scatteringAngleOffSet = scattering->sigmaDeltaTheta();
+//        if(calo) std::cout << " Calorimeter scaterrer with sigmaDeltaPhi " << scattering->sigmaDeltaPhi() << " sigmaDeltaTheta " << scattering->sigmaDeltaTheta() << std::endl; 
     }
 }
 
@@ -352,6 +358,7 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -432,6 +439,7 @@ FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
       m_scatterPhi		(alignmentEffects->deltaAngle()),
       m_scatterTheta		(alignmentEffects->deltaTranslation()),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -495,6 +503,7 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -559,6 +568,7 @@ FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -630,6 +640,7 @@ FitMeasurement::FitMeasurement (int			hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
@@ -749,6 +760,7 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
@@ -816,6 +828,7 @@ FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -961,6 +974,7 @@ FitMeasurement::FitMeasurement (double			d0,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
+      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(new Amg::Vector3D(0.,0.,1.)),
       m_sigma			(0.),
@@ -1087,9 +1101,11 @@ FitMeasurement::print (MsgStream& log) const
     {
 	log << std::setw(33) << std::setprecision(3) << 1./std::abs(m_qOverP*Gaudi::Units::GeV)
 	    << std::setw(12) << std::setprecision(4) << m_energyLoss/Gaudi::Units::GeV;
-	if (m_type < barrelInert || m_scatteringAngle > 0.)
-	    log << std::setw(16) << std::setprecision(6) << m_scatteringAngle*std::abs(m_qOverP)
+	if (m_type < barrelInert || m_scatteringAngle > 0.) {
+            double totScat = sqrt(m_scatteringAngle*std::abs(m_qOverP)*m_scatteringAngle*std::abs(m_qOverP)+m_scatteringAngleOffSet*m_scatteringAngleOffSet);
+	    log << std::setw(16) << std::setprecision(6) << totScat
 		<< std::setw(13) << std::setprecision(3) << m_radiationThickness;
+        }
     }
     else if (isAlignment())
     {
@@ -1121,18 +1137,43 @@ FitMeasurement::qOverP (double value)
     m_qOverP		= value;
     
     // for scatterer measurements: correct the weight for the local momentum value
-    if ((m_type == barrelScatterer || m_type == endcapScatterer)
+    if ((m_type == barrelScatterer || m_type == endcapScatterer || m_type == calorimeterScatterer)
 	&& m_scatteringAngle > 0.)
     {
 	double pSquare	= 1./(value*value);
 	m_betaSquared	= pSquare/(pSquare + m_particleMassSquared);
 	m_weight       	= std::sqrt(m_betaSquared*pSquare) / m_scatteringAngle;
     }
+
+    if( m_type == calorimeterScatterer && m_scatteringAngleOffSet > 0 ) {
+        if( m_weight > 0) {
+          m_weight = sqrt(1./ (1./m_weight/m_weight + m_scatteringAngleOffSet*m_scatteringAngleOffSet));
+        } else {
+          m_weight = 1./m_scatteringAngleOffSet;
+        }
+    }
 }
 
 void
 FitMeasurement::scatteringAngle (double angle, double totalRadiationThickness)
 {
+
+// update the m_scatteringAngleOffSet at initialisation 
+
+    if(m_scatteringAngle==0.&& m_scatteringAngleOffSet>0 && m_qOverP != 0.) {
+// 
+      double angle_iPat = angle*std::abs(m_qOverP);
+
+//      std::cout << " scatteringAngle type " <<  m_type << " angle_iPat " << angle_iPat << " m_scatteringAngleOffSet " << m_scatteringAngleOffSet;
+
+      if(angle_iPat<m_scatteringAngleOffSet) {
+        m_scatteringAngleOffSet = sqrt(m_scatteringAngleOffSet*m_scatteringAngleOffSet-angle_iPat*angle_iPat);
+      } else {
+        m_scatteringAngleOffSet = 0.;
+      } 
+//      std::cout << " corrected m_scatteringAngleOffSet " << m_scatteringAngleOffSet << std::endl;
+    }
+
     m_scatteringAngle		=  angle;
     m_radiationThickness	=  totalRadiationThickness;
     if (m_type == barrelInert)
@@ -1149,6 +1190,14 @@ FitMeasurement::scatteringAngle (double angle, double totalRadiationThickness)
 	double pSquare	= 1./(m_qOverP*m_qOverP);
 	m_betaSquared	= pSquare/(pSquare + m_particleMassSquared);
 	m_weight       	= std::sqrt(m_betaSquared*pSquare) / m_scatteringAngle;
+        if( m_type == calorimeterScatterer && m_scatteringAngleOffSet > 0) {
+          if( m_weight > 0) {
+            m_weight = sqrt(1./ (1./m_weight/m_weight + m_scatteringAngleOffSet*m_scatteringAngleOffSet));
+          } else {
+            m_weight = 1./m_scatteringAngleOffSet;
+          }
+        }
+
     }
 }
 

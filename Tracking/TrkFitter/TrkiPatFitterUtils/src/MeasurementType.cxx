@@ -35,6 +35,8 @@ namespace Trk
 	    return log << " barrelScatterer  ";
 	case endcapScatterer:
 	    return log << " endcapScatterer  ";
+	case calorimeterScatterer:
+	    return log << " calorimeterScatterer  ";
 	case barrelInert:
 	    return log << " barrelInert      ";
 	case endcapInert:

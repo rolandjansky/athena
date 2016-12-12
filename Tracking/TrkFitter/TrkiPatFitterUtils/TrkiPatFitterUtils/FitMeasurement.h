@@ -233,6 +233,7 @@ private:
     double				m_scatterPhi;
     double				m_scatterTheta;
     double				m_scatteringAngle;
+    double				m_scatteringAngleOffSet;
     double				m_secondResidual;
     Amg::Vector3D*			m_sensorDirection;
     double				m_sigma;
@@ -404,7 +405,8 @@ FitMeasurement::isPseudo (void) const
 
 inline bool
 FitMeasurement::isScatterer (void) const
-{ return (m_type == barrelScatterer || m_type == endcapScatterer
+{ return (m_type == barrelScatterer || m_type == endcapScatterer 
+          || m_type == calorimeterScatterer
 	  || m_type == barrelInert || m_type == endcapInert); }
 
 inline bool
