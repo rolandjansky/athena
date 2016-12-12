@@ -153,11 +153,11 @@ class _BTaggingFlags:
       self.TagNtupleStream = 'FTAG'
 
       self.RNNIP = True
-      self.RNNIPConfig = {'ipmp':''}
+      self.RNNIPConfig = {'ipmp_hits':''}
       self.WriteRNNInputs = False
 
       self.MultivariateTagManagerAuxBranches = [
-          'ipmp_p' + x for x in ['b','c','u','tau']
+          'ipmp_hits_p' + x for x in ['b','c','u','tau']
       ]
 
       for attr in self._Active:
