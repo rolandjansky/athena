@@ -22,6 +22,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -86,6 +87,7 @@ void testit (const IDHelpers& helpers,
 void test1 (const IDHelpers& helpers)
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Identifier wafer_id = helpers.m_pixel_ids[0];
 

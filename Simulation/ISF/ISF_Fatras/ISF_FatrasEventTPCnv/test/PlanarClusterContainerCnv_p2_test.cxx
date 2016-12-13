@@ -22,6 +22,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -185,7 +186,10 @@ void test1 (const IDHelpers& helpers)
     }
     trans1.addCollection (coll.release(), wafer_hash, true);
   }
-    
+
+  // Run once outside leak checking to get services initialized.
+  testit (helpers, trans1);
+  Athena_test::Leakcheck check;
   testit (helpers, trans1);
 }
 
