@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ZdcEventTPCnv/ZDC_SimPixelHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -44,6 +45,7 @@ void testit (const ZDC_SimPixelHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ZDC_SimPixelHit trans1 (123, 234, 345, 21, 12345.5);
     
