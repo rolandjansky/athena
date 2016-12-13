@@ -19,6 +19,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -57,6 +58,7 @@ void testit (const LArHitFloatContainer& trans1)
 void test1 (const CaloCell_ID& idhelper)
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LArHitFloatContainer trans1;
   for (int i=0; i < 10; i++) {
@@ -117,7 +119,7 @@ const CaloCell_ID& make_dd (ISvcLocator* svcLoc)
 int main()
 {
   ISvcLocator* svcLoc = nullptr;
-  Athena_test::initGaudi ("DetStoreTest_jobOptions.txt", svcLoc);
+  (void)Athena_test::initGaudi ("DetStoreTest_jobOptions.txt", svcLoc);
   const CaloCell_ID& idhelper = make_dd (svcLoc);
   
   test1 (idhelper);

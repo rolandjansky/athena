@@ -22,7 +22,7 @@ void LArHitContainerCnv_p2::transToPers(const LArHitContainer* transCont, LArHit
 {   //static int ev=0;
 
 	size_t size = transCont->size();  
-	log << MSG::DEBUG  << " ***  Writing LArHitContainer_p2 of size:"<<size<<endreq;
+	log << MSG::DEBUG  << " ***  Writing LArHitContainer_p2 of size:"<<size<<endmsg;
 	
 	persCont->m_channelHash.reserve(size);	
 	std::vector<float> tempE;	tempE.reserve(size);
@@ -73,7 +73,7 @@ void LArHitContainerCnv_p2::persToTrans(const LArHitContainer_p2* persCont, LArH
 {
 //	static int dog=0;
 	size_t cells=persCont->m_channelHash.size();
-	log << MSG::DEBUG  << " ***  Reading LArHitContainer of size: "<<cells<<endreq;
+	log << MSG::DEBUG  << " ***  Reading LArHitContainer of size: "<<cells<<endmsg;
 	transCont->clear();
 	transCont->reserve(cells);
 	transCont->setName(persCont->name() );

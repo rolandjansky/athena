@@ -7,12 +7,12 @@
 
 void LArHitFloatContainerCnv_p1::transToPers(const LArHitFloatContainer* /*transCont*/, LArHitContainer_p1* /*persCont*/, MsgStream &log)
 {
-  log << MSG::ERROR << "Writing LArHitContainer_p1 not supported any more. Current version is LArHitChannelContainer_p2" << endreq;
+  log << MSG::ERROR << "Writing LArHitContainer_p1 not supported any more. Current version is LArHitChannelContainer_p2" << endmsg;
 }
 
 void LArHitFloatContainerCnv_p1::persToTrans(const LArHitContainer_p1* persCont, LArHitFloatContainer* transCont, MsgStream &log)
 {
-  log << MSG::DEBUG << " reading LArHitContaner_p1 " << endreq;
+  log << MSG::DEBUG << " reading LArHitContaner_p1 " << endmsg;
   std::size_t nChannels = persCont->m_cont.size();
   transCont->resize(nChannels);
   for (std::size_t i=0;i<nChannels;i++) 
