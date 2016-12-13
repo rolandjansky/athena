@@ -31,7 +31,7 @@ void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
 
 
   // SCT Clusters //
-  FTK_RawSCT_Cluster sct_1(), sct_2(), sct_3(), sct_4(), sct_5(), sct_6(), sct_7(), sct_8;
+  //FTK_RawSCT_Cluster sct_1(), sct_2(), sct_3(), sct_4(), sct_5(), sct_6(), sct_7(), sct_8;
  
   std::vector<FTK_RawSCT_Cluster> sct_clusters;
 
@@ -46,7 +46,7 @@ void FTK_RawTrackCnv_p1::transToPers(const FTK_RawTrack* transObj,
 				     FTK_RawTrack_p1* persObj,
 				     MsgStream &log)
 {
-  log << MSG::DEBUG << "FTK_RawTrackCnv_p1::transToPers called" << endreq;
+  log << MSG::DEBUG << "FTK_RawTrackCnv_p1::transToPers called" << endmsg;
 
   persObj->m_pars[th1] = transObj->getTH1();
   persObj->m_pars[th2] = transObj->getTH2();

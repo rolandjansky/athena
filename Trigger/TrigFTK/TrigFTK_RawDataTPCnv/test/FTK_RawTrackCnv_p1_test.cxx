@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigFTK_RawDataTPCnv/FTK_RawTrackCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -84,6 +85,7 @@ void testit (const FTK_RawTrack& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   FTK_RawTrack trans1 (123, 234, 345, 456, 567, 678);
   trans1.setBarcode (789);
