@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.h 698535 2015-10-05 14:10:12Z krasznaa $
+// $Id: ShallowAuxContainer.h 785968 2016-11-23 12:34:36Z krasznaa $
 #ifndef XAODCORE_SHALLOWAUXCONTAINER_H
 #define XAODCORE_SHALLOWAUXCONTAINER_H
 
@@ -41,8 +41,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 698535 $
-   /// $Date: 2015-10-05 16:10:12 +0200 (Mon, 05 Oct 2015) $
+   /// $Revision: 785968 $
+   /// $Date: 2016-11-23 13:34:36 +0100 (Wed, 23 Nov 2016) $
    ///
    class ShallowAuxContainer : public SG::IAuxStore,
                                public SG::IAuxStoreIO,
@@ -177,7 +177,7 @@ namespace xAOD {
       /// Link to the parent object
       DataLink< SG::IConstAuxStore > m_parentLink;
       /// Optional pointer to the IO interface of the parent object
-      SG::IAuxStoreIO* m_parentIO;
+      mutable SG::IAuxStoreIO* m_parentIO;
       /// Flag for whether to do "shallow IO" or not
       bool m_shallowIO;
 

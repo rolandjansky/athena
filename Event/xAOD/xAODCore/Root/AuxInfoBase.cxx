@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxInfoBase.cxx 666175 2015-05-11 12:32:25Z krasznaa $
+// $Id: AuxInfoBase.cxx 781905 2016-11-02 14:57:03Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -559,7 +559,7 @@ namespace xAOD {
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static const auxid_set_t dummy;
+      static const auxid_set_t dummy {};
       return dummy;
    }
 

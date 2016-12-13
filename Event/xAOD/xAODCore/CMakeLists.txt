@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 778387 2016-10-14 00:02:04Z krasznaa $
+# $Id: CMakeLists.txt 789425 2016-12-13 10:50:12Z krasznaa $
 ################################################################################
 # Package: xAODCore
 ################################################################################
@@ -7,7 +7,10 @@
 atlas_subdir( xAODCore )
 
 # Extra dependencies based on what environment we are in:
-if( NOT XAOD_STANDALONE )
+if( XAOD_STANDALONE )
+   set( extra_deps PRIVATE Control/AthLinks )
+   set( extra_libs )
+else()
    set( extra_deps Control/SGTools )
    set( extra_libs SGTools )
 endif()
@@ -45,10 +48,43 @@ atlas_add_dictionary( xAODCoreRflxDict
    LINK_LIBRARIES xAODCore )
 
 # Test(s) in the package:
+atlas_add_test( ut_xaodcore_class_def_test
+   SOURCES test/ut_class_def.cxx
+   LINK_LIBRARIES xAODCore )
+
 atlas_add_test( ut_xaodcore_auxselection_test
    SOURCES test/ut_xaodcore_auxselection_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )
 
+atlas_add_test( ut_xaodcore_clearDecorations_test
+   SOURCES test/ut_xaodcore_clearDecorations_test.cxx
+   LINK_LIBRARIES AthContainers xAODCore )
+
+atlas_add_test( ut_xaodcore_floatcompression_test
+   SOURCES test/ut_xaodcore_floatcompression_test.cxx
+   LINK_LIBRARIES xAODCore )
+
 atlas_add_test( ut_xaodcore_printhelpers_test
    SOURCES test/ut_xaodcore_printhelpers_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )
+
+atlas_add_test( ut_xaodcore_safedeepcopy_test
+   SOURCES test/ut_xaodcore_safedeepcopy_test.cxx
+   LINK_LIBRARIES AthContainers xAODCore )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_xaodcore_shallowcopy_test
+      SOURCES test/ut_xaodcore_shallowcopy.cxx
+      LINK_LIBRARIES AthContainers AthLinks xAODCore )
+endif()
+
+# Declare the "include tests":
+foreach( header AddDVProxy AuxContainerBase AuxSelection BaseInfo CLASS_DEF
+      ClassID_traits ShallowAuxContainer ShallowAuxInfo ShallowCopy
+      tools_AuxPersInfo tools_AuxPersVector tools_IOStats tools_PerfStats
+      tools_PrintHelpers tools_ReadStats tools_SafeDeepCopy
+      tools_TDVCollectionProxy tools_Utils )
+   atlas_add_test( inc_${header}
+      SOURCES test/inc_${header}.cxx
+      LINK_LIBRARIES xAODCore )
+endforeach()

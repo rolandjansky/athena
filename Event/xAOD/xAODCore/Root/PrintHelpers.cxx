@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PrintHelpers.cxx 750677 2016-05-30 10:24:50Z krasznaa $
+// $Id: PrintHelpers.cxx 780624 2016-10-26 22:41:13Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -64,7 +64,12 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
       ( obj.container()->getConstStore() ?
         obj.container()->getConstStore()->getAuxIDs() :
         obj.getConstStore()->getAuxIDs() );
-   for( SG::auxid_t auxid : auxids ) {
+
+   // Sort auxids to get predictable ordering.
+   std::vector<SG::auxid_t> auxids_v (auxids.begin(), auxids.end());
+   std::sort (auxids_v.begin(), auxids_v.end());
+
+   for( SG::auxid_t auxid : auxids_v ) {
 
       out << "\n    - type: " << reg.getTypeName( auxid )
           << ", \tname: \"" << reg.getName( auxid );
