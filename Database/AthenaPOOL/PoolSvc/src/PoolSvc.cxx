@@ -159,51 +159,24 @@ StatusCode PoolSvc::initialize() {
       default: lvl = coral::Warning;
    };
    coral::MessageStream::setMsgVerbosity(lvl);
-   return(this->reinit());
+
+   if( !setupPersistencySvc().isSuccess() ) {
+      return StatusCode::FAILURE;
+   }
+   return reinit();
 }
+
 //__________________________________________________________________________
 StatusCode PoolSvc::reinit() {
    ATH_MSG_INFO("Re-initializing " << name());
    // Setup a catalog connection based on the value of $POOL_CATALOG
-   m_catalog = createCatalog();
-   if (m_catalog != 0) {
-      m_catalog->start();
-   } else {
-      ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
-      return(StatusCode::FAILURE);
-   }
-   // Setup a persistency service
-   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == 0) {
-      ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
-      return(StatusCode::FAILURE);
-   }
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
-   if (m_persistencySvcVec[IPoolSvc::kInputStream] == 0) {
-      ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
-   if (!connect(pool::ITransaction::READ).isSuccess()) {
-      ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
-   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == 0) {
-      ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   pool::DatabaseConnectionPolicy policy;
-   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
-   if (m_fileOpen.value() == "update") {
-      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-   }
-   m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
+ 
    return(StatusCode::SUCCESS);
 }
+
 //__________________________________________________________________________
-StatusCode PoolSvc::io_reinit() {
+StatusCode PoolSvc::io_reinit()
+{
    ATH_MSG_INFO("I/O reinitialization...");
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -239,14 +212,70 @@ StatusCode PoolSvc::io_reinit() {
          m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
+   
+   if( !setupPersistencySvc().isSuccess() ) {
+      return StatusCode::FAILURE;
+   }
+   // MN: reinit: maybe needed, maybe not
+   return reinit();
+}
+
+//__________________________________________________________________________
+StatusCode PoolSvc::setupPersistencySvc()
+{
+   ATH_MSG_INFO("Setting up APR FileCatalog and Streams");
+   if( m_catalog ) {
+      m_catalog->commit();
+      delete m_catalog;
+   }
+   m_catalog = createCatalog();
+   if (m_catalog != 0) {
+      m_catalog->start();
+   } else {
+      ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
+      return(StatusCode::FAILURE);
+   }
+
+   // Setup a persistency service
    unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
       delete *iter;
    }
    m_persistencySvcVec.clear();
-   return(this->reinit());
+
+   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
+   if (psfactory == 0) {
+      ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
+      return(StatusCode::FAILURE);
+   }
+   
+   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
+   if (m_persistencySvcVec[IPoolSvc::kInputStream] == 0) {
+      ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
+   if (!connect(pool::ITransaction::READ).isSuccess()) {
+      ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
+   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == 0) {
+      ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   pool::DatabaseConnectionPolicy policy;
+   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
+   if (m_fileOpen.value() == "update") {
+      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+   }
+   m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
+
+   return StatusCode::SUCCESS;
 }
+
 //__________________________________________________________________________
 StatusCode PoolSvc::stop() {
    unsigned int streamId = 0;
@@ -272,9 +301,6 @@ StatusCode PoolSvc::finalize() {
       m_catalog->commit();
       delete m_catalog; m_catalog = 0;
    }
-   if (!this->io_finalize().isSuccess()) {
-      ATH_MSG_WARNING("Cannot io_finalize.");
-   }
    if (!m_athenaSealSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release AthenaSealSvc");
    }
@@ -288,19 +314,7 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-/*
-   unsigned int streamId = 0;
-   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      delete *iter;
-   }
-   m_persistencySvcVec.clear();
-   if (m_catalog != 0) {
-      m_catalog->commit();
-      delete m_catalog; m_catalog = 0;
-   }
-*/
-   return(StatusCode::SUCCESS);
+   return(disconnect(IPoolSvc::kInputStream));
 }
 //_______________________________________________________________________
 StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
