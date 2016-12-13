@@ -52,6 +52,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_AntiFake2trVrtCut(0.5),
     m_JetPtFractionCut(0.01),
     m_TrackInJetNumberLimit(25),
+    m_MaterialPtCut(5.e3),
+    m_pseudoSigCut(3.),
     m_FillHist(false),
     m_existIBL(true),
     m_RobustFit(5),
@@ -67,7 +69,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_RlayerB   (0.),  // in jobO or initialize()
     m_Rlayer1   (0.),
     m_Rlayer2   (0.),
-    m_SVResolutionR(5.),
+    m_SVResolutionR(3.),
     m_useMaterialRejection(true),
     m_useVertexCleaning(true),
     m_MassType (1),
@@ -81,6 +83,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
     m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
     m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool")
+//    m_materialMap ("InDet::InDetMaterialRejTool", this)
 //    m_fitSvc("Trk::TrkVKalVrtFitter/VKalVrtFitter",this)
    {
 //
@@ -116,6 +119,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("AntiFake2trVrtCut",   m_AntiFake2trVrtCut, "Cut to reduce fake 2-track vertices contribution.Single Vertex Finder only"  );
     declareProperty("JetPtFractionCut",    m_JetPtFractionCut,  "Reduce high Pt fakes. Jet HLV input is mandatory, direction is not enough. Multi and single vertex versions are affected"  );
     declareProperty("TrackInJetNumberLimit", m_TrackInJetNumberLimit, " Use only limited number of highest pT tracks in jet for vertex search"  );
+    declareProperty("MaterialPtCut",         m_MaterialPtCut, " To be a material vertex at least one track pt should be below this cut"  );
+    declareProperty("PseudoSigCut",        m_pseudoSigCut, " Cut on track impact significance for pseudo-vertex search"  );
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
@@ -149,9 +154,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("VertexMergeCut",	  m_VertexMergeCut, "To allow vertex merging for MultiVertex Finder" );
     declareProperty("TrackDetachCut",	  m_TrackDetachCut, "To allow track from vertex detachment for MultiVertex Finder" );
 
-    declareProperty("VertexFitterTool", m_fitterSvc);
+    declareProperty("VertexFitterTool",  m_fitterSvc);
     declareProperty("TrackToVertexTool", m_trackToVertexIP);
     declareProperty("TrackParticleCreator", m_trkPartCreator);
+//    declareProperty("MaterialMap", m_materialMap);
 //    declareProperty("TrkVKalVrtFitter", m_fitSvc);
 //
     m_iflag=0;
@@ -162,6 +168,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_massLam =1115.683  ;
     m_massB   =5279.400  ;
     m_WorkArray = 0;
+    m_compatibilityGraph = nullptr;
     m_instanceName=name;
 
    }
@@ -169,8 +176,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //Destructor---------------------------------------------------------------
     InDetVKalVxInJetTool::~InDetVKalVxInJetTool(){
      //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endreq;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endreq;
+     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endmsg;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endmsg;
      if(m_WorkArray) delete m_WorkArray;
      if(m_compatibilityGraph)delete m_compatibilityGraph;
    }
@@ -178,52 +185,58 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //Initialize---------------------------------------------------------------
    StatusCode InDetVKalVxInJetTool::initialize(){
      //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endreq;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endreq;
+     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endmsg;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endmsg;
      m_WorkArray = new VKalVxInJetTemp;
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
 //     IToolSvc* toolSvc;                    //needed for old style TrkVKalVrtFitter retrieval
 //     StatusCode sc = service("ToolSvc",toolSvc);
 //     if (sc.isFailure()) { 
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No ToolSvc for InDetVKalVxInJetTool !" << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No ToolSvc for InDetVKalVxInJetTool !" << endmsg;
 //        return StatusCode::SUCCESS;
 //     }
 
  
      if (m_fitterSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
      } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool TrkVKalVrtFitter found" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool TrkVKalVrtFitter found" << endmsg;
      }
      m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
      if(!m_fitSvc){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
+     //if (m_materialMap.retrieve().isFailure()) {
+     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find InDetMaterialRejTool."
+     //                                      << "Use radial rejection"<< endreq;
+     //} else {
+     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endreq;
+     //}
 //------
 //     if ( m_trackToVertexIP.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endmsg;
 //     } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endmsg;
 //     }
 //-------
 //     if(m_MultiVertex && m_MultiWithOneTrkVrt) {
 //       if ( m_trkPartCreator.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endmsg;
 //       } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endmsg;
 //       }
 //     }
 //-------
 //     Trk::IVertexFitter * tmp;
 //     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
 //     if (sc.isFailure()) { 
-//        log << MSG::DEBUG << " No Trk::TrkVKalVrtFitter for InDetVKalVxInJetTool !" << endreq;
+//        log << MSG::DEBUG << " No Trk::TrkVKalVrtFitter for InDetVKalVxInJetTool !" << endmsg;
 //     }else{
 //        m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(tmp);
-//        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endreq;
+//        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endmsg;
 //     }
 
 //------------------------------------------
@@ -233,7 +246,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
-                             m_Rlayer3  =122.5;
+       m_Rlayer3  =122.5;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
        if( m_RlayerB  ==0.)  m_RlayerB  =51.5;
@@ -248,9 +261,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
        StatusCode sc = service( "THistSvc", hist_root); 
        if( sc.isFailure() ) {
-          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endreq;
+          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endmsg;
        }
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool Histograms found" << endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool Histograms found" << endmsg;
  
        m_hb_massPiPi   = new TH1D("massPiPi"," massPiPi",160,200., 1000.);
        m_hb_massPPi    = new TH1D("massPPi"," massPPi", 100,1000., 1250.);
@@ -356,22 +369,23 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"PSEUDST_JetTrkSV", m_hb_DST_JetTrkSV);
        sc = hist_root->regHist(histDir+"PSEUnTrkJetTrkSV", m_hb_NImpJetTrkSV);
        if( sc.isFailure() ) {     // Check of StatusCode
-         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endreq;
+         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endmsg;
        }
-       w_1 = 1.;
+       m_w_1 = 1.;
 
      }
 
      if(!m_MultiVertex)m_MultiWithPrimary = false; 
 
      if(m_getNegativeTag){
-        if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endreq;
-        if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endreq;
+        if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endmsg;
+        if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endmsg;
         m_getNegativeTail=false;
      }
 
      //for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=chisin_(0.9,2*ntv-3)/ntv; m_chiScale[0]=m_chiScale[2];
-     for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv; m_chiScale[0]=m_chiScale[2];
+     for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv;
+     m_chiScale[0]=m_chiScale[2];
      for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]/=m_chiScale[0];
 
      if(m_RobustFit>7)m_RobustFit=7;
@@ -387,7 +401,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
   StatusCode InDetVKalVxInJetTool::finalize()
   {
     //MsgStream log( msgSvc(), name() );
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endmsg;
     return StatusCode::SUCCESS; 
   }
   

@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkParticleCreator
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
+#InnerDetector/InDetRecTools/InDetMaterialRejTool
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

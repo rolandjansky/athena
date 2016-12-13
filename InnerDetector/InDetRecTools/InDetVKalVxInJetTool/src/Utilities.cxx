@@ -16,7 +16,8 @@ namespace InDet{
 
   TLorentzVector  InDetVKalVxInJetTool::GetBDir( const xAOD::TrackParticle* trk1,
                                                  const xAOD::TrackParticle* trk2,
-                                                 const xAOD::Vertex    & PrimVrt)
+                                                 const xAOD::Vertex    & PrimVrt,
+						 Amg::Vector3D &V1, Amg::Vector3D &V2)
   const
   { // B hadron flight direction based on 2 separate tracks and PV. Calculated via plane-plane crossing
     Amg::Vector3D PVRT(PrimVrt.x(),PrimVrt.y(),PrimVrt.z());
@@ -26,18 +27,33 @@ namespace InDet{
     ////Amg::Vector3D new1(trk1->vx()-d01*sin(phi1),trk1->vy()+d01*cos(phi1),trk1->vz()+z01); // Wrong sign!!!!!
     ////Amg::Vector3D new2(trk2->vx()-d02*sin(phi2),trk2->vy()+d02*cos(phi2),trk2->vz()+z02);
 //----------------------------------------------------------------------------
-    Amg::Vector3D   pnt1=trk1->perigeeParameters().position();
+    Amg::Vector3D   pnt1=trk1->perigeeParameters().position()-PVRT;
     Amg::Vector3D   mom1((trk1->p4()).Px(),(trk1->p4()).Py(),(trk1->p4()).Pz());
-    Amg::Vector3D   pnt2=trk2->perigeeParameters().position();
+    Amg::Vector3D   pnt2=trk2->perigeeParameters().position()-PVRT;
     Amg::Vector3D   mom2((trk2->p4()).Px(),(trk2->p4()).Py(),(trk2->p4()).Pz());
-    pnt1 -= PVRT; pnt2 -= PVRT;
     pnt1.normalize(); pnt2.normalize(); mom1.normalize(); mom2.normalize();
 //------------------------------------------------------------------------
+    const float dRLim=0.4;
     Amg::Vector3D norm1=pnt1.cross(mom1);
     Amg::Vector3D norm2=pnt2.cross(mom2);
-    Amg::Vector3D t=norm1.cross(norm2); t.normalize();
+    Amg::Vector3D t=norm1.cross(norm2); t.normalize(); if(t.dot(mom1+mom2)<0.) t*=-1.;
     double aveP=(trk1->p4()+trk2->p4()).P()/2.;
-    TLorentzVector tl;  tl.SetXYZM(t.x()*aveP,t.y()*aveP,t.z()*aveP,139.57);
+    TLorentzVector tl;  tl.SetXYZM(t.x()*aveP,t.y()*aveP,t.z()*aveP,139.57); //Crossing line of 2 planes
+    if( tl.DeltaR(trk1->p4()) >dRLim || tl.DeltaR(trk2->p4()) >dRLim ) {V1*=0.; V2*=0.; return tl;}//Too big dR between tracks and found "B line"
+//------------------------------------------------------------------------
+    double X;
+    pnt1=trk1->perigeeParameters().position()-PVRT;
+    pnt2=trk2->perigeeParameters().position()-PVRT;
+    fabs(mom1[1]*t[2]-mom1[2]*t[1])>fabs(mom1[0]*t[2]-mom1[2]*t[0]) ? X=(t[1]*pnt1[2]-t[2]*pnt1[1])/(mom1[1]*t[2]-mom1[2]*t[1])
+                                                                    : X=(t[0]*pnt1[2]-t[2]*pnt1[0])/(mom1[0]*t[2]-mom1[2]*t[0]);
+    V1=pnt1+mom1*X;   // First particle vertex
+    fabs(mom2[1]*t[2]-mom2[2]*t[1])>fabs(mom2[0]*t[2]-mom2[2]*t[0]) ? X=(t[1]*pnt2[2]-t[2]*pnt2[1])/(mom2[1]*t[2]-mom2[2]*t[1])
+                                                                    : X=(t[0]*pnt2[2]-t[2]*pnt2[0])/(mom2[0]*t[2]-mom2[2]*t[0]);
+    V2=pnt2+mom2*X;   // Second particle vertex
+//------------------------------------------------------------------------
+    if(V1.dot(t)<0. && V2.dot(t)<0.) {V1*=0.;V2*=0.;}        // Check correctness of topology
+    else                             {V1+=PVRT; V2+=PVRT;}   // Transform to detector frame
+//------------------------------------------------------------------------
     return tl;
   }
 
@@ -546,7 +562,7 @@ namespace InDet{
 	  //   if(NPlay<=1) { l2Hit=0; }  // no fired layer except for IBL/BL
           //}
           uint32_t HitPattern=Part->hitPattern();
-	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
+	  l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
 	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
@@ -566,18 +582,35 @@ namespace InDet{
           //   }
           //}
           uint32_t HitPattern=Part->hitPattern();
-	  l1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel1)) ) l1Hit=1;
-	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
+	  l1Hit=0; if( HitPattern&((1<<Trk::pixelBarrel1)) ) l1Hit=1;
+	  l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
         }
 
   }
-
+  void   InDetVKalVxInJetTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
+  {
+    	splshIBL=splshBL=0;
+        if(m_existIBL){              // 4-layer pixel detector
+          uint8_t share,split;
+	  //if(!Part->summaryValue( IBLout,  xAOD::numberOfInnermostPixelLayerOutliers ) )        IBLout = 0;
+	  if(!Part->summaryValue( share,   xAOD::numberOfInnermostPixelLayerSharedHits ) )   share = 0;
+	  if(!Part->summaryValue( split,  xAOD::numberOfInnermostPixelLayerSplitHits ) )        split = 0;
+          splshIBL=share+split;
+	  if(!Part->summaryValue( share,   xAOD::numberOfNextToInnermostPixelLayerSharedHits ) )   share = 0;
+	  if(!Part->summaryValue( split,  xAOD::numberOfNextToInnermostPixelLayerSplitHits ) )        split = 0;
+          splshBL=share+split;
+       }
+  }
+    void   InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
+  {
+    	splshIBL=splshBL=0;  // Temporary implementation
+  }
   void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {
         uint32_t HitPattern=Part->hitPattern();
-	d0Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap0)) ) d0Hit=1;
-	d1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap1)) ) d1Hit=1;
-	d2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap2)) ) d2Hit=1;
+	d0Hit=0; if( HitPattern&((1<<Trk::pixelEndCap0)) ) d0Hit=1;
+	d1Hit=0; if( HitPattern&((1<<Trk::pixelEndCap1)) ) d1Hit=1;
+	d2Hit=0; if( HitPattern&((1<<Trk::pixelEndCap2)) ) d2Hit=1;
   }
   void   InDetVKalVxInJetTool::getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {

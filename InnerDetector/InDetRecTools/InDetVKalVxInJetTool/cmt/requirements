@@ -28,6 +28,7 @@ use InDetRecToolInterfaces InDetRecToolInterfaces-*  InnerDetector/InDetRecTools
 use Particle               Particle-*              Reconstruction
 use xAODTracking           xAODTracking-*          Event/xAOD
 use TrkVKalVrtFitter       TrkVKalVrtFitter-*      Tracking/TrkVertexFitter
+#use InDetMaterialRejTool   InDetMaterialRejTool-*  InnerDetector/InDetRecTools
 
 
 
