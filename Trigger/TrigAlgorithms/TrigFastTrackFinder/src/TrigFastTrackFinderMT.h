@@ -14,8 +14,8 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __TRIG_FAST_TRACK_FINDER_MT_H__
-#define __TRIG_FAST_TRACK_FINDER_MT_H__
+#ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDERMT_H
+#define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDERMT_H
 
 #include<string>
 #include<vector>

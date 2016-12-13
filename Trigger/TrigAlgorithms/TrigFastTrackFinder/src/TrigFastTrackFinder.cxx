@@ -345,7 +345,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
     sc = m_trigL2ResidualCalculator.retrieve();
     if ( sc.isFailure() ) {
-      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endreq;
+      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   }
@@ -368,12 +368,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   
   if ( m_outputCollectionSuffix != "" ) {
-    m_attachedFeatureName = string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
-    m_attachedFeatureName_TIDT = string("TrigFastTrackFinder_TrigInDetTrack") + m_outputCollectionSuffix;
+    m_attachedFeatureName = std::string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
+    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack") + m_outputCollectionSuffix;
   }
   else {
-    m_attachedFeatureName      = string("TrigFastTrackFinder_");
-    m_attachedFeatureName_TIDT = string("TrigFastTrackFinder_TrigInDetTrack");
+    m_attachedFeatureName      = std::string("TrigFastTrackFinder_");
+    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack");
   }
 
   if (m_retrieveBarCodes) {
@@ -558,6 +558,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
         code = attachFeature(outputTE, new TrigInDetTrackCollection, m_attachedFeatureName_TIDT);
         return code;
       }
+      return code;
     }
 
     m_currentStage = 2;
@@ -573,11 +574,11 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 	xAOD::VertexContainer* vertexCollection = new xAOD::VertexContainer();
 	xAOD::VertexAuxContainer    theVertexAux;
 	vertexCollection->setStore(&theVertexAux);
-	bool m_useRefittedTracks=false;
+	bool useRefittedTracks=false;
 	if (m_doFTKFastVtxFinder) {
 	  vertexCollection = m_ftkDataProviderSvc->getFastVertices(ftk::RawTrack);
 	} else {
-	  StatusCode sc = m_ftkDataProviderSvc->getVertexContainer( vertexCollection, m_useRefittedTracks);
+	  StatusCode sc = m_ftkDataProviderSvc->getVertexContainer( vertexCollection, useRefittedTracks);
 	  if (sc != StatusCode::SUCCESS) {
 	    ATH_MSG_DEBUG (" Error getting VertexContainer StatusCode is " << sc );
 	  }
@@ -590,7 +591,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       //          [](xAOD::Vertex* a, xAOD::Vertex* b){return a->vxTrackAtVertex().size() > b->vxTrackAtVertex().size();});
 
 
-      int MaxNumVertex=100;
+      unsigned int MaxNumVertex=100;
 
       for (auto vertex : *vertexCollection) {
         if (m_zVertices.size() == MaxNumVertex) continue;
@@ -909,7 +910,8 @@ double TrigFastTrackFinder::trackQuality(const Trk::Track* Tr) {
     double q;
     if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
     else                     q =      (W-x2    );
-    if(q < 0.) q = 0.; quality+=q;
+    if(q < 0.) q = 0.;
+    quality+=q;
   }
   return quality;
 }
@@ -1434,7 +1436,7 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& initial
     if(msgLvl() <= MSG::VERBOSE) {
       ATH_MSG_DEBUG(cov_off);
       for (unsigned int i = 0; i < cov->size(); ++i) {
-        msg() << MSG::DEBUG << std::fixed << std::setprecision(10) << "cov_TrigInDetTrack[" << i << "]: " << cov->at(i) << endreq; 
+        msg() << MSG::DEBUG << std::fixed << std::setprecision(10) << "cov_TrigInDetTrack[" << i << "]: " << cov->at(i) << endmsg; 
       }
     }
 

@@ -14,8 +14,8 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __TRIG_FAST_TRACK_FINDER_H__
-#define __TRIG_FAST_TRACK_FINDER_H__
+#ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
+#define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
 
 #include<string>
 #include<vector>
@@ -274,4 +274,4 @@ protected:
 
 };
 
-#endif
+#endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
