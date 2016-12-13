@@ -15,6 +15,7 @@
 #include "EventBookkeeperTPCnv/EventBookkeeperCnv_p1.h"
 #include "CxxUtils/StrFormat.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -76,6 +77,7 @@ std::unique_ptr<EventBookkeeper> make (int o)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::unique_ptr<EventBookkeeper> trans1 = make(1);
   trans1->AddChild (make(2).release());

@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "EventBookkeeperTPCnv/SkimDecisionCnv_p1.h"
 #include "CxxUtils/StrFormat.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -42,6 +43,7 @@ void testit (const SkimDecision& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   SkimDecision trans1;
   trans1.setName ("foo");
