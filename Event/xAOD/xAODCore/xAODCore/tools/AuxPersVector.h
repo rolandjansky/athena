@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersVector.h 633627 2014-12-04 10:39:36Z ssnyder $
+// $Id: AuxPersVector.h 785202 2016-11-18 18:42:53Z ssnyder $
 #ifndef XAODCORE_AUXPERSVECTOR_H
 #define XAODCORE_AUXPERSVECTOR_H
 
@@ -23,8 +23,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 633627 $
-   /// $Date: 2014-12-04 11:39:36 +0100 (Thu, 04 Dec 2014) $
+   /// $Revision: 785202 $
+   /// $Date: 2016-11-18 19:42:53 +0100 (Fri, 18 Nov 2016) $
    ///
    template< class T, class VEC=std::vector< T > >
    class AuxPersVector : public SG::IAuxTypeVector {
@@ -79,7 +79,7 @@ namespace xAOD {
          return DataModel_detail::setOptionHelper
             (&m_vec,
              option,
-             typename SG_STD_OR_BOOST::is_base_of<SG::IAuxSetOption,vector_type>::type());
+             typename std::is_base_of<SG::IAuxSetOption,vector_type>::type());
       }
 
      virtual const std::type_info* objType() const {

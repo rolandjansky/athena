@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 652959 2015-03-10 14:03:11Z krasznaa $ -->
+<!-- $Id: selection.xml 750677 2016-05-30 10:24:50Z krasznaa $ -->
 <lcgdict>
 
    <!-- Auxiliary container base: -->
@@ -88,6 +88,9 @@
    <class name="std::vector<std::vector<char> >" />
    <class name="std::vector<uint32_t>" />
    <class name="std::vector<std::vector<uint32_t> >" />
+
+   <!-- Helper function printing the properties of xAOD objects: -->
+   <function proto_name="xAOD::dump(const SG::AuxElement&)" />
 
    <!-- Suppress the unwanted classes found by ROOT 6. -->
    <!-- Hopefully we can remove these extra lines at one point... -->

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOStats.cxx 621105 2014-10-10 12:34:11Z krasznaa $
+// $Id: IOStats.cxx 778387 2016-10-14 00:02:04Z krasznaa $
 
 // Local include(s):
 #include "xAODCore/tools/IOStats.h"
@@ -12,7 +12,11 @@ namespace xAOD {
 
    IOStats::~IOStats() {
 
-      delete m_stats;
+      // The ReadStats object is not deleted. Since the object may be needed
+      // during the finalisation of the application. In which case it can lead
+      // to a race condition which object is deleted first. This one, or the one
+      // trying to use this one in its destructor.
+      //      delete m_stats;
    }
 
    IOStats& IOStats::instance() {

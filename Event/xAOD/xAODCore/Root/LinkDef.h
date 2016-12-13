@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 715479 2015-12-18 15:12:11Z mnowak $
+// $Id: LinkDef.h 750677 2016-05-30 10:24:50Z krasznaa $
 #ifndef XAODCORE_LINKDEF_H
 #define XAODCORE_LINKDEF_H
 
@@ -13,7 +13,6 @@
 // Local include(s):
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/tools/PerfStats.h"
-//#include "xAODCore/tools/PrintHelpers.h"
 #endif
 
 #ifdef __CINT__
@@ -34,8 +33,6 @@
 #pragma link C++ class vector<vector<float> >+;
 #pragma link C++ class vector<vector<int> >+;
 #endif
-
-//#pragma link C++ function xAOD::dump+;
 
 #endif // __CINT__
 #endif // XAODCORE_LINKDEF_H

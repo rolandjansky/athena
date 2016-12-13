@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.cxx 666175 2015-05-11 12:32:25Z krasznaa $
+// $Id: AuxContainerBase.cxx 781905 2016-11-02 14:57:03Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -524,7 +524,7 @@ namespace xAOD {
 
       return m_vecs[ auxid ]->toVector();
    }
-   
+
    const std::type_info* AuxContainerBase::getIOType( auxid_t auxid ) const {
 
       // Guard against multi-threaded execution:
@@ -534,15 +534,10 @@ namespace xAOD {
       if( ( auxid >= m_vecs.size() ) || ( ! m_vecs[ auxid ] ) ) {
          if( m_storeIO ) {
             return m_storeIO->getIOType( auxid );
-         } else {
-            std::cout << "ERROR xAOD::AuxContainerBase::getIOType "
-                      << "Unknown variable ("
-                      << SG::AuxTypeRegistry::instance().getName( auxid )
-                      << ") requested" << std::endl;
-            return 0;
          }
       }
 
+      // Fall back on getting the information from the registry:
       return SG::AuxTypeRegistry::instance().getVecType( auxid );
    }
 
@@ -562,7 +557,7 @@ namespace xAOD {
       }
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static const auxid_set_t dummy;
+      static const auxid_set_t dummy {};
       return dummy;
    }
 

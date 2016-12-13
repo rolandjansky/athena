@@ -4,13 +4,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowCopy.h 687601 2015-08-05 10:23:25Z krasznaa $
+// $Id: ShallowCopy.h 766390 2016-08-04 11:18:59Z wlampl $
 #ifndef XAODCORE_SHALLOWCOPY_H
 #define XAODCORE_SHALLOWCOPY_H
 
 // System include(s):
 #include <map>
 #include <iostream>
+
+//Core includes
+#include "CxxUtils/make_unique.h"
 
 // EDM include(s):
 #include "AthLinks/DataLink.h"
@@ -21,6 +24,22 @@
 #include "xAODCore/ShallowAuxInfo.h"
 
 namespace xAOD {
+
+  /// Function to prepare an object to be stored in a shallow-copy container
+  ///
+  /// To be used by shallowCopyContainer. The default implementation 
+  /// here is dummy, just calling the default constructor. Can be 
+  /// overloaded for types that require special treatment 
+  /// (like xAOD::CaloCluster)
+  /// @param elem: Input object, ignored in this implementation
+  /// @returns A uniqe_ptr to the object to be push_back'ed into the 
+  ///          shallow-copy container. 
+
+  template< class T >
+  std::unique_ptr<T> prepareElementForShallowCopy(const T* /*elem*/) {
+    return CxxUtils::make_unique<T>();
+  }
+
 
    /// Function making a shallow copy of a constant container
    ///
@@ -57,7 +76,7 @@ namespace xAOD {
       // Add the required number of elements to it:
       newCont->reserve( cont.size() );
       for( size_t i = 0; i < cont.size(); ++i ) {
-         newCont->push_back( new typename T::base_value_type() );
+	newCont->push_back(prepareElementForShallowCopy(cont[i]));
       }
 
       // Create a new shallow auxiliary container:
