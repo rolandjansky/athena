@@ -301,9 +301,6 @@ StatusCode PoolSvc::finalize() {
       m_catalog->commit();
       delete m_catalog; m_catalog = 0;
    }
-   if (!this->io_finalize().isSuccess()) {
-      ATH_MSG_WARNING("Cannot io_finalize.");
-   }
    if (!m_athenaSealSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release AthenaSealSvc");
    }
@@ -317,19 +314,7 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-/*
-   unsigned int streamId = 0;
-   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      delete *iter;
-   }
-   m_persistencySvcVec.clear();
-   if (m_catalog != 0) {
-      m_catalog->commit();
-      delete m_catalog; m_catalog = 0;
-   }
-*/
-   return(StatusCode::SUCCESS);
+   return(disconnect(IPoolSvc::kInputStream));
 }
 //_______________________________________________________________________
 StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
