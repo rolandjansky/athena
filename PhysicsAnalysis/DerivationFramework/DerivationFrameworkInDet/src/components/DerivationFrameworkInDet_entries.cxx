@@ -5,6 +5,7 @@
 #include "DerivationFrameworkInDet/EgammaTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/JetTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/TauTrackParticleThinning.h"
+#include "DerivationFrameworkInDet/DiTauTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/TrackParametersAtPV.h"
 #include "DerivationFrameworkInDet/TrackStateOnSurfaceDecorator.h"
 #include "DerivationFrameworkInDet/TrackParametersForTruthParticles.h"
@@ -24,6 +25,7 @@ DECLARE_TOOL_FACTORY( TrackParticleThinning )
 DECLARE_TOOL_FACTORY( MuonTrackParticleThinning )
 DECLARE_TOOL_FACTORY( EgammaTrackParticleThinning )
 DECLARE_TOOL_FACTORY( TauTrackParticleThinning )
+DECLARE_TOOL_FACTORY( DiTauTrackParticleThinning )
 DECLARE_TOOL_FACTORY( JetTrackParticleThinning )
 DECLARE_TOOL_FACTORY( TrackParametersAtPV )
 DECLARE_TOOL_FACTORY( TrackStateOnSurfaceDecorator )
@@ -43,6 +45,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( MuonTrackParticleThinning )
    DECLARE_TOOL( EgammaTrackParticleThinning )
    DECLARE_TOOL( TauTrackParticleThinning )
+   DECLARE_TOOL( DiTauTrackParticleThinning )
    DECLARE_TOOL( JetTrackParticleThinning )
    DECLARE_TOOL( TrackParametersAtPV )
    DECLARE_TOOL( TrackStateOnSurfaceDecorator )
