@@ -214,6 +214,7 @@ namespace InDet {
       double m_AntiFake2trVrtCut;
       double m_JetPtFractionCut;
       int    m_TrackInJetNumberLimit;
+      double m_MaterialPtCut;
       double m_pseudoSigCut;
 
       bool m_FillHist;
@@ -355,7 +356,8 @@ namespace InDet {
 
       TLorentzVector GetBDir( const xAOD::TrackParticle* trk1,
                               const xAOD::TrackParticle* trk2,
-                              const xAOD::Vertex    & PrimVrt) const;
+                              const xAOD::Vertex    & PrimVrt,
+			      Amg::Vector3D &V1, Amg::Vector3D &V2) const;
 
       int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
       double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
@@ -469,6 +471,8 @@ namespace InDet {
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
      void  getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
+     void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
+     void  getPixelProblems(const Rec::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,

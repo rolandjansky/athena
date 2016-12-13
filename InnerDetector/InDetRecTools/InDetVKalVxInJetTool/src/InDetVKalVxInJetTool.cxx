@@ -52,6 +52,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_AntiFake2trVrtCut(0.5),
     m_JetPtFractionCut(0.01),
     m_TrackInJetNumberLimit(25),
+    m_MaterialPtCut(5.e3),
     m_pseudoSigCut(3.),
     m_FillHist(false),
     m_existIBL(true),
@@ -68,7 +69,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_RlayerB   (0.),  // in jobO or initialize()
     m_Rlayer1   (0.),
     m_Rlayer2   (0.),
-    m_SVResolutionR(0.),
+    m_SVResolutionR(3.),
     m_useMaterialRejection(true),
     m_useVertexCleaning(true),
     m_MassType (1),
@@ -118,6 +119,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("AntiFake2trVrtCut",   m_AntiFake2trVrtCut, "Cut to reduce fake 2-track vertices contribution.Single Vertex Finder only"  );
     declareProperty("JetPtFractionCut",    m_JetPtFractionCut,  "Reduce high Pt fakes. Jet HLV input is mandatory, direction is not enough. Multi and single vertex versions are affected"  );
     declareProperty("TrackInJetNumberLimit", m_TrackInJetNumberLimit, " Use only limited number of highest pT tracks in jet for vertex search"  );
+    declareProperty("MaterialPtCut",         m_MaterialPtCut, " To be a material vertex at least one track pt should be below this cut"  );
     declareProperty("PseudoSigCut",        m_pseudoSigCut, " Cut on track impact significance for pseudo-vertex search"  );
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
