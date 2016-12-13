@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+  <atn>
+    <TEST name="xAODCore_test" type="makecheck">
+      <timelimit>5</timelimit>
+      <author>Attila Krasznahorkay</author>
+      <mailto>Attila.Krasznahorkay at cern.ch</mailto>
+      <expectations>
+        <errorMessage> # WARNING_MESSAGE : post.sh> ERROR</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+</unifiedTestConfiguration>

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.cxx 698535 2015-10-05 14:10:12Z krasznaa $
+// $Id: ShallowAuxContainer.cxx 785968 2016-11-23 12:34:36Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -395,8 +395,15 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentIO ) {
-         return m_parentIO->getIOData( auxid );
+      if( m_parentLink.isValid() ) {
+         if( ! m_parentIO ) {
+            const SG::IAuxStoreIO* temp =
+               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
+            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
+         }
+         if( m_parentIO ) {
+            return m_parentIO->getIOData( auxid );
+         }
       }
 
       // If not, then where did this variable come from?!?
@@ -418,8 +425,15 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentIO ) {
-         return m_parentIO->getIOType( auxid );
+      if( m_parentLink.isValid() ) {
+         if( ! m_parentIO ) {
+            const SG::IAuxStoreIO* temp =
+               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
+            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
+         }
+         if( m_parentIO ) {
+            return m_parentIO->getIOType( auxid );
+         }
       }
 
       // If not, then where did this variable come from?!?
@@ -437,7 +451,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_store->getAuxIDs();
          } else {
-            static const auxid_set_t dummy;
+            static const auxid_set_t dummy {};
             return dummy;
          }
       } else {
@@ -460,7 +474,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
          } else {
-            static const auxid_set_t dummy;
+            static const auxid_set_t dummy {};
             return dummy;
          }
       } else {
