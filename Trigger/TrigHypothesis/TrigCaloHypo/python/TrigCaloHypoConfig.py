@@ -15,7 +15,7 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
         theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20,MNBLooseCut=5,MNBTightCut=17)
         self.NoiseTool = theLArNoisyROTool
 
-from TrigJetHypo.TrigJetHypoConf import TrigL2JetHypo
+from TrigCaloHypo.TrigCaloHypoConf import TrigL2JetHypo
 
 class L2JetHypoBase (TrigL2JetHypo):
     __slots__ = []
