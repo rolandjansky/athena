@@ -82,6 +82,7 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   m_trigZFinder("TrigZFinder"),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_ftkDataProviderSvc("TrigFTK_DataProviderSvc",name),
+  m_roiCollectionKey(""),
   m_shift_x(0.0),
   m_shift_y(0.0),
   m_doCloneRemoval(true),
@@ -107,7 +108,6 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   m_sctId(0),
   m_idHelper(0),
   m_particleHypothesis(Trk::pion),
-  m_roiCollectionKey(""),
   m_useNewLayerNumberScheme(false)
 {
 
@@ -674,7 +674,8 @@ double TrigFastTrackFinderMT::trackQuality(const Trk::Track* Tr) {
     double q;
     if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
     else                     q =      (W-x2    );
-    if(q < 0.) q = 0.; quality+=q;
+    if(q < 0.) q = 0.;
+    quality+=q;
   }
   return quality;
 }
@@ -1025,7 +1026,7 @@ void TrigFastTrackFinderMT::fillMon(const TrackCollection& tracks) {
   }
 }
 
-void TrigFastTrackFinderMT::runResidualMonitoring(const Trk::Track& track) {
+void TrigFastTrackFinderMT::runResidualMonitoring(const Trk::Track& /*track*/) {
   //std::vector<TrigL2HitResidual> vResid;
   //vResid.clear();
   //StatusCode scRes = m_trigL2ResidualCalculator->getUnbiassedResiduals(track,vResid);
