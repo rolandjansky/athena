@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_DigitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -42,6 +43,7 @@ void testit (const ALFA_Digit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ALFA_Digit trans1 (123, 234, 345);
     

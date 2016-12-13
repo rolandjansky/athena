@@ -9,7 +9,7 @@
 void ALFA_CLinkEventCnv_p1::persToTrans(const ALFA_CLinkEvent_p1* persObj, ALFA_CLinkEvent* transObj, MsgStream &log)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
-	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::persToTrans"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::persToTrans"<<endmsg;
 
         transObj->SetDCSFolderIDs (&persObj->m_DCSId);
 
@@ -44,13 +44,13 @@ void ALFA_CLinkEventCnv_p1::persToTrans(const ALFA_CLinkEvent_p1* persObj, ALFA_
 
 // 	m_DLGloRecEvCollCnv.persToTrans(&persObj->m_GloRecEvColl,&transObj->m_GloRecEvColl,log);
 
-	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv_p1::persToTrans"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv_p1::persToTrans"<<endmsg;
 }
  
 void ALFA_CLinkEventCnv_p1::transToPers(const ALFA_CLinkEvent* transObj, ALFA_CLinkEvent_p1* persObj,MsgStream &log)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
-	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::transToPers"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::transToPers"<<endmsg;
 
         persObj->m_DCSId=transObj->DCSId();
 
@@ -63,5 +63,5 @@ void ALFA_CLinkEventCnv_p1::transToPers(const ALFA_CLinkEvent* transObj, ALFA_CL
 	m_DLLocRecCorrODEvCollCnv.transToPers(&transObj->locRecCorrODEvCollLink(),&persObj->m_LocRecCorrODEvColl,log);
 // 	m_DLGloRecEvCollCnv.transToPers(&transObj->m_GloRecEvColl,&persObj->m_GloRecEvColl,log);
 
-	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv_p1::transToPers"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv_p1::transToPers"<<endmsg;
 }

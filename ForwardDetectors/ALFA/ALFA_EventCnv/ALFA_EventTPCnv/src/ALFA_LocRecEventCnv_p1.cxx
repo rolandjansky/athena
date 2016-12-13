@@ -8,7 +8,7 @@
 
 void ALFA_LocRecEventCnv_p1::persToTrans(const ALFA_LocRecEvent_p1* persObj, ALFA_LocRecEvent* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_LocRecEventCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "ALFA_LocRecEventCnv_p1::persToTrans called " << endmsg;
 
    *transObj = ALFA_LocRecEvent (persObj->m_iAlgoNum,
                                  persObj->m_pot_num,
@@ -26,7 +26,7 @@ void ALFA_LocRecEventCnv_p1::transToPers(const ALFA_LocRecEvent* transObj,
                                        ALFA_LocRecEvent_p1* persObj, 
                                        MsgStream &log)
 {
-	log << MSG::DEBUG << "ALFA_LocRecEventCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "ALFA_LocRecEventCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_iAlgoNum  = transObj->getAlgoNum();
 	persObj->m_pot_num   = transObj->getPotNum();

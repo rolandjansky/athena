@@ -8,7 +8,7 @@
 
 void ALFA_DigitCnv_p1::persToTrans(const ALFA_Digit_p1* persObj, ALFA_Digit* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_DigitCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "ALFA_DigitCnv_p1::persToTrans called " << endmsg;
 
    *transObj = ALFA_Digit (persObj->m_station,
                            persObj->m_plate,
@@ -20,7 +20,7 @@ void ALFA_DigitCnv_p1::transToPers(const ALFA_Digit* transObj,
                                        ALFA_Digit_p1* persObj, 
                                        MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_DigitCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "ALFA_DigitCnv_p1::transToPers called " << endmsg;
     persObj->m_plate       = transObj->getPlate();
     persObj->m_fiber       = transObj->getFiber();
     persObj->m_station     = transObj->getStation();

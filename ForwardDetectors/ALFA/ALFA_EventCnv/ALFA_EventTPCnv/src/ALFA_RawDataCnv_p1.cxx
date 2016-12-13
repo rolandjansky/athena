@@ -10,7 +10,7 @@ void ALFA_RawDataCnv_p1::persToTrans(const ALFA_RawData_p1* persObj,
 ALFA_RawData* transObj, MsgStream &log) {
 
 
-  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:persToTrans called" << endreq;
+  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:persToTrans called" << endmsg;
 
   transObj->SetZero_PMF();
   transObj->SetWordId_PMF (persObj->WordId);
@@ -28,7 +28,7 @@ ALFA_RawData* transObj, MsgStream &log) {
 void ALFA_RawDataCnv_p1::transToPers(const ALFA_RawData* transObj, ALFA_RawData_p1* persObj, MsgStream &log) {
 
   
-  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endreq;
+  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endmsg;
   
   persObj->WordId  = transObj->GetWordId_PMF();
   persObj->PMFId  = transObj->GetPMFId_PMF();

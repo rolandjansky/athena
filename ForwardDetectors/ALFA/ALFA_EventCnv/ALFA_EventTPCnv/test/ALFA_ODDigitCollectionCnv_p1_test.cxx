@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_ODDigitCollectionCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -52,6 +53,7 @@ void testit (const ALFA_ODDigitCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ALFA_ODDigitCollection trans1;
   for (int i=0; i < 10; i++) {

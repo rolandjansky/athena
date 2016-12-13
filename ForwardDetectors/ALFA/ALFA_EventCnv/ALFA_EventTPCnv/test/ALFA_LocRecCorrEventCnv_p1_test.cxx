@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrEventCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -50,6 +51,7 @@ void testit (const ALFA_LocRecCorrEvent& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ALFA_LocRecCorrEvent trans1 (123, 234,
                                10.5, 11.5, 12.5,

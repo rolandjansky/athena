@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_HitCollectionCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -64,6 +65,9 @@ void testit (const ALFA_HitCollection& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get dvl info created outside of leak checking.
+  ALFA_HitCollection dum1 ("coll");
+  Athena_test::Leakcheck check;
 
   ALFA_HitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {

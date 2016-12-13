@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "ALFA_EventTPCnv/ALFA_RawDataCollectionCnv_p1.h"
 #include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -92,6 +93,7 @@ void init_RawData (ALFA_RawData& r, int o)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ALFA_RawDataCollection trans1 (1123);
   for (int i=0; i < 10; i++) {

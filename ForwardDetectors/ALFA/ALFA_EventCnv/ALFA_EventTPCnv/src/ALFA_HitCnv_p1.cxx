@@ -9,7 +9,7 @@
 
 void ALFA_HitCnv_p1::persToTrans(const ALFA_Hit_p1* persObj, ALFA_Hit* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_HitCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "ALFA_HitCnv_p1::persToTrans called " << endmsg;
    
 //   HepMcParticleLinkCnv_p1 HepMcPLCnv;
 //   HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(transObj->m_partLink), log);
@@ -36,7 +36,7 @@ void ALFA_HitCnv_p1::transToPers(const ALFA_Hit* transObj,
                                        ALFA_Hit_p1* persObj, 
                                        MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_HitCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "ALFA_HitCnv_p1::transToPers called " << endmsg;
  //  HepMcParticleLinkCnv_p1 HepMcPLCnv;
 //    HepMcPLCnv.transToPers(&(transObj->m_partLink),&(persObj->m_partLink), log);
     persObj->hitID          = transObj->GetHitID();

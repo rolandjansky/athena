@@ -10,7 +10,7 @@ void ALFA_RawDataCnv_charge_p1::persToTrans(const ALFA_RawData_charge_p1* persOb
 ALFA_RawData_charge* transObj, MsgStream &log) {
 
 
-  log << MSG::DEBUG << "In ALFA_RawDataCnv_charge_p1:persToTrans called" << endreq;
+  log << MSG::DEBUG << "In ALFA_RawDataCnv_charge_p1:persToTrans called" << endmsg;
 
   transObj->SetZero_PMF();
   transObj->SetChannelNum_PMF (persObj->ChannelNumId);
@@ -25,7 +25,7 @@ ALFA_RawData_charge* transObj, MsgStream &log) {
 void ALFA_RawDataCnv_charge_p1::transToPers(const ALFA_RawData_charge* transObj, ALFA_RawData_charge_p1* persObj, MsgStream &log) {
 
   
-  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endreq;
+  log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endmsg;
   
   persObj->ChannelNumId  = transObj->GetChannelNum_PMF();
   persObj->PMFId  = transObj->GetPMFId_PMF();

@@ -10,7 +10,7 @@
 
 void ALFA_GloRecEventCnv_p1::persToTrans(const ALFA_GloRecEvent_p1* persObj, ALFA_GloRecEvent* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::persToTrans called - version with pointers to LocRecCorr " << endreq;
+   log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::persToTrans called - version with pointers to LocRecCorr " << endmsg;
    *transObj = ALFA_GloRecEvent (persObj->m_arm,
                                  persObj->m_x,
                                  persObj->m_y,
@@ -28,7 +28,7 @@ void ALFA_GloRecEventCnv_p1::transToPers(const ALFA_GloRecEvent* transObj,
                                        ALFA_GloRecEvent_p1* persObj, 
                                        MsgStream &log)
 {
-   log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::transToPers called - version with pointers to LocRecCorr " << endreq;
+   log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::transToPers called - version with pointers to LocRecCorr " << endmsg;
    persObj->m_arm       = transObj->getArmNum();
    persObj->m_x         = transObj->getXposition();
    persObj->m_y         = transObj->getYposition();
