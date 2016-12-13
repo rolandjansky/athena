@@ -70,10 +70,7 @@ ev=0
 for i in range(0,10000):
 #for i in range(0,199):
  try : 
-  a=theApp.nextEvent().isFailure() 
-  if ( a ) :
-    print 'should stop it in ev ',ev
-    break
+  a=not theApp.nextEvent().isFailure() 
   print 'Event Number',ev
   ev=ev+1;
  except : 

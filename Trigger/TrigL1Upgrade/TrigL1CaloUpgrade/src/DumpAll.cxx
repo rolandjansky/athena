@@ -105,15 +105,6 @@ StatusCode DumpAll::initialize(){
 	m_cell_infront->Branch("time",&m_cell_infront_time);
 	m_cell_infront->Branch("quality",&m_cell_infront_quality);
 
-	m_allcell_infront = new TTree("AllCellInFrontLayer","CellInFront");
-	m_allcell_infront->Branch("idx",&m_allcell_infront_idx);
-	m_allcell_infront->Branch("e",&m_allcell_infront_e);
-	m_allcell_infront->Branch("eta",&m_allcell_infront_eta);
-	m_allcell_infront->Branch("phi",&m_allcell_infront_phi);
-	m_allcell_infront->Branch("layer",&m_allcell_infront_layer);
-	m_allcell_infront->Branch("time",&m_allcell_infront_time);
-	m_allcell_infront->Branch("quality",&m_allcell_infront_quality);
-
 	m_file->cd("/");
 
 	// for cell <-> SCell comparison
@@ -208,42 +199,9 @@ StatusCode DumpAll::execute(){
 		std::vector< float > layer;
 		std::vector< float > time;
 		std::vector< float > quality;
-		std::vector< float > all_idx;
-		std::vector< float > all_e;
-		std::vector< float > all_eta;
-		std::vector< float > all_phi;
-		std::vector< float > all_layer;
-		std::vector< float > all_time;
-		std::vector< float > all_quality;
-		int index = 0;
 		for(auto c : *allcalo) {
 			int l = c->caloDDE()->getSampling();
 			if ( (l!=1) && (l!=5) ) continue;
-			float seedEta=c->eta();
-			float absSeedEta = TMath::Abs( seedEta );
-			float seedPhi=c->phi();
-			if ( c->energy() / TMath::CosH( absSeedEta ) > 125 ) { // found a seed
-			   for(auto d : *allcalo) {
-				int k = c->caloDDE()->getSampling();
-				if ( (k!=1) && (k!=5) ) continue;
-				float limit = 0.066;
-				if ( absSeedEta > 1.7 ) limit = 0.088;
-				if ( absSeedEta > 1.9 ) limit = 0.132;
-				if ( fabsf( seedEta-d->eta() ) > limit ) continue;
-				float dphi = fabsf( seedPhi-d->phi() );
-				dphi = fabsf(M_PI - dphi);
-				dphi = fabsf(M_PI - dphi);
-				if ( dphi > 0.12 ) continue;
-				all_idx.push_back( index );
-				all_e.push_back ( d->energy() );
-				all_eta.push_back ( d->eta() );
-				all_phi.push_back ( d->phi() );
-				all_layer.push_back ( d->caloDDE()->getSampling() );
-				all_time.push_back ( d->time() );
-				all_quality.push_back ( d->quality() );
-			   }
-			   index++;
-			}
 			if ( fabsf( etaCl-c->eta() ) > 0.2 ) continue;
 			float dphi = fabsf( phiCl-c->phi() );
 			dphi = fabsf(M_PI - dphi);
@@ -256,26 +214,16 @@ StatusCode DumpAll::execute(){
 			time.push_back ( c->time() );
 			quality.push_back ( c->quality() );
 		}
+		std::cout << "CELL : " << e.size() << std::endl;
 		m_cell_infront_e.push_back(e);
 		m_cell_infront_eta.push_back(eta);
 		m_cell_infront_phi.push_back(phi);
 		m_cell_infront_layer.push_back(layer);
 		m_cell_infront_time.push_back(time);
 		m_cell_infront_quality.push_back(quality);
-
-		m_allcell_infront_idx.push_back(all_idx);
-		m_allcell_infront_e.push_back(all_e);
-		m_allcell_infront_eta.push_back(all_eta);
-		m_allcell_infront_phi.push_back(all_phi);
-		m_allcell_infront_layer.push_back(all_layer);
-		m_allcell_infront_time.push_back(all_time);
-		m_allcell_infront_quality.push_back(all_quality);
 	   }
 	}
-	if ( caloavail ) {
-		m_allcell_infront->Fill();
-		m_cell_infront->Fill();
-	}
+	if ( caloavail ) m_cell_infront->Fill();
 	m_selectron->Fill();
         int nvtxs=-1;
 	if ( nvtx != NULL) nvtxs = nvtx->size();
@@ -380,14 +328,6 @@ void DumpAll::ResetAllBranches(){
 	m_cell_infront_layer.clear();
 	m_cell_infront_time.clear();
 	m_cell_infront_quality.clear();
-
-	m_allcell_infront_idx.clear();
-	m_allcell_infront_e.clear();
-	m_allcell_infront_eta.clear();
-	m_allcell_infront_phi.clear();
-	m_allcell_infront_layer.clear();
-	m_allcell_infront_time.clear();
-	m_allcell_infront_quality.clear();
 
 }
 
