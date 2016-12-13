@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "TrigTruthEventTPCnv/TrigIDHitStatsCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -43,6 +44,7 @@ void testit (const TrigIDHitStats& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigIDHitStats trans1;
   trans1[TrigIDHitStats::PIX] = 12;

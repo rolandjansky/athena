@@ -15,6 +15,7 @@
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthCnv_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -94,6 +95,7 @@ void testit (const TrigInDetTrackTruth& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   TrigInDetTrackTruth trans1;
   TrigInDetTrackTruthCnv_p1_test::set (trans1);

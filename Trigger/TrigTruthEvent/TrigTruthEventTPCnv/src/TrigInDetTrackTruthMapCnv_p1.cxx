@@ -19,7 +19,7 @@ void TrigInDetTrackTruthMapCnv_p1::persToTrans( const TrigInDetTrackTruthMap_p1 
 					     TrigInDetTrackTruthMap    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::persToTrans called " << endmsg;
 
   transObj->m_elink_vec.clear();
   trackVectCnv.persToTrans(&persObj->m_elink_vec, &transObj->m_elink_vec, log);
@@ -44,7 +44,7 @@ void TrigInDetTrackTruthMapCnv_p1::transToPers( const TrigInDetTrackTruthMap    
 					     TrigInDetTrackTruthMap_p1 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::transToPers called " << endmsg;
 
   trackVectCnv.transToPers(&transObj->m_elink_vec, &persObj->m_elink_vec, log);
 

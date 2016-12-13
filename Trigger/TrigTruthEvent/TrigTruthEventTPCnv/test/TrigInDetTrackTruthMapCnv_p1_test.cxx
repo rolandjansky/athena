@@ -17,6 +17,7 @@
 #include "SGTools/TestStore.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -109,9 +110,6 @@ void test1()
 {
   std::cout << "test1\n";
 
-  TrigInDetTrackTruthMap trans1;
-  //TrigInDetTrackTruthMapCnv_p1_test::set (trans1);
-
   auto coll = CxxUtils::make_unique<TrigInDetTrackCollection>();
   for (int i=0; i<10; i++) {
     int o = i*10;
@@ -124,6 +122,11 @@ void test1()
   const TrigInDetTrackCollection* collp = coll.get();
   SGTest::store.record (coll.release(), "coll");
 
+  Athena::getMessageSvc();
+  Athena_test::Leakcheck check;
+  TrigInDetTrackTruthMap trans1;
+  //TrigInDetTrackTruthMapCnv_p1_test::set (trans1);
+
   TrigInDetTrackTruth t1;
   TrigInDetTrackTruthCnv_p1_test::set (t1, 1);
   trans1.addMatch (collp, 1, t1);
@@ -135,7 +138,6 @@ void test1()
   TrigInDetTrackTruth t3;
   TrigInDetTrackTruthCnv_p1_test::set (t3, 3);
   trans1.addMatch (collp, 3, t3);
-  
     
   testit (trans1);
 }
