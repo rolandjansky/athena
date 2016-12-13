@@ -37,7 +37,7 @@ class Processor:
     self.config = config
 
     # Need to load libPyROOT before TrigServices (see Savannah #82614)
-    import PyCintex  
+    import cppyy 
     
     logging.debug1('Loading libraries %s' % ', '.join(self.libraries))
     
