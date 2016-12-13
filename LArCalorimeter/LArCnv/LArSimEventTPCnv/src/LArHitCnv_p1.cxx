@@ -12,7 +12,7 @@
 void
 LArHitCnv_p1::persToTrans(const LArHit_p1* persObj, LArHit* transObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "LArHitCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "LArHitCnv_p1::persToTrans called " << endmsg;
 
    *transObj = LArHit (Identifier(persObj->m_channelID),
                        (double) persObj->m_energy,
@@ -23,7 +23,7 @@ LArHitCnv_p1::persToTrans(const LArHit_p1* persObj, LArHit* transObj, MsgStream 
 void
 LArHitCnv_p1::transToPers(const LArHit* transObj, LArHit_p1* persObj, MsgStream &log)
 {
-   log << MSG::DEBUG << "LArHitCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "LArHitCnv_p1::transToPers called " << endmsg;
    persObj->m_channelID         = transObj->cellID().get_identifier32().get_compact();
    persObj->m_energy            = (float) transObj->energy();
    persObj->m_time              = (float) transObj->time();

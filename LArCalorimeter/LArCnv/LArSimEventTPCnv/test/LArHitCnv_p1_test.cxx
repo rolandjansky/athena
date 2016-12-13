@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "LArSimEventTPCnv/LArHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -42,6 +43,7 @@ void testit (const LArHit& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   LArHit trans1 (Identifier (0x1234), 10.5, 12.5);
     
