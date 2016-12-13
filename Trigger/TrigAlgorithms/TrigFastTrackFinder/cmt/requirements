@@ -30,6 +30,7 @@ private
 
 use     AtlasTBB                        AtlasTBB-*                      External
 use     CxxUtils            CxxUtils-*         Control
+use     StoreGate            StoreGate-*         Control
 use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*   Trigger/TrigEvent
 use 	TrkRIO_OnTrack			TrkRIO_OnTrack-*		Tracking/TrkEvent 
 use     InDetRIO_OnTrack                InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent 
