@@ -57,6 +57,10 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
+    m_idHelper(0),
+    m_pixId(0),
+    m_sctId(0),
+    m_trtId(0),
     m_updator("Trk::KalmanUpdator"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
@@ -481,7 +485,7 @@ namespace DerivationFramework {
           }
         }
         
-        if(m_addPRD){
+        if(m_addPRD && hit){
           // Build an element link to the xAOD PRD
           const Trk::PrepRawData* prd = hit->prepRawData();
           if(prd && prd->getHashAndIndex().isValid() ){            
