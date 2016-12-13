@@ -16,6 +16,7 @@
 #include "SGTools/TestStore.h"
 #include "CxxUtils/make_unique.h"
 #include "CLHEP/Vector/ThreeVector.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -98,6 +99,15 @@ void testit (const eflowObjectContainer& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  // Get proxies created outside of leak checking.
+  ElementLink<CaloClusterContainer> foo ("foo", 0);
+  ElementLink<CaloClusterContainer> bar ("bar", 0);
+  ElementLink<Rec::TrackParticleContainer> aaa ("aaa", 0);
+  ElementLink<Rec::TrackParticleContainer> bbb ("bbb", 0);
+  ElementLink<Rec::TrackParticleContainer> ccc ("ccc", 0);
+  ElementLink<Analysis::MuonContainer> aa ("aa", 0);
+  ElementLink<VxContainer> bb ("bb", 0);
+  Athena_test::Leakcheck check;
 
   eflowObjectContainer trans1;
   for (int i=0; i < 10; i++) {
