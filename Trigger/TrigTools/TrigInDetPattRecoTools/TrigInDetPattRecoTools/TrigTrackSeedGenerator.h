@@ -169,19 +169,38 @@ LPhiSector(int nPhiSlices) : m_nSP(0) {
   std::vector<const TrigSiSpacePointBase*> d;
   m_phiSlices.resize(nPhiSlices, d);
   m_phiThreeSlices.resize(nPhiSlices, d);
-  for(int phiIdx=0;phiIdx<nPhiSlices;phiIdx++) {
-    m_threeIndices[1].push_back(phiIdx);
-    if(phiIdx>0) m_threeIndices[0].push_back(phiIdx-1);
-    else m_threeIndices[0].push_back(nPhiSlices-1);
-    if(phiIdx<nPhiSlices-1) m_threeIndices[2].push_back(phiIdx+1);
-    else m_threeIndices[2].push_back(0);
+  if(nPhiSlices == 1) {//special case
+    m_threeIndices[1].push_back(0);
+    m_threeIndices[0].push_back(-1);
+    m_threeIndices[2].push_back(-1);
   }
+  if(nPhiSlices == 2) {//special case
+    m_threeIndices[1].push_back(0);
+    m_threeIndices[0].push_back(-1);
+    m_threeIndices[2].push_back(1);
+    m_threeIndices[1].push_back(1);
+    m_threeIndices[0].push_back(0);
+    m_threeIndices[2].push_back(-1);
+  }
+  if(nPhiSlices > 2) {
+    for(int phiIdx=0;phiIdx<nPhiSlices;phiIdx++) {
+      m_threeIndices[1].push_back(phiIdx);
+      if(phiIdx>0) m_threeIndices[0].push_back(phiIdx-1);
+      else m_threeIndices[0].push_back(nPhiSlices-1);
+      if(phiIdx<nPhiSlices-1) m_threeIndices[2].push_back(phiIdx+1);
+      else m_threeIndices[2].push_back(0);
+    }
+  }
+  //for(int phiIdx=0;phiIdx<nPhiSlices;phiIdx++) {
+  //  std::cout<<"PHI SLICE "<<phiIdx<<"[ "<<m_threeIndices[0][phiIdx]<<" "<<m_threeIndices[1][phiIdx]
+  //	     <<" "<<m_threeIndices[2][phiIdx]<<"]"<<std::endl;
+  //}
 }
 
 LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices), m_phiThreeSlices(ps.m_phiThreeSlices) {
   for(int i=0;i<3;i++) {
-      m_threeIndices[i] = ps.m_threeIndices[i];
-    }
+    m_threeIndices[i] = ps.m_threeIndices[i];
+  }
 }
 
   const LPhiSector& operator = (const LPhiSector& ps) {
@@ -208,6 +227,7 @@ LPhiSector(const LPhiSector& ps) : m_nSP(ps.m_nSP), m_phiSlices(ps.m_phiSlices),
     m_nSP++;
     m_phiSlices[phiIndex].push_back(p);
     for(int i=0;i<3;i++) {
+      if(m_threeIndices[i][phiIndex]==-1) continue;//to account for special cases nPhiSlices=1,2
       m_phiThreeSlices[m_threeIndices[i][phiIndex]].push_back(p);
     }
   }
