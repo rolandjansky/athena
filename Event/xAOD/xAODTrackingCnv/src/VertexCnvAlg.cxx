@@ -14,7 +14,7 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkLinks/LinkToXAODNeutralParticle.h"
-
+#include "CxxUtils/make_unique.h"
 // Local include(s):
 #include "VertexCnvAlg.h"
 
@@ -22,12 +22,15 @@ namespace xAODMaker {
 
   VertexCnvAlg::VertexCnvAlg( const std::string& name,
     ISvcLocator* svcLoc )
-  : AthAlgorithm( name, svcLoc ) {
+  : AthAlgorithm( name, svcLoc ),
+  m_aod("VxPrimaryCandidate"),
+  m_xaodout("PrimaryVertices")  
+   {
 
     declareProperty( "AODContainerName",
-      m_aodContainerName = "VxPrimaryCandidate" );
+      m_aod );
     declareProperty( "xAODContainerName",
-      m_xaodContainerName = "PrimaryVertices" );
+      m_xaodout );
     declareProperty( "TPContainerName",
       m_TPContainerName = "InDetTrackParticles" );
     declareProperty( "NPContainerName",
@@ -37,8 +40,8 @@ namespace xAODMaker {
   StatusCode VertexCnvAlg::initialize() {
 
     ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
-    ATH_MSG_INFO( "AODContainerName  = " << m_aodContainerName );
-    ATH_MSG_INFO( "xAODContainerName = " << m_xaodContainerName );
+    ATH_MSG_INFO( "AODContainerName  = " << m_aod.name() );
+    ATH_MSG_INFO( "xAODContainerName = " << m_xaodout.name() );
     ATH_MSG_INFO( "TPContainerName = " << m_TPContainerName );
     ATH_MSG_INFO( "NPContainerName = " << m_NPContainerName );
 
@@ -48,38 +51,35 @@ namespace xAODMaker {
 
   StatusCode VertexCnvAlg::execute() {
     // Retrieve the AOD vertexes:
-    const VxContainer* aod = evtStore()->tryConstRetrieve<VxContainer>(m_aodContainerName);
-    if (!aod) {
-       ATH_MSG_DEBUG("No VxContainer with key " << m_aodContainerName << " found. Do nothing.");
+
+    if (!m_aod.isValid()) {
+       ATH_MSG_DEBUG("No VxContainer with key " << m_aod.name() << " found. Do nothing.");
        return StatusCode::SUCCESS;
     }
 
-    ATH_MSG_DEBUG( "Retrieved particles with key: " << m_aodContainerName );
+    ATH_MSG_DEBUG( "Retrieved particles with key: " << m_aod.name() );
 
     // Create the xAOD container and its auxiliary store:
-    xAOD::VertexContainer* xaod = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
 
-    if (evtStore()->contains<xAOD::VertexContainer>(m_xaodContainerName)) {   
-      CHECK( evtStore()->overwrite( aux, m_xaodContainerName + "Aux.",true,false) );
-      CHECK( evtStore()->overwrite( xaod, m_xaodContainerName,true,false) );
-      xaod->setStore( aux );
-      ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_xaodContainerName );
+    m_xaodout = CxxUtils::make_unique<xAOD::VertexContainer>();
+    m_xauxout = CxxUtils::make_unique<xAOD::VertexAuxContainer>();
+
+    if(!m_xaodout.isValid() || !m_xauxout.isValid()){
+       ATH_MSG_ERROR( "Problem creating " << m_xaodout.name() );
     }
-    else{
-      CHECK( evtStore()->record( aux, m_xaodContainerName + "Aux." ) );
-      CHECK( evtStore()->record( xaod, m_xaodContainerName ) );
-      xaod->setStore( aux );
-      ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_xaodContainerName );
-    }
+
+    m_xaodout->setStore( *m_xauxout );
+
 
     // Create the xAOD objects:
-    auto itr = aod->begin();
-    auto end = aod->end();
+    auto itr = m_aod->cbegin();
+    auto end = m_aod->cend();
+    m_xaodout->reserve(m_aod->size());
+    
     for( ; itr != end; ++itr ) {
       // Create the xAOD object:
       xAOD::Vertex* vertex = new xAOD::Vertex();
-      xaod->push_back( vertex );
+      m_xaodout->push_back( vertex );
       // Get & set the Position
       const Amg::Vector3D& position = (*itr)->recVertex().position();
       vertex->setPosition(position);
