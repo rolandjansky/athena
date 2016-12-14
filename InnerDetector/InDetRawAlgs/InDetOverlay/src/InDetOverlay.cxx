@@ -99,7 +99,7 @@ namespace Overlay {
       {	
 	const Identifier ident = (*firstData)->identify();
 	const unsigned int word = (*firstData)->getWord();
-	SCT3_RawData* oldData = dynamic_cast<SCT3_RawData*>(*firstData);	
+	const SCT3_RawData* oldData = dynamic_cast<const SCT3_RawData*>(*firstData);	
 	std::vector<int> errorHit=oldData->getErrorCondensedHit();
 	SCT3_RawData * newData=new SCT3_RawData(ident,word, &errorHit);
 	copy_coll->push_back (newData );
@@ -126,11 +126,11 @@ namespace Overlay {
     typedef std::multimap<int, const SCT_RDO_TYPE*> StripMap;
 
     void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName, InDetOverlay *parent) {
-      for(InDetRawDataCollection<SCT_RDORawData>::const_iterator i=rdo_coll.begin(); i!=rdo_coll.end(); ++i) {
-        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(&**i);
+      for (const SCT_RDORawData* elt : rdo_coll) {
+        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(elt);
         if(!rdo) {
           std::ostringstream os;
-          os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(**i).name();
+          os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(*elt).name();
           throw std::runtime_error(os.str());
         }
 
