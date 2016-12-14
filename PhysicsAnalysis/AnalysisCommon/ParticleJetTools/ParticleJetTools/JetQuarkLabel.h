@@ -40,7 +40,6 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         JetQuarkLabel(const std::string& name);
         virtual ~JetQuarkLabel();
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
 
         /* Method to truth tag a jet.
          * NB: for this particular algorithm, matchJet is TRUE if the jet is matched 

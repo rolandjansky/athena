@@ -49,10 +49,6 @@ StatusCode JetQuarkLabel::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetQuarkLabel::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
                              MatchInfo* info /*= nullptr*/) const
 {

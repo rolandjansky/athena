@@ -19,7 +19,7 @@ JetParticleAssociation::JetParticleAssociation(const string& name)
     }
 
 StatusCode JetParticleAssociation::initialize() {
-    dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
+    m_dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_outputCollectionName);
 
     return StatusCode::SUCCESS;
 }
@@ -41,7 +41,7 @@ StatusCode JetParticleAssociation::execute() {
         trkacc("BTagTrackToJetAssociator");
 
     for (unsigned int iJet = 0; iJet < jets->size(); iJet++)
-        (*dec)(*jets->at(iJet)) = (*matches)[iJet];
+        (*m_dec)(*jets->at(iJet)) = (*matches)[iJet];
 
     delete matches;
 
@@ -50,6 +50,6 @@ StatusCode JetParticleAssociation::execute() {
 
 
 StatusCode JetParticleAssociation::finalize() {
-    delete dec;
+    delete m_dec;
     return StatusCode::SUCCESS;
 }
