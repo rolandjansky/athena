@@ -18,6 +18,7 @@ addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TMEFCombinerOnly",
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_FSCB","TrigMuSuperEF_FSCB")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_FSSA","TrigMuSuperEF_FSSA")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone","TrigMuSuperEF_WideCone")
+addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone04","TrigMuSuperEF_WideCone04")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone05","TrigMuSuperEF_WideCone05")
 
 # tools for Calotag  #####Commenting out so things will run...

@@ -154,7 +154,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   // Output xAOD muons
   xAOD::MuonContainer* m_muonContainer;
-  xAOD::SlowMuonContainer* m_slowMuonContainer;
+  //xAOD::SlowMuonContainer* m_slowMuonContainer;
 
   // Output tagged TrackParticles
   xAOD::TrackParticleContainer* m_ctTrackParticleContainer;

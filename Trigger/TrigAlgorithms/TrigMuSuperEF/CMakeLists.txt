@@ -9,6 +9,7 @@ atlas_subdir( TrigMuSuperEF )
 atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloEvent
                           Control/CxxUtils
+                          Control/AthenaKernel
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           GaudiKernel

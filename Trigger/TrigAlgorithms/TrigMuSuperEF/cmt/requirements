@@ -8,6 +8,7 @@ private
 use AtlasPolicy	      AtlasPolicy-* 
 use GaudiInterface    GaudiInterface-*			  External
 use CxxUtils          CxxUtils-*                          Control
+use AthenaKernel      AthenaKernel-*                      Control
 
 # trigger generalities
 use TrigInterfaces              TrigInterfaces-*                Trigger/TrigSteer
