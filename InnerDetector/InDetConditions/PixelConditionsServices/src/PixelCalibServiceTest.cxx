@@ -41,15 +41,15 @@ PixelCalibServiceTest::PixelCalibServiceTest(const std::string& name, ISvcLocato
      m_pixman(0),
      m_pixid(0),
      m_setup(0),
-     par_rfile(""),
+     m_par_rfile(""),
      m_dummy(false),
-     par_histf(0)
+     m_par_histf(0)
 {
  
   // declare algorithm parameters
-  declareProperty("OutputTextFile",par_rfile);
+  declareProperty("OutputTextFile",m_par_rfile);
   declareProperty("MakeDummy",m_dummy);
-  for(int i =0; i<14; ++i)_myhf[i] =0;
+  for(int i =0; i<14; ++i)m_myhf[i] =0;
 }
 
 
@@ -58,19 +58,19 @@ PixelCalibServiceTest::~PixelCalibServiceTest(void)
 
 StatusCode PixelCalibServiceTest::initialize() {
   
-  msg(MSG::INFO) << "PixelCalibServiceTest::initialize() called" << endreq;
+  msg(MSG::INFO) << "PixelCalibServiceTest::initialize() called" << endmsg;
   
   //get storegate pointers (not need for AthAlgorithm classes)
   //if ((StatusCode::SUCCESS!=service("StoreGateSvc",m_sgSvc)) ||
   //   (StatusCode::SUCCESS!=service("DetectorStore",m_detStore))) {
-  //  msg(MSG::INFO) << "StoreGate services not found" << endreq;
+  //  msg(MSG::INFO) << "StoreGate services not found" << endmsg;
   //  return StatusCode::FAILURE;
   // }
  
   // Get Pixel manager and ID helper
   if (StatusCode::SUCCESS!= detStore()->retrieve(m_pixman,"Pixel") || 
       m_pixman==0) {
-    msg(MSG::FATAL) << "Could not find Pixel manager " << endreq;
+    msg(MSG::FATAL) << "Could not find Pixel manager " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -90,8 +90,8 @@ StatusCode PixelCalibServiceTest::initialize() {
   int totpixmodule(0);
   std::ofstream* outfile=0;
   if(msgLvl(MSG::INFO)) msg() << " read PixelCalibData to text file: "
-                              << par_rfile << endreq;
-  outfile = new std::ofstream(par_rfile.c_str());
+                              << m_par_rfile << endmsg;
+  outfile = new std::ofstream(m_par_rfile.c_str());
 
   for( iter=itermin; iter !=itermax; ++iter){
     const InDetDD::SiDetectorElement* element = *iter;
@@ -115,40 +115,40 @@ StatusCode PixelCalibServiceTest::initialize() {
       }
     }
   }
-  if(msgLvl(MSG::INFO) ) msg() <<" total Pixel module "<<totpixmodule<<endreq;
+  if(msgLvl(MSG::INFO) ) msg() <<" total Pixel module "<<totpixmodule<<endmsg;
   // end of checking pixel modules 
 
   //get Database manager tool
   if (StatusCode::SUCCESS!=m_calibsvc.retrieve() ) {
-    msg(MSG::FATAL) << "PixelCalibSvc not found" << endreq;
+    msg(MSG::FATAL) << "PixelCalibSvc not found" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " PixelCalibSvc found " << endreq;
+  msg(MSG::INFO) << " PixelCalibSvc found " << endmsg;
   
   //print the options
-  msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << par_rfile<<endreq;
-  if(par_rfile ==""){
-    msg(MSG::ERROR) << " It's reading, Output text file is required "<<endreq; 
+  msg(MSG::INFO) << " Read from Pixel Conditions database into a text file: " << m_par_rfile<<endmsg;
+  if(m_par_rfile ==""){
+    msg(MSG::ERROR) << " It's reading, Output text file is required "<<endmsg; 
     return StatusCode::FAILURE; 
   }
   //
   // create a root file
   
-  par_histf = new TFile("myoutput.root","RECREATE");
-  _myhf[0] = new TH1F("thres","thres",200,3000.,8000.);
-  _myhf[1] = new TH1F("sigmath","sigmath",100,0.,500.);
-  _myhf[2] = new TH1F("noise","noise",100,0.,500.);
-  _myhf[3] = new TH1F("thresin","thresin",200,3000.,8000.);
-  _myhf[4] = new TH1F("thres-long","thres-long",200,3000.,8000.);
-  _myhf[5] = new TH1F("sigmath-long","sigmath-long",100,0.,500.);
-  _myhf[6] = new TH1F("noise-long","noise-long",100,0.,500.);
-  _myhf[7] = new TH1F("thresin-long","thresin-long",200,3000.,8000.);
-  _myhf[8] = new TH1F("thres-ganged","thres-ganged",200,3000.,8000.);
-  _myhf[9] = new TH1F("sigmath-ganged","sigmath-ganged",100,0.,500.);
-  _myhf[10] = new TH1F("noise-ganged","noise-ganged",100,0.,500.);
-  _myhf[11] = new TH1F("thresin-ganged","thresin-ganged",200,3000.,8000.);
-  _myhf[12] = new TH1F("tot-p1","tot-p1",100, -1.,1.);
-  _myhf[13] = new TH1F("tot-p2","tot-p2",100, -1.,1.);
+  m_par_histf = new TFile("myoutput.root","RECREATE");
+  m_myhf[0] = new TH1F("thres","thres",200,3000.,8000.);
+  m_myhf[1] = new TH1F("sigmath","sigmath",100,0.,500.);
+  m_myhf[2] = new TH1F("noise","noise",100,0.,500.);
+  m_myhf[3] = new TH1F("thresin","thresin",200,3000.,8000.);
+  m_myhf[4] = new TH1F("thres-long","thres-long",200,3000.,8000.);
+  m_myhf[5] = new TH1F("sigmath-long","sigmath-long",100,0.,500.);
+  m_myhf[6] = new TH1F("noise-long","noise-long",100,0.,500.);
+  m_myhf[7] = new TH1F("thresin-long","thresin-long",200,3000.,8000.);
+  m_myhf[8] = new TH1F("thres-ganged","thres-ganged",200,3000.,8000.);
+  m_myhf[9] = new TH1F("sigmath-ganged","sigmath-ganged",100,0.,500.);
+  m_myhf[10] = new TH1F("noise-ganged","noise-ganged",100,0.,500.);
+  m_myhf[11] = new TH1F("thresin-ganged","thresin-ganged",200,3000.,8000.);
+  m_myhf[12] = new TH1F("tot-p1","tot-p1",100, -1.,1.);
+  m_myhf[13] = new TH1F("tot-p2","tot-p2",100, -1.,1.);
   
   //
   return StatusCode::SUCCESS;
@@ -165,12 +165,12 @@ StatusCode PixelCalibServiceTest::execute() {
     m_setup = true; 
     std::ofstream* outfile=0;
     if(msgLvl(MSG::INFO)) msg() << " read PixelCalibData to text file: "
-	  << par_rfile << endreq;
-    outfile = new std::ofstream(par_rfile.c_str());
+	  << m_par_rfile << endmsg;
+    outfile = new std::ofstream(m_par_rfile.c_str());
 
     InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
     if(StatusCode::SUCCESS != detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
-      if(msgLvl(MSG::FATAL)) msg() << "Could not find Pixel manager "<<endreq;
+      if(msgLvl(MSG::FATAL)) msg() << "Could not find Pixel manager "<<endmsg;
       return StatusCode::FAILURE;
     }
     else{
@@ -239,7 +239,7 @@ StatusCode PixelCalibServiceTest::execute() {
 		}
 	      }
 	      if(m_calibsvc->hasCalibData(ident)){
-		if(nobj%100==0 && msgLvl(MSG::INFO) ) msg()           <<"ith Module:"<<nobj<<"with Identifier:"<<hashID<<endreq;
+		if(nobj%100==0 && msgLvl(MSG::INFO) ) msg()           <<"ith Module:"<<nobj<<"with Identifier:"<<hashID<<endmsg;
 		++nobj;
 		*outfile<<m_pixid->barrel_ec(ident)<<","<<m_pixid->layer_disk(ident)+dl<<","<<m_pixid->phi_module(ident)<<","<<m_pixid->eta_module(ident)<<std::endl;
 		for(int ichip=0; ichip<static_cast<int>(mchips); ++ichip){
@@ -270,7 +270,7 @@ StatusCode PixelCalibServiceTest::execute() {
 	  }
 	  else{ // normal dump 	      
 	    if(m_calibsvc->hasCalibData(ident)){
-	      if(nobj%100==0 && msgLvl(MSG::INFO) ) msg()           <<"ith Module:"<<nobj<<"with Identifier:"<<hashID<<endreq;
+	      if(nobj%100==0 && msgLvl(MSG::INFO) ) msg()           <<"ith Module:"<<nobj<<"with Identifier:"<<hashID<<endmsg;
 	      ++nobj;
 	      int rowsFGangedFE = rowsFGangedFEI3;
 	      if(isITK){
@@ -282,20 +282,20 @@ StatusCode PixelCalibServiceTest::execute() {
 	      if(mchipx>2){
 		for(int ichip=0; ichip<mchipx; ++ichip){
 		  ++nchips;		
-		  _myhf[0]->Fill(m_calibsvc->getThreshold(ident,0,1,ichip));
-		  _myhf[1]->Fill(m_calibsvc->getThresholdSigma(ident,0,1,ichip));
-		  _myhf[2]->Fill(m_calibsvc->getNoise(ident,0,1,ichip));
-		  _myhf[3]->Fill(m_calibsvc->getTimeWalk(ident,0,1,ichip));
-		  _myhf[4]->Fill(m_calibsvc->getThreshold(ident,0,0,ichip));
-		  _myhf[5]->Fill(m_calibsvc->getThresholdSigma(ident,0,0,ichip));
-		  _myhf[6]->Fill(m_calibsvc->getNoise(ident,0,0,ichip));
-		  _myhf[7]->Fill(m_calibsvc->getTimeWalk(ident,0,0,ichip));
-		  _myhf[8]->Fill(m_calibsvc->getThreshold(ident,rowsFGangedFE,0,ichip));
-		  _myhf[9]->Fill(m_calibsvc->getThresholdSigma(ident,rowsFGangedFE,0,ichip));
-		  _myhf[10]->Fill(m_calibsvc->getNoise(ident,rowsFGangedFE,0,ichip));
-		  _myhf[11]->Fill(m_calibsvc->getTimeWalk(ident,rowsFGangedFE,0,ichip));
-		  _myhf[12]->Fill(m_calibsvc->getTotP1(ident,ichip));
-		  _myhf[13]->Fill(m_calibsvc->getTotP2(ident,ichip));
+		  m_myhf[0]->Fill(m_calibsvc->getThreshold(ident,0,1,ichip));
+		  m_myhf[1]->Fill(m_calibsvc->getThresholdSigma(ident,0,1,ichip));
+		  m_myhf[2]->Fill(m_calibsvc->getNoise(ident,0,1,ichip));
+		  m_myhf[3]->Fill(m_calibsvc->getTimeWalk(ident,0,1,ichip));
+		  m_myhf[4]->Fill(m_calibsvc->getThreshold(ident,0,0,ichip));
+		  m_myhf[5]->Fill(m_calibsvc->getThresholdSigma(ident,0,0,ichip));
+		  m_myhf[6]->Fill(m_calibsvc->getNoise(ident,0,0,ichip));
+		  m_myhf[7]->Fill(m_calibsvc->getTimeWalk(ident,0,0,ichip));
+		  m_myhf[8]->Fill(m_calibsvc->getThreshold(ident,rowsFGangedFE,0,ichip));
+		  m_myhf[9]->Fill(m_calibsvc->getThresholdSigma(ident,rowsFGangedFE,0,ichip));
+		  m_myhf[10]->Fill(m_calibsvc->getNoise(ident,rowsFGangedFE,0,ichip));
+		  m_myhf[11]->Fill(m_calibsvc->getTimeWalk(ident,rowsFGangedFE,0,ichip));
+		  m_myhf[12]->Fill(m_calibsvc->getTotP1(ident,ichip));
+		  m_myhf[13]->Fill(m_calibsvc->getTotP2(ident,ichip));
 		  // need to be prcise about the type of pixel: 
 		  *outfile<<"I"<<ichip<<" "<<m_calibsvc->getThreshold(ident,0,1,ichip)<<" "<<
 		    m_calibsvc->getThresholdSigma(ident,0,1,ichip)<<" "<<
@@ -368,18 +368,18 @@ StatusCode PixelCalibServiceTest::execute() {
     outfile->close();
     delete outfile;
     if( msgLvl(MSG::INFO)  ) msg() << "Written "<< nobj <<" PixelCalibData objects" <<
-			       " with " << nchips << " chips to text file "<<endreq;
+			       " with " << nchips << " chips to text file "<<endmsg;
   }
-  if( msgLvl(MSG::INFO)  ) msg()  <<" Event execute "<<endreq; 
+  if( msgLvl(MSG::INFO)  ) msg()  <<" Event execute "<<endmsg; 
   //
-  for(int i = 0; i<14; ++i)_myhf[i]->Write();
-  par_histf->Close();
+  for(int i = 0; i<14; ++i)m_myhf[i]->Write();
+  m_par_histf->Close();
   //
   return StatusCode::SUCCESS;
 }
  
 StatusCode PixelCalibServiceTest::finalize() 
 {  
-  msg(MSG::INFO)<<" PixelCalibServiceTest: finishing "<<endreq; 
+  msg(MSG::INFO)<<" PixelCalibServiceTest: finishing "<<endmsg; 
   return StatusCode::SUCCESS;
 }

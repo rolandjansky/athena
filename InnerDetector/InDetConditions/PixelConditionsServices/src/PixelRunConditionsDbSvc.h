@@ -50,15 +50,8 @@ class PixelRunConditionsDbSvc:  public AthService,
   } ;
 
  private:
-  ServiceHandle< StoreGateSvc > m_detStore;
-
-  const PixelID* m_pixelID;
-
-  unsigned int calback_calls;
-  unsigned int print;
-
-  std::string m_connTag ;
-
+  unsigned int m_callback_calls;
+  std::string m_connTag;
   std::string m_key;
 };
 

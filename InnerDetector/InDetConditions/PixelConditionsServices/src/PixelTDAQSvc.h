@@ -56,23 +56,23 @@ class PixelTDAQSvc:  public AthService,
 
   const PixelID* m_pixelID;
 
-  unsigned int calback_calls;
-  unsigned int print;
+  unsigned int m_calback_calls;
+  unsigned int m_print;
 
   std::string m_modulelistkey;
   const CondAttrListCollection* m_atrlistcol;
 
-  std::set<Identifier> all_modules;
-  std::set<Identifier> disabled_modules;
-  std::set<std::string> disabled_modules_first_lumiblock;
-  std::set<std::string> disabled_modules_last_lumiblock;
-  bool first_lumiblock_filled;
+  std::set<Identifier> m_all_modules;
+  std::set<Identifier> m_disabled_modules;
+  std::set<std::string> m_disabled_modules_first_lumiblock;
+  std::set<std::string> m_disabled_modules_last_lumiblock;
+  bool m_first_lumiblock_filled;
 
-  bool print_disabled;
+  bool m_print_disabled;
   void print_disabled_modules();
 
-  std::string always_disabled_module_name;//("L2_B11_S1_A6_M4A");
-  static const int always_disabled_module_offlineid = 52903936;
+  std::string m_always_disabled_module_name;//("L2_B11_S1_A6_M4A");
+  static const int s_always_disabled_module_offlineid = 52903936;
 };
 
 inline const InterfaceID& PixelTDAQSvc::interfaceID(){

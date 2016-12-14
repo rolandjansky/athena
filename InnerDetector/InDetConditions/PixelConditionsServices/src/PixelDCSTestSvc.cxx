@@ -33,14 +33,14 @@ PixelDCSTestSvc::~PixelDCSTestSvc()
 StatusCode PixelDCSTestSvc::initialize()
 {
 
-   msg(MSG::INFO) << "Entering PixelDCSTestReadWrite::initialize()" << endreq;
+   msg(MSG::INFO) << "Entering PixelDCSTestReadWrite::initialize()" << endmsg;
 
 
    if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
-     msg(MSG::FATAL) << "Could not find Pixel manager "<<endreq; 
+     msg(MSG::FATAL) << "Could not find Pixel manager "<<endmsg; 
      return StatusCode::FAILURE; 
    }
-   msg(MSG::INFO)  << "Pixel manager  retrieved" << endreq;
+   msg(MSG::INFO)  << "Pixel manager  retrieved" << endmsg;
 
    if( StatusCode::SUCCESS != detStore()->retrieve( m_pixid,"PixelID") ){
      ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
@@ -49,17 +49,17 @@ StatusCode PixelDCSTestSvc::initialize()
 
    // if (StatusCode::SUCCESS!=service("PixelDCSSvc",m_pixelDCSSvc)) {
    if (StatusCode::SUCCESS!=m_pixelDCSSvc.retrieve()) {
-     msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endreq;
+     msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endmsg;
      return StatusCode::FAILURE;
    } 
-   msg(MSG::INFO)  << "PixelDCSSvc retrieved" << endreq;
+   msg(MSG::INFO)  << "PixelDCSSvc retrieved" << endmsg;
 
 
    if (StatusCode::SUCCESS!=m_pixelSvc.retrieve()) {
-     msg(MSG::FATAL) << "Unable to retrieve PixelConditionsSummarySvc" << endreq;
+     msg(MSG::FATAL) << "Unable to retrieve PixelConditionsSummarySvc" << endmsg;
      return StatusCode::FAILURE;
    } 
-   msg(MSG::INFO) << "PixelConditionsSummarySvc retrieved" << endreq;
+   msg(MSG::INFO) << "PixelConditionsSummarySvc retrieved" << endmsg;
 
 
    return StatusCode::SUCCESS;
@@ -71,14 +71,14 @@ StatusCode PixelDCSTestSvc::initialize()
 StatusCode PixelDCSTestSvc::execute(){
 
 
-   msg(MSG::INFO)  << " in PixelDCSTestSvc::execute()" << endreq;
+   msg(MSG::INFO)  << " in PixelDCSTestSvc::execute()" << endmsg;
   
 
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_pixelDCSSvc->printData();
   if (sc.isFailure()) {
-     msg(MSG::ERROR)<< "Could not print data" << endreq;
+     msg(MSG::ERROR)<< "Could not print data" << endmsg;
     return(StatusCode::FAILURE);
   }
 
@@ -96,20 +96,20 @@ StatusCode PixelDCSTestSvc::execute(){
 
 	IdentifierHash id_hash = m_pixid->wafer_hash(ident);
 
-	msg(MSG::ALWAYS) << "Identifier:   " << ident.get_compact()  << endreq
-			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(ident) << endreq
-			 << "                 HV         : " << m_pixelDCSSvc->getHV(ident)          << endreq
-			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(ident)    << endreq
-			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(ident)    << endreq;
+	msg(MSG::ALWAYS) << "Identifier:   " << ident.get_compact()  << endmsg
+			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(ident) << endmsg
+			 << "                 HV         : " << m_pixelDCSSvc->getHV(ident)          << endmsg
+			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(ident)    << endmsg
+			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(ident)    << endmsg;
 
-	msg(MSG::ALWAYS) << "IdentifierHash:   " <<(unsigned int)id_hash << endreq
-			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(id_hash) << endreq
-			 << "                 HV         : " << m_pixelDCSSvc->getHV(id_hash)          << endreq
-			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(id_hash)    << endreq
-			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(id_hash)    << endreq;
+	msg(MSG::ALWAYS) << "IdentifierHash:   " <<(unsigned int)id_hash << endmsg
+			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(id_hash) << endmsg
+			 << "                 HV         : " << m_pixelDCSSvc->getHV(id_hash)          << endmsg
+			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(id_hash)    << endmsg
+			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(id_hash)    << endmsg;
 
-	msg(MSG::ALWAYS) << "isActive  " << m_pixelSvc->isActive(id_hash) << endreq;
-	msg(MSG::ALWAYS) << "isGood  " << m_pixelSvc->isGood(id_hash) << endreq;
+	msg(MSG::ALWAYS) << "isActive  " << m_pixelSvc->isActive(id_hash) << endmsg;
+	msg(MSG::ALWAYS) << "isGood  " << m_pixelSvc->isGood(id_hash) << endmsg;
   
       }
     }
@@ -121,7 +121,7 @@ StatusCode PixelDCSTestSvc::execute(){
 
 StatusCode PixelDCSTestSvc::finalize(){
 
-  msg(MSG::INFO) << "in PixelDCSTestSvc::finalize()" << endreq;
+  msg(MSG::INFO) << "in PixelDCSTestSvc::finalize()" << endmsg;
   
   return StatusCode::SUCCESS;
 }  

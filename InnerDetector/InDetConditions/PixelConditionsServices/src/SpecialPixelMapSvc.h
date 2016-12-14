@@ -20,6 +20,7 @@ class StoreGateSvc;
 class IIOVDbSvc;
 class PixelID;
 class IBLParameterSvc;
+class  IGeoModelSvc;
 
 namespace InDetDD{ 
   class PixelDetectorManager; 
@@ -102,6 +103,8 @@ private:
   std::string m_outputFolder;
   std::string m_outputLongFolder;
   ServiceHandle< IBLParameterSvc> m_IBLParameterSvc;
+  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+
   bool m_registerCallback;
   bool m_verbosePixelID;
   bool m_binaryPixelStatus;
@@ -129,6 +132,7 @@ private:
 
   const PixelID* m_pixelID;
   const InDetDD::PixelDetectorManager* m_pixman; 
+  bool m_dummy; 
 
 };
 

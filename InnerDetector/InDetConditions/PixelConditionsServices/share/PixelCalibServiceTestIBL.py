@@ -1,4 +1,4 @@
-isIBL = 0
+isIBL = 1
 mySQ = 0
 if isIBL:
   myOutput= "pixelcalibsvcIBL3D_dumpdb.txt"
@@ -14,7 +14,7 @@ from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'geant4'
 if isIBL:
-  globalflags.DetDescrVersion = 'ATLAS-IBL3D25-04-00-02'
+  globalflags.DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 else:  
   globalflags.DetDescrVersion = 'ATLAS-GEO-08-00-00'
 
@@ -48,7 +48,7 @@ from IOVDbSvc.CondDB import conddb
 #conddb.setGlobalTag('OFLCOND-MC12-SIM-00')
 #conddb.setGlobalTag('OFLCOND-RUN1-SDR-06') 
 conddb.setGlobalTag('OFLCOND-RUN12-SDR-22')
-
+#conddb.setGlobalTag('OFLCOND-MC16-SDR-04')
 #conddb.iovdbsvc.dbConnection = "sqlite://;schema=pixmapibl.db;dbname=OFLP200"
 
 #conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort")
@@ -70,9 +70,9 @@ else:
 from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
 PixelCalibSvc = PixelCalibSvc()
 
-
+ServiceMgr.EventSelector.RunNumber = 282222
 #ServiceMgr.EventSelector.RunNumber = 222222
-ServiceMgr.EventSelector.RunNumber = 200805
+#ServiceMgr.EventSelector.RunNumber = 200805
 
 ### define the job
 

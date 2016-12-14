@@ -101,10 +101,9 @@ class PixelOfflineCalibSvc : public AthService, virtual public IPixelOfflineCali
       ServiceHandle<StoreGateSvc>  m_sgSvc;
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
       int m_HitDiscCnfg;
-      int m_IBLToToverflowBin;
       bool m_HDCfromCOOL;
     
-      const PixelID* m_pixel_id;
+      const PixelID* m_pixid;
     }; 
 
 #endif 

@@ -57,7 +57,6 @@ class IPixelCalibSvc : virtual public IInterface
       virtual int getNFE(const Identifier& wafer_id) const =0; // number of FE Chips per module
       virtual bool isFEI4(const Identifier& wafer_id) const =0; // is FEI4 module
 
-
       /** Note: irow icol is for each chip, not phi_index, eta_index per module */ 
       virtual int getThreshold(const Identifier& wafer_id, int irow, int icol, int circ) const =0; //<! get threshold 
       virtual int getThresholdSigma(const Identifier& wafer_id, int irow, int icol,int circ) const =0; //<<! get threshold sigma
@@ -82,6 +81,7 @@ class IPixelCalibSvc : virtual public IInterface
       virtual float getTotP2(const Identifier& pix_id) const =0;
       virtual float getTotRes(const Identifier& pix_id, float Q) const =0;
       virtual float getTotMean(const Identifier& pix_id, float Q) const =0;
+      virtual float getCharge(const Identifier& pix_id, float ToT) const =0;
       virtual void disableDb() =0;
       
     }; 

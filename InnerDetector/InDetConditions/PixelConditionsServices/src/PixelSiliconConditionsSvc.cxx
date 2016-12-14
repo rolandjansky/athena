@@ -67,21 +67,21 @@ PixelSiliconConditionsSvc::~PixelSiliconConditionsSvc()
 StatusCode PixelSiliconConditionsSvc::initialize()
 {
 
-   msg(MSG::INFO) << " Entering PixelSiliconConditionsSvc::initialize()" << endreq;
+   msg(MSG::INFO) << " Entering PixelSiliconConditionsSvc::initialize()" << endmsg;
 
 
   //Retrieve Detector Store
   StatusCode sc = m_detStore.retrieve();
   if (!sc.isSuccess() || 0 == m_detStore)  {
-    msg(MSG::FATAL) << "Unable to retrieve detector store" << endreq;
+    msg(MSG::FATAL) << "Unable to retrieve detector store" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "Detector store retrieved" << endreq;
+  msg(MSG::INFO) << "Detector store retrieved" << endmsg;
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
   if(StatusCode::SUCCESS !=m_detStore->retrieve(m_pixman, "Pixel") || m_pixman==0){
-    msg(MSG::FATAL) << "Could not find Pixel manager "<<endreq; 
+    msg(MSG::FATAL) << "Could not find Pixel manager "<<endmsg; 
     return StatusCode::FAILURE; 
   }
   else{ 
@@ -98,26 +98,26 @@ StatusCode PixelSiliconConditionsSvc::initialize()
   if (m_checkGeoModel || m_forceUseGeoModel) {
     m_useGeoModel = setConditionsFromGeoModel();
     if (m_useGeoModel) {
-      msg(MSG::INFO) << "Default conditions come from GeoModel." << endreq;
+      msg(MSG::INFO) << "Default conditions come from GeoModel." << endmsg;
     } else {
-      msg(MSG::INFO) << "GeoModel requests to use Conditions DB." << endreq;
+      msg(MSG::INFO) << "GeoModel requests to use Conditions DB." << endmsg;
     }
   } 
   if (!m_useGeoModel) {
-    msg(MSG::INFO) << "Will use temperature and voltages from this service (not from GeoModel)." << endreq;
+    msg(MSG::INFO) << "Will use temperature and voltages from this service (not from GeoModel)." << endmsg;
   
     if(m_useDBForHV || m_useDBForTemperature){
       if (StatusCode::SUCCESS!=m_pixelDCSSvc.retrieve()) {
-	msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endreq;
+	msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endmsg;
 	return StatusCode::FAILURE;
       } 
-      msg(MSG::INFO) << "PixelDCSSvc retrieved" << endreq;
+      msg(MSG::INFO) << "PixelDCSSvc retrieved" << endmsg;
       
-      msg(MSG::INFO) << "Registering callback." << endreq;
+      msg(MSG::INFO) << "Registering callback." << endmsg;
       StatusCode sc = m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack,  dynamic_cast<IPixelDCSSvc*>(&*m_pixelDCSSvc),
 					 &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true);
       if (sc.isFailure()) {
-	msg(MSG::ERROR)<< "Could not register callback." << endreq;
+	msg(MSG::ERROR)<< "Could not register callback." << endmsg;
 	return sc;
       }
     }
@@ -132,7 +132,7 @@ StatusCode PixelSiliconConditionsSvc::initialize()
 
 
 StatusCode PixelSiliconConditionsSvc::finalize(){
-  msg(MSG::INFO) << "Entering PixelSiliconConditionsSvc::finalize()" << endreq; 
+  msg(MSG::INFO) << "Entering PixelSiliconConditionsSvc::finalize()" << endmsg; 
   return StatusCode::SUCCESS; 
 } 
 
@@ -208,23 +208,23 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
   bool useCondDB = false;
    
   if (m_rdbSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endreq;
+    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endmsg;
     return false;
   }
 
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
     return false;
   }
 
   m_rdbSvc->connect();
 
   DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
-  msg(MSG::DEBUG) << "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() << endreq;
+  msg(MSG::DEBUG) << "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 
   const IRDBRecordset * pixelConditionsSet = m_rdbSvc->getRecordset("PixelConditions",  versionKey.tag(), versionKey.node());
   if (pixelConditionsSet->size()) {
-    msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endreq;
+    msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
     const IRDBRecord * defaultConditions = (*pixelConditionsSet)[0];
     m_geoModelTemperature = defaultConditions->getDouble("TEMPERATURE");
     m_geoModelBiasVoltage = defaultConditions->getDouble("BIASVOLT");
@@ -239,7 +239,7 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
     // PixelConditions table doesn't exist so try old table
     const IRDBRecordset * plor = m_rdbSvc->getRecordset("PLOR",  versionKey.tag(), versionKey.node());
     if (plor->size() != 0) {
-      msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endreq;
+      msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
       m_geoModelTemperature = (*plor)[0]->getDouble("TEMPC");
       m_geoModelBiasVoltage = (*plor)[0]->getDouble("VOLTAGE");
       m_geoModelDepletionVoltage = 0;
@@ -248,7 +248,7 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
   }
 
   if (!conditionsPresent) { // Shouldn't normally be the case.
-    msg(MSG::INFO) << "Default conditions not provided by GeoModel."  << endreq;
+    msg(MSG::INFO) << "Default conditions not provided by GeoModel."  << endmsg;
   }
  
   m_rdbSvc->disconnect();
