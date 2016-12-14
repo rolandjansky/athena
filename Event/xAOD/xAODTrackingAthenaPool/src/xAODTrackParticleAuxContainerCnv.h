@@ -4,15 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleAuxContainerCnv.h 609811 2014-08-01 15:47:00Z ssnyder $
+// $Id: xAODTrackParticleAuxContainerCnv.h 789663 2016-12-14 14:48:57Z krasznaa $
 #ifndef XAODTRACKINGATHENAPOOL_XAODTRACKPARTICLEAUXCONTAINERCNV_H
 #define XAODTRACKINGATHENAPOOL_XAODTRACKPARTICLEAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTrackingCnv/ITrackParticleCompressorTool.h"
 
 /// Base class for the converter
 typedef T_AthenaPoolCustomCnv< xAOD::TrackParticleAuxContainer,
@@ -36,6 +38,9 @@ class xAODTrackParticleAuxContainerCnv :
    // Declare the factory as our friend:
    friend class CnvFactory< xAODTrackParticleAuxContainerCnv >;
 
+   /// Function initialising the converter
+   StatusCode initialize() override;
+
 protected:
    /// Converter constructor
    xAODTrackParticleAuxContainerCnv( ISvcLocator* svcLoc );
@@ -45,6 +50,10 @@ protected:
    createPersistent( xAOD::TrackParticleAuxContainer* trans );
    /// Function reading in the object from the input file
    virtual xAOD::TrackParticleAuxContainer* createTransient();
+
+private:
+   /// Compressor tool for the track particles
+   ToolHandle< xAODMaker::ITrackParticleCompressorTool > m_compressorTool;
 
 }; // class xAODTrackParticleAuxContainerCnv
 

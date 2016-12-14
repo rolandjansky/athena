@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleAuxContainerCnv.cxx 751893 2016-06-02 16:09:36Z goetz $
+// $Id: xAODTrackParticleAuxContainerCnv.cxx 789663 2016-12-14 14:48:57Z krasznaa $
 
 // System include(s):
 #include <exception>
+#include <memory>
 
 // ROOT include(s):
 #include <TClass.h>
@@ -21,13 +22,23 @@
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
 
 // EDM include(s):
-// #include "xAODTracking/versions/TrackParticleContainer_v1.h"
-
+#include "xAODTracking/TrackParticleContainer.h"
 
 xAODTrackParticleAuxContainerCnv::
 xAODTrackParticleAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODTrackParticleAuxContainerCnvBase( svcLoc ) {
+   : xAODTrackParticleAuxContainerCnvBase( svcLoc ),
+     m_compressorTool( "xAODMaker::TrackParticleCompressorTool/"
+                       "xAODTrackParticleCompressorTool" ) {
 
+}
+
+StatusCode xAODTrackParticleAuxContainerCnv::initialize() {
+
+   // Retrieve the compression tool:
+   CHECK( m_compressorTool.retrieve() );
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
 }
 
 xAOD::TrackParticleAuxContainer*
@@ -46,7 +57,28 @@ createPersistent( xAOD::TrackParticleAuxContainer* trans ) {
    }
 
    // Create a copy of the container:
-   return SG::copyThinned (*trans, IThinningSvc::instance());
+   std::unique_ptr< xAOD::TrackParticleAuxContainer > result(
+            SG::copyThinned( *trans, IThinningSvc::instance() ) );
+
+   // Create a helper object for the float compression:
+   xAOD::TrackParticleContainer helper;
+   for( size_t i = 0; i < result->size(); ++i ) {
+      helper.push_back( new xAOD::TrackParticle() );
+   }
+   helper.setStore( result.get() );
+
+   // Compress the track particles' payload:
+   for( xAOD::TrackParticle* tp : helper ) {
+      // Check for possible compression errors:
+      if( ! m_compressorTool->compress( *tp ).isSuccess() ) {
+         REPORT_MESSAGE( MSG::ERROR )
+               << "Failed to compress track particle";
+         return 0;
+      }
+   }
+
+   // Return the thinned and compressed object:
+   return result.release();
 }
 
 xAOD::TrackParticleAuxContainer*
