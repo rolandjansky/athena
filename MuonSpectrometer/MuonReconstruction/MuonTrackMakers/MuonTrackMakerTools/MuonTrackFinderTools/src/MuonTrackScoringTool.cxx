@@ -87,7 +87,7 @@ namespace Muon {
     return sc;
   }
 
-  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
+  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
   {
 
     const Trk::TrackSummary* summary = 0;
@@ -102,7 +102,7 @@ namespace Muon {
     return score;
   }
 
-  Trk::TrackScore MuonTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+  Trk::TrackScore MuonTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
   {
 	
     // --- reject bad tracks
