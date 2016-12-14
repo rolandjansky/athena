@@ -446,7 +446,7 @@ namespace Muon {
 
     //if( fabs(distanceToWire) > roadWidthR || fabs(posAlongWire) > halfTubeLength + roadWidthZ ){
     if(nSigmaFromTrack > m_maxSigma || fabs(posAlongWire) > halfTubeLength + roadWidthZ ){
-      if( msgLvl(MSG::VERBOSE) ) msg() << " --- dropped" << endreq;
+      if( msgLvl(MSG::VERBOSE) ) msg() << " --- dropped" << endmsg;
       delete exPars;
       return 0;      
     }
@@ -479,7 +479,7 @@ namespace Muon {
       if( fabs(radialPull) < 5 ) hitType = "onTrack"; 
       else if( fabs(radialPull) > 5 && residual > 0 )  hitType = "delta";
       else                       hitType = "outOfTime";
-      msg() << " r_drift  " << radius << " res " << residual  << " pull " << radialPull << " "  << hitType << endreq;
+      msg() << " r_drift  " << radius << " res " << residual  << " pull " << radialPull << " "  << hitType << endmsg;
     }
     return mdtROT;
   }

@@ -68,7 +68,13 @@ namespace Muon {
     /** update errors on a muon track */
     Trk::Track* updateErrors( const Trk::Track& track, const Settings& settings ) const;
 
+    Trk::Track* updateMdtErrors( const Trk::Track& track, const Settings& settings ) const;
+
     Trk::Track* updateAlignmentErrors( const Trk::Track& track, const Settings& settings ) const;
+
+    Trk::Track* makeAEOTs( const Trk::Track& track ) const;
+
+    Trk::Track* makeSimpleAEOTs( const Trk::Track& track ) const;
 
     const Trk::Track* removeOutliers( const Trk::Track& track,const Settings& settings ) const;
 
@@ -105,6 +111,7 @@ namespace Muon {
     MuonDriftCircleErrorStrategy m_errorStrategySL;
     MuonDriftCircleErrorStrategy m_errorStrategyTwoStations;
     MuonDriftCircleErrorStrategy m_errorStrategy;
+    MuonDriftCircleErrorStrategy m_muonErrorStrategy;
 
     mutable TrkDriftCircleMath::DCSLFitter    m_fitter;
     mutable TrkDriftCircleMath::SegmentFinder m_finder;
@@ -135,9 +142,11 @@ namespace Muon {
     float m_alignmentDeltaError;
     float m_alignmentAngleError;
     bool  m_alignmentErrors;
-    bool  m_addTwo;
-    bool  m_addMiddle;
+    bool  m_simpleAEOTs;
+    bool  m_addAll;
     bool  m_addInner;
+    bool  m_addMiddle;
+    bool  m_addTwo;
 
     double m_minMuonMomentum;
     double m_fixedError;

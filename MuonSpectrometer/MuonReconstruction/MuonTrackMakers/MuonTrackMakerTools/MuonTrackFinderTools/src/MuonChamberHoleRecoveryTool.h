@@ -113,9 +113,9 @@ namespace Muon {
 	@param states   vector to hold the TSOS of the hits in this detector element + new holes/hits
 	@return an iterator pointing to the last hit in the chamber
     */
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator 
-      insertClustersWithHoleSearch( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
-				    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
+    std::vector<const Trk::TrackStateOnSurface*>::const_iterator 
+      insertClustersWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
+				    std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
 				    std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& newStates ) const;
 
 
@@ -125,9 +125,9 @@ namespace Muon {
 	@param states   vector to hold the TSOS of the hits in this chamber + new holes/hits
 	@return an iterator pointing to the last MDT hit in the chamber
     */
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator 
-      insertMdtsWithHoleSearch( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
-				DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
+    std::vector<const Trk::TrackStateOnSurface*>::const_iterator 
+      insertMdtsWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
+				std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
 				std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& newStates ) const;
 
 

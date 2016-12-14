@@ -87,7 +87,7 @@ namespace Muon {
     return sc;
   }
 
-  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
+  Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
   {
 
     const Trk::TrackSummary* summary = 0;
@@ -96,13 +96,13 @@ namespace Muon {
     else
       summary = m_trkSummaryTool->createSummary(track);
 
-    //log <<MSG::DEBUG<<"Track has TrackSummary "<<*summary<<endreq;
+    //log <<MSG::DEBUG<<"Track has TrackSummary "<<*summary<<endmsg;
     Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
     delete summary;
     return score;
   }
 
-  Trk::TrackScore MuonTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+  Trk::TrackScore MuonTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
   {
 	
     // --- reject bad tracks
