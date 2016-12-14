@@ -56,7 +56,7 @@ globalflags.InputFormat = 'bytestream'
 
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -100,8 +100,8 @@ topSequence += LArHVPathologyDbAlg
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+OutputFile+";dbname=CONDBR2"
 
 svcMgr.MessageSvc.OutputLevel = 4
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.MessageSvc.infoLimit   = 100000
+svcMgr.MessageSvc.debugLimit  = 99999999
+svcMgr.MessageSvc.infoLimit   = 99999999
 
 topSequence.LArHVPathologyDbAlg.OutputLevel = 2
 svcMgr.IOVDbSvc.OutputLevel     = 3
