@@ -58,13 +58,14 @@ datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead)
 datamodel_run_test (xAODTestRead2b DEPENDS xAODTestRead)
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
+datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
+datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
+datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
 datamodel_run_test (xAODTestReadARA
                     COMMAND python
                     ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODTestReadARA_t.py
                     DEPENDS xAODTestWrite)
 
-# Disabled by default for now: they require HLTResultByteStream,
-# which is in AtlasTrigger, not AtlasEvent.
-#datamodel_run_test (ByteStreamTestWrite)
-#datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
+datamodel_run_test (ByteStreamTestWrite)
+datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
 

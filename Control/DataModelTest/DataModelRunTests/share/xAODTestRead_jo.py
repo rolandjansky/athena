@@ -104,6 +104,8 @@ theApp.EvtMax = 20
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestRead, \
+     DMTest__xAODTestReadCView, \
+     DMTest__xAODTestReadHVec, \
      DMTest__xAODTestDecor, \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
@@ -114,6 +116,11 @@ topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
 
 topSequence += DMTest__xAODTestRead ('xAODTestRead',
                                      WritePrefix = 'copy_')
+topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView',
+                                          WriteKey = 'copy_cview')
+topSequence += DMTest__xAODTestReadHVec ('xAODTestReadHVec',
+                                         VecWriteKey = 'copy_hvec',
+                                         ViewWriteKey = 'copy_hview')
 
 topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor1',
                                       DecorName = 'dInt100',

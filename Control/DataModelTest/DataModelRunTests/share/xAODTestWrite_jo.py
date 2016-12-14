@@ -39,9 +39,18 @@ theApp.EvtMax = 20
 
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWriteHVec, \
+     DMTest__xAODTestWriteCView, \
+     DMTest__xAODTestWriteCInfo, \
+     DMTest__xAODTestWriteCVecConst, \
      DMTest__xAODTestWrite
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
+topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec")
+topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView")
+topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
+topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
+
 
 #--------------------------------------------------------------
 # Output options
@@ -58,7 +67,7 @@ theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
-fullItemList+=["DMTest::CAuxContainer#cvecAux."]
+fullItemList+=["DMTest::CAuxContainer#cvecAux.-dVar2"]
 fullItemList+=["DMTest::CVecWithData#cvecWD"]
 fullItemList+=["DMTest::CView#cview"]
 fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]

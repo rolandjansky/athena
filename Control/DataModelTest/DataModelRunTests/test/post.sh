@@ -161,7 +161,7 @@ PP="$PP"'|^StorageSvc Info EventInfo_p'
 PP="$PP"'|^EventSelector +INFO reinit'
 PP="$PP"'|^evt no'
 PP="$PP"'|^ItemListSvc +INFO'
-PP="$PP"'|^RootDatabase.open Success|I/O reinitialization'
+PP="$PP"'|^RootDatabase.open (Success|Always)|I/O reinitialization'
 PP="$PP"'|^StorageSvc Info'
 PP="$PP"'|^RootCollection Info'
 PP="$PP"'|^RootCollectionSchemaEditor Warning'
@@ -173,9 +173,17 @@ PP="$PP"'|^...1034h$'
 PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
 PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
+PP="$PP"'|^RootDatabase.open Info'
 
 # StoreGate INFO messages changed to VERBOSE
 PP="$PP"'|^(StoreGateSvc|DetectorStore|MetaDataStore|InputMetaDataStore|TagMetaDataStore) +(INFO|VERBOSE) (Stop|stop|Start)'
+
+# ubsan
+PP="$PP"'|bits/regex.h:1545'
+
+# auxids can differ.
+PP="$PP"'|has different type than the branch'
+
 
 test=$1
 if [ -z "$testStatus" ]; then
