@@ -29,19 +29,19 @@ namespace xAODMaker {
 			  const IInterface* parent );
     
     /// Function initialising the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /// Function that fills an existing xAOD::TrackParticleContainer
     virtual StatusCode convert( const Rec::TrackParticleContainer* aod,
-			       xAOD::TrackParticleContainer* xaod );
+			       xAOD::TrackParticleContainer* xaod ) const override;
 
     /// allow other algorithms to pass the tool in order to preserve initialisation
-    virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool);
+    virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) override;
 
   private:
     ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;
     
-    inline xAOD::TrackParticle* createParticle(xAOD::TrackParticleContainer* xaod, const Rec::TrackParticleContainer* container, const Rec::TrackParticle* tp) ;
+    inline xAOD::TrackParticle* createParticle(xAOD::TrackParticleContainer* xaod, const Rec::TrackParticleContainer* container, const Rec::TrackParticle* tp) const;
     
     
   }; // class RecTrackParticleContainerCnvTool definition

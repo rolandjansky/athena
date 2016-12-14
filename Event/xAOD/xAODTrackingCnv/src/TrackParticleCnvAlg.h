@@ -20,7 +20,9 @@
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
-
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "Particle/TrackParticleContainer.h"
+#include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackParticle.h"
 
 namespace Trk {
@@ -62,19 +64,12 @@ namespace xAODMaker {
 
   private:
     /// The key of the input TrackParticlesContainer
-    std::string m_aodContainerName;
-    /// The key for the output xAOD::TrackParticlesContainer
-    std::string m_xaodContainerName;
+
+          
     /// toggle on adding truth links
     bool m_addTruthLink;
     /// The key for the input TrackParticleTruthCollection
-    std::string m_aodTruthContainerName;
-      
-    /// The key for the input DetailedTrackTrackTruthCollection
-    std::string m_trackTruthContainerName;      
-      
-    /// The key for the input xAODTruthLinkVector
-    std::string m_truthLinkVecName;
+
 
     /// ToolHandle to particle creator
     ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;
@@ -85,11 +80,20 @@ namespace xAODMaker {
     ToolHandle< xAODMaker::ITrackCollectionCnvTool > m_TrackCollectionCnvTool;
     ToolHandle< xAODMaker::IRecTrackParticleContainerCnvTool > m_RecTrackParticleContainerCnvTool;
 
-    /// The key of the input TracksContainer
-    std::string m_aodTrackContainerName;
-    /// The key for the output xAOD::TrackParticlesContainer for the Tracks
-    std::string m_xaodTracksContainerName;
-      
+    SG::ReadHandle<Rec::TrackParticleContainer> m_aod;
+    
+    SG::ReadHandle<TrackCollection> m_tracks;
+
+    SG::WriteHandle<xAOD::TrackParticleContainer> m_xaodout;
+    SG::WriteHandle<xAOD::TrackParticleAuxContainer> m_xauxout;
+
+    SG::WriteHandle<xAOD::TrackParticleContainer> m_xaodTrackParticlesout;
+    SG::WriteHandle<xAOD::TrackParticleAuxContainer> m_xauxTrackParticlesout;
+
+    SG::ReadHandle<xAODTruthParticleLinkVector> m_truthParticleLinkVec;    
+    SG::ReadHandle<TrackParticleTruthCollection> m_aodTruth;
+    SG::ReadHandle<TrackTruthCollection>  m_trackTruth;    
+
     /// toggle on converting AOD track particles to xAOD
     bool m_convertAODTrackParticles;
       
@@ -97,11 +101,11 @@ namespace xAODMaker {
     bool m_convertTracks;
       
     template <typename CONT, typename TRUTHCONT, typename CONVTOOL>
-    int convert(const CONT&, const TRUTHCONT&, const std::string& name, CONVTOOL& tool);
+    int convert(const CONT&, const TRUTHCONT&, CONVTOOL& tool, SG::WriteHandle<xAOD::TrackParticleContainer>&);
       
     inline xAOD::TrackParticle* createParticle(xAOD::TrackParticleContainer& xaod, const Rec::TrackParticleContainer& container, const Rec::TrackParticle& tp) ;
     inline xAOD::TrackParticle* createParticle( xAOD::TrackParticleContainer& xaod, const TrackCollection& container, const Trk::Track& tp) ;
-    const xAODTruthParticleLinkVector* m_truthParticleLinkVec;
+    
          
     bool m_IdOutputInfo;
      

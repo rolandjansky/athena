@@ -34,7 +34,7 @@ namespace xAODMaker {
   }
 
   StatusCode TrackCollectionCnvTool::convert( const TrackCollection* aod,
-					      xAOD::TrackParticleContainer* xaod ) {
+					      xAOD::TrackParticleContainer* xaod ) const {
     
     ATH_MSG_DEBUG( "Sizes of containers before conversion: aod, xaod: " << aod->size() << ", " << xaod->size() );
     
@@ -62,7 +62,7 @@ namespace xAODMaker {
 
   xAOD::TrackParticle* TrackCollectionCnvTool::createParticle(xAOD::TrackParticleContainer& xaod,
 							      const TrackCollection& container,
-							      const Trk::Track& tp) {
+							      const Trk::Track& tp) const {
     // create the xAOD::TrackParticle, the pointer is added to the container in the function
     ElementLink<TrackCollection> trackLink( &tp, container );
     return m_particleCreator->createParticle( trackLink, &xaod );

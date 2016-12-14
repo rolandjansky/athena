@@ -36,7 +36,7 @@ namespace xAODMaker {
   }
 
   StatusCode RecTrackParticleContainerCnvTool::convert( const Rec::TrackParticleContainer* aod,
-							xAOD::TrackParticleContainer* xaod ) {
+							xAOD::TrackParticleContainer* xaod ) const {
     
     ATH_MSG_DEBUG( "Sizes of containers before conversion: aod, xaod: " << aod->size() << ", " << xaod->size() );
     Rec::TrackParticleContainer::const_iterator itr = aod->begin();
@@ -64,7 +64,7 @@ namespace xAODMaker {
 
   xAOD::TrackParticle* RecTrackParticleContainerCnvTool::createParticle( xAOD::TrackParticleContainer* xaod, 
 									 const Rec::TrackParticleContainer* /**container*/, 
-									 const Rec::TrackParticle* tp)
+									 const Rec::TrackParticle* tp) const
   {
     // create the xAOD::TrackParticle, the pointer is added to the container in the function
     return m_particleCreator->createParticle( *tp, xaod );
