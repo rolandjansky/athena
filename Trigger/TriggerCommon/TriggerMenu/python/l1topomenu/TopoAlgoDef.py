@@ -49,6 +49,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
 
         alg = AlgConf.ClusterSelect( name = 'EMabi', inputs = 'ClusterTobArray', outputs = 'EMabi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -59,6 +60,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 2)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
 
         alg = AlgConf.ClusterSelect( name = 'EMabhi', inputs = 'ClusterTobArray', outputs = 'EMabhi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -69,6 +71,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 3)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
         
         alg = AlgConf.ClusterSelect( name = 'TAUab', inputs = 'ClusterTobArray', outputs = 'TAUab', algoId = currentAlgoId ); currentAlgoId += 1
@@ -79,6 +82,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addgeneric('DoIsoCut', 0)
         tm.registerAlgo(alg) 
 
         alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs', algoId = currentAlgoId ); currentAlgoId += 1
@@ -88,8 +92,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax) 
-        alg.addvariable('DoIsoCut', 1)
-        alg.addvariable('DoEtaCut', 1)
+        alg.addgeneric('DoIsoCut', '0')
+        #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg) 
         
         alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -99,8 +103,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 3) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addvariable('DoIsoCut', 1)
-        alg.addvariable('DoEtaCut', 1)
+        alg.addgeneric('DoIsoCut', '1')
+        #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg)
                 
         alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -110,8 +114,8 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addvariable('DoIsoCut', 1)
-        alg.addvariable('DoEtaCut', 1)
+        alg.addgeneric('DoIsoCut', '1')
+        #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg)
         
         alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall', algoId = currentAlgoId ) ; currentAlgoId += 1
@@ -156,6 +160,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET', _minet)  
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', jetabseta)
+            alg.addgeneric('DoEtaCut', 1)
             tm.registerAlgo(alg) 
 
         alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs', algoId = currentAlgoId); currentAlgoId += 1
@@ -166,10 +171,11 @@ class TopoAlgoDef:
         alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)                
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        alg.addgeneric('DoEtaCut', 0)
         tm.registerAlgo(alg) 
         
         # Sorted J lists:
-        for jet_type in ['AJ', 'J']:
+        for jet_type in ['AJ']:
             jetabseta = _etamax
             _minet = 25
             if jet_type=='J':
@@ -187,7 +193,29 @@ class TopoAlgoDef:
             alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', jetabseta)
+            alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
+
+        for jet_type in ['J']:
+            jetabseta = _etamax
+            _minet = 25
+            if jet_type=='J':
+                jetabseta = 31
+                _minet = 20
+            elif jet_type=='CJ':
+                jetabseta = 26
+                _minet = 15
+
+            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s', algoId = currentAlgoId ); currentAlgoId += 1
+
+            alg.addgeneric('InputWidth',  HW.InputWidthJET)
+            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
+            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
+            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
+            alg.addvariable('MinEta', 0)
+            alg.addvariable('MaxEta', jetabseta)
+            alg.addgeneric('DoEtaCut', 1)
+            tm.registerAlgo(alg)
 
         alg = AlgConf.METNoSort( name = 'XENoSort', inputs = 'MetTobArray', outputs = 'XENoSort', algoId = currentAlgoId ); currentAlgoId += 1
 
@@ -220,8 +248,8 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 10)
         tm.registerAlgo(alg)
 
-        #alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
-        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'MuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
+        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
+        #alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'MuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
 
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         #alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
@@ -241,6 +269,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 0)                
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
+        #alg.addgeneric('DoIsoCut', 1)
         tm.registerAlgo(alg) 
         
         # All lists:
