@@ -21,6 +21,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -33,10 +35,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_iBeamCondSvc("BeamCondSvc",n),
-  m_magFieldSvc("AtlasFieldSvc",n), 
-  m_incidentSvc("IncidentSvc", n),
-  m_fieldOn(true),
-  m_holesearch(false)
+  m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -123,58 +122,48 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   sc = m_trkSummaryTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endreq;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endmsg;
   
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endreq;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg;
   
   // Get segment selector tool
   //
   if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endreq;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
   sc = m_iBeamCondSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::DEBUG) << "Could not find BeamCondSvc." << endreq;
+    msg(MSG::DEBUG) << "Could not find BeamCondSvc." << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc =  m_magFieldSvc.retrieve();
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endreq;
+    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
   }
 
   if (m_useAmbigFcn && m_useTRT_AmbigFcn) {
-    msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endreq;
+    msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endmsg;
     return StatusCode::FAILURE;
   }
   
   
-  if (m_incidentSvc.retrieve().isFailure()){
-    ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-    return StatusCode::FAILURE;
-  }
-  
-  // register to the incident service: EndEvent needed for memory cleanup
-  m_incidentSvc->addListener( this, "BeginEvent");
-
-  
-
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
   
   return StatusCode::SUCCESS;
@@ -190,10 +179,8 @@ StatusCode InDet::InDetAmbiScoringTool::finalize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
+Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
-  m_holesearch = !suppressHoleSearch;
-
   const Trk::TrackSummary* summary;
   if ( suppressHoleSearch) {
     ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
@@ -214,11 +201,8 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, con
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
 {
-  if(!m_mapFilled)
-    newEvent();
-  
   int numPixel          = trackSummary.get(Trk::numberOfPixelHits);
   int numSCT            = trackSummary.get(Trk::numberOfSCTHits);
   int numTRT            = trackSummary.get(Trk::numberOfTRTHits);
@@ -333,7 +317,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
   const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm ); 
   if (!extrapolatedPerigee) {
-      msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endreq;
+      msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endmsg;
       delete parm;
       return Trk::TrackScore(0);
   }
@@ -346,7 +330,11 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   }
 
   double maxD0 = m_maxRPhiImp;
-  if(m_useEmClusSeed && isEmCaloCompatible( track ) ) maxD0 = m_maxRPhiImpEM;
+  if(m_useEmClusSeed) {
+    const ROIInfoVec* info = getInfo();
+    if (isEmCaloCompatible( track, info ) ) 
+      maxD0 = m_maxRPhiImpEM;
+  }
   if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
     ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
     delete extrapolatedPerigee;
@@ -401,7 +389,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) 
+Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
 {
   //
   // --- start with bonus for high pt tracks
@@ -619,7 +607,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
         int sigmaChi2times100 = trackSummary.get(Trk::standardDeviationOfChi2OS);
         if (sigmaChi2times100 > 0) {
           double  testvar = double(sigmaChi2times100)/100. - sqrt(2.*chi2/ndf);
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sigma chi2 = " << testvar << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sigma chi2 = " << testvar << endmsg;
           if ( testvar< m_boundsSigmaChi2[0] ) {
             prob *= m_factorSigmaChi2[0];
             ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[0]
@@ -860,93 +848,87 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   if (msgLvl(MSG::VERBOSE)) { 
     
     for (int i=0; i<=m_maxPixHoles; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel holes: " << m_factorPixHoles[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel holes: " << m_factorPixHoles[i] <<endmsg;
     
     for (int i=0; i<=m_maxSCT_Holes; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " SCT holes: " << m_factorSCT_Holes[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " SCT holes: " << m_factorSCT_Holes[i] <<endmsg;
     
     for (int i=0; i<=m_maxDblHoles; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " double SCT holes: " << m_factorDblHoles[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " double SCT holes: " << m_factorDblHoles[i] <<endmsg;
     
     for (int i=0; i<=m_maxPixLay; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel layers: " << m_factorPixLay[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel layers: " << m_factorPixLay[i] <<endmsg;
     
     for (int i=0; i<=m_maxB_LayerHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " b-layer hits: " << m_factorB_LayerHits[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " b-layer hits: " << m_factorB_LayerHits[i] <<endmsg;
     
     for (int i=0; i<=m_maxPixelHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel hits: " << m_factorPixelHits[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel hits: " << m_factorPixelHits[i] <<endmsg;
     
     for (int i=0; i<=m_maxGangedFakes; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " ganged fakes: " << m_factorGangedFakes[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " ganged fakes: " << m_factorGangedFakes[i] <<endmsg;
     
     for (int i=0; i<=m_maxHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Si hits: " << m_factorHits[i] <<endreq;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Si hits: " << m_factorHits[i] <<endmsg;
     
     for (int i=0; i<m_maxTrtRatio; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < "
-      << m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endreq;
+      << m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endmsg;
     
     for (int i=0; i<m_maxTrtFittedRatio; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < "
-      << m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endreq;
+      << m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endmsg;
     
     // only if used
     for (int i=0; i<m_maxLogProb; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsLogProb[i] << " < log(P)  < "
-      << m_boundsLogProb[i+1] <<"  : " <<m_factorLogProb[i] <<endreq;
+      << m_boundsLogProb[i+1] <<"  : " <<m_factorLogProb[i] <<endmsg;
     
     // only if used
     for (int i=0; i<m_maxSigmaChi2; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsSigmaChi2[i] << " < sigma(chi2) - sqrt(2chi2)  < " << m_boundsSigmaChi2[i+1]
-      <<"  : " <<m_factorSigmaChi2[i] <<endreq;
+      <<"  : " <<m_factorSigmaChi2[i] <<endmsg;
   }
 
 }
 
 
-void InDet::InDetAmbiScoringTool::handle(const Incident& inc) 
-{ 
-  // the cluster ambiguity map
-  if ( inc.type() == IncidentType::BeginEvent ){
-    m_mapFilled =false;
-  }  
-}
-
-
-void InDet::InDetAmbiScoringTool::newEvent()
+const InDet::InDetAmbiScoringTool::ROIInfoVec*
+InDet::InDetAmbiScoringTool::getInfo() const
 {
-  // Reload ROI's
-  if(m_useEmClusSeed) {
-    m_emF.clear();
-    m_emE.clear();
-    m_emR.clear();
-    m_emZ.clear();
-    
-    const CaloClusterROI_Collection* calo = 0;
-    StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
+  std::string roiname = name() + "ROIInfoVec";
+  SG::ReadHandle<ROIInfoVec> rh (roiname);
+  if (rh.isValid())
+    return rh.cptr();
 
-    if(sc == StatusCode::SUCCESS && calo) {
-      for( auto& ccROI : *calo) {
-        if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
-          continue;
-        }  
-        m_emF.push_back( ccROI->globalPosition().phi() );
-        m_emE.push_back( ccROI->globalPosition().eta() );
-        m_emR.push_back( ccROI->globalPosition().perp() );
-        m_emZ.push_back( ccROI->globalPosition().z() );
-      }
+  const CaloClusterROI_Collection* calo = nullptr;
+  StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
+
+  if(sc == StatusCode::SUCCESS && calo) {
+    auto info = std::make_unique<ROIInfoVec>();
+    for( const Trk::CaloClusterROI* ccROI : *calo) {
+      if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
+        continue;
+      }  
+      info->emplace_back( ccROI->globalPosition().phi(),
+                          ccROI->globalPosition().perp(),
+                          ccROI->globalPosition().z() );
     }
+
+    SG::WriteHandle<ROIInfoVec> wh (roiname);
+    return wh.put (std::move(info), true);
   }
-  m_mapFilled = true;
+
+  return nullptr;
 }
 
 
 //==========================================================================================
-bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track) const
+bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track,
+                                                     const ROIInfoVec* info) const
 {
 
-  
+
   const Trk::TrackParameters * Tp = track.trackParameters()->front();
   
   
@@ -968,33 +950,25 @@ bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track) co
   
   
   const double pi = M_PI, pi2 = 2.*M_PI;
-  if(m_emF.empty()) return false;
-
-  auto f = m_emF.begin(), fe = m_emF.end();
-  auto e = m_emE.begin();
-  auto r = m_emR.begin();
-  auto z = m_emZ.begin();
+  if(!info || info->empty()) return false;
 
   double F = Tp->momentum().phi();
   double E = Tp->momentum().eta();
   double R = Tp->position().perp();
   double Z = Tp->position().z();
 
-  for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
+  for (const ROIInfo& i : *info) {
+    double df = fabs(F-(i.emF));
     if(df > pi        ) df = fabs(pi2-df);
     if(df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = *z - Z;
-      double newR   = *r - R;
+      double newZ   = i.emZ - Z;
+      double newR   = i.emR - R;
       double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
       double de = fabs(E-newEta);
        
       if(de < m_etaWidthEm) return true;
     }
-    ++e;
-    ++r;
-    ++z;
   }
   return false;
 }

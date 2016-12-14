@@ -16,6 +16,7 @@
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include <vector>
 #include <string>
@@ -39,35 +40,46 @@ class ITrtDriftCircleCutTool;
 
 /**Concrete implementation of the ITrackScoringTool pABC*/
 class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,  
-                             virtual public IIncidentListener, 
                              public AthAlgTool
 {
 
  public:
   InDetAmbiScoringTool(const std::string&,const std::string&,const IInterface*);
   virtual ~InDetAmbiScoringTool ();
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
-  /** handle for incident service */
-  virtual void handle(const Incident& inc); 
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize  () override;
   /** create a score based on how good the passed track is*/
-  Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch );
+  virtual Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch ) const override;
   
   /** create a score based on how good the passed TrackSummary is*/
-  Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum );
-  Trk::TrackScore  ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum );
+  virtual Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const override;
+  Trk::TrackScore  ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const;
   
+  struct ROIInfo {
+    ROIInfo (double the_emF,
+             //double the_emE,
+             double the_emR,
+             double the_emZ)
+    : emF(the_emF),
+      //emE(the_emE),
+      emR(the_emR),
+      emZ(the_emZ) {}
+    double emF;
+    //double emE;
+    double emR;
+    double emZ;
+  };
+  typedef std::vector<ROIInfo> ROIInfoVec;
+
  private:
+  const ROIInfoVec* getInfo() const;
   
   void setupScoreModifiers();
   
   
     /** Check if the cluster is compatible with a EM cluster*/
-  bool isEmCaloCompatible(const Trk::Track& track) const;      
-  
-  /** Fill hadronic & EM cluster map*/
-  void newEvent();
-
+  bool isEmCaloCompatible(const Trk::Track& track,
+                          const ROIInfoVec* info) const;
   
   
   //these are used for ScoreModifiers 
@@ -92,9 +104,6 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   ToolHandle<Trk::IExtrapolator>         m_extrapolator;
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
 
-  /** IncidentSvc to catch begining of event and end of event */   
-  ServiceHandle<IIncidentSvc>           m_incidentSvc;   
-
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
@@ -107,7 +116,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
 
   /** cuts for selecting good tracks*/
   int    m_minNDF;        //!< minimal number of degrees of freedom cut
-  bool   m_fieldOn;       //!< do we have field on ?
+  //bool   m_fieldOn;       //!< do we have field on ?
   double m_minPt;         //!< minimal Pt cut
   double m_maxEta;        //!< maximal Eta cut
   double m_maxRPhiImp;    //!< maximal RPhi impact parameter cut
@@ -122,23 +131,17 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   int    m_minPixel;      //!< minimum number of pixel clusters
   double m_maxRPhiImpEM;    //!< maximal RPhi impact parameter cut track that match EM clusters
 
-  mutable bool m_holesearch; 
-  
   bool  m_useEmClusSeed;
   float m_minPtEm;
   float m_phiWidthEm;
   float m_etaWidthEm;
 
   std::string m_inputEmClusterContainerName;
-  std::vector<double>   m_emF;
-  std::vector<double>   m_emE;
-  std::vector<double>   m_emR;
-  std::vector<double>   m_emZ;
-
-  bool                  m_mapFilled;
-  
 };
 
 
-}
+} // namespace InDet
+
+
+CLASS_DEF (InDet::InDetAmbiScoringTool::ROIInfoVec, 169195041, 0)
 #endif 

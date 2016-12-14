@@ -8,6 +8,7 @@ apply_tag rootMathLibs
 
 use AtlasCLHEP               AtlasCLHEP-*              External
 use AtlasROOT                AtlasROOT-*                External
+use StoreGate                StoreGate-*                Control
 use TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
 use TrkTrackSummary          TrkTrackSummary-*          Tracking/TrkEvent
 use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-*  Tracking/TrkEvent
@@ -28,6 +29,7 @@ use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
 use TrkParameters            TrkParameters-*            Tracking/TrkEvent
 use TrkToolInterfaces        TrkToolInterfaces-*        Tracking/TrkTools
 use AthenaKernel             AthenaKernel-*             Control
+use SGTools                  SGTools-*                  Control
 
 branches InDetTrackScoringTools src
 

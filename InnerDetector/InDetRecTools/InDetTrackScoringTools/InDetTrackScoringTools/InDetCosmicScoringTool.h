@@ -31,13 +31,15 @@ class InDetCosmicScoringTool : virtual public Trk::ITrackScoringTool, public Ath
 public:
   InDetCosmicScoringTool(const std::string&,const std::string&,const IInterface*);
   virtual ~InDetCosmicScoringTool ();
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize  () override;
   /** create a score based on how good the passed track is*/
-  Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch );
+  virtual
+  Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch ) const override;
   
   /** create a score based on how good the passed TrackSummary is*/
-  Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum );
+  virtual
+  Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const override;
   
  private:
   
