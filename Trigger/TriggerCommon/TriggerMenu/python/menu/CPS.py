@@ -244,9 +244,7 @@ def defineCPSGroups():
         
         #BJet chains                                                                                                                                                    
         'RATE:CPS:HLT_j15b' : ['j15_bperf',
-                               'j15_bperf_split',
                                'j15_boffperf',
-                               'j15_boffperf_split',
                                ],
 
 

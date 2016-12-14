@@ -103,7 +103,7 @@ def defineMenu():
         TopoOutput( algoname='DISAMB-0DR28-EM15his2-TAU12abi',              module=0, fpga=1, clock=0, firstbit=15 ),#v6n
 
         TopoOutput( algoname='DISAMB-30INVM-EM20his2-TAU12ab',              module=0, fpga=1, clock=1, firstbit=0 ),  #v6 new
-        TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=0, fpga=1, clock=1, firstbit=1 ),  #v6 new
+        TopoOutput( algoname='400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',     module=0, fpga=0, clock=0, firstbit=15 ),  #v6 new
 
         TopoOutput( algoname='0DR22-2MU6ab',                                module=0, fpga=1, clock=1, firstbit=4 ),#v6
         TopoOutput( algoname='7INVM15-2MU4ab',                              module=0, fpga=1, clock=1, firstbit=5 ),#v6
@@ -113,7 +113,7 @@ def defineMenu():
         TopoOutput( algoname='0DR15-2MU6ab',                                module=0, fpga=1, clock=1, firstbit=9 ), #v6 new
         TopoOutput( algoname='2INVM9-2MU4ab',                               module=0, fpga=1, clock=1, firstbit=10 ),  #v6 new
         TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=11 ),  #v6 new       
-        TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=1, clock=1, firstbit=12 ), # 3bits
+        TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
  
         # module: 1, FPGA: 0        
         TopoOutput( algoname='05MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),#v6
@@ -145,12 +145,12 @@ def defineMenu():
 #        TopoOutput( algoname='4INVM8-CMU4ab-MU4ab',                         module=1, fpga=0, clock=1, firstbit=7 ),         
         TopoOutput( algoname='2INVM8-CMU4ab-MU4ab',                         module=1, fpga=0, clock=1, firstbit=7 ),#v6
 
-        TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=1, fpga=0, clock=1, firstbit=8 ), #v6 new
+        TopoOutput( algoname='0DR25-TAU20abi-TAU12abi',                     module=1, fpga=1, clock=1, firstbit=10 ), #v6 new
         TopoOutput( algoname='10MINDPHI-AJ20s2-XE50',                       module=1, fpga=0, clock=1, firstbit=9 ),#v6n
         TopoOutput( algoname='LATE-MU10s1',                                  module=1, fpga=0, clock=1, firstbit=10 ),#v6n
-        TopoOutput( algoname='1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=0, clock=1, firstbit=13 ), #v6 new 
+        TopoOutput( algoname='1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=1, fpga=1, clock=1, firstbit=11 ), #v6 new 
 #          TopoOutput( algoname='0DR15-2MU6ab',                                module=1, fpga=0, clock=1, firstbit=11 ), #v6 new
-        TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=1, fpga=0, clock=1, firstbit=14 ),  #v6 new
+        TopoOutput( algoname='10MINDPHI-J20s2-XE30',                        module=0, fpga=0, clock=1, firstbit=5 ),  #v6 new
 
 
         # module: 1, FPGA: 1        
@@ -160,8 +160,8 @@ def defineMenu():
         TopoOutput( algoname='HT150-AJ20all.ETA31',                         module=1, fpga=1, clock=0, firstbit=8 ),
         TopoOutput( algoname='HT150-AJj15all.ETA49',                        module=1, fpga=1, clock=0, firstbit=9 ),
         TopoOutput( algoname='HT20-AJj15all.ETA49',                         module=1, fpga=1, clock=0, firstbit=10 ),
-        TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=1, clock=0, firstbit=11 ),#v6n
-        TopoOutput( algoname='SC85-CJ15ab.ETA26',                           module=1, fpga=1, clock=0, firstbit=12 ),#v6n
+        TopoOutput( algoname='SC111-CJ15ab.ETA26',                          module=1, fpga=0, clock=1, firstbit=11 ),#v6n
+        TopoOutput( algoname='SC85-CJ15ab.ETA26',                           module=1, fpga=0, clock=1, firstbit=12 ),#v6n
         TopoOutput( algoname='05RATIO-XE0-HT0-AJj15all.ETA49',              module=1, fpga=1, clock=0, firstbit=13 ), 
 #        TopoOutput( algoname='08RATIO-XE0-HT0-AJj15all.ETA49',              module=1, fpga=1, clock=0, firstbit=14 ), 
         TopoOutput( algoname='90RATIO2-XE0-HT0-AJj15all.ETA49',             module=1, fpga=1, clock=0, firstbit=15 ),

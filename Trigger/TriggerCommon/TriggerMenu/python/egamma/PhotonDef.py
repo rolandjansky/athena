@@ -53,7 +53,7 @@ class L2EFChain_g(L2EFChainDef):
     # Define frequently used instances here as class variables
     theTrigEgammaRec_NoIDEF_eGamma = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",
                                                         doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
-    theTrigEgammaRec_Iso_eGamma    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",
+    theTrigEgammaRec_Iso_eGamma    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",PhotonContainerName="egamma_Iso_Photons",
                                                         doTrackMatching = False,doTrackIsolation = False,
                                                         doCaloTopoIsolation=True,doPrint=False)()
     theTrigEgammaRec_Conv_eGamma   = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma",
