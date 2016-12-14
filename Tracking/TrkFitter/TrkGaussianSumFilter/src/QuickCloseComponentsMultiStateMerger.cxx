@@ -50,7 +50,9 @@ Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(
   m_stateAssembler("Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler"),
   m_chronoSvc("ChronoStatSvc", name),
   m_useFullDistanceCalcArray(true),
-  m_useFullDistanceCalcVector(true)
+  m_useFullDistanceCalcVector(true),
+  m_useMap{}
+  
 {
 
   declareInterface<IMultiComponentStateMerger>(this);

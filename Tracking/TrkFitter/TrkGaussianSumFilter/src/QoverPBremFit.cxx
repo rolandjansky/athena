@@ -101,8 +101,9 @@ Trk::GraphParameter Trk::QoverPBremFit::GetParameters(const DataVector <const Tr
 }
 
 
-void Trk::QoverPBremFit::FillVariables(const DataVector <const Trk::TrackStateOnSurface>& Trajectory) {
-
+void 
+Trk::QoverPBremFit::FillVariables(const DataVector <const Trk::TrackStateOnSurface>& Trajectory) {
+  //iterators will be constructed as NULL
   DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface;
   DataVector<const Trk::TrackStateOnSurface>::const_iterator Trajectory_end; 
   
@@ -110,80 +111,76 @@ void Trk::QoverPBremFit::FillVariables(const DataVector <const Trk::TrackStateOn
   if (m_type==1) {
     trackStateOnSurface = Trajectory.begin();
     Trajectory_end = Trajectory.end(); 
-  }
-  else if (m_type==-1) {
+  } else if (m_type==-1) {
     trackStateOnSurface = Trajectory.end();
     trackStateOnSurface--;
     Trajectory_end = Trajectory.begin();
     Trajectory_end--;
+  } else {
+    //trackStateOnSurface and Trajectory_end will be NULL in this case, as constructed
+    return;
   }
   
 
   m_surfaceCounter=0;
   
   
-  for ( ; trackStateOnSurface != Trajectory_end; )  {
-    const Trk::MultiComponentState *TrajectoryMultiState=0;
-    const Trk::MultiComponentStateOnSurface *TrajectoryMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurface);
+    for ( ; trackStateOnSurface != Trajectory_end; )  {
+      const Trk::MultiComponentState *TrajectoryMultiState=0;
+      const Trk::MultiComponentStateOnSurface *TrajectoryMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurface);
+      if (m_surfaceCounter < TRKFGSF_VALSURFACES) {
+        if (!TrajectoryMultiStateOnSurface) {
+          // Create new multiComponentState from a single state
+          Trk::ComponentParameters componentParameters( (*trackStateOnSurface)->trackParameters(), 1.0);
+          TrajectoryMultiState = new Trk::MultiComponentState(componentParameters);
+        } else {
+          TrajectoryMultiState = TrajectoryMultiStateOnSurface->components();
+        }
 
-    if (m_surfaceCounter < TRKFGSF_VALSURFACES) {
-      
-      if (!TrajectoryMultiStateOnSurface) {
-	// Create new multiComponentState from a single state
-	Trk::ComponentParameters componentParameters( (*trackStateOnSurface)->trackParameters(), 1.0);
-	TrajectoryMultiState = new Trk::MultiComponentState(componentParameters);
-      }
-      else
-	TrajectoryMultiState = TrajectoryMultiStateOnSurface->components();
-
-      const Amg::Vector3D posOnSurf = TrajectoryMultiStateOnSurface->trackParameters()->position();
+        const Amg::Vector3D posOnSurf = TrajectoryMultiStateOnSurface->trackParameters()->position();
       
 
-      //Fill the radius values
-      m_RadiusValue->push_back( posOnSurf.perp() );
-      m_Zvalue->push_back( posOnSurf.z() );
+        //Fill the radius values
+        m_RadiusValue->push_back( posOnSurf.perp() );
+        m_Zvalue->push_back( posOnSurf.z() );
 
-      //Specify in joboptions whether to use mode or mean
-      const Trk::TrackParameters* CombinedMultiState = m_stateCombiner->combine(*TrajectoryMultiState,true);
+        //Specify in joboptions whether to use mode or mean
+        const Trk::TrackParameters* CombinedMultiState = m_stateCombiner->combine(*TrajectoryMultiState,true);
       
-      if (CombinedMultiState->parameters()[Trk::qOverP] > 0.0) 
-	m_charge = 1.0;    
-      else 
-	m_charge = -1.0;
+        if (CombinedMultiState->parameters()[Trk::qOverP] > 0.0) m_charge = 1.0;    
+        else m_charge = -1.0;
 
-      //Fill the 1overPvalues in GeV
-      m_trackParameters->push_back( CombinedMultiState );
-      m_1overPvalue->push_back( 1000.0*fabs(CombinedMultiState->parameters()[Trk::qOverP]) );
-      m_PhiValue->push_back( CombinedMultiState->parameters()[Trk::phi] );
-      m_ThetaValue->push_back( CombinedMultiState->parameters()[Trk::theta] );
+        //Fill the 1overPvalues in GeV
+        m_trackParameters->push_back( CombinedMultiState );
+        m_1overPvalue->push_back( 1000.0*fabs(CombinedMultiState->parameters()[Trk::qOverP]) );
+        m_PhiValue->push_back( CombinedMultiState->parameters()[Trk::phi] );
+        m_ThetaValue->push_back( CombinedMultiState->parameters()[Trk::theta] );
 
-      const AmgSymMatrix(5)* measuredCov = CombinedMultiState->covariance();
+        const AmgSymMatrix(5)* measuredCov = CombinedMultiState->covariance();
 
-      if (measuredCov) {
-	m_1overPvalueerror->push_back( 1000.0*sqrt((*measuredCov)(Trk::qOverP,Trk::qOverP)));
-	m_PhiValueerror->push_back( sqrt((*measuredCov)(Trk::phi,Trk::phi)));
-	m_ThetaValueerror->push_back( sqrt((*measuredCov)(Trk::theta,Trk::theta)));
+        if (measuredCov) {
+          m_1overPvalueerror->push_back( 1000.0*sqrt((*measuredCov)(Trk::qOverP,Trk::qOverP)));
+          m_PhiValueerror->push_back( sqrt((*measuredCov)(Trk::phi,Trk::phi)));
+          m_ThetaValueerror->push_back( sqrt((*measuredCov)(Trk::theta,Trk::theta)));
+        }
+        else {
+          m_1overPvalueerror->push_back( 1000.0*fabs(CombinedMultiState->parameters()[Trk::qOverP]) );
+          m_PhiValueerror->push_back( fabs(CombinedMultiState->parameters()[Trk::phi]) );
+          m_ThetaValueerror->push_back( fabs(CombinedMultiState->parameters()[Trk::theta]) );
+        }  
       }
-      else {
-	m_1overPvalueerror->push_back( 1000.0*fabs(CombinedMultiState->parameters()[Trk::qOverP]) );
-	m_PhiValueerror->push_back( fabs(CombinedMultiState->parameters()[Trk::phi]) );
-	m_ThetaValueerror->push_back( fabs(CombinedMultiState->parameters()[Trk::theta]) );
-      }
-          
-    }
     
-    if (!TrajectoryMultiStateOnSurface) { 
-      delete TrajectoryMultiState;
-    }
-    m_surfaceCounter++;
-    if (m_type==1) {
-      trackStateOnSurface++;
-    }
-    else if (m_type==-1) {
-      trackStateOnSurface--;
-    }
-  }
-
+      if (!TrajectoryMultiStateOnSurface) { 
+        delete TrajectoryMultiState;
+      }
+      m_surfaceCounter++;
+      if (m_type==1) {
+        trackStateOnSurface++;
+      }
+      else if (m_type==-1) {
+        trackStateOnSurface--;
+      }
+    }//end of for loop
 }
 
 

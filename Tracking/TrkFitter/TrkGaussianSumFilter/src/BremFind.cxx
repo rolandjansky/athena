@@ -48,24 +48,69 @@ Trk::BremFind::BremFind(const std::string& type, const std::string& name, const 
   AthAlgTool(type, name, parent),
   m_stateCombiner("Trk::MultiComponentStateCombiner"),
   m_propagator("Trk::IntersectorWrapper/IntersectorWrapper"),
+  //m_fieldProperties
   m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
   m_trackingGeometryName("AtlasTrackingGeometry"),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
+  //m_validationMode
   m_validationTreeName("BremInfo"),
   m_validationTreeName2("BremInfoZ"),
   m_validationTreeDescription("Brem Information"),
   m_validationTreeFolder("/valGSF2/BremInfo"),
   m_validationTreeFolder2("/valGSF2/BremInfoZ"),
-  m_validationTree(0),
-  m_validationTree2(0)
+  m_validationTree(nullptr),
+  m_validationTree2(nullptr),
+  //m_useCalibration{},
+  //m_usePropagate{},
+  m_forwardparameters{},
+  m_smoothedparameters{},
+  m_combinedparameters{},
+  m_perigee_1overP{},
+  m_perigee_Phi{},
+  m_perigee_Theta{},
+  m_perigee_d0{},
+  m_perigee_z0{},
+  m_brem_value{},
+  m_brem_phi{},
+  m_brem_theta{},
+  m_brem_energy{},
+  m_brem_UpperBound{},
+  m_brem_LowerBound{},
+  m_forward_kink{},
+  m_smoothed_kink{},
+  m_brem_significance{},
+  m_brem_valueCalibrated{},
+  m_surfaceX{},
+  m_surfaceY{},
+  m_surfaceZ{},
+  m_nBrems{},
+  m_Z_mode{},
+  //vectors could be initialised here
+  m_event_ID{},
+  m_forwardparameter_constant{},
+  m_forwardparameter_coefficient{},
+  m_forwardparameter_value{},
+  m_forwardparameter_width{},
+  m_smoothparameter_constant{},
+  m_smoothparameter_coefficient{},
+  m_smoothparameter_value{},
+  m_smoothparameter_width{},
+  m_forward_1overP{},
+  m_forward_1overPerr{},
+  m_forward_value{},
+  m_smooth_1overP{},
+  m_smooth_1overPerr{},
+  m_smooth_value{},
+  m_KinkSeparationScores{},
+  m_KinkSeparationScoresErr{},
+  m_forwardBremFit{},
+  m_smoothedBremFit{}
 {
-  declareInterface<IBremsstrahlungFinder>(this);  
+  declareInterface<IBremsstrahlungFinder>(this);
+  //jobOptions Variables
   declareProperty("StateCombiner",   m_stateCombiner );
   declareProperty("TrackingGeometrySvc",  m_trackingGeometrySvc);
   declareProperty("Propagator", m_propagator);
-  
-  
-  //jobOptions Variables
   declareProperty("UseCalibration", m_useCalibration=true);
   declareProperty("ValidationMode", m_validationMode=false);
   declareProperty("UseSurfacePropagation", m_usePropagate=false);
@@ -76,31 +121,19 @@ Trk::BremFind::BremFind(const std::string& type, const std::string& name, const 
 
 StatusCode Trk::BremFind::initialize()
 {
- 
-  
    // The TrackingGeometrySvc ------------------------------------------------------
-  if (m_trackingGeometrySvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to load TrackingGeometrySvc " << m_trackingGeometrySvc << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::INFO) << "Retrieved service " << m_trackingGeometrySvc << endmsg;
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  }
+  ATH_CHECK (m_trackingGeometrySvc.retrieve());
+  
+  msg(MSG::DEBUG) << "Retrieved service " << m_trackingGeometrySvc << endmsg;
+  m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+  
 
   // Request the state combiner
-  if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Request to retrieve the multi-component state combiner failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_stateCombiner.retrieve() );
  
-
   //Retrieve the propagator
-  if (m_propagator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_propagator << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK (m_propagator.retrieve());
+  
   m_fieldProperties= Trk::MagneticFieldProperties(Trk::FullField);
 
 
@@ -109,7 +142,7 @@ StatusCode Trk::BremFind::initialize()
   
   if (m_validationMode) {
     
-    if (m_validationTree == 0) {
+    if (not m_validationTree) {
       //Crate a new tree if there doesn't exist one already
       m_validationTree = new TTree( m_validationTreeName.c_str(), m_validationTreeDescription.c_str() );
     
@@ -151,7 +184,7 @@ StatusCode Trk::BremFind::initialize()
     
 
 
-    if (m_validationTree2 == 0) {
+    if (not m_validationTree2) {
       //Crate a new tree if there doesn't exist one already
       m_validationTree2 = new TTree( m_validationTreeName2.c_str(), m_validationTreeDescription.c_str() );
     
@@ -215,7 +248,7 @@ StatusCode Trk::BremFind::initialize()
 
   //---------------------------- end of validation mode ------------------------------------
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  ATH_MSG_DEBUG( "Initialisation of " << name() << " was successful" );
   
   return StatusCode::SUCCESS;
 
@@ -224,7 +257,7 @@ StatusCode Trk::BremFind::initialize()
 
 StatusCode Trk::BremFind::finalize(){
  
- msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+ ATH_MSG_DEBUG( "Finalisation of " << name() << " was successful" );
 
  return StatusCode::SUCCESS;
 

@@ -326,8 +326,10 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
 
     // New reference parameters are the navigation parameters at the boundary surface
     referenceParameters = m_stateAtBoundarySurface.navigationParameters;
-    if (referenceParameters) printState("New Ref Parameters at next surface ", *referenceParameters);
-
+    //coverity 111522: null check is redundant here since referenceParameters is dereferenced later anyway.
+    //if (referenceParameters) printState("New Ref Parameters at next surface ", *referenceParameters);
+    printState("New Ref Parameters at next surface ", *referenceParameters);
+    
     // The volume that the extrapolation is about to enter into is called the nextVolume
     const Trk::TrackingVolume* nextVolume = m_stateAtBoundarySurface.trackingVolume;
 

@@ -26,6 +26,7 @@ Trk::MultiComponentStateCombiner::MultiComponentStateCombiner (const std::string
   m_useModePhi(true),
   m_useModeTheta(true),
   m_useModeqOverP(true),
+  m_NumberOfCalls(0),
   m_fractionPDFused(1.0)
 {
 

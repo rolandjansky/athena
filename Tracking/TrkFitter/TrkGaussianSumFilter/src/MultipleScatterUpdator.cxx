@@ -20,6 +20,7 @@ decription           : Implementation code for multiple scatter updator
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include <cmath>
 
 Trk::ParticleMasses Trk::MultipleScatterUpdator::s_particleMasses;
 double Trk::MultipleScatterUpdator::s_multipleScatterMainFactor = 13.6 * Gaudi::Units::MeV;
@@ -50,27 +51,16 @@ Trk::MultipleScatterUpdator::~MultipleScatterUpdator()
 
 StatusCode Trk::MultipleScatterUpdator::initialize()
 {
-
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
-
-  if( m_msUpdator.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_msUpdator << ". No energy loss effects will be taken into account." );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( "Retrieved tool " << m_msUpdator );
-
-  
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  ATH_CHECK( m_msUpdator.retrieve());
+  ATH_MSG_DEBUG( "Initialisation of " << name() << " was successful" );
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode Trk::MultipleScatterUpdator::finalize()
 {
-
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  ATH_MSG_DEBUG( "Finalisation of " << name() << " was successful" );
   return StatusCode::SUCCESS;
-
 }
 
 const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::TrackParameters* trackParameters,
@@ -79,17 +69,10 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
                  Trk::ParticleHypothesis particleHypothesis,
                  Trk::MaterialUpdateMode) const
 {
-
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Performing multiple scatter update using layer information" << endmsg;
-
-
-
-    
+  ATH_MSG_VERBOSE( "Performing multiple scatter update using layer information" );
   // Extract the material properties from the layer
   const Trk::MaterialProperties* materialProperties(0);
   double pathCorrection(0.);
-
 
   // Get the surface associated with the parameters
   const Trk::Surface& surface = trackParameters->associatedSurface();
@@ -104,7 +87,7 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
     materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : 0;
 
     // Determine the pathCorrection if the material properties exist
-    pathCorrection = materialProperties ? 1. / fabs( surface.normal().dot( trackParameters->momentum().unit() ) ) : 0.;
+    pathCorrection = materialProperties ? 1. / std::fabs( surface.normal().dot( trackParameters->momentum().unit() ) ) : 0.;
 
   }
 
@@ -113,14 +96,14 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
   materialProperties = materialProperties ? materialProperties : layer.fullUpdateMaterialProperties( *trackParameters );
 
   if ( !materialProperties ) {
-    msg(MSG::DEBUG) << "No material properties associated with layer... returning original parameters" << endmsg;
+    ATH_MSG_DEBUG( "No material properties associated with layer... returning original parameters" );
     return trackParameters->clone();
   }
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov){
-    msg(MSG::DEBUG) << "No measured track parameters for multiple scatter... returning original parameters" << endmsg;
+    ATH_MSG_DEBUG( "No measured track parameters for multiple scatter... returning original parameters" );
     return trackParameters->clone();
   }
   
@@ -139,13 +122,12 @@ const Trk::TrackParameters*
 Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters,
              const Trk::MaterialProperties& materialProperties,
              double pathLength,
-             PropDirection direction,
+             PropDirection /*direction*/,
              ParticleHypothesis /*particleHypothesis*/,
              Trk::MaterialUpdateMode ) const
 {
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Updating multiple scatter effects based on material properties and path length" << endmsg;
+  ATH_MSG_VERBOSE( "Updating multiple scatter effects based on material properties and path length" );
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters.covariance();
 
@@ -153,7 +135,6 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
     msg(MSG::DEBUG) << "No measurement associated with track parameters... returning original parameters" << endmsg;
     return trackParameters.clone();
   }
-
 
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
   double p = globalMomentum.mag();
@@ -164,21 +145,17 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
   //and create a dummy materialProperties with the properties we are interested in
   MaterialProperties mprop(materialProperties.thicknessInX0(),1.,0.,0.,0.,0.);
   double angularVariation = m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);  
-  
-
-  if (m_outputlevel <= 0) 
-    msg(MSG::DEBUG) << "Sigma squared multiple scattering: " << angularVariation << endmsg;
-  
+  ATH_MSG_DEBUG( "Sigma squared multiple scattering: " << angularVariation );
   AmgSymMatrix(5)* cov_out = new AmgSymMatrix(5)(*measuredTrackCov);
  
+  //double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
+  double sinTheta = std::sin( trackParameters.parameters()[Trk::theta] );
 
-  double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
-  double sinTheta = sin( trackParameters.parameters()[Trk::theta] );
-
-  (*cov_out)(Trk::phi,Trk::phi) += sign * angularVariation / (sinTheta*sinTheta);
-  (*cov_out)(Trk::theta,Trk::theta) += sign * angularVariation;
+  //(*cov_out)(Trk::phi,Trk::phi) += sign * angularVariation / (sinTheta*sinTheta);
+  //(*cov_out)(Trk::theta,Trk::theta) += sign * angularVariation;
   //std::cout << "MSU   DeltaPhi " << (*updatedCovarianceMatrix)[Trk::phi][Trk::phi] <<'\t' << angularVariation / (sinTheta * sinTheta) << std::endl;
-  
+  (*cov_out)(Trk::phi,Trk::phi) += angularVariation / (sinTheta*sinTheta);
+  (*cov_out)(Trk::theta,Trk::theta) += angularVariation;
   const AmgVector(5)& par = trackParameters.parameters();
   //return trackParameters.cloneToNew( trackParameters.parameters(), measuredTrackCov );
   return trackParameters.associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],par[Trk::phi],par[Trk::theta],par[Trk::qOverP],cov_out);

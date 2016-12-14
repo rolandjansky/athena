@@ -73,13 +73,52 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   m_BremFind("Trk::BremFind"),
   m_BremFind2("Trk::BremFind"),
   m_chronoSvc("ChronoStatSvc", name),
+  m_inputPreparator(0),
+  m_FitPRD(0),
+  m_FitMeasuremnetBase(0),
+  m_FowardFailure(0),
+  m_SmootherFailure(0),
+  m_PerigeeFailure(0),
+  m_fitQualityFailure(0),
   m_validationMode(false),
   m_validationTreeName("GSFValidation"),
   m_validationTreeDescription("Surface MCSOS"),
   m_validationTreeFolder("/valGSF/GSFValidation"),
   m_validationTree(0),
   m_surfaceCounterF(0),
-  m_surfaceCounterS(0)
+  m_surfacesF(0),
+  m_surfaceXF{},
+  m_surfaceYF{},
+  m_surfaceRF{},
+  m_surfaceZF{},
+  m_surfaceTypeF{},
+  m_surfaceNstatesF{},
+
+  m_surfaceThetaF{},
+  m_surfacePhiF{},
+  m_surfaceQoverPF{},
+  m_surfaceWeightF{},
+  m_surfaceErrThetaF{},
+  m_surfaceErrPhiF{},
+  m_surfaceErrQoverPF{},
+  m_surfaceCounterS(0),
+  m_surfacesS(0),
+  m_surfaceXS{},
+  m_surfaceYS{},
+  m_surfaceRS{},
+  m_surfaceZS{},
+  m_surfaceTypeS{},
+  m_surfaceNstatesS{},
+
+  m_surfaceThetaS{},
+  m_surfacePhiS{},
+  m_surfaceQoverPS{},
+  m_surfaceWeightS{},
+  m_surfaceErrThetaS{},
+  m_surfaceErrPhiS{},
+  m_surfaceErrQoverPS{},
+
+  m_event_ID(0)
 
 {
 
@@ -114,50 +153,25 @@ StatusCode Trk::GaussianSumFitter::initialize()
   StatusCode sc;
 
   // Request the Chrono Service
-  if ( m_chronoSvc.retrieve().isFailure() ) {
-   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endmsg;
-   return StatusCode::FAILURE;
-  } else 
-   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endmsg;
-
-
+  ATH_CHECK( m_chronoSvc.retrieve() );
 
   // Request the GSF forward fitter - hardwired type and instanace name for the GSF
-  if ( m_forwardGsfFitter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the forward GSF fitter failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_forwardGsfFitter.retrieve());
 
   // Request the GSF smoother - hardwired type and instance name for the GSF
-  if ( m_gsfSmoother.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF smoother failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_gsfSmoother.retrieve() );
 
   // Request the GSF Outlier m_logic - hardwired type and instance name for the GSF
-  if ( m_outlierLogic.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF outlier m_logic failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_outlierLogic.retrieve() );
 
   // Request the GSF measurement updator - hardwired type and instance name for the GSF
-  if ( m_updator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF measurement updator failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_updator.retrieve() );
 
   // Request the GSF extrapolator
-  if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Request to retrieve the GSF extrapolator failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_extrapolator.retrieve() );
  
   // Request the state combiner
-  if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Request to retrieve the multi-component state combiner failed... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK ( m_stateCombiner.retrieve() );
    //Request the brem finder
   if (m_runBremFinder){
     if ( m_BremFind.retrieve().isFailure() || m_BremFind2.retrieve().isFailure() ) {
@@ -175,7 +189,7 @@ StatusCode Trk::GaussianSumFitter::initialize()
     }
 
     else
-      msg(MSG::INFO) << "Request to retrieve the RIO_OnTrack Creator failed but track is fit at the MeasurementBase level... Continuing!" << endmsg;
+      ATH_MSG_INFO( "Request to retrieve the RIO_OnTrack Creator failed but track is fit at the MeasurementBase level... Continuing!");
 
   }
 
@@ -259,7 +273,7 @@ StatusCode Trk::GaussianSumFitter::initialize()
     }
 
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()){ 
       msg(MSG::ERROR)<<"initialize() Could not find Hist Service -> Switching ValidationMode Off !" << endmsg;
       delete m_validationTree; m_validationTree = 0;

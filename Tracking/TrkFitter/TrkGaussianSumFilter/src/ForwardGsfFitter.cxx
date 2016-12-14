@@ -34,7 +34,8 @@ Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::stri
   m_stateCombiner("Trk::MultiComponentStateCombiner/ForwardsFitterCombiner"),
   m_cutChiSquaredPerNumberDOF(50.),
   m_overideMaterialEffectsSwitch(false),
-  m_overideMaterialEffects(4)
+  m_overideMaterialEffects(4),
+  m_overideParticleHypothesis(nonInteracting)
 {
 
   declareInterface<IForwardGsfFitter>(this);

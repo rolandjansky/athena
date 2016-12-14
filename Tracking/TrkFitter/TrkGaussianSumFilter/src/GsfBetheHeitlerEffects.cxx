@@ -33,9 +33,11 @@ Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, con
   MultiStateMaterialEffects(type, name, parent),
   m_parameterisationFileName("GeantSim_LT01_cdf_nC6_O5.par"),
   m_numberOfComponents(0),
+  m_transformationCode(0),
   m_correctionFlag(0),
   m_parameterisationFileNameHighX0("GeantSim_GT01_cdf_nC6_O5.par"),
-  m_numberOfComponentsHighX0(0)
+  m_numberOfComponentsHighX0(0),
+  m_transformationCodeHighX0(0)
 {
 
   declareInterface<IMultiStateMaterialEffects>(this);

@@ -51,15 +51,15 @@ class QoverPBremFit;
     
 struct GraphParameter {
   double constant;
-  std::vector<double> coefficient;
-  std::vector<double> value;
-  std::vector<double> width;
+  std::vector<double> coefficient{};
+  std::vector<double> value{};
+  std::vector<double> width{};
 };
     
 struct Element {
-  double value;
-  double width;
-  bool sign;
+  double value{};
+  double width{};
+  bool sign{};
 };
  
   

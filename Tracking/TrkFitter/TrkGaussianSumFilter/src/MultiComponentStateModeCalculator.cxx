@@ -24,7 +24,11 @@ description          : Implementation code for MultiComponentStateModeCalculator
 Trk::MultiComponentStateModeCalculator::MultiComponentStateModeCalculator( const std::string& type, const std::string& name, const IInterface* parent )
   :
   AthAlgTool( type, name, parent ),
-  m_outputlevel(1)
+  m_outputlevel(1),
+  m_NumberOfCalls(0),
+  m_ConverganceFilures(0),
+  m_NoErrorMatrix(0),
+  m_MixtureSizeZero(0)
 {
 
   declareInterface<IMultiComponentStateModeCalculator>(this);
