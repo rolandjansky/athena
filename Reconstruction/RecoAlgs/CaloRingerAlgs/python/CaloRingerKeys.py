@@ -8,9 +8,6 @@ __author__ = "Werner S. Freund"
 # Temporary solution just to emulate what was being done in egammaGetter.py
 from egammaRec.egammaKeys import egammaKeysDict
 
-from CaloRingerAlgs.CaloRingerFlags import jobproperties
-CaloRingerFlags = jobproperties.CaloRingerFlags
-
 def outputRingSetType():
   return 'xAOD::RingSetContainer'
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 713521 2015-12-09 08:53:41Z wsfreund $
+// $Id: xAODRingSetConfWriter.cxx 787810 2016-12-02 05:39:13Z ssnyder $
 
 // STL include(s)
 #include <algorithm>
@@ -86,8 +86,8 @@ StatusCode xAODRingSetConfWriter::initialize() {
     }
     ATH_MSG_DEBUG( "CaloRingsBuilderTools = " << toolNames );
   }
-  ATH_MSG_VERBOSE( m_metaStore );
-  ATH_MSG_VERBOSE( "InputMetaDataStore = " << m_inputMetaStore );
+
+  ATH_MSG_VERBOSE( "inputMetaStore = " << m_inputMetaStore->dump() );
 
   // Retrieve the necessary service(s):
   CHECK( m_metaStore.retrieve() );
@@ -95,12 +95,31 @@ StatusCode xAODRingSetConfWriter::initialize() {
 
   // Now work to set xAOD RingSet/CaloRings configuration metadata available on
   // the output meta store:
-  CHECK( copyInputMetaStore() );
   CHECK( retrieveCaloRingsBuilders() );
   CHECK( allocateContainers() );
   CHECK( fillConfigurations() );
 
+  // NOTE: This must be called after fillConfigurations, otherwise it will
+  // attempt to fill those configurations retrieven from the builders.
+  CHECK( copyInputMetaStore() );
+
+  // Print-out configurations:
+  ATH_MSG_DEBUG("There are available a total of " << m_rsConfContVec.size() << " RingSetConfContainer(s).");
+  for ( const auto* c : m_rsConfContVec ) {
+    if ( nullptr != c ) {
+      if ( msg().level() <= MSG::VERBOSE ) {
+        for ( const auto& r : *c ){
+          r->print( msg(), MSG::VERBOSE );
+        }
+      }
+    } else {
+      ATH_MSG_WARNING("Container " << c << "is empty!");
+    }
+  }
+
   ATH_MSG_DEBUG("Obtained configuration succesfully.");
+
+  ATH_MSG_VERBOSE( "outputMetaStore = " << m_metaStore->dump() );
 
   // Return gracefully:
   return StatusCode::SUCCESS;
@@ -175,8 +194,17 @@ StatusCode xAODRingSetConfWriter::copyKeyToStore( const std::string &key )
   // Copy them:
   contCopy->reserve( cont->size() );
   contAuxCopy->reserve( cont->size() );
+  ATH_MSG_DEBUG("Copying object with key: " << key);
   for ( value_type obj : *cont ) {
+    ATH_MSG_VERBOSE("Original object:");
+    // Print-out object:
+    obj->print( msg(), MSG::VERBOSE ); 
+    // Copy object
     value_type objCopy = new (base_value_type)( *obj );
+    // Print-out object:
+    ATH_MSG_VERBOSE("Copied object:");
+    objCopy->print( msg(), MSG::VERBOSE ); 
+    // Add to container
     contCopy->push_back( objCopy );
   }
   
@@ -232,7 +260,7 @@ StatusCode xAODRingSetConfWriter::fillConfigurations()
 
   for (size_t counter = 0; counter < m_rsConfContVec.size(); ++counter)
   {
-    const auto& crBuilder = m_crBuilderTools[counter];
+    auto& crBuilder = m_crBuilderTools[counter];
     auto& rsCont = m_rsConfContVec[counter];
 
     // Create the xAOD configuration object (it will populate

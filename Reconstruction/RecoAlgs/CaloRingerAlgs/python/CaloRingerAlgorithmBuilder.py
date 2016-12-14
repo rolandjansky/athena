@@ -27,13 +27,12 @@ mlog.info("Entering")
 
 #---------------------------------------
 # CaloRinger flags
-from CaloRingerAlgs.CaloRingerFlags import jobproperties 
-CaloRingerFlags = jobproperties.CaloRingerFlags
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 
 def egammaBuilderAvailable():
   " Return true if egammaBuilder is available."
   flag = False
-  if rec.readRDO() or rec.readESD() and not rec.readxAOD():
+  if rec.readRDO() or rec.readESD() and not rec.readAOD():
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()                     
     if hasattr(topSequence,'egamma'):
@@ -60,15 +59,20 @@ def checkBuildElectronCaloRings():
   """ Return true if it can build CaloRings for Electrons. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
-  if CaloRingerFlags.buildElectronCaloRings():
+  if caloRingerFlags.buildElectronCaloRings():
     if not inputAvailable(inputElectronType(), inputElectronKey()):
 
       # Try to force egammaBuilder startup if it is not already started:
       if not egammaBuilderAvailable(): 
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
-          " builder was not available. Trying to add egamma to joboptions.")
+          " builder was not available. Deactivating ElectronCaloRings and electron selection.")
           )
-        __enableEgamma()
+        #if rec.doEgamma():
+          #__enableEgamma()
+        #else
+        caloRingerFlags.buildElectronCaloRings = False
+        caloRingerFlags.doElectronIdentification = False
+        return False
       else:
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
@@ -88,8 +92,8 @@ def checkDoElectronIdentification():
   """ Return true if it can doElectronIdentification. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to run electron identification."""
-  if CaloRingerFlags.doElectronIdentification():
-    if not CaloRingerFlags.buildElectronCaloRings():
+  if caloRingerFlags.doElectronIdentification():
+    if not caloRingerFlags.buildElectronCaloRings():
       if not ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())       or \
                inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or \
          not ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())        or \
@@ -100,7 +104,7 @@ def checkDoElectronIdentification():
           "discrimination inputs are not available. We will request to "
           "build ElectronCaloRings using default configuration."))
         # In this case, the input file does not have CaloRings, we need to build them:
-        CaloRingerFlags.buildElectronCaloRings = True
+        caloRingerFlags.buildElectronCaloRings = True
         if not checkBuildElectronCaloRings():
           mlog.error(("Couldn't add ElectronCaloRings reconstruction to "
             "joboptions."))
@@ -119,15 +123,20 @@ def checkBuildPhotonCaloRings():
   """ Return true if it can build CaloRings for Photons. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
-  if CaloRingerFlags.buildPhotonCaloRings():
+  if caloRingerFlags.buildPhotonCaloRings():
     if not inputAvailable(inputPhotonType(), inputPhotonKey()):
 
       # Try to force egammaBuilder startup if it is not already started:
       if not egammaBuilderAvailable(): 
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
-          " builder was not available. Trying to add egamma to joboptions.")
-          )
-        __enableEgamma()
+          " builder was not available. Deactivating buildPhotonCaloRings.")
+            )
+        #if rec.doEgamma():
+          #__enableEgamma()
+        #else:
+        caloRingerFlags.buildPhotonCaloRings = False
+        #caloRingerFlags.doPhotonIdentification = False
+        return False
       else:
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
@@ -147,8 +156,8 @@ def checkDoPhotonIdentification():
   """ Return true if it can doPhotonIdentification. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to run electron identification."""
-  if CaloRingerFlags.doPhotonIdentification():
-    if not CaloRingerFlags.buildPhotonCaloRings():
+  if caloRingerFlags.doPhotonIdentification():
+    if not caloRingerFlags.buildPhotonCaloRings():
       if not ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())       or \
                inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) ) or \
          not ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())        or \
@@ -159,7 +168,7 @@ def checkDoPhotonIdentification():
           "discrimination inputs are not available. We will request to "
           "build PhotonCaloRings using default configuration."))
         # In this case, the input file does not have CaloRings, we need to build them:
-        CaloRingerFlags.buildPhotonCaloRings = True
+        caloRingerFlags.buildPhotonCaloRings = True
         if not checkBuildPhotonCaloRings():
           mlog.error(("Couldn't add PhotonCaloRings reconstruction to "
             "joboptions."))
@@ -201,14 +210,14 @@ def getCaloRingerInputReaderTools():
       inputReaders.append(CaloRingerElectronsReaderTool())
       mlog.verbose("Added Ringer Electrons reader successfully.")
   except Exception:
-    if CaloRingerFlags.buildElectronCaloRings():
+    if caloRingerFlags.buildElectronCaloRings():
       mlog.error(("It won't be possible to build ElectronCaloRings!"
         " Switching it off!"))
-      CaloRingerFlags.buildElectronCaloRings = False
-    if CaloRingerFlags.doElectronIdentification():
+      caloRingerFlags.buildElectronCaloRings = False
+    if caloRingerFlags.doElectronIdentification():
       mlog.error(("It won't be possible to do Electron identification!"
         " Switching it off!"))
-      CaloRingerFlags.doElectronIdentification = False
+      caloRingerFlags.doElectronIdentification = False
     treatException("Could not set up Ringer Electrons reader!")
 
   try:
@@ -218,14 +227,14 @@ def getCaloRingerInputReaderTools():
       inputReaders.append(CaloRingerPhotonsReaderTool())
       mlog.verbose("Added Ringer Photon reader successfully.")
   except Exception:
-    if CaloRingerFlags.buildPhotonCaloRings():
+    if caloRingerFlags.buildPhotonCaloRings():
       mlog.error(("It won't be possible to build PhotonCaloRings!"
         " Switching it off!"))
-      CaloRingerFlags.buildPhotonCaloRings = False
-    if CaloRingerFlags.doPhotonIdentification():
+      caloRingerFlags.buildPhotonCaloRings = False
+    if caloRingerFlags.doPhotonIdentification():
       mlog.error(("It won't be possible to build do Photon identification!"
         " Switching it off!"))
-      CaloRingerFlags.doPhotonIdentification = False
+      caloRingerFlags.doPhotonIdentification = False
     treatException("Could not set up CaloRingerAlgorithm for Photons!")
 
   return inputReaders
@@ -241,7 +250,7 @@ def getCaloRingerOutputs(inputReaders,addCaloRingsContainers=True,
   outputList = []
   # Loop over inputReaderTools and add their CaloRingsBuilder outputs:
   for reader in inputReadersTools:
-    if CaloRingerFlags.useAsymBuilder():
+    if caloRingerFlags.useAsymBuilder():
       crBuilder = CfgMgr.Ringer__CaloAsymRingsBuilder(reader.crBuilder.getName())
     else:
       crBuilder = CfgMgr.Ringer__CaloRingsBuilder(reader.crBuilder.getName())
@@ -407,7 +416,7 @@ class CaloRingerAlgorithmBuilder ( Configured ):
     return self._eventOutputs
 
   def __init__( self, disable=False,
-      ignoreExistingDataObject=CaloRingerFlags.ignoreRingerExistingDataObject(), 
+      ignoreExistingDataObject=caloRingerFlags.ignoreRingerExistingDataObject(), 
       ignoreConfigError=False ):
     "Call Configured init, but with new default ignoreExistingDataObject"
     Configured.__init__(self,disable,ignoreExistingDataObject,ignoreConfigError)
@@ -427,7 +436,7 @@ class CaloRingerAlgorithmBuilder ( Configured ):
 
       self._caloRingerAlg = MainCaloRingerAlgorithm()
 
-      if CaloRingerFlags.buildCaloRingsOn():
+      if caloRingerFlags.buildCaloRingsOn():
         # Egamma locker not being used anymore.
         #postponeEgammaLock(self._caloRingerAlg)
         pass
@@ -437,7 +446,7 @@ class CaloRingerAlgorithmBuilder ( Configured ):
         raise RuntimeError(("Cannot instantiate CaloRingerAlgorithm " 
           "without readers."))
 
-      if CaloRingerFlags.buildCaloRingsOn():
+      if caloRingerFlags.buildCaloRingsOn():
         self._eventOutputs = { outputCaloRingsType() : \
     getCaloRingerOutputs(self._caloRingerAlg.inputReaderTools,addRingSetsContainers=False), \
                                outputRingSetType() : \
@@ -449,12 +458,12 @@ class CaloRingerAlgorithmBuilder ( Configured ):
       self.checkExistingOutput()
 
       if not self.ignoreExistingDataObject()                                                     \
-         and ( (  CaloRingerFlags.buildElectronCaloRings()                                   and \
+         and ( (  caloRingerFlags.buildElectronCaloRings()                                   and \
             ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())            or  \
                    inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or  \
             ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())             or  \
                    inputAvailable(outputRingSetType(), outputElectronAsymRingSetsKey()) ) )      \
-         or  ( CaloRingerFlags.buildPhotonCaloRings()                                        and \
+         or  ( caloRingerFlags.buildPhotonCaloRings()                                        and \
             ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())              or  \
                    inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) )   or  \
             ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())               or  \
@@ -464,7 +473,7 @@ class CaloRingerAlgorithmBuilder ( Configured ):
 
     except Exception:
       removeFromTopSequence(self._caloRingerAlg)
-      CaloRingerFlags.Enabled = False
+      caloRingerFlags.Enabled = False
       self._disabled = True
       treatException(("Could not get handle to CaloRingerAlgorithm."
           " Reason:\n%s") % traceback.format_exc())

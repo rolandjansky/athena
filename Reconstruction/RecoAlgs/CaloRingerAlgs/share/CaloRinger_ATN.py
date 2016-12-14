@@ -3,20 +3,21 @@
 
 ########################### RINGER CONF #################################
 #########################################################################
-from CaloRingerAlgs.CaloRingerFlags import jobproperties
-CaloRingerFlags = jobproperties.CaloRingerFlags
-CaloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
-CaloRingerFlags.doElectronIdentification.set_Value_and_Lock(True)
-CaloRingerFlags.doPhotonIdentification.set_Value_and_Lock(True)
-CaloRingerFlags.OutputLevel.set_Value_and_Lock(DEBUG)
-doCaloRinger = True
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+caloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
+caloRingerFlags.buildElectronCaloRings.set_Value_and_Lock(True)
+caloRingerFlags.minElectronEnergy.set_Value_and_Lock(None)
+caloRingerFlags.doElectronIdentification.set_Value_and_Lock(True)
+caloRingerFlags.buildPhotonCaloRings.set_Value_and_Lock(True)
+caloRingerFlags.minPhotonEnergy.set_Value_and_Lock(None)
+caloRingerFlags.OutputLevel.set_Value_and_Lock(VERBOSE)
 #########################################################################
 
 ####################### CHANGE CONFIGURATION HERE  ######################
 #########################################################################
 doDumpStoreGate = False
-ManualDetDescrVersion = 'ATLAS-R2-2015-01-01-00' # Set to False or empty if you want it to be automatically set.
-ConditionsTag = "OFLCOND-RUN12-SDR-14"
+ManualDetDescrVersion = 'ATLAS-R2-2015-01-01-00'
+ConditionsTag = "CONDBR2-BLKPA-2016-11"
 from AtlasGeoModel.SetGeometryVersion import GeoModelSvc
 GeoModelSvc.IgnoreTagSupport = True
 GeoModelSvc.AtlasVersion = ManualDetDescrVersion
@@ -49,7 +50,9 @@ athenaCommonFlags.AllowIgnoreConfigError = False
 from AthenaCommon.AthenaCommonFlags import jobproperties
 jobproperties.AthenaCommonFlags.PoolRDOInput=jobproperties.AthenaCommonFlags.FilesInput.get_Value()
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-numEvt = -1 
+numEvt = 26
+if 'file' in dir():
+  athenaCommonFlags.PoolRDOInput = [file]
 athenaCommonFlags.EvtMax = numEvt
 athenaCommonFlags.PoolAODOutput = 'AOD.pool.root'
 from AthenaCommon.GlobalFlags import globalflags
@@ -76,8 +79,7 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 
 ###########################  Ringer!!! ##################################
 #########################################################################
-if doCaloRinger:
-  include('CaloRingerAlgs/CaloRinger_reconstruction.py')
+include('CaloRingerAlgs/CaloRinger_jobOptions.py')
 #########################################################################
 
 ########################### POST-INCLUDE ################################
@@ -93,8 +95,5 @@ if doCaloRinger:
 
 ########################### POST-EXTRA ##################################
 #########################################################################
-if doDumpStoreGate:
-  StoreGateSvc = Service( "StoreGateSvc" )
-  StoreGateSvc.Dump = True  #true will dump data store contents
-  StoreGateSvc.OutputLevel = DEBUG
+# Insert extra post here
 #########################################################################
