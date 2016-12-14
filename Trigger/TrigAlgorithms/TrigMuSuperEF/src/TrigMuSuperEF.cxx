@@ -62,8 +62,12 @@
 // utility functions
 #include "TrigMuSuperEFUtils.icc"
 #include "CxxUtils/make_unique.h"
+#include "AthenaKernel/Units.h"
 
 class ISvcLocator;
+
+using std::map;
+namespace Units = Athena::Units;
 
 // ----------------------------------------
 TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -73,7 +77,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_Roi_StillToBeAttached(0),
   m_totalTime(0),
   m_muonContainer(0),
-  m_slowMuonContainer(0),
+  //m_slowMuonContainer(0),
   m_ctTrackParticleContainer(0),
   m_combTrkTrackColl(0),
   m_tracksCache(),
@@ -335,9 +339,9 @@ TrigMuSuperEF::hltInitialize()
   if ( !m_standaloneOnly) {
     // Retrieve combiner tool
     if (m_muonCombinedTool.retrieve().isSuccess()){
-      msg() << MSG::INFO << "Retrieved " << m_muonCombinedTool << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_muonCombinedTool << endmsg;
     }else{
-      msg() << MSG::FATAL << "Could not get " << m_muonCombinedTool << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_muonCombinedTool << endmsg;
       return StatusCode::FAILURE;
     }
     if (doTiming()) setCombinedTimers(this, m_TMEF_CBTimers);
@@ -346,24 +350,24 @@ TrigMuSuperEF::hltInitialize()
 
   // retrieve Trk::Track -> TrackParticle converter
   if (m_TrackToTrackParticleConvTool.retrieve().isSuccess()){
-    msg() << MSG::INFO << "Retrieved " << m_TrackToTrackParticleConvTool << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_TrackToTrackParticleConvTool << endmsg;
   }else{
-    msg() << MSG::FATAL << "Could not get " << m_TrackToTrackParticleConvTool << endreq;
+    msg() << MSG::FATAL << "Could not get " << m_TrackToTrackParticleConvTool << endmsg;
     return StatusCode::FAILURE;
   }
   
   // retrieve the tool for making xAOD muons
   if(m_muonCreatorTool.retrieve().isSuccess()){
-    msg() << MSG::INFO << "Retrieved " << m_muonCreatorTool << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_muonCreatorTool << endmsg;
   } else {
-    msg() << MSG::FATAL << "Could not get " << m_muonCreatorTool << endreq;
+    msg() << MSG::FATAL << "Could not get " << m_muonCreatorTool << endmsg;
     return StatusCode::FAILURE;
   }
   if(m_doInsideOut ){
     if( m_stauCreatorTool.retrieve().isSuccess()){
-      msg() << MSG::INFO << "Retrieved " << m_stauCreatorTool << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_stauCreatorTool << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_stauCreatorTool << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_stauCreatorTool << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -574,7 +578,7 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
     ATH_MSG_ERROR("Problem getting ID tracks");
     return hltStatus;
   }  
-  InDetCandidateCollection inDetCandidates;
+  InDetCandidateCollection inDetCandidates(0);
   inDetCandidates.reserve(elv_xaodidtrks.size());
   if(m_useL2Info){
     hltStatus=getFeature(inputTE,l2combcont);
@@ -712,7 +716,7 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
       ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
       hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
       if(hltStatus!=HLT::OK) {
-  	if(muonCandidates) delete muonCandidates;
+  	if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
   	ATH_MSG_ERROR("Problem building muons");
   	return hltStatus;
       }
@@ -736,13 +740,13 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
     ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
     hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
     if(hltStatus!=HLT::OK) {
-      if(muonCandidates) delete muonCandidates;
+      if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
       ATH_MSG_ERROR("Problem building muons");
       return hltStatus;
     }
   }
 
-  if(muonCandidates) delete muonCandidates;
+  if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
 
   // attach output
   if(attachOutput( TEout, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont, std::move(muonContainerOwn))!=HLT::OK) {
@@ -772,7 +776,7 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
   ATH_MSG_DEBUG("ID Track particles size = " << elv_xaodidtrks.size());
     
   // build InDetCandidates
-  InDetCandidateCollection inDetCandidates;
+  InDetCandidateCollection inDetCandidates(0);
   for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
     // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
     inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
@@ -894,10 +898,10 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
   if (msTracks) {
     hltStatus = attachFeature(TEout, msTracks , "forSA");
     if(hltStatus!=HLT::OK) {
-      msg() << MSG::WARNING << "Attaching spectrometer tracks to TEout: unsuccessful" << endreq;
+      msg() << MSG::WARNING << "Attaching spectrometer tracks to TEout: unsuccessful" << endmsg;
       return hltStatus;
     } else {
-      if (m_debug) msg() << MSG::DEBUG << "Successfully attached to TEout the spectrometer track container with size " << msTracks->size() << endreq;
+      if (m_debug) msg() << MSG::DEBUG << "Successfully attached to TEout the spectrometer track container with size " << msTracks->size() << endmsg;
     } 
   }
   
@@ -985,8 +989,8 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 
 
   // pre-define objects that are needed in muon building
-  InDetCandidateCollection inDetCandidates;
-  MuonCandidateCollection* muonCandidates;
+  InDetCandidateCollection inDetCandidates(0);
+  MuonCandidateCollection* muonCandidates=0;
 
 
 
@@ -1485,7 +1489,7 @@ HLT::ErrorCode TrigMuSuperEF::attachOutput(HLT::TriggerElement* TEout,
     size_t sz = muonContainerOwn->size();
     HLT::ErrorCode hltStatus = attachFeature(TEout, muonContainerOwn.release() , m_muonContName);
     if(hltStatus!=HLT::OK) {
-      msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endreq;
+      msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endmsg;
       return hltStatus;
     } else {
       ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << sz );
@@ -1544,7 +1548,7 @@ void TrigMuSuperEF::fillIDMonitoringVars(const ElementLinkVector<xAOD::TrackPart
       const xAOD::TrackParticle* idtrk = *elidtrk;
       m_monVars.IDTrk_phi.push_back(idtrk->phi());
       m_monVars.IDTrk_eta.push_back(idtrk->eta());
-      m_monVars.IDTrk_pT.push_back( idtrk->pt()/1000.0 );
+      m_monVars.IDTrk_pT.push_back( idtrk->pt() / Units::GeV );
     }
   }//loop on ID tracks
 }
@@ -1580,7 +1584,7 @@ void TrigMuSuperEF::fillCTMonitoringVars( const xAOD::TrackParticleContainer& id
     m_TrigCaloTag_monVars.z0.push_back( trk->z0() );
     m_TrigCaloTag_monVars.IDTrk_phi.push_back(trk->phi());
     m_TrigCaloTag_monVars.IDTrk_eta.push_back(trk->eta());
-    m_TrigCaloTag_monVars.IDTrk_pT.push_back(trk->pt() / CLHEP::GeV);
+    m_TrigCaloTag_monVars.IDTrk_pT.push_back(trk->pt() / Units::GeV);
     m_TrigCaloTag_monVars.IDTrk_CaloLH.push_back(trk->auxdata<double>("CaloTagLH"));
   }
   return;
@@ -1629,7 +1633,7 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     float matchchi2 = 0.0;
     muon->parameter(matchchi2,xAOD::Muon::msOuterMatchChi2);
     m_monVars.matchChi2.push_back( matchchi2 );
-    m_monVars.pt.push_back( muon->pt() / CLHEP::GeV );
+    m_monVars.pt.push_back( muon->pt() / Units::GeV );
     m_monVars.phi.push_back( muon->phi() );
     m_monVars.eta.push_back( muon->eta() );
     m_monVars.d0.push_back( trkpart->d0() );
@@ -1699,7 +1703,7 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     float matchchi2 = 0.0;
     muon->parameter(matchchi2,xAOD::Muon::msOuterMatchChi2);
     m_TMEF_monVars.CB.matchChi2.push_back( matchchi2 );
-    m_TMEF_monVars.CB.pt.push_back( muon->pt() / CLHEP::GeV );
+    m_TMEF_monVars.CB.pt.push_back( muon->pt() / Units::GeV );
     m_TMEF_monVars.CB.phi.push_back( muon->phi() );
     m_TMEF_monVars.CB.eta.push_back( muon->eta() );
     m_TMEF_monVars.CB.d0.push_back( trkpart->d0() );
@@ -1911,19 +1915,19 @@ void TrigMuSuperEF::ResetTimers(std::vector<TrigTimer*>& timers){
   }
 }
 
-void TrigMuSuperEF::attachTrackParticleContainer( HLT::TriggerElement* TEout, const xAOD::TrackParticleContainer* trackParticleCont, const string& name) {
+void TrigMuSuperEF::attachTrackParticleContainer( HLT::TriggerElement* TEout, const xAOD::TrackParticleContainer* trackParticleCont, const std::string& name) {
 
   if(trackParticleCont) {
     HLT::ErrorCode hltStatus = attachFeature(TEout, trackParticleCont , name);
     if(hltStatus!=HLT::OK) {
-      msg() << MSG::WARNING << "Attaching xAOD::TrackParticleContainer " << trackParticleCont << " with name " << name << " to TEout: unsuccessful" << endreq;
+      msg() << MSG::WARNING << "Attaching xAOD::TrackParticleContainer " << trackParticleCont << " with name " << name << " to TEout: unsuccessful" << endmsg;
       if(trackParticleCont) delete trackParticleCont;
     } else {
-      if (m_debug) msg() << MSG::DEBUG << "Successfully attached to TEout the xAOD track particle container " << name << " with size " << trackParticleCont->size() << endreq;
+      if (m_debug) msg() << MSG::DEBUG << "Successfully attached to TEout the xAOD track particle container " << name << " with size " << trackParticleCont->size() << endmsg;
     } 
   }//valid xAOD::TrackParticle container
   else {
-    msg() << MSG::WARNING << "Called attachTrackParticleContainer with null TrackParticleContainer, name = " << name << ", likely a problem in the code" << endreq;
+    msg() << MSG::WARNING << "Called attachTrackParticleContainer with null TrackParticleContainer, name = " << name << ", likely a problem in the code" << endmsg;
   }
 }
 
