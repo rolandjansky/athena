@@ -207,7 +207,10 @@ class ConfiguredNewTrackingCuts :
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
 
-    if self.__indetflags.cutLevel() >= 14:
+    if self.__indetflags.cutLevel() >= 14 :
+      self.__minPT                   = 0.5 * Units.GeV
+
+    if self.__indetflags.cutLevel() >= 15:
       print '--------> FATAL ERROR, cut level undefined, abort !'
       import sys
       sys.exit()
