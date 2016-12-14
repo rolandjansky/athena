@@ -18,6 +18,7 @@
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -110,6 +111,7 @@ void testit (const Trk::MaterialEffectsOnTrack& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Trk::PerigeeSurface psurf (Amg::Vector3D (50, 100, 150));
   Trk::EnergyLoss el (1.5, 2.5, 3.5, 4.5);

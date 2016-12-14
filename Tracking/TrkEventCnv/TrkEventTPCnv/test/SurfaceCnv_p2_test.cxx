@@ -19,6 +19,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "Gaudi/PluginService.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -204,6 +205,7 @@ void populate_surfaces()
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   ToolHandle<Trk::IEventCnvSuperTool> h ("TestCnvTool");
 

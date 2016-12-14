@@ -77,8 +77,8 @@ void VxTrackAtVertexCnv_p2::transToPers (const Trk::VxTrackAtVertex * transObj, 
       m_elementLinkConverterForTrackParticle.transToPers (el, &persObj->m_origTrack, log);
     }
   }
-  // log << "transToPers() Type of link is: " << persObj->m_typeOfLink << endreq;
+  // log << "transToPers() Type of link is: " << persObj->m_typeOfLink << endmsg;
 //  log << "link saved at: " << persObj->m_origTrackNames.m_names.front() 
 //                           << "\tcontIndex: " << persObj->m_origTrack.m_contIndex 
-//                           << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endreq; 
+//                           << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endmsg; 
 }

@@ -10,14 +10,14 @@ void RIO_OnTrackCnv_p1::persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RI
 {
 //   static int count = 0;
 //   if( count++ < 10 ) {
-//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endreq;
+//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endmsg;
 //   }
 
   //transObj->m_identifier = persObj->m_id;
 
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize RIO_OnTRackCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize RIO_OnTRackCnv_p1 " << endmsg;
     }
   }
 
@@ -53,7 +53,7 @@ void RIO_OnTrackCnv_p1::persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RI
   if (transObj->detectorElement()==0) 
     log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
     << "probably because of a problem with the Identifier/IdentifierHash : ("
-    << transObj->identify()<<"/"<<transObj->idDE()<<endreq;
+    << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;
 }
 
 
@@ -71,7 +71,7 @@ StatusCode RIO_OnTrackCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
+    log << MSG::FATAL << "StoreGate service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -79,21 +79,21 @@ StatusCode RIO_OnTrackCnv_p1::initialize(MsgStream &log) {
   StoreGateSvc *detStore;
   sc = svcLocator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   } 
    //   else {
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
    // Get the sct helper from the detector store
   sc = detStore->retrieve(m_pixId, "PixelID");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+    log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
 
 
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
   return StatusCode::SUCCESS;
 }

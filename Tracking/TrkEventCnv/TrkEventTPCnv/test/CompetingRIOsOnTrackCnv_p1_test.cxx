@@ -15,6 +15,7 @@
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -88,6 +89,7 @@ void testit (const Trk::CompetingRIOsOnTrack& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::MatrixX cov(5,5);
   for (int i=0; i < 5; i++)

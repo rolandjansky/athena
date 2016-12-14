@@ -14,6 +14,7 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -33,6 +34,7 @@ void compare (const Trk::LocalParameters& p1,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MsgStream log (0, "test");
   Trk::LocalParameters trans1 (1.5, 2.5, 3.5, 4.5, 5.5);

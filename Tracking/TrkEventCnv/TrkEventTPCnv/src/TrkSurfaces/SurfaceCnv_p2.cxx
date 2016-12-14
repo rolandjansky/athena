@@ -67,7 +67,7 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
     // std::cout<<*transObj<<std::endl;
     //assert(transObj->m_associatedDetElementId.is_valid());
     if (!transObj->associatedDetectorElementIdentifier().is_valid()) {
-       log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endreq;
+       log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endmsg;
     }
   }
   persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
@@ -82,7 +82,7 @@ void SurfaceCnv_p2<Trk::SaggedLineSurface>::transToPers( const Trk::SaggedLineSu
   persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
   persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
   if (transObj->isFree() ) {
-    log << MSG::WARNING<<"Not expecting these to be Free!"<<endreq;
+    log << MSG::WARNING<<"Not expecting these to be Free!"<<endmsg;
   }   
 }
 

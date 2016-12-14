@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalPositionCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -20,6 +21,7 @@
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MsgStream log (0, "test");
   Amg::Vector2D trans1;

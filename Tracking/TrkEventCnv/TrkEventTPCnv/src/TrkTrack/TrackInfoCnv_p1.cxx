@@ -66,9 +66,9 @@ void TrackInfoCnv_p1::transToPers( const Trk::TrackInfo * transObj, Trk::TrackIn
     // }
     // 
     // if (test!=transObj->m_patternRecognition){
-    //   log<<MSG::WARNING<<"TIC Trackinfos don't match! "<<endreq;
-    //   log<<MSG::WARNING<<test.to_string<char, std::char_traits<char>,std::allocator<char> >()<<endreq;
-    //   log<<MSG::WARNING<<transObj->m_patternRecognition.to_string<char, std::char_traits<char>,std::allocator<char> >()<<endreq;
+    //   log<<MSG::WARNING<<"TIC Trackinfos don't match! "<<endmsg;
+    //   log<<MSG::WARNING<<test.to_string<char, std::char_traits<char>,std::allocator<char> >()<<endmsg;
+    //   log<<MSG::WARNING<<transObj->m_patternRecognition.to_string<char, std::char_traits<char>,std::allocator<char> >()<<endmsg;
     // }  
 
  

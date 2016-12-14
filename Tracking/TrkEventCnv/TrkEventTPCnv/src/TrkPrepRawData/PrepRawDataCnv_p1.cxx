@@ -33,7 +33,7 @@ void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::Pr
     //   (*tMat)(1,0) = static_cast<double>(pMat->values[1]);      
     //   (*tMat)(1,1) = static_cast<double>(pMat->values[2]);
     // } else {
-    //   log<<MSG::WARNING<<"PrepRawDataCnv_p1::persToTrans - unexpected size of cov matrix values: "<<size<<endreq;
+    //   log<<MSG::WARNING<<"PrepRawDataCnv_p1::persToTrans - unexpected size of cov matrix values: "<<size<<endmsg;
     // }
 
   Trk::ErrorMatrix dummy;

@@ -34,7 +34,7 @@ transToPers( const Trk::MaterialEffectsOnTrack    *transObj,
 {
   if (transObj->m_typeFlags != 1)
     log << MSG::ERROR << "wrong type, backwards "
-        << "compatibility isn't possible." << endreq;
+        << "compatibility isn't possible." << endmsg;
   if (transObj->scatteringAngles()) {
     persObj->m_deltaPhi        = transObj->scatteringAngles()->deltaPhi();
     persObj->m_deltaTheta      = transObj->scatteringAngles()->deltaTheta();

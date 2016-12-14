@@ -25,8 +25,8 @@ void PseudoMeasurementOnTrackCnv_p2::persToTrans( const Trk :: PseudoMeasurement
   Trk::ConstSurfaceUniquePtr surf
     (this->createTransFromPStore( (ITPConverterFor<Trk::Surface>**)0, persObj->m_associatedSurface, log ));
   if (!surf){
-    log<<MSG::WARNING<<"PseudoMeasurementOnTrackCnv_p2: Could not recreate Surface (null pointer)"<<endreq;
-    log<<MSG::VERBOSE<<(*transObj)<<endreq;    
+    log<<MSG::WARNING<<"PseudoMeasurementOnTrackCnv_p2: Could not recreate Surface (null pointer)"<<endmsg;
+    log<<MSG::VERBOSE<<(*transObj)<<endmsg;    
    } 
 
   *transObj = Trk::PseudoMeasurementOnTrack (localParams, localCovariance, std::move(surf));
@@ -51,6 +51,6 @@ void PseudoMeasurementOnTrackCnv_p2::transToPers( const Trk :: PseudoMeasurement
     persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, transObj->associatedSurface().baseSurface(), log);
   }
   else {
-    log<<MSG::WARNING<<"TrackParameter doesn't have a surface! Dumping: "<<*transObj<<endreq;
+    log<<MSG::WARNING<<"TrackParameter doesn't have a surface! Dumping: "<<*transObj<<endmsg;
   }
 }

@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EnergyLossCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -30,6 +31,7 @@ void compare (const Trk::EnergyLoss& p1,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MsgStream log (0, "test");
   Trk::EnergyLoss trans1 (1.5, 2.5, 3.5, 4.5);

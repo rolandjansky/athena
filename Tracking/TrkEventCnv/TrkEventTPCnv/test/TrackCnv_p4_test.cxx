@@ -16,6 +16,7 @@
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -228,6 +229,7 @@ void testit (const Trk::Track& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   AmgSymMatrix(5) cov;
   for (int i=0; i < 5; i++)

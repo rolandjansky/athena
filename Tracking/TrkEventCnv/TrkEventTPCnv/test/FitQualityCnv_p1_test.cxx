@@ -14,6 +14,7 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -29,6 +30,7 @@ void compare (const Trk::FitQuality& p1,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   MsgStream log (0, "test");
   Trk::FitQuality trans1 (1.5, 2.5);
