@@ -33,7 +33,7 @@ namespace xAODMaker {
   public:
     /// Function that fills an existing xAOD::TrackParticleContainer
     virtual StatusCode convert( const TrackCollection* aod,
-				xAOD::TrackParticleContainer* xaod ) = 0;
+				xAOD::TrackParticleContainer* xaod ) const = 0;
 
     virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) = 0;
     
