@@ -10,10 +10,10 @@ atlas_depends_on_subdirs( PRIVATE
                           AtlasTest/TestTools
                           Control/AthContainers
                           Control/AthContainersInterfaces
-                          Control/CxxUtils
                           Control/RootUtils
                           Database/APR/POOLCore
                           Database/APR/StorageSvc
+                          Database/AthenaRoot/RootAuxDynIO
                           Database/PersistentDataModel
                           GaudiKernel )
 
@@ -28,13 +28,10 @@ atlas_add_library( RootStorageSvc
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
-                   PRIVATE_LINK_LIBRARIES TestTools AthContainers CxxUtils RootUtils POOLCore StorageSvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES TestTools AthContainers
+                   RootUtils POOLCore StorageSvc RootAuxDynIO
+                   PersistentDataModel GaudiKernel )
 
-atlas_add_test( RootAuxVectorFactory_test
-                SOURCES
-                test/RootAuxVectorFactory_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers CxxUtils RootUtils RootUtilsPyROOT POOLCore StorageSvc PersistentDataModel GaudiKernel RootStorageSvc )
 
 # Component list generation:
 atlas_generate_componentslist( RootStorageSvc )

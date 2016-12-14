@@ -45,9 +45,10 @@
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#include "AuxStoreAPR.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 
 using namespace pool;
+using namespace std;
 
 
 namespace {
@@ -122,17 +123,11 @@ void fixupPackedConversion (TBranch* br)
 
 } // anonymous namespace
 
-namespace SG {
-   /// Common post-fix for the names of auxiliary containers in StoreGate
-   static const std::string AUX_POSTFIX = "Aux.";
-   static const std::string AUXDYN_POSTFIX = "Dyn.";
-}
-
-static UCharDbArray  s_char_Blob;
+static UCharDbArrayAthena  s_char_Blob;
 static IntDbArray   s_int_Blob;
 
-#include <iostream>
-using namespace std;
+//#include <iostream>
+//using namespace std;
 
 
 RootTreeContainer::RootTreeContainer(IOODatabase* idb)
@@ -245,7 +240,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                          num_bytes += bytes_out;
                       }
                    }
-                   store->selectAux( std::set<string>() );
+                   store->selectAux( std::set<std::string>() );
                 }
                 dsc.rows_written++;
                 break;
@@ -463,14 +458,9 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
                   case DbColumn::POINTER:
                      // for AUX store objects with the right interface supply a special store object
                      // that will read branches on demand
-                     if( dsc.aux_storehdl_IFoffset >= 0 ) {
-                        // cout << " ***  SG::IAuxStoreHolder  detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
-                        auto store_holder = reinterpret_cast<SG::IAuxStoreHolder*>( *(char**)dsc.object + dsc.aux_storehdl_IFoffset );
-                        //store_holder->setStore( new AuxStoreAPR(*this, evt_id, dsc.clazz->GetBaseClass("xAOD::AuxInfoBase")!=0) );
-                        bool standalone( store_holder->getStoreType()==SG::IAuxStoreHolder::AST_ObjectStore );
-                        // create an AUX dynamic store object for reading attribute branches on demand
-                        // and pass it to the controlling static AUX store object that was just read
-                        store_holder->setStore( new AuxStoreAPR(*this, evt_id, standalone) );
+                     if( dsc.aux_reader ) {
+                        // cout << " ***  AuxDyn reader detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
+                        dsc.aux_reader->addReaderToObject(*(void**)dsc.object, evt_id);
                      }
                      break;
                  }
@@ -513,95 +503,6 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
 
 
 
-
-TBranch*
-RootTreeContainer::findAuxBranch(const SG::auxid_t& auxid)
-{
-   auto abr_it = m_auxBranchMap.find(auxid);
-   if( abr_it != m_auxBranchMap.end() ) {
-      return abr_it->second.branch;
-   }
-   // cout << " -- looking for branch for ID=" << auxid << endl;
-   string attr_name = SG::AuxTypeRegistry::instance().getName(auxid);
-   TBranch* branch = m_tree->GetBranch( auxBranchName(attr_name).c_str() );
-   // remember the result (even null) to not call GetBranch again
-   m_auxBranchMap[auxid].branch = branch;
-   return branch;
-}
-
-
-DbStatus
-RootTreeContainer::readAuxBranch(const SG::auxid_t& auxid, void* data,  long long entry)
-{
-   TBranch* branch = findAuxBranch(auxid);
-   if( !branch ) {
-      string attr_name = SG::AuxTypeRegistry::instance().getName(auxid);
-      DbPrint log(m_name);
-      log << DbPrintLvl::Error << "Branch " << auxBranchName(attr_name) << " for attribute: "
-          << attr_name << " with ID=" << auxid << " not found" << DbPrint::endmsg;
-      return Error;
-   }
-   return readAuxBranch(*branch, data, entry);
-}
-   
-
-// this can be called to avoid looking up the branch, if it is already known
-DbStatus
-RootTreeContainer::readAuxBranch(TBranch& branch, void* data, long long entry)
-{
-   if(data)  branch.SetAddress(data);    // 0 for basic types
-   int nbytes = branch.GetEntry(entry);
-   if( nbytes < 1 ) {
-      DbPrint log(m_name);
-      log << DbPrintLvl::Error << "Error reading AUX branch " << branch.GetName()
-          << " for entry No." << entry << DbPrint::endmsg;
-      m_ioBytes = -1;
-      return Error;
-   }
-   m_ioBytes = nbytes;
-   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbytes);
-   return Success;
-}
-
-
-
-DbStatus
-RootTreeContainer::readAuxBranch(TBranch& branch, void* data, const std::type_info *tinf, long long entry)
-{
-   TClass *tc = TClass::GetClass(*tinf);
-   EDataType edt = kOther_t;
-   if( !tc ) {
-      edt = TDataType::GetType(*tinf);
-      if( edt <=0 ) {
-         DbPrint log(m_name);
-         log << DbPrintLvl::Error << "Error determining ROOT type for AUX branch " << branch.GetName()
-             << " typeinfo=" << tinf->name() << DbPrint::endmsg;
-         m_ioBytes = -1;
-         return Error;
-      }
-   }
-   Int_t status = 0;
-   if( ( status = m_tree->SetBranchAddress( branch.GetName(), data, tc, edt, true ) ) < 0 ) {
-      DbPrint log(m_name);
-      log << DbPrintLvl::Error << "Error setting up AUX branch " << branch.GetName() << DbPrint::endmsg;
-      m_ioBytes = -1;
-      return Error;
-   }
-   int nbytes = branch.GetEntry(entry);
-   if( nbytes < 1 ) {
-      DbPrint log(m_name);
-      log << DbPrintLvl::Error << "Error reading AUX branch " << branch.GetName()
-          << " for entry No." << entry << DbPrint::endmsg;
-      m_ioBytes = -1;
-      return Error;
-   }
-   m_ioBytes = nbytes;
-   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbytes);
-   return Success;
-}
-
-
-
 DbStatus RootTreeContainer::close()   {
   m_dbH = DbDatabase(POOL_StorageType);
   if ( m_tree )   {
@@ -634,258 +535,243 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                                   const DbTypeInfo* info, 
                                   DbAccessMode mode)  
 {
-  DbPrint log(dbH.name());
-  m_branches.clear();
-  m_name = nam;
-  if ( dbH.isValid() && info )    {
-    const DbTypeInfo::Columns& cols = info->columns();
-    DbTypeInfo::Columns::const_iterator i;
-    std::string treeName(nam);
-    for(std::string::iterator j = treeName.begin(); j != treeName.end(); ++j )    {
-       if ( *j == '/' ) *j = '_';
-    }
-    if (cols.size() == 1) {
-      std::string::size_type inx = nam.find('(');
-      if (inx != std::string::npos) {
-        std::string::size_type inx2 = nam.find(')');
-        if (inx2 == std::string::npos || inx2 != nam.size()-1) {
-          log << DbPrintLvl::Error << "Misspecified branch name in " << m_name << "."
-              << DbPrint::endmsg;
-          return Error;
-        }
-        m_branchName = treeName.substr(inx+1, inx2-inx-1);
-        treeName = treeName.substr(0, inx);
+   DbPrint log(nam);
+   m_branches.clear();
+   m_name = nam;
+   log << DbPrintLvl::Debug << "Opening"  << DbPrint::endmsg;
+   if ( dbH.isValid() && info )    {
+      const DbTypeInfo::Columns& cols = info->columns();
+      DbTypeInfo::Columns::const_iterator i;
+      std::string treeName(nam);
+      for(std::string::iterator j = treeName.begin(); j != treeName.end(); ++j )    {
+         if ( *j == '/' ) *j = '_';
       }
-    }
-    IDbDatabase* idb = dbH.info();
-    m_rootDb = dynamic_cast<RootDatabase*>(idb);
-    TDirectory::TContext dirCtxt(m_rootDb ? m_rootDb->file() : gDirectory);
-    if (m_rootDb)
-      m_tree = (TTree*)m_rootDb->file()->Get(treeName.c_str());
+      log << DbPrintLvl::Debug << "   attributes# = " << cols.size() << DbPrint::endmsg;
+      if (cols.size() == 1) {
+         // extract tree and branch name for branch containers, notation: "tree(branch)"
+         std::string::size_type inx = nam.find('(');
+         if (inx != std::string::npos) {
+            std::string::size_type inx2 = nam.find(')');
+            if (inx2 == std::string::npos || inx2 != nam.size()-1) {
+               log << DbPrintLvl::Error << "Misspecified branch name in " << m_name << "."
+                   << DbPrint::endmsg;
+               return Error;
+            }
+            m_branchName = treeName.substr(inx+1, inx2-inx-1);
+            treeName = treeName.substr(0, inx);
+            log << DbPrintLvl::Debug << "Branch container '" << m_branchName << "'" << DbPrint::endmsg;
+         }
+      }
+      IDbDatabase* idb = dbH.info();
+      m_rootDb = dynamic_cast<RootDatabase*>(idb);
+      TDirectory::TContext dirCtxt(m_rootDb ? m_rootDb->file() : gDirectory);
+      if (m_rootDb)
+         m_tree = (TTree*)m_rootDb->file()->Get(treeName.c_str());
 
-    bool hasBeenCreated = (m_branchName.empty() 
+      bool hasBeenCreated = (m_branchName.empty() 
                              ? m_tree != 0 
                              : (m_tree && m_tree->GetBranch(m_branchName.c_str()) != 0));
-    if ( hasBeenCreated && (mode&pool::READ || mode&pool::UPDATE) )   {
-      int count;
-      if ( !m_tree->InheritsFrom(TTree::Class()) )   {
-        log << DbPrintLvl::Error << "Cannot open the container " << m_name << " of type "
-            << ROOTTREE_StorageType.storageName() << "." << DbPrint::endmsg
-            << "The specified container is not a ROOT " << (m_branchName.empty() ? "Tree" : "Branch")
-            << ", but rather of class " << m_tree->IsA()->GetName() << "."
-            << DbPrint::endmsg;
-        return Error;
-      }
-      m_branches.resize(cols.size());
-      for(i = cols.begin(), count = 0; i != cols.end(); ++i, ++count )   {
-        std::string cnam  = (m_branchName.empty() ? (*i)->name() : m_branchName);
-        const char* col_nam  = cnam.c_str();
-        TBranch* pBranch = m_tree->GetBranch(col_nam);
-        if (!pBranch && m_branchName.empty()) {
-          for ( std::string::iterator j = cnam.begin(); j != cnam.end(); ++j ) {
-            if ( !::isalnum(*j) ) *j = '_';
-          }
-          col_nam  = cnam.c_str();
-          pBranch = m_tree->GetBranch(col_nam);
-        }
-        if ( pBranch )    {
-          fixupPackedConversion (pBranch);
-
-          const DbColumn* c = *i;
-          BranchDesc& dsc = m_branches[count];
-          TClass* cl = 0;
-          TLeaf* leaf = pBranch->GetLeaf(col_nam);
-          switch ( (*i)->typeID() )    {
-           case DbColumn::ANY:
-           case DbColumn::BLOB:
-           case DbColumn::POINTER:
-              cl = TClass::GetClass(pBranch->GetClassName());
-              if ( 0 == cl )  {
-                 log << DbPrintLvl::Debug << "Cannot open the container " << m_name << " of type "
-                     << ROOTTREE_StorageType.storageName()
-                     << " Class " << pBranch->GetClassName() << " is unknown."
-                     << DbPrint::endmsg;
-                 return Error;
-              }
-              dsc = BranchDesc(cl,pBranch,leaf,cl->New(),c);
-              if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == SG::AUX_POSTFIX)
-                   || info->clazz().Properties().HasProperty("IAuxStore") ) {
-                 TClass *storeTC = cl->GetBaseClass("SG::IAuxStoreHolder");
-                 if( storeTC ) {
-                    dsc.aux_storehdl_IFoffset = cl->GetBaseClassOffset( storeTC );
-                    string branch_prefix = auxBranchName("");
-                    TObjArray *all_branches = m_tree->GetListOfBranches();
-                    for( int i=0; i<all_branches->GetEntriesFast(); i++ ) {
-                       const char *bname =  (*all_branches)[i]->GetName();
-                       if( strncmp(bname, branch_prefix.c_str(), branch_prefix.size()) == 0 ) {
-                          const char *attr_name = bname+branch_prefix.size();
-                          // cout <<  "  >>>  Branch " << bname << ", attr=" << attr_name << endl;
-                          m_auxBranches[attr_name] = (TBranch*)(*all_branches)[i];
-                       }
-                    }
-                 }
-              }
-              break;
-          case DbColumn::CHAR:
-          case DbColumn::UCHAR:
-          case DbColumn::BOOL:
-          case DbColumn::SHORT:
-          case DbColumn::USHORT:
-          case DbColumn::INT:
-          case DbColumn::LONG:
-          case DbColumn::UINT:
-          case DbColumn::ULONG:
-          case DbColumn::FLOAT:
-          case DbColumn::DOUBLE:
-          case DbColumn::LONGLONG:
-          case DbColumn::ULONGLONG:
-          case DbColumn::STRING:
-          case DbColumn::LONG_STRING:
-          case DbColumn::NTCHAR:
-          case DbColumn::LONG_NTCHAR:
-          case DbColumn::TOKEN:
-            dsc.clazz = 0;
-            dsc.leaf = leaf;
-            dsc.branch = pBranch;
-            dsc.buffer = 0;
-            dsc.object = 0;
-            dsc.column = *i;
-            break;
-          default:
+      if ( hasBeenCreated && (mode&pool::READ || mode&pool::UPDATE) )   {
+         int count;
+         if ( !m_tree->InheritsFrom(TTree::Class()) )   {
+            log << DbPrintLvl::Error << "Cannot open the container " << m_name << " of type "
+                << ROOTTREE_StorageType.storageName() << "." << DbPrint::endmsg
+                << "The specified container is not a ROOT " << (m_branchName.empty() ? "Tree" : "Branch")
+                << ", but rather of class " << m_tree->IsA()->GetName() << "."
+                << DbPrint::endmsg;
             return Error;
-          }
-        }
-        else  {
-          log << DbPrintLvl::Warning << "Branch with name:" << col_nam 
-              << " not present in container:" << m_name << " of type "
-              << ROOTTREE_StorageType.storageName()
-              << DbPrint::endmsg;
-        }
+         }
+         m_branches.resize(cols.size());
+         for(i = cols.begin(), count = 0; i != cols.end(); ++i, ++count )   {
+            std::string colnam  = (m_branchName.empty() ? (*i)->name() : m_branchName);
+            TBranch* pBranch = m_tree->GetBranch(colnam.c_str());
+            if( !pBranch && m_branchName.empty() ) {
+               for( char& c : colnam )
+                  if( !::isalnum(c) ) c = '_';
+               pBranch = m_tree->GetBranch(colnam.c_str());
+            }
+            if ( pBranch )    {
+               fixupPackedConversion (pBranch);
+
+               const DbColumn* c = *i;
+               BranchDesc& dsc = m_branches[count];
+               TClass* cl = 0;
+               TLeaf* leaf = pBranch->GetLeaf(colnam.c_str());
+               switch ( (*i)->typeID() )    {
+                case DbColumn::ANY:
+                case DbColumn::BLOB:
+                case DbColumn::POINTER:
+                   cl = TClass::GetClass(pBranch->GetClassName());
+                   if ( 0 == cl )  {
+                      log << DbPrintLvl::Debug << "Cannot open the container " << m_name << " of type "
+                          << ROOTTREE_StorageType.storageName()
+                          << " Class " << pBranch->GetClassName() << " is unknown."
+                          << DbPrint::endmsg;
+                      return Error;
+                   }
+                   dsc = BranchDesc(cl, pBranch, leaf, cl->New(), c);
+                   dsc.aux_reader = RootAuxDynIO::getReaderForBranch(pBranch);
+                   break;
+                case DbColumn::CHAR:
+                case DbColumn::UCHAR:
+                case DbColumn::BOOL:
+                case DbColumn::SHORT:
+                case DbColumn::USHORT:
+                case DbColumn::INT:
+                case DbColumn::LONG:
+                case DbColumn::UINT:
+                case DbColumn::ULONG:
+                case DbColumn::FLOAT:
+                case DbColumn::DOUBLE:
+                case DbColumn::LONGLONG:
+                case DbColumn::ULONGLONG:
+                case DbColumn::STRING:
+                case DbColumn::LONG_STRING:
+                case DbColumn::NTCHAR:
+                case DbColumn::LONG_NTCHAR:
+                case DbColumn::TOKEN:
+                   dsc.clazz = 0;
+                   dsc.leaf = leaf;
+                   dsc.branch = pBranch;
+                   dsc.buffer = 0;
+                   dsc.object = 0;
+                   dsc.column = *i;
+                   break;
+                default:
+                   return Error;
+               }
+            }
+            else  {
+               log << DbPrintLvl::Warning << "Branch with name:" << colnam 
+                   << " not present in container:" << m_name << " of type "
+                   << ROOTTREE_StorageType.storageName()
+                   << DbPrint::endmsg;
+            }
+         }
+         log << DbPrintLvl::Debug << "Opened container " << m_name << " of type "
+             << ROOTTREE_StorageType.storageName()
+             << DbPrint::endmsg;
+         m_dbH = dbH;
+         m_type = info;
+         if( mode&pool::UPDATE ) {
+            m_rootDb->registerBranchContainer(this);
+         }
+         return Success;
       }
-      log << DbPrintLvl::Debug << "Opened container " << m_name << " of type "
-          << ROOTTREE_StorageType.storageName()
-          << DbPrint::endmsg;
-      m_dbH = dbH;
-      m_type = info;
-      if( mode&pool::UPDATE ) {
-         m_rootDb->registerBranchContainer(this);
+      else if ( !hasBeenCreated && mode&pool::CREATE )    {
+         int count, defCompression=1, defSplitLevel=99, 
+            defAutoSave=16*1024*1024, defBufferSize=16*1024,
+            branchOffsetTabLen=0, containerSplitLevel=defSplitLevel, auxSplitLevel=defSplitLevel;
+         DbStatus res = Success;
+         try   {
+            DbOption opt1("DEFAULT_COMPRESSION","");
+            DbOption opt2("DEFAULT_SPLITLEVEL","");
+            DbOption opt3("DEFAULT_AUTOSAVE","");
+            DbOption opt4("DEFAULT_BUFFERSIZE","");
+            DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
+            DbOption opt6("CONTAINER_SPLITLEVEL", m_name);
+            DbOption opt7("CONTAINER_SPLITLEVEL", RootAuxDynIO::AUX_POSTFIX);
+            dbH.getOption(opt1);
+            dbH.getOption(opt2);
+            dbH.getOption(opt3);
+            dbH.getOption(opt4);
+            dbH.getOption(opt5);
+            dbH.getOption(opt6);
+            dbH.getOption(opt7);
+            opt1._getValue(defCompression);
+            opt2._getValue(defSplitLevel);
+            opt3._getValue(defAutoSave);
+            opt4._getValue(defBufferSize);
+            opt5._getValue(branchOffsetTabLen);
+            opt6._getValue(containerSplitLevel);
+            opt7._getValue(auxSplitLevel);
+            if (containerSplitLevel == defSplitLevel) {
+               if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == RootAuxDynIO::AUX_POSTFIX)
+                    || info->clazz().Properties().HasProperty("IAuxStore") ) containerSplitLevel = auxSplitLevel;
+            }
+            if (!m_tree) {
+               m_tree = new TTree(treeName.c_str(), treeName.c_str(), (m_branchName.empty() ? containerSplitLevel : defSplitLevel));
+               if (m_rootDb)
+                  m_tree->SetDirectory(m_rootDb->file());
+               // Autosave every mega byte...
+               m_tree->SetAutoSave(defAutoSave);
+            }
+            //            - C : a character string terminated by the 0 character
+            //            - B : an 8 bit signed integer (Char_t)
+            //            - b : an 8 bit unsigned integer (UChar_t)
+            //            - S : a 16 bit signed integer (Short_t)
+            //            - s : a 16 bit unsigned integer (UShort_t)
+            //            - I : a 32 bit signed integer (Int_t)
+            //            - i : a 32 bit unsigned integer (UInt_t)
+            //            - F : a 32 bit floating point (Float_t)
+            //            - D : a 64 bit floating point (Double_t)
+            m_branches.resize(cols.size());
+            for (i = cols.begin(), count = 0; i != cols.end(); ++i, ++count )   {
+               DbStatus iret = Success;
+               BranchDesc& dsc = m_branches[count];
+               switch ( (*i)->typeID() )    {
+                case DbColumn::CHAR:       iret=addBranch(*i,dsc,"/B"); break;
+                case DbColumn::UCHAR:      iret=addBranch(*i,dsc,"/b"); break;
+                case DbColumn::BOOL:       iret=addBranch(*i,dsc,"/O"); break;
+                case DbColumn::SHORT:      iret=addBranch(*i,dsc,"/S"); break;
+                case DbColumn::USHORT:     iret=addBranch(*i,dsc,"/s"); break;
+                case DbColumn::INT:        iret=addBranch(*i,dsc,"/I"); break;
+                case DbColumn::LONG:       iret=addBranch(*i,dsc,"/L"); break;
+                case DbColumn::UINT:       iret=addBranch(*i,dsc,"/i"); break;
+                case DbColumn::ULONG:      iret=addBranch(*i,dsc,"/l"); break;
+                case DbColumn::FLOAT:      iret=addBranch(*i,dsc,"/F"); break;
+                case DbColumn::DOUBLE:     iret=addBranch(*i,dsc,"/D"); break;
+                case DbColumn::LONGLONG:   iret=addBranch(*i,dsc,"/L"); break;
+                case DbColumn::ULONGLONG:  iret=addBranch(*i,dsc,"/l"); break;
+                case DbColumn::STRING:
+                case DbColumn::LONG_STRING:
+                case DbColumn::NTCHAR:
+                case DbColumn::LONG_NTCHAR:
+                case DbColumn::TOKEN:      
+                   iret=addBranch(*i,dsc,"/C");
+                   break;
+                case DbColumn::BLOB:
+                   iret=addObject(*i,dsc,"UCharDbArrayAthena", defSplitLevel, defBufferSize, branchOffsetTabLen);
+                   break;
+                case DbColumn::ANY:
+                case DbColumn::POINTER:
+                   iret=addObject(*i, dsc, (*i)->typeName(), containerSplitLevel, defBufferSize, branchOffsetTabLen); 
+                   break;
+                default:
+                   return Error;
+               }
+               if( !iret.isSuccess() )  {
+                  res = iret;
+               }
+            }
+            if( res.isSuccess() )    {
+               log << DbPrintLvl::Debug << "Opened container " << m_name << " of type "
+                   << ROOTTREE_StorageType.storageName()
+                   << DbPrint::endmsg;
+               m_dbH  = dbH;
+               m_type = info;
+               m_rootDb->registerBranchContainer(this);
+               return Success;
+            }
+            debugBreak(nam, "Cannot open ROOT container(Tree/Branch)", false);
+            return res;
+         }
+         catch( const std::exception& e )    {
+            debugBreak(nam, "Cannot open ROOT container(Tree/Branch)", e, false);
+            res = Error;
+         }
+         catch (...)   {
+            DbPrint err( m_name);
+            err << DbPrintLvl::Fatal << "Unknown exception occurred. Cannot give more details." 
+                << DbPrint::endmsg;
+            debugBreak(nam, "Cannot open ROOT container(Tree/Branch)");
+            res = Error;
+         }
       }
-      return Success;
-    }
-    else if ( !hasBeenCreated && mode&pool::CREATE )    {
-      int count, defCompression=1, defSplitLevel=99, 
-	 defAutoSave=16*1024*1024, defBufferSize=16*1024,
-	 branchOffsetTabLen=0, containerSplitLevel=defSplitLevel, auxSplitLevel=defSplitLevel;
-      DbStatus res = Success;
-      try   {
-        DbOption opt1("DEFAULT_COMPRESSION","");
-        DbOption opt2("DEFAULT_SPLITLEVEL","");
-        DbOption opt3("DEFAULT_AUTOSAVE","");
-        DbOption opt4("DEFAULT_BUFFERSIZE","");
-	DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
-        DbOption opt6("CONTAINER_SPLITLEVEL", m_name);
-        DbOption opt7("CONTAINER_SPLITLEVEL", SG::AUX_POSTFIX);
-	dbH.getOption(opt1);
-        dbH.getOption(opt2);
-        dbH.getOption(opt3);
-        dbH.getOption(opt4);
-	dbH.getOption(opt5);
-        dbH.getOption(opt6);
-        dbH.getOption(opt7);
-        opt1._getValue(defCompression);
-        opt2._getValue(defSplitLevel);
-        opt3._getValue(defAutoSave);
-        opt4._getValue(defBufferSize);
-	opt5._getValue(branchOffsetTabLen);
-        opt6._getValue(containerSplitLevel);
-        opt7._getValue(auxSplitLevel);
-        if (containerSplitLevel == defSplitLevel) {
-	   if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == SG::AUX_POSTFIX)
-	           || info->clazz().Properties().HasProperty("IAuxStore") ) containerSplitLevel = auxSplitLevel;
-        }
-	if (!m_tree) {
-          m_tree = new TTree(treeName.c_str(), treeName.c_str(), (m_branchName.empty() ? containerSplitLevel : defSplitLevel));
-          if (m_rootDb)
-            m_tree->SetDirectory(m_rootDb->file());
-          // Autosave every mega byte...
-          m_tree->SetAutoSave(defAutoSave);
-        }
-        //            - C : a character string terminated by the 0 character
-        //            - B : an 8 bit signed integer (Char_t)
-        //            - b : an 8 bit unsigned integer (UChar_t)
-        //            - S : a 16 bit signed integer (Short_t)
-        //            - s : a 16 bit unsigned integer (UShort_t)
-        //            - I : a 32 bit signed integer (Int_t)
-        //            - i : a 32 bit unsigned integer (UInt_t)
-        //            - F : a 32 bit floating point (Float_t)
-        //            - D : a 64 bit floating point (Double_t)
-        m_branches.resize(cols.size());
-        for (i = cols.begin(), count = 0; i != cols.end(); ++i, ++count )   {
-          DbStatus iret = Success;
-          BranchDesc& dsc = m_branches[count];
-          switch ( (*i)->typeID() )    {
-          case DbColumn::CHAR:       iret=addBranch(*i,dsc,"/B"); break;
-          case DbColumn::UCHAR:      iret=addBranch(*i,dsc,"/b"); break;
-          case DbColumn::BOOL:       iret=addBranch(*i,dsc,"/O"); break;
-          case DbColumn::SHORT:      iret=addBranch(*i,dsc,"/S"); break;
-          case DbColumn::USHORT:     iret=addBranch(*i,dsc,"/s"); break;
-          case DbColumn::INT:        iret=addBranch(*i,dsc,"/I"); break;
-          case DbColumn::LONG:       iret=addBranch(*i,dsc,"/L"); break;
-          case DbColumn::UINT:       iret=addBranch(*i,dsc,"/i"); break;
-          case DbColumn::ULONG:      iret=addBranch(*i,dsc,"/l"); break;
-          case DbColumn::FLOAT:      iret=addBranch(*i,dsc,"/F"); break;
-          case DbColumn::DOUBLE:     iret=addBranch(*i,dsc,"/D"); break;
-          case DbColumn::LONGLONG:   iret=addBranch(*i,dsc,"/L"); break;
-          case DbColumn::ULONGLONG:  iret=addBranch(*i,dsc,"/l"); break;
-          case DbColumn::STRING:
-          case DbColumn::LONG_STRING:
-          case DbColumn::NTCHAR:
-          case DbColumn::LONG_NTCHAR:
-          case DbColumn::TOKEN:      
-            iret=addBranch(*i,dsc,"/C");
-            break;
-          case DbColumn::BLOB:
-            iret=addObject(*i,dsc,"UCharDbArray", defSplitLevel, defBufferSize, branchOffsetTabLen);
-            break;
-          case DbColumn::ANY:
-          case DbColumn::POINTER:
-             iret=addObject(*i, dsc, (*i)->typeName(), containerSplitLevel, defBufferSize, branchOffsetTabLen); 
-          break;
-          default:
-             return Error;
-          }
-          if( !iret.isSuccess() )  {
-             res = iret;
-          }
-        }
-        if( res.isSuccess() )    {
-          log << DbPrintLvl::Debug << "Opened container " << m_name << " of type "
-              << ROOTTREE_StorageType.storageName()
-              << DbPrint::endmsg;
-          m_dbH  = dbH;
-          m_type = info;
-          m_rootDb->registerBranchContainer(this);
-          return Success;
-        }
-        debugBreak(nam, "Cannot open ROOT container(Tree/Branch)", false);
-        return res;
-      }
-      catch( const std::exception& e )    {
-        debugBreak(nam, "Cannot open ROOT container(Tree/Branch)", e, false);
-        res = Error;
-      }
-      catch (...)   {
-        DbPrint err( m_name);
-        err << DbPrintLvl::Fatal << "Unknown exception occurred. Cannot give more details." 
-            << DbPrint::endmsg;
-        debugBreak(nam, "Cannot open ROOT container(Tree/Branch)");
-        res = Error;
-      }
-    }
-  }
-  log << DbPrintLvl::Error << "Cannot open container '" << nam << "', invalid Database handle." 
-      << DbPrint::endmsg;
-  return Error;
+   }
+   log << DbPrintLvl::Error << "Cannot open container '" << nam << "', invalid Database handle." 
+       << DbPrint::endmsg;
+   return Error;
 }
 
 
@@ -944,7 +830,7 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
                setBranchOffsetTabLen( dsc.branch, branchOffsetTabLen );
 
                // AUX STORE specifics
-               if ( (nam.size() >= 4 && nam.substr(nam.size()-4) == SG::AUX_POSTFIX)
+               if ( (nam.size() >= 4 && nam.substr(nam.size()-4) == RootAuxDynIO::AUX_POSTFIX)
 	            || RootType(dsc.clazz->GetName()).Properties().HasProperty("IAuxStore") ) {
                   TClass *storeTClass = dsc.clazz->GetBaseClass("SG::IAuxStoreIO");
                   if( storeTClass ) {
@@ -975,14 +861,6 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
 }
 
 
-std::string
-RootTreeContainer::auxBranchName(const std::string& attr_name)
-{
-   string branch_name = m_branchName;
-   if( branch_name.back() == '.' )  branch_name.pop_back();
-   branch_name += SG::AUXDYN_POSTFIX + attr_name;
-   return branch_name;
-}
 
 
 void RootTreeContainer::createBasicAuxBranch(const std::string& branchname, const std::string& leafname, BranchDesc& dsc)
@@ -1000,7 +878,7 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
                                           BranchDesc& dsc)
 {
    string typenam = SG::normalizedTypeinfoName(*typeinfo);
-   string branch_name = auxBranchName(attribute);
+   string branch_name = RootAuxDynIO::auxBranchName(attribute, m_branchName);
    dsc.branch = 0;
    try {
       if( *typeinfo == typeid(UInt_t) ) 
@@ -1113,7 +991,13 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
   if ( m_tree )  {
     const char* n = opt.name().c_str();
     if ( !strcasecmp(n,"BYTES_IO") )  {
-      return opt._setValue((int)m_ioBytes);
+       for( auto& branch: m_branches ) {
+          if( branch.aux_reader ) {
+             const_cast<RootTreeContainer*>(this)->m_ioBytes += branch.aux_reader->getBytesRead();
+             branch.aux_reader->resetBytesRead();
+          }
+       }                                          
+       return opt._setValue((int)m_ioBytes);
     }
     else if ( !strcasecmp(n,"BRANCH") )  {
       TBranch* b = branch(opt.option());

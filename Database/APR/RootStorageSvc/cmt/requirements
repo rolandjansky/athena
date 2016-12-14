@@ -10,20 +10,20 @@ use AtlasROOT           AtlasROOT-*             External
 private
 use AthContainersInterfaces AthContainersInterfaces-* Control
 use AthContainers         AthContainers-*       Control
-use CxxUtils              CxxUtils-*            Control
 use RootUtils             RootUtils-*           Control
 use PersistentDataModel   PersistentDataModel-* Database
 use POOLCore              POOLCore-*            Database/APR
 use StorageSvc            StorageSvc-*          Database/APR
+use RootAuxDynIO          RootAuxDynIO-*        Database/AthenaRoot
 
 use GaudiInterface	  GaudiInterface-*	External
 
 apply_pattern  pool_plugin_library
 
 private
-apply_tag ROOTCintexLibs
 macro_append ROOT_linkopts " -lRIO -lTreePlayer "
 
-use TestTools      TestTools-*         AtlasTest 
-apply_pattern UnitTest_run unit_test=RootAuxVectorFactory
-macro_append RootAuxVectorFactory_testlinkopts " -lRootStorageSvc"
+# no tests in the package any more, but leaving this as an example
+# use TestTools      TestTools-*         AtlasTest 
+# apply_pattern UnitTest_run unit_test=RootAuxVectorFactory
+# macro_append RootAuxVectorFactory_testlinkopts " -lRootStorageSvc"
