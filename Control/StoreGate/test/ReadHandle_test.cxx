@@ -111,7 +111,7 @@ void test2()
 
   SG::ReadHandle<MyObj> h1 ("foo", "FooSvc");
   assert (h1.store() == "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
   assert (h1.cptr() == fooptr);
   assert (foo_proxy->refCount() == 2);
@@ -135,7 +135,7 @@ void test2()
   assert (h2.cachedPtr() == nullptr);
 
   SG::ReadHandle<MyObj> h4 ("bar", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.cptr() == barptr);
   assert (bar_proxy->refCount() == 2);
 
@@ -181,7 +181,7 @@ void test3()
   assert (foo_proxy->refCount() == 1);
 
   SG::ReadHandle<MyObj> h1 ("foo", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (!h1.isInitialized());
   assert (h1.cachedPtr() == nullptr);
   assert (h1.cptr() == fooptr);
@@ -194,7 +194,7 @@ void test3()
   assert (foo_proxy->refCount() == 2);
 
   SG::ReadHandle<MyObj> h2 ("foox", "FooSvc");
-  assert (h2.setStore (&testStore).isSuccess());
+  assert (h2.setProxyDict (&testStore).isSuccess());
   assert (h2.cachedPtr() == nullptr);
   assert (!h2.isInitialized());
   assert (!h2.isValid());

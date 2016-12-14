@@ -82,7 +82,7 @@ class IHistorySvc;
 struct _object; typedef _object PyObject;
 class StoreGateSvc;
 namespace AthenaInternal {
-  PyObject* recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  PyObject* recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   void py_sg_clearProxyPayload(StoreGateSvc* self, SG::DataProxy*);
 }
 namespace SG {
@@ -711,6 +711,8 @@ public:
 
   /// associate ProxyProviderSvc to this store
   void setProxyProviderSvc(IProxyProviderSvc* pPPSvc);
+  /// Return current ProxyProviderSvc.
+  IProxyProviderSvc* proxyProviderSvc();
   //@}
 
   /////////////////////////////////////////////////////////////////////////
@@ -912,7 +914,7 @@ private:
   friend class SG::VarHandleBase;
   friend 
   PyObject* 
-  AthenaInternal::recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  AthenaInternal::recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   /// type-less recording of an object with a key, allow possibility of
   /// specifying const-access and history record
   StatusCode typeless_record( DataObject* obj, const std::string& key,

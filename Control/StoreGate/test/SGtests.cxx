@@ -35,7 +35,6 @@
 #include "SGTools/DataStore.h"
 #include "SGTools/SGVersionedKey.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 
@@ -43,9 +42,7 @@ using namespace std;
 using namespace SG;
 
 using SG::DataStore;
-#if __cplusplus > 201100
-using CxxUtils::make_unique;
-#endif
+using std::make_unique;
 
 class Base {};
 class Foo : public Base {
@@ -991,7 +988,7 @@ namespace Athena_test {
 
     {
       SG::WriteHandle<int> h ("testBoundReset", rSG.name());
-      h = CxxUtils::make_unique<int> (10);
+      h = std::make_unique<int> (10);
       assert (h.isValid());
       assert (*h.cachedPtr() == 10);
       rSG.commitNewDataObjects();
@@ -1005,7 +1002,7 @@ namespace Athena_test {
     }
 
     // Force the existing proxy to be deleted.
-    assert (rSG.overwrite (CxxUtils::make_unique<int> (20),
+    assert (rSG.overwrite (std::make_unique<int> (20),
                            "testBoundReset",
                            true));
     rSG.commitNewDataObjects();
@@ -1020,7 +1017,7 @@ namespace Athena_test {
     Foo::dtor_log.clear();
 
     SG::DataObjectSharedPtr<DataObject> obj101 =
-      SG::asStorable (CxxUtils::make_unique<Foo> (101));
+      SG::asStorable (std::make_unique<Foo> (101));
     SG::DataProxy* proxy101 = rSG.recordObject (obj101, "obj101", false, false);
     assert (proxy101->name() == "obj101");
     assert (proxy101->object() == obj101.get());
@@ -1029,7 +1026,7 @@ namespace Athena_test {
     assert (proxy101->isConst());
 
     SG::DataObjectSharedPtr<DataObject> obj102 =
-      SG::asStorable (CxxUtils::make_unique<Foo> (102));
+      SG::asStorable (std::make_unique<Foo> (102));
     SG::DataProxy* proxy102 = rSG.recordObject (obj102, "obj102", true, false);
     assert (proxy102->name() == "obj102");
     assert (proxy102->object() == obj102.get());
@@ -1040,14 +1037,14 @@ namespace Athena_test {
 
     std::cout << ">>> test duplicate record1\n";
     SG::DataObjectSharedPtr<DataObject> obj103 =
-      SG::asStorable (CxxUtils::make_unique<Foo> (103));
+      SG::asStorable (std::make_unique<Foo> (103));
     SG::DataProxy* proxy103 = rSG.recordObject (obj103, "obj101", false, false);
     assert (proxy103 == nullptr);
     assert (obj103->refCount() == 2); // Held by m_trash
     std::cout << "<<< test duplicate record1\n";
 
     SG::DataObjectSharedPtr<DataObject> obj104=
-      SG::asStorable (CxxUtils::make_unique<Foo> (104));
+      SG::asStorable (std::make_unique<Foo> (104));
     SG::DataProxy* proxy104 = rSG.recordObject (obj104, "obj101", false, true);
     assert (proxy104 == proxy101);
     assert (obj104->refCount() == 1);
@@ -1070,6 +1067,24 @@ namespace Athena_test {
     assert (obj103->refCount() == 1);
     assert (obj104->refCount() == 1);
 
+    SG::DataProxy* proxy101a= rSG.recordObject (obj101, "obj101", false, false);
+    assert (proxy101 == proxy101a);
+    assert (proxy101->name() == "obj101");
+    assert (proxy101->object() == obj101.get());
+    assert (obj101->refCount() == 2);
+    assert (proxy101->refCount() == 2);
+    assert (proxy101->isConst());
+
+    rSG.clearStore();
+
+    SG::DataProxy* proxy101b = rSG.recordObject (obj101, "obj101", false, true);
+    assert (proxy101 == proxy101b);
+    assert (proxy101->name() == "obj101");
+    assert (proxy101->object() == obj101.get());
+    assert (obj101->refCount() == 2);
+    assert (proxy101->refCount() == 2);
+    assert (proxy101->isConst());
+
     cout << "\n*** StoreGateSvcClient_test testRecordObject OK ***" << endl;
   }
 
@@ -1081,8 +1096,8 @@ namespace Athena_test {
     TestAuxStore* paux = nullptr;
     {
       SG::WriteHandle<BX> h ("testWriteAux", rSG.name());
-      auto obj = CxxUtils::make_unique<BX> (10);
-      auto objAux = CxxUtils::make_unique<TestAuxStore>();
+      auto obj = std::make_unique<BX> (10);
+      auto objAux = std::make_unique<TestAuxStore>();
       paux = objAux.get();
       assert (h.record (std::move(obj), std::move(objAux)).isSuccess());
       assert (!paux->m_locked);

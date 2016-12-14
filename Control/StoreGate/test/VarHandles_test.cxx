@@ -11,7 +11,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 
 #include <cassert>
 #include <iostream>
@@ -42,7 +41,7 @@ bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
 typedef std::list<int> IntList;
 /** @file DataHandle_test.cxx  unit test for DataHandle
  * @author ATLAS Collaboration
- * $Id: VarHandles_test.cxx 726621 2016-02-27 20:03:45Z ssnyder $
+ * $Id: VarHandles_test.cxx 781577 2016-11-01 14:41:16Z ssnyder $
  ***************************************************************************/
 
 #include "SGTools/CLASS_DEF.h"
@@ -69,7 +68,7 @@ namespace Athena_test {
     assert(!emptyProxy.isSet());
     assert(!emptyProxy.isConst());
     assert(emptyProxy.cachedPtr() == nullptr);
-    SGASSERTERROR(emptyProxy.isValid());
+    assert(!emptyProxy.isValid());
 
     //init with a valid proxy
     DataProxy* pMyProxy(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
@@ -101,8 +100,8 @@ namespace Athena_test {
     WriteHandle<MyDataObj> hMy ("hMy");
     assert(!hMy.isInitialized());
     assert(hMy.cachedPtr() == nullptr);
-    hMy.setStore (&SGTest::store);
-    hMy = CxxUtils::make_unique<MyDataObj>(4);
+    hMy.setProxyDict (&SGTest::store);
+    hMy = std::make_unique<MyDataObj>(4);
     //assert(hMy.setState(pMyProxy).isSuccess());
     assert(hMy.isInitialized());
     assert(hMy.isSet());
@@ -211,7 +210,7 @@ namespace Athena_test {
     assert(33 == hNR->i());
     hNR.reset(true);
     assert(!hNR.isInitialized());
-    SGASSERTERROR(hNR.isValid());
+    assert(!hNR.isValid());
 
     pNR = new DataProxy(StoreGateSvc::asStorable(new MyDataObj(33)),
                         new TransientAddress(CLID(8000), "noReset"),
@@ -221,7 +220,7 @@ namespace Athena_test {
     assert(33 == hNR->i());
     hNR.reset(false);
     assert(!hNR.isInitialized());
-    SGASSERTERROR(hNR.isValid());
+    assert(!hNR.isValid());
 
     //now with the RESETONLY
     DataProxy* pRO(new DataProxy(StoreGateSvc::asStorable(new MyDataObj(44)),

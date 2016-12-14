@@ -319,7 +319,7 @@ namespace SG {
   {
     const DataProxy* proxy = m_proxy;
     if (!proxy) {
-      IProxyDict* store = m_store;
+      const IProxyDict* store = m_store;
       if (!store)
         store = this->storeHandle().get();
       if (store)
@@ -399,7 +399,7 @@ namespace SG {
   {
     if (!m_store) {
       CHECK( VarHandleKey::initialize() );
-      m_store = this->storeHandle().get();
+      m_store = &*(this->storeHandle());
     }
 
     if (!m_store)
@@ -439,7 +439,7 @@ namespace SG {
    *
    * This implicitly does a reset().
    */
-  StatusCode VarHandleBase::setStore (IProxyDict* store)
+  StatusCode VarHandleBase::setProxyDict (IProxyDict* store)
   {
     reset(true);
     m_store = store;
@@ -592,7 +592,7 @@ namespace SG {
   {
     if (!m_store) {
       CHECK (VarHandleKey::initialize());
-      m_store = this->storeHandle().get();
+      m_store = &*(this->storeHandle());
     }
 
     if (this->name() == "") {
@@ -634,6 +634,61 @@ namespace SG {
 
 
   /**
+   * @brief Helper to record an object in the event store.
+   *        Unlike record, put does not change the handle and does not
+   *        cache the pointer in the handle.
+   * @param The wrapped data object (DataBucket) to record.
+   * @param dataPtr Pointer to the transient object itself.
+   * @param allowMods If false, record the object as const.
+   * @param returnExisting Allow an existing object.
+   * @param[out] store The store being used.
+   *
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, unless @c returnExisting is true, in which case
+   * return success.  In either case, @c dobj is destroyed.
+   */
+  const void*
+  VarHandleBase::put_impl (std::unique_ptr<DataObject> dobj,
+                           void* dataPtr,
+                           bool allowMods,
+                           bool returnExisting,
+                           IProxyDict* & store) const
+  {
+    store = m_store;
+    if (!store) {
+      ServiceHandle<IProxyDict> h = storeHandle();
+      if (h.retrieve().isFailure())
+        return nullptr;
+      store = &*h;
+    }
+
+    if (this->name() == "") {
+      REPORT_ERROR (StatusCode::FAILURE) << "Attempt to record an object with a null key";
+      return nullptr;
+    }
+
+    SG::DataObjectSharedPtr<DataObject> sptr (dobj.release());
+    unsigned int initRefCount = sptr->refCount();
+    SG::DataProxy* new_proxy = 
+      store->recordObject (sptr, this->name(), allowMods, returnExisting);
+    if (!new_proxy) {
+      REPORT_ERROR (StatusCode::FAILURE) << "recordObject failed";
+      return nullptr;
+    }
+  
+    if (new_proxy && initRefCount == sptr->refCount() && new_proxy->isValid()) {
+      // If the reference count hasn't changed, then we've returned an existing
+      // object rather than recording a new one.  Retrieve the pointer.
+      dataPtr = typeless_dataPointer_fromProxy (new_proxy, true);
+    }
+
+    return dataPtr;
+  }
+
+
+  /**
    * @brief Retrieve an object from StoreGate.
    * @param quiet If true, suppress failure messages.
    */
@@ -670,54 +725,7 @@ namespace SG {
       } //setstate
     } //m_proxy
 
-    if (!m_proxy || !m_proxy->isValid()) {
-      // invalid proxy
-      if (!quiet) {
-        REPORT_MESSAGE(MSG::WARNING)
-          << "Proxy "
-          << " [" << (m_proxy != 0 ? m_proxy->clID() : 0)
-          << "/" << (m_proxy != 0 
-                     ? m_proxy->name() 
-                     : std::string("<N/A>"))
-          << "] is in an invalid state";
-      } //quiet
-      return m_ptr;
-    }
-
-    DataObject* dobj = m_proxy->accessData();
-    if (!dobj) {
-      // invalid dobj
-      if (!quiet) {
-        REPORT_MESSAGE(MSG::WARNING)
-          << "this proxy " << MSG::hex << m_proxy
-          << MSG::dec << " has a NULL data object ptr";
-      }
-      return m_ptr;
-    }
-
-    const CLID clid = this->clid();
-    m_ptr = SG::Storable_cast(dobj, clid, m_proxy);
-    if (m_ptr) {
-      return m_ptr;
-    }
-
-    // if m_ptr is null, probably the clid we gave wasn't the clid
-    // the object was stored with, nor it inherits from it.
-    // before giving up, let's check its transient CLIDs
-    DataBucketBase *dbb = 0;
-    if (m_proxy->transientAddress()->transientID(clid) &&
-        0 != (dbb = dynamic_cast<DataBucketBase*>(dobj))) {
-      // it is a symlink after all.
-      // Let's hard cast (and keep our fingers Xed)
-      m_ptr = static_cast<void*>(dbb->object());
-    } else {
-      if (!quiet) {
-        REPORT_MESSAGE(MSG::WARNING)
-          << "Request for an invalid object; requested CLID = " 
-          << clid 
-          << ", proxy primary ID is " << m_proxy->clID();
-      }
-    } // try symlink -- endif
+    m_ptr = typeless_dataPointer_fromProxy (m_proxy, quiet);
     return m_ptr;
   }
 
@@ -783,7 +791,69 @@ namespace SG {
   }
 
 
-  //*************************************************************************
+  /**
+   * @brief Retrieve a pointer from a proxy.
+   * @param proxy The proxy object.
+   * @param quiet If true, suppress failure messages.
+   *
+   * Warning --- doesn't enforce const rules; the caller must do that.
+   */
+  void* 
+  VarHandleBase::typeless_dataPointer_fromProxy (SG::DataProxy* proxy,
+                                                 bool quiet) const
+  {
+    if (!proxy || !proxy->isValid()) {
+      // invalid proxy
+      if (!quiet) {
+        REPORT_MESSAGE(MSG::WARNING)
+          << "Proxy "
+          << " [" << (proxy != 0 ? proxy->clID() : 0)
+          << "/" << (proxy != 0 
+                     ? proxy->name() 
+                     : std::string("<N/A>"))
+          << "] is in an invalid state";
+      } //quiet
+      return nullptr;
+    }
+
+    DataObject* dobj = proxy->accessData();
+    if (!dobj) {
+      // invalid dobj
+      if (!quiet) {
+        REPORT_MESSAGE(MSG::WARNING)
+          << "this proxy " << MSG::hex << proxy
+          << MSG::dec << " has a NULL data object ptr";
+      }
+      return nullptr;
+    }
+
+    const CLID clid = this->clid();
+    void* ptr = SG::Storable_cast(dobj, clid, proxy);
+    if (ptr)
+      return ptr;
+
+    // If ptr is null, probably the clid we gave wasn't the clid
+    // the object was stored with, nor it inherits from it.
+    // before giving up, let's check its transient CLIDs
+    DataBucketBase *dbb = 0;
+    if (proxy->transientAddress()->transientID(clid) &&
+        0 != (dbb = dynamic_cast<DataBucketBase*>(dobj))) {
+      // it is a symlink after all.
+      // Let's hard cast (and keep our fingers Xed)
+      ptr = static_cast<void*>(dbb->object());
+    } else {
+      if (!quiet) {
+        REPORT_MESSAGE(MSG::WARNING)
+          << "Request for an invalid object; requested CLID = " 
+          << clid 
+          << ", proxy primary ID is " << proxy->clID();
+      }
+    } // try symlink -- endif
+    return ptr;
+  }
+
+
+//*************************************************************************
   // Free functions.
   //
 

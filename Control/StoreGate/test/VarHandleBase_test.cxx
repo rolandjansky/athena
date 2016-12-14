@@ -21,7 +21,6 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
@@ -47,6 +46,7 @@ public:
   using SG::VarHandleBase::typeless_cptr;
   using SG::VarHandleBase::typeless_ptr;
   using SG::VarHandleBase::record_impl;
+  using SG::VarHandleBase::put_impl;
   using SG::VarHandleBase::m_store;
   using SG::VarHandleBase::m_proxy;
   using SG::VarHandleBase::m_ptr;
@@ -125,9 +125,9 @@ void test2()
 {
   std::cout << "test2\n";
 
-  auto obj = CxxUtils::make_unique<MyObj>();
+  auto obj = std::make_unique<MyObj>();
   MyObj* objptr = obj.get();
-  auto taddr = CxxUtils::make_unique<SG::TransientAddress> (293847295, "foo");
+  auto taddr = std::make_unique<SG::TransientAddress> (293847295, "foo");
   SG::DataProxy* proxy = new SG::DataProxy (SG::asStorable (std::move(obj)),
                                             taddr.release());
   SGTest::TestStore testStore;
@@ -135,7 +135,7 @@ void test2()
 
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
   assert (h1.store() == "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
 
   h1.setState (proxy);
@@ -224,9 +224,9 @@ void test2()
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
 
   // Test a !resetOnly proxy.
-  auto obj5 = CxxUtils::make_unique<MyObj>();
+  auto obj5 = std::make_unique<MyObj>();
   //MyObj* objptr5 = obj5.get();
-  auto taddr5 = CxxUtils::make_unique<SG::TransientAddress> (293847295, "foo");
+  auto taddr5 = std::make_unique<SG::TransientAddress> (293847295, "foo");
   SG::DataProxy* proxy5 = new SG::DataProxy (SG::asStorable (std::move(obj5)),
                                              taddr5.release(),
                                              false, false);
@@ -258,7 +258,7 @@ void test3()
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
   assert (!h1.isPresent());
 
-  assert (h1.setStore (&store).isSuccess());
+  assert (h1.setProxyDict (&store).isSuccess());
   assert (!h1.isPresent());
 
   store.record (new MyObj, "foo");
@@ -293,17 +293,17 @@ void test4()
   assert (h1.initialize().isFailure());
 
   SGTest::TestStore store;
-  assert (h1.setStore (&store).isSuccess());
+  assert (h1.setProxyDict (&store).isSuccess());
   assert (h1.initialize().isSuccess()); // ok because it's a writer.
 
   TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Reader, "FooSvc");
-  assert (h2.setStore (&store).isSuccess());
+  assert (h2.setProxyDict (&store).isSuccess());
   assert (h2.initialize().isFailure());
   store.record (new MyObj, "foo");
   assert (h2.setState().isSuccess());
 
   assert (h2.isInitialized());
-  assert (h2.setStore (&store).isSuccess());
+  assert (h2.setProxyDict (&store).isSuccess());
   assert (!h2.isInitialized());
 
   assert (h2.setState().isSuccess());
@@ -323,9 +323,9 @@ void test5()
   SGTest::TestStore testStore;
 
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
-  auto obj = CxxUtils::make_unique<MyObj>();
+  auto obj = std::make_unique<MyObj>();
   //MyObj* objptr = obj.get();
-  auto taddr = CxxUtils::make_unique<SG::TransientAddress> (293847295, "foo");
+  auto taddr = std::make_unique<SG::TransientAddress> (293847295, "foo");
   SG::DataProxy* proxy = new SG::DataProxy (SG::asStorable (std::move(obj)),
                                             taddr.release());
   assert (h1.setConst().isFailure());
@@ -353,7 +353,7 @@ void test6()
   SG::DataProxy* proxy1 = nullptr;
   assert (h1.setState(proxy1).isFailure());
 
-  auto taddr1 = CxxUtils::make_unique<SG::TransientAddress> (293847295, "foo");
+  auto taddr1 = std::make_unique<SG::TransientAddress> (293847295, "foo");
   proxy1 = new SG::DataProxy (taddr1.release(), nullptr);
   proxy1->addRef();
   proxy1->setStore (&testStore);
@@ -362,7 +362,7 @@ void test6()
   assert (proxy1->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{}));
 
-  auto obj1 = CxxUtils::make_unique<MyObj>();
+  auto obj1 = std::make_unique<MyObj>();
   proxy1->setObject (SG::asStorable (std::move(obj1)));
   assert (h1.setState(proxy1).isSuccess());
   assert (proxy1->refCount() == 2);
@@ -374,12 +374,12 @@ void test6()
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
   assert (h1.m_proxy == proxy1);
 
-  auto taddr2 = CxxUtils::make_unique<SG::TransientAddress> (293847295, "foo");
+  auto taddr2 = std::make_unique<SG::TransientAddress> (293847295, "foo");
   SG::DataProxy* proxy2 = new SG::DataProxy (taddr2.release(), nullptr);
   proxy2->addRef();
   proxy2->setStore (&testStore);
   assert (proxy2->refCount() == 1);
-  auto obj2 = CxxUtils::make_unique<MyObj>();
+  auto obj2 = std::make_unique<MyObj>();
   proxy2->setObject (SG::asStorable (std::move(obj2)));
 
   assert (h1.setState(proxy2).isSuccess());
@@ -411,14 +411,14 @@ void test7()
   MyObj* objptr = nullptr;
 
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
-  obj = CxxUtils::make_unique<MyObj>();
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h1.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
                           true, false).isFailure());
 
-  assert (h1.setStore (&testStore).isSuccess());
-  obj = CxxUtils::make_unique<MyObj>();
+  assert (h1.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h1.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
@@ -427,8 +427,8 @@ void test7()
   assert (h1.m_ptr == fooptr);
 
   TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
-  assert (h2.setStore (&testStore).isSuccess());
-  obj = CxxUtils::make_unique<MyObj>();
+  assert (h2.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h2.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
@@ -437,7 +437,7 @@ void test7()
   assert (h2.m_ptr == nullptr);
 
 
-  obj = CxxUtils::make_unique<MyObj>();
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h2.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
@@ -446,7 +446,7 @@ void test7()
   assert (h2.m_ptr == fooptr);
   assert (!h2.isConst());
 
-  obj = CxxUtils::make_unique<MyObj>();
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h2.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
@@ -456,8 +456,8 @@ void test7()
   assert (h2.isConst());
 
   TestHandle h3 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
-  assert (h3.setStore (&testStore).isSuccess());
-  obj = CxxUtils::make_unique<MyObj>();
+  assert (h3.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
   objptr = obj.get();
   assert (h3.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
                           objptr,
@@ -472,9 +472,9 @@ void test8()
   SGTest::TestStore testStore;
 
   TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
 
-  auto obj = CxxUtils::make_unique<MyObj>();
+  auto obj = std::make_unique<MyObj>();
   assert (h1.m_ptr == nullptr);
   h1.m_ptr = obj.get();
   assert (h1.typeless_dataPointer_impl(false) == obj.get());
@@ -491,14 +491,14 @@ void test8()
   assert (h1.typeless_dataPointer_impl(true) == nullptr);
 
   TestHandle h2 (293847295, "bar", Gaudi::DataHandle::Writer, "FooSvc");
-  assert (h2.setStore (&testStore).isSuccess());
-  obj = CxxUtils::make_unique<MyObj>();
+  assert (h2.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
   MyObj* objptr = obj.get();
   testStore.record (obj.release(), "bar");
 
   assert (h2.typeless_dataPointer_impl(false) == objptr);
 
-  auto obj2 = CxxUtils::make_unique<MyObj2>();
+  auto obj2 = std::make_unique<MyObj2>();
   MyObj2* obj2ptr = obj2.get();
   testStore.record (obj2.release(), "fee");
 
@@ -506,7 +506,7 @@ void test8()
   testStore.m_kmap[sgkey] = testStore.proxy (293847296, "fee");
 
   TestHandle h3 (293847295, "fee", Gaudi::DataHandle::Writer, "FooSvc");
-  assert (h3.setStore (&testStore).isSuccess());
+  assert (h3.setProxyDict (&testStore).isSuccess());
   assert (h3.typeless_dataPointer_impl(false) == nullptr);
   assert (h3.typeless_dataPointer_impl(true) == nullptr);
 
@@ -535,6 +535,70 @@ void test9()
 }
 
 
+// put_impl
+void test10()
+{
+  std::cout << "test10\n";
+
+  SGTest::TestStore testStore;
+  IProxyDict* store = nullptr;
+
+  std::unique_ptr<MyObj> obj;
+  MyObj* objptr = nullptr;
+
+  TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  assert (h1.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                       objptr,
+                       true, false, store) == nullptr);
+  assert (store == nullptr);
+
+  assert (h1.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  const void* newptr =
+    h1.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                 objptr,
+                 true, false, store);
+  assert (store == &testStore);
+  assert (newptr != nullptr);
+  MyObj* fooptr = objptr;
+  assert (newptr == fooptr);
+
+  TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h2.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  assert (h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                       objptr,
+                       true, false, store) == nullptr);
+
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  newptr = h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                        objptr,
+                        true, true, store);
+  assert (newptr != nullptr);
+  assert (newptr == fooptr);
+
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  newptr = h2.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                        objptr,
+                        false, true, store);
+  assert (newptr == fooptr);
+
+  TestHandle h3 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h3.setProxyDict (&testStore).isSuccess());
+  obj = std::make_unique<MyObj>();
+  objptr = obj.get();
+  assert (h3.put_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                       objptr,
+                       true, false, store) == nullptr);
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
@@ -550,6 +614,7 @@ int main()
   test7();
   test8();
   test9();
+  test10();
   return 0;
 }
 

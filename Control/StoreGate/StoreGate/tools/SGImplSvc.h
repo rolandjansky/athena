@@ -61,7 +61,6 @@
 #include "SGTools/SGVersionedKey.h"
 #include "StoreGate/SGObjectWithVersion.h"
 #include "AthAllocators/Arena.h"
-#include "SGTools/IProxyDictWithPool.h" // TEMPORARY
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -82,7 +81,7 @@ class IHistorySvc;
 struct _object; typedef _object PyObject;
 class StoreGateSvc;
 namespace AthenaInternal {
-  PyObject* recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  PyObject* recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   void py_sg_clearProxyPayload(StoreGateSvc* self, SG::DataProxy*);
 }
 
@@ -113,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 754375 2016-06-13 02:59:46Z ssnyder $
+ * $Id: SGImplSvc.h 785927 2016-11-23 03:58:33Z ssnyder $
  **/
 class SGImplSvc :
   public Service, 
@@ -661,6 +660,8 @@ public:
 
   /// associate ProxyProviderSvc to this store
   void setProxyProviderSvc(IProxyProviderSvc* pPPSvc);
+  /// Return current ProxyProviderSvc.
+  IProxyProviderSvc* proxyProviderSvc();
   //@}
 
   /////////////////////////////////////////////////////////////////////////
@@ -912,7 +913,7 @@ private:
 
   friend 
   PyObject* 
-  AthenaInternal::recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  AthenaInternal::recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   /// type-less recording of an object with a key, allow possibility of
   /// specifying const-access and history record
   StatusCode typeless_record( DataObject* obj, const std::string& key,
@@ -937,7 +938,8 @@ private:
                               bool allowMods, bool resetOnly,
                               bool noHist,
                               const std::type_info* tinfo,
-                              SG::DataProxy** proxy_ret);
+                              SG::DataProxy** proxy_ret,
+                              bool noOverwrite);
 
   /// real recording of an object with a key, allow possibility of
   /// specifying const-access

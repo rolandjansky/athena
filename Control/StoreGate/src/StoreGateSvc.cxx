@@ -3,11 +3,6 @@
 */
 
 #ifdef ATHENAHIVE
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreClearedIncident.h"
@@ -16,6 +11,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
+
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 using namespace SG;
 using namespace std;
@@ -144,11 +142,10 @@ StoreGateSvc::keys(const CLID& id, bool allKeys){
 StatusCode StoreGateSvc::initialize()    {
 
   // Initialize service:
-  if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
+  CHECK( Service::initialize() );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::VERBOSE << "Initializing " << name() 
-      << " - package version " << PACKAGE_VERSION << endreq ;
+  msg() << MSG::VERBOSE << "Initializing " << name() 
+        << " - package version " << PACKAGE_VERSION << endmsg;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -204,7 +201,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -225,17 +222,16 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
     msg() << MSG::WARNING
           << "Could not locate IOVSvc "
-          << endreq;
+          << endmsg;
   }
   return m_pIOVSvc;
 }
 
 StatusCode
 StoreGateSvc::finalize() {
-  if(!(Service::finalize()).isSuccess()) return StatusCode::FAILURE;
-  MsgStream log( messageService(), name() );
-  log << MSG::VERBOSE << "Finalizing " << name() 
-      << " - package version " << PACKAGE_VERSION << endreq ;
+  CHECK( Service::finalize() );
+  msg() << MSG::VERBOSE << "Finalizing " << name() 
+        << " - package version " << PACKAGE_VERSION << endmsg;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
     CHECK( m_defaultStore->finalize());

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandleBase.h 733875 2016-04-04 23:33:03Z leggett $
+// $Id: VarHandleBase.h 787694 2016-12-01 20:03:47Z ssnyder $
 /**
  * @file StoreGate/VarHandleBase.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -265,7 +265,7 @@ namespace SG {
      *
      * This implicitly does a reset().
      */
-    StatusCode setStore (IProxyDict* store);
+    StatusCode setProxyDict (IProxyDict* store);
 
 
     // FIXME: Remove this once IResetable is cleaned up.
@@ -341,6 +341,29 @@ namespace SG {
 
 
     /**
+     * @brief Helper to record an object in the event store.
+     *        Unlike record, put does not change the handle and does not
+     *        cache the pointer in the handle.
+     * @param The wrapped data object (DataBucket) to record.
+     * @param dataPtr Pointer to the transient object itself.
+     * @param allowMods If false, record the object as const.
+     * @param returnExisting Allow an existing object.
+     * @param[out] store The store being used.
+     *
+     * Returns the object placed in the store, or nullptr if there
+     * was an error.
+     * If there was already an object in the store with the given key,
+     * then return null, unless @c returnExisting is true, in which case
+     * return success.  In either case, @c dobj is destroyed.
+     */
+    const void* put_impl (std::unique_ptr<DataObject> dobj,
+                          void* dataPtr,
+                          bool allowMods,
+                          bool returnExisting,
+                          IProxyDict* & store) const;
+
+
+    /**
      * @brief Retrieve an object from StoreGate.
      * @param quiet If true, suppress failure messages.
      */
@@ -407,6 +430,18 @@ namespace SG {
      * @param proxy The new proxy.
      */
     void setProxy (SG::DataProxy* proxy);
+
+
+    /**
+     * @brief Retrieve a pointer from a proxy.
+     * @param proxy The proxy object.
+     * @param quiet If true, suppress failure messages.
+     *
+     * Warning --- doesn't enforce const rules; the caller must do that.
+     */
+    void* 
+    typeless_dataPointer_fromProxy (SG::DataProxy* proxy,
+                                    bool quiet) const;
   }; 
 
 
