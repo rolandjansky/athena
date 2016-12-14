@@ -4,6 +4,7 @@ from AthenaCommon.Logging import logging
 
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
+from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
 
 mlog = logging.getLogger( 'CaloRinger_joboptions.py' )
 mlog.info('Entering')
@@ -14,7 +15,8 @@ ringerOutputLevel = caloRingerFlags.OutputLevel()
 # ringer:
 if caloRingerFlags.buildCaloRingsOn():
   # Check egamma related objects:
-  if not rec.doEgamma():
+  from egammaRec.egammaGetter import egammaGetter
+  if not rec.doEgamma() or egammaGetter().disabled():
     if caloRingerFlags.buildElectronCaloRings():
       caloRingerFlags.buildElectronCaloRings.set_Value( False )
       caloRingerFlags.doElectronIdentification.set_Value( False )
@@ -45,10 +47,8 @@ if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
 
   # Make sure all algoritms have the ringerOutputLevel
   if CRAlgBuilder.usable():
-
     # Get the main logger algorithm
     mainAlg = CRAlgBuilder.getCaloRingerAlgHandle()
-
     if mainAlg:
       # Change the main algorithm output level
       mlog.verbose('Changing %r output level to %s', mainAlg, ringerOutputLevel)
@@ -63,7 +63,6 @@ if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
 
     # Get the builder handles
     builderHandles = CRAlgBuilder.getCaloRingerBuilders()
-
     for builder in builderHandles:
       # Change builders output level
       mlog.verbose('Changing %r output level to %s', builder, ringerOutputLevel)
@@ -71,28 +70,30 @@ if caloRingerFlags.buildCaloRingsOn() or caloRingerFlags.doIdentificationOn():
 
     # Get the selector handles
     selectorHandles = CRAlgBuilder.getRingerSelectors()
-
     for selector in selectorHandles:
       # Change the builders output level
       mlog.verbose('Changing %r output level to %s', selector, ringerOutputLevel)
       selector.OutputLevel = ringerOutputLevel
-
 else:
-
   # Otherwise we disable the main algorithm
   CRAlgBuilder = CaloRingerAlgorithmBuilder( disable = True )
 
 # Add metadata builder/reader
-from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
-MetaDataBuilder = CaloRingerMetaDataBuilder()
+from RecExConfig.InputFilePeeker import inputFileSummary
+metaItemDict = inputFileSummary.get( 'metadata_itemsDic' )
+if CRAlgBuilder.usable() or any( ['RingSetConf' in key for key in metaItemDict ] ):
+  MetaDataBuilder = CaloRingerMetaDataBuilder()
 
-# Make sure all MetaData algoritms have the ringerOutputLevel
-if MetaDataBuilder.usable():
-  # Get the ringer configuration writter handle
-  configWriter = MetaDataBuilder.getConfigWriterHandle()
+  # Make sure all MetaData algoritms have the ringerOutputLevel
+  if MetaDataBuilder.usable():
+    # Get the ringer configuration writter handle
+    configWriter = MetaDataBuilder.getConfigWriterHandle()
 
-  if configWriter:
-    # Change its output level
-    mlog.verbose('Changing %r output level to %s', configWriter, ringerOutputLevel)
-    configWriter.OutputLevel = ringerOutputLevel
+    if configWriter:
+      # Change its output level
+      mlog.verbose('Changing %r output level to %s', configWriter, ringerOutputLevel)
+      configWriter.OutputLevel = ringerOutputLevel
+else:
+  # Otherwise we disable the metadata algorith:
+  MetaDataBuilder = CaloRingerMetaDataBuilder( disable = True)
 

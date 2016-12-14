@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 786303 2016-11-24 13:38:29Z wsfreund $
+// $Id: xAODRingSetConfWriter.cxx 787810 2016-12-02 05:39:13Z ssnyder $
 
 // STL include(s)
 #include <algorithm>
@@ -107,9 +107,9 @@ StatusCode xAODRingSetConfWriter::initialize() {
   ATH_MSG_DEBUG("There are available a total of " << m_rsConfContVec.size() << " RingSetConfContainer(s).");
   for ( const auto* c : m_rsConfContVec ) {
     if ( nullptr != c ) {
-      if ( msg().level() <= MSG::DEBUG ) {
+      if ( msg().level() <= MSG::VERBOSE ) {
         for ( const auto& r : *c ){
-          r->print( msg(), MSG::DEBUG );
+          r->print( msg(), MSG::VERBOSE );
         }
       }
     } else {
@@ -194,15 +194,16 @@ StatusCode xAODRingSetConfWriter::copyKeyToStore( const std::string &key )
   // Copy them:
   contCopy->reserve( cont->size() );
   contAuxCopy->reserve( cont->size() );
+  ATH_MSG_DEBUG("Copying object with key: " << key);
   for ( value_type obj : *cont ) {
+    ATH_MSG_VERBOSE("Original object:");
     // Print-out object:
-    ATH_MSG_DEBUG("Original object with key: " << key);
-    obj->print( msg(), MSG::DEBUG ); 
+    obj->print( msg(), MSG::VERBOSE ); 
     // Copy object
     value_type objCopy = new (base_value_type)( *obj );
     // Print-out object:
-    ATH_MSG_DEBUG("Copied object which will be recorded with same key: " << key);
-    objCopy->print( msg(), MSG::DEBUG ); 
+    ATH_MSG_VERBOSE("Copied object:");
+    objCopy->print( msg(), MSG::VERBOSE ); 
     // Add to container
     contCopy->push_back( objCopy );
   }
@@ -259,7 +260,7 @@ StatusCode xAODRingSetConfWriter::fillConfigurations()
 
   for (size_t counter = 0; counter < m_rsConfContVec.size(); ++counter)
   {
-    const auto& crBuilder = m_crBuilderTools[counter];
+    auto& crBuilder = m_crBuilderTools[counter];
     auto& rsCont = m_rsConfContVec[counter];
 
     // Create the xAOD configuration object (it will populate

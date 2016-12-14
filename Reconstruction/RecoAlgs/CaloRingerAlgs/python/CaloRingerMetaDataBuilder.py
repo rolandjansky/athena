@@ -9,9 +9,6 @@ from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import removeFromTopSequence
 from egammaRec.Factories import AlgFactory, FcnWrapper
 
-# We assume that someone tried to configure the crBuild propertly before...
-from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
-crBuilder = CaloRingerAlgorithmBuilder()
 
 
 from AthenaCommon.Logging import logging
@@ -19,6 +16,8 @@ from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'CaloRingerMetaDataBuilder.py' )
 mlog.info("Entering")
 
+# Flag whether we will overwrite input data
+_overwriting = False
 
 def metaDataInputAvailable(inputType, inputKey):
   """ metaDataInputAvailable(inputType, inputKey) 
@@ -37,30 +36,17 @@ def metaDataInputAvailable(inputType, inputKey):
       "key %s."), inputType, inputKey)
   return flag
 
-def getCaloRingerConfOutputs():
-  """   Returns a list with the RingSetConfWriter container names.  """
-
-  outputList = []
-  overwriting = False
-  builderNames = [tool.getName() for tool in crBuilder.getCaloRingerBuilderHandles()]
-
-  if any(['Electron' in builderName for builderName in builderNames]):
-    outputList.append(outputElectronRingSetsConfKey())
-    electronMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputElectronRingSetsConfKey())
-    if electronMetaAvailable:
-      overwriting = True
-  if any(['Photon' in builderName for builderName in builderNames]):
-    outputList.append(outputPhotonRingSetsConfKey())
-    photonMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputPhotonRingSetsConfKey())
-    if photonMetaAvailable:
-      overwriting = True
-  return outputList, overwriting
-
-
 class CaloRingerMetaDataBuilder ( Configured ):
+  """
+  Configure xAODRingSetConfWriter. 
+
+  NOTE: This must be done after setting CaloRingerAlgorithmBuilder.
+  """
 
   _confWriter = None
+  _overwriting = False
   _outputMetaData = {}
+  _output = {}
   _output = {}
 
   def getLastWriterHandle(self):
@@ -85,6 +71,37 @@ class CaloRingerMetaDataBuilder ( Configured ):
     "Call Configured init, but with new default ignoreExistingDataObject"
     Configured.__init__(self,disable,ignoreExistingDataObject,ignoreConfigError)
 
+  def _setCaloRingerConfOutputs(self, metaBuilder):
+    """Setup metabuilder RingSetConfWriter container names."""
+    outputList = []
+    self._overwriting = False
+    from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
+    crBuilder = CaloRingerAlgorithmBuilder()
+    if crBuilder.usable():
+      builderNames = [tool.getName() for tool in crBuilder.getCaloRingerBuilderHandles()]
+      if any(['Electron' in builderName for builderName in builderNames]):
+        outputList.append(outputElectronRingSetsConfKey())
+        electronMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputElectronRingSetsConfKey())
+        if electronMetaAvailable:
+          self._overwriting = True
+      if any(['Photon' in builderName for builderName in builderNames]):
+        outputList.append(outputPhotonRingSetsConfKey())
+        photonMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputPhotonRingSetsConfKey())
+        if photonMetaAvailable:
+         self. _overwriting = True
+    metaBuilder.RingSetConfContainerNames = outputList
+    self._outputMetaData = {outputRingSetConfType() : outputList }
+    self._output.update(self._outputMetaData)
+
+
+  def _setCaloRingsBuilderTools(self, metaBuilder):
+    """
+    Configure metaBuilder CaloRinger available builders.
+    """
+    from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
+    crBuilder = CaloRingerAlgorithmBuilder()
+    metaBuilder.CaloRingsBuilderTools = crBuilder.getCaloRingerBuilderHandles()
+
   def configure(self):
     "This method will be called when object is initialized"
 
@@ -94,20 +111,16 @@ class CaloRingerMetaDataBuilder ( Configured ):
 
     # Instantiate the MetaDataWriter:
     try:
-      outputs, overwrite = getCaloRingerConfOutputs()
       MetaDataWriter = AlgFactory(CaloRingerAlgsConf.Ringer__xAODRingSetConfWriter, 
           name = "xAODRingSetConfWriter",
-          CaloRingsBuilderTools = crBuilder.getCaloRingerBuilderHandles(),
-          RingSetConfContainerNames = outputs,
+          postInit = [self._setCaloRingsBuilderTools, self._setCaloRingerConfOutputs]
           )
       self._confWriter = MetaDataWriter()
-      self._outputMetaData = {outputRingSetConfType() : outputs }
-      self._output.update(self._outputMetaData)
 
       # Check for existing output:
       self.checkExistingOutput()
 
-      if not self.ignoreExistingDataObject() and overwrite:
+      if not self.ignoreExistingDataObject() and self._overwriting:
         raise RuntimeError(("Already existing input will be overwriten and not set flag to"
             "ignoreExistingDataObject."))
 

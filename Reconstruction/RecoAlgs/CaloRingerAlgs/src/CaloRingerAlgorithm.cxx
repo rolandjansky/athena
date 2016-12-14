@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerAlgorithm.cxx 785784 2016-11-22 16:38:22Z wsfreund $
+// $Id: CaloRingerAlgorithm.cxx 787810 2016-12-02 05:39:13Z ssnyder $
 #include "CaloRingerAlgorithm.h"
 
 // Framework includes:
@@ -75,7 +75,7 @@ StatusCode CaloRingerAlgorithm::execute()
   ATH_MSG_DEBUG ("Executing " << name() << ".");
 
   // Loop over input readers
-  for (const auto& readerTool : m_inputReaders)
+  for (auto& readerTool : m_inputReaders)
   {
     ATH_MSG_DEBUG ("Executing Reader tool " << readerTool.name() << ".");
 

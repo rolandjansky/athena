@@ -1,3 +1,47 @@
+2016-12-13  Werner Freund <wsfreund@cern.ch>
+
+	* Tagging CaloRingerAlgs-00-00-28.
+	* Changed RTT geometry to the file original.
+
+2016-12-13  scott snyder  <snyder@bnl.gov>
+
+	* Tagging CaloRingerAlgs-00-00-27.
+	* src/xAODRingSetConfWriter.cxx: DV const correctness.
+
+2016-12-11  Werner Freund <wsfreund@cern.ch>
+
+	* Tagging CaloRingerAlgs-00-00-26.
+	* Fixes previous premature tag upload.
+
+2016-12-11  Werner Freund <wsfreund@cern.ch>
+
+	* Tagging CaloRingerAlgs-00-00-25.
+	* Do not instantiate xAODRingSetConfWriter when CRBuilder is not available
+	and there is no ringer metadata in the input file.
+	* Updated ATN joboption to use a more up-to-date conditions tag (missing in
+	previous tag).
+
+2016-12-07  Werner Freund <wsfreund@cern.ch>
+
+	* Tagging CaloRingerAlgs-00-00-24.
+	* Included protection when no egammaGetter is available.
+	* Updated ATN joboption to use a more up-to-date conditions tag.
+
+2016-12-02  scott snyder  <snyder@bnl.gov>
+
+	* Tagging CaloRingerAlgs-00-00-23.
+	* Tool handle constness fixes.
+
+2016-11-30  Werner Freund <wsfreund@cern.ch>
+
+	*  Reduce metadata log verbosity.
+	*  Tagged as CaloRingerAlgs-00-00-22.
+
+2016-11-30  Werner Freund <wsfreund@cern.ch>
+
+	*  Updated ATN job
+	*  Tagged as CaloRingerAlgs-00-00-21.
+
 2016-11-30  Werner Freund <wsfreund@cern.ch>
 
 	*  Only run egamma calo rings builder when egammaBuilder is available.
