@@ -8,7 +8,7 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: StoreID_test.cxx 753911 2016-06-09 13:40:32Z calaf $
+// $Id: StoreID_test.cxx 770224 2016-08-26 01:59:31Z ssnyder $
 
 #include <iostream>
 
@@ -32,7 +32,7 @@ int main() {
   }  
   assert(pSvcLoc);
 
-  StoreGateSvc* pStore(0);
+  StoreGateSvc* pStore(nullptr);
   static const bool CREATE(true);
   assert((pSvcLoc->service("StoreGateSvc", pStore, CREATE)).isSuccess());
   assert(pStore);

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 754379 2016-06-13 03:05:17Z ssnyder $
+# $Id: CMakeLists.txt 764877 2016-07-28 01:48:11Z ssnyder $
 ################################################################################
 # Package: ControlTest
 ################################################################################
@@ -90,7 +90,7 @@ atlas_add_test( ClearStore_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( StoreID
-   SOURCES test/StoreID.cxx
+   SOURCES test/StoreID_test.cxx
    LINK_LIBRARIES TestTools StoreGateLib
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|Service base class initialized successfully|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
@@ -111,7 +111,7 @@ endif()
 atlas_add_test( StoreGateReentrant
    SCRIPT test/StoreGateReentrant.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc" )
+   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc|TExMapRemove" )
 
 atlas_add_test( StoreGateGen
    SCRIPT test/StoreGateGen.sh
