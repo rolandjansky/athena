@@ -9,10 +9,12 @@ atlas_subdir( InDetTrackScoringTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/SGTools
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
+                          Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier

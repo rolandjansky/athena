@@ -65,33 +65,33 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
   sc = m_trkSummaryTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endreq;
+      msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endmsg;
     }
     
   // Get segment selector tool
   //
   if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endreq;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
   sc =  m_magFieldSvc.retrieve();
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endreq;
+    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
   }
 
   sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -110,7 +110,7 @@ StatusCode InDet::InDetTrtTrackScoringTool::finalize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
+Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
   const Trk::TrackSummary* summary;
   if ( suppressHoleSearch)
@@ -127,7 +127,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::score( const Trk::Track& track,
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
 {
   int numTRT     = trackSummary.get(Trk::numberOfTRTHits);
   int numTRTTube = trackSummary.get(Trk::numberOfTRTTubeHits);
@@ -202,7 +202,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
 
 //---------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
 {
   //
   // --- start with bonus for high pt tracks
@@ -443,7 +443,7 @@ void InDet::InDetTrtTrackScoringTool::setupTRT_ScoreModifiers()
   }
 }
 
-bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track)
+bool InDet::InDetTrtTrackScoringTool::isGoodTRT(const Trk::Track& track) const
 {
 
   int nTRT = 0;

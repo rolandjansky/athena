@@ -40,10 +40,10 @@ StatusCode InDet::InDetCosmicScoringTool::initialize()
   
   sc = m_trkSummaryTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool << endmsg;
   
   return StatusCode::SUCCESS;
 }
@@ -58,7 +58,7 @@ StatusCode InDet::InDetCosmicScoringTool::finalize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetCosmicScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
+Trk::TrackScore InDet::InDetCosmicScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
   const Trk::TrackSummary* summary;
   if ( suppressHoleSearch)
@@ -66,22 +66,22 @@ Trk::TrackScore InDet::InDetCosmicScoringTool::score( const Trk::Track& track, c
   else
     summary = m_trkSummaryTool->createSummary(track);
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track has TrackSummary "<<*summary<<endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track has TrackSummary "<<*summary<<endmsg;
   Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Track has Score: "<<score<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Track has Score: "<<score<<endmsg;
   delete summary;
   return score;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetCosmicScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
+Trk::TrackScore InDet::InDetCosmicScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
 {
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Summary for track: " << trackSummary << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Summary for track: " << trackSummary << endmsg;
 
   if (!track.fitQuality()){
-    msg(MSG::WARNING) << "No fit quality! Track info=" << track.info().dumpInfo() << endreq;
+    msg(MSG::WARNING) << "No fit quality! Track info=" << track.info().dumpInfo() << endmsg;
     return Trk::TrackScore(track.measurementsOnTrack()->size());
   }
   else {
@@ -92,7 +92,7 @@ Trk::TrackScore InDet::InDetCosmicScoringTool::simpleScore( const Trk::Track& tr
     int nWeightedClusters = 2 * pixelhits + scthits; 
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "pixelhits: " << pixelhits << "; scthits: " << scthits 
-				    << "; trthits: " << trthits << "; nWeightedClusters: " << nWeightedClusters << endreq; 
+				    << "; trthits: " << trthits << "; nWeightedClusters: " << nWeightedClusters << endmsg; 
     
     if ((nWeightedClusters >= m_nWeightedClustersMin) and (trthits >= m_minTRTHits)){ 
       // calculate track score only if min number of hits
@@ -113,7 +113,7 @@ Trk::TrackScore InDet::InDetCosmicScoringTool::simpleScore( const Trk::Track& tr
       if (track.fitQuality()->numberDoF() > 0) fitscore = 0.0001*track.fitQuality()->chiSquared()
 						 / track.fitQuality()->numberDoF(); 
        
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "track score: " << hitscore - 0.25*tubehits - fitscore << endreq; 
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "track score: " << hitscore - 0.25*tubehits - fitscore << endmsg; 
       return Trk::TrackScore (hitscore - 0.25*tubehits - fitscore);
 
     }
