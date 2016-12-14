@@ -126,17 +126,48 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
               if (m_larem_id->is_lar_em(id)) {
                   IdentifierHash idHash = m_larem_id->channel_hash(id);
                   unsigned int index = (unsigned int)(idHash);
-                  if (index<m_hasPathologyEM.size()) m_hasPathologyEM[index]=electPath.pathologyType;
+                  if (index<m_hasPathologyEM.size()) {
+                     if(m_hasPathologyEM[index].size()) {
+                        if(m_hasPathologyEM[index].size()<electPath.electInd+1) m_hasPathologyEM[index].resize(electPath.electInd+1);
+                        m_hasPathologyEM[index][electPath.electInd]=electPath.pathologyType;
+                     } else {
+                        std::vector<unsigned short> svec;
+                        svec.resize(electPath.electInd+1);
+                        svec[electPath.electInd]=electPath.pathologyType;
+                        m_hasPathologyEM[index]=svec;
+                     }
+                  }
               }
               if (m_larhec_id->is_lar_hec(id)) {
                   IdentifierHash idHash = m_larhec_id->channel_hash(id);
                   unsigned int index = (unsigned int)(idHash);
-                  if (index<m_hasPathologyHEC.size()) m_hasPathologyHEC[index]=electPath.pathologyType;
+                  if (index<m_hasPathologyHEC.size()) {
+                     if(m_hasPathologyHEC[index].size()) {
+                        if(m_hasPathologyHEC[index].size()<electPath.electInd+1) m_hasPathologyHEC[index].resize(electPath.electInd+1);
+                        m_hasPathologyHEC[index][electPath.electInd]=electPath.pathologyType;
+                     } else {
+                        std::vector<unsigned short> svec;
+                        svec.resize(electPath.electInd+1);
+                        svec[electPath.electInd]=electPath.pathologyType;
+                        m_hasPathologyHEC[index]=svec;
+                     }
+                  }
               }
               if (m_larfcal_id->is_lar_fcal(id)) {
                   IdentifierHash idHash = m_larfcal_id->channel_hash(id);
                   unsigned int index = (unsigned int)(idHash);
-                  if (index<m_hasPathologyFCAL.size()) m_hasPathologyFCAL[index]=electPath.pathologyType;
+                  if (index<m_hasPathologyFCAL.size()) {
+                     if(m_hasPathologyFCAL[index].size()) {
+                        if(m_hasPathologyFCAL[index].size()<electPath.electInd+1) m_hasPathologyFCAL[index].resize(electPath.electInd+1);
+                        m_hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
+                     } else {
+                        std::vector<unsigned short> svec;
+                        svec.resize(electPath.electInd+1);
+                        svec[electPath.electInd]=electPath.pathologyType;
+                        m_hasPathologyFCAL[index]=svec;
+                     }
+
+                  }
               }
           }
       }
@@ -191,9 +222,9 @@ StatusCode LArHVToolDB::initialize(){
   }
 
   m_pathologyContainer = 0;
-  m_hasPathologyEM.resize(m_larem_id->channel_hash_max(),false);
-  m_hasPathologyHEC.resize(m_larhec_id->channel_hash_max(),false);
-  m_hasPathologyFCAL.resize(m_larfcal_id->channel_hash_max(),false);
+  m_hasPathologyEM.resize(m_larem_id->channel_hash_max());
+  m_hasPathologyHEC.resize(m_larhec_id->channel_hash_max());
+  m_hasPathologyFCAL.resize(m_larfcal_id->channel_hash_max());
 
   if (detStore()->contains<AthenaAttributeList>( m_HVPathologiesFolderName)) {
     StatusCode sc=detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(this),m_pathologiesHandle,m_HVPathologiesFolderName);
@@ -275,10 +306,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
         unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
         bool hasPathology=false; 
         if (index<m_hasPathologyEM.size()) {
-         if (m_hasPathologyEM[index]) {
-          hasPathology=true;
-          listElec = getElecList(id);
-         }
+          if (m_hasPathologyEM[index].size()) {
+           hasPathology=true;
+           listElec = getElecList(id);
+          }
         }
         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
         if (!embElement) std::abort();
@@ -297,13 +328,16 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                 double curr;
                 electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
+                   //msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
+                   msg(MSG::DEBUG) << "Has pathology for id: "<<id.get_identifier32().get_compact()<<" "<<m_hasPathologyEM[index].size()<<endmsg;
+                   msg(MSG::DEBUG) << "Original hv: "<<hv<<" ";
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
-                      if (listElec[ii]==(2*i+igap)) {
-                         if(m_hasPathologyEM[index]&0xF) hv=0.; else hv=((m_hasPathologyEM[index]&0xFFF0)>>4);
+                      if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
+                         if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
                          curr=0.;
                       }
                    }
+                   msg(MSG::DEBUG) << "set hv: "<<hv<<endmsg;
                 }
                 //std::cout << "     hv value " << hv << std::endl;
                 //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in barrel " << std::endl;
@@ -319,7 +353,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
         unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
         bool hasPathology=false;
         if (index<m_hasPathologyEM.size()) {
-         if (m_hasPathologyEM[index]) {
+         if (m_hasPathologyEM[index].size()) {
           hasPathology=true;
           listElec = getElecList(id);
          }
@@ -342,10 +376,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                double curr;
                electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
+                   msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index].size()<<endmsg;
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
-                      if (listElec[ii]==(2*i+igap)) {
-                         if(m_hasPathologyEM[index]&0xF) hv=0.; else hv=((m_hasPathologyEM[index]&0xFFF0)>>4);
+                      if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
+                         if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
                          curr=0.;
                       }
                    }
@@ -365,7 +399,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
       unsigned int index = (unsigned int)(m_larhec_id->channel_hash(id));
       bool hasPathology=false;
       if (index<m_hasPathologyHEC.size()) {
-       if (m_hasPathologyHEC[index]) {
+       if (m_hasPathologyHEC[index].size()) {
         hasPathology=true;
         listElec = getElecList(id);
        }
@@ -383,10 +417,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           subgap->voltage_current(hv,curr);
           //std::cout << "     hv value " << hv << std::endl;
           if (hasPathology) {
-             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index]<<endmsg;
+             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index].size()<<endmsg;
              for (unsigned int ii=0;ii<listElec.size();ii++) {
-                if (listElec[ii]==i) {
-                     if(m_hasPathologyHEC[index]&0xF) hv=0.; else hv=((m_hasPathologyHEC[index]&0xFFF0)>>4);
+                if (listElec[ii]==i  && listElec[ii]<m_hasPathologyHEC[index].size() && m_hasPathologyHEC[index][listElec[ii]]) {
+                     if(m_hasPathologyHEC[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyHEC[index][listElec[ii]]&0xFFF0)>>4);
                      curr=0.;
                 }
              }
@@ -403,7 +437,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
       unsigned int index = (unsigned int)(m_larfcal_id->channel_hash(id));
       bool hasPathology=false;
       if (index<m_hasPathologyFCAL.size()) {
-       if (m_hasPathologyFCAL[index]) {
+       if (m_hasPathologyFCAL[index].size()) {
         hasPathology=true;
         listElec = getElecList(id);
        }
@@ -431,10 +465,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           double curr;
           line->voltage_current(hv,curr);
           if (hasPathology) {
-             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index]<<endmsg;
+             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index].size()<<endmsg;
              for (unsigned int ii=0;ii<listElec.size();ii++) {
-                if (listElec[ii]==i) {
-                     if(m_hasPathologyFCAL[index]&0xF) hv=0.; else hv=((m_hasPathologyFCAL[index]&0xFFF0)>>4);
+                if (listElec[ii]==i && listElec[ii]<m_hasPathologyFCAL[index].size() && m_hasPathologyFCAL[index][listElec[ii]]) {
+                     if(m_hasPathologyFCAL[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
                      curr=0.;
                 }
              }
