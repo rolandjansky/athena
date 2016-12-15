@@ -857,9 +857,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
 
                     if (pixelId == invalidPixelId) {
-                        generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-                                       << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
-                                       << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
+                        ATH_MSG_DEBUG("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                                      << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
+                                      << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
                         m_errors->addInvalidIdentifier();
                         continue;
                     }
