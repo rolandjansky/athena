@@ -666,7 +666,7 @@ class MuisoHypoConfig(MuisoHypo):
                 self.AcceptAll = True
                 print 'MuisoHypoConfig configured in pasthrough mode'
 
-        if "FTK" in MuisoHypo: # allows us to use different working points in FTK mode
+        if "FTK" in name: # allows us to use different working points in FTK mode
             self.IDConeSize   = 2;
             self.MaxIDIso_1   = 0.12
             self.MaxIDIso_2   = 0.12

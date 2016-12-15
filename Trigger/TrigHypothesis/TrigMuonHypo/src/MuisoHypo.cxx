@@ -160,7 +160,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
       msg() << MSG::DEBUG << " REGTEST pt / eta / SumPtCone / isoID : "
             << " / " << ptmu / CLHEP::GeV
             << " / " << etamu
-            << " / " << m_SumPtCone / CLHEP::GeV
+            << " / " << m_SumPtCone
             << " / " << isoID
             << " / Muon Isolation Hypotesis is " << (result ? "true" : "false")
             << endreq;
