@@ -23,6 +23,9 @@ use  SiPropertiesSvc                    SiPropertiesSvc-*               InnerDet
 use  StoreGate                          StoreGate-*                     Control
 use  TrkEventTPCnv                      TrkEventTPCnv-*                 Tracking/TrkEventCnv
 use  TrkTruthData                       TrkTruthData-*                  Tracking/TrkEvent
+use  TrkDigEvent                        TrkDigEvent-*                   Tracking/TrkDigitization
+use  TrkDigInterfaces                   TrkDigInterfaces-*              Tracking/TrkDigitization
+
 
 #
 # Setup component library
@@ -45,5 +48,7 @@ use  Identifier                         Identifier-*                    Detector
 use  InDetIdentifier                    InDetIdentifier-*               InnerDetector/InDetDetDescr
 use  StoreGate                          StoreGate-*                     Control
 use  TrkExUtils                         TrkExUtils-*                    Tracking/TrkExtrapolation
+use  TrkSurfaces                        TrkSurfaces-*                   Tracking/TrkDetDescr
+use  GeoPrimitives                      GeoPrimitives-*                 DetectorDescription
 use  TrkSurfaces                        TrkSurfaces-*                   Tracking/TrkDetDescr
 end_private

@@ -44,6 +44,9 @@
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 
+//New digi
+#include "TrkDigEvent/DigitizationModule.h"
+#include "TrkDigInterfaces/IModuleStepper.h"
 
 
 class PixelID;
@@ -87,6 +90,7 @@ public:
   StatusCode digitize();
   StatusCode createAndStoreRIOs();
 
+ 
 
 
 private:
@@ -154,8 +158,12 @@ private:
   PixelFastDigitizationTool(const PixelFastDigitizationTool&);
 
   PixelFastDigitizationTool& operator=(const PixelFastDigitizationTool&);
+  
+  ToolHandle<Trk::IModuleStepper>       m_digitizationStepper;
+  
+  Trk::DigitizationModule * buildDetectorModule(const InDetDD::SiDetectorElement* ) const;
 
-
+ Amg::Vector3D CalculateIntersection(Amg::Vector3D Point, Amg::Vector3D Direction, Amg::Vector2D PlaneBorder, double halfthickness) const;
   //   void addSDO( const DiodeCollectionPtr& collection );
 
 

@@ -442,8 +442,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       // is it a single strip w/o drift effect ? - also check the numerical stability
 //       const bool singleStrip = ( (entryCellId == exitCellId && entryValid) || (distX*distX < 10e-5) ); //ffabbri fix on small cluster
       const bool singleStrip = (entryCellId == exitCellId && entryValid);
-      //if (singleStrip && !useLorentzDrift) //bug fix
-      if (singleStrip)
+      if (singleStrip && !useLorentzDrift)
+      //if (singleStrip)
       {
 	// ----------------------- single strip lucky case  ----------------------------------------
 	// 1 strip cluster without drift effect
