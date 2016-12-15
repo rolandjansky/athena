@@ -302,9 +302,9 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 
   
   // Container to store the L2 isomuon
-  xAOD::L2IsoMuonContainer *L2muonIsoContainer = new xAOD::L2IsoMuonContainer();
+  xAOD::L2IsoMuonContainer *L2muonIsoContainer = 0;
   xAOD::L2IsoMuonAuxContainer caux;
-  L2muonIsoContainer->setStore(&caux);
+
   if (m_isoType==2) {
     // loop on L2 muons
     for(auto muon : *L2muonContainer) {
@@ -350,6 +350,10 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 	m_trkptiso_cone3.push_back(ptcone30FTK * 1e-3); // convert to GeV
 
 	// Set the iso on the L2 muon
+
+	L2muonIsoContainer = new xAOD::L2IsoMuonContainer();
+	L2muonIsoContainer->setStore(&caux);
+
 	xAOD::L2IsoMuon* muonIso = new xAOD::L2IsoMuon();
 	L2muonIsoContainer->push_back(muonIso);
 	muonIso->setPt(muon->pt());
