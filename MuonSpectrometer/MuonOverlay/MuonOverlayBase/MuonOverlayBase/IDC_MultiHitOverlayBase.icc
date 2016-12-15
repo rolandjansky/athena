@@ -41,16 +41,14 @@ namespace Overlay {
 //================================================================
 template<class Collection>
 void IDC_MultiHitOverlayBase::mergeCollections(Collection *mc_coll, 
-				       Collection *data_coll)
+				       Collection *data_coll, 
+				       Collection *out_coll)
 {
   DataVector<typename Collection::base_value_type> mc;
   mc_coll->swap(mc);
 
   DataVector<typename Collection::base_value_type> data;
   data_coll->swap(data);
-
-  // Just an alias
-  Collection *output = mc_coll;
   
   //################################################################
   // Merge by copying ptrs from data and mc to mc_coll
@@ -72,7 +70,7 @@ void IDC_MultiHitOverlayBase::mergeCollections(Collection *mc_coll,
     if ( !mc[imc] ) { imc++; continue; }
     Identifier id = mc[imc]->identify();
     if(!(ids.insert(id)).second) { imc++; continue; } // this Id already treated -> move on 
-    mc.swapElement(idata++, 0, p_rdo);
+    mc.swapElement(imc++, 0, p_rdo);
     vect1.push_back(p_rdo);
     for ( j=imc; j<mc.size(); j++ ) {
        if ( !mc[j] ) continue;
@@ -98,9 +96,9 @@ void IDC_MultiHitOverlayBase::mergeCollections(Collection *mc_coll,
     if ( vect2.size() > 0 ) { // no need to merge hits if data in empty 
        std::vector<typename Collection::base_value_type *> vect;
        Overlay::mergeMultiHits(vect1,vect2,vect,this);
-       for (unsigned int n=0; n<vect.size(); ++n) output->push_back( vect.at(n) );
+       for (unsigned int n=0; n<vect.size(); ++n) out_coll->push_back( vect.at(n) );
     } else {                    // copy directly mc if data is empty
-       for (unsigned int n=0; n<vect1.size(); ++n) output->push_back( vect1.at(n) );
+       for (unsigned int n=0; n<vect1.size(); ++n) out_coll->push_back( vect1.at(n) );
     }
   }
    
@@ -113,7 +111,7 @@ void IDC_MultiHitOverlayBase::mergeCollections(Collection *mc_coll,
    if(!(ids.insert(id)).second) { idata++; continue; } // this Id was found and treated already above -> continue
    typename Collection::base_value_type *p_data(0);
    data.swapElement(idata++, 0, p_data);
-   output->push_back( p_data );
+   out_coll->push_back( p_data );
   }
  
 }
