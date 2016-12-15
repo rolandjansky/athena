@@ -16,8 +16,7 @@
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // FourMom includes
 #include "FourMom/P4PxPyPzE.h"

@@ -28,6 +28,7 @@
 
 // AnalysisTest includes
 #include "AnalysisTest/WriteINav4MomAssocs.h"
+#include "AthenaKernel/Units.h"
 
 /////////////////////////////////////////////////////////////////// 
 /// Public methods: 
@@ -115,9 +116,9 @@ WriteINav4MomAssocs::buildAssocs( const INavigable4MomentumCollection * coll1,
     for (const INavigable4Momentum* m2 : *coll2) {
       assocs->addAssociation( coll1, m1, coll2, m2 );
       ATH_MSG_DEBUG ( "Assoc: [jet-ele] ene= " 
-                      << m1->e() / CLHEP::GeV
+                      << m1->e() / Athena::Units::GeV
                       << "\t"
-                      << m2->e() / CLHEP::GeV ) ;
+                      << m2->e() / Athena::Units::GeV ) ;
     }//> end loop over electrons
   }//> end loop over jets
 
@@ -125,7 +126,7 @@ WriteINav4MomAssocs::buildAssocs( const INavigable4MomentumCollection * coll1,
   for ( INav4MomAssocs::object_iterator objItr = assocs->beginObject();
 	objItr != objEnd;
 	++objItr ) {
-    ATH_MSG_INFO ( "--> e= " << (*objItr)->e() / CLHEP::GeV
+    ATH_MSG_INFO ( "--> e= " << (*objItr)->e() / Athena::Units::GeV
                    << "\tnAssocs= " << assocs->getNumberOfAssociations(objItr) ) ;
   }
 
