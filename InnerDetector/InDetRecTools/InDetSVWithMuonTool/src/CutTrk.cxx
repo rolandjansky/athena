@@ -51,8 +51,8 @@ namespace InDet{
 //
 //-- Perigee in TrackParticle
 //
-          const Trk::Perigee m_mPer=(*i_ntrk)->perigeeParameters() ;
-          AmgVector(5) VectPerig = m_mPer.parameters(); 
+          const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
+          AmgVector(5) VectPerig = mPer.parameters(); 
 
 
           if((*i_ntrk)->numberDoF() == 0) continue; //Protection

@@ -93,22 +93,22 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
 
 //Destructor---------------------------------------------------------------
     InDetSVWithMuonTool::~InDetSVWithMuonTool(){
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetSVWithMuonTool destructor called" << endreq;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetSVWithMuonTool destructor called" << endmsg;
    }
 
 //Initialize---------------------------------------------------------------
    StatusCode InDetSVWithMuonTool::initialize(){
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetSVWithMuonTool initialize() called" << endreq;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetSVWithMuonTool initialize() called" << endmsg;
 
      if (m_fitterSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
      } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetSVWithMuonTool TrkVKalVrtFitter found" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetSVWithMuonTool TrkVKalVrtFitter found" << endmsg;
      }
      m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
      if(!m_fitSvc){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
 
@@ -119,7 +119,7 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
        if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
-                             m_Rlayer3  =122.5;
+       m_Rlayer3  =122.5;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
        if( m_RlayerB  ==0.)  m_RlayerB  =51.5;
@@ -134,9 +134,9 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
 
        StatusCode sc = service( "THistSvc", hist_root); 
        if( sc.isFailure() ) {
-          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endreq;
+          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endmsg;
        }
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetSVWithMuonTool Histograms found" << endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetSVWithMuonTool Histograms found" << endmsg;
  
        m_hb_massPiPi   = new TH1D("massPiPi"," massPiPi",160,200., 1000.);
        m_hb_muonPt     = new TH1D("muonPt",  " Pt of input muon",100,0., 20000.);
@@ -162,9 +162,9 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
        sc = hist_root->regHist(histDir+"r2interact2tr",    m_hb_r2d);
        sc = hist_root->regHist(histDir+"r2interactCommon", m_hb_r2dc);
        if( sc.isFailure() ) {     // Check of StatusCode
-         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "InDetMuonSV Histogram registration failure!!!" << endreq;
+         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "InDetMuonSV Histogram registration failure!!!" << endmsg;
        }
-       w_1 = 1.;
+       m_w_1 = 1.;
 
      }
 
@@ -178,7 +178,7 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
 
   StatusCode InDetSVWithMuonTool::finalize()
   {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetSVWithMuonTool finalize()" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetSVWithMuonTool finalize()" << endmsg;
     return StatusCode::SUCCESS; 
   }
   
