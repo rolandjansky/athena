@@ -18,12 +18,13 @@
 /// $Id: TauRecExtraDetails.cxx,v 1.8 2009-01-17 11:16:25 tburgess Exp $
 
 #include "tauEvent/TauRecExtraDetails.h"
-#include "DataModel/ClassName.h"
+#include "SGTools/ClassName.h"
 
 namespace Analysis
 {
     TauRecExtraDetails :: TauRecExtraDetails():
         m_analysisHelper( 0 ),
+	m_seedType( TauJetParameters::SeedTypes::CaloObject),
         m_numEMCells( TauDetails::DEFAULT_INT ),
         m_stripET( TauDetails::DEFAULT ),
         m_emCentralityFraction( TauDetails::DEFAULT ),

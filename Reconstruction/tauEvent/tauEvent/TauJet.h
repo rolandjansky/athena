@@ -26,7 +26,7 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "ParticleEvent/ParticleImpl.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "FourMom/Lib/P4ImplEEtaPhiM.h"
 #include "Particle/TrackParticleContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"

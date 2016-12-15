@@ -18,7 +18,7 @@
 /// $Id: Tau1P3PDetails.cxx,v 1.12 2009-05-20 13:10:37 slai Exp $
 
 #include "tauEvent/Tau1P3PDetails.h"
-#include "DataModel/ClassName.h"
+#include "SGTools/ClassName.h"
 
 namespace Analysis
 {

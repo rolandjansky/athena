@@ -22,8 +22,8 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -394,69 +394,69 @@ class tauAnalysisHelperObject
         //@}
 
     protected:
-        int    m_decmode;
-        int    m_jettype;
+        int    m_decmode=-1;
+        int    m_jettype=-1;
 
-        double m_emradii[6];
-        double m_hadradii[6];
-        double m_TowEMRadius;
-        double m_TowET12Frac;
+        double m_emradii[6]={0};
+        double m_hadradii[6]={0};
+        double m_TowEMRadius=-1111;
+        double m_TowET12Frac=-1111;
 
-        double m_ImpactParameter[10];
-        double m_RawImpactParameter[10];
-        double m_SignedImpactParameter[10];
-        double m_ImpactParameterSignificance[10];
-        double m_SignedImpactParameterSignificance[10];
+        double m_ImpactParameter[10]={0};
+        double m_RawImpactParameter[10]={0};
+        double m_SignedImpactParameter[10]={0};
+        double m_ImpactParameterSignificance[10]={0};
+        double m_SignedImpactParameterSignificance[10]={0};
 
         // d0 variables
-        double m_d0prf;
-        double m_d0iso;
-        double m_d0isoet;
-        double m_d0ettr;
-        double m_d0etem;
-        double m_d0etem2;
-        double m_d0emclet;
-        double m_d0emcleta;
-        double m_d0emclphi;
-        double m_d0et05;
-        double m_d0eta05;
-        double m_d0phi05;
+        double m_d0prf=-1111;
+        double m_d0iso=-1111;
+        double m_d0isoet=-1111;
+        double m_d0ettr=-1111;
+        double m_d0etem=-1111;
+        double m_d0etem2=-1111;
+        double m_d0emclet=-1111;
+        double m_d0emcleta=-1111;
+        double m_d0emclphi=-1111;
+        double m_d0et05=-1111;
+        double m_d0eta05=-1111;
+        double m_d0phi05=-1111;
 
-        double m_d0hadet;
-        double m_d0hadeta;
-        double m_d0hadphi;
+        double m_d0hadet=-1111;
+        double m_d0hadeta=-1111;
+        double m_d0hadphi=-1111;
 
-        double m_d0type;
-        double m_d0deltaR1;
-        double m_d0eTosumpT;
+        double m_d0type=-1111;
+        double m_d0deltaR1=-1111;
+        double m_d0eTosumpT=-1111;
 
-        double m_d0deltaR1had;
-        double m_d0em3iso;
-        double m_d0mtrem3;
+        double m_d0deltaR1had=-1111;
+        double m_d0em3iso=-1111;
+        double m_d0mtrem3=-1111;
 
-        double m_d0deltaR2;
-        double m_d0ntr1030;
+        double m_d0deltaR2=-1111;
+        double m_d0ntr1030=-1111;
 
-        double m_d0EM12isof;
-        double m_d0e1e2otaupT;
-        double m_d0ettro123;
-        double m_d0ett1oEtiso;
-        double m_d0ett1oEtisoet;
-        double m_d0dalpha;
-        double m_d0e1e2;
+        double m_d0EM12isof=-1111;
+        double m_d0e1e2otaupT=-1111;
+        double m_d0ettro123=-1111;
+        double m_d0ett1oEtiso=-1111;
+        double m_d0ett1oEtisoet=-1111;
+        double m_d0dalpha=-1111;
+        double m_d0e1e2=-1111;
 
-        double m_d0mtr1tr2;
-        double m_d0mtr1tr2tr3;
+        double m_d0mtr1tr2=-1111;
+        double m_d0mtr1tr2tr3=-1111;
 
-        double m_d0sumtaupt;
-        double m_d0sumnontaupt;
-        double m_d0sumpt;
+        double m_d0sumtaupt=-1111;
+        double m_d0sumnontaupt=-1111;
+        double m_d0sumpt=-1111;
 
         std::vector<double> m_towere;
         std::vector<double> m_towereta;
         std::vector<double> m_towerphi;
 
-        double m_d0uncaletlayers[25];
+        double m_d0uncaletlayers[25]={0};
 
         tauCellColl_type m_d0_emcluster;
 

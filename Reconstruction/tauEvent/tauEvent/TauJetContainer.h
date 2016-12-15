@@ -13,7 +13,7 @@
 #ifndef TAU_CONTAINER_ANALYSIS_H
 #define TAU_CONTAINER_ANALYSIS_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include "tauEvent/TauJet.h"
 

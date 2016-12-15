@@ -19,9 +19,9 @@
 
 //#include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "tauEvent/TauShot.h"
-//#include "DataModel/ElementLinkVector.h"
+//#include "AthLinks/ElementLinkVector.h"
 
 namespace Analysis {
 

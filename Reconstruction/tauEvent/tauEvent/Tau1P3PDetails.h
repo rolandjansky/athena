@@ -25,8 +25,8 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "VxVertex/RecVertex.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "CaloEvent/CaloClusterContainer.h"
 
 #include <vector>

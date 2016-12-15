@@ -14,8 +14,8 @@ use CaloIdentifier CaloIdentifier-*             Calorimeter
 use ParticleEvent  ParticleEvent-*      PhysicsAnalysis/AnalysisCommon
 use AtlasCLHEP     AtlasCLHEP-*         External
 use SGTools        SGTools-*            Control
-use DataModel      DataModel-*          Control
-use Navigation	   Navigation-*  Control 
+use AthLinks       AthLinks-*           Control
+use Navigation	   Navigation-*         Control 
 use FourMom        FourMom-*            Event
 use NavFourMom     NavFourMom-*         Event
 use VxVertex       VxVertex-*           Tracking/TrkEvent

@@ -12,15 +12,15 @@
  * @author Benedict Winter
  */
 
-#ifndef __TAU_Pi0_CANDIDATE_H__
-#define __TAU_Pi0_CANDIDATE_H__
+#ifndef TAUEVENT_TAUPi0CANDIDATE_H
+#define TAUEVENT_TAUPi0CANDIDATE_H
 
 #include <iostream>
 
 //#include "CaloEvent/CaloCluster.h"
 //#include "CaloEvent/CaloClusterContainer.h"
-//#include "DataModel/ElementLink.h"
-//#include "DataModel/ElementLinkVector.h"
+//#include "AthLinks/ElementLink.h"
+//#include "AthLinks/ElementLinkVector.h"
 #include "tauEvent/TauPi0Cluster.h"
 
 namespace Analysis {
@@ -109,4 +109,4 @@ namespace Analysis {
 /// inline member function declarations
 #include "TauPi0Candidate.icc"
 
-#endif // __TAU_Pi0_CANDIDATE_H__
+#endif // TAUEVENT_TAUPi0CANDIDATE_H

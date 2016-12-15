@@ -21,7 +21,7 @@
 #include "tauEvent/TauDetails.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "VxVertex/RecVertex.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "Particle/TrackParticleContainer.h"
 #include <vector>
 

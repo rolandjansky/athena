@@ -16,7 +16,7 @@
 #include "tauEvent/TauCmp.h"
 #include "tauEvent/TauJetParameters.h"
 //Other includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloCellContainer.h"
 //C/C++ includes
 #include <limits>

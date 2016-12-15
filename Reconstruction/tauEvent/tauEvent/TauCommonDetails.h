@@ -20,8 +20,8 @@
 //Other inlcudes
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "Particle/TrackParticleContainer.h"
 //Standard C/C++ includes
 #include <string>

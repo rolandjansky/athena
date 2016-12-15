@@ -35,7 +35,7 @@
 // includes for datamembers
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 
 namespace Analysis

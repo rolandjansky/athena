@@ -9,7 +9,7 @@ atlas_subdir( tauEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
-                          Control/DataModel
+                          Control/AthLinks
                           Control/Navigation
                           Control/SGTools
                           Event/EventKernel
@@ -35,19 +35,19 @@ atlas_add_library( tauEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthLinks Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( tauEventDict
                       tauEvent/tauEventDict.h
                       tauEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex tauEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthLinks Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex tauEvent
                       ELEMENT_LINKS Analysis::TauJetContainer  Analysis::TauDetailsContainer )
 
 atlas_add_dictionary( tauEnumsDict
                       tauEvent/tauEnumsDict.h
                       tauEvent/selectionEnums.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex tauEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthLinks Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent Particle VxVertex tauEvent )
 

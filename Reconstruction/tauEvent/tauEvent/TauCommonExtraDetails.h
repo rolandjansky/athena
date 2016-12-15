@@ -12,13 +12,13 @@
 ///
 /// Created by Thomas Burgess on 2008-10-20.
 
-#ifndef __TAU_COMMON_EXTRA_DETAILS_ANALYSIS_H__
-#define __TAU_COMMON_EXTRA_DETAILS_ANALYSIS_H__
+#ifndef TAUEVENT_TAUCOMMONEXTRADETAILS_H
+#define TAUEVENT_TAUCOMMONEXTRADETAILS_H
 
 //TauEvent includes
 #include "tauEvent/TauDetails.h"
 //Other inlcudes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloCellContainer.h"
 //Standard C/C++ includes
 #include <vector>
@@ -509,4 +509,4 @@ namespace Analysis {
 
 #include "TauCommonExtraDetails.icc"
 
-#endif //__TAU_COMMON_EXTRA_DETAILS_ANALYSIS_H__
+#endif //TAUEVENT_TAUCOMMONEXTRADETAILS_H
