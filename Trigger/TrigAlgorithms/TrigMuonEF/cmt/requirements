@@ -61,6 +61,7 @@ use TrigInDetEvent           	TrigInDetEvent-*            	Trigger/TrigEvent
 use TrigMuonToolInterfaces      TrigMuonToolInterfaces-*        Trigger/TrigTools
 use xAODTracking		xAODTracking-*			Event/xAOD
 use xAODMuon			xAODMuon-*			Event/xAOD
+use xAODTrigMuon          	xAODTrigMuon-*                  Event/xAOD
 use xAODCaloEvent		xAODCaloEvent-*			Event/xAOD
 use RecoToolInterfaces	       RecoToolInterfaces-*	       Reconstruction/RecoTools
 use CaloEvent                  CaloEvent-*                     Calorimeter

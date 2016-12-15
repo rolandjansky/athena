@@ -214,81 +214,81 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
 
   if (msgLvl(MSG::DEBUG)) {
     msg() << MSG::DEBUG
-	  << "package version = " << PACKAGE_VERSION << endreq;
+	  << "package version = " << PACKAGE_VERSION << endmsg;
     msg() << MSG::DEBUG
-	  << "Properties are set as follows: " << endreq;
+	  << "Properties are set as follows: " << endmsg;
     msg() << MSG::DEBUG
-	  << "SegmentsFinderTool             " << m_segmentsFinderTool << endreq;
+	  << "SegmentsFinderTool             " << m_segmentsFinderTool << endmsg;
     msg() << MSG::DEBUG
-	  << "TrackBuilderTool               " << m_trackBuilderTool << endreq;
+	  << "TrackBuilderTool               " << m_trackBuilderTool << endmsg;
     msg() << MSG::DEBUG
-	  << "CscPrepDataProvider            " << m_cscPrepDataProvider << endreq;
+	  << "CscPrepDataProvider            " << m_cscPrepDataProvider << endmsg;
     msg() << MSG::DEBUG
-	  << "MdtPrepDataProvider            " << m_mdtPrepDataProvider << endreq;
+	  << "MdtPrepDataProvider            " << m_mdtPrepDataProvider << endmsg;
     msg() << MSG::DEBUG
-	  << "RpcPrepDataProvider            " << m_rpcPrepDataProvider << endreq;
+	  << "RpcPrepDataProvider            " << m_rpcPrepDataProvider << endmsg;
     msg() << MSG::DEBUG
-	  << "TgcPrepDataProvider            " << m_tgcPrepDataProvider << endreq;
+	  << "TgcPrepDataProvider            " << m_tgcPrepDataProvider << endmsg;
     
     msg() << MSG::DEBUG
-	  << "doCache                        " << m_doCache << endreq;   
+	  << "doCache                        " << m_doCache << endmsg;   
     
     msg() << MSG::DEBUG
-	  << "useMdtData                     " << m_useMdtData << endreq;
+	  << "useMdtData                     " << m_useMdtData << endmsg;
     msg() << MSG::DEBUG
-	  << "useRpcData                     " << m_useRpcData << endreq;
+	  << "useRpcData                     " << m_useRpcData << endmsg;
     msg() << MSG::DEBUG
-	  << "useTgcData                     " << m_useTgcData << endreq;
+	  << "useTgcData                     " << m_useTgcData << endmsg;
     msg() << MSG::DEBUG
-	  << "useTGCInPriorNextBC            " << m_useTGCInPriorNextBC << endreq;   
+	  << "useTGCInPriorNextBC            " << m_useTGCInPriorNextBC << endmsg;   
     msg() << MSG::DEBUG
-	  << "useCscData                     " << m_useCscData << endreq;
+	  << "useCscData                     " << m_useCscData << endmsg;
     msg() << MSG::DEBUG
-	  << "useMdtSeededDecoding           " << m_useMdtSeededDecoding << endreq;
+	  << "useMdtSeededDecoding           " << m_useMdtSeededDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useRpcSeededDecoding           " << m_useRpcSeededDecoding << endreq;
+	  << "useRpcSeededDecoding           " << m_useRpcSeededDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useTgcSeededDecoding           " << m_useTgcSeededDecoding << endreq;
+	  << "useTgcSeededDecoding           " << m_useTgcSeededDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useCscSeededDecoding           " << m_useCscSeededDecoding << endreq;
+	  << "useCscSeededDecoding           " << m_useCscSeededDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useMdtRobDecoding           " << m_useMdtRobDecoding << endreq;
+	  << "useMdtRobDecoding           " << m_useMdtRobDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useRpcRobDecoding           " << m_useRpcRobDecoding << endreq;
+	  << "useRpcRobDecoding           " << m_useRpcRobDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useTgcRobDecoding           " << m_useTgcRobDecoding << endreq;
+	  << "useTgcRobDecoding           " << m_useTgcRobDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useCscRobDecoding           " << m_useCscRobDecoding << endreq;
+	  << "useCscRobDecoding           " << m_useCscRobDecoding << endmsg;
 
     msg() << MSG::DEBUG
-	  << "doTimeOutChecks                " << m_doTimeOutChecks << endreq;
+	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
-	  << "doTimeOutGuard                 " << m_doTimeOutGuard << endreq;   
+	  << "doTimeOutGuard                 " << m_doTimeOutGuard << endmsg;   
     msg() << MSG::DEBUG
-	  << "useL2Hits                 " << m_useL2Hits << endreq;   
+	  << "useL2Hits                 " << m_useL2Hits << endmsg;   
     
     msg() << MSG::DEBUG
-	  << "maxRpcHits                     " << m_maxRpcHits << endreq;
+	  << "maxRpcHits                     " << m_maxRpcHits << endmsg;
     msg() << MSG::DEBUG
-	  << "maxCscHits                     " << m_maxCscHits << endreq;
+	  << "maxCscHits                     " << m_maxCscHits << endmsg;
     msg() << MSG::DEBUG
-	  << "maxMdtHits                     " << m_maxMdtHits << endreq;
+	  << "maxMdtHits                     " << m_maxMdtHits << endmsg;
     msg() << MSG::DEBUG
-	  << "maxTgcHits                     " << m_maxTgcHits << endreq;
+	  << "maxTgcHits                     " << m_maxTgcHits << endmsg;
   }
   
   // Get the region selector tool:
   if (m_regionSelector.retrieve().isFailure()) {
     msg() << MSG::FATAL
 	  << "Unable to retrieve RegionSelector Svc"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
   
   // Retrieve ActiveStore
   StatusCode status = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
   if(!status.isSuccess() || 0 == p_ActiveStore) {
-    msg() << MSG::ERROR <<" Could not find ActiveStoreSvc " << endreq;
+    msg() << MSG::ERROR <<" Could not find ActiveStoreSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -296,18 +296,18 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   // Retrieve segment maker tool
   status = m_segmentsFinderTool.retrieve();
   if (status.isSuccess()){
-    msg() << MSG::INFO << "Retrieved " << m_segmentsFinderTool << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_segmentsFinderTool << endmsg;
   } else {
-    msg() << MSG::FATAL << "Could not get " << m_segmentsFinderTool << endreq;
+    msg() << MSG::FATAL << "Could not get " << m_segmentsFinderTool << endmsg;
     return StatusCode::FAILURE;
   }
 
   
   status = m_assocTool.retrieve();
   if (status.isSuccess()){
-    msg() << MSG::INFO << "Retrieved " << m_assocTool << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_assocTool << endmsg;
   }else{
-    msg() << MSG::FATAL << "Could not get " << m_assocTool <<endreq;
+    msg() << MSG::FATAL << "Could not get " << m_assocTool <<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -334,44 +334,44 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     
     status = m_cscPrepDataProvider.retrieve();
     if (status.isSuccess()) {
-      msg() << MSG::INFO << "Retrieved " << m_cscPrepDataProvider << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_cscPrepDataProvider << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_cscPrepDataProvider << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_cscPrepDataProvider << endmsg;
       return StatusCode::FAILURE;
     }
     // clusterization tool
     status = m_cscClusterProvider.retrieve();
     if (status.isSuccess()) {
-      msg() << MSG::INFO << "Retrieved " << m_cscClusterProvider << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_cscClusterProvider << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_cscClusterProvider << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_cscClusterProvider << endmsg;
       return StatusCode::FAILURE;
     }
   }
   if (m_useMdtData) {
     status = m_mdtPrepDataProvider.retrieve();
     if (status.isSuccess()) {
-      msg() << MSG::INFO << "Retrieved " << m_mdtPrepDataProvider << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_mdtPrepDataProvider << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_mdtPrepDataProvider << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_mdtPrepDataProvider << endmsg;
       return StatusCode::FAILURE;
     }
   }
   if (m_useRpcData) {
     status = m_rpcPrepDataProvider.retrieve();
     if (status.isSuccess()) {
-      msg() << MSG::INFO << "Retrieved " << m_rpcPrepDataProvider << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_rpcPrepDataProvider << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_rpcPrepDataProvider << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_rpcPrepDataProvider << endmsg;
       return StatusCode::FAILURE;
     }
   }
   if (m_useTgcData) {
     status = m_tgcPrepDataProvider.retrieve();
     if (status.isSuccess()) {
-      msg() << MSG::INFO << "Retrieved " << m_tgcPrepDataProvider << endreq;
+      msg() << MSG::INFO << "Retrieved " << m_tgcPrepDataProvider << endmsg;
     } else {
-      msg() << MSG::FATAL << "Could not get " << m_tgcPrepDataProvider << endreq;
+      msg() << MSG::FATAL << "Could not get " << m_tgcPrepDataProvider << endmsg;
       return StatusCode::FAILURE;
     }
   }  
@@ -400,7 +400,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   if (serviceLocator()->service("DetectorStore", detStore).isSuccess()) {
     const MuonGM::MuonDetectorManager* muonMgr;
     if (detStore->retrieve(  muonMgr ).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endreq;
+      msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endmsg;
       return StatusCode::FAILURE;
     }
     m_cscIdHelper =  muonMgr->cscIdHelper();
@@ -408,7 +408,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     m_rpcIdHelper =  muonMgr->rpcIdHelper();
     m_tgcIdHelper =  muonMgr->tgcIdHelper();
   } else {
-    msg() << MSG::ERROR << "DetectorStore not found " << endreq;
+    msg() << MSG::ERROR << "DetectorStore not found " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -701,8 +701,8 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
   std::string l2muonKey = "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo";
   if(m_useL2Hits){
     if((*p_ActiveStore)->retrieve(l2cont, l2muonKey).isFailure()) {
-      msg() << MSG::DEBUG << " Cannot retrieve L2 Muon Container " << l2muonKey <<" stop processing here"<< endreq;
-    } else msg()<< MSG::DEBUG << " L2 Muon Container retrieved with key " << l2muonKey << endreq;
+      msg() << MSG::DEBUG << " Cannot retrieve L2 Muon Container " << l2muonKey <<" stop processing here"<< endmsg;
+    } else msg()<< MSG::DEBUG << " L2 Muon Container retrieved with key " << l2muonKey << endmsg;
   }
   // reset cached pointers
   m_segmentCombiColl=0;
@@ -793,7 +793,7 @@ if (m_useMdtData>0) {
       }
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE
 			   << "Size of the Mdt hash list " << temp_mdt_hash_ids.size()
-			   << " reset to " << mdt_hash_ids.size() << endreq;
+			   << " reset to " << mdt_hash_ids.size() << endmsg;
     } else {
 
       mdt_hash_ids = temp_mdt_hash_ids;
@@ -808,20 +808,20 @@ if (m_useMdtData>0) {
   }
   
   if (msgLvl(MSG::DEBUG)) {
-    msg()<< MSG::DEBUG << "The size of RPC hashId list is " << rpc_hash_ids.size() << endreq;
-    msg()<< MSG::DEBUG << "The size of TGC hashId list is " << tgc_hash_ids.size() << endreq;
-    msg()<< MSG::DEBUG << "The size of MDT hashId list is " << mdt_hash_ids.size() << endreq;
-    msg()<< MSG::DEBUG << "The size of CSC hashId list is " << csc_hash_ids.size() << endreq;
-    msg()<< MSG::DEBUG << "The size of mdt:rpc hashId list is " << mdt_hash_ids_cache.size() << " : "<< rpc_hash_ids_cache.size()<< endreq;
+    msg()<< MSG::DEBUG << "The size of RPC hashId list is " << rpc_hash_ids.size() << endmsg;
+    msg()<< MSG::DEBUG << "The size of TGC hashId list is " << tgc_hash_ids.size() << endmsg;
+    msg()<< MSG::DEBUG << "The size of MDT hashId list is " << mdt_hash_ids.size() << endmsg;
+    msg()<< MSG::DEBUG << "The size of CSC hashId list is " << csc_hash_ids.size() << endmsg;
+    msg()<< MSG::DEBUG << "The size of mdt:rpc hashId list is " << mdt_hash_ids_cache.size() << " : "<< rpc_hash_ids_cache.size()<< endmsg;
   }
   else
     {
       if (testRoiDrivenMode)
 	{
-	  msg()<< MSG::INFO << "The size of RPC hashId list is " << rpc_hash_ids.size() << endreq;
-	  msg()<< MSG::INFO << "The size of TGC hashId list is " << tgc_hash_ids.size() << endreq;
-	  msg()<< MSG::INFO << "The size of MDT hashId list is " << mdt_hash_ids.size() << endreq;
-	  msg()<< MSG::INFO << "The size of CSC hashId list is " << csc_hash_ids.size() << endreq;
+	  msg()<< MSG::INFO << "The size of RPC hashId list is " << rpc_hash_ids.size() << endmsg;
+	  msg()<< MSG::INFO << "The size of TGC hashId list is " << tgc_hash_ids.size() << endmsg;
+	  msg()<< MSG::INFO << "The size of MDT hashId list is " << mdt_hash_ids.size() << endmsg;
+	  msg()<< MSG::INFO << "The size of CSC hashId list is " << csc_hash_ids.size() << endmsg;
 	}
     }
   
@@ -852,7 +852,7 @@ if (m_useMdtData>0) {
           //rpc_hash_ids.clear();
           //rpc_hash_ids_cache.clear();
           //rpc_hash_ids = hash_ids_withData;
-          //if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "RpcHashId vector resized to " << rpc_hash_ids.size() << endreq;
+          //if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "RpcHashId vector resized to " << rpc_hash_ids.size() << endmsg;
         } else {
           ATH_MSG_WARNING("PRD-based seeded decoding of RPC failed");
         }
@@ -1026,9 +1026,9 @@ if (m_useMdtData>0) {
     const RpcPrepDataContainer* rpcPrds = 0;
     std::string rpcKey = "RPC_Measurements";
     if((*p_ActiveStore)->retrieve(rpcPrds, rpcKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endreq;
+      msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endmsg;
       return HLT::NAV_ERROR;
-    }  else msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endreq;
+    }  else msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endmsg;
     // Get RPC collections
     RpcPrepDataContainer::const_iterator RPCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = rpc_hash_ids.begin(); idit != rpc_hash_ids.end(); ++idit) {
@@ -1040,7 +1040,7 @@ if (m_useMdtData>0) {
           int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
           msg() << MSG::VERBOSE << "get_id code = " << code
                 << " collection for rpc id hash = " << (int)*idit
-                << " not found in the cont. ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
+                << " not found in the cont. ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endmsg;
         }
         continue;
       }
@@ -1051,7 +1051,7 @@ if (m_useMdtData>0) {
           int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
           msg() << MSG::VERBOSE << "get_id code = " << code
                 << " collection for rpc id hash = " << (int)*idit
-                << " is empty ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
+                << " is empty ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endmsg;
         }
         continue;
       }
@@ -1064,16 +1064,16 @@ if (m_useMdtData>0) {
         msg() << MSG::DEBUG << "Selected Rpc Collection: "
               << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
               << " (hash = " << (int)*idit
-              << ") with size " << (*RPCcoll)->size() << endreq;
+              << ") with size " << (*RPCcoll)->size() << endmsg;
       else if (testRoiDrivenMode) 
         msg() << MSG::INFO << "Selected Rpc Collection: "
 				  << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
               << " (hash = " << (int)*idit
-				  << "), with size " << (*RPCcoll)->size() << endreq;
+				  << "), with size " << (*RPCcoll)->size() << endmsg;
 
     }
     if (rpcCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Rpc data collections selected" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Rpc data collections selected" << endmsg;
     }
   }
   
@@ -1083,9 +1083,9 @@ if (m_useMdtData>0) {
     const MdtPrepDataContainer* mdtPrds = 0;
     std::string mdtKey = "MDT_DriftCircles";
     if((*p_ActiveStore)->retrieve(mdtPrds, mdtKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container " << mdtKey << endreq;
+      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container " << mdtKey << endmsg;
       return HLT::NAV_ERROR;
-    } else msg()<< MSG::DEBUG << " MDT PRD Container retrieved with key " << mdtKey << endreq;
+    } else msg()<< MSG::DEBUG << " MDT PRD Container retrieved with key " << mdtKey << endmsg;
     
     // Get MDT collections
     MdtPrepDataContainer::const_iterator MDTcoll;
@@ -1099,7 +1099,7 @@ if (m_useMdtData>0) {
 	  int  code = m_mdtIdHelper->get_id(*idit, idColl, &mdtContext);
 	  msg() << MSG::VERBOSE << "get_id code = " << code
 		<< " collection for mdt id hash = " << (int)*idit
-		<< " not found in the cont. ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endreq;
+		<< " not found in the cont. ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endmsg;
 	}
 	continue;
       }
@@ -1110,7 +1110,7 @@ if (m_useMdtData>0) {
 	  int  code = m_mdtIdHelper->get_id(*idit, idColl, &mdtContext);
 	  msg() << MSG::VERBOSE << "get_id code = " << code
 		<< " collection for mdt id hash = " << (int)*idit
-		<< " is empty ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endreq;
+		<< " is empty ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endmsg;
 	}
 	continue;
       }
@@ -1161,14 +1161,14 @@ if (m_useMdtData>0) {
       mdtCols.push_back(*MDTcoll);
       if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Mdt Collection: "
 			 << m_mdtIdHelper->show_to_string((*MDTcoll)->identify())
-			 << " with size " << (*MDTcoll)->size() << endreq;
+			 << " with size " << (*MDTcoll)->size() << endmsg;
       else
 	if (testRoiDrivenMode) msg() << MSG::INFO << "Selected Mdt Collection: "
 				     << m_mdtIdHelper->show_to_string((*MDTcoll)->identify())
-				     << " with size " << (*MDTcoll)->size() << endreq;
+				     << " with size " << (*MDTcoll)->size() << endmsg;
     }
     if (mdtCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Mdt data collections selected" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Mdt data collections selected" << endmsg;
       mdtDataFound = false;
     }
   }
@@ -1179,9 +1179,9 @@ if (m_useMdtData>0) {
     const TgcPrepDataContainer* tgcPrds = 0;
     std::string tgcKey = "TGC_Measurements";
     if((*p_ActiveStore)->retrieve(tgcPrds, tgcKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container " << tgcKey << endreq;
+      msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container " << tgcKey << endmsg;
       return HLT::NAV_ERROR;
-    } else msg()<< MSG::DEBUG << " TGC PRD Container retrieved with key " << tgcKey << endreq;
+    } else msg()<< MSG::DEBUG << " TGC PRD Container retrieved with key " << tgcKey << endmsg;
     // Get TGC collections
     TgcPrepDataContainer::const_iterator TGCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
@@ -1205,7 +1205,7 @@ if (m_useMdtData>0) {
 	  int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
 	  msg() << MSG::VERBOSE << "get_id code = " << code
 		<< " collection for tgc id hash = " << (int)*idit
-		<< " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endreq;
+		<< " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
 	}
 	continue;
       }
@@ -1215,20 +1215,20 @@ if (m_useMdtData>0) {
       tgcCols.push_back(*TGCcoll);
       if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
 			 << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			 << " with size " << (*TGCcoll)->size() << endreq;
+			 << " with size " << (*TGCcoll)->size() << endmsg;
       else
 	if (testRoiDrivenMode) msg() << MSG::INFO <<  "Selected Tgc Collection: "
 				     << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-				     << " with size " << (*TGCcoll)->size() << endreq;
+				     << " with size " << (*TGCcoll)->size() << endmsg;
     }
     
     if(m_useTGCInPriorNextBC){
       const TgcPrepDataContainer* tgcPrdsPriorBC = 0;
       tgcKey = "TGC_MeasurementsPriorBC";
       if((*p_ActiveStore)->retrieve(tgcPrdsPriorBC, tgcKey).isFailure()) {
-	msg() << MSG::WARNING << " Cannot retrieve in Prior BC TGC PRD Container " << tgcKey << endreq;
+	msg() << MSG::WARNING << " Cannot retrieve in Prior BC TGC PRD Container " << tgcKey << endmsg;
 	//      return HLT::NAV_ERROR;
-      } else msg()<< MSG::DEBUG << " Prior in BC TGC PRD Container retrieved with key " << tgcKey << endreq;
+      } else msg()<< MSG::DEBUG << " Prior in BC TGC PRD Container retrieved with key " << tgcKey << endmsg;
       
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
@@ -1240,7 +1240,7 @@ if (m_useMdtData>0) {
 	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
 	    msg() << MSG::VERBOSE << "get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endreq;
+		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
 	  }
 	  continue;
 	}
@@ -1251,7 +1251,7 @@ if (m_useMdtData>0) {
 	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
 	    msg() << MSG::VERBOSE << "get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endreq;
+		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
 	  }
 	  continue;
 	}
@@ -1259,14 +1259,14 @@ if (m_useMdtData>0) {
 	tgcCols.push_back(*TGCcoll);
 	if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
 			   << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size() << endreq;
+			   << " with size " << (*TGCcoll)->size() << endmsg;
       }
       const TgcPrepDataContainer* tgcPrdsNextBC = 0;
       tgcKey = "TGC_MeasurementsNextBC";
       if((*p_ActiveStore)->retrieve(tgcPrdsNextBC, tgcKey).isFailure()) {
-	msg() << MSG::WARNING << " Cannot retrieve in Next BC TGC PRD Container " << tgcKey << endreq;
+	msg() << MSG::WARNING << " Cannot retrieve in Next BC TGC PRD Container " << tgcKey << endmsg;
 	//      return HLT::NAV_ERROR;
-      } else msg()<< MSG::DEBUG << " Next in BC TGC PRD Container retrieved with key " << tgcKey << endreq;
+      } else msg()<< MSG::DEBUG << " Next in BC TGC PRD Container retrieved with key " << tgcKey << endmsg;
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
 	TGCcoll = tgcPrdsNextBC->indexFind(*idit);
@@ -1277,7 +1277,7 @@ if (m_useMdtData>0) {
 	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
 	    msg() << MSG::VERBOSE << "get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endreq;
+		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
 	  }
 	  continue;
 				}
@@ -1288,7 +1288,7 @@ if (m_useMdtData>0) {
 	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
 	    msg() << MSG::VERBOSE << "get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endreq;
+		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
 	  }
 	  continue;
 	}
@@ -1296,12 +1296,12 @@ if (m_useMdtData>0) {
 	tgcCols.push_back(*TGCcoll);
 	if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
 			   << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size() << endreq;
+			   << " with size " << (*TGCcoll)->size() << endmsg;
       }
     }
     
     if (tgcCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Tgc data collections selected" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Tgc data collections selected" << endmsg;
     }
   }
   
@@ -1312,7 +1312,7 @@ if (m_useMdtData>0) {
     const CscPrepDataContainer* cscPrds = 0;
     std::string cscKey = "CSC_Clusters";
     if((*p_ActiveStore)->retrieve(cscPrds, cscKey).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container " << cscKey << endreq;
+      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container " << cscKey << endmsg;
       return HLT::NAV_ERROR;
     }
     // Get CSC collections
@@ -1328,14 +1328,14 @@ if (m_useMdtData>0) {
       cscCols.push_back(*CSCcoll);
       if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Csc Collection: "
 			 << m_cscIdHelper->show_to_string((*CSCcoll)->identify())
-			 << " with size " << (*CSCcoll)->size() << endreq;
+			 << " with size " << (*CSCcoll)->size() << endmsg;
       else
 	if (testRoiDrivenMode) msg() << MSG::INFO << "Selected Csc Collection: "
 				     << m_cscIdHelper->show_to_string((*CSCcoll)->identify())
-				     << " with size " << (*CSCcoll)->size() << endreq;
+				     << " with size " << (*CSCcoll)->size() << endmsg;
     }
     if (cscCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Csc data collections selected" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Csc data collections selected" << endmsg;
       cscDataFound = false;
     }
   }
@@ -1535,13 +1535,13 @@ if (m_useMdtData>0) {
       ATH_MSG_DEBUG("m_segmentCombiColl->size() = "<< m_segmentCombiCollInternal->size());
       // Dump segments
       if (msgLvl(MSG::DEBUG)) {
-	msg() << MSG::DEBUG << "REGTEST MuonEF Found " << m_segmentCombiCollInternal->size() << " combined segment collection" << endreq;
+	msg() << MSG::DEBUG << "REGTEST MuonEF Found " << m_segmentCombiCollInternal->size() << " combined segment collection" << endmsg;
 	for(unsigned int nSeg=0; nSeg!=m_segmentCombiCollInternal->size(); nSeg++) {
 	  if((*(m_segmentCombiCollInternal))[nSeg]){  msg() << MSG::DEBUG << "Combined segment collection " << nSeg << " contains "
-			   << ((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations() << " stations" << endreq;
+			   << ((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations() << " stations" << endmsg;
 	    for(unsigned int nStat=0; nStat!=((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations(); nStat++) {
 	      if(((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)) msg() << MSG::DEBUG << "  - segment collection " << nStat << " contains "
-	    		      << ((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)->size() << " segments" << endreq;
+	    		      << ((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)->size() << " segments" << endmsg;
 	    }
 	  }
 	}
@@ -1765,7 +1765,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
       else
         if (testRoiDrivenMode) msg() << MSG::INFO << " REGTEST MuonEF  - parameters are:  pt " << pt
                                      << " MeV - eta " << eta
-                                     << " phi " << phi << " z0/d0 " << z0 << " " << d0 << endreq;
+                                     << " phi " << phi << " z0/d0 " << z0 << " " << d0 << endmsg;
 
       monVars.chi2.push_back(chi2/ndof);
       monVars.chi2Prob.push_back(chi2prob);
@@ -2035,7 +2035,7 @@ void TrigMuonEFStandaloneTrackTool::cleanSegmentCollections()
         // hacky FIX for bug #71203 (clean fix would use assocTool->remove(combi), but that does not exist yet)
         if( nonConstMap ) nonConstMap->erase( combi );
       }
-      if ( printedHeader ) msg() << endreq; // prints out run,event,etc.
+      if ( printedHeader ) msg() << endmsg; // prints out run,event,etc.
     }
     
     delete m_segmentCombiColl;
@@ -2067,7 +2067,7 @@ void TrigMuonEFStandaloneTrackTool::cleanSegmentCollections()
           }
         }
       }
-      if ( printedHeader ) msg() << endreq; // prints out run,event,etc.
+      if ( printedHeader ) msg() << endmsg; // prints out run,event,etc.
     }
     
     delete m_patternCombiColl;
@@ -2088,7 +2088,7 @@ void TrigMuonEFStandaloneTrackTool::recordSegments()
   if( evtStore()->contains<MuonSegmentCombinationCollection>(segmentCombCollLocation) ){
     if (evtStore()->retrieve(segmentCombColl,segmentCombCollLocation).isFailure()){
       msg() << MSG::WARNING << "Could not retrieve MuonSegmentCombinationCollection at "
-	    << segmentCombCollLocation << endreq;
+	    << segmentCombCollLocation << endmsg;
     }
   }
   else{
@@ -2097,7 +2097,7 @@ void TrigMuonEFStandaloneTrackTool::recordSegments()
     segmentCombColl = new MuonSegmentCombinationCollection();
     if(evtStore()->record(segmentCombColl,segmentCombCollLocation,true).isFailure()){
       msg() << MSG::WARNING << "Could not record MuonSegmentCombinationCollection at "
-	    << segmentCombCollLocation << endreq;
+	    << segmentCombCollLocation << endmsg;
       delete segmentCombColl;
       segmentCombColl = 0;
     }
@@ -2120,7 +2120,7 @@ void TrigMuonEFStandaloneTrackTool::recordPatterns()
   if( evtStore()->contains<MuonPatternCombinationCollection>(patternCombCollLocation) ){
     if (evtStore()->retrieve(patternCombColl,patternCombCollLocation).isFailure()){
       msg() << MSG::WARNING << "Could not retrieve MuonPatternCombinationCollection at "
-	    << patternCombCollLocation << endreq;
+	    << patternCombCollLocation << endmsg;
     }
   }
   else{
@@ -2130,7 +2130,7 @@ void TrigMuonEFStandaloneTrackTool::recordPatterns()
     patternCombColl = new MuonPatternCombinationCollection();
     if(evtStore()->record(patternCombColl,patternCombCollLocation,true).isFailure()){
       msg() << MSG::WARNING << "Could not record MuonPatternCombinationCollection at "
-	    << patternCombCollLocation << endreq;
+	    << patternCombCollLocation << endmsg;
       delete patternCombColl;
       patternCombColl = 0;
     }
@@ -2153,7 +2153,7 @@ void TrigMuonEFStandaloneTrackTool::recordSpectrometerTracks()
   if ( evtStore()->contains<TrackCollection>(trackCollectionLocation) ){
     if (evtStore()->retrieve(trackCollection,trackCollectionLocation).isFailure()){
       msg() << MSG::WARNING << "Could not retrieve TrackCollection at " << trackCollectionLocation
-	    << endreq;
+	    << endmsg;
     }
   }
   else {

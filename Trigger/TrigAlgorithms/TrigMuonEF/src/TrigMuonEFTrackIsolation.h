@@ -20,8 +20,11 @@ class IMuonEFTrackIsolationTool;
  * This class calculates track isolation for EF muons.
  * It uses the IMuonEFTrackIsolationTool tool interface for
  * the actual isolation calculation.
+ *
+ * As of Dec2016 it can also be used for L2 Muon isolation, using FTK tracks.
  * 
  * @author Mark Owen (markowen@cern.ch)
+ * @author Michael Fenton (m.fenton@cern.ch
  */
 class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
 			  public virtual IIncidentListener
@@ -44,6 +47,10 @@ class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
 
   /// name of ID Track Particle container
   std::string m_idTrackParticlesName;
+  std::string m_FTKTrackParticlesName;
+  
+  // Which setups to run
+  int m_isoType;
 
   /// Require that EF muons are combined (should move to pass bits)
   bool m_requireCombined;
@@ -64,8 +71,12 @@ class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
   StringProperty m_histo_path_base;     // set the histo path for Monitoring
   std::vector<double> m_trkptiso_cone2;
   std::vector<double> m_trkptiso_cone3;
-  std::vector<double> m_idtrkdz;
-  std::vector<double> m_idtrkdr;
+  std::vector<double> m_trkdz;
+  std::vector<double> m_trkdr;  
+  std::vector<double> m_muon_selfpt;
+  std::vector<double> m_muon_removedpt;
+  std::vector<double> m_muon_combinedpt;
+  std::vector<int>    m_n_trks;
 
   //Timers
   bool m_doMyTiming;
