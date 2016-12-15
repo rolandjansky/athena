@@ -48,7 +48,7 @@ void PileUpMergeSvc::decodeIntervals() {
       const IPileUpXingFolder& xing(**iXing);
       if (msg().level() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "decodeIntervals: adding IPileUpXingFolder "
-	      << xing.name() << endreq;
+	      << xing.name() << endmsg;
       }
       IPileUpXingFolder::const_iterator 
 	item(xing.begin()), endItem(xing.end());
@@ -61,7 +61,7 @@ void PileUpMergeSvc::decodeIntervals() {
 		<< " key " << item->key() << " in the Xing range ["
 		<< xing.firstXing() << ", " << xing.lastXing() << ']' 
 		<< " with cache refresh frequency " 
-		<< xing.cacheRefreshFrequency() << endreq;
+		<< xing.cacheRefreshFrequency() << endmsg;
 	}
 	++item;
       }
@@ -75,13 +75,13 @@ void PileUpMergeSvc::decodeIntervals() {
 StatusCode 
 PileUpMergeSvc::initialize()    {
   msg() << MSG::INFO << "Initializing AthService " << name() 
-	<< " - package version " << PACKAGE_VERSION << endreq ;
+	<< " - package version " << PACKAGE_VERSION << endmsg ;
   // set up the SG service:
   if ( !(p_overStore.retrieve()).isSuccess() ) 
   {
       msg() << MSG::FATAL 
 	  << "Could not locate default store"
-          << endreq;
+          << endmsg;
       return StatusCode::FAILURE;
   }
   // set up the active store service:
@@ -89,14 +89,14 @@ PileUpMergeSvc::initialize()    {
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ActiveStoreSvc"
-          << endreq;
+          << endmsg;
       return StatusCode::FAILURE;
   }
   if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() ) 
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ITriggerTime tool"
-          << endreq;
+          << endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -185,7 +185,7 @@ PileUpMergeSvc::clearDataCaches() {
 		      << "clearDataCachesByFolder: object with clid "
 		      << id << " and key " << key 
 		      << " removed from cache " 
-		      << iEvt->pSubEvtSG->name() << endreq;
+		      << iEvt->pSubEvtSG->name() << endmsg;
 	      }
 #endif
 	    }
@@ -200,7 +200,7 @@ PileUpMergeSvc::clearDataCaches() {
       if (msg().level() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE
 	      << "clearDataCachesByFolder: done with store " << iEvt->pSubEvtSG->name()
-	      << endreq;
+	      << endmsg;
       }
 #endif
       ++iEvt;	
