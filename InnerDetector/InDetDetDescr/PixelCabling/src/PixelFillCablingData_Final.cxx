@@ -65,11 +65,11 @@ const InterfaceID& PixelFillCablingData_Final::interfaceID()
 StatusCode PixelFillCablingData_Final::initialize( )
 {
   StatusCode sc;
-  msg(MSG::DEBUG) << "PixelFillCablingData_Final::initialize" <<endreq;
+  msg(MSG::DEBUG) << "PixelFillCablingData_Final::initialize" <<endmsg;
   
   // Get the PixelID Helper
   if (detStore()->retrieve(m_idHelper, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   m_cntxpixel = m_idHelper->wafer_context();
@@ -92,11 +92,11 @@ PixelCablingData* PixelFillCablingData_Final::FillMaps()
 {
   string file_name = PathResolver::find_file (m_final_mapping_file, "DATAPATH");
   if (file_name.size()==0) {
-    msg(MSG::FATAL) << "Mapping File: " << m_final_mapping_file << " not found!" << endreq;
+    msg(MSG::FATAL) << "Mapping File: " << m_final_mapping_file << " not found!" << endmsg;
     return NULL;
   } 
   else{
-    msg(MSG::INFO) << "Mapping File: " << m_final_mapping_file << endreq;   }
+    msg(MSG::INFO) << "Mapping File: " << m_final_mapping_file << endmsg;   }
 
   return initialiseFromFile(file_name);
 }
@@ -157,26 +157,26 @@ PixelCablingData* PixelFillCablingData_Final::initialiseFromFile(const string fi
             onlineId = (robid & 0xFFFFFF) | (linknumber << 24);
 
             IdentifierHash hashId;
-            if (m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel)) msg(MSG::WARNING) << "Could not get hash from offlineId" << endreq;
+            if (m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel)) msg(MSG::WARNING) << "Could not get hash from offlineId" << endmsg;
             if (hashId > m_idHelper->wafer_hash_max()) {
-                msg(MSG::ERROR) << "IdHash overflow! HashId is 0x" << std::hex << hashId << endreq;
+                msg(MSG::ERROR) << "IdHash overflow! HashId is 0x" << std::hex << hashId << endmsg;
                 msg(MSG::ERROR) << "not mapped OfflineID: " << std::hex << offlineId << std::dec << " barrel_ec: " << barrel_ec
-                                << " layer_disk: " << layer_disk << " phi_module: " << phi_module << " eta_module: " << eta_module << endreq;
+                                << " layer_disk: " << layer_disk << " phi_module: " << phi_module << " eta_module: " << eta_module << endmsg;
                 msg(MSG::ERROR) << "to OnlineID: 0x" << std::hex << onlineId << " robid: 0x" << robid << " rodid: 0x" << rodid << std::dec
                                 << " link: 0x" << std::hex << link << " -> Linknumber: 0x" << linknumber << " HashId: 0x"
-                                << hashId << std::dec << endreq;
+                                << hashId << std::dec << endmsg;
 
                 // Check if offlineId fail was caused by exceeding eta_module range
                 if (eta_module > m_idHelper->eta_module_max(offlineId) || eta_module < m_idHelper->eta_module_min(offlineId)) {
                     // eta_module_max == -999 indicate the module does not exist
                     if (m_idHelper->eta_module_max(offlineId) == -999 && m_idHelper->eta_module_min(offlineId) == -999) {
-                        msg(MSG::ERROR) << "Module does not exist in geometry" << endreq;
+                        msg(MSG::ERROR) << "Module does not exist in geometry" << endmsg;
                     }
                     else
                     msg(MSG::ERROR) << "eta_module range exceeded: Got eta_module = " << eta_module
                                     << ", but allowed range is [" << m_idHelper->eta_module_min(offlineId)
-                                    << "," << m_idHelper->eta_module_max(offlineId) << "]" << endreq;
-                    msg(MSG::ERROR) << "Input geometry tag may not be compatible with mapping file " << file_name << endreq;
+                                    << "," << m_idHelper->eta_module_max(offlineId) << "]" << endmsg;
+                    msg(MSG::ERROR) << "Input geometry tag may not be compatible with mapping file " << file_name << endmsg;
                 }
 
                 return NULL;
@@ -194,10 +194,10 @@ PixelCablingData* PixelFillCablingData_Final::initialiseFromFile(const string fi
             // Debug messages
             msg(MSG::DEBUG) << "Mapped offlineID: " << std::hex << offlineId << " to onlineID: 0x" << onlineId
                             << ", robID: 0x" << robid << ", barrel_ec: " << std::dec << barrel_ec << ", layer_disk: " << layer_disk
-                            << ", eta_module: " << eta_module << ", phi_module: " << phi_module << ", linknumber: 0x" << std::hex << linknumber << endreq;
+                            << ", eta_module: " << eta_module << ", phi_module: " << phi_module << ", linknumber: 0x" << std::hex << linknumber << endmsg;
         }
     }
-    msg(MSG::INFO) << "map size " << rodReadoutMap.size() <<endreq;
+    msg(MSG::INFO) << "map size " << rodReadoutMap.size() <<endmsg;
     m_cabling->set_readout_map(rodReadoutMap);
     return m_cabling;
 }
