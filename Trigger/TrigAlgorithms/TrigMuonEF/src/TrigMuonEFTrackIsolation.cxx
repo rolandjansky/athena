@@ -32,7 +32,7 @@ using std::endl;
  */
 TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvcLocator* pSvcLocator) :
   FexAlgo(name, pSvcLocator),
-  m_isoType(),
+  m_isoType(1),
   m_requireCombined(false),
   m_useVarIso(false),
   m_debug(false),
