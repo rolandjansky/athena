@@ -717,7 +717,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 	
       }
 
-     
+      delete m_digitizationModule;
       
       // the col/row
       int m_siDeltaPhiCut = phiIndexMax-phiIndexMin+1;
