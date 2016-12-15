@@ -5,13 +5,13 @@
 	This script reads the rulebook and swaps items between Physics and MC if they are disabled or not.
 	TrigMenuRulebook needs to be checked out and installed.
 	Currently it needs to be run from the script folder.
-	One argument can be supplied specifying which "tag" to use, default is pp_v6 
+	One argument can be supplied specifying which "tag" to use, default is pp_v7 
 """
 
 import importlib
 import sys, re, os
 
-tag = "pp_v6"
+tag = "pp_v7"
 if len(sys.argv) > 1:
 	tag = sys.argv[1]
 
@@ -19,16 +19,18 @@ import checkTigherThanPrimary
 tighter_than_primaries = set([x for x, y in checkTigherThanPrimary.main()])
 
 def swapItems():
-	physics_rulemod		 = importlib.import_module("TrigMenuRulebook.Physics_%s_rules" % tag)
-	start_rulemod		 = importlib.import_module("TrigMenuRulebook.Physics_%s_startup_rules" % tag)
-	monitoring_rulemod = importlib.import_module("TrigMenuRulebook.Monitoring_%s_rules" % tag)
-	standby_rulemod		 = importlib.import_module("TrigMenuRulebook.Standby_%s_rules" % tag)
-	cosmic_rulemod		 = importlib.import_module("TrigMenuRulebook.Cosmic_%s_rules" % tag)
-	commissioning_rulemod		 = importlib.import_module("TrigMenuRulebook.Commissioning2016_rules")
+	physics_rulemod		 		= importlib.import_module("TrigMenuRulebook.Physics_%s_rules" % tag)
+	monitoring_rulemod 		= importlib.import_module("TrigMenuRulebook.Monitoring_%s_rules" % tag)
+	standby_rulemod		 		= importlib.import_module("TrigMenuRulebook.Standby_%s_rules" % tag)
+	cosmic_rulemod		 		= importlib.import_module("TrigMenuRulebook.Cosmic_%s_rules" % tag)
+	toroidoff_rulemod	 		= importlib.import_module("TrigMenuRulebook.Physics_%s_ToroidOff_rules" % tag)
+	commissioning_rulemod	= importlib.import_module("TrigMenuRulebook.Commissioning2016_rules")
+	startup_rulemod		 		= importlib.import_module("TrigMenuRulebook.Physics_%s_startup_rules" % tag)
 	monitoring_rulemod.rules = monitoring_rulemod.physics_rules
-	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,commissioning_rulemod,start_rulemod)
+	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,toroidoff_rulemod,commissioning_rulemod,startup_rulemod)
+	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,toroidoff_rulemod,commissioning_rulemod)
 	
-	dontmove = ['L1_BPH-7M15-2MU4_BPH-0DR24-2MU4', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4', 'L1_DR-EM15TAU12I']
+	l1topo_pattern = "\w-\w"
 	
 	def getPS(item):
 		hlt = "HLT_"+item
@@ -92,7 +94,7 @@ def swapItems():
 				ps = getPS(name)
 				if name in tighter_than_primaries:
 					print "Found item that is tighter than primary, instead of moving to MC please enable the rule in RB:", name
-				if ps==-1 and not name in tighter_than_primaries: 
+				if ps==-1 and not name in tighter_than_primaries and not re.search(l1topo_pattern,line):
 					lines_MC_fromPhysics[currentSlice] += linebuffer+line
 					items_MC_fromPhysics.add(name)
 					count_toMC += 1
@@ -144,7 +146,7 @@ def swapItems():
 			if m and not commented and not if_ftk: 
 				assert(currentSlice != None)
 				ps = getPS(m.group(1))
-				if ps==-1 or any([vetoitem in line for vetoitem in dontmove]): 
+				if ps==-1 or re.search(l1topo_pattern,line):
 					lines_MC[currentSlice] += linebuffer+line
 				else: 
 					lines_Physics_fromMC[currentSlice] += linebuffer+line

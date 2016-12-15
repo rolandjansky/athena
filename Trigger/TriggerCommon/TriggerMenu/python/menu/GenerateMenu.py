@@ -429,15 +429,13 @@ class GenerateMenu:
                 if (bjetchain == True) and self.doBjetChains:
                     try:
                         chainDef = TriggerMenu.bjet.generateBjetChainDefs.generateChainDefs(chainDict)
-                        #print 'chainDef for bjet chains', chainDef
                     except:
-                        log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                        log.error('Problems creating ChainDef for bjet chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
                         continue
                 elif self.doJetChains:                    
                     try:
                         chainDef = TriggerMenu.jet.generateJetChainDefs.generateChainDefs(chainDict)
-                        #print 'chainDef for jet/ht chains', chainDef
                     except:
                         log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
@@ -475,7 +473,7 @@ class GenerateMenu:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
-
+                 
             elif (chainDict["signature"] == "MET" or chainDict["signature"] == "XS" or chainDict["signature"] == "TE") and self.doMETChains:
                 try:
                     chainDef = TriggerMenu.met.generateMETChainDefs.generateChainDefs(chainDict)
@@ -570,7 +568,7 @@ class GenerateMenu:
                 log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
                          
-            
+            log.debug(' ChainDef  %s ' % chainDef)
             from ChainDef import ErrorChainDef,ChainDef
             if isinstance(chainDef, ErrorChainDef): 
                 self.listOfErrorChainDefs.append(chainDict['chainName'])
@@ -585,7 +583,7 @@ class GenerateMenu:
             return False
         elif len(listOfChainDefs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
-                theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],doTopo=doTopo,chainDicts=chainDicts)
+                theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],preserveL2EFOrder = chainDicts[0]["mergingPreserveL2EFOrder"],doTopo=doTopo,chainDicts=chainDicts)#, noTEreplication = chainDicts[0]["mergingNoTEreplication"])
             else:
                 log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
                 
@@ -907,7 +905,7 @@ class GenerateMenu:
         log.info('checkGroups')
         checkGroups(self.triggerPythonConfig)
 
-        cpsMenus = ['Physics_pp_v5','Physics_pp_v6']
+        cpsMenus = ['Physics_pp_v5','Physics_pp_v6','Physics_pp_v7']
         ##if TriggerFlags.triggerMenuSetup() in cpsMenus:
         if TriggerFlags.triggerMenuSetup().find("pp_v")>=0:            
             log.info('Assigning CPS groups now')

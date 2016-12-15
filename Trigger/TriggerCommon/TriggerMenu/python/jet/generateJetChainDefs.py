@@ -12,7 +12,6 @@ logJet = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
 from AthenaCommon.SystemOfUnits import GeV
 
 from TriggerMenu.jet.JetDef import generateHLTChainDef
-from TriggerMenu.jet.JetDef_HT import L2EFChain_HT
 
 from TriggerMenu.menu.MenuUtils import *
 
@@ -21,7 +20,7 @@ from exc2string import exc2string2
 from TriggerMenu.menu.ChainDef import ErrorChainDef
 import os, inspect
 
-TrigEFJetMassDEta_Config = __import__("TrigJetHypo.TrigEFJetMassDEtaConfig",fromlist=[""])
+# TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
 
 
 from  __builtin__ import any as b_any
@@ -46,10 +45,12 @@ def generateChainDefs(chainDict):
         allTopoAlgs = subCD['chainParts']['topo']
         for ta in allTopoAlgs:
             topoAlgs.append(ta)
-    
-    if ('muvtx' in topoAlgs) or \
-            ('llp' in topoAlgs) or \
-            (b_any(('invm' or 'deta' in x) for x in topoAlgs)):
+
+    # test new jet algorithm and configuration PS 15/9/2016
+    # now use new jet algorthm TrigHLTJetHypo2 as standard,
+    # and have the test chains use th run 1 hypo for comaprison PS 04/10/2016
+
+    if ('muvtx' in topoAlgs) or ('llp' in topoAlgs):
 
         logJet.info("Adding topo to jet chain")
         try:
@@ -63,7 +64,7 @@ def generateChainDefs(chainDict):
     no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
     dump_chain = 'JETDEF_DEBUG2' in os.environ
     if (not jetgroup_chain) and dump_chain:
-        dump_chaindef(chainDict, theChainDef, no_instantiation_flag)
+        dump_chaindef(chainDict, theChainDef, None, no_instantiation_flag)
 
     return theChainDef
 
@@ -90,6 +91,8 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     if ('muvtx' in topoAlgs):
        # import pdb;pdb.set_trace()
         theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+    elif ('revllp' in topoAlgs):
+        theChainDef = generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
         theChainDef = generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif b_any(('invm' or 'deta' in x) for x in topoAlgs):
@@ -102,7 +105,7 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
 ##########################################################################################
 def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     HLTChainName = "HLT_" + chainDict['chainName']   
-
+    
 
     if 'EMPTY' in HLTChainName:
         l1item = 'MU4'
@@ -126,6 +129,9 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
     else:
         hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_background",maxEta=2.5, numJet=-1, numTrk=-1)
 
+
+#    print "NILS: Called generateMuonClusterLLPchain for chain: "+HLTChainName+" with inputTEs:"
+#    print inputTEsEF
     TEmuonIsoB = HLTChainName+'_muIsoB'
     TEmuonClusterFex = HLTChainName+'_muClusFex'
     TEmuonClusterHypo = HLTChainName+'_muClusHypo'
@@ -157,15 +163,21 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     
     # jet splitting
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getJetSplitterInstance
-    theJetSplit=getJetSplitterInstance()
+    if ('pufix' in topoAlgs):
+        pufixLR=0.5
+    else:
+        pufixLR=1.2
+
+    theJetSplit=getJetSplitterInstance("TrigJetSplitter",1.2, pufixLR)
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
 
     # calo-ratio
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import CaloRatioHypo
-    fex_llp_jet_hypo = CaloRatioHypo('TrigCaloRatioHypo_j30', threshold=30*GeV, logratio=1.2)
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
+    fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 30, 1.2, True)
+
 
     # beam-halo removal
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigNewLoFHypoConfig
@@ -175,7 +187,7 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     theBHremoval=getBHremovalInstance()
 
     TE_SplitJets = HLTChainName+'_SplitJetTool'
-    TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
+    TE_TrackIsoB = HLTChainName+'_TrkIsoB'
     TE_LogRatioCut = HLTChainName+'_LogRatioCut'
     TE_LogRatioCut_Fcalo = HLTChainName+'_LogRatioCut_Fcalo'
     TE_BeamHaloRemoval = HLTChainName+'_BeamHaloRemoval'
@@ -184,11 +196,11 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     theChainDef.addSequence(theJetSplit, inputTEsEF, TE_SplitJets)
 
     # adding tracking sequence
-    theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackMuonIsoB)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackMuonIsoB])
+    theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackIsoB)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackIsoB])
 
     # adding calo-ratio sequence
-    theChainDef.addSequence(fex_llp_jet_hypo,TE_TrackMuonIsoB,TE_LogRatioCut)
+    theChainDef.addSequence(fex_llp_jet_hypo,TE_TrackIsoB,TE_LogRatioCut)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
 
     # adding LoF sequence
@@ -212,6 +224,49 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
         theChainDef.addSequence([hypo_LoF], TE_LogRatioCut_Fcalo,TE_BeamHaloRemoval)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
+
+    return theChainDef
+
+
+##########################################################################################
+def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
+    HLTChainName = "HLT_" + chainDict['chainName']   
+
+    # jet splitting
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getJetSplitterInstance_LowLogRatio
+    theJetSplit=getJetSplitterInstance_LowLogRatio()
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+    # reversed calo-ratio
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
+    if ('trkiso' in topoAlgs):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 200, -1.7, True)
+    elif ('230' in HLTChainName):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 230, -1.7, False)
+    elif ('250' in HLTChainName):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 250, -1.7, False)
+
+    TE_SplitJets = HLTChainName+'_SplitJetTool'
+    TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
+    TE_LogRatioCut = HLTChainName+'_LogRatioCut'
+
+    # split into several trigger elements
+    theChainDef.addSequence(theJetSplit, inputTEsEF, TE_SplitJets)
+
+    if ('trkiso' in topoAlgs):
+        # adding tracking sequence
+        theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackMuonIsoB)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackMuonIsoB])
+        # adding reversed calo-ratio sequence
+        theChainDef.addSequence(fex_llp_jet_hypo,TE_TrackMuonIsoB,TE_LogRatioCut)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
+    else:
+        # adding reversed calo-ratio sequence
+        theChainDef.addSequence(fex_llp_jet_hypo,TE_SplitJets,TE_LogRatioCut)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
 
     return theChainDef
 
@@ -243,21 +298,22 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
             detaCut = -99.
                 
 
-    hypo='EFJetMassDEta'
+    hypo='EFHLTJetMassDEta'
     for topo_item in topoAlgs:
         algoName="jet"
         if 'deta' in topo_item:
             try:
                 min_thr= min(40,min(jet_thresholds))
-                hypo=('EFJetMassDEta2J%i' %(min_thr))
+                hypo=('EFHLTJetMassDEta2J%i' %(min_thr))
                 algoName="2jet%s" %(min_thr)
             except:
-                hypo='EFJetMassDEta'
+                hypo='EFHLTJetMassDEta'
         algoName +="_"+topo_item    
     
-    logJet.debug("Configuration of EFJetMassDeta hypo for chain %s: Hypo %s, AlgoName: %s " %(chainDicts['chainName'],hypo,algoName))
+    logJet.debug("Configuration of EFHLTJetMassDeta hypo for chain %s: Hypo %s, AlgoName: %s " %(chainDicts['chainName'],hypo,algoName))
+    # import pdb;pdb.set_trace()
     try:
-        detamjjet_hypo = getattr(TrigEFJetMassDEta_Config,hypo ) 
+        detamjjet_hypo = getattr(TrigEFHLTJetMassDEta_Config,hypo ) 
     except:  
         logJet.error("Hypo %s does not exists" %(hypo))
 

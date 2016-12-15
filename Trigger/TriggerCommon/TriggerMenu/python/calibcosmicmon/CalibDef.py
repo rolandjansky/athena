@@ -56,9 +56,13 @@ def getInputTEfromL1Item(item):
   if item in L1Map:
     return L1Map[item]
   else: 
-    TE = item.replace("L1_","")
+    TE = item.split(",")[0]
+    TE = TE.replace("L1_","")
     TE = TE.split("_")[0]
+#    print "and now I have TE:"
+#    print TE
     TE = TE[1:] if TE[0].isdigit() else TE
+#    print "returning: " + TE
     return TE
 
 
@@ -214,6 +218,9 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          'idcalib_trk9_fwd_L1J10_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
          'idcalib_trk9_central_L1J10_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
          'idcalib_trk9_fwd_L1J10_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
+         'idcalib_trk9_central_bs'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_bs'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+
          }
       for name, alg in trkAlgDict.items():
          if self.AlgoName == name:
@@ -313,19 +320,19 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo
      theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
 
-     from TrigJetHypo.TrigJetHypoConfig import EFJetHypoNoiseConfig
+     from TrigCaloHypo.TrigCaloHypoConfig import EFCaloHypoNoiseConfig
 
      if "loose" in self.chainPart['addInfo']:
-       theJetHypo = EFJetHypoNoiseConfig("EFJetHypoNoiseConfigLoose")
-       theJetHypo.NoiseTool.BadChanPerFEB=1
-       theJetHypo.NoiseTool.CellQualityCut=100
+       theCaloHypo = EFCaloHypoNoiseConfig("EFCaloHypoNoiseConfigLoose")
+       theCaloHypo.NoiseTool.BadChanPerFEB=1
+       theCaloHypo.NoiseTool.CellQualityCut=100
      else:
-       theJetHypo = EFJetHypoNoiseConfig()
+       theCaloHypo = EFCaloHypoNoiseConfig()
 
 
      self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_full']]
      self.EFsequenceList += [[['EF_full'], [theTrigCaloCellMaker_jet_fullcalo ], 'EF_full_noise']]
-     self.EFsequenceList += [[['EF_full_noise'],[theJetHypo], 'jet_hypo']]
+     self.EFsequenceList += [[['EF_full_noise'],[theCaloHypo], 'jet_hypo']]
 
      self.L2signatureList += [ [['EF_full']] ]
      self.EFsignatureList += [ [['EF_full_noise']] ]
@@ -347,7 +354,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
 
      threshold=self.chainName.split("_")[0].replace("conej","")
      from TrigT2CaloJet.TrigT2CaloJetConfig import T2CaloJet_Jet_noCalib_noiseCut
-     from TrigJetHypo.TrigJetHypoConfig import L2JetHypo
+     from TrigCaloHypo.TrigCaloHypoConfig import L2JetHypo
      from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC
      from TrigDetCalib.TrigDetCalibConfig import EtaHypo_FCAL
      from TrigDetCalib.TrigDetCalibConfig import LArL2ROBListWriter

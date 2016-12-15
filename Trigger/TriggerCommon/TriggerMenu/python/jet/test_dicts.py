@@ -1,8 +1,52 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 triggerMenuXML_dicts = [
+    {'EBstep': -1,
+     'signatures': '',
+     'stream': ['Main'],
+     'chainParts': [
+         {'trigType': 'j',
+          # 'extra': 'test4',
+          'extra': '',
+          'etaRange': '0eta490',
+          'gscThreshold': '',
+          # 'threshold': '40',
+          'threshold': '8',
+          # 'chainPartName': '2j40_0eta490_invm250_test4',
+          'chainPartName': '2j8_0eta490_invm250_test4',
+          'recoAlg': 'a4',
+          'bTag': '',
+          'scan': 'FS',
+          'calib': 'em',
+          'bMatching': [],
+          'L1item': '',
+          'bTracking': '',
+          'dataType': 'tc',
+          'jetCalib': 'subjes',
+          'topo': ['invm250'],
+          'TLA': '',
+          'cleaning': 'noCleaning',
+          'bConfig': [],
+          'multiplicity': '2',
+          'signature': 'Jet',
+          'addInfo': [],
+          'dataScouting': ''}
+     ],
+     
+     'topo': [],
+     'chainCounter': 842,
+     'groups': ['RATE:MultiJet', 'BW:Jet'],
+     'signature': 'Jet',
+     'topoThreshold': None,
+     'topoStartFrom': False,
+     'L1item': 'L1_XE35_MJJ-200',
+     'chainName': '2j8_0eta490_invm250_test4'},
 
-    {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '75', 'chainPartName': '3j75', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '3', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:MultiBJet', 'BW:BJet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 954, 'signature': 'Jet', 'L1item': 'L1_3J25.0ETA23', 'chainName': '2j75_boffperf_split_j75'},
-{'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'trigType': 'j', 'scan': 'PS', 'etaRange': '0eta320', 'threshold': '30', 'chainPartName': 'j30_jes_PS_llp_noiso_L1TAU60', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'jes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': ['llp', 'noiso'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:SingleJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 1702, 'signature': 'Jet', 'L1item': 'L1_TAU60', 'chainName': 'j30_jes_PS_llp_noiso_L1TAU60'},
-{'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta240', 'threshold': '80', 'chainPartName': 'j80_0eta240', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '60', 'chainPartName': 'j60', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'trigType': 'j', 'scan': 'FS', 'etaRange': '320eta490', 'threshold': '45', 'chainPartName': 'j45_320eta490_invm700', 'recoAlg': 'a4', 'bTag': '', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': ['invm700'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '45', 'chainPartName': 'j45_bmv2c2070', 'recoAlg': 'a4', 'bTag': 'bmv2c2070', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'trigType': 'j', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '45', 'chainPartName': 'j45_bmv2c2085', 'recoAlg': 'a4', 'bTag': 'bmv2c2085', 'extra': '', 'calib': 'em', 'jetCalib': 'subjes', 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'bMatching': [], 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'signature': 'Jet', 'topo': [], 'mergingOffset': -1, 'groups': ['RATE:MultiBJet', 'BW:BJet'], 'topoThreshold': None, 'topoStartFrom': False, 'mergingStrategy': 'serial', 'chainCounter': 1052, 'mergingOrder': ['j80_0eta240', 'j60', 'j45_320eta490_invm700', 'j45_bmv2c2070', 'j45_bmv2c2085'], 'L1item': 'L1_J40.0ETA25_2J25_J20.31ETA49', 'chainName': 'j80_0eta240_j60_j45_320eta490_invm700_j45_bmv2c2070_j45_bmv2c2085'},
+    {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'trigType': 'j', 'extra': '', 'etaRange': '0eta490', 'gscThreshold': '', 'threshold': '40', 'chainPartName': '2j40_0eta490_invm250', 'recoAlg': 'a4', 'bTag': '', 'scan': 'FS', 'calib': 'em', 'bMatching': [], 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'jetCalib': 'subjes', 'topo': ['invm250'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '2', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'chainCounter': 841, 'groups': ['RATE:MultiJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_XE35_MJJ-200', 'chainName': '2j40_0eta490_invm250'},
+    
+#    {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTag': '', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '0', 'chainPartName': 'j0_1i2c500m700TLA', 'recoAlg': 'a4', 'trigType': 'j', 'extra': 'test4', 'calib': 'em', 'bMatching': [], 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'jetCalib': 'subjes', 'topo': [], 'TLA': '1i2c500m700TLA', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:MultiJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 658, 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j0_1i2c500m700TLA_test4'},
+
+#    {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTag': '', 'scan': 'FS', 'etaRange': '0eta320', 'threshold': '85', 'chainPartName': 'j85', 'recoAlg': 'a4', 'trigType': 'j', 'extra': 'test4', 'calib': 'em', 'bMatching': [], 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'jetCalib': 'subjes', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:SingleJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 475, 'signature': 'Jet', 'L1item': 'L1_J20', 'chainName': 'j85_test4'},
+
+#    {'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTag': '', 'scan': 'FS', 'etaRange': '0eta490', 'threshold': '40', 'chainPartName': '2j40_0eta490_invm250', 'recoAlg': 'a4', 'trigType': 'j', 'extra': 'test4', 'calib': 'em', 'bMatching': [], 'L1item': '', 'bTracking': '', 'dataType': 'tc', 'jetCalib': 'subjes', 'topo': ['invm250'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '2', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'mergingOrder': ['2j40_0eta490_invm250', 'xe80_L1XE70'], 'topo': [], 'mergingOffset': -1, 'groups': ['RATE:JetMET', 'BW:Jets'], 'topoThreshold': None, 'topoStartFrom': False, 'mergingStrategy': 'serial', 'chainCounter': 2354, 'signature': 'Jet', 'L1item': 'L1_XE70', 'chainName': '2j40_0eta490_invm250_xe80_L1XE70_test4'}
 ]

@@ -22,6 +22,9 @@ class JetAttributes(object):
         # eta_min, eta_max are floats
         self.eta_min, self.eta_max = eta_string_to_floats(eta_range)
 
+        self.asymmetricEta = 1 if (eta_range.startswith('n') or
+                                   eta_range.startswith('p')) else 0
+                                      
     def __str__(self):
         return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
                                                        str(self.eta_min),
@@ -48,8 +51,11 @@ class ChainConfigMaker(object):
 
     reco_alg_re = re.compile(r'^a\d+$')
     recluster_alg_re = re.compile(r'^a\d+r$')
+    trimming_alg_re = re.compile(r'^a\d+t$')
     tla_re = \
         re.compile(r'^(?P<indexlo>\d+)i(?P<indexhi>\d+)c(?P<mass_min>\d+)m(?P<mass_max>\d+)TLA$')
+    invm_re = re.compile(r'^invm(?P<mass_min>\d+)$')
+    deta_re = re.compile(r'^deta(?P<dEta_min>\d+)$')
 
     # conerverter for cleaner names used in chain anmes, and those
     # used to instantiate the C++ converters (cleanerFactory keys)
@@ -76,34 +82,40 @@ class ChainConfigMaker(object):
         self.run_rtt_diags = d['run_rtt_diags']
         self.chain_name = d['chainName']
         self.seed = d['L1item']
-
+        self.deta = None
+        self.invm = None
         # error check: count the number of hypos requested. Should
         # only be one.
         self.hypo_types = []
         [self._process_part(p) for p in d['chainParts']]
 
-        self._ensure_single_hypo()
+        # self._ensure_single_hypo()
         
-    def _ensure_single_hypo(self):
-        """hypo specification is spread over > 1 chain parts
-        (multi Et levels for the Eta-pt hypo) or specified
-        in a single chainpart (eg TLA hypo). Make sure that
-        not more than one hypo has been specied."""
+    # def _ensure_single_hypo(self):
+    #     """hypo specification is spread over > 1 chain parts
+    #     (multi Et levels for the Eta-pt hypo) or specified
+    #     in a single chainpart (eg TLA hypo). Make sure that
+    #     not more than one hypo has been specied."""
 
-        htypes = set(self.hypo_types)
-        counter = {}
-        for ht in htypes: counter[ht] = 0
-        for ht in self.hypo_types:
-            if ht in ('HLThypo', 'HLTSRhypo', 'run1hypo'):
-                counter[ht] = 1
-            else:
-                counter[ht] += 1
+    #      htypes = set(self.hypo_types)
+    #     counter = {}
+    #     for ht in htypes: counter[ht] = 0
+    #     for ht in self.hypo_types:
+    #         if ht in ('HLThypo',
+    #                   'HLThypo2_etaet',
+    #                   'HLThypo2_dimass_deta',
+    #                   'HLThypo2_ht'
+    #                   'HLThypo2_tla'
+    #                   'HLTSRhypo', 'run1hypo'):
+    #             counter[ht] = 1
+    #         else:
+    #             counter[ht] += 1
 
-        nhypos = sum(counter.values())
+    #      nhypos = sum(counter.values())
 
-        if nhypos > 1:
-            raise RuntimeError('%s  %d hypo types calculated: %s' % (
-                self.err_hdr, nhypos, str(counter)))
+    #      if nhypos > 1:
+    #         raise RuntimeError('%s  %d hypo types calculated: %s' % (
+    #             self.err_hdr, nhypos, str(counter)))
             
     def _process_part(self, part):
         """Process chain parts. If there is more than one chain part,
@@ -188,6 +200,34 @@ class ChainConfigMaker(object):
         else:
             self.check_and_set('do_recluster', False)
 
+
+	# Check for trimming regular expression match
+        match = self.trimming_alg_re.search(part['recoAlg'])
+        if match:
+            self.check_and_set('do_trim',True)
+            print 'doTrimming is True' #Nima!
+            # ----- trimming parameters -----
+            #self.check_and_set('trim_fex_name', 'antikt')
+            self.check_and_set('trim_rclus',0.2)
+            self.check_and_set('trim_ptfrac',0.05)
+            #self.check_and_set('trim_merge_param', part['recoAlg'][1:-1])
+            #self.check_and_set('trim_jet_calib', part['jetCalib'])
+            #self.check_and_set('trim_fex_alg_name', part["recoAlg"])
+
+            fex_label = reduce(lambda x, y: x + y,
+                               (part["recoAlg"],
+                                '_',
+                                part["dataType"],
+                                self.cluster_calib,
+                                part["jetCalib"],
+                                part["scan"]))
+            self.check_and_set('trim_fex_label', fex_label)
+            # Input jets are aktX ungroomed (change from 'aXt' to 'aX', typically X=10)
+            part['recoAlg'] = part['recoAlg'][0:-1]
+        else:
+            self.check_and_set('do_trim',False)
+            print 'doTrimming is false' #Nima!
+
         jet_calib = part['jetCalib']
         self.check_and_set('jet_calib', jet_calib)
         
@@ -219,7 +259,6 @@ class ChainConfigMaker(object):
                             part["scan"]))
 
         self.check_and_set('fex_label', fex_label)
-        
 
 
         # ------- data scouting parameters ----------
@@ -260,27 +299,76 @@ class ChainConfigMaker(object):
         # --------  hypo parameters ----------------
         self.check_and_set('tla_string',  part['TLA'])
 
-        hypo_type = {('j', '', False): 'HLThypo',
-                     ('j', 'test1', False): 'run1hypo',
-                     ('j', 'test2', False): 'HLTSRhypo',
-                     ('ht', '', False):'ht',
-                     ('j', '', True): 'tla'}.get((part['trigType'],
-                                                   self.test_flag,
-                                                   bool(self.tla_string)), None)
+        def getTopo(topos, target):
+            targets = [x for x in part['topo'] if x.startswith(target)]
+            if len(targets) > 1:
+                msg = '%s %s mass specied more than once %s' % (
+                    self.err_hdr, target, str(topos))
+                raise RuntimeError(msg)
 
-        if self.multi_eta: hypo_type = 'HLThypo'
+            result = ''
+            if targets: result = targets[0]
+            return result
+
+        # do not use check_and_set for invm_string or deta_Str
+        # as these values cab be different in different chainParts
+        self.invm_string =  getTopo(part['topo'], 'invm')
+        self.deta_string = getTopo(part['topo'], 'deta')
+
+        self.dimass_deta = bool(self.invm_string) or bool(self.deta_string)
+
+        # 16/04/10 switch to using TrigHLTJetHypo2 for non-test4 chains
+        # and TrigHLTJetHypo for test4 chains (reverses previous order)
+        hypo_type = {('j', '', False, False): 'HLThypo2_etaet',
+                     ('j', 'test1', False, False): 'HLThypo2_etaet',
+                     ('j', 'test2', False, False): 'HLTSRhypo',
+                     ('j', 'test4', False, False): 'HLThypo',
+                     # set up jets normally, dijet hypo appended:
+                     # requires corresponding change to generateJetChainDefs.py
+                     ('j', 'test4', False, True): 'HLThypo', 
+                     ('j', '', False, True): 'HLThypo2_dimass_deta',
+                     ('ht','', False, False): 'ht',
+                     ('ht', 'test4', False, False):'HLThypo2_ht',
+                     ('j', 'test4', True, False): 'tla',
+                     ('j', '', True, False): 'HLThypo2_tla',}.get(
+                         (part['trigType'],
+                          self.test_flag,
+                          bool(self.tla_string),
+                          self.dimass_deta), None)
+       
+        # hypo_type = {('j', '', False, False): 'HLThypo',
+        #              ('j', 'test1', False, False): 'run1hypo',
+        #              ('j', 'test2', False, False): 'HLTSRhypo',
+        #              ('j', 'test4', False, False): 'HLThypo2_etaet',
+        #              ('j', 'test4', False, True): 'HLThypo2_dimass_deta',
+        #              ('j', '', False, True): 'HLThypo',
+        #              ('ht','test4', False, False): 'HLThypo2_ht',
+        #              ('j', 'test4', True, False): 'HLThypo2_tla',
+        #              ('ht', '', False, False):'ht',
+        #              ('j', '', True, False): 'tla'}.get(
+        #                  (part['trigType'],
+        #                   self.test_flag,
+        #                   bool(self.tla_string),
+        #                   self.dimass_deta), None)
+
+        if self.multi_eta and not hypo_type.startswith('HLThypo'):
+            hypo_type = 'HLThypo'
 
         # maximum  bipartite is now "standard"
         # if self.multi_eta: hypo_type = 'maximum_bipartite'
                      
         if not hypo_type:
             msg = '%s: cannot determine hypo type '\
-                  'from trigger type: %s test flag: %s TLA: %s' % (
-                self.err_hdr, part['trigType'], self.test_flag, part['TLA'])
+                  'from trigger type: %s test flag: %s' \
+                  'TLA: %s dimass_eta %s' %  (
+                      self.err_hdr, part['trigType'],
+                      self.test_flag,
+                      str(bool(self.tla_string)),
+                      str(self.dimass_deta))
             raise RuntimeError(msg)
 
         self.hypo_types.append(hypo_type)
-        
+        print self.hypo_types
         self.check_and_set('hypo_type', hypo_type)
 
         # convert the cleaner names obtained from the chain name to 
@@ -295,11 +383,15 @@ class ChainConfigMaker(object):
         self.check_and_set('cleaner', cleaner) 
 
         hypo_setup_fn = {
-            'HLThypo': self._setup_hlt_hypo,
-            'run1hypo': self._setup_run1_hypo,
-            'HLTSRhypo': self._setup_hlt_hypo,
-            'tla': self._setup_tla_hypo,
-            'ht': self._setup_ht_hypo}.get(hypo_type, None)
+            'HLThypo': self._setup_etaet_vars,
+            'HLThypo2_etaet': self._setup_etaet_vars,
+            'HLThypo2_dimass_deta': self._setup_dimass_deta_vars,
+            'HLThypo2_tla': self._setup_tla_vars,
+            'HLThypo2_ht': self._setup_ht_vars,
+            'run1hypo': self._setup_run1_vars,
+            'HLTSRhypo': self._setup_etaet_vars,
+            'tla': self._setup_tla_vars,
+            'ht': self._setup_ht_vars}.get(hypo_type, None)
 
         if hypo_setup_fn is None:
             msg = '%s: unknown hypo type (JetDef bug) %s' % (
@@ -320,15 +412,42 @@ class ChainConfigMaker(object):
 
         if self.n_parts == 0:
             setattr(self, attr, val)
+            return
 
-        if self.n_parts:
+        
+            
+        # handle special cases, where chainParts differ for understood
+        # reasons.
+        #
+        # - hypo_type. if
+        # old == HLThypo2_dimass_deta, new == HLThypo2_etaet, keep old
+        # new == HLThypo2_dimass_deta, old == HLThypo2_etaet, use new
+
+        my_val = None
+        try:
             my_val = getattr(self, attr)
-            if my_val != val:
-                msg = '%s attribute clash %s %s %s' % (self.err_hdr,
-                                                       attr,
-                                                       my_val,
-                                                       val)
-                raise RuntimeError(msg)
+        except AttributeError:
+            # second chain parts include new inforamtion
+            # of the dijet hypo
+            if self.hypo_type == 'HLThypo2_dimass_deta':
+                if attr in  ('mass_min','dEta_min'):
+                    setattr(self, attr, val)
+                    my_val = getattr(self, attr)
+                    
+        if attr == 'hypo_type':
+            if my_val == 'HLThypo2_etaet' and val == 'HLThypo2_dimass_deta':
+                setattr(self, attr, val)
+                my_val = getattr(self, attr)
+
+            if val == 'HLThypo2_etaet' and my_val == 'HLThypo2_dimass_deta':
+                val = my_val
+
+        if my_val != val:
+            msg = '%s attribute clash %s %s %s' % (self.err_hdr,
+                                                   attr,
+                                                   my_val,
+                                                   val)
+            raise RuntimeError(msg)
 
     def __call__(self):
 
@@ -346,7 +465,7 @@ class ChainConfigMaker(object):
                     'fex_label': self.fex_label,
                     'data_type': self.data_type,
                     'fex_alg_name': self.fex_alg_name,  # for labelling
-                }
+                    }
 
         fex_params = fexparams_factory(self.fex_name, fex_args)
 
@@ -372,7 +491,21 @@ class ChainConfigMaker(object):
             # this is used to name the hypo instance
             last_fex_params = recluster_params  
 
-        if self.hypo_type == 'HLThypo':
+        trim_params = None
+        if self.do_trim:
+            trim_args = dict(fex_args)
+            trim_args.update({'rclus': self.trim_rclus,
+                              'ptfrac': self.trim_ptfrac,
+                              'fex_label': self.trim_fex_label,
+                              })
+            trim_params = fexparams_factory('jetrec_trimming',trim_args)
+	    
+  	    # overwrite last_fex_params
+	    # this is used to name the hypo instance
+            last_fex_params = trim_params
+          
+            
+        if self.hypo_type in ('HLThypo', 'HLThypo2_etaet'):
             hypo_args = {
                 'chain_name': self.chain_name,
                 'jet_attributes': self.jet_attributes,
@@ -402,22 +535,46 @@ class ChainConfigMaker(object):
                 'cleaner': 'noClean',
             }
 
-        elif self.hypo_type == 'ht':
+        elif self.hypo_type in ('ht', 'HLThypo2_ht'):
             hypo_args = {
                 'chain_name': self.chain_name,
                 'eta_range': self.eta_range,
                 'ht_threshold': self.ht_threshold,
                 'jet_et_threshold': self.jet_et_threshold,
+                'matcher': 'maximumBipartite', 
                 }
+            if self.hypo_type == 'ht': hypo_args['matcher'] = None
 
-        elif self.hypo_type == 'tla':
+        elif self.hypo_type in ('tla', 'HLThypo2_tla'):
             hypo_args = {
                 'chain_name': self.chain_name,
                 'indexlo': int(self.indexlo),
                 'indexhi': int(self.indexhi),
                 'mass_min': float(self.mass_min),
                 'mass_max': float(self.mass_max),
+                'matcher': 'maximumBipartite', 
                 'tla_string': self.tla_string}
+
+        elif self.hypo_type in ('HLThypo2_dimass_deta',):
+
+            try:
+                mass_min = float(self.mass_min)
+            except TypeError:
+                mass_min = None
+                
+            try:
+                dEta_min = float(self.dEta_min)/10.
+            except TypeError:
+                dEta_min = None
+
+            hypo_args = {
+            'chain_name': self.chain_name,
+                'jet_attributes': self.jet_attributes,
+                'cleaner': self.cleaner,
+                'matcher': 'maximumBipartite', 
+                'dEta_min': dEta_min,
+                'mass_min': mass_min}
+            
         else:
             msg = '%s unknown hypo_type %s' % (self.err_hdr, self.hypo_type)
             raise RuntimeError(msg)
@@ -430,6 +587,7 @@ class ChainConfigMaker(object):
                              hypo_params=hypo_params,
                              cluster_params=cluster_params,
                              recluster_params=recluster_params,
+			     trim_params=trim_params,
                              last_fex_params= last_fex_params
                          )
 
@@ -455,7 +613,7 @@ class ChainConfigMaker(object):
             hypo_setup_fn = {'standard': self.setup_standard_hypo,
                              'ht': self.setup_ht_hypo}.get(hypo_type, None)
 
-    def _setup_jet_hypo(self, part):
+    def _setup_jet_vars(self, part):
         """make hypo parameteters an attribute of this instance so 
         they can be checked with check_and_set. This method handles
         common standard jet hypo paramters"""
@@ -467,7 +625,7 @@ class ChainConfigMaker(object):
         self.jet_attributes.extend(
             [(JetAttributes(threshold, eta_range)) for i in range(mult)])
 
-    def _setup_run1_hypo(self, part):
+    def _setup_run1_vars(self, part):
         """Ensure the Run1 hypo is not being asked to do things it cannot do"""
 
         if self.cleaner != 'noCleaning':
@@ -480,13 +638,32 @@ class ChainConfigMaker(object):
                 'but is incomaptable with the standard hypo'
             raise RuntimeError(m)
 
-        self._setup_jet_hypo(part)
+        self._setup_jet_vars(part)
 
-    def _setup_hlt_hypo(self, part):
+    def _setup_etaet_vars(self, part):
         """Delegate setting up the hypo parameters"""
-        self._setup_jet_hypo(part)
+        self._setup_jet_vars(part)
 
-    def _setup_ht_hypo(self, part):
+    def _setup_dimass_deta_vars(self, part):
+        self._setup_jet_vars(part)
+
+        m = self.invm_re.search(self.invm_string)
+        if m:
+            # set dimass min limit obtained from regex matching
+            for k, v in m.groupdict().items():
+                self.check_and_set(k, v)
+        else:
+            self.check_and_set('mass_min', None)
+
+        m = self.deta_re.search(self.deta_string)
+        if m:
+            # set ystar min limit obtained from regex matching
+            for k, v in m.groupdict().items():
+                self.check_and_set(k, v)
+        else:
+            self.check_and_set('dEta_min', None)
+        
+    def _setup_ht_vars(self, part):
         """make the HT hypo paramters attributes of this instance to 
         allow consistency checking with check_and_set"""
 
@@ -499,27 +676,30 @@ class ChainConfigMaker(object):
         # sum to be 30 if not specified. Otherwise the expected form is
         #j\d+
 
-        try:
-            jet_et_threshold = 30. if not part['extra'] else \
-                               float(part['extra'][1:])
-        except:
-            m = '%s unrecognized value for HT jet cut %' % (
-                self.err_hdr,
-                str(part['extra'][1:]))
-
-            raise RuntimeError(m)
+        jet_et_threshold = 30.
+        extra = part['extra']
+        if (not (extra == '' or extra.startswith('test'))):
+            try:
+                jet_et_threshold = float(part['extra'][1:])
+            except:
+                m = '%s unrecognized value for HT jet cut %s' % (
+                    self.err_hdr,
+                    str(part['extra'][1:]))
+            
+                raise RuntimeError(m)
             
         self.check_and_set('jet_et_threshold', jet_et_threshold)
             
-    def _setup_tla_hypo(self, part):
+    def _setup_tla_vars(self, part):
 
         m = self.tla_re.search(self.tla_string)
         if m == None:
-            m = 'ChainConfigMaker:_setup_tla_hypo unmatched ' \
+            m = 'ChainConfigMaker:_setup_tla_vars unmatched ' \
                 'tla string: %s regex: %s'  % (tla_string, 
                                                self.tla_re.pattern)
             raise RuntimeError(m)
 
+        # set indices and mass limits obtained from regex matching
         for k, v in m.groupdict().items():
             self.check_and_set(k, v)
  

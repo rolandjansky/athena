@@ -12,12 +12,12 @@ def defineMenu():
     from TriggerMenu.l1topo.TopoOutput import TopoOutput
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-    # if this flag is True for mc v6: produce xml with full v6 menu
-    # if this flag is False for physics v6: produce xml with v6 new items removed, so to match with FW 
-    mcv6_flag = True
+    # if this flag is True for mc v7: produce xml with full v7 menu
+    # if this flag is False for physics v7: produce xml with v7 new items removed, so to match with FW 
+    mcv7_flag = True
 
-    if 'Physics_pp_v6' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-        mcv6_flag = False
+    if 'Physics_pp_v7' in TriggerFlags.triggerMenuSetup() or 'Physics_pp_v6' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
+        mcv7_flag = False
 
     newalgos_onlyinv6 = [
 #          TopoOutput( algoname='15MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=1, firstbit=14 ),#v6n        
@@ -194,7 +194,7 @@ def defineMenu():
         ]
 
 
-    if mcv6_flag:
+    if mcv7_flag:
         L1TopoFlags.algos +=  newalgos_onlyinv6
     else:
         L1TopoFlags.algos +=  newalgos_onlyinv5 

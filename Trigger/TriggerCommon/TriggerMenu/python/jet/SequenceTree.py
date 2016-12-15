@@ -78,6 +78,15 @@ class SequenceTree(object):
         # alias is a string that describes the content of the sequence.
         # this is created in JetSeqeunceBuilder.
 
+        # 22/09/2016. Some sequences are shared by other slices.
+        # The code to set these up is not handled ny the jet slice.
+        # use the hard coded te_out name which is transported in the sequence
+        # alias
+        #
+
+        if alias == 'EF_FSTopoClusters': return alias
+
+        
         assert self.max_alias_length
         if len(alias) > self.max_alias_length:
 

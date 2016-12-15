@@ -81,6 +81,17 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addMatching(theChainDef,chainDicts,listOfChainDefs)   
 
+    elif any("mVis" in alg for alg in topoAlgs):
+        ##Check that we only have a Photon and Tau chain
+        inputChains=[]
+        for ChainPart in chainDicts:
+            if 'Photon' in ChainPart['signature']  or 'Tau' in ChainPart['signature']:
+                inputChains.append(ChainPart['signature'])
+        if len(inputChains)<2:
+            log.warning("Need a Photon and a Tau chain to run the matching algorithm")
+        else:
+            theChainDef=_addMVis(theChainDef,chainDicts,listOfChainDefs)
+
     # elif any("deta" in alg for alg in topoAlgs):
     #     ##Check that we only have a Jet and Muon chain
     #     inputChains=[]
@@ -104,12 +115,12 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 #Helper
 
 def isJetTE(myString):
-        
-    if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) :
-        #print "BETTA Pass :",myString
+#    print "Nils:Executing isJetTE: "+myString
+    if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) or ('HLThypo' in myString and re.match("EF_[_0-9]+",myString)) :
+#        print "BETTA Pass :",myString
         return True
     else:
-        #print "BETTA Fail :",myString
+#        print "BETTA Fail :",myString
         return False
 
 ##############################################################################
@@ -134,7 +145,7 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     if JetThr==-1:
         log.error("No JET chain part found in DPhiMetJet Topo cut")
 
-    from TrigJetHypo.TrigEFDPhiMetJetAllTEConfig import EFDPhiMetJet_Generic
+    from TrigHLTJetHypo.TrigEFDPhiMetJetAllTEConfig import EFDPhiMetJet_Generic
 
     DPhiMetJet_Hypo = EFDPhiMetJet_Generic("EFDPhiMetJet_J"+str(JetThr).replace(".","")+"_"+str(maxJets)+"DPhi"+str(DPhiCut).replace(".",""),
                                            dPhiCut=DPhiCut, minJetEt=JetThr*1000,maxDPhiJets=maxJets)
@@ -158,7 +169,10 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     for cD in listOfChainDefs:
         if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if isJetTE(x)]:
             #print "BETTA: found ", x
-            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])]
+            print "Added the following to inputTEsEF:"
+            print cD.signatureList[-1]['listOfTriggerElements']
+            print ""
             break
 
 
@@ -261,7 +275,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
     if JetThr==-1:
         log.error("No JET chain part found in Razor cut")
 
-    from TrigJetHypo.TrigEFRazorAllTEConfig import EFRazor
+    from TrigHLTJetHypo.TrigEFRazorAllTEConfig import EFRazor
 
     Razor_Hypo = EFRazor("EFRazor_J"+str(JetThr).replace(".","")+"_Razor"+str(RazorCut).replace(".",""),
                                            Razor_cut=RazorCut)
@@ -336,6 +350,52 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
 
 ##############################################################################
 
+def _addMVis(theChainDef,chainDicts,listOfChainDefs):
+
+    ## that was it previously, just grabbing the last outputTE:
+    #inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']           
+
+    # rather get the last outputTE named EF_g and EF_tau
+    inputTEsEF=[]
+    inputTE_tau=''
+    inputTE_photon=''
+
+    for iS in range(0, len(theChainDef.signatureList) ):
+        for TE in theChainDef.signatureList[iS]['listOfTriggerElements'] :
+            if 'EF_g' in TE: inputTE_photon=TE
+            if 'EF_tau' in TE: inputTE_tau=TE
+    inputTEsEF=[inputTE_tau,inputTE_photon ]
+        
+    maxMvis=-1
+    minMvis=-1
+    for topo_item in chainDicts[0]['topo']:
+        if 'mVis' in topo_item:
+            minMvis=float(topo_item.split('mVis')[0])
+            maxMvis=float(topo_item.split('mVis')[1])
+    log.debug("mVis cuts at [GeV]: %d and %d", minMvis, maxMvis)
+    if minMvis==-1 or maxMvis==-1:
+        log.error("No mVis chain part found in Photon-Tau mVis Topo cut")
+
+    from TrigTauHypo.TrigTauHypoConfig2012 import EFPhotonTauHypo
+    from TrigTauHypo.TrigTauHypoConf       import EFPhotonTauFex 
+
+    EFFex  =  EFPhotonTauFex()
+    theVars    = ['MvisMin','MvisMax']
+    theThresh  = [minMvis*1000.,maxMvis*1000.]
+    PhotonTaumVis_Hypo = EFPhotonTauHypo("EFPhotonTau_"+str(minMvis).replace(".","")+"mVis"+str(maxMvis).replace(".",""),
+                                           theVars, theThresh)
+
+    log.debug("Input TEs to mVis algorithm: %s", inputTEsEF)
+
+    EFChainName = "EF_" + chainDicts[0]['chainName']
+
+    theChainDef.addSequence([EFFex, PhotonTaumVis_Hypo],inputTEsEF,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    return theChainDef
+
+##############################################################################
+
 def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
     allInputTEsEF = [] 
@@ -358,38 +418,45 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
 
     # =========================================================
-    # configure Hypo and jet/bjetTE    
+    # configure Hypo and jet/bjetTE
     from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
-
+    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import LeptonJetMatchAllTE
+ 
     dzmatching = False
     drmatching = False
     for topo in chainDicts[0]['topo']:
         if "dz" in topo: dzmatching = True
         if "dr" in topo: drmatching = True
-    
-        
+ 
+ 
     # obtain deltaR for Hypo configuration
     deltaR = -1
     for topo_item in chainDicts[0]['topo']:
         if 'dr' in topo_item:
             deltaR=float(topo_item.split('dr')[1])/10.
         if deltaR == -1: log.error("No DeltaR cut could be extracted!")
-
-    
+ 
+ 
     if dzmatching: # it's a bjet chain
         # obtain deltaZ for Hypo configuration
         deltaZ = -1
         for topo_item in chainDicts[0]['topo']:
             if 'dz' in topo_item:
                 deltaZ=float(topo_item.split('dz')[1]) # Need to modify this to be able to handle dZ values > 9...
-
+ 
         jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
         pos_sigCounter = -1
-        LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","RZ", hypoThresh)
+ 
+        if deltaZ==99:
+            LeptonJetFexAllTE = LeptonJetMatchAllTE("CloseBy","RZ", hypoThresh, name="LeptonJetMatchAllTE_CloseBy_RZ_"+str(hypoThresh)+'_dz'+str(int(deltaZ)) )
+        else:
+            LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","RZ", hypoThresh)
+ 
+ 
         LeptonJetFexAllTE.JetKey = "SplitJet"
         LeptonJetFexAllTE.DeltaRCut = deltaR
         LeptonJetFexAllTE.DeltaZCut = deltaZ
-        if ('_anti') in chnameAddPart: 
+        if ('_anti') in chnameAddPart:
             log.error("Matching functionality for this chain is not implemented yet: %s " % (chainDicts[0]['chainName']))
 
         
@@ -403,12 +470,15 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
         for i, mydict in enumerate(theChainDef.signatureList):
             for tes in mydict['listOfTriggerElements']:
-                if 'noCleaning' in tes:
+#                if isJetTE(tes):
+                if 'noCleaning' in tes or ('HLThypo' in tes and re.match("EF_[_0-9]+",tes)):
                     #print "WOOF found my TE", tes
                     #print "WOOF belongs to sign pos", mydict['signature_counter']
                     jetTElist.append(tes)
                     sigCounterlist.append(mydict['signature_counter'])
                     pos_sigCounterlist.append(i)
+#                else:
+#                    print "This is not a jet TE?"+ str(tes)
                     
         if ('_b') in chnameToMatch: 
             jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
@@ -417,6 +487,10 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
             if ('_anti') in chnameAddPart:
                 log.error("Matching functionality for this chain is not implemented yet: %s " % (chainDicts[0]['chainName']))
         else:
+            # import pdb;pdb.set_trace()
+            # log.error('PS chain_name ' + theChainDef.chain_name)
+            # log.error('PS jetTElist ' + str(jetTElist))
+            # log.error('PS sig list ' + str(theChainDef.signatureList))
             jetTE = jetTElist[0]
             pos_sigCounter = pos_sigCounterlist[0]
             sigCounter = sigCounterlist[0]

@@ -18,8 +18,9 @@ from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
                                            TrigCaloTowerMaker_eGamma,
-                                           TrigCaloClusterMaker_slw,
                                            TrigCaloCellMaker_eGamma_cells)
+
+from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
@@ -125,6 +126,8 @@ class L2EFChain_e(L2EFChainDef):
         self.L2InputTE = self.chainPartL1Item or self.chainL1Item
         # cut of L1_, _EMPTY,..., & multiplicity
         self.L2InputTE = self.L2InputTE.replace("L1_","")
+        if 'AFP' in self.L2InputTE:
+           self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
@@ -141,14 +144,10 @@ class L2EFChain_e(L2EFChainDef):
                 self.setup_eXXvh_idperf_heavyIon()
             else:
                 self.setup_eXXvh_idperf()
-        elif self.chainPart['L2IDAlg']:
-           self.setup_eXXvh_ID()       
         elif 'ringer' in self.chainPart['addInfo']:
            self.setup_eXXvh_ID_ringer()
-        elif self.chainPart['caloInfo']=='L2EFCalo':
-           self.setup_eXXvh_ID_L2EFCalo()
-        elif self.chainPart['caloInfo']=='HLTCalo':
-           self.setup_eXXvh_ID_HLTCalo()
+#        elif self.chainPart['caloInfo']=='HLTCalo':
+#           self.setup_eXXvh_ID_HLTCalo()
         else:
             if 'ion' in self.chainPart['extra']:
                 self.setup_eXXvh_ID_run2_heavyIon()
@@ -183,157 +182,6 @@ class L2EFChain_e(L2EFChainDef):
 ############################### DEFINE GROUPS OF CHAINS HERE ##############################
 
 
-    def setup_eXXvh_ID(self):
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        isoInfo = self.chainPart['isoInfo']
-        addInfo = self.chainPart['addInfo']
-        trkInfo = self.chainPart['trkInfo']
-        L2IDAlg = self.chainPart['L2IDAlg']
-        
-        log.debug('setup_eXXvh_ID')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('addInfo: %s',addInfo)
-        log.debug('trkInfo: %s',trkInfo)
-       
-        # L2 Elecgtron FEX
-        # Depends on L2 Strategy
-        log.debug('L2IDAlg: %s', self.chainPart['L2IDAlg'])
-        if self.chainPart['L2IDAlg']: 
-            if L2IDAlg == 'L2StarA': 
-                theL2TrackingFex = TrigL2SiTrackFinder_eGammaA()
-                theL2ElectronFex = L2ElectronFex_L2StarA()
-            elif L2IDAlg == 'L2StarB': 
-                theL2TrackingFex = TrigL2SiTrackFinder_eGammaB()
-                theL2ElectronFex = L2ElectronFex_L2StarB()
-            elif L2IDAlg == 'L2StarC': 
-                theL2TrackingFex = TrigL2SiTrackFinder_eGammaC()
-                theL2ElectronFex = L2ElectronFex_L2StarC()
-            else:
-                log.info('Incorrect L2IDAlg')
-        # Default
-        else:
-            log.debug('Use default L2StarA tracking')
-            theL2TrackingFex = TrigL2SiTrackFinder_eGammaA()
-            theL2ElectronFex = L2ElectronFex_L2StarA()
-         
-        # EF Tracking
-        theEFElectronIDFex           = TrigEFIDInsideOut_Electron("Electron").getSequence()
-        
-        # these can be made more configurable later (according to tracking algorithms etc...)
-        if 'etcut' in self.chainPart['addInfo']:
-
-            #from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
-
-            theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
-            #theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
-            if 'trkcut' in self.chainPart['addInfo']:
-                theEFElectronHypo = TrigEFElectronHypo_e_WTP("TrigEFElectronHypo_e"+str(threshold)+"_WTP",threshold)
-            else:
-                theEFElectronHypo = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
-            
-        elif 'perf' in self.chainPart['addInfo']:
-            theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_NoCut",threshold);
-            # EF Electron
-            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
-        
-        elif self.chainPart['IDinfo']:
-            algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            log.debug('chain suffix: %s', algoSuffix)
-            #if 'mvt' in algoSuffix: 
-            #    algoSuffix = algoSuffix.replace('mvt','')
-            
-            # L2 Calo
-            theL2CaloHypo = L2CaloHypo_e_ID("TrigL2CaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-            
-            # L2 Electron
-            if self.chainPart['L2IDAlg']:
-                theL2ElectronHypo  = L2ElectronHypo_e_ID_L2TrkAlg("TrigL2ElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(L2IDAlg),threshold,IDinfo,L2IDAlg)
-            else:
-                theL2ElectronHypo  = L2ElectronHypo_e_ID("TrigL2ElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-            
-            # EF Track
-            theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
-            
-            # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            
-            # EF Electron
-            if self.chainPart['isoInfo']:
-                theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
-            else: 
-                theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-        else:
-            algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            log.error('Chain %s could not be assembled', self.chainPartName)
-            log.error('chain suffix: %s', algoSuffix)
-            return False
-        
-        ########### Sequences ###########
-       
-        if 'perf' in self.chainPart['addInfo'] or 'etcut' in self.chainPart['addInfo']:
-            print 'TrigT2CaloEgamma_Ringer was enabled'
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_Ringer, theL2CaloHypo], 
-                                     'L2_e_step1']]
-        else: 
-            self.L2sequenceList += [[self.L2InputTE, 
-                                     [self.theT2CaloEgamma_eGamma, theL2CaloHypo], 
-                                     'L2_e_step1']]
-        
-        self.L2sequenceList += [[['L2_e_step1'],    
-                                 [theL2TrackingFex]+self.theL2StarxAOD, 
-                                 'L2_e_step2']]
-        
-        self.L2sequenceList += [[['L2_e_step2'], 
-                                 [theL2ElectronFex, theL2ElectronHypo], 
-                                 'L2_e_step3']]
-        
-        self.EFsequenceList += [[['L2_e_step3'], 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
-                                 'EF_e_step1']]
-        
-        self.EFsequenceList += [[['EF_e_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
-                                 'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-                                 theEFElectronIDFex+[ theEFTrackHypo],
-                                 'EF_e_step3']]
-        
-        self.EFsequenceList += [[['EF_e_step3'], 
-                                 [self.theTrigEgammaRec_eGamma, theEFElectronHypo], 
-                                 'EF_e_step4']]
-
-        ########### Signatures ###########
-
-        self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
-        self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'L2_e_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'id'),
-            'L2_e_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
 
 
     def setup_eXXvh_idperf(self):
@@ -593,7 +441,7 @@ class L2EFChain_e(L2EFChainDef):
             
 
             # L2 Calo
-            [theL2CaloRingerFex, theL2CaloRingerHypo] = TrigL2CaloRingerFexHypo_e_ID(threshold,IDinfo,self.chainName)
+            [theL2CaloRingerFex, theL2CaloRingerHypo] = TrigL2CaloRingerFexHypo_e_ID(threshold,IDinfo,self.chainPart['trigType'])
             # EF Calo
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             # EF Track
@@ -770,106 +618,6 @@ class L2EFChain_e(L2EFChainDef):
 
         self.TErenamingDict = {
             'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
-            'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
-            'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),
-            'EF_e_step4': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
-    def setup_eXXvh_ID_HLTCalo(self):
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        isoInfo = self.chainPart['isoInfo']
-        addInfo = self.chainPart['addInfo']
-        trkInfo = self.chainPart['trkInfo']
-      
-        log.debug('setup_eXXvh_ID_HLTCalo')
-        log.debug('threshold: %s',threshold)
-        log.debug('isoInfo: %s',isoInfo)
-        log.debug('IDinfo: %s',IDinfo)
-        log.debug('trkInfo: %s',trkInfo)
-               
-        # EF Tracking
-        theEFElectronIDFex           = self.theTrigEFIDInsideOutMerged_Electron
-        #print 'ESETUP', self.chainPart
-        # these can be made more configurable later (according to tracking algorithms etc...)
-        if 'etcut' in self.chainPart['addInfo']:
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            #theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
-            if 'trkcut' in self.chainPart['addInfo']:
-                theEFElectronHypo = TrigEFElectronHypo_e_WTP("TrigEFElectronHypo_e"+str(threshold)+"_WTP",threshold)
-            else:
-                theEFElectronHypo = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
-        elif 'perf' in self.chainPart['addInfo']:
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_NoCut",threshold);
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            # EF Electron
-            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
-
-        elif self.chainPart['IDinfo']:
-            algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            log.debug('chain suffix: %s', algoSuffix)
-            #if 'mvt' in algoSuffix: 
-            #    algoSuffix = algoSuffix.replace('mvt','')
-            
-            # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-           
-            # EF Track
-            theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
-            
-            # EF Electron
-            if self.chainPart['isoInfo']:
-                theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
-            else: 
-                theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-        else:
-            algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
-            log.error('Chain %s could not be assembled', self.chainPartName)
-            log.error('chain suffix: %s', algoSuffix)
-            return False
-        
-        # EF Electron FEX
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_eGamma
-        ########### Sequences ###########
-        
-        trkcomb1st = list(self.theTrigEFIDDataPrep_Electron)
-        trkcomb1st.append(self.theTrigFastTrackFinder_Electron)
-        trkcomb1st += self.theFastTrackFinderxAOD
-        trkcombfull = list(trkcomb1st)
-        trkcombfull += self.theTrigEFIDInsideOutMerged_Electron
-
-        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
-        trkseq=trkfast+trkprec
-        
-        self.EFsequenceList += [[self.L2InputTE, 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw],
-                                 'EF_e_step1']]
-        
-        self.EFsequenceList += [[['EF_e_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
-                                 'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-                                 trkseq+[ theEFTrackHypo],
-                                 'EF_e_step3']]
-        
-        self.EFsequenceList += [[['EF_e_step3'], 
-                                 [theTrigEgammaFex, theEFElectronHypo], 
-                                 'EF_e_step4']]
-
-        ########### Signatures ###########
-
-        self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step4']*self.mult] ]
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
             'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
             'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
             'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),

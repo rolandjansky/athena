@@ -38,7 +38,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     return tpcl1.menu
 
 
-def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
+def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
@@ -71,7 +71,7 @@ def findUnneededRun2():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v5']
+    menus = ['Physics_pp_v6']
 
     for menu in menus:
         TF.triggerMenuSetup = menu
@@ -85,7 +85,7 @@ def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v5','MC_pp_v5']
+    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -142,16 +142,12 @@ def findFreeCTPIDs(menu):
     
 def main():
     if len(sys.argv)==1:
-#        generateL1Menu(menu="Physics_pp_v5")
-#        generateL1Menu(menu="MC_pp_v5")
+        generateL1Menu(menu="Physics_pp_v7")
+        generateL1Menu(menu="MC_pp_v7")
         generateL1Menu(menu="Physics_pp_v6")
         generateL1Menu(menu="MC_pp_v6")
 #        generateL1Menu(menu="LS1_v1" )
         #generateL1Menu(menu="DC14")
-#        generateL1Menu(menu="MC_pp_v5_no_prescale")
-#        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
-#        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
-#        generateL1Menu(menu="MC_pp_v6_tight_mc_prescale")
 #        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
 #        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
         return 0
@@ -181,9 +177,9 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("mcp"):
-        generateL1Menu(menu="MC_pp_v5_no_prescale")
-        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
-        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
+        generateL1Menu(menu="MC_pp_v6_no_prescale")
+        generateL1Menu(menu="MC_pp_v6_loose_mc_prescale")
+        generateL1Menu(menu="MC_pp_v6_tight_mc_prescale")
         return 0
 
     if sys.argv[1].lower().startswith("ls"):
@@ -192,7 +188,7 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("dc14"):
-        generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v5")
+        generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v6")
         return 0
 
     if sys.argv[1].lower().startswith("hiphy"):
@@ -202,6 +198,14 @@ def main():
     if sys.argv[1].lower().startswith("himc"):
         generateL1Menu(menu="MC_HI_v3")
         return 0
+    
+    if sys.argv[1].lower().startswith("hipphy"):
+        generateL1Menu(menu="Physics_HI_v4")
+        return 0
+
+    if sys.argv[1].lower().startswith("hipmc"):
+        generateL1Menu(menu="MC_HI_v4")
+        return 0    
 
 if __name__=="__main__":
     sys.exit( main() )

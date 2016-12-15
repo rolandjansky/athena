@@ -25,6 +25,8 @@ from TrigBjetHypo.TrigBtagFexConfig import (getBtagFexFTKInstance,
                                             getBtagFexSplitInstance)
 
 from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
+from TrigBjetHypo.TrigGSCFexConfig import getGSCFexSplitInstance
+
 from TrigBjetHypo.TrigBjetHypoConfig import (getBjetHypoInstance,
                                              getBjetHypoNoCutInstance,
                                              getBjetHypoSplitInstance,
@@ -49,6 +51,8 @@ pp = pprint.PrettyPrinter(indent=4, depth=8)
 ###########################################################################
 ###########################################################################
 def generateChainDefs(chainDict):
+    #log.setLevel(0)
+    log.debug("In generateChainDefs")
 
     chainDict_orig = deepcopy(chainDict)
     # PrettyPrinter is rather expensive so make sure we don't invoke it unless in DEBUG
@@ -88,6 +92,7 @@ def generateChainDefs(chainDict):
 
     #----------------------------------------------------------------------------
     # --- build the jet chain, then pass JetChainDef and bjetchainDictionaries to build bjet chains ---
+    log.debug("getting the Jet Chain Defs")
     theAllJetChainDef =  genJetChainDefs(jetchainDict)
     log.debug("Jet ChainDef for b-jet chain: \n %s", theAllJetChainDef)
     #----------------------------------------------------------------------------
@@ -139,6 +144,7 @@ def generateChainDefs(chainDict):
 ###########################################################################
 ###########################################################################
 def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1):
+    log.debug("In buildBjetChains")
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
     bjetparts = bjetdict['chainParts']
@@ -150,6 +156,7 @@ def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1)
         theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
 
+    log.debug("Left buildBjetChains")
     return theBjetChainDef
 
 
@@ -157,11 +164,13 @@ def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1)
 ###################################################################################
 
 def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
-    
+    log.debug("In myBjetConfig_split")    
+
     EFChainName = "EF_bjet_" + chainDict['chainName']
 
     chainParts = chainDict['chainParts']
     btagthresh = chainParts['threshold']
+    gscthresh  = chainParts['gscThreshold'] if ('gscThreshold' in chainParts) else ''
     btagmult = chainParts['multiplicity']
     btagcut = chainParts['bTag']
     btagcut = btagcut[1:]
@@ -207,14 +216,13 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
     
     # Et hypo (for b-tagging)
+    #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
     theBjetEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", btagthresh+"GeV" )
-
     #--------------------
 
     # tracking
 #    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
 #    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
-
     if 'FTKVtx' in chainParts['bTracking']:
         [trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig").getSequence() # new
         [ftkvtx, trkftk] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx"]).getSequence() # new
@@ -232,7 +240,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     theBjetTracks = trkftf+trkprec
     # for vertexing
 ##    theVertexTracks = trkvtx  
-
     #--------------------
 
     # primary vertexing
@@ -240,6 +247,12 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 #    from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 #    from InDetTrigRecExample.InDetTrigConfigRecPostProcessing import *
 
+    #--------------------
+    # GSC
+    if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
+        theGSCFex      = getGSCFexSplitInstance(algoInstance,"2012","EFID")
+        #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
+        theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", gscthresh.replace("gsc","")+"GeV" )
     #--------------------
 
     # secondary vertexing
@@ -279,7 +292,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         else:
             theBjetFex = getBjetFexSplitInstance(algoInstance,"2012","EFID")
 
-
     #--------------------
 
     # bjet hypo 
@@ -306,7 +318,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     elif 'FTK' in chainParts['bTracking']:
         tracking    = "FTK"
 
-###    print "JK , tracking is ",tracking
 
     jetEtHypoTE     = "HLT_j"+btagthresh+ftk
     jetHypoTE       = "HLT_j"+btagthresh+ftk+"_eta"
@@ -314,7 +325,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
 
-##    print "JK , jetTrackTE ",jetTrackTE
+    gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
+    gsc_jetTrackTE        = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
+
 
     if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
 
@@ -328,6 +341,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         #print 'muon thr for antimatch:' + str(muonthr) 
         muonTE      = "EF_SuperEF_mu{0}_MU{1}".format(muonthr,muonthr)
         jetEtHypoTE = jetEtHypoTE+'_antimatchmu{0}'.format(muonthr)
+        gscEtHypoTE = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking+'_antimatchmu{0}'.format(muonthr)
         jetHypoTE   = jetHypoTE+'_antimatchmu{0}'.format(muonthr)
         jetTrackTE  = jetTrackTE +'_antimatchmu{0}'.format(muonthr)
 
@@ -341,8 +355,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:
         comboPrmVtxTE="HLT_FTKVtx_Combo"
  
-
-##    print "JK comboPrmVtx : ",comboPrmVtxTE
 
     topoThresh = chainDict['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
@@ -373,19 +385,37 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)
     if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
         theChainDef.addSequence(theFarawayJet,  [muonTE, jetSplitTE], jetFarawayTE)
-        theChainDef.addSequence(theBjetEtHypo,  jetFarawayTE,  jetEtHypoTE)
+        jetForTrackingEtCut = jetFarawayTE        
+        #theChainDef.addSequence(theBjetEtHypo,  jetFarawayTE,  jetEtHypoTE)
     else :
-        theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)
+        jetForTrackingEtCut = jetSplitTE
+        #theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)
+
+    #Et cut before tracking
+    theChainDef.addSequence(theBjetEtHypo,  jetForTrackingEtCut,       jetEtHypoTE )
+
 
     theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)   
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:
         theChainDef.addSequence(theVxSecondaryFTK, [jetTrackTE, comboPrmVtxTE], secVtxTE)
     else:
         theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
-    theChainDef.addSequence([theBjetFex, theBtagReq], secVtxTE, lastTEout, topo_start_from = topoStartFrom)
+
+    #GSC
+    if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
+        log.debug("Doing GSC Calculation:"+chainParts["gscThreshold"])
+        theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
+        theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
+        jetsForBTagging = gsc_jetTrackTE
+        #secVtxTE        = gsc_jetTrackTE+"__"+"superVtx"
+    else:
+        log.debug("No GSC Calculation")
+        jetsForBTagging = secVtxTE
+        #secVtxTE        = jetTrackTE+"__"+"superVtx"
+
+    theChainDef.addSequence([theBjetFex, theBtagReq], jetsForBTagging, lastTEout, topo_start_from = topoStartFrom)
 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
-
     return theChainDef
 
 ###################################################################################

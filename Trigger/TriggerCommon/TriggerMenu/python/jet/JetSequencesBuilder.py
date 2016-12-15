@@ -29,6 +29,7 @@ in a tree structure. Currently ll such tree structures reduce to a linear
 sequence of sequences.
 """
 
+from TriggerMenu.commonUtils  import makeCaloSequences
 
 class AlgList(object):
     def __init__(self, alg_list, alias, attach_to=''):
@@ -73,14 +74,17 @@ class JetSequencesBuilder(object):
         # set up a sequence key (str) to function to make an Alglist
         # table
         self.router = {'fs': self.make_fs,  # full scan
+                       'fs2': self.make_fs2,  # fsull scan/cellmaker/cluster
                        'cmfs': self.make_cmfs,  # cell/cluster maker full scan
                        'ed': self.make_ed,  # energy density
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
+		       'tr': self.make_jr_trimming, # trimmed jets
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
+                       'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
                        'cm': self.make_cm,  # cell and cluster maker
                        'tt': self.make_tt,  # construct trigger tower objects
@@ -128,7 +132,8 @@ class JetSequencesBuilder(object):
         data_type = menu_data.data_type
         scan_type = menu_data.scan_type
         seq_order = {
-            ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
+            # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
+            ('tc', 'FS'): ['fs2', 'ed', 'jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS'): ['ps', 'cm', 'jr'],
             ('ion', 'FS'): ['fs','hicm','hijr'],
@@ -144,6 +149,16 @@ class JetSequencesBuilder(object):
         if menu_data.recluster_params is not None:
             seq_order.append('rc')
 
+        # add jet trimming sequence if requested 
+        if menu_data.trim_params is not None:
+            # Replace 'jr' with 'tr' if available
+            # Done this way for reasones explained in ATR-14738
+            # See explanation from S. Schramm on Oct 15 2016
+            if seq_order[-1] == 'jr':
+                seq_order[-1] = 'tr'
+            else:
+                seq_order.append('tr')
+    
         # fex diagnostics are run before the hypo,
         # otherwise they will not see
         # features before cuts.
@@ -156,6 +171,7 @@ class JetSequencesBuilder(object):
         if self.chain_config.run_hypo:
             hypo_type = self.chain_config.menu_data.hypo_params.hypo_type
             if hypo_type in ('HLThypo',
+                             'HLThypo2_etaet',
                              'HLTSRhypo',
                              'run1hypo',):
                 seq_order.append('jh')
@@ -163,10 +179,13 @@ class JetSequencesBuilder(object):
                     # run the jet hypo doagnostic after the jet hypo - so we can
                     # see which jets are cut.
                     seq_order.append('jhd')
-            elif hypo_type == 'HT':
+            elif hypo_type in ('HT', 'HLThypo2_ht'):
                 seq_order.append('jh_ht')
-            elif hypo_type == 'tla':
+            elif hypo_type in ('tla', 'HLThypo2_tla'):
                 seq_order.append('jh_tla')
+            elif hypo_type in ('HLThypo2_dimass_deta',):
+                seq_order.append('jh_dimass_deta')
+                
             else:
                 
                 msg = '%s._make_sequence_list: unknown hypo type %s ' % (
@@ -185,6 +204,26 @@ class JetSequencesBuilder(object):
 
         return AlgList(alg_list=self.alg_factory.fullscan_roi(),
                        alias='fullroi')
+
+    def make_fs2(self):
+        """make full scan/CellMaker/ClusterMAker sequence using
+        common code from TriggerMenu"""
+
+        sequence = makeCaloSequences.fullScanTopoClusterSequence()
+
+        class AlgStringProxy(object):
+
+            def __init__(self, alg):
+                self.alg = alg
+                self.manual_attrs = {}
+                
+            def asString(self):
+                return 'AlgStringProxy: Presintantiated Algorithm instance'
+
+            def __str__(self):
+                return self.asString()
+        alg_list = [AlgStringProxy(a) for a in sequence[1]]
+        return AlgList(alg_list=alg_list, alias=sequence[2])
 
 
     def make_ps(self):
@@ -317,31 +356,31 @@ class JetSequencesBuilder(object):
         # return AlgList([self.alg_factory.jetrec_cluster(),
         #                self.alg_factory.jetrec_jet()], alias)
 
+    def make_jr_trimming(self):
+        """Make jetrec sequence"""
 
+        menu_data = self.chain_config.menu_data
+        fex_params = menu_data.fex_params
+        cluster_params = menu_data.cluster_params
+        trim_params = menu_data.trim_params
+        
+        alias = 'jetrectrim_%s' % trim_params.fex_label
+        
+        return AlgList(self.alg_factory.jetrec_trimming(),alias)
+        
 
     def make_jh(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-
-        alias_base = hypo.hypo_type+ '_' + hypo.jet_attributes_tostring()
+        alias_base = hypo.hypo_type+ '_' + hypo.attributes_toString()
         alias_base += '_' + hypo.cleaner
 
-        alias = alias_base  # copy
-        
-        function_map  = {
-            'HLThypo': self.alg_factory.hlt_hypo,  # maxbipartitite matcher
-            'HLTSRhypo': self.alg_factory.hlt_hypo,  # singleEtaRegion matcher
-            'run1hypo': self.alg_factory.jr_hypo,
-            }
-
-        f = function_map.get(hypo.hypo_type, None)
-
-        if f is None:
-            msg = '%s._make_jh: unknown hypo_type: %s' % (
-                self.__class__.__name__, str(hypo.hypo_type))
-            raise RuntimeError(msg)
+        # alias = alias_base  # copy
+        alias = 'noCleaning%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+                         
+        f = self.alg_factory.hlthypo2_EtaEt
 
         return AlgList(f(), alias)
 
@@ -351,9 +390,28 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        alias = 'hthypo_%s' % str(hypo.attributes_to_string())
+        f = self.alg_factory.hlthypo2_ht
 
-        return AlgList(self.alg_factory.ht_hypo(), alias)
+        hypo = menu_data.hypo_params
+        alias = 'hthypo_%s' % self.chain_name_esc
+
+        return AlgList(f(), alias)
+
+
+    def make_jh_dimass_deta(self):
+        """Create an alg_list for the dijet hypo"""
+
+        menu_data = self.chain_config.menu_data
+        hypo = menu_data.hypo_params
+
+        alias = 'noCleaning%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        algs = []
+
+        #run the eta-et hypo then the dimass hypo
+        [algs.extend(f()) for f in ( self.alg_factory.hlthypo2_EtaEt,
+                                     self.alg_factory.hlthypo2_dimass_deta)]
+        return AlgList(algs, alias)
 
 
     def make_jh_tla(self):
@@ -361,9 +419,13 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        alias = 'tlahypo_%s' % str(hypo.tla_string)
+        f = self.alg_factory.hlthypo2_tla
 
-        return AlgList(self.alg_factory.hlt_hypo_tla(), alias)
+        hypo = menu_data.hypo_params
+        # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        return AlgList(f(), alias)
 
 
     def make_tt(self):

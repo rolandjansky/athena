@@ -10,9 +10,9 @@ def splitInterSignatureChainDict(chainDict):
     listOfSplitChainDicts = []
     for chainPart in chainDict['chainParts']:
         thisSignature = chainPart['signature']
-        chainPartAdded = False
+        chainPartAdded = False        
         for splitChainDict in listOfSplitChainDicts:
-            if thisSignature == splitChainDict['chainParts'][0]['signature']:
+            if thisSignature == splitChainDict['chainParts'][0]['signature']:            
                 splitChainDict['chainParts'] += [chainPart]
                 chainPartAdded = True
                 break
@@ -23,6 +23,50 @@ def splitInterSignatureChainDict(chainDict):
             listOfSplitChainDicts += [newSplitChainDict]
             #print "Hi : adding to listofsplitchaindicts " + str(newSplitChainDict)
 
+            
+    #special code to handle chains with "AND" in the name
+    #jet,ht and bjet jet chains belong to the same signature
+    #so an extra key is needed to make sure the part are treated separately
+    for splitChainDict in listOfSplitChainDicts:
+        if 'AND' in [part['extra'] for part in  splitChainDict['chainParts']]:
+            log.info("Implement extra splitting, triggered by AND key (%s.)", chainDict['chainName'])
+                
+            listOfSplitChainDicts=[]        
+            addNewSplit= False      
+            for chainPart in chainDict['chainParts']:
+                thisSignature = chainPart['signature']
+                chainPartAdded = False        
+                
+                #chainPart coming after the AND, change temporaly the Signature name, 
+                #so it does not get added to existing dictionary
+                if addNewSplit:                    
+                    thisSignature = 'extraSplit'            
+                    addNewSplit = False        
+
+                #chainPart containing at AND,
+                # make sure next chainPart is added as a new elemented to the listOfSplitChainDicts
+                if 'AND' in chainPart['extra']:
+                    addNewSplit = True
+                    #log.info("AND key found, next chainPart will be added as a new element of listOfSplitChainDicts")
+                    
+                for splitChainDict in listOfSplitChainDicts:
+                    #if AND present in an elemenent of listOfSplitChainDicts, don't add anything to it
+                    if 'AND' in [part['extra'] for part in splitChainDict['chainParts']]:
+                        continue
+                    if thisSignature == splitChainDict['chainParts'][0]['signature']:            
+                        #log.info("Adding %s to existing element %s.", chainPart['chainPartName'], splitChainDict)
+                        splitChainDict['chainParts'] += [chainPart]
+                        chainPartAdded = True
+                        break
+                if not chainPartAdded:
+                    newSplitChainDict = deepcopy(chainDict)
+                    newSplitChainDict['chainParts'] = [chainPart]
+                    newSplitChainDict['signature'] = chainPart['signature']
+                    listOfSplitChainDicts += [newSplitChainDict]
+                    #log.info("Adding %s as a new element of listOfSplitChainDicts", chainPart['chainPartName'])
+                    
+    #log.info("ListOfSplitChainDicts", chainPart['chainPartName'])
+    
     #oder the splitted dicts
     orderedListOfSplitChainDicts = []
     if not chainDict.has_key("mergingOrder"):
@@ -31,15 +75,13 @@ def splitInterSignatureChainDict(chainDict):
         log.info("No merging order given for chain %s.", chainDict['chainName'])
     else:
         for chainPartName in chainDict["mergingOrder"]:
-            for splitChainDict in listOfSplitChainDicts:
+            for splitChainDict in listOfSplitChainDicts:                
                 if splitChainDict['chainParts'][0]['chainPartName'] == chainPartName:
                     orderedListOfSplitChainDicts += [splitChainDict]
                     #print "Hi : adding to orderedListOfSplitChainDicts " + str(splitChainDict)
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
-            #for chainPartName in chainDict["mergingOrder"]:
-            #    for splitChainDict in listOfSplitChainDicts:
-            #      print "BETTA", splitChainDict['chainParts'][0]['chainPartName'], chainPartName
-            log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")
+            for chainPartName in chainDict["mergingOrder"]:
+                log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")                
             print chainDict
             
         return orderedListOfSplitChainDicts
@@ -114,44 +156,72 @@ def _replicateMissingSignatures(listOfChainDefs,unevenSigs,level):
 
 
 
-def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts=''):
+def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts='',noTEreplication=False):
 
     log.debug("Combine using %s  merging", strategy)
 
     if strategy=="parallel":
         return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs)
     elif strategy=="serial":
-        return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,doTopo=doTopo)
+        return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,preserveL2EFOrder=preserveL2EFOrder,doTopo=doTopo,noTEreplication=noTEreplication)
     else:
         log.error("Merging failed for chain %s. Merging strategy '%s' not known." % (level, chainDef.chain_name))
         return -1
 
 
 
-def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True):
+def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True,noTEreplication=False):
 
     """
     serial merging of chain def objects for combined chains
     """
 
-    noTEreplication=False
+    
+    #noTEreplication=False
     #Add few exception to the replication of the TE
     jet_count=0
     met_count=0
+    ht_count=0
+    other_count=0
     try:
+        if 'upc' in ChainDicts[0]['chainName'] :
+            noTEreplication=True  
+
+        if 'hi' in ChainDicts[0]['chainName'] and 'v2' in  ChainDicts[1]['chainName'] :
+            noTEreplication=True  
+        
         for chainDict in ChainDicts:
             if (chainDict["signature"] == "Jet"):
-                jet_count=+1
-            if (chainDict["signature"] == "MET"):
+                jet_count+=1
+                #print "BETTA: adding one jet count: ",chainDict
+            elif (chainDict["signature"] == "HT"):
+                ht_count+=1
+                #print "BETTA: adding one ht count: ",chainDict            
+            elif (chainDict["signature"] == "MET"):
                 for chainpart in chainDict["chainParts"]:
                     if 'xe' in chainpart['trigType'] and 'cell' not in chainpart['EFrecoAlg']:
-                        met_count=+1
+                        met_count+=1
+                        #print "BETTA: adding one met count: ",chainDict            
+            else:
+                #print "BETTA-adding ",chainDict["signature"]
+                other_count+=1
+
+        #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, "other:-", other_count, " in: ",ChainDicts[0]['chainName']
+            
+        
     except:
         pass
 
+
     if jet_count > 0 and met_count > 0:
         noTEreplication=True        
-        
+    if jet_count > 1:
+        noTEreplication=True        
+    if met_count > 1:
+        noTEreplication=True        
+    if jet_count > 0 and ht_count > 0:
+        noTEreplication=True        
+
 
     listOfChainDefs = deepcopy(listOfChainDefs) 
 
@@ -160,7 +230,6 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
         lastTE = chainDef.signatureList[-1]
 
     
-
     # copy the chaindef into which we want to merge the other chaindefs
     mergedChainDef = deepcopy(listOfChainDefs[0])
     firstChainDefLastTEs = mergedChainDef.signatureList[-1]['listOfTriggerElements']
@@ -170,6 +239,8 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
     listOfChainDefs.pop(0)
     
     # Loop remaining chain defs to be merged
+    #doTopo=False
+    #preserveL2EFOrder=False
 
     
     for chainDef in listOfChainDefs:
@@ -181,9 +252,11 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
         for signatureIdx,signature in enumerate(chainDef.signatureList):
             # if a topo is appended after the chain merging, or in same special cases, the replication of the last TEs is not necessary
             if noTEreplication:
+                print "Removing replication of the TE for chain: ",chainDef.chain_name
                 log.info("Removing replication of the TE for chain: %s" %(chainDef.chain_name))
                 signatureToAdd = signature['listOfTriggerElements'] 
             else:
+                #print "no change for chain: ",chainDef.chain_name
                 signatureToAdd = signature['listOfTriggerElements'] if doTopo else signature['listOfTriggerElements'] + currentLastTEs 
             #signatureToAdd = signature['listOfTriggerElements'] 
             if preserveL2EFOrder:

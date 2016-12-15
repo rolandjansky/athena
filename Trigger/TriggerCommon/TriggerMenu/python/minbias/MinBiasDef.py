@@ -141,12 +141,20 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ncb' in  self.chainPart['extra']:
             doSpNcb=True
 
+        doBLayer=False
+        if 'blayer' in  self.chainPart['extra']:
+            doBLayer=True
+
+        doVetoSp=False
+        if 'vetosp' in self.chainPart['extra']:
+            doVetoSp=True
+
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['extra'] or "vetospmbts2in" in self.chainPart['extra']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
@@ -163,12 +171,18 @@ class L2EFChain_MB(L2EFChainDef):
             theL2Fex  = L2MbSpFex_SCTNoiseSup
         elif doSpNcb:
             # spacepoint halo trigger is SCT only
-            theL2Fex  = L2MbSpFex_noPix
+            theL2Fex  = L2MbSpFex_ncb
             chainSuffix = "sp_ncb"
+        elif doBLayer:
+            # pix occupancy trigger only counts the innermost pix layer
+            theL2Fex = L2MbSpFex_BLayer
+            chainSuffix = "sp_blayer"
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
                 chainSuffix = "sptrk"
+            elif doVetoSp:
+                chainSuffix = "sp_vetosp"
             else:
                 chainSuffix = "sp"
         
@@ -178,8 +192,15 @@ class L2EFChain_MB(L2EFChainDef):
             if "vetombts1side2in" in self.chainPart['extra']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
 
+        if doMbtsVeto and doVetoSp: # this will never be done w tracks
+            chainSuffix = "sp_vetospmbts2in"
+
         if doSpNcb:
             theL2Hypo = L2MbSpHypo_ncb
+        elif doBLayer:
+            theL2Hypo = L2MbSpHypo_blayer
+        elif doVetoSp:
+            theL2Hypo = L2MbSpHypo_veto
         else:
             theL2Hypo = L2MbSpHypo
 
@@ -207,12 +228,28 @@ class L2EFChain_MB(L2EFChainDef):
             theEFFex2 =  EFMbTrkFex
             efhypo = self.chainPart['hypoEFInfo']
             if efhypo:
-                efth=efhypo.lstrip('pt')
-                threshold=float(efth)
-                theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
-                theEFHypo.Min_pt = threshold
-                theEFHypo.Max_z0 = 401.
-                chainSuffix = chainSuffix+'_pt'+efth
+                if "pt" in self.chainPart['hypoEFInfo']:
+                    efth=efhypo.lstrip('pt')
+                    threshold=float(efth)
+                    theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
+                    theEFHypo.Min_pt = threshold
+                    theEFHypo.Max_z0 = 401.
+                    chainSuffix = chainSuffix+'_pt'+efth
+                elif "trk" in self.chainPart['hypoEFInfo']:
+                    efth=efhypo.lstrip('trk')
+                    theEFHypo = MbTrkHypo('EFMbTrkHypo_trk%i'% int(efth))
+                    theEFHypo.Required_ntrks = int(efth)
+                    theEFHypo.Min_pt = 0.200
+                    theEFHypo.Max_z0 = 401.
+                    chainSuffix = chainSuffix+'_trk'+efth
+            elif 'exclusiveloose' in self.chainPart['extra']:
+                efth=0.200 #default
+                theEFHypo =  EFMbTrkHypoExclusiveLoose
+                chainSuffix = chainSuffix+"_exclusiveloose"
+            elif 'exclusivetight' in self.chainPart['extra']:
+                efth=0.200 #default
+                theEFHypo =  EFMbTrkHypoExclusiveTight
+                chainSuffix = chainSuffix+"_exclusivetight"
             else:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypo

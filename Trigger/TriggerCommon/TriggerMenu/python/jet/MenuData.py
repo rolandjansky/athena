@@ -12,6 +12,7 @@ class MenuData(object):
                  hypo_params,
                  cluster_params,
                  recluster_params,
+                 trim_params,
                  last_fex_params  # parameters of the last fex rn (eg a10r?)
              ):
 
@@ -21,6 +22,7 @@ class MenuData(object):
         self.hypo_params = hypo_params
         self.cluster_params = cluster_params
         self.recluster_params = recluster_params
+        self.trim_params = trim_params
         self.last_fex_params = last_fex_params
 
     def __str__(self):

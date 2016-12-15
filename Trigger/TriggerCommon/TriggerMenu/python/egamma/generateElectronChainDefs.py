@@ -71,58 +71,72 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     if "Jpsiee" in chainDict["topo"]:
         topo2StartFrom = None
         if topoStartFrom:
-            L2ChainName = L2ChainName+'_tsf'
-            topo2StartFrom = L2ChainName
+            #L2ChainName = L2ChainName+'_tsf'
+            #topo2StartFrom = L2ChainName
             EFChainName = EFChainName+'_tsf'
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
 
-        L2Fex = TrigL2DielectronMassFex_Jpsiee()
-        L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
+        #L2Fex = TrigL2DielectronMassFex_Jpsiee()
+        #L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
 
         EFFex = TrigEFDielectronMassFex_Jpsi()
         EFHypo = TrigEFDielectronMassHypo_Jpsi()
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
+        #theChainDef.addSignatureL2([L2ChainName])
 
-        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
+        #theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topoStartFrom)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
     elif "Zeg" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zeg, TrigL2DielectronMassHypo_Zeg
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zeg, TrigL2DielectronMassHypo_Zeg
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zeg, TrigEFDielectronMassHypo_Zeg
 
-        L2Fex = TrigL2DielectronMassFex_Zeg()
-        L2Hypo = TrigL2DielectronMassHypo_Zeg()        
+        #L2Fex = TrigL2DielectronMassFex_Zeg()
+        #L2Hypo = TrigL2DielectronMassHypo_Zeg()        
 
         EFFex = TrigEFDielectronMassFex_Zeg()
         EFHypo = TrigEFDielectronMassHypo_Zeg()
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        #theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     elif "Zee" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight
-        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight
+        #from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight, TrigL2DielectronMassHypo_Zee
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight, TrigEFDielectronMassHypo_Zee
 
-        L2Fex = TrigL2DielectronMassFex_Zee()
-        L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
+        #L2Fex = TrigL2DielectronMassFex_Zee()
+        #L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
 
-        EFFex = TrigEFDielectronMassFex_Zee()
-        EFHypo = TrigEFDielectronMassHypo_ZeeTight()
+        if 'etcut' in chainDict['chainName']:
+            from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFexElectronCluster_Zee, TrigEFDielectronMassHypoElectronCluster_Zee
+            EFFex = TrigEFDielectronMassFexElectronCluster_Zee()
+            EFHypo = TrigEFDielectronMassHypoElectronCluster_Zee()
+        else:
+            EFFex = TrigEFDielectronMassFex_Zee()
+            EFHypo = TrigEFDielectronMassHypo_ZeeTight()
+            
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
+        #theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        #theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+        if 'etcut' in chainDict['chainName']:
+             from TrigIDTPMonitor.TrigIDTPMonitorConfig import IDTPMonitorElectron                                                               
+             IDTP = IDTPMonitorElectron()
+             myInputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+             theChainDef.addSequence([IDTP],myInputTEsEF,EFChainName+"_monit")
+             theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFChainName+"_monit"])
     
     return theChainDef
 

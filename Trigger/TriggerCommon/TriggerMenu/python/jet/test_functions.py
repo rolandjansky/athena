@@ -4,27 +4,37 @@
 
 import getopt, sys, os
 from StdOutController import StdOutController
+import importlib
 
 from generateJetChainDefs import  generateChainDefs
+from exc2string import exc2string2 
+from AthenaCommon.Include import include
+from AthenaCommon.OldStyleConfig import  Service
 
+def _generate(d, silent):
 
-def _generate(d):
-    controller = StdOutController()
-
-    controller.off()
+    if silent:
+        controller = StdOutController()
+        controller.off()
+        
     cd  = generateChainDefs(d)
     sys.settrace(None)
-    controller.on()
+
+    if silent: controller.on()
+
     return cd
 
 
-def run_triggerMenuXML_dicts(use_atlas_config=True,
+def run_triggerMenuXML_dicts(silent,
+                             dicts,
+                             use_atlas_config=True,
                              debug=True,
                              printChains=True):
-    from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
-    m =  'have [%d] dicts, set $JETDEF_DEBUG, $JETDEF_DEBUG_NO_INSTANTIATION'\
-         ' to write to disk' % (
-        len(dicts))
+    if not dicts:
+        from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
+        m =  'have [%d] dicts, set $JETDEF_DEBUG, '\
+             '$JETDEF_DEBUG_NO_INSTANTIATION'\
+             ' to write to disk' % (len(dicts))
     print m
 
     devnull = open(os.devnull, 'w')
@@ -33,17 +43,23 @@ def run_triggerMenuXML_dicts(use_atlas_config=True,
     
     result = []
     ndicts = 0
+    toSkip = (
+        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+        )
     for d in dicts:
-        if d['chainName'] == 'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO':
-            print 'Excluding j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO'
-            continue
+        # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
+        #    print d['chainName']
+        #    continue
         
         if printChains: print ndicts, d['chainName']
         # sys.stdout = devnull
         # sys.stderr = devnull
         try:
-            result.append(_generate(d))
+            result.append(_generate(d, silent))
         except Exception, e:
+            print d['chainName']
+            print e
             assert False
         ndicts += 1
         # sys.stdout = old_out
@@ -52,9 +68,12 @@ def run_triggerMenuXML_dicts(use_atlas_config=True,
     print 'have [%d] chainDefs' % len(result)
     return result
 
-def run_test_dicts():
+def run_test_dicts(silent, dicts):
     """Function to run jetdef from a text file containing a single dict"""
-    from test_dicts import triggerMenuXML_dicts as dicts
+
+    if not dicts:
+        from test_dicts import triggerMenuXML_dicts as dicts
+
     print 'run_test_dicts: found %d dicts for chains:' % len(dicts)
     for d in dicts:
         print d['chainName']
@@ -64,16 +83,17 @@ def run_test_dicts():
     for d in dicts:
         print d['chainName']
         try:
-            cd = _generate(d)
+            cd = _generate(d, silent)
+            print cd
+            chainDefs.append(cd)
         except Exception, e:
             print '(Error)ChainDef creation failed: ', str(e)
-        print cd
-        chainDefs.append(cd)
+            print exc2string2()
 
     return chainDefs
 
 
-def run_from_topo():
+def run_from_topo(silent, dicts):
 
     assert ('JETDEF_DEBUG2' in os.environ)
 
@@ -82,40 +102,66 @@ def run_from_topo():
             if c['topo']: return True
         return False
 
-    from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
+    if not dicts:
+        from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
+
     dicts = [d for d in dicts if has_topo(d)]
     print 'have [%d] chaindefs, use env variables to write to disk' % (
         len(dicts))
-    return [_generate(d) for d in dicts]
+    return [_generate(d, silent) for d in dicts]
         
 def usage():
     print 'test_functions: Create ChainDefs instances from dictionaries'
     print '   -m run all the dicts gathered from building TriggerMenuXML'
     print '   -f run from test_dicts.'
     print '   -t run topo chains from . TriggerMEnuXML dicts'
+    print '   -s silent (but stops pdb prompt...)'
+    print '   -n name of file (default depends on option)'
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'htmf', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'htmsfn:', [])
     except getopt.GetoptError as err:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
-    if len(opts) != 1:
+    if len(opts) > 2:
         print 'Wrong number of arguments ', str(opts)
         usage()
         sys.exit(1)
-    
+
+    silent = False
+    do_all = False
+    do_testdicts = False
+    do_topo = False
+    fn = ''
     for o, a in opts:
+        print o, a
+        if o == '-s':
+            silent = True
         if o == '-m':
-            run_triggerMenuXML_dicts(printChains=True)
+            do_all = True
         elif o == '-f':
-            run_test_dicts()
+            do_testdicts = True
         elif o == '-t':
-            run_from_topo()
+            do_topo = True
+        elif o == '-n':
+            fn = a
         else:
             usage()
-                
+
+    dicts = []
+    if fn:
+        try:
+            dicts = importlib.import_module(fn).dicts
+        except:
+            print 'Error, could not find a dicts name in ', fn
+            sys.exit(0)
+
+    if do_all: run_triggerMenuXML_dicts(silent, dicts, printChains=True)
+    if do_testdicts: run_test_dicts(silent, dicts)
+    if do_topo: run_from_topo(silent, dicts)
+        
             
 

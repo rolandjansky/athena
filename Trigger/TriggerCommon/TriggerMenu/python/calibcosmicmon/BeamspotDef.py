@@ -161,6 +161,34 @@ class L2EFChain_Beamspot(L2EFChainDef):
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
         teaddition = 'trkFTK'
 
+     elif ('FTKRefit' in self.l2IDAlg):
+        if 'trkFS' in self.chainPart['addInfo'] :
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK
+           theFex = T2VertexBeamSpot_FTK()
+        elif 'activeTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTK
+           theFex = T2VertexBeamSpot_activeTE_FTK()
+        elif 'allTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
+           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+        elif 'idperf' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
+           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+           from TrigFTK_Monitoring.FtkHltEfficiencyConfig import FtkHltEfficiencyFex
+           moni_alg = FtkHltEfficiencyFex()
+        else:
+           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
+
+        if 'idperf' in self.chainPart['addInfo']:
+           from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
+           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
+        else: 
+           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
+           teaddition = 'trkFTKRefit'
+
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        
     

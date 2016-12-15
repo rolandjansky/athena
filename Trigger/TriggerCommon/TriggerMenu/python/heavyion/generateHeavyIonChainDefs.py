@@ -19,7 +19,9 @@ HeavyIon = []
 ##########################################################################################
 
 
-def generateChainDefs(chainDict):          
+def generateChainDefs(chainDict):
+
+    print 'generateHeavyIonChainDefs, input dict', chainDict
 
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []

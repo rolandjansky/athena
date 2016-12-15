@@ -17,6 +17,9 @@ def fexparams_factory(selector, kargs):
     if selector == 'jetrec_recluster':
         return _JetRecReclusterParams(**kargs)
 
+    if selector == 'jetrec_trimming':
+        return _JetRecTrimmingParams(**kargs)
+
     else:
         raise RuntimeError('fexarfs_factory: unknow fex selector %s' % selector)
 
@@ -48,7 +51,8 @@ class _JetFexParams(object):
         self.cluster_calib_fex = {'em': 'EM', 'lcw': 'LC'}.get(cluster_calib)
         self.fex_label = fex_label
         self.fex_alg_name = fex_alg_name  # from input dictionary
-        
+      
+
     def __str__(self):
         s = ['%s: %s\n' % (k, str(v)) for k, v in self.__dict__.items()]
         return '\n'.join(s)
@@ -109,3 +113,13 @@ class _JetRecReclusterParams(_JetFexParams):
         _JetFexParams.__init__(self, **kargs)
         self.ptMinCut = ptMinCut
         self.etaMaxCut = etaMaxCut
+
+class _JetRecTrimmingParams(_JetFexParams):
+    """ Argument checking class that holds the parameters for JetRec"""
+    fex_type = 'jetrec_trimming'
+
+    def __init__(self,rclus,ptfrac,**kargs):
+       _JetFexParams.__init__(self,**kargs)
+       self.rclus = rclus
+       self.ptfrac = ptfrac
+      
