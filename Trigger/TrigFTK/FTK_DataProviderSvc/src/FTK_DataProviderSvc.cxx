@@ -1247,10 +1247,6 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 
   ATH_MSG_VERBOSE( "   ConvertTrack: Track perigee created  d0 " <<  d0 << " z0 " <<
       z0<< " phi0 " << track.getPhi() << " theta " << trkTheta << " q/P " << trkQOverP);
-  //
-  // Build the TSOS
-  //
-  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
 
   //
   // Build the TrackInfo
@@ -1407,6 +1403,10 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 
   }
 
+  //
+  // Build the TSOS
+  //
+  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
 
 
   //
