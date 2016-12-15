@@ -10,8 +10,7 @@
 #ifndef NAVFOURMOM_INAV4MOMLINK_H
 #define NAVFOURMOM_INAV4MOMLINK_H 1
 
-// DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 

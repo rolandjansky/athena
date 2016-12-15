@@ -10,8 +10,7 @@
 #ifndef NAVFOURMOM_IPARTICLELINK_H
 #define NAVFOURMOM_IPARTICLELINK_H 1
 
-// DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "NavFourMom/IParticleContainer.h"
 
 

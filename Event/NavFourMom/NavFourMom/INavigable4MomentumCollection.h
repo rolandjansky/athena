@@ -12,7 +12,7 @@
 
 #include "CLIDSvc/CLASS_DEF.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "EventKernel/INavigable4Momentum.h"
 //#include "NavFourMom/I4MomentumContainer.h"

@@ -7,7 +7,8 @@ use  AtlasPolicy                AtlasPolicy-*
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 
 use  CLIDSvc                    CLIDSvc-*                       Control
-use  DataModel                  DataModel-*                     Control
+use  AthLinks                   AthLinks-*                      Control
+use  AthContainers              AthContainers-*                 Control
 use  EventKernel                EventKernel-*                   Event
 use  Navigation                 Navigation-*                    Control
 

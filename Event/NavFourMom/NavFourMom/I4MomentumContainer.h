@@ -17,9 +17,7 @@
 
 // Framework includes
 #include "CLIDSvc/CLASS_DEF.h"
-
-// DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // EventKernel includes
 #include "EventKernel/I4Momentum.h"

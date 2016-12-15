@@ -13,9 +13,8 @@
 
 // STL includes
 
-// DataModel includes
-#include "DataModel/AssociationMap.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/AssociationMap.h"
+#include "AthLinks/DataLink.h"
 
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"

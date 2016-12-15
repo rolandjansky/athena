@@ -15,7 +15,7 @@
 // NavFourMom includes
 #include "NavFourMom/INav4MomAssocs.h"
 #include "EventKernel/IParticle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
