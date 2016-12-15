@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 708165 2015-11-16 16:11:17Z ssnyder $
+// $Id: PyROOTInspector.cxx 790007 2016-12-15 17:46:55Z ssnyder $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -215,7 +215,8 @@ recurse_pyinspect(PyObject *pyobj,
   }
 
   TList *members = tcls->GetListOfDataMembers();
-  const Int_t nmembers = members->GetEntries();
+  // members can be null for STL containers in root 6.08.
+  const Int_t nmembers = members ? members->GetEntries() : 0;
 
 #if PYROOT_INSPECTOR_DBG
   std::cerr << "==[" << tcls->GetName() << "]== (#mbrs:"
