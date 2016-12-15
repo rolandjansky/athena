@@ -21,14 +21,14 @@
 
 namespace {
   template <class DATALINK, typename KEY> 
-  void fillLink(DATALINK& l, const KEY& k, IProxyDictWithPool* sg = 0)
+  void fillLink(DATALINK& l, const KEY& k, IProxyDict* sg = 0)
   { l.toIdentifiedObject(k, sg); }
 
   struct NoKey {};
   //MsgStream& operator <<(MsgStream& os, const NoKey&) { os << "Default"; return os; }  
 
   template <class DATALINK> 
-  void fillLink(DATALINK&, const NoKey&, IProxyDictWithPool*)
+  void fillLink(DATALINK&, const NoKey&, IProxyDict*)
   { /*leave it in default state*/ }
 }
 
@@ -111,7 +111,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    msg() << " time offset: " << sigTime
 		  << " event index: " << evtIndex;
 	  }
-	  msg() << endreq;    
+	  msg() << endmsg;    
 	}
 #endif
       }
@@ -168,7 +168,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 #endif
       } else {
 	p_activeStore->setStore(iEvt->pSubEvtSG);  //FIXME DANGEROUS!
-	IProxyDictWithPool* pSG(const_cast<StoreGateSvc*>(iEvt->pSubEvtSG));
+	IProxyDict* pSG(const_cast<StoreGateSvc*>(iEvt->pSubEvtSG));
         DataLink_t dLink;
 	fillLink(dLink, dataKey, pSG);
 	double sigTime(0.0);
@@ -195,7 +195,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    msg() << " time offset: " << sigTime
 		  << " event index: " << evtIndex;
 	  }
-	  msg() << endreq;    
+	  msg() << endmsg;    
 	}
 #endif
       }

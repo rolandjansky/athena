@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
                           Control/SGTools
                           Control/StoreGate
                           Event/EventInfo
@@ -21,9 +21,9 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( PileUpToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS PileUpTools
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel SGTools EventInfo xAODEventInfo GaudiKernel StoreGateLib SGtests )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks SGTools EventInfo xAODEventInfo GaudiKernel StoreGateLib SGtests )
 
 atlas_add_component( PileUpTools
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel SGTools StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel PileUpToolsLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks SGTools StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel PileUpToolsLib )
 
