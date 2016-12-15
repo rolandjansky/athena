@@ -49,7 +49,7 @@ class SFAInitBehavior
 {
 public:
   virtual TClass *CreateClass(const char *cname, Version_t id,
-                              const type_info &info, TVirtualIsAProxy *isa,
+                              const std::type_info &info, TVirtualIsAProxy *isa,
                               const char *dfil, const char *ifil,
                               Int_t dl, Int_t il) const;
 
@@ -66,7 +66,7 @@ TDefaultInitBehavior* SFAInitBehavior::oldBehaviorPtr = 0;
  */
 TClass *SFAInitBehavior::CreateClass(const char *cname,
                                      Version_t id,
-                                     const type_info &info,
+                                     const std::type_info &info,
                                      TVirtualIsAProxy *isa,
                                      const char *dfil,
                                      const char *ifil,
