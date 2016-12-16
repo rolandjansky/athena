@@ -16,7 +16,8 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // EDM include(s):
 #include "xAODTau/TauJet.h"
@@ -35,18 +36,16 @@
 #include "TH1F.h"
 #include "TKey.h"
 
-// BOOST include(s):
-#include <boost/unordered_map.hpp>
+
+// tauRecTools include(s)
+#include "tauRecTools/ITauToolBase.h"
 
 namespace TauAnalysisTools
 {
 
-// forward declaration
-class TauSmearingTool;
-
 class CommonSmearingTool
   : public virtual ITauSmearingTool
-  , public asg::AsgTool
+  , public asg::AsgMetadataTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( CommonSmearingTool, TauAnalysisTools::ITauSmearingTool )
@@ -67,8 +66,6 @@ public:
   /// Create a corrected copy from a constant tau
   virtual CP::CorrectionCode correctedCopy( const xAOD::TauJet& xTau,
       xAOD::TauJet*& xTauCopy);
-
-  virtual void setParent(TauSmearingTool* tTST);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -91,8 +88,7 @@ protected:
 
   typedef std::map<std::string, TH1F*> SFMAP;
   SFMAP* m_mSF;
-  TauSmearingTool* m_tTST;
-  boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
+  std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
   std::map<std::string, int> m_mSystematics;
   std::map<std::string, std::string> m_mSystematicsHistNames;
@@ -111,12 +107,25 @@ protected:
 
   std::string m_sInputFilePath;
   std::string m_sInputFileName;
+  bool m_bIsData;
+  bool m_bIsConfigured;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
+  bool m_bApplyMVATES;
+
+  asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
+  asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
+
   e_TruthMatchedParticleType m_eCheckTruth;
   bool m_bNoMultiprong;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
+
+private:
+
+  // Execute at each event
+  virtual StatusCode beginEvent();
+
 };
 } // namespace TauAnalysisTools
 

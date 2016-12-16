@@ -18,35 +18,32 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Local include(s):
-#include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/CommonEfficiencyTool.h"
 #include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyContJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
-#include "TauAnalysisTools/TauSelectionTool.h"
+
+#if __has_include("PileupReweighting/IPileupReweightingTool.h")
+// Tool include(s)
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+#define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
+#endif
 
 namespace TauAnalysisTools
 {
 
 class TauEfficiencyCorrectionsTool
   : public virtual ITauEfficiencyCorrectionsTool
-  , public asg::AsgTool
+  , public asg::AsgMetadataTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( TauEfficiencyCorrectionsTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
-
-  // declaration of classes as friends to access private member variables
-  friend class CommonEfficiencyTool;
-  friend class TauEfficiencyJetIDTool;
-  friend class TauEfficiencyJetIDRun2Tool;
-  friend class TauEfficiencyContJetIDTool;
-  friend class TauEfficiencyEleIDTool;
-  friend class TauEfficiencyTriggerTool;
 
 public:
   /// Create a constructor for standalone usage
@@ -54,7 +51,7 @@ public:
 
   /// Create a constructor for standalone usage with preconfiguration for scale
   /// factors types depending on applied cuts from TauSelection Tool
-  TauEfficiencyCorrectionsTool( const std::string& sName, TauSelectionTool* tTauSelectionTool );
+  TauEfficiencyCorrectionsTool( const std::string& sName, TauSelectionTool* tTauSelectionTool )  __attribute__ ((deprecated("This function is deprecated. Please pass the TauSelectionTool as a ToolHandle via the property \"TauSelectionTool\". The function will be removed in the future without further notice.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool.rst")));
 
   ~TauEfficiencyCorrectionsTool();
 
@@ -81,21 +78,32 @@ public:
 
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
-  virtual StatusCode setRunNumber(int iRunNumber);
+  virtual bool isSupportedRunNumber( int iRunNumber )
+  {
+    (void) iRunNumber;
+    return true;
+  };
 
 private:
+  StatusCode beginEvent();
+
   std::string ConvertJetIDToString(const int& iLevel);
   std::string ConvertEleOLRToString(const int& iLevel);
   std::string ConvertTriggerIDToString(const int& iLevel);
 
   StatusCode initializeWithTauSelectionTool();
 
+  StatusCode initializeTools_2016_fall();
+  StatusCode initializeTools_2016_ichep();
+  StatusCode initializeTools_mc15_moriond();
+  StatusCode initializeTools_mc15_pre_recommendations();
+  StatusCode initializeTools_mc12_final();
+
 private:
-  /// Some dummy property
-  int m_iEfficiencyCorrectionType;
+
   std::vector<int> m_vEfficiencyCorrectionTypes;
-  std::vector< CommonEfficiencyTool* > m_vCommonEfficiencyTools;
-  std::string m_sInputFilePath;
+  std::vector< asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* > m_vCommonEfficiencyTools;
+  std::vector< asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* > m_vTriggerEfficiencyTools;
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathEleOLRHadTau;
   std::string m_sInputFilePathEleOLRElectron;
@@ -113,21 +121,31 @@ private:
   std::string m_sVarNameTriggerHadTau;
   std::string m_sRecommendationTag;
   std::string m_sTriggerName;
+  std::string m_sTriggerYear;
   bool m_bSkipTruthMatchCheck;
-  bool m_bNoMultiprong;
+  //bool m_bNoMultiprong;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
   bool m_bUseTriggerInclusiveEta;
   bool m_bUsePtBinnedSF;
   bool m_bUseHighPtUncert;
+  bool m_bIsData;
+  bool m_bIsConfigured;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
 
+  unsigned int m_iRunNumber;
+
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
+#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
+  ToolHandle<CP::IPileupReweightingTool> m_tPRWTool;
+#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   TauSelectionTool* m_tTauSelectionTool;
 
+  std::string m_sEventInfoName;
 }; // class TauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools

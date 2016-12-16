@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<atn>
+
+  <TEST name="TauAnalysisToolsTest" type="makecheck" suite="ASG">
+    <package>PhysicsAnalysis/TauID/TauAnalysisTools</package>
+    <timelimit>5</timelimit>
+    <author>Dirk Uwe Duschinger</author>
+    <mailto>dirk.duschinger@cern.ch</mailto>
+    <expectations>
+      <errorMessage>ERROR</errorMessage>
+      <errorMessage>differ</errorMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+  </TEST>
+
+</atn>

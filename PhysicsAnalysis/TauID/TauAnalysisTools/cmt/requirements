@@ -1,6 +1,8 @@
 package TauAnalysisTools
+author NLAA
 
 public
+
 
 use AtlasPolicy     AtlasPolicy-*
 
@@ -12,12 +14,15 @@ use xAODTau         xAODTau-*         Event/xAOD
 use xAODTruth       xAODTruth-*       Event/xAOD
 use xAODJet         xAODJet-*         Event/xAOD
 use xAODEgamma      xAODEgamma-*      Event/xAOD
+use xAODMuon        xAODMuon-*        Event/xAOD
 use xAODTracking    xAODTracking-*    Event/xAOD
 use AtlasROOT       AtlasROOT-*       External
-use AtlasBoost      AtlasBoost-*      External 
-use AthLinks        AthLinks-*        Control
 use TruthUtils      TruthUtils-*      Generators
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use MCTruthClassifier MCTruthClassifier-* PhysicsAnalysis
+# use PileupReweighting PileupReweighting-* PhysicsAnalysis/AnalysisCommon
+use tauRecTools     tauRecTools-*     Reconstruction
 
 private
 
@@ -26,6 +31,9 @@ use AthenaBaseComps AthenaBaseComps-* Control
 use xAODEventInfo   xAODEventInfo-*   Event/xAOD
 use xAODCore        xAODCore-*        Event/xAOD
 use PathResolver    PathResolver-*    Tools
+use AthLinks        AthLinks-*        Control
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
 
 end_private
 
@@ -42,3 +50,9 @@ apply_pattern declare_runtime files="*.root ../share/EfficiencyCorrections/*.roo
 # # generate dictionaries for PyROOT 
 # apply_pattern lcgdict dict=TauAnalysisTools selectionfile=selection.xml headerfiles="../TauAnalysisTools/TauAnalysisToolsDict.h"
 
+#test application
+private
+application ut_TauAnalysisTools_test ../test/ut_TauAnalysisTools_test.cxx
+#ensure main library is built before the test application, and all components are created so factory exists
+macro_append ut_TauAnalysisTools_test_dependencies " TauAnalysisToolsMergeComponentsList "
+end_private

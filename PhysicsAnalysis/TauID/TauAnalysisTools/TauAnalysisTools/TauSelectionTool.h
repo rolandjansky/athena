@@ -19,15 +19,15 @@
 
 // Framework include(s):
 #include "AsgTools/AsgMetadataTool.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 // Local include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
-
-// EDM include(s):
-#include "xAODEgamma/ElectronContainer.h"
+// for some reason it's not enough to include interface
+#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
 #include "TH1F.h"
@@ -47,23 +47,25 @@ class SelectionCutBDTEleScore;
 class SelectionCutEleBDTWP;
 class SelectionCutEleOLR;
 class SelectionCutMuonVeto;
+class SelectionCutMuonOLR;
 
 enum SelectionCuts
 {
-  NoCut           = 0,   	// 00000000000
-  CutPt           = 1,   	// 00000000001
-  CutAbsEta       = 1<<1,	// 00000000010
-  CutPhi          = 1<<2,	// 00000000100
-  CutNTrack       = 1<<3,	// 00000001000
-  CutAbsCharge    = 1<<4,	// 00000010000
-  CutJetBDTScore  = 1<<5,	// 00000100000
-  CutJetIDWP      = 1<<6,	// 00001000000
-  CutEleBDTScore  = 1<<7,	// 00010000000
-  CutEleBDTWP     = 1<<8,	// 00100000000
-  CutMuonVeto     = 1<<9,	// 01000000000
-  CutEleOLR       = 1<<10	// 10000000000
+  NoCut           = 0,   	// 000000000000
+  CutPt           = 1,   	// 000000000001
+  CutAbsEta       = 1<<1,	// 000000000010
+  CutPhi          = 1<<2,	// 000000000100
+  CutNTrack       = 1<<3,	// 000000001000
+  CutAbsCharge    = 1<<4,	// 000000010000
+  CutJetBDTScore  = 1<<5,	// 000000100000
+  CutJetIDWP      = 1<<6,	// 000001000000
+  CutEleBDTScore  = 1<<7,	// 000010000000
+  CutEleBDTWP     = 1<<8,	// 000100000000
+  CutMuonVeto     = 1<<9,	// 001000000000
+  CutEleOLR       = 1<<10,	// 010000000000
+  CutMuonOLR      = 1<<11	// 100000000000
 };
-
+  
 class TauSelectionTool : public virtual IAsgSelectionTool,
   public virtual ITauSelectionTool,
   public asg::AsgMetadataTool
@@ -81,6 +83,7 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutEleBDTWP;
   friend class SelectionCutEleOLR;
   friend class SelectionCutMuonVeto;
+  friend class SelectionCutMuonOLR;
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( TauSelectionTool,
@@ -157,6 +160,8 @@ private:
   bool m_bEleOLR;
   // do muon veto
   bool m_bMuonVeto;
+  // do muon OLR
+  bool m_bMuonOLR;
 
   float m_dPtMin;
   float m_dPtMax;
@@ -176,10 +181,10 @@ protected:
 private:
   std::string m_sConfigPath;
   std::string m_sEleOLRFilePath;
-  std::string m_sCuts;
   std::string m_sElectronContainerName;
+  std::string m_sMuonContainerName;
 
-  const xAOD::ElectronContainer* m_xElectronContainer;
+  asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tTOELLHDecorator;
 
   std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
 

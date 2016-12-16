@@ -19,20 +19,29 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
 
-// Local include(s):
+// Tool include(s)
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+
+// Local include(s)
 #include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
+
+// EDM include(s)
+#include "xAODTruth/TruthVertex.h"
 
 
 namespace TauAnalysisTools
 {
-enum TrackSpuriousType_t
+enum TrackType_t
 {
   UnclassifiedTrack     = 0, // Track is unclassified
-  ConversionTrack       = 1, // Track is from conversion
-  PileupTrack           = 2, // Track is from pileup
+  TauTrack              = 1, // Track is from direct tau decay
+  ConversionTrack       = 2, // Track is from conversion
   UnderlyingEventTrack  = 3, // Track is from underlying event
-  FakeTrack             = 4  // Track is a fake
+  SecondaryTrack        = 4, // Track is a secondary track
+  PileupTrack           = 5, // Track is from pileup
+  FakeTrack             = 6  // Track is a fake
 };
 
 
@@ -60,14 +69,17 @@ public:
 
 private:
 
-  void checkTrackSpuriousType(const TAUTRACKPARTICLE& xTrackParticle);
-  void checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle);
+  StatusCode classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle);
+  StatusCode checkTrackType(const TAUTRACKPARTICLE& xTrackParticle);
+  StatusCode checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle);
   bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory);
   const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle);
 
 private:
   bool m_bIsHadronicTrackAvailable;
   bool m_bIsHadronicTrackAvailableChecked;
+  bool m_bIsInitialized;
+  asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_tInDetTrackSelectionTool;
 
 }; // class TauTruthTrackMatchingTool
 
