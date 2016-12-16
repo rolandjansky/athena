@@ -8,7 +8,7 @@ atlas_subdir( AnalysisTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           Event/NavFourMom
                           GaudiKernel
@@ -32,19 +32,19 @@ atlas_add_library( AthAnalysisToolsLib
                    PUBLIC_HEADERS AnalysisTools
                    INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${PYTHON_LIBRARIES} AthenaBaseComps DataModel NavFourMom GaudiKernel McParticleEvent StoreGateLib SGtests AnalysisUtilsLib RootCollectionComponents
+                   LINK_LIBRARIES ${PYTHON_LIBRARIES} AthenaBaseComps AthContainers NavFourMom GaudiKernel McParticleEvent StoreGateLib SGtests AnalysisUtilsLib RootCollectionComponents
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} SGTools RootCollection AthenaPoolUtilities PersistentDataModel EventInfo )
 
 atlas_add_component( AthAnalysisTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests NavFourMom GaudiKernel AnalysisUtilsLib McParticleEvent SGTools RootCollection RootCollectionComponents AthenaPoolUtilities PersistentDataModel EventInfo AthAnalysisToolsLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests NavFourMom GaudiKernel AnalysisUtilsLib McParticleEvent SGTools RootCollection RootCollectionComponents AthenaPoolUtilities PersistentDataModel EventInfo AthAnalysisToolsLib )
 
 atlas_add_dictionary( AthAnalysisToolsDict
                       AnalysisTools/AnalysisToolsDict.h
                       AnalysisTools/selection.xml
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests NavFourMom GaudiKernel AnalysisUtilsLib McParticleEvent SGTools RootCollection RootCollectionComponents AthenaPoolUtilities PersistentDataModel EventInfo AthAnalysisToolsLib )
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests NavFourMom GaudiKernel AnalysisUtilsLib McParticleEvent SGTools RootCollection RootCollectionComponents AthenaPoolUtilities PersistentDataModel EventInfo AthAnalysisToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

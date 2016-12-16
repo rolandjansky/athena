@@ -13,7 +13,7 @@ use McParticleEvent	McParticleEvent-*		PhysicsAnalysis/TruthParticleID
 
 use AthenaBaseComps	AthenaBaseComps-*		Control
 use StoreGate           StoreGate-*      		Control
-use DataModel           DataModel-*      		Control
+use AthContainers       AthContainers-*      		Control
 
 use AnalysisUtils       AnalysisUtils-*  		PhysicsAnalysis/AnalysisCommon
 
