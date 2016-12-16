@@ -68,22 +68,25 @@ if InDetFlags.doMonitoringGlobal():
 
   TrackCollection = InDetKeys.UnslimmedTracks()
 
-  InDetTrackSelectionToolGlobalMon_LoosePrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_LoosePrimary",
+  InDetTrackSelectionToolGlobalMon_Baseline = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_Baseline",
                                                                                  UseTrkTrackTools = True,
-                                                                                 CutLevel = "LoosePrimary",
+                                                                                 CutLevel = "TightPrimary",
+                                                                                 maxNPixelHoles = 1,
+                                                                                 minPt = 5000,
                                                                                  TrackSummaryTool    = InDetTrackSummaryTool,
                                                                                  Extrapolator        = InDetExtrapolator)
 
   InDetTrackSelectionToolGlobalMon_TightPrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_TightPrimary",
                                                                                  UseTrkTrackTools = True,
                                                                                  CutLevel = "TightPrimary",
+                                                                                 minPt = 5000,
                                                                                  TrackSummaryTool    = InDetTrackSummaryTool,
                                                                                  Extrapolator        = InDetExtrapolator)
 
-  ToolSvc += InDetTrackSelectionToolGlobalMon_LoosePrimary
+  ToolSvc += InDetTrackSelectionToolGlobalMon_Baseline
   ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary
   
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool = InDetTrackSelectionToolGlobalMon_LoosePrimary
+  InDetGlobalTrackMonTool.Baseline_SelTool = InDetTrackSelectionToolGlobalMon_Baseline
   InDetGlobalTrackMonTool.Tight_SelTool = InDetTrackSelectionToolGlobalMon_TightPrimary
 
   if DQMonFlags.monManDataType == 'heavyioncollisions' or InDetFlags.doHeavyIon() == True:
@@ -121,14 +124,14 @@ if InDetFlags.doMonitoringGlobal():
   # BCM TOOL                                         #
   #                                                  #
   ####################################################
-  from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBCMTool
-  InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
+  # from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBCMTool
+  # InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
 
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalBCMTool.FilterTools.append(monFilledBunchFilterTool)
-  ToolSvc += InDetGlobalBCMTool
-  if (InDetFlags.doPrintConfigurables()):
-      print InDetGlobalBCMTool
+  # if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
+  #   InDetGlobalBCMTool.FilterTools.append(monFilledBunchFilterTool)
+  # ToolSvc += InDetGlobalBCMTool
+  # if (InDetFlags.doPrintConfigurables()):
+  #     print InDetGlobalBCMTool
 
   ####################################################
   #                                                  #
@@ -155,8 +158,8 @@ if InDetFlags.doMonitoringGlobal():
   #                                                  #
   ####################################################
   InDetGlobalManager.AthenaMonTools += [ InDetGlobalSynchMonTool,
-                                         InDetGlobalTrackMonTool,
-                                         InDetGlobalBCMTool]
+                                         InDetGlobalTrackMonTool]
+  # InDetGlobalBCMTool taken out (AK 2016/12/16)
   if DetFlags.haveRIO.pixel_on():
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalPixelTool ]
 
