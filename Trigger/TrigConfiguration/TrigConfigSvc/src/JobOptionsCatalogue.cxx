@@ -25,7 +25,7 @@ TrigConf::JobOptionsCatalogue::~JobOptionsCatalogue() {
 
 //----------------------------------------------------------------------------
 StatusCode
-TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string myAlg, 
+TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string& myAlg, 
                                                JobOptionsList*& myList ) const {
   std::vector<JobOptionsList*>::const_iterator iter;
 	for( iter = m_algorithmoptions.begin();
@@ -42,7 +42,7 @@ TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string myAlg,
 
 //----------------------------------------------------------------------------
 void
-TrigConf::JobOptionsCatalogue::addOption( const std::string myAlg, 
+TrigConf::JobOptionsCatalogue::addOption( const std::string& myAlg, 
                                           const Property* const& myOpt ) {
 	JobOptionsList* myList;
 	StatusCode sc = this->findAlgorithm( myAlg, myList );

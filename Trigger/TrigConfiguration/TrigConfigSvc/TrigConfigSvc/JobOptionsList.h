@@ -27,7 +27,7 @@ namespace TrigConf {
      *
      * @param myOpt first property
      */
-    JobOptionsList( const std::string myAlg, const Property* const& myOpt );
+    JobOptionsList( const std::string& myAlg, const Property* const& myOpt );
 
     /**@brief destructor
      *
@@ -47,7 +47,7 @@ namespace TrigConf {
      * 
      * @returns name of algorithm
      */
-    virtual std::string algorithmName() const;
+    virtual const std::string& algorithmName() const;
 
     /**@brief accessor to the vector of properties
      * 
