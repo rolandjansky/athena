@@ -106,7 +106,7 @@ StatusCode InDet::PixelToTPIDTool::initialize()
   else {
     std::string file_name = PathResolver::find_file (m_filename, "DATAPATH");
     if (file_name.size()==0) {
-      msg(MSG::FATAL) << "Could not find dEdx calibration file" << m_filename << endreq;
+      msg(MSG::FATAL) << "Could not find dEdx calibration file" << m_filename << endmsg;
       return StatusCode::FAILURE;
     }
     m_mydedx=new dEdxID(file_name.c_str());
@@ -193,10 +193,10 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
       if (measurement && !(*tsosIter)->type(Trk::TrackStateOnSurface::Outlier)) {
         if (!(*tsosIter)->trackParameters()) {
           if (m_slimwarn<10){
-            msg(MSG::WARNING) << "No track parameters available for a state of type measurement, returning -1" << endreq;
-            msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endreq;
+            msg(MSG::WARNING) << "No track parameters available for a state of type measurement, returning -1" << endmsg;
+            msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endmsg;
             m_slimwarn++;
-            if (m_slimwarn==10) msg(MSG::WARNING) << "(last message!)" << endreq;
+            if (m_slimwarn==10) msg(MSG::WARNING) << "(last message!)" << endmsg;
           }
           return -1;
         }
@@ -222,7 +222,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 	  /* const Trk::CovarianceMatrix &measerr=pixclus->localErrorMatrix().covariance();
           const Trk::MeasuredTrackParameters *measpar=dynamic_cast<const Trk::MeasuredTrackParameters *>((*tsosIter)->trackParameters());
           if (!measpar) {
-            msg(MSG::DEBUG) << "No measured track parameters available, returning -1" << endreq;
+            msg(MSG::DEBUG) << "No measured track parameters available, returning -1" << endmsg;
             return -1;
           }
           const Trk::CovarianceMatrix &trackerr=measpar->localErrorMatrix().covariance();
@@ -408,7 +408,7 @@ StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     }
        
   } else {
-    // m_log << MSG::ERROR << "Problem reading condDB object." << endreq;
+    // m_log << MSG::ERROR << "Problem reading condDB object." << endmsg;
     ATH_MSG_ERROR ("Problem reading condDB object. -");
     return StatusCode::FAILURE;
   }
@@ -417,7 +417,7 @@ StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 }
 
 
-std::vector<float> InDet::PixelToTPIDTool::getLikelihoods(double dedx2, double p2, int nGoodPixels){
+std::vector<float> InDet::PixelToTPIDTool::getLikelihoods(double dedx2, double p2, int nGoodPixels) const {
   double dedx=dedx2; 
   double p=p2/1000; 
   std::vector<float> vhypo; 
@@ -436,7 +436,7 @@ std::vector<float> InDet::PixelToTPIDTool::getLikelihoods(double dedx2, double p
 }
 
 //to change
-float InDet::PixelToTPIDTool::getMass(double dedx, double p, int nGoodPixels){
+float InDet::PixelToTPIDTool::getMass(double dedx, double p, int nGoodPixels) const {
   if (dedx<m_mindedxformass) return 0.13957;
   return m_mydedx->getMass(dedx,p/1000,nGoodPixels); 
   //return m_mydedx->getMass(dedx/m_conversionfactor,p/1000,nGoodPixels);

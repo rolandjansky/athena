@@ -25,12 +25,12 @@ PixeldEdxAODFix::~PixeldEdxAODFix() {
 }
 
 StatusCode PixeldEdxAODFix::initialize() {
-  msg(MSG::INFO) << "PixeldEdxAODFix::initialize()" << endreq;
+  msg(MSG::INFO) << "PixeldEdxAODFix::initialize()" << endmsg;
   if ( m_summarytool.retrieve().isFailure() ) {
-    msg(MSG:: FATAL) << m_summarytool.propertyName() << ": Failed to retrieve tool " << m_summarytool.type() << endreq;
+    msg(MSG:: FATAL) << m_summarytool.propertyName() << ": Failed to retrieve tool " << m_summarytool.type() << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << m_summarytool.propertyName() << ": Retrieved tool " << m_summarytool.type() << endreq;
+    msg(MSG::INFO) << m_summarytool.propertyName() << ": Retrieved tool " << m_summarytool.type() << endmsg;
   }
   return StatusCode::SUCCESS;
 
@@ -42,7 +42,7 @@ StatusCode PixeldEdxAODFix::execute() {
     const Rec::TrackParticleContainer *tpcontainer=0;
     StatusCode sc=evtStore()->retrieve(tpcontainer,m_tpcontainernames[i]);
     if (sc.isFailure()){
-      msg(MSG::WARNING) << "Could not retrieve " << m_tpcontainernames[i] << endreq;
+      msg(MSG::WARNING) << "Could not retrieve " << m_tpcontainernames[i] << endmsg;
       return sc;
     }
 

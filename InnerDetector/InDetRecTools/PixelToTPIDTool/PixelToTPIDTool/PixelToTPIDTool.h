@@ -44,22 +44,22 @@ namespace InDet
       virtual ~PixelToTPIDTool ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  (); 
+      virtual StatusCode finalize  () override; 
       
       /** dE/dx to be returned */
-      float dEdx(const Trk::Track& track);
+      virtual float dEdx(const Trk::Track& track) override;
 
       /** Number of hits selected for dE/dx track measurement */
-      int numberOfUsedHitsdEdx();
+      virtual int numberOfUsedHitsdEdx() override;
 
       /** Number of IBL hits with at least one hit in overflow used for Track dEdx measurement */
-      int numberOfUsedIBLOverflowHits();
+      virtual int numberOfUsedIBLOverflowHits() override;
 
-      std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels);
-      float getMass(double dedx, double p, int nGoodPixels);
+      virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) const override;
+      virtual float getMass(double dedx, double p, int nGoodPixels) const override;
 
     private:
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
