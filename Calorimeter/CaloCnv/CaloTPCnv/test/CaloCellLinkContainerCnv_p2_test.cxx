@@ -18,6 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <vector>
 #include <algorithm>
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 #include <cstdio>
@@ -411,6 +412,14 @@ void test_unpack_errors()
 void tests()
 {
   std::cout << "test1\n";
+  Athena::getMessageSvc();
+  // Get proxies created outside of leak checking.
+  ElementLink<CaloCellContainer> dum1 (cont_name, 0);
+  ElementLink<CaloCellContainer> dum2 ("cells1", 0);
+  ElementLink<CaloCellContainer> dum3 ("cells2", 0);
+  ElementLink<CaloCellContainer> dum4 ("cellx", 0);
+  ElementLink<CaloCellContainer> dum5 ("", 0);
+  Athena_test::Leakcheck check;
   runtest (10, 100, 100, 4, 4, 4, 4, 0.5, 2);
   std::cout << "test2\n";
   runtest (10, 100, 100, 1, 1, 1, 1, 1, 1);

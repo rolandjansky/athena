@@ -24,22 +24,24 @@ void  CaloClusterCellLinkContainerCnv_p1::persToTrans(const CaloClusterCellLinkC
   size_t persIdx=0;
   size_t weightIdx=0;
   for (size_t iCluster=0;iCluster<nClusters;++iCluster) {
-    CaloClusterCellLink* cccl=new CaloClusterCellLink();
+    DataLink<CaloCellContainer> link;
+    m_linkCnv.persToTrans(pers->m_cellCont,link,msg);
+    CaloClusterCellLink* cccl=new CaloClusterCellLink(link);
     trans->push_back(cccl);
-    m_linkCnv.persToTrans(pers->m_cellCont,cccl->m_cellCont,msg);
     size_t nextStep=persIdx+pers->m_nCellsPerCluster[iCluster];
     if (nextStep > maxPersIdx) {
       msg << MSG::ERROR << "Inconsistent persistent object: To few persistent values, expected at least " << nextStep
 	  << " got only "<< maxPersIdx  << endmsg;
       nextStep=maxPersIdx;
     }
+    cccl->reserve(nextStep-persIdx);
     for (;persIdx<nextStep;++persIdx) {
       const unsigned index=(pers->m_indices[persIdx] & INDEXBIT_MASK);
       if (pers->m_indices[persIdx] & HAS_WEIGHT_BIT) {
-	cccl->m_indicesAndWeights.emplace_back(index, pers->m_weights[weightIdx++]);
+	cccl->addCell(index, pers->m_weights[weightIdx++]);
       }
       else {
-	cccl->m_indicesAndWeights.emplace_back(index,1.0);
+	cccl->addCell(index,1.0);
       }
     }//end loop over cells in cluster
   }//end loop over clusters
@@ -52,7 +54,7 @@ void  CaloClusterCellLinkContainerCnv_p1::transToPers(const CaloClusterCellLinkC
   const size_t nClusters=trans->size();
   if (nClusters>0) {
     //we assume here all clusters in a container are built from the same cell container
-    m_linkCnv.transToPers((*trans)[0]->m_cellCont,pers->m_cellCont,msg);
+    m_linkCnv.transToPers((*trans)[0]->getCellContainerLink(),pers->m_cellCont,msg);
   }
  
   size_t minCapacity=0;
@@ -63,13 +65,15 @@ void  CaloClusterCellLinkContainerCnv_p1::transToPers(const CaloClusterCellLinkC
     minCapacity+=nCells;
     pers->m_indices.reserve(minCapacity);
     //pers->m_weights.reserve(minCapacity);
-    for (const auto& weightIndex : cccl->m_indicesAndWeights) {
-      if (weightIndex.second == 1.0) { //standard weight 
-	pers->m_indices.push_back(weightIndex.first & INDEXBIT_MASK);
+    CaloClusterCellLink::const_iterator it = cccl->begin();
+    CaloClusterCellLink::const_iterator end = cccl->end();
+    for (; it != end; ++it) {
+      if (it.weight() == 1.0) { //standard weight 
+	pers->m_indices.push_back(it.index() & INDEXBIT_MASK);
       }
       else {
-	pers->m_indices.push_back((weightIndex.first & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
-	pers->m_weights.push_back(weightIndex.second);
+	pers->m_indices.push_back((it.index() & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
+	pers->m_weights.push_back(it.weight());
       }
     }//end loop over cells in cellLink object
   }//end loop over transient CaloClusterCellLinkContainer

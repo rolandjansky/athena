@@ -23,9 +23,11 @@
 #include "EventKernel/SignalStateHelper.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthAllocators/DataPool.h"
 #include "CxxUtils/make_unique.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 
 
@@ -373,8 +375,10 @@ void testit (const CaloClusterContainer& clust, int version)
 
   CaloClusterContainer clust2;
   cnv.persToTrans (&pers, &clust2, log);
-
   compare (clust, clust2, version);
+
+  DataPool<CaloCluster> clusters;
+  clusters.erase();
 }
 
 
@@ -382,6 +386,14 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   SGTest::initTestStore();
+  Athena::getMessageSvc();
+  AthenaBarCodeImpl abci;
+  ElementLink<CaloCellLinkContainer> dum ("celllinkkey", 0);
+  // These allocate static data in ctors.
+  ElementLinkCnv_p2<ElementLink<CaloShowerContainer> >  dumcnv1;
+  ElementLinkCnv_p2<ElementLink<CaloCellLinkContainer> >  dumcnv2;
+  DataPool<CaloCluster> pooldum;
+  Athena_test::Leakcheck check;
   std::unique_ptr<const CaloClusterContainer> clust = make_clusters();
   testit<CaloClusterContainer_p7, CaloClusterContainerCnvTest_p7> (*clust, 7);
   testit<CaloClusterContainer_p6, CaloClusterContainerCnvTest_p6> (*clust, 6);

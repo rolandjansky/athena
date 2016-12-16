@@ -210,14 +210,13 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
   IThinningSvc * thinningSvc = IThinningSvc::instance();
   const bool thinning = thinningSvc && thinningSvc->thinningOccurred();
 
+  // Declare this outside the loop to save on memory allocations.
+  std::vector<cell_t> cells;
   for (unsigned int iCluster = 0; iCluster < nclus; ++iCluster) {
 
     // This is actually a Navigable - contains links to the cells.
     const CaloCellLink& lnk = *(*trans)[iCluster];
 
-    // ??? Making this static saves memory allocations, but means
-    // we're not thread-safe.
-    static std::vector<cell_t> cells;
     cells.clear();
     cells.reserve (lnk.size()+1);
     CaloCellLink::cell_iterator it_cell   = lnk.begin();
@@ -290,7 +289,6 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
         index &= INDEX_MASK;
       }
       cells.push_back (cell_t (index, weight));
-
     } // End loop over cells
 
     // Sort links according to cell indices.
