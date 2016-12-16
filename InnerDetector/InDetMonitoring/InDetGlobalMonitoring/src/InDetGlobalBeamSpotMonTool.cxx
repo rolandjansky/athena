@@ -107,10 +107,7 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
   }
   
 
-  if ( newLumiBlock ) {
-  }
-
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     // Histograms for track-based beam spot monitoring
     m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (#mum)",100,-3.5,3.5,100,-1000,1000);

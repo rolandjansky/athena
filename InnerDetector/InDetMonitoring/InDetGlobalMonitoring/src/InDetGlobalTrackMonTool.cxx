@@ -59,7 +59,7 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
 						  const std::string & name,
 						  const IInterface* parent)
     : ManagedMonitorToolBase(type, name, parent),
-      m_loosePri_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
+      m_baseline_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
       m_tight_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
       m_doLumiblock(true),
       m_doHolePlots(false),
@@ -95,15 +95,12 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       sct_vs_pixels(nullptr),
       holes_quality(nullptr),
       holes_quality_profile(nullptr),
-      m_Trk_nLoose(nullptr),
-      m_Trk_eta_phi(nullptr),
-      m_Trk_eta_phi_LoosePrimary_ratio(nullptr),
+      m_Trk_eta_phi_Base(nullptr),
       m_Trk_eta_phi_Tight_ratio(nullptr),
       m_Trk_eta_phi_noIBLhit_ratio(nullptr),
       m_Trk_eta_phi_noBLhit_ratio(nullptr),
       m_Trk_eta_phi_noTRText_ratio(nullptr),
-      m_Trk_nLoose_LB(nullptr),
-      m_Trk_nLoosePrimary_LB(nullptr),
+      m_Trk_nBase_LB(nullptr),
       m_Trk_nTight_LB(nullptr),
       m_Trk_noIBLhits_LB(nullptr),
       m_Trk_noBLhits_LB(nullptr),
@@ -152,7 +149,6 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
     declareProperty("UpdatorTool"                  , m_iUpdator);
     declareProperty("TrackCollection",m_CombinedTracksName,"Name of the forward tracklet collection");
     declareProperty("ForwardTrackCollection",m_ForwardTracksName,"Name of the combined track collection");
-    declareProperty("VertexCollection",m_VxPrimContainerName,"Name of primary vertex collection");
     declareProperty("JetCollection",m_JetsName,"Name of the jets collection");
     declareProperty("DoHitMaps", m_doHitMaps,"Produce hit maps?");	
     declareProperty("DoForwardTracks", m_doForwardTracks,"Run over forward tracks?");	
@@ -161,7 +157,7 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
     declareProperty("trackBin",m_trackBin,"Number of bins for the track histograms");
     declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator);
 
-    declareProperty( "LoosePrimary_SelTool", m_loosePri_selTool );
+    declareProperty( "Baseline_SelTool", m_baseline_selTool );
     declareProperty( "Tight_SelTool", m_tight_selTool );
 }
 
@@ -210,7 +206,7 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   
   m_doIBL = m_IBLParameterSvc->containsIBL();
   
-  ATH_CHECK( m_loosePri_selTool.retrieve() );
+  ATH_CHECK( m_baseline_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
   
   sc = ManagedMonitorToolBase::initialize();
@@ -223,20 +219,14 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 {
     Interval_t detailsInterval = ( AthenaMonManager::environment() != AthenaMonManager::online ) ? lowStat : run;
     
-    registerManHist( m_Trk_nLoose, "InDetGlobal/Track", detailsInterval,
-		     "nCOMBtrks", "Track multiplicity (Loose tracks)",
+    registerManHist( m_Trk_Base, "InDetGlobal/Track", detailsInterval,
+		     "nCOMBtrks", "Track multiplicity (baseline tracks)",
 		     m_trackBin, 0.5, m_trackMax+0.5,
 		     "Track multiplicity" ).ignore();
 
-    registerManHist( m_Trk_eta_phi, "InDetGlobal/Track", detailsInterval,
-		     "COMB_eta_phi","Distribution of eta vs phi for combined tracks (both Si and TRT hits)",
-		     m_nBinsEta, -c_etaRange, c_etaRange, 
-		     m_nBinsPhi, -M_PI, M_PI,
-		     "#eta","#phi" ).ignore();
-    
     // Eta-phi maps
-    registerManHist( m_Trk_eta_phi_LoosePrimary_ratio, "InDetGlobal/Track", detailsInterval,
-		     "Trk_LoosePrimary_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Loose Primary selection",
+    registerManHist( m_Trk_eta_phi_Base, "InDetGlobal/Track", detailsInterval,
+		     "Trk_Base_eta_phi","Distribution of eta vs phi for combined tracks passing Loose Primary selection",
                      m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
@@ -448,13 +438,8 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     }
 
     // LB histograms
-    registerManHist( m_Trk_nLoose_LB, "InDetGlobal/Track", detailsInterval,
-		     "Trk_nLoose_LB","Average number of loose tracks per event in LB",
-		     c_range_LB,0,c_range_LB,
-		     "LB #", "Average number of loose tracks in LB").ignore();
-
-    registerManHist( m_Trk_nLoosePrimary_LB, "InDetGlobal/Track", detailsInterval,
-		     "Trk_nLoosePrimary_LB","Average number of loose primary tracks per event in LB",
+    registerManHist( m_Trk_nBase_LB, "InDetGlobal/Track", detailsInterval,
+		     "Trk_nBase_LB","Average number of baseline tracks per event in LB",
 		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of loose primary tracks per event in LB").ignore();
 
@@ -636,143 +621,109 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
     if ( ! evtStore()->contains<TrackCollection>( m_CombinedTracksName ) || evtStore()->retrieve(combined_tracks,m_CombinedTracksName).isFailure() ) 
     {
 	ATH_MSG_WARNING( "Failed to retrieve combined tracks in StoreGate " + m_CombinedTracksName );
+	return StatusCode::SUCCESS;
     }
-    else
-    {
-	
-	int nLoose = 0;
-	int nLP = 0;
-	int nTight = 0;
-	int nNoIBL = 0;
-	int nNoBL = 0;
-	int nNoTRText = 0;
-	m_pvtx = nullptr;
 
-	const xAOD::VertexContainer* vxContainer(0);
-	StatusCode sc = evtStore()->retrieve(vxContainer, m_VxPrimContainerName);
-	if (sc.isFailure()) {
-	    ATH_MSG_DEBUG("Could not retrieve primary vertex info: " << m_VxPrimContainerName);
-	}
-	if(vxContainer) {
-	    ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "
-			    << " = " << vxContainer->size() );
-	
-	    xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
-	    xAOD::VertexContainer::const_iterator vxE = vxContainer->end();
-	    for(; vxI!=vxE; ++vxI) {
-		if ((*vxI)->vertexType()==xAOD::VxType::PriVtx) {
-		    m_pvtx=(*vxI);
-		}
-	    }
-	}
+    int nBase = 0;
+    int nTight = 0;
+    int nNoIBL = 0;
+    int nNoBL = 0;
+    int nNoTRText = 0;
     
-	TrackCollection::const_iterator itrack = combined_tracks->begin();
-	TrackCollection::const_iterator itrack_end = combined_tracks->end();
-	for ( ; itrack!= itrack_end; ++itrack)
+    TrackCollection::const_iterator itrack = combined_tracks->begin();
+    TrackCollection::const_iterator itrack_end = combined_tracks->end();
+    for ( ; itrack!= itrack_end; ++itrack)
+    {
+	const Trk::Track * track = (*itrack);
+	if ( !track || track->perigeeParameters() == 0 )
 	{
-	    const Trk::Track * track = (*itrack);
-	    if ( !track || track->perigeeParameters() == 0 )
-	    {
-		ATH_MSG_DEBUG( "NULL track pointer in collection" );
-		continue;
-	    }
-	
-	    // Skip tracks that are not inside out
-	    if ( m_dataType == AthenaMonManager::collisions
-		 && ( ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
-		      || track->perigeeParameters()->pT() < 5000. ) )
-		continue;
-	
-	    // Create a new summary or get copy of the cached one
-	    const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
-	
-	    if ( !summary )
-	    {
-		ATH_MSG_DEBUG( "NULL pointer to track summary" );
-		continue;
-	    }
-	
-	    // Skip tracks without Pixel or SCT hits in cosmics
-	    if ( m_dataType == AthenaMonManager::cosmics  && 
-		 summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
-	    {
-		continue;
-	    }	
-
-	    FillHits( track, summary );
-	    FillEtaPhi( track , summary );
-	
-	    nLoose++;
-	
-	    if ( m_loosePri_selTool->accept(*track) )
-	    {
-		nLP++;
-		if ( m_doIBL )
-		{
-		    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-		    {
-			nNoIBL++;
-			m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
-		    }
-		    else
-		    {
-			m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
-		    }
-		}
-	    
-		if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
-		{
-		    nNoBL++;
-		    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
-		}
-		else
-		{
-		    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
-		}
-		if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
-		{
-		    nNoTRText++;;
-		    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
-		}
-		else
-		{
-		    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
-		}
-	    }
-	    if ( m_tight_selTool->accept(*track) )
-	    {
-		nTight++;
-	    } 
-	
-	    if ( m_doHitMaps ) 
-	    {
-		FillHitMaps( track );
-	    }
-	
-	    if ( m_doHolePlots )  
-	    {
-		FillHoles( track, summary );
-	    }
-
-	    // Delete our copy
-	    delete summary;
+	    ATH_MSG_DEBUG( "NULL track pointer in collection" );
+	    continue;
 	}
 	
-	m_Trk_nLoose->Fill( nLoose );
-	m_Trk_nLoose_LB->Fill( m_manager->lumiBlockNumber(), nLoose );
+	// Skip tracks that are not inside out
+	if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
+	     && ! track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
+	    continue;
 	
-	m_Trk_nLoosePrimary_LB->Fill( m_manager->lumiBlockNumber(), nLP );
+	if ( ! m_baseline_selTool->accept(*track) )
+	    continue;
+	
+	// Create a new summary or get copy of the cached one
+	std::unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary( * track ) );
+	
+	if ( !summary )
+	{
+	    ATH_MSG_DEBUG( "NULL pointer to track summary" );
+	    continue;
+	}
+	
+	nBase++;
+	
+	FillHits( track, summary );
+	FillEtaPhi( track , summary );
+	
+	if ( m_doIBL )
+	{
+	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+	    {
+		nNoIBL++;
+		m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+	    }
+	    else
+	    {
+		m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+	    }
+	}
+	
+	if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
+	{
+	    nNoBL++;
+	    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+	}
+	else
+	{
+	    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+	}
+	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
+	{
+	    nNoTRText++;;
+	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
+	}
+	else
+	{
+	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
+	}
+	
+	if ( m_tight_selTool->accept(*track) )
+	{
+	    nTight++;
+	} 
+	
+	if ( m_doHitMaps ) 
+	{
+	    FillHitMaps( track );
+	}
+	
+	if ( m_doHolePlots )  
+	{
+		FillHoles( track, summary );
+	}
+	
+	m_Trk_Base->Fill( nBase );
+
+	m_Trk_nBase_LB->Fill( m_manager->lumiBlockNumber(), nBase );
 	m_Trk_nTight_LB->Fill( m_manager->lumiBlockNumber(), nTight );
 	if ( m_doIBL )
 	    m_Trk_noIBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoIBL );
-	
+	    
 	m_Trk_noBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoBL );
 	m_Trk_noTRText_LB->Fill( m_manager->lumiBlockNumber(), nNoTRText );
     }
     
     if ( m_doTide )
 	FillTIDE();
-    
+	
     if ( m_doForwardTracks )
     {
 	const TrackCollection * forward_tracks = 0;
@@ -796,7 +747,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 		}
 		
 		// Create a new summary or get copy of the cached one
-		const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
+		std::unique_ptr<const Trk::TrackSummary> summary( m_trkSummaryTool->createSummary( * track ) );
 		
 		if ( !summary )
 		{
@@ -805,11 +756,10 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 		}
 		
 		FillForwardTracks( track , summary );
-		
-		delete summary;
 	    }
 	}
     }	
+
     return StatusCode::SUCCESS;
 }
 
@@ -819,7 +769,7 @@ StatusCode InDetGlobalTrackMonTool::procHistograms()
     return StatusCode::SUCCESS;
 }
 
-void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::TrackSummary* summary )
+void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary )
 {
     int pixHits = ( summary->get(Trk::numberOfPixelHits) >= 0 ) ? summary->get(Trk::numberOfPixelHits) : 0 
 	+ ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors ) : 0;
@@ -865,7 +815,7 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
 } 
 
 
-void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::TrackSummary* summary )
+void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary )
 {
     if ( ! track || ! summary ) return;
 	
@@ -873,13 +823,10 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     float eta = perigee->eta();
     float phi = perigee->parameters()[Trk::phi0];
 
-    /// Map of all extended tracks
-    m_Trk_eta_phi->Fill( eta, phi );
-
     // Loose primary tracks
-    if ( m_loosePri_selTool->accept(*track) )
+    if ( m_baseline_selTool->accept(*track) )
     {
-	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 1 );
+	m_Trk_eta_phi_Base->Fill( eta, phi );
 	if ( m_doIBL )
 	{
 	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
@@ -919,10 +866,6 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
 	else
 	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
     }
-    else
-    {
-	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 0 );
-    }
     
     /// TRACKSEL: Tight
     if ( m_tight_selTool->accept(*track) )
@@ -937,7 +880,7 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     return;
 }
 
-void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const Trk::TrackSummary* summary )
+void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary )
 {
     const Trk::Perigee *perigee = track->perigeeParameters();
     if ( perigee )
@@ -995,7 +938,7 @@ void InDetGlobalTrackMonTool::FillTIDE()
 		    const Trk::Perigee perigee = trackPart->perigeeParameters();
 		    if ( trackPart->vertex() )
 		    {
-			const Trk::ImpactParametersAndSigma * myIPandSigma = m_trackToVertexIPEstimator->estimate(trackPart, trackPart->vertex()); //(trackPart->vertex())? ... :m_pvtx
+			std::unique_ptr<const Trk::ImpactParametersAndSigma>myIPandSigma( m_trackToVertexIPEstimator->estimate(trackPart, trackPart->vertex()) );
 			if ( myIPandSigma )
 			{
 			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
@@ -1174,7 +1117,7 @@ void InDetGlobalTrackMonTool::FillHitMaps( const Trk::Track *track )
 }
 
 
-void InDetGlobalTrackMonTool::FillHoles( const Trk::Track * track, const Trk::TrackSummary* summary )
+void InDetGlobalTrackMonTool::FillHoles( const Trk::Track * track, const std::unique_ptr<const Trk::TrackSummary> & summary )
 {
     int pixelh = summary->get(Trk::numberOfPixelHoles) >= 0 ? summary->get(Trk::numberOfPixelHoles) : 0;
     int scth   = summary->get(Trk::numberOfSCTHoles) >= 0 ? summary->get(Trk::numberOfSCTHoles) : 0;
@@ -1242,7 +1185,7 @@ void InDetGlobalTrackMonTool::FillHoles( const Trk::Track * track, const Trk::Tr
 
 void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
 {
-    const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack = m_holes_search_tool->getHolesOnTrack(*track,track->info().particleHypothesis());
+    std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface> > holesOnTrack( m_holes_search_tool->getHolesOnTrack(*track,track->info().particleHypothesis()) );
     
     // loop over holes
     if (!holesOnTrack) {
@@ -1265,7 +1208,6 @@ void InDetGlobalTrackMonTool::FillHoleMaps( const Trk::Track *track )
 	    }	
 	}	
     }
-    delete holesOnTrack;
     
     return;
 }

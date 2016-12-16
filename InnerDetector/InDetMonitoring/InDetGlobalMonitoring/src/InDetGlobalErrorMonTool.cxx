@@ -77,7 +77,7 @@ StatusCode InDetGlobalErrorMonTool::bookHistogramsRecurrent()
     MonGroup monGr_shift( this, "InDetGlobal/Track/DeadModules", run, ATTRIB_UNMANAGED );
   
     bool status = true;
-  if ( newRun )
+    if ( newRunFlag() )
     {
       m_disabledModulesMapPixel = new TH2F( "disabledModulesMapPixel", "Map of disabled modules for Pixel", 
 					    c_nBinsEta, -c_rangeEta, c_rangeEta, 
@@ -131,7 +131,7 @@ StatusCode InDetGlobalErrorMonTool::fillHistograms()
 
 StatusCode InDetGlobalErrorMonTool::procHistograms()
 {
-  if ( ( endOfLumiBlock || endOfRun ) && m_manager->lumiBlockNumber() % 1 == 0 )
+    if ( ( endOfLumiBlockFlag() || endOfRunFlag() ) && m_manager->lumiBlockNumber() % 1 == 0 )
     {	
       m_disabledModulesMapPixel->Reset("ICE");
       m_errorModulesMapPixel->Reset("ICE");

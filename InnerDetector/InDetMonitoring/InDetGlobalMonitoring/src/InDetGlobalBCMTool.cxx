@@ -98,118 +98,120 @@ InDetGlobalBCMTool::InDetGlobalBCMTool(
 StatusCode InDetGlobalBCMTool::bookHistogramsRecurrent()
 {
     MonGroup monGr_shift ( this, "InDetGlobal/BCM", run, ATTRIB_UNMANAGED);
-    MonGroup monGr_exp   ( this, "InDetGlobal/BCM", run, ATTRIB_UNMANAGED);
+    MonGroup monGr_GlobalHistograms ( this, "InDetGlobal/BCM/GlobalHistograms", run, ATTRIB_UNMANAGED);
+    MonGroup monGr_SideHistograms ( this, "InDetGlobal/BCM/SideHistograms", run, ATTRIB_UNMANAGED);
+    MonGroup monGr_DetectorHistograms ( this, "InDetGlobal/BCM/DetectorHistograms", run, ATTRIB_UNMANAGED);
   
-  if (newRun){
+    if (newRunFlag()){
 
     // Example of plot registration per new run
-    registerHist(monGr_exp,m_nExamplePlot = new TH1F("m_nExample","Example plot BCM",5,0,5));
+    registerHist(monGr_shift,m_nExamplePlot = new TH1F("m_nExample","Example plot BCM",5,0,5));
 
-    char name[256], title[256], station_name[256], gain[256], pulse[256]; 
+    std::string name,title,station_name,gain,pulse;
     
     /*************************************************************************************************************
      * Register Monitoring Histograms
      *************************************************************************************************************/
 
-    sprintf(name,"/GlobalHistograms/HitsVsLvl1AAll");
-    sprintf(title,"Hits vs LVL1A All");
-    registerHist(monGr_exp,hits_lvl1a_all = new TH1F(name,title,32,0,32));
+    name = "HitsVsLvl1AAll";
+    title = "Hits vs LVL1A All";
+    registerHist(monGr_GlobalHistograms,hits_lvl1a_all = new TH1F(name.c_str(),title.c_str(),32,0,32));
     hits_lvl1a_all->GetXaxis()->SetTitle("lvl1a [25 ns]");
     hits_lvl1a_all->GetYaxis()->SetTitle("# of hits");
 
-    sprintf(name,"/GlobalHistograms/ChannelVsLvl1a");
-    sprintf(title,"Channel vs LVL1 A");
-    registerHist(monGr_exp,ChannelVsLvl1a = new TH2F(name, "Channel vs LVL1 A", 64, 0, 64, 16, 0, 16));
+    name = "ChannelVsLvl1a";
+    title = "Channel vs LVL1 A";
+    registerHist(monGr_GlobalHistograms,ChannelVsLvl1a = new TH2F(name.c_str(), title.c_str(), 64, 0, 64, 16, 0, 16));
     ChannelVsLvl1a->GetXaxis()->SetTitle("LVL1 A [25 ns]");
     ChannelVsLvl1a->GetYaxis()->SetTitle("Channel #");
     
-    sprintf(name,"/GlobalHistograms/ChannelVsBCID");
-    sprintf(title,"Channel vs BCID");
-    registerHist(monGr_exp,ChannelVsBCID = new TH2F(name,title, bcids_displayed,bcid_start, bcid_start+bcids_displayed, 16, 0,16));
+    name = "ChannelVsBCID";
+    title = "Channel vs BCID";
+    registerHist(monGr_GlobalHistograms,ChannelVsBCID = new TH2F(name.c_str(),title.c_str(), bcids_displayed,bcid_start, bcid_start+bcids_displayed, 16, 0,16));
     ChannelVsBCID->GetXaxis()->SetTitle("BCID [25 ns]");
     ChannelVsBCID->GetYaxis()->SetTitle("Channel #");
     
-    sprintf(name,"/GlobalHistograms/ChannelVsECR");
-    sprintf(title,"Channel vs ECR");
-    registerHist(monGr_exp,ChannelVsECR = new TH2F(name, title, 256, 0, 256, 16, 0, 16));
+    name = "ChannelVsECR";
+    title = "Channel vs ECR";
+    registerHist(monGr_GlobalHistograms,ChannelVsECR = new TH2F(name.c_str(), title.c_str(), 256, 0, 256, 16, 0, 16));
     ChannelVsECR->GetXaxis()->SetTitle("ECR [5 s]");
     ChannelVsECR->GetYaxis()->SetTitle("Channel #");
 
-    sprintf(name,"/GlobalHistograms/NumberOfEvents");
-    sprintf(title,"Number of monitored events");
-    registerHist(monGr_exp,NumberOfEvents = new TH1F(name, title, 3,0,3));
+    name = "NumberOfEvents";
+    title = "Number of monitored events";
+    registerHist(monGr_GlobalHistograms,NumberOfEvents = new TH1F(name.c_str(), title.c_str(), 3,0,3));
     NumberOfEvents->GetXaxis()->SetTitle("sourceID [0=BCM, 1=LowHorizontal, 2=LowVertical]");
     NumberOfEvents->GetYaxis()->SetTitle("# of events");    
 
-    sprintf(name,"/GlobalHistograms/AbortFraction");
-    sprintf(title,"Abort Fraction");
-    registerHist(monGr_exp,AbortFraction = new TH1F(name, title, 101, 0, 101));
+    name = "AbortFraction";
+    title = "Abort Fraction";
+    registerHist(monGr_GlobalHistograms,AbortFraction = new TH1F(name.c_str(), title.c_str(), 101, 0, 101));
     AbortFraction->GetXaxis()->SetTitle("Abort Fraction %");
     AbortFraction->GetYaxis()->SetTitle("# of Hits");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD0");
-    sprintf(title,"Abort Fraction ROD0");
-    registerHist(monGr_exp,AbortFractionROD0 = new TH1F(name, title, 101, 0, 101));
+    name = "AbortFractionROD0";
+    title = "Abort Fraction ROD0";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD0 = new TH1F(name.c_str(), title.c_str(), 101, 0, 101));
     AbortFractionROD0->GetXaxis()->SetTitle("Abort Fraction %");
     AbortFractionROD0->GetYaxis()->SetTitle("# of Hits");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD1");
-    sprintf(title,"Abort Fraction ROD1");
-    registerHist(monGr_exp,AbortFractionROD1 = new TH1F(name, title, 101, 0, 101));
+    name = "AbortFractionROD1";
+    title = "Abort Fraction ROD1";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD1 = new TH1F(name.c_str(), title.c_str(), 101, 0, 101));
     AbortFractionROD1->GetXaxis()->SetTitle("Abort Fraction %");
     AbortFractionROD1->GetYaxis()->SetTitle("# of Hits");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionVsBCID");
-    sprintf(title,"Abort Fraction Vs BCID");
-    registerHist(monGr_exp,AbortFractionVsBCID = new TH1F(name, title, 3563, 0, 3563));
+    name = "AbortFractionVsBCID";
+    title = "Abort Fraction Vs BCID";
+    registerHist(monGr_GlobalHistograms,AbortFractionVsBCID = new TH1F(name.c_str(), title.c_str(), 3563, 0, 3563));
     AbortFractionVsBCID->GetXaxis()->SetTitle("BCID [25 ns]");
     AbortFractionVsBCID->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD0VsBCID");
-    sprintf(title,"Abort Fraction ROD0 Vs BCID");
-    registerHist(monGr_exp,AbortFractionROD0VsBCID = new TH1F(name, title, 3563, 0, 3563));
+    name = "AbortFractionROD0VsBCID";
+    title = "Abort Fraction ROD0 Vs BCID";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD0VsBCID = new TH1F(name.c_str(), title.c_str(), 3563, 0, 3563));
     AbortFractionROD0VsBCID->GetXaxis()->SetTitle("BCID [25 ns]");
     AbortFractionROD0VsBCID->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD1VsBCID");
-    sprintf(title,"Abort Fraction ROD1 Vs BCID");
-    registerHist(monGr_exp,AbortFractionROD1VsBCID = new TH1F(name, title, 3563, 0, 3563));
+    name = "AbortFractionROD1VsBCID";
+    title = "Abort Fraction ROD1 Vs BCID";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD1VsBCID = new TH1F(name.c_str(), title.c_str(), 3563, 0, 3563));
     AbortFractionROD1VsBCID->GetXaxis()->SetTitle("BCID [25 ns]");
     AbortFractionROD1VsBCID->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionVsECR");
-    sprintf(title,"Abort Fraction Vs ECR");
-    registerHist(monGr_exp,AbortFractionVsECR = new TH1F(name, title, 256, 0, 256));
+    name = "AbortFractionVsECR";
+    title = "Abort Fraction Vs ECR";
+    registerHist(monGr_GlobalHistograms,AbortFractionVsECR = new TH1F(name.c_str(), title.c_str(), 256, 0, 256));
     AbortFractionVsECR->GetXaxis()->SetTitle("ECR [5 s]");
     AbortFractionVsECR->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionVsLB");
-    sprintf(title,"Abort Fraction Vs LB");
-    registerHist(monGr_exp,AbortFractionVsLB = new TH2F(name, title, lb_max, lb_start, lb_max, 100, 0, 1));
+    name = "AbortFractionVsLB";
+    title = "Abort Fraction Vs LB";
+    registerHist(monGr_GlobalHistograms,AbortFractionVsLB = new TH2F(name.c_str(), title.c_str(), lb_max, lb_start, lb_max, 100, 0, 1));
     AbortFractionVsLB->GetXaxis()->SetTitle("LB");
     AbortFractionVsLB->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD0VsECR");
-    sprintf(title,"Abort Fraction ROD0 Vs ECR");
-    registerHist(monGr_exp,AbortFractionROD0VsECR = new TH1F(name, title, 256, 0, 256));
+    name = "AbortFractionROD0VsECR";
+    title = "Abort Fraction ROD0 Vs ECR";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD0VsECR = new TH1F(name.c_str(), title.c_str(), 256, 0, 256));
     AbortFractionROD0VsECR->GetXaxis()->SetTitle("ECR [5 s]");
     AbortFractionROD0VsECR->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/AbortFractionROD1VsECR");
-    sprintf(title,"Abort Fraction ROD1 Vs ECR");
-    registerHist(monGr_exp,AbortFractionROD1VsECR = new TH1F(name, title, 256, 0, 256));
+    name = "AbortFractionROD1VsECR";
+    title = "Abort Fraction ROD1 Vs ECR";
+    registerHist(monGr_GlobalHistograms,AbortFractionROD1VsECR = new TH1F(name.c_str(), title.c_str(), 256, 0, 256));
     AbortFractionROD1VsECR->GetXaxis()->SetTitle("BCID [5 s]");
     AbortFractionROD1VsECR->GetYaxis()->SetTitle("Abort Fraction %");
 
-    sprintf(name,"/GlobalHistograms/timewalkAll");
-    sprintf(title,"timewalk All");
-    registerHist(monGr_exp,timewalk_all = new TH2F(name,title,64, 0, 64, 32, 0, 32));
+    name = "timewalkAll";
+    title = "timewalk All";
+    registerHist(monGr_GlobalHistograms,timewalk_all = new TH2F(name.c_str(),title.c_str(),64, 0, 64, 32, 0, 32));
     timewalk_all->GetXaxis()->SetTitle("pulse pos in time bins [25/64 ns]");
     timewalk_all->GetYaxis()->SetTitle("pulse width in time bins [25/64 ns]");
 
-    sprintf(name,"/GlobalHistograms/NumberHighOccupancyEventsVsLB");
-    sprintf(title,"Number of High Occupancy Events Vs LB");
-    registerHist(monGr_exp, highocc = new TH1F(name,title, lb_max, lb_start, lb_max));
+    name = "NumberHighOccupancyEventsVsLB";
+    title = "Number of High Occupancy Events Vs LB";
+    registerHist(monGr_GlobalHistograms, highocc = new TH1F(name.c_str(),title.c_str(), lb_max, lb_start, lb_max));
     highocc->GetXaxis()->SetTitle("LB number");
     highocc->GetYaxis()->SetTitle("Number of High Occupancy Events");
 
@@ -220,179 +222,179 @@ StatusCode InDetGlobalBCMTool::bookHistogramsRecurrent()
     
     for (unsigned int gain_value=0;gain_value<2;gain_value++)
       {
-	if (gain_value==0){sprintf(gain,"Low");} 
-	else sprintf(gain,"High");   
+	if (gain_value==0){gain = "Low";} 
+	else gain="High";   
 
-	sprintf(name,"/GlobalHistograms/PulsePositionAll");
-	sprintf(title,"Pulse Position All");
-	registerHist(monGr_exp,pulse_position_all[gain_value] = new TH1F(name,title,64, 0, 64));
+	name = "PulsePositionAll";
+	title = "Pulse Position All";
+	registerHist(monGr_GlobalHistograms,pulse_position_all[gain_value] = new TH1F(name.c_str(),title.c_str(),64, 0, 64));
 	pulse_position_all[gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	pulse_position_all[gain_value]->GetYaxis()->SetTitle("# of hits");
 
-	sprintf(name,"/GlobalHistograms/PulseWidthAll");
-	sprintf(title,"Pulse Width All");
-	registerHist(monGr_exp,pulse_width_all[gain_value] = new TH1F(name,title,32, 0, 32));
+	name = "PulseWidthAll";
+	title = "Pulse Width All";
+	registerHist(monGr_GlobalHistograms,pulse_width_all[gain_value] = new TH1F(name.c_str(),title.c_str(),32, 0, 32));
 	pulse_width_all[gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	pulse_width_all[gain_value]->GetYaxis()->SetTitle("# of hits");
 	
-	sprintf(name,"/GlobalHistograms/HitDistribution%sGain", gain);
-	sprintf(title,"Hits vs Channel  %s Gain", gain);
-	registerHist(monGr_exp,hitdistribution[gain_value] = new TH1F(name,title,8,0,8));
+	name = "HitDistribution" + gain + "Gain";
+	title = "Hits vs Channel " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,hitdistribution[gain_value] = new TH1F(name.c_str(),title.c_str(),8,0,8));
 	hitdistribution[gain_value]->GetXaxis()->SetTitle("detector");
 	hitdistribution[gain_value]->GetYaxis()->SetTitle("# of hits");
 
-	sprintf(name,"/GlobalHistograms/HitsVsLvl1A%sGain",gain);
-	sprintf(title,"Hits vs LVL1 A  %s Gain",gain);
-	registerHist(monGr_exp,hits_lvl1a[gain_value] = new TH1F(name,title,32,0,32));
+	name = "HitsVsLvl1A" + gain + "Gain";
+	title = "Hits vs LVL1 A  " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,hits_lvl1a[gain_value] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	hits_lvl1a[gain_value]->GetXaxis()->SetTitle("lvl1a [25 ns]");
 	hits_lvl1a[gain_value]->GetYaxis()->SetTitle("# of hits");
        
-	sprintf(name,"/GlobalHistograms/HitsVsBCID%sGain",gain);
-	sprintf(title,"Hits vs BCID  %s Gain",gain);
-	registerHist(monGr_exp,hits_bcid[gain_value] = new TH1F(name,title, bcids_displayed, bcid_start, bcid_start+bcids_displayed));
+	name = "HitsVsBCID" + gain + "Gain";
+	title = "Hits vs BCID  " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,hits_bcid[gain_value] = new TH1F(name.c_str(),title.c_str(), bcids_displayed, bcid_start, bcid_start+bcids_displayed));
 	hits_bcid[gain_value]->GetXaxis()->SetTitle("BCID [25 ns]");
 	hits_bcid[gain_value]->GetYaxis()->SetTitle("# of hits");\
 	
-	sprintf(name,"/GlobalHistograms/StrangeSignals%sGain",gain);
-	sprintf(title,"Strange Signals  %s Gain",gain);
-	registerHist(monGr_exp,strange_signals[gain_value] = new TH1F(name,title,16,0,16));
+	name = "StrangeSignals" + gain + "Gain";
+	title = "Strange Signals  " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,strange_signals[gain_value] = new TH1F(name.c_str(),title.c_str(),16,0,16));
 	strange_signals[gain_value]->GetXaxis()->SetTitle("Channel");
 	strange_signals[gain_value]->GetYaxis()->SetTitle("# of hits");
 
-	sprintf(name,"/GlobalHistograms/PulsePosition%sGain",gain);
-	sprintf(title,"Pulse Position  %s Gain",gain);
-	registerHist(monGr_exp,pulse_position_gen[gain_value] = new TH1F(name,title,64, 0, 64));
+	name = "PulsePosition" + gain + "Gain";
+	title = "Pulse Position  " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,pulse_position_gen[gain_value] = new TH1F(name.c_str(),title.c_str(),64, 0, 64));
 	pulse_position_gen[gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	pulse_position_gen[gain_value]->GetYaxis()->SetTitle("# of hits");
 
-	sprintf(name,"/GlobalHistograms/PulseWidth%sGain",gain);
-	sprintf(title,"Pulse Width  %s Gain",gain);
-	registerHist(monGr_exp,pulse_width_gen[gain_value] = new TH1F(name,title,32, 0, 32));
+	name = "PulseWidth" + gain + "Gain";
+	title = "Pulse Width  " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms,pulse_width_gen[gain_value] = new TH1F(name.c_str(),title.c_str(),32, 0, 32));
 	pulse_width_gen[gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	pulse_width_gen[gain_value]->GetYaxis()->SetTitle("# of hits");
 
-	sprintf(name,"/GlobalHistograms/Deltat%sGain",gain);
-	sprintf(title,"#Delta t %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_hits[gain_value] = new TH1F(name,title,50,-25,25));
+	name = "Deltat" + gain + "Gain";
+	title = "#Delta t " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_hits[gain_value] = new TH1F(name.c_str(),title.c_str(),50,-25,25));
 	deltat_vs_hits[gain_value]->GetXaxis()->SetTitle("#Delta t [ns]");
 	deltat_vs_hits[gain_value]->GetYaxis()->SetTitle("# of hits");
 	
-	sprintf(name,"/GlobalHistograms/DeltatAligned%sGain",gain);
-	sprintf(title,"#Delta t Aligned %s Gain",gain);
-	registerHist(monGr_exp, deltat_aligned_vs_hits[gain_value] = new TH1F(name,title,50,-25,25));
+	name = "DeltatAligned" + gain + "Gain";
+	title = "#Delta t Aligned " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_aligned_vs_hits[gain_value] = new TH1F(name.c_str(),title.c_str(),50,-25,25));
 	deltat_aligned_vs_hits[gain_value]->GetXaxis()->SetTitle("#Delta t [ns]");
 	deltat_aligned_vs_hits[gain_value]->GetYaxis()->SetTitle("# of hits");
 	
-	sprintf(name,"/GlobalHistograms/DeltatVsBCID%sGain",gain);
-	sprintf(title,"#Delta t vs BCID %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_bcid[gain_value] = new TH2F(name,title, bcids_displayed,bcid_start, bcid_start+bcids_displayed,50,-25,25));
+	name = "DeltatVsBCID" + gain + "Gain";
+	title = "#Delta t vs BCID " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_bcid[gain_value] = new TH2F(name.c_str(),title.c_str(), bcids_displayed,bcid_start, bcid_start+bcids_displayed,50,-25,25));
 	deltat_vs_bcid[gain_value]->GetXaxis()->SetTitle("BCID [25 ns]");
 	deltat_vs_bcid[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatAlignedVsBCID%sGain",gain);
-	sprintf(title,"#Delta t Aligned vs BCID %s Gain",gain);
-	registerHist(monGr_exp, deltat_aligned_vs_bcid[gain_value] = new TH2F(name,title, bcids_displayed,bcid_start, bcid_start+bcids_displayed,50,-25,25));
+	name = "DeltatAlignedVsBCID" + gain + "Gain";
+	title = "#Delta t Aligned vs BCID " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_aligned_vs_bcid[gain_value] = new TH2F(name.c_str(),title.c_str(), bcids_displayed,bcid_start, bcid_start+bcids_displayed,50,-25,25));
 	deltat_aligned_vs_bcid[gain_value]->GetXaxis()->SetTitle("BCID [25 ns]");
 	deltat_aligned_vs_bcid[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatVsLB%sGain",gain);
-	sprintf(title,"#Delta t vs LB %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_lb[gain_value] = new TH2F(name,title, lb_max, lb_start, lb_max, 50,-25,25));
+	name = "DeltatVsLB" + gain + "Gain";
+	title = "#Delta t vs LB " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_lb[gain_value] = new TH2F(name.c_str(),title.c_str(), lb_max, lb_start, lb_max, 50,-25,25));
 	deltat_vs_lb[gain_value]->GetXaxis()->SetTitle("LB number");
 	deltat_vs_lb[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatAlignedVsLB%sGain",gain);
-	sprintf(title,"#Delta t Aligned vs LB %s Gain",gain);
-	registerHist(monGr_exp, deltat_aligned_vs_lb[gain_value] = new TH2F(name,title, lb_max, lb_start, lb_max, 50,-25,25));
+	name = "DeltatAlignedVsLB" + gain + "Gain";
+	title = "#Delta t Aligned vs LB " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_aligned_vs_lb[gain_value] = new TH2F(name.c_str(),title.c_str(), lb_max, lb_start, lb_max, 50,-25,25));
 	deltat_aligned_vs_lb[gain_value]->GetXaxis()->SetTitle("LB number");
 	deltat_aligned_vs_lb[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatVsECR%sGain",gain);
-	sprintf(title,"#Delta t vs ECR %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_ecr[gain_value] = new TH2F(name,title, ecrs_displayed,ecr_start, ecr_start+ecrs_displayed,50,-25,25));
+	name = "DeltatVsECR" + gain + "Gain";
+	title = "#Delta t vs ECR " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_ecr[gain_value] = new TH2F(name.c_str(),title.c_str(), ecrs_displayed,ecr_start, ecr_start+ecrs_displayed,50,-25,25));
 	deltat_vs_ecr[gain_value]->GetXaxis()->SetTitle("ECR");
 	deltat_vs_ecr[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatAlignedVsECR%sGain",gain);
-	sprintf(title,"#Delta t Aligned vs ECR %s Gain",gain);
-	registerHist(monGr_exp, deltat_aligned_vs_ecr[gain_value] = new TH2F(name,title, ecrs_displayed,ecr_start, ecr_start+ecrs_displayed,50,-25,25));
+	name = "DeltatAlignedVsECR" + gain + "Gain";
+	title = "#Delta t Aligned vs ECR " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_aligned_vs_ecr[gain_value] = new TH2F(name.c_str(),title.c_str(), ecrs_displayed,ecr_start, ecr_start+ecrs_displayed,50,-25,25));
 	deltat_aligned_vs_ecr[gain_value]->GetXaxis()->SetTitle("ECR");
 	deltat_aligned_vs_ecr[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatVsPrVertex%sGain",gain);
-	sprintf(title,"#Delta t vs Primary Vertex %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_PrVertex[gain_value] = new TH2F(name,title,100,-200,200,50,-25,25));
+	name = "DeltatVsPrVertex" + gain + "Gain";
+	title = "#Delta t vs Primary Vertex " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_PrVertex[gain_value] = new TH2F(name.c_str(),title.c_str(),100,-200,200,50,-25,25));
 	deltat_vs_PrVertex[gain_value]->GetXaxis()->SetTitle("Primary Vertex z position [mm] ");
 	deltat_vs_PrVertex[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/DeltatVsPixelHits%sGain",gain);
-	sprintf(title,"#Delta t vs NumberPixelHits %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_pixhits[gain_value] = new TH2F(name,title, 100, 0, 10000, 50,-25,25));
+	name = "DeltatVsPixelHits" + gain + "Gain";
+	title = "#Delta t vs NumberPixelHits " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_pixhits[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 10000, 50,-25,25));
 	deltat_vs_pixhits[gain_value]->GetXaxis()->SetTitle("Number Pixel Hits");
 	deltat_vs_pixhits[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 	  
-	sprintf(name,"/GlobalHistograms/DeltatVsPixelHitsBR%sGain",gain);
-	sprintf(title,"#Delta t vs NumberPixelHits in Barrel %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_pixhitsBR[gain_value] = new TH2F(name,title, 100, 0, 10000, 50,-25,25));
+	name = "DeltatVsPixelHitsBR" + gain + "Gain";
+	title = "#Delta t vs NumberPixelHits in Barrel " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_pixhitsBR[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 10000, 50,-25,25));
 	deltat_vs_pixhitsBR[gain_value]->GetXaxis()->SetTitle("Number Barrel Pixel Hits");
 	deltat_vs_pixhitsBR[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 	  
-	sprintf(name,"/GlobalHistograms/DeltatVsPixelHitsEC%sGain",gain);
-	sprintf(title,"#Delta t vs NumberPixelHits in Endcap %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_pixhitsEC[gain_value] = new TH2F(name,title, 100, 0, 10000, 50,-25,25));
+	name = "DeltatVsPixelHitsEC" + gain + "Gain";
+	title = "#Delta t vs NumberPixelHits in Endcap " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_pixhitsEC[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 10000, 50,-25,25));
 	deltat_vs_pixhitsEC[gain_value]->GetXaxis()->SetTitle("Number Endcap Pixel Hits");
 	deltat_vs_pixhitsEC[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 	  
-	sprintf(name,"/GlobalHistograms/DeltatVsSctHits%sGain",gain);
-	sprintf(title,"#Delta t vs NumberSctHits %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_scthits[gain_value] = new TH2F(name,title, 100, 0, 20000, 50,-25,25));
+	name = "DeltatVsSctHits" + gain + "Gain";
+	title = "#Delta t vs NumberSctHits " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_scthits[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 20000, 50,-25,25));
 	deltat_vs_scthits[gain_value]->GetXaxis()->SetTitle("Number Sct Hits");
 	deltat_vs_scthits[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 	  
-	sprintf(name,"/GlobalHistograms/DeltatVsSctHitsBR%sGain",gain);
-	sprintf(title,"#Delta t vs NumberSctHits in Barrel %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_scthitsBR[gain_value] = new TH2F(name,title, 100, 0, 20000, 50,-25,25));
+	name = "DeltatVsSctHitsBR" + gain + "Gain";
+	title = "#Delta t vs NumberSctHits in Barrel " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_scthitsBR[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 20000, 50,-25,25));
 	deltat_vs_scthitsBR[gain_value]->GetXaxis()->SetTitle("Number Barrel Sct Hits");
 	deltat_vs_scthitsBR[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 	  
-	sprintf(name,"/GlobalHistograms/DeltatVsSctHitsEC%sGain",gain);
-	sprintf(title,"#Delta t vs NumberSctHits in Endcap %s Gain",gain);
-	registerHist(monGr_exp, deltat_vs_scthitsEC[gain_value] = new TH2F(name,title, 100, 0, 20000, 50,-25,25));
+	name = "DeltatVsSctHitsEC" + gain + "Gain";
+	title = "#Delta t vs NumberSctHits in Endcap " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, deltat_vs_scthitsEC[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 20000, 50,-25,25));
 	deltat_vs_scthitsEC[gain_value]->GetXaxis()->SetTitle("Number Endcap Sct Hits");
 	deltat_vs_scthitsEC[gain_value]->GetYaxis()->SetTitle("#Delta t [ns]");
 
-	sprintf(name,"/GlobalHistograms/SctVsPixHitsCol%sGain",gain);
-	sprintf(title,"#NumberSctHits vs NumberPixHits w/ Collison delta t %s Gain",gain);
-	registerHist(monGr_exp, sct_vs_pix_col[gain_value] = new TH2F(name,title, 100, 0, 20000, 100, 0, 10000));
+	name = "SctVsPixHitsCol" + gain + "Gain";
+	title = "#NumberSctHits vs NumberPixHits w/ Collison delta t " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, sct_vs_pix_col[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 20000, 100, 0, 10000));
 	sct_vs_pix_col[gain_value]->GetXaxis()->SetTitle("Number Pixel Hits");
 	sct_vs_pix_col[gain_value]->GetYaxis()->SetTitle("Number Sct Hits");
 	  
-	sprintf(name,"/GlobalHistograms/SctVsPixHitsBkg%sGain",gain);
-	sprintf(title,"#NumberSctHits vs NumberPixHits w/ Background delta t %s Gain",gain);
-	registerHist(monGr_exp, sct_vs_pix_bkg[gain_value] = new TH2F(name,title, 100, 0, 20000, 100, 0, 10000));
+	name = "SctVsPixHitsBkg" + gain + "Gain";
+	title = "#NumberSctHits vs NumberPixHits w/ Background delta t " + gain + " Gain";
+	registerHist(monGr_GlobalHistograms, sct_vs_pix_bkg[gain_value] = new TH2F(name.c_str(),title.c_str(), 100, 0, 20000, 100, 0, 10000));
 	sct_vs_pix_bkg[gain_value]->GetXaxis()->SetTitle("Number Pixel Hits");
 	sct_vs_pix_bkg[gain_value]->GetYaxis()->SetTitle("Number Sct Hits");
 	  
 	for (unsigned int pulse_nr=0;pulse_nr<2;pulse_nr++) {
 
-	  if (pulse_nr==0){sprintf(pulse,"1");} 
-	  else sprintf(pulse,"2");   
+	  if (pulse_nr==0){pulse = "1";} 
+	  else pulse="2";   
 	    
-	  sprintf(name,"/GlobalHistograms/Pulse%sWidth%sGain",pulse,gain);
-	  sprintf(title,"Pulse %s Width  %s Gain",pulse,gain);
-	  registerHist(monGr_exp, pulse_width[gain_value][pulse_nr] = new TH1F(name,title,32,0,32));
+	  name="Pulse"+pulse+"Width"+gain+"Gain";
+	  title="Pulse"+ pulse +"Width" + gain  + "Gain";
+	  registerHist(monGr_GlobalHistograms, pulse_width[gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	  pulse_width[gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/32 ns]");
 	  pulse_width[gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 
-	  sprintf(name,"/GlobalHistograms/Pulse%sPosition%sGain",pulse,gain);
-	  sprintf(title,"Pulse %s Position  %s Gain",pulse,gain);
-	  registerHist(monGr_exp, pulse_position[gain_value][pulse_nr] = new TH1F(name,title,64,0,64));
+	  name= "Pulse"+pulse+"Position"+ gain+"Gain";
+	  title = "Pulse " + pulse + " Position  " + gain + " Gain";
+	  registerHist(monGr_GlobalHistograms, pulse_position[gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),64,0,64));
 	  pulse_position[gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	  pulse_position[gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 
-	  sprintf(name,"/GlobalHistograms/HitDistributionPulse%s%sGain",pulse,gain);
-	  sprintf(title,"Hitdistribution Pulse %s %s Gain",pulse,gain);
-	  registerHist(monGr_exp, hitdistribution_pulse[gain_value][pulse_nr] = new TH1F(name,title,8,0,8));
+	  name = "HitDistributionPulse"+pulse+gain+"Gain";
+	  title = "Hitdistribution Pulse " + pulse + " " + gain + " Gain";
+	  registerHist(monGr_GlobalHistograms, hitdistribution_pulse[gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),8,0,8));
 	  hitdistribution_pulse[gain_value][pulse_nr]->GetXaxis()->SetTitle("detector");
 	  hitdistribution_pulse[gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 
@@ -405,46 +407,46 @@ StatusCode InDetGlobalBCMTool::bookHistogramsRecurrent()
     
     for(unsigned int station_nr=0;station_nr<2;station_nr++)
       {
-	if (station_nr==0) {sprintf(station_name,"A-side");}
-	else sprintf(station_name,"C-side");
+	if (station_nr==0) station_name="A-side";
+	else station_name="C-side";
 	
 	for (unsigned int gain_value=0;gain_value<2;gain_value++)
 	  {
-	    if (gain_value==0){sprintf(gain,"Low");} 
-	    else sprintf(gain,"High");   
+	    if (gain_value==0){gain="Low";} 
+	    else gain="High";   
 	        
-	    sprintf(name,"/SideHistograms/%s/HitsVsLvl1A%sGain",station_name,gain);
-	    sprintf(title,"%s Hits vs LVL1 A  %s Gain",station_name,gain);
-	    registerHist(monGr_exp,stat_lvl1a[station_nr][gain_value] = new TH1F(name,title,32,0,32));
+	    name="HitsVsLvl1A"+station_name+"Gain_gain";
+	    title = "" + station_name + " Hits vs LVL1 A  " + gain + " Gain";
+	    registerHist(monGr_SideHistograms,stat_lvl1a[station_nr][gain_value] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	    stat_lvl1a[station_nr][gain_value]->GetXaxis()->SetTitle("lvl1a [25 ns]");
 	    stat_lvl1a[station_nr][gain_value]->GetYaxis()->SetTitle("# of hits");
 	        
-	    sprintf(name,"/SideHistograms/%s/PulsePosition%sGain",station_name,gain);
-	    sprintf(title,"%s Pulse Position  %s Gain",station_name,gain);
-	    registerHist(monGr_exp, stat_pulse_position_gen[station_nr][gain_value] = new TH1F(name,title,64,0,64));
+	    name="PulsePosition"+station_name+"Gain_"+gain;
+	    title = "" + station_name + " Pulse Position  " + gain + " Gain";
+	    registerHist(monGr_SideHistograms, stat_pulse_position_gen[station_nr][gain_value] = new TH1F(name.c_str(),title.c_str(),64,0,64));
 	    stat_pulse_position_gen[station_nr][gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	    stat_pulse_position_gen[station_nr][gain_value]->GetYaxis()->SetTitle("# of hits");
 	        
-	    sprintf(name,"/SideHistograms/%s/PulseWidth%sGain",station_name,gain);
-	    sprintf(title,"%s Pulse Width  %s Gain",station_name,gain);
-	    registerHist(monGr_exp,stat_pulse_width_gen[station_nr][gain_value] = new TH1F(name,title,32,0,32));
+	    name="PulseWidth"+station_name+"Gain_"+gain;
+	    title = "" + station_name + " Pulse Width  " + gain + " Gain";
+	    registerHist(monGr_SideHistograms,stat_pulse_width_gen[station_nr][gain_value] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	    stat_pulse_width_gen[station_nr][gain_value]->GetXaxis()->SetTitle("time bins [25/32 ns]");
 	    stat_pulse_width_gen[station_nr][gain_value]->GetYaxis()->SetTitle("# of hits");
 
 	    for (unsigned int pulse_nr=0; pulse_nr<2;pulse_nr++)
 	      {
-		if (pulse_nr==0){sprintf(pulse,"1");} 
-		else sprintf(pulse,"2");   
+		if (pulse_nr==0){pulse="1";} 
+		else pulse="2";   
 		
-		sprintf(name,"/SideHistograms/%s/Pulse%sPosition%sGain",station_name,pulse,gain);
-		sprintf(title,"%s Pulse %s Position  %s Gain",station_name,pulse,gain);
-		registerHist(monGr_exp, stat_pulse_position[station_nr][gain_value][pulse_nr] = new TH1F(name,title,64,0,64));
+		name="Pulse"+station_name+"Position"+pulse+"Gain_"+gain;
+		title=station_name+" Pulse "+pulse+" Position "+gain+" Gain";
+		registerHist(monGr_SideHistograms, stat_pulse_position[station_nr][gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),64,0,64));
 		stat_pulse_position[station_nr][gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 		stat_pulse_position[station_nr][gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 		
-		sprintf(name,"/SideHistograms/%s/Pulse%sWidth%sGain",station_name,pulse,gain);
-		sprintf(title,"%s Pulse %s Width  %s Gain",station_name,pulse,gain);
-		registerHist(monGr_exp,stat_pulse_width[station_nr][gain_value][pulse_nr] = new TH1F(name,title,32,0,32));
+		name="Pulse"+station_name+"Width"+pulse+"Gain_"+gain;
+		title=station_name+" Pulse "+pulse+" Width "+gain+" Gain";
+		registerHist(monGr_SideHistograms,stat_pulse_width[station_nr][gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 		stat_pulse_width[station_nr][gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/32 ns]");
 		stat_pulse_width[station_nr][gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 			
@@ -455,82 +457,82 @@ StatusCode InDetGlobalBCMTool::bookHistogramsRecurrent()
     /*************************
      * Register Detector Histograms
      *************************/
-    char detector_name[256];
+    std::string detector_name;
     
     for (unsigned int detector=0;detector<8;detector++) {
 
-      if (detector<4) sprintf(station_name,"A-side");
-      else sprintf(station_name,"C-side");
+      if (detector<4) station_name="A-side";
+      else station_name="C-side";
       
       switch(detector) {
       case 0:
-	sprintf(detector_name,"+X");
+	detector_name="+X";
 	break;
       case 1:
-	sprintf(detector_name,"+Y");
+	detector_name="+Y";
 	break;
       case 2:     
-	sprintf(detector_name,"-X");
+	detector_name="-X";
 	break;
       case 3:
-	sprintf(detector_name,"-Y");
+	detector_name="-Y";
 	break;
       case 4:
-	sprintf(detector_name,"+X");
+	detector_name="+X";
 	break;
       case 5:
-	sprintf(detector_name,"+Y");
+	detector_name="+Y";
 	break;
       case 6:
-	sprintf(detector_name,"-X");
+	detector_name="-X";
 	break;
       case 7:
-	sprintf(detector_name,"-Y");
+	detector_name="-Y";
 	break;
       }
       
       for (unsigned int gain_value=0;gain_value<2;gain_value++)
 	{
-	  if (gain_value==0){sprintf(gain,"Low");} 
-	  else sprintf(gain,"High");   
+	  if (gain_value==0){gain="Low";} 
+	  else gain="High";   
 	    
-	  sprintf(name,"/DetectorHistograms/%s%s/HitsVsLvl1A%sGain",station_name,detector_name,gain);
-	  sprintf(title,"%s %s Hits vs LVL1 A  %s Gain",station_name,detector_name,gain);
-	  registerHist(monGr_exp,det_lvl1a[detector][gain_value] = new TH1F(name,title,32,0,32));
+	  name="HitsVsLvl1A"+station_name+"Gain_"+detector_name+gain;
+	  title= station_name+ " "+ detector_name +" Hits vs LVL1 A "+ gain +" Gain";
+	  registerHist(monGr_DetectorHistograms,det_lvl1a[detector][gain_value] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	  det_lvl1a[detector][gain_value]->GetXaxis()->SetTitle("lvl1a [25 ns]");
 	  det_lvl1a[detector][gain_value]->GetYaxis()->SetTitle("# of hits");
 	    
-	  sprintf(name,"/DetectorHistograms/%s%s/PulsePosition%sGain",station_name,detector_name,gain);
-	  sprintf(title,"%s %s Pulse Position  %s Gain",station_name,detector_name,gain);
-	  registerHist(monGr_exp, det_pulse_position_gen[detector][gain_value] = new TH1F(name,title,64,0,64));
+	  name="PulsePosition"+station_name+"Gain_"+detector_name+gain;
+	  title=station_name+" "+detector_name+" Pulse Position "+gain +" Gain";
+	  registerHist(monGr_DetectorHistograms, det_pulse_position_gen[detector][gain_value] = new TH1F(name.c_str(),title.c_str(),64,0,64));
 	  det_pulse_position_gen[detector][gain_value]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	  det_pulse_position_gen[detector][gain_value]->GetYaxis()->SetTitle("# of hits");
 	    
-	  sprintf(name,"/DetectorHistograms/%s%s/PulseWidth%sGain",station_name,detector_name,gain);
-	  sprintf(title,"%s %s Pulse Width  %s Gain",station_name,detector_name,gain);
-	  registerHist(monGr_exp,det_pulse_width_gen[detector][gain_value] = new TH1F(name,title,32,0,32));
+	  name="PulseWidth"+station_name+"Gain_"+detector_name+gain;
+	  title=station_name+" "+detector_name+" Pulse Width "+gain+" Gain";
+	  registerHist(monGr_DetectorHistograms,det_pulse_width_gen[detector][gain_value] = new TH1F(name.c_str(),title.c_str(),32,0,32));
 	  det_pulse_width_gen[detector][gain_value]->GetXaxis()->SetTitle("time bins [25/32 ns]");
 	  det_pulse_width_gen[detector][gain_value]->GetYaxis()->SetTitle("# of hits");
-
-	  sprintf(name,"/GlobalHistograms/%s%s/timewalk%s",station_name,detector_name,gain);
-	  sprintf(title,"%s %s timewalk  %s Gain",station_name,detector_name,gain);
-	  registerHist(monGr_exp,det_timewalk[detector][gain_value] = new TH2F(name,title,64, 0, 64, 32, 0, 32));
+	  
+	  name="timewalk"+station_name+"_"+detector_name+gain;
+	  title=station_name+" "+detector_name+" timewalk "+ gain +" Gain";
+	  registerHist(monGr_GlobalHistograms,det_timewalk[detector][gain_value] = new TH2F(name.c_str(),title.c_str(),64, 0, 64, 32, 0, 32));
 	  det_timewalk[detector][gain_value]->GetXaxis()->SetTitle("pulse pos in time bins [25/64 ns]");
 	  det_timewalk[detector][gain_value]->GetYaxis()->SetTitle("pulse width in time bins [25/64 ns]");    
-
+	  
 	  for (unsigned int pulse_nr=0;pulse_nr<2;pulse_nr++) {
-	    if (pulse_nr==0){sprintf(pulse,"1");} 
-	    else sprintf(pulse,"2");   
+	    if (pulse_nr==0){pulse="1";} 
+	    else pulse="2";   
 	        
-	    sprintf(name,"/DetectorHistograms/%s%s/Pulse%sPosition%sGain",station_name,detector_name,pulse,gain);
-	    sprintf(title,"%s %s Pulse %s Position  %s Gain",station_name,detector_name,pulse,gain);
-	    registerHist(monGr_exp, det_pulse_position[detector][gain_value][pulse_nr] = new TH1F(name,title,64,0,64));
+	    name="Pulse"+station_name+"Position"+detector_name+"Gain_"+pulse+gain;
+	    title=station_name+" "+ detector_name +" Pulse "+pulse+" Position "+ gain +" Gain";
+	    registerHist(monGr_DetectorHistograms, det_pulse_position[detector][gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),64,0,64));
 	    det_pulse_position[detector][gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/64 ns]");
 	    det_pulse_position[detector][gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 	        
-	    sprintf(name,"/DetectorHistograms/%s%s/Pulse%sWidth%sGain",station_name,detector_name,pulse,gain);
-	    sprintf(title,"%s %s Pulse %s Width  %s Gain",station_name,detector_name,pulse,gain);
-	    registerHist(monGr_exp,det_pulse_width[detector][gain_value][pulse_nr] = new TH1F(name,title,32,0,33));
+	    name="Pulse"+station_name+"Width"+detector_name+"Gain_"+pulse+gain;
+	    title=station_name + " " + detector_name + " Pulse " + pulse + "  Width " + gain + " Gain";
+	    registerHist(monGr_DetectorHistograms,det_pulse_width[detector][gain_value][pulse_nr] = new TH1F(name.c_str(),title.c_str(),32,0,33));
 	    det_pulse_width[detector][gain_value][pulse_nr]->GetXaxis()->SetTitle("time bins [25/32 ns]");
 	    det_pulse_width[detector][gain_value][pulse_nr]->GetYaxis()->SetTitle("# of hits");
 	  }//end of pulse loop
@@ -601,9 +603,9 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   //retrieve LB number for plots vs LB
   const EventInfo * evtInfo;
   if ( evtStore()->retrieve(evtInfo).isFailure() ){
+    m_current_LB = 0;
     if ( msgLvl(MSG::WARNING) ){
       msg(MSG::WARNING) << "Could not retrieve the event information container" << endreq;
-      m_current_LB = 0;
     }
   } else {
       m_current_LB = evtInfo->event_ID()->lumi_block();
@@ -650,7 +652,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   }
 
   
-  if ( m_BCM_RDO != 0 && m_BCM_RDO->size() != 0 ){
+  if ( m_BCM_RDO != 0 && !m_BCM_RDO->empty() ){
     BCM_RDO_Container::const_iterator BCM_RDO_itr     = m_BCM_RDO->begin();
     BCM_RDO_Container::const_iterator BCM_RDO_itr_end = m_BCM_RDO->end();
 
@@ -686,7 +688,11 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	for (; RDO_element != RDO_element_last; RDO_element++){ // loops over 31 BCs read out per L1A
           BC_counter++;
           //ATH_MSG_WARNING ( "BC_counter: " << BC_counter);
-	  if (*RDO_element == NULL) ATH_MSG_WARNING ("NULL pointer!");
+	  if (*RDO_element == NULL)
+	  {
+	      ATH_MSG_WARNING ("NULL pointer!");
+	      continue;
+	  }
 	  //else ATH_MSG_WARNING ("RDO_element :" << *RDO_element );
 	    
 	  int bcm_lvl1a           = (*RDO_element)->getLVL1A();
