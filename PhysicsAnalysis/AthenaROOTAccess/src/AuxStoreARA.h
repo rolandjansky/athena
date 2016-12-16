@@ -19,14 +19,12 @@
 #ifndef ATHENAROOTACCESS_AUXSTOREARA
 #define ATHENAROOTACCESS_AUXSTOREARA
 
-#include "AthContainers/AuxStoreInternal.h" 
-#include "AthenaROOTAccess/IAuxBranches.h"
+#include "AthContainersRoot/AuxStoreRoot.h" 
+#include "AthContainersRoot/IAuxBranches.h"
 
 #include "AthContainersInterfaces/IAuxTypeVector.h"
-#include <stdexcept>
 #include <vector>
 #include <list>
-
 #include "TClass.h"
 class TBranch;
 
@@ -34,66 +32,38 @@ class TBranch;
 namespace AthenaROOTAccess {
 
 
-  /**
-   * @brief Aux store implementation to manage dynamic aux variables.
-   */
-  class AuxStoreARA : public SG::AuxStoreInternal
-  {
-  public:
-     AuxStoreARA(IAuxBranches &container, long long entry, bool standalone=false);
-     virtual ~AuxStoreARA() override;
+/**
+ * @brief Aux store implementation to manage dynamic aux variables.
+ */
+class AuxStoreARA : public SG::AuxStoreRoot
+{
+public:
+  AuxStoreARA(SG::IAuxBranches &container, long long entry, bool standalone=false);
+  virtual ~AuxStoreARA() override;
 
-     void GetEntry (long long entry);
-     void SetEntry (long long entry) { m_entry = entry; }
+  void GetEntry (long long entry);
+  void SetEntry (long long entry) { setEntry (entry); }
 
-     /// implementation of the IAuxStore interface
-     virtual const void*                getData(SG::auxid_t auxid) const override;
-     virtual void*                      getData(SG::auxid_t auxid, size_t size, size_t capacity) override;
+  virtual SG::auxid_t resolveAuxID (SG::IAuxBranches& container,
+                                    const std::type_info* ti,
+                                    const std::string& name,
+                                    const std::string& elem_type_name,
+                                    const std::string& branch_type_name) override;
 
-     ///  implementation of the IAuxStoreIO interface
-     virtual const void*                getIOData(SG::auxid_t auxid) const override;
+  virtual bool doReadData (SG::IAuxBranches& container,
+                           SG::auxid_t auxid,
+                           TBranch& branch,
+                           TClass* cl,
+                           void* vector,
+                           long long entry) override;
 
-
-     /**
-      * @brief Return the data vector for one aux data decoration item.
-      * @param auxid The identifier of the desired aux data item.
-      * @param size The current size of the container (in case the data item
-      *             does not already exist).
-      * @param capacity The current capacity of the container (in case
-      *                 the data item does not already exist).
-      */
-     virtual void* getDecoration (SG::auxid_t auxid, size_t size, size_t capacity) override;
-
-    
-  protected:
-     /// read data from ROOT and store it in m_vecs. Returns False on error
-     bool readData(SG::auxid_t auxid);
-     
-  protected:
-     long long          m_entry;
-     IAuxBranches      &m_container;
+private:
+  std::list<void*> m_ptrs;
+  std::vector<TBranch*> m_branches;
+};
 
 
-   private:
-     std::list<void*> m_ptrs;
-     std::vector<TBranch*> m_branches;
-
-     /// Mutex used to synchronize modifications to the cache vector.
-     typedef AthContainers_detail::mutex mutex_t;
-     typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
-     mutable mutex_t m_mutex;
-   };
-
-  
-
-   inline
-   void* AuxStoreARA::getData(SG::auxid_t auxid, size_t /*size*/, size_t /*capacity*/)
-   {
-      // MN:  how do we add new attributes to this store? A:for now we don't
-      return const_cast<void*>(getData(auxid));
-   }
-
-}   
+} // namespace AthenaROOTAccess
 
 #endif
 

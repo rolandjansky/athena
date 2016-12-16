@@ -638,7 +638,13 @@ void TBranchAlias::setStore (bool clear, long long entry)
 }
 
 
-std::vector<IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
+const std::string& TBranchAlias::getName() const
+{
+  return m_targ_branchname;
+}
+
+
+std::vector<SG::IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
 {
   std::vector<IAuxBranches::auxpair_t> out;
   TTree* tree = m_targ_tree;
@@ -658,7 +664,7 @@ std::vector<IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
 }
 
 
-TBranch* TBranchAlias::findAuxBranch (SG::auxid_t auxid) const
+TBranch* TBranchAlias::findAuxBranch (SG::auxid_t auxid)
 {
   auto abr_it = m_dyn_branch_map.find(auxid);
   if( abr_it != m_dyn_branch_map.end() ) {
@@ -693,6 +699,12 @@ StatusCode TBranchAlias::readAuxBranch (TBranch& br, void* p, long long entry)
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode TBranchAlias::readAuxBranch (TBranch&, void*, const std::type_info&, long long)
+{
+  std::abort();
 }
 
 

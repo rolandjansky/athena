@@ -126,7 +126,7 @@ def tree_find_type (dhe, tree):
               dhe.transtype = br.GetClassName()
               break
         if obj:
-            clsname = obj.__class__.__name__
+            clsname = obj.__class__.__cppname__
             if clsname.startswith ('ROOT.'):
                 clsname = clsname[5:]
             dhe.transtype = clsname
@@ -211,7 +211,8 @@ _typedefs = [('AtlasHitsVector<TrackRecord>'  , 'TrackRecordCollection'),
              ('DataVector<xAOD::TrigRNNOutput_v2>','xAOD::TrigRNNOutputContainer_v2'),
              ('DataVector<xAOD::TrigRNNOutput_v2>','xAOD::TrigRNNOutputContainer'),
              ('DataVector<xAOD::TrigRingerRings_v1>','xAOD::TrigRingerRingsContainer_v1'),
-             ('DataVector<xAOD::TrigRingerRings_v1>','xAOD::TrigRingerRingsContainer'),
+             ('DataVector<xAOD::TrigRingerRings_v2>','xAOD::TrigRingerRingsContainer_v2'),
+             ('DataVector<xAOD::TrigRingerRings_v2>','xAOD::TrigRingerRingsContainer'),
              ('DataVector<xAOD::L2CombinedMuon_v1>','xAOD::L2CombinedMuonContainer_v1'),
              ('DataVector<xAOD::L2CombinedMuon_v1>','xAOD::L2CombinedMuonContainer'),
              ('DataVector<xAOD::TrackParticleClusterAssociation_v1>' , 'xAOD::TrackParticleClusterAssociationContainer_v1'),
@@ -228,7 +229,17 @@ _typedefs = [('AtlasHitsVector<TrackRecord>'  , 'TrackRecordCollection'),
              ('DataVector<xAOD::DiTauJet_v1>' , 'xAOD::DiTauJetContainer_v1'),
              ('DataVector<xAOD::TrigPassBits_v1>' , 'xAOD::TrigPassBitsContainer'),
              ('DataVector<xAOD::TrigPassBits_v1>' , 'xAOD::TrigPassBitsContainer_v1'),
+             ('DataVector<xAOD::CaloRings_v1>' , 'xAOD::CaloRingsContainer'),
+             ('DataVector<xAOD::CaloRings_v1>' , 'xAOD::CaloRingsContainer_v1'),
+             ('DataVector<xAOD::RingSet_v1>' ,   'xAOD::RingSetContainer'),
+             ('DataVector<xAOD::RingSet_v1>' ,   'xAOD::RingSetContainer_v1'),
              
+             ('DataVector<xAOD::ForwardEventInfo_v1>' ,'xAOD::ForwardEventInfoContainer'),
+             ('DataVector<xAOD::ForwardEventInfo_v1>' ,'xAOD::ForwardEventInfoContainer_v1'),
+             ('DataVector<xAOD::MBTSModule_v1>' ,'xAOD::MBTSModuleContainer'),
+             ('DataVector<xAOD::MBTSModule_v1>' ,'xAOD::MBTSModuleContainer_v1'),
+             ('DataVector<xAOD::ZdcModule_v1>' , 'xAOD::ZdcModuleContainer'),
+             ('DataVector<xAOD::ZdcModule_v1>' , 'xAOD::ZdcModuleContainer_v1'),
              ('xAOD::MissingETContainer_v1'    , 'xAOD::MissingETContainer'),
              ('xAOD::MissingETComponentMap_v1' , 'xAOD::MissingETComponentMap'),
              ('xAOD::MissingETAssociationMap_v1' , 'xAOD::MissingETAssociationMap'),

@@ -17,7 +17,7 @@
 #define ATHENAROOTACCESS_TBRANCHALIAS_H
 
 
-#include "AthenaROOTAccess/IAuxBranches.h"
+#include "AthContainersRoot/IAuxBranches.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/IStringPool.h"
 #include "TBranch.h"
@@ -55,7 +55,7 @@ class IARAFixup;
  * Note: writing to the branch is unimplemented and may behave strangely!
  */
 class TBranchAlias
-  : public TBranch, public IAuxBranches
+  : public TBranch, public SG::IAuxBranches
 {
 public:
   /// Destructor.
@@ -111,9 +111,11 @@ public:
   virtual const char* GetClassName() const override;
 
 
+  virtual const std::string& getName() const override;
   virtual std::vector<IAuxBranches::auxpair_t> auxBranches() const override;
-  virtual TBranch* findAuxBranch (SG::auxid_t auxid) const override;
+  virtual TBranch* findAuxBranch (SG::auxid_t auxid) override;
   virtual StatusCode readAuxBranch (TBranch& br, void* p, long long entry) override;
+  virtual StatusCode readAuxBranch (TBranch& br, void* p, const std::type_info& ti, long long entry) override;
 
 
   /**

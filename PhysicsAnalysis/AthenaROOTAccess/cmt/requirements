@@ -11,7 +11,6 @@ author Wim Lavrijsen <WLavrijsen@lbl.gov>
 use AtlasPolicy      AtlasPolicy-*    
 use AtlasROOT        AtlasROOT-*        External
 use GaudiInterface   GaudiInterface-*   External
-use CxxUtils         CxxUtils-*         Control
 use AthenaKernel     AthenaKernel-*     Control
 use SGTools          SGTools-*          Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
@@ -23,6 +22,7 @@ private
 use AthAllocators    AthAllocators-*    Control
 use AthLinks         AthLinks-*         Control
 use AthContainers    AthContainers-*    Control
+use AthContainersRoot AthContainersRoot-* Control
 use RootUtils        RootUtils-*        Control
 use xAODMuon         xAODMuon-*         Event/xAOD
 use xAODTracking     xAODTracking-*     Event/xAOD

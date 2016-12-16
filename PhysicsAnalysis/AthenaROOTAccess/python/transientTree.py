@@ -481,7 +481,9 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
                 trans_type = trans_type2
                 trans_branch_name_suffix = '_auxcnv'
 
-    elif pers_type != trans_type and pers_type.startswith ('DataVector<xAOD::'):
+    elif (pers_type != trans_type and
+          (pers_type.startswith ('DataVector<xAOD::') or
+           pers_type.startswith ('DataVector<DMTest::'))):
        trans_branch_name_suffix = '_auxcnv'
 
     elif (pers_type != trans_type and

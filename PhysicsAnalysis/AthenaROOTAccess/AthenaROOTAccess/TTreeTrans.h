@@ -17,7 +17,7 @@
 #define ATHENAROOTACCESS_TTREETRANS_H
 
 #include "AthenaROOTAccess/TTreeBranchMap.h"
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 #include "Rtypes.h"
 #include <set>
 #include <string>
@@ -72,7 +72,7 @@ class TTreeTransDeleter;
  */
 class TTreeTrans
   : public TTreeBranchMap,
-    public IProxyDictWithPool
+    public IProxyDict
 {
 public:
   //========================================================================
@@ -134,7 +134,7 @@ public:
    * The current tree is the one which gets installed as the source
    * when @c ElementLink's are constructed.
    */
-  static IProxyDictWithPool* setCurTree (IProxyDictWithPool* tree);
+  static IProxyDict* setCurTree (IProxyDict* tree);
 
 
   /**
@@ -151,7 +151,7 @@ public:
 
   private:
     /// The previous current tree.
-    IProxyDictWithPool* m_saved;
+    IProxyDict* m_saved;
   };
 
 
@@ -208,7 +208,7 @@ public:
 
   //@}
   //========================================================================
-  /** @name IProxyDictWithPool interface. */
+  /** @name IProxyDict interface. */
   //@{
 
 
