@@ -100,8 +100,8 @@ if DetFlags.haveRIO.pixel_on():
         # temporarily workaround incomplete conditions data for MC
         #  by only enabling the usage of dcs in the pixel conditions summary service for data
         InDetPixelConditionsSummarySvc.UseDCS         = isData
-        InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY' ]
-        InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
+        InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
         # Force Lorentz angle calculation to use DCS for data
         if (globalflags.DataSource() == 'data'):
             pixelLorentzAngleSvcSetup.forceUseDB()
