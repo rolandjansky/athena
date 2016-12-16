@@ -132,6 +132,8 @@ JetChainParts = {
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
 }
+
+
 # ---- Jet Dictinary of default Values ----
 JetChainParts_Default = {
     'signature'    : ['Jet'],
@@ -145,7 +147,7 @@ JetChainParts_Default = {
     'recoAlg'      :'a4',
     'dataType'     :'tc',
     'calib'        :'em',
-    'jetCalib'     :'subjes',
+    'jetCalib'     :'subjesIS',
     'scan'         :'FS',
     'addInfo'      : [],    
     'TLA'          : '',    
@@ -156,6 +158,10 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     }
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+if "v6" in TriggerFlags.triggerMenuSetup():
+    JetChainParts_Default.update({'jetCalib'     :'subjes',})
 
 #==========================================================
 # HT chains
@@ -788,7 +794,7 @@ BeamspotChainParts = {
 #    'addInfo'        : ['trkFS','idperf'],
     'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB','trkfast','FTK'],
+    'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : 'beamspot',

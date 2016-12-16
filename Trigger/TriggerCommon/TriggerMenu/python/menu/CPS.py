@@ -610,8 +610,6 @@ def defineCPSGroups():
 
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-
-
           'RATE:CPS:HLT_mu10_mu6_bBmumuX'   :  ['mu10_mu6_bBmumuxv2',
                                       'mu10_mu6_bBmumux_BcmumuDsloose',
                                       'mu10_mu6_bBmumux_BpmumuKp',
@@ -827,13 +825,51 @@ def defineCPSGroups():
 #        'RATE:CPS:HLT_2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
 #                                                                       '2mu4_bBmumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
 #                                                                       ],
-
-
-        
-
-        
         })
 
+    if "v7" in TriggerFlags.triggerMenuSetup():
+        HLT_CPS_Groups.update({
+           'RATE:CPS:HLT_j300_a10_sub_L1J75':[ 'j300_a10_sub_L1J75',
+                                           'j300_a10_lcw_subjes_L1J75',
+                                           'j300_a10r_L1J75',
+                                          # 'j300_a10_lcw_sub_L1SC85'  ## can this work??
+                                          # 'j300_a10_lcw_L1SC85'  ## can this work??
+       ],
+            
+       'RATE:CPS:HLT_j260_a10_sub_L1J75':[ 'j260_a10_sub_L1J75',
+                                           'j260_a10_lcw_sub_L1J75',
+                                           'j260_a10_lcw_nojcalib_L1J75',
+                                           'j260_a10_lcw_subjes_L1J75',
+                                           'j260_a10_nojcalib_L1J75',
+                                           'j260_a10r_L1J75',
+                                          # 'j260_a10_lcw_sub_L1SC85'  ## can this work??
+                                          # 'j260_a10_lcw_L1SC85'  ## can this work??
+       ],
+            
+        'RATE:CPS:HLT_j360_a10L1J100' : [ 'j360_a10r_L1J100' ,            
+                                          'j360_a10_lcw_subjes_L1J100',],
+        'RATE:CPS:HLT_j380_a10L1J100' : [ 'j380_a10r_L1J100' ,            
+                                          'j380_a10_lcw_subjes_L1J100',],
+        'RATE:CPS:HLT_j400_a10' : ['j400_a10_lcw_subjes_L1J100',
+                                   #'j400_a10_lcw_sub_L1J100',
+                                   #'j400_a10_sub_L1J100',
+                                   'j400_a10r_L1J100',
+        ],
+        'RATE:CPS:HLT_j420_a10' : ['j420_a10_lcw_subjes_L1J100',
+                                   #'j420_a10_lcw_sub_L1J100',
+                                   #'j420_a10_sub_L1J100',
+                                   'j420_a10r_L1J100',
+        ],
+        
+        'RATE:CPS:HLT_j440_a10' : ['j440_a10_lcw_subjes_L1J100',
+                                   #'j440_a10_lcw_sub_L1J100',
+                                   'j440_a10r_L1J100',
+        ],
+        'RATE:CPS:HLT_j460_a10L1J100' : [	'j460_a10_sub_L1J100',
+        																	'j460_a10_nojcalib_L1J100',
+        																	'j460_a10_lcw_nojcalib_L1J100',
+        																	'j460_a10_lcw_sub_L1J100',
+        																	'j460_a10_lcw_subjes_L1J100',],})
     return (HLT_CPS_Groups)
 
 def addCPS(triggerPythonConfig,signatureOverwritten):
