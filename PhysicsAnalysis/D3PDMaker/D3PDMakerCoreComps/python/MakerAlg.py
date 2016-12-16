@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: MakerAlg.py 711763 2015-11-30 21:06:16Z ssnyder $
+# $Id: MakerAlg.py 711762 2015-11-30 21:06:11Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/MakerAlg.py
 # @author scott snyder <snyder@bnl.gov>

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SGDataVectorGetterTool.h 560175 2013-09-03 02:10:39Z ssnyder $
+// $Id: SGDataVectorGetterTool.h 790090 2016-12-16 05:31:29Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/SGDataVectorGetterTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +20,7 @@
 #include "D3PDMakerUtils/CollectionGetterTool.h"
 #include "D3PDMakerUtils/SGGetterImpl.h"
 #include "D3PDMakerUtils/TypeConverter.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ServiceHandle.h"

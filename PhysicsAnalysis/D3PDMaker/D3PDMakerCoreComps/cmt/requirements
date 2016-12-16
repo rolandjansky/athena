@@ -7,13 +7,11 @@ private
 use GaudiInterface             GaudiInterface-*        External
 use AtlasBoost                 AtlasBoost-*            External
 use AtlasROOT                  AtlasROOT-*             External
-use CxxUtils                   CxxUtils-*              Control
 use RootUtils                  RootUtils-*             Control
 use AthenaKernel               AthenaKernel-*          Control
 use AthContainers              AthContainers-*         Control
 use SGTools                    SGTools-*               Control
 use Navigation                 Navigation-*            Control
-use DataModel                  DataModel-*             Control
 use AthenaBaseComps            AthenaBaseComps-*       Control
 use AthenaPoolCnvSvc           AthenaPoolCnvSvc-*      Database/AthenaPOOL
 use ParticleEvent              ParticleEvent-*         PhysicsAnalysis/AnalysisCommon

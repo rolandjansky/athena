@@ -15,7 +15,6 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "boost/algorithm/string/trim.hpp"
 #include "boost/algorithm/string/split.hpp"
 #include "TROOT.h"
@@ -253,7 +252,7 @@ StatusCode AuxDataFillerTool::parseVars()
     }
 
     try {
-      m_vars.push_back (CxxUtils::make_unique<Var>
+      m_vars.push_back (std::make_unique<Var>
                         (name, docstring, labels, label_classes,
                          defstring, has_default));
     }
