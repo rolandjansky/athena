@@ -4,7 +4,7 @@
 
 #ifndef JetEvent_JetMomentMapCollection_H
 #define JetEvent_JetMomentMapCollection_H
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 

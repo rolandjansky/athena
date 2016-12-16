@@ -97,15 +97,15 @@ void JetKeyDescriptorInstance::printOut(MsgStream& msgStream) const
 {
   if ( ! bool(m_Stores) ) return;
 
-  msgStream << "Number of categories: " << m_Stores->m_catStore.size() << endreq;
+  msgStream << "Number of categories: " << m_Stores->m_catStore.size() << endmsg;
   for ( size_t i=0;i<m_Stores->m_catStore.size();i++ )
     {
       msgStream << m_Stores->m_catStore[i] << " Number of keys: "
-        	<< (m_Stores->m_keyStore[i]).size() << endreq;
+        	<< (m_Stores->m_keyStore[i]).size() << endmsg;
       for ( size_t j=0;j<(m_Stores->m_keyStore[i]).size();j++ )
         {
           msgStream << "    index: " << j << " key <" << (m_Stores->m_keyStore[i])[j]
-        	    << ">" << endreq;
+        	    << ">" << endmsg;
         } 	      
     }
 }

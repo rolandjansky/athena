@@ -10,8 +10,8 @@
 
 // INCLUDE HEADER FILES:
 
-#include "DataModel/DataVector.h"
-#include "DataModel/DataLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetKeyDescriptor.h"

@@ -4,7 +4,7 @@
 
 #ifndef Jetevent_Jetkeydescriptorcollection_H
 #define Jetevent_Jetkeydescriptorcollection_H
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 

@@ -8,7 +8,8 @@ atlas_subdir( JetEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/Navigation
                           Control/SGTools
                           Control/StoreGate
@@ -30,13 +31,13 @@ atlas_add_library( JetEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} DataModel Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom GaudiKernel ParticleEvent StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( JetEventDict
                       JetEvent/JetEventDict.h
                       JetEvent/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModel Navigation SGTools StoreGateLib SGtests EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation SGTools StoreGateLib SGtests EventKernel FourMom NavFourMom GaudiKernel ParticleEvent JetEvent
                       NAVIGABLES JetCollection )
 
