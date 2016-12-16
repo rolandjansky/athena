@@ -117,7 +117,7 @@ StatusCode InDetGlobalTopBottomMonTool::bookHistogramsRecurrent()
     MonGroup monGr_shift ( this, "InDetGlobal/TopBottom",  run);
     MonGroup monGr_exp   ( this, "InDetGlobal/TopBottom", run);
   
-    if (newRun) {
+    if (newRunFlag()) {
 	// Number of tracks
 
 	registerHist(

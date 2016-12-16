@@ -96,7 +96,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::bookHistogramsRecurrent() {
     MonGroup al_primaryvertex_shift( this, m_histFolder,  run, ATTRIB_UNMANAGED);
     MonGroup al_primaryvertex_expert( this, m_histFolder, run, ATTRIB_UNMANAGED);
 
-  if( newRun ) {
+    if( newRunFlag() ) {
 
     // basic monitoring
     m_hPvX          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvX","Primary vertex: x;x (mm)",500,-5.,5.);
@@ -116,7 +116,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::bookHistogramsRecurrent() {
     m_hPvErrY       = makeAndRegisterTH1F(al_primaryvertex_expert,"pvErrY","Primary vertex: #sigma_{y}; #sigma_{y} (mm)",100,0.,.25);
     m_hPvErrZ       = makeAndRegisterTH1F(al_primaryvertex_expert,"pvErrZ","Primary vertex: #sigma_{z}; #sigma_{z} (mm)",100,0.,.25);
     m_hPvChiSqDoF   = makeAndRegisterTH1F(al_primaryvertex_shift,"pvChiSqDof","Primary vertex: #Chi^{2}/DoF of vertex fit;#Chi^{2}/DoF",100,0.,5.);
-    m_hPvNTracks    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvNTracks","Number of tracks in primary vertex;Number of tracks",200,0.,200.);
+    m_hPvNTracks    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvNTracks","Number of tracks in primary vertex;Number of tracks",300,0.,300.);
     m_hPvTrackPt    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvTrackPt","Primary vertex: original track p_{t};p_{t} (GeV)",100,0.,20.);
     m_hPvTrackEta   = makeAndRegisterTH1F(al_primaryvertex_shift,"pvTrackEta","Primary vertex: original track #eta; #eta",100,-3.,3.);
 

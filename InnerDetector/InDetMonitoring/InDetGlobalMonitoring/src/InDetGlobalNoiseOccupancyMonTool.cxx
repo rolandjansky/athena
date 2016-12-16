@@ -157,7 +157,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::bookHistogramsRecurrent()
     MonGroup monGr_shift(this,"InDetGlobal/NO", run);
     bool status = true;
     //--- Registration of histograms per run
-    if(newRun){
+    if(newRunFlag()){
 
 	//--- ID histograms---------------------
 	status &= registerHist( monGr_shift,  m_SCT_TRT_NO =

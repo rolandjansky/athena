@@ -95,17 +95,17 @@ public:
     virtual StatusCode procHistograms();
 
     /// Functions to fill individual sets of histograms
-    void FillForwardTracks( const Trk::Track *track, const Trk::TrackSummary* summary );
-    void FillEtaPhi( const Trk::Track *track, const Trk::TrackSummary* summary );
-    void FillHits( const Trk::Track *track, const Trk::TrackSummary* summary );
+    void FillForwardTracks( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
+    void FillEtaPhi( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
+    void FillHits( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
     void FillTIDE();
-    void FillHoles( const Trk::Track *track, const Trk::TrackSummary* summary );
+    void FillHoles( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
     void FillHitMaps( const Trk::Track *track );
     void FillHoleMaps( const Trk::Track *track );
     ///@} 
  
 private:
-    ToolHandle< InDet::IInDetTrackSelectionTool > m_loosePri_selTool;
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_baseline_selTool;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_tight_selTool;
 
     ///Switch if LB accounting should be done
@@ -145,10 +145,7 @@ private:
     
     std::string m_CombinedTracksName;
     std::string m_ForwardTracksName;
-    std::string m_VxPrimContainerName;
     std::string m_JetsName;
-    
-    xAOD::Vertex* m_pvtx;
     
     //--- Shift histograms ----------------------------------------
     
@@ -169,18 +166,16 @@ private:
     TH2F *holes_quality;
     TProfile *holes_quality_profile;
     
-    TH1I * m_Trk_nLoose;
+    TH1I * m_Trk_Base;
     ///Distribution of eta vs phi for combined tracks
-    TH2F  * m_Trk_eta_phi;
-    TProfile2D  * m_Trk_eta_phi_LoosePrimary_ratio;
+    TH2F  * m_Trk_eta_phi_Base;
     TProfile2D  * m_Trk_eta_phi_Tight_ratio;
     TProfile2D  * m_Trk_eta_phi_noIBLhit_ratio;
     TProfile2D  * m_Trk_eta_phi_noBLhit_ratio;
     TProfile2D  * m_Trk_eta_phi_noTRText_ratio;
     
     // Total number of tracks per LB for each subdetector 
-    TProfile * m_Trk_nLoose_LB;
-    TProfile * m_Trk_nLoosePrimary_LB;
+    TProfile * m_Trk_nBase_LB;
     TProfile * m_Trk_nTight_LB;
 
     TProfile * m_Trk_noIBLhits_LB;
