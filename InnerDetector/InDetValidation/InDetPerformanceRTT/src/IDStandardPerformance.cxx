@@ -177,29 +177,29 @@ StatusCode IDStandardPerformance::initialize()
   // init truthToTrack
   if (m_doTruth) { //CB
     if (m_truthToTrack.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endmsg;
     }
   }
 
   // hole search tool
   if ( m_holeSearchTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endmsg;
   }
 
   //DetectorStore Service
   //sc=service("DetectorStore",m_detStore);
   //if (sc.isFailure()) {
-  //  msg(MSG::ERROR) <<"Could not find DetectorStore"<<endreq;
+  //  msg(MSG::ERROR) <<"Could not find DetectorStore"<<endmsg;
   //  return sc;
   //}
 
-  //if (!m_detStore) msg(MSG::ERROR)<<"DetectorStore pointer is zero!"<<endreq;
+  //if (!m_detStore) msg(MSG::ERROR)<<"DetectorStore pointer is zero!"<<endmsg;
 
   // get the Particle Properties Service
   IPartPropSvc* partPropSvc = 0;
@@ -207,7 +207,7 @@ StatusCode IDStandardPerformance::initialize()
 
   if (sc.isFailure()) {
     msg(MSG::FATAL) << " Could not initialize Particle Properties Service"
-    << endreq;
+    << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -219,36 +219,36 @@ StatusCode IDStandardPerformance::initialize()
   // Get the dictionary manager from the detector store
   sc = detStore()->retrieve(m_idHelper, "AtlasID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get ID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get ID helper !" << endmsg;
     return sc;
   }
 
   //pixel and SCT ID helper
   sc = detStore()->retrieve(m_PIX_Mgr, "Pixel");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel Detector ID manager!" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel Detector ID manager!" << endmsg;
     return StatusCode::FAILURE;
   }
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel Detector ID helper!" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel Detector ID helper!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc = detStore()->retrieve(m_SCT_Mgr, "SCT");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT Detector ID manager!" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT Detector ID manager!" << endmsg;
     return StatusCode::FAILURE;
   }
   sc = detStore()->retrieve(m_sctID, "SCT_ID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT Detector ID helper!" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT Detector ID helper!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (!m_doUpgrade) {
     sc = detStore()->retrieve(m_trtID, "TRT_ID");
     if(sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not get TRT Detector ID helper!" << endreq;
+      msg(MSG::FATAL) << "Could not get TRT Detector ID helper!" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -258,13 +258,13 @@ StatusCode IDStandardPerformance::initialize()
   if ( ! m_updatorHandle.empty() ) {
     if (m_updatorHandle.retrieve().isFailure()) {
       msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "
-      << m_updatorHandle << endreq;
+      << m_updatorHandle << endmsg;
       return StatusCode::FAILURE;
     }
     //m_updator = &(*m_updatorHandle);
   } else {
     if (msgLvl(MSG::DEBUG)) msg() <<
-      "No Updator for unbiased track states given, use normal states!"<<endreq;
+      "No Updator for unbiased track states given, use normal states!"<<endmsg;
     //m_updator = 0;
   }
 
@@ -273,40 +273,40 @@ StatusCode IDStandardPerformance::initialize()
   if (m_residualPullCalculator.empty()) {
     msg(MSG::INFO) <<
       "No residual/pull calculator for general hit residuals configured."
-    << endreq;
+    << endmsg;
     msg(MSG::INFO) <<
       "It is recommended to give R/P calculators to the det-specific tool"
-    << " handle lists then." << endreq;
+    << " handle lists then." << endmsg;
   } else if (m_residualPullCalculator.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator
-    <<" (to calculate residuals and pulls) "<< endreq;
+    <<" (to calculate residuals and pulls) "<< endmsg;
 
   } else {
     msg(MSG::INFO)
     << "Generic hit residuals&pulls will be calculated in one or both "
-    << "available local coordinates" << endreq;
+    << "available local coordinates" << endmsg;
   }
 
   if (m_trkSummaryTool.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool "
-      << m_trkSummaryTool << endreq;
+      << m_trkSummaryTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool << endmsg;
   }
 
   if (m_useTrackSelection){
     if ( m_trackSelectorTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg() << "Retrieved tool " << m_trackSelectorTool << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Retrieved tool " << m_trackSelectorTool << endmsg;
     }
   }
 
   // Make sure is a multiple of 2 in case of abs plots : m_maxTrackEta
   if (m_plotsVsAbsEta && m_trackEtaBins%2){
-    msg(MSG::WARNING) << "Plots chosen to be vs. abs(eta), but odd number of bins given, resseting to " << ++m_trackEtaBins << endreq;
+    msg(MSG::WARNING) << "Plots chosen to be vs. abs(eta), but odd number of bins given, resseting to " << ++m_trackEtaBins << endmsg;
   }
 
   sc = ManagedMonitorToolBase::initialize();
@@ -325,7 +325,7 @@ IDStandardPerformance::create_registeredTH1F(MonGroup &mon
   hist->Sumw2();
   StatusCode sc = mon.regHist(hist);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endmsg;
   }
   return hist;
 }
@@ -345,7 +345,7 @@ IDStandardPerformance::create_registeredTH2F(MonGroup &mon
   hist->Sumw2();
   StatusCode sc = mon.regHist(hist);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endmsg;
   }
   return hist;
 }
@@ -364,7 +364,7 @@ IDStandardPerformance::create_registeredTProfile(MonGroup &mon
   TProfile* hist = new TProfile(name, title, nBins, min, max, ylow, yup);
   StatusCode sc = mon.regHist(hist);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endmsg;
   }
   return hist;
 }
@@ -380,7 +380,7 @@ IDStandardPerformance::create_registeredTProfile(MonGroup &mon
   TProfile* hist = new TProfile(name, title, nBins, min, max);
   StatusCode sc = mon.regHist(hist);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endmsg;
   }
   return hist;
 }
@@ -390,11 +390,11 @@ StatusCode IDStandardPerformance::bookHistograms()
 {
   //MsgStream log( msgSvc(), name() );
 
-  //if (msgLvl(MSG::VERBOSE)) msg() << "isNewEventsBlock = " << isNewEventsBlock << ", isNewLumiBlock = " << isNewLumiBlock << ", isNewRun = " << isNewRun << endreq;
+  //if (msgLvl(MSG::VERBOSE)) msg() << "isNewEventsBlock = " << isNewEventsBlock << ", isNewLumiBlock = " << isNewLumiBlock << ", isNewRun = " << isNewRun << endmsg;
 
   std::string outputDirName = "IDPerformanceMon/" + m_tracksName + "/" + m_histDirectoryName;
   //  std::string outputDirName =  "/" + m_tracksName + "/" + m_histDirectoryName;
-  msg(MSG::INFO) << "Histograms are stored in directory " << outputDirName<<endreq;
+  msg(MSG::INFO) << "Histograms are stored in directory " << outputDirName<<endmsg;
   MonGroup al_expert(this, outputDirName, run);
   MonGroup al_shift(this, outputDirName, run);
   MonGroup pull_parent(this, outputDirName+"/residualPulls", run);
@@ -1598,7 +1598,7 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH1* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endmsg;
   }
 }
 
@@ -1607,7 +1607,7 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TProfile* histo) {
   //MsgStream log( msgSvc(), name() );
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endmsg;
   }
 }
 
@@ -1617,7 +1617,7 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH2* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endreq;
+    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endmsg;
   }
 }
 
@@ -1628,9 +1628,9 @@ StatusCode IDStandardPerformance::fillHistograms()
   // get TrackCollection
   const DataVector<Trk::Track>* trks;
   if (StatusCode::SUCCESS!=evtStore()->retrieve(trks,m_tracksName)) {
-    msg(MSG::WARNING) << "Cannot find " << m_tracksName  << endreq;
+    msg(MSG::WARNING) << "Cannot find " << m_tracksName  << endmsg;
   } else {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_tracksName << " with size " << trks->size() <<" found in StoreGate" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_tracksName << " with size " << trks->size() <<" found in StoreGate" << endmsg;
   }
 
   // Although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
@@ -1639,10 +1639,10 @@ StatusCode IDStandardPerformance::fillHistograms()
   StatusCode sc = StatusCode :: SUCCESS;
   sc = evtStore()->retrieve(RecCollection, m_tracksName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Track collection \"" << m_tracksName << "\" not found." << endreq;
+    msg(MSG::ERROR) <<"Track collection \"" << m_tracksName << "\" not found." << endmsg;
     return StatusCode::RECOVERABLE;
   }
-  if (RecCollection)  if (msgLvl(MSG::DEBUG)) msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endreq;
+  if (RecCollection)  if (msgLvl(MSG::DEBUG)) msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endmsg;
 
 
   bool haveTruth = m_doTruth;
@@ -1651,10 +1651,10 @@ StatusCode IDStandardPerformance::fillHistograms()
   if (haveTruth) {
 
     if (StatusCode::SUCCESS!=evtStore()->retrieve(TruthMap,m_tracksTruthName)) {
-      msg(MSG::WARNING) << "Cannot find " << m_tracksTruthName  << endreq;
+      msg(MSG::WARNING) << "Cannot find " << m_tracksTruthName  << endmsg;
       haveTruth = false;
     } else {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName << " with size " << TruthMap->size() <<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName << " with size " << TruthMap->size() <<" found in StoreGate" << endmsg;
     }
   }
 
@@ -1666,15 +1666,15 @@ StatusCode IDStandardPerformance::fillHistograms()
       if (evtStore()->retrieve(SimTracks,key).isFailure()) {
           key = "";
           if (evtStore()->retrieve(SimTracks,key).isFailure()) {
-            msg(MSG::FATAL) << "Could not find the McEventCollection" << endreq;
+            msg(MSG::FATAL) << "Could not find the McEventCollection" << endmsg;
             haveTruth = false;
             return StatusCode::FAILURE;
           }
       }
-      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << key.c_str() << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << key.c_str() << endmsg;
     }
     else
-      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << m_truthParticleName.c_str() << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << m_truthParticleName.c_str() << endmsg;
   }
     
   // get Pixel tracklet collection
@@ -1684,19 +1684,19 @@ StatusCode IDStandardPerformance::fillHistograms()
   if (m_doHitBasedMatching) {
     if (evtStore()->contains< DataVector<Trk::Track> >(m_PixeltracksName) &&
         StatusCode::SUCCESS==evtStore()->retrieve(pixel_trks,m_PixeltracksName)) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_PixeltracksName << " with size " << pixel_trks->size() <<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_PixeltracksName << " with size " << pixel_trks->size() <<" found in StoreGate" << endmsg;
     }
 
     // get SCT tracklet collection
     if (evtStore()->contains< DataVector<Trk::Track> >(m_SCTtracksName) &&
         StatusCode::SUCCESS==evtStore()->retrieve(sct_trks,m_SCTtracksName)) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_SCTtracksName << " with size " << sct_trks->size() <<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_SCTtracksName << " with size " << sct_trks->size() <<" found in StoreGate" << endmsg;
     }
 
     // get TRT tracklet collection
     if (evtStore()->contains< DataVector<Trk::Track> >(m_TRTtracksName) &&
         StatusCode::SUCCESS==evtStore()->retrieve(trt_trks,m_TRTtracksName)) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_TRTtracksName << " with size " << trt_trks->size() <<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_TRTtracksName << " with size " << trt_trks->size() <<" found in StoreGate" << endmsg;
     }
   }
 
@@ -1707,13 +1707,13 @@ StatusCode IDStandardPerformance::fillHistograms()
       if (evtStore()->retrieve(jetColl,m_truthJetCollName).isFailure()) {
         msg(MSG::WARNING)
           << "No Jet Collection " << m_truthJetCollName << " found in StoreGate "
-          << endreq;
+          << endmsg;
         jetColl = NULL;
       }
-      else if (msgLvl(MSG::VERBOSE)) msg()<<"Retrieved Jet Collection"<<endreq;
+      else if (msgLvl(MSG::VERBOSE)) msg()<<"Retrieved Jet Collection"<<endmsg;
     }
     else {
-      if (msgLvl(MSG::DEBUG)) msg() << "storeGate does not contain JetCollection with name " << m_truthJetCollName << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "storeGate does not contain JetCollection with name " << m_truthJetCollName << endmsg;
     }
   }
   // WJM start: Get mu
@@ -2127,12 +2127,12 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     float genEta=particle->momentum().pseudoRapidity();
     int   pdgCode         = particle->pdg_id();
     if (!particle->production_vertex() || particle->barcode()<=0 || particle->barcode()>MAXBARCODE || particle->status()%1000!=1 || fabs(genEta)>m_maxTrackEta || fabs(genEta)<m_minTrackEta || genPt < 0.1) {
-      msg(MSG::DEBUG) << "Skipping GenParticle with production_vertex=" << particle->production_vertex()<<" barcode="<<particle->barcode()<< " status="<< particle->status() << " pdgID=" << pdgCode << ", eta=" << genEta << ", pT=" << genPt << endreq;
+      msg(MSG::DEBUG) << "Skipping GenParticle with production_vertex=" << particle->production_vertex()<<" barcode="<<particle->barcode()<< " status="<< particle->status() << " pdgID=" << pdgCode << ", eta=" << genEta << ", pT=" << genPt << endmsg;
       continue;
     }
     const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(particle);
     //    auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
-    //    if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
+    //    if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
     //    else {
     if (generatedTrackPerigee){
       zVertex+=generatedTrackPerigee->parameters()[Trk::z0];
@@ -2141,7 +2141,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     }
   }
   if (nPrimaries>0) zVertex/=float(nPrimaries);
-  msg(MSG::DEBUG) << "Found " << nPrimaries << " primary GenParticles." << endreq;
+  msg(MSG::DEBUG) << "Found " << nPrimaries << " primary GenParticles." << endmsg;
 
 
   rttMap.clear();
@@ -2180,7 +2180,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     nTracks++;
 
     //int trkAuthor = (*trksItr)->info().author();
-    //if (msgLvl(MSG::VERBOSE)) msg() <<(*trksItr)->info().dumpInfo()<< endreq;
+    //if (msgLvl(MSG::VERBOSE)) msg() <<(*trksItr)->info().dumpInfo()<< endmsg;
 
     // ------------------------
     // track selection tool
@@ -2189,21 +2189,21 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if (m_trackSelectorTool->decision(**trksItr)) {
 
         if (msgLvl(MSG::VERBOSE)) {
-          msg() << "track selected!"<<endreq;
+          msg() << "track selected!"<<endmsg;
         }
       } else {
         nTrackRejected++;
         if (msgLvl(MSG::VERBOSE)) {
-          msg() << "track rejected!"<<endreq;
+          msg() << "track rejected!"<<endmsg;
         }
         continue;
       }
     }
-    if (msgLvl(MSG::VERBOSE)) msg() << "Selected the track!" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Selected the track!" << endmsg;
 
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg() << "Found a track!" << endreq;
+      msg() << "Found a track!" << endmsg;
     }
     float trkd0          = -999;
     float trkz0          = -999;
@@ -2227,13 +2227,13 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
     if (startPerigee == NULL) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee => skip track"<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee => skip track"<<endmsg;
       continue;
     }
     //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 
     if (!startPerigee->covariance()) {
-      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
     } else {
       AmgVector(5) perigeeParams = startPerigee->parameters();
       trkd0    = perigeeParams[Trk::d0];
@@ -2291,11 +2291,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if (found != TruthMap->end()) {
         TrackTruth trtruth=found->second;
         HepMcParticleLink hmpl = trtruth.particleLink();
-	msg(MSG::VERBOSE) << "Adding HMPL=" << hmpl << " with probability=" << trtruth.probability() << endreq;
+	msg(MSG::VERBOSE) << "Adding HMPL=" << hmpl << " with probability=" << trtruth.probability() << endmsg;
         rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
       }
     } else {
-      msg(MSG::WARNING) << "No Truth Map found"<<endreq;
+      msg(MSG::WARNING) << "No Truth Map found"<<endmsg;
     }
 
 
@@ -2328,7 +2328,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     if (trkpt>2 && fabs(trkd0/trkd0err)>5) ntrackpt2d0sig5++;
 
     if (msgLvl(MSG::VERBOSE)) msg() << "track parameters: d0=" <<trkd0 << " +/-"<< trkd0err<<" , z0=" <<trkz0 << " +/-"<< trkz0err
-       << " , q/pt=" <<trkqOverPt << " +/-"<< trkqopterr << " , phi=" <<trkphi << " +/-"<< trkphierr<< " , theta=" <<trktheta<< " +/-"<< trkthetaerr<<endreq;
+       << " , q/pt=" <<trkqOverPt << " +/-"<< trkqopterr << " , phi=" <<trkphi << " +/-"<< trkphierr<< " , theta=" <<trktheta<< " +/-"<< trkthetaerr<<endmsg;
 
     // Now check if the track is located inside a jet
 
@@ -2340,7 +2340,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
     if (jetColl){
 
-      if (msgLvl(MSG::VERBOSE)) msg() << "Starting jet collection iteration" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Starting jet collection iteration" << endmsg;
       JetCollection::const_iterator jetItr  = jetColl->begin();
       JetCollection::const_iterator jetItrE = jetColl->end();
       for (; jetItr != jetItrE; ++jetItr) {
@@ -2353,10 +2353,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
         float dr=sqrt(dphi*dphi+deta*deta);
 
         // Jet is a 4Momentum, we can ask any kinematics :
-        if (msgLvl(MSG::VERBOSE)) msg() << "JFA Jet: e=" << pj->e() << ", eta=" << pj->eta() << ", phi=" << jetPhi << ", DeltaR=" << dr << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg() << "JFA Jet: e=" << pj->e() << ", eta=" << pj->eta() << ", phi=" << jetPhi << ", DeltaR=" << dr << endmsg;
 
         if (dr < 0.4) {
-          if (msgLvl(MSG::VERBOSE)) msg() << "JFA Matched jet!!!" << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() << "JFA Matched jet!!!" << endmsg;
           matchedJet = true;
           matchedJetDr = dr;
           matchedJetEt = pj->et()/1000.;
@@ -2377,7 +2377,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
           const Trk::Perigee* startPerigee2 = (*trksItr2)->perigeeParameters();
           //const Trk::MeasuredPerigee* measPer2 = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee2 );
           if (!(startPerigee2->covariance())) {
-            msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+            msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
             continue;
           }
           AmgVector(5) perigeeParams2 =  startPerigee2->parameters();
@@ -2388,7 +2388,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
           float dphi=acos(cos(trkphi-trkphi2));
           float deta=trketa-trketa2;
           float dr=sqrt(dphi*dphi+deta*deta);
-          if (msgLvl(MSG::VERBOSE)) msg() << "Distance of this track to next closest track: "<<dr<<endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() << "Distance of this track to next closest track: "<<dr<<endmsg;
         }
     }
     float prob = -0.1;
@@ -2419,7 +2419,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	  if (!m_tracksDetailedTruthName.empty() &&
               evtStore()->contains<DetailedTrackTruthCollection>(m_tracksDetailedTruthName) &&
               evtStore()->retrieve(dtt, m_tracksDetailedTruthName).isSuccess()) {
-	    //log << MSG::ERROR << "Got DetailedTrackTruthCollection.  Printing out matches track number "<< tracklink<< endreq;
+	    //log << MSG::ERROR << "Got DetailedTrackTruthCollection.  Printing out matches track number "<< tracklink<< endmsg;
 
 	    typedef DetailedTrackTruthCollection::const_iterator DTTIter;
 	    std::pair<DTTIter,DTTIter> range = dtt->equal_range(Trk::TrackTruthKey(tracklink));
@@ -2428,22 +2428,22 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	    for(DTTIter i = range.first; i  != range.second; ++i) {
 
 	      number_truthmatches++;
-	      //log << MSG::ERROR << i->second << endreq;
+	      //log << MSG::ERROR << i->second << endmsg;
 	      // Iterate on HMPL of the truth trajectory
 	      TruthTrajectory traj = i->second.trajectory();
-	      //log<<i->second<<endreq;
+	      //log<<i->second<<endmsg;
 	      for(unsigned int i_hmpl=0; i_hmpl<traj.size(); i_hmpl++){
 
 		int eventIndex = (int)traj[i_hmpl].eventIndex();
-		//msg(MSG::ERROR)<<"Evt Index = " << eventIndex << endreq;
-		//msg(MSG::ERROR)<<"barcode = " << (int)traj[i_hmpl].barcode() << endreq;
+		//msg(MSG::ERROR)<<"Evt Index = " << eventIndex << endmsg;
+		//msg(MSG::ERROR)<<"barcode = " << (int)traj[i_hmpl].barcode() << endmsg;
 		// Iterate on vector on event index to check if this one already exists
 		std::vector<int>::iterator itVectorData;
 		bool alreadyExist = false;
 		for(itVectorData = list_eventIndex.begin(); itVectorData != list_eventIndex.end(); itVectorData++){
-		  //msg(MSG::ERROR)<< "*(itVectorData) = " << *(itVectorData) << endreq;
+		  //msg(MSG::ERROR)<< "*(itVectorData) = " << *(itVectorData) << endmsg;
 		  if(eventIndex == *(itVectorData)){
-                      //msg(MSG::ERROR)<< "eventIndex already stored!!" << endreq;
+                      //msg(MSG::ERROR)<< "eventIndex already stored!!" << endmsg;
 		    alreadyExist = true;
 		  }
 		}
@@ -2489,7 +2489,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
                     if (msgLvl(MSG::VERBOSE)) msg()<< "Don't use track from pileup event "
                                                    << genparptr->parent_event()->event_number()
                                                    << " (hard scatter event is "<<genEventNumberPrimary<<")"
-                                                   <<endreq;
+                                                   <<endmsg;
                     continue;
                   }
 
@@ -2510,13 +2510,13 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		    <<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x"
 		    <<genparptr->production_vertex()->position().x()<<" y "
 		    <<genparptr->production_vertex()->position().y()<<" z "
-		    <<genparptr->production_vertex()->position().z()<<endreq;
+		    <<genparptr->production_vertex()->position().z()<<endmsg;
 
 		    if(genparptr->pdg_id() == 0){
-		      msg(MSG::WARNING)<<" Particle with PDG ID = 0! Status "<<endreq;
+		      msg(MSG::WARNING)<<" Particle with PDG ID = 0! Status "<<endmsg;
 		    }else{
 		      const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
-		      if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
+		      if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
 		      if ( generatedTrackPerigee) {
 			float m_track_truth_qoverpt = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
 			float m_track_truth_phi     = generatedTrackPerigee->parameters()[Trk::phi0];
@@ -2612,13 +2612,13 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 			delete generatedTrackPerigee;
 		      }
 		    }
-		  } else msg(MSG::WARNING) << " no genparptr->production_vertex() " << endreq;
-		} else msg(MSG::WARNING) << " no genparptr found " << endreq;
-	      } else msg(MSG::WARNING) << " HMPL not Valid, prob =  " << prob << endreq;
+		  } else msg(MSG::WARNING) << " no genparptr->production_vertex() " << endmsg;
+		} else msg(MSG::WARNING) << " no genparptr found " << endmsg;
+	      } else msg(MSG::WARNING) << " HMPL not Valid, prob =  " << prob << endmsg;
 	  } // Do not consider Geant particle for track perf plots
 	}
-    } else msg(MSG::WARNING) << " No TruthMap found " << endreq;
-    if (msgLvl(MSG::VERBOSE)) msg() << " Fill fake rate histograms " << endreq;
+    } else msg(MSG::WARNING) << " No TruthMap found " << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << " Fill fake rate histograms " << endmsg;
 
     if(m_plotsVsAbsEta && trketa < 0.0) trketa *= -1.0;
 
@@ -2663,7 +2663,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " Fill badmatch rate histograms " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " Fill badmatch rate histograms " << endmsg;
 
     if (prob>m_minProbEff){
       m_track_badmatchrate_vs_eta->Fill(trketa,0);
@@ -2705,7 +2705,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " Fill no truth histograms " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " Fill no truth histograms " << endmsg;
     // No truth rates
     if (prob>0.0) {
       m_track_notruthrate_vs_eta->Fill(trketa,0);
@@ -2722,7 +2722,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     }
 
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " Fill bcode0 rate histograms " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " Fill bcode0 rate histograms " << endmsg;
 
     if (barcode==0 || prob<m_minProbEffLow) {
       m_track_bcode0rate_vs_eta->Fill(trketa,1);
@@ -2774,7 +2774,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
    }
 
-   if (msgLvl(MSG::VERBOSE)) msg() << " Done filling fake rate histograms " << endreq;
+   if (msgLvl(MSG::VERBOSE)) msg() << " Done filling fake rate histograms " << endmsg;
 
    // Barcode 0 rate
    if (barcode==0) {
@@ -2799,7 +2799,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
      m_prob_injet->Fill(prob);
    // } // If: isPion
 
-   if (msgLvl(MSG::VERBOSE)) msg() << " count tracks associated to same mc particle" << endreq;
+   if (msgLvl(MSG::VERBOSE)) msg() << " count tracks associated to same mc particle" << endmsg;
    // Count number of tracks associated to the same hmpl
    for(recoToTruthMap::iterator rtt_it = rttMap.begin(); rtt_it != rttMap.end(); ++rtt_it){
 
@@ -2807,7 +2807,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       float barcode = hmpl.barcode();
       float nTrkMatchesSameHmpl = rttMap.count(hmpl);
 
-      //log << MSG::ERROR << "HMPL = " << hmpl << ", barcode = " << barcode << ", nmatches = " << nTrkMatchesSameHmpl << endreq;
+      //log << MSG::ERROR << "HMPL = " << hmpl << ", barcode = " << barcode << ", nmatches = " << nTrkMatchesSameHmpl << endmsg;
 
       m_nTrkMatchesSameHmpl->Fill(nTrkMatchesSameHmpl);
       if(barcode==0)
@@ -2904,7 +2904,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   int nChargedParticleSelected=0;
   int nChargedParticlePrimary=0;
 
-  if (msgLvl(MSG::VERBOSE)) msg() << " obtain truth information " << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << " obtain truth information " << endmsg;
   // ------------------------------------------------------------------------------------
   //     now make efficiency plots:
   //     loop through generated tracks and check if there is a reconstructed tracks near it
@@ -2933,7 +2933,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       primaryVtx[1] = genEvent->signal_process_vertex()->point3d().y();
       primaryVtx[2] = genEvent->signal_process_vertex()->point3d().z();
     }
-    if (msgLvl(MSG::VERBOSE)) msg() <<"JFA Signal process vertex perp =  "<< primaryVtx.perp() << ", z = " << primaryVtx.z() << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<"JFA Signal process vertex perp =  "<< primaryVtx.perp() << ", z = " << primaryVtx.z() << endmsg;
         //---
 
 
@@ -2943,7 +2943,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       HepMC::GenParticle * const particle = *it;
 
       if (!particle->production_vertex()) {
-	msg(MSG::VERBOSE) << "Skipping GenParticle without production vertex" << endreq;
+	msg(MSG::VERBOSE) << "Skipping GenParticle without production vertex" << endmsg;
 	continue;
       }
 
@@ -2958,8 +2958,8 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	//MsgStream log(msgSvc(), name());
 	if (msgLvl(MSG::DEBUG)) msg() <<"Could not get particle data for particle with "
 				      <<"pdgCode="<<pdgCode<< ", status=" << particle->status()
-				      << ", barcode=" << particle->barcode() << endreq;
-	if (msgLvl(MSG::DEBUG)) msg() << "GenParticle= " << particle << endreq;
+				      << ", barcode=" << particle->barcode() << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg() << "GenParticle= " << particle << endmsg;
 	continue;
       }
       // run only over stable charged particles
@@ -3011,7 +3011,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       float m_track_truth_d0 = 999.;
       float m_track_truth_phi = 999.;
       auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
-      if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
+      if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
       else {
 	m_track_truth_d0 = generatedTrackPerigee->parameters()[Trk::d0];
 	m_track_truth_phi = generatedTrackPerigee->parameters()[Trk::phi0];
@@ -3060,12 +3060,12 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	//
 	// Look only for particles interacting inside the ID
 	if(endVertex.perp()<1000 && fabs(endVertex.z())<2500)  {
-	  //log<< MSG::ERROR << "****** Particle with end vertex inside ID ******" << endreq;
-	  //log << MSG::ERROR<<"PdgCode="<<particle->pdg_id() << ", status=" << particle->status()<< ", barcode=" << particle->barcode()<< ", E = "<< particle->momentum().e()/1000<< ", m = "<< particle->momentum().m()/1000<< ", pT = "<< particle->momentum().perp()/1000<< ", eta = "<<particle->momentum().pseudoRapidity()<< ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<startVertex.perp()<< ", endvtx = "<<endVertex.perp()<< endreq;
+	  //log<< MSG::ERROR << "****** Particle with end vertex inside ID ******" << endmsg;
+	  //log << MSG::ERROR<<"PdgCode="<<particle->pdg_id() << ", status=" << particle->status()<< ", barcode=" << particle->barcode()<< ", E = "<< particle->momentum().e()/1000<< ", m = "<< particle->momentum().m()/1000<< ", pT = "<< particle->momentum().perp()/1000<< ", eta = "<<particle->momentum().pseudoRapidity()<< ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<startVertex.perp()<< ", endvtx = "<<endVertex.perp()<< endmsg;
 
 	  // First iteration: Flag if nuclear interaction
 
-	  //log<< MSG::ERROR << "*** Iterate on children ***" << endreq;
+	  //log<< MSG::ERROR << "*** Iterate on children ***" << endmsg;
 	  float mass_initial = particle->momentum().m()/1000;
 	  float mass_final = 0.0;
 	  int n_out = 0;
@@ -3078,14 +3078,14 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		{
 		  n_out++;
 		}
-	      //log << MSG::ERROR <<"PdgCode="<<(*child)->pdg_id() << ", status=" << (*child)->status() << ", barcode=" << (*child)->barcode()	<< ", E = "<< (*child)->momentum().e()/1000<< ", m = "<< (*child)->momentum().m()/1000<< ", pT = "<< (*child)->momentum().perp()/1000<< ", eta = "<< (*child)->momentum().pseudoRapidity() << ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<(*child)->production_vertex()->point3d().perp()<< endreq;
+	      //log << MSG::ERROR <<"PdgCode="<<(*child)->pdg_id() << ", status=" << (*child)->status() << ", barcode=" << (*child)->barcode()	<< ", E = "<< (*child)->momentum().e()/1000<< ", m = "<< (*child)->momentum().m()/1000<< ", pT = "<< (*child)->momentum().perp()/1000<< ", eta = "<< (*child)->momentum().pseudoRapidity() << ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<(*child)->production_vertex()->point3d().perp()<< endmsg;
 	      mass_final += (*child)->momentum().m()/1000;
 	    }
 	  }
 	  // Decide if it's a nuclear interaction: no lepton, no photon and mass_final > mass_initial
 	  // Also ask now n_out>=3 to remove quasi-elastic interaction that happen in Fullsim (assuming they have a small impact)
 	  if(abs(pdgCode) != 22 && abs(pdgCode) != 11 && abs(pdgCode) != 13 && abs(pdgCode) != 15 && mass_final > mass_initial && n_out >=2){
-	    //log<< MSG::ERROR << "NUCLEAR INTERACTIONS!!!!!!!!!" << endreq;
+	    //log<< MSG::ERROR << "NUCLEAR INTERACTIONS!!!!!!!!!" << endmsg;
 
 	    m_nuclearint_in_E->Fill(particle->momentum().e()/1000);
 	    m_nuclearint_in_pt->Fill(particle->momentum().perp()/1000);
@@ -3132,7 +3132,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
       if (jetColl){
 
-	if (msgLvl(MSG::VERBOSE)) msg() << "Starting jet collection iteration" << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() << "Starting jet collection iteration" << endmsg;
 	JetCollection::const_iterator jetItr  = jetColl->begin();
 	JetCollection::const_iterator jetItrE = jetColl->end();
 	for (; jetItr != jetItrE; ++jetItr) {
@@ -3145,10 +3145,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	  float dr=sqrt(dphi*dphi+deta*deta);
 
 	  // Jet is a 4Momentum, we can ask any kinematics :
-	  if (msgLvl(MSG::VERBOSE)) msg() << "JFA Jet: e=" << pj->e() << ", eta=" << pj->eta() << ", phi=" << jetPhi << ", DeltaR=" << dr << endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg() << "JFA Jet: e=" << pj->e() << ", eta=" << pj->eta() << ", phi=" << jetPhi << ", DeltaR=" << dr << endmsg;
 
 	  if (dr < 0.4){
-	    if (msgLvl(MSG::VERBOSE)) msg() << "JFA Matched jet!!!" << endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg() << "JFA Matched jet!!!" << endmsg;
 	    matchedJet = true;
 	    matchedJetDr = dr;
 	    matchedJetEt = pj->et()/1000.;
@@ -3164,11 +3164,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       int nmatched = 0;
       HepMcParticleLink hmpl2(particle, ievt);
       recoToTruthMap::iterator barcode=rttMap.find(hmpl2);
-      if (msgLvl(MSG::VERBOSE)) msg() << "Looking for HMPL=" << hmpl2 << "... " << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Looking for HMPL=" << hmpl2 << "... " << endmsg;
       if (barcode != rttMap.end()){
-	if (msgLvl(MSG::VERBOSE)) msg() << "...found some" << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() << "...found some" << endmsg;
 	for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
-	  if (genPt>30) if (msgLvl(MSG::VERBOSE)) msg() << "track match probability = "<< imap->second<<endreq;
+	  if (genPt>30) if (msgLvl(MSG::VERBOSE)) msg() << "track match probability = "<< imap->second<<endmsg;
 	  if (imap->second > m_minProbEff){  // 80% match probability
 	    matchedDetPaper = true;
 	    nmatched++;
@@ -3193,11 +3193,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 				    << ", eta = "<<genEta
 				    << ", stavtx = "<<startVertex.perp()
 				    //      << ", endvtx = "<<endVertex.perp()
-				    << endreq;
+				    << endmsg;
 	if (matchedDetPaper) {
-	  if (msgLvl(MSG::VERBOSE)) msg() <<"Particle reconstrcuted and matched! "<<endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg() <<"Particle reconstrcuted and matched! "<<endmsg;
 	} else {
-	  if (msgLvl(MSG::VERBOSE)) msg() <<"Particle not found! "<<endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg() <<"Particle not found! "<<endmsg;
 	}
       }
 
@@ -3386,7 +3386,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   }
 
   if (msgLvl(MSG::VERBOSE))
-  msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endreq;
+  msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endmsg;
 
   m_ntrack->Fill(nTracks);
   m_ntracksel->Fill(nTrackSelected);
@@ -3431,19 +3431,19 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
       if (m_trackSelectorTool->decision(**trksItr)) {
 	nTrackSelected++;
 	if (msgLvl(MSG::VERBOSE)) {
-	  msg() << "track selected!"<<endreq;
+	  msg() << "track selected!"<<endmsg;
 	}
       } else {
 	nTrackRejected++;
 	if (msgLvl(MSG::VERBOSE)) {
-	  msg() << "track rejected!"<<endreq;
+	  msg() << "track rejected!"<<endmsg;
 	}
 	continue;
       }
     } else {
       nTrackSelected++;
     }
-    if (msgLvl(MSG::VERBOSE)) {msg() << "Selected the track!" << endreq;}
+    if (msgLvl(MSG::VERBOSE)) {msg() << "Selected the track!" << endmsg;}
 
     float trkd0          = -999;
     float trkz0          = -999;
@@ -3469,13 +3469,13 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
     if (startPerigee == NULL) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee => skip track"<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee => skip track"<<endmsg;
       continue;
     }
     //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 
     if (!(startPerigee->covariance())) {
-      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
     } else {
       AmgVector(5) perigeeParams = startPerigee->parameters();
       trkd0    = perigeeParams[Trk::d0];
@@ -3531,7 +3531,7 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     if (trkpt>10) m_d0sig_trackpT10->Fill(trkd0/trkd0err);
 
     if (msgLvl(MSG::VERBOSE)) msg() << "track parameters: d0=" <<trkd0 << " +/-"<< trkd0err<<" , z0=" <<trkz0 << " +/-"<< trkz0err
-      << " , q/pt=" <<trkqOverPt << " +/-"<< trkqopterr << " , phi=" <<trkphi << " +/-"<< trkphierr<< " , theta=" <<trktheta<< " +/-"<< trkthetaerr<<endreq;
+      << " , q/pt=" <<trkqOverPt << " +/-"<< trkqopterr << " , phi=" <<trkphi << " +/-"<< trkphierr<< " , theta=" <<trktheta<< " +/-"<< trkthetaerr<<endmsg;
 
     // Now check for duplicates/close-by tracks
     if (msgLvl(MSG::VERBOSE)) {
@@ -3544,7 +3544,7 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 	const Trk::Perigee* startPerigee2 = (*trksItr2)->perigeeParameters();
 	//const Trk::MeasuredPerigee* measPer2 = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee2 );
 	if (!(startPerigee2->covariance())) {
-	  msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+	  msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
 	  continue;
 	}
 	AmgVector(5) perigeeParams2 = startPerigee2->parameters();
@@ -3555,13 +3555,13 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 	float dphi=acos(cos(trkphi-trkphi2));
 	float deta=trketa-trketa2;
 	float dr=sqrt(dphi*dphi+deta*deta);
-	if (msgLvl(MSG::VERBOSE)) msg() << "Distance of this track to next closest track: "<<dr<<endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() << "Distance of this track to next closest track: "<<dr<<endmsg;
       }
     }
   }
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endreq;
+    msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endmsg;
   m_ntrack->Fill(nTracks);
   m_ntracksel->Fill(nTrackSelected);
 
@@ -3584,7 +3584,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
   for (; trksItr != trksItrE; ++trksItr) {
 
     //int trkAuthor = (*trksItr)->info().author();
-    //if (msgLvl(MSG::VERBOSE)) msg() << (*trksItr)->info().dumpInfo() << endreq;
+    //if (msgLvl(MSG::VERBOSE)) msg() << (*trksItr)->info().dumpInfo() << endmsg;
 
     if (m_useTrackSelection) {
       if (!m_trackSelectorTool->decision(**trksItr)) {
@@ -3602,13 +3602,13 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     // const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
     if (startPerigee == NULL) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endmsg;
       continue;
     }
     //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 
     if (!(startPerigee->covariance())) {
-      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
       continue;
     }
     AmgVector(5) perigeeParams = startPerigee->parameters();
@@ -3639,8 +3639,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     auto_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary(**trksItr));
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg() << "Analyze Hit Content using TrackSummary object" << endreq;
-      msg() << "track hits: PIX: " <<summary->get(Trk::numberOfPixelHits) << "  SCT: " << summary->get(Trk::numberOfSCTHits)<< "   TRT:" <<summary->get(Trk::numberOfTRTHits)<<endreq;
+      msg() << "Analyze Hit Content using TrackSummary object" << endmsg;
+      msg() << "track hits: PIX: " <<summary->get(Trk::numberOfPixelHits) << "  SCT: " << summary->get(Trk::numberOfSCTHits)<< "   TRT:" <<summary->get(Trk::numberOfTRTHits)<<endmsg;
     }
 
     float eta_histo = trketa;
@@ -3714,11 +3714,11 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
       m_nHits_TRT_2d->Fill(trketa,trkphi,summary->get(Trk::numberOfTRTHits));
     }
     
-    if (!havesummary && msgLvl(MSG::VERBOSE)) msg() << "Could not find TrackSummary object"<<endreq;
+    if (!havesummary && msgLvl(MSG::VERBOSE)) msg() << "Could not find TrackSummary object"<<endmsg;
 
     // Only use tracks>800 MeV for the hit efficiencies and residuals
     // to avoid crashes that sometimes occur for low pt tracks for the hole search tool
-    if (msgLvl(MSG::VERBOSE)) msg() << "Calculate hit efficiencies and residuals for track : pT = " << trkpt << "  eta = " << trketa<<endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Calculate hit efficiencies and residuals for track : pT = " << trkpt << "  eta = " << trketa<<endmsg;
     if (trkpt>0.8) {
       auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 
@@ -3726,7 +3726,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
       DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
       for (; TSOSItr != trackWithHoles->trackStateOnSurfaces()->end(); ++TSOSItr) {
         if (not *TSOSItr ) {
-          msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endreq;
+          msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endmsg;
           continue;
         }
         Identifier surfaceID;
@@ -3738,7 +3738,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
           surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
         } else { // holes, perigee
           if (not (*TSOSItr)->trackParameters() ) {
-            msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+            msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
             continue;
           }
           surfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
@@ -3757,42 +3757,42 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
               if (msgLvl(MSG::VERBOSE)) {
                 msg() << "Pix Hit : Layer = " << m_pixelID->layer_disk(surfaceID) << "  B/EC "
                       << m_pixelID->barrel_ec(surfaceID) << "  " << m_pixelID->eta_module(surfaceID)
-                      << "  " << m_pixelID->phi_module(surfaceID) << endreq;
+                      << "  " << m_pixelID->phi_module(surfaceID) << endmsg;
               }
             } else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ) {
               if (msgLvl(MSG::VERBOSE)) {
                 msg() << "Pix Hole: Layer = " << m_pixelID->layer_disk(surfaceID)<<"  B/EC "
                       << m_pixelID->barrel_ec(surfaceID) << "  "
                       << m_pixelID->eta_module(surfaceID) << "  "
-                      << m_pixelID->phi_module(surfaceID) << endreq;
+                      << m_pixelID->phi_module(surfaceID) << endmsg;
               }
             } else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ) {
               if (msgLvl(MSG::VERBOSE)) {
                 msg() << "Pix Outl: Layer = " << m_pixelID->layer_disk(surfaceID) << "  B/EC "
                       << m_pixelID->barrel_ec(surfaceID) << "  "
                       << m_pixelID->eta_module(surfaceID) << "  "
-                      << m_pixelID->phi_module(surfaceID) << endreq;
+                      << m_pixelID->phi_module(surfaceID) << endmsg;
               }
             }
           } else if (m_idHelper->is_sct(surfaceID)){
             if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
               if (msgLvl(MSG::VERBOSE)) msg() << "SCT Hit : Layer = "<<m_sctID->layer_disk(surfaceID)<< "  B/EC " <<
                       m_sctID->barrel_ec(surfaceID) <<
-                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<< endreq;
+                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<< endmsg;
             } else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
               if (msgLvl(MSG::VERBOSE)) msg() << "SCT Hole: Layer = "<<m_sctID->layer_disk(surfaceID)<< "  B/EC " <<
                       m_sctID->barrel_ec(surfaceID) <<
-                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<<endreq;
+                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<<endmsg;
             } else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
               if (msgLvl(MSG::VERBOSE)) msg() << "SCT Outl: Layer = "<<m_sctID->layer_disk(surfaceID)<< "  B/EC " <<
                       m_sctID->barrel_ec(surfaceID) <<
-                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<<endreq;
+                      " side = " <<  m_sctID->side(surfaceID)<< "  " << m_sctID->eta_module(surfaceID)<< "  " << m_sctID->phi_module(surfaceID)<<endmsg;
             }
           } else if (!m_doUpgrade && m_idHelper->is_trt(surfaceID)){
             if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-              if (msgLvl(MSG::VERBOSE)) msg() << "TRT Hit : Layer = "<<m_trtID->barrel_ec(surfaceID)<<endreq;
+              if (msgLvl(MSG::VERBOSE)) msg() << "TRT Hit : Layer = "<<m_trtID->barrel_ec(surfaceID)<<endmsg;
             } else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
-              if (msgLvl(MSG::VERBOSE)) msg() << "TRT Outl: Layer = "<<m_trtID->barrel_ec(surfaceID)<<endreq;
+              if (msgLvl(MSG::VERBOSE)) msg() << "TRT Outl: Layer = "<<m_trtID->barrel_ec(surfaceID)<<endmsg;
             }
           }
           if (m_idHelper->is_pixel(surfaceID)){
@@ -3827,10 +3827,10 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
           } else {
             if (!m_doUpgrade) {
               msg(MSG::ERROR) << "Spurious hit that is not categorised: Pixel " << m_pixelID->barrel_ec(surfaceID)
-                << "  SCT: " << m_sctID->barrel_ec(surfaceID) << "  TRT: " << m_trtID->barrel_ec(surfaceID) <<endreq;
+                << "  SCT: " << m_sctID->barrel_ec(surfaceID) << "  TRT: " << m_trtID->barrel_ec(surfaceID) <<endmsg;
             } else {
               msg(MSG::ERROR) << "Spurious hit that is not categorised: Pixel " << m_pixelID->barrel_ec(surfaceID)
-                << "  SCT: " << m_sctID->barrel_ec(surfaceID)  <<endreq;
+                << "  SCT: " << m_sctID->barrel_ec(surfaceID)  <<endmsg;
             }
           }
 
@@ -4024,7 +4024,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		    element = sc->detectorElement();
 		  //element = m_SCT_Mgr->getDetectorElement(surfaceID);
 		}
-	      if (!element) msg(MSG::DEBUG) << "No element for track incidence angles!" << endreq;
+	      if (!element) msg(MSG::DEBUG) << "No element for track incidence angles!" << endmsg;
 	      float PixTrkAngle = -1000;
 	      float PixTrkThetaI = -1000;
 	      if (element)
@@ -4059,7 +4059,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
                                                              resType));
               fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull);
 
-              if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endreq;
+              if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endmsg;
               residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
               pullLocX = residualPull->pull()[Trk::loc1]; // residuals in microns
               detArea = pix_b;
@@ -4201,12 +4201,12 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 	    const Trk::Perigee* startPerigee = (*PixtrksItr)->perigeeParameters();
 	    if (startPerigee == NULL) {
-	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endreq;
+	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endmsg;
 	      continue;
 	    }
 	    //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 	    if (!(startPerigee->covariance())) {
-	      msg(MSG::WARNING) << "No covariance nmatrix assigned to the track" << endreq;
+	      msg(MSG::WARNING) << "No covariance nmatrix assigned to the track" << endmsg;
 	      continue;
 	    }
 	    AmgVector(5) perigeeParams = startPerigee->parameters();
@@ -4247,7 +4247,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 
 	      if (not *TSOSItr ) {
-		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endreq;
+		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endmsg;
 		continue;
 	      }
 
@@ -4258,7 +4258,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      } 
 	      else { // holes, perigee
 		if (not (*TSOSItr)->trackParameters() ) {
-		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
 		  continue;
 		}
 		SurfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
@@ -4275,7 +4275,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  pix_coords[1].at(pix_coords[1].size()-1).push_back(m_pixelID->barrel_ec(SurfaceID));
 		  pix_coords[2].at(pix_coords[2].size()-1).push_back(m_pixelID->eta_module(SurfaceID));
 		  pix_coords[3].at(pix_coords[3].size()-1).push_back(m_pixelID->phi_module(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<"Pixel Tracklet Hit : Layer = " << m_pixelID->layer_disk(SurfaceID) << "  B/EC " << m_pixelID->barrel_ec(SurfaceID) << "  " << m_pixelID->eta_module(SurfaceID) << "  " << m_pixelID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<"Pixel Tracklet Hit : Layer = " << m_pixelID->layer_disk(SurfaceID) << "  B/EC " << m_pixelID->barrel_ec(SurfaceID) << "  " << m_pixelID->eta_module(SurfaceID) << "  " << m_pixelID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endmsg;
 		}
 	      }
 	    }//end of loop over pixel hits 
@@ -4292,12 +4292,12 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 	    const Trk::Perigee* startPerigee = (*SCTtrksItr)->perigeeParameters();
 	    if (startPerigee == NULL) {
-	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endreq;
+	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endmsg;
 	      continue;
 	    }
 	    //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 	    if (!(startPerigee->covariance())) {
-	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
 	      continue;
 	    }
 	    AmgVector(5) perigeeParams = startPerigee->parameters();
@@ -4337,7 +4337,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 
 	      if (not *TSOSItr ) {
-		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endreq;
+		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endmsg;
 		continue;
 	      }
 
@@ -4348,7 +4348,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      } 
 	      else { // holes, perigee
 		if (not (*TSOSItr)->trackParameters() ) {
-		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
 		  continue;
 		}
 		SurfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
@@ -4371,7 +4371,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  sct_coords[2].at(sct_coords[2].size()-1).push_back(m_sctID->eta_module(SurfaceID));
 		  sct_coords[3].at(sct_coords[3].size()-1).push_back(m_sctID->phi_module(SurfaceID));
 		  sct_coords[4].at(sct_coords[4].size()-1).push_back(m_sctID->side(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" SCT Hit : side = "<<m_sctID->side(SurfaceID) <<" Layer = " << m_sctID->layer_disk(SurfaceID) << "  B/EC " << m_sctID->barrel_ec(SurfaceID) << "  " << m_sctID->eta_module(SurfaceID) << "  " << m_sctID->phi_module(SurfaceID) <<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" SCT Hit : side = "<<m_sctID->side(SurfaceID) <<" Layer = " << m_sctID->layer_disk(SurfaceID) << "  B/EC " << m_sctID->barrel_ec(SurfaceID) << "  " << m_sctID->eta_module(SurfaceID) << "  " << m_sctID->phi_module(SurfaceID) <<endmsg;
 		}
 	      }
 	    }//end of loop over sct hits 
@@ -4390,12 +4390,12 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 	    const Trk::Perigee* startPerigee = (*TRTtrksItr)->perigeeParameters();
 	    if (startPerigee == NULL) {
-	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endreq;
+	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endmsg;
 	      continue;
 	    }
 	    //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 	    if (!(startPerigee->covariance())) {
-	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
 	      continue;
 	    }
 	    AmgVector(5) perigeeParams = startPerigee->parameters();
@@ -4417,7 +4417,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 
 	      if (not *TSOSItr ) {
-		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endreq;
+		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endmsg;
 		continue;
 	      }
 
@@ -4428,7 +4428,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      } 
 	      else { // holes, perigee
 		if (not (*TSOSItr)->trackParameters() ) {
-		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
 		  continue;
 		}
 		SurfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
@@ -4444,7 +4444,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		if (m_idHelper->is_trt(SurfaceID) && (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
 		  trt_coords[0].at(trt_coords[0].size()-1).push_back(m_trtID->barrel_ec(SurfaceID));
 		  trt_coords[1].at(trt_coords[1].size()-1).push_back(m_trtID->phi_module(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" TRT Hit :   B/EC " << m_trtID->barrel_ec(SurfaceID) <<  "  " << m_trtID->phi_module(SurfaceID) <<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" TRT Hit :   B/EC " << m_trtID->barrel_ec(SurfaceID) <<  "  " << m_trtID->phi_module(SurfaceID) <<endmsg;
 		}
 	      }
 	    }//end of loop over trt hits 
@@ -4466,36 +4466,36 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    bool done = 0;
 	    int more_than_one = 0;
 	    int recinfo1 = -1, recinfo2 = -1; 
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSPSeededFinder"<<endreq; patternRecoInfo = 0;if (done){ more_than_one++;recinfo2 = 0;} else {recinfo1 = 0;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiCTBTracking)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiCTBTracking"<<endreq; patternRecoInfo = 1;if (done){ more_than_one++;recinfo2 = 1;} else {recinfo1 = 1;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetAmbiguitySolver)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetAmbiguitySolver"<<endreq; patternRecoInfo = 2;if (done){ more_than_one++;recinfo2 = 2;} else {recinfo1 = 2;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetExtensionProcessor)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetExtensionProcessor"<<endreq; patternRecoInfo = 3;if (done){ more_than_one++;recinfo2 = 3;} else {recinfo1 = 3;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTSeededTrackFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTSeededTrackFinder"<<endreq; patternRecoInfo = 4;if (done){ more_than_one++;recinfo2 = 4;} else {recinfo1 = 4;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::Muonboy)) {if (msgLvl(MSG::DEBUG)) msg() <<"Muonboy"<<endreq; patternRecoInfo = 5;if (done){ more_than_one++;recinfo2 = 5;} else {recinfo1 = 5;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuGirlUnrefitted )) {if (msgLvl(MSG::DEBUG)) msg() <<"MuGirlUnrefitted "<<endreq; patternRecoInfo = 6;if (done){ more_than_one++;recinfo2 = 6;} else {recinfo1 = 6;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::STACO)) {if (msgLvl(MSG::DEBUG)) msg() <<"STACO"<<endreq; patternRecoInfo = 7;if (done){ more_than_one++;recinfo2 = 7;} else {recinfo1 = 7;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::StacoLowPt)) {if (msgLvl(MSG::DEBUG)) msg() <<"StacoLowPt"<<endreq; patternRecoInfo = 8;if (done){ more_than_one++;recinfo2 = 8;} else {recinfo1 = 8;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuTag)) {if (msgLvl(MSG::DEBUG)) msg() <<"MuTag"<<endreq; patternRecoInfo = 9;if (done){ more_than_one++;recinfo2 = 9;} else {recinfo1 = 9;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MooreToTrackTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"MooreToTrackTool"<<endreq; patternRecoInfo = 10;if (done){ more_than_one++;recinfo2 = 10;} else {recinfo1 = 10;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigIDSCAN )) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigIDSCAN "<<endreq; patternRecoInfo = 11;if (done){ more_than_one++;recinfo2 = 11;} else {recinfo1 = 11;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigSiTrack)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigSiTrack"<<endreq; patternRecoInfo = 12;if (done){ more_than_one++;recinfo2 = 12;} else {recinfo1 = 12;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigTRTxK)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigTRTxK"<<endreq; patternRecoInfo = 13;if (done){ more_than_one++;recinfo2 = 13;} else {recinfo1 = 13;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigTRTLUT)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigTRTLUT"<<endreq; patternRecoInfo = 14;if (done){ more_than_one++;recinfo2 = 14;} else {recinfo1 = 14;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::Fatras)) {if (msgLvl(MSG::DEBUG)) msg() <<"Fatras"<<endreq; patternRecoInfo = 15;if (done){ more_than_one++;recinfo2 = 15;} else {recinfo1 = 15;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::iPatLegacyCnv)) {if (msgLvl(MSG::DEBUG)) msg() <<"iPatLegacyCnv"<<endreq; patternRecoInfo = 16;if (done){ more_than_one++;recinfo2 = 16;} else {recinfo1 = 16;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::xKalmanLegacyCnv)) {if (msgLvl(MSG::DEBUG)) msg() <<"xKalmanLegacyCnv"<<endreq; patternRecoInfo = 17;if (done){ more_than_one++;recinfo2 = 17;} else {recinfo1 = 17;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"SimpleAmbiguityProcessorTool"<<endreq; patternRecoInfo = 18;if (done){ more_than_one++;recinfo2 =18 ;} else {recinfo1 = 18;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetAmbiTrackSelectionTool"<<endreq; patternRecoInfo = 19;if (done){ more_than_one++;recinfo2 = 19;} else {recinfo1 = 19;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTStandalone)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTStandalone"<<endreq; patternRecoInfo = 20;if (done){ more_than_one++;recinfo2 = 20;} else {recinfo1 = 20;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuidStandAlone)) {if (msgLvl(MSG::DEBUG)) msg() <<"MuidStandAlone"<<endreq; patternRecoInfo = 21;if (done){ more_than_one++;recinfo2 = 21;} else {recinfo1 = 21;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTSeededSingleSpTrackFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTSeededSingleSpTrackFinder"<<endreq; patternRecoInfo = 22;if (done){ more_than_one++;recinfo2 = 22;} else {recinfo1 = 22;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSPSeededFinder"<<endmsg; patternRecoInfo = 0;if (done){ more_than_one++;recinfo2 = 0;} else {recinfo1 = 0;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiCTBTracking)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiCTBTracking"<<endmsg; patternRecoInfo = 1;if (done){ more_than_one++;recinfo2 = 1;} else {recinfo1 = 1;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetAmbiguitySolver)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetAmbiguitySolver"<<endmsg; patternRecoInfo = 2;if (done){ more_than_one++;recinfo2 = 2;} else {recinfo1 = 2;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetExtensionProcessor)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetExtensionProcessor"<<endmsg; patternRecoInfo = 3;if (done){ more_than_one++;recinfo2 = 3;} else {recinfo1 = 3;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTSeededTrackFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTSeededTrackFinder"<<endmsg; patternRecoInfo = 4;if (done){ more_than_one++;recinfo2 = 4;} else {recinfo1 = 4;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::Muonboy)) {if (msgLvl(MSG::DEBUG)) msg() <<"Muonboy"<<endmsg; patternRecoInfo = 5;if (done){ more_than_one++;recinfo2 = 5;} else {recinfo1 = 5;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuGirlUnrefitted )) {if (msgLvl(MSG::DEBUG)) msg() <<"MuGirlUnrefitted "<<endmsg; patternRecoInfo = 6;if (done){ more_than_one++;recinfo2 = 6;} else {recinfo1 = 6;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::STACO)) {if (msgLvl(MSG::DEBUG)) msg() <<"STACO"<<endmsg; patternRecoInfo = 7;if (done){ more_than_one++;recinfo2 = 7;} else {recinfo1 = 7;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::StacoLowPt)) {if (msgLvl(MSG::DEBUG)) msg() <<"StacoLowPt"<<endmsg; patternRecoInfo = 8;if (done){ more_than_one++;recinfo2 = 8;} else {recinfo1 = 8;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuTag)) {if (msgLvl(MSG::DEBUG)) msg() <<"MuTag"<<endmsg; patternRecoInfo = 9;if (done){ more_than_one++;recinfo2 = 9;} else {recinfo1 = 9;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MooreToTrackTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"MooreToTrackTool"<<endmsg; patternRecoInfo = 10;if (done){ more_than_one++;recinfo2 = 10;} else {recinfo1 = 10;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigIDSCAN )) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigIDSCAN "<<endmsg; patternRecoInfo = 11;if (done){ more_than_one++;recinfo2 = 11;} else {recinfo1 = 11;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigSiTrack)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigSiTrack"<<endmsg; patternRecoInfo = 12;if (done){ more_than_one++;recinfo2 = 12;} else {recinfo1 = 12;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigTRTxK)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigTRTxK"<<endmsg; patternRecoInfo = 13;if (done){ more_than_one++;recinfo2 = 13;} else {recinfo1 = 13;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TrigTRTLUT)) {if (msgLvl(MSG::DEBUG)) msg() <<"TrigTRTLUT"<<endmsg; patternRecoInfo = 14;if (done){ more_than_one++;recinfo2 = 14;} else {recinfo1 = 14;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::Fatras)) {if (msgLvl(MSG::DEBUG)) msg() <<"Fatras"<<endmsg; patternRecoInfo = 15;if (done){ more_than_one++;recinfo2 = 15;} else {recinfo1 = 15;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::iPatLegacyCnv)) {if (msgLvl(MSG::DEBUG)) msg() <<"iPatLegacyCnv"<<endmsg; patternRecoInfo = 16;if (done){ more_than_one++;recinfo2 = 16;} else {recinfo1 = 16;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::xKalmanLegacyCnv)) {if (msgLvl(MSG::DEBUG)) msg() <<"xKalmanLegacyCnv"<<endmsg; patternRecoInfo = 17;if (done){ more_than_one++;recinfo2 = 17;} else {recinfo1 = 17;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"SimpleAmbiguityProcessorTool"<<endmsg; patternRecoInfo = 18;if (done){ more_than_one++;recinfo2 =18 ;} else {recinfo1 = 18;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool)) {if (msgLvl(MSG::DEBUG)) msg() <<"InDetAmbiTrackSelectionTool"<<endmsg; patternRecoInfo = 19;if (done){ more_than_one++;recinfo2 = 19;} else {recinfo1 = 19;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTStandalone)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTStandalone"<<endmsg; patternRecoInfo = 20;if (done){ more_than_one++;recinfo2 = 20;} else {recinfo1 = 20;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::MuidStandAlone)) {if (msgLvl(MSG::DEBUG)) msg() <<"MuidStandAlone"<<endmsg; patternRecoInfo = 21;if (done){ more_than_one++;recinfo2 = 21;} else {recinfo1 = 21;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::TRTSeededSingleSpTrackFinder)) {if (msgLvl(MSG::DEBUG)) msg() <<"TRTSeededSingleSpTrackFinder"<<endmsg; patternRecoInfo = 22;if (done){ more_than_one++;recinfo2 = 22;} else {recinfo1 = 22;} done = 1;}
 	    
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::iPatRec)) {if (msgLvl(MSG::DEBUG)) msg() <<"iPatRec"<<endreq; patternRecoInfo = 29;if (done){ more_than_one++;recinfo2 = 29;} else {recinfo1 = 29;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::FatrasSimulation)) {if (msgLvl(MSG::DEBUG)) msg() <<"FatrasSimulation"<<endreq; patternRecoInfo = 31;if (done){ more_than_one++;recinfo2 = 31;} else {recinfo1 = 31;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_Cosmic"<<endreq; patternRecoInfo = 34;if (done){ more_than_one++;recinfo2 = 34;} else {recinfo1 = 34;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_HeavyIon"<<endreq; patternRecoInfo = 35;if (done){ more_than_one++;recinfo2 = 35;} else {recinfo1 = 35;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LowMomentum)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_LowMomentum"<<endreq; patternRecoInfo = 36;if (done){ more_than_one++;recinfo2 = 36;} else {recinfo1 = 36;} done = 1;}
-	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_BeamGas)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_BeamGas"<<endreq; patternRecoInfo = 37;if (done){ more_than_one++;recinfo2 = 37;} else {recinfo1 = 37;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::iPatRec)) {if (msgLvl(MSG::DEBUG)) msg() <<"iPatRec"<<endmsg; patternRecoInfo = 29;if (done){ more_than_one++;recinfo2 = 29;} else {recinfo1 = 29;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::FatrasSimulation)) {if (msgLvl(MSG::DEBUG)) msg() <<"FatrasSimulation"<<endmsg; patternRecoInfo = 31;if (done){ more_than_one++;recinfo2 = 31;} else {recinfo1 = 31;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_Cosmic"<<endmsg; patternRecoInfo = 34;if (done){ more_than_one++;recinfo2 = 34;} else {recinfo1 = 34;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_HeavyIon"<<endmsg; patternRecoInfo = 35;if (done){ more_than_one++;recinfo2 = 35;} else {recinfo1 = 35;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LowMomentum)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_LowMomentum"<<endmsg; patternRecoInfo = 36;if (done){ more_than_one++;recinfo2 = 36;} else {recinfo1 = 36;} done = 1;}
+	    if ((*trksItr)->info().patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_BeamGas)) {if (msgLvl(MSG::DEBUG)) msg() <<"SiSpacePointsSeedMaker_BeamGas"<<endmsg; patternRecoInfo = 37;if (done){ more_than_one++;recinfo2 = 37;} else {recinfo1 = 37;} done = 1;}
 	    
 	    m_patternRecoInfo->Fill(patternRecoInfo);
 	    if (more_than_one>0) {
@@ -4513,12 +4513,12 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	   
 	    
 	    if (startPerigee == NULL) {
-	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endreq;
+	      if (msgLvl(MSG::VERBOSE)) msg() << "no start of perigee"<<endmsg;
 	      continue;
 	    }
 	    //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
 	    if (!(startPerigee->covariance())) {
-	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endreq;
+	      msg(MSG::WARNING) << "No covariance matrix assigned to the track" << endmsg;
 	      continue;
 	    }
 
@@ -4547,7 +4547,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
 
 	      if (not *TSOSItr ) {
-		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endreq;
+		msg(MSG::ERROR) << "pointer to TSOS is NULL: this should never happen" << (*TSOSItr) <<endmsg;
 		continue;
 	      }
 
@@ -4558,7 +4558,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      } 
 	      else { // holes, perigee
 		if (not (*TSOSItr)->trackParameters() ) {
-		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
+		  msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
 		  continue;
 		}
 		SurfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
@@ -4573,7 +4573,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  trk_pix_coords[1].at(trk_pix_coords[1].size()-1).push_back(m_pixelID->barrel_ec(SurfaceID));
 		  trk_pix_coords[2].at(trk_pix_coords[2].size()-1).push_back(m_pixelID->eta_module(SurfaceID));
 		  trk_pix_coords[3].at(trk_pix_coords[3].size()-1).push_back(m_pixelID->phi_module(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(Pixel) Hit : Layer = " << m_pixelID->layer_disk(SurfaceID) << "  B/EC " << m_pixelID->barrel_ec(SurfaceID) << "  " << m_pixelID->eta_module(SurfaceID) << "  " << m_pixelID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(Pixel) Hit : Layer = " << m_pixelID->layer_disk(SurfaceID) << "  B/EC " << m_pixelID->barrel_ec(SurfaceID) << "  " << m_pixelID->eta_module(SurfaceID) << "  " << m_pixelID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endmsg;
 
 		}
 		
@@ -4583,14 +4583,14 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  trk_sct_coords[2].at(trk_sct_coords[2].size()-1).push_back(m_sctID->eta_module(SurfaceID));
 		  trk_sct_coords[3].at(trk_sct_coords[3].size()-1).push_back(m_sctID->phi_module(SurfaceID));
 		  trk_sct_coords[4].at(trk_sct_coords[4].size()-1).push_back(m_sctID->side(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(SCT) Hit : Layer = " << m_sctID->layer_disk(SurfaceID) << "  B/EC " << m_sctID->barrel_ec(SurfaceID) << "  " << m_sctID->eta_module(SurfaceID) << "  " << m_sctID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(SCT) Hit : Layer = " << m_sctID->layer_disk(SurfaceID) << "  B/EC " << m_sctID->barrel_ec(SurfaceID) << "  " << m_sctID->eta_module(SurfaceID) << "  " << m_sctID->phi_module(SurfaceID) <<"\tPhysical eta = "<<trketa<<" and phi "<<trkphi<<endmsg;
 
 		}
 		
 		if (m_idHelper->is_trt(SurfaceID) && (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
 		  trk_trt_coords[0].at(trk_trt_coords[0].size()-1).push_back(m_trtID->barrel_ec(SurfaceID));
 		  trk_trt_coords[1].at(trk_trt_coords[1].size()-1).push_back(m_trtID->phi_module(SurfaceID));
-		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(TRT) Hit : B/EC " << m_trtID->barrel_ec(SurfaceID) << "  " << m_trtID->phi_module(SurfaceID) <<"Physical phi "<<trkphi<<endreq;
+		  if (msgLvl(MSG::DEBUG)) msg() <<"HitBasedPlots "<<" Track(TRT) Hit : B/EC " << m_trtID->barrel_ec(SurfaceID) << "  " << m_trtID->phi_module(SurfaceID) <<"Physical phi "<<trkphi<<endmsg;
 
 		}
 	      }
@@ -4706,7 +4706,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		trk_trt_coords[0].erase(trk_trt_coords[0].begin()+j);
 		trk_trt_coords[1].erase(trk_trt_coords[1].begin()+j);
 		done = 1;//this trt tracklet has been matched, don't try to match it to any others
-		//if (msgLvl(MSG::DEBUG)) msg() <<"YESSSSS trt\t"<<trt_trk_pt.at(i)<<"\t"<<trt_trk_phi.at(i)<<endreq;
+		//if (msgLvl(MSG::DEBUG)) msg() <<"YESSSSS trt\t"<<trt_trk_pt.at(i)<<"\t"<<trt_trk_phi.at(i)<<endmsg;
 	      }
 	      }
 	    if (!done){//zero cand. in tracks shares all hits with this cand. of trt tracks
@@ -4756,14 +4756,14 @@ IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* tr
 
       if (!unbiasedTrkParameters) {
     msg(MSG::WARNING) << "Could not get unbiased track parameters, "
-        <<"use normal parameters" << endreq;
+        <<"use normal parameters" << endmsg;
     m_isUnbiased = 0;
       }
     } else if (!m_UpdatorWarning) {
       // warn only once!
       msg(MSG::WARNING) << "TrackParameters contain no covariance: "
       <<"Unbiased track states can not be calculated "
-      <<"(ie. pulls and residuals will be too small)" << endreq;
+      <<"(ie. pulls and residuals will be too small)" << endmsg;
       m_UpdatorWarning = true;
       m_isUnbiased = 0;
     } else {
@@ -4803,7 +4803,7 @@ IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
     return;
   }
   if (not m_idHelper->is_pixel(elementID)) {
-    msg(MSG::FATAL) << "This is not a pixel" << endreq;
+    msg(MSG::FATAL) << "This is not a pixel" << endmsg;
   }
   bool isBarrel = m_pixelID->is_barrel(elementID);
   int layer = m_pixelID->layer_disk(elementID);
@@ -4831,21 +4831,21 @@ IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
             << element->normal().x()
             << " " << element->normal().y()
             << " " << element->normal().z()
-            << endreq;
+            << endmsg;
   }
   if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE) << "PIXEL: track x y z "
             << trackState->trackParameters()->momentum().x()
             << " " << trackState->trackParameters()->momentum().y()
             << " " << trackState->trackParameters()->momentum().z()
-            << endreq;
+            << endmsg;
   }
   if (msgLvl(MSG::VERBOSE)) {
     Amg::Vector3D momVect =  trackState->trackParameters()->momentum();
     Amg::Vector3D normVect = element->normal();
       msg(MSG::VERBOSE) << "PIXEL: track incident angle "
 			<<  Amg::angle(momVect,normVect)
-            << endreq;
+            << endmsg;
   }
   double pullPhi = trackPull->pull()[Trk::locRPhi];
   double pullZ = trackPull->pull()[Trk::locZ];
