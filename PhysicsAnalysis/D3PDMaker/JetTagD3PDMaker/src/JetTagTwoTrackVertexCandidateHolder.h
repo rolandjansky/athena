@@ -13,7 +13,7 @@
 #define JetTagD3PDMaker_JetTagTwoTrackVertexCandidateHolder_H
 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 namespace Trk{

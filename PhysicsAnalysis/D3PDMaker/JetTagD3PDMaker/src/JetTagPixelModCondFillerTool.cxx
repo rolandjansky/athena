@@ -34,26 +34,16 @@ JetTagPixelModCondFillerTool::JetTagPixelModCondFillerTool
  */
 StatusCode JetTagPixelModCondFillerTool::initialize()
 {
+  ATH_CHECK( detStore()->retrieve( m_pixId,"PixelID") );
 
- if( StatusCode::SUCCESS != detStore()->retrieve( m_pixId,"PixelID") || m_pixId==0  ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
+  if( m_pixelCondSummarySvc.empty() ){
+    ATH_MSG_FATAL( "PixelConditionsSummarySvc not configured "  );
+    ATH_MSG_FATAL( "you need to configure PixelConditionsSummarySvc to be able to dump pixel condition "  );
     return StatusCode::FAILURE;
   }
 
- if( m_pixelCondSummarySvc.empty() ){
-   msg(MSG::FATAL) << "PixelConditionsSummarySvc not configured " << endreq; 
-   msg(MSG::FATAL) << "you need to configure PixelConditionsSummarySvc to be able to dump pixel condition " << endreq; 
-   return StatusCode::FAILURE;
- }
- 
-
- if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-   msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCondSummarySvc << endreq; 
-   return StatusCode::FAILURE;
- } else {
-   msg(MSG::INFO) << "Retrieved service " << m_pixelCondSummarySvc << endreq; 
- }
-
+  ATH_CHECK( m_pixelCondSummarySvc.retrieve() );
+  ATH_MSG_INFO( "Retrieved service " << m_pixelCondSummarySvc  );
   return StatusCode::SUCCESS;
 }
 

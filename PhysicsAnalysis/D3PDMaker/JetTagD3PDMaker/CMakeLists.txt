@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
                           Control/SGTools
                           Event/EventKernel
                           Event/EventPrimitives
@@ -43,7 +43,7 @@ atlas_add_component( JetTagD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools EventKernel EventPrimitives GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry D3PDMakerUtils JetTagEvent JetTagInfo MuonIDEvent McParticleEvent JetEvent muonEvent Particle egammaEvent TrkParticleBase VxJetVertex VxSecVertex VxVertex TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers SGTools EventKernel EventPrimitives GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry D3PDMakerUtils JetTagEvent JetTagInfo MuonIDEvent McParticleEvent JetEvent muonEvent Particle egammaEvent TrkParticleBase VxJetVertex VxSecVertex VxVertex TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

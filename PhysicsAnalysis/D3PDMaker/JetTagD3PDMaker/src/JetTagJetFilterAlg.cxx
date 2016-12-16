@@ -8,7 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "EventKernel/ISignalState.h"
 #include "EventKernel/SignalStateHelper.h"
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 namespace D3PD {

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /**
  * @file JetTagD3PDMaker/src/JetTagVxOnJetAxisCandidateHolder.h
  * @author Georges Aad
@@ -13,7 +14,7 @@
 #define JetTagD3PDMaker_JetTagVxOnJetAxisCandidateHolder_H
 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 namespace Trk{
