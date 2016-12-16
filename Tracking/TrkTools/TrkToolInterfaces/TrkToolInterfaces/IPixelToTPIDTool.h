@@ -32,8 +32,8 @@ namespace Trk {
     virtual float dEdx(const Trk::Track& track) = 0;
     virtual int numberOfUsedHitsdEdx() = 0;
     virtual int numberOfUsedIBLOverflowHits() = 0;
-    virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) = 0;
-    virtual float getMass(double dedx, double p, int nGoodPixels) = 0;
+    virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) const = 0;
+    virtual float getMass(double dedx, double p, int nGoodPixels) const = 0;
   };
 
   inline const InterfaceID& Trk::IPixelToTPIDTool::interfaceID()
