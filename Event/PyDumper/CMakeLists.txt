@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 782292 2016-11-04 08:51:36Z krasznaa $
+# $Id: CMakeLists.txt 789091 2016-12-10 05:10:19Z ssnyder $
 ################################################################################
 # Package: PyDumper
 ################################################################################
@@ -10,6 +10,9 @@ atlas_subdir( PyDumper )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers )
+
+# Cling needs to be able to see the headers.
+atlas_install_headers( PyDumper )
 
 # Component(s) in the package:
 atlas_add_dictionary( PyDumperDictDict
