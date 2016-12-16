@@ -163,14 +163,18 @@ StatusCode egammaSwTool::execute(xAOD::CaloCluster* cluster, xAOD::EgammaParamet
   if (cluster==0) return StatusCode::SUCCESS;
 
   if(isBarrel){
+
     switch (egType) {
     case xAOD::EgammaParameters::electron:
+      ATH_MSG_DEBUG("correction for barrel electron");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterEle37,cluster));
       break;
     case xAOD::EgammaParameters::unconvertedPhoton:
+      ATH_MSG_DEBUG("correction for barrel unconverted");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterGam37,cluster));
       break;
     case xAOD::EgammaParameters::convertedPhoton:
+      ATH_MSG_DEBUG("correction for barrel converted");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterEconv37,cluster));
       break;
     default:
@@ -181,12 +185,15 @@ StatusCode egammaSwTool::execute(xAOD::CaloCluster* cluster, xAOD::EgammaParamet
   } else{
     switch (egType) {
     case xAOD::EgammaParameters::electron:
+      ATH_MSG_DEBUG("correction for endcap electron");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterEle55,cluster));
       break;
     case xAOD::EgammaParameters::unconvertedPhoton:
+      ATH_MSG_DEBUG("correction for endcap unconverted");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterGam55,cluster));
       break;
     case xAOD::EgammaParameters::convertedPhoton:
+      ATH_MSG_DEBUG("correction for endcap converted");
       ATH_CHECK(processTools(m_clusterCorrectionPointersSuperClusterEconv55,cluster));
       break;
     default:

@@ -84,7 +84,7 @@ namespace {
     // take the largest variation.
     // Now look in the negative eta direction.
     elt_l = dd_man->get_element_raw(sampling,
-				    eta  - elt->deta() - eps,
+				    eta - elt->deta() - eps,
 				    CaloPhiRange::fix (phi - elt->dphi() - eps));
     
     double dphi_l = 0; // Phi difference on the low-eta () side.
@@ -559,18 +559,18 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
   double etamax = dde->eta_raw();
   double phimax = dde->phi_raw(); 
   ATH_MSG_DEBUG("Hottest cell in layer 1 Calo co-ordinates (eta,phi): (" << etamax << " , " << phimax << ")");
-  //
-  CaloLayerCalculator helper;
-  const CaloCellContainer* inputcells=cluster->getCellLinks()->getCellContainer();
   //  
   //now Locate the +-1 range
-  double detastr, dphistr;
+  double detastr(-999), dphistr(-999);
   //Raw co-ordinates used here
   etaphi_range(etamax, phimax,xsample,detastr, dphistr);
   //
   //Given the range refine the position employing the smaller window
   if (detastr > 0 && dphistr > 0) {
-    ATH_CHECK(helper.fill(inputcells, etamax, phimax, detastr, dphistr, sample));
+    CaloLayerCalculator helper;
+    const auto cellLink = cluster->getCellLinks();
+    helper.fill(cellLink->begin(), cellLink->end(), etamax, phimax, detastr, dphistr, sample);
+
     //Here is where we (re-)fill the eta in the 1st sampling 
     if(helper.etam()!=-999.) {
       //This is "real" atlas co-ordinates
