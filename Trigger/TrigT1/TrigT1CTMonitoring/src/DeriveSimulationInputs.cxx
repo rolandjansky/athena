@@ -79,8 +79,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveSimulationInputs( const std::s
    declareProperty("do_MuCTPI_input",     do_MuCTPI_input, "Flag to rederive MuCTPI input from raw data fragment");
    declareProperty("do_L1Calo_input",     do_L1Calo_input, "Flag to rederive L1Calo input from raw data fragment");
    declareProperty("do_L1Calo_sim",       do_L1Calo_sim,   "Flag to resimulate L1Calo input");
-   declareProperty("AttrListFolders",     par_atrlist);
-   declareProperty("AttrListCollFolders", par_atrcollist);
+   declareProperty("AttrListFolders",     m_par_atrlist);
+   declareProperty("AttrListCollFolders", m_par_atrcollist);
    declareProperty("N_cablebits",         N_cablebits);
    declareProperty("N_slots_ctpin",       N_slots_ctpin);
    declareProperty("N_connectors_ctpin",  N_connectors_ctpin);

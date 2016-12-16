@@ -137,7 +137,7 @@ initialize() {
   // make sure to call initialize of the base class!
   CHECK( ManagedMonitorToolBase::initialize() );
 
-  ATH_MSG(DEBUG) << "begin initialize()" << endreq;
+  ATH_MSG(DEBUG) << "begin initialize()" << endmsg;
   
   // connect to the config service
   CHECK( m_configSvc.retrieve() );
@@ -154,8 +154,8 @@ initialize() {
 StatusCode TrigT1CTMonitoring::BSMonitoring::
 bookHistograms() {
    try {
-      ATH_MSG(DEBUG) << "begin bookHistograms()" << endreq;
-      ATH_MSG(DEBUG) << "Clearing HistMap and resetting event counters for new run" << endreq;
+      ATH_MSG(DEBUG) << "begin bookHistograms()" << endmsg;
+      ATH_MSG(DEBUG) << "Clearing HistMap and resetting event counters for new run" << endmsg;
 
       m_histNames.clear();
       m_eventCount = 0;
@@ -177,7 +177,7 @@ bookHistograms() {
       m_histogramsBooked = true;
 
       if (m_retrieveCoolData) {
-         ATH_MSG(DEBUG) << "Will now try to access LB times in folder " << m_lbTimeCoolFolderName << endreq;
+         ATH_MSG(DEBUG) << "Will now try to access LB times in folder " << m_lbTimeCoolFolderName << endmsg;
          m_lumiBlocks.clear();
          m_lbStartTimes.clear();
          m_lbEndTimes.clear();
@@ -187,21 +187,21 @@ bookHistograms() {
          const DataHandle<CTP_RIO> theCTP_RIO = 0;
          if (!(evtStore()->retrieve(theCTP_RIO, "CTP_RIO").isFailure())) {
             getCoolData(theCTP_RIO->getRunNumber());
-            ATH_MSG(DEBUG) << m_lumiBlocks.size() << " lumi blocks found" << endreq;
+            ATH_MSG(DEBUG) << m_lumiBlocks.size() << " lumi blocks found" << endmsg;
             for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
                   lbIt != m_lumiBlocks.end(); ++lbIt ) {
                ATH_MSG(DEBUG) << "LB " << *lbIt << ": start time = " << m_lbStartTimes[*lbIt] 
-                              << ", end time = " << m_lbEndTimes[*lbIt] << endreq;
+                              << ", end time = " << m_lbEndTimes[*lbIt] << endmsg;
             }
             if (m_lbStartTimes.size() == 0) {
-               ATH_MSG(WARNING) << "Lumi block timestamps not found!" << endreq;
+               ATH_MSG(WARNING) << "Lumi block timestamps not found!" << endmsg;
             }
             else {
                m_retrievedLumiBlockTimes = true;
             }
          }
       }
-      ATH_MSG(DEBUG) << "end bookHistograms()" << endreq;    
+      ATH_MSG(DEBUG) << "end bookHistograms()" << endmsg;    
       return StatusCode::SUCCESS;
    }
    catch(const std::exception & e) {
@@ -218,12 +218,12 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
    //evtStore()->dump();
    try {
       if (!m_histogramsBooked) {
-         ATH_MSG(ERROR) << "fillHistograms() called before bookHistograms(*,*,1)!" << endreq;
-         ATH_MSG(ERROR) << "calling bookHistograms(1,1,1) manually..." << endreq;
+         ATH_MSG(ERROR) << "fillHistograms() called before bookHistograms(*,*,1)!" << endmsg;
+         ATH_MSG(ERROR) << "calling bookHistograms(1,1,1) manually..." << endmsg;
          CHECK( bookHistograms() );
       }
 
-      ATH_MSG(DEBUG) << "begin fillHistograms()" << endreq;
+      ATH_MSG(DEBUG) << "begin fillHistograms()" << endmsg;
 
       // Now see what exists in StoreGate...
       const DataHandle<MuCTPI_RDO> theMuCTPI_RDO = 0;
@@ -250,7 +250,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       TH1F_LW* incompleteFragmentType = getTH1("incompleteFragmentType");
 
       if ( !errorSummary || !errorSummaryPerLumiBlock || !errorPerLumiBlock || !incompleteFragmentType ) {
-         ATH_MSG(FATAL) << "Problems finding error histograms!" << endreq;
+         ATH_MSG(FATAL) << "Problems finding error histograms!" << endmsg;
          return StatusCode::FAILURE;
       }
     
@@ -259,25 +259,25 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       if (m_processMuctpi) {
          sc = evtStore()->retrieve(theMuCTPI_RDO, "MUCTPI_RDO");
          if (sc.isFailure()) {
-	   ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endreq;
+	   ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endmsg;
 	   validMuCTPI_RDO = false;
 	   ++numberOfInvalidFragments;
          }
 	 // now try to get RPC and TGC SL output for comparisons
 	 sc = evtStore()->retrieve(theRPCContainer, "RPC_SECTORLOGIC");
          if (sc.isFailure()) {
-	   ATH_MSG(WARNING) << "Could not find RPC container in StoreGate" << endreq;
+	   ATH_MSG(WARNING) << "Could not find RPC container in StoreGate" << endmsg;
             validRPCContainer = false;
          }
 	 sc = evtStore()->retrieve(theTGCContainer, "TrigT1CoinDataCollection");
          if (sc.isFailure()) {
-	   ATH_MSG(WARNING) << "Could not find TGC container in StoreGate" << endreq;
+	   ATH_MSG(WARNING) << "Could not find TGC container in StoreGate" << endmsg;
             validTGCContainer = false;
          }
          if (m_processMuctpiRIO && !m_runOnESD) {
             sc = evtStore()->retrieve(theMuCTPI_RIO, "MUCTPI_RIO");
             if (sc.isFailure()) {
-               ATH_MSG(WARNING) << "Could not find \"MUCTPI_RIO\" in StoreGate" << endreq;
+               ATH_MSG(WARNING) << "Could not find \"MUCTPI_RIO\" in StoreGate" << endmsg;
                validMuCTPI_RIO = false;
                ++numberOfInvalidFragments;
             }
@@ -287,14 +287,14 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       if (m_processCTP) {
          sc = evtStore()->retrieve(theCTP_RDO, "CTP_RDO");
          if (sc.isFailure()) {
-            ATH_MSG(WARNING) << "Could not find \"CTP_RDO\" in StoreGate" << endreq;
+            ATH_MSG(WARNING) << "Could not find \"CTP_RDO\" in StoreGate" << endmsg;
             validCTP_RDO = false;
             ++numberOfInvalidFragments;
          }
          if (!m_runOnESD) {
             sc = evtStore()->retrieve(theCTP_RIO, "CTP_RIO");
             if (sc.isFailure()) {
-               ATH_MSG(WARNING) << "Could not find \"CTP_RIO\" in StoreGate" << endreq;
+               ATH_MSG(WARNING) << "Could not find \"CTP_RIO\" in StoreGate" << endmsg;
                validCTP_RIO = false;
                ++numberOfInvalidFragments;
             }
@@ -303,7 +303,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       if (m_processRoIB && m_processMuctpiRIO) {
          sc = evtStore()->retrieve(roIBResult, "RoIBResult");
          if (sc.isFailure()) {
-            ATH_MSG(WARNING) << "Could not find \"RoIBResult\" in StoreGate" << endreq;
+            ATH_MSG(WARNING) << "Could not find \"RoIBResult\" in StoreGate" << endmsg;
             validRoIBResult = false;
             ++numberOfInvalidFragments;
          }
@@ -321,22 +321,22 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
          }
          ATH_MSG(DEBUG) << "Successfully retrieved EventInfo (run: " 
                         << m_runNumber << ", event: " << m_eventNumber 
-                        << ")" << endreq;
+                        << ")" << endmsg;
       }
       else {
-         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate => run# = event# = 0, LB# = 99" << endreq;
+         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate => run# = event# = 0, LB# = 99" << endmsg;
          m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
          m_currentLumiBlock = 99; // dummy LB in case EventInfo is not available - prevents DQ defect flagging with LB# 0...
       }
 
       if ( incompleteEvent ) {
-         ATH_MSG(WARNING) << "Incomplete event according to EventInfo flag" << endreq;
+         ATH_MSG(WARNING) << "Incomplete event according to EventInfo flag" << endmsg;
          incompleteFragmentType->Fill(5,1);
       }
     
       bool l1ctObjectMissingInStoreGate = ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult );
       if ( l1ctObjectMissingInStoreGate ) {
-         ATH_MSG(WARNING) << "At least one L1CT object is missing in SG" << endreq;
+         ATH_MSG(WARNING) << "At least one L1CT object is missing in SG" << endmsg;
       }
     
       dumpData(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
@@ -345,13 +345,13 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
          if ( validCTP_RDO ) {
             const std::vector<uint32_t> &cDataWords = theCTP_RDO->getDataWords();
             if ( cDataWords.size() == 0 ) {
-               ATH_MSG(WARNING) << "CTP_RDO is empty, ignoring CTP" << endreq;
+               ATH_MSG(WARNING) << "CTP_RDO is empty, ignoring CTP" << endmsg;
                validCTP_RDO = false;
             }
          }
          if ( validCTP_RIO ) {
             if ( !m_runOnESD && (theCTP_RIO->getDetectorEventType() & 0xffff) == 0 ) {//LB == 0 only if RIO is empty
-               ATH_MSG(WARNING) << "CTP_RIO is not valid, ignoring CTP" << endreq;
+               ATH_MSG(WARNING) << "CTP_RIO is not valid, ignoring CTP" << endmsg;
                validCTP_RIO = false;
             }
          }
@@ -366,7 +366,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
                ATH_MSG(INFO) 
                   << "MuCTPI_RDO reports " << multWord.getNCandidates() 
                   << "  candidates, but there are only " << theMuCTPI_RDO->dataWord().size()
-                  << " data words, ignoring MuCTPI" << endreq;
+                  << " data words, ignoring MuCTPI" << endmsg;
                validMuCTPI_RDO = false;
             }
          }
@@ -375,25 +375,25 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
     
       // if at least one fragment is missing/incomplete, print out a summary
       if (!validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult) {
-         ATH_MSG(WARNING) << "At least one missing/invalid L1CT fragment detected" << endreq;
+         ATH_MSG(WARNING) << "At least one missing/invalid L1CT fragment detected" << endmsg;
          ATH_MSG(WARNING) 
             << "CTP_RDO: " << validCTP_RDO << ", CTP_RIO: " << validCTP_RIO 
             << ", MuCTPI_RIO: " << validMuCTPI_RIO << ", MuCTPI_RDO: " << validMuCTPI_RDO 
-            << ", RoIBResult: " << validRoIBResult << endreq;
-         //ATH_MSG(WARNING) << getEventInfoString() << endreq;
+            << ", RoIBResult: " << validRoIBResult << endmsg;
+         //ATH_MSG(WARNING) << getEventInfoString() << endmsg;
          if (validCTP_RIO) {
             ATH_MSG(WARNING) 
                << "CTP_RIO says LB: " << (theCTP_RIO->getDetectorEventType() & 0xffff) 
                << ", L1ID: " << std::dec << theCTP_RIO->getLvl1Id() 
                << " (HEX: " << std::hex << theCTP_RIO->getLvl1Id() << ")" << std::dec 
-               << ", BCID: " << theCTP_RIO->getBCID() << endreq;
+               << ", BCID: " << theCTP_RIO->getBCID() << endmsg;
          }
          else if (eventInfo) {
             ATH_MSG(WARNING) << "CTP_RIO missing, EventInfo says LB: " << eventInfo->event_ID()->lumi_block()
-                             << ", BCID: " << eventInfo->event_ID()->bunch_crossing_id() << endreq; // no L1ID available
+                             << ", BCID: " << eventInfo->event_ID()->bunch_crossing_id() << endmsg; // no L1ID available
          }
          else {
-            ATH_MSG(WARNING) << "Not printing event details since both CTP_RIO and EventInfo objects are missing" << endreq;
+            ATH_MSG(WARNING) << "Not printing event details since both CTP_RIO and EventInfo objects are missing" << endmsg;
          }
 
          // only fill error-per-LB histograms if L1CT fragments are missing and global incomplete-event flag 
@@ -432,7 +432,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
 
       // if the event is incomplete (missing L1CT objects or according to EventInfo), skip filling the rest of the histograms
       if ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult || incompleteEvent ) {
-         ATH_MSG(WARNING) << "Event incomplete, will skip filling of all non-error histograms" << endreq;
+         ATH_MSG(WARNING) << "Event incomplete, will skip filling of all non-error histograms" << endmsg;
          return StatusCode::SUCCESS;
       }
 
@@ -454,7 +454,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       }
       ++m_eventCount;
     
-      ATH_MSG(DEBUG) << "end fillHistograms()" << endreq;
+      ATH_MSG(DEBUG) << "end fillHistograms()" << endmsg;
       return StatusCode::SUCCESS;
    }
    catch(const std::exception & e) {
@@ -467,7 +467,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
 StatusCode TrigT1CTMonitoring::BSMonitoring::
 procHistograms() {
 
-  ATH_MSG(DEBUG) << "begin procHistograms()" << endreq;
+  ATH_MSG(DEBUG) << "begin procHistograms()" << endmsg;
   
   updateRangeUser();
   
@@ -478,8 +478,8 @@ procHistograms() {
   }
 
   ATH_MSG(DEBUG) << "processed " << m_eventCount << " events ("
-		 << m_filledEventCount << " filled )" << endreq;
-  ATH_MSG(DEBUG) << "end procHistograms()" << endreq;
+		 << m_filledEventCount << " filled )" << endmsg;
+  ATH_MSG(DEBUG) << "end procHistograms()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -710,7 +710,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
       || !barrelPt || !endcapSectorIDAll || !forwardSectorIDAll || !barrelSectorIDAll 
       || !endcapPt || !forwardPt ) {
     ATH_MSG(FATAL) << "Problems finding 1D histograms for MuCTPI!"
-	<< endreq;
+	<< endmsg;
     return;
   }
   TH2F_LW *barrelRoiSectorID = getTH2("barrelRoiSectorID");
@@ -739,14 +739,14 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
        !rpcNoMuCTPICandfound || !muctpiNoTGCecCandfound || !tgcecNoMuCTPICandfound ||
        !muctpiNoTGCfwCandfound || !tgcfwNoMuCTPICandfound) {
     ATH_MSG(FATAL) << "Problems finding 2D histograms for MuCTPI!"
-	<< endreq;
+	<< endmsg;
     return;
   }
 
   // maps for comapring MuCTPI and RPC/TGC candidates
   std::map <std::string,MuCTPI_DataWord_Decoder> muctpiCandidates;
-  std::map <std::string, RpcSLTriggerHit* > rpcCandidates;
-  std::map <std::string, Muon::TgcCoinData* > tgcCandidates;
+  std::map <std::string, const RpcSLTriggerHit* > rpcCandidates;
+  std::map <std::string, const Muon::TgcCoinData* > tgcCandidates;
 
 
   // Get the data
@@ -849,7 +849,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
   if (diffNCandidates != 0) {
     ATH_MSG(WARNING) << "Number of candidates in multiplicity word " << numberCandidates 
 		     << " != number of candidates " << numberDataWords << " from " << vDataWords.size() 
-		     << " data words" << endreq;
+		     << " data words" << endmsg;
     // dump multiplicity and data words (DEBUG level)
     multWord.dumpData();
     for ( std::vector<uint32_t>::const_iterator it = vDataWords.begin(); it != vDataWords.end(); ++it ) {
@@ -908,7 +908,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 
     if (abs(candbcdiff)>3) {
       ATH_MSG(WARNING) << "MIOCT candidate BC " << candidateBcid << " out of range of MICTP BC " 
-	  << mictpBcid << endreq;
+	  << mictpBcid << endmsg;
       errorSummary->Fill(8,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 8);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -963,7 +963,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
     if ( multWord.getMultiplicity(i) != MioctPtCount[i] ) {
       anyMismatch = true;
       ATH_MSG(WARNING) << "pT threshold " << i+1 << ": MICTP multiplicity (" << multWord.getMultiplicity(i)
-		       << ") not equal MIOCT multiplicity (" << MioctPtCount[i] << ")" <<  endreq;
+		       << ") not equal MIOCT multiplicity (" << MioctPtCount[i] << ")" <<  endmsg;
       errorSummary->Fill(5,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 5);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -992,7 +992,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	if (i == 0) {
 	  ATH_MSG(DEBUG) << "MuCTPI error status word #" << i
 	      << ": 0x" << MSG::hex << vStatus[i] << MSG::dec
-	      << endreq;
+	      << endmsg;
 	  hist = muctpiStatus1;
 	} else if (i == 1) {
 	  hist = muctpiStatus2;
@@ -1011,7 +1011,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
   StatusCode sc = StatusCode::SUCCESS;
   sc = evtStore()->retrieve(eventInfo);
       if (!sc.isSuccess()) {
-         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate" << endreq;
+         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate" << endmsg;
       }
 
   // Get candidates from TGC and RPC SLs for comparisons
@@ -1027,7 +1027,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	    std::ostringstream rpckey;
 	    rpckey << "BA" << (*it_rpc)->sectorId() <<"-RoI" << (*it_rpc_hit) -> roi()
 		   << "-Pt" << (*it_rpc_hit) -> ptId();
-	    rpcCandidates.insert (std::pair<std::string, RpcSLTriggerHit* >(rpckey.str(),(*it_rpc_hit)));
+	    rpcCandidates.insert (std::pair<std::string, const RpcSLTriggerHit* >(rpckey.str(),(*it_rpc_hit)));
 	  }
 
 	}	
@@ -1054,7 +1054,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	  tgckey << sys << secID + (48*(*it_tgc_col)->isAside()) <<"-RoI" << (*it_tgc_col)->roi()
 		 << "-Pt" << (*it_tgc_col)->pt();
 	}
-	tgcCandidates.insert(std::pair<std::string, Muon::TgcCoinData* >(tgckey.str(),(*it_tgc_col)));
+	tgcCandidates.insert(std::pair<std::string, const Muon::TgcCoinData* >(tgckey.str(),(*it_tgc_col)));
       }
     }
   }
@@ -1070,7 +1070,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
     if (tgcnum > 0 || rpcnum > 0 ) {
       ATH_MSG(DEBUG) << "MuCTPI to RPC/TGC match found: MuCTPI key/ MuCTPI BCID / #TGC matches / #RPC matches: "
 		     << it_mui->first << " / " << it_mui->second.getBCID() << " / " 
-		     << tgcnum << " / " << rpcnum << endreq;
+		     << tgcnum << " / " << rpcnum << endmsg;
     } else {
       if ( (it_mui->first).substr(0,2) == "BA" )  { 
 	int baSecID = (it_mui->second).getSectorID(1)+32*(it_mui->second).getHemisphere();
@@ -1089,10 +1089,10 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	miTGCmismatch= true;
       } else {
 	ATH_MSG(WARNING) << "Invalid string label in MuCTPI to RPC/TGC map: " 
-			 << (it_mui->first).substr(0,2) << endreq;
+			 << (it_mui->first).substr(0,2) << endmsg;
       }
       ATH_MSG(WARNING) << "No Muctpi to RPC/TGC match found: MuCTPI key / MuCTPI BCID: " 
-		       << it_mui->first  << " / " << it_mui->second.getBCID() << endreq;
+		       << it_mui->first  << " / " << it_mui->second.getBCID() << endmsg;
     }
   }
 
@@ -1114,20 +1114,20 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 
   bool rpcMImismatch = false;
   // loop over RPC candidates and try to find match in Muctpi map
-  for (std::map<std::string, RpcSLTriggerHit*>::const_iterator it_rpc = rpcCandidates.begin(); 
+  for (std::map<std::string, const RpcSLTriggerHit*>::const_iterator it_rpc = rpcCandidates.begin(); 
        it_rpc != rpcCandidates.end(); ++it_rpc) {
     int muinum = muctpiCandidates.count(it_rpc->first); 
     if (muinum > 0) {
       ATH_MSG(DEBUG) << " RPC to Muctpi match found: RPC key / RPC BCID / # matches: "
 		     << it_rpc->first << " / " <<  it_rpc->second->rowinBcid()  << " / " 
-		     << muinum << endreq;
+		     << muinum << endmsg;
     } else {
       int idEnd = (it_rpc->first).find("-RoI");
       int secID = std::stoi((it_rpc->first).substr(2,idEnd-2));
       int roiID = (it_rpc->second)->roi();
       rpcNoMuCTPICandfound->Fill(roiID,secID);
       ATH_MSG(WARNING) << "No RPC to Muctpi  match found: RPC key / RPC BCID: " 
-		       << it_rpc->first << " / " <<  it_rpc->second->rowinBcid() << endreq;
+		       << it_rpc->first << " / " <<  it_rpc->second->rowinBcid() << endmsg;
       rpcMImismatch =true;
     }
   }
@@ -1140,12 +1140,12 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
   }
   bool tgcMImismatch = false;
   // loop over TGC candidates and try to find match in Muctpi map
-  for (std::map<std::string, Muon::TgcCoinData* >::const_iterator it_tgc = tgcCandidates.begin(); 
+  for (std::map<std::string, const Muon::TgcCoinData* >::const_iterator it_tgc = tgcCandidates.begin(); 
        it_tgc != tgcCandidates.end(); ++it_tgc) {
     int muinum = muctpiCandidates.count(it_tgc->first); 
     if (muinum > 0) {
       ATH_MSG(DEBUG) << "TGC to Muctpi match found: TGC key / TGC BCID / # matches: "
-		     << it_tgc->first  << " / " << (int)TgcDigit::BC_CURRENT << muinum << endreq;
+		     << it_tgc->first  << " / " << (int)TgcDigit::BC_CURRENT << muinum << endmsg;
     } else {
       int idEnd = (it_tgc->first).find("-RoI");
       int secID = std::stoi((it_tgc->first).substr(2,idEnd-2));
@@ -1157,9 +1157,9 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	tgcfwNoMuCTPICandfound->Fill(fwRoIID,secID);
       } else {
 	ATH_MSG(WARNING) << "Invalid string label in TGC to MuCTPI map: " 
-			 << (it_tgc->first).substr(0,2) << endreq;
+			 << (it_tgc->first).substr(0,2) << endmsg;
       }
-      ATH_MSG(WARNING) << "No TGC to Muctpi match found: TGC key: " << it_tgc->first << endreq;
+      ATH_MSG(WARNING) << "No TGC to Muctpi match found: TGC key: " << it_tgc->first << endmsg;
       tgcMImismatch =true;
     }
   }
@@ -1194,7 +1194,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
 
    if ( !errorSummary || !errorPerLumiBlock || !deltaBcid || !triggerType || !timeSinceLBStart || 
         !timeUntilLBEnd || !timeSinceL1A || !tcTimeError || !tcTimeErrorVsLb || !ctpStatus1 || !tav || !ctpStatus2 ) {
-      ATH_MSG(FATAL) << "Problems finding 1D histograms for CTP!" << endreq;
+      ATH_MSG(FATAL) << "Problems finding 1D histograms for CTP!" << endmsg;
       return;
    }
 
@@ -1204,7 +1204,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
   
    if ( !errorSummaryPerLumiBlock || !pitBC || !pitFirstBC ) {
       ATH_MSG(FATAL) << "Problems finding 2D histograms for CTP!"
-                     << endreq;
+                     << endmsg;
       return;
    }
 
@@ -1226,15 +1226,15 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
       if (m_currentLumiBlock != (theCTP_RIO->getDetectorEventType() & 0xffff)) {
          ATH_MSG(WARNING) << "LB number in EventInfo (" << m_currentLumiBlock 
                           << ") does not match the one in the CTP_RIO object (" 
-                          << (theCTP_RIO->getDetectorEventType() & 0xffff) << ")" << endreq;
+                          << (theCTP_RIO->getDetectorEventType() & 0xffff) << ")" << endmsg;
       }
     
-      //ATH_MSG(DEBUG) << getEventInfoString() << endreq;
+      //ATH_MSG(DEBUG) << getEventInfoString() << endmsg;
 
       if (m_currentLumiBlock > m_maxLumiBlock) m_maxLumiBlock = m_currentLumiBlock;
       if (m_currentLumiBlock < 1 || 
           (m_retrievedLumiBlockTimes && (find(m_lumiBlocks.begin(), m_lumiBlocks.end(), m_currentLumiBlock) == m_lumiBlocks.end()))) {
-         ATH_MSG(WARNING) << "Invalid lumi block: " << m_currentLumiBlock << endreq;
+         ATH_MSG(WARNING) << "Invalid lumi block: " << m_currentLumiBlock << endmsg;
          errorSummary->Fill(9,1);
          errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 9);
          errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1247,7 +1247,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
                ATH_MSG(WARNING) << "Event time (" << eventTime 
                                 << ") not within time interval for current lumi block (LB: " << m_currentLumiBlock 
                                 << ", start: " <<  m_lbStartTimes[m_currentLumiBlock] 
-                                << ", stop: " << m_lbEndTimes[m_currentLumiBlock] << ")" << endreq;
+                                << ", stop: " << m_lbEndTimes[m_currentLumiBlock] << ")" << endmsg;
                errorSummary->Fill(10,1);
                errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 10);
                errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1274,11 +1274,11 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
                   bcDurationInNs = 1./freqFromCool*1e9;
                }
                ATH_MSG(DEBUG) << "Will use BC interval calculated from frequency measurement(s) in COOL: f = " 
-                              << freqFromCool << " Hz => t_BC = " << bcDurationInNs << " ns" << endreq; 
+                              << freqFromCool << " Hz => t_BC = " << bcDurationInNs << " ns" << endmsg; 
             }
             else {
                ATH_MSG(DEBUG) << "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = " 
-                              << bcDurationInNs << " ns" << endreq; //TODO: make this a WARNING when everything is in place in COOL
+                              << bcDurationInNs << " ns" << endmsg; //TODO: make this a WARNING when everything is in place in COOL
             }
 
             // set the reference variables for the turn counter monitoring if this is the first processed event of the run/LB
@@ -1305,7 +1305,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
                       (m_dataTakingMode[m_currentLumiBlock] == true)) && 
                     (fabs(tDiffInNs) > 45000) ) { 
                   ATH_MSG(WARNING) << "Turn-counter based time off by " << tDiffInNs 
-                                   << " ns (> 0.5 LHC turn) during stable beams - missing orbit pulse?" << endreq;
+                                   << " ns (> 0.5 LHC turn) during stable beams - missing orbit pulse?" << endmsg;
                   errorSummary->Fill(16,1);
                   errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 16);
                   errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1317,14 +1317,14 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
                tcTimeErrorVsLb->Fill(m_currentLumiBlock, tDiffInNs/1e03);
             }
             else {
-               ATH_MSG(DEBUG) << "Turn counter = 0 for both first processed and current event, not filling TC histograms" << endreq;
+               ATH_MSG(DEBUG) << "Turn counter = 0 for both first processed and current event, not filling TC histograms" << endmsg;
             }
          }
       }
    }
 
    if (theCTP_RDO->getTimeNanoSec() > 1e09) {
-      ATH_MSG(WARNING) << "Nanosecond timestamp too large: " << theCTP_RDO->getTimeNanoSec() << endreq;
+      ATH_MSG(WARNING) << "Nanosecond timestamp too large: " << theCTP_RDO->getTimeNanoSec() << endmsg;
       errorSummary->Fill(11,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 11);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1348,7 +1348,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
       if (bcid_offset != 0) {
          if (!m_runOnESD) {
             ATH_MSG(WARNING) << "Found BCID offset of "<< bcid_offset << " between ROD Header (" 
-                             << headerBcid << ") and data (" << (bcid&0xf) << ")" << endreq;
+                             << headerBcid << ") and data (" << (bcid&0xf) << ")" << endmsg;
             errorSummary->Fill(1,1);
             errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 1);
             errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1410,7 +1410,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
          if ( (!bunchIndex) && (m_compareRerun) ) {//gives position of L1A
             StatusCode sc = compareRerun(*it);
             if ( sc.isFailure() ) {
-               ATH_MSG(WARNING) << "compareRerun() returned failure" << endreq;
+               ATH_MSG(WARNING) << "compareRerun() returned failure" << endmsg;
             }
          }
 
@@ -1445,25 +1445,25 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
       bool allTAPFine=true;
       bool allTAVFine=true;
       for ( unsigned int i=0; i<m_tapItems.size(); i++ ) {
-         ATH_MSG(DEBUG) << m_tapItems.at(i) << " TAP fired at BC " << m_tapBC.at(i) << endreq;
+         ATH_MSG(DEBUG) << m_tapItems.at(i) << " TAP fired at BC " << m_tapBC.at(i) << endmsg;
          bool isTBP=false;
          for ( unsigned int j=0; j<m_tbpItems.size() && isTBP==false; j++ ) {
             if ( m_tbpItems.at(j)==m_tapItems.at(i) && m_tbpBC.at(j)==m_tapBC.at(i) ) isTBP=true;
          }
          if ( isTBP==false ) {
             allTAPFine=false;
-            ATH_MSG(WARNING) << "TAP item " << m_tapItems.at(i) << " at BC " << m_tapBC.at(i) << " not found in TBP" << endreq;
+            ATH_MSG(WARNING) << "TAP item " << m_tapItems.at(i) << " at BC " << m_tapBC.at(i) << " not found in TBP" << endmsg;
          }
       }
       for ( unsigned int i=0; i<m_tavItems.size(); i++ ) {
-         ATH_MSG(DEBUG) << m_tavItems.at(i) << " TAV fired at BC " << m_tavBC.at(i) << endreq;
+         ATH_MSG(DEBUG) << m_tavItems.at(i) << " TAV fired at BC " << m_tavBC.at(i) << endmsg;
          bool isTAP=false;
          for ( unsigned int j=0; j<m_tapItems.size() && isTAP==false; j++ ) {
             if ( m_tapItems.at(j)==m_tavItems.at(i) && m_tapBC.at(j)==m_tavBC.at(i) ) isTAP=true;
          }
          if ( isTAP==false ) {
             allTAVFine=false;
-            ATH_MSG(WARNING) << "TAV item " << m_tavItems.at(i) << " at BC " << m_tavBC.at(i) << " not found in TAP" << endreq;
+            ATH_MSG(WARNING) << "TAV item " << m_tavItems.at(i) << " at BC " << m_tavBC.at(i) << " not found in TAP" << endmsg;
          }
       }
 
@@ -1496,11 +1496,11 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
       for ( unsigned int i = 0; i < triggersFired.size(); ++i ) {
          str << triggersFired[i] << " ";
       }
-      ATH_MSG(DEBUG) << triggersFired.size() << " trigger items fired: " << str.str() << endreq;
+      ATH_MSG(DEBUG) << triggersFired.size() << " trigger items fired: " << str.str() << endmsg;
    } 
    else {
       if (!m_runOnESD) {
-         ATH_MSG(WARNING) << "Zero bunches in CTP data for ext. LVL1 ID 0x" << MSG::hex << evId << MSG::dec << endreq;
+         ATH_MSG(WARNING) << "Zero bunches in CTP data for ext. LVL1 ID 0x" << MSG::hex << evId << MSG::dec << endmsg;
          errorSummary->Fill(2,1);
          errorSummary->Fill(m_currentLumiBlock, 2);
          errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1517,7 +1517,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
          if (vStatus[i] != 0) {
             TH1F_LW *hist = 0;
             if (i == 0) {
-               ATH_MSG(DEBUG) << "CTP error status word #" << i << ": 0x" << MSG::hex << vStatus[i] << MSG::dec << endreq;
+               ATH_MSG(DEBUG) << "CTP error status word #" << i << ": 0x" << MSG::hex << vStatus[i] << MSG::dec << endmsg;
                hist = ctpStatus1;
             } else if (i == 1) {
                hist = ctpStatus2;
@@ -1561,7 +1561,7 @@ doCtpMuctpi(const DataHandle<CTP_RDO> theCTP_RDO,
   TH1F_LW *headerBCIDDifference = getTH1("headerBCIDDifference");
   TH1F_LW *bcidDifference = getTH1("bcidDifference");
   if ( !errorSummary || !errorSummaryPerLumiBlock || !errorPerLumiBlock || !headerL1IdDifference || !headerBCIDDifference || !bcidDifference ) {
-    ATH_MSG(FATAL) << "Problems finding histograms for CTP_MuCTPI!" << endreq;
+    ATH_MSG(FATAL) << "Problems finding histograms for CTP_MuCTPI!" << endmsg;
     return;
   }
   if (theCTP_RIO && theMuCTPI_RIO) {
@@ -1576,7 +1576,7 @@ doCtpMuctpi(const DataHandle<CTP_RDO> theCTP_RDO,
     headerL1IdDifference->Fill(diffValEvid);
     headerBCIDDifference->Fill(diffValBcid);
     if (diffValBcid!=0) {
-      ATH_MSG(WARNING) << "BCID mismatch between CTP and MuCTPI RIOs, filling error histograms" << endreq;
+      ATH_MSG(WARNING) << "BCID mismatch between CTP and MuCTPI RIOs, filling error histograms" << endmsg;
       errorSummary->Fill(3,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 3);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1586,7 +1586,7 @@ doCtpMuctpi(const DataHandle<CTP_RDO> theCTP_RDO,
     if (diffValBcid < headerBCIDDifference->getXMin()
 	|| diffValBcid > headerBCIDDifference->getXMax()) {
       ATH_MSG(WARNING) << "BCID difference out of range. CTP_RODHeader_BCID: "
-		       << ctp_bcid << " MuCTPI_RODHeader_BCID: " << (muctpi_bcid) << endreq;      
+		       << ctp_bcid << " MuCTPI_RODHeader_BCID: " << (muctpi_bcid) << endmsg;      
     }
   }
   MuCTPI_MultiplicityWord_Decoder multWord(theMuCTPI_RDO->
@@ -1620,7 +1620,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
   TH1F_LW *nCandidates_secLoc = getTH1("nCandidates_secLoc");
 
   if ( !errorSummary || !errorSummaryPerLumiBlock || !errorPerLumiBlock || !roiEta || !roiPhi || !nCandidates_secLoc ) {
-    ATH_MSG(FATAL) << "Problems finding 1D histograms for RoI!" << endreq;
+    ATH_MSG(FATAL) << "Problems finding 1D histograms for RoI!" << endmsg;
     return;
   }
   TH2F_LW *roiEtaPhi = getTH2("roiEtaPhi");
@@ -1636,7 +1636,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
   if ( !roiEtaPhi || !barrelSectorIDRoi || !endcapSectorIDRoi || !forwardSectorIDRoi || 
        !barrelSectorIDRoiEta || !endcapSectorIDRoiEta || !forwardSectorIDRoiEta || 
        !barrelSectorIDRoiPhi || !endcapSectorIDRoiPhi || !forwardSectorIDRoiPhi ) {
-    ATH_MSG(FATAL) << "Problems finding 2D histograms for RoI!" << endreq;
+    ATH_MSG(FATAL) << "Problems finding 2D histograms for RoI!" << endmsg;
     return;
   }
 
@@ -1662,7 +1662,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
     for ( int i = 0; i < theMuCTPI_RIO->getNRoI(); i++ ) {
       if (!theMuCTPI_RIO->getRoI(i, bcId, pTval, pTnum, eta, phi, secID, sysID, hemisphere, 
 				 roInum, accepted, first, duplicatedRoI, duplicatedSector)) {
-	ATH_MSG(WARNING) << "RoI with index " << i  << " not found, skipping this RoI" << endreq;
+	ATH_MSG(WARNING) << "RoI with index " << i  << " not found, skipping this RoI" << endmsg;
 	continue;
       }
       roiEtaPhi->Fill(eta, phi);
@@ -1689,7 +1689,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
       if (isCand == false) {
 	ATH_MSG(WARNING) << "No DAQ muon for RoI number " 
 	    << roiVec[j].getRoiNumber() << ", pT " << roiVec[j].pt() << ", and sector ID " 
-	    << roiVec[j].getSectorID() << endreq;
+	    << roiVec[j].getSectorID() << endmsg;
 	errorSummary->Fill(7,1);
 	errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 7);
 	errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1743,7 +1743,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
     if (lvl2Expected != static_cast<int>(roiVec.size()) && lvl2Expected <= 14) {
       ATH_MSG(WARNING) << "Expected " << lvl2Expected
 	  << " LVL2 RoIs, but found " << roiVec.size()
-	  << "!" << endreq;
+	  << "!" << endmsg;
       errorSummary->Fill(6,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 6);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1751,7 +1751,7 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
     else if (static_cast<int>(roiVec.size()) != 14 && lvl2Expected >= 14) {
       ATH_MSG(WARNING) << "Expected 14 RoI's from " << lvl2Expected
 	  << " MuCTPI RoI's, but found " << roiVec.size()
-	  << "!" << endreq;
+	  << "!" << endmsg;
       errorSummary->Fill(6,1);
       errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 6);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1771,7 +1771,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
   TH1F_LW* l1ItemsBPSimMismatchItems = getTH1("l1ItemsBPSimMismatchItems");
 
   const CTP_RDO* theCTP_RDO_Rerun = 0;
-  ATH_MSG(DEBUG) << "Retrieving CTP_RDO from SG with key CTP_RDO_Rerun" << endreq;
+  ATH_MSG(DEBUG) << "Retrieving CTP_RDO from SG with key CTP_RDO_Rerun" << endmsg;
   CHECK( evtStore()->retrieve(theCTP_RDO_Rerun, "CTP_RDO_Rerun") );
   
   CTP_Decoder ctp_rerun;
@@ -1779,18 +1779,18 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
 
   const std::vector<CTP_BC> ctp_bc_rerun=ctp_rerun.getBunchCrossings();
   if (ctp_bc_rerun.size() != 1) {
-    ATH_MSG(ERROR) << "Rerun simulation has non unity number of bunch crossings " << endreq;
+    ATH_MSG(ERROR) << "Rerun simulation has non unity number of bunch crossings " << endmsg;
     return StatusCode::FAILURE;
   }
 
 
-  ATH_MSG(DEBUG) << "In compareRerun: dumping data for BC " << bunchCrossing.getBCID() << endreq;
+  ATH_MSG(DEBUG) << "In compareRerun: dumping data for BC " << bunchCrossing.getBCID() << endmsg;
   bunchCrossing.dumpData();
 
-  ATH_MSG(DEBUG) << "In compareRerun: dumping rerun data for BC 0" << endreq;
+  ATH_MSG(DEBUG) << "In compareRerun: dumping rerun data for BC 0" << endmsg;
   ctp_bc_rerun.at(0).dumpData();
   
-  ATH_MSG(DEBUG) << "Comparing TBP from CTP_RDO objects with keys CTP_RDO (from data) and CTP_RDO_Rerun (from simulation)" << endreq;
+  ATH_MSG(DEBUG) << "Comparing TBP from CTP_RDO objects with keys CTP_RDO (from data) and CTP_RDO_Rerun (from simulation)" << endmsg;
   
   const std::bitset<512> currentTBP(bunchCrossing.getTBP());
   const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP());
@@ -1810,7 +1810,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
       bool tbp_rerun = currentTBP_rerun.test( item->ctpId() );
       if ( tbp !=  tbp_rerun) {
          ATH_MSG(WARNING) << "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() << "' (CTP ID " << item->ctpId() << "): data=" 
-                         << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail") << endreq;
+                         << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail") << endmsg;
         Mismatch=1;
 	l1ItemsBPSimMismatch->Fill(item->ctpId(),1);
 	l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item->name()).c_str(), 1 );
@@ -1819,7 +1819,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
   }
 
   if (Mismatch) {
-    ATH_MSG(WARNING) << "Mismatch between CTP data and simulation" << endreq;
+    ATH_MSG(WARNING) << "Mismatch between CTP data and simulation" << endmsg;
     errorSummary->Fill(14,1);
     errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 14);
     errorPerLumiBlock->Fill(m_currentLumiBlock);
@@ -1846,12 +1846,12 @@ dumpData(const DataHandle<CTP_RDO> theCTP_RDO,
     multWord.dumpData();
     // MuCTPI candidate data
     MuCTPI_DataWord_Decoder dataWord(0);
-    ATH_MSG(DEBUG) << "MIOCT candidate data :" << endreq;
+    ATH_MSG(DEBUG) << "MIOCT candidate data :" << endmsg;
     std::vector<uint32_t>::const_iterator it =
       theMuCTPI_RDO->dataWord().begin();
     int count = 1;
     for ( ; it != theMuCTPI_RDO->dataWord().end(); ++it ) {
-      ATH_MSG(DEBUG) << "Candidate " << count << endreq;
+      ATH_MSG(DEBUG) << "Candidate " << count << endmsg;
       dataWord.setWord(*it);
       dataWord.dumpData();
       ++count;
@@ -1881,7 +1881,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::
 registerTH1(const std::string& histName, const std::string& histTitle, int nbins, float minX, float maxX) {
   HistMap_t::iterator it = m_histNames.find(histName);
   if (it != m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endreq;
+    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endmsg;
     return StatusCode::FAILURE;
   }
   TH1F_LW *hist = TH1F_LW::create(histName.c_str(), histTitle.c_str(), nbins, minX, maxX);
@@ -1895,7 +1895,7 @@ registerTProfile(const std::string& histName, const std::string& histTitle, int 
 		 float minX, float maxX, float minY, float maxY) {
   HistMap_t::iterator it = m_histNames.find(histName);
   if (it != m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endreq;
+    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endmsg;
     return StatusCode::FAILURE;
   }
   TProfile_LW *hist = TProfile_LW::create(histName.c_str(), histTitle.c_str(), nbins, minX, maxX, minY, maxY);
@@ -1909,7 +1909,7 @@ registerTH2(const std::string& histName, const std::string& histTitle, int nbins
 	    float minX, float maxX, int nbinsY, float minY, float maxY) {
   HistMap_t::iterator it = m_histNames.find(histName);
   if (it != m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endreq;
+    ATH_MSG(ERROR) << "Histogram " << histName << " already registered" << endmsg;
     return StatusCode::FAILURE;
   }
   TH2F_LW *hist = TH2F_LW::create(histName.c_str(), histTitle.c_str(), nbinsX, minX, maxX, nbinsY, minY, maxY);
@@ -1923,12 +1923,12 @@ getTH1(const char* histLabel) {
   m_tmpstr = histLabel;
   HistMap_t::iterator it = m_histNames.find(m_tmpstr);
   if (it == m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endreq;
+    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endmsg;
     return 0;
   }
   TH1F_LW* h = dynamic_cast<TH1F_LW*>(it->second);
   if (!h)
-    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TH1F_LW " << endreq;
+    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TH1F_LW " << endmsg;
   return h;
 }
 
@@ -1938,12 +1938,12 @@ getTH2(const char* histLabel) {
   m_tmpstr = histLabel;
   HistMap_t::iterator it = m_histNames.find(m_tmpstr);
   if (it == m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endreq;
+    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endmsg;
     return 0;
   }
   TH2F_LW* h = dynamic_cast<TH2F_LW*>(it->second);
   if (!h)
-    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TH2F_LW " << endreq;
+    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TH2F_LW " << endmsg;
   return h;
 }
 
@@ -1953,12 +1953,12 @@ getTProfile(const char* histLabel) {
   m_tmpstr = histLabel;
   HistMap_t::iterator it = m_histNames.find(m_tmpstr);
   if (it == m_histNames.end()) {
-    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endreq;
+    ATH_MSG(ERROR) << "Histogram under " << histLabel << " not found " << endmsg;
     return 0;
   }
   TProfile_LW* h = dynamic_cast<TProfile_LW*>(it->second);
   if (!h)
-    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TProfile_LW " << endreq;
+    ATH_MSG(ERROR) << "Problems converting histogram " << histLabel << " to TProfile_LW " << endmsg;
   return h;
 }
 
@@ -1971,10 +1971,10 @@ getCoolData(unsigned int runNumber) {
   CoraCoolDatabasePtr coradb;
   try {
     coradb = corasvc.openDatabase("COOLONL_TRIGGER/CONDBR2",true);
-    ATH_MSG(DEBUG) << "Database connection open OK" << endreq;
+    ATH_MSG(DEBUG) << "Database connection open OK" << endmsg;
   }
   catch (std::exception& e) {
-    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endreq;
+    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endmsg;
   }
   
   // get DB pointer
@@ -1984,7 +1984,7 @@ getCoolData(unsigned int runNumber) {
   //cool::IDatabasePtr cooldb = coradb->coolDatabase();
   //const std::vector<std::string>& folders = cooldb->listAllNodes();
   //for ( std::vector<std::string>::const_iterator itr = folders.begin(); itr != folders.end(); ++itr ) 
-  //  ATH_MSG(DEBUG) << *itr << endreq;
+  //  ATH_MSG(DEBUG) << *itr << endmsg;
 
   cool::ValidityKey since(runNumber);
   cool::ValidityKey until(since+1);
@@ -1998,11 +1998,11 @@ getCoolData(unsigned int runNumber) {
 
   cool::IFolderPtr lbTimeFolder;
   try {
-    ATH_MSG(DEBUG) << "Will now try to retrieve LB times in folder " << m_lbTimeCoolFolderName << endreq;
+    ATH_MSG(DEBUG) << "Will now try to retrieve LB times in folder " << m_lbTimeCoolFolderName << endmsg;
     lbTimeFolder = cooldb->getFolder(m_lbTimeCoolFolderName);
   }
   catch (cool::Exception& e) {
-    ATH_MSG(WARNING) << "Exception during cool:IDatabasePtr::getFolder(): " << e.what() << endreq;
+    ATH_MSG(WARNING) << "Exception during cool:IDatabasePtr::getFolder(): " << e.what() << endmsg;
     return;
   }
 
@@ -2010,7 +2010,7 @@ getCoolData(unsigned int runNumber) {
   //const cool::IRecordSpecification& spec = lbTimeFolder->payloadSpecification();
   //for ( unsigned int i = 0; i < spec.size(); ++i ) {
   //  ATH_MSG(WARNING) << "Payload column: " << spec[i].name() << " type: " << 
-  //    spec[i].storageType().name() << endreq;
+  //    spec[i].storageType().name() << endmsg;
   //}
 
   uint64_t stime = 0;
@@ -2026,7 +2026,7 @@ getCoolData(unsigned int runNumber) {
       uint32_t endRun = (obj.until() >> 32) & 0x7fffffff; // same here
       uint32_t endLumiBlock = (obj.until() & 0xffffffff);
       ATH_MSG(DEBUG) << "LB " << " since: run = " << startRun << ", LB = " << startLumiBlock << ", "
-		     << " until: run = " << endRun << ", LB = " << endLumiBlock << ")" << payload << endreq;
+		     << " until: run = " << endRun << ", LB = " << endLumiBlock << ")" << payload << endmsg;
       stime = payload["StartTime"].data<uint64_t>();
       etime=payload["EndTime"].data<uint64_t>();
       m_lumiBlocks.push_back(startLumiBlock);
@@ -2035,7 +2035,7 @@ getCoolData(unsigned int runNumber) {
     }
   }
   else {
-    ATH_MSG(DEBUG) << "No lumi block start and stop times found in COOL for this run!" << endreq;
+    ATH_MSG(DEBUG) << "No lumi block start and stop times found in COOL for this run!" << endmsg;
   }
 
   //--------------------------------//
@@ -2047,7 +2047,7 @@ getCoolData(unsigned int runNumber) {
     freqMeasFolder = cooldb->getFolder(m_rfPhaseCoolFolderName);
   }
   catch (cool::Exception& e) {
-    ATH_MSG(WARNING) << "Exception caught when retrieving LHC timing signal info from COOL: " << e.what() << endreq;
+    ATH_MSG(WARNING) << "Exception caught when retrieving LHC timing signal info from COOL: " << e.what() << endmsg;
   }
 
   double frequency = 0;
@@ -2057,16 +2057,16 @@ getCoolData(unsigned int runNumber) {
   if ( freqMeasObjects->size() != 0 ) {
     while ( freqMeasObjects->goToNext() ) {
       const cool::IObject& obj = freqMeasObjects->currentRef();
-      //ATH_MSG(WARNING) << obj << endreq;
+      //ATH_MSG(WARNING) << obj << endmsg;
       const cool::IRecord& payload = obj.payload();
       startTime = payload["StartTimeSeconds"].data<uint32_t>()*1e9+payload["StartTimeNanoSeconds"].data<uint32_t>();
       frequency = payload["FreqBCctp"].data<double>();
-      ATH_MSG(DEBUG) << "StartTime: " << startTime << " ns, FreqBCctp: " << frequency << " Hz" << endreq;
+      ATH_MSG(DEBUG) << "StartTime: " << startTime << " ns, FreqBCctp: " << frequency << " Hz" << endmsg;
       m_freqMeasurements[startTime] = frequency;
     }
   }
   else {
-    ATH_MSG(DEBUG) << "No frequency measurements found in COOL for this run!" << endreq;
+    ATH_MSG(DEBUG) << "No frequency measurements found in COOL for this run!" << endmsg;
   }
 
   // now fill the measured frequencies closest to the start of each LB
@@ -2074,7 +2074,7 @@ getCoolData(unsigned int runNumber) {
 	lbIt != m_lumiBlocks.end(); ++lbIt ) {
     double freq = getFrequencyMeasurement(m_lbStartTimes[*lbIt]);
     m_lbStartFreqMeasurements[*lbIt] = freq;
-    ATH_MSG(DEBUG) << "Frequency for LB " << *lbIt << " (start time: " << m_lbStartTimes[*lbIt] << "): " << freq << " Hz" << endreq;
+    ATH_MSG(DEBUG) << "Frequency for LB " << *lbIt << " (start time: " << m_lbStartTimes[*lbIt] << "): " << freq << " Hz" << endmsg;
   }
 
   //-------------------------------//
@@ -2084,21 +2084,21 @@ getCoolData(unsigned int runNumber) {
   // establish a connection to COOLOFL_DCS
   try {
     coradb = corasvc.openDatabase("COOLOFL_DCS/CONDBR2",true);
-    ATH_MSG(DEBUG) << "Database connection open OK" << endreq;
+    ATH_MSG(DEBUG) << "Database connection open OK" << endmsg;
   }
   catch (std::exception& e) {
-    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endreq;
+    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endmsg;
   }
   // get DB pointer
   cool::IDatabasePtr cooldb2 = coradb->coolDatabase();
   if(m_fillStateCoolFolderName!="Unavailable"){
     cool::IFolderPtr fillStateFolder;
     try {
-      ATH_MSG(DEBUG) << "Will now try to retrieve LHC fill state info in folder " << m_fillStateCoolFolderName << endreq;
+      ATH_MSG(DEBUG) << "Will now try to retrieve LHC fill state info in folder " << m_fillStateCoolFolderName << endmsg;
       fillStateFolder = cooldb2->getFolder(m_fillStateCoolFolderName);
     }
     catch (cool::Exception& e) {
-      ATH_MSG(WARNING) << "Exception from cool::IDatabasePtr::getFolder(): " << e.what() << endreq;
+      ATH_MSG(WARNING) << "Exception from cool::IDatabasePtr::getFolder(): " << e.what() << endmsg;
     return;
     }
     
@@ -2117,7 +2117,7 @@ getCoolData(unsigned int runNumber) {
 	  startTime = obj.since();
 	  endTime = obj.until();
 	  ATH_MSG(DEBUG) << "BEAM MODE: " << currentBeamMode << ", start time: " 
-			 << startTime << ", stop time: " << endTime << endreq;
+			 << startTime << ", stop time: " << endTime << endmsg;
 	  
 	  // fill the beam mode map, cases ordered by how often they appear
 	  if (!strcmp(currentBeamMode.c_str(), "RAMP"))
@@ -2161,7 +2161,7 @@ getCoolData(unsigned int runNumber) {
 	  else {
 	    m_beamMode[startTime] = UNKNOWN;
 	    ATH_MSG(WARNING) << "Unknown LHC beam mode read from COOL: " << payload["BeamMode"] 
-			     << " (will treat as unstable)" << endreq;
+			     << " (will treat as unstable)" << endmsg;
 	  }
 	  // fill an entry with unknown after the validity of the last real entry is over
 	  m_beamMode[endTime] = UNKNOWN;
@@ -2176,12 +2176,12 @@ getCoolData(unsigned int runNumber) {
 	
 	while (bm != m_beamMode.end()) {
 	  currentBeamMode = bm->second;
-	  ATH_MSG(DEBUG) << "Beam mode at time " << bm->first << ": " << currentBeamMode << endreq;
+	  ATH_MSG(DEBUG) << "Beam mode at time " << bm->first << ": " << currentBeamMode << endmsg;
 	  if (currentBeamMode == previousBeamMode) {
 	    previousbm = bm;
 	    ++bm;
 	    m_beamMode.erase(previousbm);
-	    ATH_MSG(DEBUG) << " => Removing!" << endreq;
+	    ATH_MSG(DEBUG) << " => Removing!" << endmsg;
 	  }
 	  else {
 	    ++bm;
@@ -2190,15 +2190,15 @@ getCoolData(unsigned int runNumber) {
 	}
       }
       else {
-	ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run!" << endreq;
+	ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run!" << endmsg;
       }
     }
     else{ //cool publication is not available
-      ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run as folder is unavailable!" << endreq;
+      ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run as folder is unavailable!" << endmsg;
     }
   }
   else{ //no lumi block available
-    ATH_MSG(DEBUG) << "No lumi block available for this run!" << endreq;
+    ATH_MSG(DEBUG) << "No lumi block available for this run!" << endmsg;
   }
 
   //-----------------------------------------------//
@@ -2208,10 +2208,10 @@ getCoolData(unsigned int runNumber) {
   // establish a connection to COOLOFL_DCS
   try {
     coradb = corasvc.openDatabase("COOLONL_TDAQ/CONDBR2",true);
-    ATH_MSG(DEBUG) << "Database connection open OK" << endreq;
+    ATH_MSG(DEBUG) << "Database connection open OK" << endmsg;
   }
   catch (std::exception& e) {
-    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endreq;
+    ATH_MSG(WARNING) << "Problem opening CORAL database:" << e.what() << endmsg;
   }
   // get DB pointer
   cool::IDatabasePtr cooldb3 = coradb->coolDatabase();
@@ -2220,7 +2220,7 @@ getCoolData(unsigned int runNumber) {
     dataTakingModeFolder = cooldb3->getFolder(m_dataTakingModeCoolFolderName);
   }
   catch (cool::Exception& e) {
-    ATH_MSG(WARNING) << "Exception caught when retrieving ATLAS data taking mode info from COOL: " << e.what() << endreq;
+    ATH_MSG(WARNING) << "Exception caught when retrieving ATLAS data taking mode info from COOL: " << e.what() << endmsg;
   }
 
   uint32_t readyForPhysics = 0;
@@ -2236,7 +2236,7 @@ getCoolData(unsigned int runNumber) {
       ATH_MSG(DEBUG) << "Current entry "
 		       << " since: run = " << startRun << ", LB = " << startLumiBlock << ", "
 		       << " until: run = " << endRun << ", LB = " << endLumiBlock << ")"
-		       << payload << endreq;
+		       << payload << endmsg;
       readyForPhysics = payload["ReadyForPhysics"].data<uint32_t>();
       if (readyForPhysics == 0)
 	m_dataTakingMode[startLumiBlock] = false;
@@ -2244,13 +2244,13 @@ getCoolData(unsigned int runNumber) {
 	m_dataTakingMode[startLumiBlock] = true;
 	if (readyForPhysics != 1) {
 	  ATH_MSG(WARNING) << "ReadyForPhysics is neither 0 nor 1, retrieved value was: " 
-			   << readyForPhysics << " => will interpret as true" << endreq;
+			   << readyForPhysics << " => will interpret as true" << endmsg;
 	}
       }
     }
   }
   else {
-    ATH_MSG(DEBUG) << "No data taking mode info found in COOL for this run!" << endreq;
+    ATH_MSG(DEBUG) << "No data taking mode info found in COOL for this run!" << endmsg;
   }
 
   // now clean out all the entries that repeat the previous data taking mode and only keep the ones where it changes
@@ -2262,12 +2262,12 @@ getCoolData(unsigned int runNumber) {
   
   while (dtm != m_dataTakingMode.end()) {
     currentDataTakingMode = dtm->second;
-    ATH_MSG(DEBUG) << "Data taking mode starting at LB " << dtm->first << ": " << currentDataTakingMode << endreq;
+    ATH_MSG(DEBUG) << "Data taking mode starting at LB " << dtm->first << ": " << currentDataTakingMode << endmsg;
     if (currentDataTakingMode == previousDataTakingMode && dtm != m_dataTakingMode.begin()) { // don't remove 1st
       previousdtm = dtm;
       ++dtm;
       m_dataTakingMode.erase(previousdtm);
-      ATH_MSG(DEBUG) << " => Removing!" << endreq;
+      ATH_MSG(DEBUG) << " => Removing!" << endmsg;
     }
     else {
       ++dtm;
@@ -2301,7 +2301,7 @@ double TrigT1CTMonitoring::BSMonitoring::getFrequencyMeasurement(uint64_t eventT
     fm = freqMeasBefore;
 
   ATH_MSG(DEBUG) << "Closest frequency measurement for time " << eventTimeInNs 
-		 << "): " << fm->second << " Hz (at " << fm->first << ")" << endreq;
+		 << "): " << fm->second << " Hz (at " << fm->first << ")" << endmsg;
   return fm->second;
 }
 
@@ -2313,6 +2313,6 @@ TrigT1CTMonitoring::BeamMode TrigT1CTMonitoring::BSMonitoring::getBeamMode(uint6
   if ( bm != m_beamMode.begin() && bm != m_beamMode.end() ) {
     beamMode = (--bm)->second;
   }
-  ATH_MSG(DEBUG) << "Beam mode at time " << eventTimeInNs << ": " << beamMode << endreq;
+  ATH_MSG(DEBUG) << "Beam mode at time " << eventTimeInNs << ": " << beamMode << endmsg;
   return beamMode;
 }

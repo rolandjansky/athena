@@ -91,8 +91,8 @@ namespace TrigT1CTMonitoring {
 
    private:
     
-      std::vector<std::string> par_atrlist;   
-      std::vector<std::string> par_atrcollist;
+      std::vector<std::string> m_par_atrlist;   
+      std::vector<std::string> m_par_atrcollist;
     
    }; 
 }
