@@ -98,7 +98,7 @@
     </TEST>
     
 
-    
+    <!--
     <TEST name="McAtNloHerwigpp" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test MC@NLO+Herwig++</doc>
       <classification>
@@ -110,7 +110,7 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
-   
+    -->
 
     
     <TEST name="AlpgenJimmy" type="script" suite="EvgenJobTransforms-Core">
