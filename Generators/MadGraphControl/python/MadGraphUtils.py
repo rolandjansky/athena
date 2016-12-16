@@ -1104,6 +1104,11 @@ def add_lifetimes(process_dir=None,threshold=None):
 
     mglog.info('Finished adding time of flight information at '+str(time.asctime()))
 
+    # Put the file back where we found it
+    lhe = glob(process_dir+'/Events/*/*lhe')[0]
+    rezip = subprocess.Popen(['gzip',lhe])
+    rezip.wait()
+
     return True
 
 
