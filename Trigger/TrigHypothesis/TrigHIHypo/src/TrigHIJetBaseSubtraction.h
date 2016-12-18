@@ -13,22 +13,22 @@
 namespace HLT {
   class TriggerElement;
 }
-using namespace HLT;
+//using namespace HLT;
 
 /**
  * @brief Algorithms making correcting of jet Et depending of centrality of HI event
  * The centrality is estimated by the ammount of total energy.
  **/
-class TrigHIJetBaseSubtraction : public virtual FexAlgo{
+class TrigHIJetBaseSubtraction : public virtual HLT::FexAlgo{
 public:
   TrigHIJetBaseSubtraction(const std::string & name, ISvcLocator* pSvcLocator);
   virtual ~TrigHIJetBaseSubtraction();
 
-  virtual ErrorCode hltInitialize();
-  virtual ErrorCode hltFinalize();  
-  virtual ErrorCode hltExecute(const TriggerElement* input, 
-			       TriggerElement* output);  
-  virtual ErrorCode hltEndEvent();
+  virtual HLT::ErrorCode hltInitialize();
+  virtual HLT::ErrorCode hltFinalize();  
+  virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, 
+			       HLT::TriggerElement* output);  
+  virtual HLT::ErrorCode hltEndEvent();
 private:
 
   std::string m_label;

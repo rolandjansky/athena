@@ -71,7 +71,7 @@ class TrigHIEFTrackHypo : public HLT::HypoAlgo {
 
   // functions to retrieve monitored quantities
 
-  const Rec::TrackParticleContainer* TrkParticleCont; //!<  pointer to TrackParticle container
+  const Rec::TrackParticleContainer* m_TrkParticleCont; //!<  pointer to TrackParticle container
   int m_numTrkPartIn;
   int m_numTrkPartOut;
 

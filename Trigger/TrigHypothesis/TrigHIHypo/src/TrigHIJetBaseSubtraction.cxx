@@ -72,7 +72,7 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
   if (m_jet_background<0) {
       const LVL1::RecEnergyRoI* lvl1_energyRoi = 0;
       if(msgLvl() <= MSG::DEBUG) 
-        msg() << MSG::DEBUG << "Retrieving Total Energy" << endreq;
+        msg() << MSG::DEBUG << "Retrieving Total Energy" << endmsg;
 	  
 	  HLT::Navigation* nav = config()->getNavigation();
       HLT::TriggerElement* initial = nav->getInitialNode();
@@ -83,7 +83,7 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
 		}
 	  }
       if(!lvl1_energyRoi) {
-		msg() << MSG::WARNING << "No RecEnergyRoI object found!  Aborting" << endreq;
+		msg() << MSG::WARNING << "No RecEnergyRoI object found!  Aborting" << endmsg;
 		return HLT::NAV_ERROR;
       }
       // Original SumET is in ~ GeV units (scale factor will be contained in LVL1ConfigSvc at one point ...) *1000 ->MeV
@@ -97,27 +97,27 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
   if(msgLvl() <= MSG::DEBUG) {
     const TrigRoiDescriptor* roiDescriptor(0);
     if( getFeature(input, roiDescriptor, "initialRoI") != HLT::OK && roiDescriptor )
-      msg() << MSG::DEBUG << "executing Jet Base subtraction on RoI :" << *roiDescriptor << endreq;
+      msg() << MSG::DEBUG << "executing Jet Base subtraction on RoI :" << *roiDescriptor << endmsg;
   }
 
   const TrigT2Jet* in_jet(0);
   ErrorCode ec = getFeature(output, in_jet);  
   if ( ec != OK ) {
-    msg() << MSG::WARNING << "retrieving jet on roi failed" << endreq;
+    msg() << MSG::WARNING << "retrieving jet on roi failed" << endmsg;
     return ec;
   }
   
   if ( !in_jet ) {
     // some INFO message that jet is missing
     if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "No jet in RoI for subtraction"  << endreq;
+      msg() << MSG::DEBUG << "No jet in RoI for subtraction"  << endmsg;
     return OK;
   }
   
   if(msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Original jet" << *in_jet  << endreq;    
+    msg() << MSG::DEBUG << "Original jet" << *in_jet  << endmsg;    
 
-  if(msgLvl() <= MSG::DEBUG) msg() <<MSG::DEBUG << "Jet background before calib.: " << m_jet_background << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() <<MSG::DEBUG << "Jet background before calib.: " << m_jet_background << endmsg;
   	 	
   //Background weight   	
   for(int i=0; i < m_Bgnbin_eta;++i) {
@@ -128,7 +128,7 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
   } 
   m_jet_weighted_background = m_jet_background * m_BgWeights[m_ieta];
   if(msgLvl() <= MSG::DEBUG){
-  	msg() <<MSG::DEBUG << "Jet background after calib.: " << m_jet_weighted_background << endreq;
+  	msg() <<MSG::DEBUG << "Jet background after calib.: " << m_jet_weighted_background << endmsg;
   }
    
   //Jet energy correction  
@@ -136,7 +136,7 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
   if ( out_jet ) {
     ec = attachFeature(output, out_jet, m_label);
     if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Subtracted jet attached" << *out_jet  << endreq;
+      msg() << MSG::DEBUG << "Subtracted jet attached" << *out_jet  << endmsg;
   }
   
   //Just for monitoring purpose
@@ -148,11 +148,11 @@ ErrorCode TrigHIJetBaseSubtraction::hltExecute(const TriggerElement* input,
   return OK;
 }
 
-TrigT2Jet* TrigHIJetBaseSubtraction::corrected(const TrigT2Jet* in, double m_background ) const {
+TrigT2Jet* TrigHIJetBaseSubtraction::corrected(const TrigT2Jet* in, double background ) const {
   TrigT2Jet* base_subtracted = new TrigT2Jet(*in);
   base_subtracted->setGrid(0);
   //Jet E has to be transfered in to Et before subtraction and than back
-  base_subtracted->setE((in->e()/cosh(in->eta()) - m_background)*cosh(in->eta())); 
+  base_subtracted->setE((in->e()/cosh(in->eta()) - background)*cosh(in->eta())); 
   return base_subtracted;
 }
 

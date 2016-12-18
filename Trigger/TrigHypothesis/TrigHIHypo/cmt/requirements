@@ -31,6 +31,7 @@ use CaloEvent           CaloEvent-*             Calorimeter
 use CaloInterface       CaloInterface-*         Calorimeter
 use HIGlobal            HIGlobal-*              Reconstruction/HeavyIonRec
 use AthenaBaseComps     AthenaBaseComps-*       Control
+use AthenaKernel        AthenaKernel-*          Control
 use xAODHIEvent         xAODHIEvent-*           Event/xAOD
 use xAODMuon            xAODMuon-*              Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD

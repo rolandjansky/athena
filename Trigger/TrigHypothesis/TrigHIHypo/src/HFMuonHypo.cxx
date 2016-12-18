@@ -41,10 +41,10 @@ HLT::ErrorCode HFMuonHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
   //std::cout<<"TEST "<<event++<<std::endl;
 
   //Get Muon Container
-  const xAOD::MuonContainer* m_muons=nullptr;
+  const xAOD::MuonContainer* muons=nullptr;
   HLT::ErrorCode statusMuons;
-  statusMuons=getFeature(outputTE,m_muons);
-  if(statusMuons== HLT::OK && m_muons!=nullptr){
+  statusMuons=getFeature(outputTE,muons);
+  if(statusMuons== HLT::OK && muons!=nullptr){
     ATH_MSG_DEBUG("Got MuonContainer object successfully");
   }
   else {
@@ -83,7 +83,7 @@ HLT::ErrorCode HFMuonHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
 
   //loop over all muons asd check if one of them meets the criteria
   //to pass the trigger
-  for(auto Muon : *m_muons){
+  for(auto Muon : *muons){
     //User only combined muons
     if(Muon->muonType() !=xAOD::Muon::MuonType::Combined) continue;
 

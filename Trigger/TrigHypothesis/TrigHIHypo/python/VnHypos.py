@@ -60,7 +60,7 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 303, 2))]
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 553, 2))]
 
 ########################################################################################
 # V2
@@ -138,13 +138,13 @@ class V2HypoAssym(VnHypo):
         self.CentralityBins = _EtCuts_v2_assym 
         if side == "A":
             self.MinEta=3.2 
-            self.QxShifts = [0.00289428]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.00369803]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.00171448]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0.00382335]*len(_EtCuts_v2_assym)
 
         elif side == "C":
             self.MaxEta=-3.2
-            self.QxShifts = [-0.0015]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0.0039]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.00217681]*len(_EtCuts_v2_assym)
+            self.QyShifts = [-0.00227773]*len(_EtCuts_v2_assym) # what a precission! :-) this is copy paste
         else:
             raise 'The V2 hypothesis algorithm is insufficiently configured, no FCal side specified '
 
@@ -212,25 +212,25 @@ V2C_th0p.QThresholds = generateAssymVnThresholds( 10, 0, _EtCuts_v2_assym)
 V2C_th0p.AthenaMonTools += [ VnBootstrap(name="VnBootstrap", harmonic=2), QZeroMonitoring(name="QZeroMonitoring", harmonic=2, qmax=2) ]
 
 V2C_th005p = V2HypoAssym("V2C_th005p", "C")
-V2C_th005p.QThresholds = generateAssymVnThresholds( 0.3043, -7.20e-07  , _EtCuts_v2_assym)
+V2C_th005p.QThresholds = generateAssymVnThresholds( 0.316655, -8.2129e-07  , _EtCuts_v2_assym)
                                                                        
 V2C_th01p = V2HypoAssym("V2C_th01p", "C")                              
-V2C_th01p.QThresholds = generateAssymVnThresholds(  0.280792, -6.50e-07, _EtCuts_v2_assym)
+V2C_th01p.QThresholds = generateAssymVnThresholds( 0.273325, -6.05744e-07, _EtCuts_v2_assym)
                                                                        
 V2C_th025p = V2HypoAssym("V2C_th025p", "C")                            
-V2C_th025p.QThresholds = generateAssymVnThresholds( 0.22820, -4.09e-07, _EtCuts_v2_assym)
+V2C_th025p.QThresholds = generateAssymVnThresholds( 0.228979, -4.38362e-07, _EtCuts_v2_assym)
                                                                        
 V2C_th05p = V2HypoAssym("V2C_th05p", "C")                              
-V2C_th05p.QThresholds = generateAssymVnThresholds(  0.194324, -2.90e-07, _EtCuts_v2_assym)
+V2C_th05p.QThresholds = generateAssymVnThresholds(  0.208411, -4.26355e-07, _EtCuts_v2_assym)
                                                                        
 V2C_th10p = V2HypoAssym("V2C_th10p", "C")                              
-V2C_th10p.QThresholds = generateAssymVnThresholds(  0.174735, -2.93e-07, _EtCuts_v2_assym)
+V2C_th10p.QThresholds = generateAssymVnThresholds(  0.18202, -3.76357e-07, _EtCuts_v2_assym)
                                                                        
 V2C_th15p = V2HypoAssym("V2C_th15p", "C")                              
-V2C_th15p.QThresholds = generateAssymVnThresholds(  0.151147, -2.12e-07,  _EtCuts_v2_assym)
+V2C_th15p.QThresholds = generateAssymVnThresholds(  0.164986, -3.42278e-07,  _EtCuts_v2_assym)
                                                                        
 V2C_th20p = V2HypoAssym("V2C_th20p", "C")                              
-V2C_th20p.QThresholds = generateAssymVnThresholds(  0.140162, -2.03e-07, _EtCuts_v2_assym)
+V2C_th20p.QThresholds = generateAssymVnThresholds(  0.151113, -3.11194e-07, _EtCuts_v2_assym)
 
 V2C_thresholds = {"1": V2C_th1, "2": V2C_th2, "3": V2C_th3, 
                   "0p": V2C_th0p,

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloInterface
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Event/xAOD/xAODHIEvent
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
