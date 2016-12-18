@@ -38,6 +38,8 @@ TauFilter::TauFilter( const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "Ptcutlep_tight_lead", m_pTminlep_tight_lead = 7000.0 );
   declareProperty( "Ptcuthad_tight", m_pTminhad_tight = 12000.0 );
   declareProperty( "Ptcuthad_tight_lead", m_pTminhad_tight_lead = 12000.0 );
+
+  declareProperty( "filterEventNumber", m_filterEventNumber = 0 );
 }
 
 
@@ -128,6 +130,17 @@ StatusCode TauFilter::filterEvent() {
 
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+    int eventNumber = (*itr)->event_number();
+    //ATH_MSG_INFO("eventNumber = " << eventNumber);
+    if(m_filterEventNumber==1 && (eventNumber%2)==0) {
+      setFilterPassed(false);
+      return StatusCode::SUCCESS;
+    }
+    else if(m_filterEventNumber==2 && (eventNumber%2)==1) {
+      setFilterPassed(false);
+      return StatusCode::SUCCESS;
+    }
+    
     const HepMC::GenEvent* genEvt = (*itr);
     HepMC::WeightContainer wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;

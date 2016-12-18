@@ -86,6 +86,7 @@
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
 #include "GeneratorFilters/TripletChainFilter.h"
 #include "GeneratorFilters/TransverseMassVVFilter.h"
+#include "GeneratorFilters/ZHWWLeptonPairMassFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -173,6 +174,7 @@ DECLARE_ALGORITHM_FACTORY(MissingEtFilter)
 DECLARE_ALGORITHM_FACTORY(TrimuMassRangeFilter)
 DECLARE_ALGORITHM_FACTORY(TripletChainFilter)
 DECLARE_ALGORITHM_FACTORY(TransverseMassVVFilter)
+DECLARE_ALGORITHM_FACTORY(ZHWWLeptonPairMassFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -260,4 +262,5 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(TrimuMassRangeFilter)
     DECLARE_ALGORITHM(TripletChainFilter)
     DECLARE_ALGORITHM(TransverseMassVVFilter)
+    DECLARE_ALGORITHM(ZHWWLeptonPairMassFilter)
 }

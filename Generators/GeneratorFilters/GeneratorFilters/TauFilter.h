@@ -50,6 +50,7 @@ private:
   double m_pTminlep_tight_lead;
   double m_pTminhad_tight;
   double m_pTminhad_tight_lead;
+  int m_filterEventNumber;
   
   double m_events[6];
   double m_events_sel[6];

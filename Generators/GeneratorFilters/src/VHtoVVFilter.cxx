@@ -13,25 +13,31 @@ VHtoVVFilter::VHtoVVFilter(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("PDGParent", m_PDGParent);
   declareProperty("PDGHVChild1", m_PDGHVChild1);
   declareProperty("PDGHVChild2", m_PDGHVChild2);
+  declareProperty("PDGAssocV", m_PDGAssocV=0);
   declareProperty("PDGAssocVChild", m_PDGAssocVChild);
-  
+  declareProperty("StatusIntermediateHardScatter", m_StatusIntermediateHardScatter=3); // Pythia would be 22....
   m_nVHtoVV = 0;
   m_nGoodVHtoVV = 0;
 }
 
 
 StatusCode VHtoVVFilter::filterInitialize() {
-  ATH_MSG_INFO("PDGGrandParent(H) = " << m_PDGGrandParent);
-  ATH_MSG_INFO("PDGParent(V)      = " << m_PDGParent);
-  if (m_PDGHVChild1.empty()) ATH_MSG_ERROR("PDGHVChild1[] not set ");
-  if (m_PDGHVChild2.empty()) ATH_MSG_ERROR("PDGHVChild2[] not set ");
-  if (m_PDGAssocVChild.empty()) ATH_MSG_ERROR("PDGAssocVChild[] not set ");
-  for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
-    ATH_MSG_INFO("PDGHVChild1[" << i << "] = " << m_PDGHVChild1[i]);
-  for (size_t i = 0; i < m_PDGHVChild2.size(); ++i)
-    ATH_MSG_INFO("PDGHVChild2[" << i << "] = " << m_PDGHVChild2[i]);
-  for (size_t i = 0; i < m_PDGAssocVChild.size(); ++i)
-    ATH_MSG_INFO("PDGAssocVChild[" << i << "] = " << m_PDGAssocVChild[i]);
+  ATH_MSG_INFO("PDGGrandParent(H)       = " << m_PDGGrandParent);
+  ATH_MSG_INFO("PDGParent(V)            = " << m_PDGParent);
+  if (m_PDGAssocV == 0) { m_PDGAssocV = m_PDGParent; }
+  ATH_MSG_INFO("PDGAssoc[=V by default] = " << m_PDGAssocV);
+  if (m_PDGHVChild1.empty()) { ATH_MSG_ERROR("PDGHVChild1[] not set "); }
+  for (size_t i = 0; i < m_PDGHVChild1.size(); ++i) {
+    ATH_MSG_INFO("PDGHVChild1[" << i << "]          = " << m_PDGHVChild1[i]);
+  }
+  if (m_PDGHVChild2.empty()) { ATH_MSG_ERROR("PDGHVChild2[] not set "); }
+  for (size_t i = 0; i < m_PDGHVChild2.size(); ++i) {
+    ATH_MSG_INFO("PDGHVChild2[" << i << "]          = " << m_PDGHVChild2[i]);
+  }
+  if (m_PDGAssocVChild.empty()) { ATH_MSG_ERROR("PDGAssocVChild[] not set "); }
+  for (size_t i = 0; i < m_PDGAssocVChild.size(); ++i) {
+    ATH_MSG_INFO("PDGAssocVChild[" << i << "]       = " << m_PDGAssocVChild[i]);
+  }
 
   // Init counters
   m_nVHtoVV = 0;
@@ -51,81 +57,67 @@ StatusCode VHtoVVFilter::filterFinalize() {
 
 
 StatusCode VHtoVVFilter::filterEvent() {
-  bool okPDGHVChild1 = false;
-  bool okPDGHVChild2 = false;
-  bool okPDGAssocVChild = false;
   int nHiggsParent = 0;
   int nVParent = 0;
+  int nHV1Like(0), nHV2Like(0), nHVVLike(0), nVassocLike(0);
 
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
-      // Loop over particles from the primary interaction that match the PDG Parent
-      if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
+      // Loop over intermediate particles from the primary interaction
+      if ( (*pitr)->status() == m_StatusIntermediateHardScatter) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
-        bool isGrandParentHiggs = false;
-        bool isGrandParentV = false;
-        for (; thisMother != endMother; ++thisMother) { //loop over chain of grandparents
-          ATH_MSG_DEBUG(" Parent " << (*pitr)->pdg_id() << " barcode = "   << (*pitr)->barcode() << " status = "  << (*pitr)->status());
-          ATH_MSG_DEBUG(" a Parent mother "  << (*thisMother)->pdg_id()<< " barc = " << (*thisMother)->barcode());
-          if ( (*thisMother)->pdg_id() == m_PDGGrandParent ) isGrandParentHiggs = true; else isGrandParentV = true;
+
+        // Is this a V from a Higgs? Is it an associated V
+        bool isGrandParentHiggs(false), isAssociatedV(false);
+        if( (abs((*pitr)->pdg_id()) == m_PDGParent) || (abs((*pitr)->pdg_id()) == m_PDGAssocV) ) {
+          ATH_MSG_DEBUG("Found hard-scatter V [" << (*pitr)->pdg_id() << "] with barcode = " << (*pitr)->barcode() << " status = "  << (*pitr)->status());
+          for (; thisMother != endMother; ++thisMother) { // loop over chain of grandparents
+            ATH_MSG_DEBUG("  ... with a mother ["  << (*thisMother)->pdg_id()<< "] with barcode = " << (*thisMother)->barcode());
+            if ( (*thisMother)->pdg_id() == m_PDGGrandParent ) { isGrandParentHiggs = true; }
+          }
+          if (!isGrandParentHiggs & (abs((*pitr)->pdg_id()) == m_PDGAssocV)) { isAssociatedV = true; }
         }
-        ATH_MSG_DEBUG(" Grand Parent is Higgs? " << isGrandParentHiggs);
-        ATH_MSG_DEBUG(" Grand Parent is V? " << isGrandParentV);
 
-        if (!isGrandParentHiggs && !isGrandParentV) continue;
-
+        // Check H->VV decays
         if (isGrandParentHiggs) {
-          ++nHiggsParent;
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          HepMC::GenVertex::particle_iterator thisChild = firstChild;
-          for (; thisChild != endChild; ++thisChild) {
-            ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
-            if (!okPDGHVChild1) {
-              for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
-              if (okPDGHVChild1) break;
-            }
-            if (!okPDGHVChild2) {
-              for (size_t i = 0; i < m_PDGHVChild2.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
-              if (okPDGHVChild2) break;
-            }
-          }
-        } //end of higgs grandparent loop
+          ATH_MSG_DEBUG("  * from a Higgs decay *"); ++nHiggsParent;
+          // ... proceed down the decay chain until this doesn't have a V as a child
+          HepMC::GenParticle* lastVInChain = lastDecayWithSamePDGID(*pitr);
+          ATH_MSG_DEBUG("  ... moved down to final V before decay with barcode " << lastVInChain->barcode() << " status = "  << lastVInChain->status() );
+          // ... check decays
+          bool decaysLikeChild1 = allChildrenInList(lastVInChain, m_PDGHVChild1);
+          bool decaysLikeChild2 = allChildrenInList(lastVInChain, m_PDGHVChild2);
+          ATH_MSG_DEBUG(" decays like child 1? " << (decaysLikeChild1 ? "YES" : "NO") << " and like child 2? " << (decaysLikeChild2 ? "YES" : "NO"));
+          if (decaysLikeChild1) { ++nHV1Like; }
+          if (decaysLikeChild2) { ++nHV2Like; }
+          if (decaysLikeChild1 || decaysLikeChild2) { ++nHVVLike; }
+        }
 
-        if (isGrandParentV) {
-          ++nVParent;
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          HepMC::GenVertex::particle_iterator thisChild = firstChild;
-          for (; thisChild != endChild; ++thisChild) {
-            ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
-            if (!okPDGAssocVChild) {
-              for (unsigned int i=0;i<m_PDGAssocVChild.size();++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
-              if (okPDGAssocVChild) break;
-            }
-
-          }
-        }  //end of v grandparent loop
-
-
+        // Check V decays for V not coming from Higgs
+        if (isAssociatedV) {
+          ATH_MSG_DEBUG("  * from associated production *"); ++nVParent;
+          // ... proceed down the decay chain until this doesn't have a V as a child
+          HepMC::GenParticle* lastVInChain = lastDecayWithSamePDGID(*pitr);
+          ATH_MSG_DEBUG("  ... moved down to final V before decay with barcode " << lastVInChain->barcode() << " status = "  << lastVInChain->status() );
+          // ... check decays
+          if( allChildrenInList(lastVInChain, m_PDGAssocVChild) ) { ++nVassocLike; }
+        }
       } //end good parent loop
     }
   }
 
-  ATH_MSG_DEBUG("Result " << nHiggsParent << " " << okPDGHVChild1 << " " << okPDGHVChild2);
-  ATH_MSG_DEBUG("Result " << nVParent << " " << okPDGAssocVChild);
+  ATH_MSG_DEBUG("Found " << nHiggsParent << " H->V of which " << nHV1Like << " decay like V1 and " << nHV2Like << " decay like V2");
+  ATH_MSG_DEBUG("Found " << nVParent << " V of which " << nVassocLike<< " decay like associated V");
 
-  if (nHiggsParent == 2 && nVParent >= 1) ++m_nVHtoVV;
+  if (nHiggsParent == 2 && nVParent >= 1) { ++m_nVHtoVV; }
 
-  if (nHiggsParent == 2 && okPDGHVChild1 && okPDGHVChild2 && nVParent==1 && okPDGAssocVChild) {
+  if (nHiggsParent == 2 && (nHV1Like >= 1) && (nHV2Like >= 1) && (nHVVLike >= 2) && // at least one H->V decaying each way with at least 2 in total
+      nVParent == 1 && (nVassocLike >= 1)) { // at least one V decaying like the associated one
     ++m_nGoodVHtoVV;
     return StatusCode::SUCCESS;
   }
@@ -133,4 +125,33 @@ StatusCode VHtoVVFilter::filterEvent() {
   // If we get here we have failed
   setFilterPassed(false);
   return StatusCode::SUCCESS;
+}
+
+bool VHtoVVFilter::allChildrenInList(HepMC::GenParticle* particle, std::vector<int> childPDGIDs) {
+  HepMC::GenVertex::particle_iterator firstChild = particle->end_vertex()->particles_begin(HepMC::children);
+  HepMC::GenVertex::particle_iterator endChild = particle->end_vertex()->particles_end(HepMC::children);
+  HepMC::GenVertex::particle_iterator thisChild = firstChild;
+  int nGoodChildren(0), nBadChildren(0);
+  ATH_MSG_DEBUG("  checking children against provided list");
+  for (; thisChild != endChild; ++thisChild) {
+    bool thisChildOK = false;
+    for (unsigned int i=0;i<childPDGIDs.size();++i) {
+      if (abs((*thisChild)->pdg_id()) == childPDGIDs[i]) { thisChildOK = true; }
+    }
+    ATH_MSG_DEBUG("    ... child with PDGID: " << (*thisChild)->pdg_id() << ", status: " << (*thisChild)->status() << "? " << (thisChildOK ? "PASS" : "FAIL"));
+    if (thisChildOK) { ++nGoodChildren; }
+    else { ++nBadChildren; }
+  }
+  ATH_MSG_DEBUG("  => found " << nGoodChildren << " good children and " << nBadChildren << " bad children");
+  return (nGoodChildren > 0 && nBadChildren == 0);
+}
+
+HepMC::GenParticle* VHtoVVFilter::lastDecayWithSamePDGID(HepMC::GenParticle* particle) {
+  HepMC::GenVertex::particle_iterator firstChild = particle->end_vertex()->particles_begin(HepMC::children);
+  HepMC::GenVertex::particle_iterator endChild = particle->end_vertex()->particles_end(HepMC::children);
+  HepMC::GenVertex::particle_iterator thisChild = firstChild;
+  for (; thisChild != endChild; ++thisChild) {
+    if ((*thisChild)->pdg_id() == particle->pdg_id() ) { return lastDecayWithSamePDGID(*thisChild); }
+  }
+  return particle;
 }
