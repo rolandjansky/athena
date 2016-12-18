@@ -98,21 +98,13 @@ StatusCode PixelNoisyCellGenerator::initialize() {
 
   ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
-
-
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelNoisyCellGenerator::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 // process the collection of diode collection
@@ -154,8 +146,7 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
   //
   // get pixel module design and check it
   //
-  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.design()));
-  if (!p_design) return;
+  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign*>(&(collection.design()));
 
   //
   // compute number of noisy cells
@@ -210,7 +201,7 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
     ATH_MSG_DEBUG ( "**********************");
     
     const InDetDD::SiDetectorElement* element = m_pixMgr->getDetectorElement(moduleHash);
-    const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    const InDetDD::PixelModuleDesign* p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
     
     unsigned int FE_Type = 0;
     if ( p_design->getReadoutTechnology()!=PixelModuleDesign::FEI3 ) FE_Type = 1; // FE_Type = 1 for FEI4. ITK ?
@@ -258,8 +249,7 @@ void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collectio
   //
   // get pixel module design and check it
   //
-  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign *>(&(collection.design()));
-  if (!p_design) return;
+  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&(collection.design()));
 
   //
   // compute number of noisy cells

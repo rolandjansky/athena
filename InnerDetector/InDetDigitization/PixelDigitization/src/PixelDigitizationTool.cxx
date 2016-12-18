@@ -403,11 +403,8 @@ bool PixelDigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDio
 
   // create the identifier for the collection:
   ATH_MSG_DEBUG ( "create ID for the hit collection" );
-  const PixelID* PID = dynamic_cast<const PixelID*>(m_detID);
-  if (PID==0) {
-    ATH_MSG_ERROR ( "expected a PixelID but failed..." );
-    return false;
-  }
+  const PixelID* PID = static_cast<const PixelID*>(m_detID);
+
   const TimedHitPtr<SiHit>& firstHit = *i;
   int Barrel = firstHit->getBarrelEndcap();
   Identifier id = PID->wafer_id(Barrel,firstHit->getLayerDisk(),firstHit->getPhiModule(),firstHit->getEtaModule());
@@ -692,10 +689,6 @@ StatusCode PixelDigitizationTool::initTools() {
     }
     if (m_diodesProcsTool[itool].name()=="SpecialPixelGenerator") {
       m_specialPixelGenerator = dynamic_cast<SpecialPixelGenerator*>(m_diodesProcsTool[itool].operator->());
-      if (m_specialPixelGenerator) {
-        m_specialPixelGenerator->setnPixTot(m_detID->pixel_hash_max());
-        m_specialPixelGenerator->setnModTot(m_detID->wafer_hash_max());
-      }
     }
 
   }
@@ -775,7 +768,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   // Determine the Pixel Region (IBL, BL, L1, L2, EC, DBM, ITk 5th layer), to be used for latency, ToT cut and duplication:
   //
 
-  const PixelID* pixelId = dynamic_cast<const PixelID *>(collection->element()->getIdHelper());
+  const PixelID* pixelId = static_cast<const PixelID *>(collection->element()->getIdHelper());
   int barrel_ec  = pixelId->barrel_ec(collection->element()->identify());
 
   int layerIndex = pixelId->layer_disk(collection->element()->identify());
@@ -783,7 +776,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   if (abs(barrel_ec)==2) { layerIndex=4; }  // disks
   if (abs(barrel_ec)==4) { layerIndex=5; }  // DBM
 
-  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection->element())->design());
+  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign*>(&(collection->element())->design());
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   int maxFEI4SmallHit = 2;
   int nSmallHitsFEI4 = 0;
@@ -854,7 +847,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       // - ToT for that reference value
 
       if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI4) {
-        const PixelID* pixelId = dynamic_cast<const PixelID *>(collection->element()->getIdHelper());
+        const PixelID* pixelId = static_cast<const PixelID *>(collection->element()->getIdHelper());
         if (pixelId->is_dbm(collection->element()->identify())) {
           nToT = 8*((*i_chargedDiode).second.charge() - 1200. )/(8000. - 1200.);
         }

@@ -46,7 +46,24 @@ PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& ty
   m_doPU(true),                        
   m_BichselSimTool("BichselSimTool"),
   m_OutputFileName("EnergyDeposition.root"),
-  m_doHITPlots(false)
+  m_doHITPlots(false),
+  f_output(0),
+  h_Length(0),
+  h_hitTime(0),
+  h_EnergyDepositionBichsel(0),
+  h_EnergyDepositionNominal(0),
+  h_EnergyDepositionDeltaRay(0),
+  h_EnergyDepositionDeltaRay_Bichsel(0),
+  h_EnergyDepositionDeltaRay_Nominal(0),
+  h_isRealBichsel_DeltaRay(0),
+  h_isRealBichsel_Primary(0),
+  h_largestEnergyDeposition(0),
+  h_twolargestEnergyDeposition(0),
+  h_timer_execute(0),
+  h_timer_BichselSim(0),
+  h_timer_DigiLayer(0),
+  h_timer_diffuse(0),
+  h_hitCategory(0)
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelBarrel");
 	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelBarrel");
@@ -72,24 +89,15 @@ PixelBarrelBichselChargeTool::~PixelBarrelBichselChargeTool()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelBarrelBichselChargeTool::initialize() {
-  StatusCode sc = SubChargesTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelBarrelBichselChargeTool::initialize() failed");
-    return sc ;
-  }
 
+  CHECK(SubChargesTool::initialize()); 
   ATH_MSG_INFO("You are using PixelBarrelBichselChargeTool, not PixelBarrelChargeTool");
 
-  if(m_doBichsel){
+  if (m_doBichsel) {
     ATH_MSG_INFO("Bichsel Digitization is turned ON in PixelBarrelBichselChargeTool!");
-
-    sc = m_BichselSimTool.retrieve();
-    if(sc.isFailure()){
-      ATH_MSG_FATAL("Fail to retrieve BichselSimTool in PixelBarrelBichselChargeTool!");
-      return sc;
-    }
+    CHECK(m_BichselSimTool.retrieve());
   }
-  else{
+  else {
     ATH_MSG_INFO("Bichsel Digitization is turned OFF in PixelBarrelBichselChargeTool!");
   }
 
@@ -172,25 +180,20 @@ StatusCode PixelBarrelBichselChargeTool::initialize() {
   }
 
   ATH_MSG_DEBUG ( "PixelBarrelBichselChargeTool::initialize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelBarrelBichselChargeTool::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelBarrelBichselChargeTool::finalize() failed");
-    return sc ;
-  }
 
   if(m_doHITPlots){
     f_output->Write();
   }
 
   ATH_MSG_DEBUG ( "PixelBarrelBichselChargeTool::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------

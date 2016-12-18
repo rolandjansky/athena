@@ -53,31 +53,20 @@ BichselSimTool::~BichselSimTool()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode BichselSimTool::initialize() {
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("BichselSimTool::initialize() failed");
-    return sc;
-  } 
-
-  
-  //** define your initialize below **//
+  CHECK(AthAlgTool::initialize());
 
   // random svc
-  if ( m_rndmSvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( " Can't get RndmSvc " );
-    return StatusCode::FAILURE;
-  } else { 
-    ATH_MSG_DEBUG ( "Retrieved RndmSvc" );
-  }
+  CHECK(m_rndmSvc.retrieve());
 
   // get the random stream
   ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
     return StatusCode::FAILURE;
-  } else { 
-    ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
+  }
+  else {
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
   }
 
   // clear data table
@@ -104,8 +93,8 @@ StatusCode BichselSimTool::initialize() {
 
     if(!inputFile.is_open()){
       ATH_MSG_FATAL("Fail to load file " << inputFileName.Data() << " !");
-      sc = StatusCode::FAILURE;
-      continue;
+      ATH_MSG_FATAL("BichselSimTool::initialize() failed");
+      return StatusCode::FAILURE;
     }
 
     // prepare data
@@ -152,24 +141,15 @@ StatusCode BichselSimTool::initialize() {
 
   ATH_MSG_INFO("Finish Loading Data File");
 
-  return sc; 
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode BichselSimTool::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "BichselSimTool::finalize() failed");
-    return sc ;
-  }
-
-  //** define your finalize below **//
-
-
   ATH_MSG_DEBUG ( "BichselSimTool::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //-----------------------------------------------------------
@@ -478,8 +458,8 @@ double BichselSimTool::GetColE(std::pair<int,int> indices_BetaGammaLog10, double
 
   // BetaGammaLog10_2 then
   std::pair<int,int> indices_IntXLog10_x2 = FastSearch(iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second], IntXLog10);
-  if( (indices_IntXLog10_x2.first==-1) && (indices_IntXLog10_x2.second==-1) )
-    return -1;
+  if (indices_IntXLog10_x2.first<0)  { return -1; }
+  if (indices_IntXLog10_x2.second<0) { return -1; }
   double y21 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first];
   double y22 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second];
   double Est_x2 = ((y22 - IntXLog10)*iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first] + (IntXLog10 - y21)*iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second])/(y22-y21);
@@ -508,13 +488,8 @@ double BichselSimTool::GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, 
   //   indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
   // }
 
-  if( (indices_BetaGammaLog10.first==-1) && (indices_BetaGammaLog10.second==-1) ){
-    // std::cout << "++++++++++++++" << std::endl;
-    // std::cout << BetaGammaLog10 << std::endl;
-    // std::cout << iData.Array_BetaGammaLog10[0] << " , " << iData.Array_BetaGammaLog10.back() << std::endl;
-
-    return -1.;
-  }
+  if (indices_BetaGammaLog10.first<0)  { return -1; }
+  if (indices_BetaGammaLog10.second<0) { return -1; }
   double BetaGammaLog10_1 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.first];
   double BetaGammaLog10_2 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.second];
 

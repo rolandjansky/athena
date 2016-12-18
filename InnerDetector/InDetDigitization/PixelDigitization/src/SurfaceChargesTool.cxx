@@ -42,14 +42,14 @@ SurfaceChargesTool::SurfaceChargesTool(const std::string& type, const std::strin
   m_IblPlanarChargeTool("IblPlanarChargeTool"),
   m_Ibl3DChargeTool("Ibl3DChargeTool"),
   m_IBLParameterSvc("IBLParameterSvc",name)
-  { 
-	declareInterface< SurfaceChargesTool >( this );
-	declareProperty("PixelBarrelChargeTool", m_PixelBarrelChargeTool,   "PixelBarrelChargeTool");
-	declareProperty("PixelECChargeTool", m_PixelECChargeTool,   "PixelECChargeTool");
-	declareProperty("IblPlanarChargeTool", m_IblPlanarChargeTool,   "IblPlanarChargeTool");
-	declareProperty("Ibl3DChargeTool", m_Ibl3DChargeTool,   "Ibl3DChargeTool");
-	declareProperty("DBMChargeTool", m_DBMChargeTool,   "DBMChargeTool");
-        declareProperty("doITk", m_doITk,   "Phase-II upgrade ITk flag");
+{ 
+  declareInterface< SurfaceChargesTool >( this );
+  declareProperty("PixelBarrelChargeTool", m_PixelBarrelChargeTool,   "PixelBarrelChargeTool");
+  declareProperty("PixelECChargeTool", m_PixelECChargeTool,   "PixelECChargeTool");
+  declareProperty("IblPlanarChargeTool", m_IblPlanarChargeTool,   "IblPlanarChargeTool");
+  declareProperty("Ibl3DChargeTool", m_Ibl3DChargeTool,   "Ibl3DChargeTool");
+  declareProperty("DBMChargeTool", m_DBMChargeTool,   "DBMChargeTool");
+  declareProperty("doITk", m_doITk,   "Phase-II upgrade ITk flag");
 }
 
 class DetCondCFloat;

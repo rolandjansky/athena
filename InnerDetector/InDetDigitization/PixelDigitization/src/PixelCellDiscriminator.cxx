@@ -75,20 +75,14 @@ StatusCode PixelCellDiscriminator::initialize() {
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelCellDiscriminator::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelCellDiscriminator::finalize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelCellDiscriminator::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 // process the collection of charged diodes
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
   bool ComputeTW = false;
-  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.element()->design()));
+  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign*>(&(collection.element()->design()));
   if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
     ComputeTW = true;
   }

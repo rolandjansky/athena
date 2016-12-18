@@ -108,13 +108,7 @@ StatusCode SpecialPixelGenerator::initialize() {
 // finalize
 //----------------------------------------------------------------------
 StatusCode SpecialPixelGenerator::finalize() {
-  StatusCode sc = AthAlgTool::finalize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "SpecialPixelGenerator::finalize() failed" );
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "SpecialPixelGenerator::finalize()" );
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 void SpecialPixelGenerator::updatePixelMap(){
@@ -232,7 +226,7 @@ int SpecialPixelGenerator::fillSpecialPixels( double prob, unsigned int status, 
 //     }
 
     const InDetDD::SiDetectorElement* element = m_pixMgr->getDetectorElement(idHash);
-    const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    const InDetDD::PixelModuleDesign* p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
     
     int nChips = p_design->numberOfCircuits();
     int nCols  = p_design->columnsPerCircuit();

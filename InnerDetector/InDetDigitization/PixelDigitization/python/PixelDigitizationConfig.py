@@ -232,7 +232,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Start of special cosmics tuning:
     if jobproperties.Beam.beamType == "cosmics" :
         kwargs.setdefault("UseComTime", True)
-        kwargs.setdefault("PixelConditionsSummarySvc", "")
     if GeometryFlags.isSLHC():
         LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
         ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
