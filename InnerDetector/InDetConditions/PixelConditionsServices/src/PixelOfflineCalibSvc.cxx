@@ -44,7 +44,8 @@ PixelOfflineCalibSvc::PixelOfflineCalibSvc(const std::string& name, ISvcLocator*
   m_sgSvc("StoreGateSvc",name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_HitDiscCnfg(2),
-  m_HDCfromCOOL(true)
+  m_HDCfromCOOL(true),
+  m_pixid(0)
 {
   //  template for property declaration
   declareProperty("StoreGateSvc"   , m_sgSvc);
@@ -90,7 +91,7 @@ StatusCode PixelOfflineCalibSvc::initialize() {
     CHECK(m_pixelCabling.retrieve());
     ATH_MSG_INFO("Retrieved service " << m_pixelCabling);
 
-    CHECK(m_detStore->retrieve(m_pixel_id,"PixelID"));
+    CHECK(m_detStore->retrieve(m_pixid,"PixelID"));
     ATH_MSG_INFO("Retrieved Pixel ID helper");
 
     CHECK(m_IBLParameterSvc.retrieve());
@@ -441,7 +442,7 @@ double PixelOfflineCalibSvc::getEndcapDeltaY() const {
 }
 
 int PixelOfflineCalibSvc::getIBLToToverflow() const {
-  int overflow;
+  int overflow = 16;
   if( m_HitDiscCnfg == 0 ) overflow = 14;
   if( m_HitDiscCnfg == 1 ) overflow = 15;
   if( m_HitDiscCnfg == 2 ) overflow = 16;
@@ -454,7 +455,7 @@ int PixelOfflineCalibSvc::getIBLToToverflow(Identifier*) const
 {
   // The version with pixel identifier is the same as without identifier. In case it is needed in the future, it should be recoded.
    
-  int overflow;
+  int overflow = 16;
   if( m_HitDiscCnfg == 0 ) overflow = 14;
   if( m_HitDiscCnfg == 1 ) overflow = 15;
   if( m_HitDiscCnfg == 2 ) overflow = 16;
@@ -469,7 +470,7 @@ void PixelOfflineCalibSvc::readHDC() {
   std::vector<int> HDCOccurence(5,0);
   for( int phi_index = 0; phi_index < 14; phi_index++ ){
     for( int eta_index = -10; eta_index < 10; eta_index++ ){
-      Identifier  thiswafer = m_pixel_id->wafer_id(0,0,phi_index,eta_index);
+      Identifier  thiswafer = m_pixid->wafer_id(0,0,phi_index,eta_index);
       uint32_t maxFE = 2;
       if( eta_index < -6 || eta_index > 5 )maxFE = 1;
       for( uint32_t FE_index = 0; FE_index < maxFE; FE_index++ ){

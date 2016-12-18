@@ -103,7 +103,7 @@ class PixelOfflineCalibSvc : public AthService, virtual public IPixelOfflineCali
       int m_HitDiscCnfg;
       bool m_HDCfromCOOL;
     
-      const PixelID* m_pixel_id;
+      const PixelID* m_pixid;
     }; 
 
 #endif 

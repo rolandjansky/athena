@@ -25,10 +25,11 @@ PixelTDAQSvc::PixelTDAQSvc(const std::string& name, ISvcLocator* sl):
   m_print(0),
   m_modulelistkey("/TDAQ/EnabledResources/ATLAS/PIXEL/Modules"),
   m_atrlistcol(0),
+  m_pixelID(0),
   m_first_lumiblock_filled(false),
   m_print_disabled(true),
   m_always_disabled_module_name("L2_B11_S1_A6_M4A")
-  {
+{
 
   m_all_modules.clear();
   m_disabled_modules.clear();
@@ -62,42 +63,22 @@ StatusCode PixelTDAQSvc::initialize(){
 
   ATH_MSG_INFO("Initializing PixelTDAQSvc");
 
-  StatusCode sc = m_detStore.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve detector store");
-    return StatusCode::FAILURE;
-  }
-  sc = m_pc.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve pc");
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_detStore.retrieve()); 
+  CHECK(m_pc.retrieve());
+
   //Register callback to update the list of modules
   //whenever the CondAttrListCollection is updated from the Database
   const DataHandle<CondAttrListCollection> attrListColl;
-  sc = m_detStore->regFcn(&IPixelTDAQSvc::IOVCallBack,
-                          dynamic_cast<IPixelTDAQSvc*>(this),
-                          attrListColl, m_modulelistkey);
+  CHECK(m_detStore->regFcn(&IPixelTDAQSvc::IOVCallBack,dynamic_cast<IPixelTDAQSvc*>(this),attrListColl,m_modulelistkey));
 
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to register callback");
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_detStore->retrieve( m_pixelID, "PixelID" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_detStore->retrieve(m_pixelID,"PixelID"));
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelTDAQSvc::finalize(){
-
+StatusCode PixelTDAQSvc::finalize() {
   ATH_MSG_INFO("Finalizing PixelTDAQSvc");
-  if(m_print_disabled)
-    print_disabled_modules();
+  if (m_print_disabled) { print_disabled_modules(); }
   return StatusCode::SUCCESS;
 }
 
@@ -109,13 +90,8 @@ StatusCode PixelTDAQSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
   for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
     ATH_MSG_DEBUG("IOVCALLBACK for key " << *key << " number " << I<<"\n\t\t\t\t\t-----mtst-----\n");
 
-
   //usig TDAQ
-  StatusCode sc = m_detStore->retrieve(m_atrlistcol, m_modulelistkey);
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve CondAttrListCollection");
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_detStore->retrieve(m_atrlistcol,m_modulelistkey));
 
   //update m_disabled_modules
   m_disabled_modules.clear();

@@ -904,7 +904,7 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
   unsigned int idhash; 
   if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
   else if(isIBL){ 
-    if(m_dummy || IdentifierHash(moduleID)>2048){
+    if(m_dummy || IdentifierHash(moduleID)>m_pixelID->wafer_hash_max()){
       //	    continue (useful to transport the old DB to new DB with IBL!;
       int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
       unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;

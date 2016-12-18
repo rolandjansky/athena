@@ -31,7 +31,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
+//static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
 
 /*
 static unsigned int rowsPerFEI3    = 164;   // number of rows per FEI3
@@ -44,15 +44,15 @@ static unsigned int rowsPerFEI4 = 336; // number of rows per FEI4
 */
 
 static unsigned int columnsPerFEI50 = 132; // number of columns per FEI5-type 0 (132x672) for barrel layer 0
-static unsigned int rowsPerFEI50 = 672; // number of rows per FEI50
+//static unsigned int rowsPerFEI50 = 672; // number of rows per FEI50
 
 static unsigned int columnsPerFEI52 = 132; // number of columns per FEI5-type 2 (132x672) for barrel layer 1 
-static unsigned int rowsPerFEI52 = 678; // number of rows per FEI52
+//static unsigned int rowsPerFEI52 = 678; // number of rows per FEI52
 static unsigned int rowsFGangedFEI52  =661;   // first ganged pixel row for FEI52
 static unsigned int rowsLGangedFEI52  =671;   // last ganged pixel row for FEI52
 
 static unsigned int columnsPerFEI51 = 80; // number of columns per FEI5-type 1 (80x336) for the rest 
-static unsigned int rowsPerFEI51 = 339; // number of rows per FEI51
+//static unsigned int rowsPerFEI51 = 339; // number of rows per FEI51
 static unsigned int rowsFGangedFEI51  =331;   // first ganged pixel row for FEI51
 static unsigned int rowsLGangedFEI51  =335;   // last ganged pixel row for FEI51
 
@@ -169,7 +169,7 @@ StatusCode PixelCalibSvc::finalize()
 int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const {
 
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
 
   // local row and col of ith circuit(0-15) 
   // each circuit contains 160 rows and 18 columns 
@@ -206,15 +206,15 @@ int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const 
 int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id, int &circ) const {
 
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
 
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+  //int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
 
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+  //int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int col;
   int row;
@@ -293,14 +293,14 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
 int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_id) const {
 
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
 
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+  //int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+  //int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int circ(-1);
   if (isITK) {
@@ -401,7 +401,7 @@ int PixelCalibSvc::gangedType(int row, int col, int columnsPerFE, int rowsFGange
 int PixelCalibSvc::getThreshold(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_discrThresh : m_discrThreshIBL; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getThreshold(type);
@@ -431,7 +431,7 @@ int PixelCalibSvc::getThreshold(const Identifier& pix_id) const {
 int PixelCalibSvc::getThresholdSigma(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_discrThreshSigma; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getThresholdSigma(type);
@@ -462,7 +462,7 @@ int PixelCalibSvc::getThresholdSigma(const Identifier& pix_id) const {
 int PixelCalibSvc::getNoise(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_noiseThresh; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getNoise(type);
@@ -492,7 +492,7 @@ int PixelCalibSvc::getNoise(const Identifier& pix_id) const {
 int PixelCalibSvc::getTimeWalk(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_intimeThresh : m_intimeThreshIBL; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getTimeWalk(type);
@@ -522,7 +522,7 @@ int PixelCalibSvc::getTimeWalk(const Identifier& pix_id) const {
 float PixelCalibSvc::getQ2TotA(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_totparA; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2TotA(type);
@@ -552,7 +552,7 @@ float PixelCalibSvc::getQ2TotA(const Identifier& pix_id) const {
 float PixelCalibSvc::getQ2TotE(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_totparE; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2TotE(type);
@@ -582,7 +582,7 @@ float PixelCalibSvc::getQ2TotE(const Identifier& pix_id) const {
 float PixelCalibSvc::getQ2TotC(const Identifier& wafer_id, int irow, int icol, int circ) const {
   if (m_disableDb) { return m_totparC; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   int type = PixelType(wafer_id,irow,icol); 
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2TotC(type);
@@ -612,7 +612,7 @@ float PixelCalibSvc::getQ2TotC(const Identifier& pix_id) const {
 float PixelCalibSvc::getTotP1(const Identifier& wafer_id, int circ) const {
   if (m_disableDb) { return m_totparP1; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getTotP1();
   }
@@ -640,7 +640,7 @@ float PixelCalibSvc::getTotP1(const Identifier& pix_id) const {
 float PixelCalibSvc::getTotP2(const Identifier& wafer_id, int circ) const {
   if (m_disableDb) { return m_totparP2; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getTotP2();
   }
@@ -668,7 +668,7 @@ float PixelCalibSvc::getTotP2(const Identifier& pix_id) const {
 float PixelCalibSvc::getTotRes(const Identifier& wafer_id, int circ, float Q) const {
   if (m_disableDb) { return m_totparP1+m_totparP2*Q; }
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   if (m_dbTool->getCalibPtr(wafer_id) && circ<p_design->numberOfCircuits()) { 
     return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getTotRes(Q);
   }
@@ -730,7 +730,7 @@ float PixelCalibSvc::getCharge(const Identifier& pix_id, float ToT) const {
 
   Identifier wafer_id = m_pixid->wafer_id(pix_id);
   const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
   float charge = 0.0;
   if (m_pixid->is_dbm(wafer_id)) {
     charge = ToT/8.0*(8000.0-1200.0)+1200.0;
@@ -742,7 +742,7 @@ float PixelCalibSvc::getCharge(const Identifier& pix_id, float ToT) const {
     float termA = getQ2TotA(pix_id);
     float termE = getQ2TotE(pix_id);
     float termC = getQ2TotC(pix_id);
-    if (termA!=0.0 && ToT/termA!=1.0) {
+    if (fabs(termA)>0.0 && fabs(ToT/termA-1.0)>0.0) {
       charge = (termC*ToT/termA-termE)/(1.0-ToT/termA);
     }
   }
