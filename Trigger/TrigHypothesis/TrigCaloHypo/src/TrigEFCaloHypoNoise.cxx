@@ -60,13 +60,13 @@ TrigEFCaloHypoNoise::~TrigEFCaloHypoNoise()
 HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+	  << ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
 
@@ -82,13 +82,13 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
   m_timeTagPosRec = 0;
 
   if ( m_noisyROTool.retrieve().isFailure() ){
-	msg() << MSG::WARNING << "Could not retrieve tool, no noise burst hunting" << endreq;
+	msg() << MSG::WARNING << "Could not retrieve tool, no noise burst hunting" << endmsg;
 	return HLT::OK;
   }
 
   auto cfact = hltinterface::ContainerFactory::getInstance();
   if ( cfact ) {
-      msg() << MSG::DEBUG << "Got the factory for TDAQ interface, will try to register vectors" << endreq;
+      msg() << MSG::DEBUG << "Got the factory for TDAQ interface, will try to register vectors" << endmsg;
       try {
           m_IsObject = cfact->constructContainer("LArISInfo_"+name(),"LArNoiseBurstCandidates");
           m_evntPos = cfact->addIntVector(m_IsObject,"Flag",hltinterface::GenericHLTContainer::LASTVALUE);
@@ -98,7 +98,7 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
           m_isInterface = true;
       }
       catch (std::exception& ex ) {
-	  msg() << MSG::WARNING << "Cannot really use ISInfo publication. got exception " << ex.what() << endreq;
+	  msg() << MSG::WARNING << "Cannot really use ISInfo publication. got exception " << ex.what() << endmsg;
           m_isInterface = false;
       }
   } // if cfact
@@ -111,8 +111,8 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
 HLT::ErrorCode TrigEFCaloHypoNoise::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
   return HLT::OK;
 
 }
@@ -136,39 +136,39 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
   const CaloCellContainer* outCells(0);
   HLT::ErrorCode ec = getFeature(outputTE, outCells);
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get CellCollections " << endreq;
+    msg() << MSG::WARNING << " Failed to get CellCollections " << endmsg;
     return ec;
   }
 
   
   unsigned int flag = 0;
   if ( outCells ) {
-	if ( msgDebug ) msg() << MSG::DEBUG << "Got cell container, will process it" << endreq;
+	if ( msgDebug ) msg() << MSG::DEBUG << "Got cell container, will process it" << endmsg;
 	std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(outCells);
-	if ( msgDebug ) msg() << MSG::DEBUG << "processed it" << endreq;
+	if ( msgDebug ) msg() << MSG::DEBUG << "processed it" << endmsg;
         if ( noisyRO->BadFEBFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEBFlaggedPartitions" << endreq;
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEBFlaggedPartitions" << endmsg;
 	      flag |= 0x1;
         }
         if ( noisyRO->BadFEB_WFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEB_WFlaggedPartitions" << endreq;
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEB_WFlaggedPartitions" << endmsg;
 	      flag |= 0x8;
         }
         if ( noisyRO->SatTightFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endreq;
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endmsg;
 	      flag |= 0x2;
         }
         if ( noisyRO->MNBLooseFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endreq;
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endmsg;
 	      flag |= 0x10;
         }
         if ( noisyRO->MNBTightFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBTightFlaggedPartions" << endreq;
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBTightFlaggedPartions" << endmsg;
 	      flag |= 0x20;
         }
   } // end of if outCells
 
-  if ( msgDebug ) msg() << MSG::DEBUG << "got the flag : " << (unsigned int)flag << endreq;
+  if ( msgDebug ) msg() << MSG::DEBUG << "got the flag : " << (unsigned int)flag << endmsg;
   
 
 
@@ -176,12 +176,12 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
 	if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise detected : ";
 	pass = true;
   }
-        else if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endreq;
+        else if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endmsg;
 
   const xAOD::EventInfo* evt;
   if ( (store()->retrieve(evt)).isFailure() ) {
-  	msg(MSG::DEBUG) << endreq;
-  	msg(MSG::ERROR) << "Cannot access eventinfo" << endreq;
+  	msg(MSG::DEBUG) << endmsg;
+  	msg(MSG::ERROR) << "Cannot access eventinfo" << endmsg;
   } 
   long int thisTimeStamp = 0;
   if ( evt ) thisTimeStamp = evt->timeStamp();
@@ -214,7 +214,7 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
 			<< evt->eventNumber() << "; LB : "
 			<< evt->lumiBlock() << "; timeStamp : "
 			<< evt->timeStamp() << "; timeStamp ns : "
-			<< evt->timeStampNSOffset() << endreq;
+			<< evt->timeStampNSOffset() << endmsg;
 		if ( m_isInterface ) {
 		    m_IsObject->appendField(m_evntPos,std::vector<long>{flag});
 		    m_IsObject->appendField(m_timeTagPos,std::vector<long>{(long int)evt->timeStamp()});
