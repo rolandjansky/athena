@@ -87,7 +87,8 @@ if (vp1InputFiles == []):
 
     # # Set geometry version
     if (not "DetDescrVersion" in dir()):
-        DetDescrVersion = "ATLAS-GEO-20-00-01"
+        #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
+        DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
     globalflags.DetDescrVersion = DetDescrVersion
     
     # Set conditions tag
