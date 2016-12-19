@@ -66,21 +66,21 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::hltInitialize()
 {
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
   }
    
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+	  << (m_acceptAll==true ? "True" : "False") << endmsg; 
     msg() << MSG::DEBUG << "ValidElectron        = " 
-	  << (m_electronValid==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
-    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endreq;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+	  << (m_electronValid==true ? "True" : "False") << endmsg; 
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
+    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endmsg;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
   }
   
   return HLT::OK;
@@ -90,7 +90,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::hltInitialize()
 HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -104,10 +104,10 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   
   // sanity checks
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigL2ElectronMuonAngleFexAlgo::acceptInputs" << endreq;
+    msg() << MSG::DEBUG << "Running TrigL2ElectronMuonAngleFexAlgo::acceptInputs" << endmsg;
 
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -117,7 +117,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   if (m_acceptAll) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
+	    << endmsg;
     
     pass = true;
     return HLT::OK;
@@ -125,7 +125,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   else {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
+	    << endmsg;
   }
 
   // this are 2 TEs which we eventually will combine
@@ -138,12 +138,12 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
       if ( msgLvl() <= MSG::WARNING) {
-	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
+	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endmsg;
       }
       return HLT::MISSING_FEATURE;  
     } else {
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
+	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endmsg;
     }
   }
   
@@ -158,18 +158,18 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
         {
 			
 			if ( msgLvl() <= MSG::WARNING) {
-			msg() << MSG::WARNING << "Failed to get TrigElectron collection" << endreq;
+			msg() << MSG::WARNING << "Failed to get TrigElectron collection" << endmsg;
 			}
 			return HLT::MISSING_FEATURE;
 		}
 		else{
 			if ( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG  << "TrigElectron collection successfully retrieved" << endreq; 	
+				msg() << MSG::DEBUG  << "TrigElectron collection successfully retrieved" << endmsg; 	
 			} 
     
   }else{
 	if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "TrigElectron collection successfully retrieved" << endreq; 	
+	msg() << MSG::DEBUG  << "TrigElectron collection successfully retrieved" << endmsg; 	
   }
   // retrieving muons
   if ( getFeatures(te1, muonContainer1) != HLT::OK || muonContainer1.size() == 0)
@@ -178,23 +178,23 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
         {
 			
 			if ( msgLvl() <= MSG::WARNING) {
-			msg() << MSG::WARNING << "Failed to get MuonCombinedFeature collection" << endreq;
+			msg() << MSG::WARNING << "Failed to get MuonCombinedFeature collection" << endmsg;
 			}
 			return HLT::MISSING_FEATURE;
 		}
 		else{
 			if ( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq; 	
+				msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg; 	
 			} 
     
   }else{
 	if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq; 	
+	msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg; 	
   }
   
   if(m_acceptAll){
 	pass = true;  
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endreq;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endmsg;
 	return HLT::OK;    
    }  
 
@@ -208,7 +208,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   for ( electron1 = electronContainer1->begin(); electron1 != electronContainer1->end(); ++electron1 ) {
 	  if((*electron1)==0)
       {
-		  msg() << MSG::WARNING << "Null pointer in TrigElectronContainer. Skipping." << endreq;
+		  msg() << MSG::WARNING << "Null pointer in TrigElectronContainer. Skipping." << endmsg;
 		  continue;	
 	  }
     for ( muon1 = muonContainer1.begin(); muon1 != muonContainer1.end(); ++muon1 ) {
@@ -216,14 +216,14 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
       
        if((*muon1)==0)
 		{
-			msg() << MSG::WARNING << "Null pointer in CombinedMuonFeature vector. Skipping." << endreq;
+			msg() << MSG::WARNING << "Null pointer in CombinedMuonFeature vector. Skipping." << endmsg;
 			continue;	
 		}
       
          if((*muon1)->IDTrack()==0)
 		{
 			if(msgLvl() <= MSG::DEBUG) {
-				msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endreq;
+				msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endmsg;
 			}
 			continue;	
 		}
@@ -235,7 +235,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   
 
       if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "New combination:" << endreq; 
+	msg() << MSG::VERBOSE << "New combination:" << endmsg; 
 	msg() << MSG::VERBOSE << "1st TrigElectron: addr=" << (*electron1)
 	      << ((*electron1)->isValid() ? "(valid" : "(not valid")
 	      << ") RoI id="<< (*electron1)->roiId()
@@ -243,12 +243,12 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	      << "; eta="   << (*electron1)->eta() <<"+-"<< (*electron1)->err_eta() 
 	      << "; phi="   << (*electron1)->phi() <<"+-"<< (*electron1)->err_phi() 
 	      << "; Zvtx="  << (*electron1)->Zvtx()<<"+-"<< (*electron1)->err_Zvtx() 
-	      << endreq;
+	      << endmsg;
 	msg() << MSG::VERBOSE << "1st CombinedMuonFeature: addr=" << (*muon1)
           << " pt=" << 1/(*muon1)->ptq() << " trkAddr=" << (*muon1)->IDTrack() 
           << " " << *(*muon1)
           << "; Zvtx =" << (*muon1)->IDTrack()->param()->z0() << "+-" << (*muon1)->IDTrack()->param()->ez0()
-          << endreq;
+          << endmsg;
       }
       EgMuTopoInfo->SetRoiWord((*electron1)->roiId());
        
@@ -261,7 +261,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	if ( !(*electron1)->isValid() ) {
 	  
 	  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "TrigElectron not valid: rejecting combination" << endreq;
+	    msg() << MSG::VERBOSE << "TrigElectron not valid: rejecting combination" << endmsg;
 	  }	    
 	  delete EgMuTopoInfo;
 	  continue;  // reject non-valid TrigElectrons if cut is on
@@ -277,7 +277,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
       
       if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE << "Delta Phi between muon and electron is " << m_DPhi << 
-	    " and radial distance delta R is " << m_DR << endreq;
+	    " and radial distance delta R is " << m_DR << endmsg;
 	  }
 	  
 	  m_monDPhiAll=m_DPhi;
@@ -286,13 +286,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	  
 	  if(m_DPhi > m_MaxDPhi) {
 		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endreq;
+	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endmsg;
 	  }
 		delete EgMuTopoInfo;
 		continue;
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endreq;
+	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endmsg;
 	  }
 	 }
 	 
@@ -306,13 +306,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	 {
 		if(m_DR > m_MaxDR) {
 		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endreq;
+	    msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endmsg;
 	  }
 		delete EgMuTopoInfo;
 		continue;
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endreq;
+	    msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endmsg;
 	  }
 	 }	 
 	 }
@@ -329,14 +329,14 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	// note: track charge can be zero (unknown) so must use > and not >=
 	if ( ! EgMuTopoInfo->opositeCharge(*electron1, *muon1) ) {
 	  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination does not have opposite charge" << endreq;
+	    msg() << MSG::VERBOSE << "Combination does not have opposite charge" << endmsg;
 	    EgMuTopoInfo->SetOppositeCharge(false);
 
 	  }
 	} else {
 	  if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE << "Combination has opposite charge" 
-		  << endreq;
+		  << endmsg;
 		  EgMuTopoInfo->SetOppositeCharge(true);
 	  }
 	}
@@ -355,18 +355,18 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	  if (msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE 
 		  << "Combination failed vertex cut" 
-		  << endreq;
+		  << endmsg;
 	  }
 	  
 	} else  if ( vx == ElectronMuonTopoInfo::Common ) {
 	  if (msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE 
-		  << "Combination passed vertex cut" << endreq;
+		  << "Combination passed vertex cut" << endmsg;
 	  }
 	} else {
 	  if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE 
-		  << "Bad track vertex errors: not applying cut" << endreq;
+		  << "Bad track vertex errors: not applying cut" << endmsg;
 	  }
 	}
 	   EgMuTopoInfo->SetVertexState(vx);
@@ -381,7 +381,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	if(msgLvl() <= MSG::VERBOSE) {
 	  msg() << MSG::VERBOSE << "Combination failed mass cut: " 
 		<< m_mass << " not in [" << m_lowerMassCut << "," 
-		<< m_upperMassCut << "]" << endreq;
+		<< m_upperMassCut << "]" << endmsg;
 	}
 	delete EgMuTopoInfo;
 	continue;
@@ -394,16 +394,16 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	if(msgLvl() <= MSG::VERBOSE) {
 	  msg() << MSG::VERBOSE << "Combination passed mass cut: " 
 		<< m_lowerMassCut << " < " << m_mass << " < " 
-		<< m_upperMassCut << endreq;	     
+		<< m_upperMassCut << endmsg;	     
 	  msg() << MSG::DEBUG << "Good combination found! Memu=" 
-		<< m_mass << " CLHEP::MeV" << endreq;
+		<< m_mass << " CLHEP::MeV" << endmsg;
 	}
       }   
 	
 	if(msgLvl() <= MSG::DEBUG){
 		msg() << MSG::DEBUG << "Created following object: "
 		<< (*EgMuTopoInfo)
-		<< endreq;
+		<< endmsg;
 	}
 	
 	 if ( !m_egMuTopoColl ) m_egMuTopoColl = new ElectronMuonTopoInfoContainer();
@@ -413,13 +413,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
     } // electrons2 container loop end
   } // electrons1 container loop end
   // set output TriggerElement true if good combination
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endmsg;
   return HLT::OK;    
 }  
 
 HLT::ErrorCode TrigL2ElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* outputTE){
    if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Attaching electronMuonTopoInfoCollection of the length " <<  m_egMuTopoColl->size() << endreq;
+	  msg() << MSG::VERBOSE << "Attaching electronMuonTopoInfoCollection of the length " <<  m_egMuTopoColl->size() << endmsg;
 	}
    if(m_egMuTopoColl!=0) attachFeature(outputTE, m_egMuTopoColl, "EgMuTopoFEX"); 
   

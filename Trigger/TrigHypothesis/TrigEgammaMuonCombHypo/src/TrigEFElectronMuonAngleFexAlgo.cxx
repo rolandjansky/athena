@@ -83,21 +83,21 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltInitialize()
 {
   
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
+    msg() << MSG::DEBUG << "Initialization:" << endmsg;
   }
 
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+	  << (m_acceptAll==true ? "True" : "False") << endmsg; 
     msg() << MSG::DEBUG << "Using Egamma 2010 recommendations   = " 
-	  << (m_useRecommended==true ? "True" : "False") << endreq; 
+	  << (m_useRecommended==true ? "True" : "False") << endmsg; 
 	    
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
-    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endreq;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
+    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endmsg;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
    }
   
   return HLT::OK;
@@ -107,7 +107,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltInitialize()
 HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -121,14 +121,14 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   m_egMuTopoColl=0;
   m_electron=0;
   m_muon=0;
-  electronCollection.clear();
-  muonCollection.clear();
+  m_electronCollection.clear();
+  m_muonCollection.clear();
   // sanity checks
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigEFElectronMuonAngleFexAlgo::acceptInputs" << endreq;
+    msg() << MSG::DEBUG << "Running TrigEFElectronMuonAngleFexAlgo::acceptInputs" << endmsg;
 
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -138,7 +138,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   if (m_acceptAll) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
+	    << endmsg;
     
     pass = true;
     return HLT::OK;
@@ -146,7 +146,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   else {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
+	    << endmsg;
   }
 
   // this are 2 TEs which we eventually will combine
@@ -159,12 +159,12 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
       if ( msgLvl() <= MSG::WARNING) {
-	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
+	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endmsg;
       }
       return HLT::MISSING_FEATURE;  
     } else {
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
+	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endmsg;
     }
   }
   
@@ -179,18 +179,18 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
         {
 			
 			if ( msgLvl() <= MSG::WARNING) {
-			msg() << MSG::WARNING << "Failed to get EF egamma collection" << endreq;
+			msg() << MSG::WARNING << "Failed to get EF egamma collection" << endmsg;
 			}
 			return HLT::MISSING_FEATURE;
 		}
 		else{
 			if ( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq; 	
+				msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endmsg; 	
 			} 
     
   }else{
 	if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq; 	
+	msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endmsg; 	
   }
  
   
@@ -200,18 +200,18 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
         {
 			
 			if ( msgLvl() <= MSG::WARNING) {
-			msg() << MSG::WARNING << "Failed to get EF MuidTrackContainer" << endreq;
+			msg() << MSG::WARNING << "Failed to get EF MuidTrackContainer" << endmsg;
 			}
 			return HLT::MISSING_FEATURE;
 		}
 		else{
 			if ( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
+				msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg; 	
 			} 
     
   }else{
 	if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
+	msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg; 	
   }	
   
   
@@ -224,7 +224,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
   egammaContainer::const_iterator electron1;
   MuidTrackContainer::const_iterator tr;
   if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "Size of electron container: " << electronContainer1->size() << " size of muon container " << MuEFTracksEF->size() << endreq; 
+	msg() << MSG::VERBOSE << "Size of electron container: " << electronContainer1->size() << " size of muon container " << MuEFTracksEF->size() << endmsg; 
    }
   int mu_count,el_count;
   mu_count=el_count=0; 
@@ -237,14 +237,14 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	
 	if((*electron1)==0)
       {
-		  msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endreq;
+		  msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endmsg;
 		  continue;	
 	  }
 	  
 	  if((*electron1)->trackParticle()==0)
       {
 			if(msgLvl() <= MSG::DEBUG) {
-				msg() << MSG::DEBUG << "No trackParticle attached to electron. Skipping" << endreq; 
+				msg() << MSG::DEBUG << "No trackParticle attached to electron. Skipping" << endmsg; 
 			}
 			continue;
 	  }
@@ -252,20 +252,20 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
     for ( tr = MuEFTracksEF->begin(); tr != MuEFTracksEF->end(); ++tr ) {
       if((*tr)==0)
       {
-		  msg() << MSG::WARNING << "Null pointer in MuidTrackContainer. Skipping." << endreq;
+		  msg() << MSG::WARNING << "Null pointer in MuidTrackContainer. Skipping." << endmsg;
 		  continue;	
 	  }
 	  if((*tr)->indetTrack()==0)
 	  {
 			if(msgLvl() <= MSG::DEBUG) {
-				msg() << MSG::DEBUG << "No indetTrack attached to muon. Skipping" << endreq; 
+				msg() << MSG::DEBUG << "No indetTrack attached to muon. Skipping" << endmsg; 
 			}
 			continue;
 	  }
       
       if(msgLvl() <= MSG::VERBOSE) {
 		mu_count++;
-		msg() << MSG::VERBOSE << "Processing electron no. " << el_count << " and muon no. " << mu_count << endreq; 
+		msg() << MSG::VERBOSE << "Processing electron no. " << el_count << " and muon no. " << mu_count << endmsg; 
 	   }
       
       const Trk::Perigee* muon1 = (*tr)->indetTrack()->perigeeParameters();
@@ -278,7 +278,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
       
       if(( (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfPixelHits )+ (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfSCTHits )) < 4 )
 	  {
-		 msg() << MSG::WARNING << " Electron has less then 4 Silicon hits! Skipping " << endreq;
+		 msg() << MSG::WARNING << " Electron has less then 4 Silicon hits! Skipping " << endmsg;
 		 continue;
 	  }
 	
@@ -294,7 +294,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
        float mu_phi =  muon1->parameters()[Trk::phi];
       
 	  if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "New combination:" << endreq; 
+	msg() << MSG::VERBOSE << "New combination:" << endmsg; 
 	msg() << MSG::VERBOSE << "egammaElectron: addr=" << (*electron1) 
 	      << "  et="    << (*electron1)->cluster()->e()/cosh((*electron1)->trackParticle()->eta())  
 	      << "; eta="   << (*electron1)->trackParticle()->eta() 
@@ -302,13 +302,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	      << "; charge=" << (*electron1)->trackParticle()->charge()
 	      << "; #Silicon hits=" << 
 	      (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfPixelHits )+ (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfSCTHits )
-	      << endreq;	      
+	      << endmsg;	      
 	msg() << MSG::VERBOSE << "muon: addr=" << muon1 
 	      << "  et="    << muon1->pT()  
 	      << "; eta="   << muon1->eta()                 
 	      << "; phi="   << mu_phi
 	      << "; charge=" << muon1->charge()
-	      << endreq;
+	      << endmsg;
       }
 
        
@@ -321,7 +321,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
       
       if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE << "Delta Phi between muon and electron is " << m_DPhi << 
-	    " and radial distance delta R is " << m_DR << endreq;
+	    " and radial distance delta R is " << m_DR << endmsg;
 	  }
 	  
 	  m_monDPhiAll=m_DPhi;
@@ -330,13 +330,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	  
 	  if(m_DPhi > m_MaxDPhi) {
 		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endreq;
+	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endmsg;
 	  }
 		delete EgMuTopoInfo;
 		continue;		
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endreq;
+	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endmsg;
 	  }
 	 }
 	 
@@ -350,13 +350,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	 {
 		if(m_DR > m_MaxDR) {
 		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endreq;
+	    msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endmsg;
 	  }
 		delete EgMuTopoInfo;
 		continue;
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endreq;
+	    msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endmsg;
 	  }
 	 }	 
 	 }
@@ -371,12 +371,12 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 			EgMuTopoInfo->SetOppositeCharge(false);
 
 		if(msgLvl() <= MSG::VERBOSE) {
-			msg() << MSG::VERBOSE << "Combination failed did not have opposite charge" << endreq;
+			msg() << MSG::VERBOSE << "Combination failed did not have opposite charge" << endmsg;
 		}
 		} else {
 			if(msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::VERBOSE << "Combination had opposite charge" 
-				<< endreq;
+				<< endmsg;
 			}
 			EgMuTopoInfo->SetOppositeCharge(true);
   
@@ -396,7 +396,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 		if(msgLvl() <= MSG::VERBOSE) {
 			msg() << MSG::VERBOSE << "Combination failed mass cut: " 
 			<< m_mass << " not in [" << m_lowerMassCut << "," 
-			<< m_upperMassCut << "]" << endreq;
+			<< m_upperMassCut << "]" << endmsg;
 		}
 		delete EgMuTopoInfo;
 		continue;
@@ -409,27 +409,27 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 		if(msgLvl() <= MSG::VERBOSE) {
 			msg() << MSG::VERBOSE << "Combination passed mass cut: " 
 			<< m_lowerMassCut << " < " << m_mass << " < " 
-			<< m_upperMassCut << endreq;	     
+			<< m_upperMassCut << endmsg;	     
 			msg() << MSG::DEBUG << "Good combination found! Memu=" 
-			<< m_mass << " CLHEP::MeV" << endreq;
+			<< m_mass << " CLHEP::MeV" << endmsg;
 		}
 		
 		m_electron = (*electron1)->trackParticle();
 		
 		m_muon = (*tr)->indetTrack();
 		
-		msg() << MSG::VERBOSE << " emu created " << endreq;
-		electronCollection.push_back(m_electron);
-		msg() << MSG::VERBOSE << " electron saved " << endreq;
+		msg() << MSG::VERBOSE << " emu created " << endmsg;
+		m_electronCollection.push_back(m_electron);
+		msg() << MSG::VERBOSE << " electron saved " << endmsg;
 		
-		muonCollection.push_back(m_muon);
+		m_muonCollection.push_back(m_muon);
 		
 		if(msgLvl() <= MSG::DEBUG){
 		msg() << MSG::DEBUG << "Created following object: "
 		<< (*EgMuTopoInfo)
 		<< " and recorded electron at " << m_electron 
 		<< " and muon at " << m_muon
-		<< endreq;
+		<< endmsg;
 		}
 	
 		if ( !m_egMuTopoColl ) m_egMuTopoColl = new ElectronMuonTopoInfoContainer();
@@ -440,7 +440,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::acceptInputs(HLT::TEConstVec& inp
 	} // muons container loop end
   } // electrons1 container loop end
   // set output TriggerElement true if good combination
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endmsg;
   return HLT::OK;    
 }  
 
@@ -463,7 +463,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 		if(getFeatures(outputTE, vecIDTrakCont) != HLT::OK || vecIDTrakCont.size() == 0) 
         {
 			if ( msgLvl() <= MSG::WARNING) {
-				msg() << MSG::WARNING << "Failed to get vector of TrkParticleContainer" << endreq;
+				msg() << MSG::WARNING << "Failed to get vector of TrkParticleContainer" << endmsg;
 			}
 			return ElectronMuonTopoInfo::Unapplicable;
 		}
@@ -471,37 +471,37 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			if( vecIDTrakCont.size() != 1)
 			{
 				if ( msgLvl() <= MSG::DEBUG) {
-						msg() << MSG::DEBUG << "TrkParticleContainer does not have size 1! It has size " << vecIDTrakCont.size() << endreq;
+						msg() << MSG::DEBUG << "TrkParticleContainer does not have size 1! It has size " << vecIDTrakCont.size() << endmsg;
 				}
 			} else { 
 				if ( msgLvl() <= MSG::DEBUG )
-						msg() << MSG::DEBUG  << "Obtained vector of TrkParticleContainer with size 1" <<  endreq; 	
+						msg() << MSG::DEBUG  << "Obtained vector of TrkParticleContainer with size 1" <<  endmsg; 	
 			}
 		}
 		int nTrkPartCollection = vecIDTrakCont.size(); 		
 	
 		bool sizeMatch = false;
-	        if(m_egMuTopoColl==0 || electronCollection.size()==0 || muonCollection.size()==0){delete EgMuTopoInfo2; return HLT::OK;}
-		if(m_egMuTopoColl->size()== electronCollection.size() && electronCollection.size()==muonCollection.size())
+	        if(m_egMuTopoColl==0 || m_electronCollection.size()==0 || m_muonCollection.size()==0){delete EgMuTopoInfo2; return HLT::OK;}
+		if(m_egMuTopoColl->size()== m_electronCollection.size() && m_electronCollection.size()==m_muonCollection.size())
 		{
-			if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Container sizes match and are " << m_egMuTopoColl->size() << endreq;
+			if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Container sizes match and are " << m_egMuTopoColl->size() << endmsg;
 			sizeMatch = true;
 		}else{
 			if(msgLvl() <= MSG::WARNING){ 
 		    msg() << MSG::WARNING << "Container sizes do not match and are: EmuTopoInfo (" << m_egMuTopoColl->size() 
-			<< "); electronColl(" << electronCollection.size() << "); muonColl(" 
-			<< muonCollection.size() << ")."
-			<< endreq;
+			<< "); electronColl(" << m_electronCollection.size() << "); muonColl(" 
+			<< m_muonCollection.size() << ")."
+			<< endmsg;
 			}
 		}
 		
-		ElectronMuonTopoInfoContainer::const_iterator egMuTopoInfo;
+		ElectronMuonTopoInfoContainer::iterator egMuTopoInfo;
 		for ( egMuTopoInfo = m_egMuTopoColl->begin(); egMuTopoInfo != m_egMuTopoColl->end(); ++egMuTopoInfo ) {
 			if((*egMuTopoInfo)==0) continue;
 			if(!sizeMatch){(*egMuTopoInfo)->SetVertexState(2); continue;} 
 			int it = egMuTopoInfo - m_egMuTopoColl->begin();
-			m_electron = electronCollection.at(it);
-			m_muon = muonCollection.at(it);
+			m_electron = m_electronCollection.at(it);
+			m_muon = m_muonCollection.at(it);
 			if(m_electron==0 || m_muon ==0) continue;
 		
 			const Rec::TrackParticle* muonTP = 0;
@@ -525,7 +525,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			}
 			
 			if ( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG  << "Muon track at " << m_muon << " was matched to TrkParticle from collection no. " << iColl << " at address " << muonTP << endreq;
+				msg() << MSG::DEBUG  << "Muon track at " << m_muon << " was matched to TrkParticle from collection no. " << iColl << " at address " << muonTP << endmsg;
 			
 			const Trk::Perigee* perigeeEL =   m_trackToVertexTool->perigeeAtBeamspot(*m_electron);
 	   
@@ -535,18 +535,18 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			
 		
 			if (perigeeEL==0) {
-				if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No electron perigee using beam spot; no z0 calculation"<<endreq;    
+				if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No electron perigee using beam spot; no z0 calculation"<<endmsg;    
 				perigeeEL = m_trackToVertexTool->perigeeAtVertex(*m_electron, m_primaryVertex);
 			}
 		
 			if (perigeeMU==0) {
-				if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No muon perigee using beam spot; no z0 calculation"<<endreq;    
+				if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No muon perigee using beam spot; no z0 calculation"<<endmsg;    
 				perigeeMU = m_trackToVertexTool->perigeeAtVertex(*muonTP, m_primaryVertex);
 			}
 			if ( msgLvl() <= MSG::DEBUG ){
 				msg() << MSG::DEBUG  << "Found perigee for electron at " << m_electron << ":  " << perigeeEL 
 				<< "; and for muon at " << muonTP << ": " << perigeeMU 
-				<< endreq;			
+				<< endmsg;			
 			}
 			
 			bool doDebug = false;
@@ -557,31 +557,31 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			  if (msgLvl() <= MSG::VERBOSE) {
 			    msg() << MSG::VERBOSE 
 				  << "Combination failed vertex cut" 
-				  << endreq;
+				  << endmsg;
 			  }
 			  
 			} else  if ( vx == ElectronMuonTopoInfo::Common ) {
 			  if (msgLvl() <= MSG::VERBOSE) {
 			    msg() << MSG::VERBOSE 
-				  << "Combination passed vertex cut" << endreq;
+				  << "Combination passed vertex cut" << endmsg;
 			  }
 			} else {
 			  if(msgLvl() <= MSG::VERBOSE) {
 			    msg() << MSG::VERBOSE 
-				  << "Bad track vertex errors: not applying cut" << endreq;
+				  << "Bad track vertex errors: not applying cut" << endmsg;
 			  }
 			}
 			VX_state = vx;
 			if (msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::VERBOSE 
-				<< "Vertex state is " << VX_state << " and the pull (distance/error) is " << pull << endreq;
+				<< "Vertex state is " << VX_state << " and the pull (distance/error) is " << pull << endmsg;
 			}
 			(*egMuTopoInfo)->SetVertexState(VX_state);
 			if(msgLvl() <= MSG::DEBUG){
 				msg() << MSG::DEBUG << "Updated following object: "
 				<< *(*egMuTopoInfo)
 				<< " at address " << (*egMuTopoInfo)
-				<< endreq;
+				<< endmsg;
 			}
 		}
 	
@@ -594,7 +594,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
    m_monVxState = VX_state;
    
     if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Attaching electronMuonTopoInfoCollection of the length " <<  m_egMuTopoColl->size() << endreq;
+	  msg() << MSG::VERBOSE << "Attaching electronMuonTopoInfoCollection of the length " <<  m_egMuTopoColl->size() << endmsg;
 	}
    
    if(m_egMuTopoColl!=0) attachFeature(outputTE, m_egMuTopoColl, "EF_EgMuTopoFEX"); 

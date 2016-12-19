@@ -110,8 +110,8 @@ private:
   
   ElectronMuonTopoInfoContainer* m_egMuTopoColl; //!< Pointer to ElectronMuonTopoInfoCollection
 
-  std::vector<const Rec::TrackParticle*> electronCollection; //!< In case more electrons will be present in input collections which would pass the cuts, store them all
-  std::vector<const Trk::Track*> muonCollection; //!<In case more electrons will be present in input collections which would pass the cuts, store them all
+  std::vector<const Rec::TrackParticle*> m_electronCollection; //!< In case more electrons will be present in input collections which would pass the cuts, store them all
+  std::vector<const Trk::Track*> m_muonCollection; //!<In case more electrons will be present in input collections which would pass the cuts, store them all
   	
   
 };
