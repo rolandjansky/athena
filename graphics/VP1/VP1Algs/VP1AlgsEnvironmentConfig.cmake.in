@@ -1,0 +1,14 @@
+# --- Set the environment variables need by the package VP1Algs ---
+# rbianchi@cern.ch - Nov 2016
+
+# Set the environment variables
+
+
+set( VP1ALGSENVIRONMENT_ENVIRONMENT  
+    FORCESET VP1PLUGINPATH @BUILD_DIR@/lib
+    )
+
+# Silently declare the module found
+set( VP1ALGSENVIRONMENT_FOUND TRUE )
+
+
