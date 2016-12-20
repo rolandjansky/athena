@@ -27,7 +27,7 @@
  *  One usually inherits from this class and use it like so:
  *  @code
  *   void some_method (AthMessaging& o) 
- *   { o.msg() << "foo" << endreq; }
+ *   { o.msg() << "foo" << endmsg; }
  *  @endcode
  */
 

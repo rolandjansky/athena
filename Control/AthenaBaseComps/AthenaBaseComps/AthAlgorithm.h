@@ -126,15 +126,10 @@ public:
                             SG::VarHandleKey& hndl,
                             const std::string& doc,
                             std::true_type,
-                            std::false_type) const
+                            std::false_type)
   {
-    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
-    Gaudi::DataHandle::Mode mode = hndl.mode();
-    if (mode & Gaudi::DataHandle::Reader)
-      aa->declareInput(&hndl);
-    if (mode & Gaudi::DataHandle::Writer)
-      aa->declareOutput(&hndl);
-    hndl.setOwner(aa);
+    this->declare(hndl);
+    hndl.setOwner(this);
 
     return Algorithm::declareProperty(name,hndl,doc);
   }
@@ -145,7 +140,7 @@ public:
                             SG::VarHandleKeyArray& hndArr,
                             const std::string& doc,
                             std::false_type,
-                            std::true_type) const
+                            std::true_type)
   {
 
     // std::ostringstream ost;
@@ -156,13 +151,11 @@ public:
     //     << "\n";
     // debug() << ost.str() << endmsg;
 
-    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
-
     m_vhka.push_back(&hndArr);
 
     Property* p =  Algorithm::declareProperty(name, hndArr, doc);
     if (p != 0) {
-      p->declareUpdateHandler(&AthAlgorithm::updateVHKA, aa);
+      p->declareUpdateHandler(&AthAlgorithm::updateVHKA, this);
     } else {
       ATH_MSG_ERROR("unable to call declareProperty on VarHandleKeyArray " 
                     << name);
@@ -184,13 +177,9 @@ public:
     // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
     //         << "  size: " << m_vhka.size() << endmsg;
     for (auto &a : m_vhka) {
-      Gaudi::DataHandle::Mode mode = a->mode();
       std::vector<SG::VarHandleKey*> keys = a->keys();
       for (auto k : keys) {
-        if (mode & Gaudi::DataHandle::Reader)
-          this->declareInput(k);
-        if (mode & Gaudi::DataHandle::Writer)
-          this->declareOutput(k);
+        this->declare(*k);
         k->setOwner(this);
       }
     }
@@ -215,7 +204,7 @@ public:
                             const std::string& doc,
                             std::false_type,
                             std::false_type
-                            ) const
+                            ) 
   {
     return Algorithm::declareProperty(name, property, doc);
   }
@@ -234,7 +223,7 @@ public:
   template <class T>
   Property* declareProperty(const std::string& name,
                             T& property,
-                            const std::string& doc="none") const
+                            const std::string& doc="none") 
   {
 
     return declareProperty (name, property, doc,

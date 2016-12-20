@@ -53,7 +53,7 @@ AthHistogramming::AthHistogramming( const std::string& name ) :
 AthHistogramming::~AthHistogramming()
 {
   //ATH_MSG_DEBUG ("Calling destructor of AthHistogramming");
-  if ( m_msg.level() <= MSG::VERBOSE ) m_msg << MSG::DEBUG << "Calling destructor of AthHistogramming" << endreq;
+  if ( m_msg.level() <= MSG::VERBOSE ) m_msg << MSG::DEBUG << "Calling destructor of AthHistogramming" << endmsg;
 }
 
 
@@ -113,7 +113,7 @@ TH1* AthHistogramming::bookGetPointer( TH1& histRef, std::string tDir, std::stri
       m_msg << MSG::WARNING
             << "Detected a hash collission. The hash for the histogram with name=" << histName
             << " already exists and points to a histogram with name=" << it->second->GetName()
-            << " NOT going to book the new histogram and returning a NULL pointer!" << endreq;
+            << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;
     }
 
@@ -131,7 +131,7 @@ TH1* AthHistogramming::bookGetPointer( TH1& histRef, std::string tDir, std::stri
             << ", title " << histTitle
             << ", tile prefix " << m_histTitlePrefix
             << ", and tile postfix " << m_histTitlePostfix
-            << " in " << m_name << "!" << endreq;
+            << " in " << m_name << "!" << endmsg;
       return NULL;
     }
 
@@ -179,7 +179,7 @@ TH1* AthHistogramming::hist( const std::string& histName, const std::string& tDi
                     << m_histNamePrefix + histNameCopy + m_histNamePostfix
                     << " or with name " << histNameCopy
                     << " in " << m_name << "... it doesn't exist, neither in the cached map nor in the THistSvc!"
-                    << " Will return an NULL pointer... you have to handle it correctly!" << endreq;
+                    << " Will return an NULL pointer... you have to handle it correctly!" << endmsg;
               return NULL;
             }
           // If we get to here, we actually found the histogram in the THistSvc.
@@ -219,7 +219,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
     {
       m_msg << MSG::WARNING
             << "We got an invalid TTree pointer in the BookGetPointer(TTree*) method of the class" << m_name
-            << "!" << endreq;
+            << "!" << endmsg;
       return NULL;
     }
 
@@ -235,7 +235,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
       m_msg << MSG::WARNING
             << "Detected a hash collission. The hash for the TTree with name=" << treeName
             << " already exists and points to a TTree with name=" << it->second->GetName()
-            << " NOT going to book the new histogram and returning a NULL pointer!" << endreq;
+            << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;
     }
 
@@ -248,7 +248,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
     {
       m_msg << MSG::WARNING
             << "We couldn't clone the TTree in the BookGetPointer(TTree&) method of the class" << m_name
-            << "!" << endreq;
+            << "!" << endmsg;
       return NULL;
     }
 
@@ -262,7 +262,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
       m_msg << MSG::WARNING
             << "Problem registering TTree with name " << treeName
             << ", title " << treeTitle
-            << " in " << m_name << "!" << endreq;
+            << " in " << m_name << "!" << endmsg;
       return NULL;
     }
 
@@ -302,7 +302,7 @@ TTree* AthHistogramming::tree( const std::string& treeName, const std::string& t
           m_msg << MSG::WARNING
                 << "Problem retrieving the TTree with name " << treeNameCopy
                 << " in " << m_name << "... it doesn't exist, neither in the cached map nor in the THistSvc!"
-                << " Will return an NULL pointer... you have to handle it correctly!" << endreq;
+                << " Will return an NULL pointer... you have to handle it correctly!" << endmsg;
           return NULL;
         }
       // If we get to here, we actually found the TTree in the THistSvc.
@@ -336,7 +336,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
     {
       m_msg << MSG::WARNING
             << "We got an invalid TGraph pointer in the BookGetPointer(TGraph*) method of the class" << m_name
-            << "!" << endreq;
+            << "!" << endmsg;
       return NULL;
     }
 
@@ -352,7 +352,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
       m_msg << MSG::WARNING
             << "Detected a hash collission. The hash for the TGraph with name=" << graphName
             << " already exists and points to a TGraph with name=" << it->second->GetName()
-            << " NOT going to book the new histogram and returning a NULL pointer!" << endreq;
+            << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;
     }
 
@@ -366,7 +366,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
     {
       m_msg << MSG::WARNING
             << "We couldn't clone the TGraph in the BookGetPointer(TGraph&) method of the class" << m_name
-            << "!" << endreq;
+            << "!" << endmsg;
       return NULL;
     }
 
@@ -380,7 +380,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
       m_msg << MSG::WARNING
             << "Problem registering TGraph with name " << graphName
             << ", title " << graphTitle
-            << " in " << m_name << "!" << endreq;
+            << " in " << m_name << "!" << endmsg;
       return NULL;
     }
 
@@ -427,7 +427,7 @@ TGraph* AthHistogramming::graph( const std::string& graphName, const std::string
                     << m_histNamePrefix + graphNameCopy + m_histNamePostfix
                     << " or with name " << graphNameCopy
                     << " in " << m_name << "... it doesn't exist, neither in the cached map nor in the THistSvc!"
-                    << " Will return an NULL pointer... you have to handle it correctly!" << endreq;
+                    << " Will return an NULL pointer... you have to handle it correctly!" << endmsg;
               return NULL;
             }
           // If we get to here, we actually found the TGraph in the THistSvc.

@@ -40,8 +40,7 @@ public:
 
   virtual StatusCode execute_r (const EventContext& ctx) const override;
 
-  virtual void declareInput(Gaudi::DataHandle* im) override;
-  virtual void declareOutput(Gaudi::DataHandle* im) override;
+  virtual void declare(Gaudi::DataHandle& hnd) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandle<MyObj> whandle;
@@ -66,15 +65,11 @@ StatusCode MyAlg::execute_r (const EventContext& ctx) const
 }
 
 
-void MyAlg::declareInput(Gaudi::DataHandle* im)
-{
-  inputs.push_back (im);
-}
-
-
-void MyAlg::declareOutput(Gaudi::DataHandle* im)
-{
-  outputs.push_back (im);
+void MyAlg::declare(Gaudi::DataHandle& hnd) {
+  if (hnd.mode() & Gaudi::DataHandle::Reader) 
+    inputs.push_back( &hnd );
+  if (hnd.mode() & Gaudi::DataHandle::Writer) 
+    outputs.push_back( &hnd );
 }
 
 

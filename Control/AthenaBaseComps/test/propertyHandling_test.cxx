@@ -41,8 +41,7 @@ public:
 
   virtual StatusCode execute() override;
 
-  virtual void declareInput(Gaudi::DataHandle* im) override;
-  virtual void declareOutput(Gaudi::DataHandle* im) override;
+  virtual void declare(Gaudi::DataHandle& hnd) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandleKey<MyObj> wkey;
@@ -74,16 +73,11 @@ StatusCode MyAthAlgorithm::execute()
   return StatusCode::SUCCESS;
 }
 
-
-void MyAthAlgorithm::declareInput(Gaudi::DataHandle* im)
-{
-  inputs.push_back (im);
-}
-
-
-void MyAthAlgorithm::declareOutput(Gaudi::DataHandle* im)
-{
-  outputs.push_back (im);
+void MyAthAlgorithm::declare(Gaudi::DataHandle& hnd) {
+  if (hnd.mode() & Gaudi::DataHandle::Reader) 
+    inputs.push_back( &hnd );
+  if (hnd.mode() & Gaudi::DataHandle::Writer) 
+    outputs.push_back( &hnd );
 }
 
 
@@ -95,8 +89,7 @@ public:
                 const std::string& name,
                 IInterface* parent);
 
-  virtual void declareInput(Gaudi::DataHandle* im) override;
-  virtual void declareOutput(Gaudi::DataHandle* im) override;
+  virtual void declare(Gaudi::DataHandle& hnd) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandleKey<MyObj> wkey;
@@ -125,15 +118,11 @@ MyAthAlgTool::MyAthAlgTool  (const std::string& type,
 }
 
 
-void MyAthAlgTool::declareInput(Gaudi::DataHandle* im)
-{
-  inputs.push_back (im);
-}
-
-
-void MyAthAlgTool::declareOutput(Gaudi::DataHandle* im)
-{
-  outputs.push_back (im);
+void MyAthAlgTool::declare(Gaudi::DataHandle& hnd) {
+  if (hnd.mode() & Gaudi::DataHandle::Reader) 
+    inputs.push_back( &hnd );
+  if (hnd.mode() & Gaudi::DataHandle::Writer) 
+    outputs.push_back( &hnd );
 }
 
 
