@@ -84,7 +84,7 @@ class McAsciiEventSelector : virtual public IEvtSelector,
   McAsciiCnvSvc* m_asciiCnvSvc;
 
   /// List of input files
-  StringArrayProperty m_asciiFileNames;
+  Gaudi::Property<std::vector<std::string>> m_asciiFileNames;
 
   typedef std::size_t                       EvtSize_t;
   typedef std::pair<std::string, EvtSize_t> AsciiFile_t;
@@ -100,11 +100,11 @@ class McAsciiEventSelector : virtual public IEvtSelector,
   mutable std::size_t m_curEvtNbr;
 
   // mimic @c McEventSelector properties
-  IntegerProperty m_runNbr;
-  IntegerProperty m_firstEventNbr;
-  IntegerProperty m_eventsPerRun;
-  IntegerProperty m_initTimeStamp;
-  IntegerProperty m_timeStampInterval;
+  Gaudi::CheckedProperty<int> m_runNbr;
+  Gaudi::CheckedProperty<int> m_firstEventNbr;
+  Gaudi::CheckedProperty<int> m_eventsPerRun;
+  Gaudi::CheckedProperty<int> m_initTimeStamp;
+  Gaudi::Property<int> m_timeStampInterval;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

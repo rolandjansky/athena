@@ -54,12 +54,12 @@ StatusCode McAsciiCnvSvc::initialize()
   m_msg.setLevel( m_outputLevel.value() );
 
   m_msg << MSG::INFO << "Enter McAsciiCnvSvc initialization..."
-	<< endreq;
+	<< endmsg;
 
   if ( !ConversionSvc::initialize().isSuccess() ) {
     m_msg << MSG::ERROR
 	  << "Unable to initialize base class ::ConversionSvc !!"
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE;
   }
   setProperties().ignore();
@@ -115,7 +115,7 @@ void McAsciiCnvSvc::setInputFile( const std::string& asciiFileName )
   if ( asciiFileName.empty() ) {
     m_msg << MSG::ERROR
 	  << "Empty input ASCII file name !!"
-	  << endreq;
+	  << endmsg;
     throw std::runtime_error( "Empty input ASCII file name !!" );
   }
 
@@ -131,7 +131,7 @@ void McAsciiCnvSvc::setInputFile( const std::string& asciiFileName )
     m_msg << MSG::ERROR
 	  << "Could not configure the converter tool to read from file ["
 	  << propValue << "] !!"
-	  << endreq;
+	  << endmsg;
     throw std::runtime_error( "Failed to configure ASCII cnv tool !!" );
   }
 
@@ -149,7 +149,7 @@ void McAsciiCnvSvc::setupCnvTool()
     if ( service( "ToolSvc", toolSvc ).isFailure() || 0 == toolSvc ) {
       m_msg << MSG::FATAL
 	    << "Tool Service not found !!"
-	    << endreq;
+	    << endmsg;
       throw std::runtime_error( "Could not find ToolSvc !!" );
     }
 
@@ -161,18 +161,18 @@ void McAsciiCnvSvc::setupCnvTool()
       m_msg << MSG::ERROR
 	    << "Creation of algTool [" << cnvName << "]" 
 	    << " FAILED !"
-	    << endreq;
+	    << endmsg;
       throw std::runtime_error( "Could not retrieve [" +cnvName+"] !" );
     } else {
       m_msg << MSG::DEBUG
 	    << "AlgTool [" << cnvName << "] successfully created"
-	    << endreq;
+	    << endmsg;
       m_cnvTool = dynamic_cast<IIOHepMcTool*>(algTool);
 
       if ( 0 == m_cnvTool ) {
 	m_msg << MSG::ERROR
 	      << "Could not dynamic-cast to IIOHepMcTool* !!"
-	      << endreq;
+	      << endmsg;
 	throw std::runtime_error( "Could not dyn-cast to IIOHepMcTool* !!" );
       }
     }
@@ -193,7 +193,7 @@ void McAsciiCnvSvc::setupCnvTool()
 	    << "Could not configure the converter tool to record the "
 	    << "McEventCollection in ["
 	    << propValue << "] !!"
-	    << endreq;
+	    << endmsg;
       throw std::runtime_error( "Failed to configure ASCII cnv tool !!" );
     }
   }

@@ -30,7 +30,7 @@ std::size_t evtMax( const std::string& name, MsgStream& msg )
        !asciiFile.good() ) {
     msg << MSG::ERROR
 	<< "Could not open file [" << name << "] !!"
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error( "McAsciiFileHelper::evtMax: "
 			      "Problem opening ascii file !!" );
   }
