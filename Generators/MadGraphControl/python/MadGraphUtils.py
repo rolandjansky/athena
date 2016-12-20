@@ -284,7 +284,13 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         mglog.error('Working from '+str(os.getcwd()))
         return 1
 
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath) 
+    allow_links = True
+    if cluster_type is not None and cluster_queue is not None:
+        if 'condor' in cluster_type.lower():
+            mglog.warning('Condor clusters do not allow links.  Will do more copying rather than linking')
+            allow_links = False
+
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath, allow_links=allow_links) 
 
             
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
@@ -857,7 +863,7 @@ def setupFastjet(isNLO, proc_dir=None):
     return
 
 
-def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
+def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links=True):
 
     origLHAPATH=os.environ['LHAPATH']
     origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
@@ -921,15 +927,28 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
     
             mglog.info("Found LHAPDF ID=%i, name=%s!"%(pdfid,pdfname))
 
-            mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
-            os.symlink(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
+            if allow_links:
+                mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
+                os.symlink(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
+            else:
+                mglog.info('copying '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
+                shutil.copytree(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
 
-        mglog.info('linking '+LHADATAPATH+'/pdfsets.index --> MGC_LHAPDF/pdfsets.index')
-        os.symlink(LHADATAPATH+'/pdfsets.index','MGC_LHAPDF/pdfsets.index')
-        
-        atlasLHADATAPATH=LHADATAPATH.replace('sft.cern.ch/lcg/external/lhapdfsets/current','atlas.cern.ch/repo/sw/Generators/lhapdfsets/current')
-        mglog.info('linking '+atlasLHADATAPATH+'/lhapdf.conf --> MGC_LHAPDF/lhapdf.conf')
-        os.symlink(atlasLHADATAPATH+'/lhapdf.conf','MGC_LHAPDF/lhapdf.conf')
+        if allow_links:
+            mglog.info('linking '+LHADATAPATH+'/pdfsets.index --> MGC_LHAPDF/pdfsets.index')
+            os.symlink(LHADATAPATH+'/pdfsets.index','MGC_LHAPDF/pdfsets.index')
+            
+            atlasLHADATAPATH=LHADATAPATH.replace('sft.cern.ch/lcg/external/lhapdfsets/current','atlas.cern.ch/repo/sw/Generators/lhapdfsets/current')
+            mglog.info('linking '+atlasLHADATAPATH+'/lhapdf.conf --> MGC_LHAPDF/lhapdf.conf')
+            os.symlink(atlasLHADATAPATH+'/lhapdf.conf','MGC_LHAPDF/lhapdf.conf')
+        else:
+            mglog.info('copying '+LHADATAPATH+'/pdfsets.index --> MGC_LHAPDF/pdfsets.index')
+            shutil.copy2(LHADATAPATH+'/pdfsets.index','MGC_LHAPDF/pdfsets.index')
+ 
+            atlasLHADATAPATH=LHADATAPATH.replace('sft.cern.ch/lcg/external/lhapdfsets/current','atlas.cern.ch/repo/sw/Generators/lhapdfsets/current')
+            mglog.info('copying '+atlasLHADATAPATH+'/lhapdf.conf --> MGC_LHAPDF/lhapdf.conf')
+            shutil.copy2(atlasLHADATAPATH+'/lhapdf.conf','MGC_LHAPDF/lhapdf.conf')
+
         
         LHADATAPATH=os.getcwd()+'/MGC_LHAPDF'
 
@@ -1003,7 +1022,10 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
             os.unlink(proc_dir+'/lib/PDFsets')
         elif os.path.isdir(proc_dir+'/lib/PDFsets'):
             shutil.rmtree(proc_dir+'/lib/PDFsets')
-        os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
+        if allow_links:
+            os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
+        else:
+            shutil.copytree(LHADATAPATH,proc_dir+'/lib/PDFsets')
         mglog.info('Available PDFs are:')
         mglog.info( sorted( [ x for x in os.listdir(proc_dir+'/lib/PDFsets') if not ".tar.gz" in x ] ) )
         
@@ -1027,7 +1049,10 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
             mglog.info('  '+LHAPATH)
                         
         mglog.info('Creating links for LHAPDF')
-        os.symlink(LHAPATH,proc_dir+'/lib/PDFsets')
+        if allow_links:
+            os.symlink(LHAPATH,proc_dir+'/lib/PDFsets')
+        else:
+            shutil.copytree(LHAPATH,proc_dir+'/lib/PDFsets')
         mglog.info('Available PDFs are:')
         mglog.info( sorted( os.listdir( proc_dir+'/lib/PDFsets/' ) ) )
     
@@ -1051,9 +1076,13 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
                 mglog.info('  '+releaselhapath)
                 lhalibpath = releaselhapath.split(
                     'share/')[0]+os.environ['CMTCONFIG']+'/lib/'
-                
-        os.symlink( lhalibpath+'libLHAPDF.a',proc_dir+'/lib/libLHAPDF.a')
-        os.symlink( lhalibpath+'libLHAPDF.so',proc_dir+'/lib/libLHAPDF.so')
+
+        if allow_links:
+            os.symlink( lhalibpath+'libLHAPDF.a',proc_dir+'/lib/libLHAPDF.a')
+            os.symlink( lhalibpath+'libLHAPDF.so',proc_dir+'/lib/libLHAPDF.so')
+        else:
+            shutil.copy2( lhalibpath+'libLHAPDF.a',proc_dir+'/lib/libLHAPDF.a')
+            shutil.copy2( lhalibpath+'libLHAPDF.so',proc_dir+'/lib/libLHAPDF.so')
 
     return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
 
