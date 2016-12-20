@@ -163,35 +163,35 @@ private: // data
 
 private: // properties
    /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
-   BooleanProperty m_backNavigationFlag;
+   Gaudi::Property<bool> m_backNavigationFlag;
    /// ProcessMetadata, switch on firing of FileIncidents which will trigger processing of metadata: default = true.
-   BooleanProperty m_processMetadata;
+   Gaudi::Property<bool> m_processMetadata;
    /// ShowSizeStat, show size statistics from POOL for all persistified objects: default = false.
-   BooleanProperty m_showSizeStat;
+   Gaudi::Property<bool> m_showSizeStat;
    /// CollectionType, type of the collection: default = "ImplicitROOT".
-   StringProperty m_collectionType;
+   Gaudi::Property<std::string> m_collectionType;
    /// CollectionTree, prefix of the collection TTree: default = "POOLContainer_".
-   StringProperty m_collectionTree;
+   Gaudi::Property<std::string> m_collectionTree;
    /// Connection, connection string.
-   StringProperty m_connection;
+   Gaudi::Property<std::string> m_connection;
    /// RefName, attribute name.
-   StringProperty m_refName;
-   StringProperty m_derRefName;
+   Gaudi::Property<std::string> m_refName;
+   Gaudi::Property<std::string> m_derRefName;
    /// AttributeList SG key
-   StringProperty m_attrListKey;
+   Gaudi::Property<std::string> m_attrListKey;
    /// InputCollections, vector with names of the input collections.
-   StringArrayProperty m_inputCollectionsProp;
+   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
    /// Query, query string.
-   StringProperty m_query;
+   Gaudi::Property<std::string> m_query;
 
    /// SkipBadFiles, boolean flag to allow skipping of non-existing or corrupted files.
-   BooleanProperty m_skipBadFiles;
+   Gaudi::Property<bool> m_skipBadFiles;
 
    /// KeepInputFilesOpen, boolean flag to keep files open after PoolCollection reaches end: default = false.
    /// Needed for PilUp to run without PoolFileCatalog. Relies on POOL to close files when reaching DB_AGE_LIMIT.
-   BooleanProperty m_keepInputFilesOpen;
+   Gaudi::Property<bool> m_keepInputFilesOpen;
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
    ToolHandleArray<IAthenaSelectorTool> m_helperTools;
@@ -201,29 +201,29 @@ private: // properties
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
    /// simulated events, needed to use conditions
-   IntegerProperty m_runNo;
-   IntegerProperty m_oldRunNo;
-   BooleanProperty m_overrideRunNumberFromInput;
-   IntegerProperty m_firstEventNo;
-   IntegerProperty m_eventsPerRun;
-   IntegerProperty m_firstLBNo;
-   IntegerProperty m_eventsPerLB;
-   IntegerProperty m_initTimeStamp;
-   IntegerProperty m_timeStampInterval;
+   Gaudi::CheckedProperty<int> m_runNo;
+   Gaudi::CheckedProperty<int> m_oldRunNo;
+   Gaudi::Property<bool> m_overrideRunNumberFromInput;
+   Gaudi::CheckedProperty<int> m_firstEventNo;
+   Gaudi::CheckedProperty<int> m_eventsPerRun;
+   Gaudi::CheckedProperty<int> m_firstLBNo;
+   Gaudi::CheckedProperty<int> m_eventsPerLB;
+   Gaudi::CheckedProperty<int> m_initTimeStamp;
+   Gaudi::Property<int> m_timeStampInterval;
 
    /// Flags to indicate override of run/event/time
    /// These are almost always false.
-   BooleanProperty m_overrideRunNumber;
-   BooleanProperty m_overrideEventNumber;
-   BooleanProperty m_overrideTimeStamp;
+   Gaudi::Property<bool> m_overrideRunNumber;
+   Gaudi::Property<bool> m_overrideEventNumber;
+   Gaudi::Property<bool> m_overrideTimeStamp;
 
    mutable long m_curCollection;
    mutable std::vector<int> m_numEvt;
    mutable std::vector<int> m_firstEvt;
 
    /// SkipEvents, numbers of events to skip: default = 0.
-   IntegerProperty m_skipEvents;
-   LongArrayProperty m_skipEventSequenceProp;
+   Gaudi::Property<int> m_skipEvents;
+   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp;
    mutable std::vector<long> m_skipEventSequence;
 
    mutable int m_evtCount; // internal count of events

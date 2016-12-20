@@ -256,12 +256,12 @@ StatusCode EventSelectorAthenaPool::reinit() {
       return(StatusCode::SUCCESS);
    }
    bool retError = false;
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-		   last = m_helperTools.end(); iter != last; iter++) {
-      if (!(*iter)->postInitialize().isSuccess()) {
-         ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
-         retError = true;
-      }
+   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
+          last = m_helperTools.end(); iter != last; iter++) {
+     if (!(*iter)->postInitialize().isSuccess()) {
+       ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
+       retError = true;
+     }
    }
    if (retError) {
       ATH_MSG_FATAL("Failed to postInitialize() helperTools");
@@ -274,9 +274,11 @@ StatusCode EventSelectorAthenaPool::reinit() {
    if (m_poolCollectionConverter == 0) {
       ATH_MSG_INFO("No Events found in any Input Collections");
       if (m_processMetadata.value()) {
-         m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
+	m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
+	if(m_inputCollectionsProp.value().size()>0) m_inputCollectionsIterator--;
+	//NOTE (wb may 2016): this will make the FirstInputFile incident correspond to last file in the collection ... if want it to be first file then move iterator to begin and then move above two lines below this incident firing
          bool isPayload = m_collectionType.value() == "SeekableROOT" || m_collectionType.value() == "ImplicitROOT";
-         if (isPayload && !m_firedIncident) {
+         if (isPayload && !m_firedIncident && m_inputCollectionsProp.value().size()>0) {
             FileIncident firstInputFileIncident(name(), "FirstInputFile", *m_inputCollectionsIterator);
             m_incidentSvc->fireIncident(firstInputFileIncident);
             m_firedIncident = true;
@@ -373,11 +375,13 @@ StatusCode EventSelectorAthenaPool::start() {
    if (m_poolCollectionConverter == 0) {
       ATH_MSG_INFO("No Events found in any Input Collections");
       m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
-      if(m_inputCollectionsProp.value().size()>0) m_inputCollectionsIterator--; //leave iterator in state of last input file 
-      if (m_processMetadata.value()) {
-         // Fire first BeginTagFile incident
-         FileIncident beginTagFileIncident(name(), "BeginTagFile", *m_inputCollectionsIterator);
-         m_incidentSvc->fireIncident(beginTagFileIncident);
+      if(m_inputCollectionsProp.value().size()>0) {
+        m_inputCollectionsIterator--; //leave iterator in state of last input file 
+        if (m_processMetadata.value()) {
+          // Fire first BeginTagFile incident
+          FileIncident beginTagFileIncident(name(), "BeginTagFile", *m_inputCollectionsIterator);
+          m_incidentSvc->fireIncident(beginTagFileIncident);
+        }
       }
       delete m_beginIter; m_beginIter = 0;
       m_beginIter = new EventContextAthenaPool(this);
@@ -456,11 +460,11 @@ StatusCode EventSelectorAthenaPool::finalize() {
       if (!m_counterTool.empty() && !m_counterTool->preFinalize().isSuccess()) {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
-      for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-		      last = m_helperTools.end(); iter != last; iter++) {
-         if (!(*iter)->preFinalize().isSuccess()) {
-            ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
-         }
+      for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
+             last = m_helperTools.end(); iter != last; iter++) {
+        if (!(*iter)->preFinalize().isSuccess()) {
+          ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
+        }
       }
    }
    delete m_beginIter; m_beginIter = 0;

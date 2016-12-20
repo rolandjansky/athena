@@ -70,14 +70,14 @@ PoolCollectionConverter::~PoolCollectionConverter() {
 //______________________________________________________________________________
 StatusCode PoolCollectionConverter::initialize() {
    MsgStream log(m_msgSvc, "PoolCollectionConverter");
-   log << MSG::DEBUG << "Initializing PoolCollectionConverter for type: " << m_collectionType << endreq;
+   log << MSG::DEBUG << "Initializing PoolCollectionConverter for type: " << m_collectionType << endmsg;
    std::string collectionTypeString;
    if (m_collectionType == "ExplicitROOT") {
       collectionTypeString = "RootCollection";
    } else if (m_collectionType == "ImplicitROOT" || m_collectionType == "SeekableROOT") {
       collectionTypeString = "ImplicitCollection";
    } else {
-      log << MSG::ERROR << "Undefined collection type " << m_collectionType << endreq;
+      log << MSG::ERROR << "Undefined collection type " << m_collectionType << endmsg;
       return(StatusCode::FAILURE);
    }
    log << MSG::DEBUG << "Create collection type: "
@@ -88,7 +88,7 @@ StatusCode PoolCollectionConverter::initialize() {
 	   << m_connection
 	   << " collection "
 	   << m_inputCollection
-	   << endreq;
+	   << endmsg;
    if (collectionTypeString == "ImplicitCollection") {
       // Check if already prefixed
       if (m_inputCollection.find("PFN:") == 0
@@ -119,13 +119,13 @@ StatusCode PoolCollectionConverter::initialize() {
          m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
    } catch (std::exception &e) {
-      log << MSG::WARNING << "Unable to create Collection: " << m_connection << endreq;
-      log << MSG::WARNING << e.what() << endreq;
+      log << MSG::WARNING << "Unable to create Collection: " << m_connection << endmsg;
+      log << MSG::WARNING << e.what() << endmsg;
       return(StatusCode::RECOVERABLE);
    }
    if (m_poolCollection == 0) {
       log << MSG::INFO << "Unable to create Collection: " << m_connection 
-          << " container: " << m_inputCollection << endreq;
+          << " container: " << m_inputCollection << endmsg;
    }
    return(StatusCode::SUCCESS);
 }
@@ -172,7 +172,7 @@ std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor
    if (!refName.empty()) {
       MsgStream log(m_msgSvc, "PoolCollectionConverter");
       std::string attrName = refName + "_ref";
-      log << MSG::DEBUG << " Get attribute: " << attrName << " (derived from " << refName << ")" << endreq;
+      log << MSG::DEBUG << " Get attribute: " << attrName << " (derived from " << refName << ")" << endmsg;
       try {
 	 tokenStr = cursor->currentRow().tokenList()[attrName].toString();
       } catch (...) {
@@ -182,7 +182,7 @@ std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor
 	 } catch (std::exception& e) {
 	    log << MSG::ERROR << "Retrieve token for ref name: "
 	            << refName
-	            << " Error caught: " << e.what() << endreq;
+	            << " Error caught: " << e.what() << endmsg;
 	    return("");
 	 }
       }
