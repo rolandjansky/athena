@@ -8,7 +8,7 @@
 #define PILEUPCOMPS_ARRAYBM 1
 /** @file ArrayBM.h
  * @brief A IBeamIntensity service configured with an intensity array
- * The FloatArrayProperty describes the intensity pattern that is
+ * The Gaudi::Property<std::vector<float>> describes the intensity pattern that is
  * repeated for the entire beam xing range.
  *
  * $Id: BkgStreamsCache.h,v 1.10 2008-08-28 01:11:06 calaf Exp $
@@ -53,7 +53,7 @@ private:
   /// offset of the t0 wrto our intensity pattern
   unsigned int m_t0Offset;
   /// user-defined intensity pattern
-  FloatArrayProperty m_intensityPatternProp;
+  Gaudi::Property<std::vector<float>> m_intensityPatternProp;
   /// lenght of the intensity pattern
   unsigned int m_ipLength;
   /// normalized intensity pattern. C array to make clhep RandGeneral happy

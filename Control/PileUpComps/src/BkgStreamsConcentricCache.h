@@ -164,29 +164,29 @@ private:
   /// @name Properties
   //@{
   /// # of collisions/xings (~beam intensity)
-  FloatProperty m_collXing;
+  Gaudi::Property<float> m_collXing;
   /// The maximum fraction of bunch-crossings which will be occupied.
-  FloatProperty m_occupationFraction;
+  Gaudi::Property<float> m_occupationFraction;
   /// select collision distribution
-  StringProperty m_collDistrName;
+  Gaudi::Property<std::string> m_collDistrName;
   ServiceHandle<IEvtSelector> m_selecName;
   /// read downscale factor (average number of times a min bias is reused)
-  FloatProperty m_readDownscale;
+  Gaudi::Property<float> m_readDownscale;
   /// IAtRndmGenSvc controlling the distribution of bkg events/xing
   ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
   /// the IAtRndmGenSvc stream to generate number of collisions/xing
-  StringProperty m_randomStreamName;
+  Gaudi::Property<std::string> m_randomStreamName;
   /// the type of events in this cache
-  UnsignedShortProperty m_pileUpEventTypeProp;
+  Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
   PileUpTimeEventIndex::PileUpType m_pileUpEventType;
   void RingsPropHandler(Property&);
   /// the list of rings to be used in the form "lowXing:hiXing"
-  StringArrayProperty m_ringsProp;
+  Gaudi::Property<std::vector<std::string>> m_ringsProp;
   /// Allow events in inner rings to be used in outer rings. 
   /// When false every ring is effectively a separate cache
-  BooleanProperty m_allowRingMigProp;
+  Gaudi::Property<bool> m_allowRingMigProp;
   //@}
   /// read a new event every downscaleFactor accesses
   CLHEP::RandFlat* m_readEventRand;
@@ -199,7 +199,7 @@ private:
   /// float scaling number of collisions/xing 
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?
-  BooleanProperty m_ignoreSF;
+  Gaudi::Property<bool> m_ignoreSF;
 };
 
 #endif // PILEUPTOOLS_BKGSTREAMSCACHE_H

@@ -8,9 +8,9 @@
 #define PILEUPCOMPS_STEPARRAYBM 1
 /** @file StepArrayBM.h
  * @brief A IBeamIntensity service configured with an intensity array and an optional signal pattern array
- * The FloatArrayProperty IntensityPattern describes the intensity pattern that is
+ * The Gaudi::Property<std::vector<float>> IntensityPattern describes the intensity pattern that is
  * repeated for the entire beam xing range.
- * The FloatArrayProperty SignalPattern describes the positions at which signal events will be placed (and hence which xings are simulated)
+ * The Gaudi::Property<std::vector<float>> SignalPattern describes the positions at which signal events will be placed (and hence which xings are simulated)
  * This BeamIntensity service sequentially steps through the bunch crossings of the provided pattern
  * $Id: BkgStreamsStepCache.h,v 1.10 2008-08-28 01:11:06 calaf Exp $
  * @author Will Buttinger - ATLAS Collaboration
@@ -58,9 +58,9 @@ private:
   /// offset of the current xing wrto the signal pattern
   unsigned int m_signalOffset;
   /// user-defined intensity pattern
-  FloatArrayProperty m_intensityPatternProp;
+  Gaudi::Property<std::vector<float>> m_intensityPatternProp;
   /// user-defined signal pattern - non zero numbers means "Do Signal"
-  FloatArrayProperty m_signalPatternProp;
+  Gaudi::Property<std::vector<float>> m_signalPatternProp;
   /// lenght of the intensity pattern
   unsigned int m_ipLength;
   /// length of the signal pattern

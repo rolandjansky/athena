@@ -67,12 +67,12 @@ private:
   /// @name Properties
   //@{
   ToolHandle<SG::IFolder> m_folder;
-  IntegerProperty m_firstXing;
-  IntegerProperty m_lastXing;
-  StringArrayProperty m_itemList; ///< this must match SG::Folder::m_itemList
+  Gaudi::Property<int> m_firstXing;
+  Gaudi::Property<int> m_lastXing;
+  Gaudi::Property<std::vector<std::string>> m_itemList; ///< this must match SG::Folder::m_itemList
   ///Bound property [0.0, 1.0]: frequency with which data objs in this folder
   ///should be cleared from bkg caches at end of event. Default 0 (never clear)
-  DoubleProperty m_cacheRefreshFrequency;
+  Gaudi::CheckedProperty<double> m_cacheRefreshFrequency;
   //@}
 };
 

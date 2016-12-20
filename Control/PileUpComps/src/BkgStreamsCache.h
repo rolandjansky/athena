@@ -115,27 +115,27 @@ private:
   /// @name Properties
   //@{
   /// # of collisions per bunch crossing (~beam intensity)
-  FloatProperty m_collXing;
+  Gaudi::Property<float> m_collXing;
   /// The maximum fraction of bunch-crossings which will be occupied.
-  FloatProperty m_occupationFraction;
+  Gaudi::Property<float> m_occupationFraction;
   /// select collision distribution
-  StringProperty m_collDistrName;
+  Gaudi::Property<std::string> m_collDistrName;
   ServiceHandle<IEvtSelector> m_selecName;
   /// read downscale factor (average number of times a min bias is reused)
-  FloatProperty m_readDownscale;
+  Gaudi::Property<float> m_readDownscale;
   /// IAtRndmGenSvc controlling the distribution of bkg events per bunch crossing
   ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
   /// the IAtRndmGenSvc stream to generate number of bkg events per bunch crossing
-  StringProperty m_randomStreamName;
+  Gaudi::Property<std::string> m_randomStreamName;
   /// the type of events in this cache
-  UnsignedShortProperty m_pileUpEventTypeProp;
+  Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
   PileUpTimeEventIndex::PileUpType m_pileUpEventType;
   /// subtract from number of events at bunch xing = 0
-  UnsignedShortProperty m_subtractBC0;
+  Gaudi::Property<unsigned short> m_subtractBC0;
   /// ignore the PileUpEventLoopMgr beam intensity tool
-  BooleanProperty m_ignoreBM;
+  Gaudi::Property<bool> m_ignoreBM;
   //@}
   /// read a new event every downscaleFactor accesses
   CLHEP::RandFlat* m_readEventRand;
@@ -152,13 +152,13 @@ private:
   /// float scaling number of collisions per bunch crossing
   float m_collXingSF;
   /// bool apply scaling number of collisions per bunch crossing ?
-  BooleanProperty m_ignoreSF;
+  Gaudi::Property<bool> m_ignoreSF;
   /// offset of BC=0 xing
   int m_zeroXing;
   /// pointer to the IBeamIntensity distribution tool
   IBeamIntensity* m_beamInt;
   /// Force events used in the central bunch crossing to be refreshed
-  BooleanProperty m_forceReadForBC0;
+  Gaudi::Property<bool> m_forceReadForBC0;
 
 };
 

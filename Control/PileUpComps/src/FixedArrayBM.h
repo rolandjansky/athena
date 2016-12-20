@@ -8,7 +8,7 @@
 #define PILEUPCOMPS_FIXEDARRAYBM 1
 /** @file FixedArrayBM.h
  * @brief A IBeamIntensity service configured with an intensity array
- * The FloatArrayProperty describes the intensity pattern that is
+ * The Gaudi::Property<std::vector<float>> describes the intensity pattern that is
  * repeated for the entire beam xing range.
  * The T0Offset property specifies the fixed point in this intensity
  * pattern which will be used for the central bunch crossing.
@@ -52,9 +52,9 @@ private:
   /// offset of the t0 wrto our intensity pattern
   unsigned int m_t0Offset;
   /// allow t0 to be in an empty bunch crossing
-  BooleanProperty m_allowEmptyT0BunchCrossing;
+  Gaudi::Property<bool> m_allowEmptyT0BunchCrossing;
   /// user-defined intensity pattern
-  FloatArrayProperty m_intensityPatternProp;
+  Gaudi::Property<std::vector<float>> m_intensityPatternProp;
   /// length of the intensity pattern
   unsigned int m_ipLength;
   /// normalized intensity pattern.

@@ -23,10 +23,8 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#ifndef _CPP_STRING
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include <string>
-#endif
 
 // Forward declarations
 class IBeamIntensity;
@@ -41,6 +39,7 @@ class IIncidentSvc;
 class ITimeKeeper;
 class PileUpMergeSvc;
 class StoreGateSvc;
+class EventContext;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
@@ -81,6 +80,9 @@ public:
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 
 private:
+  /// Reference to the Algorithm Execution State Svc
+  SmartIF<IAlgExecStateSvc>  m_aess;
+
   /// setup input and overlay selectors and iters
   StatusCode setupStreams();
 
@@ -121,32 +123,32 @@ private:
   /// BkgStreamsCaches managing background events
   ToolHandleArray<IBkgStreamsCache> m_caches;
   /// (max) minBias interactions per Xing, for setting MC luminosity
-  FloatProperty m_maxCollPerXing;
+  Gaudi::Property<float> m_maxCollPerXing;
 
   /// Xing frequency(ns);
-  FloatProperty m_xingFreq;
+  Gaudi::Property<float> m_xingFreq;
   /// first xing to be simulated (0th xing is 1st after trigger)
-  IntegerProperty m_firstXing;
+  Gaudi::Property<int> m_firstXing;
   /// last xing to be simulated (0th xing is 1st after trigger)
-  IntegerProperty m_lastXing;
+  Gaudi::Property<int> m_lastXing;
 
   /// property: TimeKeeper service instance
   ServiceHandle<ITimeKeeper> m_timeKeeper;
 
   /// property: allow sub evts EOF condition when maxevt==-1
-  BooleanProperty m_allowSubEvtsEOF;
+  Gaudi::Property<bool> m_allowSubEvtsEOF;
 
   /// property: process bkg events xing by xing without caching them
-  BooleanProperty m_xingByXing;
+  Gaudi::Property<bool> m_xingByXing;
 
   /// property: is this job running RDO+RDO overlay.
-  BooleanProperty m_isEventOverlayJob;
+  Gaudi::Property<bool> m_isEventOverlayJob;
 
   /// property: the run number from an EVNT file, used to set the mc_channel_number, for overlay
-  IntegerProperty m_mcRunNumber;
+  Gaudi::Property<int> m_mcRunNumber;
 
   /// property: control behaviour of event loop on algorithm failure
-  IntegerProperty m_failureMode;
+  Gaudi::Property<int> m_failureMode;
 
   /// property: beam intensity service handle for beam profile in local time
   ServiceHandle<IBeamIntensity> m_beamInt;
@@ -172,11 +174,13 @@ private:
   bool m_skipExecAlgs;
   bool m_loadProxies;
 
+  EventContext* m_eventContext;
+
   /// property: flag to control extra checks for embedding jobs.
-  BooleanProperty m_isEmbedding;
+  Gaudi::Property<bool> m_isEmbedding;
   /// property: Default true. When set to false, this will allow the
   /// code to reproduce serial output in an AthenaMP job, albeit with
   /// a significant performance penalty.
-  BooleanProperty m_allowSerialAndMPToDiffer;
+  Gaudi::Property<bool> m_allowSerialAndMPToDiffer;
 };
 #endif // PILEUPTOOLS_PILEUPEVENTLOOPMGR_H

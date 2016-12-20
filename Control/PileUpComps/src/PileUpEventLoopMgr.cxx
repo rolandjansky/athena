@@ -40,6 +40,9 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/DataIncident.h" // For ContextIncident
 #include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/Algorithm.h"
 
 // std library headers
 #include <cmath>
@@ -72,6 +75,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_ncurevt(0),
     m_skipExecAlgs(false),
     m_loadProxies(true),
+    m_eventContext(nullptr),
     m_isEmbedding(false),
     m_allowSerialAndMPToDiffer(true)
 {
@@ -194,6 +198,17 @@ StatusCode PileUpEventLoopMgr::initialize()
       return StatusCode::FAILURE;
     }
 
+  // Get the AlgExecStateSvc
+  m_aess = serviceLocator()->service("AlgExecStateSvc");
+  if( !m_aess.isValid() ) {
+    fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  // create the EventContext object
+  m_eventContext = new EventContext();
+
+
   //-------------------------------------------------------------------------
   // Base class initialize (done at the end to allow algs to access stores)
   //-------------------------------------------------------------------------
@@ -219,6 +234,8 @@ StatusCode PileUpEventLoopMgr::finalize()
 
   //and to clean up the store the stream owns
   CHECK(m_origStream.finalize());
+
+  delete m_eventContext; m_eventContext = nullptr;
 
   return MinimalEventLoopMgr::finalize();
 }
@@ -270,6 +287,15 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
                           (*ita)->name() );
           return StatusCode::FAILURE;
         }
+
+      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
+      if (alg != nullptr) {
+        alg->setContext( m_eventContext );
+      } else {
+        ATH_MSG_ERROR( "Unable to dcast IAlgorithm " << (*ita)->name() 
+                       << " to Algorithm" );
+        return StatusCode::FAILURE;
+      }
     }
 
   // Initialize the list of Output Streams. Note that existing Output Streams
@@ -279,6 +305,15 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       if( !((*ita)->sysInitialize()).isSuccess() ) {
         ATH_MSG_ERROR ( "Unable to initialize Output Stream: " <<
                         (*ita)->name() );
+        return StatusCode::FAILURE;
+      }
+
+      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
+      if (alg != nullptr) {
+        alg->setContext( m_eventContext );
+      } else {
+        ATH_MSG_ERROR( "Unable to dcast IAlgorithm " << (*ita)->name() 
+                       << " to Algorithm" );
         return StatusCode::FAILURE;
       }
     }
@@ -696,8 +731,12 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms()
         ita != m_topAlgList.end();
         ita++ )
     {
-      (*ita)->resetExecuted();
-      const StatusCode& sc = (*ita)->sysExecute();
+      StatusCode sc = (*ita)->sysExecute();
+      // this duplicates what is already done in Algorithm::sysExecute, which
+      // calls Algorithm::setExecuted, but eventually we plan to remove that 
+      // function
+      m_aess->algExecState(*ita,*m_eventContext).setExecuted(true);
+      m_aess->algExecState(*ita,*m_eventContext).setExecStatus(sc);
       if ( !sc.isSuccess() )
         {
           ATH_MSG_INFO ( "Execution of algorithm " <<
@@ -718,6 +757,15 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
 
   const EventInfo* pEvent(reinterpret_cast<PileUpEventInfo*>(par)); //AUIII!
   assert(pEvent);
+
+  m_eventContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext->set(m_nevt,0);
+
+  /// Is this correct, or should it be set to a pileup store?
+  m_eventContext->setProxy( m_evtStore->hiveProxyDict() );
+  Gaudi::Hive::setCurrentContext( m_eventContext );
+
+  m_aess->reset(*m_eventContext);
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) )
@@ -751,6 +799,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   if(!sc.isSuccess())
     {
       eventFailed = true;
+      m_aess->setEventStatus( EventStatus::AlgFail, *m_eventContext );
 
       /// m_failureMode 1,
       /// RECOVERABLE: skip algorithms, but do not terminate job
@@ -775,11 +824,12 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
   else
     {
+      m_aess->setEventStatus( EventStatus::Success, *m_eventContext );
+
       // Call the execute() method of all output streams
       for (ListAlg::iterator ito = m_outStreamList.begin();
            ito != m_outStreamList.end(); ito++ )
         {
-          (*ito)->resetExecuted();
           sc = (*ito)->sysExecute();
           if( !sc.isSuccess() )
             {
