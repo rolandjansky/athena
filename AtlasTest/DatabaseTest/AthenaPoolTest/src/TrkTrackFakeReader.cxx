@@ -99,10 +99,10 @@ StatusCode TrkTrackFakeReader::finalize()
 
 void TrkTrackFakeReader::compareTracks(const Trk::Track* ref, const Trk::Track* readTrk) {
       // if (**it!=*track) {
-      //   log<<MSG::ERROR<<"Tracks differ!"<<endreq;
+      //   log<<MSG::ERROR<<"Tracks differ!"<<endmsg;
       //   
-      //   log<<MSG::INFO<<"Reference track: "<<(*track)<<endreq;
-      //   log<<MSG::INFO<<"Track from ESD: "<<(**it)<<endreq;
+      //   log<<MSG::INFO<<"Reference track: "<<(*track)<<endmsg;
+      //   log<<MSG::INFO<<"Track from ESD: "<<(**it)<<endmsg;
       // }
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), name());

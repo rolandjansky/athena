@@ -68,7 +68,7 @@ LArCellContFakeCreator::createCaloCellContainer(const CaloCell_ID* calocellId,
     CaloCellContainer* caloCont = new CaloCellContainer();
 
 
-    log << MSG::DEBUG << "Created CaloCellContainer" << endreq;
+    log << MSG::DEBUG << "Created CaloCellContainer" << endmsg;
 
     // add  10 cells to container
     for (int eta = 1; eta < 5; ++eta) {
@@ -78,7 +78,7 @@ LArCellContFakeCreator::createCaloCellContainer(const CaloCell_ID* calocellId,
 	    IdentifierHash idHash     = calocellId->calo_cell_hash (id);
 	    const CaloDetDescrElement* elem = caloMgr->get_element (idHash);
 	    
-	    //log << MSG::DEBUG << "Found elem" << elem << endreq;
+	    //log << MSG::DEBUG << "Found elem" << elem << endmsg;
 
 	    double energy    = 5.0*eta;
 	    double time      = 0.0;
@@ -95,7 +95,7 @@ LArCellContFakeCreator::createCaloCellContainer(const CaloCell_ID* calocellId,
 	    LArCell* cell = new LArCell(elem, energy, time, quality, prov, gain);
 	    caloCont->push_back(cell);
 
-	    //log << MSG::DEBUG << "Created CaloCellContainer" << endreq;
+	    //log << MSG::DEBUG << "Created CaloCellContainer" << endmsg;
 
 	}
     }

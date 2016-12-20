@@ -37,7 +37,7 @@ from RecExConfig.RecFlags import rec
 rec.doAOD     = False
 rec.doTrigger = False
 rec.doWriteTAG  = False
-DetDescrVersion = "ATLAS-GEO-17-00-00"
+#DetDescrVersion = "ATLAS-GEO-17-00-00"
 include( "RecExCond/RecExCommon_flags.py" )
 
 #DetFlags.detdescr.ID_setOff()

@@ -21,7 +21,7 @@ select=$2
 #    if [ "$status" = 0 ]
 #	then 
 	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
-	reflog=../test/${test}.ref
+	reflog=../share/${test}.ref
 	if [ -r $reflog ]
 	    then
             # If select string is non-zero, use it for the comparison,
@@ -29,6 +29,7 @@ select=$2
 	    if [ -n "${select}" ]
 		then
 		echo "Selecting on: ${select}"
+		diff  -a -b -B  $joblog $reflog >> xlog
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
@@ -44,6 +45,7 @@ select=$2
 		egrep -a -v 'package version' |\
 		    # spurious warning for EventSelector
 		egrep -a -v 'Service already offline' |\
+		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc' |\
 		    # Must remove excess print for CaloShowerContainer
 		egrep -a -v 'CaloShowerContainer' 
 
@@ -107,7 +109,7 @@ select=$2
 	    if [ $diffStatus = 0 ] 
 		then
 		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
-#		exit 1
+		exit 1
 	    else
 		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
 	    fi
