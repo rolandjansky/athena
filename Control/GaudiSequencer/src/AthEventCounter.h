@@ -47,7 +47,7 @@ private:
    ** should be reported. The default is 1, corresponding
    ** to every event.
    **/
-  IntegerProperty m_frequency;
+  Gaudi::CheckedProperty<int> m_frequency;
 
   /**
    ** The number of events skipped since the last time

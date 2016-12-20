@@ -28,7 +28,7 @@ StatusCode
 AthPrescaler::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "..." 
-                << endreq
+                << endmsg
                 << "initialize ==> pass: " << m_percentPass);
   return StatusCode::SUCCESS;
 }
@@ -51,8 +51,8 @@ AthPrescaler::execute()
 StatusCode
 AthPrescaler::finalize()
 {
-  ATH_MSG_INFO ("finalize : " << endreq
-                << "  - total  events: " << m_seen << endreq
+  ATH_MSG_INFO ("finalize : " << endmsg
+                << "  - total  events: " << m_seen << endmsg
                 << "  - passed events: " << m_pass);
 
   return StatusCode::SUCCESS;
