@@ -14,13 +14,14 @@ if rec.doFTK():
  FTK_RDO_Reader.FTK_DataProvider=theFTK_DataProviderSvc
  FTK_RDO_Reader.RDO_CollectionName="FTK_RDO_Tracks"
  FTK_RDO_Reader.fillHists=False
-
+ FTK_RDO_Reader.fillTree=False
  FTK_RDO_Reader.GetTracks=True
  FTK_RDO_Reader.GetTrackParticles=True
  FTK_RDO_Reader.GetVertex=True
  FTK_RDO_Reader.GetRefitTracks=True
  FTK_RDO_Reader.GetRefitTrackParticles=True
  FTK_RDO_Reader.GetRefitVertex=True
+ FTK_RDO_Reader.GetTruthVertex=False
 
  from AthenaCommon.AlgSequence import AlgSequence
 
