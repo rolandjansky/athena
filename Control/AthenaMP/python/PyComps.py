@@ -67,13 +67,13 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         if strategy=='SharedQueue' or strategy=='RoundRobin':
             if use_shared_reader:
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from AthenaServices.AthenaServicesConf import AthenaSharedMemoryTool
+                from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                 svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
                 if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
                     svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool")
             if use_shared_writer:
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from AthenaServices.AthenaServicesConf import AthenaSharedMemoryTool
+                from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                 svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
                 if sys.modules.has_key('AthenaPoolCnvSvc.WriteAthenaPool'):
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool = AthenaSharedMemoryTool("OutputStreamingTool")
