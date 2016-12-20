@@ -1,4 +1,4 @@
-// $Id: AsgMetadataTool.cxx 692722 2015-09-02 13:06:02Z krasznaa $
+// $Id: AsgMetadataTool.cxx 771072 2016-08-31 14:50:22Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -36,11 +36,12 @@ namespace asg {
       : AsgTool( name ),
 #ifdef ASGTOOL_STANDALONE
         m_inputMetaStore( SgTEventMeta::InputStore ),
-        m_outputMetaStore( SgTEventMeta::OutputStore )
+        m_outputMetaStore( SgTEventMeta::OutputStore ),
 #elif defined(ASGTOOL_ATHENA)
         m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
-        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
+        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name ),
 #endif // Environment selection
+        m_beginInputFileCalled( false )
    {
 
 #ifdef ASGTOOL_STANDALONE
@@ -132,6 +133,7 @@ namespace asg {
 
       // Call the appropriate member function:
       if( inc.type() == IncidentType::BeginInputFile ) {
+         m_beginInputFileCalled = true;
          if( beginInputFile().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginInputFile()" );
             throw std::runtime_error( "Couldn't call beginInputFile()" );
@@ -142,6 +144,16 @@ namespace asg {
             throw std::runtime_error( "Couldn't call endInputFile()" );
          }
       } else if( inc.type() == IncidentType::BeginEvent ) {
+         // If the tool didn't catch the begin input file incident for the
+         // first input file of the job, then call the appropriate function
+         // now.
+         if( ! m_beginInputFileCalled ) {
+            m_beginInputFileCalled = true;
+            if( beginInputFile().isFailure() ) {
+               ATH_MSG_FATAL( "Failed to call beginInputFile()" );
+               throw std::runtime_error( "Couldn't call beginInputFile()" );
+            }
+         }
          if( beginEvent().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginEvent()" );
             throw std::runtime_error( "Couldn't call beginEvent()" );
