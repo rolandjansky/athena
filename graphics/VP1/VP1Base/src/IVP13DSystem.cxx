@@ -314,7 +314,7 @@ void IVP13DSystem::setUserSelectionNotificationsEnabled( SoCooperativeSelection 
     message("setUserSelectionNotificationsEnabled Error: Called for selection which was never registered!");
     return;
   }
-  if (!enabled == d->selectionsWithDisabledNotifications.contains(selection))
+  if (enabled != d->selectionsWithDisabledNotifications.contains(selection))
     return;
 
   if (enabled)
