@@ -54,7 +54,7 @@ public:
     virtual MuidTrackContainer*		execute(
 	const TrackCollection*		extrapolatedTracks,
 	const TrackCollection*		indetTracks,
-	const TrackCollection*		spectrometerTracks) const = 0;
+	const TrackCollection*		spectrometerTracks) = 0;
 };
  
 }	// end of namespace
