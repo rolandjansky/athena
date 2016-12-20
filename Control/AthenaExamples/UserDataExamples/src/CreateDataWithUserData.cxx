@@ -4,7 +4,7 @@
 
 #include "CreateDataWithUserData.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "DataModel/UserDataStore.h"
+#include "AthContainers/UserDataStore.h"
 #include "AthenaKernel/errorcheck.h"
 
 using namespace UserDataExamples;
@@ -16,9 +16,9 @@ CreateDataWithUserData::CreateDataWithUserData( const std::string& name,
   declareProperty("UserDataSvc",m_userDataSvc);
   declareProperty("ContainerName",m_contName="");
   declareProperty("VecSize",m_vecSize=10);
-  nEvents=0;
-  nClusters=0;
-  nAttributes=0;
+  m_nEvents=0;
+  m_nClusters=0;
+  m_nAttributes=0;
 }
 
 // Destructor
@@ -32,7 +32,7 @@ StatusCode CreateDataWithUserData::initialize() {
 
   StatusCode sc=m_userDataSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve UserDataSvc " << m_userDataSvc << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve UserDataSvc " << m_userDataSvc << endmsg;
     return sc;
   }
 
@@ -42,7 +42,7 @@ StatusCode CreateDataWithUserData::initialize() {
 }
 
 StatusCode CreateDataWithUserData::finalize() {
-  msg(MSG::INFO) << "Counters: Events: " << nEvents << ", Clusters: " << nClusters << ", Attributes: " << nAttributes << endreq;
+  msg(MSG::INFO) << "Counters: Events: " << m_nEvents << ", Clusters: " << m_nClusters << ", Attributes: " << m_nAttributes << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -54,12 +54,12 @@ StatusCode CreateDataWithUserData::execute() {
   std::vector<float> vecf(m_vecSize,5.5);
   std::vector<double> vecd(m_vecSize,5.55);
 
-  ++nEvents;
+  ++m_nEvents;
   CaloClusterContainer* clusterContainer=new CaloClusterContainer();
 
   StatusCode sc=evtStore()->record(clusterContainer,m_contName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record CaloClusterContainer with name " << m_contName << endreq;
+    msg(MSG::ERROR) << "Failed to record CaloClusterContainer with name " << m_contName << endmsg;
     return sc;
   }
   std::string label;
@@ -67,7 +67,7 @@ StatusCode CreateDataWithUserData::execute() {
   for(unsigned nClu=0;nClu<500;++nClu) {
     CaloCluster* cluster=new CaloCluster(1.0,1.0);
     clusterContainer->push_back(cluster);
-    ++nClusters;
+    ++m_nClusters;
     //Create 20 attributes for caloCluster:
     for (unsigned i=0;i<2;++i) {
       std::stringstream sLabel;
@@ -75,12 +75,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str();
       sc=m_userDataSvc->decorateElement(*cluster,label,counter);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
       int counterOut=0;
@@ -92,12 +92,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"d";
       sc=m_userDataSvc->decorateElement(*cluster,label,dbl);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
       double dblOut=0;
@@ -110,12 +110,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"u";
       sc=m_userDataSvc->decorateElement(*cluster,label,cnt_u);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
       
 
@@ -129,12 +129,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"f";
       sc=m_userDataSvc->decorateElement(*cluster,label,cnt_f);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
       
       float cnt_fOut=0;
@@ -147,12 +147,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"b";
       sc=m_userDataSvc->decorateElement(*cluster,label,b);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
       bool bout=false;
       CHECK(m_userDataSvc->getElementDecoration(*cluster,label,bout));
@@ -163,14 +163,14 @@ StatusCode CreateDataWithUserData::execute() {
       //std::string l=labelidx+"vVirt";
       label=sLabel.str()+"vVirt";
       if (m_userDataSvc->vdecorateElement(*cluster,label,typeid(std::vector<int32_t>),x)) {
-	msg(MSG::ERROR) << "vdecorateElement failed" << endreq;
+	msg(MSG::ERROR) << "vdecorateElement failed" << endmsg;
 	return StatusCode::FAILURE;
       }
       
       void* vecOut=0;
       int stat=m_userDataSvc->vgetElementDecoration(*cluster,label,typeid(std::vector<int32_t>),vecOut);
       if (stat) {
-	msg(MSG::ERROR) << "vgetElementDecoration with label=" << label << " failed." << endreq;
+	msg(MSG::ERROR) << "vgetElementDecoration with label=" << label << " failed." << endmsg;
 	return StatusCode::FAILURE;
       }
       
@@ -181,12 +181,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"v";
       sc=m_userDataSvc->decorateElement(*cluster,label,vec);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
 
@@ -198,12 +198,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"vu";
       sc=m_userDataSvc->decorateElement(*cluster,label,vecu);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
       std::vector<uint32_t> vecuOut;
@@ -214,12 +214,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"vf";
       sc=m_userDataSvc->decorateElement(*cluster,label,vecf);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
       std::vector<float> vecfOut;
@@ -230,12 +230,12 @@ StatusCode CreateDataWithUserData::execute() {
       label=sLabel.str()+"vd";
       sc=m_userDataSvc->decorateElement(*cluster,label,vecd);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endreq;
+	msg(MSG::ERROR) << "Failed to decorate CaloCluster with an attribute called " << label << endmsg;
 	return sc;
       }
       else {
 	ATH_MSG_DEBUG("Successfully decorate CaloCluster with an attribute called " << label);
-	++nAttributes;
+	++m_nAttributes;
       }
 
       std::vector<double> vecdOut;
@@ -249,7 +249,7 @@ StatusCode CreateDataWithUserData::execute() {
   label="EventDeco";
   sc=m_userDataSvc->decorateEvent(label,42.0);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record EventDecoration called " << label << endreq;
+    msg(MSG::ERROR) << "Failed to record EventDecoration called " << label << endmsg;
   }
 
   double fOut = 0;

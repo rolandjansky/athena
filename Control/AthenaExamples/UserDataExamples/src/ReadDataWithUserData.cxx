@@ -4,7 +4,7 @@
 
 #include "ReadDataWithUserData.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "DataModel/UserDataStore.h"
+#include "AthContainers/UserDataStore.h"
 #include "AthenaKernel/errorcheck.h"
 
 using namespace UserDataExamples;
@@ -16,7 +16,7 @@ ReadDataWithUserData::ReadDataWithUserData( const std::string& name,
   declareProperty("UserDataSvc",m_userDataSvc);
   declareProperty("ContainerName",m_contName="");
   m_events=0;
-  nAttributes=0;
+  m_nAttributes=0;
 }
 
 // Destructor
@@ -30,7 +30,7 @@ StatusCode ReadDataWithUserData::initialize() {
 
   StatusCode sc=m_userDataSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve UserDataSvc " << m_userDataSvc << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve UserDataSvc " << m_userDataSvc << endmsg;
     return sc;
   }
 
@@ -40,7 +40,7 @@ StatusCode ReadDataWithUserData::initialize() {
 }
 
 StatusCode ReadDataWithUserData::finalize() {
-  //msg(MSG::INFO) << "Counters: Events: " << m_events << ", Clusters: " << nCluster << ", Attributes: " << nAttibutes << endreq;
+  //msg(MSG::INFO) << "Counters: Events: " << m_events << ", Clusters: " << nCluster << ", Attributes: " << nAttibutes << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -52,7 +52,7 @@ StatusCode ReadDataWithUserData::execute() {
 
   StatusCode sc=evtStore()->retrieve(clusterContainer,m_contName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve CaloClusterContainer with name " << m_contName << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve CaloClusterContainer with name " << m_contName << endmsg;
     return sc;
   }
   
@@ -72,70 +72,70 @@ StatusCode ReadDataWithUserData::execute() {
       label=sLabel.str();
       int counterOut=0;
       CHECK(m_userDataSvc->retrieve(*cluster,label,counterOut));
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << counterOut << endreq;          
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << counterOut << endmsg;          
 
       //Same with double;
       label=sLabel.str()+"d";
       double dblOut=0;
       CHECK(m_userDataSvc->retrieve(*cluster,label,dblOut));
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << dblOut << endreq;          
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << dblOut << endmsg;          
 
       //Same with unsigned:
       label=sLabel.str()+"u";
       uint32_t cnt_uOut=0;
       CHECK(m_userDataSvc->retrieve(*cluster,label,cnt_uOut));
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << cnt_uOut << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << cnt_uOut << endmsg;
 
       //Same with float:
       label=sLabel.str()+"f";
       float cnt_fOut=0;
       CHECK(m_userDataSvc->getElementDecoration(*cluster,label,cnt_fOut));
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << cnt_fOut << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << cnt_fOut << endmsg;
 
 
       label=sLabel.str()+"b";
       bool bout=false;
       CHECK(m_userDataSvc->getElementDecoration(*cluster,label,bout));
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << bout << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' value=" << bout << endmsg;
 
 
       label=sLabel.str()+"vVirt";
       void* vecOutvoid=0;
       if (m_userDataSvc->vgetElementDecoration(*cluster,label,typeid(std::vector<int32_t>),vecOutvoid)) {
-	msg(MSG::ERROR) << "vgetElementDecoration failed" << endreq;
+	msg(MSG::ERROR) << "vgetElementDecoration failed" << endmsg;
 	return StatusCode::FAILURE;
       }
       std::vector<int32_t>* vptrOut=static_cast<std::vector<int32_t>* >(vecOutvoid); 
       vidx=m_events%(vptrOut->size()-1);
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vptrOut->size() << "value[" << vidx << "]=" << vptrOut->at(vidx) << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vptrOut->size() << "value[" << vidx << "]=" << vptrOut->at(vidx) << endmsg;
             
 
       label=sLabel.str()+"v";
       std::vector<int32_t> vecOut1;
       CHECK(m_userDataSvc->retrieve(*cluster,label,vecOut1));
       vidx=m_events%(vecOut1.size()-1);
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecOut1.size() << "value[" << vidx << "]=" << vecOut1[vidx] << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecOut1.size() << "value[" << vidx << "]=" << vecOut1[vidx] << endmsg;
 
 
       label=sLabel.str()+"vu";
       std::vector<uint32_t> vecuOut;
       CHECK(m_userDataSvc->retrieve(*cluster,label,vecuOut));
       vidx=m_events%(vecuOut.size()-1);
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecuOut.size() << "value[" << vidx << "]=" << vecuOut[vidx] << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecuOut.size() << "value[" << vidx << "]=" << vecuOut[vidx] << endmsg;
 
 
       label=sLabel.str()+"vf";
       std::vector<float> vecfOut;
       CHECK(m_userDataSvc->retrieve(*cluster,label,vecfOut));
       vidx=m_events%(vecfOut.size()-1);
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecfOut.size() << "value[" << vidx << "]=" << vecfOut[vidx] << endreq;
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecfOut.size() << "value[" << vidx << "]=" << vecfOut[vidx] << endmsg;
 
 
       label=sLabel.str()+"vd";
       std::vector<double> vecdOut;
       CHECK(m_userDataSvc->retrieve(*cluster,label,vecdOut));
       vidx=m_events%(vecfOut.size()-1);
-      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecdOut.size() << "value[" << vidx << "]=" << vecdOut[vidx] << endreq;      
+      msg(MSG::DEBUG) << "Cluster #" << nCluster << ", label '" << label << "' size=" << vecdOut.size() << "value[" << vidx << "]=" << vecdOut[vidx] << endmsg;      
     }
     ++counter;
   } // loop over clusters
@@ -143,7 +143,7 @@ StatusCode ReadDataWithUserData::execute() {
   label="EventDeco";
   double fOut;
   CHECK(m_userDataSvc->retrieve(label,fOut));
-  msg(MSG::DEBUG) << "EventDeco with label '" << label << "' value=" << fOut << endreq;
+  msg(MSG::DEBUG) << "EventDeco with label '" << label << "' value=" << fOut << endmsg;
 
   return StatusCode::SUCCESS;
 }

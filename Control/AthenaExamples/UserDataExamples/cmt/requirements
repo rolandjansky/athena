@@ -10,8 +10,8 @@ private
 use GaudiInterface      GaudiInterface-*        External 
 use AthenaKernel 	AthenaKernel-* 		Control
 use AthenaBaseComps	AthenaBaseComps-*	Control
-use CaloEvent         CaloEvent-*	        Calorimeter
-use DataModel           DataModel-*             Control
+use CaloEvent           CaloEvent-*	        Calorimeter
+use AthContainers       AthContainers-*         Control
 end_private
 
 library UserDataExamples *.cxx -s=components *.cxx 
