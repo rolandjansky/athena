@@ -36,13 +36,14 @@ namespace MuonCombined {
 
   public:
     MuonCombinedStacoTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCombinedStacoTagTool(void); // destructor
+    virtual ~MuonCombinedStacoTagTool(void); // destructor
   
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
-    void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates );
+    virtual
+    void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const override;
 
   private:
 

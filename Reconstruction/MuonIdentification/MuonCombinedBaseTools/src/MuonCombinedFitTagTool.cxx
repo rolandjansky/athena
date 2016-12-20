@@ -107,7 +107,7 @@ namespace MuonCombined {
       return StatusCode::SUCCESS;
     }
 
-    void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) {  
+    void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const {  
 
       ATH_MSG_DEBUG("muon candidate: "<<muonCandidate.toString());
 
@@ -338,7 +338,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonCombinedFitTagTool::evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) 
+  void MuonCombinedFitTagTool::evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const
   {
     // evaluate field integral and momentum balance significance for combined track
     tag.fieldIntegral(m_trackQuery->fieldIntegral(tag.combinedTrack()));

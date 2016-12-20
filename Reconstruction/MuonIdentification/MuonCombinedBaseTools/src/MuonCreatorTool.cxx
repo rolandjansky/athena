@@ -67,6 +67,7 @@
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
 #include "MuidInterfaces/IMuonTrackQuery.h"
+#include "MuidEvent/FieldIntegral.h"
 
 #include "TrackSegmentAssociationTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
@@ -170,7 +171,7 @@ namespace MuonCombined {
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
     ATH_CHECK(m_caloMaterialProvider.retrieve());
-    
+
     return StatusCode::SUCCESS;
   }
 
@@ -543,7 +544,7 @@ namespace MuonCombined {
     // Etcore variables for muon
     collectCells(*muon,outputData.clusterContainer);
 
-    ATH_MSG_DEBUG("Done creating muon");
+    ATH_MSG_DEBUG("Done creating muon with "<<muon->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits");
 
     return muon;
   }
@@ -622,7 +623,6 @@ namespace MuonCombined {
   void MuonCreatorTool::addCombinedFit( xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData ) const {
     if (!tag){
       // init variables if necessary.
-      
       return;
     }
     
@@ -1039,6 +1039,11 @@ namespace MuonCombined {
 	    ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	    //link.toPersistent();
 	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	    float fieldInt=m_trackQuery->fieldIntegral(*updatedExtrapolatedTrack).betweenSpectrometerMeasurements();
+	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
+	    int nunspoiled=updatedExtrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
 	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
@@ -1050,6 +1055,10 @@ namespace MuonCombined {
 	    ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	    //link.toPersistent();
 	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	    float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+            int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
       }
@@ -1063,8 +1072,14 @@ namespace MuonCombined {
 	  ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	  //link.toPersistent();
 	  muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	  float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	  muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+	  int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+	  muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	}
-	else ATH_MSG_WARNING("failed to create ME track particle for SA muon");
+	else{
+	  ATH_MSG_WARNING("failed to create ME track particle for SA muon");
+	}
       }
     }
   }
@@ -1419,6 +1434,10 @@ namespace MuonCombined {
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
+
+    if(!muon.isAvailable<int>("nUnspoiledCscHits")){
+      muon.auxdata<int>("nUnspoiledCscHits")=-999;
+    }
 
     return true;
   }

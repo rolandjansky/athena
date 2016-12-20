@@ -44,17 +44,19 @@ namespace MuonCombined {
 
   public:
     MuonCaloTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCaloTagTool(void); // destructor
+    virtual ~MuonCaloTagTool(void); // destructor
   
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
-    void extend( const InDetCandidateCollection& inDetCandidates ) const;
+    virtual
+    void extend( const InDetCandidateCollection& inDetCandidates ) override;
 
+    virtual
     void extend( const InDetCandidateCollection& inDetCandidates,
                  const CaloCellContainer* caloCellContainer,
-                 const xAOD::CaloClusterContainer* caloClusterContainer) const;
+                 const xAOD::CaloClusterContainer* caloClusterContainer) override;
 
 
   private:
@@ -65,7 +67,7 @@ namespace MuonCombined {
     //bool applyEnergyIsolation(const xAOD::IParticle* muon);
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
-    bool applyTrackIsolation(const xAOD::TrackParticle& tp) const;
+    bool applyTrackIsolation(const xAOD::TrackParticle& tp);
     void showTrackInfo(const Trk::TrackParameters* par) const;
 //    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont) const;
     

@@ -190,7 +190,8 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    // FIXME mutable
+    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;
     ToolHandle<xAOD::IMuonDressingTool>           m_muonDressingTool;
     ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;

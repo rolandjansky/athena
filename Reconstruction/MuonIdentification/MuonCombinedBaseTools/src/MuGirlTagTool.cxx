@@ -50,7 +50,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuGirlTagTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
+  void MuGirlTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     if (m_pMuGirlReconstruction->MuGirlReco(inDetCandidates).isFailure()) {
       ATH_MSG_ERROR("MuGirl reconstruction failed!");
     }

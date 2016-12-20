@@ -30,13 +30,14 @@ namespace MuonCombined {
 
   public:
     MuonCandidateTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCandidateTool(void); // destructor
+    virtual ~MuonCandidateTool(void); // destructor
   
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
-    void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) const;
+    virtual
+    void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) override;
 
   private:
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;

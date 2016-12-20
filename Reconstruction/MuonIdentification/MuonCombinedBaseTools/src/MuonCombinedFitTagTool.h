@@ -50,13 +50,14 @@ namespace MuonCombined {
 
   public:
     MuonCombinedFitTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCombinedFitTagTool(void); // destructor
+    virtual ~MuonCombinedFitTagTool(void); // destructor
   
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
-    void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates );
+    virtual 
+    void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const override;
 
   private:
 
@@ -67,7 +68,7 @@ namespace MuonCombined {
     bool combinedTrackQualityCheck(const Trk::Track& combinedTrack,
 				   const Trk::Track& indetTrack) const;
       
-    void evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle);
+    void evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const;
 
     bool extrapolatedNeedsRefit(const Trk::Track& combTrack,
 				const Trk::Track* extrTrack) const;

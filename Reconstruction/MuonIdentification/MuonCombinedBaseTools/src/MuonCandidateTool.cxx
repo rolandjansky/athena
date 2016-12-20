@@ -53,7 +53,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) const {
+  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
     const xAOD::EventInfo* eventInfo; 

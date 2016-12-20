@@ -142,13 +142,13 @@ namespace MuonCombined {
   
   }
 
-  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     extend(inDetCandidates, nullptr, nullptr);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates,
                                 const CaloCellContainer* caloCellCont,
-                                const xAOD::CaloClusterContainer* caloClusterCont) const {
+                                const xAOD::CaloClusterContainer* caloClusterCont) {
 
 
     //return;
@@ -361,7 +361,7 @@ namespace MuonCombined {
   
   // applyTrackIsolation check 
   
-  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) const {
+  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) {
 
     if( m_trackIsolationTool.empty() ) return true;
 
