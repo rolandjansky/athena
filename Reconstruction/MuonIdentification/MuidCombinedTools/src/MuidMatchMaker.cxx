@@ -498,7 +498,7 @@ MuidMatchMaker::convertPerigee (const Trk::Perigee* trkPerigee) const
 MuidTrackContainer*
 MuidMatchMaker::execute(const TrackCollection*	extrapolatedTracks,
 			const TrackCollection*	indetTracks,
-			const TrackCollection*	spectrometerTracks) const
+			const TrackCollection*	spectrometerTracks)
 {
     if (msgLvl(MSG::DEBUG)) debugInput(indetTracks,extrapolatedTracks,spectrometerTracks);
 
@@ -2228,7 +2228,7 @@ MuidMatchMaker::indetExtension (const Trk::Track&	indetTrack,
         
 bool
 MuidMatchMaker::loosePositionMatch (const PerigeeParameters&	indet,
-				    const MuonMatch&		matchCandidate) const
+				    const MuonMatch&		matchCandidate)
 {
     ATH_MSG_VERBOSE( "   Try loose match" );
 

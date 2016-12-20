@@ -61,20 +61,21 @@ public:
     MuidMatchMaker	(const std::string&	type, 
 			 const std::string&	name,
 			 const IInterface*	parent);
-    ~MuidMatchMaker(void); // destructor
+    virtual ~MuidMatchMaker(void); // destructor
   
-    StatusCode		initialize();
-    StatusCode		finalize();
+    virtual StatusCode		initialize() override;
+    virtual StatusCode		finalize() override;
 
     /**IMuidMatchMaker interface:
        back convert perigee (legacy function needed during migration) */
-    PerigeeParameters*	convertPerigee (const Trk::Perigee* trkPerigee) const;
+    virtual PerigeeParameters*	convertPerigee (const Trk::Perigee* trkPerigee) const override;
     
     /**IMuidMatchMaker interface:
        algorithmic code for matching muon spectrometer to inner detector */    
+    virtual
     MuidTrackContainer*	execute(const TrackCollection*	extrapolatedTracks,
 				const TrackCollection*	indetTracks,
-				const TrackCollection*	spectrometerTracks) const;
+				const TrackCollection*	spectrometerTracks) override;
 private:
     // private methods
     void			accumulateStatistics (MuidTrackContainer&	muonMatches) const;
@@ -101,7 +102,7 @@ private:
     const Trk::Track*		indetExtension (const Trk::Track&	indetTrack,
 						const Trk::Track&	spectrometerTrack) const;
     bool			loosePositionMatch (const PerigeeParameters&	indetPerigee,
-						    const MuonMatch&		candidate) const;
+						    const MuonMatch&		candidate);
     bool			momentumBalance (const Trk::Track*     	indetTrack,
 						 const Trk::Perigee*	outgoingIndetPerigee,
 						 const Trk::Perigee*	outgoingSpectrometerPerigee,
