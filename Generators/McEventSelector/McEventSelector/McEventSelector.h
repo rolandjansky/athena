@@ -79,22 +79,22 @@ public:
 
 private:
   //  EventSource* p_eventSource;
-  IntegerProperty          m_runNo;
-  UnsignedLongLongProperty m_firstEventNo;
-  UnsignedLongLongProperty m_eventsPerRun;
-  IntegerProperty          m_firstLBNo;
-  IntegerProperty          m_eventsPerLB;
-  IntegerProperty          m_initTimeStamp;
-  IntegerProperty          m_timeStampInterval;
+  Gaudi::CheckedProperty<int>          m_runNo;
+  Gaudi::CheckedProperty<unsigned long long> m_firstEventNo;
+  Gaudi::CheckedProperty<unsigned long long> m_eventsPerRun;
+  Gaudi::CheckedProperty<int>          m_firstLBNo;
+  Gaudi::CheckedProperty<int>          m_eventsPerLB;
+  Gaudi::CheckedProperty<int>          m_initTimeStamp;
+  Gaudi::Property<int>          m_timeStampInterval;
 
   /// Flags to indicate override of run/event/time 
   ///  These are always true and are here for consistency
   ///  with other event selectors which only optionally 
   ///  override these numbers.
-  BooleanProperty m_overrideRunNumber;
-  BooleanProperty m_overrideEventNumber;
-  BooleanProperty m_overrideLBNumber;
-  BooleanProperty m_overrideTimeStamp;
+  Gaudi::Property<bool> m_overrideRunNumber;
+  Gaudi::Property<bool> m_overrideEventNumber;
+  Gaudi::Property<bool> m_overrideLBNumber;
+  Gaudi::Property<bool> m_overrideTimeStamp;
 
   mutable McContext *m_ctx;
 
