@@ -65,7 +65,7 @@ public:
       return (**p).first;
    }
    inline int GetCoverage(Ptr_t const &p) const { return (**p).second; }
-
+   inline int GetNumberOfPatterns(void) const { return fPatterns.size(); }
    int GetSummedCoverage(void) const;
 protected:
    OrderedPatternSet_t fPatterns;

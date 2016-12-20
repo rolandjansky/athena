@@ -10,16 +10,27 @@
  * IO interface for reading and writing patterns to files
  * For reading patterns, chains of root-files are supported
  *
+ * Two basic formats are supported:
+ *   "Forest"  there is one TTree per sector -> O(10000) TTrees
+ *               -> excessive buffer memory consumption in root
+ *   "Indexed" there is one TTree with data and two auxillary TTrees
+ *
+ * Abstract interface classes:
+ *   FTKPatternBySectorReaderBase  basic methods for reading patterns
+ *   FTKPatternBySectorWriterBase  basic methods for writing patterns
+ *     use the Factory() methods to create the appropriate
+ *      reader/writer implementation
+ *
+ * Implementation:
+ *   FTKPatternBySectorForestReader   for reading the "Forest" format
+ *   FTKPatternBySectorIndexedReader  for reading the "Indexed" format
+ *
+ *   FTKPatternBySectorForestWriter   for writing the "Forest" format
+ *   FTKPatternBySectorIndexedWriter  for writing the "Indexed" format
+ *
  * Author: Stefan Schmitt, DESY
  * Date: 2013/12/02
- *
- * classes:
- *   FTKPatternBySectorBase 
- *     base class for sector-and-coverage ordered patterns root IO
- *   FTKPatternBySectorReader
- *     class for reading
- *   FTKPatternBySectorWriter
- *     class for writing
+ * Major modification: 2016/11/18
  *
  */
 
@@ -54,94 +65,292 @@ protected:
    CONTENT_TYPE fContentType;
 };
 
-class FTKPatternBySectorReader : public FTKPatternBySectorBase {
-public:
-   // typedefs and comparison classes
-   typedef std::map<int,FTKPatternRootTreeReader *> PatternTreeBySector_t;
-   class FTKPatternTreeBySectorCompare {
-   public:
-      // helper class to compare patterns from different sectors
-      // and order them by coverage then sector number
-      explicit FTKPatternTreeBySectorCompare
-      (FTKHitPatternCompare hitComp=FTKHitPatternCompare())
-         : fHitCompare(hitComp) { }
-      bool operator()
-         (PatternTreeBySector_t::iterator const &a,
-          PatternTreeBySector_t::iterator const &b) const {
-         FTKPatternRootTreeReader const *ra=(*a).second;
-         FTKPatternRootTreeReader const *rb=(*b).second;
-         int ca=ra->GetPattern().GetCoverage();
-         int cb=rb->GetPattern().GetCoverage();
-         // compare coverages
-         if(ca>cb) return true;
-         if(ca<cb) return false;
-         // compare hits
-         //return fHitCompare(ra->GetPattern().GetHitPattern(),
-         //  rb->GetPattern().GetHitPattern()); //) return true;
-         // compare sector
-         return (*a).first<(*b).first;
-      }
-   protected:
-      FTKHitPatternCompare fHitCompare;
-   };
-   typedef std::set<PatternTreeBySector_t::iterator,FTKPatternTreeBySectorCompare> SectorSet_t;
-   
-public:
-   //explicit FTKPatternBySectorReader(TDirectory &dir,
-   //                                  char const *name="FTKPatternBySector",
-   //                                 int nSub=1,int iSub=0); // read pattern bank
-   explicit FTKPatternBySectorReader(TDirectory &dir,
-                                     char const *name="FTKPatternBySector",
-                                     std::set<int> const *sectorList=0); // read pattern bank
-   explicit FTKPatternBySectorReader(FTKRootFileChain &chain); // read pattern bank
-   ~FTKPatternBySectorReader();
+class FTKPatternBySectorReader : public virtual FTKPatternBySectorBase {
+ public:
+   static FTKPatternBySectorReader *Factory
+      (TDirectory &dir,std::set<int> const *sectorList=0);
+   static FTKPatternBySectorReader *Factory(FTKRootFileChain &chain);
 
-   void SelectSubregion(int nSub,int iSub);
+   virtual ~FTKPatternBySectorReader();
 
-   Long64_t GetNPatterns(void) const;
-   Long64_t GetNPatterns(int sector) const;
+   virtual Long64_t GetNPatternsTotal(void) const;
+
+   // read patterns (optimized IO), given a minimum number of patterns
+   // repeated calls to this function will result in all sectors to be read
+   // for sectors appended to the list, all patterns have been read
+   // (use Rewind() to start all over)
+   //   returns: next sector to read (or -1)
+   virtual int ReadRaw(int firstSector,
+                       std::list<FTKPatternOneSector *> &sectorList,
+                       uint64_t maxPattern);
+
+   // for the given sector, read all patterns down to minCoverage
+   // minCoverage<=1: read all data (also works for non-merged banks)
+   virtual FTKPatternOneSector *Read(int sector,int minCoverage)=0; 
+
+   // read all patterns of a sector, also works for non-merged banks
+   FTKPatternOneSector *MergePatterns(int sector) {
+      RewindSector(sector); return Read(sector,0);
+   }
+
+   // rewind one/all sectors
+   void Rewind(void);
+   virtual void RewindSector(int sector)=0;
+   // determine multiplicity of each coverage
    void GetNPatternsByCoverage(std::map<int,int> &coverageMap) const;
-   void GetNPatternsBySectorCoverage(std::map<int,std::map<int,int> >&sectorCoverageMap) const;
-
+   // for each coverage, list sectors and number of patterns
+   typedef std::map<int,int> SectorMultiplicity_t;
+   typedef std::map<int,SectorMultiplicity_t> SectorByCoverage_t;
+   virtual SectorByCoverage_t const &GetSectorByCoverage(void) const {
+      return m_SectorByCoverage;
+   }
+   // export patterns as ASCII
    int WritePatternsToASCIIstream(std::ostream &out,
                                   int iSub,int nSub); // export as ASCII
-   // save data from one sector, ordered by coverage
-   FTKPatternOneSector *MergePatterns(int sector) const; // get data from one sector   
 
-   // the following methods are for looping over the data of one sector
-   int GetFirstSector(void) const;
-   int GetNextSector(int sector) const;
-   Long64_t GetPatternByCoverage(SectorSet_t& sectorByCoverage, int iSub, int nSub) ;
+   // total number of patterns in a sector
+   virtual Long64_t GetNPatterns(int sector) const=0;
+   // for loop over all sectors
+   virtual int GetFirstSector(void) const=0;
+   virtual int GetNextSector(int sector) const=0;
 
-protected:
-   PatternTreeBySector_t fPatterns;
-
+   // for loops over coverage, within coverage over sector
+   int GetMaxCoverage(void) const;
+   int GetNextCoverage(int coverage) const;
+   int GetCoverageFirstSector(int coverage) const;
+   int GetCoverageNextSector(int coverage,int sector) const;
+ protected:
+   FTKPatternBySectorReader(char const *name);
+   SectorByCoverage_t m_SectorByCoverage;
 };
 
-class FTKPatternBySectorBlockReader : public FTKPatternBySectorReader {
+class FTKPatternBySectorWriter : public virtual FTKPatternBySectorBase {
  public:
-   FTKPatternBySectorBlockReader
-      (TDirectory &dir,std::set<int> const *sectorList);
-   void Rewind(void);
-   FTKPatternOneSector *Read(int sector,int minCoverage); 
+   enum WRITERTYPE_t {
+      kWriterDefault=0,
+      kWriterForest=1,
+      kWriterIndexed=2
+   };
+   static FTKPatternBySectorWriter *Factory
+      (TDirectory &dir,WRITERTYPE_t type=kWriterDefault);
+   // append patterns from file (down to minCoverage)
+   //  the default algorithm merges one sector a time, calling
+   //    AppendMergedPatterns() fro each sector.
+   //    This procedure is not optimal for all file formats
+   //  For this reason the method is virtual, to allow for
+   //    a more efficient implementation
+   virtual int AppendMergedPatterns
+      (FTKPatternBySectorReader &in,int minCoverage);
+   // append patterns from ASCII file
+   int AppendPatternsFromASCIIstream(std::istream &in);
+   // append a single pattern
+   int AppendPattern(FTKPatternWithSector const &pattern) {
+      return AppendPattern(pattern.GetSectorID(),pattern);} 
+   int AppendPattern(int sector,FTKPatternWithCoverage const &pattern) {
+      return AppendPattern(sector,pattern.GetCoverage(),
+                           pattern.GetHitPattern()); 
+   }
+   virtual int AppendPattern(int sector,int coverage,
+                             FTKHitPattern const &pattern)=0;
+ protected:
+   FTKPatternBySectorWriter(const char *name,TDirectory &dir)
+      : FTKPatternBySectorBase(name),fDir(dir) { }
+   virtual int AppendMergedPatternsSector
+      (int sector,FTKPatternOneSectorOrdered const *ordered);
+   TDirectory &fDir;
+   static uint64_t PATTERN_CHUNK;
 };
 
-class FTKPatternBySectorWriter : public FTKPatternBySectorBase {
+class FTKPatternBySectorForestWriter : public FTKPatternBySectorWriter {
 public:
-   explicit FTKPatternBySectorWriter(TDirectory &dir); // read or create pattern bank
-   virtual ~FTKPatternBySectorWriter(); // save patterns to TDirectory
-   int AppendMergedPatterns(FTKPatternBySectorReader &in,int minCoverage); // append patterns
-   int AppendPatternsFromASCIIstream(std::istream &in); // append
-   int AppendMergedPatterns(int sector,
-                            FTKPatternOneSectorOrdered const *ordered);
-   int AppendPattern(int sector,FTKPatternWithCoverage const &pattern);
-   int AppendPattern(FTKPatternWithSector const &pattern) { return AppendPattern(pattern.GetSectorID(),pattern);} 
-   TDirectory& GetTDirectoryAddress() { return fDir;}
-   
-protected:
-   TDirectory &fDir;
-   typedef std::map<int,FTKPatternRootTree *> PatternTreeBySector_t;
-   PatternTreeBySector_t fPatterns;
+   explicit FTKPatternBySectorForestWriter(TDirectory &dir); // create pattern bank
+   virtual ~FTKPatternBySectorForestWriter(); // save patterns to TDirectory
+   virtual int AppendPattern(int sector,int coverage,
+                             FTKHitPattern const &pattern);
+ protected:
+   virtual int AppendMergedPatternsSector(int sector,
+                                    FTKPatternOneSectorOrdered const *ordered);
+   typedef std::map<int,FTKPatternRootTree *> PatternTreeBySectorRW_t;
+   PatternTreeBySectorRW_t fPatterns;
+};
+
+class FTKPatternBySectorForestReader : public FTKPatternBySectorReader {
+ public:
+   // for this reader, the sectors are organized in a forest of TTrees
+   explicit FTKPatternBySectorForestReader
+      (TDirectory &dir,std::set<int> const *sectorList=0,int *error=0); // read pattern bank
+   explicit FTKPatternBySectorForestReader(FTKRootFileChain &chain,
+                                           int *error=0); // read pattern bank
+   virtual ~FTKPatternBySectorForestReader();
+   virtual Long64_t GetNPatterns(int sector) const;
+   virtual int GetFirstSector(void) const;
+   virtual int GetNextSector(int sector) const;
+   virtual void RewindSector(int sector=-1);
+   virtual FTKPatternOneSector *Read(int sector,int minCoverage); 
+ protected:
+   typedef std::map<int,FTKPatternRootTreeReader *> PatternTreeBySectorRO_t;
+   PatternTreeBySectorRO_t fPatterns;
+   void InitializeSectorByCoverageTable(void);
+};
+
+class FTKPatternBySectorIndexed : public virtual FTKPatternBySectorBase {
+ public:
+   //int GetBitsPerPlane(void) const;
+   static char const *s_cdataTreeName;
+   static char const *s_indexTreeName;
+   static char const *s_cnpattBranchName;
+   static char const *s_cnpattBranchID;
+   static char const *GetCPatternBranchName(uint32_t plane);
+   static char const *GetCPatternBranchID(uint32_t plane);
+   static char const *s_sectorBranchName;
+   static char const *s_sectorBranchID;
+   static char const *s_ncovBranchName;
+   static char const *s_ncovBranchID;
+   static char const *s_npatternBranchName;
+   static char const *s_npatternBranchID;
+   static char const *s_coverageBranchName;
+   static char const *s_coverageBranchID;
+   static char const *GetNDecoderBranchName(uint32_t plane);
+   static char const *GetNDecoderBranchID(uint32_t plane);
+   static char const *GetDecoderDataBranchName(uint32_t plane);
+   static char const *GetDecoderDataBranchID(uint32_t plane);
+ protected:
+   static std::vector<std::string> s_cpatternBranch,s_cpatternID;
+   static std::vector<std::string> s_ndecoderBranch,s_ndecoderID;
+   static std::vector<std::string> s_decoderDataBranch,s_decoderDataID;
+};
+
+class FTKPatternBySectorIndexedWriter : public FTKPatternBySectorWriter,
+   FTKPatternBySectorIndexed {
+public:
+   explicit FTKPatternBySectorIndexedWriter(TDirectory &dir); // create pattern bank
+   virtual ~FTKPatternBySectorIndexedWriter(); // save patterns to TDirectory
+   virtual int AppendPattern(int sector,int coverage,
+                             FTKHitPattern const &pattern);
+ protected:
+   TTree *m_cpatternDataTree;
+   std::vector<TBranch *> m_cpatternBranch;
+   TBranch *m_cnpattBranch;
+
+   TTree *m_cpatternIndexTree;
+   TBranch *m_npatternBranch;
+   TBranch *m_coverageBranch;
+   std::vector<TBranch*> m_decoderDataBranch;
+   // total number of patterns in memory
+   class CodedPatternStorage {
+   public:
+      explicit CodedPatternStorage(uint32_t nPlane) : m_data(nPlane) {
+         for(size_t plane=0;plane<m_data.size();plane++)
+            m_data[plane].resize(15000000);
+         m_next=0;
+      }
+      // returns size of storage
+      uint32_t GetSize(void) const {
+         return m_data[0].size();
+      }
+
+      // returns 0 is storage is full
+      // index in stoage otherwise
+      inline uint32_t AllocatePattern(void) {
+         uint32_t r=(m_next+1)%(m_data[0].size()+1);
+         if(r) m_next=r;
+         return r;
+      }
+      inline void Store(uint32_t ipatt,uint32_t iplane,uint8_t data) {
+         m_data[iplane][ipatt-1]=data;
+      }
+      inline uint8_t Get(uint32_t ipatt,uint32_t iplane) const {
+         return m_data[iplane][ipatt-1];
+      }
+      inline void Delete(uint32_t ipatt) {
+         if(ipatt && (ipatt==m_next)) --m_next;
+      }
+      inline void Clear(void) { m_next=0; }
+      bool operator()(uint32_t a,uint32_t b) const {
+         for(size_t plane=0;plane<m_data.size();plane++) {
+            if(Get(a,plane)<Get(b,plane)) return true;
+            if(Get(a,plane)>Get(b,plane)) return false;
+         }
+         return false;
+      }
+   protected:
+      uint32_t m_next;
+      std::vector<std::vector<uint8_t> > m_data;
+   };
+   CodedPatternStorage *m_patternStorage;
+   typedef std::map<uint32_t,uint32_t,CodedPatternStorage&>
+      CPatternWithCoverage_t;
+   // indexing
+   typedef struct PatternData {
+     PatternData(int nLayer,CodedPatternStorage *storage)
+     : m_encoder(nLayer),m_data(*storage) {
+         for(size_t i=0;i<m_encoder.size();i++) {
+            m_encoder[i].first.resize(1<<8);
+         }
+      }
+      // encoder, translates [SSID] -> uint8_t
+      std::vector< std::pair<std::vector<int>,std::map<int,int> > > m_encoder;
+      // patterns with coverage
+      CPatternWithCoverage_t m_data;
+   } PatternData_t;
+   // PatternData indexed by sector
+   std::map<int,PatternData_t> m_patternData;
+   uint32_t m_treeSector;
+   uint32_t m_treeNCov;
+   std::vector<uint32_t> m_treeCoverage;
+   std::vector<uint32_t> m_treeNPattern;
+   std::vector<uint32_t> m_decoderSize;
+   void Flush(void);
+};
+
+class FTKPatternBySectorIndexedReader : public FTKPatternBySectorReader,
+   FTKPatternBySectorIndexed {
+ public:
+   // for this reader, the sectors are organized in two TTrees
+   explicit FTKPatternBySectorIndexedReader
+      (TDirectory &dir,std::set<int> const *sectorList=0,int *error=0); // read pattern bank
+   explicit FTKPatternBySectorIndexedReader(FTKRootFileChain &chain,
+                                           int *error=0); // read pattern bank
+   virtual ~FTKPatternBySectorIndexedReader();
+   virtual Long64_t GetNPatterns(int sector) const;
+   virtual int GetFirstSector(void) const;
+   virtual int GetNextSector(int sector) const;
+   virtual void RewindSector(int sector=-1);
+   virtual FTKPatternOneSector *Read(int sector,int minCoverage); 
+   // optimized reader of multiple sectors
+   virtual int ReadRaw(int firstSector,
+                       std::list<FTKPatternOneSector *> &sectorList,
+                       uint64_t maxPattern);
+ protected:
+   TTree *m_dataTree;
+   int InitializeIndex(TTree *indexTree,std::set<int> const *sectorList);
+
+   //
+   std::vector<uint32_t> m_decoderData;
+   std::vector<uint32_t *> m_decoderDataPtr;
+   struct DataBlock_t {
+      // pointer to decoder table
+      //   decoded_SSID = m_decoderDataPtr[plane][coded_SSID]
+      uint32_t **m_decoderDataPtr;
+      // pointer to offset in data TTree
+      uint32_t m_cpatternEntry;
+      // number of patterns in this Block
+      uint32_t m_nPattern;
+   };
+   // first index: sector
+   // second index: coverage (multiple entries are possible - decoder change)
+
+   typedef std::multimap<uint32_t,DataBlock_t> CoverageTable_t;
+   typedef struct SectorInfo {
+      // table ordered by coverage
+      CoverageTable_t m_coverageTable;
+      // pointer to one entry of the table above (for reading)
+      CoverageTable_t::const_reverse_iterator m_coveragePtr;
+      uint64_t m_nPattern;
+   } SectorInfo_t;
+   typedef std::map<uint32_t,SectorInfo_t> SectorTable_t;
+   SectorTable_t m_sectorTable;
+   FTKPatternWithCoverage *m_patternData;
 };
 
 #endif

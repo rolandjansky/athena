@@ -31,6 +31,7 @@ class TSPMap;
 class FTKHitPattern;
 class FTKHitPatternCompare;
 class FTKPatternOneSector;
+class FTKPatternBySectorReader;
 
 //#include <boost/container/map.hpp>
 //#include <boost/container/vector.hpp>

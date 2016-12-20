@@ -63,12 +63,12 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FT
          FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file from: %s\n", inputBank.c_str());
          throw;
       }
-      m_preader = new FTKPatternBySectorReader(*file);
+      m_preader = new FTKPatternBySectorForestReader(*file);
       if(!m_preader) {
          FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file pattern from: %s\n", inputBank.c_str());
          throw;
       }
-      m_npatterns = m_preader->GetNPatterns();
+      m_npatterns = m_preader->GetNPatternsTotal();
       m_nplanes = m_preader->GetNLayers();
    }
    else {
@@ -114,30 +114,30 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
 
   // the first step is just the conversion of the original (ASCII or root) bank a TTree
   if ( m_preader ) {
-     FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
-     long npatt = m_preader->GetPatternByCoverage(sectorByCoverage,m_iSub,m_nSub); 
+     long npatt = m_preader->GetNPatternsTotal();
 
      // update number of patterns (for the current subregion)
      m_npatterns = m_maxPatterns >= 0 ? m_maxPatterns : npatt;
   
      // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
-     while(sectorByCoverage.begin()!=sectorByCoverage.end() && m_patternID<m_npatterns ) {
-	FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
-	sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
-	
-	FTKPatternRootTreeReader* tree=oneSector->second;
-	int sector=oneSector->first;
-
-	int coverage=tree->GetPattern().GetCoverage();
-	if ( coverage < m_mincoverage ) break;
-
-	bool isNotEmpty=false;
-	do {
+   // coverage loop
+   for(int coverage=m_preader->GetMaxCoverage();coverage;
+       coverage=m_preader->GetNextCoverage(coverage)) {
+      if(m_patternID>=m_npatterns) break;
+      // sector loop
+      for(int sector=m_preader->GetCoverageFirstSector(coverage);sector>=0;
+          sector=m_preader->GetCoverageNextSector(coverage,sector)) {
+      if(m_patternID>=m_npatterns) break;
+         if ( coverage < m_mincoverage ) break;
+         FTKPatternOneSector *data=m_preader->Read(sector,coverage);
+         // pattern loop
+         for(FTKPatternOneSector::Ptr_t i=data->Begin();i!=data->End();i++) {
+            if(m_patternID>=m_npatterns) break;
 	   showstats(m_patternID, m_npatterns);
 	   inputpattern->setPatternID(m_patternID);
 	   inputpattern->setSectorID(sector);
 	   inputpattern->setCoverage(coverage);
-	   const FTKHitPattern& patternData=tree->GetPattern().GetHitPattern();
+	   const FTKHitPattern& patternData=data->GetHitPattern(i);
 	   for(unsigned int iLayer=0;iLayer<patternData.GetSize();iLayer++) {
 	      inputpattern->setSSID(iLayer,patternData.GetHit(iLayer));
 	   }
@@ -146,22 +146,18 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
 	   bank0->Fill();
 	   m_patternID++; // increment the global pattern ID
 
-	   isNotEmpty = tree->ReadNextPattern();
 	   // if(!tree->ReadNextPattern()) {
 	   //    isEmpty=true;
 	   //    break;
 	   // }
-	} 
-	while(isNotEmpty && tree->GetPattern().GetCoverage()==coverage && m_patternID<m_npatterns);
-	// add sector again to (coveraged ordered) set 
-	if(isNotEmpty) {
-	   sectorByCoverage.insert(oneSector);
-	}	
-     } // end while(sectors)
-
-     delete m_preader;
-     m_preader = NULL;
-     m_npatterns = m_patternID;
+         } // end loop over patterns 
+         delete data;
+      } // end loop over sectors	
+   } // end loop over coverage
+   
+   delete m_preader;
+   m_preader = NULL;
+   m_npatterns = m_patternID;
   }
   else {
      for (int ipatt = 0; ipatt < m_npatterns; ++ipatt) {

@@ -78,7 +78,7 @@ private:
 	std::stringstream m_patternStringID;
 	PatternMap m_patternMap;
 	std::vector<int> m_ssPattern;
-        FTKPatternBySectorReader* m_preader;
+        FTKPatternBySectorForestReader* m_preader;
 };
 
 }

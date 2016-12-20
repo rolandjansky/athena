@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 770308 2016-08-26 12:32:36Z vcavalie $
+# @version $Id: TrigFTKSim_tf.py 788284 2016-12-06 19:04:09Z sschmitt $
 
 import argparse
 import sys
@@ -102,6 +102,8 @@ def addFTKSimulationArgs(parser):
                         help='CachePath', group='TrigFTKSim')
     parser.add_argument("--CachedBank", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Interpret the pattern bank has a cache", group="TrigFTKSim")
+    parser.add_argument("--FixEndCapL0", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Fix problem with pixel layer assignment in endcap", group="TrigFTKSim")
     parser.add_argument("--SectorsAsPatterns", type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="If 1 allows to use a list of sectors as pattern bank, default 0")
 

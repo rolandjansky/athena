@@ -9,7 +9,13 @@ pmjp.PerfMonFlags.doSemiDetailedMonitoring = True
 from AthenaCommon.Logging import logging
 ftkLog = logging.getLogger('FTKRDOCreator')
 #ftkLog.propagate = False
-ftkLog.info( '********** STARTING FTKStandaloneMerge **********' )
+ftkLog.info( '********** STARTING FTKStandaloneMerge RDO_FTK **********' )
+
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.makeRIO.pixel_setOn()
+DetFlags.makeRIO.SCT_setOn()
+DetFlags.detdescr.all_setOn()
+DetFlags.geometry.all_setOn()
 
 athenaCommonFlags.FilesInput = runArgs.inputRDOFile
 
@@ -19,6 +25,18 @@ if hasattr(runArgs,"maxEvents"):
 else:
     ftkLog.info("Running on all the events")
     athenaCommonFlags.EvtMax = -1
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    ftkLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        ftkLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"):
+    for fragment in runArgs.preInclude:
+        include(fragment)
 
 if hasattr(runArgs, "skipEvents"):
     athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)

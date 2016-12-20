@@ -2852,23 +2852,23 @@ int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
                                                 int nSub,int numSectorMax,int nlamb) {
    // create partitions based on the number of subregions
    std::list<Partition> partitions;
-   TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
-   if(infile) {
+   TDirectory *TSPfile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
+   if(TSPfile) {
       std::set<int> subregion;
-      {
-         FTKPatternBySectorReader reader(*infile,"FTKPatternBySectorReader");
-         reader.SelectSubregion(nSub,getSubID());
-         for(int sector=reader.GetFirstSector();sector>=0;
-             sector=reader.GetNextSector(sector)) {
-            subregion.insert(sector);
-         }
-         int nSectorMax=-1;
-         if(numSectorMax>0) {
-            nSectorMax=nSub>0 ? numSectorMax/nSub : numSectorMax;
-         }
-         partitions.push_back(Partition(maxpatts,nSectorMax,subregion));
+      FTKPatternBySectorReader *TSPreader=
+         FTKPatternBySectorReader::Factory(*TSPfile);
+      for(int sector=TSPreader->GetFirstSector();sector>=0;
+          sector=TSPreader->GetNextSector(sector)) {
+         if((nSub>1)&&(sector%nSub!=getSubID())) continue;
+         subregion.insert(sector);
       }
-      delete infile;
+      delete TSPreader;
+      int nSectorMax=-1;
+      if(numSectorMax>0) {
+         nSectorMax=nSub>0 ? numSectorMax/nSub : numSectorMax;
+      }
+      partitions.push_back(Partition(maxpatts,nSectorMax,subregion));
+      delete TSPfile;
    } else {
       Error("readSectorOrderedBank")<<"failed to open \""<<name<<"\"\n";
    }
@@ -3031,9 +3031,9 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
  int nlamb) {
    // open file
    int error=0;
-   TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
+   TDirectory *TSPfile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
    // read sector-ordered root file (TSP patterns)
-   if(infile) {
+   if(TSPfile) {
       int partitionCount=0;
       int sectorCount=0;
       int nLayer=0;
@@ -3062,13 +3062,18 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          //
          // if the number of subregions is specified, it will ignore all
          // sectors which do not belong to the active subregion
-         FTKPatternBySectorBlockReader reader(*infile,&(*iPartition).fSectorSet);
+         FTKPatternBySectorReader *TSPreader=FTKPatternBySectorReader::Factory
+            (*TSPfile,&(*iPartition).fSectorSet);
+         if(TSPreader->GetNLayers()<=0) {
+            Fatal("readSectorOrderedBank")
+               <<"number of layers (reader) "<<TSPreader->GetNLayers()<<"\n";
+         }
          if(!nLayer) {
-            setNPlanes(reader.GetNLayers());
-            nLayer=reader.GetNLayers();
+            setNPlanes(TSPreader->GetNLayers());
+            nLayer=TSPreader->GetNLayers();
          }
          Info("readSectorOrderedBank")
-            <<"reading from "<<name<<" nLayer="<<reader.GetNLayers()
+            <<"reading from "<<name<<" nLayer="<<TSPreader->GetNLayers()
             <<" partition "<<partitionCount<<" maxpattern="
             <<(*iPartition).fNumPatternMax<<" maxSector="<<(*iPartition).fNumSectorMax
             <<"\n";
@@ -3077,10 +3082,10 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          // can be read
          printVmemUsage("before GetNPatternsByCoverage");
          std::map<int,int> coverageMap;
-         reader.GetNPatternsByCoverage(coverageMap);
+         TSPreader->GetNPatternsByCoverage(coverageMap);
          printVmemUsage("after GetNPatternsByCoverage");
          std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
-         reader.Rewind();
+         TSPreader->Rewind();
          printVmemUsage("after Rewind");
          // print bank statistics
          // determine total number of patterns , patterns*coverage, <coverage>
@@ -3117,8 +3122,8 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
             // read all patterns in the given coverage range
             // (not reading the smallest coverage)
             // these patterns for sure will fit into the DC bank
-            //for(int sector=reader.GetFirstSector();sector>=0;
-            //    sector=reader.GetNextSector(sector)) {
+            //for(int sector=TSPreader->GetFirstSector();sector>=0;
+            //    sector=TSPreader->GetNextSector(sector)) {
             for(std::set<int>::const_iterator sectorPtr=
                    (*iPartition).fSectorSet.begin();
                 sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
@@ -3127,7 +3132,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
                   if((int)loadedSectorList.size()>=maxNumSector) continue;
                   loadedSectorList.insert(sector);
                }
-               FTKPatternOneSector *patterns=reader.Read(sector,covEnd+1);
+               FTKPatternOneSector *patterns=TSPreader->Read(sector,covEnd+1);
                if(patterns) {
                   insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
                   delete patterns;
@@ -3143,7 +3148,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
                   if((int)loadedSectorList.size()>=maxNumSector) continue;
                   loadedSectorList.insert(sector);
                }
-               FTKPatternOneSector *patterns=reader.Read(sector,covEnd);
+               FTKPatternOneSector *patterns=TSPreader->Read(sector,covEnd);
                if(patterns) {
                   insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
                   delete patterns;
@@ -3162,6 +3167,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
             <<"\n";
          partitionCount++;
          sectorCount += loadedSectorList.size();
+         delete TSPreader;
       }
       Info("readSectorOrderedBank")
          <<"total number of patterns read "<<nTSP<<" stored "<<nDC
@@ -3211,12 +3217,10 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
       delete [] ssidData;
 
       readBankPostprocessing("readSectorOrderedBank");
+      delete TSPfile;
    } else {
       Error("readSectorOrderedBank")<<"failed to open \""<<name<<"\"\n";
       error++;
-   }
-   if(infile) {
-      delete infile;
    }
    return error;
 }
