@@ -317,7 +317,7 @@ void ByteStreamEventStorageOutputSvc::checkForUserMetadata(EventStorage::freeMet
    if (m_keys.size()>0) {
       StatusCode sc = m_attlistsvc->toBSMetadata(m_keys);
       if (sc.isFailure()) {
-         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endreq;
+         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
       }
    }
 

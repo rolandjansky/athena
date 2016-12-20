@@ -37,12 +37,12 @@ public:
 private:
    uint32_t reducedROBid(uint32_t);
 
-   StringProperty m_inSvcName;
-   StringProperty m_outSvcName;
+   Gaudi::Property<std::string> m_inSvcName;
+   Gaudi::Property<std::string> m_outSvcName;
    ByteStreamInputSvc*  m_inSvc;
    ByteStreamOutputSvc* m_outSvc;
-   StringProperty m_bsOutputStreamName; //!< stream name for multiple output
-   BooleanProperty m_overwriteHeader;
+   Gaudi::Property<std::string> m_bsOutputStreamName; //!< stream name for multiple output
+   Gaudi::Property<bool> m_overwriteHeader;
 };
 
 #endif

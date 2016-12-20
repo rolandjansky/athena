@@ -142,7 +142,7 @@ StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, b
       return(StatusCode::FAILURE);
    }
    // change trigger info in Header
-   TriggerInfo* triggerInfo = evt->trigger_info();
+   const TriggerInfo* triggerInfo = evt->trigger_info();
    uint32_t *l1Buff = 0;
    uint32_t *l2Buff = 0;
    uint32_t *efBuff = 0;
@@ -266,7 +266,7 @@ void ByteStreamCnvSvc::writeFEA() {
    ATH_MSG_DEBUG("before FEAMAP size = " << m_feaMap.size());
    for (std::map<std::string, FullEventAssemblerBase*>::const_iterator it = m_feaMap.begin(),
 	   itE = m_feaMap.end(); it != itE; it++) {
-      MsgStream log(messageService(), name());
+      MsgStream log(msgSvc(), name());
       (*it).second->fill(m_rawEventWrite, log);
    }
    ATH_MSG_DEBUG("after FEAMAP size = " << m_feaMap.size());

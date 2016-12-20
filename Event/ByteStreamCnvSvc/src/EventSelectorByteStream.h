@@ -111,7 +111,7 @@ private: // internal member functions
 private:
    // property
    std::string      m_eventSourceName;
-   IntegerProperty  m_maxBadEvts;    //!< number of bad events allowed before quitting.
+   Gaudi::Property<int>  m_maxBadEvts;    //!< number of bad events allowed before quitting.
    mutable int              m_fileCount;     //!< number of files to process.
 
    mutable std::vector<int>     m_numEvt;
@@ -120,23 +120,24 @@ private:
    EventContextByteStream*  m_beginIter;
    EventContextByteStream*  m_endIter;
    ByteStreamInputSvc*      m_eventSource;
-   StringArrayProperty m_inputCollectionsProp;
+   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
    ServiceHandle<IIncidentSvc> m_incidentSvc;
    ServiceHandle<StoreGateSvc> m_evtStore;
 
    long m_SkipEvents; // Number of events to skip at the beginning
-   LongArrayProperty m_skipEventSequenceProp;
+   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp;
    mutable std::vector<long> m_skipEventSequence;
 
    bool m_firstFileFired;
    bool m_beginFileFired;
+   bool m_inputCollectionsFromIS;
    mutable long m_NumEvents; // Number of Events read so far.
 
-   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
+   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
 
-   BooleanProperty    m_procBadEvent;  //!< process bad events, which fail check_tree().
+   Gaudi::Property<bool>    m_procBadEvent;  //!< process bad events, which fail check_tree().
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
    ToolHandleArray<IAthenaSelectorTool> m_helperTools;
@@ -146,18 +147,18 @@ private:
 
    /// Flags to indicate override of run/event/time
    ///  These are almost always false.
-   BooleanProperty m_overrideRunNumber;
-   BooleanProperty m_overrideEventNumber;
-   BooleanProperty m_overrideTimeStamp;
-   BooleanProperty m_filebased;
+   Gaudi::Property<bool> m_overrideRunNumber;
+   Gaudi::Property<bool> m_overrideEventNumber;
+   Gaudi::Property<bool> m_overrideTimeStamp;
+   Gaudi::Property<bool> m_filebased;
 
-   IntegerProperty m_runNo;
-   IntegerProperty m_firstEventNo;
-   IntegerProperty m_eventsPerRun;
-   IntegerProperty m_firstLBNo;
-   IntegerProperty m_eventsPerLB;
-   IntegerProperty m_initTimeStamp;
-   IntegerProperty m_timeStampInterval;
+   Gaudi::CheckedProperty<int> m_runNo;
+   Gaudi::CheckedProperty<int> m_firstEventNo;
+   Gaudi::CheckedProperty<int> m_eventsPerRun;
+   Gaudi::CheckedProperty<int> m_firstLBNo;
+   Gaudi::CheckedProperty<int> m_eventsPerLB;
+   Gaudi::CheckedProperty<int> m_initTimeStamp;
+   Gaudi::Property<int> m_timeStampInterval;
 };
 
 #endif

@@ -64,19 +64,19 @@ private:
    std::string m_ioSvcName;
 
    /// list of service names
-   StringArrayProperty m_ioSvcNameList;
+   Gaudi::Property<std::vector<std::string>> m_ioSvcNameList;
 
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
 
    /// flags for Simulation EventType
-   BooleanProperty m_isSimulation;
+   Gaudi::Property<bool> m_isSimulation;
    /// flags for TestBeam EventType
-   BooleanProperty m_isTestbeam;
+   Gaudi::Property<bool> m_isTestbeam;
    /// flags for Calibration EventType
-   BooleanProperty m_isCalibration;
+   Gaudi::Property<bool> m_isCalibration;
    /// flags for getting Detector Mask from COOL
-   BooleanProperty m_getDetectorMask;
+   Gaudi::Property<bool> m_getDetectorMask;
 
    /// user type
    std::string m_userType;

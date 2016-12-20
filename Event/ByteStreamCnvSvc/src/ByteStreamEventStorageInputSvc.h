@@ -96,11 +96,11 @@ private: // properties
    int                m_fileCount;     //!< number of files to process.
    std::string        m_fullFile;      //!< current full file name
 
-   BooleanProperty    m_dump;          //!< flag for Dump fragments
-   FloatProperty      m_wait;          //!< Number of seconds to wait if the input is in the wait state.
-   BooleanProperty    m_valEvent;      //!< switch on check_tree() call when reading events.
-   BooleanProperty    m_procBadEvent;  //!< DEFUNCT process bad events, which fail check_tree().
-   IntegerProperty    m_maxBadEvts;    //!< DEFUNCT number of bad events allowed before quitting.
+   Gaudi::Property<bool>    m_dump;          //!< flag for Dump fragments
+   Gaudi::Property<float>      m_wait;          //!< Number of seconds to wait if the input is in the wait state.
+   Gaudi::Property<bool>    m_valEvent;      //!< switch on check_tree() call when reading events.
+   Gaudi::Property<bool>    m_procBadEvent;  //!< DEFUNCT process bad events, which fail check_tree().
+   Gaudi::Property<int>    m_maxBadEvts;    //!< DEFUNCT number of bad events allowed before quitting.
    std::vector<std::string> m_keys;
 
 private: // internal helper functions

@@ -43,7 +43,7 @@ private: // data
    ServiceHandle<IROBDataProviderSvc> m_robProvider; 
 
 private: // properties
-   StringProperty m_bsOutputStreamName; //!< stream name for multiple output 
+   Gaudi::Property<std::string> m_bsOutputStreamName; //!< stream name for multiple output 
 };
 
 #endif  

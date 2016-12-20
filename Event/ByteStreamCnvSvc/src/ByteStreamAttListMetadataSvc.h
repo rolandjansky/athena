@@ -70,8 +70,8 @@ protected:
   virtual ~ByteStreamAttListMetadataSvc() {}
 
 private:
-  StringProperty m_inputStoreName;
-  StringProperty m_outputStoreName;
+  Gaudi::Property<std::string> m_inputStoreName;
+  Gaudi::Property<std::string> m_outputStoreName;
 
 };
 
