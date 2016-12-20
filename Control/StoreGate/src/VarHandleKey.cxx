@@ -132,7 +132,7 @@ ServiceHandle<IProxyDict> VarHandleKey::storeHandle() const
 /**
  * @brief Prevent this method from being called.
  */
-void VarHandleKey::setKey(const DataObjID& /*key*/)
+void VarHandleKey::setKey(const DataObjID& /*key*/) const
 {
   throw SG::ExcForbiddenMethod ("VarHandleKey::setKey");
 }
@@ -141,7 +141,7 @@ void VarHandleKey::setKey(const DataObjID& /*key*/)
 /**
  * @brief Prevent this method from being called.
  */
-void VarHandleKey::updateKey(const std::string& /*key*/)
+void VarHandleKey::updateKey(const std::string& /*key*/) const
 {
   throw SG::ExcForbiddenMethod ("VarHandleKey::updateKey");
 }

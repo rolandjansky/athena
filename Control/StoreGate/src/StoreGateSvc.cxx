@@ -3,11 +3,6 @@
 */
 
 #ifdef ATHENAHIVE
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreClearedIncident.h"
@@ -16,6 +11,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
+
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 using namespace SG;
 using namespace std;
@@ -144,11 +142,10 @@ StoreGateSvc::keys(const CLID& id, bool allKeys){
 StatusCode StoreGateSvc::initialize()    {
 
   // Initialize service:
-  if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
+  CHECK( Service::initialize() );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::VERBOSE << "Initializing " << name() 
-      << " - package version " << PACKAGE_VERSION << endmsg ;
+  msg() << MSG::VERBOSE << "Initializing " << name() 
+        << " - package version " << PACKAGE_VERSION << endmsg;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -232,10 +229,9 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
 
 StatusCode
 StoreGateSvc::finalize() {
-  if(!(Service::finalize()).isSuccess()) return StatusCode::FAILURE;
-  MsgStream log( messageService(), name() );
-  log << MSG::VERBOSE << "Finalizing " << name() 
-      << " - package version " << PACKAGE_VERSION << endmsg ;
+  CHECK( Service::finalize() );
+  msg() << MSG::VERBOSE << "Finalizing " << name() 
+        << " - package version " << PACKAGE_VERSION << endmsg;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
     CHECK( m_defaultStore->finalize());

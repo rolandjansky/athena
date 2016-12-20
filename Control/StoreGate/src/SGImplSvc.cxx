@@ -10,6 +10,7 @@
 #include <iostream>
 #include <functional>
 #include <string>
+#include <unordered_map>
 
 #include <sstream>
 #include <iomanip>
@@ -35,7 +36,6 @@
 #include "SGTools/StringPool.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/SGVersionedKey.h"
-#include "CxxUtils/unordered_map.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
@@ -126,7 +126,7 @@ namespace SG {
       sgkey_t target;
       off_t index_offset;
     };
-    typedef SG::unordered_map<sgkey_t, remap_t, keyhash> remap_map_t;
+    typedef std::unordered_map<sgkey_t, remap_t, keyhash> remap_map_t;
     remap_map_t m_remaps;
   };
 
@@ -181,13 +181,10 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialisation
 StatusCode SGImplSvc::initialize()    {
 
-  msg() << MSG::VERBOSE << "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg ;
+  msg() << MSG::VERBOSE <<  "Initializing " << name() 
+        << " - package version " << PACKAGE_VERSION << endmsg;
 
-  if(!(Service::initialize()).isSuccess()) {
-    msg() << MSG::ERROR << "Could not initialize base Service !!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK( Service::initialize() );
 
   if (!m_pStore)
     m_pStore = new DataStore (*this);
@@ -785,11 +782,11 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 
   if (returnExisting) {
     SG::DataProxy* proxy = this->proxy (obj->clID(), key);
-    if (proxy) return proxy;
+    if (proxy && proxy->isValid()) return proxy;
 
     // Look for the same object recorded under a different key.
     proxy = this->proxy (raw_ptr);
-    if (proxy) {
+    if (proxy && proxy->isValid()) {
       // Make an alias.
       if (addAlias (key, proxy).isFailure()) {
         CLID clid = proxy->clID();
@@ -812,7 +809,7 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
   SG::DataProxy* proxy = nullptr;
   if (this->typeless_record (obj.get(), key, raw_ptr,
                              allowMods, resetOnly, noHist, tinfo,
-                             &proxy).isFailure())
+                             &proxy, true).isFailure())
     {
       return nullptr;
     }
@@ -924,7 +921,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             bool allowMods, bool resetOnly, bool noHist)
 {
   return typeless_record (obj, key, raw_ptr, allowMods, resetOnly, noHist, 0,
-                          nullptr);
+                          nullptr, false);
 }
 
 
@@ -935,7 +932,7 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             const std::type_info* tinfo)
 {
   return typeless_record (obj, key, raw_ptr, allowMods, resetOnly, noHist,tinfo,
-                          nullptr);
+                          nullptr, false);
 }
 
 
@@ -944,11 +941,11 @@ SGImplSvc::typeless_record( DataObject* obj, const std::string& key,
                             const void* const raw_ptr,
                             bool allowMods, bool resetOnly, bool noHist,
                             const std::type_info* tinfo,
-                            SG::DataProxy** proxy_ret)
+                            SG::DataProxy** proxy_ret,
+                            bool noOverwrite)
 {
-  const bool NOOVERWRITE(false);
   SG::DataProxy* proxy =
-    record_impl( obj, key, raw_ptr, allowMods, resetOnly, NOOVERWRITE, tinfo);
+    record_impl( obj, key, raw_ptr, allowMods, resetOnly, noOverwrite, tinfo);
   if ( proxy == nullptr )
     return StatusCode::FAILURE;
   if (proxy_ret)
@@ -1072,6 +1069,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
           << endmsg;
     if (pDObj != dp->object()) {
       DataBucketBase* pDBB(dynamic_cast<DataBucketBase*>(pDObj));
+      if (!pDBB) std::abort();
       pDBB->relinquish(); //don't own the data obj already recorded!
     }
     this->recycle(pDObj);

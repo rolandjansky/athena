@@ -957,6 +957,12 @@ SGImplSvc::setProxyProviderSvc(IProxyProviderSvc* pPPSvc) {
   m_pPPS = pPPSvc;
 }
 
+inline
+IProxyProviderSvc*
+SGImplSvc::proxyProviderSvc() {
+  return m_pPPS;
+}
+
 //////////////////////////////////////////////////////////////////
 
 template <typename H, typename TKEY>

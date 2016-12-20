@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadHandle.icc 726621 2016-02-27 20:03:45Z ssnyder $
+// $Id: ReadHandle.icc 774989 2016-09-24 11:00:22Z ssnyder $
 /**
  * @file StoreGate/ReadHandle.icc
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -209,7 +209,7 @@ template <class T>
 inline
 bool ReadHandle<T>::isValid()
 {
-  return 0 != this->typeless_cptr(); 
+  return 0 != this->typeless_dataPointer(true); 
 }
 
 

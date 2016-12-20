@@ -528,6 +528,13 @@ StoreGateSvc::setProxyProviderSvc(IProxyProviderSvc* pPPSvc) {
 }
 
 
+inline
+IProxyProviderSvc*
+StoreGateSvc::proxyProviderSvc() {
+  _SGXCALL(proxyProviderSvc, (), nullptr);
+}
+
+
 /**
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.

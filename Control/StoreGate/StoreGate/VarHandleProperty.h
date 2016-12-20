@@ -22,62 +22,115 @@
 
 // ** Specializations of SimplePropertyRef for the VarHandle classes.
 
+namespace Gaudi {
 template<>
-class SimplePropertyRef< SG::VarHandleBase > :
-  public SG::VarHandleKeyProperty
-{
+  class Property<SG::VarHandleBase&> : public SG::VarHandleKeyProperty {
 public:
-  SimplePropertyRef(const std::string& name, SG::VarHandleBase& value) :
+    Property(const std::string& name, SG::VarHandleBase& value) : 
     SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
+};
+
+template<typename T>
+  class Property<SG::ReadHandle<T>&> : public SG::VarHandleKeyProperty {
+public:
+    Property(const std::string& name, SG::ReadHandle<T>& value) : 
+    SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
+};
+
+template<typename T>
+  class Property<SG::WriteHandle<T>&> : public SG::VarHandleKeyProperty {
+public:
+    Property(const std::string& name, SG::WriteHandle<T>& value) : 
+    SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
+};
+
+template<typename T>
+  class Property<SG::UpdateHandle<T>&> : public SG::VarHandleKeyProperty {
+public:
+    Property(const std::string& name, SG::UpdateHandle<T>& value) : 
+    SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
 };
 
 
 template<typename T>
-class SimplePropertyRef< SG::ReadHandle<T> > :
-  public SG::VarHandleKeyProperty
-{
+  class Property<SG::ReadCondHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
-  SimplePropertyRef(const std::string& name, SG::ReadHandle<T>& value) :
+    Property(const std::string& name, SG::ReadCondHandle<T>& value) : 
     SG::VarHandleKeyProperty(name, value) {}
-};
-
-
-template<typename T>
-class SimplePropertyRef< SG::UpdateHandle<T> > :
-  public SG::VarHandleKeyProperty
-{
-public:
-  SimplePropertyRef( const std::string& name, SG::UpdateHandle<T>& value ) :
-    SG::VarHandleKeyProperty(name, value) {}
-};
-
-
-template<typename T>
-class SimplePropertyRef< SG::WriteHandle<T> > :
-  public SG::VarHandleKeyProperty
-{
-public:
-  SimplePropertyRef( const std::string& name, SG::WriteHandle<T>& value ) :
-    SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
 };
 
 template<typename T>
-class SimplePropertyRef< SG::ReadCondHandle<T> > :
-  public SG::VarHandleKeyProperty
-{
+  class Property<SG::WriteCondHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
-  SimplePropertyRef(const std::string& name, SG::ReadCondHandle<T>& value) :
+    Property(const std::string& name, SG::WriteCondHandle<T>& value) : 
     SG::VarHandleKeyProperty(name, value) {}
+    virtual ~Property() {}
 };
 
-template<typename T>
-class SimplePropertyRef< SG::WriteCondHandle<T> > :
-  public SG::VarHandleKeyProperty
-{
-public:
-  SimplePropertyRef(const std::string& name, SG::WriteCondHandle<T>& value) :
-    SG::VarHandleKeyProperty(name, value) {}
-};
+
+}
+
+// template<>
+// class SimplePropertyRef< SG::VarHandleBase > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef(const std::string& name, SG::VarHandleBase& value) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
+
+
+// template<typename T>
+// class SimplePropertyRef< SG::ReadHandle<T> > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef(const std::string& name, SG::ReadHandle<T>& value) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
+
+
+// template<typename T>
+// class SimplePropertyRef< SG::UpdateHandle<T> > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef( const std::string& name, SG::UpdateHandle<T>& value ) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
+
+
+// template<typename T>
+// class SimplePropertyRef< SG::WriteHandle<T> > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef( const std::string& name, SG::WriteHandle<T>& value ) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
+
+// template<typename T>
+// class SimplePropertyRef< SG::ReadCondHandle<T> > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef(const std::string& name, SG::ReadCondHandle<T>& value) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
+
+// template<typename T>
+// class SimplePropertyRef< SG::WriteCondHandle<T> > :
+//   public SG::VarHandleKeyProperty
+// {
+// public:
+//   SimplePropertyRef(const std::string& name, SG::WriteCondHandle<T>& value) :
+//     SG::VarHandleKeyProperty(name, value) {}
+// };
 
 
 #endif /* !STOREGATE_VARHANDLEPROPERTY_H */

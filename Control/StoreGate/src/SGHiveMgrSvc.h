@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE
 #ifndef STOREGATE_HIVEMGRSVC_H
 #define STOREGATE_HIVEMGRSVC_H
 
@@ -27,7 +26,7 @@ template <class TYPE> class SvcFactory;
  *  @brief A service that manages a multi-event collection of StoreGateSvc
  *  It implements the IHiveWhiteBoard interface
  *
- *  $Id: SGHiveMgrSvc.h 694789 2015-09-14 19:36:04Z leggett $
+ *  $Id: SGHiveMgrSvc.h 783783 2016-11-11 18:25:23Z leggett $
  **/
 namespace SG {
 class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service {
@@ -61,7 +60,7 @@ public:
    * 
    * @return Number of event stores allocated in the whiteboard
    */
-  virtual size_t getNumberOfStores();
+  virtual size_t getNumberOfStores() const;
  
   /** Get the latest new data objects registred in store.
    *
@@ -109,7 +108,9 @@ public:
 private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
+#ifdef ATHENAHIVE
   std::vector<SG::HiveEventSlot> m_slots;
+#endif
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
 
 protected:
@@ -121,7 +122,3 @@ protected:
 };
 } //namespace SG
 #endif // STOREGATE_HIVEMGRSVC_H
-#endif // ATHENAHIVE
-
-
-

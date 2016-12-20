@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WriteHandle.h 756419 2016-06-21 02:02:43Z ssnyder $
+// $Id: WriteHandle.h 787694 2016-12-01 20:03:47Z ssnyder $
 /**
  * @file StoreGate/WriteHandle.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -53,7 +53,7 @@ namespace SG {
  *
  *   StatusCode MyAlg::execute()
  *   {
- *     ATH_CHECK( m_int.record (CxxUtils::make_unique<int>(42)) );
+ *     ATH_CHECK( m_int.record (std::make_unique<int>(42)) );
  *     ATH_MSG_INFO("int value @[" << m_int.name() << "]="
  *                  << *m_int);
  *     *m_int += 10;
@@ -256,6 +256,63 @@ public:
    * The event store takes shared ownership of the object.
    */
   StatusCode recordNonConst (SG::DataObjectSharedPtr<T> data);
+
+
+  /**
+   * @brief Record a const object to the store.
+   * @param data The object to record.
+   * @param returnExisting Allow an existing object?
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, unless @c returnExisting is true, in which case
+   * return success.  In either case, @c data is destroyed.
+   */
+  const T* put (std::unique_ptr<T> data,
+                bool returnExisting = false) const;
+
+
+  /**
+   * @brief Record a const object to the store.
+   * @param data The object to record.
+   * @param returnExisting Allow an existing object?
+   * @param[out] store The store being used.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, unless @c returnExisting is true, in which case
+   * return success.  In either case, @c data is destroyed.
+   */
+  const T* put (std::unique_ptr<T> data,
+                bool returnExisting,
+                IProxyDict* & store) const;
+
+
+  /**
+   * @brief Record an object and its auxiliary store to the store.
+   * @param data The object to record.
+   * @param auxstore Auxiliary store object.
+   *
+   * Unlike record(), this does not change the handle object.
+   * That means that will not be able to get the object back
+   * by dereferencing the handle.
+   * Returns the object placed in the store, or nullptr if there
+   * was an error.
+   * If there was already an object in the store with the given key,
+   * then return null, and the objects passed in are destroyed.
+   */
+  template <class AUXSTORE>
+  const T*
+  put (std::unique_ptr<T> data,
+       std::unique_ptr<AUXSTORE> auxstore) const;
 
 
   // Commit this out for now since it looks like we don't actually need it.

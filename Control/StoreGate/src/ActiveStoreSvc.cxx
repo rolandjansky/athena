@@ -4,6 +4,7 @@
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -29,22 +30,14 @@ ActiveStoreSvc::~ActiveStoreSvc()
 /// Service initialisation
 StatusCode ActiveStoreSvc::initialize()    {
 
-  // Initialize service:
-  if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
+  CHECK( Service::initialize() );
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::INFO << "Initializing " << name() 
+  msg() << MSG::VERBOSE << "Initializing " << name() 
       << " - package version " << PACKAGE_VERSION << endmsg ;
 
   const bool CREATEIF(true);
-  StatusCode sc = service(m_storeName, p_activeStore, CREATEIF);
-  if ( !sc.isSuccess() ) {
-    log << MSG::ERROR << "Could not locate default store" << endmsg;
-    return sc;
-  }
-
+  CHECK(  service(m_storeName, p_activeStore, CREATEIF) );
   return StatusCode::SUCCESS;
-
 }
 
 ///set the active store pointer: used by the event loop mgrs

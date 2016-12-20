@@ -33,7 +33,7 @@ namespace Gaudi {
 namespace SG {
 
   class GAUDI_API VarHandleKeyArrayProperty
-    : public ::Property 
+    : public ::PropertyWithHandlers 
   {
   public:
  
@@ -42,17 +42,17 @@ namespace SG {
  
     VarHandleKeyArrayProperty& operator=( const SG::VarHandleKeyArray& value );
  
-    virtual VarHandleKeyArrayProperty* clone() const override;
+    VarHandleKeyArrayProperty* clone() const override;
  
-    virtual bool load( Property& destination ) const override;
+    bool load( Property& destination ) const override;
  
-    virtual bool assign( const Property& source ) override;
+    bool assign( const Property& source ) override;
  
-    virtual std::string toString() const override;
+    std::string toString() const override;
  
-    virtual void toStream(std::ostream& out) const override;
+    void toStream(std::ostream& out) const override;
  
-    virtual StatusCode fromString(const std::string& s) override;
+    StatusCode fromString(const std::string& s) override;
  
     const SG::VarHandleKeyArray& value() const;
  
@@ -69,34 +69,35 @@ namespace SG {
 
 } // namespace SG
 
+namespace Gaudi {
 template<>
-class SimplePropertyRef< SG::VarHandleKeyArray > :
-  public SG::VarHandleKeyArrayProperty
+  class Property<SG::VarHandleKeyArray&> : public SG::VarHandleKeyArrayProperty
 {
 public:
-  SimplePropertyRef(const std::string& name, SG::VarHandleKeyArray& value) :
+    Property(const std::string& name, SG::VarHandleKeyArray& value) : 
     SG::VarHandleKeyArrayProperty(name, value) {}
-};
-
-
-template<typename T>
-class SimplePropertyRef< SG::ReadHandleKeyArray<T> > :
-  public SG::VarHandleKeyArrayProperty
-{
-public:
-  SimplePropertyRef(const std::string& name, SG::ReadHandleKeyArray<T>& value) :
-    SG::VarHandleKeyArrayProperty(name, value) {}
+    virtual ~Property() {}
 };
 
 template<typename T>
-class SimplePropertyRef< SG::WriteHandleKeyArray<T> > :
-  public SG::VarHandleKeyArrayProperty
+  class Property<SG::ReadHandleKeyArray<T>&> : public SG::VarHandleKeyArrayProperty
 {
 public:
-  SimplePropertyRef( const std::string& name, 
-                     SG::WriteHandleKeyArray<T>& value ) :
+    Property(const std::string& name, SG::ReadHandleKeyArray<T>& value) : 
     SG::VarHandleKeyArrayProperty(name, value) {}
+    virtual ~Property() {}
 };
+
+template<typename T>
+  class Property<SG::WriteHandleKeyArray<T>&> : public SG::VarHandleKeyArrayProperty
+{
+public:
+    Property(const std::string& name, SG::WriteHandleKeyArray<T>& value) : 
+    SG::VarHandleKeyArrayProperty(name, value) {}
+    virtual ~Property() {}
+};
+
+}
 
 
 

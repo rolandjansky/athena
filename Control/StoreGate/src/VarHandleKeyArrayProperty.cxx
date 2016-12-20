@@ -72,7 +72,7 @@ namespace SG {
  */
   VarHandleKeyArrayProperty::VarHandleKeyArrayProperty( const std::string& name, 
                                                         SG::VarHandleKeyArray& ref )
-    : Property( name, typeid( SG::VarHandleKeyArray ) ), 
+    : PropertyWithHandlers( name, typeid( SG::VarHandleKeyArray ) ), 
       m_pValue( &ref ) 
   {
 }

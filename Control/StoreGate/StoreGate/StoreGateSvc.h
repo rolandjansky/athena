@@ -711,6 +711,8 @@ public:
 
   /// associate ProxyProviderSvc to this store
   void setProxyProviderSvc(IProxyProviderSvc* pPPSvc);
+  /// Return current ProxyProviderSvc.
+  IProxyProviderSvc* proxyProviderSvc();
   //@}
 
   /////////////////////////////////////////////////////////////////////////

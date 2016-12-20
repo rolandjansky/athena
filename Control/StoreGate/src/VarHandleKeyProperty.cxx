@@ -77,7 +77,7 @@ namespace SG {
  */
 VarHandleKeyProperty::VarHandleKeyProperty( const std::string& name, 
                                             SG::VarHandleKey& ref )
-  : Property( name, typeid( SG::VarHandleKey ) ), 
+  : PropertyWithHandlers( name, typeid( SG::VarHandleKey ) ), 
     m_pValue( &ref ) 
 {
 }

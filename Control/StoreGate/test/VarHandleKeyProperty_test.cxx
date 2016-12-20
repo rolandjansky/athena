@@ -16,7 +16,7 @@
 #include "StoreGate/exceptions.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
-#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/PropertyHolder.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -27,6 +27,15 @@
 
 class MyObj {};
 CLASS_DEF (MyObj, 293847295, 1)
+
+namespace
+{
+  const std::string emptyName{};
+  /// Helper to allow instantiation of PropertyHolder.
+  struct AnonymousPropertyHolder : public PropertyHolder<implements<IProperty, INamedInterface>> {
+    const std::string& name() const override { return emptyName; }
+  };
+}
 
 
 void test1()
@@ -168,7 +177,7 @@ public:
   virtual bool hasProperty(const std::string& name) const override
   { return mgr.hasProperty(name); }
 
-  PropertyMgr mgr;
+  AnonymousPropertyHolder mgr;
 };
 
 

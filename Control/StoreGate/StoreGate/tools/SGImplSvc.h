@@ -61,7 +61,6 @@
 #include "SGTools/SGVersionedKey.h"
 #include "StoreGate/SGObjectWithVersion.h"
 #include "AthAllocators/Arena.h"
-#include "SGTools/IProxyDictWithPool.h" // TEMPORARY
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -113,7 +112,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 766223 2016-08-03 12:32:24Z will $
+ * $Id: SGImplSvc.h 785927 2016-11-23 03:58:33Z ssnyder $
  **/
 class SGImplSvc :
   public Service, 
@@ -661,6 +660,8 @@ public:
 
   /// associate ProxyProviderSvc to this store
   void setProxyProviderSvc(IProxyProviderSvc* pPPSvc);
+  /// Return current ProxyProviderSvc.
+  IProxyProviderSvc* proxyProviderSvc();
   //@}
 
   /////////////////////////////////////////////////////////////////////////
@@ -937,7 +938,8 @@ private:
                               bool allowMods, bool resetOnly,
                               bool noHist,
                               const std::type_info* tinfo,
-                              SG::DataProxy** proxy_ret);
+                              SG::DataProxy** proxy_ret,
+                              bool noOverwrite);
 
   /// real recording of an object with a key, allow possibility of
   /// specifying const-access

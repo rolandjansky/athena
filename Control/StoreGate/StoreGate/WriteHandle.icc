@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WriteHandle.icc 756419 2016-06-21 02:02:43Z ssnyder $
+// $Id: WriteHandle.icc 787694 2016-12-01 20:03:47Z ssnyder $
 /**
  * @file StoreGate/WriteHandle.icc
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -21,36 +21,6 @@
 
 
 namespace SG {
-
-
-/**
- * @brief Helper to temporarily clear aux store association.
- *
- * This is used in the object+store version of record, in order to prevent
- * the store from being locked prematurely.
- */
-template <class T>
-class SaveStore
-{
-public:
-  SaveStore (T& o)
-    : m_store (o.getStore()),
-      m_o (o)
-  {
-    if (m_store)
-      o.setStore (static_cast<SG::IAuxStore*>(nullptr));
-  }
-
-  ~SaveStore()
-  {
-    if (m_store)
-      m_o.setStore (m_store);
-  }
-
-private:
-  IAuxStore* m_store;
-  T& m_o;
-};
 
 
 //************************************************************************
@@ -139,6 +109,8 @@ template <class T>
 WriteHandle<T>::WriteHandle(WriteHandle&& h)
   : VarHandleBase(std::move(h))
 {
+  m_lockAuxPending = h.m_lockAuxPending;
+  h.m_lockAuxPending = nullptr;
 }
 
 
@@ -164,8 +136,11 @@ inline
 WriteHandle<T>& 
 WriteHandle<T>::operator= (WriteHandle&& h)
 {
-  if (this != &h)
+  if (this != &h) {
     this->VarHandleBase::operator=(std::move(h));
+    m_lockAuxPending = h.m_lockAuxPending;
+    h.m_lockAuxPending = nullptr;
+  }
   return *this;
 }
 
@@ -357,6 +332,113 @@ WriteHandle<T>::recordNonConst (SG::DataObjectSharedPtr<T> data)
 }
 
 
+/**
+ * @brief Record a const object to the store.
+ * @param data The object to record.
+ * @param returnExisting Allow an existing object?
+ *
+ * Unlike record(), this does not change the handle object.
+ * That means that will not be able to get the object back
+ * by dereferencing the handle.
+ * Returns the object placed in the store, or nullptr if there
+ * was an error.
+ * If there was already an object in the store with the given key,
+ * then return null, unless @c returnExisting is true, in which case
+ * return success.  In either case, @c data is destroyed.
+ */
+template <class T>
+inline
+const T* WriteHandle<T>::put (std::unique_ptr<T> data,
+                              bool returnExisting /*= false*/) const
+{
+  IProxyDict* store = nullptr;
+  return put (std::move(data), returnExisting, store);
+}
+
+
+/**
+ * @brief Record a const object to the store.
+ * @param data The object to record.
+ * @param returnExisting Allow an existing object?
+ * @param[out] store The store being used.
+ *
+ * Unlike record(), this does not change the handle object.
+ * That means that will not be able to get the object back
+ * by dereferencing the handle.
+ * Returns the object placed in the store, or nullptr if there
+ * was an error.
+ * If there was already an object in the store with the given key,
+ * then return null, unless @c returnExisting is true, in which case
+ * return success.  In either case, @c data is destroyed.
+ */
+template <class T>
+const T* WriteHandle<T>::put (std::unique_ptr<T> data,
+                              bool returnExisting,
+                              IProxyDict* & store) const
+{
+  //typedef typename U::element_type elt_t;
+  typedef T elt_t;
+  
+  // make sure the BaseInfo(Base) structure is initialized
+  SG::BaseInfo<elt_t>::baseinfo();
+
+  void* dataPtr(data.get());
+  std::unique_ptr<DataObject> dobj (SG::asStorable (std::move (data)));
+  return reinterpret_cast<const T*>
+    (this->put_impl (std::move(dobj), dataPtr, false, returnExisting, store));
+}
+
+
+/**
+ * @brief Record an object and its auxiliary store to the store.
+ * @param data The object to record.
+ * @param auxstore Auxiliary store object.
+ *
+ * Unlike record(), this does not change the handle object.
+ * That means that will not be able to get the object back
+ * by dereferencing the handle.
+ * Returns the object placed in the store, or nullptr if there
+ * was an error.
+ * If there was already an object in the store with the given key,
+ * then return null, and the objects passed in are destroyed.
+ */
+template <class T>
+template <class AUXSTORE>
+const T*
+WriteHandle<T>::put (std::unique_ptr<T> data,
+                     std::unique_ptr<AUXSTORE> auxstore) const
+{
+  T& dref = *data;
+
+  // If there's no store association, do it now.
+  if (data->getStore() == nullptr)
+    data->setStore (auxstore.get());
+
+  IProxyDict* store = nullptr;
+  const T* ptr = this->put (std::move(data), false, store);
+  if (!ptr) return nullptr;
+
+  SG::DataObjectSharedPtr<DataObject> dobj
+    (SG::asStorable (std::move (auxstore)));
+  SG::DataProxy* proxy = store->recordObject (std::move(dobj),
+                                              this->name() + "Aux.",
+                                              false,
+                                              false);
+  if (!proxy) {
+    REPORT_ERROR (StatusCode::FAILURE)
+      << "recordObject of aux store failed";
+
+    // If we've failed here, then the aux store object has been deleted,
+    // but not the primary object.  Null out the store pointer to prevent
+    // having a dangling pointer to a deleted object.
+    dref.setStore (static_cast<SG::IConstAuxStore*>(nullptr));
+    return nullptr;
+  }
+
+  return ptr;
+}
+
+
 #if 0
 /**
  * @brief Record a new non-const object, or retrieve an old one.
@@ -458,11 +540,20 @@ WriteHandle<T>::record (std::unique_ptr<T> data,
 {
   T& dref = *data;
 
+  // If there's no store association, do it now.
+  if (data->getStore() == nullptr)
+    data->setStore (auxstore.get());
+
   if (isConst) {
     // Temporarily clear the store association, in order to prevent
     // the aux store from being locked at this point.
-    SaveStore<T> ss (*data);
+    IAuxStore* store = dref.getStore();
+    if (store)
+      dref.setStore (static_cast<SG::IAuxStore*>(nullptr));
     CHECK (this->record(std::move(data)));
+    // Deliberately not using RAII here.  If there is an error,
+    // then the object referenced by data will be deleted.
+    dref.setStore (store);
   }
   else
     CHECK (this->recordNonConst(std::move(data)));
@@ -488,6 +579,7 @@ WriteHandle<T>::record (std::unique_ptr<T> data,
 
   if (m_proxy->isConst())
     m_lockAuxPending = proxy;
+
   return StatusCode::SUCCESS;
 }
 
