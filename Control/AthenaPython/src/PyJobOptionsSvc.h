@@ -22,7 +22,9 @@
 // GaudiKernel
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/PropertyHolder.h"
+//#include "GaudiKernel/PropertyMgr.h"
 
 // AthenaPython includes
 #include "PyJobOptionsCatalogue.h"
@@ -31,7 +33,7 @@
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 class IProperty;
-class  Property;
+//class  Property;
 struct _object; 
 typedef _object PyObject;
 
@@ -91,8 +93,14 @@ class PyJobOptionsSvc
 
   /// Get the properties associated to a given client
   virtual 
-  const std::vector<const Property*>* 
+  //  const std::vector<const Property*>* 
+  const std::vector<const Gaudi::Details::PropertyBase*>* 
   getProperties (const std::string& client) const;
+
+  /// Get a property for a client
+  const Gaudi::Details::PropertyBase* 
+  getClientProperty( const std::string& client,
+                     const std::string& name ) const override;
 
   /// Get the list of clients
   virtual 
@@ -111,8 +119,8 @@ class PyJobOptionsSvc
   ///@}
 
   /// IProperty implementation (needed for initialisation)
-  StatusCode setProperty(const Property& p);
-  StatusCode getProperty(Property *p) const;
+  // StatusCode setProperty(const Property& p);
+  // StatusCode getProperty(Property *p) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -132,18 +140,23 @@ class PyJobOptionsSvc
   /// Default constructor: 
   PyJobOptionsSvc();
 
-  /// Property manager (where we store our properties - chicken/egg pb)
-  PropertyMgr m_pmgr;
+  // PropertyMgr m_pmgr;
 
-  /// path to joboption file
-  std::string m_source_path;
-  /// source type (old-txt, py, pickle?)
-  std::string m_source_type;
-  /// list of paths to directories to look for joboptions
-  std::string m_dir_search_path;
+  // /// path to joboption file
+  // std::string m_source_path;
+  // /// source type (old-txt, py, pickle?)
+  // std::string m_source_type;
+  // /// list of paths to directories to look for joboptions
+  // std::string m_dir_search_path;
 
-  /// optional output file to dump all properties 
-  std::string m_dump;
+  // /// optional output file to dump all properties 
+  // std::string m_dump;
+
+  Gaudi::Property<std::string> m_source_type{this, "TYPE"};
+  Gaudi::Property<std::string> m_source_path{this, "PATH"};
+  Gaudi::Property<std::string> m_dir_search_path{this, "SEARCHPATH"};
+  Gaudi::Property<std::string> m_dump{this, "DUMPFILE"};
+
 
   /// catalogue holding the properties
   PyJobOptionsCatalogue m_catalogue;

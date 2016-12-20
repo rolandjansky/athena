@@ -25,6 +25,7 @@
 // PyRoot
 #include "TPython.h"
 
+typedef PyJobOptionsCatalogue::Property_t   Property_t;
 typedef PyJobOptionsCatalogue::Properties_t Properties_t;
 typedef PyJobOptionsCatalogue::Objects_t    Objects_t;
 
@@ -37,10 +38,10 @@ typedef PyJobOptionsCatalogue::Objects_t    Objects_t;
 PyJobOptionsSvc::PyJobOptionsSvc (const std::string& name, 
 				  ISvcLocator* pSvcLocator) : 
   ::AthService (name, pSvcLocator),
-  m_pmgr       (),
-  m_source_path(),
-  m_source_type(),
-  m_dir_search_path(),
+  // m_pmgr       (),
+  // m_source_path(),
+  // m_source_type(),
+  // m_dir_search_path(),
   m_catalogue()
 {
   //
@@ -62,18 +63,18 @@ PyJobOptionsSvc::PyJobOptionsSvc (const std::string& name,
     }
   }
 
-  m_pmgr.declareProperty ("TYPE", 
-			  m_source_type = "NONE",
-			  "type of the joboptions to parse (txt,py,pickle)");
-  m_pmgr.declareProperty ("PATH", 
-			  m_source_path,
-			  "path to the joboptions to parse");
-  m_pmgr.declareProperty ("SEARCHPATH", 
-			  m_dir_search_path,
-			  "list of directory-paths to look for joboptions");
-  m_pmgr.declareProperty ("DUMPFILE", 
-			  m_dump,
-			  "name of a file where to dump the list of options");
+  // m_pmgr.declareProperty ("TYPE", 
+  //       		  m_source_type = "NONE",
+  //       		  "type of the joboptions to parse (txt,py,pickle)");
+  // m_pmgr.declareProperty ("PATH", 
+  //       		  m_source_path,
+  //       		  "path to the joboptions to parse");
+  // m_pmgr.declareProperty ("SEARCHPATH", 
+  //       		  m_dir_search_path,
+  //       		  "list of directory-paths to look for joboptions");
+  // m_pmgr.declareProperty ("DUMPFILE", 
+  //       		  m_dump,
+  //       		  "name of a file where to dump the list of options");
 
 }
 
@@ -202,6 +203,14 @@ PyJobOptionsSvc::getProperties (const std::string& client) const
   return m_catalogue.properties (client);
 }
 
+const Property_t*
+PyJobOptionsSvc::getClientProperty( const std::string& client,
+                                    const std::string& name ) const 
+  {
+    return m_catalogue.getProperty( client, name );
+  }
+
+
 /// Get the list of clients
 std::vector<std::string> 
 PyJobOptionsSvc::getClients() const
@@ -237,19 +246,19 @@ PyJobOptionsSvc::readOptions (const std::string& file,
   return StatusCode::SUCCESS;
 }
 
-/// IProperty implementation (needed for initialisation)
-StatusCode 
-PyJobOptionsSvc::setProperty(const Property& p)
-{
-  return m_pmgr.setProperty (p);
-}
+// /// IProperty implementation (needed for initialisation)
+// StatusCode 
+// PyJobOptionsSvc::setProperty(const Property& p)
+// {
+//   return m_pmgr.setProperty (p);
+// }
 
-/// IProperty implementation (needed for initialisation)
-StatusCode
-PyJobOptionsSvc::getProperty(Property *p) const
-{
-  return m_pmgr.getProperty (p);
-}
+// /// IProperty implementation (needed for initialisation)
+// StatusCode
+// PyJobOptionsSvc::getProperty(Property *p) const
+// {
+//   return m_pmgr.getProperty (p);
+// }
 
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 

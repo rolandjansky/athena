@@ -32,7 +32,8 @@ class PyJobOptionsCatalogue
   /////////////////////////////////////////////////////////////////// 
 public: 
   
-  typedef std::vector<const Property*> Properties_t;
+  typedef Gaudi::Details::PropertyBase Property_t;
+  typedef std::vector<const Property_t*> Properties_t;
   typedef SG::unordered_map<std::string, Properties_t> Objects_t;
   
   /////////////////////////////////////////////////////////////////// 
@@ -59,6 +60,9 @@ public:
   /// FIXME: slow and inefficient
   std::vector<std::string> clients() const;
 
+  const Property_t* getProperty(const std::string& client, 
+                                const std::string& prop_name) const;
+  
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 

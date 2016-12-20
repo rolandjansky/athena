@@ -26,7 +26,7 @@ typedef _object PyObject;
 
 
 class PyProperty
-  : public Property
+  : public PropertyWithHandlers
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -49,22 +49,22 @@ class PyProperty
   /// @c Property implementation
   ///@{
   /// export the property value to the destination
-  virtual bool load (Property& dest) const;
+  bool load (Property& dest) const override;
 
   /// import the property value from source
-  virtual bool assign (const Property& src);
+  bool assign (const Property& src) override;
 
   /// export the property value as a @c std::string
-  virtual std::string toString() const;
+  std::string toString() const override;
 
   /// export the property value into a std::stream
-  virtual void toStream(std::ostream& out) const;
+  void toStream(std::ostream& out) const override;
 
   /// import the property value from a @c std::string
-  virtual StatusCode fromString (const std::string& value);
+  StatusCode fromString (const std::string& value) override;
 
   /// clone: the usual "virtual constructor" pattern
-  virtual Property* clone() const;
+  PyProperty* clone() const override;
 
   /// access underlying wrapped object
   virtual void* object() const;

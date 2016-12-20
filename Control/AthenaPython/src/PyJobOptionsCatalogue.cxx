@@ -112,6 +112,23 @@ PyJobOptionsCatalogue::remove_property (const std::string& client,
   return StatusCode::SUCCESS;
 }
 
+/// find a particular property by  name
+const PyJobOptionsCatalogue::Property_t*
+PyJobOptionsCatalogue::getProperty (const std::string& client,
+                                    const std::string& prop_name) const {
+
+  Properties_t* props = find_properties (client);
+  if (!props) { return nullptr; }
+
+  Properties_t::const_iterator itr;
+  for (itr = props->begin(); itr!=props->end(); ++itr) {
+    if (prop_name == (*itr)->name()) {
+      return *itr;
+    }
+  }
+  return nullptr;
+}
+
 /////////////////////////////////////////////////////////////////// 
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 

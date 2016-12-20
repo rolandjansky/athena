@@ -7,6 +7,7 @@
 // PyAthenaUtils.cxx 
 // Implementation file for various PyAthena helpers
 // Author: S.Binet<binet@cern.ch>
+// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -14,6 +15,7 @@
 
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
+#include "PyAthenaGILStateEnsure.h"
 
 // Framework includes
 #include "GaudiKernel/IInterface.h"
@@ -51,6 +53,7 @@ fetchInterfaceId( PyObject* klass,
 {
   Py_INCREF( klass );
 
+  PyAthena::PyGILStateEnsure ensure;
   PyObject* idObj = PyObject_CallMethod( klass, 
 					 const_cast<char*>("interfaceID"), 
 					 const_cast<char*>("") );
@@ -102,6 +105,7 @@ std::string
 PyAthena::repr( PyObject* o )
 {
   // PyObject_Repr returns a new ref.
+  PyGILStateEnsure ensure;
   PyObject* py_repr = PyObject_Repr( o );
   if ( !py_repr || !PyString_Check(py_repr) ) {
     Py_XDECREF( py_repr );
@@ -117,6 +121,7 @@ std::string
 PyAthena::str( PyObject* o )
 {
   // PyObject_Str returns a new ref.
+  PyGILStateEnsure ensure;
   PyObject* py_str = PyObject_Str( o );
   if ( !py_str || !PyString_Check(py_str) ) {
     Py_XDECREF( py_str );
@@ -131,6 +136,7 @@ PyAthena::str( PyObject* o )
 void PyAthena::throw_py_exception (bool display)
 {
   if (display) {
+    PyGILStateEnsure ensure;
     // fetch error
     PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
     PyErr_Fetch (&pytype, &pyvalue, &pytrace);
@@ -155,6 +161,7 @@ PyAthena::callPyMethod( PyObject* self, const char* methodName )
   if ( 0 == self || 0 == method ) { return StatusCode::FAILURE; }
   
   // call Python 
+  PyGILStateEnsure ensure;
   PyObject* r = PyObject_CallMethod( self, method, const_cast<char*>("") );
   
   if ( 0 == r ) { 
@@ -224,6 +231,7 @@ StatusCode PyAthena::queryInterface( PyObject* self,
       << std::endl;
   }
 
+  PyGILStateEnsure ensure;
   PyObject* type = PyObject_GetAttrString( self, 
 					   const_cast<char*>("__class__") );
   if ( !type ) {
@@ -332,6 +340,7 @@ void PyAthena::pyAudit( PyObject* self,
 			const char* evt, 
 			const char* component )
 {
+  PyGILStateEnsure ensure;
   PyObject* call = PyObject_CallMethod(self,
 				       (char*)method,
 				       (char*)"ss", evt, component);
@@ -349,6 +358,7 @@ void PyAthena::pyAudit( PyObject* self,
 			const char* evt,
 			const char* component, const StatusCode& sc )
 {
+  PyGILStateEnsure ensure;
   PyObject* pySc = TPython::ObjectProxy_FromVoidPtr((void*)&sc,
 						    "StatusCode");
   if ( !pySc ) {

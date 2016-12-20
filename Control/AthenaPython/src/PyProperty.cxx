@@ -108,7 +108,7 @@ namespace {
 
 /// Copy constructor: 
 PyProperty::PyProperty( const PyProperty& rhs ) :
-  Property (rhs),
+  PropertyWithHandlers (rhs),
   m_pyobj  (::DeepCopier::instance()->copy (rhs.m_pyobj))
 {}
 
@@ -117,7 +117,7 @@ PyProperty&
 PyProperty::operator=( const PyProperty& rhs )
 {
   if ( this != &rhs ) {
-    Property::operator= (rhs);
+    PropertyWithHandlers::operator= (rhs);
     m_pyobj = ::DeepCopier::instance()->copy (rhs.m_pyobj);
   }
   return *this;
@@ -127,7 +127,7 @@ PyProperty::operator=( const PyProperty& rhs )
 PyProperty::PyProperty(const std::string& name,
 		       const std::type_info& type,
 		       void* obj) :
-  Property (name, type),
+  PropertyWithHandlers (name, type),
   m_pyobj  (Py_None)
 {
   if (type == typeid(PyObject) ||
@@ -142,7 +142,7 @@ PyProperty::PyProperty(const std::string& name,
 
 PyProperty::PyProperty (const std::string& name,
 			PyObject* obj) :
-  Property (name, typeid(obj)),
+  PropertyWithHandlers (name, typeid(obj)),
   m_pyobj  (::DeepCopier::instance()->copy (obj))
 {}
 
@@ -234,7 +234,7 @@ PyProperty::fromString (const std::string& value)
 }
 
 /// clone: the usual "virtual constructor" pattern
-Property* 
+PyProperty* 
 PyProperty::clone() const
 {
   return new PyProperty(*this);

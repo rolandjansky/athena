@@ -7,6 +7,7 @@
 // PyAthenaSvc.cxx 
 // Implementation file for class PyAthena::Svc
 // Author: S.Binet<binet@cern.ch>
+// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -18,6 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaSvc.h"
+#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -38,7 +40,7 @@ namespace PyAthena {
 ////////////////
 Svc::Svc( const std::string& name, ISvcLocator* svcLocator ) :
   SvcBase_t( name, svcLocator ),
-  m_self   ( 0 )
+  m_self   ( nullptr )
 {}
 
 // Destructor
@@ -151,6 +153,7 @@ Svc::typeName() const
 void
 Svc::handle (const Incident& inc)
 {
+  PyGILStateEnsure ensure;
   if (0 == PyObject_HasAttrString (m_self, (char*)"handle")) {
     // python side does not implement 'handle'. Fair enough.
     // XXX FIXME: could say something though: we have been registered as 
@@ -186,6 +189,7 @@ bool
 Svc::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
+  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
@@ -231,4 +235,3 @@ Svc::setPyAttr( PyObject* o )
 /////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthenaPython
-

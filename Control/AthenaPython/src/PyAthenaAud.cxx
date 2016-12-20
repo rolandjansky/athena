@@ -7,6 +7,7 @@
 // PyAthenaAud.cxx 
 // Implementation file for class PyAthena::Aud
 // Author: S.Binet<binet@cern.ch>
+// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -18,6 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAud.h"
+#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -38,14 +40,18 @@ namespace PyAthena {
 
 Aud::Aud( const std::string& name, ISvcLocator* svcLocator ) :
   ::Auditor( name, svcLocator ),
-  m_self   ( 0 )
+  m_self   ( nullptr )
 {}
 
 // Destructor
 ///////////////
 Aud::~Aud()
 { 
-  Py_XDECREF( m_self );
+  if ( m_self ) {
+    PyGILStateEnsure ensure;
+    Py_DECREF( m_self );
+    m_self = nullptr;
+  }
 }
 
 // Athena Auditor's Hooks
@@ -289,6 +295,7 @@ bool
 Aud::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
+  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
@@ -333,4 +340,3 @@ Aud::setPyAttr( PyObject* o )
 }
 
 } //> end namespace PyAthena
-

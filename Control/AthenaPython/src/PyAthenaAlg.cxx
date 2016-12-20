@@ -7,6 +7,7 @@
 // PyAthenaAlg.cxx 
 // Implementation file for class PyAthena::Alg
 // Author: S.Binet<binet@cern.ch>
+// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -18,6 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAlg.h"
+#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -37,7 +39,7 @@ namespace PyAthena {
 ////////////////
 Alg::Alg( const std::string& name, ISvcLocator* svcLocator ) :
   AlgBase_t( name, svcLocator ),
-  m_self   ( 0 )
+  m_self   ( nullptr )
 {}
 
 // Destructor
@@ -45,7 +47,11 @@ Alg::Alg( const std::string& name, ISvcLocator* svcLocator ) :
 Alg::~Alg()
 { 
   ATH_MSG_DEBUG("Calling destructor");
-  Py_XDECREF( m_self );
+  if ( m_self ) {
+    PyGILStateEnsure ensure;
+    Py_DECREF( m_self );
+    m_self = nullptr;
+  }
 }
 
 // Framework's Hooks
@@ -138,6 +144,7 @@ bool
 Alg::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
+  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
