@@ -18,7 +18,7 @@ void PixelRDOElemLinkVecCnv_p1::persToTrans(const PixelRDOElemLinkVec_p1* pers,
 //         log << MSG::ERROR
 //             << "persToTrans: index " <<   pers->m_pixelRDOs[i].m_contIndex << " " 
 //             << pers->m_pixelRDOs[i].m_elementIndex 
-//             << endreq;
+//             << endmsg;
       m_elementLinkCnv.persToTrans(&pers->m_pixelRDOs[i], &trans->pixelRDOs()[i], log);
     }
 }
@@ -36,7 +36,7 @@ void PixelRDOElemLinkVecCnv_p1::transToPers(const PixelRDOElemLinkVec* trans,
 //         log << MSG::ERROR
 //             << "transToPers: index " <<   MSG::hex 
 //             << trans->m_pixelRDOs[i].index() << " " << MSG::dec
-//             << endreq;
+//             << endmsg;
       m_elementLinkCnv.transToPers( &trans->pixelRDOs()[i], &pers->m_pixelRDOs[i], log);
     }
 }

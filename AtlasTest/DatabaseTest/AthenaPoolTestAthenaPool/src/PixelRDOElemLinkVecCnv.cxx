@@ -15,21 +15,21 @@ PixelRDOElemLinkVecCnv::PixelRDOElemLinkVecCnv(ISvcLocator* svcLoc) :
 
 
 PixelRDOElemLinkVecPERS* PixelRDOElemLinkVecCnv::createPersistent(PixelRDOElemLinkVec* trans) {
-    MsgStream log(messageService(), "PixelRDOElemLinkVecCnv");
-    log << MSG::DEBUG << "Writing PixelRDOElemLinkVec_p1" << endreq;
+    MsgStream log(msgSvc(), "PixelRDOElemLinkVecCnv");
+    log << MSG::DEBUG << "Writing PixelRDOElemLinkVec_p1" << endmsg;
     PixelRDOElemLinkVecPERS* pers=new PixelRDOElemLinkVecPERS();
     m_converter_p1.transToPers(trans,pers,log); 
     return pers;
 }
     
 PixelRDOElemLinkVec* PixelRDOElemLinkVecCnv::createTransient() {
-    MsgStream log(messageService(), "PixelRDOElemLinkVecCnv" );
+    MsgStream log(msgSvc(), "PixelRDOElemLinkVecCnv" );
     // Search for persistent version to convert - last version first
     PixelRDOElemLinkVec* trans = 0;
     if (compareClassGuid(m_guid1)) {
         trans=new PixelRDOElemLinkVec;
         log << MSG::DEBUG << "Read PixelRDOElemLinkVec_p1. GUID=" 
-            << m_classID.toString() << endreq;
+            << m_classID.toString() << endmsg;
         PixelRDOElemLinkVec_p1* pers=poolReadObject<PixelRDOElemLinkVec_p1>();
         m_converter_p1.persToTrans(pers,trans,log);
         delete pers;
@@ -37,7 +37,7 @@ PixelRDOElemLinkVec* PixelRDOElemLinkVecCnv::createTransient() {
     }
     else {
         log << MSG::ERROR << "Unsupported persistent version of PixelRDOElemLinkVec GUID=" 
-            << m_classID.toString() << endreq;
+            << m_classID.toString() << endmsg;
         throw std::runtime_error("Unsupported persistent version of PixelRDOElemLinkVec");
     }
     return trans;
