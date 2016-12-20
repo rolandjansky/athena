@@ -30,7 +30,7 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
-    virtual void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) = 0;
+    virtual void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const = 0;
 
   };
 

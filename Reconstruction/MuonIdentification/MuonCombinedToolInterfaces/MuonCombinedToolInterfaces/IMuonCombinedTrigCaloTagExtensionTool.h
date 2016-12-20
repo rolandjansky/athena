@@ -31,7 +31,7 @@ namespace MuonCombined {
     /**IMuonCombinedTrigCaloTagExtensionTool interface: build combined muons from ID and MS candidates */    
     virtual void extend( const InDetCandidateCollection& inDetCandidates, 
                          const CaloCellContainer* caloCellCont = nullptr,
-                         const xAOD::CaloClusterContainer* caloClusterCont = nullptr ) const = 0;
+                         const xAOD::CaloClusterContainer* caloClusterCont = nullptr ) = 0;
   };
 
   inline const InterfaceID& IMuonCombinedTrigCaloTagExtensionTool::interfaceID()

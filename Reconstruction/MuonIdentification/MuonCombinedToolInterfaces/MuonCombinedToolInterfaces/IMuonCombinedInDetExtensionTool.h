@@ -27,7 +27,7 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedInDetExtensionTool interface: build combined muons from ID and MS candidates */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates ) const = 0;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates ) = 0;
 
   };
 
