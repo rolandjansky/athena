@@ -16,15 +16,21 @@ class egammaKeysDict:
     TrackParticle = [ 'xAOD::TrackParticleContainer', '', '' ,'']
     )
 
+  ShowerShapesSuppress = '-e033.-e011.-e333.-e335.-e337.-e377' 
+  PhotonisemSupress = '.-isEMLoose.-isEMTight'
+  ElectronisemSupress = '.-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMLoose.-isEMMultiLepton.-isEMMedium.-isEMTight'
+  FwdElectronisemSupress = '-isEMTight.-isEMMedium.-isEMLoose'
+
+
   outputs = dict(
     Conversion =    [ 'xAOD::VertexContainer', 'GSFConversionVertices','-vxTrackAtVertex.' , ''],
     Cluster  =      [ 'xAOD::CaloClusterContainer', 'egammaClusters', '','' ],
     TopoSeededCluster  = [ 'xAOD::CaloClusterContainer', 'egammaTopoSeededClusters', '','-CellLink' ],
-    Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '','' ],
+    Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '',ShowerShapesSuppress+ElectronisemSupress ],
     EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '','' ],
-    FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '', ''],
+    FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '',FwdElectronisemSupress ],
     FwdCluster  =   [ 'xAOD::CaloClusterContainer', 'ForwardElectronClusters','-SisterCluster','.-CellLink' ],
-    Photon   =      [ 'xAOD::PhotonContainer', 'Photons', '','' ],
+    Photon   =      [ 'xAOD::PhotonContainer', 'Photons', '',ShowerShapesSuppress+PhotonisemSupress ],
     TrackParticle = [ 'xAOD::TrackParticleContainer', 'GSFTrackParticles','-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi',''],
     Track         = [ 'TrackCollection', 'GSFTracks', '',''],
     Truth         = [ 'xAOD::TruthParticleContainer', 'egammaTruthParticles','-caloExtension','']
