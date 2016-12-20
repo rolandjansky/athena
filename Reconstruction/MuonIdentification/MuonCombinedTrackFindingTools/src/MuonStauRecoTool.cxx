@@ -156,7 +156,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
+  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
@@ -179,7 +179,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) const {
+  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
     
     /** STAGE 0 
         Preselection, preparation of truth related quantities, extrapolation in muon system
@@ -295,7 +295,7 @@ namespace MuonCombined {
   }
   
   bool MuonStauRecoTool::processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension, 
-                                                      MuonStauRecoTool::CandidateVec& candidates ) const {
+                                                      MuonStauRecoTool::CandidateVec& candidates ) {
 
     // loop over intersections, get associated data
     AssociatedData associatedData;
@@ -311,7 +311,7 @@ namespace MuonCombined {
     return refineCandidates(candidates);
   }
 
-  bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) const {
+  bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) {
 
     // keep track of candidates for which segments are found    
     CandidateVec refinedCandidates;
@@ -385,7 +385,7 @@ namespace MuonCombined {
     return !candidates.empty();
   }
   
-  void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) const {
+  void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
     
     const Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
@@ -851,7 +851,7 @@ namespace MuonCombined {
 
   }
 
-  bool MuonStauRecoTool::resolveAmbiguities( MuonStauRecoTool::CandidateVec& candidates ) const {
+  bool MuonStauRecoTool::resolveAmbiguities( MuonStauRecoTool::CandidateVec& candidates ) {
 
     ATH_MSG_DEBUG("Resolving ambiguities: candidates " << candidates.size());
     
@@ -900,7 +900,7 @@ namespace MuonCombined {
 
 
 
-  bool MuonStauRecoTool::combineCandidates( const xAOD::TrackParticle& indetTrackParticle, MuonStauRecoTool::CandidateVec& candidates ) const {
+  bool MuonStauRecoTool::combineCandidates( const xAOD::TrackParticle& indetTrackParticle, MuonStauRecoTool::CandidateVec& candidates ) {
     
     // keep track of candidates that have a successfull fit
     CandidateVec combinedCandidates;
@@ -1099,7 +1099,7 @@ namespace MuonCombined {
   }
 
   bool MuonStauRecoTool::extractTimeMeasurements(  const Muon::MuonSystemExtension& muonSystemExtension, 
-                                                   MuonStauRecoTool::AssociatedData& associatedData ) const {
+                                                   MuonStauRecoTool::AssociatedData& associatedData ) {
 
     // get layer intersections
     const std::vector<Muon::MuonSystemExtension::Intersection>& layerIntersections = muonSystemExtension.layerIntersections();
@@ -1318,7 +1318,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) const {
+  void MuonStauRecoTool::extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) {
    
     // extract trigger hits per chamber
     const MuonHough::MuonLayerHough::Maximum& maximum = *maximumData.maximum;
@@ -1371,7 +1371,7 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::createRpcTimeMeasurementsFromClusters( const Muon::MuonSystemExtension::Intersection& intersection,
                                                                 const std::vector< Muon::RpcClusterObj>& clusterObjects, 
-                                                                MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements ) const {
+                                                                MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements ) {
 
     // loop over the clusters
     for( auto& cluster : clusterObjects ){
@@ -1411,7 +1411,7 @@ namespace MuonCombined {
     }
   }
 
-  void MuonStauRecoTool::associateHoughMaxima( MuonStauRecoTool::LayerData& layerData ) const {
+  void MuonStauRecoTool::associateHoughMaxima( MuonStauRecoTool::LayerData& layerData ) {
     
     // get intersection and layer identifiers
     const Muon::MuonSystemExtension::Intersection& intersection = layerData.intersection;
@@ -1517,7 +1517,7 @@ namespace MuonCombined {
     }
   }  
 
-  void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) const {
+  void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) {
     if( m_recoValidationTool.empty() ) return;
 
     for( const auto& candidate : candidates ){

@@ -46,22 +46,22 @@ namespace MuonCombined {
     /** Default AlgTool functions */
     MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~MuonInsideOutRecoTool();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonInsideOutRecoTool; }
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
-    void extend( const InDetCandidateCollection& inDetCandidates ) const;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates ) override;
 
     /** find the best candidate for a given set of segments */
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > 
-    findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
+    findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers);
 
   private:
     /** handle a single candidate */
-    void handleCandidate( const InDetCandidate& inDetCandidate ) const;
+    void handleCandidate( const InDetCandidate& inDetCandidate );
 
     /** add muon candidate to indet candidate */
     void addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate, 

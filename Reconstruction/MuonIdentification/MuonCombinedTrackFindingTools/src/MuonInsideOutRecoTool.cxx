@@ -76,7 +76,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
+  void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
@@ -86,7 +86,7 @@ namespace MuonCombined {
     }
   }
 
-  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) const {
+  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
     
     const xAOD::TrackParticle& indetTrackParticle = indetCandidate.indetTrackParticle();
     if( !indetTrackParticle.track() || indetTrackParticle.pt() < m_idTrackMinPt ) return;
@@ -160,7 +160,7 @@ namespace MuonCombined {
 
 
   std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > 
-  MuonInsideOutRecoTool::findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const {
+  MuonInsideOutRecoTool::findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) {
 
     // resolve ambiguities 
     std::vector< Muon::MuonCandidate > resolvedCandidates;
