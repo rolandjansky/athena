@@ -57,15 +57,15 @@ FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSv
   m_getRefitVertex_Fast(false), 
   m_getRefitVertex(true),
   m_getOfflineVertex(true),
-  m_getTruthVertex(true),
+  m_getTruthVertex(false),
   m_getClusters(false),
   m_getOfflineClusters(false),
   m_residualCalc("Trk::ResidualPullCalculator"),
 
   m_DataProviderSvc("IFTK_DataProviderSvc/IFTK_DataProviderSvc", name),
   m_iUpdator ("Trk::KalmanUpdator"),
-  m_fillHists(true),
-  m_fillTree(true)
+  m_fillHists(false),
+  m_fillTree(false)
 
 {
   declareProperty("RDO_CollectionName",m_ftk_raw_trackcollection_Name, "Collection name of RDO");
@@ -192,27 +192,28 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   StatusCode scEv = evtStore()->retrieve(eventInfo);
   if (scEv.isFailure()) {
         ATH_MSG_ERROR( "Could not retrieve event info" );
+  } else {
+    int eventNumber = eventInfo->event_ID()->event_number();
+    ATH_MSG_DEBUG(" Event " << eventNumber);
+    
+    const EventID* eventID( eventInfo->event_ID());
+    ATH_MSG_DEBUG( "entered execution for run" << eventID->run_number()
+		   << "event" << eventID->event_number());
+  
+    const TriggerInfo *triggerInfo(eventInfo->trigger_info());
+  
+    RunNumber = eventID->run_number();
+    EventNumber = eventID->event_number();
+    LumiBlock = eventID->lumi_block();
+    BCID = eventID->bunch_crossing_id();
+    averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
+    actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
+    extendedLevel1ID = triggerInfo->extendedLevel1ID();
+    level1TriggerType = triggerInfo->level1TriggerType();
+    std::vector<unsigned int> info = triggerInfo->level1TriggerInfo();
+
+    for (unsigned int i = 0; i < info.size(); i++) level1TriggerInfo.push_back(info[i]);
   }
-  int eventNumber = eventInfo->event_ID()->event_number();
-  ATH_MSG_DEBUG(" Event " << eventNumber);
-
-  const EventID* eventID( eventInfo->event_ID());
-  ATH_MSG_DEBUG( "entered execution for run" << eventID->run_number()
-		 << "event" << eventID->event_number());
-  
-  const TriggerInfo *triggerInfo(eventInfo->trigger_info());
-  
-  RunNumber = eventID->run_number();
-  EventNumber = eventID->event_number();
-  LumiBlock = eventID->lumi_block();
-  BCID = eventID->bunch_crossing_id();
-  averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
-  actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
-  extendedLevel1ID = triggerInfo->extendedLevel1ID();
-  level1TriggerType = triggerInfo->level1TriggerType();
-  std::vector<unsigned int> info = triggerInfo->level1TriggerInfo();
-
-  for (unsigned int i = 0; i < info.size(); i++) level1TriggerInfo.push_back(info[i]);
 
   unsigned int track_requirement = 3;
 
@@ -239,28 +240,33 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   if (m_getTrackParticles) {
     ATH_MSG_DEBUG( " Getting TrackParticles from converted tracks from DataProviderSvc" );
     xAOD::TrackParticleContainer *tpc  = m_DataProviderSvc->getTrackParticles(false);
-    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpc->size() << " TrackParticles created from converted tracks" );
+    if (!tpc) {
+      ATH_MSG_DEBUG( "DataProviderSvc->getTrackParticles(false) returned nullptr"); 
+    } else {
 
-    //       if ( evtStore()->get ( tpc, m_TrackParticleCollectionName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get FTK TrackParticleCollection with name " <<  m_TrackParticleCollectionName );
-    //       }
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  tpc->size()<< " TrackParticles" );
-
-    int itpc = 0;
-    for ( auto ptp =  tpc->begin(); ptp !=  tpc->end(); ptp++, itpc++) {
-      //uint8_t NumOfPixHits = 0;
-      //uint8_t NumOfSCTHits = 0;
-      //if (!(*ptp)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) ATH_MSG_DEBUG( "Could not retrieve number of SCT hits");
-      //if (!(*ptp)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) ATH_MSG_DEBUG( "Could not retrieve number of Pixel hits");
-
-      double p = 1e10;
-      if (fabs((*ptp)->qOverP()) >=1e-9) p = 1./(*ptp)->qOverP();
-      ATH_MSG_VERBOSE( "itp:" << itpc << ": q*pT " << (*ptp)->pt()*(*ptp)->charge() << " eta " << (*ptp)->eta() << " phi " << (*ptp)->phi0() <<
-          " d0: " << (*ptp)->d0() << " z0: " << (*ptp)->z0() << " p " << p );
+      ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpc->size() << " TrackParticles created from converted tracks" );
+      
+      //       if ( evtStore()->get ( tpc, m_TrackParticleCollectionName).isFailure() ) {
+      //	 ATH_MSG_DEBUG( "Failed to get FTK TrackParticleCollection with name " <<  m_TrackParticleCollectionName );
+      //       }
+      
+      ATH_MSG_VERBOSE( " " );
+      ATH_MSG_VERBOSE( " Printing information for " <<  tpc->size()<< " TrackParticles" );
+      
+      int itpc = 0;
+      for ( auto ptp =  tpc->begin(); ptp !=  tpc->end(); ptp++, itpc++) {
+	//uint8_t NumOfPixHits = 0;
+	//uint8_t NumOfSCTHits = 0;
+	//if (!(*ptp)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) ATH_MSG_DEBUG( "Could not retrieve number of SCT hits");
+	//if (!(*ptp)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) ATH_MSG_DEBUG( "Could not retrieve number of Pixel hits");
+	
+	double p = 1e10;
+	if (fabs((*ptp)->qOverP()) >=1e-9) p = 1./(*ptp)->qOverP();
+	ATH_MSG_VERBOSE( "itp:" << itpc << ": q*pT " << (*ptp)->pt()*(*ptp)->charge() << " eta " << (*ptp)->eta() << " phi " << (*ptp)->phi0() <<
+			 " d0: " << (*ptp)->d0() << " z0: " << (*ptp)->z0() << " p " << p );
+      }
+      delete (tpc);
     }
-    delete (tpc);
   }
 
 
@@ -270,26 +276,30 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   if (m_getRefitTrackParticles) {
     ATH_MSG_DEBUG( " Getting TrackParticles from refitted tracks from DataProviderSvc" );
     xAOD::TrackParticleContainer *tpr  = m_DataProviderSvc->getTrackParticles(true);
-    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpr->size() << " TrackParticles created from refitted tracks" );
-    //       if ( evtStore()->get ( tpr, m_refitTrackParticleCollectionName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackParticleCollection with name " <<  m_refitTrackParticleCollectionName );
-    //       }
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  tpr->size()<< " refitted TrackParticles" );
-
-    int itpr=0;
-    for ( auto ptpr =  tpr->begin(); ptpr !=  tpr->end(); ptpr++, itpr++) {
-      double p = 1.e10;
-      if ((*ptpr)->qOverP()!=0.) p = 1./(*ptpr)->qOverP();
-      //uint8_t NumOfPixHits = 0;
-      //uint8_t NumOfSCTHits = 0;
-      //if (!(*ptpr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << MSG::DEBUG << "Could not retrieve number of SCT hits");
-      //if (!(*ptpr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << MSG::DEBUG << "Could not retrieve number of Pixel hits");
-      ATH_MSG_VERBOSE( itpr << ": q*pT " << (*ptpr)->pt()*(*ptpr)->charge() << " eta " << (*ptpr)->eta() << " phi " << (*ptpr)->phi0() <<
-          " d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << (*ptpr)->z0() );
+    if (!tpr) {
+      ATH_MSG_DEBUG( "DataProviderSvc->getTrackParticles(true) returned nullptr"); 
+    } else {
+      ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpr->size() << " TrackParticles created from refitted tracks" );
+      //       if ( evtStore()->get ( tpr, m_refitTrackParticleCollectionName).isFailure() ) {
+      //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackParticleCollection with name " <<  m_refitTrackParticleCollectionName );
+      //       }
+      
+      ATH_MSG_VERBOSE( " " );
+      ATH_MSG_VERBOSE( " Printing information for " <<  tpr->size()<< " refitted TrackParticles" );
+      
+      int itpr=0;
+      for ( auto ptpr =  tpr->begin(); ptpr !=  tpr->end(); ptpr++, itpr++) {
+	double p = 1.e10;
+	if ((*ptpr)->qOverP()!=0.) p = 1./(*ptpr)->qOverP();
+	//uint8_t NumOfPixHits = 0;
+	//uint8_t NumOfSCTHits = 0;
+	//if (!(*ptpr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << MSG::DEBUG << "Could not retrieve number of SCT hits");
+	//if (!(*ptpr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << MSG::DEBUG << "Could not retrieve number of Pixel hits");
+	ATH_MSG_VERBOSE( itpr << ": q*pT " << (*ptpr)->pt()*(*ptpr)->charge() << " eta " << (*ptpr)->eta() << " phi " << (*ptpr)->phi0() <<
+			 " d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << (*ptpr)->z0() );
+      }
+      delete (tpr);
     }
-    delete (tpr);
   }
 
 
@@ -879,6 +889,10 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
 void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
   ATH_MSG_DEBUG("Getting converted tracks from DataProviderSvc");
   TrackCollection *track_collection = m_DataProviderSvc->getTracks(false);
+  if (!track_collection) {
+    ATH_MSG_DEBUG("DataProviderSvc->getTracks(false) returned nullptr");
+    return;
+  }
   ATH_MSG_DEBUG("DataProviderSvc returned " <<  track_collection->size() << " converted tracks");
   //  if ( evtStore()->record ( track_collection, m_TrackCollectionName).isFailure() ) {                                                                                      
   //   ATH_MSG_DEBUG("Failed to record FTK TrackCollection with name " <<  m_TrackCollectionName);                                                                            
@@ -950,14 +964,16 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
     }
     
     trkPt = 1.e10;
-    if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP])>=1e-9) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-    ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
-		     " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-		     " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-		     " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-		     " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
-		     " nPix: " << nPix << " nSCT: " << nSCT );
-
+    const Trk::Perigee* peri=(*track_it)->perigeeParameters();
+    if (peri) {
+      if (fabs(peri->parameters()[Trk::qOverP])>=1e-9) trkPt= sin(peri->parameters()[Trk::theta])/peri->parameters()[Trk::qOverP];
+      ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
+		       " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
+		       " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
+		       " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
+		       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+		       " nPix: " << nPix << " nSCT: " << nSCT );
+    }
   }
   delete(track_collection);
 }
@@ -966,6 +982,10 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
 void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
   ATH_MSG_DEBUG( " Getting refitted tracks from DataProviderSvc" );
   TrackCollection *refitTracks  = m_DataProviderSvc->getTracks(true);
+  if (!refitTracks) {
+    ATH_MSG_DEBUG( "DataProviderSvc->getTracks(true) returned nullptr");
+    return;
+  }
   ATH_MSG_DEBUG( "DataProviderSvc returned " <<  refitTracks->size() << " refitted tracks" );
   //       if ( evtStore()->get ( refitTracks, m_refitTrackCollectionName).isFailure() ) {
   //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackCollection with name " <<  m_refitTrackCollectionName );
@@ -1562,6 +1582,7 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
   
   if ( evtStore()->retrieve(offlineVertices,"PrimaryVertices").isFailure() || !offlineVertices ) {
     ATH_MSG_ERROR("Could not retrieve offline algo primary vertices");
+    return;
   }
   else {
     
@@ -1677,6 +1698,7 @@ void FTK_RDO_ReaderAlgo::Fill_Truth_Vtx(){
 
      if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
        ATH_MSG_ERROR("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
+       return;
      }
     
      if (importedTruthVertices->size() !=0 ){
