@@ -121,6 +121,8 @@ public:
   static bool writeGraphToFile(SoNode*root, const QString& filename);//returns false in case of errors
   static SoSeparator* readGraphFromFile(const QString& filename);//returns 0 in case of errors
 
+  static bool writeGraphToVRMLFile(SoNode*root, const QString& filename);//returns false in case of errors
+
   ///////////////////////////////////////////////////////////
   //    Simple materials (color/brightness/transparency)   //
   ///////////////////////////////////////////////////////////

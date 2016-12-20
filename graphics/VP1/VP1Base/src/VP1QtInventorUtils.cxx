@@ -38,6 +38,8 @@
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/SoDB.h>
 #include <Inventor/actions/SoWriteAction.h>
+#include <Inventor/actions/SoToVRML2Action.h>
+#include <Inventor/VRMLnodes/SoVRMLGroup.h>
 
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -360,6 +362,7 @@ public:
 	static size_t buffer_size;
 	static void * buffer_realloc(void * bufptr, size_t size);
 	static QString buffer_writeaction(SoNode * root);
+	static void buffer_vrmlwriteaction(SoNode * root, const QString& filename);
 
 	static bool lineWidthAndPointSizeNeedsInit;
 	static double allowedLineWidthMin;
@@ -1399,6 +1402,24 @@ QString VP1QtInventorUtils::Imp::buffer_writeaction(SoNode * root)
 }
 
 //_____________________________________________________________________________________
+void VP1QtInventorUtils::Imp::buffer_vrmlwriteaction(SoNode * root, const QString& filename)
+{
+	SoToVRML2Action vwa;
+	
+	vwa.apply(root);
+	SoVRMLGroup * newroot = vwa.getVRML2SceneGraph();
+
+    SoOutput out;
+    out.openFile(qPrintable(filename));
+    out.setHeaderString("#VRML V2.0 utf8");
+    SoWriteAction wra(&out);
+    wra.apply(newroot);
+    out.closeFile();
+	newroot->unref();
+	return;
+}
+
+//_____________________________________________________________________________________
 bool VP1QtInventorUtils::writeGraphToFile(SoNode*root, const QString& filename)
 {
 	if (!root)
@@ -1427,6 +1448,29 @@ SoSeparator* VP1QtInventorUtils::readGraphFromFile(const QString& filename)
 		return 0;
 	return SoDB::readAll(&in);
 }
+
+
+//_____________________________________________________________________________________
+bool VP1QtInventorUtils::writeGraphToVRMLFile(SoNode*root, const QString& filename)
+{
+	if (!root)
+		return false;
+
+	root->ref();
+	Imp::buffer_vrmlwriteaction(root, filename);
+	root->unrefNoDelete();
+
+	// QFile data(filename);
+	// if (data.open(QFile::WriteOnly | QFile::Truncate)) {
+	// 	QTextStream out(&data);
+	// 	out << s << endl;
+	// 	return true;
+	// } else {
+	// 	return false;
+	// }
+	return true;
+}
+
 
 /////////////////// OBSOLETE /////////////////////
 #include "VP1Base/VP1MaterialButton.h"

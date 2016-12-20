@@ -80,6 +80,7 @@ public:
   popup_ambientLightAction(0),
   popup_focalLengthAction(0),
   popup_dumpSceneAction(0),
+  popup_dumpSceneVRMLAction(0),
   popup_toSVGAction(0),
   popup_toEPSAction(0),
   popup_resetCameraAction(0),
@@ -213,6 +214,7 @@ public:
 	QAction* popup_ambientLightAction;
 	QAction* popup_focalLengthAction;
 	QAction* popup_dumpSceneAction;
+	QAction* popup_dumpSceneVRMLAction;
 	QAction* popup_toSVGAction;
 	QAction* popup_toEPSAction;
 	QAction* popup_resetCameraAction;
@@ -1856,6 +1858,7 @@ bool VP1ExaminerViewer::Imp::ensureMenuInit()
 	popup_headLightAction = advancedmenu->addAction("&Headlight");
 	popup_ambientLightAction = advancedmenu->addAction("dummy");
 	popup_dumpSceneAction = advancedmenu->addAction("Dump &scene to file");
+	popup_dumpSceneVRMLAction = advancedmenu->addAction("Dump &scene to VRML file");
 	popup_toSVGAction = advancedmenu->addAction("Produce SV&G image");
 	popup_toEPSAction = advancedmenu->addAction("Produce &EPS image");
 
@@ -2216,6 +2219,41 @@ void VP1ExaminerViewer::dumpSceneToFile(QString filename)
 
 }
 
+void VP1ExaminerViewer::dumpSceneToVRMLFile(QString filename){
+	VP1Msg::messageVerbose("VP1ExaminerViewer::dumpSceneToVRMLFile()");
+
+	SoNode * rootnode = getSceneGraph();
+	if (!rootnode)
+		return;
+
+	QWidget * w = getWidget();
+	if (!w)
+		return;
+
+	if(filename.isEmpty()) {
+		if (isAnimating())
+			stopAnimating();
+		filename = QFileDialog::getSaveFileName(w, "Select output file",
+				(d->lastDumpFile.isEmpty()?VP1Settings::defaultFileSelectDirectory():d->lastDumpFile),
+				"VRML2.0/X3D files (*.wrl)",0,QFileDialog::DontResolveSymlinks);
+		if(filename.isEmpty())
+			return;
+		if (!filename.endsWith(".wrl"))
+			filename += ".wrl";
+		d->lastDumpFile=filename;
+	}
+
+	SoGroup * standardisedRoot(0);
+	if ( rootnode->getTypeId().isDerivedFrom(SoGroup::getClassTypeId()))
+		standardisedRoot = VP1HEPVisUtils::convertToStandardScene(static_cast<SoGroup*>(rootnode));
+
+	if (standardisedRoot&&VP1QtInventorUtils::writeGraphToVRMLFile(standardisedRoot, filename))
+		VP1Msg::messageDebug("VP1ExaminerViewer: Dumped scene to VRML file "+filename);
+	else
+		VP1Msg::messageDebug("VP1ExaminerViewer: Error: Problems dumping scene to VRML file "+filename);
+
+}
+
 //____________________________________________________________________
 void VP1ExaminerViewer::produceSVGImage(QString filename)
 {
@@ -2384,6 +2422,12 @@ void VP1ExaminerViewer::showPopupMenu()
 	if ( selAct == d->popup_dumpSceneAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
 		dumpSceneToFile();
+		return;
+	}
+	
+	if ( selAct == d->popup_dumpSceneVRMLAction ) {
+		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
+		dumpSceneToVRMLFile();
 		return;
 	}
 
