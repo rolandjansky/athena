@@ -575,12 +575,12 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
    int iSub=0;
    int nSub=1;
 
-   FTKPatternBySectorReader* preader = new FTKPatternBySectorReader(*pattfile);
+   FTKPatternBySectorForestReader* preader = new FTKPatternBySectorForestReader(*pattfile);
    if(!preader) {
       cerr<<"Error. Cannot read root-file pattern from: "<<pattfile->GetName()<<endl;
       return -1;
    }
-   m_npatterns = preader->GetNPatterns();
+   m_npatterns = preader->GetNPatternsTotal();
    setNPlanes(preader->GetNLayers());
 
    if (maxpatt<0 || m_npatterns<maxpatt) { 
@@ -601,54 +601,46 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
 
    readBankInit();
    
-   FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
-   preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
-   // long npatt = preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
-   // cout<< "Found # "<<npatt<<" patterns."<<endl;
-   
    // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
    int patternID = 0;
    cout << "Reading : [" << flush;
-   while(sectorByCoverage.begin()!=sectorByCoverage.end() && patternID<m_npatterns ) {
-      if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
-      
-      FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
-      sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
-      
-      FTKPatternRootTreeReader* tree=oneSector->second;
-      int sector=oneSector->first;
-      int coverage=tree->GetPattern().GetCoverage();
-      bool isNotEmpty=false;
-      do {
-	 // //showstats(m_patternID, m_npatterns);
-	 // inputpattern->setPatternID(m_patternID);
-	 // inputpattern->setSectorID(sector);
-	 // inputpattern->setCoverage(coverage);
-	 //cout<<patternID<<" "; //hier
-	 const FTKHitPattern& patternData = tree->GetPattern().GetHitPattern();
-	 for( int iplane=0 ; iplane<m_nplanes ; iplane++ ) {
-	    m_patterns[_SSPOS(patternID,iplane)] = patternData.GetHit(iplane); 
+   preader->Rewind();
+   for(int coverage=preader->GetMaxCoverage();coverage;
+         coverage=preader->GetNextCoverage(coverage)) {
+      if(patternID>=m_npatterns) break;
+      for(int sector=preader->GetCoverageFirstSector(coverage);
+          sector>=0;sector=preader->GetCoverageNextSector(coverage,sector)) {
+         if((nSub>1)&&(sector%nSub!=iSub)) continue;
+         if(patternID>=m_npatterns) break;
+
+         if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
+
+         FTKPatternOneSector *data=preader->Read(sector,coverage);
+         for(FTKPatternOneSector::Ptr_t i=data->Begin();i!=data->End();i++) {
+            if(patternID>=m_npatterns) break;
+
+            // //showstats(m_patternID, m_npatterns);
+            // inputpattern->setPatternID(m_patternID);
+            // inputpattern->setSectorID(sector);
+            // inputpattern->setCoverage(coverage);
+            //cout<<patternID<<" "; //hier
+            const FTKHitPattern& patternData =data->GetHitPattern(i);
+
+            for( int iplane=0 ; iplane<m_nplanes ; iplane++ ) {
+               m_patterns[_SSPOS(patternID,iplane)] = patternData.GetHit(iplane); 
 	    //cout<<m_patterns[_SSPOS(patternID,iplane)]<<" "; //hier
-	 }
-	 m_patterns[_SSPOS(patternID,m_nplanes)] = sector;
-	 m_patternCoverage[patternID] = coverage;
-	 m_totalCoverage += coverage;
-	 (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
+            }
+            m_patterns[_SSPOS(patternID,m_nplanes)] = sector;
+            m_patternCoverage[patternID] = coverage;
+            m_totalCoverage += coverage;
+            (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
 	 //cout<<sector<<" "<<coverage<<" "<<endl;; //hier
 
-	 patternID++; // increment the global pattern ID
-	 isNotEmpty = tree->ReadNextPattern();
-	 // if(!tree->ReadNextPattern()) {
-	 //    isEmpty=true;
-	 //    break;
-	 // }
-      } 
-      while(tree->GetPattern().GetCoverage()==coverage && isNotEmpty && patternID<m_npatterns);
-      // add sector again to (coveraged ordered) set 
-      if(isNotEmpty) {
-	 sectorByCoverage.insert(oneSector);
-      }	
-   } // end while(sectors)
+            patternID++; // increment the global pattern ID
+         } // end for (patterns)
+         delete data;
+      } // end for(sector)
+   } // end for(coverage)
    cout << "]" << endl;
   
    cout<<patternID<<" patterns read successfully."<<endl;
